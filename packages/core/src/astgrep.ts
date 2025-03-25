@@ -9,7 +9,7 @@ import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
 
 /**
- * Searches for files matching specific criteria based on file patterns and match rules, 
+ * Searches for files matching specific criteria based on file patterns and match rules,
  * and performs analysis or modifications on matched nodes in the files.
  *
  * @param lang - The language of the files to search, such as JavaScript or HTML.
@@ -126,7 +126,7 @@ export async function astGrepFindFiles(
  * @param nodes - An array of AST nodes whose root edits need to be written.
  * @param options - Optional configuration for cancellation, containing a cancellation token to handle operation interruptions.
  *
- * The function iterates through the unique roots of the provided nodes, checks for file content differences, 
+ * The function iterates through the unique roots of the provided nodes, checks for file content differences,
  * and writes updated content to the respective files if changes are detected.
  */
 export async function astGrepWriteRootEdits(

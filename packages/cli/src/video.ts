@@ -2,12 +2,12 @@ import { FFmepgClient } from "../../core/src/ffmpeg"
 
 /**
  * Extracts audio from a given media file.
- * 
+ *
  * @param file - The path to the input media file.
  * @param options - Configuration options for audio extraction.
  * @param options.force - Whether to force audio conversion regardless of input format.
  * @param options.transcription - Whether to enable audio transcription during the extraction process.
- * 
+ *
  * Logs the resulting audio file path upon completion.
  */
 export async function extractAudio(

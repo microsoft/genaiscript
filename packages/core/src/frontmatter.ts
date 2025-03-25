@@ -5,11 +5,11 @@ import { YAMLTryParse, YAMLStringify } from "./yaml"
 
 /**
  * Parses the frontmatter section of a text input and attempts to convert it into a structured format.
- * 
+ *
  * @param text The text or file content to parse. Can either be a raw string or a WorkspaceFile object.
- * @param options Optional parsing options: 
+ * @param options Optional parsing options:
  *   - format: Specifies the expected frontmatter format. Supported formats are "yaml", "json", "toml", or "text".
- * 
+ *
  * @returns An object containing:
  *   - text: The raw frontmatter string.
  *   - value: The parsed frontmatter as a structured object, depending on the specified format.
@@ -78,7 +78,7 @@ export function splitMarkdown(text: string | WorkspaceFile): {
  * Updates the frontmatter section of a given text and returns the updated content.
  *
  * @param text - The input text containing frontmatter and content.
- * @param newFrontmatter - An object representing the new frontmatter to merge or apply. 
+ * @param newFrontmatter - An object representing the new frontmatter to merge or apply.
  *   Keys with `null` remove corresponding fields, keys with `undefined` are ignored.
  * @param options - Optional configuration for output format:
  *   - `format`: Specifies the frontmatter format ("yaml" or "json"). Defaults to "yaml".

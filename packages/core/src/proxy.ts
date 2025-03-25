@@ -4,8 +4,8 @@ import { HttpsProxyAgent } from "https-proxy-agent"
  * Resolves an HTTP proxy agent based on environment variables.
  *
  * This function checks various environment variables to locate
- * a proxy configuration. If a proxy is found, it returns an 
- * instance of `HttpsProxyAgent` configured with the proxy URL; 
+ * a proxy configuration. If a proxy is found, it returns an
+ * instance of `HttpsProxyAgent` configured with the proxy URL;
  * otherwise, it returns null.
  *
  * Environment variables checked (in order of precedence):

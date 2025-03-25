@@ -80,8 +80,8 @@ export async function resolveTokenEncoder(
 
 /**
  * Splits the content of a file or string into manageable chunks based on the provided configuration.
- * 
- * @param file - The content to be chunked; can be a string or a workspace file object. 
+ *
+ * @param file - The content to be chunked; can be a string or a workspace file object.
  *               If a workspace file, its content is resolved and processed.
  * @param options - Optional configuration for chunk generation.
  *                  - model: Model identifier used to resolve the tokenizer.

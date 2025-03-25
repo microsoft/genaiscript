@@ -12,7 +12,7 @@ import { host } from "./host"
 
 /**
  * Constructs a resolved file path within the `.genaiscript` directory of the project.
- * 
+ *
  * @param segments - Additional path segments to append to the `.genaiscript` directory path.
  * @returns The resolved path as a string.
  */
@@ -90,9 +90,9 @@ export function getConvertDir(scriptId: string) {
  *
  * @returns The path to the created video directory.
  *
- * This function resolves the path for a "videos" directory within the 
- * `.genaiscript` folder, appends a timestamped folder name, ensures the 
- * directory's existence, and returns the directory path. 
+ * This function resolves the path for a "videos" directory within the
+ * `.genaiscript` folder, appends a timestamped folder name, ensures the
+ * directory's existence, and returns the directory path.
  */
 export async function createVideoDir() {
     const dir = dotGenaiscriptPath("videos", friendlyDate())

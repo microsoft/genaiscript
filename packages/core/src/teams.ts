@@ -16,9 +16,9 @@ import { frontmatterTryParse, splitMarkdown } from "./frontmatter"
 /**
  * Converts a Markdown string into HTML formatted for Microsoft Teams.
  *
- * @param markdown - The Markdown content to be converted. 
+ * @param markdown - The Markdown content to be converted.
  * Supports headers, lists, links, bold, italic, underlined, code, strikethrough, and blockquotes.
- * 
+ *
  * @returns An object containing:
  * - `content`: The converted HTML string suitable for Microsoft Teams.
  * - `subject`: The extracted title if available, or undefined.
@@ -313,14 +313,14 @@ class MicrosoftTeamsChannelClient implements MessageChannelClient {
 /**
  * Creates a Microsoft Teams Channel Client for interacting with a Teams channel.
  * This client allows posting messages and managing attachments in the specified channel.
- * 
+ *
  * @param url The URL of the Microsoft Teams channel. Must be in the format:
  *            `https://teams.microsoft.com/.../channel/<channelId>/<channelName>?groupId=<teamId>`.
- *            If not provided, the function attempts to retrieve the URL from the 
+ *            If not provided, the function attempts to retrieve the URL from the
  *            GENAISCRIPT_TEAMS_CHANNEL_URL or GENAISCRIPT_TEAMS_URL environment variables.
- * 
+ *
  * @throws Error if the provided URL is invalid or cannot be parsed.
- * 
+ *
  * @returns An instance of a MicrosoftTeamsChannelClient for interacting with the specified channel.
  */
 export function createMicrosoftTeamsChannelClient(

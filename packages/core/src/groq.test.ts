@@ -12,7 +12,7 @@ describe("GROQEvaluate", async () => {
     test("filtered query", async () => {
         const data = [
             { id: 1, name: "first" },
-            { id: 2, name: "second" }
+            { id: 2, name: "second" },
         ]
         const res = await GROQEvaluate("*[id == 1]", data)
         assert.deepEqual(res, [{ id: 1, name: "first" }])
@@ -21,10 +21,10 @@ describe("GROQEvaluate", async () => {
     test("query with params", async () => {
         const data = [
             { id: 1, name: "first" },
-            { id: 2, name: "second" }
+            { id: 2, name: "second" },
         ]
         const res = await GROQEvaluate("*[id == $id]", data, {
-            params: { id: 2 }
+            params: { id: 2 },
         })
         assert.deepEqual(res, [{ id: 2, name: "second" }])
     })

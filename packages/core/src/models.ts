@@ -26,13 +26,13 @@ export interface ParsedModelType {
  * - `provider:model`
  * - `provider:model:tag`
  * - Optionally, `model:tag` can include `:reasoningEffort` (e.g., high, medium, low).
- * 
+ *
  * Parameters:
  * - id: The model identifier string to parse. Must not be empty.
- * 
+ *
  * Returns:
  * - An object containing provider, family, model, optional tag, and optional reasoningEffort.
- * 
+ *
  * Throws:
  * - Error if the model identifier is not specified.
  */
@@ -73,7 +73,7 @@ export interface ModelConnectionInfo
 
 /**
  * Creates a detailed trace log for a language model connection.
- * 
+ *
  * @param trace - The MarkdownTrace instance used for documenting details.
  * @param options - Configuration options for the model connection:
  *   - `model`: The model identifier.
@@ -96,7 +96,7 @@ export interface ModelConnectionInfo
  *   - `version`: Version of the model.
  *   - `source`: Origin of the model configuration.
  *   - `provider`: The associated service provider.
- * 
+ *
  * Documents data about the model configuration and its behavior, including choices, aliases,
  * and configuration metadata from the runtime environment. Ensures detailed logs for better traceability.
  */
@@ -178,7 +178,7 @@ export function traceLanguageModelConnection(
  * Determines if the provided model identifier is an alias.
  *
  * @param model - The model identifier to check.
- * 
+ *
  * @returns True if the given model identifier is an alias, otherwise false.
  */
 export function isModelAlias(model: string): boolean {
@@ -188,14 +188,14 @@ export function isModelAlias(model: string): boolean {
 
 /**
  * Resolves the final model configuration by following a chain of model aliases.
- * 
+ *
  * Parameters:
  * - model: The model identifier or alias to resolve. Must not be empty.
- * 
+ *
  * Throws:
  * - Error if the model parameter is not specified.
  * - Error if a circular alias reference is detected.
- * 
+ *
  * Returns:
  * - The fully resolved ModelConfiguration object, containing the final model identifier and its source.
  */

@@ -117,7 +117,7 @@ describe("promptParametersSchemaToJSONSchema", () => {
         const result = promptParametersSchemaToJSONSchema(parameters)
         assert.deepStrictEqual(result, {
             type: "object",
-            properties: { key: { type: "number", } },
+            properties: { key: { type: "number" } },
             required: ["key"],
         })
     })

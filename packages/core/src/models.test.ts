@@ -66,9 +66,7 @@ describe("parseModelIdentifier", () => {
         })
     })
     test("anthropic:claude-3-7-sonnet-latest", () => {
-        const res = parseModelIdentifier(
-            "anthropic:claude-3-7-sonnet-latest"
-        )
+        const res = parseModelIdentifier("anthropic:claude-3-7-sonnet-latest")
         assert.deepEqual(res, {
             provider: "anthropic",
             family: "claude-3-7-sonnet-latest",

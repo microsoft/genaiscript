@@ -12,7 +12,7 @@ import { stderr } from "../../core/src/stdio"
 
 /**
  * Configures a selected language model provider by updating the environment file
- * with necessary configuration parameters. Provides options to test or edit 
+ * with necessary configuration parameters. Provides options to test or edit
  * configurations interactively via CLI prompts.
  *
  * @param options - Options object for configuration.

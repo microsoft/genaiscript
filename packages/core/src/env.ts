@@ -72,8 +72,8 @@ import { arrayify } from "./util"
  * - OLLAMA_API_BASE
  * - Fallback to the constant OLLAMA_API_BASE.
  *
- * If the resolved value matches an IP address or "localhost" with an optional port, 
- * it constructs a URL with the default port if not provided. Otherwise, it validates 
+ * If the resolved value matches an IP address or "localhost" with an optional port,
+ * it constructs a URL with the default port if not provided. Otherwise, it validates
  * and returns a complete URL. Throws an error if the URL is invalid.
  */
 export function ollamaParseHostVariable(env: Record<string, string>) {
@@ -122,11 +122,11 @@ export function findEnvVar(
 
 /**
  * Parses default configuration values from the provided environment variables.
- * 
- * This function extracts default model configurations and temperature settings 
+ *
+ * This function extracts default model configurations and temperature settings
  * based on environment variable values and sets them as runtime model aliases.
  * Legacy and new configurations are supported.
- * 
+ *
  * @param env - An object representing environment variables with keys and values.
  *   - GENAISCRIPT_DEFAULT_MODEL: Specifies the default model for the "large" alias.
  *   - GENAISCRIPT_DEFAULT_TEMPERATURE: Sets the default temperature for the model, if defined.

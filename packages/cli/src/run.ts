@@ -186,7 +186,7 @@ export async function runScriptWithExitCode(
  *   - pullRequestComments, descriptions, or reviews: Enables integration with GitHub or Azure DevOps for updates.
  *   - applyEdits: Indicates if file edits should be applied.
  *   - other parameters for retries, limits, model settings, etc.
- * 
+ *
  * @returns A Promise resolving to an object containing:
  *   - exitCode: Final exit code of the script execution.
  *   - result: Generation result object from script processing.

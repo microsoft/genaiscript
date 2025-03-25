@@ -39,7 +39,7 @@ const _parsers: Record<string, Promise<any>> = {}
  * Serializes a syntax node into a structured representation.
  * @param filename - The name of the file containing the syntax node.
  * @param node - The syntax node to serialize.
- * @returns A structured object containing the type, text, filename, start row, end row, 
+ * @returns A structured object containing the type, text, filename, start row, end row,
  * and serialized representations of child nodes.
  */
 export function serializeSyntaxNode(filename: string, node: SyntaxNode): any {
@@ -72,7 +72,7 @@ export function serializeQueryCapture(filename: string, capture: QueryCapture) {
 /**
  * Resolves and retrieves the tags query for a given programming language.
  *
- * @param language - The programming language for which to retrieve the tags query. 
+ * @param language - The programming language for which to retrieve the tags query.
  * If the query does not exist for the specified language, an error is thrown.
  * @returns The tags query corresponding to the specified language.
  * @throws NotSupportedError if no tags query is found for the specified language.

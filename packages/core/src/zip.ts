@@ -32,7 +32,8 @@ export async function unzip(
                 filename,
                 encoding: "base64",
                 content: toBase64(data),
-            } // bytes support
+            }
+        // bytes support
         else return <WorkspaceFile>{ filename, content: decoder.decode(data) }
     })
 }

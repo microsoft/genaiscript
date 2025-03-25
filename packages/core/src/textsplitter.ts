@@ -21,10 +21,10 @@ export interface TextChunk {
 
 /**
  * Rebuilds the original text from an array of text chunks.
- * 
+ *
  * @param text - The original text that was split into chunks.
  * @param chunks - An array of text chunks containing information about the segmented portions of the text.
- * 
+ *
  * @returns The reconstructed text built by combining all text chunks and their respective positions.
  */
 export function unchunk(text: string, chunks: TextChunk[]) {
@@ -74,7 +74,7 @@ export class TextSplitter {
 
     public split(text: string): TextChunk[] {
         if (!text) return []
-        
+
         // Get basic chunks
         const chunks = this.recursiveSplit(text, this._config.separators, 0)
 

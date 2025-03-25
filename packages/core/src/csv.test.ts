@@ -77,8 +77,7 @@ describe("CSVToMarkdown", () => {
 |-|-|
 |John|30|
 |Jane|25|
-`
-            .replace(/[\t ]+/g, " ")
+`.replace(/[\t ]+/g, " ")
         assert.equal(result, expected)
     })
 
@@ -92,8 +91,7 @@ describe("CSVToMarkdown", () => {
 |-|-|
 |30|John|
 |25|Jane|
-`
-            .replace(/[\t ]+/g, " ")
+`.replace(/[\t ]+/g, " ")
         assert.equal(result, expected)
     })
 

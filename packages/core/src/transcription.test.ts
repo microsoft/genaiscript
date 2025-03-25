@@ -58,24 +58,24 @@ Hello world
 
 2
 00:00:03,000 --> 00:00:04,500
-This is a test`;
-        
-        const result = vttSrtParse(srtContent);
-        
-        assert.equal(result.length, 2);
+This is a test`
+
+        const result = vttSrtParse(srtContent)
+
+        assert.equal(result.length, 2)
         assert.deepEqual(result[0], {
             id: "1",
             start: 1000,
             end: 2500,
-            text: "Hello world"
-        });
+            text: "Hello world",
+        })
         assert.deepEqual(result[1], {
             id: "2",
             start: 3000,
             end: 4500,
-            text: "This is a test"
-        });
-    });
+            text: "This is a test",
+        })
+    })
 
     test("should parse VTT format correctly", () => {
         const vttContent = `WEBVTT
@@ -84,30 +84,30 @@ This is a test`;
 Hello world
 
 00:00:03.000 --> 00:00:04.500
-This is a test`;
-        
-        const result = vttSrtParse(vttContent);
-        
-        assert.equal(result.length, 2);
+This is a test`
+
+        const result = vttSrtParse(vttContent)
+
+        assert.equal(result.length, 2)
         assert.deepEqual(result[0], {
             start: 1000,
             end: 2500,
-            text: "Hello world"
-        });
+            text: "Hello world",
+        })
         assert.deepEqual(result[1], {
             start: 3000,
             end: 4500,
-            text: "This is a test"
-        });
-    });
+            text: "This is a test",
+        })
+    })
 
     test("should handle empty input", () => {
-        const result = vttSrtParse("");
-        assert.deepEqual(result, []);
-    });
+        const result = vttSrtParse("")
+        assert.deepEqual(result, [])
+    })
 
     test("should handle null/undefined input", () => {
-        const result = vttSrtParse(undefined as unknown as string);
-        assert.deepEqual(result, []);
-    });
-});
+        const result = vttSrtParse(undefined as unknown as string)
+        assert.deepEqual(result, [])
+    })
+})

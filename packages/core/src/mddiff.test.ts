@@ -10,7 +10,7 @@ describe("markdownDiff", () => {
 
     test("should handle empty strings", () => {
         const result = markdownDiff("", "", { lang: "js" })
-        assert.equal(result, "\n```diff\n\n```\n") 
+        assert.equal(result, "\n```diff\n\n```\n")
     })
 
     test("should show additions with + prefix", () => {
@@ -24,7 +24,9 @@ describe("markdownDiff", () => {
     })
 
     test("should handle options.ignoreWhitespace", () => {
-        const result = markdownDiff("line  1", "line 1", { ignoreWhitespace: true })
+        const result = markdownDiff("line  1", "line 1", {
+            ignoreWhitespace: true,
+        })
         assert.equal(result, "\n```diff\n-line  1+line 1\n```\n")
     })
 })

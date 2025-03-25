@@ -21,10 +21,10 @@ export function shellParse(cmd: string): string[] {
     return res
 }
 
-/** 
+/**
  * Quotes an array of strings for safe use in a shell command.
- * 
- * @param args - An array of strings representing the components of a shell command. 
+ *
+ * @param args - An array of strings representing the components of a shell command.
  *               Each string will be quoted as necessary to ensure it is interpreted correctly by the shell.
  * @returns A single string where the input arguments are properly quoted for shell usage.
  */

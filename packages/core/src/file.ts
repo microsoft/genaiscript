@@ -203,7 +203,7 @@ export async function resolveFileContents(
 /**
  * Renders the content of a file into a markdown format if applicable.
  * Supports rendering for CSV and XLSX file types by converting their contents into readable markdown tables.
- * 
+ *
  * @param file - The file object containing filename and content. If the content matches a supported format, it will be rendered.
  * @param options - Options for tracing operations and filtering the file data during rendering. Includes data transformation, markdown table generation, and optional sheet trimming for XLSX files.
  * @returns An object containing the filename and rendered content, or the original file object if rendering is not applicable.

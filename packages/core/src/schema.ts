@@ -19,7 +19,7 @@ export function isJSONSchema(obj: any) {
 
 /**
  * Converts a JSON Schema into a TypeScript function parameters string.
- * 
+ *
  * @param schema - The JSON Schema to convert. Supports objects, arrays, and primitive types.
  * @returns A string representation of function parameters, compatible with the provided schema.
  */
@@ -232,7 +232,7 @@ export function validateJSONWithSchema(
 
 /**
  * Validates multiple JSON or YAML code blocks against specified schemas.
- * 
+ *
  * @param fences - Array of code blocks with metadata, language, and content to validate.
  * @param schemas - Mapping of schema names to JSON Schemas used for validation.
  * @param options - Optional debugging settings, including trace for logging validation details.
@@ -372,7 +372,7 @@ export function toStrictJSONSchema(
 
 /**
  * Infers a JSON Schema from the given object.
- * 
+ *
  * @param obj - The input object for which to infer a JSON Schema.
  *               This can include nested objects, arrays, and primitives.
  * @returns A Promise resolving to the inferred JSON Schema.

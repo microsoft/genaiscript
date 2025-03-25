@@ -272,7 +272,7 @@ export function setHost(h: Host) {
 export let runtimeHost: RuntimeHost
 /**
  * Sets the runtime host instance and updates the global host reference.
- * 
+ *
  * @param h - An instance of RuntimeHost representing the runtime host to be set.
  *            This will also update the `host` to refer to the same instance.
  */

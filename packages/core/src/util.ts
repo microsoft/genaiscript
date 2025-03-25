@@ -6,10 +6,10 @@ import { arrayify as arrayify_ } from "./cleaners"
 
 /**
  * Compares two strings lexicographically.
- * 
+ *
  * @param a - The first string to compare.
  * @param b - The second string to compare.
- * @returns 0 if the strings are equal, -1 if the first string is less than the second, 
+ * @returns 0 if the strings are equal, -1 if the first string is less than the second,
  *          and 1 if the first string is greater than the second.
  */
 export function strcmp(a: string, b: string) {
@@ -22,7 +22,7 @@ export const arrayify = arrayify_
 
 /**
  * Converts an array-like object into an array.
- * 
+ *
  * @param a - The array-like object to convert. If null or undefined, it returns undefined.
  * @returns An array containing all elements from the input array-like object in the same order.
  */
@@ -48,10 +48,10 @@ export function toStringList(...token: string[]) {
 
 /**
  * Parses a string and determines its boolean equivalent.
- * 
- * @param s The string to parse. Expected values for `true` include "y", "yes", "true", or "ok" (case-insensitive). 
+ *
+ * @param s The string to parse. Expected values for `true` include "y", "yes", "true", or "ok" (case-insensitive).
  *          Expected values for `false` include "n", "no", "false", or "ok" (case-insensitive).
- * 
+ *
  * @returns `true` if the input matches a positive boolean string, `false` if it matches a negative boolean string,
  *          or `undefined` if the input does not match either.
  */
@@ -77,7 +77,7 @@ export function collapseEmptyLines(text: string) {
  * Asserts that a condition is true. If the condition is false, logs an error
  * message, optionally logs additional debug information, triggers a debugger
  * statement, and throws an error.
- * 
+ *
  * @param cond - The condition to evaluate. If false, the assertion will fail.
  * @param msg - The error message to display when the assertion fails. Defaults to "Assertion failed".
  * @param debugData - Optional additional data to log for debugging purposes.
@@ -118,7 +118,7 @@ export function concatBuffers(...chunks: ArrayLike<number>[]) {
 
 /**
  * Converts an array-like sequence of bytes into a hexadecimal string representation.
- * 
+ *
  * @param bytes - An array-like object containing byte values to be converted.
  * @param sep - An optional separator to insert between hexadecimal byte pairs.
  * @returns A string containing the hexadecimal representation of the input bytes,
@@ -213,10 +213,10 @@ export function logWarn(msg: string) {
 
 /**
  * Logs an error message with additional debug information if available.
- * 
- * @param msg - The error message, error object, or serialized error to log. 
+ *
+ * @param msg - The error message, error object, or serialized error to log.
  *              If the message indicates a cancellation, it is logged as a warning.
- * 
+ *
  * Details:
  * - Extracts error details such as message, name, and stack from the error object.
  * - Logs the error message at "error" severity.
@@ -272,7 +272,7 @@ export function groupBy<T>(
 
 /**
  * Truncates the input text to a specified length and appends an ellipsis if the text exceeds the length.
- * 
+ *
  * @param text - The input string to be truncated.
  * @param length - The maximum allowed length of the output string, including the ellipsis.
  * @returns The truncated string with an ellipsis appended if it exceeds the specified length.
@@ -284,7 +284,7 @@ export function ellipse(text: string, length: number) {
 
 /**
  * Truncates the beginning of a string if it exceeds the specified length and adds an ellipsis at the beginning.
- * 
+ *
  * @param text - The input string to process.
  * @param length - The maximum allowed length of the string including the ellipsis.
  * @returns The processed string with an ellipsis at the start if it exceeds the specified length.

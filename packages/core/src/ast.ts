@@ -57,7 +57,7 @@ export const eolPosition = 0x3fffffff // End of line position, a large constant
 export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position, a tuple with a large constant
 
 /**
- * Collects and organizes templates by their directory, identifying the presence of JavaScript or TypeScript files in each directory. 
+ * Collects and organizes templates by their directory, identifying the presence of JavaScript or TypeScript files in each directory.
  * Excludes templates without filenames or those matching PROMPTY_REGEX.
  * @param prj - The project containing the scripts to analyze.
  * @returns An array of directory objects with their names and flags indicating JavaScript and TypeScript file presence.
@@ -100,7 +100,7 @@ export interface ScriptFilterOptions {
 
 /**
  * Filters a list of scripts based on the provided filter options.
- * 
+ *
  * @param scripts - The list of scripts to filter.
  * @param options - An object containing filter criteria:
  *   - ids: Array of specific script IDs to include.

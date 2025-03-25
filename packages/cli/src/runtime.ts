@@ -432,7 +432,7 @@ export async function fileTree(
 /**
  * Injects @mozilla/readability into a page to extract structured data from an article.
  * This function evaluates the page content using the Readability library to parse and extract details such as title, content, text, and metadata.
- * 
+ *
  * @param page - The browser page instance to evaluate and extract content from.
  * @returns An object containing the parsed article details or null if parsing fails.
  * @see https://github.com/mishushakov/llm-scraper/

@@ -260,11 +260,11 @@ export function isAzureContentSafetyClientConfigured() {
 
 /**
  * Creates an Azure Content Safety client to detect harmful content and prompt injection in text or documents.
- * 
+ *
  * @param options - Configuration options for the client.
  * - Includes properties for tracing operations, cancellation signals, and additional configurations.
  * - `signal` - Optional AbortSignal for request cancellation.
- * 
+ *
  * @returns An object implementing ContentSafety, with methods:
  * - `detectHarmfulContent`: Analyzes text or documents for harmful content.
  * - `detectPromptInjection`: Analyzes text or documents for prompt injection attacks.

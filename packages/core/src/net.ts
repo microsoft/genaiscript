@@ -1,6 +1,6 @@
 /**
  * Finds a random open port on the system.
- * 
+ *
  * @returns A promise that resolves to an available port number.
  */
 export function findRandomOpenPort(): Promise<number> {

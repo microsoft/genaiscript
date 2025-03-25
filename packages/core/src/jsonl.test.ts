@@ -14,7 +14,7 @@ describe("JSONL utils", async () => {
 
     test("JSONLTryParse parses valid JSONL", () => {
         const input = '{"a":1}\n{"b":2}\n{"c":3}'
-        const expected = [{a:1}, {b:2}, {c:3}]
+        const expected = [{ a: 1 }, { b: 2 }, { c: 3 }]
         assert.deepEqual(JSONLTryParse(input), expected)
     })
 
@@ -26,12 +26,12 @@ describe("JSONL utils", async () => {
 
     test("JSONLTryParse skips invalid lines", () => {
         const input = '{"a":1}\nin ; "valid\n{"c":3}'
-        const expected = [{a:1}, {c:3}]
+        const expected = [{ a: 1 }, { c: 3 }]
         assert.deepEqual(JSONLTryParse(input), expected)
     })
 
     test("JSONLStringify converts objects to JSONL", () => {
-        const input = [{a:1}, {b:2}, {c:3}]
+        const input = [{ a: 1 }, { b: 2 }, { c: 3 }]
         const expected = '{"a":1}\n{"b":2}\n{"c":3}\n'
         assert.equal(JSONLStringify(input), expected)
     })
@@ -43,7 +43,7 @@ describe("JSONL utils", async () => {
     })
 
     test("JSONLStringify skips null/undefined entries", () => {
-        const input = [{a:1}, null, {c:3}, undefined]
+        const input = [{ a: 1 }, null, { c: 3 }, undefined]
         const expected = '{"a":1}\n{"c":3}\n'
         assert.equal(JSONLStringify(input), expected)
     })

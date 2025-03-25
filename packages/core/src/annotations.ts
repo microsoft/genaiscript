@@ -90,7 +90,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
 /**
  * Removes all recognized annotations from the input text.
  *
- * Scans the input text for patterns matching TypeScript, GitHub Actions, 
+ * Scans the input text for patterns matching TypeScript, GitHub Actions,
  * and Azure DevOps annotations, and removes them entirely.
  *
  * @param text Input text containing annotations to be removed.
@@ -138,8 +138,8 @@ export function convertAnnotationsToItems(text: string) {
 /**
  * Formats a diagnostic annotation into a string representation suitable for display.
  *
- * Constructs a list item with an emoji indicating severity, the message, 
- * and an optional filename with line reference. 
+ * Constructs a list item with an emoji indicating severity, the message,
+ * and an optional filename with line reference.
  * If the file or line is unavailable, includes only the message.
  *
  * Maps severity levels to emojis using SEV_EMOJI_MAP. Defaults to "info" if severity is unknown.

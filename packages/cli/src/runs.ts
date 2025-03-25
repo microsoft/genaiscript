@@ -7,10 +7,10 @@ import { dotGenaiscriptPath } from "../../core/src/workdir"
 
 /**
  * Collects information about available runs based on the provided options.
- * 
+ *
  * @param options - Optional filters for collecting runs.
  *   - scriptid - Filters the runs to only include those associated with the specified script ID.
- * 
+ *
  * @returns An array of run objects containing:
  *   - scriptId: The ID of the associated script.
  *   - name: The run's name.

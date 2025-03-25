@@ -65,13 +65,13 @@ export function deleteEmptyValues<T extends Record<string, any>>(o: T): T {
 
 /**
  * Converts a value to its string representation.
- * 
+ *
  * @param s - The value to normalize. Can be a string, number, boolean, or object.
  *     - If the value is a string, it is returned unchanged.
  *     - If the value is a number, it is converted to a localized string format.
  *     - If the value is a boolean, it is converted to "true" or "false".
  *     - If the value is an object, it is converted to a JSON string.
- * 
+ *
  * @returns The normalized string representation of the input value, or undefined if the input value type is unsupported.
  */
 export function normalizeString(s: string | number | boolean | object): string {
@@ -84,13 +84,13 @@ export function normalizeString(s: string | number | boolean | object): string {
 
 /**
  * Converts a value to a floating-point number if possible.
- * 
+ *
  * @param s - The input value to convert (string, number, boolean, or object).
  *   - If a string, attempts to parse as a floating-point number. Returns undefined if parsing fails.
  *   - If a number, returns the value as is.
  *   - If a boolean, returns 1 for true and 0 for false.
  *   - If an object, returns 0.
- * 
+ *
  * @returns The floating-point representation of the input or undefined if conversion is not possible.
  */
 export function normalizeFloat(s: string | number | boolean | object): number {
@@ -148,9 +148,9 @@ export function normalizeVarKey(key: string) {
 /**
  * Removes Markdown and HTML formatting from a given text string.
  *
- * @param text The input string containing Markdown links ([text](url)) and/or 
+ * @param text The input string containing Markdown links ([text](url)) and/or
  * HTML tags. If the input is null or undefined, the function returns undefined.
- * @returns A plain text string with Markdown links transformed to their text content 
+ * @returns A plain text string with Markdown links transformed to their text content
  * and HTML tags removed.
  */
 export function unmarkdown(text: string) {
@@ -171,7 +171,7 @@ export function collapseNewlines(res: string): string {
 
 /**
  * Checks if a given string is empty.
- * 
+ *
  * @param s - The string to evaluate. Can be null, undefined, or a string value.
  * @returns True if the string is null, undefined, or an empty string; otherwise, false.
  */

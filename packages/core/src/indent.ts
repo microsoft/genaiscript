@@ -17,7 +17,7 @@ export function indent(text: string, indentation: string) {
 
 /**
  * Unindents a string.
- * 
+ *
  * @param templ - Template or string to unindent.
  * @param values - Values to interpolate into the template.
  */

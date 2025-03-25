@@ -183,24 +183,24 @@ function traceEnv(
 }
 
 /**
-* /**
-*  * Expands a template into a structured prompt to be used for generation.
-*  *
-*  * @param prj The project context for resolution of scripts and systems.
-*  * @param template The template script to be expanded.
-*  * @param options Configuration options for template expansion and generation.
-*  * @param env The environment variables and metadata for the template expansion process.
-*  * @returns An object containing the expanded prompt details, including messages, images, schemas, tools, and more.
-*  *
-*  * Parameters:
-*  * @param prj
-*  * - The current project instance, used to resolve associated systems and scripts.
-*  * 
-*  * @param template  
-*  * - The source template script containing configurations and definitions for prompt generation.
-*  *
-*  * @param  - has parameters/options i
-*/
+ * /**
+ *  * Expands a template into a structured prompt to be used for generation.
+ *  *
+ *  * @param prj The project context for resolution of scripts and systems.
+ *  * @param template The template script to be expanded.
+ *  * @param options Configuration options for template expansion and generation.
+ *  * @param env The environment variables and metadata for the template expansion process.
+ *  * @returns An object containing the expanded prompt details, including messages, images, schemas, tools, and more.
+ *  *
+ *  * Parameters:
+ *  * @param prj
+ *  * - The current project instance, used to resolve associated systems and scripts.
+ *  *
+ *  * @param template
+ *  * - The source template script containing configurations and definitions for prompt generation.
+ *  *
+ *  * @param  - has parameters/options i
+ */
 export async function expandTemplate(
     prj: Project,
     template: PromptScript,

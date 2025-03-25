@@ -64,7 +64,7 @@ export async function agentQueryMemory(
 
 /**
  * Adds a memory entry for a given agent and query. Stores the query, agent,
- * and corresponding text/answer into a memory cache. Updates the trace with 
+ * and corresponding text/answer into a memory cache. Updates the trace with
  * details of the memory entry for auditing purposes.
  *
  * @param agent - Identifier for the agent associated with the memory.
@@ -118,13 +118,13 @@ async function loadMemories(options: Pick<GenerationOptions, "userState">) {
 
 /**
  * Traces the agent memory and logs the details in a structured format.
- * 
- * Initiates a trace section for agent memory, retrieves stored memory entries, 
- * and iterates over them in reverse order. For each memory entry, logs the agent, 
- * corresponding query, and the associated answer in a fenced Markdown format. 
+ *
+ * Initiates a trace section for agent memory, retrieves stored memory entries,
+ * and iterates over them in reverse order. For each memory entry, logs the agent,
+ * corresponding query, and the associated answer in a fenced Markdown format.
  * Closes the trace section after processing all entries.
- * 
- * Requires memory loading functionality and tracing options. Useful for debugging 
+ *
+ * Requires memory loading functionality and tracing options. Useful for debugging
  * or visualizing the memory contents in a readable format.
  */
 export async function traceAgentMemory(

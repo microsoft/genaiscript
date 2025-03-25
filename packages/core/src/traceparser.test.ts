@@ -93,7 +93,7 @@ Content
         const result = parseTraceTree(input)
         const details = result.root.content[0] as any
         assert.equal(details.type, "details")
-        assert.equal(details.label, "Test") 
+        assert.equal(details.label, "Test")
         assert.equal(details.content[0], "Content")
         // Extra closing tags should be ignored
         assert.equal(result.root.content.length, 1)

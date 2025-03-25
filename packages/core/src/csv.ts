@@ -174,7 +174,7 @@ export function objectToMarkdownTableRow(
 
 /**
  * Splits an array of objects into chunks of a specified size.
- * 
+ *
  * @param rows - Array of objects to be divided into chunks.
  * @param size - Number of objects per chunk. Must be at least 1.
  * @returns Array of chunk objects, each containing a starting index and rows.

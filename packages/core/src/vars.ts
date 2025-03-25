@@ -10,7 +10,7 @@ import {
 import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
 
 /**
- * Resolves and generates a JSON schema object representing the parameters schema 
+ * Resolves and generates a JSON schema object representing the parameters schema
  * for a given script and its associated systems in the project.
  *
  * @param prj - The project context containing scripts and systems.
@@ -41,7 +41,7 @@ export function resolveScriptParametersSchema(
 }
 
 /**
- * Constructs a variable name for a system parameter by combining the system's unique identifier 
+ * Constructs a variable name for a system parameter by combining the system's unique identifier
  * with the parameter name.
  *
  * @param system - The system instance to which the parameter belongs.
@@ -55,8 +55,8 @@ export function systemParameterToVarName(
     return `${system.id}.${name}`
 }
 
-/** 
- * Parses and resolves prompt parameters for the provided project and script, 
+/**
+ * Parses and resolves prompt parameters for the provided project and script,
  * applying defaults and incorporating user-supplied variables.
  *
  * @param prj - The project instance used to resolve systems and scripts.
@@ -137,7 +137,7 @@ export function parsePromptParameters(
  * Object behavior:
  * - Keys are normalized using `normalizeVarKey`.
  * - The proxy supports fetching keys, enumerating own keys, and retrieving property descriptors.
- * - The `Object.prototype.toString` method is overridden to return a YAML stringified version 
+ * - The `Object.prototype.toString` method is overridden to return a YAML stringified version
  *   of the proxified parameters.
  */
 export function proxifyEnvVars(res: PromptParameters) {

@@ -48,13 +48,13 @@ export async function fileWriteCached(
 
 /**
  * Caches an image locally if it is not a URL. Returns the path to the cached file or the original URL.
- * 
+ *
  * @param url - The source of the image. If it is a URL, it is returned as is. If it is a local file path, it will be cached.
  * @param options - Optional settings for tracing, cancellation, and output directory.
  *    - dir: Custom directory to store the cached file. Defaults to a pre-defined image cache directory.
  *    - trace: Trace option for debugging or logging purposes.
  *    - cancellationToken: Token to handle operation cancellation.
- * 
+ *
  * @returns The relative path to the cached file or the original URL if it is a remote target.
  */
 export async function fileCacheImage(

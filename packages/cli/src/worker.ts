@@ -5,16 +5,16 @@ import { delay } from "es-toolkit"
 import { overrideStdoutWithStdErr } from "../../core/src/stdio"
 
 /**
-* """
-* Handles worker thread execution based on the provided data type.
-* 
-* Parameters:
-*     - type: Specifies the type of operation to execute. For now, supports "run".
-*     - scriptId: Identifier of the script to be executed (provided when type is "run").
-*     - files: List of file paths required for script execution (provided when type is "run").
-*     - options: Additional configuration options for script execution (provided when type is "run").
-* """
-*/
+ * """
+ * Handles worker thread execution based on the provided data type.
+ *
+ * Parameters:
+ *     - type: Specifies the type of operation to execute. For now, supports "run".
+ *     - scriptId: Identifier of the script to be executed (provided when type is "run").
+ *     - files: List of file paths required for script execution (provided when type is "run").
+ *     - options: Additional configuration options for script execution (provided when type is "run").
+ * """
+ */
 export async function worker() {
     overrideStdoutWithStdErr()
     const { type, ...data } = workerData as {

@@ -187,16 +187,16 @@ export function promptyParse(filename: string, text: string): PromptyDocument {
 
 /**
  * Converts a PromptyDocument into a script compatible with GenAI.
- * 
+ *
  * @param doc - The PromptyDocument containing metadata, content, and messages.
  *    - `meta`: Metadata extracted from the document's frontmatter, such as model, parameters, and other configuration values.
  *    - `messages`: Array of chat messages with roles (system, user, assistant) and respective content.
- * 
+ *
  * Generates a script string by mapping chat roles and content into reusable GenAI script components:
  * - System messages are represented using `writeText`.
  * - Assistant messages are processed using `parsers.jinja`.
  * - User message content is rendered as Jinja templates or other compatible parts (e.g., text, image_url, input_audio).
- * 
+ *
  * Returns a string containing the final generated AI script.
  */
 export function promptyToGenAIScript(doc: PromptyDocument): string {

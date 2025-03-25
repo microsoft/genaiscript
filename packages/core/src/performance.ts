@@ -4,7 +4,7 @@ import prettyMilliseconds from "pretty-ms"
 
 /**
  * Marks a specific point in the application's performance timeline.
- * 
+ *
  * @param id - The unique identifier for the performance mark.
  */
 export function mark(id: string) {
@@ -17,7 +17,7 @@ export function mark(id: string) {
  * @param id - A unique identifier for the performance measurement.
  * @param detail - Optional string providing additional details for the measurement.
  * @returns A function to mark the end of the measurement and calculate the duration.
- * 
+ *
  * The returned function accepts:
  * @param endDetail - Optional string with additional details for the end mark.
  * @returns The duration between the start and end marks in milliseconds.

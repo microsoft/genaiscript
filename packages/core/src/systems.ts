@@ -183,8 +183,8 @@ export function resolveSystems(
 }
 
 /**
- * Adds fallback tool systems to the provided list of systems based on tool configuration 
- * and model/tool support. Ensures "system.tool_calls" is included if fallback tools 
+ * Adds fallback tool systems to the provided list of systems based on tool configuration
+ * and model/tool support. Ensures "system.tool_calls" is included if fallback tools
  * are required and tools are unsupported.
  *
  * @param systems - The current list of system prompt instances where fallback tools might be added.

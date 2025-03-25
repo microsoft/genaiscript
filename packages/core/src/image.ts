@@ -167,7 +167,7 @@ async function encode(
 
 /**
  * Transforms an image based on the provided options.
- * 
+ *
  * @param url - The source of the image, which can be a URL, Buffer, or Blob.
  * @param options - Configuration object for image transformation, including:
  *   - mime: Optional MIME type for the output image.
@@ -181,7 +181,7 @@ async function encode(
  *   - crop: Optional. Cropping dimensions (x, y, width, height).
  *   - flip: Optional. Specifies whether to flip the image vertically or horizontally.
  *   - greyscale: Optional. Indicates whether to apply a greyscale effect.
- * 
+ *
  * @returns A Promise that resolves to the transformed image as a Buffer.
  */
 export async function imageTransform(
@@ -221,7 +221,7 @@ export async function imageEncodeForLLM(
  *    - trace: Debug or trace options.
  *    - crop, scale, rotate, greyscale, autoCrop: Image manipulation settings.
  *    - other supported image generation options.
- * 
+ *
  * @throws Will throw an error if no images are provided in the input array.
  *
  * @returns A promise resolving to the tiled image encoded as a data URI or other specified format.

@@ -14,7 +14,7 @@ import { logVerbose } from "./util"
 /**
  * Estimates the token count of a given text by dividing its length
  * by an approximate token length and adding a constant overhead.
- * 
+ *
  * @param text The input text to estimate tokens for.
  * @param options Optional parameters:
  *   - overcount: Adjusts the token length by subtracting this value from 4.
@@ -32,7 +32,7 @@ export function approximateTokens(
 }
 
 /**
- * Estimates the number of tokens in a given text using a provided encoder function. 
+ * Estimates the number of tokens in a given text using a provided encoder function.
  * Includes a constant overhead in the result.
  *
  * @param text - The input text to estimate tokens for. If empty or undefined, returns 0.
@@ -57,9 +57,9 @@ export function estimateTokens(text: string, encoder: TokenEncoder) {
 }
 
 /**
- * Truncates a string to fit within a specified token limit. 
+ * Truncates a string to fit within a specified token limit.
  * Utilizes a binary search approach for efficiency.
- * 
+ *
  * @param content - The text content to truncate.
  * @param maxTokens - The token limit to enforce.
  * @param encoder - The function to encode text into tokens.

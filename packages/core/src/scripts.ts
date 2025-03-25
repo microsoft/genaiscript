@@ -43,10 +43,10 @@ export function createScript(
 /**
  * Updates prompt definition files based on the project configuration.
  *
- * Iterates through the project's collected folders and updates the corresponding 
+ * Iterates through the project's collected folders and updates the corresponding
  * configuration and definition files (e.g., `genaiscript.d.ts`, `tsconfig.json`, `jsconfig.json`).
- * System and tool identifiers within the `genaiscript` TypeScript definition file 
- * are dynamically updated with the systems and tools from the project scripts. 
+ * System and tool identifiers within the `genaiscript` TypeScript definition file
+ * are dynamically updated with the systems and tools from the project scripts.
  *
  * @param project - The project configuration containing scripts and folder structure.
  *   - `project.scripts`: An array of scripts from the project, where system scripts determine tool usage.
@@ -126,7 +126,7 @@ let _fullDocsText: string
  * @param options.docs - If true, fetches and writes updated documentation files.
  *
  * Writes the TypeScript definition file (`genaiscript.d.ts`) and manages files within the
- * `.genaiscript` directory. Optionally, creates GitHub Copilot prompt and documentation files 
+ * `.genaiscript` directory. Optionally, creates GitHub Copilot prompt and documentation files
  * based on the provided options. Fetches external content for documentation updates if applicable.
  */
 export async function fixCustomPrompts(options?: {

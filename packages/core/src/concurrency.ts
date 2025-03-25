@@ -9,7 +9,7 @@ export type ConcurrentLimitFunction = LimitFunction
  * Creates or retrieves a concurrency-limited function for managing asynchronous operations.
  *
  * @param id - A unique identifier for the concurrency limiter.
- * @param concurrency - The maximum number of concurrent operations allowed. 
+ * @param concurrency - The maximum number of concurrent operations allowed.
  *                      Will be normalized to a minimum value of 1.
  * @returns A concurrency-limited function.
  */

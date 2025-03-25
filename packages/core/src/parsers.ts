@@ -40,7 +40,7 @@ import { vttSrtParse } from "./transcription"
 import { encodeIDs } from "./cleaners"
 
 /**
- * Asynchronously creates a set of parsers for handling various file formats, data operations, 
+ * Asynchronously creates a set of parsers for handling various file formats, data operations,
  * and transformations.
  *
  * @param options - Configuration options for parser creation.

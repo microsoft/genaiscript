@@ -29,7 +29,7 @@ export function escapeToolName(name: string) {
  * @param modelId - The identifier of the model to check tools support.
  * @returns `true` if tools are supported, `false` if not supported, or `undefined` if unknown.
  *
- * The function examines the model's provider and family from the parsed model ID. 
+ * The function examines the model's provider and family from the parsed model ID.
  * It checks the `MODEL_PROVIDERS` data for explicit tool support configurations.
  * If no configuration is found, it applies additional restrictions based on the family name.
  */

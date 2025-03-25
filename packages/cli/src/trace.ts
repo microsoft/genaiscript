@@ -16,11 +16,11 @@ import { createWriteStream } from "node:fs"
  * @param filename - The file path where trace data will be written.
  * @param options - Optional configuration object.
  * @param options.ignoreInner - If true, skips processing of "inner" trace chunks.
- * 
+ *
  * @returns The filename where trace data is written.
  *
  * This function ensures the target directory exists and initializes an empty file.
- * It listens for TRACE_CHUNK events to append trace chunks to the file using a 
+ * It listens for TRACE_CHUNK events to append trace chunks to the file using a
  * buffered write stream, and TRACE_DETAILS events to flush and write the entire content.
  */
 export async function setupTraceWriting(

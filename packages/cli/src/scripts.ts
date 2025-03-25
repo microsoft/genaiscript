@@ -93,7 +93,7 @@ export async function createScript(
  * Fixes prompt definitions and custom prompts in the project.
  * Used to correct any issues in the prompt definitions.
  * Accesses project information by building the project first.
- * 
+ *
  * @param options - Optional settings to fix specific types of prompts, such as GitHub Copilot prompts or documentation prompts.
  */
 export async function fixScripts(options?: {

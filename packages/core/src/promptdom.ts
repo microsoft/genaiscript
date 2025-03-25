@@ -213,7 +213,7 @@ export interface FileOutputNode extends PromptNode {
 
 /**
  * Creates a text node with the specified value and optional context expansion options.
- * 
+ *
  * @param value - The string value for the text node. Must not be undefined. Can be awaitable.
  * @param options - Configuration for context expansion. Optional.
  * @returns A text node object with the specified value and options.
@@ -443,7 +443,7 @@ export function createSystemNode(
 
 /**
  * Creates a string template node with the given template strings, arguments, and optional settings.
- * 
+ *
  * @param strings - The template literal strings to include in the node.
  * @param args - The arguments to interpolate into the template.
  * @param options - Optional settings for context expansion or additional properties to include in the node.
@@ -466,7 +466,7 @@ export function createStringTemplateNode(
 
 /**
  * Creates an image node with the specified value and optional context expansion options.
- * 
+ *
  * @param value - The image data or prompt used to create the node. Must not be null or undefined.
  * @param options - Optional context expansion options to include in the node.
  * @returns The created image node.
@@ -481,7 +481,7 @@ export function createImageNode(
 
 /**
  * Creates a schema node with a specified name, value, and optional configuration.
- * 
+ *
  * Parameters:
  * - name: The name of the schema node. Must not be empty. Throws if empty.
  * - value: The schema definition or a Zod type to be converted to JSON Schema. Automatically converts Zod types if applicable. Must not be undefined. Throws if undefined.
@@ -577,7 +577,7 @@ export function createImportTemplate(
 
 /**
  * Creates a node representing an MCP (Multiple Connection Protocol) server with specified configurations.
- * 
+ *
  * @param id - Unique identifier for the MCP server.
  * @param config - Configuration object containing details necessary for the MCP server setup.
  * @param options - Optional additional parameters or settings for server configuration.
@@ -735,7 +735,7 @@ export interface PromptNodeRender {
 
 /**
  * Determines the default fence format for a given model ID.
- * 
+ *
  * @param modelid - The identifier of the model for which the fence format is to be resolved.
  * @returns The default fence format for the specified model.
  */
@@ -1252,16 +1252,16 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
 
 /**
  * Main function to render a prompt node.
- * 
+ *
  * Resolves, deduplicates, flexes, truncates, and validates the prompt node.
  * Handles various node types including text, system, assistant, schemas, tools, images, file merges, outputs, and more.
  * Supports tracing, safety validation, token management, and MCP server integration.
- * 
+ *
  * Parameters:
  * - modelId: Identifier for the model.
  * - node: The prompt node to render.
  * - options: Optional configurations for model templates, tracing, cancellation, token flexibility, and MCP server handling.
- * 
+ *
  * Returns:
  * - A rendered prompt node with associated metadata, messages, resources, tools, errors, and disposables.
  */

@@ -17,17 +17,29 @@ describe("glob", () => {
 
         test("handles Windows paths", () => {
             assert.equal(isGlobMatch("folder\\file.txt", "**/*.txt"), true)
-            assert.equal(isGlobMatch("folder\\subfolder\\file.txt", "**/*.txt"), true)
+            assert.equal(
+                isGlobMatch("folder\\subfolder\\file.txt", "**/*.txt"),
+                true
+            )
         })
 
         test("handles matchBase option", () => {
-            assert.equal(isGlobMatch("path/to/file.txt", "*.txt", { matchBase: true }), true)
-            assert.equal(isGlobMatch("path/to/file.txt", "*.txt", { matchBase: false }), false)
+            assert.equal(
+                isGlobMatch("path/to/file.txt", "*.txt", { matchBase: true }),
+                true
+            )
+            assert.equal(
+                isGlobMatch("path/to/file.txt", "*.txt", { matchBase: false }),
+                false
+            )
         })
 
         test("handles exact matches", () => {
             assert.equal(isGlobMatch("exact-file.txt", "exact-file.txt"), true)
-            assert.equal(isGlobMatch("different-file.txt", "exact-file.txt"), false)
+            assert.equal(
+                isGlobMatch("different-file.txt", "exact-file.txt"),
+                false
+            )
         })
     })
 })

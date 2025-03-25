@@ -27,8 +27,8 @@ export type FetchType = (
 /**
  * Creates a fetch function with retry logic.
  *
- * Wraps `crossFetch` with retry capabilities based on the provided options. 
- * Configures the number of retries, delay between retries, HTTP status codes to retry on, 
+ * Wraps `crossFetch` with retry capabilities based on the provided options.
+ * Configures the number of retries, delay between retries, HTTP status codes to retry on,
  * and supports cancellation and proxy configuration.
  *
  * @param options - Configuration for retries, delays, HTTP status codes, cancellation token, and tracing.
@@ -226,7 +226,7 @@ export async function fetchText(
 /**
  * Logs a POST request for tracing.
  *
- * Constructs a curl command to represent the POST request, including headers 
+ * Constructs a curl command to represent the POST request, including headers
  * and body. Authorization headers can be optionally masked.
  *
  * @param trace - Trace object for logging details. If not provided, logs the command verbosely.

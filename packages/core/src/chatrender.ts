@@ -51,11 +51,11 @@ export function renderShellOutput(output: ShellOutput) {
 
 /**
  * Renders the content of a message into a formatted string.
- * 
- * @param msg - The message object containing content, which may include text, images, audio, or other types. 
+ *
+ * @param msg - The message object containing content, which may include text, images, audio, or other types.
  *              Supports both string and array-based content. Unknown types are rendered as "unknown message".
- * @param options - Optional configuration for rendering, including text formatting, image caching, and language. 
- *                  Supports a function for caching images and defaults to markdown formatting if not specified. 
+ * @param options - Optional configuration for rendering, including text formatting, image caching, and language.
+ *                  Supports a function for caching images and defaults to markdown formatting if not specified.
  *                  If textLang is "raw", returns raw content without formatting.
  * @returns A formatted string representation of the message content, or undefined if the content is invalid or unsupported.
  */
@@ -263,13 +263,13 @@ function renderToolArguments(args: string) {
 /**
  * Collapses chat messages to streamline content and remove redundancy.
  *
- * @param messages - The array of chat messages to process. 
+ * @param messages - The array of chat messages to process.
  *                   Each message contains properties such as role, content, and cacheControl.
  *                   Messages can include system, user, assistant, or tool roles.
- * 
- * - Combines consecutive "system" messages at the start into a single "system" message by 
+ *
+ * - Combines consecutive "system" messages at the start into a single "system" message by
  *   concatenating their content. The combined message is added back to the array, replacing the original messages.
- * - Removes empty text content from "user" messages. For array-based content, filters out 
+ * - Removes empty text content from "user" messages. For array-based content, filters out
  *   "text" types with no content.
  */
 export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {

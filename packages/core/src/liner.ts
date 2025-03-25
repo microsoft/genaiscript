@@ -53,7 +53,7 @@ export function removeLineNumbers(text: string) {
 
 /**
  * Extracts a line range from the text using 1-based inclusive line numbers.
- * 
+ *
  * @param text - The input text from which to extract the range.
  * @param options - An object specifying the line range.
  *   - lineStart: The 1-based starting line number of the range.

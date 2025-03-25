@@ -19,7 +19,7 @@ export function convertThinkToMarkdown(md: string) {
 /**
  * Removes all occurrences of THINK_REGEX matches from the given string.
  *
- * @param md - The string from which THINK_REGEX matches will be removed. 
+ * @param md - The string from which THINK_REGEX matches will be removed.
  *             If the input is null or empty, it is returned as is.
  * @returns The modified string with THINK_REGEX matches removed, or the original string if no matches are found.
  */
@@ -31,10 +31,13 @@ export function unthink(md: string) {
 }
 
 /**
-* /**
-*  * Parses input text to separate main content and reasoning enclosed within `
-*/
-export function splitThink(text: string): { content: string; reasoning: string } {
+ * /**
+ *  * Parses input text to separate main content and reasoning enclosed within `
+ */
+export function splitThink(text: string): {
+    content: string
+    reasoning: string
+} {
     const reasoning: string[] = []
     const res = text?.replace(THINK_REGEX, (_, text, end) => {
         reasoning.push(text)

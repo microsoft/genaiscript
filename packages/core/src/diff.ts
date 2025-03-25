@@ -14,7 +14,7 @@ export interface Chunk {
 /**
  * Parses a text in the LLMD diff format into an array of chunks.
  * Each chunk represents a segment of existing, added, or deleted lines.
- * Adjusts line numbers, removes duplicate lines without actual changes, 
+ * Adjusts line numbers, removes duplicate lines without actual changes,
  * ensures proper chunk segmentation, and handles trailing empty lines.
  *
  * @param text - The LLMD diff text to parse. Must be a newline-separated string.
@@ -312,7 +312,7 @@ export function tryParseDiff(diff: string) {
  * Parses the input diff string using the parse-diff library, processes it into a structured format, and converts it back to a unified diff format with LLMDiff annotations.
  * Updates line numbers for changes and includes them in the output.
  * Returns the LLMDiff formatted string or undefined if parsing fails.
- * 
+ *
  * @param diff - The diff string to process. Must be in a supported diff format.
  * @returns The LLMDiff formatted string or undefined if parsing fails.
  */

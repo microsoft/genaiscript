@@ -7,7 +7,7 @@ const confirmed: string[] = []
 
 /**
  * Prompts the user for confirmation or skips the prompt in a CI environment.
- * 
+ *
  * @param message - The prompt message to display to the user.
  * @param options - Optional configuration for the prompt.
  * @param options.preview - An optional preview message to display before the prompt.

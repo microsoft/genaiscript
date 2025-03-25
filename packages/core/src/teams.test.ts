@@ -42,7 +42,10 @@ describe("convertMarkdownToTeamsHTML", () => {
         const markdown = "## Heading 1\nContent"
         const result = convertMarkdownToTeamsHTML(markdown)
         assert.strictEqual(result.subject, undefined)
-        assert.strictEqual(result.content, "<div><h1>Heading 1</h1>\nContent</div>")
+        assert.strictEqual(
+            result.content,
+            "<div><h1>Heading 1</h1>\nContent</div>"
+        )
     })
     test("converts unordered lists correctly", () => {
         const markdown = "- Item 1\n- Item 2\n- Item 3"
@@ -67,6 +70,9 @@ describe("convertMarkdownToTeamsHTML", () => {
     test("converts multiple paragraphs correctly", () => {
         const markdown = "Paragraph 1\n\nParagraph 2"
         const result = convertMarkdownToTeamsHTML(markdown)
-        assert.strictEqual(result.content, "<div>Paragraph 1\n\nParagraph 2</div>")
+        assert.strictEqual(
+            result.content,
+            "<div>Paragraph 1\n\nParagraph 2</div>"
+        )
     })
 })

@@ -87,7 +87,7 @@ export function promptParameterTypeToJSONSchema(
 
 /**
  * Converts a PromptParametersSchema or JSONSchema into JSONSchema format.
- * 
+ *
  * @param parameters - The parameters schema to be converted. Can be a PromptParametersSchema, a JSONSchema, or undefined. If undefined, returns undefined.
  * @param options - Optional conversion options which may include whether to exclude default values.
  * @returns A JSONSchema object or undefined if the input parameters are undefined.

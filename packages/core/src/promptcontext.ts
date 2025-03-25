@@ -37,7 +37,7 @@ const dbg = debug("genaiscript:promptcontext")
 
 /**
  * Creates a prompt context for the specified project, variables, trace, options, and model.
- * 
+ *
  * @param prj The project for which the context is created.
  * @param ev Expansion variables including generator, output, debugging, run directory, and other configurations.
  * @param trace Markdown trace for logging and debugging.

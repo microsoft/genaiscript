@@ -33,7 +33,7 @@ export interface ChangeLog {
  * Must include headers, descriptions, and detailed changes with line numbers and contents.
  * The input is expected to be wrapped in a "changelog" fence.
  * Throws an error if the format is invalid, required fields are missing, or parsing fails.
- * 
+ *
  * @returns An array of ChangeLog objects parsed from the input.
  */
 export function parseChangeLogs(source: string): ChangeLog[] {

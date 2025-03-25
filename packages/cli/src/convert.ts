@@ -45,7 +45,7 @@ import { measure } from "../../core/src/performance"
  *
  * @throws Error if the script is not found or no files match the given patterns.
  *
- * Resolves files matching the provided patterns, filters them based on exclusion and rewrite options, 
+ * Resolves files matching the provided patterns, filters them based on exclusion and rewrite options,
  * applies AI transformations using the specified script, and writes results to output files.
  */
 export async function convertFiles(

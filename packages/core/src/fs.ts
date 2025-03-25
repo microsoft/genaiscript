@@ -49,7 +49,7 @@ export async function tryReadText(fn: string) {
 }
 
 /**
- * Ensures that the specified directory exists. 
+ * Ensures that the specified directory exists.
  * Creates the directory and any necessary parent directories if they do not exist.
  *
  * @param dir - The path of the directory to ensure exists.
@@ -113,7 +113,7 @@ export async function readJSON(fn: string) {
 
 /**
  * Tries to read and parse a JSON object from a file.
- * 
+ *
  * @param fn - Path to the file to be read.
  * @returns The parsed JSON object if the operation succeeds, or `undefined` if an error occurs.
  */

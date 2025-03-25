@@ -27,7 +27,7 @@ describe("renderMessageContent", () => {
             role: "user",
             content: "hello world",
         }
-        const result = await renderMessageContent(msg, { textLang: "raw"})
+        const result = await renderMessageContent(msg, { textLang: "raw" })
         assert.equal(result, "hello world")
     })
 })

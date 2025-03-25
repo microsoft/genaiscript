@@ -10,14 +10,14 @@ describe("MathTryEvaluate", async () => {
 
     await test("evaluates an expression with variables from scope", async () => {
         const result = await MathTryEvaluate("x + y", {
-            scope: { x: 5, y: 3 }
+            scope: { x: 5, y: 3 },
         })
         assert.equal(result, 8)
     })
 
     await test("returns defaultValue for empty expression", async () => {
         const result = await MathTryEvaluate("", {
-            defaultValue: 42
+            defaultValue: 42,
         })
         assert.equal(result, 42)
     })

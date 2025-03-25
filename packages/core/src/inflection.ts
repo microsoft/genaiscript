@@ -1,7 +1,7 @@
 import { titleize as _titlelize, humanize as _humanize } from "inflection"
 
 /**
- * Splits camelCase or PascalCase text into separate words by inserting a space 
+ * Splits camelCase or PascalCase text into separate words by inserting a space
  * between lowercase and uppercase character boundaries.
  *
  * @param text - The input string to be split. If null or undefined, the function returns as is.
@@ -14,10 +14,10 @@ export function splitalize(text: string) {
 
 /**
  * Transforms a given text into a titleized format. The function first separates
- * camelCase or PascalCase text into distinct words and then converts it into 
+ * camelCase or PascalCase text into distinct words and then converts it into
  * a title format where the first letter of each word is capitalized.
  *
- * @param text - The input string to be titleized. If the input is null or empty, 
+ * @param text - The input string to be titleized. If the input is null or empty,
  *               it returns the input as is.
  * @returns The titleized version of the input string.
  */

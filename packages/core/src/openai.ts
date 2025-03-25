@@ -801,13 +801,13 @@ export async function OpenAIImageGeneration(
 
 /**
  * Executes an embedding request using the specified language model configuration.
- * 
+ *
  * @param input - The text input to generate embeddings for.
  * @param cfg - Configuration for the language model, including base URL, provider, type, and model details.
  * @param options - Optional parameters including trace for debugging and cancellationToken for request cancellation.
  * @returns An EmbeddingResult object containing the embeddings or error details if the operation fails.
- * 
- * This function determines the proper API route based on the model provider type. It constructs a POST request to retrieve embeddings 
+ *
+ * This function determines the proper API route based on the model provider type. It constructs a POST request to retrieve embeddings
  * for the given input. Handles response parsing, error checking, and supports cancellation.
  */
 export async function OpenAIEmbedder(
@@ -885,14 +885,14 @@ export async function OpenAIEmbedder(
 
 /**
  * Creates a language model configuration compatible with OpenAI-like APIs.
- * 
+ *
  * @param providerId - Identifier of the model provider.
  * @param options - Optional configuration object.
  * @param options.listModels - Enables listing of available models if true.
  * @param options.transcribe - Enables transcription capabilities if true.
  * @param options.speech - Enables speech synthesis capabilities if true.
  * @param options.imageGeneration - Enables image generation capabilities if true.
- * 
+ *
  * @returns A frozen object defining the language model with specified capabilities.
  */
 export function LocalOpenAICompatibleModel(

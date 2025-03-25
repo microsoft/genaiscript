@@ -4,12 +4,12 @@ import { filenameOrFileToContent } from "./unwrappers"
 
 /**
  * Parses a TOML-formatted input into a structured JavaScript object.
- * 
- * @param text - The input to parse. It can be a string containing TOML-formatted content 
+ *
+ * @param text - The input to parse. It can be a string containing TOML-formatted content
  * or a WorkspaceFile object. If a WorkspaceFile is provided, its content is extracted.
- * 
+ *
  * @returns A deep copy of the parsed object, created using `structuredClone`.
- * 
+ *
  * @throws Will throw an error if the input cannot be successfully parsed as TOML.
  */
 export function TOMLParse(text: string | WorkspaceFile) {
@@ -27,7 +27,10 @@ export function TOMLParse(text: string | WorkspaceFile) {
 // Function to safely parse TOML formatted text
 // Accepts a string `text` and an optional `options` object with a `defaultValue`
 // If parsing fails, it returns `defaultValue` instead of throwing an error
-export function TOMLTryParse(text: string | WorkspaceFile, options?: { defaultValue?: any }) {
+export function TOMLTryParse(
+    text: string | WorkspaceFile,
+    options?: { defaultValue?: any }
+) {
     try {
         return TOMLParse(text)
     } catch (e) {

@@ -3,20 +3,20 @@ import { deleteEmptyValues, deleteUndefinedValues } from "./cleaners"
 
 /**
  * Renders SRT and VTT formats from a transcription result.
- * 
- * This function generates SRT and VTT string formats based on the segments 
+ *
+ * This function generates SRT and VTT string formats based on the segments
  * in the given transcription result and appends them to the transcription object.
- * 
+ *
  * Parameters:
- * - transcription: An object containing transcription data, including an array of segments. 
+ * - transcription: An object containing transcription data, including an array of segments.
  *   Each segment should include `start`, `end`, and `text` fields.
- * 
+ *
  * Returns:
  * - The updated transcription object with `srt` and `vtt` properties added.
- * 
+ *
  * Internal Functions:
  * - formatSRTTime: Converts a timestamp in seconds to the SRT time format (hh:mm:ss,SSS).
- * - formatVRTTime: Converts a timestamp in seconds to the VTT time format (hh:mm:ss.SSS). 
+ * - formatVRTTime: Converts a timestamp in seconds to the VTT time format (hh:mm:ss.SSS).
  *   Omits hours if set to 00.
  */
 export function srtVttRender(transcription: TranscriptionResult) {
@@ -70,16 +70,16 @@ export function srtVttRender(transcription: TranscriptionResult) {
 }
 
 /**
-* """
-* Parses timestamps enclosed in square brackets from the given transcription string.
-* 
-* Arguments:
-* - transcription: A string containing transcription text with timestamps enclosed in square brackets. 
-* 
-* Returns:
-* - A list of extracted timestamp strings in the format `[hh:mm:ss.sss]` or `[mm:ss.sss]`.
-* """
-*/
+ * """
+ * Parses timestamps enclosed in square brackets from the given transcription string.
+ *
+ * Arguments:
+ * - transcription: A string containing transcription text with timestamps enclosed in square brackets.
+ *
+ * Returns:
+ * - A list of extracted timestamp strings in the format `[hh:mm:ss.sss]` or `[mm:ss.sss]`.
+ * """
+ */
 export function parseTimestamps(transcription: string) {
     let ts: string[] = []
     transcription?.replace(

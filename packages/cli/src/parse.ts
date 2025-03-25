@@ -53,7 +53,7 @@ export async function parseFence(language: string, file: string) {
 }
 
 /**
- * Parses the contents of a PDF file and outputs them in text format. 
+ * Parses the contents of a PDF file and outputs them in text format.
  * Optionally writes the content and page images to the specified output directory.
  * @param file - The PDF file to parse.
  * @param options - Options to include images and specify the output directory.
@@ -118,11 +118,11 @@ export async function parseHTMLToText(
 
 /**
  * Parses a Jinja2 file, substitutes variables, and logs the rendered output.
- * 
+ *
  * @param file - The path to the Jinja2 template file to parse.
  * @param options - An object containing the following properties:
  *   - vars: An array of key-value pairs in the format "key=value" to replace variables in the template.
- * 
+ *
  * The function reads the template file, processes it based on its type (Prompty or Markdown),
  * substitutes the provided variables, and renders the output. Variable values are converted
  * to numbers if possible.
@@ -151,7 +151,7 @@ export async function parseJinja2(
 
 /**
  * Parses the input file and converts its data into a specified format.
- * 
+ *
  * @param file - Path to the file to be read and parsed.
  * @param options - Configuration options for the output format.
  * @param options.format - The target format for the output. Supported formats include:
@@ -161,7 +161,7 @@ export async function parseJinja2(
  *   - "md" or "markdown": Converts data into a Markdown table.
  *   - "json5": Converts data into JSON5 format.
  *   - Default: Outputs data as a prettified JSON string.
- * 
+ *
  * Logs the converted data to the console.
  * Throws an error if the data format cannot be determined.
  */
@@ -299,7 +299,7 @@ export async function parseSecrets(files: string[]) {
 
 /**
  * Parses a markdown file, breaks it into chunks based on token limits, and logs a preview of each chunk.
- * 
+ *
  * @param filename - The name of the markdown file to parse.
  * @param options - Object containing parsing options.
  *   - model - The model name used for token encoding.

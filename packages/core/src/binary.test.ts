@@ -1,5 +1,5 @@
 import { describe, test } from "node:test"
-import assert from "node:assert/strict" 
+import assert from "node:assert/strict"
 import { isBinaryMimeType } from "./binary"
 
 describe("isBinaryMimeType", () => {
@@ -13,7 +13,11 @@ describe("isBinaryMimeType", () => {
     test("should identify document binary types", () => {
         assert(isBinaryMimeType("application/pdf"))
         assert(isBinaryMimeType("application/msword"))
-        assert(isBinaryMimeType("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
+        assert(
+            isBinaryMimeType(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+        )
     })
 
     test("should identify archive binary types", () => {

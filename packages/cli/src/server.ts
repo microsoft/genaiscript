@@ -68,7 +68,7 @@ import { applyRemoteOptions, RemoteOptions } from "./remote"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
- * 
+ *
  * @param options - Configuration options including:
  *   - port: The port to run the WebSocket server on.
  *   - httpPort: Optional HTTP port for additional services.

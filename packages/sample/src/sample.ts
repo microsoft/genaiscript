@@ -2,5 +2,5 @@
 function foo() {
     // hello
     //# blah
-    console.log('todo')
+    console.log("todo")
 }

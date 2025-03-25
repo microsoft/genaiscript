@@ -18,8 +18,8 @@ export function prettyTokensPerSecond(usage: ChatCompletionUsage) {
  * Converts a numeric token count into a human-readable string with units.
  *
  * @param n - The number of tokens to format. If not a valid number, returns an empty string.
- * @param direction - Optional indicator for token type: 
- *   "prompt" for input tokens (adds "↑" as prefix) or 
+ * @param direction - Optional indicator for token type:
+ *   "prompt" for input tokens (adds "↑" as prefix) or
  *   "completion" for output tokens (adds "↓" as prefix). Defaults to no prefix.
  * @returns A formatted string with units "t" for tokens, "kt" for kilotokens, or "Mt" for megatokens.
  */

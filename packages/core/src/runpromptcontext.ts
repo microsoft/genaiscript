@@ -113,7 +113,7 @@ import { prettyBytes } from "./pretty"
  *
  * @param options - Contains generation options such as model, lineNumbers, and fenceFormat.
  * @param trace - Trace object used to log the process and record outputs.
- * 
+ *
  * @returns A context object used to generate prompt nodes and manage output-related functionalities.
  *
  * The returned context includes methods:

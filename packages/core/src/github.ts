@@ -247,11 +247,11 @@ export async function githubUpdatePullRequestDescription(
 }
 
 /**
- * Merges a new comment or text segment into the existing body, enclosed 
- * within the specified comment tags. If tags exist, updates the content 
+ * Merges a new comment or text segment into the existing body, enclosed
+ * within the specified comment tags. If tags exist, updates the content
  * between them; otherwise, appends the entire section.
  *
- * @param commentTag - The unique identifier tag used to demarcate the section 
+ * @param commentTag - The unique identifier tag used to demarcate the section
  *                     in the body where merging occurs.
  * @param body - The existing text or content to be updated.
  * @param text - The new content to merge into the body.

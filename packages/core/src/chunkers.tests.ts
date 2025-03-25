@@ -17,14 +17,18 @@ describe("chunkers", () => {
 
         it("should chunk string into equal parts", () => {
             const str = "abcdefghijklmnopqrstuvwxyz"
-            assert.deepEqual(chunkString(str, 10), ["abcdefghij", "klmnopqrst", "uvwxyz"])
+            assert.deepEqual(chunkString(str, 10), [
+                "abcdefghij",
+                "klmnopqrst",
+                "uvwxyz",
+            ])
         })
 
         it("should use the default chunk size if not provided", () => {
             const longString = "a".repeat(2 << 15) // Longer than default chunk size
             const chunks = chunkString(longString)
             assert(chunks.length > 1)
-            assert(chunks[0].length === (2 << 14))
+            assert(chunks[0].length === 2 << 14)
         })
     })
 
@@ -42,12 +46,18 @@ describe("chunkers", () => {
 
         it("should preserve line breaks when chunking", () => {
             const str = "line1\nline2\nline3\nline4"
-            assert.deepEqual(chunkLines(str, 12), ["line1\nline2\n", "line3\nline4\n"])
+            assert.deepEqual(chunkLines(str, 12), [
+                "line1\nline2\n",
+                "line3\nline4\n",
+            ])
         })
 
         it("should handle CRLF line endings", () => {
             const str = "line1\r\nline2\r\nline3\r\nline4"
-            assert.deepEqual(chunkLines(str, 14), ["line1\nline2\n", "line3\nline4\n"])
+            assert.deepEqual(chunkLines(str, 14), [
+                "line1\nline2\n",
+                "line3\nline4\n",
+            ])
         })
 
         it("should keep lines together even if they exceed chunk size", () => {

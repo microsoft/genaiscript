@@ -945,7 +945,7 @@ async function processChatMessage(
 }
 
 /**
- * Merges two sets of generation options, prioritizing values specified in the second parameter 
+ * Merges two sets of generation options, prioritizing values specified in the second parameter
  * while falling back to defaults from the first parameter and runtime configurations.
  *
  * @param options - A base set of generation options containing default values.
@@ -1419,9 +1419,9 @@ export function tracePromptResult(
  * @param options.cacheControl - Cache control value for the message.
  *
  * Notes:
- * - If the last message in the array is not a user message or has different cache control, 
+ * - If the last message in the array is not a user message or has different cache control,
  *   a new user message is added.
- * - String content is appended to the existing user's message text. If the content is an image, 
+ * - String content is appended to the existing user's message text. If the content is an image,
  *   it is added as a chat completion image.
  */
 export function appendUserMessage(
@@ -1468,7 +1468,7 @@ export function appendUserMessage(
 /**
  * Appends a message from the assistant to the list of chat messages.
  *
- * Adds the content to the last assistant message if it matches the role 
+ * Adds the content to the last assistant message if it matches the role
  * and cache control context; otherwise, creates a new assistant message entry.
  *
  * @param messages - The list of chat messages to update.
@@ -1512,7 +1512,7 @@ export function appendAssistantMessage(
 /**
  * Appends a system-level message to the beginning of the given messages array.
  *
- * @param messages - The list of chat messages to which the system message will be added. 
+ * @param messages - The list of chat messages to which the system message will be added.
  *                   The system message is prepended to the array.
  * @param content - The content of the message to be appended. If content is empty, the function exits.
  * @param options - Optional parameters for additional message context. Includes:
@@ -1562,12 +1562,12 @@ export function appendSystemMessage(
 /**
  * Adds tool definitions to system messages of a chat conversation.
  *
- * The function inserts a system message containing the serialized tool definitions 
- * into the provided list of chat messages. Tool definitions are formatted as YAML 
+ * The function inserts a system message containing the serialized tool definitions
+ * into the provided list of chat messages. Tool definitions are formatted as YAML
  * and wrapped in `<tools>` tags.
  *
  * @param messages - The array of chat messages to which the tool definitions will be added.
- * @param tools - An array of tool callback objects whose specifications will be extracted, 
+ * @param tools - An array of tool callback objects whose specifications will be extracted,
  *                serialized, and included in the system message.
  */
 export function addToolDefinitionsMessage(
