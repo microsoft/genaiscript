@@ -40,11 +40,11 @@ for (const match of matches) {
             _.def("FUNCTION", match.text(), { flex: 10 })
             // this needs more eval-ing
             _.$`Update the docstring <DOCSTRING> of function <FUNCTION>.
-            - If the docstring is up to date, return <NOP>.
+            - If the docstring is up to date, return /NOP/.
             - Make sure parameters are documented.
             - Be concise. Use technical tone.
             - do NOT include types, this is for TypeScript.
-            - Use docstring syntax.
+            - Use docstring syntax. do not wrap in markdown code section.
             - Minimize updates to the existing docstring.
             
             The full source of the file is in <FILE> for reference.
@@ -53,7 +53,7 @@ for (const match of matches) {
             `
         },
         {
-            model: "small",
+            model: "large",
             responseType: "text",
             flexTokens: 12000,
             label: match.child(0).text(),
@@ -65,9 +65,11 @@ for (const match of matches) {
         continue
     }
 
-    if (res.text.includes("<NOP>")) continue
+    if (res.text.includes("/NOP/")) continue
 
-    const docs = docify(res.text.trim())
+    const docs = docify(
+        parsers.unfence(res.text.trim(), ["", "typescript", "ts"])
+    )
     replace(comment, docs)
 }
 
