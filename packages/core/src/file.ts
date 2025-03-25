@@ -187,7 +187,7 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
  * @param files - Array of files to process and resolve content for.
  * @param options - Optional parameters for tracing and cancellation handling.
  *   - cancellationToken - Token to handle cancellation of the operation.
- *   - trace - Optional tracing object for logging operations.
+ *   - trace - Tracing object for logging operations.
  */
 export async function resolveFileContents(
     files: WorkspaceFile[],
@@ -205,7 +205,7 @@ export async function resolveFileContents(
  * Supports rendering for CSV and XLSX file types by converting their contents into readable markdown tables.
  * 
  * @param file - The file object containing filename and content. If the content matches a supported format, it will be rendered.
- * @param options - Options for tracing operations and filtering the file data during rendering.
+ * @param options - Options for tracing operations and filtering the file data during rendering. Includes data transformation and markdown table generation.
  * @returns An object containing the filename and rendered content, or the original file object if rendering is not applicable.
  */
 export async function renderFileContent(
@@ -297,8 +297,8 @@ export async function resolveFileBytes(
 
 /**
  * Converts a file to a Data URI format.
- * @param filename - The file name, URL, or data URI to convert. Supports local files, remote URLs, and data URIs.
- * @param options - Optional parameters for tracing and fetch configuration.
+ * @param filename - The file name, URL, or data URI to convert. Supports local files, remote URLs, and data URIs. If a WorkspaceFile object, its content and encoding are used.
+ * @param options - Optional parameters for tracing operations and fetch configuration.
  * @returns A Data URI string if the MIME type is determined, otherwise undefined.
  */
 export async function resolveFileDataUri(
