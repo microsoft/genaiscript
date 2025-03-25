@@ -82,9 +82,7 @@ for (const match of matches) {
 
     if (res.text.includes("/NOP/")) continue
 
-    const docs = docify(
-        parsers.unfence(res.text.trim(), ["", "typescript", "ts"])
-    )
+    const docs = docify(res.text.trim())
 
     // ask LLM if change is worth it
     const shouldApply = await classify(
@@ -128,6 +126,7 @@ if (applyEdits) {
 
 // normalizes the docstring in case the LLM decides not to generate proper comments
 function docify(docs: string) {
+    docs = parsers.unfence(docs, ["", "typescript", "ts", "javascript", "js"])
     if (!/^\/\*\*.*.*\*\/$/s.test(docs))
         docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
     return docs.replace(/\n+$/, "")

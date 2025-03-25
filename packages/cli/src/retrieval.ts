@@ -42,8 +42,10 @@ export async function retrievalIndex(
  * @param options - Additional options for the search.
  *   @param excludedFiles - Files to exclude from the search.
  *   @param topK - The number of top results to return.
+ *   @param minScore - The minimum score threshold for results.
  *   @param name - Index name for storing vectors.
  *   @param embeddingsModel - Model to use for generating embeddings.
+ *   @param ignoreGitIgnore - Whether to ignore .gitignore rules.
  */
 export async function retrievalSearch(
     q: string,
@@ -95,10 +97,12 @@ export async function retrievalSearch(
  * Uses fuzzy matching to find approximate matches for a query.
  *
  * @param q - The query string to search for.
- * @param filesGlobs - Glob patterns specifying which files to search.
+ * @param filesGlobs - Glob patterns specifying which files to search. Defaults to all files if not provided.
  * @param options - Additional options for the search.
- *   @param excludedFiles - Files to exclude from the search.
+ *   @param excludedFiles - Files to exclude from the search. Defaults to excluding node_modules if not provided.
  *   @param topK - The number of top results to return.
+ *   @param minScore - The minimum score threshold for matches.
+ *   @param ignoreGitIgnore - Whether to ignore .gitignore rules.
  */
 export async function retrievalFuzz(
     q: string,

@@ -25,6 +25,10 @@ import { shellInput } from "./input"
  * Lists all the scripts in the project.
  * Displays id, title, group, filename, and system status.
  * Generates this list by first building the project.
+ * Filters scripts based on provided ids and options.
+ * Outputs the list in plain text or JSON format based on the json option.
+ * @param ids - An array of script IDs to filter.
+ * @param options - Additional filtering options, including whether to output in JSON format.
  */
 export async function listScripts(
     ids: string[],
@@ -59,9 +63,11 @@ export async function listScripts(
 
 /**
  * Creates a new script.
- * @param name - The name of the script to be created.
+ * Prompts the user for the script name if not provided.
  * Calls core function to create a script and copies prompt definitions.
- * Compiles all scripts immediately after creation.
+ * Compiles the newly created script immediately after creation.
+ * @param name - The name of the script to be created.
+ * @param options - Options for script creation, including whether to use TypeScript.
  */
 export async function createScript(
     name: string,
@@ -84,9 +90,11 @@ export async function createScript(
 }
 
 /**
- * Fixes prompt definitions in the project.
+ * Fixes prompt definitions and custom prompts in the project.
  * Used to correct any issues in the prompt definitions.
  * Accesses project information by building the project first.
+ * 
+ * @param options - Optional settings to fix specific types of prompts, such as GitHub Copilot prompts or documentation prompts.
  */
 export async function fixScripts(options?: {
     githubCopilotPrompt?: boolean
@@ -100,7 +108,9 @@ export async function fixScripts(options?: {
 /**
  * Compiles scripts in specified folders or all if none specified.
  * @param folders - An array of folder names to compile. Compiles all if empty.
+ * Fixes prompt definitions before compiling.
  * Handles both JavaScript and TypeScript compilation based on folder content.
+ * Logs errors and verbose output during the compilation process.
  * Exits process with error code if any compilation fails.
  */
 export async function compileScript(folders: string[]) {

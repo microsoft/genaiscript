@@ -32,7 +32,7 @@ export async function systemInfo() {
 /**
  * Outputs environment information for model providers.
  * @param provider - The specific provider to filter by (optional).
- * @param options - Configuration options, including whether to show tokens.
+ * @param options - Configuration options, including whether to show tokens, errors, or models.
  */
 export async function envInfo(
     provider: string,
@@ -82,8 +82,8 @@ async function resolveScriptsConnectionInfo(
 }
 
 /**
- * Outputs model connection info for a given script.
- * @param script - The specific script ID or filename to filter by (optional).
+ * Outputs model connection information for a given script by resolving its templates.
+ * @param script - The specific script ID or filename to filter by. If not provided, all scripts are included.
  * @param options - Configuration options, including whether to show tokens.
  */
 export async function scriptModelInfo(
@@ -115,9 +115,9 @@ export async function modelAliasesInfo() {
 }
 
 /**
- * Outputs environment information for model providers.
+ * Outputs a list of models and their information for the specified provider.
  * @param provider - The specific provider to filter by (optional).
- * @param options - Configuration options, including whether to show tokens.
+ * @param options - Configuration options, including whether to include errors and the output format (JSON or YAML).
  */
 export async function modelList(
     provider: string,

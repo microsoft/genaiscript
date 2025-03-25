@@ -32,8 +32,8 @@ export function isSARIFFilename(f: string) {
  * This function is intended to be used with the MS-SarifVSCode.sarif-viewer.
  *
  * @param template - The template containing script metadata, including id, title, and description.
- * @param issues - Array of diagnostic issues to convert.
- * @returns A stringified SARIF JSON object representing the diagnostic issues.
+ * @param issues - Array of diagnostic issues to convert. Each issue should include severity, message, filename, and range.
+ * @returns A stringified SARIF JSON object representing the diagnostic issues, formatted with indentation for readability.
  */
 export function convertDiagnosticsToSARIF(
     template: PromptScript,

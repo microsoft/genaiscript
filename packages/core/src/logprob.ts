@@ -121,19 +121,15 @@ export function rgbToCss(value: number): string {
 }
 
 /**
-* ```javascript
-* /**
-*  * Converts a log probability value and associated token into a styled Markdown-like string.
-*  * The output includes a span element styled with colors that represent the intensity of the log probability.
-*  *
-*  * @param value - The log probability entry containing the token, log probability, and entropy value.
-*  * @param options - Optional configuration for customization:
-*  *    - maxIntensity: Adjusts the maximum intensity of color used in the gradient.
-*  *    - entropy: Determines whether entropy is displayed in the title.
-*  *    - eatSpaces: When true, replaces newlines in the token with spaces. Otherwise, replaces spaces with non-breaking spaces and converts newlines to HTML line breaks.
-*  * @returns A styled string representing the token with gradient-based log probability coloring.
-*  */
-* ```
+* Converts a log probability value and associated token into a styled Markdown-like string.
+* The output includes a span element styled with colors that represent the intensity of the log probability.
+*
+* @param value - The log probability entry containing the token, log probability, and entropy value.
+* @param options - Optional configuration for customization:
+*    - maxIntensity: Adjusts the maximum intensity of color used in the gradient.
+*    - entropy: Determines whether entropy is displayed in the title.
+*    - eatSpaces: When true, replaces newlines in the token with spaces. Otherwise, replaces spaces with non-breaking spaces and converts newlines to HTML line breaks.
+* @returns A styled string representing the token with gradient-based log probability coloring.
 */
 export function logprobToMarkdown(
     value: Logprob,

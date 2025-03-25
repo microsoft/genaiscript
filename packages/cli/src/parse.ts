@@ -39,9 +39,9 @@ import { terminalSize } from "../../core/src/terminal"
  */
 
 /**
- * Parses fenced code blocks of a specific language from a PDF file.
+ * Extracts and logs fenced code blocks of a specific language from a file.
  * @param language - The language to filter the fenced blocks by.
- * @param file - The PDF file to parse.
+ * @param file - The file to parse.
  */
 export async function parseFence(language: string, file: string) {
     const res = await resolveFileContent({ filename: file })
@@ -53,8 +53,10 @@ export async function parseFence(language: string, file: string) {
 }
 
 /**
- * Parses the contents of a PDF file and outputs them in YAML format.
+ * Parses the contents of a PDF file and outputs them in text format. 
+ * Optionally writes the content and page images to the specified output directory.
  * @param file - The PDF file to parse.
+ * @param options - Options to include images and specify the output directory.
  */
 export async function parsePDF(
     file: string,
@@ -79,8 +81,10 @@ export async function parsePDF(
 }
 
 /**
- * Parses the contents of a DOCX file and logs the text.
+ * Parses the contents of a DOCX file and logs the extracted text.
+ * If an error occurs during parsing, it logs the error.
  * @param file - The DOCX file to parse.
+ * @param options - Options for parsing the DOCX file.
  */
 export async function parseDOCX(file: string, options: DocxParseOptions) {
     // Uses DOCXTryParse to extract text from the DOCX file
@@ -90,8 +94,9 @@ export async function parseDOCX(file: string, options: DocxParseOptions) {
 }
 
 /**
- * Converts HTML content to text and logs it.
- * @param file - The HTML file to convert.
+ * Converts HTML content to text and logs it or writes it to a file.
+ * @param fileOrUrl - The HTML file or URL to convert.
+ * @param options - Options to specify the output format and file.
  */
 export async function parseHTMLToText(
     fileOrUrl: string,
@@ -167,6 +172,8 @@ export async function parseAnyToJSON(
 
 /**
  * Converts JSONL files to JSON files.
+ * Processes an array of files or glob patterns, skipping non-JSONL files,
+ * and writes the converted JSON content to new files with a ".json" extension.
  * @param files - An array of files or glob patterns to process.
  */
 export async function jsonl2json(files: string[]) {
@@ -185,9 +192,9 @@ export async function jsonl2json(files: string[]) {
 }
 
 /**
- * Estimates tokens from files and logs them.
+ * Estimates the number of tokens in the content of files and logs the results.
  * @param filesGlobs - An array of files or glob patterns to process.
- * @param options - Options for excluding files and specifying the model.
+ * @param options - Options for excluding files, specifying the model, and ignoring .gitignore.
  */
 export async function parseTokens(
     filesGlobs: string[],
@@ -219,6 +226,7 @@ export async function parseTokens(
  * Converts "prompty" format files to GenAI script files.
  * @param files - An array of files to process.
  * @param options - Options specifying the output directory.
+ * Logs the conversion process and writes the output files to the specified directory.
  */
 export async function prompty2genaiscript(
     files: string[],

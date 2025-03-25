@@ -7,10 +7,10 @@ import { dirname, join } from "node:path"
 /**
  * Runs a GenAIScript script with the given files and options.
  * This function acts similarly to the `run` command in the CLI.
- * @param scriptId script identifier or full file path
- * @param files list of file paths to run the script on, leave empty if not needed
- * @param options
- * @returns
+ * @param scriptId The script identifier or full file path. This parameter is required.
+ * @param files List of file paths to run the script on, leave empty if not needed.
+ * @param options GenAIScript generation options, including optional environment variables, an abort signal, and additional options. The options may include a label for the worker thread.
+ * @returns A promise that resolves with the generation result or rejects if an error occurs.
  */
 export async function run(
     /**

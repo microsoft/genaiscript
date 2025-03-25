@@ -1,3 +1,5 @@
+import { classify } from "genaiscript/runtime"
+
 script({
     title: "Generate TypeScript function documentation using AST insertion",
     accept: ".ts",
@@ -54,6 +56,32 @@ for (const match of matches) {
         continue
     }
     const docs = docify(res.text.trim())
+
+    // sanity check
+    const consistent = await classify(
+        (_) => {
+            _.def("FUNCTION", match.text())
+            _.def("DOCS", docs)
+        },
+        {
+            OK: "The content in <DOCS> is an accurate documentation for the code in <FUNCTION>.",
+            ERR: "The content in <DOCS> does not match with the code in <FUNCTION>.",
+        },
+        {
+            model: "small",
+            responseType: "text",
+            temperature: 0.2,
+            systemSafety: false,
+            system: ["system.technical", "system.typescript"],
+        }
+    )
+
+    if (consistent.label !== "OK") {
+        output.warn(consistent.label)
+        output.fence(consistent.answer)
+        continue
+    }
+
     const updated = `${docs}\n${match.text()}`
     replace(match, updated)
 }
@@ -71,6 +99,7 @@ if (applyEdits) {
 
 // normalizes the docstring in case the LLM decides not to generate proper comments
 function docify(docs: string) {
+    docs = parsers.unfence(docs, ["", "typescript", "ts", "javascript", "js"])
     if (!/^\/\*\*.*.*\*\/$/s.test(docs))
         docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
     return docs.replace(/\n+$/, "")
