@@ -16,8 +16,8 @@ const file = env.files[0]
 
 const prettier = async (file) => {
     // format
-    const res = await host.exec("prettier", ["--write", file.filename])
-    if (res.exitCode) throw new Error(`${res.stdout} (${res.exitCode})`)
+   // const res = await host.exec("prettier", ["--write", file.filename])
+ //   if (res.exitCode) throw new Error(`${res.stdout} (${res.exitCode})`)
 }
 
 // normalize spacing

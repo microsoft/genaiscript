@@ -214,8 +214,8 @@ export interface FileOutputNode extends PromptNode {
 /**
  * Creates a text node with the specified value and optional context expansion options.
  * 
- * @param value - The string value for the text node, must be defined.
- * @param options - Configuration for context expansion, applied if provided.
+ * @param value - The string value for the text node, must be defined. Can be an awaitable.
+ * @param options - Optional configuration for context expansion.
  * @returns A text node object with the specified value and options.
  */
 export function createTextNode(
@@ -397,7 +397,7 @@ ${trimNewlines(text)}
 
 /**
  * Creates a node representing an assistant message in a prompt.
- * @param value The content of the assistant message.
+ * @param value The content of the assistant message. Must be defined.
  * @param options Optional settings for context expansion. Defaults to an empty object if not provided.
  */
 export function createAssistantNode(
@@ -443,7 +443,7 @@ export function createStringTemplateNode(
  * Creates an image node with the given value and optional context expansion options.
  * 
  * @param value - The image data or prompt used to create the node. Must not be undefined.
- * @param options - Optional context expansion options to include in the node.
+ * @param options - Context expansion options to include in the node, if any.
  * @returns The created image node.
  */
 export function createImageNode(
@@ -459,7 +459,7 @@ export function createImageNode(
  * 
  * Parameters:
  * - name: The name of the schema node. Must not be empty.
- * - value: The schema definition or a Zod type to be converted to JSON Schema. Automatically converts Zod types if applicable.
+ * - value: The schema definition or a Zod type to be converted to JSON Schema. Automatically converts Zod types if applicable. Must not be undefined.
  * - options: Optional configuration for the schema node.
  */
 export function createSchemaNode(
@@ -502,10 +502,10 @@ export function createFileMerge(fn: FileMergeHandler): PromptFileMergeNode {
     return { type: "fileMerge", fn }
 }
 
-/** 
+/**
  * Creates and returns an output processor node with a specified handler function.
- * 
- * @param fn - Handler function to process prompt outputs. Must be defined. 
+ *
+ * @param fn - Handler function to process prompt outputs. Must not be undefined.
  * @returns An output processor node containing the handler function.
  */
 export function createOutputProcessor(
@@ -529,7 +529,7 @@ export function createChatParticipant(
 /**
  * Creates a file output node with the specified output.
  * @param output - The file output to include in the node.
- * @returns A file output node.
+ * @returns A file output node with the given output.
  */
 export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output } satisfies FileOutputNode
@@ -1215,16 +1215,16 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
  * Main function to render a prompt node.
  * 
  * Resolves, deduplicates, flexes, truncates, and validates the prompt node.
- * Handles various node types including text, system, assistant, schemas, tools, images, and more.
- * Supports tracing, safety validation, and token management.
+ * Handles various node types including text, system, assistant, schemas, tools, images, file merges, outputs, and more.
+ * Supports tracing, safety validation, token management, and MCP server integration.
  * 
  * Parameters:
  * - modelId: Identifier for the model.
  * - node: The prompt node to render.
- * - options: Optional configurations for model templates, tracing, cancellation, and token flexibility.
+ * - options: Optional configurations for model templates, tracing, cancellation, token flexibility, and MCP server handling.
  * 
  * Returns:
- * - A rendered prompt node with associated metadata, messages, resources, and disposables.
+ * - A rendered prompt node with associated metadata, messages, resources, tools, errors, and disposables.
  */
 export async function renderPromptNode(
     modelId: string,

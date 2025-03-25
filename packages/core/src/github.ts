@@ -149,13 +149,13 @@ export async function githubParseEnv(
 }
 
 /**
-* // Updates the description of a pull request on GitHub.
-* // Parameters:
-* // - script: The script instance used to generate the footer.
-* // - info: Object containing apiUrl, repository, issue, and runUrl.
-* // - text: The new description text to update.
-* // - commentTag: Tag used to identify and merge the description.
-* // Returns an object indicating whether the update was successful and the status text.
+* Updates the description of a pull request on GitHub.
+* Parameters:
+* - script: The script instance used to generate the footer.
+* - info: Object containing apiUrl, repository, issue, and runUrl. The issue field must be provided.
+* - text: The new description text to update. It will be prettified and appended with a footer.
+* - commentTag: Tag used to identify and merge the description. Must be provided.
+* Returns an object indicating whether the update was successful and the status text.
 */
 export async function githubUpdatePullRequestDescription(
     script: PromptScript,

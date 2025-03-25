@@ -47,9 +47,10 @@ export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
 
 /**
  * Converts a JSON Schema into a TypeScript type definition string.
- * @param schema - The JSON Schema to convert.
+ * @param schema - The JSON Schema to convert. Supports objects, arrays, and primitive types.
  * @param options - Optional settings, including the type name and whether to export the type.
- * @returns The TypeScript type definition as a string.
+ *                  The typeName specifies the name of the generated type.
+ * @returns The TypeScript type definition as a string, including JSDoc comments for schema descriptions.
  */
 export function JSONSchemaStringifyToTypeScript(
     schema: JSONSchema | JSONSchemaType,
@@ -174,7 +175,7 @@ export function JSONSchemaStringifyToTypeScript(
 /**
  * Validates a JSON Schema using Ajv.
  * @param schema - The JSON Schema to validate.
- * @returns A Promise resolving with the validation result, indicating whether the schema is valid.
+ * @returns A Promise resolving with the validation result, indicating whether the schema is valid or not.
  */
 export async function validateSchema(schema: JSONSchema) {
     const ajv = new Ajv()
