@@ -134,6 +134,7 @@ export async function convertFiles(
         (filename) => ({ filename }) as WorkspaceFile
     )
 
+    const stats: object[] = []
     const usage = new GenerationStats("")
     const results: Record<string, string> = {}
     const p = new PLimitPromiseQueue(normalizeInt(concurrency) || 1)
@@ -232,6 +233,7 @@ export async function convertFiles(
             results[file.filename] = text
             const end = m()
             usage.addUsage(result.stats, end)
+            if (result.stats) stats.push(result.stats)
         } catch (error) {
             logError(error)
             fileTrace.error(undefined, error)
@@ -242,5 +244,8 @@ export async function convertFiles(
     })
 
     usage.log()
+    usage.trace(convertTrace)
+
+    convertTrace.table(stats)
     logVerbose(`trace: ${outTraceFilename}`)
 }
