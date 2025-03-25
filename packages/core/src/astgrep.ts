@@ -249,7 +249,7 @@ async function loadDynamicLanguage(langName: string) {
         dbg(`loading language: ${langName}`)
         const { registerDynamicLanguage } = await import("@ast-grep/napi")
         try {
-            const dynamicLang = await import(`@ast-grep/lang-${langName}`)
+            const dynamicLang = (await import(`@ast-grep/lang-${langName}`)).default
             registerDynamicLanguage({ [langName]: dynamicLang })
             loadedDynamicLanguages.add(langName)
             dbg(`language ${langName} registered `)
