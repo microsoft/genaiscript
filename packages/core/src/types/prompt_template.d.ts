@@ -4201,7 +4201,7 @@ interface SgRoot {
     filename(): string
 }
 
-type SgLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css">
+type SgLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css" | "c" | "sql">
 
 interface Sg {
     parse(file: WorkspaceFile, options: { lang?: SgLang }): Promise<SgRoot>

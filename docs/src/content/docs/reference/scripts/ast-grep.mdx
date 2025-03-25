@@ -34,13 +34,21 @@ const { matches } = await asg.search("ts", "src/fib.ts", {
 
 ## Supported languages
 
-This version of `ast-grep` [supports the following languages](https://ast-grep.github.io/reference/api.html#supported-languages):
+This version of `ast-grep` [supports the following built-in languages](https://ast-grep.github.io/reference/api.html#supported-languages):
 
 - Html
 - JavaScript
 - Tsx
 - Css
 - TypeScript
+
+The following languages languages require installing an additiona package:
+
+- C, `@ast-grep/lang-c`
+
+```sh
+npm install -D @ast-grep/lang-c
+```
 
 :::tip
 

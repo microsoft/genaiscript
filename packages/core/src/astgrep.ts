@@ -2,7 +2,7 @@ import debug from "debug"
 const dbg = debug("genaiscript:astgrep")
 
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { CancelError } from "./error"
+import { CancelError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
 import { host } from "./host"
 import { uniq } from "es-toolkit"
@@ -215,7 +215,7 @@ async function resolveLang(lang: SgLang, filename?: string) {
         return Lang.Css
     }
     if (lang) {
-        return lang
+        return await loadDynamicLanguage(lang.toLowerCase())
     }
 
     if (filename) {
@@ -235,6 +235,30 @@ async function resolveLang(lang: SgLang, filename?: string) {
         if (/\.css$/i.test(filename)) {
             return Lang.Css
         }
+        return await loadDynamicLanguage(
+            path.extname(filename).slice(1).toLowerCase()
+        )
     }
-    return undefined
+
+    throw new Error("language not resolved")
+}
+
+const loadedDynamicLanguages = new Set<string>()
+async function loadDynamicLanguage(langName: string) {
+    if (!loadedDynamicLanguages.has(langName)) {
+        dbg(`loading language: ${langName}`)
+        const { registerDynamicLanguage } = await import("@ast-grep/napi")
+        try {
+            const dynamicLang = await import(`@ast-grep/lang-${langName}`)
+            registerDynamicLanguage({ [langName]: dynamicLang })
+            loadedDynamicLanguages.add(langName)
+            dbg(`language ${langName} registered `)
+        } catch (err) {
+            dbg(`error loading language ${langName}: ${errorMessage(err)}`)
+            throw Error(
+                `@ast-grep/lang-${langName} package failed to load, please install it using 'npm install -D @ast-grep/lang-${langName}'`
+            )
+        }
+    }
+    return langName
 }

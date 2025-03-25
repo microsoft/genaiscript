@@ -46,3 +46,13 @@ for (const match of matches2) {
 const modified = await commitEdits()
 console.log(modified)
 //await workspace.writeFiles(files)
+
+const { matches: cmatches } = await sg.search("c", "src/fib.ts", {
+    rule: {
+        kind: "function_declaration",
+    },
+})
+for (const match of matches) {
+    const t = match.text()
+    console.log(t)
+}

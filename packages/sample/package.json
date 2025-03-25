@@ -18,6 +18,7 @@
     "@agentic/calculator": "v7.5.3",
     "@agentic/core": "v7.5.3",
     "@agentic/weather": "v7.5.3",
+    "@ast-grep/lang-c": "^0.0.1",
     "@azure/identity": "^4.8.0",
     "@azure/storage-blob": "^12.27.0",
     "@huggingface/transformers": "^3.4.0",
