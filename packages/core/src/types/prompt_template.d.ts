@@ -2562,6 +2562,7 @@ interface Git {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
         unified?: number
+        nameOnly?: boolean
         algorithm?: "patience" | "minimal" | "histogram" | "myers"
         ignoreSpaceChange?: boolean
         extras?: string[]
@@ -2569,6 +2570,10 @@ interface Git {
          * Modifies the diff to be in a more LLM friendly format
          */
         llmify?: boolean
+        /**
+         * Maximum of tokens before returning a name-only diff
+         */
+        maxTokensFullDiff?: number
     }): Promise<string>
 
     /**
