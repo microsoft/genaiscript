@@ -46,3 +46,18 @@ for (const match of matches2) {
 const modified = await commitEdits()
 console.log(modified)
 //await workspace.writeFiles(files)
+
+const { matches: cmatches } = await sg.search(
+    "c",
+    "src/main.c",
+    YAML`
+rule:
+  kind: function_definition
+`
+)
+for (const match of cmatches) {
+    const t = match.text()
+    console.log(t)
+}
+
+if (cmatches.length === 0) throw new Error("No matches found")

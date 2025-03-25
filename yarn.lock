@@ -75,6 +75,13 @@
     formdata-node "^4.3.2"
     node-fetch "^2.6.7"
 
+"@ast-grep/lang-c@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@ast-grep/lang-c/-/lang-c-0.0.1.tgz#67042ac2ca3ae2b6a72babf0fd6f032c4e86eb24"
+  integrity sha512-CthuZUqgDHX3dsQmBRvKzyHGPLI8LbO6KHjwtG7T2BOVp+0/CoZ7kd9dMi4RIw9Q79nUU/mD4t6PfH2le8yOag==
+  dependencies:
+    "@ast-grep/setup-lang" "0.0.3"
+
 "@ast-grep/napi-darwin-arm64@0.36.2":
   version "0.36.2"
   resolved "https://registry.yarnpkg.com/@ast-grep/napi-darwin-arm64/-/napi-darwin-arm64-0.36.2.tgz#4d0344c05852824f047785b19f6a49fd005b7c63"
@@ -134,6 +141,11 @@
     "@ast-grep/napi-win32-arm64-msvc" "0.36.2"
     "@ast-grep/napi-win32-ia32-msvc" "0.36.2"
     "@ast-grep/napi-win32-x64-msvc" "0.36.2"
+
+"@ast-grep/setup-lang@0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@ast-grep/setup-lang/-/setup-lang-0.0.3.tgz#b817fb38905ddf12f612e767d0ad2abb8d05085b"
+  integrity sha512-+ZNOuf0r7ABVwOANrrQpUrUv7xyuhsZGyQ88WZCH/euQmIEvSH3JsUFevg/60M7hi8NVh4vfSQs6ajTpumSzxg==
 
 "@aws-crypto/crc32@3.0.0":
   version "3.0.0"

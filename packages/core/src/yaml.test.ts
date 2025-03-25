@@ -1,4 +1,4 @@
-import { YAMLTryParse, YAMLParse, YAMLStringify } from "./yaml"
+import { YAMLTryParse, YAMLParse, YAMLStringify, createYAML } from "./yaml"
 import { describe, test, beforeEach } from "node:test"
 import assert from "node:assert/strict"
 
@@ -42,6 +42,31 @@ describe("YAML utilities", () => {
             const expectedResult = `name: test\nage: 30\n`
             const result = YAMLStringify(obj)
             assert.strictEqual(result, expectedResult)
+        })
+    })
+    describe("createYAML", () => {
+        test("should parse a YAML template string", () => {
+            const yaml = createYAML()
+            const template = yaml`name: test\nage: 30`
+            const expectedResult = { name: "test", age: 30 }
+            assert.deepEqual(template, expectedResult)
+        })
+
+        test("should parse a YAML template string with embedded expressions", () => {
+            const yaml = createYAML()
+            const name = "test"
+            const age = 30
+            const template = yaml`name: ${name}\nage: ${age}`
+            const expectedResult = { name: "test", age: 30 }
+            assert.deepEqual(template, expectedResult)
+        })
+
+        test("should provide parse and stringify methods", () => {
+            const yaml = createYAML()
+            const obj = { name: "test", age: 30 }
+            const yamlString = yaml.stringify(obj)
+            const parsedObj = yaml.parse(yamlString)
+            assert.deepEqual(parsedObj, obj)
         })
     })
 })

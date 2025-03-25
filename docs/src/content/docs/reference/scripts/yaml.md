@@ -23,6 +23,7 @@ defData("DATA", data)
 Similarly to the `JSON` class in JavaScript, the `YAML` class in LLM provides methods to parse and stringify YAML data.
 
 ```js
+const obj = YAML`value: ${x}`
 const obj = YAML.parse(`...`)
 const str = YAML.stringify(obj)
 ```
