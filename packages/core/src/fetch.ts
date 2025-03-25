@@ -13,11 +13,11 @@ import { resolveHttpProxyAgent } from "./proxy"
 import { host } from "./host"
 import { renderWithPrecision } from "./precision"
 import crossFetch from "cross-fetch"
-import prettyBytes from "pretty-bytes"
 import { fileTypeFromBuffer } from "./filetype"
 import { isBinaryMimeType } from "./binary"
 import { toBase64 } from "./base64"
 import { deleteUndefinedValues } from "./cleaners"
+import { prettyBytes } from "./pretty"
 
 export type FetchType = (
     input: string | URL | globalThis.Request,

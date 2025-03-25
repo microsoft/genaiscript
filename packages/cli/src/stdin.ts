@@ -2,10 +2,9 @@ import { toBase64 } from "../../core/src/base64"
 import { isBinaryMimeType } from "../../core/src/binary"
 import { deleteUndefinedValues, isEmptyString } from "../../core/src/cleaners"
 import { fileTypeFromBuffer } from "../../core/src/filetype"
-import { buffer } from "node:stream/consumers"
 import { logVerbose } from "../../core/src/util"
-import prettyBytes from "pretty-bytes"
 import { STDIN_READ_TIMEOUT } from "../../core/src/constants"
+import { prettyBytes } from "../../core/src/pretty"
 
 function readStdinOrTimeout(): Promise<Buffer | undefined> {
     return new Promise<Buffer | undefined>((resolve, reject) => {

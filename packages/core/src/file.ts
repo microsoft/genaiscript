@@ -7,7 +7,7 @@ const dbg = debug("genaiscript:file")
  * PDF, DOCX, XLSX, and CSV.
  */
 import { DOCXTryParse } from "./docx"
-import { readText } from "./fs"
+import { readText, tryStat, tryStat } from "./fs"
 import { lookupMime } from "./mime"
 import { isBinaryMimeType } from "./binary"
 import { createFetch } from "./fetch"
@@ -32,7 +32,7 @@ import {
 import { UrlAdapter, defaultUrlAdapters } from "./urlAdapters"
 import { tidyData } from "./tidy"
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import prettyBytes from "pretty-bytes"
+import { prettyBytes } from "./pretty"
 
 /**
  * Resolves the content of a given file, attempting to fetch or parse it based on its type.
@@ -49,6 +49,7 @@ export async function resolveFileContent(
         cancellationToken,
         maxFileSize = MAX_FILE_CONTENT_SIZE,
     } = options || {}
+    if (!file) return file
 
     // decode known files
     if (file.encoding === "base64") {
@@ -75,9 +76,11 @@ export async function resolveFileContent(
         return file
     }
     if (!filename) {
+        dbg(`file has no content and no filename`)
         return file
     }
 
+    dbg(`resolving ${filename}`)
     // Handle URL files
     if (HTTPS_REGEX.test(filename)) {
         dbg(`handling URL file: ${filename}`)
@@ -141,16 +144,16 @@ export async function resolveFileContent(
         const mime = file.type || lookupMime(filename)
         const isBinary = isBinaryMimeType(mime)
         file.type = mime
-        const info = await host.statFile(filename)
-        dbg(
-            `file is ${isBinary ? `binary` : ""}, size ${prettyBytes(info?.size)}`
-        )
+        const info = await tryStat(filename)
         if (!info) {
+            dbg(`file not found: ${filename}`)
             return file
         }
         if (!isBinary) {
+            dbg(`text ${prettyBytes(info.size)}`)
             file.content = await readText(filename)
         } else {
+            dbg(`binary ${prettyBytes(info?.size)}`)
             if (!maxFileSize || info.size < maxFileSize) {
                 const bytes: Uint8Array = await host.readFile(filename)
                 file.encoding = "base64"

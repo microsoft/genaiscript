@@ -12,7 +12,6 @@ import {
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
-import prettyBytes from "pretty-bytes"
 import { host } from "./host"
 import { ellipse, toStringList } from "./util"
 import { renderWithPrecision } from "./precision"
@@ -29,6 +28,7 @@ import { fileCacheImage, fileWriteCached } from "./filecache"
 import { CancellationOptions } from "./cancellation"
 import { generateId } from "./id"
 import { createDiff } from "./diff"
+import { prettyBytes } from "./pretty"
 
 export class TraceChunkEvent extends Event {
     constructor(

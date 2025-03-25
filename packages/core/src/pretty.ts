@@ -1,4 +1,5 @@
 import type { ChatCompletionUsage } from "./chattypes"
+import _prettyBytes from "pretty-bytes"
 
 export function prettyTokensPerSecond(usage: ChatCompletionUsage) {
     if (!usage || !usage.duration || !usage.total_tokens) return ""
@@ -35,4 +36,9 @@ export function prettyCost(value: number) {
         : value <= 0.1
           ? `${(value * 100).toFixed(2)}¢`
           : `${value.toFixed(2)}$`
+}
+
+export function prettyBytes(bytes: number) {
+    if (isNaN(bytes)) return ""
+    return _prettyBytes(bytes)
 }

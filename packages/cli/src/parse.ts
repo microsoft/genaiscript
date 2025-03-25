@@ -29,7 +29,7 @@ import { redactSecrets } from "../../core/src/secretscanner"
 import { ellipse, logVerbose } from "../../core/src/util"
 import { chunkMarkdown } from "../../core/src/mdchunk"
 import { normalizeInt } from "../../core/src/cleaners"
-import prettyBytes from "pretty-bytes"
+import { prettyBytes } from "../../core/src/pretty"
 import { terminalSize } from "../../core/src/terminal"
 
 /**

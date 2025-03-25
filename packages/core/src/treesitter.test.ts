@@ -12,6 +12,7 @@ describe("treesitter", () => {
     test("ts", async () => {
         const f: WorkspaceFile = { filename: "./src/treesitter.ts" }
         await resolveFileContent(f)
+        assert(f.content)
         const { captures: x } = await treeSitterQuery(f)
         assert.strictEqual(x[0].name, "tree")
     })

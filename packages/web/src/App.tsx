@@ -25,7 +25,6 @@ import "@vscode-elements/elements/dist/vscode-split-layout"
 
 import Markdown from "./Markdown"
 import { useDropzone } from "react-dropzone"
-import prettyBytes from "pretty-bytes"
 import { lookupMime } from "../../core/src/mime"
 import { VscodeMultiSelect } from "@vscode-elements/elements/dist/vscode-multi-select/vscode-multi-select"
 import MarkdownPreviewTabs from "./MarkdownPreviewTabs"
@@ -55,6 +54,7 @@ import { ResultsTabs } from "./Results"
 import { RunnerProvider, useRunner } from "./RunnerContext"
 import { ImportedFile } from "./types"
 import { ProjectView } from "./ProjectView"
+import { prettyBytes } from "../../core/src/pretty"
 
 function useSyncProjectScript() {
     const { scriptid, setScriptid } = useScriptId()
@@ -691,7 +691,8 @@ function ModelOptionsFormHelper() {
 function RunScriptButton() {
     const { scriptid } = useScriptId()
     const { state } = useRunner()
-    const disabled = !scriptid
+
+    if (!scriptid) return null
 
     const title = state === "running" ? "Abort" : "Run"
     return (
@@ -700,7 +701,6 @@ function RunScriptButton() {
                 <ClientReadyStateLabel />
                 <vscode-button
                     icon={state === "running" ? "stop-circle" : "play"}
-                    disabled={disabled}
                     type="submit"
                     title={title}
                 >

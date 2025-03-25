@@ -1,4 +1,3 @@
-import prettyBytes from "pretty-bytes"
 import { serializeError } from "serialize-error"
 import { CancellationOptions } from "./cancellation"
 import { CreateTranscriptionRequest, LanguageModel } from "./chat"
@@ -8,6 +7,7 @@ import { getConfigHeaders } from "./openai"
 import { LanguageModelConfiguration } from "./server/messages"
 import { TraceOptions } from "./trace"
 import { logVerbose, logError } from "./util"
+import { prettyBytes } from "./pretty"
 
 async function WhisperASRTranscribe(
     req: CreateTranscriptionRequest,

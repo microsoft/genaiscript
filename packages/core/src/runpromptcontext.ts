@@ -91,7 +91,6 @@ import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
 import { mergeEnvVarsWithSystem, parametersToVars } from "./vars"
-import prettyBytes from "pretty-bytes"
 import { JSONLineCache } from "./cache"
 import { FFmepgClient } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
@@ -107,6 +106,7 @@ import { consoleColors } from "./consolecolor"
 import { terminalSize } from "./terminal"
 import { stderr, stdout } from "./stdio"
 import { dotGenaiscriptPath } from "./workdir"
+import { prettyBytes } from "./pretty"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
