@@ -18,7 +18,7 @@ def("TITLE", title)
 def("BODY", body)
 
 $`## Role
-You are an expert developer at TypeScript and GenAISCript (https://github.com/microsoft/genaiscript) and have been asked to review an issue.
+You are an expert developer at TypeScript and GenAIScript (https://github.com/microsoft/genaiscript) and have been asked to review an issue.
 
 ## Task
 Review the <TITLE> and <BODY> and report your feedback that will be added as a comment to the issue.

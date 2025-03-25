@@ -81,7 +81,7 @@ yarn run:script:debug <scriptid> ...
 
 ## Logging
 
-GenAISCript uses the [debug](https://www.npmjs.com/package/debug) library for logging. You can enable logging by setting the `DEBUG` environment variable to `genai:*`.
+GenAIScript uses the [debug](https://www.npmjs.com/package/debug) library for logging. You can enable logging by setting the `DEBUG` environment variable to `genai:*`.
 
 ```sh
 DEBUG=genai:* yarn genai <scriptid> ...

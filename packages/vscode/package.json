@@ -353,7 +353,7 @@
                     "genaiscript.debug": {
                         "type": "string",
                         "default": "script",
-                        "description": "List of logging categories that will be set as 'DEBUG' environment variable when launching the GenAISCript server. If 'diagnostics' is on, it is overriden by '*'."
+                        "description": "List of logging categories that will be set as 'DEBUG' environment variable when launching the GenAIScript server. If 'diagnostics' is on, it is overriden by '*'."
                     },
                     "genaiscript.cache": {
                         "type": "boolean",
