@@ -1,5 +1,9 @@
 import { uniq } from "es-toolkit"
-import { GENAI_ANY_REGEX, GENAI_ANYJS_GLOB } from "../../core/src/constants"
+import {
+    GENAI_ANY_REGEX,
+    GENAI_ANYJS_GLOB,
+    GENAISCRIPT_FOLDER,
+} from "../../core/src/constants"
 import { host, runtimeHost } from "../../core/src/host"
 import { parseProject } from "../../core/src/parser"
 import { arrayify } from "../../core/src/util"
@@ -29,7 +33,9 @@ export async function buildProject(options?: {
         tps = arrayify(tps)
         scriptFiles = []
         for (const tp of tps) {
-            const fs = await host.findFiles(tp)
+            const fs = await host.findFiles(tp, {
+                ignore: `**/${GENAISCRIPT_FOLDER}/**`,
+            })
             scriptFiles.push(...fs)
         }
     }
