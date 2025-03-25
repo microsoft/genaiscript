@@ -52,8 +52,8 @@ const SEV_EMOJI_MAP: Record<string, string> = Object.freeze({
 /**
  * Parses annotations from TypeScript, GitHub Actions, and Azure DevOps.
  *
- * @param text - The input text containing annotations.
- * @returns Array of parsed `Diagnostic` objects.
+ * @param text - The input text containing annotations to be parsed.
+ * @returns An array of unique Diagnostic objects extracted from the text.
  */
 export function parseAnnotations(text: string): Diagnostic[] {
     if (!text) return []
@@ -119,10 +119,10 @@ export function convertAnnotationToItem(d: Diagnostic) {
 }
 
 /**
- * Converts a `Diagnostic` to a GitHub Action command string.
+ * Converts a Diagnostic object to a GitHub Action command string.
  *
- * @param d - The `Diagnostic` to convert.
- * @returns A formatted GitHub Action command string.
+ * @param d - The Diagnostic object containing severity, filename, range, and message.
+ * @returns A string formatted as a GitHub Action command.
  */
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
     // Maps DiagnosticSeverity to GitHub Action severity strings.
@@ -137,10 +137,10 @@ export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
 }
 
 /**
- * Converts a `Diagnostic` to an Azure DevOps command string.
+ * Converts a Diagnostic object to an Azure DevOps log issue command string.
  *
- * @param d - The `Diagnostic` to convert.
- * @returns A formatted Azure DevOps command string.
+ * @param d - The Diagnostic object to convert. Includes severity, message, filename, and range.
+ * @returns A formatted Azure DevOps command string or debug message for "info" severity.
  */
 export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
     // Handle 'info' severity separately with a debug message.
@@ -151,10 +151,10 @@ export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
 }
 
 /**
- * Converts annotations in text to a Markdown format.
+ * Converts annotations in text to a Markdown representation.
  *
- * @param text - The input text containing annotations.
- * @returns A string of formatted Markdown annotations.
+ * @param text - Input text with annotations to be converted.
+ * @returns Formatted string in Markdown with admonitions for severity levels.
  */
 export function convertAnnotationsToMarkdown(text: string): string {
     // Maps severity levels to Markdown admonition types.

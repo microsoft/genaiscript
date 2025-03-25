@@ -23,8 +23,9 @@ export function prettifyMarkdown(md: string) {
 }
 
 /**
- * Renders an object to a markdown string.
+ * Renders an object to a markdown string with options for quoting values and customizing headings.
  * @param obj - The object to render.
+ * @param options - Optional settings for rendering, including quoting values, number of headings, and heading levels.
  * @returns A string representing the markdown of the object.
  */
 export function MarkdownStringify(

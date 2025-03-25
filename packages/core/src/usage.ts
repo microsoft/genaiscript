@@ -21,11 +21,11 @@ import {
 } from "./pretty"
 
 /**
- * Estimates the cost of a chat completion based on the model and usage.
+ * Estimates the cost of a chat completion based on the model pricing and token usage.
  *
- * @param modelId - The identifier of the model used for chat completion.
- * @param usage - The usage statistics for the chat completion.
- * @returns The estimated cost or undefined if estimation is not possible.
+ * @param modelId - Identifier of the model used for chat completion.
+ * @param usage - Token usage statistics, including prompt and completion tokens.
+ * @returns Estimated cost, or undefined if pricing data is unavailable.
  */
 export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (!modelId || !usage.total_tokens) return undefined

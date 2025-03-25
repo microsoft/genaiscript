@@ -27,10 +27,13 @@ export interface ChangeLog {
 }
 
 /**
- * Parses the raw changelog string into structured ChangeLog objects.
+ * Parses a raw changelog string into a structured array of ChangeLog objects.
  *
- * @param source The raw string containing changelog information.
- * @returns An array of parsed ChangeLog objects.
+ * @param source The raw input string containing changelog information.
+ * @returns An array of ChangeLog objects parsed from the input.
+ * 
+ * The input is expected to follow a specific format, including headers, descriptions,
+ * and detailed changes marked with line numbers and contents.
  */
 export function parseChangeLogs(source: string): ChangeLog[] {
     const lines = unfence(source, "changelog").split("\n")

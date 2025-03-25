@@ -12,9 +12,9 @@ import { unfence } from "./unwrappers"
 import { filenameOrFileToContent } from "./unwrappers"
 
 /**
- * Parses an INI formatted string after cleaning it up.
+ * Parses an INI formatted string after cleaning it up by removing fencing and resolving file content.
  *
- * @param text - The INI formatted string to parse
+ * @param text - The INI formatted string or file content to parse
  * @returns The parsed object
  */
 export function INIParse(text: string) {
@@ -24,11 +24,11 @@ export function INIParse(text: string) {
 }
 
 /**
- * Tries to parse an INI formatted string, logging any errors and returning a default value if parsing fails.
+ * Parses an INI formatted string, logging any errors and returning a default value if parsing fails.
  *
- * @param text - The INI formatted string to parse
- * @param defaultValue - The value to return if parsing fails
- * @returns The parsed object or the default value
+ * @param text - INI formatted string to parse
+ * @param defaultValue - Value to return if parsing fails
+ * @returns Parsed object or default value
  */
 export function INITryParse(text: string, defaultValue?: any) {
     try {

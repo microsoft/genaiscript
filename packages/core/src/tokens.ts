@@ -12,9 +12,12 @@ import { measure } from "./performance"
 import { logVerbose } from "./util"
 
 /**
- * Rough o(1) token count estimate
- * @param text
- * @returns
+ * Provides a rough O(1) token count estimate by dividing the text length
+ * by an approximated token length and adding a constant overhead.
+ * 
+ * @param text The input text to estimate tokens for.
+ * @param options Optional parameters to adjust the overcount factor.
+ * @returns The estimated token count.
  */
 export function approximateTokens(
     text: string,
@@ -28,12 +31,12 @@ export function approximateTokens(
 }
 
 /**
- * Function to estimate the number of tokens for a given text.
- * Utilizes a provided encoder function to achieve this.
+ * Estimates the number of tokens in a given text using a provided encoder function. 
+ * Includes a constant overhead in the result.
  *
- * @param text - The input text whose tokens are to be estimated.
- * @param encoder - A function that encodes the text into tokens.
- * @returns The estimated number of tokens including an overhead.
+ * @param text - The input text to estimate tokens for.
+ * @param encoder - Function to encode the text into tokens.
+ * @returns Estimated token count, including overhead.
  */
 export function estimateTokens(text: string, encoder: TokenEncoder) {
     // If the text is empty or undefined, return 0
@@ -53,12 +56,17 @@ export function estimateTokens(text: string, encoder: TokenEncoder) {
 }
 
 /**
- * Function to trunace a string to a token limit. This is potentially very expensive.
- * @param content
- * @param maxTokens
- * @param encoder
- * @param options
- * @returns
+ * Truncates a string to fit within a specified token limit. 
+ * Utilizes a binary search approach for efficiency.
+ * 
+ * @param content - The text content to truncate.
+ * @param maxTokens - The token limit to enforce.
+ * @param encoder - The function to encode text into tokens.
+ * @param options - Additional options:
+ *   - tokens: Precomputed token count of the content.
+ *   - last: Truncate from the end of the content if true.
+ *   - threshold: Minimum token adjustment threshold for binary search.
+ * @returns Truncated content adjusted to fit within the token limit.
  */
 export function truncateTextToTokens(
     content: string,

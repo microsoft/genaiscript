@@ -13,9 +13,10 @@ import { TextSplitter } from "./textsplitter"
 import { errorMessage } from "./error"
 
 /**
- * Resolves the appropriate token encoder based on the given model ID.
- * @param modelId - The identifier for the model to resolve the encoder for.
- * @returns A Promise that resolves to a TokenEncoder function.
+ * Resolves the token encoder for a given model identifier.
+ * @param modelId - Identifier of the model to resolve the encoder for. Defaults to a large model alias if empty.
+ * @param options - Optional settings, including whether to disable fallback mechanisms.
+ * @returns A Promise resolving to a TokenEncoder function or undefined if fallback is disabled.
  */
 export async function resolveTokenEncoder(
     modelId: string,

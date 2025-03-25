@@ -17,6 +17,7 @@ import { hash } from "./crypto"
 import { PLimitPromiseQueue } from "./concurrency"
 import { deleteUndefinedValues } from "./cleaners"
 import { dotGenaiscriptPath } from "./workdir"
+import { prettyBytes } from "./pretty"
 
 function progressBar(): ProgressCallback {
     const progress: Record<string, number> = {}

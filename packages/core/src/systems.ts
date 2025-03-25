@@ -14,12 +14,13 @@ import type { Project } from "./server/messages"
 import { deleteUndefinedValues } from "./cleaners"
 
 /**
- * Function to resolve and return a list of systems based on the provided script and project.
- * This function analyzes the script options and JavaScript source code to determine applicable systems.
+ * Resolves and returns a list of unique systems based on the provided script and project.
+ * Analyzes script options, JavaScript source code, and tools to determine applicable systems.
  *
- * @param prj - The project object containing templates and other project-related data.
- * @param script - An object containing options for the prompt system, model options, and optionally JavaScript source code.
- * @returns An array of unique system IDs that are applicable based on the analysis.
+ * @param prj - The project object containing templates, tools, and other project-related data.
+ * @param script - An object containing prompt system options, model options, content safety options, and optionally JavaScript source code.
+ * @param resolvedTools - An optional array of tools resolved externally for additional system inclusion.
+ * @returns An array of unique system prompt instances applicable based on the analysis.
  */
 export function resolveSystems(
     prj: Project,
@@ -232,13 +233,13 @@ function resolveSystemFromTools(prj: Project, tool: string): string[] {
 }
 
 /**
- * Function to resolve tools in the project based on provided systems and tools.
- * This function returns a list of tool objects with their IDs and descriptions.
+ * Resolves tools in the project based on provided systems and tools.
+ * Finds and returns tool objects with their IDs and descriptions.
  *
- * @param prj - The project object containing templates and other project-related data.
- * @param systems - An array of system IDs to resolve tools for.
- * @param tools - An array of tool IDs to resolve tools for.
- * @returns An array of tool objects containing their IDs and descriptions.
+ * @param prj - The project containing templates and script data.
+ * @param systems - System IDs or instances to match against project scripts.
+ * @param tools - Tool IDs to resolve in the project scripts.
+ * @returns A list of tool objects with IDs and descriptions.
  */
 export function resolveTools(
     prj: Project,

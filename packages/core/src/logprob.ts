@@ -123,7 +123,11 @@ function computeNormalizedEntropy(
     return normalizedEntropy
 }
 
-// https://www.watchful.io/blog/decoding-llm-uncertainties-for-better-predictability
+/**
+ * Computes the average structural uncertainty of a series of log probabilities.
+ * Filters log probabilities with defined top probabilities and calculates normalized entropy for each.
+ * Returns the mean of valid normalized entropy values, or undefined if no valid data is found.
+ */
 export function computeStructuralUncertainty(
     logprobs: Logprob[] | undefined
 ): number {

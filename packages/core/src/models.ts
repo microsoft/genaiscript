@@ -22,9 +22,13 @@ export interface ParsedModelType {
 }
 
 /**
- * model
- * provider:model
- * provider:model:tag where modelId model:tag
+ * Parses a model identifier string in the format:
+ * - `provider:model`
+ * - `provider:model:tag`
+ * - Optionally, `model:tag` can include `:reasoningEffort` (e.g., high, medium, low).
+ * 
+ * Parameters:
+ * - id: The model identifier string to parse.
  */
 export function parseModelIdentifier(id: string): {
     provider: string

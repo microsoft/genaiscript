@@ -37,12 +37,13 @@ const dbg = debug("genaiscript:promptcontext")
 
 /**
  * Creates a prompt context for the given project, variables, trace, options, and model.
+ * 
  * @param prj The project for which the context is created.
- * @param vars Expansion variables used in the context.
- * @param trace Markdown trace for logging purposes.
- * @param options Generation options for the prompt.
- * @param model The model identifier for context creation.
- * @returns A context object that includes methods and properties for prompt execution.
+ * @param ev Expansion variables including generator, output, and other configurations.
+ * @param trace Markdown trace for logging and debugging.
+ * @param options Includes generation options like cancellation tokens and embedding models.
+ * @param model The model identifier used for the context creation.
+ * @returns A context object with methods and properties for file operations, web retrieval, searches, and execution.
  */
 export async function createPromptContext(
     prj: Project,

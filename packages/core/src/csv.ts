@@ -11,10 +11,11 @@ import { filenameOrFileToContent } from "./unwrappers"
 /**
  * Parses a CSV string into an array of objects.
  *
- * @param text - The CSV string to parse.
+ * @param text - The CSV string or file to parse.
  * @param options - Optional parsing configuration.
  * @param options.delimiter - Delimiter used in the CSV, defaults to comma.
- * @param options.headers - Array of headers for the CSV columns.
+ * @param options.headers - Headers for the CSV columns, as an array or single value.
+ * @param options.repair - Whether to repair escape errors, defaults to false.
  * @returns An array of objects representing the CSV data.
  */
 export function CSVParse(
@@ -52,14 +53,15 @@ export function CSVParse(
 }
 
 /**
- * Attempts to parse a CSV string into an array of objects, with error handling.
+ * Attempts to parse a CSV string into an array of objects, handling errors gracefully.
  *
  * @param text - The CSV string to parse.
- * @param options - Optional parsing configuration and tracing options.
- * @param options.delimiter - Delimiter used in the CSV, defaults to comma.
- * @param options.headers - Array of headers for the CSV columns.
- * @param options.trace - Trace function for logging errors.
- * @returns An array of objects representing the CSV data, or undefined if parsing fails.
+ * @param options - Optional configuration for parsing and error handling.
+ * @param options.delimiter - Delimiter to separate values, defaults to comma.
+ * @param options.headers - Array of column headers for the parsed data.
+ * @param options.repair - Flag to enable basic error correction in the input data.
+ * @param options.trace - Optional trace function for logging errors during parsing.
+ * @returns An array of objects representing the parsed CSV data, or undefined on error.
  */
 export function CSVTryParse(
     text: string,
@@ -84,9 +86,9 @@ export function CSVTryParse(
 /**
  * Converts an array of objects into a CSV string.
  *
- * @param csv - An array of objects to be converted into CSV format.
- * @param options - Optional configuration for CSV stringification.
- * @returns A string representing the CSV formatted data.
+ * @param csv - Array of objects to convert to CSV format. Returns an empty string if the array is null or undefined.
+ * @param options - Configuration for CSV stringification, such as headers or delimiter settings.
+ * @returns A CSV formatted string representation of the input data.
  */
 export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
     if (!csv) return "" // Return empty string if CSV is empty
@@ -150,9 +152,11 @@ export function objectToMarkdownTableRow(
 }
 
 /**
- * Splits the original array into chunks of the specified size.
- * @param csv
- * @param rows
+ * Splits an array of objects into chunks of a specified size.
+ * 
+ * @param rows - The array of objects to split into chunks.
+ * @param size - The size of each chunk.
+ * @returns An array of chunk objects with starting index and rows.
  */
 export function CSVChunk(
     rows: object[],

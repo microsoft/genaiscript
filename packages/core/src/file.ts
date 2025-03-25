@@ -7,7 +7,7 @@ const dbg = debug("genaiscript:file")
  * PDF, DOCX, XLSX, and CSV.
  */
 import { DOCXTryParse } from "./docx"
-import { readText, tryStat, tryStat } from "./fs"
+import { readText, tryStat } from "./fs"
 import { lookupMime } from "./mime"
 import { isBinaryMimeType } from "./binary"
 import { createFetch } from "./fetch"
@@ -35,10 +35,10 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { prettyBytes } from "./pretty"
 
 /**
- * Resolves the content of a given file, attempting to fetch or parse it based on its type.
- * @param file - The WorkspaceFile containing the file information.
- * @param options - Optional TraceOptions for logging and tracing.
- * @returns The updated WorkspaceFile with the resolved content.
+ * Resolves the content of a file by attempting to decode, fetch, or parse it based on its type or source.
+ * @param file - The file object containing information such as filename, content, type, and encoding.
+ * @param options - Optional parameters for tracing, cancellation handling, and file size limits.
+ * @returns The updated file object with resolved content.
  */
 export async function resolveFileContent(
     file: WorkspaceFile,
@@ -179,7 +179,8 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
 
 /**
  * Resolves the contents of multiple files asynchronously.
- * @param files - An array of WorkspaceFiles to process.
+ * @param files - Array of files to resolve.
+ * @param options - Optional parameters for tracing and cancellation handling.
  */
 export async function resolveFileContents(
     files: WorkspaceFile[],
@@ -193,10 +194,13 @@ export async function resolveFileContents(
 }
 
 /**
- * Renders the content of a file into a markdown format if applicable (e.g., CSV or XLSX).
- * @param file - The WorkspaceFile containing the file data.
- * @param options - Options for tracing and data filtering.
- * @returns An object with the filename and rendered content.
+ * Renders the content of a file into a markdown format if applicable.
+ * Supports rendering for CSV and XLSX file types by converting 
+ * their contents into readable markdown tables.
+ * 
+ * @param file - The file object containing filename and content.
+ * @param options - Options for tracing and filtering the file data.
+ * @returns An object containing the filename and rendered content.
  */
 export async function renderFileContent(
     file: WorkspaceFile,
@@ -245,10 +249,10 @@ export function dataUriToBuffer(filename: string) {
 }
 
 /**
- * Converts a file into a Data URI format.
- * @param filename - The file name or URL to convert.
- * @param options - Optional TraceOptions for fetching.
- * @returns The Data URI string or undefined if the MIME type cannot be determined.
+ * Resolves and returns the file content as bytes.
+ * @param filename - The file name, URL, or WorkspaceFile object to resolve.
+ * @param options - Options for tracing and cancellation handling.
+ * @returns A Uint8Array containing the file content as bytes.
  */
 export async function resolveFileBytes(
     filename: string | WorkspaceFile,
@@ -286,10 +290,10 @@ export async function resolveFileBytes(
 }
 
 /**
- * Converts a file into a Data URI format.
- * @param filename - The file name or URL to convert.
- * @param options - Optional TraceOptions for fetching.
- * @returns The Data URI string or undefined if the MIME type cannot be determined.
+ * Converts a file to a Data URI format.
+ * @param filename - The file name, URL, or data URI to convert.
+ * @param options - Optional parameters for tracing and fetching.
+ * @returns A Data URI string, or undefined if the MIME type is not determined.
  */
 export async function resolveFileDataUri(
     filename: string,

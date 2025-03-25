@@ -28,8 +28,11 @@ import { MarkdownStringify } from "./markdown"
 
 /**
  * Installs global utilities for various data formats and operations.
- * This function sets up global objects with frozen utilities for parsing
- * and stringifying different data formats, as well as other functionalities.
+ * Sets up global objects with frozen utilities for parsing, stringifying, and manipulating 
+ * different data formats, as well as handling tokenization, Git operations, and more.
+ * 
+ * Parameters:
+ * - None.
  */
 export function installGlobals() {
     dbg("install")

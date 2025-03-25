@@ -27,8 +27,8 @@ function startFence(text: string) {
 
 /**
  * Parse a single key-value pair from a string.
- * @param text - The text containing the key-value pair.
- * @returns An object with the parsed key-value pair.
+ * @param text - The string containing the key-value pair, separated by '=' or ':'.
+ * @returns An object with the extracted and unquoted key-value pair.
  */
 export function parseKeyValuePair(text: string): Record<string, string> {
     const m = /[=:]/.exec(text)
@@ -38,9 +38,9 @@ export function parseKeyValuePair(text: string): Record<string, string> {
 }
 
 /**
- * Parse multiple key-value pairs from a string or array of strings.
- * @param text - The text or array containing key-value pairs.
- * @returns An object with all parsed key-value pairs.
+ * Parse key-value pairs from a string or an array of strings.
+ * @param text - Input containing key-value pairs separated by space or line breaks. Keys and values should be separated by "=" or ":".
+ * @returns An object with parsed key-value pairs as immutable data.
  */
 export function parseKeyValuePairs(text: string | string[]) {
     const res: Record<string, string> = {}
@@ -199,9 +199,9 @@ export function parseVars(vars: string[]) {
 }
 
 /**
- * Render fenced code blocks as formatted strings.
- * @param vars - An array of fenced objects.
- * @returns A string representing the formatted fenced blocks.
+ * Render an array of fenced code blocks into a formatted string.
+ * @param vars - Array of fenced objects, each containing label, content, language, and other metadata.
+ * @returns A formatted string representation of the fenced blocks, including validation results and schema errors if present.
  */
 export function renderFencedVariables(vars: Fenced[]) {
     return vars

@@ -27,12 +27,12 @@ export type FetchType = (
 /**
  * Creates a fetch function with retry logic.
  *
- * Wraps `crossFetch` with retry capabilities based on provided options. 
- * Configures the number of retries, delay between retries, and specific HTTP status codes to retry on. 
- * Supports cancellation and proxy configuration.
+ * Wraps `crossFetch` with retry capabilities based on the provided options. 
+ * Configures the number of retries, the delay between retries, specific HTTP status codes to retry on, 
+ * and supports cancellation and proxy configuration.
  *
- * @param options - Configuration for retries, delays, status codes, cancellation, and tracing.
- * @returns A fetch function with retry functionality.
+ * @param options - Configuration for retries, delays, status codes, cancellation token, and tracing options.
+ * @returns A fetch function with retry and cancellation functionality.
  */
 export async function createFetch(
     options?: {
@@ -118,12 +118,13 @@ export async function fetch(
 /**
  * Fetches text content from a URL or file.
  *
- * Attempts to fetch content from an HTTP(S) URL or read from the file system for local files.
- * Handles retries, delays, and tracing if configured. Supports binary content via base64 encoding.
+ * Fetches content from an HTTP(S) URL or reads from the file system for local files.
+ * Automatically retries on specific HTTP statuses if configured. Supports tracing.
+ * Handles binary content using base64 encoding.
  *
  * @param urlOrFile - URL or file path to fetch from.
- * @param fetchOptions - Optional configuration for retries, delays, and other fetch settings.
- * @returns Object containing fetch status, content, and metadata.
+ * @param fetchOptions - Optional settings for retries, delays, tracing, and fetch configurations.
+ * @returns Object containing fetch status, content, metadata, and file details.
  */
 export async function fetchText(
     urlOrFile: string | WorkspaceFile,
@@ -195,17 +196,16 @@ export async function fetchText(
 }
 
 /**
- * Logs a POST request for tracing purposes.
+ * Logs a POST request for tracing.
  *
  * Constructs a curl command to represent the POST request, including headers 
- * and body. Sensitive information in authorization headers can be masked 
- * based on the provided options.
+ * and body. Authorization headers can be optionally masked.
  *
- * @param trace - Object used for logging trace details.
- * @param url - The target URL of the request.
- * @param headers - The headers to include in the request.
- * @param body - The request body, either as FormData or a raw object.
- * @param options - Configuration options, including whether to mask authorization headers.
+ * @param trace - Trace object for logging details.
+ * @param url - Target URL for the request.
+ * @param headers - Headers to include in the request. Sensitive authorization headers may be masked.
+ * @param body - Request body, either as FormData or a raw object.
+ * @param options - Options to configure masking of authorization headers.
  */
 export function traceFetchPost(
     trace: MarkdownTrace,
@@ -246,13 +246,13 @@ ${Object.entries(headers)
 }
 
 /**
- * Converts the HTTP response status and status text into a string list.
+ * Converts the HTTP response status and status text into a list of strings.
  *
- * Facilitates logging and debugging by converting the status information 
- * from the response object.
+ * Helps with logging and debugging by extracting the status and status text
+ * from the response object into a string list.
  *
- * @param res - The HTTP response object containing status and statusText.
- * @returns A string list with status and status text.
+ * @param res - The HTTP response object containing optional status and statusText fields.
+ * @returns A list of strings including the status and status text if available.
  */
 export function statusToMessage(res?: {
     status?: number

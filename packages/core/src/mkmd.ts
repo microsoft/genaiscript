@@ -9,10 +9,10 @@ const contentTypes: Record<string, string> = {
 }
 
 /**
- * Wraps text in a markdown code fence, handling nested fences by extending the fence.
- * @param t - The text to be wrapped in a code fence.
- * @param contentType - The type of content, defaulting to "markdown".
- * @returns The text wrapped in a markdown code fence.
+ * Wraps text in a markdown code fence, ensuring compatibility with nested fences by extending the fence if needed.
+ * @param t - The text to wrap in a code fence. Returns undefined if no text is provided.
+ * @param contentType - The content type to specify after the code fence. Defaults to "markdown" if not provided.
+ * @returns The wrapped text with appropriate code fencing.
  */
 export function fenceMD(t: string, contentType?: string) {
     if (t === undefined) return undefined

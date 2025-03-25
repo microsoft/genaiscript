@@ -211,7 +211,12 @@ export interface FileOutputNode extends PromptNode {
     output: FileOutput // File output information
 }
 
-// Function to create a text node.
+/**
+ * Creates a text node with the specified value and optional context expansion options.
+ * 
+ * @param value - The string value for the text node, can be awaited.
+ * @param options - Optional context expansion configuration.
+ */
 export function createTextNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -389,7 +394,12 @@ ${trimNewlines(text)}
     return value
 }
 
-// Function to create an assistant node.
+/**
+* // Creates a node representing an assistant message in a prompt.  
+* // Parameters:  
+* // - value: The content of the assistant message.  
+* // - options: Optional settings for context expansion.
+*/
 export function createAssistantNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -406,7 +416,13 @@ export function createSystemNode(
     return { type: "system", value, ...(options || {}) }
 }
 
-// Function to create a string template node.
+/**
+ * Creates a string template node with provided template strings and arguments.
+ * 
+ * @param strings - Template literal strings.
+ * @param args - Arguments to interpolate into the template.
+ * @param options - Optional configuration for context expansion.
+ */
 export function createStringTemplateNode(
     strings: TemplateStringsArray,
     args: any[],
@@ -422,7 +438,13 @@ export function createStringTemplateNode(
     }
 }
 
-// Function to create an image node.
+/**
+ * Creates an image node with the specified value and options.
+ * 
+ * @param value - The image data or prompt to be used for creating the node.
+ * @param options - Optional context expansion parameters to include.
+ * @returns An image node object.
+ */
 export function createImageNode(
     value: Awaitable<PromptImage>,
     options?: ContextExpansionOptions
@@ -431,7 +453,13 @@ export function createImageNode(
     return { type: "image", value, ...(options || {}) }
 }
 
-// Function to create a schema node.
+/**
+* // Creates a schema node with a name, value, and optional configuration.
+* // Parameters:
+* // - name: The name of the schema node.
+* // - value: The schema definition or a Zod type to be converted.
+* // - options: Optional configuration for the schema node.
+*/
 export function createSchemaNode(
     name: string,
     value: JSONSchema | ZodTypeLike,
@@ -472,7 +500,11 @@ export function createFileMerge(fn: FileMergeHandler): PromptFileMergeNode {
     return { type: "fileMerge", fn }
 }
 
-// Function to create an output processor node.
+/** 
+ * Creates and returns an output processor node with a specified handler function.
+ * 
+ * @param fn - A handler function to process prompt outputs.
+ */
 export function createOutputProcessor(
     fn: PromptOutputProcessorHandler
 ): PromptOutputProcessorNode {
@@ -480,14 +512,22 @@ export function createOutputProcessor(
     return { type: "outputProcessor", fn }
 }
 
-// Function to create a chat participant node.
+/**
+* // Creates a node representing a chat participant.
+* // Parameters:
+* // - participant: The chat participant to be represented.
+*/
 export function createChatParticipant(
     participant: ChatParticipant
 ): PromptChatParticipantNode {
     return { type: "chatParticipant", participant }
 }
 
-// Function to create a file output node.
+/**
+* // Creates a file output node with the specified output.
+* // Parameters:
+* // - output: The file output to include in the node.
+*/
 export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output } satisfies FileOutputNode
 }

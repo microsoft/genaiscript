@@ -31,12 +31,12 @@ function toURLSearchParams(o: any) {
 
 /**
  * Performs a Bing search using the given query and options.
- * Utilizes Bing Search API and constructs the request with query parameters.
- * Handles API key retrieval and error management.
+ * Utilizes the Bing Search API to construct and execute the request with query parameters.
+ * Handles API key retrieval, query parameter construction, and API response processing.
  * @param q - The search query string.
- * @param options - Optional search parameters such as trace, endpoint, count, etc.
- * @returns A Promise resolving to a SearchResponse.
- * @throws Error if the API key is missing or if the search request fails.
+ * @param options - Optional search parameters including trace, endpoint, count, region, freshness, response filter, and safe search settings.
+ * @returns A Promise resolving to a list of search responses, each containing a URL and snippet.
+ * @throws Error if the API key is missing or if the request fails.
  */
 export async function bingSearch(
     q: string,

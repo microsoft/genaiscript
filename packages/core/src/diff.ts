@@ -12,8 +12,9 @@ export interface Chunk {
 }
 
 /**
- * Parses a text in the LLMD diff format into a list of chunks.
- * The format may lose indentation or some code during regeneration.
+ * Parses a text in the LLMD diff format into an array of chunks.
+ * Each chunk represents a segment of existing, added, or deleted lines.
+ * Adjusts line numbers and removes duplicate lines that introduce no actual changes.
  * @param text - The diff text to parse.
  * @returns An array of chunks representing the diff.
  */
@@ -170,9 +171,10 @@ function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
 
 /**
  * Applies a series of LLMDiff chunks to a source string.
- * @param source - The original source content.
- * @param chunks - The chunks representing changes to apply.
- * @returns The modified source content.
+ * 
+ * @param source - The original source content to apply changes to.
+ * @param chunks - The list of chunks representing changes, including existing, deleted, and added lines.
+ * @returns The modified source content after applying the changes.
  */
 export function applyLLMDiff(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
@@ -236,9 +238,11 @@ export class DiffError extends Error {
 
 /**
  * Applies a series of LLMDiff chunks to a source string using line numbers.
+ * Processes modified and deleted chunks, then inserts added chunks in sequence.
+ * Ensures valid line numbers and updates the source content accordingly.
  * @param source - The original source content.
- * @param chunks - The chunks representing changes to apply.
- * @returns The modified source content.
+ * @param chunks - The list of chunks to apply.
+ * @returns The updated source content.
  */
 export function applyLLMPatch(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
@@ -283,9 +287,9 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
 }
 
 /**
- * Tries to parse a diff string into a structured format.
- * @param diff - The diff string to parse.
- * @returns The parsed diff as an array of files, or undefined if parsing fails.
+ * Parses a diff string into a structured format.
+ * @param diff - The diff string to parse. Must be in a supported diff format.
+ * @returns A parsed array of files, or undefined if parsing fails or no files are found.
  */
 export function tryParseDiff(diff: string) {
     let parsed: parseDiff.File[]
@@ -300,8 +304,9 @@ export function tryParseDiff(diff: string) {
 
 /**
  * Converts a diff string into the LLMDiff format.
- * @param diff - The diff string to convert.
- * @returns The LLMDiff formatted string, or undefined if parsing fails.
+ * Processes the diff into a structured and formatted representation.
+ * @param diff - The input diff string to process and convert.
+ * @returns The resulting LLMDiff formatted string, or undefined if parsing fails.
  */
 export function llmifyDiff(diff: string) {
     if (!diff) return diff
@@ -340,11 +345,11 @@ export function llmifyDiff(diff: string) {
 }
 
 /**
- * Creates a diff between two workspace files.
- * @param left - The original workspace file.
- * @param right - The modified workspace file.
- * @param options - Optional settings for creating the diff.
- * @returns The diff as a string, with certain headers removed.
+ * Creates a unified diff between two workspace files.
+ * @param left - The original workspace file or its content as a string.
+ * @param right - The modified workspace file or its content as a string.
+ * @param options - Optional parameters, such as context lines for the diff.
+ * @returns The diff as a string, with redundant headers removed.
  */
 export function createDiff(
     left: string | WorkspaceFile,

@@ -7,9 +7,9 @@ import { errorMessage } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 /**
- * Check if an object is a JSON Schema
- * @param obj - The object to check
- * @returns true if the object is a JSON Schema
+ * Determines if the provided object is a valid JSON Schema.
+ * @param obj - The object to evaluate.
+ * @returns True if the object is a JSON Schema; otherwise, false.
  */
 export function isJSONSchema(obj: any) {
     if (typeof obj === "object" && obj.type === "object") return true
@@ -46,10 +46,10 @@ export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
 }
 
 /**
- * Converts a JSON Schema to a TypeScript type definition as a string
- * @param schema - The JSON Schema
- * @param options - Optional settings for type name and export
- * @returns TypeScript type definition string
+ * Converts a JSON Schema into a TypeScript type definition string.
+ * @param schema - The JSON Schema to convert.
+ * @param options - Optional settings, including type name and whether to export the type.
+ * @returns The resulting TypeScript type definition as a string.
  */
 export function JSONSchemaStringifyToTypeScript(
     schema: JSONSchema | JSONSchemaType,
@@ -172,9 +172,9 @@ export function JSONSchemaStringifyToTypeScript(
 }
 
 /**
- * Validate a JSON schema using Ajv
- * @param schema - The JSON Schema to validate
- * @returns Promise with validation result
+ * Validates a JSON Schema using Ajv.
+ * @param schema - The JSON Schema to validate.
+ * @returns A Promise resolving with the validation result.
  */
 export async function validateSchema(schema: JSONSchema) {
     const ajv = new Ajv()
@@ -224,11 +224,12 @@ export function validateJSONWithSchema(
 }
 
 /**
- * Validate multiple JSON or YAML fences against given schemas
- * @param fences - Array of fenced code blocks
- * @param schemas - Map of schema names to JSON Schemas
- * @param options - Optional trace for debugging
- * @returns Array of data frames with validation results
+ * Validates multiple JSON or YAML code blocks against specified schemas.
+ * 
+ * @param fences - Array of fenced code blocks with metadata and content.
+ * @param schemas - Object mapping schema names to JSON Schemas.
+ * @param options - Debugging options, including trace for logging validation process.
+ * @returns Array of data frames containing validation results and corresponding data.
  */
 export function validateFencesWithSchema(
     fences: Fenced[],
@@ -282,9 +283,9 @@ export function validateFencesWithSchema(
 }
 
 /**
- * Converts a JSON Schema to a JSON string
- * @param schema - The JSON Schema
- * @returns JSON string representation of the schema
+ * Converts a JSON Schema to its JSON string representation.
+ * @param schema - The JSON Schema to convert.
+ * @returns The JSON string representation of the schema.
  */
 export function JSONSchemaStringify(schema: JSONSchema) {
     return JSON.stringify(

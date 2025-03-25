@@ -15,7 +15,20 @@ export interface AzureDevOpsEnv {
     runUrl?: string
 }
 
-// https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
+/**
+ * Parses Azure DevOps environment variables into a structured object.
+ *
+ * @param env - A record of environment variables.
+ * @returns A structured object containing Azure DevOps environment details.
+ *
+ * Environment variables:
+ * - SYSTEM_PULLREQUEST_ISFORK: Indicates if the pull request is from a fork.
+ * - SYSTEM_ACCESSTOKEN: Authentication token for API requests.
+ * - SYSTEM_COLLECTIONURI: The base URI of the Azure DevOps collection.
+ * - SYSTEM_TEAMPROJECT: The name of the team project.
+ * - BUILD_REPOSITORY_NAME: The name of the repository.
+ * - BUILD_SOURCEBRANCH: The source branch for the build.
+ */
 export async function azureDevOpsParseEnv(
     env: Record<string, string>
 ): Promise<AzureDevOpsEnv> {

@@ -25,9 +25,9 @@ export interface ChatRenderOptions extends CancellationOptions {
 }
 
 /**
- * Renders the output of a shell command.
- * @param output - The shell output containing exit code, stdout, and stderr.
- * @returns A formatted string representing the shell output.
+ * Renders the output of a shell command based on its components.
+ * @param output - Contains exit code, stdout, and stderr from the shell execution.
+ * @returns A formatted string summarizing the shell output, including non-zero exit code, stdout, or stderr.
  */
 export function renderShellOutput(output: ShellOutput) {
     // Destructure the output object to retrieve exitCode, stdout, and stderr.
@@ -50,9 +50,10 @@ export function renderShellOutput(output: ShellOutput) {
 }
 
 /**
- * Renders message content to a string.
- * @param msg - The message which could be of various types.
- * @returns A string representing the message content or undefined.
+ * Renders the content of a message into a formatted string.
+ * @param msg - The message object, which may contain various content types (e.g., text, image, audio).
+ * @param options - Configuration options for rendering, such as text language or image caching.
+ * @returns A formatted string representation of the message content or undefined if content is invalid.
  */
 export async function renderMessageContent(
     msg:
@@ -106,10 +107,10 @@ export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
 }
 
 /**
- * Converts a list of chat messages to a markdown string.
- * @param messages - Array of chat messages.
- * @param options - Optional filtering options for different roles.
- * @returns A formatted markdown string of the chat messages.
+ * Renders a list of chat messages into a markdown string.
+ * @param messages - The list of chat messages to render.
+ * @param options - Configuration options for filtering by roles and formatting.
+ * @returns The rendered markdown string representation of the chat messages.
  */
 export async function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],
