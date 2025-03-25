@@ -787,7 +787,7 @@ async function processChatMessage(
         choices,
     } = options
 
-    stats.addUsage(req, resp)
+    stats.addRequestUsage(req, resp)
     const assisantMessage = parseAssistantMessage(resp)
     if (assisantMessage) {
         messages.push(assisantMessage)

@@ -301,24 +301,9 @@ export class GenerationStats {
             logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
     }
 
-    /**
-     * Adds usage statistics to the current instance.
-     *
-     * @param req - The request containing details about the chat completion.
-     * @param usage - The usage statistics to be added.
-     */
-    addUsage(req: CreateChatCompletionRequest, resp: ChatCompletionResponse) {
-        const {
-            usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 },
-            model,
-            cached,
-            duration,
-        } = resp
-        const { messages } = req
-
-        if (!cached) {
-            this.usage.duration += duration ?? 0
-
+    addUsage(usage: ChatCompletionUsage, duration?: number) {
+        this.usage.duration += duration ?? 0
+        if (usage) {
             this.usage.completion_tokens += usage.completion_tokens ?? 0
             this.usage.prompt_tokens += usage.prompt_tokens ?? 0
             this.usage.total_tokens += usage.total_tokens ?? 0
@@ -335,6 +320,29 @@ export class GenerationStats {
                 usage.completion_tokens_details?.accepted_prediction_tokens ?? 0
             this.usage.completion_tokens_details.rejected_prediction_tokens +=
                 usage.completion_tokens_details?.rejected_prediction_tokens ?? 0
+        }
+    }
+
+    /**
+     * Adds usage statistics to the current instance.
+     *
+     * @param req - The request containing details about the chat completion.
+     * @param usage - The usage statistics to be added.
+     */
+    addRequestUsage(
+        req: CreateChatCompletionRequest,
+        resp: ChatCompletionResponse
+    ) {
+        const {
+            usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 },
+            model,
+            cached,
+            duration,
+        } = resp
+        const { messages } = req
+
+        if (!cached) {
+            this.addUsage(usage, duration)
         }
 
         const { provider } = parseModelIdentifier(this.model)

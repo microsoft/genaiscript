@@ -14,6 +14,18 @@ const { output } = env
 const { applyEdits } = env.vars
 const file = env.files[0]
 
+const prettier = async (file) => {
+    // format
+    const res = await host.exec("prettier", [
+        "--write",
+        file.filename,
+    ])
+    if (!res.exitCode) throw new Error(res.stderr)
+}
+
+// normalize spacing
+await prettier(file)
+
 // find all exported functions with comments
 const sg = await host.astGrep()
 const { matches, replace, commitEdits } = await sg.search("ts", file.filename, {
@@ -79,6 +91,8 @@ for (const match of matches) {
 const modified = await commitEdits()
 if (applyEdits) {
     await workspace.writeFiles(modified)
+    // normalize spacing
+    await prettier(file)
 } else if (modified.length) {
     output.diff(file, modified[0])
     output.warn(

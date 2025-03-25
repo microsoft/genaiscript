@@ -118,7 +118,7 @@ async function resolveExpansionVars(
 // Main function to run a template with given options
 /**
  * Executes a prompt template with specified options.
- * 
+ *
  * @param prj The project context providing runtime and configuration.
  * @param template The prompt script template to execute.
  * @param fragment Additional context such as files and metadata.

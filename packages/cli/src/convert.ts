@@ -1,8 +1,6 @@
 import {
-    CONVERTS_DIR_NAME,
     FILES_NOT_FOUND_ERROR_CODE,
     GENAI_ANY_REGEX,
-    GENAI_ANYTS_REGEX,
     HTTPS_REGEX,
     JSON5_REGEX,
     TRACE_FILENAME,
@@ -30,6 +28,8 @@ import { toSignal } from "../../core/src/cancellation"
 import { normalizeInt } from "../../core/src/cleaners"
 import { YAMLStringify } from "../../core/src/yaml"
 import { ensureDotGenaiscriptPath, getConvertDir } from "../../core/src/workdir"
+import { GenerationStats } from "../../core/src/usage"
+import { measure } from "../../core/src/performance"
 
 export async function convertFiles(
     scriptId: string,
@@ -134,6 +134,7 @@ export async function convertFiles(
         (filename) => ({ filename }) as WorkspaceFile
     )
 
+    const usage = new GenerationStats("")
     const results: Record<string, string> = {}
     const p = new PLimitPromiseQueue(normalizeInt(concurrency) || 1)
     await p.mapAll(files, async (file) => {
@@ -147,6 +148,7 @@ export async function convertFiles(
         const fileTrace = convertTrace.startTraceDetails(file.filename)
         convertTrace.item(link("trace", fileOutTrace))
         logVerbose(`trace: ${fileOutTrace}`)
+        const m = measure("convert")
         try {
             // apply AI transformation
             const result = await run(script.filename, file.filename, {
@@ -228,6 +230,8 @@ export async function convertFiles(
             }
 
             results[file.filename] = text
+            const end = m()
+            usage.addUsage(result.stats, end)
         } catch (error) {
             logError(error)
             fileTrace.error(undefined, error)
@@ -237,5 +241,6 @@ export async function convertFiles(
         }
     })
 
+    usage.log()
     logVerbose(`trace: ${outTraceFilename}`)
 }
