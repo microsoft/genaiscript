@@ -30,10 +30,12 @@ jobs:
             - name: compile
               run: yarn compile:action
             - name: poem
+              continue-on-error: true
               run: yarn run:script poem -p anthropic --out-trace $GITHUB_STEP_SUMMARY
               env:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
             - name: reasoning
+              continue-on-error: true
               run: yarn run:script tools -p anthropic -m reasoning --out-trace $GITHUB_STEP_SUMMARY
               env:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
