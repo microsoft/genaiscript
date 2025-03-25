@@ -30,7 +30,7 @@ export function isJSONObjectOrArray(text: string) {
 
 /**
  * Parses the input text as JSON. Returns undefined if parsing fails.
- * @param text - The string to parse.
+ * @param text - The input string to parse as JSON.
  * @returns The parsed object or undefined if parsing fails.
  */
 export function JSONTryParse(text: string) {
@@ -54,8 +54,9 @@ export function JSONrepair(text: string) {
 
 /**
  * Parses a JSON5 string with optional error handling and repair.
- * @param text - The JSON5 string to parse. Fencing is removed if present.
- * @param options - Options for parsing, including a default value, whether to use the default value on error, and whether to repair the input before parsing.
+ * Removes fencing if present.
+ * @param text - The JSON5 string to parse.
+ * @param options - Parsing options: default value to return on error, whether to use the default value on error, and whether to repair the input before parsing.
  * @returns The parsed object, the default value, or undefined/null based on options.
  */
 export function JSON5parse<T = unknown>(
@@ -122,7 +123,8 @@ export function JSON5TryParse<T = unknown>(
 /**
  * Parses a JSON-like string, removes fencing and unnecessary formatting, and returns the parsed object.
  * If the input is undefined or null, returns it as-is. If the input is an empty string, returns an empty object.
- * @param s - The JSON-like string to parse.
+ * Removes fencing and applies additional cleaning before parsing.
+ * @param s - The JSON-like string to parse. Can be undefined, null, or empty.
  * @returns The parsed object, the original input, or an empty object if input is empty.
  */
 export function JSONLLMTryParse(s: string): any {

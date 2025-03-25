@@ -13,10 +13,10 @@ import { uniq } from "es-toolkit"
 
 /**
  * Converts a string to a character position represented as [row, column].
- * Uses newline characters to calculate the row and column values.
+ * Uses newline characters to calculate the row (number of newlines) and column (characters after the last newline).
  * If the string is empty, returns [0, 0].
- * @param str - The input string.
- * @returns CharPosition - The position as [row, column].
+ * @param str - The input string to convert.
+ * @returns The position as [row, column].
  */
 export function stringToPos(str: string): CharPosition {
     if (!str) return [0, 0] // Return default position if string is empty
@@ -28,7 +28,7 @@ export function stringToPos(str: string): CharPosition {
  * Initializes a project, reads system and user scripts, and updates with parsed templates.
  * Filters invalid or duplicate scripts and sorts templates.
  * Computes resolved systems and input schemas for non-system scripts.
- * @param options - An object containing an array of script file paths.
+ * @param options - Object containing an array of script file paths.
  * @returns Project - The project with processed templates and diagnostics.
  */
 export async function parseProject(options: { scriptFiles: string[] }) {

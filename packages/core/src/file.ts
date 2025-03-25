@@ -38,8 +38,8 @@ import { prettyBytes } from "./pretty"
  * Resolves the content of a file by decoding, fetching, or parsing it based on its type or source.
  * 
  * @param file - The file object containing filename, content, type, and encoding.
- * @param options - Optional parameters for tracing, cancellation handling, and maximum file size.
- *   - trace - Optional tracing object for logging operations.
+ * @param options - Optional parameters:
+ *   - trace - Tracing object for logging operations.
  *   - cancellationToken - Token to handle cancellation of the operation.
  *   - maxFileSize - Maximum allowed file size for processing. Defaults to MAX_FILE_CONTENT_SIZE.
  * @returns The updated file object with resolved content or metadata. If the file cannot be resolved, it is returned as is.
@@ -172,8 +172,8 @@ export async function resolveFileContent(
 
 /**
  * Converts input into a WorkspaceFile structure.
- * @param fileOrFilename - The input, which can be a filename string or an object representing a WorkspaceFile.
- * @returns A WorkspaceFile object with the filename or the original WorkspaceFile object.
+ * @param fileOrFilename - A filename string or an object representing a WorkspaceFile.
+ * @returns A WorkspaceFile object with the provided filename or the original WorkspaceFile object.
  */
 export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
     return typeof fileOrFilename === "string"
@@ -183,11 +183,11 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
 
 /**
  * Resolves the contents of multiple files asynchronously.
- * Iterates through the provided files, resolving their content based on type or source.
- * @param files - Array of files to process and resolve content for.
- * @param options - Optional parameters for tracing and cancellation handling.
- *   - cancellationToken - Token to handle cancellation of the operation.
- *   - trace - Tracing object for logging operations.
+ * Processes each file to resolve its content based on type or source.
+ * @param files - Array of files to resolve.
+ * @param options - Optional parameters:
+ *   - cancellationToken - Token to cancel the operation.
+ *   - trace - Object for tracing and logging operations.
  */
 export async function resolveFileContents(
     files: WorkspaceFile[],
@@ -205,7 +205,7 @@ export async function resolveFileContents(
  * Supports rendering for CSV and XLSX file types by converting their contents into readable markdown tables.
  * 
  * @param file - The file object containing filename and content. If the content matches a supported format, it will be rendered.
- * @param options - Options for tracing operations and filtering the file data during rendering. Includes data transformation and markdown table generation.
+ * @param options - Options for tracing operations and filtering the file data during rendering. Includes data transformation, markdown table generation, and optional sheet trimming for XLSX files.
  * @returns An object containing the filename and rendered content, or the original file object if rendering is not applicable.
  */
 export async function renderFileContent(
@@ -256,8 +256,8 @@ export function dataUriToBuffer(filename: string) {
 
 /**
  * Resolves and returns the file content as bytes.
- * @param filename - The file name, URL, data URI, or WorkspaceFile object to resolve. If a WorkspaceFile object, it uses its encoding and content if available. If a string, it resolves the file from the provided path, URL, or data URI. Supports both local files and remote URLs.
- * @param options - Optional parameters for tracing and cancellation handling, used for logging operations or canceling the process. Includes tracing and fetch configuration.
+ * @param filename - The file name, URL, data URI, or WorkspaceFile object to resolve. If a WorkspaceFile object, uses its encoding and content if available. If a string, resolves the file from the provided path, URL, or data URI. Supports both local files and remote URLs.
+ * @param options - Optional parameters for tracing operations and fetch configuration. Used for logging operations or canceling the process.
  * @returns A Uint8Array containing the file content as bytes.
  */
 export async function resolveFileBytes(

@@ -36,6 +36,12 @@ import { MarkdownStringify } from "./markdown"
  * 
  * Throws:
  * - CancelError if cancellation is triggered.
+ * 
+ * Notes:
+ * - Includes utilities for YAML, CSV, INI, XML, Markdown, JSONL, JSON5, HTML, and more.
+ * - Provides tokenization-related utilities such as counting, truncating, and chunking text.
+ * - Instantiates Git and GitHub clients.
+ * - Includes a fetchText function for retrieving text from URLs or files.
  */
 export function installGlobals() {
     dbg("install")

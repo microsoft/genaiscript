@@ -34,7 +34,7 @@ function toURLSearchParams(o: any) {
  * Utilizes the Bing Search API to construct and execute the request with query parameters.
  * Handles API key retrieval, query parameter construction, and API response processing.
  * @param q - The search query string.
- * @param options - Optional search parameters including trace, endpoint, count, region, freshness, response filter, and safe search settings.
+ * @param options - Optional parameters including whether to ignore a missing API key, endpoint, result count, region, freshness, response filter, and safe search settings.
  * @returns A Promise resolving to a list of search responses, each containing a URL and snippet.
  * @throws Error if the API key is missing or if the request fails.
  */

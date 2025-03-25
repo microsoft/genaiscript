@@ -101,7 +101,7 @@ export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
  *
  * @param csv - Array of objects representing the data to convert. Returns an empty string if the input is empty.
  * @param options - Configuration options for the table.
- * @param options.headers - Headers for the table columns. If not provided, keys from the first object are used. Headers are escaped for Markdown.
+ * @param options.headers - Headers for the table columns. If not provided, keys from the first object are used. Headers are escaped for Markdown. If empty, defaults to object keys.
  * @returns A Markdown table as a string, with rows and columns formatted and escaped for Markdown.
  */
 export function dataToMarkdownTable(

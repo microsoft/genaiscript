@@ -15,12 +15,12 @@ import { deleteUndefinedValues } from "./cleaners"
 
 /**
  * Resolves and returns a list of unique systems based on the provided script and project.
- * Analyzes script options, JavaScript source code, and tools to determine applicable systems.
+ * Analyzes script options, JavaScript source code, tools, and resolved tools to determine applicable systems.
  *
  * @param prj - The project object containing templates, tools, and other project-related data.
  * @param script - An object containing prompt system options, model options, content safety options, and optionally JavaScript source code.
  * @param resolvedTools - An optional array of tools resolved externally for additional system inclusion.
- * @returns An array of unique system prompt instances applicable based on the analysis.
+ * @returns An array of unique system prompt instances applicable based on the analysis, including both system IDs and instances.
  */
 export function resolveSystems(
     prj: Project,
@@ -236,10 +236,10 @@ function resolveSystemFromTools(prj: Project, tool: string): string[] {
  * Resolves tools in the project based on provided systems and tools.
  * Matches system IDs or instances and tool IDs against project scripts to find associated tools.
  *
- * @param prj - The project containing templates and script data.
+ * @param prj - The project containing templates and script data, including scripts and tool definitions.
  * @param systems - A list of system IDs or instances to resolve tools for.
  * @param tools - A list of tool IDs to match against project scripts.
- * @returns A list of tool objects with their IDs and descriptions.
+ * @returns A list of tool objects, each containing an ID and description, associated with the provided systems and tools.
  */
 export function resolveTools(
     prj: Project,

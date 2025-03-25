@@ -131,9 +131,9 @@ export function parseTraceTree(
 
 /**
  * Renders a TraceNode into a markdown string.
- * @param node - The node to render, can be a string, details node, or item node.
- * @param level - The depth level to render, limiting details expansion.
- * @returns A markdown representation of the node.
+ * @param node - The node to render. Can be a string, details node, or item node.
+ * @param level - The depth level to render. Limits details expansion to this level.
+ * @returns A markdown representation of the node. Returns "..." if the level is 0 for details nodes.
  */
 export function renderTraceTree(node: TraceNode, level: number): string {
     if (!node) return ""

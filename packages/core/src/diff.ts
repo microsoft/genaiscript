@@ -16,9 +16,9 @@ export interface Chunk {
  * Each chunk represents a segment of existing, added, or deleted lines.
  * Adjusts line numbers, removes duplicate lines without actual changes, 
  * ensures proper chunk segmentation, and handles trailing empty lines.
- * 
- * @param text - The diff text to parse.
- * @returns An array of chunks representing the diff.
+ *
+ * @param text - The LLMD diff text to parse.
+ * @returns An array of chunks representing the parsed diff.
  */
 export function parseLLMDiffs(text: string): Chunk[] {
     const lines = text.split("\n")
@@ -175,9 +175,9 @@ function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
  * Applies a series of LLMDiff chunks to a source string.
  *
  * @param source - The original source content to which changes will be applied.
- * @param chunks - The list of chunks representing changes, including existing, deleted, and added lines. Chunks must be in sequential order.
+ * @param chunks - The list of chunks representing changes, including existing, deleted, and added lines. Chunks must be in sequential order. Each chunk must have valid state and line data.
  * @returns The modified source content after applying the changes, or the original content if no chunks are provided.
- * @throws Error if the chunk sequence is invalid or unexpected states are encountered.
+ * @throws Error if the chunk sequence is invalid, unexpected states are encountered, or if chunk alignment fails.
  */
 export function applyLLMDiff(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
@@ -245,8 +245,9 @@ export class DiffError extends Error {
  * Ensures valid line numbers and updates the source content accordingly.
  *
  * @param source - The original source content to modify.
- * @param chunks - The list of chunks representing changes, including added, deleted, and existing lines. Chunks must be in sequence.
- * @returns The updated source content after applying the changes.
+ * @param chunks - The list of chunks representing changes, including added, deleted, and existing lines. Chunks must be in sequence and contain valid line numbers.
+ * @returns The updated source content after applying the changes. Filters out undefined lines resulting from deletions.
+ * @throws DiffError if invalid or missing line numbers are encountered.
  */
 export function applyLLMPatch(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
@@ -308,9 +309,12 @@ export function tryParseDiff(diff: string) {
 
 /**
  * Converts a diff string into the LLMDiff format.
- * Parses the input diff string, processes it into a structured format, and converts it back to a unified diff format with LLMDiff annotations.
+ * Parses the input diff string using the parse-diff library, processes it into a structured format, and converts it back to a unified diff format with LLMDiff annotations.
  * Updates line numbers for changes and includes them in the output.
- * @param diff - The diff string to process. Must be in a supported diff format. Returns the LLMDiff formatted string or undefined if parsing fails.
+ * Returns the LLMDiff formatted string or undefined if parsing fails.
+ * 
+ * @param diff - The diff string to process. Must be in a supported diff format.
+ * @returns The LLMDiff formatted string or undefined if parsing fails.
  */
 export function llmifyDiff(diff: string) {
     if (!diff) return diff

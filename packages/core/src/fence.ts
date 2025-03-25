@@ -40,6 +40,7 @@ export function parseKeyValuePair(text: string): Record<string, string> {
 /**
  * Parse key-value pairs from input text.
  * @param text - Input containing key-value pairs separated by spaces or line breaks. Keys and values must be separated by "=" or ":".
+ *   - Supports single or multiple strings.
  * @returns An object with parsed key-value pairs as immutable data.
  */
 export function parseKeyValuePairs(text: string | string[]) {
@@ -176,7 +177,7 @@ export function extractFenced(text: string): Fenced[] {
 
 /**
  * Finds the first fenced block containing YAML or JSON content and parses it.
- * @param fences - Array of fenced objects to search. Each object should include content, label, and language.
+ * @param fences - Array of fenced objects to search. Each object must include content, label, and language.
  * @returns Parsed content if a valid YAML or JSON block is found, otherwise undefined.
  */
 export function findFirstDataFence(fences: Fenced[]): any {
@@ -207,7 +208,12 @@ export function parseVars(vars: string[]) {
 /**
  * Render an array of fenced code blocks into a formatted string.
  * Each block includes its label, content, language, validation results, and schema errors if present.
- * @param vars - Array of fenced objects, each containing label, content, language, validation, args, and other metadata.
+ * @param vars - Array of fenced objects. Each object should include:
+ *   - label: The label or identifier for the block.
+ *   - content: The content within the fenced block.
+ *   - language: The programming language or type of the block.
+ *   - validation: Validation results, including schema errors and path validity.
+ *   - args: Parsed key-value arguments from the fence.
  * @returns A formatted string representation of the fenced blocks.
  */
 export function renderFencedVariables(vars: Fenced[]) {

@@ -214,8 +214,8 @@ export interface FileOutputNode extends PromptNode {
 /**
  * Creates a text node with the specified value and optional context expansion options.
  * 
- * @param value - The string value for the text node, must be defined. Can be an awaitable.
- * @param options - Optional configuration for context expansion.
+ * @param value - The string value for the text node. Must not be undefined. Can be awaitable.
+ * @param options - Configuration for context expansion. Optional.
  * @returns A text node object with the specified value and options.
  */
 export function createTextNode(
@@ -397,8 +397,9 @@ ${trimNewlines(text)}
 
 /**
  * Creates a node representing an assistant message in a prompt.
- * @param value The content of the assistant message. Must be defined.
+ * @param value The content of the assistant message. Must be defined and resolvable.
  * @param options Optional settings for context expansion. Defaults to an empty object if not provided.
+ * @returns The created assistant node.
  */
 export function createAssistantNode(
     value: Awaitable<string>,
@@ -417,11 +418,11 @@ export function createSystemNode(
 }
 
 /**
- * Creates a string template node with the given template strings and arguments.
+ * Creates a string template node with the given template strings, arguments, and optional settings.
  * 
  * @param strings - The template literal strings to include in the node.
  * @param args - The arguments to interpolate into the template.
- * @param options - Optional settings for context expansion or additional properties.
+ * @param options - Optional settings for context expansion or additional properties to include in the node.
  * @returns The created string template node.
  */
 export function createStringTemplateNode(
@@ -440,10 +441,10 @@ export function createStringTemplateNode(
 }
 
 /**
- * Creates an image node with the given value and optional context expansion options.
+ * Creates an image node with the specified value and optional context expansion options.
  * 
- * @param value - The image data or prompt used to create the node. Must not be undefined.
- * @param options - Context expansion options to include in the node, if any.
+ * @param value - The image data or prompt used to create the node. Must not be null or undefined.
+ * @param options - Optional context expansion options to include in the node.
  * @returns The created image node.
  */
 export function createImageNode(
@@ -458,8 +459,8 @@ export function createImageNode(
  * Creates a schema node with a specified name, value, and optional configuration.
  * 
  * Parameters:
- * - name: The name of the schema node. Must not be empty.
- * - value: The schema definition or a Zod type to be converted to JSON Schema. Automatically converts Zod types if applicable. Must not be undefined.
+ * - name: The name of the schema node. Must not be empty. Throws if empty.
+ * - value: The schema definition or a Zod type to be converted to JSON Schema. Automatically converts Zod types if applicable. Must not be undefined. Throws if undefined.
  * - options: Optional configuration for the schema node.
  */
 export function createSchemaNode(
@@ -505,7 +506,7 @@ export function createFileMerge(fn: FileMergeHandler): PromptFileMergeNode {
 /**
  * Creates and returns an output processor node with a specified handler function.
  *
- * @param fn - Handler function to process prompt outputs. Must not be undefined.
+ * @param fn - The handler function to process prompt outputs. Must not be undefined. Throws an error if undefined.
  * @returns An output processor node containing the handler function.
  */
 export function createOutputProcessor(
@@ -518,7 +519,7 @@ export function createOutputProcessor(
 /**
  * Creates a node representing a chat participant.
  * @param participant - The chat participant to represent in the node.
- * @returns A node object representing the chat participant.
+ * @returns A node object with the participant's details.
  */
 export function createChatParticipant(
     participant: ChatParticipant
@@ -529,7 +530,7 @@ export function createChatParticipant(
 /**
  * Creates a file output node with the specified output.
  * @param output - The file output to include in the node.
- * @returns A file output node with the given output.
+ * @returns A file output node containing the specified output.
  */
 export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output } satisfies FileOutputNode

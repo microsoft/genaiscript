@@ -27,8 +27,8 @@ export function XMLTryParse(
 /**
  * Parses an XML string into an object.
  *
- * @param text - The XML string to parse
- * @param options - Optional configuration for the XML parser
+ * @param text - The XML string or WorkspaceFile to parse
+ * @param options - Configuration options for the XML parser
  * @returns The parsed XML object
  */
 export function XMLParse(

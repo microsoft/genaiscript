@@ -29,7 +29,7 @@ function templateIdFromFileName(filename: string) {
  * (e.g., "system" or "script"), extracts metadata, and identifies tools defined in the script.
  *
  * @param jsSource - The JavaScript source code to analyze.
- * @returns An object containing extracted metadata and tool definitions.
+ * @returns An object containing extracted metadata, tool definitions, and system-specific properties.
  */
 export function parsePromptScriptMeta(
     jsSource: string
@@ -93,7 +93,6 @@ async function parsePromptTemplateCore(filename: string, content: string) {
  *
  * @param filename - The filename of the script.
  * @param content - The content of the script.
- * @param prj - The Project instance containing diagnostics.
  * @returns The parsed PromptScript or undefined in case of errors.
  */
 export async function parsePromptScript(filename: string, content: string) {

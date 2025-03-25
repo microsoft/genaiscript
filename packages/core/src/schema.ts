@@ -8,7 +8,7 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 /**
  * Checks if the given object is a valid JSON Schema.
- * @param obj - The object to check.
+ * @param obj - The object to validate as a JSON Schema.
  * @returns True if the object is a valid JSON Schema, false otherwise.
  */
 export function isJSONSchema(obj: any) {
@@ -186,8 +186,8 @@ export async function validateSchema(schema: JSONSchema) {
  * Validates a JSON object against a specified JSON schema.
  * @param object - The JSON object to validate.
  * @param schema - The JSON schema to validate against.
- * @param options - Optional debugging options, including trace for logging.
- * @returns Validation result indicating success status and error details if any.
+ * @param options - Optional debugging options, including trace for logging validation details.
+ * @returns Validation result indicating success status and error details if validation fails.
  */
 export function validateJSONWithSchema(
     object: any,
@@ -227,10 +227,10 @@ export function validateJSONWithSchema(
 /**
  * Validates multiple JSON or YAML code blocks against specified schemas.
  * 
- * @param fences - Array of code blocks with metadata, language, and content.
- * @param schemas - Mapping of schema names to JSON Schemas for validation.
- * @param options - Debugging options, including trace for logging validation details.
- * @returns Array of data frames containing validation results and parsed data.
+ * @param fences - Array of code blocks with metadata, language, and content to validate.
+ * @param schemas - Mapping of schema names to JSON Schemas used for validation.
+ * @param options - Optional debugging settings, including trace for logging validation details.
+ * @returns Array of data frames containing validation results, parsed data, and associated schemas.
  */
 export function validateFencesWithSchema(
     fences: Fenced[],
@@ -304,6 +304,8 @@ export function JSONSchemaStringify(schema: JSONSchema) {
  * Converts a schema to a strict JSON Schema by enforcing stricter validation rules.
  * Ensures all fields are required and disallows additional properties.
  * Recursively processes nested schemas to apply strict constraints.
+ * Deletes unsupported properties like uiType and uiSuggestions.
+ * Throws an error if the top-level schema is not an object or if additionalProperties is true.
  * @param schema - The schema to convert, either a PromptParametersSchema or JSONSchema.
  * @returns A strict JSON Schema with enforced constraints.
  */

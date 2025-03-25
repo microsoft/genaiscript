@@ -128,7 +128,7 @@ function computeNormalizedEntropy(
  * Filters log probabilities with defined top probabilities and calculates normalized entropy for each.
  * Returns the mean of valid normalized entropy values, or undefined if no valid data is found.
  * 
- * @param logprobs - Array of log probabilities to process.
+ * @param logprobs - Array of log probabilities to process. Each log probability may include top probabilities.
  * @returns The average normalized entropy or undefined if no valid data exists.
  */
 export function computeStructuralUncertainty(

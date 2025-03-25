@@ -65,7 +65,7 @@ export function createCachedEmbedder(
  * Creates a vector index for documents using embeddings.
  * 
  * @param indexName The name of the index to create.
- * @param options Configuration options, including index type, embeddings model, cancellation token, tracing, vector size, and provider.
+ * @param options Configuration options, including index type, embeddings model, cancellation token, tracing, vector size, provider, and other runtime settings.
  * @returns A workspace file index instance.
  */
 export async function vectorCreateIndex(
@@ -159,10 +159,10 @@ export async function vectorIndex(
 
 /**
  * Performs a vector search on documents using an index and query.
- * @param indexName The name of the index to search.
+ * @param indexName The name of the index to search. Defaults to "default" if not provided.
  * @param query The query string used for the search.
- * @param files The files to search within.
- * @param options Options for vector search, including top results, minimum score, cancellation, and tracing.
+ * @param files The files to search within. Their content will be resolved and indexed.
+ * @param options Options for vector search, including top results, minimum score, embeddings model, cancellation token, and tracing.
  * @returns A list of files with scores reflecting their relevance to the query.
  */
 export async function vectorSearch(

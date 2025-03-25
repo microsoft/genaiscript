@@ -102,8 +102,8 @@ function escapeRegExp(str: string): string {
 /**
  * Replaces long, token-heavy identifiers like GUIDs with shorter encoded IDs.
  * @param text The input string containing identifiers to encode.
- * @param options Configuration for encoding behavior, including matcher regex, prefix, open, and close delimiters.
- * @returns An object with the encoded text, original text, a decode function, the matcher regex, and a mapping of encoded IDs to original values.
+ * @param options Optional configuration for encoding behavior, including a regex matcher, prefix, and delimiters for encoded IDs.
+ * @returns An object containing the encoded text, original text, a decode function, the matcher regex, and a mapping of encoded IDs to original values.
  */
 export function encodeIDs(
     text: string,

@@ -4,10 +4,10 @@ import { filenameOrFileToFilename } from "./unwrappers"
  * Chunks markdown into sections based on headings while maintaining subtrees.
  * Handles WorkspaceFile objects and plain markdown strings.
  * Does not reliably handle code sections containing markdown.
- * @param markdown - The markdown content or a WorkspaceFile object.
- * @param estimateTokens - Function to estimate token count of text.
- * @param options - Optional configuration including maxTokens and pageSeparator.
- * @returns Array of TextChunk objects representing the chunks.
+ * @param markdown - The markdown content or a WorkspaceFile object. If a WorkspaceFile, its content is used.
+ * @param estimateTokens - Function to estimate token count of text. Used to calculate chunk sizes.
+ * @param options - Optional configuration including maxTokens (default 4096) and pageSeparator (default "======").
+ * @returns Array of TextChunk objects representing the chunks, including metadata such as filename and line range.
  */
 export async function chunkMarkdown(
     markdown: string | WorkspaceFile,

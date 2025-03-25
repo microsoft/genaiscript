@@ -7,9 +7,9 @@
  * If the tag starts with ":!" and matches any of the tags in the list, it returns false.
  * If the tag starts with any of the tags in the list and there are exclusions, it returns true.
  * If the tag does not match any of the tags in the list, it returns false.
- * @param tags
- * @param tag
- * @returns
+ * @param tags List of tags to filter against, with ":!" indicating exclusions.
+ * @param tag The tag to be checked.
+ * @returns Whether the tag passes the filter.
  */
 export function tagFilter(tags: string[], tag: string) {
     if (!tags?.length) return true

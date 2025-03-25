@@ -130,6 +130,11 @@ export async function fetch(
  *
  * @param urlOrFile - The URL or file path to fetch from. If a string, it is treated as a filename.
  * @param fetchOptions - Configuration for retries, delays, tracing, cancellation, and fetch settings.
+ *   - retries: Number of retry attempts.
+ *   - retryDelay: Initial delay between retries.
+ *   - retryOn: HTTP status codes to retry on.
+ *   - maxDelay: Maximum delay between retries.
+ *   - trace: Trace options for logging.
  * @returns An object containing fetch status, content, metadata, and file details.
  */
 export async function fetchText(
@@ -207,10 +212,10 @@ export async function fetchText(
  * Constructs a curl command to represent the POST request, including headers 
  * and body. Authorization headers can be optionally masked.
  *
- * @param trace - Trace object for logging details. If not provided, the command is logged verbosely.
+ * @param trace - Trace object for logging details. If not provided, logs the command verbosely.
  * @param url - Target URL for the request.
  * @param headers - Headers to include in the request. Sensitive authorization headers may be masked.
- * @param body - Request body, either as FormData or a raw object. FormData fields are included with size for files.
+ * @param body - Request body, either as FormData or a raw object. FormData fields include file sizes if applicable.
  * @param options - Configuration for masking authorization headers.
  */
 export function traceFetchPost(

@@ -19,7 +19,7 @@ export interface FileReference {
 /**
  * Converts diagnostic data into a CSV-formatted string.
  * @param diagnostics - Array of diagnostic objects containing severity, filename, range, code, and message.
- * @param sep - Separator string for CSV fields.
+ * @param sep - String used to separate CSV fields.
  * @returns CSV string with each diagnostic entry on a new line.
  */
 export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
@@ -56,10 +56,10 @@ export const eolPosition = 0x3fffffff // End of line position, a large constant
 export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position, a tuple with a large constant
 
 /**
- * Organizes templates by directory and identifies the presence of JavaScript or TypeScript files in each directory.
+ * Organizes templates by directory and determines the presence of JavaScript or TypeScript files in each directory.
  * Filters out templates without filenames or those matching the PROMPTY_REGEX.
- * @param prj - The project containing the scripts to process. Each script must have a filename property.
- * @returns Array of objects, each representing a directory with its name and flags indicating the presence of JavaScript and TypeScript files.
+ * @param prj - The project containing scripts to process. Each script must include a filename.
+ * @returns An array of objects, each representing a directory with its name and flags indicating JavaScript and TypeScript file presence.
  */
 export function collectFolders(prj: Project) {
     const folders: Record<
@@ -80,8 +80,8 @@ export function collectFolders(prj: Project) {
 
 /**
  * Finds a script in the project's scripts list by matching its ID with the system prompt instance.
- * @param prj - The project containing the scripts to search. Must include a list of scripts.
- * @param system - The system prompt instance containing the script ID to match.
+ * @param prj - The project containing the scripts to search. Must include a scripts property.
+ * @param system - The system prompt instance containing the ID to match against.
  * @returns The script with the matching ID, or undefined if no match is found.
  */
 export function resolveScript(prj: Project, system: SystemPromptInstance) {
