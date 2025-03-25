@@ -3,8 +3,10 @@ import { assert } from "./assert"
 /**
 * Splits a string into chunks of specified size.
 * Parameters:
-* - s: Input string to be split into chunks.
+* - s: Input string to split. Must be non-null.
 * - n: Maximum size of each chunk. Defaults to 2 << 14.
+* Returns:
+* - Array of string chunks.
 */
 export function chunkString(s: string, n: number = 2 << 14) {
     if (!s?.length) return []

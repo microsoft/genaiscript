@@ -21,7 +21,7 @@ export function setConsoleColors(enabled: boolean) {
  */
 /**
  * Wraps a message with ANSI escape codes for the specified color.
- * @param n - The ANSI color code or string to apply.
+ * @param n - The ANSI color code or name to apply.
  * @param message - The text to wrap with ANSI escape codes.
  */
 export function wrapColor(n: number | string, message: string) {

@@ -123,8 +123,8 @@ export function convertAnnotationToItem(d: Diagnostic) {
 /**
  * Converts a Diagnostic object to a GitHub Action command string.
  *
- * @param d - The Diagnostic object containing severity, filename, range, and message.
- * @returns A string formatted as a GitHub Action command.
+ * @param d The Diagnostic object containing severity, filename, range, and message.
+ * @returns A formatted string as a GitHub Action command, including severity, file, line, and message details.
  */
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
     // Maps DiagnosticSeverity to GitHub Action severity strings.
@@ -142,7 +142,7 @@ export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
  * Converts a Diagnostic object to an Azure DevOps log issue command string.
  *
  * @param d Diagnostic object containing severity, message, filename, and range.
- * @returns Formatted Azure DevOps command string for warnings and errors, or a debug message for info severity. Includes filename and line number.
+ * @returns Formatted Azure DevOps command string for warnings and errors. For "info" severity, returns a debug message. Includes filename and line number.
  */
 export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
     // Handle 'info' severity separately with a debug message.

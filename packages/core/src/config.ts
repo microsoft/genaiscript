@@ -167,11 +167,11 @@ export async function readConfig(
 /**
  * Resolves and outputs environment information for language model providers.
  * @param provider - Filters by specific provider (optional).
- * @param options - Configuration options: 
- *   - token: Whether to include tokens.
- *   - error: Whether to include errors.
- *   - models: Whether to list models.
- *   - hide: Whether to exclude hidden providers.
+ * @param options - Configuration options:
+ *   - token - Include tokens in the output.
+ *   - error - Include errors in the output.
+ *   - models - List models for each provider.
+ *   - hide - Exclude hidden providers.
  */
 export async function resolveLanguageModelConfigurations(
     provider: string,

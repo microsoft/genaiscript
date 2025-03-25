@@ -19,7 +19,7 @@ export interface FileReference {
 /**
  * Converts diagnostic data into a CSV-formatted string.
  * @param diagnostics - Array of diagnostic objects containing severity, filename, range, code, and message.
- * @param sep - String used to separate CSV fields.
+ * @param sep - Separator string for CSV fields.
  * @returns CSV string with each diagnostic entry on a new line.
  */
 export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
@@ -40,9 +40,8 @@ export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
 
 /**
  * Determines the group name of a template.
- * @param template - The template object to evaluate, containing an ID and an optional group property.
- * @returns The group name of the template. Returns "system" if the ID starts with "system", 
- * the group property if set, or "unassigned" if no group is determined.
+ * @param template - The template to evaluate, containing an ID and an optional group property.
+ * @returns The group name of the template. Returns "system" if the ID starts with "system", the group property if defined, or "unassigned" if no group is determined.
  */
 export function templateGroup(template: PromptScript) {
     return (
@@ -59,7 +58,7 @@ export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position
 /**
  * Organizes templates by directory and identifies the presence of JavaScript or TypeScript files in each directory.
  * Filters out templates without filenames or those matching the PROMPTY_REGEX.
- * @param prj - The project containing the scripts to process, with each script having a filename property.
+ * @param prj - The project containing the scripts to process. Each script must have a filename property.
  * @returns Array of objects, each representing a directory with its name and flags indicating the presence of JavaScript and TypeScript files.
  */
 export function collectFolders(prj: Project) {
@@ -81,9 +80,9 @@ export function collectFolders(prj: Project) {
 
 /**
  * Finds a script in the project's scripts list by matching its ID with the system prompt instance.
- * @param prj - The project containing the scripts to search.
+ * @param prj - The project containing the scripts to search. Must include a list of scripts.
  * @param system - The system prompt instance containing the script ID to match.
- * @returns The matching script if found, otherwise undefined.
+ * @returns The script with the matching ID, or undefined if no match is found.
  */
 export function resolveScript(prj: Project, system: SystemPromptInstance) {
     return prj?.scripts?.find((t) => t.id == system.id) // Find and return the template with the matching ID

@@ -87,7 +87,7 @@ export function CSVTryParse(
  * Converts an array of objects into a CSV string.
  *
  * @param csv - Array of objects to convert to CSV format. Returns an empty string if the input is null or undefined.
- * @param options - Optional configuration for CSV stringification, including headers and delimiter settings.
+ * @param options - Optional configuration for CSV stringification, including headers, delimiter, and other settings.
  * @returns A CSV formatted string representation of the input data.
  */
 export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
@@ -99,10 +99,10 @@ export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {
 /**
  * Converts an array of objects into a Markdown table.
  *
- * @param csv - Array of objects representing the data to convert.
+ * @param csv - Array of objects representing the data to convert. Returns an empty string if the input is empty.
  * @param options - Configuration options for the table.
- * @param options.headers - Headers for the table columns. If not provided, keys from the first object are used.
- * @returns A Markdown table as a string.
+ * @param options.headers - Headers for the table columns. If not provided, keys from the first object are used. Headers are escaped for Markdown.
+ * @returns A Markdown table as a string, with rows and columns formatted and escaped for Markdown.
  */
 export function dataToMarkdownTable(
     csv: object[],

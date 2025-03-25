@@ -16,8 +16,8 @@ const file = env.files[0]
 
 const prettier = async (file) => {
     // format
-   // const res = await host.exec("prettier", ["--write", file.filename])
- //   if (res.exitCode) throw new Error(`${res.stdout} (${res.exitCode})`)
+    // const res = await host.exec("prettier", ["--write", file.filename])
+    //   if (res.exitCode) throw new Error(`${res.stdout} (${res.exitCode})`)
 }
 
 // normalize spacing
@@ -68,6 +68,8 @@ for (const match of matches) {
             flexTokens: 12000,
             label: match.child(0).text(),
             temperature: 0.2,
+            systemSafety: false,
+            system: ["system.assistant", "system.technical", "system.typescript"],
         }
     )
     // if generation is successful, insert the docs

@@ -58,7 +58,13 @@ export function parseKeyValuePairs(text: string | string[]) {
 /**
  * Parse text to extract fenced code blocks and their metadata.
  * @param text - The input text containing fenced code blocks.
- * @returns An array of objects representing fenced code blocks, including label, content, language, and arguments.
+ *   - Each block starts and ends with a code fence (e.g., ```).
+ *   - May include metadata such as labels, languages, and arguments.
+ * @returns An array of objects representing fenced code blocks, including:
+ *   - label: The label or identifier for the block.
+ *   - content: The content within the fenced block.
+ *   - language: The programming language or type of the block.
+ *   - args: Parsed key-value arguments from the fence.
  */
 export function extractFenced(text: string): Fenced[] {
     if (!text) return []
@@ -170,7 +176,7 @@ export function extractFenced(text: string): Fenced[] {
 
 /**
  * Finds the first fenced block containing YAML or JSON content and parses it.
- * @param fences - Array of fenced objects to search.
+ * @param fences - Array of fenced objects to search. Each object should include content, label, and language.
  * @returns Parsed content if a valid YAML or JSON block is found, otherwise undefined.
  */
 export function findFirstDataFence(fences: Fenced[]): any {
@@ -187,9 +193,9 @@ export function findFirstDataFence(fences: Fenced[]): any {
 }
 
 /**
- * Parse an array of strings into key-value pairs and return them as an object.
- * @param vars - Array of strings containing key-value pairs separated by "=" or ":".
- * @returns An object with parsed key-value pairs, or undefined if the input is empty.
+ * Parse an array of strings into key-value pairs and return them as an immutable object.
+ * @param vars - Array of strings, each containing key-value pairs separated by "=" or ":".
+ * @returns An object with parsed key-value pairs, or undefined if the input array is empty or null.
  */
 export function parseVars(vars: string[]) {
     if (!vars?.length) return undefined

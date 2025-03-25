@@ -32,8 +32,10 @@ export interface ChangeLog {
  * @param source The raw input string containing changelog information.
  * @returns An array of ChangeLog objects parsed from the input.
  * 
- * The input is expected to follow a specific format, including headers, descriptions,
+ * The input must follow a specific format, including headers, descriptions,
  * and detailed changes marked with line numbers and contents.
+ * 
+ * Throws an error if the format is invalid or required fields are missing.
  */
 export function parseChangeLogs(source: string): ChangeLog[] {
     const lines = unfence(source, "changelog").split("\n")

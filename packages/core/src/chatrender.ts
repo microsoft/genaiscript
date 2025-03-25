@@ -25,9 +25,9 @@ export interface ChatRenderOptions extends CancellationOptions {
 }
 
 /**
- * Formats the output of a shell command.
- * @param output - Object containing exit code, stdout, and stderr from shell execution.
- * @returns A formatted string summarizing the shell output, including exit code (if non-zero), stdout, and stderr.
+ * Formats the output of a shell command into a readable string.
+ * @param output - The shell execution result containing exit code, stdout, and stderr.
+ * @returns A formatted string summarizing the shell output, including exit code (if non-zero), stdout, and stderr, separated by double newlines.
  */
 export function renderShellOutput(output: ShellOutput) {
     // Destructure the output object to retrieve exitCode, stdout, and stderr.

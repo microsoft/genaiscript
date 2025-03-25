@@ -84,7 +84,8 @@ export function unmarkdown(text: string) {
 
 /**
  * Collapses sequences of three or more consecutive newlines into two consecutive newlines.
- * @param res The input string to process.
+ * @param res The input string to process. Must be a string.
+ * @returns The processed string with collapsed newlines.
  */
 export function collapseNewlines(res: string): string {
     return res?.replace(/(\r?\n){3,}/g, "\n\n")
@@ -100,9 +101,9 @@ function escapeRegExp(str: string): string {
 
 /**
  * Replaces long, token-heavy identifiers like GUIDs with shorter encoded IDs.
- * @param text The original text containing the identifiers to be encoded.
- * @param options Optional configuration for customizing the encoding behavior, including matcher, prefix, open, and close delimiters.
- * @returns An object containing the encoded text, the original text, a decode function, the matcher regex, and a mapping of encoded IDs to original values.
+ * @param text The input string containing identifiers to encode.
+ * @param options Configuration for encoding behavior, including matcher regex, prefix, open, and close delimiters.
+ * @returns An object with the encoded text, original text, a decode function, the matcher regex, and a mapping of encoded IDs to original values.
  */
 export function encodeIDs(
     text: string,

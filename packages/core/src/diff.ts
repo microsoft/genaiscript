@@ -175,8 +175,9 @@ function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
  * Applies a series of LLMDiff chunks to a source string.
  *
  * @param source - The original source content to which changes will be applied.
- * @param chunks - The list of chunks representing changes, including existing, deleted, and added lines. The chunks must be in sequence.
+ * @param chunks - The list of chunks representing changes, including existing, deleted, and added lines. Chunks must be in sequential order.
  * @returns The modified source content after applying the changes, or the original content if no chunks are provided.
+ * @throws Error if the chunk sequence is invalid or unexpected states are encountered.
  */
 export function applyLLMDiff(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
@@ -244,7 +245,7 @@ export class DiffError extends Error {
  * Ensures valid line numbers and updates the source content accordingly.
  *
  * @param source - The original source content to modify.
- * @param chunks - The list of chunks representing changes, including added, deleted, and existing lines.
+ * @param chunks - The list of chunks representing changes, including added, deleted, and existing lines. Chunks must be in sequence.
  * @returns The updated source content after applying the changes.
  */
 export function applyLLMPatch(source: string, chunks: Chunk[]): string {
@@ -308,8 +309,8 @@ export function tryParseDiff(diff: string) {
 /**
  * Converts a diff string into the LLMDiff format.
  * Parses the input diff string, processes it into a structured format, and converts it back to a unified diff format with LLMDiff annotations.
- * @param diff - The diff string to process. Must be in a supported diff format.
- * @returns The resulting LLMDiff formatted string, or undefined if parsing fails.
+ * Updates line numbers for changes and includes them in the output.
+ * @param diff - The diff string to process. Must be in a supported diff format. Returns the LLMDiff formatted string or undefined if parsing fails.
  */
 export function llmifyDiff(diff: string) {
     if (!diff) return diff

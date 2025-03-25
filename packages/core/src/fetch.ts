@@ -32,6 +32,12 @@ export type FetchType = (
  * and supports cancellation and proxy configuration.
  *
  * @param options - Configuration for retries, delays, HTTP status codes, cancellation token, and tracing.
+ *   - retryOn: HTTP status codes to retry on.
+ *   - retries: Number of retry attempts.
+ *   - retryDelay: Initial delay between retries.
+ *   - maxDelay: Maximum delay between retries.
+ *   - cancellationToken: Token to cancel the fetch.
+ *   - trace: Trace options for logging.
  * @returns A fetch function with retry and cancellation support.
  */
 export async function createFetch(
@@ -122,9 +128,9 @@ export async function fetch(
  * Retries on specific HTTP statuses if configured. Supports tracing and cancellation.
  * Handles binary content using base64 encoding.
  *
- * @param urlOrFile - URL or file path to fetch from.
- * @param fetchOptions - Settings for retries, delays, tracing, cancellation, and fetch configurations.
- * @returns Object containing fetch status, content, metadata, and file details.
+ * @param urlOrFile - The URL or file path to fetch from. If a string, it is treated as a filename.
+ * @param fetchOptions - Configuration for retries, delays, tracing, cancellation, and fetch settings.
+ * @returns An object containing fetch status, content, metadata, and file details.
  */
 export async function fetchText(
     urlOrFile: string | WorkspaceFile,
@@ -201,11 +207,11 @@ export async function fetchText(
  * Constructs a curl command to represent the POST request, including headers 
  * and body. Authorization headers can be optionally masked.
  *
- * @param trace - Trace object for logging details.
+ * @param trace - Trace object for logging details. If not provided, the command is logged verbosely.
  * @param url - Target URL for the request.
  * @param headers - Headers to include in the request. Sensitive authorization headers may be masked.
- * @param body - Request body, either as FormData or a raw object.
- * @param options - Options to configure masking of authorization headers.
+ * @param body - Request body, either as FormData or a raw object. FormData fields are included with size for files.
+ * @param options - Configuration for masking authorization headers.
  */
 export function traceFetchPost(
     trace: MarkdownTrace,

@@ -15,8 +15,8 @@ import { errorMessage } from "./error"
 /**
  * Resolves the token encoder for a specified model identifier.
  * @param modelId - The model identifier to resolve the encoder for. Defaults to a large model alias if not provided.
- * @param options - Configuration options, including whether to disable fallback mechanisms.
- * @returns A Promise resolving to a TokenEncoder function or undefined if fallback is disabled and resolution fails.
+ * @param options - Optional configuration. Includes a flag to disable fallback mechanisms.
+ * @returns A Promise resolving to a Tokenizer object or undefined if fallback is disabled and resolution fails.
  */
 export async function resolveTokenEncoder(
     modelId: string,
