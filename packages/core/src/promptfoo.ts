@@ -94,6 +94,15 @@ function renderPurpose(script: PromptScript): string {
  *
  * @param script - The script containing prompt details, tests, and redteam configurations.
  * @param options - Configuration options including chatInfo, embeddingsInfo, provider, output settings, CLI settings, redteam settings, models, trace options, and cancellation options.
+ *   - chatInfo: Connection info and model aliases for chat models.
+ *   - embeddingsInfo: Connection info for embedding models.
+ *   - provider: The provider identifier.
+ *   - out: Output directory or file path.
+ *   - cli: CLI-specific settings.
+ *   - redteam: Whether redteam configurations are enabled.
+ *   - models: Array of model options and aliases.
+ *   - trace: Trace options for debugging.
+ *   - cancellation options: Options for handling cancellation.
  * @returns A configuration object for PromptFoo based on the provided script and options.
  */
 export async function generatePromptFooConfiguration(

@@ -36,8 +36,12 @@ import { prettyBytes } from "./pretty"
 
 /**
  * Resolves the content of a file by decoding, fetching, or parsing it based on its type or source.
+ * 
  * @param file - The file object containing filename, content, type, and encoding.
  * @param options - Optional parameters for tracing, cancellation handling, and maximum file size.
+ *   - trace - Optional tracing object for logging operations.
+ *   - cancellationToken - Token to handle cancellation of the operation.
+ *   - maxFileSize - Maximum allowed file size for processing.
  * @returns The updated file object with resolved content or metadata.
  */
 export async function resolveFileContent(
@@ -181,7 +185,7 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
  * Resolves the contents of multiple files asynchronously.
  * Iterates through the provided files, resolving their content based on type or source.
  * @param files - Array of files to process and resolve content for.
- * @param options - Optional parameters for tracing, cancellation handling, and file processing.
+ * @param options - Optional parameters for tracing, cancellation handling, and maximum file size.
  */
 export async function resolveFileContents(
     files: WorkspaceFile[],
@@ -251,7 +255,7 @@ export function dataUriToBuffer(filename: string) {
 
 /**
  * Resolves and returns the file content as bytes.
- * @param filename - The file name, URL, data URI, or WorkspaceFile object to resolve.
+ * @param filename - The file name, URL, data URI, or WorkspaceFile object to resolve. If a WorkspaceFile object, it uses its encoding and content if available.
  * @param options - Optional parameters for tracing and cancellation handling.
  * @returns A Uint8Array containing the file content as bytes.
  */

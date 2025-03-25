@@ -65,7 +65,7 @@ export function createCachedEmbedder(
  * Creates a vector index for documents using embeddings.
  * 
  * @param indexName The name of the index to create.
- * @param options Configuration options, including index type, embeddings model, cancellation token, tracing, and vector size.
+ * @param options Configuration options, including index type, embeddings model, cancellation token, tracing, vector size, and provider.
  * @returns A workspace file index instance.
  */
 export async function vectorCreateIndex(

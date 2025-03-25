@@ -87,7 +87,7 @@ export function CSVTryParse(
  * Converts an array of objects into a CSV string.
  *
  * @param csv - Array of objects to convert to CSV format. Returns an empty string if the input is null or undefined.
- * @param options - Configuration for CSV stringification, including headers and delimiter settings.
+ * @param options - Optional configuration for CSV stringification, including headers and delimiter settings.
  * @returns A CSV formatted string representation of the input data.
  */
 export function CSVStringify(csv: object[], options?: CSVStringifyOptions) {

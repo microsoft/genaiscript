@@ -84,7 +84,7 @@ export function unmarkdown(text: string) {
 
 /**
  * Collapses sequences of three or more consecutive newlines into two consecutive newlines.
- * @param res Input string to process.
+ * @param res The input string to process.
  */
 export function collapseNewlines(res: string): string {
     return res?.replace(/(\r?\n){3,}/g, "\n\n")

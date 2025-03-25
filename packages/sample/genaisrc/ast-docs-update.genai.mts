@@ -41,6 +41,7 @@ for (const match of matches) {
             // this needs more eval-ing
             _.$`Update the docstring <DOCSTRING> of function <FUNCTION>.
             - If the docstring is up to date, return /NOP/.
+            - do not rephrase an existing sentence if it is correct.
             - Make sure parameters are documented.
             - Be concise. Use technical tone.
             - do NOT include types, this is for TypeScript.
@@ -57,7 +58,7 @@ for (const match of matches) {
             responseType: "text",
             flexTokens: 12000,
             label: match.child(0).text(),
-            temperature: 0.1
+            temperature: 0.2
         }
     )
     // if generation is successful, insert the docs

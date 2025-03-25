@@ -18,8 +18,8 @@ export interface FileReference {
 
 /**
  * Converts diagnostic data into a CSV-formatted string.
- * @param diagnostics - Array of diagnostic objects with severity, filename, range, code, and message.
- * @param sep - Separator string for CSV fields.
+ * @param diagnostics - Array of diagnostic objects containing severity, filename, range, code, and message.
+ * @param sep - String used to separate CSV fields.
  * @returns CSV string with each diagnostic entry on a new line.
  */
 export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
@@ -58,9 +58,9 @@ export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position
 
 /**
  * Organizes templates by directory and identifies the presence of JavaScript or TypeScript files in each directory.
- * Filters out templates without filenames or matching the PROMPTY_REGEX.
- * @param prj - The project containing the scripts to process.
- * @returns An array of objects, each representing a directory with its name and flags indicating the presence of JavaScript and TypeScript files.
+ * Filters out templates without filenames or those matching the PROMPTY_REGEX.
+ * @param prj - The project containing the scripts to process, with each script having a filename property.
+ * @returns Array of objects, each representing a directory with its name and flags indicating the presence of JavaScript and TypeScript files.
  */
 export function collectFolders(prj: Project) {
     const folders: Record<
@@ -82,7 +82,7 @@ export function collectFolders(prj: Project) {
 /**
  * Finds a script in the project's scripts list by matching its ID with the system prompt instance.
  * @param prj - The project containing the scripts to search.
- * @param system - The system prompt instance with the script ID to match.
+ * @param system - The system prompt instance containing the script ID to match.
  * @returns The matching script if found, otherwise undefined.
  */
 export function resolveScript(prj: Project, system: SystemPromptInstance) {
