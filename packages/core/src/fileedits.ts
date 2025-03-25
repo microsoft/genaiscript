@@ -1,6 +1,6 @@
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { dataToMarkdownTable } from "./csv"
-import { applyLLMDiff, applyLLMPatch, createDiff, parseLLMDiffs } from "./diff"
+import { applyLLMDiff, applyLLMPatch, createDiff, parseLLMDiffs } from "./llmdiff"
 import { errorMessage } from "./error"
 import { unquote } from "./unwrappers"
 import { fileExists, readText } from "./fs"

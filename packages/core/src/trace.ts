@@ -27,7 +27,7 @@ import { parseTraceTree, TraceTree } from "./traceparser"
 import { fileCacheImage, fileWriteCached } from "./filecache"
 import { CancellationOptions } from "./cancellation"
 import { generateId } from "./id"
-import { createDiff } from "./diff"
+import { createDiff } from "./llmdiff"
 import { prettyBytes } from "./pretty"
 
 export class TraceChunkEvent extends Event {

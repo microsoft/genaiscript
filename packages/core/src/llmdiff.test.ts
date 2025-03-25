@@ -1,8 +1,8 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { createDiff, parseLLMDiffs } from "./diff"
+import { createDiff, parseLLMDiffs } from "./llmdiff"
 
-describe("diff", () => {
+describe("llmdiff", () => {
     test("is_valid_email", () => {
         const source = `[1] import re
 [2] 

@@ -10,7 +10,7 @@ import {
     GIT_DIFF_MAX_TOKENS,
     GIT_IGNORE_GENAI,
 } from "./constants"
-import { llmifyDiff } from "./diff"
+import { llmifyDiff } from "./llmdiff"
 import { resolveFileContents } from "./file"
 import { tryReadText, tryStat } from "./fs"
 import { host, runtimeHost } from "./host"

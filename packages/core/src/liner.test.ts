@@ -1,6 +1,6 @@
 import test, { describe } from "node:test"
 import assert from "node:assert"
-import { llmifyDiff } from "./diff"
+import { llmifyDiff } from "./llmdiff"
 
 describe("liner", function () {
     test("diff test 1", function () {
