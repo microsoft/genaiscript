@@ -7,6 +7,7 @@ import { resolveFileContent } from "./file"
 import { host } from "./host"
 import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
+import { extname } from "node:path"
 
 /**
  * Searches for files matching specific criteria based on file patterns and match rules,
@@ -236,7 +237,7 @@ async function resolveLang(lang: SgLang, filename?: string) {
             return Lang.Css
         }
         return await loadDynamicLanguage(
-            path.extname(filename).slice(1).toLowerCase()
+            extname(filename).slice(1).toLowerCase()
         )
     }
 
