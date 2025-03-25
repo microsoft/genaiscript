@@ -7,13 +7,11 @@ temp/
 .env*
 __pycache__/
 packages/sample/*.slides.md
-**/.genaiscript/genaiscript.*js
+packages/**/.genaiscript/
+
 vscode-extension-samples/
 .DS_Store
-.genaiscript/temp
-.genaiscript/retrieval
 results/
-.genaiscript/
 applications/EdgePeeringAI
 docs/public/slides/
 yarn-error.log

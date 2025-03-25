@@ -65,6 +65,7 @@ import { collectRuns } from "./runs"
 import { generateId } from "../../core/src/id"
 import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
+import { nodeTryReadPackage } from "../../core/src/nodepackage"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -111,7 +112,7 @@ export async function startServer(
 
     // read current project info
     const { name, displayName, description, version, homepage, author } =
-        (await tryReadJSON("package.json")) || {}
+        (await nodeTryReadPackage()) || {}
     const readme =
         (await tryReadText("README.genai.md")) ||
         (await tryReadText("README.md"))

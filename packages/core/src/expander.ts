@@ -29,7 +29,7 @@ import { normalizeFloat, normalizeInt } from "./cleaners"
 import { mergeEnvVarsWithSystem } from "./vars"
 import { installGlobalPromptContext } from "./globals"
 import { mark } from "./performance"
-import { tryReadJSON } from "./fs"
+import { nodeIsPackageTypeModule } from "./nodepackage"
 
 /**
  * Executes a prompt expansion process based on the provided prompt script, variables, and options.
@@ -75,9 +75,7 @@ export async function callExpander(
     }
 
     // package.json { type: "module" }
-    const pkg = await tryReadJSON("package.json")
-    const isModule = pkg?.type === "module"
-    dbg(`package.json type: ${pkg?.type || ""}`)
+    const isModule = await nodeIsPackageTypeModule()
     try {
         if (
             r.filename &&

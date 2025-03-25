@@ -6,6 +6,7 @@ import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
 import { readFile } from "fs/promises"
 import { dirname } from "path"
+import { JSON5TryParse } from "./json5"
 
 /**
  * Changes the file extension of a given file name.
@@ -119,8 +120,15 @@ export async function readJSON(fn: string) {
  */
 export async function tryReadJSON(fn: string) {
     try {
-        dbg(`trying to read JSON from file ${fn}`)
         return JSON.parse(await readText(fn))
+    } catch {
+        return undefined
+    }
+}
+
+export async function tryReadJSON5(fn: string) {
+    try {
+        return JSON5TryParse(await readText(fn))
     } catch {
         return undefined
     }
