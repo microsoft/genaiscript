@@ -153,7 +153,7 @@ export async function readConfig(
 ): Promise<HostConfiguration> {
     dbg(`reading configuration`)
     const config = await resolveGlobalConfiguration(dotEnvPaths)
-    const { envFile, modelAliases } = config
+    const { envFile } = config
     for (const dotEnv of arrayify(envFile)) {
         dbg(`.env: ${dotEnv}`)
         const stat = await tryStat(dotEnv)

@@ -34,8 +34,16 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
 
     const { completion_tokens, prompt_tokens } = usage
     let { provider, model } = parseModelIdentifier(modelId)
-    const m = `${provider}:${model}`.toLowerCase()
-    const cost = MODEL_PRICINGS[m]
+    let cost = MODEL_PRICINGS[`${provider}:${model}`.toLowerCase()]
+    if (!cost) {
+        const m = model.match(
+            /^gpt-(3\.5|4|4o|o1|o3|o1-mini|o1-preview|4o-mini|o3-mini)/
+        )
+        if (m) {
+            model = m[0]
+            cost = MODEL_PRICINGS[`${provider}:${model}`.toLowerCase()]
+        }
+    }
     if (!cost) return undefined
 
     const {

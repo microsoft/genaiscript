@@ -1,11 +1,12 @@
 {
-    "$schema": "https://microsoft.github.io/genaiscript/schemas/config.json",
+    "$schema": "docs/public/schemas/config.json",
     "modelAliases": {
         "gcm": "github:gpt-4o",
         "release": "github:gpt-4o"
     },
     "envFile": ".env",
     "modelEncodings": {
-        "azure:gpt-4o_2024-11-20": "gpt-4o"
+        "azure:gpt-4o_2024-11-20": "gpt-4o",
+        "azure:gpt-4o-mini_2024-07-18": "gpt-4o-mini"
     }
 }
