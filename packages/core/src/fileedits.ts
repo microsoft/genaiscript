@@ -35,8 +35,8 @@ import { diffCreatePatch } from "./diff"
  * - Executes custom output processors if specified.
  * - Validates file outputs against specified schemas or patterns.
  * - Generates structured edits for tracked file changes.
- *
- * Updates the provided result structure with computed edits, changelogs, annotations, and file modifications.
+ * - Updates the result structure with computed edits, changelogs, annotations, and file modifications.
+ * - Logs details of the computation process, including errors and skipped files.
  */
 export async function computeFileEdits(
     res: RunPromptResult,
@@ -307,7 +307,7 @@ function validateFileOutputs(
  * @param fileEdits - A record of file updates, including filename, original content, updated content, and validation details. Skips files with invalid schemas unless applyEdits is true.
  * @param options - Options for applying edits and tracing details:
  *   - applyEdits: If true, applies edits even if validation fails.
- *   - trace: A trace object for logging details, including skipped files and changes.
+ *   - trace: A trace object for logging details, including skipped files, changes, and diff information.
  */
 export async function writeFileEdits(
     fileEdits: Record<string, FileUpdate>, // Contains the edits to be applied to files

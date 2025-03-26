@@ -41,6 +41,8 @@ import { measure } from "../../core/src/performance"
  *   - `rewrite` - If true, overwrites existing files instead of creating new ones with a suffix.
  *   - `cancelWord` - A keyword that cancels processing if found in the result.
  *   - `concurrency` - Number of files to process concurrently.
+ *   - `excludedFiles` - Array of file paths or glob patterns to exclude from processing.
+ *   - `ignoreGitIgnore` - If true, ignores .gitignore rules during file resolution.
  *   - Other options passed to the transformation process.
  *
  * @throws Error if the script is not found or no files match the given patterns.

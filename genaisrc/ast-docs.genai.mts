@@ -24,16 +24,31 @@ script({
             default: false,
             description: "If true, the script will not modify the files.",
         },
+        missing: {
+            type: "boolean",
+            default: true,
+            description: "Generate missing docs.",
+        },
+        update: {
+            type: "boolean",
+            default: true,
+            description: "Update existing docs.",
+        },
     },
 })
 const { files, output, dbg, vars } = env
-const { applyEdits, diff, pretty } = vars
+const { applyEdits, diff, pretty, missing, update } = vars
+
+if (!missing && !update) cancel(`not generating or updating docs, exiting...`)
+
+if (!applyEdits)
+    output.warn(
+        `edit not applied, use --vars 'applyEdits=true' to apply the edits`
+    )
 
 // filter by diff
 const gitDiff = diff ? await git.diff({ base: "main" }) : undefined
-
 const sg = await host.astGrep()
-
 const stats = []
 for (const file of files) {
     console.debug(file.filename)
@@ -41,17 +56,34 @@ for (const file of files) {
     if (pretty) await prettier(file)
 
     // generate missing docs
-    const fileStats: any = {
-        filename: file.filename,
-        gen: 0,
-        genCost: 0,
-        consistent: 0,
-        consistentCost: 0,
-        edits: 0,
-        updated: 0,
+    if (missing) {
+        stats.push({
+            filename: file.filename,
+            kind: "new",
+            gen: 0,
+            genCost: 0,
+            consistent: 0,
+            consistentCost: 0,
+            edits: 0,
+            updated: 0,
+        })
+        await generateDocs(file, stats.at(-1))
     }
-    stats.push(fileStats)
-    await generateDocs(file, fileStats)
+
+    // generate updated docs
+    if (update) {
+        stats.push({
+            filename: file.filename,
+            kind: "update",
+            gen: 0,
+            genCost: 0,
+            consistent: 0,
+            consistentCost: 0,
+            edits: 0,
+            updated: 0,
+        })
+        await updateDocs(file, stats.at(-1))
+    }
 }
 
 if (stats.length)
@@ -101,7 +133,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
             {
                 model: "large",
                 responseType: "text",
-                label: missingDoc.text()?.slice(0, 20),
+                label: missingDoc.text()?.slice(0, 20) + "...",
             }
         )
         // if generation is successful, insert the docs
@@ -145,17 +177,122 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
     }
 
     // apply all edits and write to the file
-    const [modified] = edits.commit()
-    if (!modified) return
+    const modifiedFiles = edits.commit()
+    if (!modifiedFiles?.length) {
+        dbg("no edits to apply")
+        return
+    }
     fileStats.updated = 1
-
     if (applyEdits) {
-        await workspace.writeFiles(modified)
+        await workspace.writeFiles(modifiedFiles)
         await prettier(file)
     } else {
-        output.diff(file, modified)
-        output.warn(
-            `edit not applied, use --vars 'applyEdits=true' to apply the edits`
+        output.diff(file, modifiedFiles[0])
+    }
+}
+
+async function updateDocs(file: WorkspaceFile, fileStats: any) {
+    const { matches } = await sg.search(
+        "ts",
+        file.filename,
+        {
+            rule: {
+                kind: "export_statement",
+                follows: {
+                    kind: "comment",
+                    stopBy: "neighbor",
+                },
+                has: {
+                    kind: "function_declaration",
+                },
+            },
+        },
+        { diff: gitDiff }
+    )
+
+    const edits = sg.changeset()
+    // for each match, generate a docstring for functions not documented
+    for (const match of matches) {
+        const comment = match.prev()
+
+        const res = await runPrompt(
+            (_) => {
+                _.def("FILE", match.getRoot().root().text(), { flex: 1 })
+                _.def("DOCSTRING", comment.text(), { flex: 10 })
+                _.def("FUNCTION", match.text(), { flex: 10 })
+                // this needs more eval-ing
+                _.$`Update the docstring <DOCSTRING> to match the code in function <FUNCTION>.
+                - If the docstring is up to date, return /NOP/.
+                - do not rephrase an existing sentence if it is correct.
+                - Make sure parameters are documented.
+                - do NOT include types, this is for TypeScript.
+                - Use docstring syntax. do not wrap in markdown code section.
+                - Minimize updates to the existing docstring.
+                
+                The full source of the file is in <FILE> for reference.
+                The source of the function is in <FUNCTION>.
+                The current docstring is <DOCSTRING>.
+                `
+            },
+            {
+                model: "large",
+                responseType: "text",
+                flexTokens: 12000,
+                label: match.text()?.slice(0, 20) + "...",
+                temperature: 0.2,
+                systemSafety: false,
+                system: ["system.technical", "system.typescript"],
+            }
         )
+        // if generation is successful, insert the docs
+        if (res.error) {
+            output.warn(res.error.message)
+            continue
+        }
+
+        if (res.text.includes("/NOP/")) continue
+
+        const docs = docify(res.text.trim())
+
+        // ask LLM if change is worth it
+        const shouldApply = await classify(
+            (_) => {
+                _.def("FUNCTION", match.text())
+                _.def("ORIGINAL_DOCS", comment.text())
+                _.def("NEW_DOCS", docs)
+                _.$`An LLM generated an updated docstring <NEW_DOCS> for function <FUNCTION>. The original docstring is <ORIGINAL_DOCS>.`
+            },
+            {
+                APPLY: "The <NEW_DOCS> is a significant improvement to <ORIGINAL_DOCS>.",
+                NIT: "The <NEW_DOCS> contains nits (minor adjustments) to <ORIGINAL_DOCS>.",
+            },
+            {
+                model: "large",
+                responseType: "text",
+                temperature: 0.2,
+                systemSafety: false,
+                system: ["system.technical", "system.typescript"],
+            }
+        )
+
+        if (shouldApply.label === "NIT") {
+            output.warn("LLM suggests minor adjustments, skipping")
+            continue
+        }
+        edits.replace(comment, docs)
+    }
+
+    // apply all edits and write to the file
+    const modifiedFiles = edits.commit()
+    if (!modifiedFiles?.length) {
+        dbg("no edits to apply")
+        return
+    }
+    fileStats.updated = 1
+    if (applyEdits) {
+        await workspace.writeFiles(modifiedFiles)
+        await prettier(file)
+    } else {
+        output.diff(file, modifiedFiles[0])
     }
 }

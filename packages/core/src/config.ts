@@ -143,10 +143,11 @@ async function resolveGlobalConfiguration(
  * - Validates the existence and file type of each `.env` file.
  * - Loads and overrides environment variables using `dotenv`.
  * - Parses additional defaults from the current `process.env`.
+ * - Ensures unique resolution of `.env` file paths.
  *
  * @returns The resolved host configuration including merged and validated settings.
  *
- * @throws An error if any provided `.env` file is invalid or unreadable.
+ * @throws An error if any provided `.env` file is invalid, unreadable, or not a file.
  */
 export async function readConfig(
     dotEnvPaths?: string[]
@@ -188,6 +189,7 @@ export async function readConfig(
  *   - hide - Exclude hidden providers from the output.
  *   - cancellation options - Additional cancellation options.
  * @returns Sorted list of resolved language model configurations, including errors if applicable.
+ * @throws An error if there is an issue retrieving or processing configurations for a provider.
  */
 export async function resolveLanguageModelConfigurations(
     provider: string,

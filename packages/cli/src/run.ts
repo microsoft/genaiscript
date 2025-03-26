@@ -115,11 +115,11 @@ import {
 
 /**
  * Executes a script with a possible retry mechanism and exits the process with the appropriate code.
- * Ensures necessary setup and handles retries on failure or cancellation.
+ * Ensures necessary setup, handles retries on failure or cancellation, and supports CLI mode.
  *
  * @param scriptId - The identifier of the script to execute.
  * @param files - A list of file paths to use as input for the script.
- * @param options - Configuration options for running the script. Includes retry parameters, trace configuration, and other execution-related settings.
+ * @param options - Configuration options for running the script. Includes retry parameters, trace configuration, cancellation token, and other execution-related settings.
  *
  * @property options.runRetry - The maximum number of retries on script failure.
  * @property options.cancellationToken - Token to monitor if the operation is cancelled.
@@ -128,6 +128,8 @@ import {
  * @property options.runTrace - Controls whether to enable trace writing for the run.
  * @property options.model - Model configuration for the script execution.
  * @property options.vars - Variables to pass to the script.
+ *
+ * Exits with a success code if the script completes successfully, or with an appropriate error code if it fails or is cancelled.
  */
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -187,6 +189,13 @@ export async function runScriptWithExitCode(
  *   - annotations/changelogs/data/output options: Configs for exporting diagnostics, changes, intermediate data, and results.
  *   - pullRequestComments, descriptions, or reviews: Enables integration with GitHub or Azure DevOps for updates.
  *   - applyEdits: Indicates if file edits should be applied.
+ *   - retry/retryDelay/maxDelay: Configurations for retry logic.
+ *   - cache: Cache name or configuration.
+ *   - csvSeparator: Separator for CSV outputs.
+ *   - removeOut: Indicates if the output directory should be cleared before execution.
+ *   - jsSource: JavaScript source code for the script.
+ *   - logprobs/topLogprobs: Configurations for log probability outputs.
+ *   - fenceFormat: Specifies the format for fenced code blocks.
  *   - other parameters for retries, limits, model settings, etc.
  *
  * @returns A Promise resolving to an object containing:

@@ -69,7 +69,9 @@ export function astGrepCreateChangeSet(): SgChangeSet {
  * @param lang - The language of the files to search, such as JavaScript or HTML.
  * @param glob - A single or array of glob patterns to match file paths.
  * @param matcher - The match criteria, either a string pattern or a specific matcher object.
- * @param options - Optional parameters, including cancelation options and options for file search.
+ * @param options - Optional parameters, including cancellation options and options for file search.
+ *   - cancellationToken: A token to handle operation interruptions.
+ *   - diff: A diff object to filter files based on changes.
  *
  * @returns An object containing:
  * - `files`: The number of files scanned.
@@ -185,7 +187,7 @@ export async function astGrepFindFiles(
  * @param options - Optional configuration for cancellation, containing a cancellation token to handle operation interruptions.
  *
  * The function iterates through the unique roots of the provided nodes, checks for file content differences,
- * and writes updated content to the respective files if changes are detected.
+ * and writes updated content to the respective files if changes are detected. If a file does not have a filename, it is skipped.
  */
 export async function astGrepWriteRootEdits(
     nodes: SgNode[],
