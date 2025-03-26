@@ -38,6 +38,8 @@ for (const file of env.files) {
             },
         },
     })
+    if (!matches.length) continue
+    
     const edits = sg.changeset()
     // for each match, generate a docstring for functions not documented
     for (const match of matches) {
@@ -98,6 +100,8 @@ for (const file of env.files) {
 
     // apply all edits and write to the file
     const [modified] = edits.commitEdits()
+    if (!modified) continue
+
     if (applyEdits) {
         await workspace.writeFiles(modified)
         await prettier(file)
