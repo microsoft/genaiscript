@@ -69,6 +69,15 @@ export function YAMLStringify(obj: any): string {
     return stringify(obj, undefined, 2)
 }
 
+/**
+ * Creates a YAML handler with template string support for parsing and stringifying YAML content.
+ * Combines the functionality to parse YAML strings, stringify objects to YAML,
+ * and process template string inputs into parsed YAML objects.
+ *
+ * @param strings - An array of template string literals.
+ * @param values - Corresponding interpolated values.
+ * @returns A parsed object generated from the combined template strings and values.
+ */
 export function createYAML(): YAML {
     const res = (strings: TemplateStringsArray, ...values: any[]): any => {
         let result = strings[0]
