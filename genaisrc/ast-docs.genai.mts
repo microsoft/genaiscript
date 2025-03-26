@@ -33,6 +33,17 @@ const { applyEdits, diff, pretty } = vars
 const diffFiles = diff
     ? DIFF.parse(await git.diff({ base: "main" }))
     : undefined
+if (diffFiles)
+    dbg(
+        `diff files %O`,
+        diffFiles.map(({ to, chunks }) => ({
+            to,
+            chunks: chunks.map(({ newStart, newLines }) => ({
+                start: newStart,
+                end: newStart + newLines,
+            })),
+        }))
+    )
 
 for (const file of env.files) {
     // normalize spacing
@@ -57,13 +68,15 @@ for (const file of env.files) {
     })
     dbg(`sg matches ${matches.length} for ${file.filename}`)
     if (matches?.length && diffFiles?.length) {
-        const newMatches = matches.filter((m) =>
-            DIFF.findChunk(
+        const newMatches = matches.filter((m) => {
+            const chunk = DIFF.findChunk(
                 m.getRoot().filename(),
                 [m.range().start.line, m.range().end.line],
                 diffFiles
             )
-        )
+            dbg(`diff chunk %O`, chunk)
+            return chunk
+        })
         dbg(`diff filtered ${matches.length} -> ${newMatches.length}`)
         matches = newMatches
     }

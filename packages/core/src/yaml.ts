@@ -6,7 +6,6 @@
 
 import { parse, stringify } from "yaml"
 import { filenameOrFileToContent } from "./unwrappers"
-import { JSON5parse } from "./json5"
 import { dedent } from "./indent"
 
 /**
