@@ -30,28 +30,38 @@ const { files, output, dbg, vars } = env
 const { applyEdits, diff, pretty } = vars
 
 // filter by diff
-const gitDiff = await git.diff({ base: "main" })
+const gitDiff = diff ? await git.diff({ base: "main" }) : undefined
 
-// find all exported functions without comments
 const sg = await host.astGrep()
 
 const stats = []
 for (const file of files) {
-    dbg(file.filename)
-    stats.push({
+    console.debug(file.filename)
+    // normalize spacing
+    if (pretty) await prettier(file)
+
+    // generate missing docs
+    const fileStats: any = {
         filename: file.filename,
-        matches: 0,
         gen: 0,
         genCost: 0,
         consistent: 0,
         consistentCost: 0,
         edits: 0,
         updated: 0,
-    })
-    const fileStats = stats.at(-1)
-    // normalize spacing
-    if (pretty) await prettier(file)
+    }
+    stats.push(fileStats)
+    await generateDocs(file, fileStats)
+}
 
+if (stats.length)
+    output.table(
+        stats.filter((row) =>
+            Object.values(row).some((d) => typeof d === "number" && d > 0)
+        )
+    )
+
+async function generateDocs(file: WorkspaceFile, fileStats: any) {
     const { matches: missingDocs } = await sg.search(
         "ts",
         file.filename,
@@ -71,8 +81,6 @@ for (const file of files) {
         },
         { diff: gitDiff }
     )
-    dbg(`sg matches ${missingDocs.length}`)
-    fileStats.matches = missingDocs.length
     dbg(`found ${missingDocs.length} missing docs`)
     const edits = sg.changeset()
     // for each match, generate a docstring for functions not documented
@@ -83,12 +91,12 @@ for (const file of files) {
                 _.def("FUNCTION", missingDoc.text())
                 // this needs more eval-ing
                 _.$`Generate a function documentation for <FUNCTION>.
-            - Make sure parameters are documented.
-            - Be concise. Use technical tone.
-            - do NOT include types, this is for TypeScript.
-            - Use docstring syntax. do not wrap in markdown code section.
-
-            The full source of the file is in <FILE> for reference.`
+                - Make sure parameters are documented.
+                - Be concise. Use technical tone.
+                - do NOT include types, this is for TypeScript.
+                - Use docstring syntax. do not wrap in markdown code section.
+    
+                The full source of the file is in <FILE> for reference.`
             },
             {
                 model: "large",
@@ -138,7 +146,7 @@ for (const file of files) {
 
     // apply all edits and write to the file
     const [modified] = edits.commit()
-    if (!modified) continue
+    if (!modified) return
     fileStats.updated = 1
 
     if (applyEdits) {
@@ -151,10 +159,3 @@ for (const file of files) {
         )
     }
 }
-
-if (stats.length)
-    output.table(
-        stats.filter((row) =>
-            Object.values(row).some((d) => typeof d === "number" && d > 0)
-        )
-    )

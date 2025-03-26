@@ -32,9 +32,11 @@ export function diffResolve(
 }
 
 /**
- * Parses a diff string into a structured format using the parse-diff library.
- * @param diff - The diff string to parse. Must be in a supported diff format.
- * @returns A parsed array of file objects if successful, or undefined if parsing fails or no files are found.
+ * Attempts to parse a diff string into a structured format.
+ * If parsing fails, logs the error and returns an empty array.
+ *
+ * @param diff - The diff string to parse. Must be in a valid diff format.
+ * @returns An array of parsed file objects if successful, or an empty array if parsing fails.
  */
 export function tryDiffParse(diff: string) {
     try {
