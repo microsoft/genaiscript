@@ -13,11 +13,7 @@ for (const match of matches) {
     if (!t.includes("console.log")) throw new Error("console.log found")
 }
 
-const {
-    matches: matches2,
-    replace,
-    commitEdits,
-} = await sg.search("ts", "src/fib.ts", {
+const { matches: matches2 } = await sg.search("ts", "src/fib.ts", {
     rule: {
         kind: "function_declaration",
         not: {
@@ -29,6 +25,7 @@ const {
     },
 })
 if (matches2.length !== 1) throw new Error("No matches found")
+const cs = sg.changeset()
 for (const match of matches2) {
     console.log(match.getRoot().filename() + " " + match.text())
     const fn = match.parent()
@@ -41,9 +38,9 @@ for (const match of matches2) {
         },
         { model: "small", responseType: "text" }
     )
-    replace(match, `/**\n* ${res.text}\n**/\n${match.text()}`)
+    cs.replace(match, `/**\n* ${res.text}\n**/\n${match.text()}`)
 }
-const modified = await commitEdits()
+const modified = cs.commitEdits()
 console.log(modified)
 //await workspace.writeFiles(files)
 
