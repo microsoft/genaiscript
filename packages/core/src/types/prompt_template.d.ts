@@ -2437,7 +2437,7 @@ interface DiffFile {
 
 interface DiffChunk {
     content: string
-    changes: Change[]
+    changes: DiffChange[]
     oldStart: number
     oldLines: number
     newStart: number
@@ -2466,9 +2466,9 @@ interface DiffDeleteChange {
     content: string
 }
 
-type ChangeType = "normal" | "add" | "del"
+type DiffChangeType = "normal" | "add" | "del"
 
-type Change = DiffNormalChange | DiffAddChange | DiffDeleteChange
+type DiffChange = DiffNormalChange | DiffAddChange | DiffDeleteChange
 
 interface Diff {
     /**

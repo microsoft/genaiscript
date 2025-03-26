@@ -341,6 +341,7 @@ export async function createPromptContext(
                 changeset: astGrepCreateChangeSet,
                 search: (lang, glob, matcher) =>
                     astGrepFindFiles(lang, glob, matcher, {
+                        ...(options || {}),
                         cancellationToken,
                     }),
                 parse: (file, options) =>
