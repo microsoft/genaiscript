@@ -92,6 +92,25 @@ export function summarize(_, files) {
 }
 ```
 
+## JSON Modules
+
+You can import JSON files using the `import` statement and get automatic type inference.
+
+```js title="data.json"
+{
+    "name": "GenAIScript"
+}
+```
+
+Use the `with { type: "json" }` syntax to import JSON files in `.mjs` or `.mts` files.
+The file path is relative to the genaiscript source file.
+
+```js title="script.genai.mts"
+import data from "./data.json" with { type: "json" }
+
+console.log(data.name) // GenAIScript
+```
+
 ## Default function export
 
 If you set a function as the default export, GenAIScript will call it.

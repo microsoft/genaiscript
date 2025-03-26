@@ -33,10 +33,10 @@ export function diffResolve(
 
 /**
  * Attempts to parse a diff string into a structured format.
- * If parsing fails, logs the error and returns an empty array.
+ * If parsing fails, logs the error message and returns an empty array.
  *
  * @param diff - The diff string to parse.
- * @returns An array of parsed file objects if successful, or an empty array if parsing fails.
+ * @returns An array of parsed file objects if successful, or an empty array if parsing fails. Logs an error message if parsing fails.
  */
 export function tryDiffParse(diff: string) {
     try {
@@ -49,10 +49,13 @@ export function tryDiffParse(diff: string) {
 
 /**
  * Creates a unified diff between two workspace files.
- * @param left - The original workspace file or its content. If a string, it is wrapped in a WorkspaceFile object with a default filename.
- * @param right - The modified workspace file or its content. If a string, it is wrapped in a WorkspaceFile object with a default filename.
- * @param options - Optional parameters, such as the number of context lines, case sensitivity, and whitespace handling.
- * @returns The diff as a string, with redundant headers removed.
+ * If the input is a string, it is wrapped in a WorkspaceFile object with a default filename.
+ * If the input is an object, it should contain a filename and content.
+ *
+ * @param left - The original workspace file or its content. If a string, it is wrapped in a WorkspaceFile object with the filename "left".
+ * @param right - The modified workspace file or its content. If a string, it is wrapped in a WorkspaceFile object with the filename "right".
+ * @param options - Optional parameters, such as the number of context lines, case sensitivity, and whitespace handling. Defaults to ignoring case and whitespace. Additional options can be provided.
+ * @returns The diff as a string, with redundant headers removed. The diff is generated using createTwoFilesPatch.
  */
 export function diffCreatePatch(
     left: string | WorkspaceFile,
@@ -94,7 +97,7 @@ export function diffFindChunk(
     line: ElementOrArray<number>,
     diff: ElementOrArray<DiffFile>
 ): { file?: DiffFile; chunk?: DiffChunk } | undefined {
-    // line is zero-based
+    // line is zero-based!
     const fn = file ? resolve(file) : undefined
     const df = arrayify(diff).find(
         (f) => (!file && !f.to) || resolve(f.to) === fn

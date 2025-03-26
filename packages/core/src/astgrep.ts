@@ -167,11 +167,13 @@ export async function astGrepFindFiles(
     // apply diff
     if (diffFiles?.length) {
         matches = matches.filter((m) => {
-            const chunk = diffFindChunk(
-                m.getRoot().filename(),
-                [m.range().start.line, m.range().end.line],
-                diffFiles
-            )
+            const range = [m.range().start.line, m.range().end.line]
+            const { chunk } =
+                diffFindChunk(m.getRoot().filename(), range, diffFiles) || {}
+            if (chunk)
+                dbg(
+                    `diff overlap at (${range[0]},${range[1]}) x (${chunk.newStart},${chunk.newStart + chunk.newLines})`
+                )
             return chunk
         })
         dbg(`matches filtered by diff: ${matches.length}`)

@@ -38,9 +38,10 @@ async function main() {
             )
                 .toString("utf8")
                 .matchAll(/debug\("genaiscript:(?<category>[^"]+)"\)/g)
-        ).sort().map((m) => m.groups.category),
+        )
+            .sort()
+            .map((m) => m.groups.category),
     ])
-    console.log({ logCategories })
     writeFileSync(
         "./src/dbg.ts",
         dedent`// auto-generated: do not edit
@@ -91,6 +92,8 @@ async function main() {
                     skipLibCheck: true,
                     noEmit: true,
                     allowImportingTsExtensions: true,
+                    verbatimModuleSyntax: true,
+                    resolveJsonModule: true,
                 },
                 include: ["*.mjs", "*.mts", "src/*.mts", "./genaiscript.d.ts"],
             },
