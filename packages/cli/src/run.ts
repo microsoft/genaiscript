@@ -1,3 +1,5 @@
+import debug from "debug"
+const dbg = debug("genaiscript:run")
 import { capitalize } from "inflection"
 import { resolve, join, relative } from "node:path"
 import { isQuiet } from "../../core/src/quiet"
@@ -314,6 +316,7 @@ export async function runScriptInternal(
     if (!script) throw new Error(`script ${scriptId} not found`)
     const applyGitIgnore =
         options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
+    dbg(`apply gitignore: ${applyGitIgnore}`)
     const resolvedFiles = new Set<string>()
     // move exlucsions to excludedFiles
     excludedFiles.push(
@@ -323,16 +326,23 @@ export async function runScriptInternal(
     )
     files = files.filter((f) => !NEGATIVE_GLOB_REGEX.test(f))
     for (let arg of files) {
+        dbg(`resolving ${arg}`)
         if (HTTPS_REGEX.test(arg)) {
+            dbg(`url handled later`)
             resolvedFiles.add(arg)
             continue
         }
         const stats = await host.statFile(arg)
-        if (stats?.type === "directory") arg = host.path.join(arg, "**", "*")
+        if (stats?.type === "directory") {
+            dbg(`path is directory, expanding children`)
+            arg = host.path.join(arg, "**", "*")
+        }
+        dbg(`find ${arg}`)
         const ffs = await host.findFiles(arg, {
             applyGitIgnore,
         })
-        if (!ffs?.length) {
+        if (!ffs?.length && arg.includes("*")) {
+            // edge case when gitignore dumps 1 file
             return fail(
                 `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
                 FILES_NOT_FOUND_ERROR_CODE
