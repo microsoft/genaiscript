@@ -18,6 +18,13 @@ export function diffParse(input: string) {
     return files
 }
 
+export function diffResolve(
+    input: string | ElementOrArray<DiffFile>
+): DiffFile[] {
+    if (typeof input === "string") return diffParse(input)
+    else return arrayify(input)
+}
+
 /**
  * Parses a diff string into a structured format using the parse-diff library.
  * @param diff - The diff string to parse. Must be in a supported diff format.

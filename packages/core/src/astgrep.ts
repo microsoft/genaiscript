@@ -8,6 +8,7 @@ import { host } from "./host"
 import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
 import { extname } from "node:path"
+import { diffFindChunk, diffResolve } from "./diff"
 
 class SgChangeSetImpl implements SgChangeSet {
     private pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
@@ -71,23 +72,25 @@ export async function astGrepFindFiles(
     lang: SgLang,
     glob: ElementOrArray<string>,
     matcher: string | SgMatcher,
-    options?: Omit<FindFilesOptions, "readText"> & CancellationOptions
+    options?: SgSearchOptions & CancellationOptions
 ): ReturnType<Sg["search"]> {
-    const { cancellationToken } = options || {}
+    const { cancellationToken, diff } = options || {}
     if (!glob) {
         throw new Error("glob is required")
     }
     if (!matcher) {
         throw new Error("matcher is required")
     }
+    const diffFiles = diffResolve(diff)
 
     dbg(`finding files with ${lang} %O`, matcher)
+    if (diffFiles?.length) dbg(`diff files: ${diffFiles.length}`)
     const { findInFiles } = await import("@ast-grep/napi")
     checkCancelled(cancellationToken)
     const sglang = await resolveLang(lang)
     dbg(`resolving language: ${lang}`)
 
-    const paths = await host.findFiles(glob, options)
+    let paths = await host.findFiles(glob, options)
     if (!paths?.length) {
         dbg(`no files found for glob`, glob)
         return {
@@ -97,7 +100,21 @@ export async function astGrepFindFiles(
     }
     dbg(`found ${paths.length} files`, paths)
 
-    const matches: SgNode[] = []
+    if (diffFiles?.length) {
+        const diffFilesSet = new Set(
+            diffFiles.filter((f) => f.to).map((f) => f.to)
+        )
+        paths = paths.filter((p) => diffFilesSet.has(p))
+        dbg(`filtered files by diff: ${paths.length}`)
+        if (!paths?.length) {
+            return {
+                files: 0,
+                matches: [],
+            }
+        }
+    }
+
+    let matches: SgNode[] = []
     const p = new Promise<number>(async (resolve, reject) => {
         let i = 0
         let n: number = undefined
@@ -133,8 +150,21 @@ export async function astGrepFindFiles(
         }
     })
     const scanned = await p
-    dbg(`files scanned: ${scanned}`)
+    dbg(`files scanned: ${scanned}, matches found: ${matches.length}`)
     checkCancelled(cancellationToken)
+
+    // apply diff
+    if (diffFiles?.length) {
+        matches = matches.filter((m) => {
+            const chunk = diffFindChunk(
+                m.getRoot().filename(),
+                [m.range().start.line, m.range().end.line],
+                diffFiles
+            )
+            return chunk
+        })
+        dbg(`matches filtered by diff: ${matches.length}`)
+    }
 
     return { files: scanned, matches }
 }

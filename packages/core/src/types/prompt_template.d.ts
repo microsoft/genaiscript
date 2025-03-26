@@ -4330,6 +4330,13 @@ interface SgChangeSet {
     commit(): WorkspaceFile[]
 }
 
+interface SgSearchOptions extends Omit<FindFilesOptions, "readText"> {
+    /**
+     * Restrict matches that are part of the diff.
+     */
+    diff?: string | ElementOrArray<DiffFile>
+}
+
 interface Sg {
     /**
      * Create a change set
@@ -4340,7 +4347,7 @@ interface Sg {
         lang: SgLang,
         glob: ElementOrArray<string>,
         matcher: string | SgMatcher,
-        options?: FindFilesOptions
+        options?: SgSearchOptions
     ): Promise<{
         /**
          * Number of files found
