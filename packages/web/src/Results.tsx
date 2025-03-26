@@ -185,16 +185,16 @@ function ErrorStatusBadge() {
 
 function StatsBadge() {
     const result = useResult() || {}
-    const { stats } = result || {}
-    if (!stats) return null
-    const { cost, prompt_tokens, completion_tokens, duration } = stats
-    if (!cost && !completion_tokens) return null
+    const { usage } = result || {}
+    if (!usage) return null
+    const { cost, prompt, completion, duration } = usage
+    if (!cost && !completion) return null
     return (
         <>
             {[
                 prettyDuration(duration),
-                prettyTokens(prompt_tokens),
-                prettyTokens(completion_tokens),
+                prettyTokens(prompt),
+                prettyTokens(completion),
                 prettyCost(cost),
             ]
                 .filter((l) => !!l)
