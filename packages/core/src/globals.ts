@@ -25,7 +25,7 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { chunkMarkdown } from "./mdchunk"
 import { resolveGlobal } from "./global"
 import { MarkdownStringify } from "./markdown"
-import { diffCreatePatch, tryDiffParse } from "./diff"
+import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff"
 
 /**
  * Installs global utilities for various data formats and operations.
@@ -164,6 +164,7 @@ export function installGlobals() {
     glb.diff = Object.freeze<Diff>({
         parse: tryDiffParse,
         createPatch: diffCreatePatch,
+        findChunk: diffFindChunk,
     })
 
     // these are overriden, ignored

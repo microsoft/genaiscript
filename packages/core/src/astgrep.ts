@@ -7,8 +7,7 @@ import { resolveFileContent } from "./file"
 import { host } from "./host"
 import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
-import { extname, resolve } from "node:path"
-import { arrayify } from "./cleaners"
+import { extname } from "node:path"
 
 class SgChangeSetImpl implements SgChangeSet {
     private pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
@@ -138,32 +137,6 @@ export async function astGrepFindFiles(
     checkCancelled(cancellationToken)
 
     return { files: scanned, matches }
-}
-
-export function astGrepFindDiffChunk(
-    node: SgNode,
-    diff: DiffFile[]
-): {
-    file: DiffFile
-    chunk: DiffChunk
-} {
-    const root = node.getRoot()
-    const filename = resolve(root.filename())
-    const file = diff.find((f) => resolve(f.to) === filename)
-    if (!file) return undefined // file not found in diff
-
-    const range = node.range()
-    const startLine = range.start.line // 0-based
-    const endLine = range.end.line // 0-based
-
-    const inRange = (line: number) => line >= startLine && line <= endLine
-
-    const { chunks } = file
-    for (const chunk of chunks) {
-        if (inRange(chunk.newStart) || inRange(chunk.newStart + chunk.newLines))
-            return { file, chunk }
-    }
-    return undefined
 }
 
 /**

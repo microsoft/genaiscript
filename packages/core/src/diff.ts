@@ -1,8 +1,9 @@
 import parseDiff from "parse-diff"
-import { isEmptyString } from "./cleaners"
+import { arrayify, isEmptyString } from "./cleaners"
 import debug from "debug"
 import { errorMessage } from "./error"
 import { createTwoFilesPatch } from "diff"
+import { resolve } from "node:path"
 const dbg = debug("genaiscript:diff")
 
 export function diffParse(input: string) {
@@ -21,7 +22,7 @@ export function tryDiffParse(diff: string) {
         return diffParse(diff)
     } catch (e) {
         dbg(`diff parsing failed: ${errorMessage(e)}`)
-        return undefined
+        return []
     }
 }
 
@@ -57,4 +58,24 @@ export function diffCreatePatch(
         }
     )
     return res.replace(/^[^=]*={10,}\n/, "")
+}
+
+export function diffFindChunk(
+    file: string,
+    line: number,
+    diff: ElementOrArray<DiffFile>
+): { file?: DiffFile; chunk?: DiffChunk } | undefined {
+    // line is zero-based
+    const fn = file ? resolve(file) : undefined
+    const df = arrayify(diff).find(
+        (f) => (!file && !f.to) || resolve(f.to) === fn
+    )
+    if (!df) return undefined // file not found in diff
+
+    const { chunks } = df
+    for (const chunk of chunks) {
+        if (line >= chunk.newStart && line <= chunk.newStart + chunk.newLines)
+            return { file: df, chunk }
+    }
+    return { file: df }
 }

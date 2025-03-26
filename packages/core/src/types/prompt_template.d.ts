@@ -2478,6 +2478,18 @@ interface Diff {
     parse(input: string): DiffFile[]
 
     /**
+     * Given a filename and line number (0-based), finds the chunk in the diff
+     * @param file
+     * @param line
+     * @param diff
+     */
+    findChunk(
+        file: string,
+        line: number,
+        diff: ElementOrArray<DiffFile>
+    ): { file?: DiffFile; chunk?: DiffChunk } | undefined
+
+    /**
      * Creates a two file path
      * @param left
      * @param right
