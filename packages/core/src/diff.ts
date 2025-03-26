@@ -94,7 +94,7 @@ export function diffFindChunk(
     line: ElementOrArray<number>,
     diff: ElementOrArray<DiffFile>
 ): { file?: DiffFile; chunk?: DiffChunk } | undefined {
-    // line is zero-based
+    // line is zero-based!
     const fn = file ? resolve(file) : undefined
     const df = arrayify(diff).find(
         (f) => (!file && !f.to) || resolve(f.to) === fn
