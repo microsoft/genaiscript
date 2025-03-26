@@ -203,7 +203,7 @@ export interface RuntimeHost extends Host {
      * Instantiates a python evaluation environment
      */
     python(
-        options?: PythonRuntimeOptions & TraceOptions
+        options?: PythonRuntimeOptions & TraceOptions & CancellationOptions
     ): Promise<PythonRuntime>
 
     /**

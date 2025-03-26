@@ -4309,7 +4309,8 @@ interface Sg {
     search(
         lang: SgLang,
         glob: ElementOrArray<string>,
-        matcher: string | SgMatcher
+        matcher: string | SgMatcher,
+        options?: FindFilesOptions
     ): Promise<{
         /**
          * Number of files found

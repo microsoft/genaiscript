@@ -93,12 +93,14 @@ export async function astGrepFindFiles(
     dbg(`resolving language: ${lang}`)
 
     const paths = await host.findFiles(glob, options)
-    if (!paths?.length)
+    if (!paths?.length) {
+        dbg(`no files found for glob`, glob)
         return {
             files: 0,
             matches: [],
         }
-    dbg(`found ${paths.length} files`, paths.slice(0, 10))
+    }
+    dbg(`found ${paths.length} files`, paths)
 
     const matches: SgNode[] = []
     const p = new Promise<number>(async (resolve, reject) => {
