@@ -299,13 +299,6 @@ export interface GenerationResult extends GenerationOutput {
      * Structural uncertainty
      */
     uncertainty?: number
-
-    /**
-     * Statistics of the generation
-     */
-    stats?: {
-        cost: number
-    } & ChatCompletionUsage
 }
 
 export interface PromptScriptEndResponseEvent {

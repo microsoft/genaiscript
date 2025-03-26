@@ -123,8 +123,8 @@ async function resolveExpansionVars(
  * @param prj The project context providing runtime and configuration.
  * @param template The prompt script template to execute.
  * @param fragment Additional context such as files, workspace files, and metadata.
- * @param options Configuration for generation, including model, trace, output trace, cancellation token, and other generation parameters.
- * @returns A generation result containing execution details, outputs, and potential errors, including status, messages, edits, annotations, and file changes.
+ * @param options Configuration for generation, including model, trace, output trace, cancellation token, stats, and other generation parameters.
+ * @returns A generation result containing execution details, outputs, and potential errors, including status, messages, edits, annotations, file changes, and usage statistics.
  */
 export async function runTemplate(
     prj: Project,
@@ -205,6 +205,7 @@ export async function runTemplate(
                 fences: [],
                 frames: [],
                 schemas: {},
+                usage: undefined,
             } satisfies GenerationResult
         }
 
@@ -228,7 +229,7 @@ export async function runTemplate(
         )
         if (!ok) {
             trace.renderErrors()
-            return {
+            return deleteUndefinedValues({
                 status: "error",
                 statusText: "",
                 messages,
@@ -244,7 +245,8 @@ export async function runTemplate(
                 fences: [],
                 frames: [],
                 schemas: {},
-            } satisfies GenerationResult
+                usage: undefined,
+            } satisfies GenerationResult)
         }
 
         const { completer } = await resolveLanguageModel(
@@ -252,6 +254,7 @@ export async function runTemplate(
         )
 
         // Execute chat session with the resolved configuration
+        const runStats = options.stats.createChild(connection.info.model)
         const genOptions: GenerationOptions = {
             ...options,
             cache,
@@ -267,7 +270,7 @@ export async function runTemplate(
             logprobs,
             topLogprobs,
             fallbackTools,
-            stats: options.stats.createChild(connection.info.model),
+            stats: runStats,
         }
         const chatResult = await executeChatSession(
             connection.configuration,
@@ -292,7 +295,6 @@ export async function runTemplate(
             frames,
             error,
             finishReason,
-            usages,
             fileEdits,
             changelogs,
             edits,
@@ -360,10 +362,7 @@ export async function runTemplate(
             logprobs: chatResult.logprobs,
             perplexity: chatResult.perplexity,
             uncertainty: chatResult.uncertainty,
-            stats: {
-                cost: options.stats.cost(),
-                ...options.stats.accumulatedUsage(),
-            },
+            usage: chatResult.usage,
         }
 
         // If there's an error, provide status text

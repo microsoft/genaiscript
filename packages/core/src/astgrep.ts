@@ -8,6 +8,7 @@ import { host } from "./host"
 import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
 import { extname } from "node:path"
+import { diffFindChunk, diffResolve } from "./diff"
 
 class SgChangeSetImpl implements SgChangeSet {
     private pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
@@ -33,7 +34,7 @@ class SgChangeSetImpl implements SgChangeSet {
                     `node ${node} belongs to a different root ${root} than the pending edits ${rootEdits.root}`
                 )
             }
-        } else this.pending[root.filename()] = { root, edits: [] }
+        } else rootEdits = this.pending[root.filename()] = { root, edits: [] }
         rootEdits.edits.push(edit)
         return edit
     }
@@ -49,9 +50,13 @@ class SgChangeSetImpl implements SgChangeSet {
 }
 
 /**
- * Creates and returns a new instance of a change set for tracking and managing edits in abstract syntax trees (ASTs).
+ * Creates an instance of a change set for managing and committing AST node edits.
  *
- * @returns A new change set instance to handle editing operations such as replacements and commit edits.
+ * This function initializes an empty change set, which can be used for tracking edits
+ * to AST nodes, associating them with their corresponding file roots, and committing
+ * the changes back to files.
+ *
+ * @returns A new change set instance to handle AST edits.
  */
 export function astGrepCreateChangeSet(): SgChangeSet {
     return new SgChangeSetImpl()
@@ -64,7 +69,9 @@ export function astGrepCreateChangeSet(): SgChangeSet {
  * @param lang - The language of the files to search, such as JavaScript or HTML.
  * @param glob - A single or array of glob patterns to match file paths.
  * @param matcher - The match criteria, either a string pattern or a specific matcher object.
- * @param options - Optional parameters, including cancelation options and options for file search.
+ * @param options - Optional parameters, including cancellation options and options for file search.
+ *   - cancellationToken: A token to handle operation interruptions.
+ *   - diff: A diff object to filter files based on changes.
  *
  * @returns An object containing:
  * - `files`: The number of files scanned.
@@ -76,23 +83,25 @@ export async function astGrepFindFiles(
     lang: SgLang,
     glob: ElementOrArray<string>,
     matcher: string | SgMatcher,
-    options?: Omit<FindFilesOptions, "readText"> & CancellationOptions
+    options?: SgSearchOptions & CancellationOptions
 ): ReturnType<Sg["search"]> {
-    const { cancellationToken } = options || {}
+    const { cancellationToken, diff } = options || {}
     if (!glob) {
         throw new Error("glob is required")
     }
     if (!matcher) {
         throw new Error("matcher is required")
     }
+    const diffFiles = diffResolve(diff)
 
     dbg(`finding files with ${lang} %O`, matcher)
+    if (diffFiles?.length) dbg(`diff files: ${diffFiles.length}`)
     const { findInFiles } = await import("@ast-grep/napi")
     checkCancelled(cancellationToken)
     const sglang = await resolveLang(lang)
     dbg(`resolving language: ${lang}`)
 
-    const paths = await host.findFiles(glob, options)
+    let paths = await host.findFiles(glob, options)
     if (!paths?.length) {
         dbg(`no files found for glob`, glob)
         return {
@@ -102,7 +111,21 @@ export async function astGrepFindFiles(
     }
     dbg(`found ${paths.length} files`, paths)
 
-    const matches: SgNode[] = []
+    if (diffFiles?.length) {
+        const diffFilesSet = new Set(
+            diffFiles.filter((f) => f.to).map((f) => f.to)
+        )
+        paths = paths.filter((p) => diffFilesSet.has(p))
+        dbg(`filtered files by diff: ${paths.length}`)
+        if (!paths?.length) {
+            return {
+                files: 0,
+                matches: [],
+            }
+        }
+    }
+
+    let matches: SgNode[] = []
     const p = new Promise<number>(async (resolve, reject) => {
         let i = 0
         let n: number = undefined
@@ -138,8 +161,21 @@ export async function astGrepFindFiles(
         }
     })
     const scanned = await p
-    dbg(`files scanned: ${scanned}`)
+    dbg(`files scanned: ${scanned}, matches found: ${matches.length}`)
     checkCancelled(cancellationToken)
+
+    // apply diff
+    if (diffFiles?.length) {
+        matches = matches.filter((m) => {
+            const chunk = diffFindChunk(
+                m.getRoot().filename(),
+                [m.range().start.line, m.range().end.line],
+                diffFiles
+            )
+            return chunk
+        })
+        dbg(`matches filtered by diff: ${matches.length}`)
+    }
 
     return { files: scanned, matches }
 }
@@ -151,7 +187,7 @@ export async function astGrepFindFiles(
  * @param options - Optional configuration for cancellation, containing a cancellation token to handle operation interruptions.
  *
  * The function iterates through the unique roots of the provided nodes, checks for file content differences,
- * and writes updated content to the respective files if changes are detected.
+ * and writes updated content to the respective files if changes are detected. If a file does not have a filename, it is skipped.
  */
 export async function astGrepWriteRootEdits(
     nodes: SgNode[],

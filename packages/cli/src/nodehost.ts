@@ -237,7 +237,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     async readConfig(): Promise<HostConfiguration> {
         dbg(`reading configuration`)
         this._config = await readConfig(this._dotEnvPaths)
-        const { envFile, modelAliases } = this._config
+        const { modelAliases } = this._config
         if (modelAliases) {
             for (const kv of Object.entries(modelAliases)) {
                 this.setModelAlias("config", kv[0], kv[1])

@@ -27,15 +27,23 @@ const dbg = debug("genaiscript:usage")
  *
  * @param modelId - The identifier of the model used for chat completion.
  * @param usage - The token usage statistics, including prompt, completion, and cached tokens.
- * @returns The estimated cost, or undefined if pricing data is unavailable.
+ * @returns The estimated cost, or undefined if pricing data is unavailable. The cost is calculated using input and output token prices, with a rebate applied to cached tokens.
  */
 export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (!modelId || !usage.total_tokens) return undefined
 
     const { completion_tokens, prompt_tokens } = usage
     let { provider, model } = parseModelIdentifier(modelId)
-    const m = `${provider}:${model}`.toLowerCase()
-    const cost = MODEL_PRICINGS[m]
+    let cost = MODEL_PRICINGS[`${provider}:${model}`.toLowerCase()]
+    if (!cost) {
+        const m = model.match(
+            /^gpt-(3\.5|4|4o|o1|o3|o1-mini|o1-preview|4o-mini|o3-mini)/
+        )
+        if (m) {
+            model = m[0]
+            cost = MODEL_PRICINGS[`${provider}:${model}`.toLowerCase()]
+        }
+    }
     if (!cost) return undefined
 
     const {

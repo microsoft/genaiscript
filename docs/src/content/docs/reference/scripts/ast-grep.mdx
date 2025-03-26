@@ -67,6 +67,17 @@ then copy them back into your GenAIScript script.
 
 :::
 
+### Filter by diff
+
+A common use case is to restrict the pattern to code impacted by a code diff.
+You can pass a `diff` string to the `search` method and it will filter out matches
+that do not intersect with the `to` files of the diff.
+
+```ts "{ diff }" wrap
+const diff = await git.diff({ base: "main" })
+const { matches } = await sg.search("ts", "src/fib.ts", {...}, { diff })
+```
+
 ## Changesets
 
 A common use case is to search for a pattern and replace it with another pattern. The transformation phase can leverage
@@ -157,3 +168,11 @@ GenAIScript provides a simplified set of interfaces to interact with the `ast-gr
 However, they are indeed the native `ast-grep` APIs, and you can use them directly if you need more control.
 
 :::
+
+## Logging
+
+You can enable the `genaiscript:astgrep` namespace to see the queries and results in the logs.
+
+```sh
+DEBUG=genaiscript:astgrep ...
+```

@@ -19,9 +19,24 @@ export function diffParse(input: string) {
 }
 
 /**
- * Parses a diff string into a structured format using the parse-diff library.
- * @param diff - The diff string to parse. Must be in a supported diff format.
- * @returns A parsed array of file objects if successful, or undefined if parsing fails or no files are found.
+ * Resolves the input into an array of DiffFile objects.
+ *
+ * @param input - The input to resolve. Can be a diff string in valid format or an ElementOrArray of DiffFile objects.
+ * @returns An array of DiffFile objects. If the input is a string, it is parsed into DiffFile objects using diffParse. If the input is already an ElementOrArray of DiffFile objects, it is converted to an array using arrayify.
+ */
+export function diffResolve(
+    input: string | ElementOrArray<DiffFile>
+): DiffFile[] {
+    if (typeof input === "string") return diffParse(input)
+    else return arrayify(input)
+}
+
+/**
+ * Attempts to parse a diff string into a structured format.
+ * If parsing fails, logs the error and returns an empty array.
+ *
+ * @param diff - The diff string to parse.
+ * @returns An array of parsed file objects if successful, or an empty array if parsing fails.
  */
 export function tryDiffParse(diff: string) {
     try {
@@ -34,9 +49,9 @@ export function tryDiffParse(diff: string) {
 
 /**
  * Creates a unified diff between two workspace files.
- * @param left - The original workspace file or its content.
- * @param right - The modified workspace file or its content.
- * @param options - Optional parameters, such as the number of context lines.
+ * @param left - The original workspace file or its content. If a string, it is wrapped in a WorkspaceFile object with a default filename.
+ * @param right - The modified workspace file or its content. If a string, it is wrapped in a WorkspaceFile object with a default filename.
+ * @param options - Optional parameters, such as the number of context lines, case sensitivity, and whitespace handling.
  * @returns The diff as a string, with redundant headers removed.
  */
 export function diffCreatePatch(
@@ -71,8 +86,8 @@ export function diffCreatePatch(
  *
  * @param file - The file path to search for in the diff. Can be empty to search all files.
  * @param line - The line number or numbers (zero-based) to locate in the specified file's diff.
- * @param diff - The diff data, containing an array of file diffs.
- * @returns An object containing the matching file and the chunk if found, or undefined if no match exists.
+ * @param diff - The diff data, containing an array of file diffs. Can be a single diff file or an array of diff files.
+ * @returns An object containing the matching file and the chunk if found, or an object with only the file if no chunk matches. Returns undefined if no file matches.
  */
 export function diffFindChunk(
     file: string,

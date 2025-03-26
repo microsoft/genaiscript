@@ -41,6 +41,8 @@ import { measure } from "../../core/src/performance"
  *   - `rewrite` - If true, overwrites existing files instead of creating new ones with a suffix.
  *   - `cancelWord` - A keyword that cancels processing if found in the result.
  *   - `concurrency` - Number of files to process concurrently.
+ *   - `excludedFiles` - Array of file paths or glob patterns to exclude from processing.
+ *   - `ignoreGitIgnore` - If true, ignores .gitignore rules during file resolution.
  *   - Other options passed to the transformation process.
  *
  * @throws Error if the script is not found or no files match the given patterns.
@@ -194,8 +196,8 @@ export async function convertFiles(
                 return
             }
             const end = m()
-            usage.addUsage(result.stats, end)
-            if (result.stats) stats.push(result.stats)
+            usage.addUsage(result.usage, end)
+            if (result.usage) stats.push(result.usage)
             logVerbose(Object.keys(result.fileEdits || {}).join("\n"))
             // structured extraction
             const fileEdit = Object.entries(result.fileEdits || {}).find(

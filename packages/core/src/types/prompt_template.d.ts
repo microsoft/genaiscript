@@ -1724,6 +1724,31 @@ interface Logprob {
     topLogprobs?: { token: string; logprob: number }[]
 }
 
+interface RunPromptUsage {
+    /**
+     * Estimated cost in $ of the generation
+     */
+    cost?: number
+    /**
+     * Estimated duration of the generation
+     * including multiple rounds with tools
+     */
+    duration?: number
+    /**
+     * Number of tokens in the generated completion.
+     */
+    completion: number
+
+    /**
+     * Number of tokens in the prompt.
+     */
+    prompt: number
+    /**
+     * Total number of tokens used in the request (prompt + completion).
+     */
+    total: number
+}
+
 interface RunPromptResult {
     messages: ChatCompletionMessageParam[]
     text: string
@@ -1741,7 +1766,6 @@ interface RunPromptResult {
         | "content_filter"
         | "cancel"
         | "fail"
-    usages?: ChatCompletionUsages
     fileEdits?: Record<string, FileUpdate>
     edits?: Edits[]
     changelogs?: ChangeLog[]
@@ -1750,6 +1774,7 @@ interface RunPromptResult {
     logprobs?: Logprob[]
     perplexity?: number
     uncertainty?: number
+    usage?: RunPromptUsage
 }
 
 /**
@@ -4042,6 +4067,11 @@ interface GenerationOutput {
      * Output as JSON if parsable
      */
     json?: any
+
+    /**
+     * Usage stats
+     */
+    usage: ChatCompletionStats
 }
 
 type Point = {
@@ -4300,6 +4330,13 @@ interface SgChangeSet {
     commit(): WorkspaceFile[]
 }
 
+interface SgSearchOptions extends Omit<FindFilesOptions, "readText"> {
+    /**
+     * Restrict matches that are part of the diff.
+     */
+    diff?: string | ElementOrArray<DiffFile>
+}
+
 interface Sg {
     /**
      * Create a change set
@@ -4310,7 +4347,7 @@ interface Sg {
         lang: SgLang,
         glob: ElementOrArray<string>,
         matcher: string | SgMatcher,
-        options?: FindFilesOptions
+        options?: SgSearchOptions
     ): Promise<{
         /**
          * Number of files found

@@ -42,7 +42,7 @@ export type ClassifyOptions = {
  * @param text - Text content to classify or a prompt generator function.
  * @param labels - Object mapping label names to their descriptions.
  * @param options - Configuration options for classification, including whether to add an "other" category, provide explanations, and specify context.
- * @returns Classification result containing the chosen label, confidence metrics, and the full answer text.
+ * @returns Classification result containing the chosen label, confidence metrics, log probabilities, and the full answer text.
  * @throws Error if fewer than two labels are provided (including "other").
  */
 export async function classify<L extends Record<string, string>>(
@@ -56,6 +56,7 @@ export async function classify<L extends Record<string, string>>(
     probPercent?: number
     answer: string
     logprobs?: Record<keyof typeof labels | "other", Logprob>
+    usage?: RunPromptUsage
 }> {
     const { other, explanations, ...rest } = options || {}
 
@@ -142,6 +143,7 @@ no
           ) as Record<keyof typeof labels | "other", Logprob>)
         : undefined
     const logprob = logprobs?.[label]
+    const usage = res.usage
 
     return {
         label,
@@ -150,6 +152,7 @@ no
         probPercent: logprob?.probPercent,
         answer,
         logprobs,
+        usage,
     }
 }
 
@@ -157,7 +160,7 @@ no
  * Enhances content generation by applying iterative improvements.
  *
  * @param options - Configuration for the improvement process.
- * @param options.ctx - Chat generation context to use.
+ * @param options.ctx - Chat generation context to use. Defaults to the environment generator if not provided.
  * @param options.repeat - Number of improvement iterations to perform. Defaults to 1.
  * @param options.instructions - Custom instructions for improvement. Defaults to "Make it better!".
  */
@@ -184,7 +187,7 @@ export function makeItBetter(options?: {
  *
  * @param data - Input text or a prompt generator function to convert.
  * @param itemSchema - JSON schema defining the target data structure. If `multiple` is true, this will be treated as an array schema.
- * @param options - Configuration options for the conversion process, including context, instructions, and additional settings.
+ * @param options - Configuration options for the conversion process, including context, instructions, label, and additional settings.
  * @returns An object containing the converted data, error information if applicable, and the raw text response.
  */
 export async function cast(
@@ -238,7 +241,7 @@ export async function cast(
  * Converts a PDF file to markdown format with intelligent formatting preservation.
  *
  * @param file - PDF file to convert.
- * @param options - Configuration options for PDF processing and markdown conversion, including instructions, context, and additional settings.
+ * @param options - Configuration options for PDF processing and markdown conversion, including instructions, context, and additional settings. The options can include rendering images, providing custom instructions, and specifying the context for processing.
  * @returns An object containing the original pages, rendered images, and markdown content for each page.
  */
 export async function markdownifyPdf(
@@ -324,9 +327,9 @@ export async function markdownifyPdf(
  * @param options.query - Optional search query to filter files.
  * @param options.size - Whether to include file sizes in the output.
  * @param options.ignore - Patterns to exclude from the results.
- * @param options.frontmatter - Frontmatter fields to extract from markdown files.
+ * @param options.frontmatter - Frontmatter fields to extract from markdown files. Only applies to markdown files.
  * @param options.preview - Custom function to generate file previews based on file and stats.
- * @returns A formatted string representing the file tree structure.
+ * @returns A formatted string representing the file tree structure, including metadata and file sizes if specified.
  */
 export async function fileTree(
     glob: string,
@@ -434,7 +437,7 @@ export async function fileTree(
  * This function evaluates the page content using the Readability library to parse and extract details such as title, content, text, and metadata.
  *
  * @param page - The browser page instance to evaluate and extract content from.
- * @returns An object containing the parsed article details or null if parsing fails.
+ * @returns An object containing the parsed article details, including title, content, text content, length, excerpt, byline, direction, site name, language, and published time, or null if parsing fails.
  * @see https://github.com/mishushakov/llm-scraper/
  */
 export async function parseReadableContent<T = string>(
