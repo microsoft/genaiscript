@@ -89,7 +89,7 @@
         "genai": "node packages/cli/built/genaiscript.cjs run",
         "genai:convert": "node packages/cli/built/genaiscript.cjs convert",
         "genai:debug": "yarn compile-debug && node packages/cli/built/genaiscript.cjs run",
-        "genai:docs": "yarn genai ast-docs \"packages/cli/src/**.ts\" \"packages/core/src/**.ts\" --vars diff=true --vars applyEdits=true",
+        "genai:docs": "yarn genai docs \"packages/cli/src/**.ts\" \"packages/core/src/**.ts\" --vars diff=true --vars applyEdits=true",
         "upgrade:deps": "zx scripts/upgrade-deps.mjs",
         "cli": "node packages/cli/built/genaiscript.cjs",
         "ffmpeg:install": "sudo apt-get update && sudo apt-get install ffmpeg -y",
