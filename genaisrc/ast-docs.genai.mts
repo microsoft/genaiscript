@@ -46,6 +46,7 @@ if (diffFiles)
     )
 
 for (const file of env.files) {
+    dbg(file.filename)
     // normalize spacing
     if (pretty) await prettier(file)
 
@@ -66,7 +67,7 @@ for (const file of env.files) {
             },
         },
     })
-    dbg(`sg matches ${matches.length} for ${file.filename}`)
+    dbg(`sg matches ${matches.length}`)
     if (matches?.length && diffFiles?.length) {
         const newMatches = matches.filter((m) => {
             const chunk = DIFF.findChunk(
@@ -84,7 +85,7 @@ for (const file of env.files) {
         continue
     }
 
-    dbg(`process ${matches.length} matches in ${file.filename}`)
+    dbg(`found ${matches.length} matches`)
     const edits = sg.changeset()
     // for each match, generate a docstring for functions not documented
     for (const match of matches) {
