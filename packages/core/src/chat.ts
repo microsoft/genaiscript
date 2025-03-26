@@ -598,6 +598,7 @@ function assistantText(
 }
 
 async function structurifyChatSession(
+    timer: () => number,
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
     fileOutputs: FileOutput[],
@@ -725,8 +726,19 @@ async function structurifyChatSession(
         }
     }
 
+    const stats = options?.stats
+    const acc = stats?.accumulatedUsage()
+    const duration = timer()
+    const usage: RunPromptUsage = deleteUndefinedValues({
+        cost: stats.cost(),
+        duration: duration,
+        total: acc?.total_tokens,
+        prompt: acc?.prompt_tokens,
+        completion: acc?.completion_tokens,
+    })
     const reasoning = lastAssistantReasoning(messages)
     const res: RunPromptResult = deleteUndefinedValues({
+        model: resp?.model,
         messages,
         text,
         reasoning,
@@ -741,7 +753,7 @@ async function structurifyChatSession(
         logprobs,
         perplexity,
         uncertainty,
-        model: resp?.model,
+        usage,
     } satisfies RunPromptResult)
     await computeFileEdits(res, {
         trace,
@@ -771,6 +783,7 @@ function parseAssistantMessage(
 }
 
 async function processChatMessage(
+    timer: () => number,
     req: CreateChatCompletionRequest,
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
@@ -934,6 +947,7 @@ async function processChatMessage(
 
     const logprobs = resp.logprobs?.map(serializeLogProb)
     return structurifyChatSession(
+        timer,
         messages,
         schemas,
         fileOutputs,
@@ -1135,6 +1149,7 @@ export async function executeChatSession(
         ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
     const chatTrace = trace.startTraceDetails(`💬 chat`, { expanded: true })
+    const timer = measure("chat")
     const cacheImage = async (url: string) =>
         await fileCacheImage(url, {
             trace,
@@ -1294,6 +1309,7 @@ export async function executeChatSession(
                 }
 
                 const output = await processChatMessage(
+                    timer,
                     req,
                     resp,
                     messages,
@@ -1311,6 +1327,7 @@ export async function executeChatSession(
                 }
             } catch (err) {
                 return structurifyChatSession(
+                    timer,
                     messages,
                     schemas,
                     fileOutputs,

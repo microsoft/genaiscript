@@ -822,15 +822,16 @@ async function aggregateResults(
             ].join(",") + "\n",
             { encoding: "utf-8" }
         )
+    const acc = stats.accumulatedUsage()
     await appendFile(
         statsFile,
         [
             scriptId,
             result.status,
             stats.cost(),
-            stats.usage.total_tokens,
-            stats.usage.prompt_tokens,
-            stats.usage.completion_tokens,
+            acc.total_tokens,
+            acc.prompt_tokens,
+            acc.completion_tokens,
             outTrace ? host.path.basename(outTrace) : "",
             result.version,
         ]

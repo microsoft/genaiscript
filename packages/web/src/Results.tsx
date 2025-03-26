@@ -214,11 +214,11 @@ function StatsBadge() {
 
 function StatsTabPanel() {
     const result = useResult()
-    const { stats } = result || {}
-    if (!stats) return null
-    const { cost, ...rest } = stats || {}
+    const { usage } = result || {}
+    if (!usage) return null
+    const { cost, ...rest } = usage || {}
 
-    const md = stats
+    const md = usage
         ? YAMLStringify(rest)
               .replace(/_/g, " ")
               .replace(/^(\s*)([a-z])/gm, (m, s, l) => `${s}- ${l}`)

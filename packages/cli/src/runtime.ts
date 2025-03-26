@@ -56,6 +56,7 @@ export async function classify<L extends Record<string, string>>(
     probPercent?: number
     answer: string
     logprobs?: Record<keyof typeof labels | "other", Logprob>
+    usage?: RunPromptUsage
 }> {
     const { other, explanations, ...rest } = options || {}
 
@@ -142,6 +143,7 @@ no
           ) as Record<keyof typeof labels | "other", Logprob>)
         : undefined
     const logprob = logprobs?.[label]
+    const usage = res.usage
 
     return {
         label,
@@ -150,6 +152,7 @@ no
         probPercent: logprob?.probPercent,
         answer,
         logprobs,
+        usage,
     }
 }
 

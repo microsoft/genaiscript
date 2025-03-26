@@ -49,7 +49,7 @@ export async function computeFileEdits(
 ): Promise<void> {
     const { trace, fileOutputs, fileMerges, outputProcessors, schemas } =
         options || {}
-    const { fences, frames, messages } = res
+    const { fences, frames, messages, usage } = res
     let text = res.text
     let annotations = res.annotations?.slice(0)
     const fileEdits: Record<string, FileUpdate> = {}
@@ -160,6 +160,7 @@ export async function computeFileEdits(
                     annotations,
                     schemas,
                     messages,
+                    usage,
                 })) || {}
 
                 if (newText !== undefined) {
