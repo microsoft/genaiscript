@@ -64,7 +64,7 @@ for (const match of matches) {
             model: "large",
             responseType: "text",
             flexTokens: 12000,
-            label: match.child(0).text(),
+            label: match.child(0).text()?.slice(0, 20),
             temperature: 0.2,
             systemSafety: false,
             system: ["system.technical", "system.typescript"],

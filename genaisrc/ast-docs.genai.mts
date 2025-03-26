@@ -54,7 +54,11 @@ for (const match of matches) {
 
             The full source of the file is in <FILE> for reference.`
         },
-        { model: "large", responseType: "text", label: match.text() }
+        {
+            model: "large",
+            responseType: "text",
+            label: match.text()?.slice(0, 20),
+        }
     )
     // if generation is successful, insert the docs
     if (res.error) {

@@ -43,6 +43,11 @@ class SgChangeSetImpl implements SgChangeSet {
     }
 }
 
+/**
+ * Creates and returns a new instance of a change set for tracking and managing edits in abstract syntax trees (ASTs).
+ *
+ * @returns A new change set instance to handle editing operations such as replacements and commit edits.
+ */
 export function astGrepCreateChangeSet(): SgChangeSet {
     return new SgChangeSetImpl()
 }
