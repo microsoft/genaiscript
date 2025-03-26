@@ -145,7 +145,7 @@ for (const file of env.files) {
     }
 
     // apply all edits and write to the file
-    const [modified] = edits.commitEdits()
+    const [modified] = edits.commit()
     if (!modified) continue
 
     if (applyEdits) {

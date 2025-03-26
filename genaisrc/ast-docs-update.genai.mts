@@ -109,7 +109,7 @@ for (const match of matches) {
 }
 
 // apply all edits and write to the file
-const modified = edits.commitEdits()
+const modified = edits.commit()
 if (applyEdits) {
     await workspace.writeFiles(modified)
     // normalize spacing

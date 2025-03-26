@@ -15,6 +15,11 @@ to surgically target specific parts of the code.
 const sg = await host.astGrep()
 ```
 
+## Search for patterns
+
+The `search` method allows you to search for patterns in the AST of a script.
+The first argument is the language, the second argument is the file globs, and the third argument is the pattern to search for.
+
 - find all TypeScript `console.log` statements. This example uses the 'pattern' syntax.
 
 ```ts
@@ -62,6 +67,54 @@ then copy them back into your GenAIScript script.
 
 :::
 
+## Changesets
+
+A common use case is to search for a pattern and replace it with another pattern. The transformation phase can leverage
+[inline prompts](/genaiscript/reference/scripts/inline-prompts) to perform LLM transformations.
+This can be done with the `replace` method.
+
+```js
+const edits = sg.changeset()
+```
+
+The `replace` method creates an edit that replaces the content of a node with new text.
+The edit is stored internally but not applied until `commit` is called.
+
+```js
+edits.replace(matches[0], "console.log('replaced')")
+```
+
+Of course, things get more interesting when you use inline prompts to generate the replacement text.
+
+```js wrap
+for(const match of matches) {
+  const updated = await prompt`... ${match.text()} ...`
+  edits.replace(
+    match.node,
+    `console.log
+  ('${updated.text}')`
+}
+```
+
+Next, you can commit the edits to create a set of in-memory files. The changes are not applied
+to the file system yet.
+
+```js
+const newFiles = edits.commit()
+```
+
+If you wish to apply the changes to the file system, you can use the `writeFiles` function.
+
+```js
+await workspace.writeFiles(newFiles)
+```
+
+::caution
+
+Do not mix matches from different searches in the same changeset.
+
+:::
+
 ## Supported languages
 
 This version of `ast-grep` [supports the following built-in languages](https://ast-grep.github.io/reference/api.html#supported-languages):
@@ -88,47 +141,6 @@ npm install -D @ast-grep/lang-c
 If your language is not supported, go to [ast-grep langs](https://github.com/ast-grep/langs/issues), and add a request!
 
 :::
-
-## Changesets
-
-A common use case is to search for a pattern and replace it with another pattern. The transformation phase can leverage
-[inline prompts](/genaiscript/reference/scripts/inline-prompts) to perform LLM transformations.
-This can be done with the `replace` method.
-
-```js
-const edits = sg.changeset()
-```
-
-The `replace` method creates an edit that replaces the content of a node with new text.
-The edit is stored internally but not applied until `commitEdits` is called.
-
-```js
-edits.replace(matches[0], "console.log('replaced')")
-```
-
-Of course, things get more interesting when you use inline prompts to generate the replacement text.
-
-```js wrap
-const updated = await prompt`... ${matches[0].text()} ...`
-edits.replace(
-    matches[0].node,
-    `console.log
-  ('${updated.text}')`
-)
-```
-
-Next, you can commit the edits to create a set of in-memory files. The changes are not applied
-to the file system yet.
-
-```js
-const newFiles = edits.commitEdits()
-```
-
-If you wish to apply the changes to the file system, you can use the `writeFiles` function.
-
-```js
-await workspace.writeFiles(newFiles)
-```
 
 ## Learning ast-grep
 

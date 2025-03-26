@@ -26,13 +26,18 @@ class SgChangeSetImpl implements SgChangeSet {
     replace(node: SgNode, text: string) {
         const edit = node.replace(text)
         const root = node.getRoot()
-        const rootEdits =
-            this.pending[root.filename()] ||
-            (this.pending[root.filename()] = { root, edits: [] })
+        let rootEdits = this.pending[root.filename()]
+        if (rootEdits) {
+            if (rootEdits.root !== root) {
+                throw new Error(
+                    `node ${node} belongs to a different root ${root} than the pending edits ${rootEdits.root}`
+                )
+            }
+        } else this.pending[root.filename()] = { root, edits: [] }
         rootEdits.edits.push(edit)
         return edit
     }
-    commitEdits() {
+    commit() {
         const files: WorkspaceFile[] = []
         for (const { root, edits } of Object.values(this.pending)) {
             const filename = root.filename()
@@ -64,8 +69,6 @@ export function astGrepCreateChangeSet(): SgChangeSet {
  * @returns An object containing:
  * - `files`: The number of files scanned.
  * - `matches`: The list of matched nodes.
- * - `replace`: A function to replace a matched node with the provided text.
- * - `commitEdits`: A function to commit all pending edits and return updated file content.
  *
  * @throws An error if `glob` or `matcher` is not provided.
  */

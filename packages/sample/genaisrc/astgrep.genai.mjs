@@ -40,8 +40,8 @@ for (const match of matches2) {
     )
     cs.replace(match, `/**\n* ${res.text}\n**/\n${match.text()}`)
 }
-const modified = cs.commitEdits()
-console.log(modified)
+const modifiedFiles = cs.commit()
+console.log(modifiedFiles)
 //await workspace.writeFiles(files)
 
 const { matches: cmatches } = await sg.search(

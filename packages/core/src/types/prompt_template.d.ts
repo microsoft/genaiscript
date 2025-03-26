@@ -4297,7 +4297,7 @@ type SgLang = OptionsOrString<
 interface SgChangeSet {
     count: number
     replace(node: SgNode, text: string): SgEdit
-    commitEdits(): WorkspaceFile[]
+    commit(): WorkspaceFile[]
 }
 
 interface Sg {
