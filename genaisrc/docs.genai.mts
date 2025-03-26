@@ -36,8 +36,11 @@ script({
         },
     },
 })
-const { files, output, dbg, vars } = env
+const { output, dbg, vars } = env
+let { files } = env
 const { applyEdits, diff, pretty, missing, update } = vars
+
+dbg({ applyEdits, diff, pretty, missing, update })
 
 if (!missing && !update) cancel(`not generating or updating docs, exiting...`)
 
@@ -48,6 +51,15 @@ if (!applyEdits)
 
 // filter by diff
 const gitDiff = diff ? await git.diff({ base: "main" }) : undefined
+console.debug(gitDiff)
+const diffFiles = gitDiff ? DIFF.parse(gitDiff) : undefined
+if (diffFiles?.length) {
+    dbg(`diff files: ${diffFiles.map((f) => f.to)}`)
+    files = files.filter(({ filename }) =>
+        diffFiles.some((f) => path.resolve(f.to) === path.resolve(filename))
+    )
+    dbg(`diff filtered files: ${files.length}`)
+}
 const sg = await host.astGrep()
 const stats = []
 for (const file of files) {
