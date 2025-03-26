@@ -42,7 +42,6 @@ async function main() {
             .sort()
             .map((m) => m.groups.category),
     ])
-    console.log({ logCategories })
     writeFileSync(
         "./src/dbg.ts",
         dedent`// auto-generated: do not edit
