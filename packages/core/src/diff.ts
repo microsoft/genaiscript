@@ -6,6 +6,12 @@ import { createTwoFilesPatch } from "diff"
 import { resolve } from "node:path"
 const dbg = debug("genaiscript:diff")
 
+/**
+ * Parses a diff string into a structured format.
+ *
+ * @param input - The diff string to parse. Should be in a valid diff format.
+ * @returns An array of parsed file objects. If the input is empty or invalid, returns an empty array.
+ */
 export function diffParse(input: string) {
     if (isEmptyString(input)) return []
     const files = parseDiff(input)
@@ -60,6 +66,14 @@ export function diffCreatePatch(
     return res.replace(/^[^=]*={10,}\n/, "")
 }
 
+/**
+ * Finds a chunk in a diff corresponding to a specified file and line number.
+ *
+ * @param file - The file path to search for in the diff. Can be empty to search all files.
+ * @param line - The line number or numbers (zero-based) to locate in the specified file's diff.
+ * @param diff - The diff data, containing an array of file diffs.
+ * @returns An object containing the matching file and the chunk if found, or undefined if no match exists.
+ */
 export function diffFindChunk(
     file: string,
     line: ElementOrArray<number>,
