@@ -45,9 +45,10 @@ export async function createGitIgnorer(): Promise<GitIgnorer> {
  * @returns An array of files that are not ignored according to the .gitignore patterns.
  */
 export async function filterGitIgnore(files: string[]) {
-    dbg("creating git ignorer")
     const ignorer = await createGitIgnorer()
-    return ignorer(files)
+    const newFiles = ignorer(files)
+    dbg(`files ${files.length} -> ${newFiles.length}`)
+    return newFiles
 }
 
 /**

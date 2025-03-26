@@ -27,7 +27,7 @@ import { parseTraceTree, TraceTree } from "./traceparser"
 import { fileCacheImage, fileWriteCached } from "./filecache"
 import { CancellationOptions } from "./cancellation"
 import { generateId } from "./id"
-import { createDiff } from "./llmdiff"
+import { diffCreatePatch } from "./diff"
 import { prettyBytes } from "./pretty"
 
 export class TraceChunkEvent extends Event {
@@ -125,7 +125,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         right: string | WorkspaceFile,
         options?: { context?: number }
     ) {
-        const d = createDiff(left, right, options)
+        const d = diffCreatePatch(left, right, options)
         this.fence(d, "diff")
     }
 

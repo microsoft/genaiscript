@@ -2407,9 +2407,9 @@ interface Parsers {
 
 interface YAML {
     /**
-    * Parses a YAML string into a JavaScript object using JSON5.
-      */
-    (strings: TemplateStringsArray, ...values: any[]): any;
+     * Parses a YAML string into a JavaScript object using JSON5.
+     */
+    (strings: TemplateStringsArray, ...values: any[]): any
 
     /**
      * Converts an object to its YAML representation
@@ -2420,6 +2420,90 @@ interface YAML {
      * Parses a YAML string to object
      */
     parse(text: string | WorkspaceFile): any
+}
+
+interface DiffFile {
+    chunks: DiffChunk[]
+    deletions: number
+    additions: number
+    from?: string
+    to?: string
+    oldMode?: string
+    newMode?: string
+    index?: string[]
+    deleted?: true
+    new?: true
+}
+
+interface DiffChunk {
+    content: string
+    changes: DiffChange[]
+    oldStart: number
+    oldLines: number
+    newStart: number
+    newLines: number
+}
+
+interface DiffNormalChange {
+    type: "normal"
+    ln1: number
+    ln2: number
+    normal: true
+    content: string
+}
+
+interface DiffAddChange {
+    type: "add"
+    add: true
+    ln: number
+    content: string
+}
+
+interface DiffDeleteChange {
+    type: "del"
+    del: true
+    ln: number
+    content: string
+}
+
+type DiffChangeType = "normal" | "add" | "del"
+
+type DiffChange = DiffNormalChange | DiffAddChange | DiffDeleteChange
+
+interface DIFF {
+    /**
+     * Parses a diff string into a structured object
+     * @param input
+     */
+    parse(input: string): DiffFile[]
+
+    /**
+     * Given a filename and line number (0-based), finds the chunk in the diff
+     * @param file
+     * @param line
+     * @param diff
+     */
+    findChunk(
+        file: string,
+        line: ElementOrArray<number>,
+        diff: ElementOrArray<DiffFile>
+    ): { file?: DiffFile; chunk?: DiffChunk } | undefined
+
+    /**
+     * Creates a two file path
+     * @param left
+     * @param right
+     * @param options
+     */
+    createPatch(
+        left: string | WorkspaceFile,
+        right: string | WorkspaceFile,
+        options?: {
+            context?: number
+            ignoreCase?: boolean
+            ignoreWhitespace?: boolean
+        }
+    ): string
 }
 
 interface XML {
@@ -4206,14 +4290,27 @@ interface SgRoot {
     filename(): string
 }
 
-type SgLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css" | "c" | "sql">
+type SgLang = OptionsOrString<
+    "html" | "js" | "ts" | "tsx" | "css" | "c" | "sql" | "angular"
+>
+
+interface SgChangeSet {
+    count: number
+    replace(node: SgNode, text: string): SgEdit
+    commit(): WorkspaceFile[]
+}
 
 interface Sg {
+    /**
+     * Create a change set
+     */
+    changeset(): SgChangeSet
     parse(file: WorkspaceFile, options: { lang?: SgLang }): Promise<SgRoot>
     search(
         lang: SgLang,
         glob: ElementOrArray<string>,
-        matcher: string | SgMatcher
+        matcher: string | SgMatcher,
+        options?: FindFilesOptions
     ): Promise<{
         /**
          * Number of files found
@@ -4223,16 +4320,6 @@ interface Sg {
          * Each individual file matches as a node
          */
         matches: SgNode[]
-        /**
-         * Queues an edit that replaces the node text with the provided text.
-         * The node must be part of the matches array.
-         */
-        replace: (node: SgNode, text: string) => SgEdit
-        /**
-         * Applies all the edits queued by the replace method and returns the updated files.
-         * Use `workspace.writeFiles` to save the changes to the workspace.
-         */
-        commitEdits: () => Promise<WorkspaceFile[]>
     }>
 }
 

@@ -210,6 +210,11 @@ declare var JSON5: JSON5
 declare var JSONSchema: JSONSchemaUtilities
 
 /**
+ * Diff utilities
+ */
+declare var DIFF: DIFF
+
+/**
  * Access to current LLM chat session information
  */
 declare var host: PromptHost
@@ -357,4 +362,3 @@ declare function generateImage(
     prompt: string,
     options?: ImageGenerationOptions
 ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>
-

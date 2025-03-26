@@ -37,7 +37,7 @@ import { ChatCompletionMessageParam } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { expandFileOrWorkspaceFiles } from "./fs"
 import { interpolateVariables } from "./mustache"
-import { createDiff } from "./llmdiff"
+import { diffCreatePatch } from "./diff"
 import { promptyParse } from "./prompty"
 import { jinjaRenderChatMessage } from "./jinja"
 import { runtimeHost } from "./host"
@@ -295,7 +295,7 @@ export function createDefDiff(
         const l = await renderFileContent(left, options)
         await resolveFileContent(right, options)
         const r = await renderFileContent(right, options)
-        return { filename: "", content: createDiff(l, r) }
+        return { filename: "", content: diffCreatePatch(l, r) }
     }
     const value = render()
     return { type: "def", name, value, ...(options || {}) }

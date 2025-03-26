@@ -7,6 +7,18 @@ script({
     accept: ".ts",
     files: "src/cowsay.ts",
     parameters: {
+        diff: {
+            type: "boolean",
+            default: true,
+            description:
+                "If true, the script will only process files with changes with respect to main.",
+        },
+        pretty: {
+            type: "boolean",
+            default: false,
+            description:
+                "If true, the script will prettify the files efore analysis.",
+        },
         applyEdits: {
             type: "boolean",
             default: false,
@@ -14,92 +26,135 @@ script({
         },
     },
 })
-const { output } = env
-const { applyEdits } = env.vars
-const file = env.files[0]
+const { output, dbg, vars } = env
+const { applyEdits, diff, pretty } = vars
 
-// normalize spacing
-await prettier(file)
+// filter by diff
+const diffFiles = diff
+    ? DIFF.parse(await git.diff({ base: "main" }))
+    : undefined
+if (diffFiles)
+    dbg(
+        `diff files %O`,
+        diffFiles.map(({ to, chunks }) => ({
+            to,
+            chunks: chunks.map(({ newStart, newLines }) => ({
+                start: newStart,
+                end: newStart + newLines,
+            })),
+        }))
+    )
 
-// find all exported functions without comments
-const sg = await host.astGrep()
+for (const file of env.files) {
+    dbg(file.filename)
+    // normalize spacing
+    if (pretty) await prettier(file)
 
-const { matches, replace, commitEdits } = await sg.search("ts", file.filename, {
-    rule: {
-        kind: "export_statement",
-        not: {
-            follows: {
-                kind: "comment",
-                stopBy: "neighbor",
+    // find all exported functions without comments
+    const sg = await host.astGrep()
+
+    let { matches } = await sg.search("ts", file.filename, {
+        rule: {
+            kind: "export_statement",
+            not: {
+                follows: {
+                    kind: "comment",
+                    stopBy: "neighbor",
+                },
+            },
+            has: {
+                kind: "function_declaration",
             },
         },
-        has: {
-            kind: "function_declaration",
-        },
-    },
-})
+    })
+    dbg(`sg matches ${matches.length}`)
+    if (matches?.length && diffFiles?.length) {
+        const newMatches = matches.filter((m) => {
+            const chunk = DIFF.findChunk(
+                m.getRoot().filename(),
+                [m.range().start.line, m.range().end.line],
+                diffFiles
+            )
+            dbg(`diff chunk %O`, chunk)
+            return chunk
+        })
+        dbg(`diff filtered ${matches.length} -> ${newMatches.length}`)
+        matches = newMatches
+    }
+    if (!matches.length) {
+        continue
+    }
 
-// for each match, generate a docstring for functions not documented
-for (const match of matches) {
-    const res = await runPrompt(
-        (_) => {
-            _.def("FILE", match.getRoot().root().text())
-            _.def("FUNCTION", match.text())
-            // this needs more eval-ing
-            _.$`Generate a function documentation for <FUNCTION>.
+    dbg(`found ${matches.length} matches`)
+    const edits = sg.changeset()
+    // for each match, generate a docstring for functions not documented
+    for (const match of matches) {
+        const res = await runPrompt(
+            (_) => {
+                _.def("FILE", match.getRoot().root().text())
+                _.def("FUNCTION", match.text())
+                // this needs more eval-ing
+                _.$`Generate a function documentation for <FUNCTION>.
             - Make sure parameters are documented.
             - Be concise. Use technical tone.
             - do NOT include types, this is for TypeScript.
             - Use docstring syntax. do not wrap in markdown code section.
 
             The full source of the file is in <FILE> for reference.`
-        },
-        { model: "large", responseType: "text", label: match.text() }
-    )
-    // if generation is successful, insert the docs
-    if (res.error) {
-        output.warn(res.error.message)
-        continue
-    }
-    const docs = docify(res.text.trim())
-
-    // sanity check
-    const consistent = await classify(
-        (_) => {
-            _.def("FUNCTION", match.text())
-            _.def("DOCS", docs)
-        },
-        {
-            ok: "The content in <DOCS> is an accurate documentation for the code in <FUNCTION>.",
-            err: "The content in <DOCS> does not match with the code in <FUNCTION>.",
-        },
-        {
-            model: "small",
-            responseType: "text",
-            temperature: 0.2,
-            systemSafety: false,
-            system: ["system.technical", "system.typescript"],
+            },
+            {
+                model: "large",
+                responseType: "text",
+                label: match.text()?.slice(0, 20),
+            }
+        )
+        // if generation is successful, insert the docs
+        if (res.error) {
+            output.warn(res.error.message)
+            continue
         }
-    )
+        const docs = docify(res.text.trim())
 
-    if (consistent.label !== "ok") {
-        output.warn(consistent.label)
-        output.fence(consistent.answer)
-        continue
+        // sanity check
+        const consistent = await classify(
+            (_) => {
+                _.def("FUNCTION", match.text())
+                _.def("DOCS", docs)
+            },
+            {
+                ok: "The content in <DOCS> is an accurate documentation for the code in <FUNCTION>.",
+                err: "The content in <DOCS> does not match with the code in <FUNCTION>.",
+            },
+            {
+                model: "small",
+                responseType: "text",
+                temperature: 0.2,
+                systemSafety: false,
+                system: ["system.technical", "system.typescript"],
+            }
+        )
+
+        if (consistent.label !== "ok") {
+            output.warn(consistent.label)
+            output.fence(consistent.answer)
+            continue
+        }
+
+        const updated = `${docs}\n${match.text()}`
+        edits.replace(match, updated)
     }
 
-    const updated = `${docs}\n${match.text()}`
-    replace(match, updated)
-}
+    // apply all edits and write to the file
+    const [modified] = edits.commit()
+    if (!modified) continue
 
-// apply all edits and write to the file
-const [modified] = await commitEdits()
-if (applyEdits) {
-    await workspace.writeFiles(modified)
-    await prettier(file)
-} else {
-    output.diff(file, modified)
-    output.warn(
-        `edit not applied, use --vars 'applyEdits=true' to apply the edits`
-    )
+    if (applyEdits) {
+        await workspace.writeFiles(modified)
+        await prettier(file)
+    } else {
+        output.diff(file, modified)
+        output.warn(
+            `edit not applied, use --vars 'applyEdits=true' to apply the edits`
+        )
+    }
 }

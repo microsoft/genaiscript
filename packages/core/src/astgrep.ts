@@ -9,6 +9,54 @@ import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
 import { extname } from "node:path"
 
+class SgChangeSetImpl implements SgChangeSet {
+    private pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
+
+    toString() {
+        return `changeset ${this.count} edits`
+    }
+
+    get count(): number {
+        return Object.values(this.pending).reduce(
+            (acc, { edits }) => acc + edits.length,
+            0
+        )
+    }
+
+    replace(node: SgNode, text: string) {
+        const edit = node.replace(text)
+        const root = node.getRoot()
+        let rootEdits = this.pending[root.filename()]
+        if (rootEdits) {
+            if (rootEdits.root !== root) {
+                throw new Error(
+                    `node ${node} belongs to a different root ${root} than the pending edits ${rootEdits.root}`
+                )
+            }
+        } else this.pending[root.filename()] = { root, edits: [] }
+        rootEdits.edits.push(edit)
+        return edit
+    }
+    commit() {
+        const files: WorkspaceFile[] = []
+        for (const { root, edits } of Object.values(this.pending)) {
+            const filename = root.filename()
+            const content = root.root().commitEdits(edits)
+            files.push({ filename, content })
+        }
+        return files
+    }
+}
+
+/**
+ * Creates and returns a new instance of a change set for tracking and managing edits in abstract syntax trees (ASTs).
+ *
+ * @returns A new change set instance to handle editing operations such as replacements and commit edits.
+ */
+export function astGrepCreateChangeSet(): SgChangeSet {
+    return new SgChangeSetImpl()
+}
+
 /**
  * Searches for files matching specific criteria based on file patterns and match rules,
  * and performs analysis or modifications on matched nodes in the files.
@@ -21,8 +69,6 @@ import { extname } from "node:path"
  * @returns An object containing:
  * - `files`: The number of files scanned.
  * - `matches`: The list of matched nodes.
- * - `replace`: A function to replace a matched node with the provided text.
- * - `commitEdits`: A function to commit all pending edits and return updated file content.
  *
  * @throws An error if `glob` or `matcher` is not provided.
  */
@@ -47,16 +93,14 @@ export async function astGrepFindFiles(
     dbg(`resolving language: ${lang}`)
 
     const paths = await host.findFiles(glob, options)
-    if (!paths?.length)
+    if (!paths?.length) {
+        dbg(`no files found for glob`, glob)
         return {
             files: 0,
             matches: [],
-            replace: () => {
-                throw new Error("Not matched nodes")
-            },
-            commitEdits: async () => [],
         }
-    dbg(`found ${paths.length} files`, paths.slice(0, 10))
+    }
+    dbg(`found ${paths.length} files`, paths)
 
     const matches: SgNode[] = []
     const p = new Promise<number>(async (resolve, reject) => {
@@ -97,28 +141,7 @@ export async function astGrepFindFiles(
     dbg(`files scanned: ${scanned}`)
     checkCancelled(cancellationToken)
 
-    const pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
-    const replace = (node: SgNode, text: string) => {
-        const edit = node.replace(text)
-        const root = node.getRoot()
-        const rootEdits =
-            pending[root.filename()] ||
-            (pending[root.filename()] = { root, edits: [] })
-        rootEdits.edits.push(edit)
-        return edit
-    }
-    const commitEdits = async () => {
-        const files: WorkspaceFile[] = []
-        for (const { root, edits } of Object.values(pending)) {
-            checkCancelled(cancellationToken)
-            const filename = root.filename()
-            const content = root.root().commitEdits(edits)
-            files.push({ filename, content })
-        }
-        return files
-    }
-
-    return { files: scanned, matches, replace, commitEdits }
+    return { files: scanned, matches }
 }
 
 /**

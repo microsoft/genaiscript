@@ -29,7 +29,7 @@ import { resolveFileContent } from "./file"
 import { resolveTokenEncoder } from "./encoders"
 import { mustacheRender } from "./mustache"
 import { jinjaRender } from "./jinja"
-import { createDiff, llmifyDiff } from "./llmdiff"
+import { llmifyDiff } from "./llmdiff"
 import { tidyData } from "./tidy"
 import { hash } from "./crypto"
 import { GROQEvaluate } from "./groq"
@@ -38,6 +38,7 @@ import { CancellationOptions } from "./cancellation"
 import { dedent } from "./indent"
 import { vttSrtParse } from "./transcription"
 import { encodeIDs } from "./cleaners"
+import { diffCreatePatch } from "./diff"
 
 /**
  * Asynchronously creates a set of parsers for handling various file formats, data operations,
@@ -173,7 +174,7 @@ export async function createParsers(
             const f = filenameOrFileToContent(file)
             return jinjaRender(f, data)
         },
-        diff: (f1, f2) => llmifyDiff(createDiff(f1, f2)),
+        diff: (f1, f2) => llmifyDiff(diffCreatePatch(f1, f2)),
         tidyData: (rows, options) => tidyData(rows, options),
         hash: async (text, options) => await hash(text, options),
         unfence: unfence,
