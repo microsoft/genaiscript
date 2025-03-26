@@ -152,9 +152,9 @@ for (const file of files) {
     }
 }
 
-output.fence(
-    stats.filter((row) =>
-        Object.values(row).some((d) => typeof d === "number" && d > 0)
-    ),
-    "csv"
-)
+if (stats.length)
+    output.table(
+        stats.filter((row) =>
+            Object.values(row).some((d) => typeof d === "number" && d > 0)
+        )
+    )
