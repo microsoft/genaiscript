@@ -348,7 +348,7 @@
                     "genaiscript.diagnostics": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Enable developer diagnostic mode. Including leaving terminals opened."
+                        "description": "Enable developer diagnostic mode. Including opening server terminal and leaving terminals opened."
                     },
                     "genaiscript.debug": {
                         "type": "string",
