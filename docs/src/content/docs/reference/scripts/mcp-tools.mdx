@@ -53,6 +53,21 @@ defTool({
 GenAIScript will launch the server and register all the tools listed by the server.
 The tool identifier will be `server_toolname` to avoid clashes.
 
+:::tip
+
+If your tool has a name that is not a valid identifier,
+you can use the `["tool-name"]` syntax.
+
+```js '["server-memory"]
+defTool({
+    ["server-memory"]: {
+        ...
+    },
+})
+```
+
+:::
+
 ## Lifecycle of servers
 
 Servers are started when rendering the prompt and stopped once the chat session is completed.
