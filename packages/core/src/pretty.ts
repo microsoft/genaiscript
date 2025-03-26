@@ -1,6 +1,10 @@
 import type { ChatCompletionUsage } from "./chattypes"
 import _prettyBytes from "pretty-bytes"
-import { CHAR_DOWN_ARROW, CHAR_UP_ARROW } from "./constants"
+import {
+    CHAR_DOWN_ARROW,
+    CHAR_UP_ARROW,
+    CHAR_UP_DOWN_ARROWS,
+} from "./constants"
 
 /**
  * Formats token usage into a human-readable string indicating tokens per second.
@@ -24,17 +28,26 @@ export function prettyTokensPerSecond(usage: ChatCompletionUsage) {
  *   "completion" for output tokens (adds "↓" as prefix). Defaults to no prefix.
  * @returns A formatted string with units "t" for tokens, "kt" for kilotokens, or "Mt" for megatokens.
  */
-export function prettyTokens(n: number, direction?: "prompt" | "completion") {
+export function prettyTokens(
+    n: number,
+    direction?: "prompt" | "completion" | "both"
+) {
     if (isNaN(n)) return ""
     const prefix =
-        direction === "prompt"
-            ? CHAR_UP_ARROW
-            : direction === "completion"
-              ? CHAR_DOWN_ARROW
-              : ""
+        direction === "both"
+            ? CHAR_UP_DOWN_ARROWS
+            : direction === "prompt"
+              ? CHAR_UP_ARROW
+              : direction === "completion"
+                ? CHAR_DOWN_ARROW
+                : ""
     if (n < 1000) return `${prefix}${n.toString()}t`
     if (n < 1e6) return `${prefix}${(n / 1e3).toFixed(1)}kt`
     return `${prefix}${(n / 1e6).toFixed(1)}Mt`
+}
+
+export function prettyParenthesized(value: any) {
+    return value !== undefined ? `(${value})` : ""
 }
 
 /**

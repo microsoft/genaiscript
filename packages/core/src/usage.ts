@@ -12,13 +12,15 @@ import {
 import { MarkdownTrace } from "./trace"
 import { logVerbose, toStringList } from "./util"
 import { parseModelIdentifier } from "./models"
-import { CHAR_ENVELOPE, MODEL_PRICINGS } from "./constants"
+import { CHAR_ENVELOPE, CHAR_UP_DOWN_ARROWS, MODEL_PRICINGS } from "./constants"
 import {
     prettyCost,
     prettyTokensPerSecond,
     prettyDuration,
     prettyTokens,
 } from "./pretty"
+import debug from "debug"
+const dbg = debug("genaiscript:usage")
 
 /**
  * Estimates the cost of a chat completion based on model pricing and token usage.
@@ -266,18 +268,22 @@ export class GenerationStats {
         const unknowns = new Set<string>()
         const c = this.cost()
         const au = this.accumulatedUsage()
-        if (au?.total_tokens > 0 && (this.resolvedModel || c)) {
+
+        if (au?.total_tokens > 0) {
             const stats = [
-                prettyDuration(au.duration),
+                this.children.length > 1
+                    ? `${CHAR_UP_DOWN_ARROWS}${this.children.length}`
+                    : undefined,
                 prettyTokens(au.prompt_tokens, "prompt"),
                 prettyTokens(au.completion_tokens, "completion"),
                 prettyTokensPerSecond(au),
                 prettyCost(c),
+                prettyDuration(au.duration),
             ]
                 .filter((n) => !!n)
                 .join(" ")
             logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${stats}`
+                `${indent}${this.label ? `${this.label}:` : ""}${this.resolvedModel}> ${stats}`
             )
         }
         if (this.model && isNaN(c) && isCosteable(this.model))
