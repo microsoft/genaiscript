@@ -212,7 +212,7 @@ declare var JSONSchema: JSONSchemaUtilities
 /**
  * Diff utilities
  */
-declare var diff: Diff
+declare var DIFF: DIFF
 
 /**
  * Access to current LLM chat session information

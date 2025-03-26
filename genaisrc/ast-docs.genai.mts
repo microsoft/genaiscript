@@ -17,6 +17,9 @@ script({
 const { output } = env
 const { applyEdits } = env.vars
 
+// filter by diff
+const diffFiles = DIFF.parse(await git.diff({ base: "main" }))
+
 for (const file of env.files) {
     // normalize spacing
     await prettier(file)
@@ -24,7 +27,7 @@ for (const file of env.files) {
     // find all exported functions without comments
     const sg = await host.astGrep()
 
-    const { matches } = await sg.search("ts", file.filename, {
+    let { matches } = await sg.search("ts", file.filename, {
         rule: {
             kind: "export_statement",
             not: {
@@ -38,8 +41,17 @@ for (const file of env.files) {
             },
         },
     })
+    if (diffFiles?.length) {
+        matches = matches.filter((m) =>
+            DIFF.findChunk(
+                m.getRoot().filename(),
+                [m.range().start.line, m.range().end.line],
+                diffFiles
+            )
+        )
+    }
     if (!matches.length) continue
-    
+
     const edits = sg.changeset()
     // for each match, generate a docstring for functions not documented
     for (const match of matches) {

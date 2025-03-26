@@ -2470,7 +2470,7 @@ type DiffChangeType = "normal" | "add" | "del"
 
 type DiffChange = DiffNormalChange | DiffAddChange | DiffDeleteChange
 
-interface Diff {
+interface DIFF {
     /**
      * Parses a diff string into a structured object
      * @param input
@@ -2485,7 +2485,7 @@ interface Diff {
      */
     findChunk(
         file: string,
-        line: number,
+        line: ElementOrArray<number>,
         diff: ElementOrArray<DiffFile>
     ): { file?: DiffFile; chunk?: DiffChunk } | undefined
 

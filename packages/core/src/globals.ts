@@ -161,7 +161,7 @@ export function installGlobals() {
     // ffmpeg
     glb.ffmpeg = new FFmepgClient()
 
-    glb.diff = Object.freeze<Diff>({
+    glb.DIFF = Object.freeze<DIFF>({
         parse: tryDiffParse,
         createPatch: diffCreatePatch,
         findChunk: diffFindChunk,

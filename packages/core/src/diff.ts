@@ -62,7 +62,7 @@ export function diffCreatePatch(
 
 export function diffFindChunk(
     file: string,
-    line: number,
+    line: ElementOrArray<number>,
     diff: ElementOrArray<DiffFile>
 ): { file?: DiffFile; chunk?: DiffChunk } | undefined {
     // line is zero-based
@@ -73,9 +73,14 @@ export function diffFindChunk(
     if (!df) return undefined // file not found in diff
 
     const { chunks } = df
+    const lines = arrayify(line)
     for (const chunk of chunks) {
-        if (line >= chunk.newStart && line <= chunk.newStart + chunk.newLines)
-            return { file: df, chunk }
+        for (const line of lines)
+            if (
+                line >= chunk.newStart &&
+                line <= chunk.newStart + chunk.newLines
+            )
+                return { file: df, chunk }
     }
     return { file: df }
 }
