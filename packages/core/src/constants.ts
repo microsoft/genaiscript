@@ -12,6 +12,7 @@ export const CONNECT = "connect"
 export const LOG = "log"
 export const QUEUE_SCRIPT_START = "queueScriptStart"
 export const MAX_TOOL_CALLS = 10000
+export const MAX_TOOL_DESCRIPTION_LENGTH = 1000
 
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 // https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.yaml

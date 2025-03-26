@@ -16,6 +16,7 @@ import {
 import {
     arrayify,
     assert,
+    ellipse,
     logError,
     logInfo,
     logVerbose,
@@ -34,6 +35,7 @@ import {
     MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
     MAX_TOOL_CONTENT_TOKENS,
+    MAX_TOOL_DESCRIPTION_LENGTH,
     MODEL_PROVIDERS,
     SYSTEM_FENCE,
 } from "./constants"
@@ -1120,7 +1122,10 @@ export async function executeChatSession(
                       type: "function",
                       function: {
                           name: f.spec.name,
-                          description: f.spec.description,
+                          description: ellipse(
+                              f.spec.description,
+                              MAX_TOOL_DESCRIPTION_LENGTH
+                          ),
                           parameters: f.spec.parameters as any,
                       },
                   }
