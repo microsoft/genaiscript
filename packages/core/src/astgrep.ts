@@ -49,6 +49,15 @@ class SgChangeSetImpl implements SgChangeSet {
     }
 }
 
+/**
+ * Creates an instance of a change set for managing and committing AST node edits.
+ *
+ * This function initializes an empty change set, which can be used for tracking edits
+ * to AST nodes, associating them with their corresponding file roots, and committing
+ * the changes back to files.
+ *
+ * @returns A new change set instance to handle AST edits.
+ */
 export function astGrepCreateChangeSet(): SgChangeSet {
     return new SgChangeSetImpl()
 }

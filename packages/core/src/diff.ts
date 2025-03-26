@@ -18,6 +18,12 @@ export function diffParse(input: string) {
     return files
 }
 
+/**
+ * Resolves the input into an array of DiffFile objects.
+ *
+ * @param input - The input to resolve. Can be a diff string in valid format or an ElementOrArray of DiffFile objects.
+ * @returns An array of DiffFile objects. If the input is a string, it is parsed into DiffFile objects. If the input is already an ElementOrArray of DiffFile objects, it is converted to an array.
+ */
 export function diffResolve(
     input: string | ElementOrArray<DiffFile>
 ): DiffFile[] {

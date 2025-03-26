@@ -1,7 +1,6 @@
 import { classify } from "genaiscript/runtime"
 import { docify } from "./src/docs.mts"
 import { prettier } from "./src/prettier.mts"
-import { filterMatchesByDiff } from "./src/diff.mts"
 
 script({
     title: "Generate TypeScript function documentation using AST insertion",
