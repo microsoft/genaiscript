@@ -89,28 +89,28 @@ If your language is not supported, go to [ast-grep langs](https://github.com/ast
 
 :::
 
-## search and replace
+## Changesets
 
 A common use case is to search for a pattern and replace it with another pattern. The transformation phase can leverage
 [inline prompts](/genaiscript/reference/scripts/inline-prompts) to perform LLM transformations.
 This can be done with the `replace` method.
 
 ```js
-const { matches, replace, commitEdits } = await sg.search("ts", "...")
+const edits = sg.changeset()
 ```
 
 The `replace` method creates an edit that replaces the content of a node with new text.
 The edit is stored internally but not applied until `commitEdits` is called.
 
 ```js
-replace(matches[0], "console.log('replaced')")
+edits.replace(matches[0], "console.log('replaced')")
 ```
 
 Of course, things get more interesting when you use inline prompts to generate the replacement text.
 
 ```js wrap
 const updated = await prompt`... ${matches[0].text()} ...`
-replace(
+edits.replace(
     matches[0].node,
     `console.log
   ('${updated.text}')`
@@ -121,7 +121,7 @@ Next, you can commit the edits to create a set of in-memory files. The changes a
 to the file system yet.
 
 ```js
-const newFiles = await commitEdits()
+const newFiles = edits.commitEdits()
 ```
 
 If you wish to apply the changes to the file system, you can use the `writeFiles` function.

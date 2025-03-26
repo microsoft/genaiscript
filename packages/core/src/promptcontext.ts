@@ -31,7 +31,11 @@ import { fileWriteCached } from "./filecache"
 import { join } from "node:path"
 import { createMicrosoftTeamsChannelClient } from "./teams"
 import { dotGenaiscriptPath } from "./workdir"
-import { astGrepFindFiles, astGrepParse } from "./astgrep"
+import {
+    astGrepCreateChangeSet,
+    astGrepFindFiles,
+    astGrepParse,
+} from "./astgrep"
 
 const dbg = debug("genaiscript:promptcontext")
 
@@ -334,6 +338,7 @@ export async function createPromptContext(
         teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
         astGrep: async () =>
             Object.freeze<Sg>({
+                changeset: astGrepCreateChangeSet,
                 search: (lang, glob, matcher) =>
                     astGrepFindFiles(lang, glob, matcher, {
                         cancellationToken,

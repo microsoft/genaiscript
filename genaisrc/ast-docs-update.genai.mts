@@ -23,7 +23,7 @@ await prettier(file)
 
 // find all exported functions with comments
 const sg = await host.astGrep()
-const { matches, replace, commitEdits } = await sg.search("ts", file.filename, {
+const { matches } = await sg.search("ts", file.filename, {
     rule: {
         kind: "export_statement",
         follows: {
@@ -36,6 +36,7 @@ const { matches, replace, commitEdits } = await sg.search("ts", file.filename, {
     },
 })
 
+const edits = sg.changeset()
 // for each match, generate a docstring for functions not documented
 for (const match of matches) {
     const comment = match.prev()
@@ -104,11 +105,11 @@ for (const match of matches) {
         output.warn("LLM suggests minor adjustments, skipping")
         continue
     }
-    replace(comment, docs)
+    edits.replace(comment, docs)
 }
 
 // apply all edits and write to the file
-const modified = await commitEdits()
+const modified = edits.commitEdits()
 if (applyEdits) {
     await workspace.writeFiles(modified)
     // normalize spacing

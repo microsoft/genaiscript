@@ -4282,7 +4282,16 @@ type SgLang = OptionsOrString<
     "html" | "js" | "ts" | "tsx" | "css" | "c" | "sql"
 >
 
+interface SgChangeSet {
+    replace(node: SgNode, text: string): SgEdit
+    commitEdits(): WorkspaceFile[]
+}
+
 interface Sg {
+    /**
+     * Create a change set
+     */
+    changeset(): SgChangeSet
     parse(file: WorkspaceFile, options: { lang?: SgLang }): Promise<SgRoot>
     search(
         lang: SgLang,
@@ -4297,16 +4306,6 @@ interface Sg {
          * Each individual file matches as a node
          */
         matches: SgNode[]
-        /**
-         * Queues an edit that replaces the node text with the provided text.
-         * The node must be part of the matches array.
-         */
-        replace: (node: SgNode, text: string) => SgEdit
-        /**
-         * Applies all the edits queued by the replace method and returns the updated files.
-         * Use `workspace.writeFiles` to save the changes to the workspace.
-         */
-        commitEdits: () => Promise<WorkspaceFile[]>
     }>
 }
 

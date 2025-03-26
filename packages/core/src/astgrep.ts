@@ -9,6 +9,32 @@ import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
 import { extname } from "node:path"
 
+class SgChangeSetImpl implements SgChangeSet {
+    private pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
+    replace(node: SgNode, text: string) {
+        const edit = node.replace(text)
+        const root = node.getRoot()
+        const rootEdits =
+            this.pending[root.filename()] ||
+            (this.pending[root.filename()] = { root, edits: [] })
+        rootEdits.edits.push(edit)
+        return edit
+    }
+    commitEdits() {
+        const files: WorkspaceFile[] = []
+        for (const { root, edits } of Object.values(this.pending)) {
+            const filename = root.filename()
+            const content = root.root().commitEdits(edits)
+            files.push({ filename, content })
+        }
+        return files
+    }
+}
+
+export function astGrepCreateChangeSet(): SgChangeSet {
+    return new SgChangeSetImpl()
+}
+
 /**
  * Searches for files matching specific criteria based on file patterns and match rules,
  * and performs analysis or modifications on matched nodes in the files.
@@ -51,10 +77,6 @@ export async function astGrepFindFiles(
         return {
             files: 0,
             matches: [],
-            replace: () => {
-                throw new Error("Not matched nodes")
-            },
-            commitEdits: async () => [],
         }
     dbg(`found ${paths.length} files`, paths.slice(0, 10))
 
@@ -97,28 +119,7 @@ export async function astGrepFindFiles(
     dbg(`files scanned: ${scanned}`)
     checkCancelled(cancellationToken)
 
-    const pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
-    const replace = (node: SgNode, text: string) => {
-        const edit = node.replace(text)
-        const root = node.getRoot()
-        const rootEdits =
-            pending[root.filename()] ||
-            (pending[root.filename()] = { root, edits: [] })
-        rootEdits.edits.push(edit)
-        return edit
-    }
-    const commitEdits = async () => {
-        const files: WorkspaceFile[] = []
-        for (const { root, edits } of Object.values(pending)) {
-            checkCancelled(cancellationToken)
-            const filename = root.filename()
-            const content = root.root().commitEdits(edits)
-            files.push({ filename, content })
-        }
-        return files
-    }
-
-    return { files: scanned, matches, replace, commitEdits }
+    return { files: scanned, matches }
 }
 
 /**
