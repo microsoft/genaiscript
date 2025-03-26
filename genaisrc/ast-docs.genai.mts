@@ -7,6 +7,18 @@ script({
     accept: ".ts",
     files: "src/cowsay.ts",
     parameters: {
+        diff: {
+            type: "boolean",
+            default: true,
+            description:
+                "If true, the script will only process files with changes with respect to main.",
+        },
+        pretty: {
+            type: "boolean",
+            default: false,
+            description:
+                "If true, the script will prettify the files efore analysis.",
+        },
         applyEdits: {
             type: "boolean",
             default: false,
@@ -14,15 +26,17 @@ script({
         },
     },
 })
-const { output } = env
-const { applyEdits } = env.vars
+const { output, dbg, vars } = env
+const { applyEdits, diff, pretty } = vars
 
 // filter by diff
-const diffFiles = DIFF.parse(await git.diff({ base: "main" }))
+const diffFiles = diff
+    ? DIFF.parse(await git.diff({ base: "main" }))
+    : undefined
 
 for (const file of env.files) {
     // normalize spacing
-    await prettier(file)
+    if (pretty) await prettier(file)
 
     // find all exported functions without comments
     const sg = await host.astGrep()
@@ -41,17 +55,23 @@ for (const file of env.files) {
             },
         },
     })
-    if (diffFiles?.length) {
-        matches = matches.filter((m) =>
+    dbg(`sg matches ${matches.length} for ${file.filename}`)
+    if (matches?.length && diffFiles?.length) {
+        const newMatches = matches.filter((m) =>
             DIFF.findChunk(
                 m.getRoot().filename(),
                 [m.range().start.line, m.range().end.line],
                 diffFiles
             )
         )
+        dbg(`diff filtered ${matches.length} -> ${newMatches.length}`)
+        matches = newMatches
     }
-    if (!matches.length) continue
+    if (!matches.length) {
+        continue
+    }
 
+    dbg(`process ${matches.length} matches in ${file.filename}`)
     const edits = sg.changeset()
     // for each match, generate a docstring for functions not documented
     for (const match of matches) {
