@@ -45,6 +45,7 @@ import {
 import { deleteUndefinedValues } from "./cleaners"
 import debug from "debug"
 const dbg = debug("genaiscript:anthropic")
+const dbgMessages = debug("genaiscript:anthropic:msg")
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -384,6 +385,8 @@ const completerFactory = (
                     finishReason = "cancel"
                     break
                 }
+                dbg(chunk.type)
+                dbgMessages(`%O`, chunk)
                 let chunkContent = ""
                 let reasoningContent = ""
                 switch (chunk.type) {
@@ -415,13 +418,17 @@ const completerFactory = (
                                 trace.appendToken(chunkContent)
                                 break
                             case "text_delta":
-                                chunkContent = chunk.delta.text
-                                numTokens += estimateTokens(
-                                    chunkContent,
-                                    encoder
-                                )
-                                chatResp += chunkContent
-                                trace.appendToken(chunkContent)
+                                if (!chunk.delta.text)
+                                    dbg(`empty text_delta`, chunk)
+                                else {
+                                    chunkContent = chunk.delta.text
+                                    numTokens += estimateTokens(
+                                        chunkContent,
+                                        encoder
+                                    )
+                                    chatResp += chunkContent
+                                    trace.appendToken(chunkContent)
+                                }
                                 break
 
                             case "input_json_delta":

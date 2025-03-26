@@ -47,7 +47,6 @@ import {
     ChatCompletionChoice,
     CreateChatCompletionRequest,
     ChatCompletionTokenLogprob,
-    ChatCompletionReasoningEffort,
     EmbeddingCreateResponse,
     EmbeddingCreateParams,
     EmbeddingResult,
@@ -71,6 +70,7 @@ import {
 import { fromBase64 } from "./base64"
 import debug from "debug"
 const dbg = debug("genaiscript:openai")
+const dbgMessages = debug("genaiscript:openai:msg")
 
 /**
  * Generates configuration headers for API requests based on the provided configuration object.
@@ -142,11 +142,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     // stream_options fails in some cases
     if (family === "gpt-4-turbo-v" || /mistral/i.test(family)) {
+        dbg(`removing stream_options`)
         delete postReq.stream_options
     }
 
     if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
         if (/^o(1|3)/.test(family)) {
+            dbg(`removing options to support o1/o3`)
             delete postReq.temperature
             delete postReq.top_p
             delete postReq.presence_penalty
@@ -165,6 +167,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         }
 
         if (/^o1/.test(family)) {
+            dbg(`removing options to support o1`)
             const preview = /^o1-(preview|mini)/i.test(family)
             delete postReq.stream
             delete postReq.stream_options
@@ -249,6 +252,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     } else throw new Error(`api type ${cfg.type} not supported`)
 
     trace?.itemValue(`url`, `[${url}](${url})`)
+    dbg(`url: ${url}`)
 
     let numTokens = 0
     let numReasoningTokens = 0
@@ -282,6 +286,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     trace?.itemValue(`status`, `${r.status} ${r.statusText}`)
+    dbg(`response: ${r.status} ${r.statusText}`)
     if (r.status !== 200) {
         let responseBody: string
         try {
@@ -326,24 +331,33 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json)
 
         if (!postReq.stream) trace?.detailsFenced(`📬 response`, obj, "json")
+        dbgMessages(`%O`, obj)
 
         if (obj.usage) usage = obj.usage
-        if (!responseModel && obj.model) responseModel = obj.model
+        if (!responseModel && obj.model) {
+            responseModel = obj.model
+            dbg(`model: ${responseModel}`)
+        }
         if (!obj.choices?.length) return
         else if (obj.choices?.length != 1)
             throw new Error("too many choices in response")
         const choice = obj.choices[0]
         const { finish_reason } = choice
-        if (finish_reason) finishReason = finish_reason as any
+        if (finish_reason) {
+            dbg(`finish reason: ${finish_reason}`)
+            finishReason = finish_reason as any
+        }
         if ((choice as ChatCompletionChunkChoice).delta) {
             const { delta, logprobs } = choice as ChatCompletionChunkChoice
             if (logprobs?.content) lbs.push(...logprobs.content)
             if (typeof delta?.content === "string" && delta.content !== "") {
                 let content = delta.content
                 if (!reasoning && THINK_START_TOKEN_REGEX.test(content)) {
+                    dbg(`entering <think>`)
                     reasoning = true
                     content = content.replace(THINK_START_TOKEN_REGEX, "")
                 } else if (reasoning && THINK_END_TOKEN_REGEX.test(content)) {
+                    dbg(`leaving <think>`)
                     reasoning = false
                     content = content.replace(THINK_END_TOKEN_REGEX, "")
                 }

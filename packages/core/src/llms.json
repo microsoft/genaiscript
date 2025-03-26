@@ -23,9 +23,15 @@
                 "image": "dall-e-3"
             },
             "models": {
-                "o1-preview": { "tools": false },
-                "o1-mini": { "tools": false },
-                "phi-3.5-mini-instruct": { "tools": false }
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
             },
             "env": {
                 "OPENAI_API_KEY": {
@@ -50,9 +56,15 @@
             "imageGeneration": true,
             "aliases": {},
             "models": {
-                "o1-preview": { "tools": false },
-                "o1-mini": { "tools": false },
-                "phi-3.5-mini-instruct": { "tools": false }
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
             },
             "env": {
                 "AZURE_OPENAI_API_ENDPOINT": {
@@ -103,9 +115,15 @@
                 "embeddings": "text-embedding-3-small"
             },
             "models": {
-                "o1-preview": { "tools": false },
-                "o1-mini": { "tools": false },
-                "phi-3.5-mini-instruct": { "tools": false }
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
             },
             "env": {
                 "AZURE_AI_INFERENCE_API_KEY": {
@@ -142,9 +160,15 @@
                 "embeddings": "text-embedding-3-small"
             },
             "models": {
-                "o1-preview": { "tools": false },
-                "o1-mini": { "tools": false },
-                "phi-3.5-mini-instruct": { "tools": false }
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
             },
             "env": {
                 "AZURE_SERVERLESS_OPENAI_API_KEY": {
@@ -205,9 +229,15 @@
                 "reasoning_small": "o1-mini"
             },
             "models": {
-                "o1-preview": { "tools": false },
-                "o1-mini": { "tools": false },
-                "phi-3.5-mini-instruct": { "tools": false }
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
             },
             "env": {
                 "GITHUB_TOKEN": {
@@ -236,24 +266,60 @@
                 }
             },
             "models": {
-                "marco-o1": { "tools": false },
-                "tulu3": { "tools": false },
-                "opencoder": { "tools": false },
-                "llama3.2-vision": { "tools": false },
-                "phi3.5": { "tools": false },
-                "gemma2": { "tools": false },
-                "deep-seek-coder-v2": { "tools": false },
-                "codegemma": { "tools": false },
-                "llava": { "tools": false },
-                "llama3": { "tools": false },
-                "gemma": { "tools": false },
-                "qwen": { "tools": false },
-                "phi3": { "tools": false },
-                "llama2": { "tools": false },
-                "codellama": { "tools": false },
-                "phi": { "tools": false },
-                "deepseek-r1": { "tools": false },
-                "gemma3": { "tools": false }
+                "marco-o1": {
+                    "tools": false
+                },
+                "tulu3": {
+                    "tools": false
+                },
+                "opencoder": {
+                    "tools": false
+                },
+                "llama3.2-vision": {
+                    "tools": false
+                },
+                "phi3.5": {
+                    "tools": false
+                },
+                "gemma2": {
+                    "tools": false
+                },
+                "deep-seek-coder-v2": {
+                    "tools": false
+                },
+                "codegemma": {
+                    "tools": false
+                },
+                "llava": {
+                    "tools": false
+                },
+                "llama3": {
+                    "tools": false
+                },
+                "gemma": {
+                    "tools": false
+                },
+                "qwen": {
+                    "tools": false
+                },
+                "phi3": {
+                    "tools": false
+                },
+                "llama2": {
+                    "tools": false
+                },
+                "codellama": {
+                    "tools": false
+                },
+                "phi": {
+                    "tools": false
+                },
+                "deepseek-r1": {
+                    "tools": false
+                },
+                "gemma3": {
+                    "tools": false
+                }
             }
         },
         {
@@ -1062,6 +1128,16 @@
         "mistral:mistral-nemo": {
             "price_per_million_input_tokens": 0.2,
             "price_per_million_output_tokens": 0.6
+        },
+        "anthropic:claude-3-7-sonnet-20250219": {
+            "price_per_million_input_tokens": 3,
+            "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-7-sonnet-latest": {
+            "price_per_million_input_tokens": 3,
+            "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
         },
         "anthropic:claude-3-5-sonnet-20240620": {
             "price_per_million_input_tokens": 3,

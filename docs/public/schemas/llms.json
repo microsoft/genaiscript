@@ -109,7 +109,11 @@
                                 "description": "High reasoning effort"
                             }
                         },
-                        "required": ["low", "medium", "high"]
+                        "required": [
+                            "low",
+                            "medium",
+                            "high"
+                        ]
                     },
                     "singleModel": {
                         "type": "boolean",
@@ -195,7 +199,9 @@
                                     "format": {
                                         "type": "string",
                                         "description": "Format of the variable",
-                                        "enum": ["url"]
+                                        "enum": [
+                                            "url"
+                                        ]
                                     },
                                     "enum": {
                                         "type": "array",
@@ -210,7 +216,10 @@
                     }
                 },
                 "additionalProperties": false,
-                "required": ["id", "detail"]
+                "required": [
+                    "id",
+                    "detail"
+                ]
             }
         }
     },
@@ -269,5 +278,8 @@
             }
         }
     },
-    "required": ["providers", "pricings"]
+    "required": [
+        "providers",
+        "pricings"
+    ]
 }
