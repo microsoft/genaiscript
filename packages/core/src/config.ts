@@ -205,7 +205,7 @@ export async function resolveLanguageModelConfigurations(
     for (const modelProvider of MODEL_PROVIDERS.filter(
         (mp) => (!provider || mp.id === provider) && (!hide || !mp.hidden)
     )) {
-        dbg(`processing model provider: ${modelProvider.id}`)
+        dbg(`processing model provider: ${modelProvider.id}, token: ${token}`)
         try {
             const conn: LanguageModelConfiguration & {
                 models?: LanguageModelInfo[]
