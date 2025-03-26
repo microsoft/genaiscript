@@ -1,8 +1,7 @@
 // This module provides functions to add and remove line numbers from text.
 // It includes special handling for "diff" formatted text.
 
-import { start } from "repl"
-import { llmifyDiff, tryParseDiff } from "./diff"
+import { llmifyDiff, tryParseDiff } from "./llmdiff"
 import { MIN_LINE_NUMBER_LENGTH } from "./constants"
 
 /**
