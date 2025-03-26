@@ -220,7 +220,7 @@ async function updateDocs(file: WorkspaceFile, fileStats: any) {
         },
         { diff: gitDiff }
     )
-
+    dbg(`found ${matches.length} docs to update`)
     const edits = sg.changeset()
     // for each match, generate a docstring for functions not documented
     for (const match of matches) {
