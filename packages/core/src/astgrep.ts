@@ -11,6 +11,18 @@ import { extname } from "node:path"
 
 class SgChangeSetImpl implements SgChangeSet {
     private pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
+
+    toString() {
+        return `changeset ${this.count} edits`
+    }
+
+    get count(): number {
+        return Object.values(this.pending).reduce(
+            (acc, { edits }) => acc + edits.length,
+            0
+        )
+    }
+
     replace(node: SgNode, text: string) {
         const edit = node.replace(text)
         const root = node.getRoot()

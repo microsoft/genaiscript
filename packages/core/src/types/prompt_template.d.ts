@@ -4279,10 +4279,11 @@ interface SgRoot {
 }
 
 type SgLang = OptionsOrString<
-    "html" | "js" | "ts" | "tsx" | "css" | "c" | "sql"
+    "html" | "js" | "ts" | "tsx" | "css" | "c" | "sql" | "angular"
 >
 
 interface SgChangeSet {
+    count: number
     replace(node: SgNode, text: string): SgEdit
     commitEdits(): WorkspaceFile[]
 }
