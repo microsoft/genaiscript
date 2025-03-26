@@ -1,6 +1,6 @@
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { dataToMarkdownTable } from "./csv"
-import { applyLLMDiff, applyLLMPatch, createDiff, parseLLMDiffs } from "./llmdiff"
+import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./llmdiff"
 import { errorMessage } from "./error"
 import { unquote } from "./unwrappers"
 import { fileExists, readText } from "./fs"
@@ -13,6 +13,7 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { logError, logVerbose, relativePath } from "./util"
 import { YAMLParse } from "./yaml"
 import { writeText } from "./fs"
+import { diffCreatePatch } from "./diff"
 
 /**
  * Computes file edits based on the specified runtime prompt result and processing options.
@@ -340,7 +341,7 @@ export async function writeFileEdits(
             )
             trace.detailsFenced(
                 `updating ${fn}`,
-                createDiff(
+                diffCreatePatch(
                     { filename: fn, content: before },
                     { filename: fn, content: after }
                 ),

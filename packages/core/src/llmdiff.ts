@@ -1,6 +1,5 @@
 import { assert } from "./util"
-import parseDiff from "parse-diff"
-import { createTwoFilesPatch } from "diff"
+import { tryDiffParse } from "./diff"
 
 /**
  * Represents a chunk of changes in a diff.
@@ -292,22 +291,6 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
 }
 
 /**
- * Parses a diff string into a structured format using the parse-diff library.
- * @param diff - The diff string to parse. Must be in a supported diff format.
- * @returns A parsed array of file objects if successful, or undefined if parsing fails or no files are found.
- */
-export function tryParseDiff(diff: string) {
-    let parsed: parseDiff.File[]
-    try {
-        parsed = parseDiff(diff)
-        if (!parsed?.length) parsed = undefined
-    } catch (e) {
-        parsed = undefined
-    }
-    return parsed
-}
-
-/**
  * Converts a diff string into the LLMDiff format.
  * Parses the input diff string using the parse-diff library, processes it into a structured format, and converts it back to a unified diff format with LLMDiff annotations.
  * Updates line numbers for changes and includes them in the output.
@@ -319,8 +302,8 @@ export function tryParseDiff(diff: string) {
 export function llmifyDiff(diff: string) {
     if (!diff) return diff
 
-    const parsed = tryParseDiff(diff)
-    if (!parsed) return undefined
+    const parsed = tryDiffParse(diff)
+    if (!parsed?.length) return undefined
 
     for (const file of parsed) {
         for (const chunk of file.chunks) {
@@ -350,34 +333,4 @@ export function llmifyDiff(diff: string) {
     }
 
     return result
-}
-
-/**
- * Creates a unified diff between two workspace files.
- * @param left - The original workspace file or its content.
- * @param right - The modified workspace file or its content.
- * @param options - Optional parameters, such as the number of context lines.
- * @returns The diff as a string, with redundant headers removed.
- */
-export function createDiff(
-    left: string | WorkspaceFile,
-    right: string | WorkspaceFile,
-    options?: { context?: number }
-) {
-    if (typeof left === "string") left = { filename: "left", content: left }
-    if (typeof right === "string") right = { filename: "right", content: right }
-    const res = createTwoFilesPatch(
-        left.filename || "",
-        right.filename || "",
-        left.content || "",
-        right.content || "",
-        undefined,
-        undefined,
-        {
-            ignoreCase: true,
-            ignoreWhitespace: true,
-            ...(options ?? {}),
-        }
-    )
-    return res.replace(/^[^=]*={10,}\n/, "")
 }

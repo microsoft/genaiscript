@@ -25,6 +25,7 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { chunkMarkdown } from "./mdchunk"
 import { resolveGlobal } from "./global"
 import { MarkdownStringify } from "./markdown"
+import { diffCreatePatch, tryDiffParse } from "./diff"
 
 /**
  * Installs global utilities for various data formats and operations.
@@ -159,6 +160,11 @@ export function installGlobals() {
 
     // ffmpeg
     glb.ffmpeg = new FFmepgClient()
+
+    glb.diff = Object.freeze<Diff>({
+        parse: tryDiffParse,
+        createPatch: diffCreatePatch,
+    })
 
     // these are overriden, ignored
     glb.script = () => {}

@@ -20,7 +20,7 @@ import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
 import { fetchText } from "./fetch"
 import { concurrentLimit } from "./concurrency"
-import { createDiff, llmifyDiff } from "./llmdiff"
+import { llmifyDiff } from "./llmdiff"
 import { JSON5TryParse } from "./json5"
 import { link } from "./mkmd"
 import { LanguageModelInfo } from "./server/messages"
@@ -28,6 +28,7 @@ import { LanguageModel, ListModelsFunction } from "./chat"
 import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { errorMessage, serializeError } from "./error"
 import { normalizeInt } from "./cleaners"
+import { diffCreatePatch } from "./diff"
 
 export interface GithubConnectionInfo {
     token: string
@@ -1055,7 +1056,7 @@ export class GitHubClient implements GitHub {
         job.content = parseJobLog(job.content)
         other.content = parseJobLog(other.content)
 
-        const diff = createDiff(job, other)
+        const diff = diffCreatePatch(job, other)
         return llmifyDiff(diff)
     }
 

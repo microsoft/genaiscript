@@ -2407,9 +2407,9 @@ interface Parsers {
 
 interface YAML {
     /**
-    * Parses a YAML string into a JavaScript object using JSON5.
-      */
-    (strings: TemplateStringsArray, ...values: any[]): any;
+     * Parses a YAML string into a JavaScript object using JSON5.
+     */
+    (strings: TemplateStringsArray, ...values: any[]): any
 
     /**
      * Converts an object to its YAML representation
@@ -2420,6 +2420,78 @@ interface YAML {
      * Parses a YAML string to object
      */
     parse(text: string | WorkspaceFile): any
+}
+
+interface DiffFile {
+    chunks: DiffChunk[]
+    deletions: number
+    additions: number
+    from?: string
+    to?: string
+    oldMode?: string
+    newMode?: string
+    index?: string[]
+    deleted?: true
+    new?: true
+}
+
+interface DiffChunk {
+    content: string
+    changes: Change[]
+    oldStart: number
+    oldLines: number
+    newStart: number
+    newLines: number
+}
+
+interface DiffNormalChange {
+    type: "normal"
+    ln1: number
+    ln2: number
+    normal: true
+    content: string
+}
+
+interface DiffAddChange {
+    type: "add"
+    add: true
+    ln: number
+    content: string
+}
+
+interface DiffDeleteChange {
+    type: "del"
+    del: true
+    ln: number
+    content: string
+}
+
+type ChangeType = "normal" | "add" | "del"
+
+type Change = DiffNormalChange | DiffAddChange | DiffDeleteChange
+
+interface Diff {
+    /**
+     * Parses a diff string into a structured object
+     * @param input
+     */
+    parse(input: string): DiffFile[]
+
+    /**
+     * Creates a two file path
+     * @param left
+     * @param right
+     * @param options
+     */
+    createPatch(
+        left: string | WorkspaceFile,
+        right: string | WorkspaceFile,
+        options?: {
+            context?: number
+            ignoreCase?: boolean
+            ignoreWhitespace?: boolean
+        }
+    ): string
 }
 
 interface XML {
@@ -4206,7 +4278,9 @@ interface SgRoot {
     filename(): string
 }
 
-type SgLang = OptionsOrString<"html" | "js" | "ts" | "tsx" | "css" | "c" | "sql">
+type SgLang = OptionsOrString<
+    "html" | "js" | "ts" | "tsx" | "css" | "c" | "sql"
+>
 
 interface Sg {
     parse(file: WorkspaceFile, options: { lang?: SgLang }): Promise<SgRoot>

@@ -1,6 +1,7 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { createDiff, parseLLMDiffs } from "./llmdiff"
+import { parseLLMDiffs } from "./llmdiff"
+import { diffCreatePatch } from "./diff"
 
 describe("llmdiff", () => {
     test("is_valid_email", () => {
@@ -296,7 +297,7 @@ test("createDiff with context", () => {
         filename: "file1.txt",
         content: "line1\nline2\nline3\nline4 modified\nline5\n",
     }
-    const diff = createDiff(left, right, { context: 2 })
+    const diff = diffCreatePatch(left, right, { context: 2 })
     assert(diff.includes("@@ -2,4 +2,4 @@"))
     assert(diff.includes("-line4"))
     assert(diff.includes("+line4 modified"))
@@ -311,7 +312,7 @@ test("createDiff without context", () => {
         filename: "file1.txt",
         content: "line1\nline2\nline3\nline4 modified\nline5\n",
     }
-    const diff = createDiff(left, right)
+    const diff = diffCreatePatch(left, right)
     console.log(diff)
     assert(diff.includes("@@ -1,5 +1,5 @@"))
     assert(diff.includes("-line4"))
