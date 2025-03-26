@@ -62,8 +62,8 @@ for (const file of files) {
             kind: "new",
             gen: 0,
             genCost: 0,
-            consistent: 0,
-            consistentCost: 0,
+            judge: 0,
+            judgeCost: 0,
             edits: 0,
             updated: 0,
         })
@@ -77,8 +77,8 @@ for (const file of files) {
             kind: "update",
             gen: 0,
             genCost: 0,
-            consistent: 0,
-            consistentCost: 0,
+            judge: 0,
+            judgeCost: 0,
             edits: 0,
             updated: 0,
         })
@@ -146,7 +146,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
         const docs = docify(res.text.trim())
 
         // sanity check
-        const consistent = await classify(
+        const judge = await classify(
             (_) => {
                 _.def("FUNCTION", missingDoc.text())
                 _.def("DOCS", docs)
@@ -163,14 +163,13 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
                 system: ["system.technical", "system.typescript"],
             }
         )
-
-        if (consistent.label !== "ok") {
-            output.warn(consistent.label)
-            output.fence(consistent.answer)
+        fileStats.judge += judge.usage?.total || 0
+        fileStats.judegeCost += judge.usage?.cost || 0
+        if (judge.label !== "ok") {
+            output.warn(judge.label)
+            output.fence(judge.answer)
             continue
         }
-        fileStats.consistent += consistent.usage?.total || 0
-        fileStats.consistentCost += consistent.usage?.cost || 0
         const updated = `${docs}\n${missingDoc.text()}`
         edits.replace(missingDoc, updated)
         fileStats.edits++
@@ -244,6 +243,8 @@ async function updateDocs(file: WorkspaceFile, fileStats: any) {
                 system: ["system.technical", "system.typescript"],
             }
         )
+        fileStats.gen += res.usage?.total || 0
+        fileStats.genCost += res.usage?.cost || 0
         // if generation is successful, insert the docs
         if (res.error) {
             output.warn(res.error.message)
@@ -255,7 +256,7 @@ async function updateDocs(file: WorkspaceFile, fileStats: any) {
         const docs = docify(res.text.trim())
 
         // ask LLM if change is worth it
-        const shouldApply = await classify(
+        const judge = await classify(
             (_) => {
                 _.def("FUNCTION", match.text())
                 _.def("ORIGINAL_DOCS", comment.text())
@@ -275,11 +276,14 @@ async function updateDocs(file: WorkspaceFile, fileStats: any) {
             }
         )
 
-        if (shouldApply.label === "NIT") {
+        fileStats.judge += judge.usage?.total || 0
+        fileStats.judgeCost += judge.usage?.cost || 0
+        if (judge.label === "NIT") {
             output.warn("LLM suggests minor adjustments, skipping")
             continue
         }
         edits.replace(comment, docs)
+        fileStats.edits++
     }
 
     // apply all edits and write to the file
