@@ -15,6 +15,7 @@ dbg(`api: ${api}`)
 
 const sg = await host.astGrep()
 const { matches } = await sg.search(
+    "ts",
     ".genaiscript/genaiscript.d.ts",
     YAML`
 rule:
