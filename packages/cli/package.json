@@ -87,6 +87,10 @@
     "zod-to-json-schema": "^3.24.5"
   },
   "optionalDependencies": {
+    "@ast-grep/lang-c": "^0.0.1",
+    "@ast-grep/lang-cpp": "^0.0.1",
+    "@ast-grep/lang-csharp": "^0.0.1",
+    "@ast-grep/lang-python": "^0.0.1",
     "@ast-grep/napi": "^0.36.2",
     "@huggingface/transformers": "3.4.0",
     "@lvce-editor/ripgrep": "^1.6.0",
