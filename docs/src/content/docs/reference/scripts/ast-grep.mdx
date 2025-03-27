@@ -131,9 +131,9 @@ This version of `ast-grep` [supports the following built-in languages](https://a
 
 - Html
 - JavaScript
+- TypeScript
 - Tsx
 - Css
-- TypeScript
 
 The following languages require installing an additional package:
 
@@ -154,6 +154,21 @@ npm install -D @ast-grep/lang-c
 If your language is not supported, go to [ast-grep langs](https://github.com/ast-grep/langs/issues), and add a request!
 
 :::
+
+### Overriding the language selection
+
+GenAIScript has default mappings from well-known file extensions to languages.
+However, you can override this by passing the `lang` option to the `search` method.
+
+```ts "{ lang: "ts" }"
+const { matches } = await sg.search("src/fib.ts", {...}, { lang: "ts" })
+```
+
+or if you want to search multiple languages, by providing a `extension` to `lang` mapping.
+
+```ts 'lang: { "ttts": "ts", "jjjs":"js" }'
+const { matches } = await sg.search("src/*", {...}, { lang: { "ttts": "ts", "jjjs":"js" } })
+```
 
 ## Learning ast-grep
 
