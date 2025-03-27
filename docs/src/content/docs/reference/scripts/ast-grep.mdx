@@ -24,13 +24,13 @@ The first argument is the language, the second argument is the file globs, and t
 
 ```ts
 // matches is an array of AST (immutable) nodes
-const { matches } = await sg.search("src/*.ts", "console.log($META)")
+const { matches } = await sg.search("ts", "src/*.ts", "console.log($META)")
 ```
 
 - find all TypeScript functions without comments. This example uses the [rule syntax](https://ast-grep.github.io/reference/rule.html).
 
 ```ts
-const { matches } = await sg.search("src/fib.ts", {
+const { matches } = await sg.search("ts", "src/fib.ts", {
     rule: {
         kind: "function_declaration",
         not: {
@@ -74,7 +74,7 @@ that do not intersect with the `to` files of the diff.
 
 ```ts "{ diff }" wrap
 const diff = await git.diff({ base: "main" })
-const { matches } = await sg.search("src/fib.ts", {...}, { diff })
+const { matches } = await sg.search("ts", "src/fib.ts", {...}, { diff })
 ```
 
 ## Changesets
@@ -155,19 +155,28 @@ If your language is not supported, go to [ast-grep langs](https://github.com/ast
 
 :::
 
+### Filename extension mapping
+
+The following file extensions are mapped to the corresponding languages:
+
+- HTML: `html`, `htm`
+- JavaScript: `cjs`, `mjs`, `js`
+- TypeScript: `cts`, `mts`, `ts`
+- TSX: `tsx`
+- CSS: `css`    
+- c: `c`
+- cpp: `cpp`, `cxx`, `h`, `hpp`, `hxx`
+- python: `py`
+- C#: `cs`
+- sql: `sql`
+
 ### Overriding the language selection
 
 GenAIScript has default mappings from well-known file extensions to languages.
 However, you can override this by passing the `lang` option to the `search` method.
 
 ```ts "{ lang: "ts" }"
-const { matches } = await sg.search("src/fib.ts", {...}, { lang: "ts" })
-```
-
-or if you want to search multiple languages, by providing a `extension` to `lang` mapping.
-
-```ts 'lang: { "ttts": "ts", "jjjs":"js" }'
-const { matches } = await sg.search("src/*", {...}, { lang: { "ttts": "ts", "jjjs":"js" } })
+const { matches } = await sg.search("ts", "src/fib.ts", {...}, { lang: "ts" })
 ```
 
 ## Learning ast-grep

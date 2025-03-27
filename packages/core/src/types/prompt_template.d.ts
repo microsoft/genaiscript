@@ -4341,11 +4341,6 @@ interface SgChangeSet {
 
 interface SgSearchOptions extends Omit<FindFilesOptions, "readText"> {
     /**
-     * The language, or a mapping of languages, of the source code
-     */
-    lang?: SgLang | Record<string, SgLang>
-
-    /**
      * Restrict matches that are part of the diff.
      */
     diff?: string | ElementOrArray<DiffFile>
@@ -4358,6 +4353,7 @@ interface Sg {
     changeset(): SgChangeSet
     parse(file: WorkspaceFile, options: { lang?: SgLang }): Promise<SgRoot>
     search(
+        lang: SgLang,
         glob: ElementOrArray<string>,
         matcher: string | SgMatcher,
         options?: SgSearchOptions

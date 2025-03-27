@@ -81,11 +81,12 @@ export function astGrepCreateChangeSet(): SgChangeSet {
  * @throws An error if `glob` or `matcher` is not provided.
  */
 export async function astGrepFindFiles(
+    lang: SgLang,
     glob: ElementOrArray<string>,
     matcher: string | SgMatcher,
     options?: SgSearchOptions & CancellationOptions
 ): ReturnType<Sg["search"]> {
-    const { cancellationToken, diff, lang } = options || {}
+    const { cancellationToken, diff } = options || {}
     if (!glob) {
         throw new Error("glob is required")
     }
@@ -248,7 +249,6 @@ export async function astGrepParse(
     dbg(`parsing file: ${filename}`)
     const { parseAsync } = await import("@ast-grep/napi")
     const lang = await resolveLang(options?.lang, filename)
-    dbg(`resolving language for file: ${filename}`)
     if (!lang) {
         return undefined
     }
@@ -292,6 +292,8 @@ async function resolveLang(
         sql: "sql",
     }
 
+    const forbidden = ["bin", "exe", "dll"]
+
     // user provided a string
     if (typeof lang === "string") {
         lang = norm(lang)
@@ -301,15 +303,16 @@ async function resolveLang(
         else return await loadDynamicLanguage(lang)
     }
 
+    if (!filename) {
+        dbgLang(`filename not provided`)
+        throw new Error("filename is required to resolve language")
+    }
+
     if (filename) {
-        const ext = norm(path.extname(filename))
+        const ext = norm(extname(filename))
         dbgLang(`resolving language for ${ext}`)
 
-        if (typeof lang === "object") {
-            const l = lang[ext]
-            if (l) return await loadDynamicLanguage(l)
-        }
-
+        // known builtins
         const builtin = builtins[ext]
         if (builtin) return builtin
 
@@ -317,10 +320,13 @@ async function resolveLang(
         const dynamic = dynamics[ext]
         if (dynamic) return await loadDynamicLanguage(dynamic)
 
+        if (forbidden.includes(ext)) return undefined
+
         // try our luck
         return await loadDynamicLanguage(ext)
     }
 
+    dbgLang(`language not resolved`, { lang, filename })
     throw new Error("language not resolved")
 }
 

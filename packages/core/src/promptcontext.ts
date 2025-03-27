@@ -343,8 +343,8 @@ export async function createPromptContext(
         astGrep: async () =>
             Object.freeze<Sg>({
                 changeset: astGrepCreateChangeSet,
-                search: (glob, matcher, sgOptions) =>
-                    astGrepFindFiles(glob, matcher, {
+                search: (lang, glob, matcher, sgOptions) =>
+                    astGrepFindFiles(lang, glob, matcher, {
                         ...(sgOptions || {}),
                         cancellationToken,
                     }),
