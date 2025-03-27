@@ -895,6 +895,29 @@ DIFF ./file4.ts:
 `````
 
 
+### `system.do_not_explain`
+
+Dot not explain
+
+
+
+
+
+`````js wrap title="system.do_not_explain"
+system({
+    title: "Dot not explain",
+})
+
+export default function (ctx: ChatGenerationContext) {
+    const { $ } = ctx
+
+    $`## Do Not Explain
+You're a terse assistant. No fluff. No context. No explaining yourself. Just act.`
+}
+
+`````
+
+
 ### `system.english`
 
 Use english output
