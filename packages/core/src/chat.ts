@@ -1166,13 +1166,21 @@ export async function executeChatSession(
                 (name, index) => toolNames.lastIndexOf(name) !== index
             )
             if (duplicates.length) {
-                throw new Error(`duplicate tools: ${duplicates.join(", ")}`)
+                chatTrace.error(`duplicate tools: ${duplicates.join(", ")}`)
+                return {
+                    error: serializeError(
+                        `duplicate tools: ${duplicates.join(", ")}`
+                    ),
+                    finishReason: "fail",
+                    messages,
+                    text: "",
+                }
             }
         }
         while (true) {
             stats.turns++
             collapseChatMessages(messages)
-            dbg(`chat: turn ${stats.turns}`)
+            dbg(`turn ${stats.turns}`)
             if (messages) {
                 chatTrace.details(
                     `💬 messages (${messages.length})`,
