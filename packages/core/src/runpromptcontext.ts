@@ -397,12 +397,7 @@ export function createChatGenerationContext(
     }
 
     const defTool: (
-        name:
-            | string
-            | ToolCallback
-            | AgenticToolCallback
-            | AgenticToolProviderCallback
-            | McpServersConfig,
+        name: string | ToolCallback | McpServersConfig,
         description: string | DefToolOptions,
         parameters?: PromptParametersSchema | JSONSchemaObject,
         fn?: ChatFunctionHandler,
@@ -426,11 +421,8 @@ export function createChatGenerationContext(
                     defOptions
                 )
             )
-        } else if (
-            typeof name === "object" &&
-            (name as ToolCallback | AgenticToolCallback).impl
-        ) {
-            const tool = name as ToolCallback | AgenticToolCallback
+        } else if (typeof name === "object" && (name as ToolCallback).impl) {
+            const tool = name as ToolCallback
             appendChild(
                 node,
                 createToolNode(
@@ -441,22 +433,6 @@ export function createChatGenerationContext(
                     defOptions
                 )
             )
-        } else if (
-            typeof name === "object" &&
-            (name as AgenticToolProviderCallback).functions
-        ) {
-            const tools = (name as AgenticToolProviderCallback).functions
-            for (const tool of tools)
-                appendChild(
-                    node,
-                    createToolNode(
-                        tool.spec.name,
-                        tool.spec.description,
-                        tool.spec.parameters as any,
-                        tool.impl,
-                        defOptions
-                    )
-                )
         } else if (typeof name === "object") {
             for (const kv of Object.entries(name)) {
                 const [id, def] = kv

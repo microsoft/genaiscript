@@ -1282,16 +1282,6 @@ interface ToolCallback {
     ) => Awaitable<ToolCallOutput>
 }
 
-type AgenticToolCallback = Omit<ToolCallback, "spec"> & {
-    spec: Omit<ToolDefinition, "parameters"> & {
-        parameters: Record<string, any>
-    }
-}
-
-interface AgenticToolProviderCallback {
-    functions: Iterable<AgenticToolCallback>
-}
-
 type ChatParticipantHandler = (
     context: ChatTurnGenerationContext,
     messages: ChatCompletionMessageParam[]
@@ -3974,8 +3964,6 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     defTool(
         tool:
             | ToolCallback
-            | AgenticToolCallback
-            | AgenticToolProviderCallback
             | McpServersConfig,
         options?: DefToolOptions
     ): void
