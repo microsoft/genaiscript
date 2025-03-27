@@ -12,7 +12,12 @@ import {
 import { MarkdownTrace } from "./trace"
 import { logVerbose, toStringList } from "./util"
 import { parseModelIdentifier } from "./models"
-import { CHAR_ENVELOPE, CHAR_UP_DOWN_ARROWS, MODEL_PRICINGS } from "./constants"
+import {
+    CHAR_ENVELOPE,
+    CHAR_FLOPPY_DISK,
+    CHAR_UP_DOWN_ARROWS,
+    MODEL_PRICINGS,
+} from "./constants"
 import {
     prettyCost,
     prettyTokensPerSecond,
@@ -130,11 +135,13 @@ export class GenerationStats {
      */
     cost(): number {
         return [
-            ...this.chatTurns.map(
-                ({ usage, model }) =>
-                    estimateCost(model, usage) ??
-                    estimateCost(this.model, usage)
-            ),
+            ...this.chatTurns
+                .filter((c) => !c.cached)
+                .map(
+                    ({ usage, model }) =>
+                        estimateCost(model, usage) ??
+                        estimateCost(this.model, usage)
+                ),
             ...this.children.map((c) => c.cost()),
         ].reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
     }
@@ -238,12 +245,13 @@ export class GenerationStats {
         if (this.chatTurns.length > 1) {
             trace.startDetails("chat turns")
             try {
-                for (const { messages, usage } of this.chatTurns) {
+                for (const { cached, messages, usage } of this.chatTurns) {
                     trace.item(
                         toStringList(
-                            `${messages.length} messages`,
+                            cached ? CHAR_FLOPPY_DISK : undefined,
+                            `${CHAR_ENVELOPE} ${messages.length}`,
                             usage.total_tokens
-                                ? `${usage.total_tokens} tokens`
+                                ? `${prettyTokens(usage.total_tokens)}`
                                 : undefined
                         )
                     )
@@ -302,6 +310,7 @@ export class GenerationStats {
                 messages,
                 usage,
                 model: turnModel,
+                cached,
             } of chatTurns.filter(
                 ({ usage }) => usage.total_tokens !== undefined
             )) {
@@ -309,7 +318,7 @@ export class GenerationStats {
                 if (cost === undefined && isCosteable(turnModel))
                     unknowns.add(this.model)
                 logVerbose(
-                    `${indent}  ${toStringList(`${CHAR_ENVELOPE} ${messages.length}`, prettyTokens(usage.total_tokens), prettyCost(cost), prettyTokensPerSecond(usage))}`
+                    `${indent}  ${cached ? CHAR_FLOPPY_DISK : undefined}${toStringList(`${CHAR_ENVELOPE} ${messages.length}`, prettyTokens(usage.total_tokens), prettyCost(cost), prettyTokensPerSecond(usage))}`
                 )
             }
             if (this.chatTurns.length > chatTurns.length)
@@ -362,6 +371,9 @@ export class GenerationStats {
         } = resp
         const { messages } = req
 
+        dbg(
+            `${cached ? CHAR_FLOPPY_DISK : "+"}  ${model} ${CHAR_ENVELOPE} ${messages.length} ${prettyTokens(usage.total_tokens)}`
+        )
         if (!cached) {
             this.addUsage(usage, duration)
         }

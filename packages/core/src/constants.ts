@@ -422,5 +422,6 @@ export const CHAR_UP_ARROW = "↑"
 export const CHAR_DOWN_ARROW = "↓"
 export const CHAR_ENVELOPE = "✉"
 export const CHAR_UP_DOWN_ARROWS = "⇅ "
+export const CHAR_FLOPPY_DISK = "🖫"
 
 export const DEBUG_SCRIPT_CATEGORY = "script"
