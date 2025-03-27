@@ -7,7 +7,7 @@ import { Utils } from "vscode-uri"
 import { listFiles, saveAllTextDocuments } from "./fs"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
-import { JSONLineCache } from "../../core/src/jsonlinecache"
+import { DirectoryCache } from "../../core/src/directorycache"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { fixCustomPrompts, fixPromptDefinitions } from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
@@ -97,7 +97,7 @@ export class ExtensionState extends EventTarget {
     private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _diagColl: vscode.DiagnosticCollection
-    private _aiRequestCache: JSONLineCache<
+    private _aiRequestCache: DirectoryCache<
         AIRequestSnapshotKey,
         AIRequestSnapshot
     > = undefined
@@ -122,7 +122,7 @@ export class ExtensionState extends EventTarget {
         this._diagColl = vscode.languages.createDiagnosticCollection(TOOL_NAME)
         subscriptions.push(this._diagColl)
 
-        this._aiRequestCache = JSONLineCache.byName<
+        this._aiRequestCache = DirectoryCache.byName<
             AIRequestSnapshotKey,
             AIRequestSnapshot
         >(AI_REQUESTS_CACHE)
@@ -241,7 +241,7 @@ export class ExtensionState extends EventTarget {
             fragment: options.fragment,
             version: CORE_VERSION,
         }
-        return { key, sha: await this._aiRequestCache.getKeySHA(key) }
+        return { key, sha: await this._aiRequestCache.getKeyHash(key) }
     }
 
     dispatchAIRequestChange() {

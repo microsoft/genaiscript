@@ -8,7 +8,7 @@ import {
 import { runtimeHost } from "./host"
 import { CancellationOptions } from "./cancellation"
 import { YAMLStringify } from "./yaml"
-import { JSONLineCache } from "./cache"
+import { DirectoryCache } from "./directorycache"
 import { AzureCredentialsType } from "./server/messages"
 import { trimTrailingSlash } from "./cleaners"
 import { chunkString } from "./chunkers"
@@ -28,12 +28,12 @@ interface AzureContentSafetyResponse {
 }
 
 class AzureContentSafetyClient implements ContentSafety {
-    private readonly cache: JSONLineCache<
+    private readonly cache: DirectoryCache<
         { route: string; body: object; options: object },
         object
     >
     constructor(readonly options?: TraceOptions & CancellationOptions) {
-        this.cache = JSONLineCache.byName("azurecontentsafety")
+        this.cache = DirectoryCache.byName("azurecontentsafety")
     }
 
     async detectHarmfulContent(

@@ -2,7 +2,7 @@ import debug from "debug"
 const dbg = debug("genaiscript:workspace")
 
 import { copyFile, mkdir, writeFile } from "fs/promises"
-import { JSONLineCache } from "./cache"
+import { JSONLineCache } from "./jsonlinecache"
 import { DOT_ENV_REGEX } from "./constants"
 import { CSVTryParse } from "./csv"
 import { dataTryParse } from "./data"

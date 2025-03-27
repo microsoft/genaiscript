@@ -76,4 +76,8 @@ export class DirectoryCache<K, V> implements WorkspaceFileCache<any, any> {
     private folder() {
         return dotGenaiscriptPath("cache", this.name)
     }
+
+    async getKeyHash(key: K): Promise<string> {
+        return await MemoryCache.keySHA(key)
+    }
 }

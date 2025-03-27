@@ -13,7 +13,7 @@ import { resolveModelConnectionInfo } from "./models"
 import { EMBEDDINGS_MODEL_ID } from "./constants"
 import { runtimeHost } from "./host"
 import { resolveLanguageModel } from "./lm"
-import { JSONLineCache } from "./cache"
+import { JSONLineCache } from "./jsonlinecache"
 import { EmbeddingsResponse } from "vectra"
 import { assert } from "./util"
 

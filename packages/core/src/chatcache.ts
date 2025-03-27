@@ -1,4 +1,4 @@
-import { JSONLineCache } from "./cache"
+import { DirectoryCache } from "./directorycache"
 import {
     ChatCompletionResponse,
     CreateChatCompletionRequest,
@@ -13,7 +13,7 @@ export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest &
 
 // Define a JSON line cache type that maps cache keys to cache values.
 // This cache stores chat completion requests and their associated responses.
-export type ChatCompletationRequestCache = JSONLineCache<
+export type ChatCompletationRequestCache = DirectoryCache<
     ChatCompletionRequestCacheKey,
     ChatCompletionResponse
 >
@@ -24,7 +24,7 @@ export type ChatCompletationRequestCache = JSONLineCache<
 export function getChatCompletionCache(
     name?: string
 ): ChatCompletationRequestCache {
-    return JSONLineCache.byName<
+    return DirectoryCache.byName<
         ChatCompletionRequestCacheKey,
         ChatCompletionResponse
     >(name || CHAT_CACHE)

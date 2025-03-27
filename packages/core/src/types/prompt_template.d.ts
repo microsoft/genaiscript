@@ -1088,6 +1088,12 @@ interface WorkspaceFileCache<K, V> {
      * List the values in the cache.
      */
     values(): Promise<V[]>
+
+    /**
+     * Gets the sha of the key
+     * @param key 
+     */
+    getKeyHash(key: K): Promise<string>
 }
 
 interface WorkspaceGrepOptions extends FilterGitFilesOptions {

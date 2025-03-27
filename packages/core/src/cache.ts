@@ -151,7 +151,7 @@ export class MemoryCache<K, V>
      * @param key - The key to compute SHA for
      * @returns A promise resolving to the SHA string
      */
-    async getKeySHA(key: K) {
+    async getKeyHash(key: K) {
         const sha = await MemoryCache.keySHA(key)
         return sha
     }
