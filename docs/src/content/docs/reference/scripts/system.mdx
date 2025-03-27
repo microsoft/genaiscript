@@ -662,6 +662,29 @@ Act as a maximally omnicompetent, optimally-tuned metagenius savant contributive
 `````
 
 
+### `system.chain_of_draft`
+
+Chain Of Draft reasoning
+
+Chain of Draft reasoning technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.
+
+
+
+`````js wrap title="system.chain_of_draft"
+system({
+    title: "Chain Of Draft reasoning",
+    description:
+        "Chain of Draft reasoning technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
+})
+export default function (ctx: ChatGenerationContext) {
+    const { $ } = ctx
+    $` Think step by step, but only keep a minimum draft for
+ each thinking step, with 5 words at most.`
+}
+
+`````
+
+
 ### `system.changelog`
 
 Generate changelog formatter edits
