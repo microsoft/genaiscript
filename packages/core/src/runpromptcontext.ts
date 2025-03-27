@@ -493,6 +493,7 @@ export function createChatGenerationContext(
 
         name = name.replace(/^agent_/i, "")
         const adbg = debug(`agent:${name}`)
+        const adbgm = debug(`agent:${name}:memory`)
         adbg(`created ${variant || ""}`)
         const agentName = `agent_${name}${variant ? "_" + variant : ""}`
         const agentLabel = `agent ${name}${variant ? " " + variant : ""}`
@@ -515,6 +516,7 @@ export function createChatGenerationContext(
             `Agent that uses an LLM to ${description}.\nAvailable tools:${agentTools.map((t) => `- ${t.description}`).join("\n")}`,
             1020
         ) // DO NOT LEAK TOOL ID HERE
+        dbg(`description: ${agentDescription}`)
 
         defTool(
             agentName,
@@ -541,6 +543,8 @@ export function createChatGenerationContext(
                 adbg(`query: ${query}`)
 
                 const hasExtraArgs = Object.keys(argsNoQuery).length > 0
+                if (hasExtraArgs) adbg(`extra args: %O`, argsNoQuery)
+
                 let memoryAnswer: string
                 if (memory && query && !disableMemoryQuery) {
                     memoryAnswer = await agentQueryMemory(
@@ -551,14 +555,14 @@ export function createChatGenerationContext(
                                 : ""),
                         { userState, trace }
                     )
-                    adbg(`memory: found ${memoryAnswer}`)
+                    adbgm(`found ${memoryAnswer}`)
                 }
 
                 const res = await ctx.runPrompt(
                     async (_) => {
                         if (typeof fn === "string") _.writeText(dedent(fn))
                         else await fn(_, args)
-                        _.$`Make a plan and solve the task described in QUERY.
+                        _.$`Make a plan and solve the task described in <QUERY>.
                         
                         - Assume that your answer will be analyzed by an LLM, not a human.
                         - If you are missing information, reply "${TOKEN_MISSING_INFO}: <what is missing>".
@@ -566,7 +570,7 @@ export function createChatGenerationContext(
                         - Be concise. Minimize output to the most relevant information to save context tokens.
                         `.role("system")
                         if (memoryAnswer)
-                            _.$`- The QUERY applied to the agent memory is in MEMORY.`.role(
+                            _.$`- The <QUERY> applied to the agent memory is in <MEMORY>.`.role(
                                 "system"
                             )
                         _.def("QUERY", query)
@@ -584,12 +588,18 @@ export function createChatGenerationContext(
                                         text.startsWith(TOKEN_MISSING_INFO) ||
                                         text.startsWith(TOKEN_NO_ANSWER)
                                     )
-                                )
-                                    adbg(`memory: add ${text}`)
-                                await agentAddMemory(agentName, query, text, {
-                                    userState,
-                                    trace,
-                                })
+                                ) {
+                                    adbgm(`add ${text}`)
+                                    await agentAddMemory(
+                                        agentName,
+                                        query,
+                                        text,
+                                        {
+                                            userState,
+                                            trace,
+                                        }
+                                    )
+                                }
                             })
                     },
                     {
@@ -600,8 +610,13 @@ export function createChatGenerationContext(
                         ...rest,
                     }
                 )
-                if (res.error) throw res.error
-                return deleteEmptyValues(res)
+                if (res.error) {
+                    adbg(`error: ${res.error}`)
+                    throw res.error
+                }
+                const response = res.text
+                adbgm(`response: %O`, response)
+                return response
             }
         )
     }
