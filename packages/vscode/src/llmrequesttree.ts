@@ -12,10 +12,7 @@ import {
     getChatCompletionCache,
 } from "../../core/src/chatcache"
 
-type LLMRequestTreeNode = CacheEntry<
-    CreateChatCompletionRequest,
-    ChatCompletionResponse
->
+type LLMRequestTreeNode = CacheEntry<ChatCompletionResponse>
 
 class LLMRequestTreeDataProvider
     implements vscode.TreeDataProvider<LLMRequestTreeNode>
@@ -27,7 +24,7 @@ class LLMRequestTreeDataProvider
     }
 
     async getTreeItem(element: LLMRequestTreeNode): Promise<vscode.TreeItem> {
-        const { sha, key, val } = element
+        const { sha } = element
         const item = new vscode.TreeItem(
             sha,
             vscode.TreeItemCollapsibleState.None

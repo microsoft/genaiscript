@@ -132,8 +132,8 @@ ${prettifyMarkdown(md)}
 
     private async previewAIRequest(sha: string, type: "trace" | "text") {
         const cache = this.state.aiRequestCache()
-        const { key, val } = (await cache.getEntryBySha(sha)) || {}
-        if (!key)
+        const { val } = (await cache.getEntryBySha(sha)) || {}
+        if (!val)
             return `## Oops
         
         Request \`${sha}\` not found in cache.
@@ -145,8 +145,8 @@ ${prettifyMarkdown(md)}
 
 async function previewOpenAICacheEntry(sha: string) {
     const cache = getChatCompletionCache()
-    const { key, val } = (await cache.getEntryBySha(sha)) || {}
-    if (!key)
+    const { val } = (await cache.getEntryBySha(sha)) || {}
+    if (!val)
         return `## Oops
     
     Request \`${sha}\` not found in cache.
@@ -157,37 +157,8 @@ async function previewOpenAICacheEntry(sha: string) {
 
 -   \`${sha}\`
 
-## Request
-
-${Object.entries(key)
-    .filter(([, value]) => typeof value !== "object")
-    .map(([k, v]) => `-  ${k}: \`${JSON.stringify(v, null, 2)}\``)
-    .join("\n")}
-
-### Messages
-
-${key.messages
-    .map(
-        (msg) => `-   **${msg.role}:**
-\`\`\`\`\`
-${
-    typeof msg.content === "string"
-        ? msg.content.trim()
-        : JSON.stringify(msg.content)
-}
-\`\`\`\`\`
-`
-    )
-    .join("\n")}
-
-## Extracted variables    
-
-${renderFencedVariables(extr)}
-
-## Raw Response
-
-\`\`\`\`\`
-${val}
+\`\`\`\`\`json
+${JSON.stringify(val, null, 2)}
 \`\`\`\`\`
 
 `

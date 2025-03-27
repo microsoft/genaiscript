@@ -9,7 +9,7 @@ import { toMarkdownString } from "./markdown"
 import { CacheEntry, JSONLineCache } from "../../core/src/cache"
 import { CHANGE, CACHE_AIREQUEST_TRACE_PREFIX } from "../../core/src/constants"
 
-type AIRequestTreeNode = CacheEntry<AIRequestSnapshotKey, AIRequestSnapshot>
+type AIRequestTreeNode = CacheEntry<AIRequestSnapshot>
 
 class AIRequestTreeDataProvider
     implements vscode.TreeDataProvider<AIRequestTreeNode>
@@ -21,12 +21,11 @@ class AIRequestTreeDataProvider
     }
 
     async getTreeItem(element: AIRequestTreeNode): Promise<vscode.TreeItem> {
-        const { sha, key } = element
+        const { sha } = element
         const item = new vscode.TreeItem(
-            key.fragment?.files?.[0],
+            sha,
             vscode.TreeItemCollapsibleState.None
         )
-        item.description = key.template.title
         item.id = sha
         item.command = {
             command: "markdown.showPreview",
@@ -54,7 +53,7 @@ class AIRequestTreeDataProvider
     ) {
         const entry = await this.cache.getEntryBySha(element.sha)
         if (entry && !token.isCancellationRequested) {
-            const { key, val } = entry
+            const { val } = entry
             item.tooltip = new vscode.MarkdownString(
                 toMarkdownString(val.response?.text?.slice(0, 100) || "")
             )

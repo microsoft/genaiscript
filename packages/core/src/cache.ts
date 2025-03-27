@@ -11,7 +11,7 @@ import { dotGenaiscriptPath } from "./workdir"
  * @template K - Type of the key
  * @template V - Type of the value
  */
-export type CacheEntry<K, V> = { sha: string; key: K; val: V }
+export type CacheEntry<V> = { sha: string; val: V }
 
 /**
  * A cache class that manages entries stored in JSONL format.
@@ -23,7 +23,7 @@ export class MemoryCache<K, V>
     extends EventTarget
     implements WorkspaceFileCache<any, any>
 {
-    protected _entries: Record<string, CacheEntry<K, V>>
+    protected _entries: Record<string, CacheEntry<V>>
     private _pending: Record<string, Promise<V>>
 
     // Constructor is private to enforce the use of byName factory method
@@ -58,15 +58,6 @@ export class MemoryCache<K, V>
     }
 
     /**
-     * Retrieve all keys from the cache.
-     * @returns A promise resolving to an array of keys
-     */
-    async keys(): Promise<K[]> {
-        await this.initialize()
-        return Object.values(this._entries).map((kv) => kv.key)
-    }
-
-    /**
      * Retrieve all values from the cache.
      * @returns
      */
@@ -79,7 +70,7 @@ export class MemoryCache<K, V>
      * Retrieve all entries from the cache.
      * @returns A promise resolving to an array of cache entries
      */
-    async entries(): Promise<CacheEntry<K, V>[]> {
+    async entries(): Promise<CacheEntry<V>[]> {
         await this.initialize()
         return Object.values(this._entries).map((e) => ({ ...e }))
     }
@@ -129,7 +120,7 @@ export class MemoryCache<K, V>
         }
     }
 
-    protected async appendEntry(entry: CacheEntry<K, V>) {}
+    protected async appendEntry(entry: CacheEntry<V>) {}
 
     /**
      * Set a key-value pair in the cache, triggering a change event.
@@ -140,7 +131,7 @@ export class MemoryCache<K, V>
     async set(key: K, val: V) {
         await this.initialize()
         const sha = await keySHA(key)
-        const ent = { sha, key, val }
+        const ent = { sha, val } satisfies CacheEntry<V>
         const ex = this._entries[sha]
         if (ex && JSON.stringify(ex) == JSON.stringify(ent)) return // No change
         this._entries[sha] = ent
@@ -209,9 +200,8 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
         this._initializePromise = (async () => {
             await host.createDirectory(this.folder()) // Ensure directory exists
             const content = await tryReadText(this.path())
-            const entries: Record<string, CacheEntry<K, V>> = {}
-            const objs: CacheEntry<K, V>[] =
-                (await JSONLTryParse(content)) ?? []
+            const entries: Record<string, CacheEntry<V>> = {}
+            const objs: CacheEntry<V>[] = (await JSONLTryParse(content)) ?? []
             let numdup = 0 // Counter for duplicates
             for (const obj of objs) {
                 if (entries[obj.sha]) numdup++ // Count duplicates
@@ -232,7 +222,7 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
         return this._initializePromise
     }
 
-    override async appendEntry(ent: CacheEntry<K, V>) {
+    override async appendEntry(ent: CacheEntry<V>) {
         await appendJSONL(this.path(), [ent]) // Append to file
     }
 }
