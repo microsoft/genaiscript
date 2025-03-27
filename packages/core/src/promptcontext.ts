@@ -23,7 +23,7 @@ import { NotSupportedError } from "./error"
 import { MemoryCache } from "./cache"
 import { proxifyEnvVars } from "./vars"
 import { HTMLEscape } from "./html"
-import { hash } from "./crypto"
+import { hash, randomHex } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
 import { DOCS_WEB_SEARCH_URL, VECTOR_INDEX_HASH_LENGTH } from "./constants"
 import { fetch, fetchText } from "./fetch"
@@ -339,6 +339,7 @@ export async function createPromptContext(
                 cancellationToken,
                 ...(pyOptions || {}),
             }),
+        randomHex: async (size) => await randomHex(size),
         teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
         astGrep: async () =>
             Object.freeze<Sg>({

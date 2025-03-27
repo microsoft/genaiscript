@@ -2531,6 +2531,13 @@ interface DIFF {
     ): string
 }
 
+interface CryptoHost {
+    /**
+     * Generates a random string of bytes as a hex file
+     */
+    randomHex(size: number): Promise<string>
+}
+
 interface XML {
     /**
      * Parses an XML payload to an object
@@ -5174,6 +5181,7 @@ interface PromptHost
         UserInterfaceHost,
         LanguageModelHost,
         SgHost,
+        CryptoHost,
         ContentSafetyHost {
     /**
      * A fetch wrapper with proxy, retry and timeout handling.

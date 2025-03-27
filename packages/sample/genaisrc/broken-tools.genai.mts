@@ -12,7 +12,7 @@ defTool("weather", "Get the current weather", {}, async () => {
 // massive return
 defTool(
     "time",
-    "Get the curren time",
+    "Get the current time",
     {},
     async () => {
         const crypto = await import("crypto")

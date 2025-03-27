@@ -32,6 +32,7 @@ async function digest(algorithm: string, data: Uint8Array) {
  * @returns Hexadecimal string representation of the random bytes.
  */
 export function randomHex(size: number) {
+    if (isNaN(size) || size <= 0) return ""
     // Create a new Uint8Array with the specified size to hold random bytes
     const bytes = new Uint8Array(size)
 
