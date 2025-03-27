@@ -85,16 +85,34 @@ export function diffCreatePatch(
 }
 
 /**
+ * Determines if two number ranges overlap.
+ *
+ * @param start1 - Start of first range.
+ * @param end1 - End of first range (inclusive).
+ * @param start2 - Start of second range.
+ * @param end2 - End of second range (inclusive).
+ * @returns True if the ranges overlap, false otherwise.
+ */
+function rangesOverlap(
+    start1: number,
+    end1: number,
+    start2: number,
+    end2: number
+): boolean {
+    return Math.max(start1, start2) <= Math.min(end1, end2)
+}
+
+/**
  * Finds a chunk in a diff corresponding to a specified file and line number.
  *
  * @param file - The file path to search for in the diff. Can be empty to search all files.
- * @param line - The line number or numbers (zero-based) to locate in the specified file's diff.
+ * @param range - The line number or numbers (zero-based) to locate in the specified file's diff.
  * @param diff - The diff data, containing an array of file diffs. Can be a single diff file or an array of diff files.
  * @returns An object containing the matching file and the chunk if found, or an object with only the file if no chunk matches. Returns undefined if no file matches.
  */
 export function diffFindChunk(
     file: string,
-    line: ElementOrArray<number>,
+    range: number | [number, number],
     diff: ElementOrArray<DiffFile>
 ): { file?: DiffFile; chunk?: DiffChunk } | undefined {
     // line is zero-based!
@@ -105,14 +123,25 @@ export function diffFindChunk(
     if (!df) return undefined // file not found in diff
 
     const { chunks } = df
-    const lines = arrayify(line)
+    const lines = arrayify(range)
+    if (lines.length === 0) return { file: df } // no lines to search for
+    if (lines.length === 1) lines[1] = lines[0] // if only one line, make it a range
+    if (lines[0] > lines[1]) {
+        // if the range is inverted, swap it
+        const tmp = lines[0]
+        lines[0] = lines[1]
+        lines[1] = tmp
+    }
     for (const chunk of chunks) {
-        for (const line of lines)
-            if (
-                line >= chunk.newStart &&
-                line <= chunk.newStart + chunk.newLines
+        if (
+            rangesOverlap(
+                lines[0],
+                lines[1],
+                chunk.newStart,
+                chunk.newStart + chunk.newLines
             )
-                return { file: df, chunk }
+        )
+            return { file: df, chunk }
     }
     return { file: df }
 }

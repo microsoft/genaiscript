@@ -8,7 +8,7 @@ export default function (ctx: ChatGenerationContext) {
     defAgent(
         "user_input",
         "ask user for input to confirm, select or answer the question in the query. The message should be very clear and provide all the context.",
-        `Your task is to ask the question in QUERY to the user using the tools.
+        `Your task is to ask the question in <QUERY> to the user using the tools.
     - to ask the user a question, call tool "user_input_text"
     - to ask the user to confirm, call tool "user_input_confirm"
     - to select from a list of options, call tool "user_input_select"

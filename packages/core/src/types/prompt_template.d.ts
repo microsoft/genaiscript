@@ -1085,11 +1085,6 @@ interface WorkspaceFileCache<K, V> {
     set(key: K, value: V): Promise<void>
 
     /**
-     * List of keys
-     */
-    keys(): Promise<K[]>
-
-    /**
      * List the values in the cache.
      */
     values(): Promise<V[]>
@@ -2505,12 +2500,12 @@ interface DIFF {
     /**
      * Given a filename and line number (0-based), finds the chunk in the diff
      * @param file
-     * @param line
+     * @param range line index or range [start, end] inclusive
      * @param diff
      */
     findChunk(
         file: string,
-        line: ElementOrArray<number>,
+        range: number | [number, number] | number[],
         diff: ElementOrArray<DiffFile>
     ): { file?: DiffFile; chunk?: DiffChunk } | undefined
 
