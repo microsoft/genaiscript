@@ -32,7 +32,7 @@ async function main() {
     )
     const logCategories = uniq([
         "script",
-        "agent",
+        "agent*",
         ...Array.from(
             execSync(
                 `grep -r 'debug("genaiscript:.*")' --include \*.ts --exclude-dir='.genaiscript' .`

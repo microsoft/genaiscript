@@ -121,12 +121,9 @@ export async function cli() {
         )
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")
-    program
-        .addOption(
-            new Option(
-                "-d, --debug <categories...>",
-                "debug categories"
-            ).choices(DEBUG_CATEGORIES)
+        .option(
+            "-d, --debug <categories...>",
+            `debug categories (${DEBUG_CATEGORIES.map((c) => c).join(", ")})`
         )
         .option("--perf", "enable performance logging")
 
