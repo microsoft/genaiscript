@@ -25,7 +25,7 @@
     "@azure/search-documents": "^12.1.0",
     "@elastic/micro-jq": "^1.8.0",
     "@huggingface/jinja": "^0.3.3",
-    "@huggingface/transformers": "^3.4.0",
+    "@huggingface/transformers": "3.4.0",
     "@modelcontextprotocol/sdk": "^1.8.0",
     "@octokit/plugin-paginate-rest": "^11.6.0",
     "@octokit/plugin-retry": "^7.2.0",

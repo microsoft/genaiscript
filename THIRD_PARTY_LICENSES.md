@@ -190,7 +190,7 @@ The following npm packages may be included in this product:
 
  - @aws-crypto/sha256-browser@5.2.0
  - @aws-crypto/supports-web-crypto@5.2.0
- - @huggingface/transformers@3.4.1
+ - @huggingface/transformers@3.4.0
  - flatbuffers@25.2.10
  - long@5.3.1
 

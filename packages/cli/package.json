@@ -88,7 +88,7 @@
   },
   "optionalDependencies": {
     "@ast-grep/napi": "^0.36.2",
-    "@huggingface/transformers": "^3.4.0",
+    "@huggingface/transformers": "3.4.0",
     "@lvce-editor/ripgrep": "^1.6.0",
     "pdfjs-dist": "4.10.38",
     "playwright": "^1.51.1",
