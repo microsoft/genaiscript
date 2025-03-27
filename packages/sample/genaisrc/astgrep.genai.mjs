@@ -5,7 +5,7 @@ script({
     tests: {},
 })
 const sg = await host.astGrep()
-const { matches } = await sg.search("ts", "src/*.ts", "console.log($META)")
+const { matches } = await sg.search("src/*.ts", "console.log($META)")
 if (matches.length < 2) throw new Error("No matches src/*.ts found")
 for (const match of matches) {
     const t = match.text()
@@ -13,7 +13,7 @@ for (const match of matches) {
     if (!t.includes("console.log")) throw new Error("console.log found")
 }
 
-const { matches: matches2 } = await sg.search("ts", "src/fib.ts", {
+const { matches: matches2 } = await sg.search("src/fib.ts", {
     rule: {
         kind: "function_declaration",
         not: {

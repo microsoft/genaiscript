@@ -119,7 +119,6 @@ if (stats.length)
 
 async function generateDocs(file: WorkspaceFile, fileStats: any) {
     const { matches: missingDocs } = await sg.search(
-        "ts",
         file.filename,
         {
             rule: {
@@ -216,7 +215,6 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
 
 async function updateDocs(file: WorkspaceFile, fileStats: any) {
     const { matches } = await sg.search(
-        "ts",
         file.filename,
         YAML`
 rule: 

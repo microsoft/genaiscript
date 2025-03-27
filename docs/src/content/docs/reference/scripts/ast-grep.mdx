@@ -24,13 +24,13 @@ The first argument is the language, the second argument is the file globs, and t
 
 ```ts
 // matches is an array of AST (immutable) nodes
-const { matches } = await sg.search("ts", "src/*.ts", "console.log($META)")
+const { matches } = await sg.search("src/*.ts", "console.log($META)")
 ```
 
 - find all TypeScript functions without comments. This example uses the [rule syntax](https://ast-grep.github.io/reference/rule.html).
 
 ```ts
-const { matches } = await sg.search("ts", "src/fib.ts", {
+const { matches } = await sg.search("src/fib.ts", {
     rule: {
         kind: "function_declaration",
         not: {
@@ -47,7 +47,6 @@ or if you copy the rules from the [ast-grep playground](https://ast-grep.github.
 
 ```ts
 const { matches } = await sg.search(
-    "ts",
     "src/fib.ts",
     YAML`
 rule:
@@ -75,7 +74,7 @@ that do not intersect with the `to` files of the diff.
 
 ```ts "{ diff }" wrap
 const diff = await git.diff({ base: "main" })
-const { matches } = await sg.search("ts", "src/fib.ts", {...}, { diff })
+const { matches } = await sg.search("src/fib.ts", {...}, { diff })
 ```
 
 ## Changesets
@@ -144,6 +143,9 @@ The following languages require installing an additional package:
 npm install -D @ast-grep/lang-c
 ```
 
+- C++, `@ast-grep/lang-cpp`
+- Python, `@ast-grep/lang-python`
+- C#, `@ast-grep/lang-csharp`
 - SQL, `@ast-grep/lang-sql`
 - Angular, `@ast-grep/lang-angular`
 
