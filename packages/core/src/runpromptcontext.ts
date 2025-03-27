@@ -555,7 +555,7 @@ export function createChatGenerationContext(
                                 : ""),
                         { userState, trace }
                     )
-                    adbgm(`found ${memoryAnswer}`)
+                    if (memoryAnswer) adbgm(`found ${memoryAnswer}`)
                 }
 
                 const res = await ctx.runPrompt(
