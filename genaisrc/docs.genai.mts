@@ -135,7 +135,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
                 },
             },
         },
-        { diff: gitDiff }
+        { diff: gitDiff, applyGitIgnore: false }
     )
     dbg(`found ${missingDocs.length} missing docs`)
     const edits = sg.changeset()
@@ -218,19 +218,16 @@ async function updateDocs(file: WorkspaceFile, fileStats: any) {
     const { matches } = await sg.search(
         "ts",
         file.filename,
-        {
-            rule: {
-                kind: "export_statement",
-                follows: {
-                    kind: "comment",
-                    stopBy: "neighbor",
-                },
-                has: {
-                    kind: "function_declaration",
-                },
-            },
-        },
-        { diff: gitDiff }
+        YAML`
+rule: 
+  kind: "export_statement"
+  follows: 
+    kind: "comment"
+    stopBy: neighbor
+  has:
+      kind: "function_declaration"
+`,
+        { diff: gitDiff, applyGitIgnore: false }
     )
     dbg(`found ${matches.length} docs to update`)
     const edits = sg.changeset()
