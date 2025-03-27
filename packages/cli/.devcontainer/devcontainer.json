@@ -3,12 +3,9 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "dotenv.dotenv-vscode",
                 "genaiscript.genaiscript-vscode",
                 "github.copilot-chat",
                 "github.vscode-pull-request-github",
-                "bierner.markdown-mermaid",
-                "goessner.mdmath",
                 "esbenp.prettier-vscode",
                 "ms-python.python"
             ]
