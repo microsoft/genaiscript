@@ -1,10 +1,7 @@
 // Import necessary modules and types
-import { appendJSONL, JSONLTryParse, writeJSONL } from "./jsonl"
 import { host } from "./host"
 import { CHANGE } from "./constants"
-import { tryReadText } from "./fs"
 import { hash } from "./crypto"
-import { dotGenaiscriptPath } from "./workdir"
 
 /**
  * Represents a cache entry with a hashed identifier (`sha`), `key`, and `val`.
@@ -29,6 +26,16 @@ export class MemoryCache<K, V>
     // Constructor is private to enforce the use of byName factory method
     protected constructor(public readonly name: string) {
         super() // Initialize EventTarget
+    }
+
+    /**
+     * Compute the hash of a key for uniqueness.
+     * Normalizes the key by converting it to a string and appending the core version.
+     * @param key - The key to hash
+     * @returns A promise resolving to the SHA256 hash string
+     */
+    static async keySHA(key: any) {
+        return await hash(key, { algorithm: "sha-256", version: true }) // Compute SHA256 hash
     }
 
     /**
@@ -93,7 +100,7 @@ export class MemoryCache<K, V>
     async get(key: K): Promise<V> {
         if (key === undefined) return undefined // Handle undefined key
         await this.initialize()
-        const sha = await keySHA(key)
+        const sha = await MemoryCache.keySHA(key)
         return this._entries[sha]?.val
     }
 
@@ -103,7 +110,7 @@ export class MemoryCache<K, V>
         validator: (val: V) => boolean
     ): Promise<{ key: string; value: V; cached?: boolean }> {
         await this.initialize()
-        const sha = await keySHA(key)
+        const sha = await MemoryCache.keySHA(key)
         if (this._entries[sha])
             return { key: sha, value: this._entries[sha].val, cached: true }
         if (this._pending[sha])
@@ -130,7 +137,7 @@ export class MemoryCache<K, V>
      */
     async set(key: K, val: V) {
         await this.initialize()
-        const sha = await keySHA(key)
+        const sha = await MemoryCache.keySHA(key)
         const ent = { sha, val } satisfies CacheEntry<V>
         const ex = this._entries[sha]
         if (ex && JSON.stringify(ex) == JSON.stringify(ent)) return // No change
@@ -145,94 +152,7 @@ export class MemoryCache<K, V>
      * @returns A promise resolving to the SHA string
      */
     async getKeySHA(key: K) {
-        const sha = await keySHA(key)
+        const sha = await MemoryCache.keySHA(key)
         return sha
     }
-}
-
-/**
- * A cache class that manages entries stored in JSONL format.
- * It allows storage and retrieval of cache entries with unique SHA identifiers.
- * @template K - Type of the key
- * @template V - Type of the value
- */
-export class JSONLineCache<K, V> extends MemoryCache<K, V> {
-    // Constructor is private to enforce the use of byName factory method
-    protected constructor(public readonly name: string) {
-        super(name) // Initialize EventTarget
-    }
-
-    /**
-     * Factory method to create or retrieve an existing cache by name.
-     * Sanitizes the name to ensure it is a valid identifier.
-     * @param name - The name of the cache
-     * @returns An instance of JSONLineCache
-     */
-    static byName<K, V>(name: string): JSONLineCache<K, V> {
-        if (!name) return undefined
-        name = name.replace(/[^a-z0-9_]/gi, "_") // Sanitize name
-        const key = "workspacecache." + name
-        if (host.userState[key]) return host.userState[key] // Return if exists
-        const r = new JSONLineCache<K, V>(name)
-        host.userState[key] = r
-        return r
-    }
-
-    // Get the folder path for the cache storage
-    private folder() {
-        return dotGenaiscriptPath("cache", this.name)
-    }
-
-    // Get the full path to the cache file
-    private path() {
-        return host.resolvePath(this.folder(), "db.jsonl")
-    }
-
-    private _initializePromise: Promise<void>
-    /**
-     * Initialize the cache by loading entries from the file.
-     * Identifies duplicate entries and rewrites the file if necessary.
-     */
-    override async initialize() {
-        if (this._entries) return
-        if (this._initializePromise) return await this._initializePromise
-
-        this._initializePromise = (async () => {
-            await host.createDirectory(this.folder()) // Ensure directory exists
-            const content = await tryReadText(this.path())
-            const entries: Record<string, CacheEntry<V>> = {}
-            const objs: CacheEntry<V>[] = (await JSONLTryParse(content)) ?? []
-            let numdup = 0 // Counter for duplicates
-            for (const obj of objs) {
-                if (entries[obj.sha]) numdup++ // Count duplicates
-                entries[obj.sha] = obj
-            }
-            if (2 * numdup > objs.length) {
-                // Rewrite file if too many duplicates
-                await writeJSONL(
-                    this.path(),
-                    objs.filter((o) => entries[o.sha] === o) // Preserve order
-                )
-            }
-            // success
-            super.initialize()
-            this._entries = entries
-            this._initializePromise = undefined
-        })()
-        return this._initializePromise
-    }
-
-    override async appendEntry(ent: CacheEntry<V>) {
-        await appendJSONL(this.path(), [ent]) // Append to file
-    }
-}
-
-/**
- * Compute the hash of a key for uniqueness.
- * Normalizes the key by converting it to a string and appending the core version.
- * @param key - The key to hash
- * @returns A promise resolving to the SHA256 hash string
- */
-async function keySHA(key: any) {
-    return await hash(key, { algorithm: "sha-256", version: true }) // Compute SHA256 hash
 }
