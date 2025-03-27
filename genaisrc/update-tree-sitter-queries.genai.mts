@@ -1,4 +1,5 @@
 import { Octokit } from "octokit"
+script({ model: "none" })
 
 const files: Record<string, string> = {}
 const downloadScm = async (repo: string, name: string) => {
