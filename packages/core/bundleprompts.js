@@ -32,12 +32,13 @@ async function main() {
     )
     const logCategories = uniq([
         "script",
+        "agent",
         ...Array.from(
             execSync(
                 `grep -r 'debug("genaiscript:.*")' --include \*.ts --exclude-dir='.genaiscript' .`
             )
                 .toString("utf8")
-                .matchAll(/debug\("genaiscript:(?<category>[^"]+)"\)/g)
+                .matchAll(/debug\("(?<category>genaiscript:[^"]+)"\)/g)
         )
             .sort()
             .map((m) => m.groups.category),
