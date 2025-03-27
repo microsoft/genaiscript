@@ -1,5 +1,6 @@
 import debug from "debug"
 const dbg = debug("genaiscript:astgrep")
+const dbgLang = debug("genaiscript:astgrep:lang")
 
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { CancelError, errorMessage } from "./error"
@@ -94,12 +95,10 @@ export async function astGrepFindFiles(
     }
     const diffFiles = diffResolve(diff)
 
-    dbg(`finding files with ${lang} %O`, matcher)
+    dbg(`search %O`, matcher)
     if (diffFiles?.length) dbg(`diff files: ${diffFiles.length}`)
     const { findInFiles } = await import("@ast-grep/napi")
     checkCancelled(cancellationToken)
-    const sglang = await resolveLang(lang)
-    dbg(`resolving language: ${lang}`)
 
     let paths = await host.findFiles(glob, options)
     if (!paths?.length) {
@@ -129,6 +128,7 @@ export async function astGrepFindFiles(
     const p = new Promise<number>(async (resolve, reject) => {
         let i = 0
         let n: number = undefined
+        const sglang = await resolveLang(lang)
         n = await findInFiles(
             sglang,
             {
@@ -230,7 +230,7 @@ export async function astGrepWriteRootEdits(
  */
 export async function astGrepParse(
     file: WorkspaceFile,
-    options?: { lang?: SgLang } & CancellationOptions
+    options?: { lang?: SgLang | Record<string, SgLang> } & CancellationOptions
 ): Promise<SgRoot> {
     const { cancellationToken } = options || {}
     if (file.encoding) {
@@ -249,7 +249,6 @@ export async function astGrepParse(
     dbg(`parsing file: ${filename}`)
     const { parseAsync } = await import("@ast-grep/napi")
     const lang = await resolveLang(options?.lang, filename)
-    dbg(`resolving language for file: ${filename}`)
     if (!lang) {
         return undefined
     }
@@ -259,65 +258,91 @@ export async function astGrepParse(
     return root
 }
 
-async function resolveLang(lang: SgLang, filename?: string) {
+async function resolveLang(
+    lang: SgLang | Record<string, SgLang>,
+    filename?: string
+) {
     const { Lang } = await import("@ast-grep/napi")
-    if (lang === "html") {
-        return Lang.Html
+
+    const norm = (l: string) => l.toLowerCase().replace(/^\./, "")
+
+    // pre-compiled with ast-grep
+    const builtins: any = {
+        html: Lang.Html,
+        htm: Lang.Html,
+        cjs: Lang.JavaScript,
+        mjs: Lang.JavaScript,
+        js: Lang.JavaScript,
+        cts: Lang.TypeScript,
+        mts: Lang.TypeScript,
+        ts: Lang.TypeScript,
+        tsx: Lang.Tsx,
+        css: Lang.Css,
     }
-    if (lang === "js") {
-        return Lang.JavaScript
+
+    const dynamics: any = {
+        h: "c",
+        c: "c",
+        cpp: "cpp",
+        hpp: "cpp",
+        hxx: "cpp",
+        cxx: "cpp",
+        cs: "csharp",
+        py: "python",
+        sql: "sql",
     }
-    if (lang === "ts") {
-        return Lang.TypeScript
+
+    const forbidden = ["bin", "exe", "dll"]
+
+    // user provided a string
+    if (typeof lang === "string") {
+        lang = norm(lang)
+        dbgLang(`resolving language ${lang}`)
+        const builtin = builtins[lang]
+        if (builtin) return builtin
+        else return await loadDynamicLanguage(lang)
     }
-    if (lang === "tsx") {
-        return Lang.Tsx
-    }
-    if (lang === "css") {
-        return Lang.Css
-    }
-    if (lang) {
-        return await loadDynamicLanguage(lang.toLowerCase())
+
+    if (!filename) {
+        dbgLang(`filename not provided`)
+        throw new Error("filename is required to resolve language")
     }
 
     if (filename) {
-        dbg(`resolving language based on filename: ${filename}`)
-        if (/\.m?js$/i.test(filename)) {
-            return Lang.JavaScript
-        }
-        if (/\.m?ts$/i.test(filename)) {
-            return Lang.TypeScript
-        }
-        if (/\.(j|t)sx$/i.test(filename)) {
-            return Lang.Tsx
-        }
-        if (/\.html$/i.test(filename)) {
-            return Lang.Html
-        }
-        if (/\.css$/i.test(filename)) {
-            return Lang.Css
-        }
-        return await loadDynamicLanguage(
-            extname(filename).slice(1).toLowerCase()
-        )
+        const ext = norm(extname(filename))
+        dbgLang(`resolving language for ${ext}`)
+
+        // known builtins
+        const builtin = builtins[ext]
+        if (builtin) return builtin
+
+        // known dynamics
+        const dynamic = dynamics[ext]
+        if (dynamic) return await loadDynamicLanguage(dynamic)
+
+        if (forbidden.includes(ext)) return undefined
+
+        // try our luck
+        return await loadDynamicLanguage(ext)
     }
 
+    dbgLang(`language not resolved`, { lang, filename })
     throw new Error("language not resolved")
 }
 
 const loadedDynamicLanguages = new Set<string>()
 async function loadDynamicLanguage(langName: string) {
     if (!loadedDynamicLanguages.has(langName)) {
-        dbg(`loading language: ${langName}`)
+        dbgLang(`loading language: ${langName}`)
         const { registerDynamicLanguage } = await import("@ast-grep/napi")
         try {
             const dynamicLang = (await import(`@ast-grep/lang-${langName}`))
                 .default
             registerDynamicLanguage({ [langName]: dynamicLang })
             loadedDynamicLanguages.add(langName)
-            dbg(`language ${langName} registered `)
+            dbgLang(`language ${langName} registered `)
         } catch (err) {
-            dbg(`error loading language ${langName}: ${errorMessage(err)}`)
+            dbgLang(`error loading language ${langName}: ${errorMessage(err)}`)
             throw Error(
                 `@ast-grep/lang-${langName} package failed to load, please install it using 'npm install -D @ast-grep/lang-${langName}'`
             )

@@ -34,13 +34,17 @@ script({
             default: true,
             description: "Update existing docs.",
         },
+        maxFiles: {
+            type: "integer",
+            description: "Maximum number of files to process.",
+        },
     },
 })
 const { output, dbg, vars } = env
 let { files } = env
-const { applyEdits, diff, pretty, missing, update } = vars
+const { applyEdits, diff, pretty, missing, update, maxFiles } = vars
 
-dbg({ applyEdits, diff, pretty, missing, update })
+dbg({ applyEdits, diff, pretty, missing, update, maxFiles })
 
 if (!missing && !update) cancel(`not generating or updating docs, exiting...`)
 
@@ -60,6 +64,14 @@ if (diffFiles?.length) {
     )
     dbg(`diff filtered files: ${files.length}`)
 }
+
+if (maxFiles && files.length > maxFiles) {
+    dbg(`random slicing files to ${maxFiles}`)
+    files = parsers.tidyData(files, {
+        sliceSample: maxFiles,
+    }) as WorkspaceFile[]
+}
+
 const sg = await host.astGrep()
 const stats = []
 for (const file of files) {
@@ -123,7 +135,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
                 },
             },
         },
-        { diff: gitDiff }
+        { diff: gitDiff, applyGitIgnore: false }
     )
     dbg(`found ${missingDocs.length} missing docs`)
     const edits = sg.changeset()
@@ -206,19 +218,16 @@ async function updateDocs(file: WorkspaceFile, fileStats: any) {
     const { matches } = await sg.search(
         "ts",
         file.filename,
-        {
-            rule: {
-                kind: "export_statement",
-                follows: {
-                    kind: "comment",
-                    stopBy: "neighbor",
-                },
-                has: {
-                    kind: "function_declaration",
-                },
-            },
-        },
-        { diff: gitDiff }
+        YAML`
+rule: 
+  kind: "export_statement"
+  follows: 
+    kind: "comment"
+    stopBy: neighbor
+  has:
+      kind: "function_declaration"
+`,
+        { diff: gitDiff, applyGitIgnore: false }
     )
     dbg(`found ${matches.length} docs to update`)
     const edits = sg.changeset()

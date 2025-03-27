@@ -82,6 +82,27 @@
   dependencies:
     "@ast-grep/setup-lang" "0.0.3"
 
+"@ast-grep/lang-cpp@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@ast-grep/lang-cpp/-/lang-cpp-0.0.1.tgz#8964ad2d635f11bc6183a0660b6e581db35a2ef2"
+  integrity sha512-mtjdHPKtyIuPza6Shh7ZDfYHGUhjJMhwy3mD1aDZyimZJe3H/ODb8FJg/n5wquqjDa3K+OyHDHHS+dgcMqCj0g==
+  dependencies:
+    "@ast-grep/setup-lang" "0.0.3"
+
+"@ast-grep/lang-csharp@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@ast-grep/lang-csharp/-/lang-csharp-0.0.1.tgz#7f7ebc493c52fb59fb99b9caeed4f0b8150290df"
+  integrity sha512-hqRnrHkBYTMFo7cV6L6QqWGvdwahZLpo2MI33cMa2i6UFO+6xTUPB0wJx5xELvMz457tKjO8ljKwSh3a/kiryA==
+  dependencies:
+    "@ast-grep/setup-lang" "0.0.3"
+
+"@ast-grep/lang-python@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@ast-grep/lang-python/-/lang-python-0.0.1.tgz#e00ece849f67850ad73097dc3048678ebbd1bfd8"
+  integrity sha512-RUtQKM5msT2Jdwu6q9rW5qVh2S5X3iBAGj6Zoct1CAHEGHIpkOFa+jLvJpVeLxVOqq0U9jRX+7G1keuqgn7daQ==
+  dependencies:
+    "@ast-grep/setup-lang" "0.0.3"
+
 "@ast-grep/napi-darwin-arm64@0.36.2":
   version "0.36.2"
   resolved "https://registry.yarnpkg.com/@ast-grep/napi-darwin-arm64/-/napi-darwin-arm64-0.36.2.tgz#4d0344c05852824f047785b19f6a49fd005b7c63"

@@ -4321,7 +4321,16 @@ interface SgRoot {
 }
 
 type SgLang = OptionsOrString<
-    "html" | "js" | "ts" | "tsx" | "css" | "c" | "sql" | "angular"
+    | "html"
+    | "js"
+    | "ts"
+    | "tsx"
+    | "css"
+    | "c"
+    | "sql"
+    | "angular"
+    | "csharp"
+    | "python"
 >
 
 interface SgChangeSet {
