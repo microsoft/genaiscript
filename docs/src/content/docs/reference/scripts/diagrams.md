@@ -62,3 +62,9 @@ graph LR
 ````
 
 and it gets rendered automatically once you install the extension.
+
+```mermaid
+graph LR
+  A[Master] --> C[New Commit]
+  B[Feature Branch] --> C
+```

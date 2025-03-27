@@ -58,6 +58,9 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
 - save generated code in the "./genaisrc" folder with ".genai.mts" extension
 `,
                     pageSeparator: "\n\n=|=|=|=|=|=\n\n",
+                    minify: {
+                        customSelectors: ["picture"]
+                    },
                     promote: ["index*", "getting-started*", "!*/*"],
                     customSets: [
                         {
