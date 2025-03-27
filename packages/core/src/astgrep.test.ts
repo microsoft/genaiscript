@@ -11,7 +11,6 @@ describe("astgrep", () => {
     test("finds matches in files", async () => {
         console.log("Hello, world!")
         const result = await astGrepFindFiles(
-            "ts",
             "src/astgrep.test.ts",
             "console.log($GREETING)"
         )
