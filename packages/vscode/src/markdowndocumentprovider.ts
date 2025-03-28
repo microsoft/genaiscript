@@ -9,13 +9,7 @@ import {
 import { showMarkdownPreview } from "./markdown"
 import { registerCommand } from "./commands"
 import { getChatCompletionCache } from "../../core/src/chatcache"
-import {
-    TRACE_NODE_PREFIX,
-    CACHE_LLMREQUEST_PREFIX,
-    CACHE_AIREQUEST_TRACE_PREFIX,
-    CACHE_AIREQUEST_TEXT_PREFIX,
-} from "../../core/src/constants"
-import { extractFenced, renderFencedVariables } from "../../core/src/fence"
+import { TRACE_NODE_PREFIX } from "../../core/src/constants"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import {
     logprobToMarkdown,
@@ -109,59 +103,8 @@ ${prettifyMarkdown(md)}
                 .replace(/\.md$/, "")
             return this.previewTraceNode(id)
         }
-        if (uri.path.startsWith(CACHE_LLMREQUEST_PREFIX)) {
-            const sha = uri.path
-                .slice(CACHE_LLMREQUEST_PREFIX.length)
-                .replace(/\.md$/, "")
-            return previewOpenAICacheEntry(sha)
-        }
-        if (uri.path.startsWith(CACHE_AIREQUEST_TRACE_PREFIX)) {
-            const sha = uri.path
-                .slice(CACHE_AIREQUEST_TRACE_PREFIX.length)
-                .replace(/\.md$/, "")
-            return this.previewAIRequest(sha, "trace")
-        }
-        if (uri.path.startsWith(CACHE_AIREQUEST_TEXT_PREFIX)) {
-            const sha = uri.path
-                .slice(CACHE_AIREQUEST_TEXT_PREFIX.length)
-                .replace(/\.md$/, "")
-            return this.previewAIRequest(sha, "text")
-        }
         return ""
     }
-
-    private async previewAIRequest(sha: string, type: "trace" | "text") {
-        const cache = this.state.aiRequestCache()
-        const { val } = (await cache.getEntryBySha(sha)) || {}
-        if (!val)
-            return `## Oops
-        
-        Request \`${sha}\` not found in cache.
-        `
-
-        return type === "trace" ? val?.trace : val?.response?.text
-    }
-}
-
-async function previewOpenAICacheEntry(sha: string) {
-    const cache = getChatCompletionCache()
-    const { val } = (await cache.getEntryBySha(sha)) || {}
-    if (!val)
-        return `## Oops
-    
-    Request \`${sha}\` not found in cache.
-    `
-
-    const extr = extractFenced(val.text)
-    return `# Cached Request
-
--   \`${sha}\`
-
-\`\`\`\`\`json
-${JSON.stringify(val, null, 2)}
-\`\`\`\`\`
-
-`
 }
 
 export function infoUri(path: string) {

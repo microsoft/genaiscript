@@ -5,8 +5,6 @@ import {
     COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
     COPILOT_CHAT_PARTICIPANT_ID,
     ICON_LOGO_NAME,
-    CACHE_AIREQUEST_TRACE_PREFIX,
-    CACHE_AIREQUEST_TEXT_PREFIX,
 } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
@@ -163,10 +161,7 @@ export async function activateChatParticipant(state: ExtensionState) {
             const { text = "", status, statusText } = res || {}
             if (status !== "success") md("$(error) " + statusText)
             if (text) md("\n\n" + convertAnnotationsToItems(text))
-            md(
-                `\n\n[output](command:genaiscript.request.open?${encodeURIComponent(JSON.stringify([CACHE_AIREQUEST_TEXT_PREFIX + res.requestSha + ".md"]))}) | [trace](command:genaiscript.request.open?${encodeURIComponent(JSON.stringify([CACHE_AIREQUEST_TRACE_PREFIX + res.requestSha + ".md"]))})`,
-                "genaiscript.request.open"
-            )
+            // TODO open url
         }
     )
     participant.iconPath = new vscode.ThemeIcon(ICON_LOGO_NAME)
