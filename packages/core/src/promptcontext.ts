@@ -277,7 +277,7 @@ export async function createPromptContext(
             } satisfies LanguageModelReference
         },
         cache: async (name: string) => {
-            const res = createCache<any, any>(name)
+            const res = createCache<any, any>(name, { type: "memory" })
             return res
         },
         exec: async (

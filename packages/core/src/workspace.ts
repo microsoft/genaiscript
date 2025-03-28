@@ -146,7 +146,7 @@ export function createWorkspaceFileSystem(): Omit<
             return data
         },
         cache: async (name: string) => {
-            const res = createCache<any, any>(name)
+            const res = createCache<any, any>(name, { type: "fs" })
             return res
         },
         stat: async (filename: string) => {

@@ -32,10 +32,8 @@ class AzureContentSafetyClient implements ContentSafety {
         { route: string; body: object; options: object },
         object
     >
-    constructor(
-        readonly options?: CacheOptions & TraceOptions & CancellationOptions
-    ) {
-        this.cache = createCache("azurecontentsafety", options)
+    constructor(readonly options?: TraceOptions & CancellationOptions) {
+        this.cache = createCache("azurecontentsafety", { type: "fs" })
     }
 
     async detectHarmfulContent(

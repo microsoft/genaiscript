@@ -18,7 +18,7 @@ export interface CacheEntry<V> {
 }
 
 export interface CacheOptions {
-    type?: "memory" | "jsonl" | "fs"
+    type: "memory" | "jsonl" | "fs"
     userState?: Record<string, any>
     lookupOnly?: boolean
 }
@@ -29,7 +29,7 @@ function cacheNormalizeName(name: string) {
 
 export function createCache<K, V>(
     name: string,
-    options?: CacheOptions & CancellationOptions
+    options: CacheOptions & CancellationOptions
 ): WorkspaceFileCache<K, V> {
     name = cacheNormalizeName(name) // Sanitize name
     if (!name) {

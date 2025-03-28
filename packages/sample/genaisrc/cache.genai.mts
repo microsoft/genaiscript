@@ -15,7 +15,9 @@ for (const cache of [
     if (result !== value) throw new Error(`unexpected value: ${result}`)
 
     const values = await cache.values()
-    if (!values.includes(value)) throw new Error(`unexpected values: ${values}`)
+    if (!values.includes(value)) {
+        throw new Error(`unexpected values: ${values}`)
+    }
 }
 
 console.log(`cache test passed`)
