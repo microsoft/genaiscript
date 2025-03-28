@@ -217,6 +217,8 @@ export async function runScriptInternal(
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
     const runId = options.runId || generateId()
     const runDir = options.out || getRunDir(scriptId, runId)
+    dbg(`run id: `, runId)
+    dbg(`run dir: `, runDir)
     const cancellationToken = options.cancellationToken
     const {
         trace = new MarkdownTrace({ cancellationToken, dir: runDir }),
@@ -491,6 +493,7 @@ export async function runScriptInternal(
         }
 
         result = await runTemplate(prj, script, fragment, {
+            runId,
             inner: false,
             infoCb: (args) => {
                 const { text } = args

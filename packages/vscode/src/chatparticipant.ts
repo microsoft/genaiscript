@@ -10,9 +10,10 @@ import { Fragment } from "../../core/src/generation"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { templatesToQuickPickItems } from "./fragmentcommands"
+import { patchCachedImages } from "../../core/src/filecache"
 
 export async function activateChatParticipant(state: ExtensionState) {
-    const { context } = state
+    const { context, host } = state
     const { subscriptions } = context
 
     const resolveReference = (
@@ -160,7 +161,14 @@ export async function activateChatParticipant(state: ExtensionState) {
 
             const { text = "", status, statusText } = res || {}
             if (status !== "success") md("$(error) " + statusText)
-            if (text) md("\n\n" + convertAnnotationsToItems(text))
+            if (text) {
+                let patched = convertAnnotationsToItems(text)
+                const dir = state.host.projectUri
+                patched = patchCachedImages(patched, (url) =>
+                    vscode.Uri.joinPath(dir, url).toString()
+                )
+                md("\n\n" + patched)
+            }
             // TODO open url
         }
     )

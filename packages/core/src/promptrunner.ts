@@ -136,8 +136,15 @@ export async function runTemplate(
     assert(options !== undefined)
     assert(options.trace !== undefined)
     assert(options.outputTrace !== undefined)
-    const { label, cliInfo, trace, outputTrace, cancellationToken, model } =
-        options
+    const {
+        label,
+        cliInfo,
+        trace,
+        outputTrace,
+        cancellationToken,
+        model,
+        runId,
+    } = options
     const version = CORE_VERSION
     assert(model !== undefined)
 
@@ -206,6 +213,7 @@ export async function runTemplate(
                 frames: [],
                 schemas: {},
                 usage: undefined,
+                runId,
             } satisfies GenerationResult
         }
 
@@ -246,6 +254,7 @@ export async function runTemplate(
                 frames: [],
                 schemas: {},
                 usage: undefined,
+                runId,
             } satisfies GenerationResult)
         }
 
@@ -363,6 +372,7 @@ export async function runTemplate(
             perplexity: chatResult.perplexity,
             uncertainty: chatResult.uncertainty,
             usage: chatResult.usage,
+            runId,
         }
 
         // If there's an error, provide status text

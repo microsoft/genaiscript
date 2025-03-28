@@ -78,3 +78,12 @@ export async function fileCacheImage(
     dbg(`image: ${res}`)
     return res
 }
+
+export function patchCachedImages(
+    text: string,
+    patcher: (url: string) => string
+) {
+    const IMG_RX =
+        /\!\[(?<alt>[^\]]*)\]\((?<url>\.genaiscript\/images\/[^)]+)\)/g
+    return text.replace(IMG_RX, (_, alt, url) => `![${alt}](${patcher(url)})`)
+}
