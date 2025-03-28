@@ -46,7 +46,7 @@ for (const type of ["memory", "jsonl", "fs"]) {
             assert.ok(sha)
             assert.strictEqual(typeof sha, "string")
         })
-        test("getOrUpdate retrieves existing value", async () => {
+        test(`${type} getOrUpdate retrieves existing value`, async () => {
             const cache = createCache<string, number>("testCache", {
                 type: type as any,
             })

@@ -64,7 +64,7 @@ export class MemoryCache<K, V>
         validator?: (val: V) => boolean
     ): Promise<{ key: string; value: V; cached?: boolean }> {
         await this.initialize()
-        const sha = await hash(key)
+        const sha = await this.getSha(key)
         if (this._entries[sha]) {
             this.dbg(`getup ${sha}: hit`)
             return { key: sha, value: this._entries[sha].val, cached: true }
@@ -101,7 +101,8 @@ export class MemoryCache<K, V>
         const sha = await this.getSha(key)
         const ent = { sha, val } satisfies CacheEntry<V>
         const ex = this._entries[sha]
-        if (ex && JSON.stringify(ex) == JSON.stringify(ent)) return // No change
+        if (ex !== undefined && JSON.stringify(ex) == JSON.stringify(ent))
+            return // No change
 
         this._entries[sha] = ent
         await this.appendEntry(ent)
