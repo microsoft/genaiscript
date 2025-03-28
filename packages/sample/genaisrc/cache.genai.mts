@@ -10,13 +10,16 @@ for (const cache of [
     await workspace.cache<number, number>("test-cache"),
     await host.cache<number, number>("test-cache"),
 ]) {
+    console.log(`cache test ${cache.name}`)
     await cache.set(key, value)
     const result = await cache.get(key)
     if (result !== value) throw new Error(`unexpected value: ${result}`)
 
     const values = await cache.values()
     if (!values.includes(value)) {
-        throw new Error(`unexpected values: ${values}`)
+        throw new Error(
+            `unexpected values: ${values.join("\n")} in ${cache.name}`
+        )
     }
 }
 

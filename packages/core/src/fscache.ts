@@ -7,8 +7,13 @@ import debug, { Debugger } from "debug"
 import { errorMessage } from "./error"
 import { tryReadJSON } from "./fs"
 import { rm, readdir } from "fs/promises"
-import { CACHE_FORMAT_VERSION, CACHE_SHA_LENGTH } from "./constants"
+import {
+    CACHE_FORMAT_VERSION,
+    CACHE_SHA_LENGTH,
+    FILE_READ_CONCURRENCY_DEFAULT,
+} from "./constants"
 import { hash } from "./crypto"
+import pLimit from "p-limit"
 
 /**
  * A cache class stores each entry as a separate file in a directory.
@@ -54,10 +59,15 @@ export class FsCache<K, V> implements WorkspaceFileCache<any, any> {
     }
     async values(): Promise<any[]> {
         try {
+            const dir = this.folder()
             const files = await readdir(this.folder())
-            return files
-                .filter((f) => /\.json$/.test(f))
-                .map((f) => basename(f).replace(/\.json$/, ""))
+            const limit = pLimit(FILE_READ_CONCURRENCY_DEFAULT)
+            return await Promise.all(
+                files
+                    .filter((f) => /\.json$/.test(f))
+                    .map((f) => limit(() => tryReadJSON(join(dir, f))))
+                    .filter((f) => f !== undefined)
+            )
         } catch (e) {
             this.dbg(
                 `error while reading directory ${this.folder()}: ${errorMessage(e)}`

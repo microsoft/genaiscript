@@ -72,5 +72,19 @@ for (const type of ["memory", "jsonl", "fs"]) {
             const cachedValue = await cache.get("newKey")
             assert.strictEqual(cachedValue, 99)
         })
+
+        test("values() retrieves all stored values", async () => {
+            const cache = createCache<string, number>("testCache", {
+                type: type as any,
+            })
+            await cache.set("key1", 10)
+            await cache.set("key2", 20)
+            await cache.set("key3", 30)
+
+            const values = await cache.values()
+            assert(values.includes(10))
+            assert(values.includes(20))
+            assert(values.includes(30))
+        })
     })
 }
