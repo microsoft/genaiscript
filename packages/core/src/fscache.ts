@@ -49,7 +49,7 @@ export class FsCache<K, V> implements WorkspaceFileCache<any, any> {
             else await writeText(fn, JSON.stringify(value, null, 2))
             this.dbg(`set ${sha}: updated`)
         } catch (e) {
-            this.dbg(`set ${sha}: update failed (${errorMessage(e)})`)
+            this.dbg(`set ${sha}: failed (${errorMessage(e)})`)
         }
     }
     async values(): Promise<any[]> {

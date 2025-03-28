@@ -1,8 +1,8 @@
 // Import necessary modules and types
-import { host } from "./host"
 import { CACHE_FORMAT_VERSION, CACHE_SHA_LENGTH, CHANGE } from "./constants"
 import { hash } from "./crypto"
 import type { CacheEntry } from "./cache"
+import debug, { Debugger } from "debug"
 
 /**
  * A cache class that manages entries stored in JSONL format.
@@ -17,10 +17,12 @@ export class MemoryCache<K, V>
     protected _entries: Record<string, CacheEntry<V>>
     private _pending: Record<string, Promise<V>>
     private readonly hashOptions: HashOptions
+    protected dbg: Debugger
 
     // Constructor is private to enforce the use of byName factory method
     constructor(public readonly name: string) {
         super() // Initialize EventTarget
+        this.dbg = debug(`genaiscript:cache:${name}`) // Initialize debugger
         this.hashOptions = {
             salt: CACHE_FORMAT_VERSION,
             length: CACHE_SHA_LENGTH,
@@ -51,7 +53,9 @@ export class MemoryCache<K, V>
         if (key === undefined) return undefined // Handle undefined key
         await this.initialize()
         const sha = await this.getSha(key)
-        return this._entries[sha]?.val
+        const res = this._entries[sha]?.val
+        this.dbg(`get ${sha}: ${res !== undefined ? "hit" : "miss"}`)
+        return res
     }
 
     async getOrUpdate(
@@ -61,16 +65,23 @@ export class MemoryCache<K, V>
     ): Promise<{ key: string; value: V; cached?: boolean }> {
         await this.initialize()
         const sha = await hash(key)
-        if (this._entries[sha])
+        if (this._entries[sha]) {
+            this.dbg(`getup ${sha}: hit`)
             return { key: sha, value: this._entries[sha].val, cached: true }
-        if (this._pending[sha])
+        }
+        if (this._pending[sha]) {
+            this.dbg(`getup ${sha}: hit (pending)`)
             return { key: sha, value: await this._pending[sha], cached: true }
+        }
 
         try {
             const p = updater()
             this._pending[sha] = p
             const value = await p
-            if (!validator || validator(value)) await this.set(key, value)
+            if (!validator || validator(value)) {
+                await this.set(key, value)
+                this.dbg(`set ${sha}: updated`)
+            }
             return { key: sha, value, cached: false }
         } finally {
             delete this._pending[sha]
@@ -91,9 +102,11 @@ export class MemoryCache<K, V>
         const ent = { sha, val } satisfies CacheEntry<V>
         const ex = this._entries[sha]
         if (ex && JSON.stringify(ex) == JSON.stringify(ent)) return // No change
+
         this._entries[sha] = ent
         await this.appendEntry(ent)
         this.dispatchEvent(new Event(CHANGE)) // Notify listeners
+        this.dbg(`set ${sha}: updated`)
     }
 
     /**
