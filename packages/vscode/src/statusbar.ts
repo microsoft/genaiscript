@@ -37,7 +37,7 @@ export function activateStatusBar(state: ExtensionState) {
                     : `server: ${status}`,
                 fragment?.files?.[0],
                 template
-                    ? `-  tool: ${template.title} (${template.id})`
+                    ? `-  script: ${template.title} (${template.id})`
                     : undefined,
                 ...Object.entries(languageChatModels).map(
                     ([m, c]) => `-  language chat model: ${m} -> ${c}`
