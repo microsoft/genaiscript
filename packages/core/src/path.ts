@@ -9,6 +9,7 @@ import {
     isAbsolute,
 } from "node:path"
 import { changeext } from "../../core/src/fs"
+import { fileURLToPath } from "node:url"
 
 /**
  * Creates a frozen object that provides various path manipulation functions.
@@ -30,5 +31,6 @@ export function createNodePath(): Path {
         resolve, // Resolve a sequence of paths to an absolute path
         isAbsolute, // Check if a path is absolute
         changeext,
-    })
+        resolveFileURL: fileURLToPath,
+    } satisfies Path)
 }
