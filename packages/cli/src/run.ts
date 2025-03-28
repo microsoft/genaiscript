@@ -491,6 +491,7 @@ export async function runScriptInternal(
         }
 
         result = await runTemplate(prj, script, fragment, {
+            runId,
             inner: false,
             infoCb: (args) => {
                 const { text } = args

@@ -12,7 +12,7 @@ import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 
 export async function activateChatParticipant(state: ExtensionState) {
-    const { context } = state
+    const { context, host } = state
     const { subscriptions } = context
 
     const resolveReference = (
@@ -160,7 +160,15 @@ export async function activateChatParticipant(state: ExtensionState) {
 
             const { text = "", status, statusText } = res || {}
             if (status !== "success") md("$(error) " + statusText)
-            if (text) md("\n\n" + convertAnnotationsToItems(text))
+            if (text) {
+                const { server } = host
+
+                let patched = convertAnnotationsToItems(text)
+                md("\n\n" + patched)
+                md(
+                    `![image](${server.authority}/.genaiscript/images/42e4c2d32c1123bede480fb06ed84c862d5134e204f7dc0be5f25ac1c2056ad3.jpg)`
+                )
+            }
             // TODO open url
         }
     )
