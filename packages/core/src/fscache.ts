@@ -30,7 +30,7 @@ export class FsCache<K, V> implements WorkspaceFileCache<any, any> {
     }
 
     private cacheFilename(sha: string) {
-        return join(this.folder(), sha + ".json")
+        return join(this.folder(), this.name, sha + ".json")
     }
 
     async get(key: any): Promise<any> {

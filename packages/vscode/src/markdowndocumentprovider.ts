@@ -8,7 +8,6 @@ import {
 } from "./state"
 import { showMarkdownPreview } from "./markdown"
 import { registerCommand } from "./commands"
-import { getChatCompletionCache } from "../../core/src/chatcache"
 import { TRACE_NODE_PREFIX } from "../../core/src/constants"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import {
