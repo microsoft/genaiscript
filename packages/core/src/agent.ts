@@ -1,4 +1,4 @@
-import { MemoryCache } from "./cache"
+import { createCache } from "./cache"
 import {
     AGENT_MEMORY_CACHE_NAME,
     AGENT_MEMORY_FLEX_TOKENS,
@@ -8,8 +8,34 @@ import { errorMessage } from "./error"
 import { GenerationOptions } from "./generation"
 import { HTMLEscape } from "./html"
 import { prettifyMarkdown } from "./markdown"
-import { MarkdownTrace, TraceOptions } from "./trace"
-import { logVerbose } from "./util"
+import { TraceOptions } from "./trace"
+import { ellipse } from "./util"
+import debug from "debug"
+const dbg = debug("agent:memory")
+
+export type AgentMemoryCacheKey = { agent: string; query: string }
+export type AgentMemoryCacheValue = AgentMemoryCacheKey & {
+    answer: string
+    createdAt: number
+}
+export type AgentMemoryCache = WorkspaceFileCache<
+    AgentMemoryCacheKey,
+    AgentMemoryCacheValue
+>
+
+export function agentCreateCache(
+    options: Pick<GenerationOptions, "userState"> & { lookupOnly?: boolean }
+): AgentMemoryCache {
+    const cache = createCache<AgentMemoryCacheKey, AgentMemoryCacheValue>(
+        AGENT_MEMORY_CACHE_NAME,
+        {
+            type: "memory",
+            userState: options.userState,
+            lookupOnly: options.lookupOnly,
+        }
+    )
+    return cache
+}
 
 /**
  * Queries the agent's memory to retrieve contextual information relevant to a given query.
@@ -26,17 +52,19 @@ import { logVerbose } from "./util"
  * @returns Memory answer or undefined if no relevant memories are retrieved.
  */
 export async function agentQueryMemory(
+    cache: AgentMemoryCache,
     ctx: ChatGenerationContext,
     query: string,
-    options: Pick<GenerationOptions, "userState"> & Required<TraceOptions>
+    options: Required<TraceOptions>
 ) {
     if (!query) return undefined
 
-    const memories = await loadMemories(options)
+    const memories = await loadMemories(cache)
     if (!memories?.length) return undefined
 
     let memoryAnswer: string | undefined
     // always pre-query memory with cheap model
+    dbg(`query: ${query}`)
     const res = await ctx.runPrompt(
         async (_) => {
             _.$`Return the contextual information useful to answer <QUERY> from the content in <MEMORY>.
@@ -47,18 +75,21 @@ export async function agentQueryMemory(
                 "system"
             )
             _.def("QUERY", query)
-            await defMemory(_)
+            await defMemory(cache, _)
         },
         {
             model: "memory",
             system: [],
             flexTokens: AGENT_MEMORY_FLEX_TOKENS,
             label: "agent memory query",
+            cache: "agent_memory",
         }
     )
     if (!res.error)
         memoryAnswer = res.text.includes(TOKEN_NO_ANSWER) ? "" : res.text
-    else logVerbose(`agent memory query error: ${errorMessage(res.error)}`)
+    else dbg(`error: ${errorMessage(res.error)}`)
+
+    dbg(`answer: ${ellipse(memoryAnswer, 128)}`)
     return memoryAnswer
 }
 
@@ -73,25 +104,20 @@ export async function agentQueryMemory(
  * @param options - Configuration options, including user state and tracing details.
  */
 export async function agentAddMemory(
+    cache: AgentMemoryCache,
     agent: string,
     query: string,
     text: string,
-    options: Pick<GenerationOptions, "userState"> & Required<TraceOptions>
+    options: Required<TraceOptions>
 ) {
     const { trace } = options || {}
-    const cache = MemoryCache.byName<
-        { agent: string; query: string },
-        {
-            agent: string
-            query: string
-            answer: string
-        }
-    >(AGENT_MEMORY_CACHE_NAME)
-    const cacheKey = { agent, query }
-    const cachedValue = {
+    const cacheKey: AgentMemoryCacheKey = { agent, query }
+    const cachedValue: AgentMemoryCacheValue = {
         ...cacheKey,
         answer: text,
+        createdAt: Date.now(),
     }
+    dbg(`add ${agent}: ${ellipse(query, 80)} -> ${ellipse(text, 128)}`)
     await cache.set(cacheKey, cachedValue)
     trace.detailsFenced(
         `🧠 agent memory: ${HTMLEscape(query)}`,
@@ -100,19 +126,9 @@ export async function agentAddMemory(
     )
 }
 
-async function loadMemories(options: Pick<GenerationOptions, "userState">) {
-    const cache = MemoryCache.byName<
-        { agent: string; query: string },
-        {
-            agent: string
-            query: string
-            answer: string
-        }
-    >(AGENT_MEMORY_CACHE_NAME, {
-        lookupOnly: true,
-        userState: options.userState,
-    })
+async function loadMemories(cache: AgentMemoryCache) {
     const memories = await cache?.values()
+    memories?.sort((l, r) => l.createdAt - r.createdAt)
     return memories
 }
 
@@ -131,7 +147,11 @@ export async function traceAgentMemory(
     options: Pick<GenerationOptions, "userState"> & Required<TraceOptions>
 ) {
     const { trace } = options || {}
-    const memories = await loadMemories(options)
+    const cache = agentCreateCache({
+        userState: options.userState,
+        lookupOnly: true,
+    })
+    const memories = await loadMemories(cache)
     if (memories) {
         try {
             trace.startDetails("🧠 agent memory")
@@ -150,15 +170,10 @@ export async function traceAgentMemory(
     }
 }
 
-async function defMemory(ctx: ChatTurnGenerationContext) {
-    const cache = MemoryCache.byName<
-        { agent: string; query: string },
-        {
-            agent: string
-            query: string
-            answer: string
-        }
-    >(AGENT_MEMORY_CACHE_NAME)
+async function defMemory(
+    cache: AgentMemoryCache,
+    ctx: ChatTurnGenerationContext
+) {
     const memories = await cache.values()
     memories.reverse().forEach(({ agent, query, answer }, index) =>
         ctx.def(

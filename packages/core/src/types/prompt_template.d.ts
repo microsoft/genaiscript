@@ -1073,6 +1073,10 @@ type ToolCallOutput =
 
 interface WorkspaceFileCache<K, V> {
     /**
+     * Name of the cache
+     */
+    name: string
+    /**
      * Gets the value associated with the key, or undefined if there is none.
      * @param key
      */
@@ -1088,6 +1092,21 @@ interface WorkspaceFileCache<K, V> {
      * List the values in the cache.
      */
     values(): Promise<V[]>
+
+    /**
+     * Gets the sha of the key
+     * @param key
+     */
+    getSha(key: K): Promise<string>
+
+    /**
+     * Gets an existing value or updates it with the updater function.
+     */
+    getOrUpdate(
+        key: K,
+        updater: () => Promise<V>,
+        validator?: (val: V) => boolean
+    ): Promise<{ key: string; value: V; cached?: boolean }>
 }
 
 interface WorkspaceGrepOptions extends FilterGitFilesOptions {

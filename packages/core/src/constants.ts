@@ -79,9 +79,6 @@ export const IMAGE_GENERATION_MODEL_ID = "image"
 export const EMBEDDINGS_MODEL_ID = "embeddings"
 export const DEFAULT_FENCE_FORMAT: FenceFormat = "xml"
 export const DEFAULT_TEMPERATURE = 0.8
-export const CACHE_LLMREQUEST_PREFIX = "genaiscript/cache/llm/"
-export const CACHE_AIREQUEST_TRACE_PREFIX = "genaiscript/cache/ai/trace/"
-export const CACHE_AIREQUEST_TEXT_PREFIX = "genaiscript/cache/ai/text/"
 export const TRACE_NODE_PREFIX = "genaiscript/trace/"
 export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
 export const COPILOT_CHAT_PARTICIPANT_ID = TOOL_ID
@@ -338,6 +335,7 @@ export const TEMPLATE_ARG_DATA_SLICE_SAMPLE = 2000
 
 export const CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT = 8
 export const PROMISE_QUEUE_CONCURRENCY_DEFAULT = 16
+export const FILE_READ_CONCURRENCY_DEFAULT = 16
 
 export const GITHUB_REST_API_CONCURRENCY_LIMIT = 8
 export const GITHUB_REST_PAGE_DEFAULT = 10
@@ -425,3 +423,6 @@ export const CHAR_UP_DOWN_ARROWS = "⇅ "
 export const CHAR_FLOPPY_DISK = "🖫"
 
 export const DEBUG_SCRIPT_CATEGORY = "script"
+
+export const CACHE_FORMAT_VERSION = "1"
+export const CACHE_SHA_LENGTH = 32

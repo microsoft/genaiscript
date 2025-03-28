@@ -208,20 +208,6 @@
                     "visibility": "collapsed",
                     "type": "tree",
                     "icon": "./icon.svg"
-                },
-                {
-                    "id": "genaiscript.prompts.requests",
-                    "name": "Runs",
-                    "visibility": "collapsed",
-                    "type": "tree",
-                    "icon": "./icon.svg"
-                },
-                {
-                    "id": "genaiscript.llm.requests",
-                    "name": "Chat Requests",
-                    "visibility": "collapsed",
-                    "type": "tree",
-                    "icon": "./icon.svg"
                 }
             ]
         },

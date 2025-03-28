@@ -87,16 +87,14 @@ import { resolveScript } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
-import { agentAddMemory, agentQueryMemory } from "./agent"
+import { agentAddMemory, agentCreateCache, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
 import { mergeEnvVarsWithSystem, parametersToVars } from "./vars"
-import { JSONLineCache } from "./cache"
 import { FFmepgClient } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
 import { srtVttRender } from "./transcription"
-import { deleteEmptyValues } from "./cleaners"
 import { hash } from "./crypto"
 import { fileTypeFromBuffer } from "./filetype"
 import { deleteUndefinedValues } from "./cleaners"
@@ -107,6 +105,7 @@ import { terminalSize } from "./terminal"
 import { stderr, stdout } from "./stdio"
 import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
+import { createCache } from "./cache"
 
 /**
  * Creates a context for generating chat turn prompts.
@@ -471,6 +470,7 @@ export function createChatGenerationContext(
         }
     }
 
+    const adbgm = debug(`agent:memory`)
     const defAgent = (
         name: string,
         description: string,
@@ -489,11 +489,12 @@ export function createChatGenerationContext(
             disableMemoryQuery,
             ...rest
         } = options || {}
-        const memory = !disableMemory
+        const memory = disableMemory
+            ? undefined
+            : agentCreateCache({ userState })
 
         name = name.replace(/^agent_/i, "")
         const adbg = debug(`agent:${name}`)
-        const adbgm = debug(`agent:${name}:memory`)
         adbg(`created ${variant || ""}`)
         const agentName = `agent_${name}${variant ? "_" + variant : ""}`
         const agentLabel = `agent ${name}${variant ? " " + variant : ""}`
@@ -548,12 +549,13 @@ export function createChatGenerationContext(
                 let memoryAnswer: string
                 if (memory && query && !disableMemoryQuery) {
                     memoryAnswer = await agentQueryMemory(
+                        memory,
                         ctx,
                         query +
                             (hasExtraArgs
                                 ? `\n${YAMLStringify(argsNoQuery)}`
                                 : ""),
-                        { userState, trace }
+                        { trace }
                     )
                     if (memoryAnswer) adbgm(`found ${memoryAnswer}`)
                 }
@@ -591,11 +593,11 @@ export function createChatGenerationContext(
                                 ) {
                                     adbgm(`add ${text}`)
                                     await agentAddMemory(
+                                        memory,
                                         agentName,
                                         query,
                                         text,
                                         {
-                                            userState,
                                             trace,
                                         }
                                     )
@@ -829,7 +831,7 @@ export function createChatGenerationContext(
             }
 
             let res: TranscriptionResult
-            const _cache = JSONLineCache.byName<
+            const _cache = createCache<
                 { file: Blob } & TranscriptionOptions,
                 TranscriptionResult
             >(
@@ -837,7 +839,8 @@ export function createChatGenerationContext(
                     ? TRANSCRIPTION_CACHE_NAME
                     : typeof cache === "string"
                       ? cache
-                      : undefined
+                      : undefined,
+                { type: "fs" }
             )
             if (cache) {
                 const hit = await _cache.getOrUpdate(
