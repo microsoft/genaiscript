@@ -248,7 +248,7 @@ export class GenerationStats {
                 for (const { cached, messages, usage } of this.chatTurns) {
                     trace.item(
                         toStringList(
-                            cached ? CHAR_FLOPPY_DISK : undefined,
+                            cached ? CHAR_FLOPPY_DISK : "",
                             `${CHAR_ENVELOPE} ${messages.length}`,
                             usage.total_tokens
                                 ? `${prettyTokens(usage.total_tokens)}`
@@ -318,7 +318,7 @@ export class GenerationStats {
                 if (cost === undefined && isCosteable(turnModel))
                     unknowns.add(this.model)
                 logVerbose(
-                    `${indent}  ${cached ? CHAR_FLOPPY_DISK : undefined}${toStringList(`${CHAR_ENVELOPE} ${messages.length}`, prettyTokens(usage.total_tokens), prettyCost(cost), prettyTokensPerSecond(usage))}`
+                    `${indent}  ${cached ? CHAR_FLOPPY_DISK : ""}${toStringList(`${CHAR_ENVELOPE} ${messages.length}`, prettyTokens(usage.total_tokens), prettyCost(cost), prettyTokensPerSecond(usage))}`
                 )
             }
             if (this.chatTurns.length > chatTurns.length)
