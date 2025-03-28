@@ -36,22 +36,7 @@ import {
 import { defaultModelConfigurations } from "./llms"
 import { CancellationToken } from "./cancellation"
 import { changeext } from "./fs"
-
-// Function to create a frozen object representing Node.js path methods
-// This object provides utility methods for path manipulations
-export function createNodePath(): Path {
-    return Object.freeze({
-        dirname,
-        extname,
-        basename,
-        join,
-        normalize,
-        relative,
-        resolve,
-        isAbsolute,
-        changeext,
-    })
-}
+import { createNodePath } from "./path"
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
