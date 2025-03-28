@@ -97,10 +97,6 @@ export class ExtensionState extends EventTarget {
     private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _diagColl: vscode.DiagnosticCollection
-    private _aiRequestCache: WorkspaceFileCache<
-        AIRequestSnapshotKey,
-        AIRequestSnapshot
-    > = undefined
     readonly output: vscode.LogOutputChannel
     readonly sessionApiKey: string
     private panel: vscode.WebviewPanel
@@ -121,11 +117,6 @@ export class ExtensionState extends EventTarget {
 
         this._diagColl = vscode.languages.createDiagnosticCollection(TOOL_NAME)
         subscriptions.push(this._diagColl)
-
-        this._aiRequestCache = createCache<
-            AIRequestSnapshotKey,
-            AIRequestSnapshot
-        >(AI_REQUESTS_CACHE)
 
         // clear errors when file edited (remove me?)
         subscriptions.push(
@@ -169,10 +160,6 @@ export class ExtensionState extends EventTarget {
         return res
     }
 
-    aiRequestCache() {
-        return this._aiRequestCache
-    }
-
     async applyEdits() {
         const req = this.aiRequest
         if (!req) return
@@ -193,7 +180,7 @@ export class ExtensionState extends EventTarget {
 
     async requestAI(
         options: AIRequestOptions
-    ): Promise<Partial<GenerationResult> & { requestSha: string }> {
+    ): Promise<Partial<GenerationResult>> {
         try {
             const req = await this.startAIRequest(options)
             if (!req) {
@@ -208,40 +195,15 @@ export class ExtensionState extends EventTarget {
                 else if (text) this.showWebview({ reveal: false })
             }
 
-            const { key, sha } = await this.snapshotAIRequestKey(req)
-            const snapshot = snapshotAIRequest(req)
-            await this._aiRequestCache.set(key, snapshot)
             this.setDiagnostics()
             this.dispatchChange()
 
             if (edits?.length && options.mode != "notebook") this.applyEdits()
-            return { ...res, requestSha: sha }
+            return res
         } catch (e) {
             if (isCancelError(e)) return undefined
             throw e
         }
-    }
-
-    private async snapshotAIRequestKey(r: AIRequest) {
-        const { options } = r
-        const key: AIRequestSnapshotKey = {
-            template: {
-                id: options.template.id,
-                title: options.template.title,
-                hash: await hash(
-                    {
-                        template: options.template,
-                        parameters: options.parameters,
-                        mode: options.mode,
-                        runOptions: options.runOptions,
-                    },
-                    { version: true }
-                ),
-            },
-            fragment: options.fragment,
-            version: CORE_VERSION,
-        }
-        return { key, sha: await this._aiRequestCache.getSha(key) }
     }
 
     dispatchAIRequestChange() {

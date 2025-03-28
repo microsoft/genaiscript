@@ -4,6 +4,8 @@ import { MemoryCache } from "./memcache"
 import { host } from "./host"
 import { NotSupportedError } from "./error"
 import { CancellationOptions } from "./cancellation"
+import debug from "debug"
+const dbg = debug("genaiscript:cache")
 
 /**
  * Represents a cache entry with a hashed identifier (`sha`), `key`, and `val`.
@@ -30,7 +32,10 @@ export function createCache<K, V>(
     options?: CacheOptions & CancellationOptions
 ): WorkspaceFileCache<K, V> {
     name = cacheNormalizeName(name) // Sanitize name
-    if (!name) throw new NotSupportedError("missing cache name")
+    if (!name) {
+        dbg(`empty cache name`)
+        throw new NotSupportedError("missing cache name")
+    }
 
     const type = options?.type || "fs"
     const key = `cache:${type}:${name}`
@@ -38,6 +43,7 @@ export function createCache<K, V>(
     if (userState[key]) return userState[key] // Return if exists
     if (options?.lookupOnly) return undefined
 
+    dbg(`creating ${name} ${type}`)
     let r: WorkspaceFileCache<K, V>
     switch (type) {
         case "memory":

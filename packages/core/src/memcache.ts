@@ -43,25 +43,6 @@ export class MemoryCache<K, V>
     }
 
     /**
-     * Retrieve all entries from the cache.
-     * @returns A promise resolving to an array of cache entries
-     */
-    async entries(): Promise<CacheEntry<V>[]> {
-        await this.initialize()
-        return Object.values(this._entries).map((e) => ({ ...e }))
-    }
-
-    /**
-     * Retrieve a specific entry by its SHA identifier.
-     * @param sha - The SHA identifier of the entry
-     * @returns A promise resolving to the cache entry
-     */
-    async getEntryBySha(sha: string) {
-        await this.initialize()
-        return this._entries[sha]
-    }
-
-    /**
      * Get the value associated with a specific key.
      * @param key - The key of the entry
      * @returns A promise resolving to the value

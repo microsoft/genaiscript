@@ -34,6 +34,7 @@ export class FsCache<K, V> implements WorkspaceFileCache<any, any> {
     }
 
     async get(key: any): Promise<any> {
+        if (key === undefined) return undefined // Handle undefined key
         const sha = await this.getSha(key)
         const fn = this.cacheFilename(sha)
         const res = await tryReadJSON(fn)

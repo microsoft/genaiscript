@@ -146,11 +146,6 @@ export function createWorkspaceFileSystem(): Omit<
             return data
         },
         cache: async (name: string) => {
-            if (!name) {
-                dbg(`cache name is missing`)
-                throw new NotSupportedError("missing cache name")
-            }
-            dbg(`cache name: ${name}`)
             const res = createCache<any, any>(name)
             return res
         },
