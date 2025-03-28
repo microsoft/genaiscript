@@ -56,7 +56,7 @@ export function createCachedEmbedder(
     const cache: EmbeddingsCache = createCache<
         EmbeddingsCacheKey,
         EmbeddingsResponse
-    >(cacheName || "embeddings")
+    >(cacheName || "embeddings", { type: "fs" })
 
     return async (inputs: string, cfg, options) => {
         const key: EmbeddingsCacheKey = {

@@ -25,6 +25,7 @@ export function getChatCompletionCache(
     name?: string
 ): ChatCompletationRequestCache {
     return createCache<ChatCompletionRequestCacheKey, ChatCompletionResponse>(
-        name || CHAT_CACHE
+        name || CHAT_CACHE,
+        { type: "fs" }
     )
 }
