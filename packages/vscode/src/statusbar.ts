@@ -30,9 +30,10 @@ export function activateStatusBar(state: ExtensionState) {
             }${tokensSoFar ? ` ${tokensSoFar} tokens` : ""}`
         )
 
+        const authority = server.authority
         const md = new vscode.MarkdownString(
             toMarkdownString(
-                status === "running"
+                authority && status === "running"
                     ? `server: [${server.authority}](${server.browserUrl})`
                     : `server: ${status}`,
                 fragment?.files?.[0],
