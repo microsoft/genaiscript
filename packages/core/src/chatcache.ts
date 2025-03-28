@@ -1,10 +1,10 @@
-import { DirectoryCache } from "./directorycache"
-import {
+import { createCache } from "./cache"
+import type {
     ChatCompletionResponse,
     CreateChatCompletionRequest,
 } from "./chattypes"
 import { CHAT_CACHE } from "./constants"
-import { LanguageModelConfiguration } from "./server/messages"
+import type { LanguageModelConfiguration } from "./server/messages"
 
 // Define the type for a cache key, which combines chat completion request
 // with additional model options, excluding "token" and "source" from the language model configuration.
@@ -13,7 +13,7 @@ export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest &
 
 // Define a JSON line cache type that maps cache keys to cache values.
 // This cache stores chat completion requests and their associated responses.
-export type ChatCompletationRequestCache = DirectoryCache<
+export type ChatCompletationRequestCache = WorkspaceFileCache<
     ChatCompletionRequestCacheKey,
     ChatCompletionResponse
 >
@@ -24,8 +24,7 @@ export type ChatCompletationRequestCache = DirectoryCache<
 export function getChatCompletionCache(
     name?: string
 ): ChatCompletationRequestCache {
-    return DirectoryCache.byName<
-        ChatCompletionRequestCacheKey,
-        ChatCompletionResponse
-    >(name || CHAT_CACHE)
+    return createCache<ChatCompletionRequestCacheKey, ChatCompletionResponse>(
+        name || CHAT_CACHE
+    )
 }

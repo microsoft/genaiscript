@@ -1,4 +1,4 @@
-import { MemoryCache } from "./cache"
+import { createCache } from "./cache"
 import {
     AGENT_MEMORY_CACHE_NAME,
     AGENT_MEMORY_FLEX_TOKENS,
@@ -8,7 +8,7 @@ import { errorMessage } from "./error"
 import { GenerationOptions } from "./generation"
 import { HTMLEscape } from "./html"
 import { prettifyMarkdown } from "./markdown"
-import { MarkdownTrace, TraceOptions } from "./trace"
+import { TraceOptions } from "./trace"
 import { logVerbose } from "./util"
 
 /**
@@ -79,7 +79,7 @@ export async function agentAddMemory(
     options: Pick<GenerationOptions, "userState"> & Required<TraceOptions>
 ) {
     const { trace } = options || {}
-    const cache = MemoryCache.byName<
+    const cache = createCache<
         { agent: string; query: string },
         {
             agent: string
@@ -101,7 +101,7 @@ export async function agentAddMemory(
 }
 
 async function loadMemories(options: Pick<GenerationOptions, "userState">) {
-    const cache = MemoryCache.byName<
+    const cache = createCache<
         { agent: string; query: string },
         {
             agent: string
@@ -151,7 +151,7 @@ export async function traceAgentMemory(
 }
 
 async function defMemory(ctx: ChatTurnGenerationContext) {
-    const cache = MemoryCache.byName<
+    const cache = createCache<
         { agent: string; query: string },
         {
             agent: string

@@ -91,12 +91,10 @@ import { agentAddMemory, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
 import { mergeEnvVarsWithSystem, parametersToVars } from "./vars"
-import { JSONLineCache } from "./jsonlinecache"
 import { FFmepgClient } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
 import { srtVttRender } from "./transcription"
-import { deleteEmptyValues } from "./cleaners"
 import { hash } from "./crypto"
 import { fileTypeFromBuffer } from "./filetype"
 import { deleteUndefinedValues } from "./cleaners"
@@ -107,6 +105,7 @@ import { terminalSize } from "./terminal"
 import { stderr, stdout } from "./stdio"
 import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
+import { createCache } from "./cache"
 
 /**
  * Creates a context for generating chat turn prompts.
@@ -829,7 +828,7 @@ export function createChatGenerationContext(
             }
 
             let res: TranscriptionResult
-            const _cache = JSONLineCache.byName<
+            const _cache = createCache<
                 { file: Blob } & TranscriptionOptions,
                 TranscriptionResult
             >(

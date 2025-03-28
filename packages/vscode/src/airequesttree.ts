@@ -6,7 +6,7 @@ import {
 } from "./state"
 import { infoUri } from "./markdowndocumentprovider"
 import { toMarkdownString } from "./markdown"
-import { CacheEntry, JSONLineCache } from "../../core/src/cache"
+import { CacheEntry } from "../../core/src/cache"
 import { CHANGE, CACHE_AIREQUEST_TRACE_PREFIX } from "../../core/src/constants"
 
 type AIRequestTreeNode = CacheEntry<AIRequestSnapshot>
@@ -14,7 +14,7 @@ type AIRequestTreeNode = CacheEntry<AIRequestSnapshot>
 class AIRequestTreeDataProvider
     implements vscode.TreeDataProvider<AIRequestTreeNode>
 {
-    readonly cache: JSONLineCache<AIRequestSnapshotKey, AIRequestSnapshot>
+    readonly cache: WorkspaceFileCache<AIRequestSnapshotKey, AIRequestSnapshot>
     constructor(readonly state: ExtensionState) {
         this.cache = state.aiRequestCache()
         this.cache.addEventListener(CHANGE, () => this.refresh())

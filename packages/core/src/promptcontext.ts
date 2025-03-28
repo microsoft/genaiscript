@@ -20,7 +20,6 @@ import { Project } from "./server/messages"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
 import { NotSupportedError } from "./error"
-import { MemoryCache } from "./cache"
 import { proxifyEnvVars } from "./vars"
 import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
@@ -36,6 +35,7 @@ import {
     astGrepFindFiles,
     astGrepParse,
 } from "./astgrep"
+import { createCache } from "./cache"
 
 const dbg = debug("genaiscript:promptcontext")
 
@@ -277,8 +277,7 @@ export async function createPromptContext(
             } satisfies LanguageModelReference
         },
         cache: async (name: string) => {
-            if (!name) throw new NotSupportedError("missing cache name")
-            const res = MemoryCache.byName<any, any>(name)
+            const res = createCache<any, any>(name)
             return res
         },
         exec: async (

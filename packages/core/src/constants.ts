@@ -424,3 +424,6 @@ export const CHAR_ENVELOPE = "✉"
 export const CHAR_UP_DOWN_ARROWS = "⇅ "
 
 export const DEBUG_SCRIPT_CATEGORY = "script"
+
+export const CACHE_FORMAT_VERSION = "1"
+export const CACHE_SHA_LENGTH = 32

@@ -7,7 +7,6 @@ import { Utils } from "vscode-uri"
 import { listFiles, saveAllTextDocuments } from "./fs"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
-import { DirectoryCache } from "../../core/src/directorycache"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { fixCustomPrompts, fixPromptDefinitions } from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
@@ -27,6 +26,7 @@ import { delay } from "es-toolkit"
 import { Fragment } from "../../core/src/generation"
 import { createWebview } from "./webview"
 import { isEmptyString } from "../../core/src/cleaners"
+import { createCache } from "../../core/src/cache"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -97,7 +97,7 @@ export class ExtensionState extends EventTarget {
     private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _diagColl: vscode.DiagnosticCollection
-    private _aiRequestCache: DirectoryCache<
+    private _aiRequestCache: WorkspaceFileCache<
         AIRequestSnapshotKey,
         AIRequestSnapshot
     > = undefined
@@ -122,7 +122,7 @@ export class ExtensionState extends EventTarget {
         this._diagColl = vscode.languages.createDiagnosticCollection(TOOL_NAME)
         subscriptions.push(this._diagColl)
 
-        this._aiRequestCache = DirectoryCache.byName<
+        this._aiRequestCache = createCache<
             AIRequestSnapshotKey,
             AIRequestSnapshot
         >(AI_REQUESTS_CACHE)
@@ -241,7 +241,7 @@ export class ExtensionState extends EventTarget {
             fragment: options.fragment,
             version: CORE_VERSION,
         }
-        return { key, sha: await this._aiRequestCache.getKeyHash(key) }
+        return { key, sha: await this._aiRequestCache.getSha(key) }
     }
 
     dispatchAIRequestChange() {

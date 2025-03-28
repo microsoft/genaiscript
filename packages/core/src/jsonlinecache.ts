@@ -3,7 +3,8 @@ import { appendJSONL, JSONLTryParse, writeJSONL } from "./jsonl"
 import { host } from "./host"
 import { tryReadText } from "./fs"
 import { dotGenaiscriptPath } from "./workdir"
-import { CacheEntry, MemoryCache } from "./cache"
+import { CacheEntry } from "./cache"
+import { MemoryCache } from "./memcache"
 
 /**
  * A cache class that manages entries stored in JSONL format.
@@ -13,24 +14,8 @@ import { CacheEntry, MemoryCache } from "./cache"
  */
 export class JSONLineCache<K, V> extends MemoryCache<K, V> {
     // Constructor is private to enforce the use of byName factory method
-    protected constructor(public readonly name: string) {
+    constructor(public readonly name: string) {
         super(name) // Initialize EventTarget
-    }
-
-    /**
-     * Factory method to create or retrieve an existing cache by name.
-     * Sanitizes the name to ensure it is a valid identifier.
-     * @param name - The name of the cache
-     * @returns An instance of JSONLineCache
-     */
-    static byName<K, V>(name: string): JSONLineCache<K, V> {
-        if (!name) return undefined
-        name = name.replace(/[^a-z0-9_]/gi, "_") // Sanitize name
-        const key = "workspacecache." + name
-        if (host.userState[key]) return host.userState[key] // Return if exists
-        const r = new JSONLineCache<K, V>(name)
-        host.userState[key] = r
-        return r
     }
 
     // Get the folder path for the cache storage

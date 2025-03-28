@@ -2,7 +2,6 @@ import debug from "debug"
 const dbg = debug("genaiscript:workspace")
 
 import { copyFile, mkdir, writeFile } from "fs/promises"
-import { JSONLineCache } from "./jsonlinecache"
 import { DOT_ENV_REGEX } from "./constants"
 import { CSVTryParse } from "./csv"
 import { dataTryParse } from "./data"
@@ -16,6 +15,7 @@ import { arrayify } from "./util"
 import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
 import { dirname } from "path"
+import { createCache } from "./cache"
 
 /**
  * Creates a file system interface for interacting with workspace files.
@@ -151,7 +151,7 @@ export function createWorkspaceFileSystem(): Omit<
                 throw new NotSupportedError("missing cache name")
             }
             dbg(`cache name: ${name}`)
-            const res = JSONLineCache.byName<any, any>(name)
+            const res = createCache<any, any>(name)
             return res
         },
         stat: async (filename: string) => {
