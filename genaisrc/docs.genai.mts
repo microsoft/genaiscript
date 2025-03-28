@@ -4,6 +4,21 @@ import { prettier } from "./src/prettier.mts"
 
 script({
     title: "Generate TypeScript function documentation using AST insertion",
+    description: `
+## Docs!
+
+This script generates and updates TypeScript function using an AST/LLM hybrid approach.
+It uses ast-grep to look for undocumented and documented functions,
+then uses a combination of LLM, and LLM-as-a-judge to generate and validate the documentation.
+It also uses prettier to format the code before and after the generation.
+
+By default, 
+
+- no edits are applied on disk. It is recommended to 
+run this script with \`--vars 'applyEdits=true'\` to apply the edits.
+- if a diff is available, it will only process the files with changes.
+    
+    `,
     accept: ".ts",
     files: "src/cowsay.ts",
     parameters: {
@@ -17,7 +32,7 @@ script({
             type: "boolean",
             default: false,
             description:
-                "If true, the script will prettify the files efore analysis.",
+                "If true, the script will prettify the files before analysis.",
         },
         applyEdits: {
             type: "boolean",
