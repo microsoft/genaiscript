@@ -1827,6 +1827,12 @@ interface Path {
      * @param ext
      */
     changeext(path: string, ext: string): string
+
+    /**
+     * Converts a file://... to a path
+     * @param fileUrl 
+     */
+    resolveFileURL(fileUrl: string): string
 }
 
 interface Fenced {

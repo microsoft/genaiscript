@@ -11,7 +11,6 @@ import {
     UTF8Encoder,
     setRuntimeHost,
     RuntimeHost,
-    AzureTokenResolver,
     ModelConfigurations,
     ModelConfiguration,
 } from "./host"
