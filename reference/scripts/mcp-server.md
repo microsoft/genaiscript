@@ -1,0 +1,153 @@
+import { Image } from "astro:assets"
+import logoPng from "../../../../assets/mcp.png"
+import logoPngTxt from "../../../../assets/mcp.png.txt?raw"
+
+<Image src={logoPng} alt={logoPngTxt} />
+
+[Model Context Protocol](https://modelcontextprotocol.io/) (MCP) is an emerging standard
+for portable tool definitions.
+
+The MCP defines a protocol that allows to share [tools](https://modelcontextprotocol.io/docs/concepts/tools)
+and consume them regardless of the underlying framework/runtime.
+
+**GenAIScript implements a server that turns scripts into MCP tools**.
+
+:::tip
+
+GenAIScript also implements a client for MCP tools which allows you to consume MCP tools in script.
+See [MCP tools](/genaiscript/reference/scripts/mcp-tools) for more details.
+
+:::
+
+## Scripts as MCP Tools
+
+GenAIScript launches a MCP server that exposes each GenAIScript script as a MCP tool (not to be confused with `defTool`).
+
+The MCP tool parameters is inferred from the [script parameters](/genaiscript/reference/scripts/parameters) and files automatically.
+The MCP parameters will then populate the `env.vars` object in the script
+as usual.
+
+The MCP tool output is the script output. That is, typically, the last assistant message for a script that uses the top-level context.
+Or any content that was passed in [env.output](/genaiscript/reference/scripts/output-builder).
+
+Let's see an example. Here is a script `task.genai.mjs` that takes a `task` parameter input, builds a prompt
+and the LLM output is sent back.
+
+```js title="task.genai.mjs"
+script({
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic
+$`... prompt ... ${task}` // output the result
+```
+
+A more advanced script might not use the top-level context and instead use the `env.output` to pass the result.
+
+```js title="task.genai.mjs"
+script({
+    accept: "none", // this script does not use 'env.files'
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { output } = env // store the output builder
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic with inline prompts
+const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the prompt
+...
+
+// build the output
+output.fence(`The result is ${res.text}`)
+```
+
+## Usage
+
+The `mcp` command lanches the MCP server using the stdio transport.
+
+- [@modelcontextprotocol/inspector](https://www.npmjs.com/package/@modelcontextprotocol/inspector)
+  is a MCP client that can be used to inspect the server and list the available tools.
+
+```sh
+npx --yes @modelcontextprotocol/inspector npx --yes genaiscript mcp
+```
+
+- Claude Desktop
+
+```json
+{
+    "mcpServers": {
+        "genaiscript": {
+            "command": "npx",
+            "args": ["-y", "genaiscript", "mcp"]
+        }
+    }
+}
+```
+
+- Visual Studio Code Insiders with GitHub Copilot Chat
+
+:::note
+
+MCP support is not yet available in the stable version of Visual Studio Code.
+It is changing and things might not work as expected.
+
+:::
+
+```json title=".vscode/mcp.json"
+{
+    "servers": {
+        "genaiscript": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+                "npx",
+                "-y",
+                "genaiscript",
+                "mcp",
+                "--cwd",
+                "${workspaceFolder}",
+                "--groups",
+                "mcp"
+            ],
+            "envFile": "${workspaceFolder}/.env"
+        }
+    }
+}
+```
+
+## Running scripts from a remote repository
+
+You can use the `--remote` option to load scripts from a remote repository.
+GenAIScript will do a shallow clone of the repository and run the script from the clone folder.
+
+```sh
+npx --yes genaiscript mcp --remote https://github.com/...
+```
+
+There are additional flags to how the repository is cloned:
+
+- `--remote-branch <branch>`: The branch to clone from the remote repository.
+- `--remote-force`: Force the clone even if the cloned folder already exists.
+- `--remote-install`: Install dependencies after cloning the repository.
+
+:::caution
+
+As usual, be careful when running scripts from a remote repository.
+Make sure you trust the source before running the script and consider locking to a specific commit.
+
+:::
