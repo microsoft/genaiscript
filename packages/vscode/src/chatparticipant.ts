@@ -154,7 +154,7 @@ export async function activateChatParticipant(state: ExtensionState) {
                     ["copilot.history"]: history,
                     question: prompt,
                 }),
-                model: `${MODEL_PROVIDER_GITHUB_COPILOT_CHAT}:${model.id}`,
+                githubCopilotChatModelId: model.id,
                 fragment,
                 mode: "chat",
             })
