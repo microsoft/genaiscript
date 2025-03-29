@@ -159,7 +159,7 @@ export async function activateChatParticipant(state: ExtensionState) {
             canceller.dispose()
             if (token.isCancellationRequested) return
 
-            const { text = "", status, statusText } = res || {}
+            const { text = "", status, statusText, runId } = res || {}
             if (status !== "success") md("$(error) " + statusText)
             if (text) {
                 let patched = convertAnnotationsToItems(text)
@@ -170,6 +170,12 @@ export async function activateChatParticipant(state: ExtensionState) {
                 md("\n\n" + patched)
             }
             // TODO open url
+            if (runId) {
+                const server = state.host.server
+                md(
+                    `\n\n[Trace](${server.browserUrl}#scriptid=${template.id}&runid=${res.runId})`
+                )
+            }
         }
     )
     participant.iconPath = new vscode.ThemeIcon(ICON_LOGO_NAME)
