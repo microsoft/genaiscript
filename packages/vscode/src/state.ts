@@ -40,6 +40,7 @@ export interface AIRequestOptions {
     fragment: Fragment
     parameters: PromptParameters
     mode?: "notebook" | "chat"
+    model?: string
     jsSource?: string
     runOptions?: Partial<PromptScriptRunOptions>
 }
@@ -251,7 +252,7 @@ export class ExtensionState extends EventTarget {
         trace.addEventListener(CHANGE, reqChange)
         reqChange()
 
-        const { template, fragment, label, runOptions } = options
+        const { template, fragment, label, runOptions, model } = options
         const { files } = fragment || {}
         const infoCb = (partialResponse: { text: string }) => {
             r.response = partialResponse
@@ -270,6 +271,7 @@ export class ExtensionState extends EventTarget {
             label,
             cache: cache ? template.cache : undefined,
             vars: structuredClone(options.parameters),
+            model,
         })
         r.runId = runId
         r.request = request

@@ -175,6 +175,7 @@ type ModelType = OptionsOrString<
     | "github:deepseek-v3"
     | "github:deepseek-r1"
     | "github:Phi-4"
+    | "github_copilot_chat:current"
     | "azure:gpt-4o"
     | "azure:gpt-4o-mini"
     | "azure:o1"
@@ -1363,6 +1364,10 @@ interface ExpansionVariables {
          * When running in GitHub Copilot Chat, the current terminal content
          */
         "copilot.terminalSelection"?: string
+        /**
+         * Selected model identifier in GitHub Copilot Chat
+         */
+        "copilot.model"?: string
     }
 
     /**
@@ -1849,7 +1854,7 @@ interface Path {
 
     /**
      * Converts a file://... to a path
-     * @param fileUrl 
+     * @param fileUrl
      */
     resolveFileURL(fileUrl: string): string
 }
