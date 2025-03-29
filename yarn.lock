@@ -1816,9 +1816,9 @@
     uuid "^10.0.0"
 
 "@langchain/langgraph-sdk@~0.0.32":
-  version "0.0.61"
-  resolved "https://registry.yarnpkg.com/@langchain/langgraph-sdk/-/langgraph-sdk-0.0.61.tgz#3a4c82ca020be967bed9b19e715c41198a4067bd"
-  integrity sha512-zIdZ8kJQ5PHUnaV4cdPKjopM4shBxeSWqQQlXmnoRYiOMAuw218hhA3YrJKCKibdVsXkcWJuvU/OsQdoi0fPIg==
+  version "0.0.62"
+  resolved "https://registry.yarnpkg.com/@langchain/langgraph-sdk/-/langgraph-sdk-0.0.62.tgz#c5081ec5e2bb15e1dd6efbeeefc54279265e84f4"
+  integrity sha512-JJiQwjV5/uVtwiVH/lt+QXhuh0nGhylZSLkMQXc1923TBUC4SHwU0JIKEDqh820PlGNkUu0nODJSAzS/6zPRtQ==
   dependencies:
     "@types/json-schema" "^7.0.15"
     p-queue "^6.6.2"
@@ -1826,9 +1826,9 @@
     uuid "^9.0.0"
 
 "@langchain/langgraph@^0.2.57":
-  version "0.2.60"
-  resolved "https://registry.yarnpkg.com/@langchain/langgraph/-/langgraph-0.2.60.tgz#7cb551cff8e446a65033007adce5df574b775a70"
-  integrity sha512-cO2KU3i4lPt1zI6WwJsdLm/CVJKOx8QfF5yql+nYQEDaiQST2l05peeIlum4szHc6Rqw8VqQCkTWaD7o6ycvNQ==
+  version "0.2.61"
+  resolved "https://registry.yarnpkg.com/@langchain/langgraph/-/langgraph-0.2.61.tgz#6a1f6bf86c6d98ef318fb91a20ae6d23ff07bfcd"
+  integrity sha512-OScYA7nOP3GH9+2AcGxNCtehFF3wNoy/Q4wx/nLmVvobne28DENKnngoFq7mFlvPnDxMwa60jkzMGA+D53HQ/g==
   dependencies:
     "@langchain/langgraph-checkpoint" "~0.0.16"
     "@langchain/langgraph-sdk" "~0.0.32"
@@ -2132,10 +2132,10 @@
   resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-24.2.0.tgz#3d55c32eac0d38da1a7083a9c3b0cca77924f7d3"
   integrity sha512-9sIH3nSUttelJSXUrmGzl7QUBFul0/mB8HRYl3fOlgHbIWG+WnYDXU3v/2zMtAvuzZ/ed00Ei6on975FhBfzrg==
 
-"@octokit/openapi-webhooks-types@10.3.0":
-  version "10.3.0"
-  resolved "https://registry.yarnpkg.com/@octokit/openapi-webhooks-types/-/openapi-webhooks-types-10.3.0.tgz#f23f7c31272202ba3ef3301d42bad62746786cbe"
-  integrity sha512-Dog+FB4pvsfcGZ9CFyYwb7I6K4QkzCDuN0H3hh5Nr9mMQ4wbBceqUKyJNKN2A0SQ6j4UU3CYNuvfoX9mQlhLUQ==
+"@octokit/openapi-webhooks-types@10.4.0":
+  version "10.4.0"
+  resolved "https://registry.yarnpkg.com/@octokit/openapi-webhooks-types/-/openapi-webhooks-types-10.4.0.tgz#2cf1e08b9ad9f66930865c9e555499ae2e7507a3"
+  integrity sha512-HMiF7FUiVBYfp8pPijMTkWuPELQB6XkPftrnSuK1C1YXaaq2+0ganiQkorEQfXTmhtwlgHJwXT6P8miVhIyjQA==
 
 "@octokit/plugin-paginate-graphql@^5.2.4":
   version "5.2.4"
@@ -2219,11 +2219,11 @@
   integrity sha512-NGlEHZDseJTCj8TMMFehzwa9g7On4KJMPVHDSrHxCQumL6uSQR8wIkP/qesv52fXqV1BPf4pTxwtS31ldAt9Xg==
 
 "@octokit/webhooks@^13.6.1":
-  version "13.7.5"
-  resolved "https://registry.yarnpkg.com/@octokit/webhooks/-/webhooks-13.7.5.tgz#bd802269431c22fe746dc261ee8e7bdf7c25177b"
-  integrity sha512-qmmu4cfKmm58RWyDPUDoI7ls9JWw88qbqPzEi+TDBaSirHQPsixxdPU4OjPDcnDnjee7JXv525yv4qNN3BRlyg==
+  version "13.8.0"
+  resolved "https://registry.yarnpkg.com/@octokit/webhooks/-/webhooks-13.8.0.tgz#0d1f40f5b4217090deb5b810426052f477d8522b"
+  integrity sha512-3PCWyFBNbW2+Ox36VAkSqlPoIb96NZiPcICRYySHZrDTM2NuNxvrjPeaQDj2egqILs9EZFObRTHVMe4XxXJV7w==
   dependencies:
-    "@octokit/openapi-webhooks-types" "10.3.0"
+    "@octokit/openapi-webhooks-types" "10.4.0"
     "@octokit/request-error" "^6.1.7"
     "@octokit/webhooks-methods" "^5.1.1"
 
@@ -3590,10 +3590,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.3.0.tgz#d06bbb384ebcf6c505fde1c3d0ed4ddffe0aaff8"
   integrity sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==
 
-"@vscode-elements/elements@1.14.1-pre.1":
-  version "1.14.1-pre.1"
-  resolved "https://registry.yarnpkg.com/@vscode-elements/elements/-/elements-1.14.1-pre.1.tgz#82354ee74def55a014720fbdec539ab3a535f12c"
-  integrity sha512-nkIf1ql4okpF4dkCkWZUHRfk0ZwYfra3wd0tCUWewdo8Pu8FkW5Q5FgQJrp53m2zk/cJWE/73u4KMU3+KjiSWg==
+"@vscode-elements/elements@1.14.1-pre.2":
+  version "1.14.1-pre.2"
+  resolved "https://registry.yarnpkg.com/@vscode-elements/elements/-/elements-1.14.1-pre.2.tgz#e278727e0ea74d299019b0af409127e81f7356e6"
+  integrity sha512-2IlT40doxXczXsWhsawbfVTpW6OfnQuipZkU7/LFqdR0FmwH1+DgnusYU/uYZ5LddnrXTaKoofFnsh2ARIqULw==
   dependencies:
     lit "^3.2.1"
 
@@ -6489,9 +6489,9 @@ https-proxy-agent@^7.0.0, https-proxy-agent@^7.0.6:
     debug "4"
 
 human-signals@^8.0.0:
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-8.0.0.tgz#2d3d63481c7c2319f0373428b01ffe30da6df852"
-  integrity sha512-/1/GPCpDUCCYwlERiYjxoczfP0zfvZMU/OWgQPMya9AbAE24vseigFdhAMObpc8Q4lc/kjutPfUddDYyAmejnA==
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-8.0.1.tgz#f08bb593b6d1db353933d06156cedec90abe51fb"
+  integrity sha512-eKCa6bwnJhvxj14kZk5NCPc6Hb6BdsU9DZcOnmQKSnO1VKrfV0zCvtttPZUsBvjmNDn8rpcJfpwSYnHBjc95MQ==
 
 humanize-ms@^1.2.1:
   version "1.2.1"
@@ -7758,9 +7758,9 @@ merge2@^1.3.0, merge2@^1.4.1:
   integrity sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==
 
 mermaid-isomorphic@^3.0.0:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/mermaid-isomorphic/-/mermaid-isomorphic-3.0.2.tgz#dcb0173e098bb01975a6f6bcd73c6b2f23add3c4"
-  integrity sha512-5Gpr0cG+59MKYQD93fwZaGge0Le/MPQw/u27E/P6fmWxqRDVS6XmkD8L4FkZ8KVIKVz+ElcoZdWgTjLti/rtyw==
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/mermaid-isomorphic/-/mermaid-isomorphic-3.0.4.tgz#5852f1c241d0ee4683c6d8accbda3312a1599eec"
+  integrity sha512-XQTy7H1XwHK3DPEHf+ZNWiqUEd9BwX3Xws38R9Fj2gx718srmgjlZoUzHr+Tca+O+dqJOJsAJaKzCoP65QDfDg==
   dependencies:
     "@fortawesome/fontawesome-free" "^6.0.0"
     mermaid "^11.0.0"
@@ -9290,12 +9290,12 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-dom@^19.0.0:
-  version "19.0.0"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-19.0.0.tgz#43446f1f01c65a4cd7f7588083e686a6726cfb57"
-  integrity sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==
+react-dom@^19.1.0:
+  version "19.1.0"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-19.1.0.tgz#133558deca37fa1d682708df8904b25186793623"
+  integrity sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==
   dependencies:
-    scheduler "^0.25.0"
+    scheduler "^0.26.0"
 
 react-dropzone@^14.3.8:
   version "14.3.8"
@@ -9340,10 +9340,10 @@ react-markdown@^10.1.0:
     unist-util-visit "^5.0.0"
     vfile "^6.0.0"
 
-react@^19.0.0:
-  version "19.0.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-19.0.0.tgz#6e1969251b9f108870aa4bff37a0ce9ddfaaabdd"
-  integrity sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==
+react@^19.1.0:
+  version "19.1.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-19.1.0.tgz#926864b6c48da7627f004795d6cce50e90793b75"
+  integrity sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==
 
 read-pkg-up@^7.0.1:
   version "7.0.1"
@@ -9763,10 +9763,10 @@ sax@>=0.6.0, sax@^1.2.4:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.4.1.tgz#44cc8988377f126304d3b3fc1010c733b929ef0f"
   integrity sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==
 
-scheduler@^0.25.0:
-  version "0.25.0"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.25.0.tgz#336cd9768e8cceebf52d3c80e3dcf5de23e7e015"
-  integrity sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==
+scheduler@^0.26.0:
+  version "0.26.0"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.26.0.tgz#4ce8a8c2a2095f13ea11bf9a445be50c555d6337"
+  integrity sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==
 
 seedrandom@^3.0.5:
   version "3.0.5"
@@ -11697,9 +11697,9 @@ yallist@^5.0.0:
   integrity sha512-YgvUTfwqyc7UXVMrB+SImsVYSmTS8X/tSrtdNZMImM+n7+QTriRXyXim0mBrTXNeqzVF0KWGgHPeiyViFFrNDw==
 
 yaml@^2.7.0:
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.7.0.tgz#aef9bb617a64c937a9a748803786ad8d3ffe1e98"
-  integrity sha512-+hSoy/QHluxmC9kCIJyL/uyFmLmc+e5CFR5Wa+bpIhIj85LVb9ZH2nVnqrHoSvKogwODv0ClqZkmiSSaIH5LTA==
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.7.1.tgz#44a247d1b88523855679ac7fa7cda6ed7e135cf6"
+  integrity sha512-10ULxpnOCQXxJvBgxsn9ptjq6uviG/htZKk9veJGhlqn3w/DxQ631zFF+nlQXLwmImeS5amR2dl2U8sg6U9jsQ==
 
 yargs-parser@^20.2.3:
   version "20.2.9"

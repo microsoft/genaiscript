@@ -740,7 +740,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - human-signals@8.0.0
+ - human-signals@8.0.1
 
 This package contains the following license:
 
@@ -932,7 +932,7 @@ Apache License
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2024 ehmicky <ehmicky@gmail.com>
+   Copyright 2025 ehmicky <ehmicky@gmail.com>
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
