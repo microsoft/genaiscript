@@ -164,9 +164,12 @@ export async function activateChatParticipant(state: ExtensionState) {
             if (text) {
                 let patched = convertAnnotationsToItems(text)
                 const dir = state.host.projectUri
-                patched = patchCachedImages(patched, (url) =>
-                    vscode.Uri.joinPath(dir, url).toString()
-                )
+                patched = patchCachedImages(patched, (url) => {
+                    const wurl = vscode.Uri.joinPath(dir, url).toString()
+                    state.output.appendLine(`image: ${url}`)
+                    state.output.appendLine(`       ${wurl}`)
+                    return wurl
+                })
                 md("\n\n" + patched)
             }
             // TODO open url
