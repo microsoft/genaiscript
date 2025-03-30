@@ -1,15 +1,10 @@
 import { resolveBufferLike } from "./bufferlike"
-import {
-    CHANGE,
-    MCP_RESOURCE_PROTOCOL,
-    PROMISE_QUEUE_CONCURRENCY_DEFAULT,
-} from "./constants"
+import { CHANGE, MCP_RESOURCE_PROTOCOL } from "./constants"
 import debug from "debug"
 import { fileTypeFromBuffer } from "./filetype"
 import { TraceOptions } from "./trace"
-import { URL, URLSearchParams } from "node:url"
-import { randomHex } from "./crypto"
-import { arrayify } from "./cleaners"
+import { fileURLToPath, URL } from "node:url"
+import { hash } from "./crypto"
 import { resolveFileContent } from "./file"
 const dbg = debug("genaiscript:mcp:resource")
 
@@ -33,8 +28,6 @@ export interface ResourceContents {
     contents: ResourceContent[]
 }
 
-export type ResourceContentLike = string | BufferLike
-
 export class ResourceManager extends EventTarget {
     static readonly RESOURCE_CHANGE = "resourceChange"
 
@@ -50,7 +43,17 @@ export class ResourceManager extends EventTarget {
         const resource = this._resources[uri]
         return resource?.content
     }
+
     async publishResource(
+        body: BufferLike,
+        options?: Partial<ResourceReference> & TraceOptions
+    ) {
+        const res = await createResource(body, options)
+        const { reference } = res
+        return reference.uri
+    }
+
+    async upsetResource(
         reference: ResourceReference,
         content: ResourceContents | undefined
     ): Promise<void> {
@@ -78,52 +81,32 @@ export class ResourceManager extends EventTarget {
 }
 
 export async function createResource(
-    body: ResourceContentLike[],
-    options?: { id?: string } & Pick<
-        ResourceReference,
-        "name" | "description" | "mimeType"
-    > &
-        TraceOptions
+    body: BufferLike,
+    options?: Partial<ResourceReference> & TraceOptions
 ): Promise<{ reference: ResourceReference; content: ResourceContents }> {
-    let { name, description, mimeType, id = randomHex(32) } = options || {}
-    let uri = URL.parse(`${MCP_RESOURCE_PROTOCOL}://${id}`)
-    if (
-        !name &&
-        body.length === 1 &&
-        typeof body[0] === "object" &&
-        (body[0] as WorkspaceFile).filename
-    ) {
-        name = name || (body[0] as WorkspaceFile).filename
-        uri = URL.parse(
-            `${MCP_RESOURCE_PROTOCOL}://${encodeURIComponent(name)}`
-        )
-    }
-
+    const { name, description } = options || {}
+    const content = await resolveResourceContents(body, options)
+    if (!content.uri)
+        content.uri = `${MCP_RESOURCE_PROTOCOL}://${await hash(
+            JSON.stringify(content)
+        )}`
     const reference: ResourceReference = {
         name,
-        uri: uri.toString(),
         description,
-        mimeType,
+        uri: content.uri, // may be undefined
+        mimeType: content.mimeType,
     }
-    const content: ResourceContents = {
-        contents: [],
-    }
-    for (const b of body)
-        content.contents.push(
-            await resolveResourceContents(reference, b, options)
-        )
     return {
         reference,
-        content,
+        content: { contents: [content] },
     }
 }
 
 async function resolveResourceContents(
-    reference: Pick<ResourceContent, "uri" | "mimeType">,
-    body: ResourceContentLike,
-    options?: TraceOptions
+    body: BufferLike,
+    options?: Partial<ResourceReference> & TraceOptions
 ): Promise<ResourceContent> {
-    const { uri, mimeType } = reference
+    const { uri, mimeType } = options || {}
     if (typeof body === "string") {
         return {
             uri,
@@ -138,7 +121,9 @@ async function resolveResourceContents(
         await resolveFileContent(file, options)
         if (file.encoding)
             return {
-                uri,
+                uri:
+                    uri ||
+                    (file.filename ? fileURLToPath(file.filename) : undefined),
                 mimeType: file.type || "application/octet-stream",
                 blob: file.content,
             }

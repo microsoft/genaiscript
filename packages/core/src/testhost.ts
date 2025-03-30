@@ -28,6 +28,7 @@ import { defaultModelConfigurations } from "./llms"
 import { CancellationToken } from "./cancellation"
 import { createNodePath } from "./path"
 import { McpClientManager } from "./mcpclient"
+import { ResourceManager } from "./mcpresource"
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
@@ -43,13 +44,18 @@ export class TestHost implements RuntimeHost {
 
     // Default options for language models
     readonly modelAliases: ModelConfigurations = defaultModelConfigurations()
-
     readonly mcp: McpClientManager
+    readonly resources: ResourceManager
 
     // Static method to set this class as the runtime host
     static install() {
         setRuntimeHost(new TestHost())
     }
+
+    constructor() {
+        this.resources = new ResourceManager()
+    }
+
     async pullModel(
         cfg: LanguageModelConfiguration,
         options?: TraceOptions & CancellationToken

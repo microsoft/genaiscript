@@ -5065,6 +5065,24 @@ interface McpHost {
     mcpServer(config: McpServerConfig): Promise<McpClient>
 }
 
+interface ResourceReference {
+    uri: string // Unique identifier for the resource
+    name: string // Human-readable name
+    description?: string // Optional description
+    mimeType?: string // Optional MIME type
+}
+
+interface ResourceHost {
+    /**
+     * Publishes a resource that will be exposed through the MCP server protocol.
+     * @param content
+     */
+    publishResource(
+        content: BufferLike,
+        options?: Partial<ResourceReference>
+    ): Promise<string>
+}
+
 interface UserInterfaceHost {
     /**
      * Starts a headless browser and navigates to the page.
@@ -5246,6 +5264,7 @@ interface PromptHost
     extends ShellHost,
         LoggerHost,
         McpHost,
+        ResourceHost,
         UserInterfaceHost,
         LanguageModelHost,
         SgHost,
