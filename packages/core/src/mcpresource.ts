@@ -43,12 +43,17 @@ export class ResourceManager extends EventTarget {
         const resource = this._resources[uri]
         return resource?.content
     }
+    async clear() {
+        this._resources = {}
+        this.dispatchEvent(new Event(CHANGE))
+    }
 
     async publishResource(
         body: BufferLike,
         options?: Partial<ResourceReference> & TraceOptions
     ) {
         const res = await createResource(body, options)
+        await this.upsetResource(res.reference, res.content)
         const { reference } = res
         return reference.uri
     }
@@ -62,13 +67,11 @@ export class ResourceManager extends EventTarget {
         if (!URL.canParse(reference.uri))
             throw new Error("Resource reference uri must be a valid URL")
         dbg(`publishing resource: ${reference.uri}`)
-        const current = this._resources[reference.uri]
-        const replaced = !!current
-
+        const current = await hash(this._resources[reference.uri])
         if (!content) delete this._resources[reference.uri]
         else this._resources[reference.uri] = { reference, content }
-
-        if (replaced)
+        const update = await hash(this._resources[reference.uri])
+        if (current !== update)
             this.dispatchEvent(
                 new CustomEvent(ResourceManager.RESOURCE_CHANGE, {
                     detail: {
@@ -80,7 +83,7 @@ export class ResourceManager extends EventTarget {
     }
 }
 
-export async function createResource(
+async function createResource(
     body: BufferLike,
     options?: Partial<ResourceReference> & TraceOptions
 ): Promise<{ reference: ResourceReference; content: ResourceContents }> {
