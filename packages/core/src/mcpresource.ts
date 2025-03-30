@@ -79,11 +79,14 @@ export class ResourceManager extends EventTarget {
 
 export async function createResource(
     body: ResourceContentLike[],
-    options?: Pick<ResourceReference, "name" | "description" | "mimeType"> &
+    options?: { id?: string } & Pick<
+        ResourceReference,
+        "name" | "description" | "mimeType"
+    > &
         TraceOptions
 ): Promise<{ reference: ResourceReference; content: ResourceContents }> {
-    let { name, description, mimeType } = options || {}
-    let uri = URL.parse(`${MCP_RESOURCE_PROTOCOL}://${randomHex(32)}`)
+    let { name, description, mimeType, id = randomHex(32) } = options || {}
+    let uri = URL.parse(`${MCP_RESOURCE_PROTOCOL}://${id}`)
     if (
         !name &&
         body.length === 1 &&
