@@ -8,6 +8,7 @@ import { ScriptFilterOptions } from "../../core/src/ast"
 import { run } from "./api"
 import {
     ListResourcesRequestSchema,
+    ListResourceTemplatesRequestSchema,
     ReadResourceRequestSchema,
     type CallToolResult,
 } from "@modelcontextprotocol/sdk/types.js"
@@ -129,6 +130,12 @@ export async function startMcpServer(
         const resources = await runtimeHost.resources.resources()
         return { resources }
     })
+    server.setRequestHandler(
+        ListResourceTemplatesRequestSchema,
+        async (req) => {
+            return { templates: [] }
+        }
+    )
     server.setRequestHandler(ReadResourceRequestSchema, async (req) => {
         const { uri } = req.params
         const resource = await runtimeHost.resources.readResource(uri)
