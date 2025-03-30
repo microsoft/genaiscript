@@ -6,12 +6,17 @@ import { TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
 import { ScriptFilterOptions } from "../../core/src/ast"
 import { run } from "./api"
-import { type CallToolResult } from "@modelcontextprotocol/sdk/types.js"
+import {
+    ListResourcesRequestSchema,
+    ReadResourceRequestSchema,
+    type CallToolResult,
+} from "@modelcontextprotocol/sdk/types.js"
 import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { setMcpMode } from "../../core/src/mcp"
+import { runtimeHost } from "../../core/src/host"
 
 /**
  * Starts the MCP server.
@@ -49,6 +54,9 @@ export async function startMcpServer(
         {
             capabilities: {
                 tools: {
+                    listChanged: true,
+                },
+                resources: {
                     listChanged: true,
                 },
             },
@@ -114,6 +122,16 @@ export async function startMcpServer(
                 ],
             } satisfies CallToolResult
         }
+    })
+    server.setRequestHandler(ListResourcesRequestSchema, async (req) => {
+        dbg(`received CallToolRequest with name: ${req.params?.name}`)
+        const resources = await runtimeHost.resources.resources()
+        return { resources }
+    })
+    server.setRequestHandler(ReadResourceRequestSchema, async (req) => {
+        const { uri } = req.params
+        const resource = await runtimeHost.resources.readResource(uri)
+        return { content: resource }
     })
 
     const transport = new StdioServerTransport()

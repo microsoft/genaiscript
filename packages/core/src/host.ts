@@ -13,6 +13,7 @@ import { HostConfiguration } from "./hostconfiguration"
 import { LOG } from "./constants"
 import type { TokenCredential } from "@azure/identity"
 import { McpClientManager } from "./mcpclient"
+import { ResourceManager } from "./mcpresource"
 
 export class LogEvent extends Event {
     static Name = "log"
@@ -162,6 +163,7 @@ export interface RuntimeHost extends Host {
     clientLanguageModel?: LanguageModel
 
     mcp: McpClientManager
+    resources: ResourceManager
 
     pullModel(
         cfg: LanguageModelConfiguration,
