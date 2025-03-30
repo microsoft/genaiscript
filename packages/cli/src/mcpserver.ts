@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genaiscript:mcpserver")
+const dbg = debug("genaiscript:mcp:server")
 
 import { logVerbose, toStringList } from "../../core/src/util"
 import { TOOL_ID } from "../../core/src/constants"

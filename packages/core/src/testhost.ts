@@ -15,16 +15,7 @@ import {
     ModelConfiguration,
 } from "./host"
 import { TraceOptions } from "./trace"
-import {
-    dirname,
-    extname,
-    basename,
-    join,
-    normalize,
-    relative,
-    resolve,
-    isAbsolute,
-} from "node:path"
+import { resolve } from "node:path"
 import { LanguageModel } from "./chat"
 import { NotSupportedError } from "./error"
 import {
@@ -35,8 +26,8 @@ import {
 } from "./server/messages"
 import { defaultModelConfigurations } from "./llms"
 import { CancellationToken } from "./cancellation"
-import { changeext } from "./fs"
 import { createNodePath } from "./path"
+import { McpClientManager } from "./mcpclient"
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
@@ -52,6 +43,8 @@ export class TestHost implements RuntimeHost {
 
     // Default options for language models
     readonly modelAliases: ModelConfigurations = defaultModelConfigurations()
+
+    readonly mcp: McpClientManager
 
     // Static method to set this class as the runtime host
     static install() {

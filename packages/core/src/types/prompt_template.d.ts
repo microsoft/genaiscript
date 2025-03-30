@@ -1849,7 +1849,7 @@ interface Path {
 
     /**
      * Converts a file://... to a path
-     * @param fileUrl 
+     * @param fileUrl
      */
     resolveFileURL(fileUrl: string): string
 }
@@ -5020,6 +5020,30 @@ interface ShellHost {
     ): Promise<ShellOutput>
 }
 
+interface McpClient extends AsyncDisposable {
+    /**
+     * Configuration of the server
+     */
+    readonly config: McpServerConfig
+
+    /**
+     * List all available MCP tools
+     */
+    listTools(): Promise<ToolCallback[]>
+
+    /**
+     * Closes clients and server.
+     */
+    dispose(): Promise<void>
+}
+
+interface McpHost {
+    /**
+     * Starts a Model Context Protocol server and returns a client.
+     */
+    mcpServer(config: McpServerConfig): Promise<McpClient>
+}
+
 interface UserInterfaceHost {
     /**
      * Starts a headless browser and navigates to the page.
@@ -5200,6 +5224,7 @@ interface PythonProxy {
 interface PromptHost
     extends ShellHost,
         LoggerHost,
+        McpHost,
         UserInterfaceHost,
         LanguageModelHost,
         SgHost,

@@ -19,7 +19,6 @@ import { vectorCreateIndex, vectorSearch } from "./vectorsearch"
 import { Project } from "./server/messages"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
-import { NotSupportedError } from "./error"
 import { proxifyEnvVars } from "./vars"
 import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
@@ -260,6 +259,8 @@ export async function createPromptContext(
     // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
         logger: (category) => debug(category),
+        mcpServer: async (options) =>
+            await runtimeHost.mcp.startMcpServer(options, { trace }),
         fetch: (url, options) => fetch(url, { ...(options || {}), trace }),
         fetchText: (url, options) =>
             fetchText(url, { ...(options || {}), trace }),
