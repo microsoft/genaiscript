@@ -1,4 +1,6 @@
 import { CHANGE } from "./constants"
+import debug from "debug"
+const dbg = debug("genaiscript:mcp:resource")
 
 export interface ResourceReference {
     uri: string // Unique identifier for the resource
@@ -21,6 +23,8 @@ export interface ResourceContents {
 }
 
 export class ResourceManager extends EventTarget {
+    static readonly RESOURCE_CHANGE = "resourceChange"
+
     private _resources: Record<
         string,
         { reference: ResourceReference; content: ResourceContents }
@@ -29,6 +33,7 @@ export class ResourceManager extends EventTarget {
         return Object.values(this._resources).map((r) => r.reference)
     }
     async readResource(uri: string): Promise<ResourceContents | undefined> {
+        dbg(`reading resource: ${uri}`)
         const resource = this._resources[uri]
         return resource?.content
     }
@@ -36,6 +41,7 @@ export class ResourceManager extends EventTarget {
         reference: ResourceReference,
         content: ResourceContents
     ): Promise<void> {
+        dbg(`publishing resource: ${reference.uri}`)
         const current = this._resources[reference.uri]
         const replaced = !!current
 
@@ -44,7 +50,7 @@ export class ResourceManager extends EventTarget {
 
         if (replaced)
             this.dispatchEvent(
-                new CustomEvent("resourcechange", {
+                new CustomEvent(ResourceManager.RESOURCE_CHANGE, {
                     detail: {
                         uri: reference.uri,
                     },

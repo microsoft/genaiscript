@@ -2,7 +2,7 @@ import debug from "debug"
 const dbg = debug("genaiscript:mcp:server")
 
 import { logVerbose, toStringList } from "../../core/src/util"
-import { TOOL_ID } from "../../core/src/constants"
+import { CHANGE, TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
 import { ScriptFilterOptions } from "../../core/src/ast"
 import { run } from "./api"
@@ -17,6 +17,7 @@ import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { setMcpMode } from "../../core/src/mcp"
 import { runtimeHost } from "../../core/src/host"
+import { ResourceManager } from "../../core/src/mcpresource"
 
 /**
  * Starts the MCP server.
@@ -133,6 +134,17 @@ export async function startMcpServer(
         const resource = await runtimeHost.resources.readResource(uri)
         return { content: resource }
     })
+
+    runtimeHost.resources.addEventListener(CHANGE, async () => {
+        await server.sendResourceListChanged()
+    })
+    runtimeHost.resources.addEventListener(
+        ResourceManager.RESOURCE_CHANGE,
+        async (e) => {
+            const ev = e as CustomEvent<{ uri: string }>
+            await server.sendResourceUpdated({ uri: ev.detail.uri })
+        }
+    )
 
     const transport = new StdioServerTransport()
     dbg(`connecting server with transport`)
