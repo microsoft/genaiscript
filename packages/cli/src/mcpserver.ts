@@ -73,8 +73,11 @@ export async function startMcpServer(
         const scripts = await watcher.scripts()
         const tools = scripts.map((script) => {
             const { id, title, description, inputSchema, accept } = script
-            const scriptSchema = inputSchema.properties
-                .script as JSONSchemaObject
+            const scriptSchema = (inputSchema?.properties
+                .script as JSONSchemaObject) || {
+                type: "object",
+                properties: {},
+            }
             if (accept !== "none")
                 scriptSchema.properties.files = {
                     type: "array",
@@ -132,7 +135,7 @@ export async function startMcpServer(
     })
     server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
         dbg(`list resource templates`)
-        return { templates: [] }
+        return { resourceTemplates: [] }
     })
     server.setRequestHandler(ReadResourceRequestSchema, async (req) => {
         const { uri } = req.params
