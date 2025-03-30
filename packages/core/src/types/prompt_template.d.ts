@@ -5020,6 +5020,13 @@ interface ShellHost {
     ): Promise<ShellOutput>
 }
 
+interface McpResourceReference {
+    name?: string
+    description?: string
+    uri: string
+    mimeType?: string
+}
+
 interface McpClient extends AsyncDisposable {
     /**
      * Configuration of the server
@@ -5027,9 +5034,23 @@ interface McpClient extends AsyncDisposable {
     readonly config: McpServerConfig
 
     /**
+     * Pings the server
+     */
+    ping(): Promise<void>
+    /**
      * List all available MCP tools
      */
     listTools(): Promise<ToolCallback[]>
+
+    /**
+     * List resources available in the server
+     */
+    listResources(): Promise<McpResourceReference[]>
+
+    /**
+     * Reads the resource content
+     */
+    readResource(uri: string): Promise<WorkspaceFile[]>
 
     /**
      * Closes clients and server.

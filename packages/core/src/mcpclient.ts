@@ -9,6 +9,9 @@ import type {
     EmbeddedResource,
 } from "@modelcontextprotocol/sdk/types.js"
 import { errorMessage } from "./error"
+import { CancellationOptions, toSignal } from "./cancellation"
+import type { ProgressCallback } from "@modelcontextprotocol/sdk/shared/protocol.js"
+import { deleteUndefinedValues } from "./cleaners"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     readonly options: TraceOptions
@@ -19,8 +22,10 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
 
     async startMcpServer(
         serverConfig: McpServerConfig,
-        options: Required<TraceOptions>
+        options: Required<TraceOptions> & CancellationOptions
     ): Promise<McpClient> {
+        const { cancellationToken } = options || {}
+        const signal = toSignal(cancellationToken)
         const { id, version = "1.0.0", params = [], ...rest } = serverConfig
         const dbgc = debug(`mcp:${id}`)
         dbgc(`starting ${id}`)
@@ -32,7 +37,8 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             const { StdioClientTransport } = await import(
                 "@modelcontextprotocol/sdk/client/stdio.js"
             )
-
+            const progress: (msg: string) => ProgressCallback = (msg) => (ev) =>
+                dbgc(msg + " ", `${ev.progress || ""}/${ev.total || ""}`)
             const capabilities = { tools: {} }
             let transport = new StdioClientTransport({
                 ...rest,
@@ -45,10 +51,17 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             dbg(`connecting client to transport`)
             await client.connect(transport)
 
-            const listTools = async () => {
+            const ping: McpClient["ping"] = async () => {
+                dbgc(`ping`)
+                await client.ping({ signal })
+            }
+            const listTools: McpClient["listTools"] = async () => {
                 // list tools
                 dbgc(`listing tools`)
-                const { tools: toolDefinitions } = await client.listTools()
+                const { tools: toolDefinitions } = await client.listTools(
+                    {},
+                    { signal, onprogress: progress("list tools") }
+                )
                 trace.fence(
                     toolDefinitions.map(({ name, description }) => ({
                         name,
@@ -66,10 +79,19 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                             },
                             impl: async (args: any) => {
                                 const { context, ...rest } = args
-                                const res = await client.callTool({
-                                    name: name,
-                                    arguments: rest,
-                                })
+                                const res = await client.callTool(
+                                    {
+                                        name: name,
+                                        arguments: rest,
+                                    },
+                                    undefined,
+                                    {
+                                        signal,
+                                        onprogress: progress(
+                                            `tool call ${name} `
+                                        ),
+                                    }
+                                )
                                 const content = res.content as (
                                     | TextContent
                                     | ImageContent
@@ -99,6 +121,40 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 )
                 return tools
             }
+            const readResource: McpClient["readResource"] = async (
+                uri: string
+            ) => {
+                dbgc(`read resource ${uri}`)
+                const res = await client.readResource({ uri })
+                const contents = res.contents
+                return contents?.map((content) =>
+                    deleteUndefinedValues({
+                        content: content.text
+                            ? String(content.text)
+                            : content.blob
+                              ? Buffer.from(content.blob as any).toString(
+                                    "base64"
+                                )
+                              : undefined,
+                        encoding: content.blob ? "base64" : undefined,
+                        filename: content.uri,
+                        type: content.mimeType,
+                    } satisfies WorkspaceFile)
+                )
+            }
+            const listResources: McpClient["listResources"] = async () => {
+                const { resources } = await client.listResources(
+                    {},
+                    { signal, onprogress: progress("list ressources") }
+                )
+                return resources.map((r) => ({
+                    name: r.name,
+                    description: r.description,
+                    uri: r.uri,
+                    mimeType: r.mimeType,
+                }))
+            }
+
             const dispose = async () => {
                 dbgc(`disposing`)
                 const i = this.clients.indexOf(res)
@@ -119,7 +175,10 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
 
             const res = Object.freeze({
                 config: Object.freeze(structuredClone(serverConfig)),
+                ping,
                 listTools,
+                listResources,
+                readResource,
                 dispose,
                 [Symbol.asyncDispose]: dispose,
             } satisfies McpClient)
