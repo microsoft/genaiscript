@@ -126,22 +126,20 @@ export async function startMcpServer(
         }
     })
     server.setRequestHandler(ListResourcesRequestSchema, async (req) => {
-        dbg(`received CallToolRequest with name: ${req.params?.name}`)
+        dbg(`list resources`)
         const resources = await runtimeHost.resources.resources()
         return { resources }
     })
-    server.setRequestHandler(
-        ListResourceTemplatesRequestSchema,
-        async (req) => {
-            return { templates: [] }
-        }
-    )
+    server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
+        dbg(`list resource templates`)
+        return { templates: [] }
+    })
     server.setRequestHandler(ReadResourceRequestSchema, async (req) => {
         const { uri } = req.params
+        dbg(`read resource: ${uri}`)
         const resource = await runtimeHost.resources.readResource(uri)
         return { content: resource }
     })
-
     runtimeHost.resources.addEventListener(CHANGE, async () => {
         await server.sendResourceListChanged()
     })
