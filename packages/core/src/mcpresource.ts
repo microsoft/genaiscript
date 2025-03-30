@@ -6,7 +6,7 @@ import { TraceOptions } from "./trace"
 import { fileURLToPath, URL } from "node:url"
 import { hash } from "./crypto"
 import { resolveFileContent } from "./file"
-const dbg = debug("genaiscript:mcp:resource")
+const dbg = debug("genaiscript:resource")
 
 export interface ResourceReference {
     uri: string // Unique identifier for the resource
@@ -52,6 +52,7 @@ export class ResourceManager extends EventTarget {
         body: BufferLike,
         options?: Partial<ResourceReference> & TraceOptions
     ) {
+        dbg(`publishing ${typeof body}`)
         const res = await createResource(body, options)
         await this.upsetResource(res.reference, res.content)
         const { reference } = res
@@ -62,16 +63,15 @@ export class ResourceManager extends EventTarget {
         reference: ResourceReference,
         content: ResourceContents | undefined
     ): Promise<void> {
+        dbg(`upsert ${reference.uri}`)
         if (!reference?.uri)
             throw new Error("Resource reference must have a uri")
-        if (!URL.canParse(reference.uri))
-            throw new Error("Resource reference uri must be a valid URL")
-        dbg(`publishing resource: ${reference.uri}`)
         const current = await hash(this._resources[reference.uri])
         if (!content) delete this._resources[reference.uri]
         else this._resources[reference.uri] = { reference, content }
         const update = await hash(this._resources[reference.uri])
-        if (current !== update)
+        if (current !== update) {
+            dbg(`resource changed: ${reference.uri}`)
             this.dispatchEvent(
                 new CustomEvent(ResourceManager.RESOURCE_CHANGE, {
                     detail: {
@@ -79,6 +79,7 @@ export class ResourceManager extends EventTarget {
                     },
                 })
             )
+        }
         this.dispatchEvent(new Event(CHANGE))
     }
 }
@@ -89,10 +90,12 @@ async function createResource(
 ): Promise<{ reference: ResourceReference; content: ResourceContents }> {
     const { name, description } = options || {}
     const content = await resolveResourceContents(body, options)
-    if (!content.uri)
-        content.uri = `${MCP_RESOURCE_PROTOCOL}://${await hash(
-            JSON.stringify(content)
+    if (!content.uri) {
+        content.uri = `${MCP_RESOURCE_PROTOCOL}://resources/${await hash(
+            JSON.stringify(content),
+            { length: 32 }
         )}`
+    }
     const reference: ResourceReference = {
         name,
         description,
@@ -124,15 +127,13 @@ async function resolveResourceContents(
         await resolveFileContent(file, options)
         if (file.encoding)
             return {
-                uri:
-                    uri ||
-                    (file.filename ? fileURLToPath(file.filename) : undefined),
+                uri: uri || file.filename,
                 mimeType: file.type || "application/octet-stream",
                 blob: file.content,
             }
         else
             return {
-                uri,
+                uri: uri || file.filename,
                 mimeType: file.type || "text/plain",
                 text: file.content,
             }
