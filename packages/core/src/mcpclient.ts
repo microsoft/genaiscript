@@ -12,6 +12,7 @@ import { errorMessage } from "./error"
 import { CancellationOptions, toSignal } from "./cancellation"
 import type { ProgressCallback } from "@modelcontextprotocol/sdk/shared/protocol.js"
 import { deleteUndefinedValues } from "./cleaners"
+import { setMcpMode } from "./mcp"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     readonly options: TraceOptions
@@ -31,6 +32,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         dbgc(`starting ${id}`)
         const trace = this.options.trace.startTraceDetails(`🪚 mcp ${id}`)
         try {
+            setMcpMode("client")
             const { Client } = await import(
                 "@modelcontextprotocol/sdk/client/index.js"
             )

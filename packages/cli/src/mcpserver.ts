@@ -11,6 +11,7 @@ import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
+import { setMcpMode } from "../../core/src/mcp"
 
 /**
  * Starts the MCP server.
@@ -26,6 +27,7 @@ export async function startMcpServer(
 ) {
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
+    setMcpMode("server")
 
     await applyRemoteOptions(options)
 
