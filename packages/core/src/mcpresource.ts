@@ -41,6 +41,10 @@ export class ResourceManager extends EventTarget {
         reference: ResourceReference,
         content: ResourceContents
     ): Promise<void> {
+        if (!reference?.uri)
+            throw new Error("Resource reference must have a uri")
+        if (!URL.canParse(reference.uri))
+            throw new Error("Resource reference uri must be a valid URL")
         dbg(`publishing resource: ${reference.uri}`)
         const current = this._resources[reference.uri]
         const replaced = !!current
