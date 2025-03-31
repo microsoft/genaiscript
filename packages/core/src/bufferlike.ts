@@ -1,6 +1,8 @@
 import { resolveFileBytes } from "./file"
 import { TraceOptions } from "./trace"
 import { fileTypeFromBuffer } from "./filetype"
+import debug from "debug"
+const dbg = debug("genaiscript:buffer")
 
 /**
  * Resolves a buffer-like object into a Buffer.
@@ -32,8 +34,8 @@ export async function resolveBufferLike(
             await resolveFileBytes(bufferLike as WorkspaceFile, options)
         )
     }
-    console.log(bufferLike)
-    throw new Error("Unsupported buffer-like object")
+    dbg(`unsupported: ${typeof bufferLike}`)
+    throw new Error(`Unsupported buffer-like object ${typeof bufferLike}`)
 }
 
 /**

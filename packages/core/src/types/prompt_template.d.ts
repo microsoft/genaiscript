@@ -1506,7 +1506,7 @@ interface FileFilterOptions extends GitIgnoreFilterOptions {
     glob?: ElementOrArray<string>
 }
 
-interface ContentSafetyOptions {
+interface ContentSafetyOptions extends SecretDetectionOptions {
     /**
      * Runs the default content safety validator
      * to prevent prompt injection.
@@ -1517,7 +1517,9 @@ interface ContentSafetyOptions {
      * Policy to inject builtin system prompts. See to `false` prevent automatically injecting.
      */
     systemSafety?: "default" | boolean
+}
 
+interface SecretDetectionOptions {
     /**
      * Policy to disable secret scanning when communicating with the LLM.
      * Set to `false` to disable.
@@ -5025,6 +5027,76 @@ interface ShellHost {
     ): Promise<ShellOutput>
 }
 
+interface McpResourceReference {
+    name?: string
+    description?: string
+    uri: string
+    mimeType?: string
+}
+
+interface McpClient extends AsyncDisposable {
+    /**
+     * Configuration of the server
+     */
+    readonly config: McpServerConfig
+
+    /**
+     * Pings the server
+     */
+    ping(): Promise<void>
+    /**
+     * List all available MCP tools
+     */
+    listTools(): Promise<ToolCallback[]>
+
+    /**
+     * List resources available in the server
+     */
+    listResources(): Promise<McpResourceReference[]>
+
+    /**
+     * Reads the resource content
+     */
+    readResource(uri: string): Promise<WorkspaceFile[]>
+
+    /**
+     * Closes clients and server.
+     */
+    dispose(): Promise<void>
+}
+
+interface McpHost {
+    /**
+     * Starts a Model Context Protocol server and returns a client.
+     */
+    mcpServer(config: McpServerConfig): Promise<McpClient>
+}
+
+interface ResourceReference {
+    uri: string // Unique identifier for the resource
+    name: string // Human-readable name
+    description?: string // Optional description
+    mimeType?: string // Optional MIME type
+}
+
+interface ResourceHost {
+    /**
+     * Publishes a resource that will be exposed through the MCP server protocol.
+     * @param content
+     */
+    publishResource(
+        name: string,
+        content: BufferLike,
+        options?: Partial<Pick<ResourceReference, "description" | "mimeType">> &
+            SecretDetectionOptions
+    ): Promise<string>
+
+    /**
+     * List available resource references
+     */
+    resources(): Promise<ResourceReference[]>
+}
+
 interface UserInterfaceHost {
     /**
      * Starts a headless browser and navigates to the page.
@@ -5205,6 +5277,8 @@ interface PythonProxy {
 interface PromptHost
     extends ShellHost,
         LoggerHost,
+        McpHost,
+        ResourceHost,
         UserInterfaceHost,
         LanguageModelHost,
         SgHost,

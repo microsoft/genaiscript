@@ -1,6 +1,8 @@
 import { runtimeHost } from "./host"
 import { TraceOptions } from "./trace"
 import { logWarn } from "./util"
+import debug from "debug"
+const dbg = debug("genaiscript:secrets")
 
 const cachedSecretScanners: Record<string, RegExp> = {}
 
@@ -37,6 +39,7 @@ export function redactSecrets(text: string, options?: TraceOptions) {
         const msg = `detected secrets: ${Object.entries(found)
             .map(([k, v]) => `${k} (${v})`)
             .join(", ")}`
+        dbg(msg)
         logWarn(msg)
         trace.warn(msg)
     }

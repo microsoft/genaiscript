@@ -2,7 +2,7 @@
     "name": "genaiscript-workspace",
     "displayName": "GenAIScript",
     "description": "Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.",
-    "version": "1.123.0",
+    "version": "1.124.0",
     "license": "MIT",
     "private": true,
     "workspaces": {
@@ -38,7 +38,7 @@
         "commit-versions": "git add packages/**/package.json && git add docs/package.json && git add slides/package.json && git commit -m '[skip ci] updated version numbers' && git push",
         "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix && yarn commit-versions",
         "bump": "yarn release",
-        "debug:mcp": "npx --yes @modelcontextprotocol/inspector node packages/cli/built/genaiscript.cjs mcp --groups mcp --cwd packages/sample",
+        "debug:mcp": "npx --yes @modelcontextprotocol/inspector node packages/cli/built/genaiscript.cjs mcp --groups mcp --cwd packages/sample --startup resources",
         "test:core": "cd packages/core && yarn test",
         "test:samples": "cd packages/sample && yarn test",
         "test:modulesamples": "cd packages/modulesample && yarn test",
