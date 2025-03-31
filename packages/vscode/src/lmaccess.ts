@@ -12,6 +12,7 @@ import {
     MODEL_GITHUB_COPILOT_CHAT_CURRENT,
     TOOL_NAME,
 } from "../../core/src/constants"
+import { dedent } from "../../core/src/indent"
 
 async function pickChatModel(
     state: ExtensionState,
@@ -94,10 +95,11 @@ export function createChatModelRunner(
     if (!isLanguageModelsAvailable()) return undefined
 
     return async (req: ChatStart, onChunk) => {
+        const { model, messages, modelOptions } = req
+        let chatModel: vscode.LanguageModelChat
         try {
             const token = new vscode.CancellationTokenSource().token
-            const { model, messages, modelOptions } = req
-            const chatModel = await pickChatModel(state, model)
+            chatModel = await pickChatModel(state, model)
             if (!chatModel) {
                 logVerbose("no language chat model selected, cancelling")
                 onChunk({
@@ -140,6 +142,15 @@ export function createChatModelRunner(
                     error: serializeError(err),
                 })
             } else {
+                if (
+                    err instanceof Error &&
+                    /Request Failed: 400/.test(err.message)
+                )
+                    // This model is not support in the the
+                    await vscode.window.showErrorMessage(
+                        dedent`${TOOL_NAME} - The model ${chatModel?.name || model} is not supported for chat participants (@genaiscript).
+                        Please select a different model in GitHub Copilot Chat.`
+                    )
                 onChunk({
                     finishReason: "fail",
                     error: serializeError(err),
