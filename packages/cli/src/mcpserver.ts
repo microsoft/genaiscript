@@ -2,7 +2,7 @@ import debug from "debug"
 const dbg = debug("genaiscript:mcp:server")
 
 import { logVerbose, toStringList } from "../../core/src/util"
-import { CHANGE, TOOL_ID } from "../../core/src/constants"
+import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
 import { ScriptFilterOptions } from "../../core/src/ast"
 import { run } from "./api"
@@ -15,6 +15,7 @@ import {
     type ListResourcesResult,
     type ListResourceTemplatesResult,
     type ReadResourceResult,
+    ServerResult,
 } from "@modelcontextprotocol/sdk/types.js"
 import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
@@ -22,7 +23,12 @@ import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { setMcpMode } from "../../core/src/mcp"
 import { runtimeHost } from "../../core/src/host"
-import { ResourceManager } from "../../core/src/mcpresource"
+import {
+    Resource,
+    ResourceContent,
+    ResourceContents,
+    ResourceManager,
+} from "../../core/src/mcpresource"
 
 /**
  * Starts the MCP server.
@@ -150,20 +156,20 @@ export async function startMcpServer(
     server.setRequestHandler(ReadResourceRequestSchema, async (req) => {
         const { uri } = req.params
         dbg(`read resource: ${uri}`)
-        const resource = await runtimeHost.resources.readResource(uri)
+        const resource: ResourceContents =
+            await runtimeHost.resources.readResource(uri)
         if (!resource) dbg(`resource not found: ${uri}`)
-        return { content: resource } satisfies ReadResourceResult
+        return resource as ReadResourceResult
     })
     runtimeHost.resources.addEventListener(CHANGE, async () => {
         await server.sendResourceListChanged()
     })
-    runtimeHost.resources.addEventListener(
-        ResourceManager.RESOURCE_CHANGE,
-        async (e) => {
-            const ev = e as CustomEvent<{ uri: string }>
-            await server.sendResourceUpdated({ uri: ev.detail.uri })
-        }
-    )
+    runtimeHost.resources.addEventListener(RESOURCE_CHANGE, async (e) => {
+        const ev = e as CustomEvent<Resource>
+        await server.sendResourceUpdated({
+            uri: ev.detail.reference.uri,
+        })
+    })
 
     const transport = new StdioServerTransport()
     dbg(`connecting server with transport`)

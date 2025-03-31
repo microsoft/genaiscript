@@ -30,8 +30,8 @@ export async function worker() {
     }
 
     runtimeHost.resources.addEventListener(RESOURCE_CHANGE, (ev) => {
-        const cev = ev as CustomEvent
-        const { reference, content } = cev.detail as Resource
+        const cev = ev as CustomEvent<Resource>
+        const { reference, content } = cev.detail
         parentPort.postMessage({
             type: RESOURCE_CHANGE,
             reference,

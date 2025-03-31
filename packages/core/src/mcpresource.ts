@@ -73,11 +73,11 @@ export class ResourceManager extends EventTarget {
         if (current !== update) {
             dbg(`resource changed: ${reference.uri}`)
             this.dispatchEvent(
-                new CustomEvent(RESOURCE_CHANGE, {
+                new CustomEvent<Resource>(RESOURCE_CHANGE, {
                     detail: {
                         reference,
                         content,
-                    } satisfies Resource,
+                    },
                 })
             )
         }
