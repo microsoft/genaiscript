@@ -261,8 +261,9 @@ export async function createPromptContext(
         logger: (category) => debug(category),
         mcpServer: async (options) =>
             await runtimeHost.mcp.startMcpServer(options, { trace }),
-        publishResource: async (content, options) =>
-            await runtimeHost.resources.publishResource(content, options),
+        publishResource: async (name, content, options) =>
+            await runtimeHost.resources.publishResource(name, content, options),
+        resources: async () => await runtimeHost.resources.resources(),
         fetch: (url, options) => fetch(url, { ...(options || {}), trace }),
         fetchText: (url, options) =>
             fetchText(url, { ...(options || {}), trace }),

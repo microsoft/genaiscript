@@ -49,11 +49,12 @@ export class ResourceManager extends EventTarget {
     }
 
     async publishResource(
+        name: string,
         body: BufferLike,
-        options?: Partial<ResourceReference> & TraceOptions
+        options?: Partial<Omit<ResourceReference, "name">> & TraceOptions
     ) {
         dbg(`publishing ${typeof body}`)
-        const res = await createResource(body, options)
+        const res = await createResource(name, body, options)
         await this.upsetResource(res.reference, res.content)
         const { reference } = res
         return reference.uri
@@ -85,10 +86,12 @@ export class ResourceManager extends EventTarget {
 }
 
 async function createResource(
+    name: string,
     body: BufferLike,
-    options?: Partial<ResourceReference> & TraceOptions
+    options?: Partial<Omit<ResourceReference, "name">> & TraceOptions
 ): Promise<{ reference: ResourceReference; content: ResourceContents }> {
-    const { name, description } = options || {}
+    const { description } = options || {}
+    if (!name) throw new Error("Resource name is required")
     const content = await resolveResourceContents(body, options)
     if (!content.uri) {
         content.uri = `${MCP_RESOURCE_PROTOCOL}://resources/${await hash(

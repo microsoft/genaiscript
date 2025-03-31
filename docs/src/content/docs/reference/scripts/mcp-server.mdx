@@ -82,7 +82,26 @@ const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the promp
 output.fence(`The result is ${res.text}`)
 ```
 
-## Usage
+## Resources
+
+[Resources](https://modelcontextprotocol.io/docs/concepts/resources)
+are a core primitive in the Model Context Protocol (MCP) that allow servers to expose data
+and content that can be read by clients and used as context for LLM interactions.
+
+In GenAScript, you can create a resource using `host.publishResource` and
+it will automatically be exposed as a MCP resource.
+
+```js title="task.genai.mjs"
+// publish a file as a resources
+const id = await host.publishResource(file)
+```
+
+The return value is the resource uri which can be used in the prompt output.
+`publishResource` supports files, buffers and strings.
+
+The resource will be available for the lifetime of the MCP server.
+
+## IDE configuration (MCP client)
 
 The `mcp` command lanches the MCP server using the stdio transport.
 

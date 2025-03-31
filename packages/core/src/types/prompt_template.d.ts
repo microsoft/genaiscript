@@ -5078,9 +5078,15 @@ interface ResourceHost {
      * @param content
      */
     publishResource(
+        name: string,
         content: BufferLike,
-        options?: Partial<ResourceReference>
+        options?: Partial<Pick<ResourceReference, "description" | "mimeType">>
     ): Promise<string>
+
+    /**
+     * List available resource references
+     */
+    resources(): Promise<ResourceReference[]>
 }
 
 interface UserInterfaceHost {
