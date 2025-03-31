@@ -1,9 +1,8 @@
 import { resolveBufferLike } from "./bufferlike"
-import { CHANGE, MCP_RESOURCE_PROTOCOL } from "./constants"
+import { CHANGE, MCP_RESOURCE_PROTOCOL, RESOURCE_CHANGE } from "./constants"
 import debug from "debug"
 import { fileTypeFromBuffer } from "./filetype"
 import { TraceOptions } from "./trace"
-import { fileURLToPath, URL } from "node:url"
 import { hash } from "./crypto"
 import { resolveFileContent } from "./file"
 const dbg = debug("genaiscript:resource")
@@ -28,13 +27,13 @@ export interface ResourceContents {
     contents: ResourceContent[]
 }
 
-export class ResourceManager extends EventTarget {
-    static readonly RESOURCE_CHANGE = "resourceChange"
+export interface Resource {
+    reference: ResourceReference
+    content: ResourceContents
+}
 
-    private _resources: Record<
-        string,
-        { reference: ResourceReference; content: ResourceContents }
-    > = {}
+export class ResourceManager extends EventTarget {
+    private _resources: Record<string, Resource> = {}
     async resources(): Promise<ResourceReference[]> {
         return Object.values(this._resources).map((r) => r.reference)
     }
@@ -74,10 +73,11 @@ export class ResourceManager extends EventTarget {
         if (current !== update) {
             dbg(`resource changed: ${reference.uri}`)
             this.dispatchEvent(
-                new CustomEvent(ResourceManager.RESOURCE_CHANGE, {
+                new CustomEvent(RESOURCE_CHANGE, {
                     detail: {
-                        uri: reference.uri,
-                    },
+                        reference,
+                        content,
+                    } satisfies Resource,
                 })
             )
         }
