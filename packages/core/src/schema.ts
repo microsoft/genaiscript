@@ -323,8 +323,8 @@ export function toStrictJSONSchema(
     )
     visit(clone)
 
-    if (clone.type !== "object")
-        throw new Error("top level schema must be object")
+    //if (clone.type !== "object")
+    //    throw new Error("top level schema must be object")
 
     // Recursive function to make the schema strict
     function visit(node: JSONSchemaType): void {
