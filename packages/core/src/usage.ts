@@ -62,7 +62,7 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
         (prompt_tokens - cached) * price_per_million_input_tokens +
         cached * cost.price_per_million_input_tokens * input_cache_token_rebate
     const output = completion_tokens * price_per_million_output_tokens
-    return (input + output) / 1e6
+    return (input + output) / 1000000
 }
 
 /**
