@@ -1,5 +1,6 @@
 import CONFIGURATION_DATA from "./llms.json"
 export const CHANGE = "change"
+export const RESOURCE_CHANGE = "resourceChange"
 export const TRACE_CHUNK = "traceChunk"
 export const TRACE_DETAILS = "traceDetails"
 export const RECONNECT = "reconnect"
@@ -329,7 +330,6 @@ export const OPENAI_MAX_RETRY_COUNT = 10
 export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000
 
 export const ANTHROPIC_MAX_TOKEN = 4096
-
 export const TEMPLATE_ARG_FILE_MAX_TOKENS = 4000
 export const TEMPLATE_ARG_DATA_SLICE_SAMPLE = 2000
 
@@ -426,3 +426,5 @@ export const DEBUG_SCRIPT_CATEGORY = "script"
 
 export const CACHE_FORMAT_VERSION = "1"
 export const CACHE_SHA_LENGTH = 32
+
+export const MCP_RESOURCE_PROTOCOL = TOOL_ID

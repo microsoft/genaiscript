@@ -1,16 +1,34 @@
 import debug from "debug"
-const dbg = debug("genaiscript:mcpserver")
+const dbg = debug("genaiscript:mcp:server")
 
 import { logVerbose, toStringList } from "../../core/src/util"
-import { TOOL_ID } from "../../core/src/constants"
+import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
 import { ScriptFilterOptions } from "../../core/src/ast"
 import { run } from "./api"
-import { type CallToolResult } from "@modelcontextprotocol/sdk/types.js"
+import {
+    ListResourcesRequestSchema,
+    ListResourceTemplatesRequestSchema,
+    ReadResourceRequestSchema,
+    type CallToolResult,
+    type ListToolsResult,
+    type ListResourcesResult,
+    type ListResourceTemplatesResult,
+    type ReadResourceResult,
+    ServerResult,
+} from "@modelcontextprotocol/sdk/types.js"
 import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
+import { setMcpMode } from "../../core/src/mcp"
+import { runtimeHost } from "../../core/src/host"
+import {
+    Resource,
+    ResourceContent,
+    ResourceContents,
+    ResourceManager,
+} from "../../core/src/mcpresource"
 
 /**
  * Starts the MCP server.
@@ -26,6 +44,7 @@ export async function startMcpServer(
 ) {
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
+    setMcpMode("server")
 
     await applyRemoteOptions(options)
 
@@ -49,6 +68,9 @@ export async function startMcpServer(
                 tools: {
                     listChanged: true,
                 },
+                resources: {
+                    listChanged: true,
+                },
             },
         }
     )
@@ -61,8 +83,11 @@ export async function startMcpServer(
         const scripts = await watcher.scripts()
         const tools = scripts.map((script) => {
             const { id, title, description, inputSchema, accept } = script
-            const scriptSchema = inputSchema.properties
-                .script as JSONSchemaObject
+            const scriptSchema = (inputSchema?.properties
+                .script as JSONSchemaObject) || {
+                type: "object",
+                properties: {},
+            }
             if (accept !== "none")
                 scriptSchema.properties.files = {
                     type: "array",
@@ -74,11 +99,12 @@ export async function startMcpServer(
             return {
                 name: id,
                 description: toStringList(title, description),
-                inputSchema: scriptSchema,
-            }
+                inputSchema:
+                    scriptSchema as ListToolsResult["tools"][0]["inputSchema"],
+            } satisfies ListToolsResult["tools"][0]
         })
         dbg(`returning tool list with ${tools.length} tools`)
-        return { tools }
+        return { tools } satisfies ListToolsResult
     })
     server.setRequestHandler(CallToolRequestSchema, async (req) => {
         dbg(`received CallToolRequest with name: ${req.params?.name}`)
@@ -112,6 +138,37 @@ export async function startMcpServer(
                 ],
             } satisfies CallToolResult
         }
+    })
+    server.setRequestHandler(ListResourcesRequestSchema, async (req) => {
+        dbg(`list resources`)
+        const resources = await runtimeHost.resources.resources()
+        dbg(`found ${resources.length} resources`)
+        return {
+            resources: resources.map(
+                (r) => r as ListResourcesResult["resources"][0]
+            ),
+        } satisfies ListResourcesResult
+    })
+    server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
+        dbg(`list resource templates - not supported`)
+        return { resourceTemplates: [] } satisfies ListResourceTemplatesResult
+    })
+    server.setRequestHandler(ReadResourceRequestSchema, async (req) => {
+        const { uri } = req.params
+        dbg(`read resource: ${uri}`)
+        const resource: ResourceContents =
+            await runtimeHost.resources.readResource(uri)
+        if (!resource) dbg(`resource not found: ${uri}`)
+        return resource as ReadResourceResult
+    })
+    runtimeHost.resources.addEventListener(CHANGE, async () => {
+        await server.sendResourceListChanged()
+    })
+    runtimeHost.resources.addEventListener(RESOURCE_CHANGE, async (e) => {
+        const ev = e as CustomEvent<Resource>
+        await server.sendResourceUpdated({
+            uri: ev.detail.reference.uri,
+        })
     })
 
     const transport = new StdioServerTransport()
