@@ -8,6 +8,10 @@ import { serializeError } from "../../core/src/error"
 import { logVerbose } from "../../core/src/util"
 import { renderMessageContent } from "../../core/src/chatrender"
 import { parseModelIdentifier } from "../../core/src/models"
+import {
+    MODEL_GITHUB_COPILOT_CHAT_CURRENT,
+    TOOL_NAME,
+} from "../../core/src/constants"
 
 async function pickChatModel(
     state: ExtensionState,
@@ -16,7 +20,10 @@ async function pickChatModel(
     const chatModels = await vscode.lm.selectChatModels()
     const languageChatModels = await state.languageChatModels()
     const { model } = parseModelIdentifier(modelId)
-    const chatModelId = languageChatModels[model]
+    const chatModelId =
+        (modelId === MODEL_GITHUB_COPILOT_CHAT_CURRENT
+            ? state.aiRequest?.options?.githubCopilotChatModelId
+            : undefined) || languageChatModels[model]
     let chatModel =
         chatModels.find((m) => m.id === model) ||
         (chatModelId && chatModels.find((m) => m.id === chatModelId))
@@ -36,6 +43,11 @@ async function pickChatModel(
             chatModel = res?.chatModel
             if (chatModel)
                 await state.updateLanguageChatModels(model, chatModel.id)
+        } else {
+            await vscode.window.showErrorMessage(
+                TOOL_NAME +
+                    ` - No language chat model available, could not resolve ${modelId}`
+            )
         }
     }
     return chatModel
