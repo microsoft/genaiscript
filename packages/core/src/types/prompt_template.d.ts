@@ -175,6 +175,19 @@ type ModelType = OptionsOrString<
     | "github:deepseek-v3"
     | "github:deepseek-r1"
     | "github:Phi-4"
+    | "github_copilot_chat:current"
+    | "github_copilot_chat:gpt-3.5-turbo",
+    | "github_copilot_chat:gpt-4o-mini"
+    | "github_copilot_chat:gpt-4o-2024-11-20"
+    | "github_copilot_chat:gpt-4"
+    | "github_copilot_chat:o1"
+    | "github_copilot_chat:o1:low"
+    | "github_copilot_chat:o1:medium"
+    | "github_copilot_chat:o1:high"
+    | "github_copilot_chat:o3-mini" 
+    | "github_copilot_chat:o3-mini:low" 
+    | "github_copilot_chat:o3-mini:medium" 
+    | "github_copilot_chat:o3-mini:high" 
     | "azure:gpt-4o"
     | "azure:gpt-4o-mini"
     | "azure:o1"
@@ -1363,6 +1376,10 @@ interface ExpansionVariables {
          * When running in GitHub Copilot Chat, the current terminal content
          */
         "copilot.terminalSelection"?: string
+        /**
+         * Selected model identifier in GitHub Copilot Chat
+         */
+        "copilot.model"?: string
     }
 
     /**

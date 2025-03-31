@@ -40,6 +40,7 @@ export interface AIRequestOptions {
     fragment: Fragment
     parameters: PromptParameters
     mode?: "notebook" | "chat"
+    githubCopilotChatModelId?: string
     jsSource?: string
     runOptions?: Partial<PromptScriptRunOptions>
 }

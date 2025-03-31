@@ -5,6 +5,7 @@ import {
     COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
     COPILOT_CHAT_PARTICIPANT_ID,
     ICON_LOGO_NAME,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
 } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
@@ -13,7 +14,7 @@ import { templatesToQuickPickItems } from "./fragmentcommands"
 import { patchCachedImages } from "../../core/src/filecache"
 
 export async function activateChatParticipant(state: ExtensionState) {
-    const { context, host } = state
+    const { context } = state
     const { subscriptions } = context
 
     const resolveReference = (
@@ -150,9 +151,11 @@ export async function activateChatParticipant(state: ExtensionState) {
                 label: "genaiscript agent",
                 parameters: deleteUndefinedValues({
                     ...vars,
-                    ["copilot.history"]: history,
+                    "copilot.history": history,
+                    "copilot.model": `${MODEL_PROVIDER_GITHUB_COPILOT_CHAT}:${model.id}`,
                     question: prompt,
                 }),
+                githubCopilotChatModelId: model.id,
                 fragment,
                 mode: "chat",
             })

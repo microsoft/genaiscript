@@ -8,6 +8,11 @@ import { serializeError } from "../../core/src/error"
 import { logVerbose } from "../../core/src/util"
 import { renderMessageContent } from "../../core/src/chatrender"
 import { parseModelIdentifier } from "../../core/src/models"
+import {
+    MODEL_GITHUB_COPILOT_CHAT_CURRENT,
+    TOOL_NAME,
+} from "../../core/src/constants"
+import { dedent } from "../../core/src/indent"
 
 async function pickChatModel(
     state: ExtensionState,
@@ -16,7 +21,10 @@ async function pickChatModel(
     const chatModels = await vscode.lm.selectChatModels()
     const languageChatModels = await state.languageChatModels()
     const { model } = parseModelIdentifier(modelId)
-    const chatModelId = languageChatModels[model]
+    const chatModelId =
+        (modelId === MODEL_GITHUB_COPILOT_CHAT_CURRENT
+            ? state.aiRequest?.options?.githubCopilotChatModelId
+            : undefined) || languageChatModels[model]
     let chatModel =
         chatModels.find((m) => m.id === model) ||
         (chatModelId && chatModels.find((m) => m.id === chatModelId))
@@ -36,6 +44,11 @@ async function pickChatModel(
             chatModel = res?.chatModel
             if (chatModel)
                 await state.updateLanguageChatModels(model, chatModel.id)
+        } else {
+            await vscode.window.showErrorMessage(
+                TOOL_NAME +
+                    ` - No language chat model available, could not resolve ${modelId}`
+            )
         }
     }
     return chatModel
@@ -82,10 +95,11 @@ export function createChatModelRunner(
     if (!isLanguageModelsAvailable()) return undefined
 
     return async (req: ChatStart, onChunk) => {
+        const { model, messages, modelOptions } = req
+        let chatModel: vscode.LanguageModelChat
         try {
             const token = new vscode.CancellationTokenSource().token
-            const { model, messages, modelOptions } = req
-            const chatModel = await pickChatModel(state, model)
+            chatModel = await pickChatModel(state, model)
             if (!chatModel) {
                 logVerbose("no language chat model selected, cancelling")
                 onChunk({
@@ -128,6 +142,15 @@ export function createChatModelRunner(
                     error: serializeError(err),
                 })
             } else {
+                if (
+                    err instanceof Error &&
+                    /Request Failed: 400/.test(err.message)
+                )
+                    // This model is not support in the the
+                    await vscode.window.showErrorMessage(
+                        dedent`${TOOL_NAME} - The model ${chatModel?.name || model} is not supported for chat participants (@genaiscript).
+                        Please select a different model in GitHub Copilot Chat.`
+                    )
                 onChunk({
                     finishReason: "fail",
                     error: serializeError(err),
