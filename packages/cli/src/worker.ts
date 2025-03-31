@@ -36,7 +36,7 @@ export async function worker() {
             type: RESOURCE_CHANGE,
             reference,
             content,
-        })
+        } satisfies Resource & { type: string })
     })
 
     switch (type) {

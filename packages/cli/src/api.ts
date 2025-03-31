@@ -6,6 +6,7 @@ import { dirname, join } from "node:path"
 import debug from "debug"
 import { runtimeHost } from "../../core/src/host"
 import { RESOURCE_CHANGE } from "../../core/src/constants"
+import { Resource } from "../../core/src/mcpresource"
 const dbg = debug("genaiscript:api")
 
 /**
@@ -67,15 +68,15 @@ export async function run(
         signal?.addEventListener("abort", abort)
         worker.on("message", async (res) => {
             const type = res?.type
+            dbg(type)
             if (type === "run") {
-                dbg(`result ${res.result?.status}`)
                 signal?.removeEventListener("abort", abort)
                 resolve(res.result)
             } else if (type === RESOURCE_CHANGE) {
-                dbg(`publish resource ${res.resource?.uri}`)
+                const resource = res as Resource
                 await runtimeHost.resources.upsetResource(
-                    res.resource,
-                    res.content
+                    resource.reference,
+                    resource.content
                 )
             }
         })
