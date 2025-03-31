@@ -15,7 +15,6 @@ import { deleteUndefinedValues } from "./cleaners"
 import { setMcpMode } from "./mcp"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
-    readonly options: TraceOptions
     private _clients: McpClient[] = []
     constructor() {
         super()
@@ -30,7 +29,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         const { id, version = "1.0.0", params = [], ...rest } = serverConfig
         const dbgc = debug(`mcp:${id}`)
         dbgc(`starting ${id}`)
-        const trace = this.options.trace.startTraceDetails(`🪚 mcp ${id}`)
+        const trace = options.trace.startTraceDetails(`🪚 mcp ${id}`)
         try {
             setMcpMode("client")
             const { Client } = await import(
@@ -159,8 +158,8 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
 
             const dispose = async () => {
                 dbgc(`disposing`)
-                const i = this.clients.indexOf(res)
-                if (i >= 0) this.clients.splice(i, 1)
+                const i = this._clients.indexOf(res)
+                if (i >= 0) this._clients.splice(i, 1)
                 try {
                     await client.close()
                     client = undefined
@@ -192,7 +191,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
     }
 
     get clients(): McpClient[] {
-        return this.clients.slice(0)
+        return this._clients.slice(0)
     }
 
     async dispose() {
