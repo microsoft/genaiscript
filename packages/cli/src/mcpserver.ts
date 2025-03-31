@@ -137,7 +137,6 @@ export async function startMcpServer(
         dbg(`list resources`)
         const resources = await runtimeHost.resources.resources()
         dbg(`found ${resources.length} resources`)
-        throw new Error(JSON.stringify(resources))
         return {
             resources: resources.map(
                 (r) => r as ListResourcesResult["resources"][0]
