@@ -151,7 +151,8 @@ export async function activateChatParticipant(state: ExtensionState) {
                 label: "genaiscript agent",
                 parameters: deleteUndefinedValues({
                     ...vars,
-                    ["copilot.history"]: history,
+                    "copilot.history": history,
+                    "copilot.model": `${MODEL_PROVIDER_GITHUB_COPILOT_CHAT}:${model.id}`,
                     question: prompt,
                 }),
                 githubCopilotChatModelId: model.id,
