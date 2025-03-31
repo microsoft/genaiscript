@@ -510,6 +510,10 @@ export async function cli() {
         .command("mcp")
         .option("--groups <string...>", "Filter script by groups")
         .option("--ids <string...>", "Filter script by ids")
+        .option(
+            "--startup <string>",
+            "Startup script id, executed after the server is started"
+        )
         .alias("mcps")
         .description(
             "Starts a Model Context Protocol server that exposes scripts as tools"

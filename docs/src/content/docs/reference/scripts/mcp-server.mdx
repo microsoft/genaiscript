@@ -112,6 +112,17 @@ const id = await host.publishResource("important data", file, {
 })
 ```
 
+## Startup script
+
+You can specify a startup script id in the command line using the `--startup` option.
+It will run after the server is started.
+
+```sh
+genaiscript mcp --startup load-resources
+```
+
+You can use this script to load resources or do any other setup you need.
+
 ## IDE configuration
 
 The `mcp` command lanches the MCP server using the stdio transport.
