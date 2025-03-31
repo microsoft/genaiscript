@@ -17,92 +17,6 @@ GenAIScript integrates with [GitHub Copilot Chat](https://marketplace.visualstud
 by providing a **chat participant** that allows you to run scripts in the context of a chat conversation,
 and a **custom prompt** to generate GenAIScript more efficiently with Copilot Chat.
 
-## `genaiscript` custom prompt
-
-GenAIScript will automatically save a prompt file
-and additional files in `.genaiscript/docs`
-to provide a better context for using Copilot Chat to generate GenAIScript scripts.
-
-<YouTube id="https://youtu.be/0GkbxnW0J34" posterQuality="high" />
-
-The `genaiscript.prompt.md` file is
-a [reusable prompt file](https://code.visualstudio.com/docs/copilot/copilot-customization#_reusable-prompt-files-experimental)
-that provides additional context to help GitHub Copilot Chat answering GenAIScript code generation queries.
-
-<Code
-    code={prompt}
-    wrap={true}
-    lang="text"
-    title=".genaiscript/prompts/genaiscript.prompt.md"
-/>
-
-To use this prompt in your chat,
-
-### Enable reusable prompts
-
-At this time, the reusable prompt feature is experimental and needs to be enabled in the settings.
-
-<Steps>
-
-<ol>
-
-<li>
-
-Open the settings (Ctrl+,) and search for **GitHub Copilot Chat**.
-Set the [chat.promptFiles](vscode://settings/chat.promptFiles) setting to true.
-
-</li>
-
-<li>
-
-Add `.genaiscript/prompts` to the list of folders to search for prompt files.
-
-</li>
-
-<li>
-
-Open the command palette (Ctrl+Shift+P) and select **GitHub Copilot: Build Local Workspace Index**
-to create a [local index](https://code.visualstudio.com/docs/copilot/workspace-context#_local-index)
-to help with queries with large files (like the GenAIScript documentation!).
-
-</li>
-
-</ol>
-
-</Steps>
-
-### Augmented chat sessions
-
-This is how you start chat sessions using the `genaiscript` prompt.
-
-<Steps>
-
-<ol>
-
-<li>
-
-Select the **Attach Context** 📎icon (`Ctrl+/`), then select **Prompt...**,
-then select the **genaiscript** prompt.
-
-</li>
-
-<li>
-
-Include instructions to write a script or answer a question about GenAIScript,
-`write a script that summarizes a video`.
-
-</li>
-
-</ol>
-
-</Steps>
-
-Since the prompt injects the entire documentation of GenAIScript (700+kb at this time of writing),
-you'll want to use a model with a large context like Sonnet or Gemini.
-
-Also remember that the entire conversation is sent back on each iteration, so this technique
-works best as a one-shot detailled request.
-
 ## `@genaiscript` chat participant
 
 The `@genaiscript` [chat participant](https://code.visualstudio.com/api/extension-guides/chat#parts-of-the-chat-user-experience) lets your run scripts without the context
@@ -126,6 +40,51 @@ Otherwise, it will ask you to pick a script from the list of available scripts.
 ```sh
 @genaiscript add comments to the current editor
 ```
+
+### Choosing the model
+
+If your script does not specify a model, GenAIScript will prompt you to choose a model.
+You can specify which model to choose in the script configuration as well using the `github_copilot_chat` provider.
+
+- current selected model: `github_copilot_chat:current`
+
+```js "github_copilot_chat:current"
+script({
+    model: "github_copilot_chat:current"
+})
+```
+
+- gpt-4o-mini: `github_copilot_chat:gpt-4o-mini`
+
+```js "github_copilot_chat:gpt-4o-mini"
+script({
+    model: "github_copilot_chat:gpt-4o-mini"
+})
+```
+
+When GenAIScript prompts you to choose a model, it will store your choices in the workspace settings
+under the 
+
+```json file=".vscode/settings.json"
+{
+    "genaiscript.languageChatModels": {
+        "gpt-4o": "gpt-4o-2024-11-20"
+    }
+}
+```
+
+:::note
+
+**The GitHub Copilot Chat models are only available in Visual Studio Code.** They will not work from
+the [cli](/genaiscript/reference/cli) or [playground](/genaiscript/reference/playground) interfaces.
+
+:::
+
+#### Model availability
+
+Not all models listed in the GitHub Copilot Chat user interface are available for 3rd party extensions.
+When GenAIScript tries to access a model that is not available, it will notify you but it does not have 
+over your model access configuration.
 
 ### Context
 
@@ -220,3 +179,90 @@ The following features are currently not supported in the chat participant:
 
 - Tools (`#tool`)
 - `Workspace` reference
+
+
+## `genaiscript` custom prompt
+
+GenAIScript will automatically save a prompt file
+and additional files in `.genaiscript/docs`
+to provide a better context for using Copilot Chat to generate GenAIScript scripts.
+
+<YouTube id="https://youtu.be/0GkbxnW0J34" posterQuality="high" />
+
+The `genaiscript.prompt.md` file is
+a [reusable prompt file](https://code.visualstudio.com/docs/copilot/copilot-customization#_reusable-prompt-files-experimental)
+that provides additional context to help GitHub Copilot Chat answering GenAIScript code generation queries.
+
+<Code
+    code={prompt}
+    wrap={true}
+    lang="text"
+    title=".genaiscript/prompts/genaiscript.prompt.md"
+/>
+
+To use this prompt in your chat,
+
+### Enable reusable prompts
+
+At this time, the reusable prompt feature is experimental and needs to be enabled in the settings.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open the settings (Ctrl+,) and search for **GitHub Copilot Chat**.
+Set the [chat.promptFiles](vscode://settings/chat.promptFiles) setting to true.
+
+</li>
+
+<li>
+
+Add `.genaiscript/prompts` to the list of folders to search for prompt files.
+
+</li>
+
+<li>
+
+Open the command palette (Ctrl+Shift+P) and select **GitHub Copilot: Build Local Workspace Index**
+to create a [local index](https://code.visualstudio.com/docs/copilot/workspace-context#_local-index)
+to help with queries with large files (like the GenAIScript documentation!).
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Augmented chat sessions
+
+This is how you start chat sessions using the `genaiscript` prompt.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Select the **Attach Context** 📎icon (`Ctrl+/`), then select **Prompt...**,
+then select the **genaiscript** prompt.
+
+</li>
+
+<li>
+
+Include instructions to write a script or answer a question about GenAIScript,
+`write a script that summarizes a video`.
+
+</li>
+
+</ol>
+
+</Steps>
+
+Since the prompt injects the entire documentation of GenAIScript (700+kb at this time of writing),
+you'll want to use a model with a large context like Sonnet or Gemini.
+
+Also remember that the entire conversation is sent back on each iteration, so this technique
+works best as a one-shot detailled request.
