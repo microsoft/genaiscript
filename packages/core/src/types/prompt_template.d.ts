@@ -1501,7 +1501,7 @@ interface FileFilterOptions extends GitIgnoreFilterOptions {
     glob?: ElementOrArray<string>
 }
 
-interface ContentSafetyOptions {
+interface ContentSafetyOptions extends SecretDetectionOptions {
     /**
      * Runs the default content safety validator
      * to prevent prompt injection.
@@ -1512,7 +1512,9 @@ interface ContentSafetyOptions {
      * Policy to inject builtin system prompts. See to `false` prevent automatically injecting.
      */
     systemSafety?: "default" | boolean
+}
 
+interface SecretDetectionOptions {
     /**
      * Policy to disable secret scanning when communicating with the LLM.
      * Set to `false` to disable.
@@ -5080,7 +5082,8 @@ interface ResourceHost {
     publishResource(
         name: string,
         content: BufferLike,
-        options?: Partial<Pick<ResourceReference, "description" | "mimeType">>
+        options?: Partial<Pick<ResourceReference, "description" | "mimeType">> &
+            SecretDetectionOptions
     ): Promise<string>
 
     /**

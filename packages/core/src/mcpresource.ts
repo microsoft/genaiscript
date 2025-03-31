@@ -5,6 +5,7 @@ import { fileTypeFromBuffer } from "./filetype"
 import { TraceOptions } from "./trace"
 import { hash } from "./crypto"
 import { resolveFileContent } from "./file"
+import { redactSecrets } from "./secretscanner"
 const dbg = debug("genaiscript:resource")
 
 export interface ResourceReference {
@@ -50,7 +51,9 @@ export class ResourceManager extends EventTarget {
     async publishResource(
         name: string,
         body: BufferLike,
-        options?: Partial<Omit<ResourceReference, "name">> & TraceOptions
+        options?: Partial<Omit<ResourceReference, "name">> &
+            TraceOptions &
+            SecretDetectionOptions
     ) {
         dbg(`publishing ${typeof body}`)
         const res = await createResource(name, body, options)
@@ -88,7 +91,9 @@ export class ResourceManager extends EventTarget {
 async function createResource(
     name: string,
     body: BufferLike,
-    options?: Partial<Omit<ResourceReference, "name">> & TraceOptions
+    options?: Partial<Omit<ResourceReference, "name">> &
+        TraceOptions &
+        SecretDetectionOptions
 ): Promise<{ reference: ResourceReference; content: ResourceContents }> {
     const { description } = options || {}
     if (!name) throw new Error("Resource name is required")
@@ -113,10 +118,14 @@ async function createResource(
 
 async function resolveResourceContents(
     body: BufferLike,
-    options?: Partial<ResourceReference> & TraceOptions
+    options?: Partial<ResourceReference> & TraceOptions & SecretDetectionOptions
 ): Promise<ResourceContent> {
-    const { uri, mimeType } = options || {}
+    const { trace, uri, mimeType, secretScanning } = options || {}
     if (typeof body === "string") {
+        if (secretScanning !== false) {
+            const redacted = await redactSecrets(body, { trace })
+            body = redacted.text
+        }
         return {
             uri,
             mimeType: mimeType || "text/plain",
@@ -134,12 +143,18 @@ async function resolveResourceContents(
                 mimeType: file.type || "application/octet-stream",
                 blob: file.content,
             }
-        else
+        else {
+            if (secretScanning !== false) {
+                const redacted = await redactSecrets(file.content, { trace })
+                file.content = redacted.text
+            }
+
             return {
                 uri: uri || file.filename,
                 mimeType: file.type || "text/plain",
                 text: file.content,
             }
+        }
     } else {
         const bytes = await resolveBufferLike(body as BufferLike, options)
         const mime = await fileTypeFromBuffer(bytes)
