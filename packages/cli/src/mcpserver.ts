@@ -15,7 +15,6 @@ import {
     type ListResourcesResult,
     type ListResourceTemplatesResult,
     type ReadResourceResult,
-    ServerResult,
 } from "@modelcontextprotocol/sdk/types.js"
 import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
@@ -23,12 +22,7 @@ import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { setMcpMode } from "../../core/src/mcp"
 import { runtimeHost } from "../../core/src/host"
-import {
-    Resource,
-    ResourceContent,
-    ResourceContents,
-    ResourceManager,
-} from "../../core/src/mcpresource"
+import { Resource, ResourceContents } from "../../core/src/mcpresource"
 
 /**
  * Starts the MCP server.
@@ -40,13 +34,17 @@ import {
  * Initializes and sets up the server with appropriate request handlers for listing tools and executing specific tool commands. Monitors project changes through a watcher and updates the tool list when changes occur. Uses a transport layer to handle server communication over standard I/O.
  */
 export async function startMcpServer(
-    options?: ScriptFilterOptions & RemoteOptions
+    options?: ScriptFilterOptions &
+        RemoteOptions & {
+            startup?: string
+        }
 ) {
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
     setMcpMode("server")
 
     await applyRemoteOptions(options)
+    const { startup } = options || {}
 
     const watcher = await startProjectWatcher(options)
     logVerbose(`mcp server: watching ${watcher.cwd}`)
@@ -174,4 +172,11 @@ export async function startMcpServer(
     const transport = new StdioServerTransport()
     dbg(`connecting server with transport`)
     await server.connect(transport)
+
+    if (startup) {
+        logVerbose(`startup script: ${startup}`)
+        await run(startup, [], {
+            vars: {},
+        })
+    }
 }
