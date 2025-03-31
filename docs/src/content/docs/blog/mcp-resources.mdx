@@ -34,11 +34,20 @@ graph TD
     MCPResources1 --> MCPServer
 ```
 
-The `publishResource` method allows you to publish a resource with a unique identifier and a file.
+MCP handles discovery and resolution of resources, so once your script publishes a resource,
+the MCP client (IDE) is made "aware" of it and it can decide to read it.
+
+## `publishResource`
+
+The `publishResource` method allows you to publish a resource with a unique identifier and a file/string/buffer.
 The rest of the MCP resource publishing process is handled by the GenAIScript framework.
 
 ```js
 const uri = await host.publishResource("unique-id", file)
 ```
+
+## Next steps
+
+Are you ready to build your own MCP tools and resources?
 
 - [Read the documentation](/genaiscript/reference/scripts/mcp-server#resources)
