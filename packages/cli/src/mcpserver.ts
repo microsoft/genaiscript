@@ -11,6 +11,10 @@ import {
     ListResourceTemplatesRequestSchema,
     ReadResourceRequestSchema,
     type CallToolResult,
+    type ListToolsResult,
+    type ListResourcesResult,
+    type ListResourceTemplatesResult,
+    type ReadResourceResult,
 } from "@modelcontextprotocol/sdk/types.js"
 import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
@@ -89,11 +93,12 @@ export async function startMcpServer(
             return {
                 name: id,
                 description: toStringList(title, description),
-                inputSchema: scriptSchema,
-            }
+                inputSchema:
+                    scriptSchema as ListToolsResult["tools"][0]["inputSchema"],
+            } satisfies ListToolsResult["tools"][0]
         })
         dbg(`returning tool list with ${tools.length} tools`)
-        return { tools }
+        return { tools } satisfies ListToolsResult
     })
     server.setRequestHandler(CallToolRequestSchema, async (req) => {
         dbg(`received CallToolRequest with name: ${req.params?.name}`)
@@ -132,18 +137,23 @@ export async function startMcpServer(
         dbg(`list resources`)
         const resources = await runtimeHost.resources.resources()
         dbg(`found ${resources.length} resources`)
-        return { resources }
+        throw new Error(JSON.stringify(resources))
+        return {
+            resources: resources.map(
+                (r) => r as ListResourcesResult["resources"][0]
+            ),
+        } satisfies ListResourcesResult
     })
     server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
         dbg(`list resource templates - not supported`)
-        return { resourceTemplates: [] }
+        return { resourceTemplates: [] } satisfies ListResourceTemplatesResult
     })
     server.setRequestHandler(ReadResourceRequestSchema, async (req) => {
         const { uri } = req.params
         dbg(`read resource: ${uri}`)
         const resource = await runtimeHost.resources.readResource(uri)
         if (!resource) dbg(`resource not found: ${uri}`)
-        return { content: resource }
+        return { content: resource } satisfies ReadResourceResult
     })
     runtimeHost.resources.addEventListener(CHANGE, async () => {
         await server.sendResourceListChanged()
