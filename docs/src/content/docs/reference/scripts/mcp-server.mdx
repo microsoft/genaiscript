@@ -92,8 +92,7 @@ In GenAScript, you can create a resource using `host.publishResource` and
 it will automatically be exposed as a MCP resource.
 
 ```js title="task.genai.mjs"
-// publish a file as a resources
-const id = await host.publishResource(file)
+const id = await host.publishResource("important data", file)
 ```
 
 The return value is the resource uri which can be used in the prompt output.
@@ -101,7 +100,19 @@ The return value is the resource uri which can be used in the prompt output.
 
 The resource will be available for the lifetime of the MCP server.
 
-## IDE configuration (MCP client)
+### Secret scanning
+
+GenAIScript has a built-in [secret scanning feature](/genaiscript/reference/scripts/secret-scanning)
+that will scan your resources for secrets. To turn off the secret scanning feature,
+you can set the `secretScanning` option to `false` in `publishResource`.
+
+```js
+const id = await host.publishResource("important data", file, {
+    secretScanning: false,
+})
+```
+
+## IDE configuration
 
 The `mcp` command lanches the MCP server using the stdio transport.
 
