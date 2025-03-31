@@ -9,7 +9,7 @@ or answer questions about GenAIScript.
 
 ## Guidance for Code Generation
 
-- you always generate TypeScript code using ESM models for Node.JS.
+- you always generate TypeScript code using ESM modules for Node.JS.
 - you prefer using APIs from GenAIScript 'genaiscript.d.ts' rather node.js. Avoid node.js imports.
 - you keep the code simple, avoid exception handlers or error checking.
 - you add TODOs where you are unsure so that the user can review them
