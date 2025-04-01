@@ -29,6 +29,10 @@ export async function activateChatParticipant(state: ExtensionState) {
                 files.push(vscode.workspace.asRelativePath(value, false))
             else if (value instanceof vscode.Location)
                 files.push(vscode.workspace.asRelativePath(value.uri, false)) // TODO range
+            else
+                state.output.appendLine(
+                    `unknown reference type: ${typeof value}`
+                )
         }
         return { files, vars }
     }
