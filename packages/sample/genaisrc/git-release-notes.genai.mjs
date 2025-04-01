@@ -40,7 +40,10 @@ const diff = await git.diff({
 })
 console.debug(diff)
 
-const commitsName = def("COMMITS", commits, { ignoreEmpty: true, maxTokens: 3000 })
+const commitsName = def("COMMITS", commits, {
+    ignoreEmpty: true,
+    maxTokens: 3000,
+})
 const diffName = def("DIFF", diff, { maxTokens: 12000 })
 
 $`
