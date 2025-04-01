@@ -21,6 +21,7 @@ You can open this repo in GitHub CodeSpace/Docker to get the build environment n
 - Go to https://github.com/microsoft/genaiscript
 - Click on **Code**
 - Select Create new Codespace
+- Selec the **dev** branch
 
 ### Manual setup
 
