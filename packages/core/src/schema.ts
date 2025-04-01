@@ -1,10 +1,12 @@
 // Import necessary modules and functions
 import { JSON5parse } from "./json5"
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import Ajv from "ajv"
 import { YAMLParse } from "./yaml"
 import { errorMessage } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import debug from "debug"
+const dbg = debug("genaiscript:schema")
 
 /**
  * Checks if the given object is a valid JSON Schema.
@@ -72,7 +74,9 @@ export function JSONSchemaStringifyToTypeScript(
         `${options?.export ? "export " : ""}type ${typeName.replace(/\s+/g, "_")} =`
     )
     stringifyNode(schema) // Convert schema to TypeScript
-    return lines.join("\n") // Join lines into a single TypeScript definition
+    const res = lines.join("\n") // Join lines into a single TypeScript definition
+    dbg(res)
+    return res
 
     // Append a line to the TypeScript definition
     function append(line: string) {
@@ -188,6 +192,21 @@ export async function validateSchema(schema: JSONSchema) {
     return await ajv.validateSchema(schema, false)
 }
 
+export function tryValidateJSONWithSchema<T = unknown>(
+    object: T,
+    options?: JSONSchemaValidationOptions & TraceOptions
+) {
+    const { schema, throwOnValidationError, trace } = options || {}
+    if (object !== undefined && schema) {
+        const validation = validateJSONWithSchema(object, schema, { trace })
+        if (validation.schemaError) {
+            if (throwOnValidationError) throw new Error(validation.schemaError)
+            return undefined
+        }
+    }
+    return object
+}
+
 /**
  * Validates a JSON object against a specified JSON schema.
  * @param object - The JSON object to validate.
@@ -214,6 +233,7 @@ export function validateJSONWithSchema(
         const validate = ajv.compile(schema)
         const valid = validate(object)
         if (!valid) {
+            dbg(`validation failed: ${ajv.errorsText(validate.errors)}`)
             trace?.warn(`schema validation failed`)
             trace?.fence(validate.errors)
             trace?.fence(schema, "json")
@@ -225,6 +245,7 @@ export function validateJSONWithSchema(
         }
         return { schema, pathValid: true }
     } catch (e) {
+        dbg(`runtime error: ${errorMessage(e)}`)
         trace?.warn("schema validation failed")
         return { schema, pathValid: false, schemaError: errorMessage(e) }
     }

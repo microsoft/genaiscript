@@ -20,7 +20,7 @@ import { treeSitterQuery } from "./treesitter"
 import { parsePdf } from "./pdf"
 import { HTMLToMarkdown, HTMLToText } from "./html"
 import { MathTryEvaluate } from "./math"
-import { validateJSONWithSchema } from "./schema"
+import { tryValidateJSONWithSchema, validateJSONWithSchema } from "./schema"
 import { XLSXTryParse } from "./xlsx"
 import { host } from "./host"
 import { unzip } from "./zip"
@@ -94,25 +94,46 @@ export async function createParsers(
     const { encode: encoder } = await resolveTokenEncoder(model)
     return Object.freeze<Parsers>({
         JSON5: (text, options) =>
-            JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
+            tryValidateJSONWithSchema(
+                JSON5TryParse(
+                    filenameOrFileToContent(text),
+                    options?.defaultValue
+                ),
+                options
+            ),
         JSONLLM: (text) => JSONLLMTryParse(text),
         JSONL: (text) => JSONLTryParse(filenameOrFileToContent(text)),
         YAML: (text, options) =>
-            YAMLTryParse(filenameOrFileToContent(text), options?.defaultValue),
+            tryValidateJSONWithSchema(
+                YAMLTryParse(
+                    filenameOrFileToContent(text),
+                    options?.defaultValue
+                ),
+                options
+            ),
         XML: (text, options) => {
             const { defaultValue, ...rest } = options || {}
-            return XMLTryParse(
-                filenameOrFileToContent(text),
-                defaultValue,
-                rest
+            return tryValidateJSONWithSchema(
+                XMLTryParse(filenameOrFileToContent(text), defaultValue, rest),
+                options
             )
         },
         TOML: (text, options) =>
-            TOMLTryParse(filenameOrFileToContent(text), options),
+            tryValidateJSONWithSchema(
+                TOMLTryParse(filenameOrFileToContent(text), options),
+                options
+            ),
         frontmatter: (text, options) =>
-            frontmatterTryParse(filenameOrFileToContent(text), options)?.value,
+            tryValidateJSONWithSchema(
+                frontmatterTryParse(filenameOrFileToContent(text), options)
+                    ?.value,
+                options
+            ),
         CSV: (text, options) =>
-            CSVTryParse(filenameOrFileToContent(text), options),
+            tryValidateJSONWithSchema(
+                CSVTryParse(filenameOrFileToContent(text), options),
+                options
+            ),
         XLSX: async (file, options) =>
             await XLSXTryParse(
                 await host.readFile(filenameOrFileToFilename(file)),
@@ -120,7 +141,13 @@ export async function createParsers(
             ),
         dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         INI: (text, options) =>
-            INITryParse(filenameOrFileToContent(text), options?.defaultValue),
+            tryValidateJSONWithSchema(
+                INITryParse(
+                    filenameOrFileToContent(text),
+                    options?.defaultValue
+                ),
+                options
+            ),
         transcription: (text) => vttSrtParse(filenameOrFileToContent(text)),
         unzip: async (file, options) =>
             await unzip(await host.readFile(file.filename), options),

@@ -76,8 +76,8 @@ export async function createPromptContext(
     // Define the workspace file system operations
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
-        readJSON: (f) => runtimeHost.workspace.readJSON(f),
-        readYAML: (f) => runtimeHost.workspace.readYAML(f),
+        readJSON: (f, o) => runtimeHost.workspace.readJSON(f, o),
+        readYAML: (f, o) => runtimeHost.workspace.readYAML(f, o),
         readXML: (f, o) => runtimeHost.workspace.readXML(f, o),
         readCSV: (f, o) => runtimeHost.workspace.readCSV(f, o),
         readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
