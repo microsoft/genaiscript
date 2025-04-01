@@ -32,13 +32,13 @@ jobs:
               id: check_author
               uses: actions/github-script@v7
               with:
-                script: |
-                  const { owner, repo } = context.repo;
-                  const commentAuthor = context.payload.comment.user.login;
-                  const { data: collaborators } = await github.rest.repos.listCollaborators({ owner, repo });
-                  const isCollaborator = collaborators.some(collaborator => collaborator.login === commentAuthor);
-                  if (!isCollaborator)
-                    throw new Error(`user ${commentAuthor} is not a collaborator on this repository`);
+                  script: |
+                      const { owner, repo } = context.repo;
+                      const commentAuthor = context.payload.comment.user.login;
+                      const { data: collaborators } = await github.rest.repos.listCollaborators({ owner, repo });
+                      const isCollaborator = collaborators.some(collaborator => collaborator.login === commentAuthor);
+                      if (!isCollaborator)
+                        throw new Error(`user ${commentAuthor} is not a collaborator on this repository`);
             #
             # Resolve the PR sha and ref
             #
