@@ -1173,7 +1173,7 @@ interface FileStats {
 
 interface JSONSchemaValidationOptions {
     schema?: JSONSchema
-    throwOnSchemaError?: boolean
+    throwOnValidationError?: boolean
 }
 
 interface WorkspaceFileSystem {

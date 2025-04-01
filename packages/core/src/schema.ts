@@ -196,11 +196,11 @@ export function tryValidateJSONWithSchema<T = unknown>(
     object: T,
     options?: JSONSchemaValidationOptions & TraceOptions
 ) {
-    const { schema, throwOnSchemaError, trace } = options || {}
+    const { schema, throwOnValidationError, trace } = options || {}
     if (object !== undefined && schema) {
         const validation = validateJSONWithSchema(object, schema, { trace })
         if (validation.schemaError) {
-            if (throwOnSchemaError) throw new Error(validation.schemaError)
+            if (throwOnValidationError) throw new Error(validation.schemaError)
             return undefined
         }
     }

@@ -368,7 +368,7 @@ of the city.`,
         assert.throws(() => {
             tryValidateJSONWithSchema(object, {
                 schema,
-                throwOnSchemaError: true,
+                throwOnValidationError: true,
             })
         }, /schema is invalid/)
     })
