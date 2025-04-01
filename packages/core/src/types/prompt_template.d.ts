@@ -3270,7 +3270,7 @@ interface GitHub {
     /**
      * Gets the underlying Octokit client
      */
-    api(): Promise<any>
+    api(): Promise<{ client: any } & GitHubOptions>
 
     /**
      * Opens a client to a different repository
