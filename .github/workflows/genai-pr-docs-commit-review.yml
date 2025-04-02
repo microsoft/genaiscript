@@ -30,9 +30,9 @@ jobs:
             - name: start ollama
               run: yarn ollama:start
             - name: git stuff
-              run: git fetch origin && git pull origin main:main
+              run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-review-commit
-              run: node packages/cli/built/genaiscript.cjs run pr-docs-review-commit --out ./temp/genai/pr-docs-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run pr-docs-review-commit --out ./temp/genai/pr-docs-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

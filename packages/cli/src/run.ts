@@ -29,11 +29,8 @@ import {
     GENAI_ANY_REGEX,
     UNRECOVERABLE_ERROR_CODES,
     SUCCESS_ERROR_CODE,
-    RUNS_DIR_NAME,
     CONSOLE_COLOR_DEBUG,
     DOCS_CONFIGURATION_URL,
-    STATS_DIR_NAME,
-    GENAI_ANYTS_REGEX,
     CONSOLE_TOKEN_COLORS,
     CONSOLE_TOKEN_INNER_COLORS,
     TRACE_CHUNK,
@@ -43,8 +40,6 @@ import {
     REASONING_END_MARKER,
     REASONING_START_MARKER,
     LARGE_MODEL_ID,
-    SERVER_PORT,
-    SERVER_LOCALHOST,
     NEGATIVE_GLOB_REGEX,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
@@ -96,7 +91,6 @@ import {
 import { createCancellationController } from "./cancel"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { Fragment } from "../../core/src/generation"
-import { randomHex } from "../../core/src/crypto"
 import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { microsoftTeamsChannelPostMessage } from "../../core/src/teams"
 import { confirmOrSkipInCI } from "./ci"
@@ -329,7 +323,7 @@ export async function runScriptInternal(
         options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     dbg(`apply gitignore: ${applyGitIgnore}`)
     const resolvedFiles = new Set<string>()
-    // move exlucsions to excludedFiles
+    // move exclusions to excludedFiles
     excludedFiles.push(
         ...files
             .filter((f) => NEGATIVE_GLOB_REGEX.test(f))

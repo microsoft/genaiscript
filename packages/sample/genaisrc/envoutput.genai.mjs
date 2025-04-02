@@ -1,9 +1,22 @@
+script({ model: "echo"})
 const { output } = env
 
 for (let i = 1; i <= 6; i++) output.heading(i, "heading " + i)
 
 $`Write 2 word poem`
 
+output.warn("this is a warning");
+output.caution("this is a caution");
+output.item("this is an item");
+output.itemValue("item", "value");
+output.note("this is a note");
+output.diff(
+`A
+B
+C`,
+`AA
+B`
+)
 output.fence(
     `---
 title: What is Markdown? - Understanding Markdown Syntax
@@ -20,7 +33,6 @@ For example, to denote a heading, you add a number sign before it (e.g., # Headi
 `,
     "md"
 )
-
 output.fence(`let x = "abc"`, "js")
 output.itemValue("item", "value")
 output.fence("This is a fence")
