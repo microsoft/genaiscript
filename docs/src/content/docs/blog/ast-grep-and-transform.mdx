@@ -2,22 +2,21 @@
 title: AST Grep and Transform
 date: 2025-04-01
 tags:
-  - ast
-  - tree-sitter
-  - ast-grep
-  - genai
+    - ast
+    - tree-sitter
+    - ast-grep
+    - genai
 authors: pelikhan
 canonical_url: https://microsoft.github.io/genaiscript/blog/ast-grep-and-transform
 description: Learn how to parse source code using ast-grep and update nodes in the tree.
 cover:
-  alt: The image is an abstract 8-bit style illustration using five colors. It
-    shows a stylized tree with nodes connected in a branching pattern,
-    representing an Abstract Syntax Tree (AST) used in code transformation.
-    Geometric shapes and lines indicate the ideas of parsing and modifying
-    source code. The design is simple and corporate, with no characters or text
-    present.
-  image: ./ast-grep-and-transform.png
-
+    alt: The image is an abstract 8-bit style illustration using five colors. It
+        shows a stylized tree with nodes connected in a branching pattern,
+        representing an Abstract Syntax Tree (AST) used in code transformation.
+        Geometric shapes and lines indicate the ideas of parsing and modifying
+        source code. The design is simple and corporate, with no characters or text
+        present.
+    image: ./ast-grep-and-transform.png
 ---
 
 import { Code } from "@astrojs/starlight/components"
@@ -104,18 +103,45 @@ function fn(a: number, b: number): number {
 
 To recap, this strategy is based on the following steps:
 
-1. Use the AST to locate the node to update.
-2. Use the LLM to generate the new content of the node.
-3. Update the node in the AST with the new content.
+1. **search** Use the AST to locate the node to update.
+2. **transform and replace** Use the LLM to generate the new content of the node.
+3. **commit** Update the node in the AST with the new content.
 
 ### ast-grep
+
+![AST-Grep Logo](https://ast-grep.github.io/logo.svg)
 
 [ast-grep(sg)](https://ast-grep.github.io/) is a fast and polyglot tool for code structural search,
 lint, rewriting at large scale. **sg** provides us the AST-searh-and-replace capabilities we need to
 implement the strategy above.
 
 GenAIScript benefits from the excellent [Node.JS integration](https://ast-grep.github.io/reference/api.html#napi),
-which is available through the [`host.astGrep()`](https://microsoft.github.io/genaiscript/reference/ast-grep) method.
+which is available through the [`host.astGrep()`](https://microsoft.github.io/genaiscript/reference/scripts/ast-grep) method.
+
+```ts title="docs.genai.mts"
+// search
+const { matches, replace } = await sg.search("ts", "src/*fib*.ts", {
+    rule: {
+        kind: "function_declaration",
+        not: {
+            precedes: {
+                kind: "comment",
+                stopBy: "neighbor",
+            },
+        },
+    },
+})
+
+// transform
+const edits = sg.changeset()
+for (const match of matches) {
+    const { text } = await prompt`Generate new docs for ${match.text()}`
+    // replace
+    edits.replace(match.comment(), text) // it's somewhat more involved
+}
+// commit all edits to file
+await workspace.writeFiles(edits.commit())
+```
 
 ## Sample: Doc generator / updater <a id="sample"></a>
 
