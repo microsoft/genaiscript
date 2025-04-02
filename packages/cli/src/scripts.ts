@@ -11,7 +11,10 @@ import {
 } from "../../core/src/scripts"
 import { logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
-import { RUNTIME_ERROR_CODE } from "../../core/src/constants"
+import {
+    CONSOLE_COLOR_DEBUG,
+    RUNTIME_ERROR_CODE,
+} from "../../core/src/constants"
 import {
     collectFolders,
     filterScripts,
@@ -20,6 +23,9 @@ import {
 import { deleteEmptyValues } from "../../core/src/cleaners"
 import { dirname } from "node:path"
 import { shellInput } from "./input"
+import { wrapColor } from "../../core/src/consolecolor"
+import { dedent } from "../../core/src/indent"
+import { JSONSchemaToFunctionParameters } from "../../core/src/schema"
 
 /**
  * Lists all the scripts in the project.
@@ -59,6 +65,34 @@ export async function listScripts(
                 2
             )
         )
+}
+
+export async function scriptInfo(scriptId: string) {
+    const prj = await buildProject()
+    const script = prj.scripts.find((t) => t.id === scriptId)
+    if (!script) {
+        console.log(`script ${scriptId} not found`)
+        return
+    }
+
+    const { inputSchema, id, filename, title, accept } = script
+    const parameters = inputSchema?.properties?.script
+    const sigArguments =
+        JSONSchemaToFunctionParameters(parameters).split(/,\s*/g)
+    if (accept !== "none") sigArguments.unshift(`files: ${accept || "*"}`)
+    const sig = sigArguments.join(",\n  ")
+    const secondary = (s: string) => wrapColor(CONSOLE_COLOR_DEBUG, s)
+
+    console.log(
+        secondary(
+            dedent`/** 
+        * ${title || ""} 
+        * @see ${secondary(filename)}
+        */`
+        )
+    )
+    console.log(`${id}${sig ? secondary(`(${sig})`) : ""}`)
+    return
 }
 
 /**

@@ -25,7 +25,13 @@ import {
     parseTokens,
     prompty2genaiscript,
 } from "./parse" // Parsing functions
-import { compileScript, createScript, fixScripts, listScripts } from "./scripts" // Script utilities
+import {
+    compileScript,
+    createScript,
+    fixScripts,
+    listScripts,
+    scriptInfo,
+} from "./scripts" // Script utilities
 import { codeQuery } from "./codequery" // Code parsing and query execution
 import {
     envInfo,
@@ -401,6 +407,12 @@ export async function cli() {
         .argument("[script]", "Script id or file")
         .option("-t, --token", "show token")
         .action(scriptModelInfo) // Action to show model information
+    scripts
+        .command("help")
+        .alias("info")
+        .description("Show help information for a script")
+        .argument("<script>", "Script id")
+        .action(scriptInfo) // Action to show model information
 
     // Define 'cache' command for cache management
     const cache = program.command("cache").description("Cache management")
