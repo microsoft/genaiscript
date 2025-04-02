@@ -32,13 +32,13 @@ jobs:
               id: check_author
               uses: actions/github-script@v7
               with:
-                script: |
-                  const { owner, repo } = context.repo;
-                  const commentAuthor = context.payload.comment.user.login;
-                  const { data: collaborators } = await github.rest.repos.listCollaborators({ owner, repo });
-                  const isCollaborator = collaborators.some(collaborator => collaborator.login === commentAuthor);
-                  if (!isCollaborator)
-                    throw new Error(`user ${commentAuthor} is not a collaborator on this repository`);
+                  script: |
+                      const { owner, repo } = context.repo;
+                      const commentAuthor = context.payload.comment.user.login;
+                      const { data: collaborators } = await github.rest.repos.listCollaborators({ owner, repo });
+                      const isCollaborator = collaborators.some(collaborator => collaborator.login === commentAuthor);
+                      if (!isCollaborator)
+                        throw new Error(`user ${commentAuthor} is not a collaborator on this repository`);
             #
             # Resolve the PR sha and ref
             #
@@ -54,20 +54,20 @@ jobs:
                       console.log(res)
                       return JSON.stringify(res)
             #
-            # Checkout both main and PR branches
+            # Checkout both dev and PR branches
             #
             - name: checkout
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
             - name: diff PR branch
-              run: git diff origin/main...origin/${{ fromJSON(steps.sha.outputs.result).ref }}
+              run: git diff origin/dev...origin/${{ fromJSON(steps.sha.outputs.result).ref }}
             - name: diff PR commit
-              run: git diff origin/main...${{ fromJSON(steps.sha.outputs.result).sha }}
+              run: git diff origin/dev...${{ fromJSON(steps.sha.outputs.result).sha }}
             - name: checkout PR commit
               run: git checkout ${{ fromJSON(steps.sha.outputs.result).sha }}
-            - name: diff main
-              run: git diff origin/main
+            - name: diff dev
+              run: git diff origin/dev
             #
             # Setup and build project
             #
@@ -88,14 +88,14 @@ jobs:
             #
             - name: genaiscript pr-describe
               if: startsWith(github.event.comment.body, '/genai describe')
-              run: node packages/cli/built/genaiscript.cjs run pr-describe -prd --out-output $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run pr-describe -prd --out-output $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ fromJSON(steps.sha.outputs.result).sha }}
             - name: genaiscript pr-review
               if: startsWith(github.event.comment.body, '/genai review')
-              run: node packages/cli/built/genaiscript.cjs run pr-review -prc --out-output $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run pr-review -prc --out-output $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

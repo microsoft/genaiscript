@@ -3,6 +3,12 @@ script({
     title: "pull request review",
     system: ["system", "system.typescript"],
     tools: ["fs"],
+    parameters: {
+        defaultBranch: {
+            type: "string",
+            description: "The default branch to compare against.",
+        },
+    },
 })
 
 const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
