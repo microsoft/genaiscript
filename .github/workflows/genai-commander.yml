@@ -88,14 +88,14 @@ jobs:
             #
             - name: genaiscript pr-describe
               if: startsWith(github.event.comment.body, '/genai describe')
-              run: node packages/cli/built/genaiscript.cjs run pr-describe -prd --out-output $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
+              run: node packages/cli/built/genaiscript.cjs run pr-describe -prd --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ fromJSON(steps.sha.outputs.result).sha }}
             - name: genaiscript pr-review
               if: startsWith(github.event.comment.body, '/genai review')
-              run: node packages/cli/built/genaiscript.cjs run pr-review -prc --out-output $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
+              run: node packages/cli/built/genaiscript.cjs run pr-review -prc --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
