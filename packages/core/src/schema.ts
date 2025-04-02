@@ -68,8 +68,8 @@ export function JSONSchemaStringifyToTypeScript(
     let lines: string[] = [] // Array to accumulate lines of TypeScript code
     let indent = 0 // Manage indentation level
 
-    const descripted = schema as JSONSchemaDescripted
-    appendJsDoc(descripted.title, descripted.description) // Add JSDoc for schema description
+    const described = schema as JSONSchemaDescribed
+    appendJsDoc(described.title, described.description) // Add JSDoc for schema description
     append(
         `${options?.export ? "export " : ""}type ${typeName.replace(/\s+/g, "_")} =`
     )

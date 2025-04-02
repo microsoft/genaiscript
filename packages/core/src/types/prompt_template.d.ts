@@ -1670,7 +1670,7 @@ interface JSONSchemaAnyOf {
     anyOf: JSONSchemaType[]
 }
 
-interface JSONSchemaDescripted {
+interface JSONSchemaDescribed {
     /**
      * A short description of the property
      */
@@ -1681,7 +1681,7 @@ interface JSONSchemaDescripted {
     description?: string
 }
 
-interface JSONSchemaString extends JSONSchemaDescripted {
+interface JSONSchemaString extends JSONSchemaDescribed {
     type: "string"
     uiType?: "textarea"
     uiSuggestions?: string[]
@@ -1690,7 +1690,7 @@ interface JSONSchemaString extends JSONSchemaDescripted {
     pattern?: string
 }
 
-interface JSONSchemaNumber extends JSONSchemaDescripted {
+interface JSONSchemaNumber extends JSONSchemaDescribed {
     type: "number" | "integer"
     default?: number
     minimum?: number
@@ -1699,13 +1699,13 @@ interface JSONSchemaNumber extends JSONSchemaDescripted {
     exclusiveMaximum?: number
 }
 
-interface JSONSchemaBoolean extends JSONSchemaDescripted {
+interface JSONSchemaBoolean extends JSONSchemaDescribed {
     type: "boolean"
     uiType?: "runOption"
     default?: boolean
 }
 
-interface JSONSchemaObject extends JSONSchemaDescripted {
+interface JSONSchemaObject extends JSONSchemaDescribed {
     $schema?: string
     type: "object"
     properties?: {
@@ -1717,7 +1717,7 @@ interface JSONSchemaObject extends JSONSchemaDescripted {
     default?: object
 }
 
-interface JSONSchemaArray extends JSONSchemaDescripted {
+interface JSONSchemaArray extends JSONSchemaDescribed {
     $schema?: string
     type: "array"
     items?: JSONSchemaType

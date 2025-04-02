@@ -5,6 +5,12 @@ script({
     title: "pull request docs review",
     system: ["system", "system.technical", "system.annotations"],
     tools: ["fs_find_files", "fs_read_file"],
+    parameters: {
+        defaultBranch: {
+            type: "string",
+            description: "The default branch to compare against.",
+        },
+    },
 })
 
 const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
