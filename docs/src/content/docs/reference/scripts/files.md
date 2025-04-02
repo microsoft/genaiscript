@@ -139,7 +139,7 @@ const data = await workspace.readData("filename.csv")
 ### Schema validation
 
 You can provide a [JSON schema](/genaiscript/reference/scripts/schemas) to validate the parsed data.
-By default, invalid data is silently ignore and the return value is `undefined` but you can force
+By default, invalid data is silently ignored and the return value is `undefined` but you can force
 the API to throw using `throwOnValidationError`.
 
 ```ts
