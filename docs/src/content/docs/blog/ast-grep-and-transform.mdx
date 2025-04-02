@@ -24,11 +24,11 @@ import code from "../../../../../genaisrc/docs.genai.mjs?raw"
 
 This page describes a strategy to build GenAI scripts that use Abstract Syntax Trees (AST) to parse
 and modify source code. When applicable, it provides an extremely flexible and stable way to
-apply large scale changes to source code. Interrested? Let's dive in!
+apply large scale changes to source code. Interested? Let's dive in!
 
 :::tip
 
-If you're in hurry and jump to the **last documentation generator/updater you'll ever need** \*
+If you're in hurry, jump to the **last documentation generator/updater you'll ever need** \*
 in the [sample section](#sample).
 
 _\*: for TypeScript, maybe._
@@ -64,26 +64,26 @@ graph TD
 So instead of fighting spaces and new lines, you can just locate the `function_declaration` node that follows
 a `comment` node.
 
-```ts title="docs.genai.mts"
-const functionAndComment = sg.find_function_with_outdated_comment()
+```ts title="docs.genai.mts" wrap
+const node = sg.search("functions without comments")
 ```
 
 Once you've located the node to update, you could do any transformation you want, e.g. replace it with another text.
 In terms of GenAI script, this means that you can build a prompt that includes as much context as you need, generate a response.
 
-```ts title="docs.genai.mts"
+```ts title="docs.genai.mts" wrap
 $`Update the documentation of the function 'fn' to reflect the new behavior of the function.`
-fence(functionAndComment.text())
+fence(node.text())
 ```
 
 ```txt
-subs a and b
+/* subs a and b */
 ```
 
 Once the LLM responds with the new comment, you could insert it as the new content of the node in the AST.
 
 ```ts title="docs.genai.mts"
-functionAndComment.comment().text = response
+edits.replace(node.comment(), response)
 ```
 
 ```mermaid
@@ -107,18 +107,23 @@ To recap, this strategy is based on the following steps:
 2. **transform and replace** Use the LLM to generate the new content of the node.
 3. **commit** Update the node in the AST with the new content.
 
-### ast-grep
+## ast-grep
 
 ![AST-Grep Logo](https://ast-grep.github.io/logo.svg)
 
 [ast-grep(sg)](https://ast-grep.github.io/) is a fast and polyglot tool for code structural search,
-lint, rewriting at large scale. **sg** provides us the AST-searh-and-replace capabilities we need to
+lint, rewriting at large scale. **sg** provides us the AST-search-and-replace capabilities we need to
 implement the strategy above.
 
 GenAIScript benefits from the excellent [Node.JS integration](https://ast-grep.github.io/reference/api.html#napi),
 which is available through the [`host.astGrep()`](https://microsoft.github.io/genaiscript/reference/scripts/ast-grep) method.
 
-```ts title="docs.genai.mts"
+### Searching
+
+The `sg.search` method allows you to search for nodes in the AST. It takes the language, file glob
+and pattern syntax and returns a list of matches.
+
+```ts title="docs.genai.mts" wrap
 // search
 const { matches, replace } = await sg.search("ts", "src/*fib*.ts", {
     rule: {
@@ -131,7 +136,13 @@ const { matches, replace } = await sg.search("ts", "src/*fib*.ts", {
         },
     },
 })
+```
 
+### Editing
+
+The `sg.changeset` method creates a changeset that can be used to apply a set of edits to a set of files.
+
+```ts
 // transform
 const edits = sg.changeset()
 for (const match of matches) {
@@ -155,10 +166,10 @@ The `docs` scripts is a documentation generator/updater.
 - if the `diff` option is selected, it will filter out functions that do not intersect with the
   diff (this is rather naive but a good start...).
 - it can also be used to update the documentation of a function that has changed.
-- it works regarless of the file size or the number of files as most transformations are hyper-localized.
+- it works regardless of the file size or the number of files as most transformations are hyper-localized.
 
 ```sh title="generate and refresh my docs plz"
-npm run genaiscript docs -- --diff
+genaiscript run docs -- --diff
 ```
 
 Here are some example of applications of the scripts (one-shot, no human edit, multi-edit per file):
