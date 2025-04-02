@@ -4426,12 +4426,40 @@ interface Sg {
 }
 
 interface DebugLogger {
+    /**
+     * Creates a debug logging function. Debug uses printf-style formatting. Below are the officially supported formatters:
+     * - `%O`	Pretty-print an Object on multiple lines.
+     * - `%o`	Pretty-print an Object all on a single line.
+     * - `%s`	String.
+     * - `%d`	Number (both integer and float).
+     * - `%j`	JSON. Replaced with the string '[Circular]' if the argument contains circular references.
+     * - `%%`	Single percent sign ('%'). This does not consume an argument.
+     * @param category
+     * @see https://www.npmjs.com/package/debug
+     */
     (formatter: any, ...args: any[]): void
+    /**
+     * Indicates if this logger is enabled
+     */
     enabled: boolean
+    /**
+     * The namespace of the logger provided when calling 'host.logger'
+     */
     namespace: string
 }
 
 interface LoggerHost {
+    /**
+     * Creates a debug logging function. Debug uses printf-style formatting. Below are the officially supported formatters:
+     * - `%O`	Pretty-print an Object on multiple lines.
+     * - `%o`	Pretty-print an Object all on a single line.
+     * - `%s`	String.
+     * - `%d`	Number (both integer and float).
+     * - `%j`	JSON. Replaced with the string '[Circular]' if the argument contains circular references.
+     * - `%%`	Single percent sign ('%'). This does not consume an argument.
+     * @param category
+     * @see https://www.npmjs.com/package/debug
+     */
     logger(category: string): DebugLogger
 }
 
