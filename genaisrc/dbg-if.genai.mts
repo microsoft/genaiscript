@@ -1,20 +1,28 @@
-const { output } = env
+import { prettier } from "./src/prettier.mts"
 
-const sg = await host.astGrep()
+script({
+    title: "Add debug logging statements to if statements",
+    description: "Add debug logging statements to if statements",
+    group: "dev",
+    parameters: {
+        applyEdits: {
+            type: "boolean",
+            default: false,
+            description: "If true, the script will not modify the files.",
+        },
+    },
+})
 
-const prettier = async (file) => {
-    // format
-    const res = await host.exec("prettier", [
-        "--write",
-        "--plugin=prettier-plugin-curly",
-        file.filename,
-    ])
-    if (res.exitCode) output.fence(res.stderr)
-    return res
+const { output, dbg, vars } = env
+const { applyEdits } = vars as {
+    applyEdits?: boolean
 }
 
+const sg = await host.astGrep()
 for (const file of env.files) {
-    await prettier(file)
+    dbg(file.filename)
+    await prettier(file, { curly: true })
+
     const { matches } = await sg.search(
         "ts",
         file.filename,
@@ -36,7 +44,7 @@ rule:
     for (const match of matches) {
         const expr = match.find({ rule: { kind: "expression_statement" } })
         output.fence(expr.text(), "json")
-        const msg = `DEBUG_MSG_${Object.keys(logs).length}`
+        const msg = `DEBUG_MSG_${Object.keys(logs).length.toFixed(3)}`
         logs[msg] = expr
         edits.replace(expr, `dbg("<${msg}>")\n${expr.text()}`)
     }
@@ -98,5 +106,10 @@ rule:
         logEdits.replace(expr, `dbg("${msg}")\n${expr.text()}`)
     }
     const updatedLogs = await logEdits.commit()
-    output.diff(file, updatedLogs[0])
+    if (applyEdits) {
+        await workspace.writeFiles(updatedLogs)
+        await prettier(file)
+
+        // compile and repair
+    } else output.diff(file, updatedLogs[0])
 }

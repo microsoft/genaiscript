@@ -1,8 +1,6 @@
 {
     "compilerOptions": {
-        "lib": [
-            "ES2022"
-        ],
+        "lib": ["ES2022"],
         "target": "ES2023",
         "module": "NodeNext",
         "moduleDetection": "force",
@@ -15,10 +13,5 @@
         "verbatimModuleSyntax": true,
         "resolveJsonModule": true
     },
-    "include": [
-        "*.mjs",
-        "*.mts",
-        "src/*.mts",
-        "./genaiscript.d.ts"
-    ]
+    "include": ["*.mjs", "*.mts", "src/*.mts", "./genaiscript.d.ts"]
 }

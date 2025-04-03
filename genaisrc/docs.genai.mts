@@ -4,6 +4,7 @@ import { prettier } from "./src/prettier.mts"
 
 script({
     title: "Generate TypeScript function documentation using AST insertion",
+    group: "dev",
     description: `
 ## Docs!
 
@@ -203,7 +204,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
             }
         )
         fileStats.judge += judge.usage?.total || 0
-        fileStats.judegeCost += judge.usage?.cost || 0
+        fileStats.judgeCost += judge.usage?.cost || 0
         if (judge.label !== "ok") {
             output.warn(judge.label)
             output.fence(judge.answer)

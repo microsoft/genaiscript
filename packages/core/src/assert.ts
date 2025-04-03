@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genaiscript:assert")
+
 /**
  * Asserts a condition and throws an error if the condition is false.
  * Optionally logs an error message and debugging data to the console.
