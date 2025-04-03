@@ -10,6 +10,7 @@
         "Automatable",
         "bitindex",
         "cctx",
+        "changeext",
         "Chunker",
         "cmds",
         "codelion",

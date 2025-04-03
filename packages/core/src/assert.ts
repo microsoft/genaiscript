@@ -19,7 +19,10 @@ export function assert(
     debugData?: any
 ) {
     if (!cond) {
-        if (debugData) console.error(msg || `assertion failed`, debugData)
+        if (debugData) {
+            dbg("assertion failed, debug data: %O", debugData)
+            console.error(msg || `assertion failed`, debugData)
+        }
         // eslint-disable-next-line no-debugger
         debugger
         throw new Error(msg)
