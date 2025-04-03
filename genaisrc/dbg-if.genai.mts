@@ -7,7 +7,7 @@ script({
     parameters: {
         applyEdits: {
             type: "boolean",
-            default: false,
+            default: true,
             description: "If true, the script will not modify the files.",
         },
     },
