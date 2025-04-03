@@ -23,8 +23,10 @@ const azureManagementOrOpenAIListModels: ListModelsFunction = async (
 ) => {
     const modelsApi = process.env.AZURE_OPENAI_API_MODELS_TYPE
     if (modelsApi === "openai") {
+        dbg("using OpenAI API for model listing")
         return await OpenAIListModels(cfg, options)
     } else {
+        dbg("using Azure Management API for model listing")
         return await azureManagementListModels(cfg, options)
     }
 }
@@ -38,6 +40,9 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
         const accountName = /^https:\/\/([^\.]+)\./.exec(base)[1]
 
         if (!subscriptionId || !accountName) {
+            dbg(
+                "subscriptionId or accountName is missing, returning an empty model list"
+            )
             return { ok: true, models: [] }
         }
         const token = await runtimeHost.azureManagementToken.token(
@@ -45,6 +50,10 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
             options
         )
         if (token.error) {
+            dbg(
+                "error occurred while fetching Azure management token: %s",
+                token.error
+            )
             throw new Error(errorMessage(token.error))
         }
 
@@ -68,6 +77,7 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
         }
 
         if (!resourceGroupName) {
+            dbg("resourceGroupName is missing, fetching resource details")
             const resources: {
                 value: {
                     id: string
@@ -82,6 +92,7 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
                 resource?.id
             )[1]
             if (!resourceGroupName) {
+                dbg("unable to extract resource group name from resource id")
                 throw new Error("Resource group not found")
             }
         }

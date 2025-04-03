@@ -42,21 +42,22 @@ for (const file of env.files) {
         file.filename,
         YAML`
 rule:
-    kind: expression_statement
+    kind: statement_block
     not:
       has:
         pattern: dbg($ARGS)
     inside:
         any:
-          - kind: statement_block
-          - kind: else_clause
+            - kind: if_statement
+            - kind: else_clause
 `
     )
-
+    dbg("found %d matches", matches.length)
     const edits = sg.changeset()
     const logs: Record<string, SgNode> = {}
     for (const match of matches) {
-        const expr = match.find({ rule: { kind: "expression_statement" } })
+        const expr = match.child(1)
+        dbg(`expr: %s %s`, expr.kind(), expr.text())
         const msg = `DEBUG_MSG_${Object.keys(logs).length}`
         logs[msg] = expr
         edits.replace(expr, `dbg("<${msg}>")\n${expr.text()}`)
