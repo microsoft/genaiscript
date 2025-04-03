@@ -2,27 +2,28 @@
 title: Node.JS API
 date: 2024-12-10
 authors:
-  - pelikhan
+    - pelikhan
 tags:
-  - sdk
-  - automation
-  - dev
-  - api
+    - sdk
+    - automation
+    - dev
+    - api
 description: Learn about the new API to call genaiscript for other typescript scripts.
 cover:
-  alt: An 8-bit style illustration showcases a stylized Node.JS logo alongside a
-    geometric TypeScript symbol. Abstract gear and circuit patterns connect the
-    two, representing the integration of GenAIScript in a corporate environment.
-    The image uses five colors that highlight a digital, clean, and tech-focused
-    aesthetic, remaining iconic and free of human elements or text.
-  image: ./node-api.png
-
+    alt:
+        An 8-bit style illustration showcases a stylized Node.JS logo alongside a
+        geometric TypeScript symbol. Abstract gear and circuit patterns connect the
+        two, representing the integration of GenAIScript in a corporate environment.
+        The image uses five colors that highlight a digital, clean, and tech-focused
+        aesthetic, remaining iconic and free of human elements or text.
+    image: ./node-api.png
 ---
-import { PackageManagers } from 'starlight-package-managers'
+
+import { PackageManagers } from "starlight-package-managers"
 
 A long standing feature request has been to run GenAIScript programmatically from other scripts. We are happy to announce that we have released a Node.JS API for GenAIScript. This API allows you to call GenAIScript from other TypeScript scripts (v1.83+).
 
-- [Documentation](https://microsoft.github.io/genaiscript/reference/cli/api/)
+- [Documentation](https://microsoft.github.io/genaiscript/reference/api/)
 
 ## Installation
 
@@ -47,8 +48,8 @@ On the caller side, the [run implementation](https://github.com/microsoft/genais
 
 - No global added
 - No package loaded
-- A few hunbred `b` of memory used
+- A few hundred `b` of memory used
 
 ## Help us improve it!
 
-Obvisouly this is a first draft and we could do a better job at providing callbacks for progress. Send us your feedback!
+Obviously this is a first draft and we could do a better job at providing callbacks for progress. Send us your feedback!
