@@ -9,7 +9,7 @@ import { glob } from "glob"
 import { debug as debug_, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
-import { createNodePath } from "./nodepath"
+import { createNodePath } from "../../core/src/path"
 import { DockerManager } from "./docker"
 import { createWorkspaceFileSystem } from "../../core/src/workspace"
 import { filterGitIgnore } from "../../core/src/gitignore"
@@ -66,6 +66,8 @@ import { defaultModelConfigurations } from "../../core/src/llms"
 import { createPythonRuntime } from "../../core/src/pyodide"
 import { ci } from "./ci"
 import { arrayify } from "../../core/src/cleaners"
+import { McpClientManager } from "../../core/src/mcpclient"
+import { ResourceManager } from "../../core/src/mcpresource"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -105,6 +107,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     readonly azureAIServerlessToken: AzureTokenResolver
     readonly azureManagementToken: AzureTokenResolver
     readonly microsoftGraphToken: AzureTokenResolver
+    readonly mcp: McpClientManager
+    readonly resources: ResourceManager
 
     constructor(dotEnvPaths: string[]) {
         dbg(`initializing NodeHost with dotEnvPaths: ${dotEnvPaths}`)
@@ -135,6 +139,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             "MICROSOFT_GRAPH_TOKEN_SCOPES",
             ["https://graph.microsoft.com/.default"]
         )
+        this.mcp = new McpClientManager()
+        this.resources = new ResourceManager()
     }
 
     get modelAliases(): Readonly<ModelConfigurations> {

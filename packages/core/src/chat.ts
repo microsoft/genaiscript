@@ -1292,8 +1292,8 @@ export async function executeChatSession(
                         resp.cached = cacheRes.cached
                         reqTrace.itemValue("cache", cacheStore.name)
                         reqTrace.itemValue("cache_key", cacheRes.key)
-                        logVerbose(
-                            `chat: cache ${resp.cached ? "hit" : "miss"} (${cacheStore.name}/${cacheRes.key.slice(0, 7)})`
+                        dbg(
+                            `cache ${resp.cached ? "hit" : "miss"} (${cacheStore.name}/${cacheRes.key.slice(0, 7)})`
                         )
                         if (resp.cached) {
                             if (cacheRes.value.text) {

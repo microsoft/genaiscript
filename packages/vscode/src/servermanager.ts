@@ -91,7 +91,7 @@ export class TerminalServerManager
     }
 
     get authority() {
-        assert(!!this._port)
+        if (!this._port) return undefined
         return `${SERVER_LOCALHOST}:${this._port}`
     }
 

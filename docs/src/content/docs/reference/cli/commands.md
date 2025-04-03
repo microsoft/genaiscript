@@ -266,7 +266,7 @@ Commands:
                               folder to enable type checking.
   compile [folders...]        Compile all scripts in workspace
   model [options] [script]    List model connection information for scripts
-  help [command]              display help for command
+  help|info <script>          Show help information for a script
 ```
 
 ### `scripts list`
@@ -343,6 +343,20 @@ Arguments:
 Options:
   -t, --token  show token
   -h, --help   display help for command
+```
+
+### `scripts help`
+
+```
+Usage: genaiscript scripts help|info [options] <script>
+
+Show help information for a script
+
+Arguments:
+  script      Script id
+
+Options:
+  -h, --help  display help for command
 ```
 
 ## `cache`
@@ -535,6 +549,8 @@ Starts a Model Context Protocol server that exposes scripts as tools
 Options:
   --groups <string...>      Filter script by groups
   --ids <string...>         Filter script by ids
+  --startup <string>        Startup script id, executed after the server is
+                            started
   --remote <string>         Remote repository URL to serve
   --remote-branch <string>  Branch to serve from the remote
   --remote-force            Force pull from remote repository

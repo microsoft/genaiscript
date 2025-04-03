@@ -1,4 +1,6 @@
 import { serializeError as rawSerializeError } from "serialize-error"
+import debug from "debug"
+const dbg = debug("genaiscript:error")
 
 /**
  * Serializes an error into a standardized format for easier handling.
@@ -22,6 +24,7 @@ export function serializeError(
             err.line = parseInt(m[1])
             err.column = parseInt(m[2])
         }
+        dbg("%O", err)
         return err
     } else if (e instanceof Object) {
         const obj = e as SerializedError

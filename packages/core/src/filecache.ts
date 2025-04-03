@@ -6,9 +6,10 @@ import { basename, dirname, join, relative } from "node:path"
 import { stat, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { logVerbose } from "./util"
 import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
+import debug from "debug"
+const dbg = debug("genaiscript:filecache")
 
 /**
  * Caches a file by writing it to a specified directory. If the file exists, it simply returns the path.
@@ -39,7 +40,7 @@ export async function fileWriteCached(
         if (r.isFile()) return fn
     } catch {}
 
-    logVerbose(`image cache: ${fn} (${prettyBytes(bytes.length)})`)
+    dbg(`image cache: ${fn} (${prettyBytes(bytes.length)})`)
     await ensureDir(dirname(fn))
     await writeFile(fn, bytes)
 
@@ -73,5 +74,16 @@ export async function fileCacheImage(
         url,
         { trace, cancellationToken } // TODO: add trace
     )
-    return options?.dir ? `./${basename(fn)}` : relative(process.cwd(), fn)
+    const res = options?.dir ? `./${basename(fn)}` : relative(process.cwd(), fn)
+    dbg(`image: ${res}`)
+    return res
+}
+
+export function patchCachedImages(
+    text: string,
+    patcher: (url: string) => string
+) {
+    const IMG_RX =
+        /\!\[(?<alt>[^\]]*)\]\((?<url>\.genaiscript\/images\/[^)]+)\)/g
+    return text.replace(IMG_RX, (_, alt, url) => `![${alt}](${patcher(url)})`)
 }

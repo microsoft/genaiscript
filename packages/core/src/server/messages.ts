@@ -226,6 +226,10 @@ export type GenerationStatus = "success" | "error" | "cancelled" | undefined
 // Interface for the result of a generation process
 export interface GenerationResult extends GenerationOutput {
     /**
+     * Run identifier
+     */
+    runId: string
+    /**
      * The environment variables passed to the prompt
      */
     env: Partial<ExpansionVariables>

@@ -2,7 +2,7 @@
   "name": "docs",
   "type": "module",
   "private": true,
-  "version": "1.122.0",
+  "version": "1.124.3",
   "license": "MIT",
   "scripts": {
     "install:force": "rm yarn.lock && yarn install",
@@ -20,8 +20,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.32.4",
-    "astro": "^5.5.4",
+    "@astrojs/starlight": "^0.32.5",
+    "astro": "^5.5.5",
     "astro-embed": "^0.9.0",
     "rehype-mermaid": "^3.0.0",
     "starlight-blog": "^0.19.0",

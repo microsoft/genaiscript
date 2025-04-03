@@ -1,5 +1,6 @@
 import CONFIGURATION_DATA from "./llms.json"
 export const CHANGE = "change"
+export const RESOURCE_CHANGE = "resourceChange"
 export const TRACE_CHUNK = "traceChunk"
 export const TRACE_DETAILS = "traceDetails"
 export const RECONNECT = "reconnect"
@@ -79,9 +80,6 @@ export const IMAGE_GENERATION_MODEL_ID = "image"
 export const EMBEDDINGS_MODEL_ID = "embeddings"
 export const DEFAULT_FENCE_FORMAT: FenceFormat = "xml"
 export const DEFAULT_TEMPERATURE = 0.8
-export const CACHE_LLMREQUEST_PREFIX = "genaiscript/cache/llm/"
-export const CACHE_AIREQUEST_TRACE_PREFIX = "genaiscript/cache/ai/trace/"
-export const CACHE_AIREQUEST_TEXT_PREFIX = "genaiscript/cache/ai/text/"
 export const TRACE_NODE_PREFIX = "genaiscript/trace/"
 export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
 export const COPILOT_CHAT_PARTICIPANT_ID = TOOL_ID
@@ -193,6 +191,8 @@ export const MODEL_PROVIDER_WHISPERASR = "whisperasr"
 export const MODEL_PROVIDER_WINDOWS_AI = "windows_ai"
 export const MODEL_PROVIDER_ECHO = "echo"
 export const MODEL_PROVIDER_NONE = "none"
+
+export const MODEL_GITHUB_COPILOT_CHAT_CURRENT = MODEL_PROVIDER_GITHUB_COPILOT_CHAT + ":current"
 
 export const MODEL_PROVIDER_OPENAI_HOSTS = Object.freeze([
     MODEL_PROVIDER_OPENAI,
@@ -332,12 +332,12 @@ export const OPENAI_MAX_RETRY_COUNT = 10
 export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000
 
 export const ANTHROPIC_MAX_TOKEN = 4096
-
 export const TEMPLATE_ARG_FILE_MAX_TOKENS = 4000
 export const TEMPLATE_ARG_DATA_SLICE_SAMPLE = 2000
 
 export const CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT = 8
 export const PROMISE_QUEUE_CONCURRENCY_DEFAULT = 16
+export const FILE_READ_CONCURRENCY_DEFAULT = 16
 
 export const GITHUB_REST_API_CONCURRENCY_LIMIT = 8
 export const GITHUB_REST_PAGE_DEFAULT = 10
@@ -422,5 +422,11 @@ export const CHAR_UP_ARROW = "↑"
 export const CHAR_DOWN_ARROW = "↓"
 export const CHAR_ENVELOPE = "✉"
 export const CHAR_UP_DOWN_ARROWS = "⇅ "
+export const CHAR_FLOPPY_DISK = "🖫"
 
 export const DEBUG_SCRIPT_CATEGORY = "script"
+
+export const CACHE_FORMAT_VERSION = "1"
+export const CACHE_SHA_LENGTH = 32
+
+export const MCP_RESOURCE_PROTOCOL = TOOL_ID

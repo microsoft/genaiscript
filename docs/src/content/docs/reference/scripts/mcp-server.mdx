@@ -82,7 +82,48 @@ const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the promp
 output.fence(`The result is ${res.text}`)
 ```
 
-## Usage
+## Resources
+
+[Resources](https://modelcontextprotocol.io/docs/concepts/resources)
+are a core primitive in the Model Context Protocol (MCP) that allow servers to expose data
+and content that can be read by clients and used as context for LLM interactions.
+
+In GenAScript, you can create a resource using `host.publishResource` and
+it will automatically be exposed as a MCP resource.
+
+```js title="task.genai.mjs"
+const id = await host.publishResource("important data", file)
+```
+
+The return value is the resource uri which can be used in the prompt output.
+`publishResource` supports files, buffers and strings.
+
+The resource will be available for the lifetime of the MCP server.
+
+### Secret scanning
+
+GenAIScript has a built-in [secret scanning feature](/genaiscript/reference/scripts/secret-scanning)
+that will scan your resources for secrets. To turn off the secret scanning feature,
+you can set the `secretScanning` option to `false` in `publishResource`.
+
+```js
+const id = await host.publishResource("important data", file, {
+    secretScanning: false,
+})
+```
+
+## Startup script
+
+You can specify a startup script id in the command line using the `--startup` option.
+It will run after the server is started.
+
+```sh
+genaiscript mcp --startup load-resources
+```
+
+You can use this script to load resources or do any other setup you need.
+
+## IDE configuration
 
 The `mcp` command lanches the MCP server using the stdio transport.
 

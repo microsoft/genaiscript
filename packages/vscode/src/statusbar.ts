@@ -30,14 +30,15 @@ export function activateStatusBar(state: ExtensionState) {
             }${tokensSoFar ? ` ${tokensSoFar} tokens` : ""}`
         )
 
+        const authority = server.authority
         const md = new vscode.MarkdownString(
             toMarkdownString(
-                status === "running"
+                authority && status === "running"
                     ? `server: [${server.authority}](${server.browserUrl})`
                     : `server: ${status}`,
                 fragment?.files?.[0],
                 template
-                    ? `-  tool: ${template.title} (${template.id})`
+                    ? `-  script: ${template.title} (${template.id})`
                     : undefined,
                 ...Object.entries(languageChatModels).map(
                     ([m, c]) => `-  language chat model: ${m} -> ${c}`

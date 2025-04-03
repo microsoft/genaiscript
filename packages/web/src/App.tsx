@@ -45,7 +45,6 @@ import {
     useScripts,
     useEnv,
     useScript,
-    useRunResults,
     useModels,
     ApiProvider,
 } from "./ApiContext"
@@ -55,6 +54,7 @@ import { RunnerProvider, useRunner } from "./RunnerContext"
 import { ImportedFile } from "./types"
 import { ProjectView } from "./ProjectView"
 import { prettyBytes } from "../../core/src/pretty"
+import { RunResultSelector } from "./Runs"
 
 function useSyncProjectScript() {
     const { scriptid, setScriptid } = useScriptId()
@@ -244,41 +244,6 @@ function ScriptForm() {
             <PromptParametersFields />
             <RunScriptButton />
         </vscode-collapsible>
-    )
-}
-
-function RunResultSelector() {
-    const { loadRunResult } = useRunner()
-    const { runs } = useRunResults() || {}
-    const { scriptid } = useScriptId()
-    const handleSelect = (e: Event) => {
-        e.stopPropagation()
-        const target = e.target as HTMLSelectElement
-        const runId = target?.value
-        loadRunResult(runId)
-    }
-
-    return (
-        <vscode-form-group>
-            <vscode-label>Runs</vscode-label>
-            <vscode-single-select onvsc-change={handleSelect}>
-                <vscode-option description="" value=""></vscode-option>
-                {runs
-                    ?.filter((r) => !scriptid || r.scriptId === scriptid)
-                    .map((run) => (
-                        <vscode-option
-                            description={`${run.scriptId}, created at ${run.creationTime} (${run.runId})`}
-                            value={run.runId}
-                        >
-                            {scriptid === run.scriptId
-                                ? ""
-                                : `${run.scriptId}, `}
-                            {run.creationTime}
-                        </vscode-option>
-                    ))}
-            </vscode-single-select>
-            <vscode-form-helper>Select a previous report</vscode-form-helper>
-        </vscode-form-group>
     )
 }
 
@@ -749,11 +714,7 @@ function ResultsView() {
                 label={showRuns ? "Show previous runs" : "Hide previous runs"}
                 onClick={handleShowRuns}
             />
-            {showRuns && (
-                <Suspense>
-                    <RunResultSelector />
-                </Suspense>
-            )}
+            {showRuns && <RunResultSelector />}
             <Suspense>
                 <ResultsTabs />
             </Suspense>

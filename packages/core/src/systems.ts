@@ -50,8 +50,6 @@ export function resolveSystems(
     // If no system is defined in the script, determine systems based on jsSource
     if (script.system === undefined) {
         // current date
-        dbgr(`adding system.today to systems`)
-        systems.push("system.today")
         // safety
         if (systemSafety !== false) {
             dbgr(`adding safeties to systems`)
@@ -69,6 +67,11 @@ export function resolveSystems(
                 dbgr(`adding system.output_markdown`)
                 systems.push("system.output_markdown")
             }
+        }
+
+        if (/today/i.test(jsSource)) {
+            dbgr(`adding system.today to systems`)
+            systems.push("system.today")
         }
 
         // Add planner system if any tool starts with "agent"

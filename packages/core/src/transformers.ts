@@ -45,14 +45,14 @@ const generationQueue = new PLimitPromiseQueue(1)
 
 async function loadGenerator(
     family: string,
-    options: object
+    options: any
 ): Promise<TextGenerationPipeline> {
     const h = await hash({ family, options })
     let p = generators[h]
     if (!p) {
         const { pipeline } = await import("@huggingface/transformers")
         p = generators[h] = pipeline("text-generation", family, {
-            ...options,
+            ...(options || {}),
             cache_dir: dotGenaiscriptPath("cache", "transformers"),
             progress_callback: progressBar(),
         })

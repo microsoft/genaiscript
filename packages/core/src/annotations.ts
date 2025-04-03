@@ -23,6 +23,12 @@ const AZURE_DEVOPS_ANNOTATIONS_RX =
 const TYPESCRIPT_ANNOTATIONS_RX =
     /^(?<file>[^:\s\n].+?):(?<line>\d+)(?::(?<endLine>\d+))?(?::\d+)?\s+-\s+(?<severity>error|warning)\s+(?<code>[^:]+)\s*:\s*(?<message>.*)$/gim
 
+// Regular expression for matching GitHub Flavored Markdown style warnings.
+// Example: > [!WARNING]
+// > This is a warning message.
+const GITHUB_MARKDOWN_WARNINGS_RX =
+    /^\s*>\s*\[!(?<severity>NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*\n>\s*(?<message>.+)(?:\s*\n>\s*.*?)*?$/gim
+
 // Regular expression for TypeScript compiler errors with parentheses format
 // Example: src/connection.ts(71,5): error TS1128: Declaration or statement expected.
 // src/connection.ts(71,5): error TS1128: Declaration or statement expected.
@@ -38,8 +44,11 @@ const ANNOTATIONS_RX = [
 // Maps severity strings to `DiagnosticSeverity`.
 const SEV_MAP: Record<string, DiagnosticSeverity> = Object.freeze({
     ["info"]: "info",
+    ["tip"]: "info",
     ["notice"]: "info", // Maps 'notice' to 'info' severity
+    ["note"]: "info",
     ["warning"]: "warning",
+    ["caution"]: "error",
     ["error"]: "error",
 })
 const SEV_EMOJI_MAP: Record<string, string> = Object.freeze({
@@ -114,25 +123,47 @@ export function eraseAnnotations(text: string) {
  * @returns A string where matched annotations are replaced with formatted items.
  */
 export function convertAnnotationsToItems(text: string) {
-    return ANNOTATIONS_RX.reduce(
-        (t, rx) =>
-            t.replace(rx, (s, ...args) => {
-                const groups = args.at(-1)
-                const { file, line, endLine, severity, code, message } = groups
-                const d: Diagnostic = {
-                    severity: SEV_MAP[severity?.toLowerCase()] ?? "info",
-                    filename: file,
-                    range: [
-                        [parseInt(line) - 1, 0], // Start of range, 0-based index
-                        [parseInt(endLine) - 1, Number.MAX_VALUE], // End of range, max value for columns
-                    ],
-                    code,
-                    message,
-                }
-                return convertAnnotationToItem(d)
-            }),
-        text
+    return convertGithubMarkdownAnnotationsToItems(
+        ANNOTATIONS_RX.reduce(
+            (t, rx) =>
+                t.replace(rx, (s, ...args) => {
+                    const groups = args.at(-1)
+                    const { file, line, endLine, severity, code, message } =
+                        groups
+                    const d: Diagnostic = {
+                        severity: SEV_MAP[severity?.toLowerCase()] ?? "info",
+                        filename: file,
+                        range: [
+                            [parseInt(line) - 1, 0], // Start of range, 0-based index
+                            [parseInt(endLine) - 1, Number.MAX_VALUE], // End of range, max value for columns
+                        ],
+                        code,
+                        message,
+                    }
+                    return convertAnnotationToItem(d)
+                }),
+            text
+        )
     )
+}
+
+export function convertGithubMarkdownAnnotationsToItems(text: string) {
+    return text?.replace(GITHUB_MARKDOWN_WARNINGS_RX, (s, ...args) => {
+        const groups = args.at(-1)
+        const { severity, message } = groups
+        const sev = SEV_MAP[severity?.toLowerCase()] ?? "info"
+        const d: Diagnostic = {
+            severity: sev,
+            filename: "",
+            range: [
+                [0, 0], // Start of range, 0-based index
+                [0, Number.MAX_VALUE], // End of range, max value for columns
+            ],
+            code: "",
+            message,
+        }
+        return convertAnnotationToItem(d)
+    })
 }
 
 /**
@@ -150,7 +181,7 @@ export function convertAnnotationsToItems(text: string) {
 export function convertAnnotationToItem(d: Diagnostic) {
     const { severity, message, filename, code, range } = d
     const line = range?.[0]?.[0]
-    return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message} ${filename ? `(\`${filename}${line ? `#L${line}` : ""}\`)` : ""}`
+    return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message}${filename ? ` (\`${filename}${line ? `#L${line}` : ""}\`)` : ""}`
 }
 
 /**

@@ -13,9 +13,9 @@ import { resolveModelConnectionInfo } from "./models"
 import { EMBEDDINGS_MODEL_ID } from "./constants"
 import { runtimeHost } from "./host"
 import { resolveLanguageModel } from "./lm"
-import { JSONLineCache } from "./cache"
 import { EmbeddingsResponse } from "vectra"
 import { assert } from "./util"
+import { createCache } from "./cache"
 
 /**
  * Represents the cache key for embeddings.
@@ -33,7 +33,10 @@ interface EmbeddingsCacheKey {
  * Type alias for the embeddings cache.
  * Maps cache keys to embedding responses.
  */
-type EmbeddingsCache = JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
+type EmbeddingsCache = WorkspaceFileCache<
+    EmbeddingsCacheKey,
+    EmbeddingsResponse
+>
 
 /**
  * Creates a cached embedding function that stores and retrieves embeddings
@@ -50,10 +53,10 @@ export function createCachedEmbedder(
     options?: { cacheName?: string; cacheSalt?: string }
 ): EmbeddingFunction {
     const { cacheName, cacheSalt } = options || {}
-    const cache: EmbeddingsCache = JSONLineCache.byName<
+    const cache: EmbeddingsCache = createCache<
         EmbeddingsCacheKey,
         EmbeddingsResponse
-    >(cacheName || "embeddings")
+    >(cacheName || "embeddings", { type: "fs" })
 
     return async (inputs: string, cfg, options) => {
         const key: EmbeddingsCacheKey = {

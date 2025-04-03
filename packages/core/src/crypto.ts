@@ -65,14 +65,14 @@ export async function hash(value: any, options?: HashOptions) {
         ...rest
     } = options || {}
 
-    const sep = utf8Encode("|")
-    const un = utf8Encode("undefined")
-    const nu = utf8Encode("null")
+    const SEP = utf8Encode("|")
+    const UN = utf8Encode("undefined")
+    const NU = utf8Encode("null")
 
     const h: Uint8Array[] = []
     const append = async (v: any) => {
-        if (v === null) h.push(nu)
-        else if (v === undefined) h.push(un)
+        if (v === null) h.push(NU)
+        else if (v === undefined) h.push(UN)
         else if (
             typeof v == "string" ||
             typeof v === "number" ||
@@ -81,7 +81,7 @@ export async function hash(value: any, options?: HashOptions) {
             h.push(utf8Encode(String(v)))
         else if (Array.isArray(v))
             for (const c of v) {
-                h.push(sep)
+                h.push(SEP)
                 await append(c)
             }
         else if (v instanceof Uint8Array) h.push(v)
@@ -91,9 +91,9 @@ export async function hash(value: any, options?: HashOptions) {
             h.push(new Uint8Array(await v.arrayBuffer()))
         else if (typeof v === "object") {
             for (const c of Object.keys(v).sort()) {
-                h.push(sep)
+                h.push(SEP)
                 h.push(utf8Encode(c))
-                h.push(sep)
+                h.push(SEP)
                 await append(v[c])
             }
             if (
@@ -104,7 +104,7 @@ export async function hash(value: any, options?: HashOptions) {
             ) {
                 try {
                     const h = await hashFile(v.filename)
-                    await append(sep)
+                    await append(SEP)
                     await append(h)
                 } catch {}
             }
@@ -114,15 +114,15 @@ export async function hash(value: any, options?: HashOptions) {
 
     if (salt) {
         await append(salt)
-        await append(sep)
+        await append(SEP)
     }
 
     if (version) {
         await append(CORE_VERSION)
-        await append(sep)
+        await append(SEP)
     }
     await append(value)
-    await append(sep)
+    await append(SEP)
     await append(rest)
 
     const buf = await digest(algorithm, concatBuffers(...h))

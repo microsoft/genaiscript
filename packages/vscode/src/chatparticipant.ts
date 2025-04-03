@@ -5,13 +5,13 @@ import {
     COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
     COPILOT_CHAT_PARTICIPANT_ID,
     ICON_LOGO_NAME,
-    CACHE_AIREQUEST_TRACE_PREFIX,
-    CACHE_AIREQUEST_TEXT_PREFIX,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
 } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { templatesToQuickPickItems } from "./fragmentcommands"
+import { patchCachedImages } from "../../core/src/filecache"
 
 export async function activateChatParticipant(state: ExtensionState) {
     const { context } = state
@@ -29,6 +29,10 @@ export async function activateChatParticipant(state: ExtensionState) {
                 files.push(vscode.workspace.asRelativePath(value, false))
             else if (value instanceof vscode.Location)
                 files.push(vscode.workspace.asRelativePath(value.uri, false)) // TODO range
+            else
+                state.output.appendLine(
+                    `unknown reference type: ${typeof value}`
+                )
         }
         return { files, vars }
     }
@@ -151,22 +155,37 @@ export async function activateChatParticipant(state: ExtensionState) {
                 label: "genaiscript agent",
                 parameters: deleteUndefinedValues({
                     ...vars,
-                    ["copilot.history"]: history,
+                    "copilot.history": history,
+                    "copilot.model": `${MODEL_PROVIDER_GITHUB_COPILOT_CHAT}:${model.id}`,
                     question: prompt,
                 }),
+                githubCopilotChatModelId: model.id,
                 fragment,
                 mode: "chat",
             })
             canceller.dispose()
             if (token.isCancellationRequested) return
 
-            const { text = "", status, statusText } = res || {}
+            const { text = "", status, statusText, runId } = res || {}
             if (status !== "success") md("$(error) " + statusText)
-            if (text) md("\n\n" + convertAnnotationsToItems(text))
-            md(
-                `\n\n[output](command:genaiscript.request.open?${encodeURIComponent(JSON.stringify([CACHE_AIREQUEST_TEXT_PREFIX + res.requestSha + ".md"]))}) | [trace](command:genaiscript.request.open?${encodeURIComponent(JSON.stringify([CACHE_AIREQUEST_TRACE_PREFIX + res.requestSha + ".md"]))})`,
-                "genaiscript.request.open"
-            )
+            if (text) {
+                let patched = convertAnnotationsToItems(text)
+                const dir = state.host.projectUri
+                patched = patchCachedImages(patched, (url) => {
+                    const wurl = vscode.Uri.joinPath(dir, url).toString()
+                    state.output.appendLine(`image: ${url}`)
+                    state.output.appendLine(`       ${wurl}`)
+                    return wurl
+                })
+                md("\n\n" + patched)
+            }
+            // TODO open url
+            if (runId) {
+                const server = state.host.server
+                md(
+                    `\n\n[Trace](${server.browserUrl}#scriptid=${template.id}&runid=${res.runId})`
+                )
+            }
         }
     )
     participant.iconPath = new vscode.ThemeIcon(ICON_LOGO_NAME)

@@ -167,7 +167,10 @@ export async function astGrepFindFiles(
     // apply diff
     if (diffFiles?.length) {
         matches = matches.filter((m) => {
-            const range = [m.range().start.line, m.range().end.line]
+            const range: [number, number] = [
+                m.range().start.line,
+                m.range().end.line,
+            ]
             const { chunk } =
                 diffFindChunk(m.getRoot().filename(), range, diffFiles) || {}
             if (chunk)

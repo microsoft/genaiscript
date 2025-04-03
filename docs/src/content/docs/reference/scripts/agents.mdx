@@ -245,3 +245,14 @@ We use the `system` parameter to configure the tools exposed to the LLM. In this
 ```
 
 This full source of this agent is defined in the [system.agent_github](/genaiscript/reference/scripts/system/#systemagent_github) system prompt.
+
+## Logging
+
+Each agent uses a `agent:<name>` [logging](/genaiscript/reference/scripts/logging) namespace
+to report debugging information.
+
+To get logging from the cli, you can use the `DEBUG` environment variable to enable logging for a specific agent.
+
+```sh
+DEBUG=agent:github* genascript run ...
+```

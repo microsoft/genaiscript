@@ -134,3 +134,13 @@ If you have a `package.json` file in your project, you can set the `type` field 
 ```
 
 This will allow you to use module imports in all `.js` files in your project.
+
+## Current script file
+
+You can use the `import.meta.url` to get the current script file URL.
+This is useful to get the current script file path and use it in your script.
+
+```js title="script.genai.mjs"
+// convert file:// to absolute path
+const filename = path.resolveFileURL(import.meta.url)
+```

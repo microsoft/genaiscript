@@ -1,10 +1,9 @@
 import * as vscode from "vscode"
-import { createVSPath } from "./vspath"
+import { createNodePath } from "../../core/src/path"
 import { TerminalServerManager } from "./servermanager"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { checkFileExists, readFileText } from "./fs"
 import { filterGitIgnore } from "../../core/src/gitignore"
 import { setHost, Host } from "../../core/src/host"
 import { TraceOptions } from "../../core/src/trace"
@@ -18,7 +17,7 @@ import {
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
-    readonly path = createVSPath()
+    readonly path = createNodePath()
     readonly server: TerminalServerManager
     constructor(readonly state: ExtensionState) {
         super()

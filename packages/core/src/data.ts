@@ -23,6 +23,7 @@ import { TraceOptions } from "./trace"
 import { host } from "./host"
 import { fromBase64 } from "./base64"
 import { JSONLTryParse } from "./jsonl"
+import { tryValidateJSONWithSchema } from "./schema"
 
 /**
  * Attempts to parse the provided file's content based on its detected format.
@@ -64,5 +65,6 @@ export async function dataTryParse(
             return undefined // unknown
         }
     }
-    return data
+
+    return tryValidateJSONWithSchema(data, options)
 }

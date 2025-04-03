@@ -19,8 +19,6 @@ import { vectorCreateIndex, vectorSearch } from "./vectorsearch"
 import { Project } from "./server/messages"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
-import { NotSupportedError } from "./error"
-import { MemoryCache } from "./cache"
 import { proxifyEnvVars } from "./vars"
 import { HTMLEscape } from "./html"
 import { hash } from "./crypto"
@@ -36,6 +34,7 @@ import {
     astGrepFindFiles,
     astGrepParse,
 } from "./astgrep"
+import { createCache } from "./cache"
 
 const dbg = debug("genaiscript:promptcontext")
 
@@ -77,8 +76,8 @@ export async function createPromptContext(
     // Define the workspace file system operations
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
-        readJSON: (f) => runtimeHost.workspace.readJSON(f),
-        readYAML: (f) => runtimeHost.workspace.readYAML(f),
+        readJSON: (f, o) => runtimeHost.workspace.readJSON(f, o),
+        readYAML: (f, o) => runtimeHost.workspace.readYAML(f, o),
         readXML: (f, o) => runtimeHost.workspace.readXML(f, o),
         readCSV: (f, o) => runtimeHost.workspace.readCSV(f, o),
         readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
@@ -260,6 +259,11 @@ export async function createPromptContext(
     // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
         logger: (category) => debug(category),
+        mcpServer: async (options) =>
+            await runtimeHost.mcp.startMcpServer(options, { trace }),
+        publishResource: async (name, content, options) =>
+            await runtimeHost.resources.publishResource(name, content, options),
+        resources: async () => await runtimeHost.resources.resources(),
         fetch: (url, options) => fetch(url, { ...(options || {}), trace }),
         fetchText: (url, options) =>
             fetchText(url, { ...(options || {}), trace }),
@@ -277,8 +281,7 @@ export async function createPromptContext(
             } satisfies LanguageModelReference
         },
         cache: async (name: string) => {
-            if (!name) throw new NotSupportedError("missing cache name")
-            const res = MemoryCache.byName<any, any>(name)
+            const res = createCache<any, any>(name, { type: "memory" })
             return res
         },
         exec: async (

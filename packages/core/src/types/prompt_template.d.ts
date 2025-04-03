@@ -175,6 +175,19 @@ type ModelType = OptionsOrString<
     | "github:deepseek-v3"
     | "github:deepseek-r1"
     | "github:Phi-4"
+    | "github_copilot_chat:current"
+    | "github_copilot_chat:gpt-3.5-turbo",
+    | "github_copilot_chat:gpt-4o-mini"
+    | "github_copilot_chat:gpt-4o-2024-11-20"
+    | "github_copilot_chat:gpt-4"
+    | "github_copilot_chat:o1"
+    | "github_copilot_chat:o1:low"
+    | "github_copilot_chat:o1:medium"
+    | "github_copilot_chat:o1:high"
+    | "github_copilot_chat:o3-mini"
+    | "github_copilot_chat:o3-mini:low"
+    | "github_copilot_chat:o3-mini:medium"
+    | "github_copilot_chat:o3-mini:high"
     | "azure:gpt-4o"
     | "azure:gpt-4o-mini"
     | "azure:o1"
@@ -1073,6 +1086,10 @@ type ToolCallOutput =
 
 interface WorkspaceFileCache<K, V> {
     /**
+     * Name of the cache
+     */
+    name: string
+    /**
      * Gets the value associated with the key, or undefined if there is none.
      * @param key
      */
@@ -1085,14 +1102,24 @@ interface WorkspaceFileCache<K, V> {
     set(key: K, value: V): Promise<void>
 
     /**
-     * List of keys
-     */
-    keys(): Promise<K[]>
-
-    /**
      * List the values in the cache.
      */
     values(): Promise<V[]>
+
+    /**
+     * Gets the sha of the key
+     * @param key
+     */
+    getSha(key: K): Promise<string>
+
+    /**
+     * Gets an existing value or updates it with the updater function.
+     */
+    getOrUpdate(
+        key: K,
+        updater: () => Promise<V>,
+        validator?: (val: V) => boolean
+    ): Promise<{ key: string; value: V; cached?: boolean }>
 }
 
 interface WorkspaceGrepOptions extends FilterGitFilesOptions {
@@ -1115,7 +1142,7 @@ interface WorkspaceGrepResult {
     matches: WorkspaceFile[]
 }
 
-interface INIParseOptions {
+interface INIParseOptions extends JSONSchemaValidationOptions {
     defaultValue?: any
 }
 
@@ -1142,6 +1169,11 @@ interface FileStats {
      */
     size: number
     mode: number
+}
+
+interface JSONSchemaValidationOptions {
+    schema?: JSONSchema
+    throwOnValidationError?: boolean
 }
 
 interface WorkspaceFileSystem {
@@ -1186,13 +1218,19 @@ interface WorkspaceFileSystem {
      * Reads the content of a file and parses to JSON, using the JSON5 parser.
      * @param path
      */
-    readJSON(path: string | Awaitable<WorkspaceFile>): Promise<any>
+    readJSON(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: JSONSchemaValidationOptions
+    ): Promise<any>
 
     /**
      * Reads the content of a file and parses to YAML.
      * @param path
      */
-    readYAML(path: string | Awaitable<WorkspaceFile>): Promise<any>
+    readYAML(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: JSONSchemaValidationOptions
+    ): Promise<any>
 
     /**
      * Reads the content of a file and parses to XML, using the XML parser.
@@ -1226,7 +1264,10 @@ interface WorkspaceFileSystem {
      */
     readData(
         path: string | Awaitable<WorkspaceFile>,
-        options?: CSVParseOptions & INIParseOptions & XMLParseOptions
+        options?: CSVParseOptions &
+            INIParseOptions &
+            XMLParseOptions &
+            JSONSchemaValidationOptions
     ): Promise<any>
 
     /**
@@ -1349,6 +1390,10 @@ interface ExpansionVariables {
          * When running in GitHub Copilot Chat, the current terminal content
          */
         "copilot.terminalSelection"?: string
+        /**
+         * Selected model identifier in GitHub Copilot Chat
+         */
+        "copilot.model"?: string
     }
 
     /**
@@ -1487,7 +1532,7 @@ interface FileFilterOptions extends GitIgnoreFilterOptions {
     glob?: ElementOrArray<string>
 }
 
-interface ContentSafetyOptions {
+interface ContentSafetyOptions extends SecretDetectionOptions {
     /**
      * Runs the default content safety validator
      * to prevent prompt injection.
@@ -1498,7 +1543,9 @@ interface ContentSafetyOptions {
      * Policy to inject builtin system prompts. See to `false` prevent automatically injecting.
      */
     systemSafety?: "default" | boolean
+}
 
+interface SecretDetectionOptions {
     /**
      * Policy to disable secret scanning when communicating with the LLM.
      * Set to `false` to disable.
@@ -1623,7 +1670,7 @@ interface JSONSchemaAnyOf {
     anyOf: JSONSchemaType[]
 }
 
-interface JSONSchemaDescripted {
+interface JSONSchemaDescribed {
     /**
      * A short description of the property
      */
@@ -1634,7 +1681,7 @@ interface JSONSchemaDescripted {
     description?: string
 }
 
-interface JSONSchemaString extends JSONSchemaDescripted {
+interface JSONSchemaString extends JSONSchemaDescribed {
     type: "string"
     uiType?: "textarea"
     uiSuggestions?: string[]
@@ -1643,7 +1690,7 @@ interface JSONSchemaString extends JSONSchemaDescripted {
     pattern?: string
 }
 
-interface JSONSchemaNumber extends JSONSchemaDescripted {
+interface JSONSchemaNumber extends JSONSchemaDescribed {
     type: "number" | "integer"
     default?: number
     minimum?: number
@@ -1652,13 +1699,13 @@ interface JSONSchemaNumber extends JSONSchemaDescripted {
     exclusiveMaximum?: number
 }
 
-interface JSONSchemaBoolean extends JSONSchemaDescripted {
+interface JSONSchemaBoolean extends JSONSchemaDescribed {
     type: "boolean"
     uiType?: "runOption"
     default?: boolean
 }
 
-interface JSONSchemaObject extends JSONSchemaDescripted {
+interface JSONSchemaObject extends JSONSchemaDescribed {
     $schema?: string
     type: "object"
     properties?: {
@@ -1670,7 +1717,7 @@ interface JSONSchemaObject extends JSONSchemaDescripted {
     default?: object
 }
 
-interface JSONSchemaArray extends JSONSchemaDescripted {
+interface JSONSchemaArray extends JSONSchemaDescribed {
     $schema?: string
     type: "array"
     items?: JSONSchemaType
@@ -1832,6 +1879,12 @@ interface Path {
      * @param ext
      */
     changeext(path: string, ext: string): string
+
+    /**
+     * Converts a file://... to a path
+     * @param fileUrl
+     */
+    resolveFileURL(fileUrl: string): string
 }
 
 interface Fenced {
@@ -1843,7 +1896,7 @@ interface Fenced {
     validation?: FileEditValidation
 }
 
-interface XMLParseOptions {
+interface XMLParseOptions extends JSONSchemaValidationOptions {
     allowBooleanAttributes?: boolean
     ignoreAttributes?: boolean
     ignoreDeclaration?: boolean
@@ -1914,7 +1967,7 @@ interface Tokenizer {
     decode: TokenDecoder
 }
 
-interface CSVParseOptions {
+interface CSVParseOptions extends JSONSchemaValidationOptions {
     delimiter?: string
     headers?: string[]
     repair?: boolean
@@ -2149,7 +2202,7 @@ interface Parsers {
      */
     JSON5(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any }
+        options?: { defaultValue?: any } & JSONSchemaValidationOptions
     ): any | undefined
 
     /**
@@ -2169,7 +2222,7 @@ interface Parsers {
      */
     YAML(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any }
+        options?: { defaultValue?: any } & JSONSchemaValidationOptions
     ): any | undefined
 
     /**
@@ -2178,7 +2231,7 @@ interface Parsers {
      */
     TOML(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any }
+        options?: { defaultValue?: any } & JSONSchemaValidationOptions
     ): any | undefined
 
     /**
@@ -2188,7 +2241,10 @@ interface Parsers {
      */
     frontmatter(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any; format: "yaml" | "json" | "toml" }
+        options?: {
+            defaultValue?: any
+            format: "yaml" | "json" | "toml"
+        } & JSONSchemaValidationOptions
     ): any | undefined
 
     /**
@@ -2505,12 +2561,12 @@ interface DIFF {
     /**
      * Given a filename and line number (0-based), finds the chunk in the diff
      * @param file
-     * @param line
+     * @param range line index or range [start, end] inclusive
      * @param diff
      */
     findChunk(
         file: string,
-        line: ElementOrArray<number>,
+        range: number | [number, number] | number[],
         diff: ElementOrArray<DiffFile>
     ): { file?: DiffFile; chunk?: DiffChunk } | undefined
 
@@ -5000,6 +5056,76 @@ interface ShellHost {
     ): Promise<ShellOutput>
 }
 
+interface McpResourceReference {
+    name?: string
+    description?: string
+    uri: string
+    mimeType?: string
+}
+
+interface McpClient extends AsyncDisposable {
+    /**
+     * Configuration of the server
+     */
+    readonly config: McpServerConfig
+
+    /**
+     * Pings the server
+     */
+    ping(): Promise<void>
+    /**
+     * List all available MCP tools
+     */
+    listTools(): Promise<ToolCallback[]>
+
+    /**
+     * List resources available in the server
+     */
+    listResources(): Promise<McpResourceReference[]>
+
+    /**
+     * Reads the resource content
+     */
+    readResource(uri: string): Promise<WorkspaceFile[]>
+
+    /**
+     * Closes clients and server.
+     */
+    dispose(): Promise<void>
+}
+
+interface McpHost {
+    /**
+     * Starts a Model Context Protocol server and returns a client.
+     */
+    mcpServer(config: McpServerConfig): Promise<McpClient>
+}
+
+interface ResourceReference {
+    uri: string // Unique identifier for the resource
+    name: string // Human-readable name
+    description?: string // Optional description
+    mimeType?: string // Optional MIME type
+}
+
+interface ResourceHost {
+    /**
+     * Publishes a resource that will be exposed through the MCP server protocol.
+     * @param content
+     */
+    publishResource(
+        name: string,
+        content: BufferLike,
+        options?: Partial<Pick<ResourceReference, "description" | "mimeType">> &
+            SecretDetectionOptions
+    ): Promise<string>
+
+    /**
+     * List available resource references
+     */
+    resources(): Promise<ResourceReference[]>
+}
+
 interface UserInterfaceHost {
     /**
      * Starts a headless browser and navigates to the page.
@@ -5180,6 +5306,8 @@ interface PythonProxy {
 interface PromptHost
     extends ShellHost,
         LoggerHost,
+        McpHost,
+        ResourceHost,
         UserInterfaceHost,
         LanguageModelHost,
         SgHost,

@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.122.0",
+    "version": "1.124.3",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.98.0"
@@ -205,20 +205,6 @@
                 {
                     "id": "genaiscript.prompts",
                     "name": "Scripts",
-                    "visibility": "collapsed",
-                    "type": "tree",
-                    "icon": "./icon.svg"
-                },
-                {
-                    "id": "genaiscript.prompts.requests",
-                    "name": "Runs",
-                    "visibility": "collapsed",
-                    "type": "tree",
-                    "icon": "./icon.svg"
-                },
-                {
-                    "id": "genaiscript.llm.requests",
-                    "name": "Chat Requests",
                     "visibility": "collapsed",
                     "type": "tree",
                     "icon": "./icon.svg"
@@ -494,9 +480,9 @@
     "devDependencies": {
         "@types/markdown-it": "^14.1.2",
         "@types/vscode": "^1.98.0",
-        "@vscode/vsce": "^3.3.0",
+        "@vscode/vsce": "^3.3.1",
         "assert": "^2.1.0",
-        "es-toolkit": "^1.33.0",
+        "es-toolkit": "^1.34.1",
         "markdown-it-github-alerts": "0.2.0",
         "process": "^0.11.10",
         "typescript": "5.8.2",

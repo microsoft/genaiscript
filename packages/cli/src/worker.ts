@@ -3,6 +3,9 @@ import { runScriptInternal } from "./run"
 import { NodeHost } from "./nodehost"
 import { delay } from "es-toolkit"
 import { overrideStdoutWithStdErr } from "../../core/src/stdio"
+import { runtimeHost } from "../../core/src/host"
+import { Resource } from "../../core/src/mcpresource"
+import { RESOURCE_CHANGE } from "../../core/src/constants"
 
 /**
  * """
@@ -26,6 +29,16 @@ export async function worker() {
         process.env.SystemRoot = process.env.SYSTEMROOT
     }
 
+    runtimeHost.resources.addEventListener(RESOURCE_CHANGE, (ev) => {
+        const cev = ev as CustomEvent<Resource>
+        const { reference, content } = cev.detail
+        parentPort.postMessage({
+            type: RESOURCE_CHANGE,
+            reference,
+            content,
+        } satisfies Resource & { type: string })
+    })
+
     switch (type) {
         case "run": {
             const { scriptId, files, options } = data as {
@@ -35,7 +48,7 @@ export async function worker() {
             }
             const { result } = await runScriptInternal(scriptId, files, options)
             await delay(0) // flush streams
-            parentPort.postMessage(result)
+            parentPort.postMessage({ type: "run", result })
             break
         }
     }

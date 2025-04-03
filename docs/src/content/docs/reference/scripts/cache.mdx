@@ -70,8 +70,6 @@ const cache = await workspace.cache("custom")
 await cache.set("file.txt", "...")
 // read value
 const content = await cache.get("file.txt")
-// list keys
-const keys = await cache.keys()
 // list values
 const values = await cache.values()
 ```

@@ -3,7 +3,7 @@ name: refresh 3rd party licenses
 on:
     workflow_dispatch:
     push:
-        branches: [main]
+        branches: [main, dev]
         paths:
             - "yarn.lock"
 concurrency:
@@ -13,9 +13,9 @@ jobs:
     build:
         runs-on: ubuntu-latest
         permissions:
-          actions: read
-          contents: write
-          pull-requests: write
+            actions: read
+            contents: write
+            pull-requests: write
         steps:
             - uses: actions/checkout@v4
               with:

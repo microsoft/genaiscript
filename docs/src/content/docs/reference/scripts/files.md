@@ -128,6 +128,27 @@ const data = await workspace.readCSV<{ name: string; value: number }>(
 )
 ```
 
+### `readData`
+
+This helper API tries to infer the data type automatically and parse it out. It supports JSON, JSON5, YAML, XML, INI, TOML, CSV, XLSX.
+
+```js
+const data = await workspace.readData("filename.csv")
+```
+
+### Schema validation
+
+You can provide a [JSON schema](/genaiscript/reference/scripts/schemas) to validate the parsed data.
+By default, invalid data is silently ignored and the return value is `undefined` but you can force
+the API to throw using `throwOnValidationError`.
+
+```ts
+const data = await workspace.readJSON("data.json", {
+    schema: { type: "object", properties: { ... },
+    throwOnValidationError: true
+})
+```
+
 ### `writeText`
 
 Writes text to a file, relative to the workspace root.

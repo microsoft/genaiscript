@@ -704,8 +704,8 @@
             "price_per_million_output_tokens": 10
         },
         "openai:gpt-4o-2024-05-13": {
-            "price_per_million_input_tokens": 5,
-            "price_per_million_output_tokens": 15
+            "price_per_million_input_tokens": 2.5,
+            "price_per_million_output_tokens": 10
         },
         "openai:gpt-4o-mini": {
             "price_per_million_input_tokens": 0.15,
@@ -776,8 +776,8 @@
             "price_per_million_output_tokens": 20
         },
         "openai:chatgpt-4o-latest": {
-            "price_per_million_input_tokens": 5,
-            "price_per_million_output_tokens": 15
+            "price_per_million_input_tokens": 2.5,
+            "price_per_million_output_tokens": 10
         },
         "openai:gpt-4-turbo": {
             "price_per_million_input_tokens": 10,
@@ -858,8 +858,8 @@
             "price_per_million_output_tokens": 10
         },
         "azure:gpt-4o": {
-            "price_per_million_input_tokens": 5,
-            "price_per_million_output_tokens": 15
+            "price_per_million_input_tokens": 2.5,
+            "price_per_million_output_tokens": 10
         },
         "azure:gpt-4o-mini": {
             "price_per_million_input_tokens": 0.15,

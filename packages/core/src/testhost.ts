@@ -11,21 +11,11 @@ import {
     UTF8Encoder,
     setRuntimeHost,
     RuntimeHost,
-    AzureTokenResolver,
     ModelConfigurations,
     ModelConfiguration,
 } from "./host"
 import { TraceOptions } from "./trace"
-import {
-    dirname,
-    extname,
-    basename,
-    join,
-    normalize,
-    relative,
-    resolve,
-    isAbsolute,
-} from "node:path"
+import { resolve } from "node:path"
 import { LanguageModel } from "./chat"
 import { NotSupportedError } from "./error"
 import {
@@ -36,23 +26,9 @@ import {
 } from "./server/messages"
 import { defaultModelConfigurations } from "./llms"
 import { CancellationToken } from "./cancellation"
-import { changeext } from "./fs"
-
-// Function to create a frozen object representing Node.js path methods
-// This object provides utility methods for path manipulations
-export function createNodePath(): Path {
-    return Object.freeze({
-        dirname,
-        extname,
-        basename,
-        join,
-        normalize,
-        relative,
-        resolve,
-        isAbsolute,
-        changeext,
-    })
-}
+import { createNodePath } from "./path"
+import { McpClientManager } from "./mcpclient"
+import { ResourceManager } from "./mcpresource"
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
@@ -68,11 +44,18 @@ export class TestHost implements RuntimeHost {
 
     // Default options for language models
     readonly modelAliases: ModelConfigurations = defaultModelConfigurations()
+    readonly mcp: McpClientManager
+    readonly resources: ResourceManager
 
     // Static method to set this class as the runtime host
     static install() {
         setRuntimeHost(new TestHost())
     }
+
+    constructor() {
+        this.resources = new ResourceManager()
+    }
+
     async pullModel(
         cfg: LanguageModelConfiguration,
         options?: TraceOptions & CancellationToken
