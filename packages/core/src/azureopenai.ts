@@ -1,3 +1,5 @@
+import debug from "debug"
+const dbg = debug("genaiscript:azureopenai")
 import { LanguageModel, ListModelsFunction } from "./chat"
 import {
     AZURE_MANAGEMENT_API_VERSION,
@@ -20,8 +22,11 @@ const azureManagementOrOpenAIListModels: ListModelsFunction = async (
     options
 ) => {
     const modelsApi = process.env.AZURE_OPENAI_API_MODELS_TYPE
-    if (modelsApi === "openai") return await OpenAIListModels(cfg, options)
-    else return await azureManagementListModels(cfg, options)
+    if (modelsApi === "openai") {
+        return await OpenAIListModels(cfg, options)
+    } else {
+        return await azureManagementListModels(cfg, options)
+    }
 }
 
 const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
@@ -32,12 +37,16 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
         let resourceGroupName = process.env.AZURE_OPENAI_RESOURCE_GROUP
         const accountName = /^https:\/\/([^\.]+)\./.exec(base)[1]
 
-        if (!subscriptionId || !accountName) return { ok: true, models: [] }
+        if (!subscriptionId || !accountName) {
+            return { ok: true, models: [] }
+        }
         const token = await runtimeHost.azureManagementToken.token(
             "default",
             options
         )
-        if (token.error) throw new Error(errorMessage(token.error))
+        if (token.error) {
+            throw new Error(errorMessage(token.error))
+        }
 
         const fetch = await createFetch({ retries: 0, ...options })
         const get = async (url: string) => {
@@ -48,12 +57,13 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
                     Authorization: `Bearer ${token.token.token}`,
                 },
             })
-            if (res.status !== 200)
+            if (res.status !== 200) {
                 return {
                     ok: false,
                     status: res.status,
                     error: serializeError(res.statusText),
                 }
+            }
             return await res.json()
         }
 
@@ -71,7 +81,9 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
             resourceGroupName = /\/resourceGroups\/([^\/]+)\/providers\//.exec(
                 resource?.id
             )[1]
-            if (!resourceGroupName) throw new Error("Resource group not found")
+            if (!resourceGroupName) {
+                throw new Error("Resource group not found")
+            }
         }
 
         // https://learn.microsoft.com/en-us/rest/api/aiservices/accountmanagement/deployments/list-skus?view=rest-aiservices-accountmanagement-2024-10-01&tabs=HTTP

@@ -17,7 +17,7 @@ import { JSON5TryParse } from "./json5"
  */
 export function changeext(filename: string, newext: string) {
     dbg(`checking if newext starts with a dot`)
-    if (!newext.startsWith(".")) {
+    if (newext && !newext.startsWith(".")) {
         newext = "." + newext
     }
     return filename.replace(/\.[^.]+$/, newext)

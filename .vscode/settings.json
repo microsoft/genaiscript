@@ -8,6 +8,8 @@
         "Apim",
         "arrayify",
         "Automatable",
+        "azureopenai",
+        "azuretoken",
         "bitindex",
         "cctx",
         "changeext",

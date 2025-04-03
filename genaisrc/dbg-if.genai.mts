@@ -21,7 +21,6 @@ const { applyEdits } = vars as {
 const sg = await host.astGrep()
 for (const file of env.files) {
     dbg(file.filename)
-    await prettier(file, { curly: true })
 
     const ns = `genaiscript:${path.changeext(path.basename(file.filename), "")}`
     // add import
@@ -37,6 +36,7 @@ for (const file of env.files) {
         await workspace.writeFiles([file])
     }
 
+    await prettier(file, { curly: true })
     const { matches } = await sg.search(
         "ts",
         file.filename,
