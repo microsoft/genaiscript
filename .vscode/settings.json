@@ -70,6 +70,7 @@
         "RIPGREP",
         "RULEID",
         "SARIFF",
+        "scriptid",
         "smsg",
         "socketserver",
         "spinbutton",
@@ -92,25 +93,16 @@
     ],
     "sarif-viewer.connectToGithubCodeScanning": "on",
     "cSpell.language": "en,en-US",
-    "cSpell.enableFiletypes": [
-        "!json"
-    ],
+    "cSpell.enableFiletypes": ["!json"],
     "files.associations": {
-        ".gitignore.genai": "ignore",
+        ".gitignore.genai": "ignore"
     },
     "files.eol": "\n",
     "terminal.integrated.defaultProfile.windows": "Git Bash",
     "peacock.remoteColor": "#110f00",
     "mdmath.delimiters": "brackets",
-    "spellright.language": [
-        "en"
-    ],
-    "spellright.documentTypes": [
-        "markdown",
-        "latex",
-        "plaintext",
-        "mdx"
-    ],
+    "spellright.language": ["en"],
+    "spellright.documentTypes": ["markdown", "latex", "plaintext", "mdx"],
     "spellright.parserByClass": {
         "mdx": {
             "parser": "markdown"
