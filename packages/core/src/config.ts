@@ -167,7 +167,7 @@ export async function readConfig(
             dbg(`loading ${dotEnv}`)
             const res = dotenv.config({
                 path: dotEnv,
-                debug: !!process.env.DEBUG,
+                debug: /dotenv/.test(process.env.DEBUG),
                 override: true,
             })
             if (res.error) {

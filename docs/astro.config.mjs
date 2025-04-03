@@ -59,7 +59,7 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
 `,
                     pageSeparator: "\n\n=|=|=|=|=|=\n\n",
                     minify: {
-                        customSelectors: ["picture"]
+                        customSelectors: ["picture"],
                     },
                     promote: ["index*", "getting-started*", "!*/*"],
                     customSets: [
@@ -84,8 +84,8 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                         {
                             label: "Reference CLI",
                             description:
-                                "full reference documentation for the command line interface",
-                            paths: ["reference/cli/**"],
+                                "full reference documentation for the command line interface and Node.JS runtime",
+                            paths: ["reference/cli/**", "reference/api/**"],
                         },
                         {
                             label: "Guides",
