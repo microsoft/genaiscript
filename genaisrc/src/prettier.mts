@@ -4,6 +4,7 @@ export async function prettier(
     file: WorkspaceFile,
     options?: { curly?: boolean }
 ) {
+    dbg(file.filename)
     const args = ["--write"]
     if (options?.curly) args.push("--plugin=prettier-plugin-curly")
     // format
