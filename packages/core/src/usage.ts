@@ -342,10 +342,6 @@ export class GenerationStats {
                 usage.completion_tokens_details?.audio_tokens ?? 0
             this.usage.completion_tokens_details.reasoning_tokens +=
                 usage.completion_tokens_details?.reasoning_tokens ?? 0
-            this.usage.completion_tokens_details.audio_tokens +=
-                usage.prompt_tokens_details?.audio_tokens ?? 0
-            this.usage.completion_tokens_details.reasoning_tokens +=
-                usage.prompt_tokens_details?.cached_tokens ?? 0
             this.usage.completion_tokens_details.accepted_prediction_tokens +=
                 usage.completion_tokens_details?.accepted_prediction_tokens ?? 0
             this.usage.completion_tokens_details.rejected_prediction_tokens +=
@@ -371,8 +367,17 @@ export class GenerationStats {
         } = resp
         const { messages } = req
 
-        dbg(
-            `${cached ? CHAR_FLOPPY_DISK : "+"}  ${model} ${CHAR_ENVELOPE} ${messages.length} ${prettyTokens(usage.total_tokens)}`
+        const cost = estimateCost(model, usage)
+        logVerbose(
+            `└─🏁 ${cached ? CHAR_FLOPPY_DISK : ""} ${prettyDuration(duration)} ${model} ${CHAR_ENVELOPE} ${messages.length} ${[
+                prettyTokens(usage.total_tokens, "both"),
+                prettyTokens(usage.prompt_tokens, "prompt"),
+                prettyTokens(usage.completion_tokens, "completion"),
+                prettyTokensPerSecond(usage),
+                prettyCost(cost),
+            ]
+                .filter((s) => !!s)
+                .join(" ")}`
         )
         if (!cached) {
             this.addUsage(usage, duration)
