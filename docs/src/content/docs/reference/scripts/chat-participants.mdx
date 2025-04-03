@@ -8,7 +8,7 @@ keywords: chat, multi-turn, conversation, chat participant, engagement
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import scriptSource from "../../../../../../packages/sample/genaisrc/multi-turn.genai.js?raw"
+import scriptSource from "../../../../../../packages/sample/genaisrc/multi-turn.genai.mts?raw"
 
 The `defChatParticipant` allows to register a function that can add new user messages in the chat sequence, ...or rewrite the entire message history.
 This allows to create multi-turn chat, simulate a conversation with multiple participants or on-thy-fly prompt rewriting.
@@ -26,7 +26,7 @@ The function receives two arguments: the first argument is the `Chat` object, an
 
 ```js
 defChatParticipant(async (_, messages) => {
-  const text = messages.at(-1).content
+  const text = messages.at(-1).content as string
   ...
 })
 ```
