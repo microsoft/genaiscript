@@ -12,7 +12,7 @@ GenAIScript uses the WebAssembly-based [z3-solver](https://www.npmjs.com/package
 
 ## Z3 tool
 
-The `z3` tool (in [system.z3](/genaiscript/scripts/systems#systemz3)) script wraps Z3 as a LLM tool that can be used in GenAIScript.
+The `z3` tool (in [system.z3](/genaiscript/reference/scripts/systems#systemz3)) script wraps Z3 as a LLM tool that can be used in GenAIScript.
 The tool takes a SMTLIB2 formula as input and returns the Z3 output.
 
 ```js
@@ -33,3 +33,32 @@ $`Solve the following problems using Z3:
 (assert (< (f a true) 100))
 (check-sat)
 ```
+
+The tool won't handle arbitrary problems, which takes us to the agent.
+
+### Z3 agent
+
+The `z3` agent (in [system.agent-z3](/genaiscript/reference/scripts/systems#systemagent-z3)) script wraps the `z3`
+tool with a LLM that can (try to) formalize arbitrary problems to SMTLIB2.
+
+```js
+script({
+    tools: ["agent_z3"],
+})
+
+$`Solve the following problems using Z3:
+
+Imagine we have a number called 'a' that is smaller than 10. 
+We also have a special machine called 'f' that takes a number and a 'true'/'false' answer, 
+and it gives back another number. 
+When we put the number 'a' and the answer “true” into this machine, 
+the number it gives us is smaller than 100.`
+```
+
+:::note
+
+The LLM conversation from the problem to the SMTLIB2 formula might be incorrect.
+Verify your results with the Z3 tool.
+The agent is not a replacement for the Z3 tool, but a way to use Z3 with arbitrary problems.
+
+:::

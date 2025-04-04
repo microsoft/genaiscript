@@ -77,7 +77,7 @@ export default async function (_: ChatGenerationContext) {
 
     defTool(
         "z3",
-        "Solves a SMTLIB2 problem using the Z3 constraint solver. Send problems one at a time.",
+        "Solves a SMTLIB2 problem using the Z3 constraint solver. Send problems one at a time. Use this tool if you need to run Z3.",
         {
             type: "object",
             properties: {
