@@ -134,6 +134,7 @@
     "replace-ext": "^2.0.0",
     "terminal-link": "^3.0.0",
     "ws": "^8.18.1",
+    "z3-solver": "^4.14.1",
     "zx": "^8.4.1"
   },
   "scripts": {

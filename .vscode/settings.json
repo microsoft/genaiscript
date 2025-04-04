@@ -105,6 +105,7 @@
         "sglang",
         "Smol",
         "smsg",
+        "smtlib",
         "socketserver",
         "spinbutton",
         "stringifying",
