@@ -2018,11 +2018,11 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.777.0
- - @aws-sdk/client-sso@3.777.0
- - @aws-sdk/credential-provider-cognito-identity@3.777.0
+ - @aws-sdk/client-cognito-identity@3.782.0
+ - @aws-sdk/client-sso@3.782.0
+ - @aws-sdk/credential-provider-cognito-identity@3.782.0
  - @aws-sdk/util-user-agent-browser@3.775.0
- - @aws-sdk/util-user-agent-node@3.775.0
+ - @aws-sdk/util-user-agent-node@3.782.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.2
  - @smithy/middleware-retry@4.1.0
@@ -2244,7 +2244,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.779.0
+ - @aws-sdk/client-bedrock-runtime@3.782.0
 
 This package contains the following license:
 
@@ -2456,7 +2456,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/middleware-host-header@3.775.0
  - @aws-sdk/middleware-recursion-detection@3.775.0
- - @aws-sdk/middleware-user-agent@3.775.0
+ - @aws-sdk/middleware-user-agent@3.782.0
  - @smithy/core@3.2.0
  - @smithy/eventstream-serde-browser@4.0.2
  - @smithy/eventstream-serde-config-resolver@4.1.0
@@ -2891,7 +2891,7 @@ The following npm packages may be included in this product:
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
  - @types/node@18.19.86
- - @types/node@22.13.17
+ - @types/node@22.14.0
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -4852,13 +4852,13 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-env@3.775.0
- - @aws-sdk/credential-provider-ini@3.777.0
- - @aws-sdk/credential-provider-node@3.777.0
- - @aws-sdk/credential-providers@3.778.0
+ - @aws-sdk/credential-provider-ini@3.782.0
+ - @aws-sdk/credential-provider-node@3.782.0
+ - @aws-sdk/credential-providers@3.782.0
  - @aws-sdk/region-config-resolver@3.775.0
- - @aws-sdk/token-providers@3.777.0
+ - @aws-sdk/token-providers@3.782.0
  - @aws-sdk/types@3.775.0
- - @aws-sdk/util-endpoints@3.775.0
+ - @aws-sdk/util-endpoints@3.782.0
  - @aws-sdk/util-locate-window@3.723.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@2.2.0
@@ -5112,8 +5112,8 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-process@3.775.0
- - @aws-sdk/credential-provider-sso@3.777.0
- - @aws-sdk/credential-provider-web-identity@3.777.0
+ - @aws-sdk/credential-provider-sso@3.782.0
+ - @aws-sdk/credential-provider-web-identity@3.782.0
 
 These packages each contain the following license:
 
@@ -6016,7 +6016,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/core@3.775.0
  - @aws-sdk/credential-provider-http@3.775.0
- - @aws-sdk/nested-clients@3.777.0
+ - @aws-sdk/nested-clients@3.782.0
  - pyodide@0.27.4
 
 These packages each contain the following license:
@@ -7264,20 +7264,20 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.1.4
- - @inquirer/confirm@5.1.8
- - @inquirer/core@10.1.9
- - @inquirer/editor@4.2.9
- - @inquirer/expand@4.0.11
+ - @inquirer/checkbox@4.1.5
+ - @inquirer/confirm@5.1.9
+ - @inquirer/core@10.1.10
+ - @inquirer/editor@4.2.10
+ - @inquirer/expand@4.0.12
  - @inquirer/figures@1.0.11
- - @inquirer/input@4.1.8
- - @inquirer/number@3.0.11
- - @inquirer/password@4.0.11
- - @inquirer/prompts@7.4.0
- - @inquirer/rawlist@4.0.11
- - @inquirer/search@3.0.11
- - @inquirer/select@4.1.0
- - @inquirer/type@3.0.5
+ - @inquirer/input@4.1.9
+ - @inquirer/number@3.0.12
+ - @inquirer/password@4.0.12
+ - @inquirer/prompts@7.4.1
+ - @inquirer/rawlist@4.0.12
+ - @inquirer/search@3.0.12
+ - @inquirer/select@4.1.1
+ - @inquirer/type@3.0.6
 
 These packages each contain the following license:
 
@@ -8844,8 +8844,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @esbuild/linux-x64@0.25.2
- - @napi-rs/canvas-linux-x64-gnu@0.1.68
- - @napi-rs/canvas-linux-x64-musl@0.1.68
+ - @napi-rs/canvas-linux-x64-gnu@0.1.69
+ - @napi-rs/canvas-linux-x64-musl@0.1.69
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
@@ -9691,7 +9691,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @napi-rs/canvas@0.1.68
+ - @napi-rs/canvas@0.1.69
 
 This package contains the following license:
 
@@ -10632,7 +10632,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm packages may be included in this product:
 
- - undici-types@6.20.0
+ - undici-types@6.21.0
  - undici@6.21.2
 
 These packages each contain the following license:
@@ -10738,7 +10738,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.39.0
+ - type-fest@4.39.1
  - uint8array-extras@1.4.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
@@ -11919,7 +11919,7 @@ The following npm packages may be included in this product:
 
  - @octokit/endpoint@10.1.3
  - @octokit/graphql@8.2.1
- - @octokit/plugin-throttling@9.6.0
+ - @octokit/plugin-throttling@9.6.1
  - @octokit/request@9.2.2
 
 These packages each contain the following license:
@@ -12788,6 +12788,36 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - async-mutex@0.3.2
+
+This package contains the following license:
+
+The MIT License (MIT)
+
+Copyright (c) 2016 Christian Speckner <cnspeckn@googlemail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 -----------
 
@@ -13848,6 +13878,25 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - z3-solver@4.14.1
+
+This package contains the following license:
+
+Z3
+Copyright (c) Microsoft Corporation
+All rights reserved. 
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
