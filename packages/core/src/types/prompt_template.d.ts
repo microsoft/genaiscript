@@ -4047,7 +4047,7 @@ type ChatAgentHandler = (
 ) => Awaitable<unknown>
 
 interface McpServerConfig {
-    command: string
+    command: OptionsOrString<"npx" | "uv">
     args: string[]
     params?: string[]
     version?: string
