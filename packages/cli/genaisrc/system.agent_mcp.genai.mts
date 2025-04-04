@@ -36,6 +36,11 @@ system({
             description:
                 "Instructions for the agent on how to use the MCP server.",
         },
+        maxTokens: {
+            type: "integer",
+            minimum: 16,
+            description: "Maximum number of tokens returned by the tools.",
+        },
     },
 })
 
@@ -51,6 +56,7 @@ export default function (ctx: ChatGenerationContext) {
     const params = (vars["system.agent_mcp.params"] as string[]) || []
     const version = vars["system.agent_mcp.version"] as string
     const instructions = vars["system.agent_mcp.instructions"] as string
+    const maxTokens = vars["system.agent_mcp.maxTokens"] as number
 
     if (!id) throw new Error("Missing required parameter: id")
     if (!description) throw new Error("Missing required parameter: description")
@@ -64,16 +70,17 @@ export default function (ctx: ChatGenerationContext) {
             version,
         },
     } satisfies McpServersConfig
-    dbg(`loading %s %O`, id, { command, args, params, version })
+    dbg(`loading %O`, configs)
     defAgent(
         id,
         description,
         async (agentCtx) => {
             dbg("defining agent %s", id)
-            agentCtx.defTool(configs)
+            agentCtx.defTool(configs, { maxTokens })
             if (instructions) agentCtx.$`${instructions}`.role("system")
         },
         {
+            maxTokens,
             system: [
                 "system",
                 "system.tools",

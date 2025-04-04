@@ -188,7 +188,7 @@ export function resolveSystems(
     if (typeof mcpAgentServers === "object") {
         for (const [id, config] of Object.entries(mcpAgentServers)) {
             systemInstances.push({
-                id: "system.mcp_agent",
+                id: "system.agent_mcp",
                 parameters: {
                     id,
                     ...config,

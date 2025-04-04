@@ -8,6 +8,7 @@ script({
             args: ["--yes", "@playwright/mcp@latest", "--headless"],
             instructions:
                 "Use the playwright tools as the Browser Automation Tools.",
+            maxTokens: 12000,
         },
     },
 })

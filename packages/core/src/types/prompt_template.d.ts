@@ -4061,6 +4061,10 @@ type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
 interface McpAgentServerConfig extends McpServerConfig {
     description: string
     instructions?: string
+    /**
+     * Maximum number of tokens per tool content response
+     */
+    maxTokens?: number
 }
 
 type McpAgentServersConfig = Record<
