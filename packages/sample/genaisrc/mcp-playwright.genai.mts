@@ -5,12 +5,8 @@ script({
             id: "system.mcp",
             parameters: {
                 id: "playwright",
-                description:
-                    "An agent that uses playwright to run browser commands.",
                 command: "npx",
                 args: ["--yes", "@playwright/mcp@latest", "--headless"],
-                instructions:
-                    "Use the playwright tools as the Browser Automation Tools.",
             },
         },
     ],

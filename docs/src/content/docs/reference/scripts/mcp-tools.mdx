@@ -30,6 +30,11 @@ See [MCP server](/genaiscript/reference/scripts/mcp-server) for more details.
 
 ## Configuring servers
 
+You can configure servers using `defTool`, load their tool through the `system.mcp` system prompt,
+or even wrap them with an agent using `system.agent_mcp`.
+
+### `defTool`
+
 You can use [defTool](/genaiscript/reference/scripts/tools) to declare a set of server configurations,
 using the same syntax as in the [Claude configuration file](https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#using-an-mcp-client).
 
@@ -65,6 +70,57 @@ defTool({
     },
 })
 ```
+
+:::
+
+### `system.mcp`
+
+The [system.mcp](/genaiscript/reference/scripts/system#system-mcp) system prompt loads the tools from a MCP server into the current script.
+The script initialization takes the same parameters, with the addition of `id` parameters. The system script supports a single MCP server at a time.
+
+```js
+script({
+    system: [
+        {
+            id: "system.mcp",
+            parameters: {
+                id: "playwright",
+                command: "npx",
+                args: ["--yes", "@playwright/mcp@latest", "--headless"],
+            },
+        },
+    ],
+})
+```
+
+### `system.agent_mcp`
+
+The [system.agent_mcp](/genaiscript/reference/scripts/system#systemagent_mcp)
+system prompt wraps the MCP server with an [agent](/genaiscript/reference/scripts/agents).
+
+The `system.agent_mcp` system prompt takes the same parameters as `system.mcp`,
+but also adds a `description` and optional `instructions` parameter.
+
+```js
+    system: [
+        {
+            id: "system.agent_mcp",
+            parameters: {
+                id: "playwright",
+                description:
+                    "An agent that uses playwright to run browser commands.",
+                command: "npx",
+                args: ["--yes", "@playwright/mcp@latest", "--headless"],
+                instructions:
+                    "Use the playwright tools as the Browser Automation Tools.",
+            },
+        },
+    ],
+```
+
+:::tip
+
+The `system.agent-mcp` allows you to load multiple MCP servers without overloading the LLM with too many tools.
 
 :::
 
