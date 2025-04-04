@@ -138,8 +138,8 @@ no
     const logprobs = res.choices
         ? (Object.fromEntries(
               res.choices
+                  .filter((c) => !isNaN(c?.logprob))
                   .map((c, i) => [allChoices[i], c])
-                  .filter(([k, v]) => !isNaN(v?.logprob))
           ) as Record<keyof typeof labels | "other", Logprob>)
         : undefined
     const logprob = logprobs?.[label]
