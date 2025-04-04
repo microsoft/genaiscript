@@ -46,6 +46,7 @@
         "genaisrc",
         "ghcliinfo",
         "ghinfo",
+        "GROQ",
         "Gruber",
         "hostpath",
         "huggingface",
@@ -66,6 +67,7 @@
         "lvce",
         "Maeda's",
         "markdownify",
+        "mcps",
         "memorystream",
         "menuitemcheckbox",
         "menuitemradio",
@@ -120,6 +122,7 @@
         "venv",
         "vllm",
         "vsix",
+        "whisperasr",
         "xpai"
     ],
     "sarif-viewer.connectToGithubCodeScanning": "on",

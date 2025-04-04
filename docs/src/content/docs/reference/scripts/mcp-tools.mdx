@@ -73,23 +73,26 @@ defTool({
 
 :::
 
-### `system.mcp`
+### `mcp`
 
-The [system.mcp](/genaiscript/reference/scripts/system#system-mcp) system prompt loads the tools from a MCP server into the current script.
-The script initialization takes the same parameters, with the addition of `id` parameters. The system script supports a single MCP server at a time.
+You can declare the MCP server configuration in the `mcp` field of `script` or `runPrompt`.
 
-```js
+```js "mcp:"
 script({
-    system: [
-        {
-            id: "system.mcp",
-            parameters: {
-                id: "playwright",
-                command: "npx",
-                args: ["--yes", "@playwright/mcp@latest", "--headless"],
-            },
+    mcp: {
+        memory: {
+            command: "npx",
+            args: ["-y", "@modelcontextprotocol/server-memory"],
         },
-    ],
+        filesystem: {
+            command: "npx",
+            args: [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                path.resolve("."),
+            ],
+        },
+    },
 })
 ```
 

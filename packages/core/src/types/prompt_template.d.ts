@@ -471,6 +471,11 @@ interface PromptSystemOptions {
      * List of system to exclude from the prompt.
      */
     excludedSystem?: ElementOrArray<SystemPromptId>
+
+    /**
+     * MCP server configuration
+     */
+    mcp?: McpServersConfig
 }
 
 interface ScriptRuntimeOptions extends LineNumberingOptions {

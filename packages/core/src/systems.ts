@@ -29,7 +29,7 @@ export function resolveSystems(
         ContentSafetyOptions & { jsSource?: string },
     resolvedTools?: ToolCallback[]
 ): SystemPromptInstance[] {
-    const { jsSource, responseType, responseSchema, systemSafety } = script
+    const { jsSource, responseType, responseSchema, systemSafety, mcp } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     let systems = arrayify(script.system).filter((s) => typeof s === "string")
     const systemInstances = arrayify(script.system).filter(
@@ -163,6 +163,19 @@ export function resolveSystems(
         tools.forEach((tool) =>
             systems.push(...resolveSystemFromTools(prj, tool))
         )
+    }
+
+    // map mcps to system scripts
+    if (typeof mcp === "object") {
+        for (const [id, config] of Object.entries(mcp)) {
+            systemInstances.push({
+                id: "system.mcp",
+                parameters: {
+                    id,
+                    ...config,
+                },
+            })
+        }
     }
 
     // filter out
