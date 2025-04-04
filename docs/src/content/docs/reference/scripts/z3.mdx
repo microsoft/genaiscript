@@ -12,7 +12,7 @@ GenAIScript uses the WebAssembly-based [z3-solver](https://www.npmjs.com/package
 
 ## Z3 tool
 
-The `z3` tool (in [system.z3](/genaiscript/reference/scripts/systems#systemz3)) script wraps Z3 as a LLM tool that can be used in GenAIScript.
+The `z3` tool (in [system.z3](/genaiscript/reference/scripts/system#systemz3)) script wraps Z3 as a LLM tool that can be used in GenAIScript.
 The tool takes a SMTLIB2 formula as input and returns the Z3 output.
 
 ```js
@@ -38,7 +38,7 @@ The tool won't handle arbitrary problems, which takes us to the agent.
 
 ### Z3 agent
 
-The `z3` agent (in [system.agent-z3](/genaiscript/reference/scripts/systems#systemagent-z3)) script wraps the `z3`
+The `z3` agent (in [system.agent-z3](/genaiscript/reference/scripts/system#systemagent-z3)) script wraps the `z3`
 tool with a LLM that can (try to) formalize arbitrary problems to SMTLIB2.
 
 ```js
