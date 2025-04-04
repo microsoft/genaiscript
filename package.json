@@ -16,7 +16,7 @@
         "setup:az": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
         "setup:bicep": "az bicep upgrade",
         "az:login": "az login --scope api://trapi/.default",
-        "install:playwright": "yarn install playwright --with-deps",
+        "install:playwright": "sudo yarn playwright install-deps",
         "install:force": "rm yarn.lock && yarn install && yarn --cwd docs install:force && yarn --cwd slides install:force && yarn gen:licenses",
         "compile-ext": "yarn --cwd packages/core run prompts:bundle && yarn --cwd packages/vscode run compile && yarn --cwd packages/web run compile",
         "compile-cli": "yarn --cwd packages/cli run compile",

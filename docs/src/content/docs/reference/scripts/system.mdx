@@ -4620,7 +4620,7 @@ Zero-shot Chain Of Thought
 
 Zero-shot Chain Of Thought technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.
 
--  tool `z3`: Solves a SMTLIB2 problem using the Z3 constraint solver. Send problems one at a time.
+-  tool `z3`: Solves a SMTLIB2 problem using the Z3 constraint solver. Send problems one at a time. If the constraint system is in another format, convert the problem to SMTLIB2 format before calling this tool.
 
 `````js wrap title="system.z3"
 import type { Z3HighLevel, Z3LowLevel, Z3 } from "z3-solver"
@@ -4637,7 +4637,7 @@ async function importZ3(): Promise<
     ReturnType<(typeof import("z3-solver"))["init"]>
 > {
     try {
-        dbg(`importing`)
+        dbg(`importing z3-solver`)
         const z3 = await import("z3-solver")
         dbg(`initializing`)
         const res = await z3.init()
@@ -4702,7 +4702,7 @@ export default async function (_: ChatGenerationContext) {
 
     defTool(
         "z3",
-        "Solves a SMTLIB2 problem using the Z3 constraint solver. Send problems one at a time.",
+        "Solves a SMTLIB2 problem using the Z3 constraint solver. Send problems one at a time. If the constraint system is in another format, convert the problem to SMTLIB2 format before calling this tool.",
         {
             type: "object",
             properties: {

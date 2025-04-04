@@ -6,6 +6,7 @@ script({
 $`Solve the following problems using Z3:
 
 
+Problem 1:
 (declare-const a Int)
 (declare-fun f (Int Bool) Int)
 (assert (< a 10))
@@ -13,6 +14,7 @@ $`Solve the following problems using Z3:
 (check-sat)
 
 
+Problem 2:
 (define-fun-rec length ((ls (List Int))) Int
    (if ((_ is nil) ls) 0 (+ 1 (length (tail ls)))))
 

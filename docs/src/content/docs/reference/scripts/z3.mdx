@@ -1,0 +1,35 @@
+---
+title: Z3
+description: Z3 is a high-performance theorem prover developed at Microsoft Research. It is a built-in tool of GenAIScript.
+sidebar:
+    order: 200
+---
+
+[Z3](https://microsoft.github.io/z3guide/) is a high-performance theorem prover developed at Microsoft Research. It is a built-in tool of GenAIScript. Z3 is used to solve logical formulas
+and can be used for various applications, including program verification, constraint solving, and symbolic execution.
+
+GenAIScript uses the WebAssembly-based [z3-solver](https://www.npmjs.com/package/z3-solver) npm package to run Z3.
+
+## Z3 tool
+
+The `z3` tool (in [system.z3](/genaiscript/scripts/systems#systemz3)) script wraps Z3 as a LLM tool that can be used in GenAIScript.
+The tool takes a SMTLIB2 formula as input and returns the Z3 output.
+
+```js
+script({
+    tools: "z3"
+})
+
+script({
+    title: "Use Z3 tool to solve SMT2 problems",
+    tools: "z3",
+})
+
+$`Solve the following problems using Z3:
+
+(declare-const a Int)
+(declare-fun f (Int Bool) Int)
+(assert (< a 10))
+(assert (< (f a true) 100))
+(check-sat)
+```
