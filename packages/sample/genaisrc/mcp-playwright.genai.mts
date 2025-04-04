@@ -1,6 +1,6 @@
 script({
     title: "Uses playwright MCP tools.",
-    mcp: {
+    mcpServers: {
         playwright: {
             command: "npx",
             args: ["--yes", "@playwright/mcp@latest", "--headless"],

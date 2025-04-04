@@ -1483,10 +1483,7 @@ ${trimNewlines(schemaText)}
     })
 
     dbg(
-        `${res.messages.length} messages, ${res.chatParticipants?.length} participants, ${res.images?.length} images, ${res.schemas?.length} schemas`
-    )
-    dbg(
-        `tools: %o`,
+        `${res.messages.length} messages, tools: %o`,
         res.functions.map((t) => t.spec.name)
     )
     return res

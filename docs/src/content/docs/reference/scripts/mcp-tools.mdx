@@ -30,8 +30,62 @@ See [MCP server](/genaiscript/reference/scripts/mcp-server) for more details.
 
 ## Configuring servers
 
-You can configure servers using `defTool`, load their tool through the `system.mcp` system prompt,
-or even wrap them with an agent using `system.agent_mcp`.
+You can declare the MCP server configuration in the `script` function (as tools or agents) or load them dynamically using `defTool`.
+
+### `mcpServers`
+
+You can declare the MCP server configuration in the `mcpServers` field of `script` or `runPrompt`.
+This is the same configuration as Claude configuration file.
+
+```js "mcp:"
+script({
+    mcpServers: {
+        memory: {
+            command: "npx",
+            args: ["-y", "@modelcontextprotocol/server-memory"],
+        },
+        filesystem: {
+            command: "npx",
+            args: [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                path.resolve("."),
+            ],
+        },
+    },
+})
+```
+
+### `mcpAgentServers`
+
+The `mcpAgentServers` declares a set of MCP servers that will be wrapped into separate agents and injected in the tools list.
+This is an efficient way to load
+
+This is the same configuration with an additional `description` and optional `instructions` parameter.
+The description is injected in the agent description, and the instructions are injected in the agent prompt.
+
+```js
+script({
+    mcpAgentServers: {
+        memory: {
+            description: "A memory server",
+            instructions: "Use this server to store and retrieve data.",
+            command: "npx",
+            args: ["-y", "@modelcontextprotocol/server-memory"],
+        },
+        filesystem: {
+            description: "A filesystem server",
+            instructions: "Use this server to read and write files.",
+            command: "npx",
+            args: [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                path.resolve("."),
+            ],
+        },
+    },
+})
+```
 
 ### `defTool`
 
@@ -70,60 +124,6 @@ defTool({
     },
 })
 ```
-
-:::
-
-### `mcp`
-
-You can declare the MCP server configuration in the `mcp` field of `script` or `runPrompt`.
-
-```js "mcp:"
-script({
-    mcp: {
-        memory: {
-            command: "npx",
-            args: ["-y", "@modelcontextprotocol/server-memory"],
-        },
-        filesystem: {
-            command: "npx",
-            args: [
-                "-y",
-                "@modelcontextprotocol/server-filesystem",
-                path.resolve("."),
-            ],
-        },
-    },
-})
-```
-
-### `system.agent_mcp`
-
-The [system.agent_mcp](/genaiscript/reference/scripts/system#systemagent_mcp)
-system prompt wraps the MCP server with an [agent](/genaiscript/reference/scripts/agents).
-
-The `system.agent_mcp` system prompt takes the same parameters as `system.mcp`,
-but also adds a `description` and optional `instructions` parameter.
-
-```js
-    system: [
-        {
-            id: "system.agent_mcp",
-            parameters: {
-                id: "playwright",
-                description:
-                    "An agent that uses playwright to run browser commands.",
-                command: "npx",
-                args: ["--yes", "@playwright/mcp@latest", "--headless"],
-                instructions:
-                    "Use the playwright tools as the Browser Automation Tools.",
-            },
-        },
-    ],
-```
-
-:::tip
-
-The `system.agent-mcp` allows you to load multiple MCP servers without overloading the LLM with too many tools.
 
 :::
 

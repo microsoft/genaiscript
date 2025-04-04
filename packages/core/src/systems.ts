@@ -29,7 +29,14 @@ export function resolveSystems(
         ContentSafetyOptions & { jsSource?: string },
     resolvedTools?: ToolCallback[]
 ): SystemPromptInstance[] {
-    const { jsSource, responseType, responseSchema, systemSafety, mcp } = script
+    const {
+        jsSource,
+        responseType,
+        responseSchema,
+        systemSafety,
+        mcpServers,
+        mcpAgentServers,
+    } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     let systems = arrayify(script.system).filter((s) => typeof s === "string")
     const systemInstances = arrayify(script.system).filter(
@@ -166,10 +173,22 @@ export function resolveSystems(
     }
 
     // map mcps to system scripts
-    if (typeof mcp === "object") {
-        for (const [id, config] of Object.entries(mcp)) {
+    if (typeof mcpServers === "object") {
+        for (const [id, config] of Object.entries(mcpServers)) {
             systemInstances.push({
                 id: "system.mcp",
+                parameters: {
+                    id,
+                    ...config,
+                },
+            })
+        }
+    }
+
+    if (typeof mcpAgentServers === "object") {
+        for (const [id, config] of Object.entries(mcpAgentServers)) {
+            systemInstances.push({
+                id: "system.mcp_agent",
                 parameters: {
                     id,
                     ...config,

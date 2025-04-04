@@ -473,9 +473,14 @@ interface PromptSystemOptions {
     excludedSystem?: ElementOrArray<SystemPromptId>
 
     /**
-     * MCP server configuration
+     * MCP server configuration. The tools will be injected into the prompt.
      */
-    mcp?: McpServersConfig
+    mcpServers?: McpServersConfig
+
+    /**
+     * MCP agent configuration. Each mcp server will be wrapped with an agent.
+     */
+    mcpAgentServers?: McpAgentServersConfig
 }
 
 interface ScriptRuntimeOptions extends LineNumberingOptions {
@@ -4052,6 +4057,16 @@ interface McpServerConfig {
 }
 
 type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
+
+interface McpAgentServerConfig extends McpServerConfig {
+    description: string
+    instructions?: string
+}
+
+type McpAgentServersConfig = Record<
+    string,
+    Omit<McpAgentServerConfig, "id" | "options">
+>
 
 type ZodTypeLike = { _def: any; safeParse: any; refine: any }
 
