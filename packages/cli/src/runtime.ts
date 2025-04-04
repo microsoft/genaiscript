@@ -42,7 +42,7 @@ export type ClassifyOptions = {
  * @param text - Text content to classify or a prompt generator function.
  * @param labels - Object mapping label names to their descriptions.
  * @param options - Configuration options for classification, including whether to add an "other" category, provide explanations, and specify context.
- * @returns Classification result containing the chosen label, confidence metrics, log probabilities, and the full answer text.
+ * @returns Classification result containing the chosen label, confidence metrics, log probabilities, the full answer text, and usage statistics.
  * @throws Error if fewer than two labels are provided (including "other").
  */
 export async function classify<L extends Record<string, string>>(
@@ -138,8 +138,8 @@ no
     const logprobs = res.choices
         ? (Object.fromEntries(
               res.choices
+                  .filter((c) => !isNaN(c?.logprob))
                   .map((c, i) => [allChoices[i], c])
-                  .filter(([k, v]) => !isNaN(v?.logprob))
           ) as Record<keyof typeof labels | "other", Logprob>)
         : undefined
     const logprob = logprobs?.[label]

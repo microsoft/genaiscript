@@ -351,7 +351,7 @@ export const CLI_ENV_VAR_RX = /^genaiscript_var_/i
 
 export const GIT_DIFF_MAX_TOKENS = 8000
 export const GIT_LOG_COUNT = 10
-export const MAX_TOOL_CONTENT_TOKENS = 4000
+export const MAX_TOOL_CONTENT_TOKENS = 8000
 
 export const AGENT_MEMORY_CACHE_NAME = "agent_memory"
 export const AGENT_MEMORY_FLEX_TOKENS = 20000

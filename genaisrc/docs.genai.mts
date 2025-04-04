@@ -70,7 +70,7 @@ if (!applyEdits)
     )
 
 // filter by diff
-const gitDiff = diff ? await git.diff({ base: "main" }) : undefined
+const gitDiff = diff ? await git.diff({ base: "dev" }) : undefined
 console.debug(gitDiff)
 const diffFiles = gitDiff ? DIFF.parse(gitDiff) : undefined
 if (diffFiles?.length) {

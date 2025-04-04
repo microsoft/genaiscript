@@ -471,6 +471,16 @@ interface PromptSystemOptions {
      * List of system to exclude from the prompt.
      */
     excludedSystem?: ElementOrArray<SystemPromptId>
+
+    /**
+     * MCP server configuration. The tools will be injected into the prompt.
+     */
+    mcpServers?: McpServersConfig
+
+    /**
+     * MCP agent configuration. Each mcp server will be wrapped with an agent.
+     */
+    mcpAgentServers?: McpAgentServersConfig
 }
 
 interface ScriptRuntimeOptions extends LineNumberingOptions {
@@ -1984,7 +1994,7 @@ interface RunPromptResult {
     edits?: Edits[]
     changelogs?: ChangeLog[]
     model?: ModelType
-    choices?: LogProb[]
+    choices?: Logprob[]
     logprobs?: Logprob[]
     perplexity?: number
     uncertainty?: number
@@ -4037,7 +4047,7 @@ type ChatAgentHandler = (
 ) => Awaitable<unknown>
 
 interface McpServerConfig {
-    command: string
+    command: OptionsOrString<"npx" | "uv">
     args: string[]
     params?: string[]
     version?: string
@@ -4047,6 +4057,20 @@ interface McpServerConfig {
 }
 
 type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
+
+interface McpAgentServerConfig extends McpServerConfig {
+    description: string
+    instructions?: string
+    /**
+     * Maximum number of tokens per tool content response
+     */
+    maxTokens?: number
+}
+
+type McpAgentServersConfig = Record<
+    string,
+    Omit<McpAgentServerConfig, "id" | "options">
+>
 
 type ZodTypeLike = { _def: any; safeParse: any; refine: any }
 
