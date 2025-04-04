@@ -736,10 +736,10 @@ export interface PromptNodeRender {
 }
 
 /**
- * Determines the default fence format for a given model ID.
+ * Resolves and returns the default fence format.
  *
- * @param modelId - The identifier of the model for which the fence format is to be resolved.
- * @returns The default fence format for the specified model.
+ * @param modelId - The identifier of the model. This parameter is currently unused.
+ * @returns The default fence format.
  */
 export function resolveFenceFormat(modelId: string): FenceFormat {
     return DEFAULT_FENCE_FORMAT
@@ -1256,7 +1256,7 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
  * Main function to render a prompt node.
  *
  * Resolves, deduplicates, flexes, truncates, and validates the prompt node.
- * Handles various node types including text, system, assistant, schemas, tools, images, file merges, outputs, and more.
+ * Handles various node types including text, system, assistant, schemas, tools, images, file merges, outputs, chat participants, MCP servers, and more.
  * Supports tracing, safety validation, token management, and MCP server integration.
  *
  * Parameters:
@@ -1265,7 +1265,7 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
  * - options: Optional configurations for model templates, tracing, cancellation, token flexibility, and MCP server handling.
  *
  * Returns:
- * - A rendered prompt node with associated metadata, messages, resources, tools, errors, and disposables.
+ * - A rendered prompt node with associated metadata, messages, resources, tools, errors, disposables, schemas, images, file outputs, and prediction.
  */
 export async function renderPromptNode(
     modelId: string,

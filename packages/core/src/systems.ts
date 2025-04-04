@@ -15,9 +15,9 @@ import { deleteUndefinedValues } from "./cleaners"
 
 /**
  * Resolves and returns a list of unique systems based on the provided script and project.
- * Analyzes script options, JavaScript source code, tools, and resolved tools to determine applicable systems.
+ * Analyzes script options, JavaScript source code, tools, resolved tools, and MCP servers to determine applicable systems.
  *
- * @param prj - The project object containing templates, tools, and other project-related data.
+ * @param prj - The project object containing templates, tools, scripts, and other project-related data.
  * @param script - An object containing prompt system options, model options, content safety options, and optionally JavaScript source code.
  * @param resolvedTools - An optional array of tools resolved externally for additional system inclusion.
  * @returns An array of unique system prompt instances applicable based on the analysis, including both system IDs and instances.

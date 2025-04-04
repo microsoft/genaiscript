@@ -358,9 +358,9 @@ export interface RunPromptContextNode extends ChatGenerationContext {
  *
  * Utility Functions:
  * - `defAgent(name, description, fn, options)`: Defines an agent with tools, memory, and task-solving capabilities.
- * - `defTool(name, description, parameters, fn, defOptions)`: Registers a tool for use in the chat session.
+ * - `defTool(name, description, parameters, fn, defOptions)`: Registers a tool for use in the chat session. Supports multiple formats for tool definitions, including callbacks and MCP server configurations.
  * - `defSchema(name, schema, defOptions)`: Defines a JSON schema for validation or metadata.
- * - `defImages(files, defOptions)`: Processes and encodes image files for their integration into prompts.
+ * - `defImages(files, defOptions)`: Processes and encodes image files for their integration into prompts. Supports tiling and slicing of images.
  * - `defChatParticipant(generator, options)`: Adds chat participant logic (e.g., other agents or external systems).
  * - `defFileOutput(pattern, description, options)`: Specifies output file patterns for tracking in the session.
  * - `defOutputProcessor(fn)`: Adds output post-processing logic.
