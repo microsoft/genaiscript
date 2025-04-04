@@ -69,11 +69,6 @@ export function resolveSystems(
             }
         }
 
-        if (/today/i.test(jsSource)) {
-            dbgr(`adding system.today to systems`)
-            systems.push("system.today")
-        }
-
         // Add planner system if any tool starts with "agent"
         if (tools.some((t) => /^agent/.test(t))) {
             dbgr(`tool starts with "agent", adding system.planner`)
@@ -124,6 +119,11 @@ export function resolveSystems(
         if (/\W(github)\W/i.test(jsSource)) {
             dbgr(`GitHub references found, adding system.github_info`)
             systems.push("system.github_info")
+        }
+        // Add system.today if "today" is found in jsSource
+        if (/today/i.test(jsSource)) {
+            dbgr(`adding system.today to systems`)
+            systems.push("system.today")
         }
     }
 

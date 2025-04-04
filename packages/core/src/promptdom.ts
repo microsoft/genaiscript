@@ -50,6 +50,9 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { redactSecrets } from "./secretscanner"
 import { escapeToolName } from "./tools"
 import { measure } from "./performance"
+import debug from "debug"
+const dbg = debug("genaiscript:prompt:dom")
+const dbgMcp = debug("genaiscript:prompt:dom:mcp")
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -735,10 +738,10 @@ export interface PromptNodeRender {
 /**
  * Determines the default fence format for a given model ID.
  *
- * @param modelid - The identifier of the model for which the fence format is to be resolved.
+ * @param modelId - The identifier of the model for which the fence format is to be resolved.
  * @returns The default fence format for the specified model.
  */
-export function resolveFenceFormat(modelid: string): FenceFormat {
+export function resolveFenceFormat(modelId: string): FenceFormat {
     return DEFAULT_FENCE_FORMAT
 }
 
@@ -1450,12 +1453,17 @@ ${trimNewlines(schemaText)}
 
     if (mcpServers.length) {
         for (const mcpServer of mcpServers) {
+            dbgMcp(`starting server ${mcpServer.id}`)
             const res = await runtimeHost.mcp.startMcpServer(mcpServer, {
                 trace,
             })
             disposables.push(res)
-            const tools = await res.listTools()
-            tools.push(...tools)
+            const mcpTools = await res.listTools()
+            dbgMcp(
+                `tools %O`,
+                mcpTools?.map((t) => t.spec.name)
+            )
+            tools.push(...mcpTools)
         }
     }
     m()
@@ -1473,6 +1481,14 @@ ${trimNewlines(schemaText)}
         prediction,
         disposables,
     })
+
+    dbg(
+        `${res.messages.length} messages, ${res.chatParticipants?.length} participants, ${res.images?.length} images, ${res.schemas?.length} schemas`
+    )
+    dbg(
+        `tools: %o`,
+        res.functions.map((t) => t.spec.name)
+    )
     return res
 }
 

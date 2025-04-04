@@ -1,5 +1,5 @@
 import debug from "debug"
-const dbg = debug("genaiscript:runpromptcontext")
+const dbg = debug("genaiscript:prompt:context")
 // cspell: disable
 import {
     PromptNode,
@@ -410,6 +410,7 @@ export function createChatGenerationContext(
         checkCancelled(cancellationToken)
         if (name === undefined || name === null)
             throw new Error("tool name is missing")
+        dbg(`tool %s`, name)
         if (typeof name === "string") {
             if (typeof description !== "string")
                 throw new Error("tool description is missing")
@@ -457,6 +458,7 @@ export function createChatGenerationContext(
                     )
                 )
         } else if (typeof name === "object") {
+            dbg(`mcp %O`, name)
             for (const kv of Object.entries(name)) {
                 const [id, def] = kv
                 if ((def as McpServerConfig).command) {

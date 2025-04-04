@@ -1,7 +1,7 @@
 system({
     title: "github workflows",
     description:
-        "Queries results from workflows in GitHub actions. Prefer using dffs to compare logs.",
+        "Queries results from workflows in GitHub actions. Prefer using diffs to compare logs.",
 })
 
 export default function (ctx: ChatGenerationContext) {
@@ -54,7 +54,7 @@ export default function (ctx: ChatGenerationContext) {
         async (args) => {
             const { workflow_id, branch, status, context, count } = args
             context.log(
-                `github action list ${status || ""} runs for ${workflow_id ? `worfklow ${workflow_id}` : `repository`} and branch ${branch || "all"}`
+                `github action list ${status || ""} runs for ${workflow_id ? `workflow ${workflow_id}` : `repository`} and branch ${branch || "all"}`
             )
             const res = await github.listWorkflowRuns(workflow_id, {
                 branch,
