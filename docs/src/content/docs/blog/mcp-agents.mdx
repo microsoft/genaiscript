@@ -1,0 +1,63 @@
+---
+title: MCP Agents
+description: Learn how to scale the number of MCP servers with agents.
+date: 2025-04-04
+author: pelikhan
+canonical_url: https://microsoft.github.io/genaiscript/blog/mcp-agents
+cover:
+  alt: A pixelated, geometric graphic depicting interconnected computer servers,
+    each surrounded by angular shield-like shapes. One server displays a browser
+    icon linked to "Playwright MCP tools," while a network grid above shows data
+    flow, emphasizing a connection to a "https://azure.microsoft.com" website
+    icon. The design uses five corporate-style colors in a minimalist layout
+    without text or human figures.
+  image: ./mcp-agents.png
+keywords:
+  - MCP
+  - agents
+  - servers
+  - tools
+  - Playwright
+  - automation
+  - browser
+  - GenAI
+---
+
+We've added support to configure MCP servers in the script metadata and wrap them with agents.
+As a result, you can now run multiple MCP servers in parallel, each with its own agent.
+
+```js "mcpAgentServers" wrap
+script({
+    title: "Wraps the playwright MCP server with an agent.",
+    mcpAgentServers: {
+        playwright: {
+            description:
+                "An agent that uses playwright to run browser commands.",
+            command: "npx",
+            args: ["--yes", "@playwright/mcp@latest", "--headless"],
+            instructions:
+                "Use the playwright tools as the Browser Automation Tools.",
+        },
+    },
+})
+
+$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`
+```
+
+## Just want servers?
+
+Don't want to go through the agent abstraction? You can also inject the MCP server directly in the prompt using the `mcpServers` field.
+
+```js title="mcpServers" wrap
+script({
+    title: "Uses playwright MCP tools.",
+    mcpServers: {
+        playwright: {
+            command: "npx",
+            args: ["--yes", "@playwright/mcp@latest", "--headless"],
+        },
+    },
+})
+
+$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`
+```
