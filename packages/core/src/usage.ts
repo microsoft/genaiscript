@@ -369,7 +369,7 @@ export class GenerationStats {
 
         const cost = estimateCost(model, usage)
         logVerbose(
-            `└─🏁 ${cached ? CHAR_FLOPPY_DISK : ""} ${prettyDuration(duration)} ${model} ${CHAR_ENVELOPE} ${messages.length} ${[
+            `└─🏁 ${cached ? CHAR_FLOPPY_DISK : ""} ${prettyDuration(duration) || ""} ${model} ${CHAR_ENVELOPE} ${messages.length} ${[
                 prettyTokens(usage.total_tokens, "both"),
                 prettyTokens(usage.prompt_tokens, "prompt"),
                 prettyTokens(usage.completion_tokens, "completion"),
