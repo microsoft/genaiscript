@@ -9,7 +9,7 @@ const problem = await host.fetchText(
 const problemText = await HTML.convertToMarkdown(problem.file.content)
 
 def("PROBLEM3", problemText)
-$`Solve the following problems using Z3:
+$`Solve the following problems:
 
 Problem 1:
 (declare-const a Int)
