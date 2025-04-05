@@ -4578,6 +4578,13 @@ type SgLang = OptionsOrString<
     | "angular"
     | "csharp"
     | "python"
+    | "rust"
+    | "elixir"
+    | "haskell"
+    | "go"
+    | "dart"
+    | "swift"
+    | "scala"
 >
 
 interface SgChangeSet {
