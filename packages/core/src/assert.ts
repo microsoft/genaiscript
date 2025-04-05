@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genaiscript:assert")
+
 /**
  * Asserts a condition and throws an error if the condition is false.
  * Optionally logs an error message and debugging data to the console.
@@ -16,7 +19,10 @@ export function assert(
     debugData?: any
 ) {
     if (!cond) {
-        if (debugData) console.error(msg || `assertion failed`, debugData)
+        if (debugData) {
+            dbg("assertion failed, debug data: %O", debugData)
+            console.error(msg || `assertion failed`, debugData)
+        }
         // eslint-disable-next-line no-debugger
         debugger
         throw new Error(msg)

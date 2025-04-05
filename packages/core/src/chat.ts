@@ -867,7 +867,10 @@ async function processChatMessage(
                     participantTrace
                 )
                 const { messages: newMessages } =
-                    (await generator(ctx, structuredClone(messages))) || {}
+                    (await generator(
+                        ctx,
+                        structuredClone(messages) as ChatMessage[]
+                    )) || {}
                 const node = ctx.node
                 checkCancelled(cancellationToken)
 

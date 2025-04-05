@@ -148,7 +148,7 @@ Classify text, images or a mix of all.
 
 ```js
 const joke = await classify(
-    "Why did the chicken cross the roard? To fry in the sun.",
+    "Why did the chicken cross the road? To fry in the sun.",
     {
         yes: "funny",
         no: "not funny",
@@ -232,7 +232,7 @@ script({ ..., model: "ollama:phi3" })
 
 ### 🐍 Code Interpreter
 
-Let the LLM run code in a sandboxed execution environment.
+Let the LLM run code in a sand-boxed execution environment.
 
 ```js
 script({ tools: ["python_code_interpreter"] })
@@ -310,7 +310,7 @@ Scan your chats for secrets using [secret scanning](/genaiscript/reference/scrip
 
 ### ⚙ Automate with CLI or API
 
-Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) or [API](https://microsoft.github.io/genaiscript/reference/cli/api).
+Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) or [API](https://microsoft.github.io/genaiscript/reference/api).
 
 ```bash
 npx genaiscript run tlaplus-linter "*.tla"

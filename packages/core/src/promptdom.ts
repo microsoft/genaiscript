@@ -50,6 +50,9 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { redactSecrets } from "./secretscanner"
 import { escapeToolName } from "./tools"
 import { measure } from "./performance"
+import debug from "debug"
+const dbg = debug("genaiscript:prompt:dom")
+const dbgMcp = debug("genaiscript:prompt:dom:mcp")
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -733,12 +736,12 @@ export interface PromptNodeRender {
 }
 
 /**
- * Determines the default fence format for a given model ID.
+ * Resolves and returns the default fence format.
  *
- * @param modelid - The identifier of the model for which the fence format is to be resolved.
- * @returns The default fence format for the specified model.
+ * @param modelId - The identifier of the model. This parameter is currently unused.
+ * @returns The default fence format.
  */
-export function resolveFenceFormat(modelid: string): FenceFormat {
+export function resolveFenceFormat(modelId: string): FenceFormat {
     return DEFAULT_FENCE_FORMAT
 }
 
@@ -1253,7 +1256,7 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
  * Main function to render a prompt node.
  *
  * Resolves, deduplicates, flexes, truncates, and validates the prompt node.
- * Handles various node types including text, system, assistant, schemas, tools, images, file merges, outputs, and more.
+ * Handles various node types including text, system, assistant, schemas, tools, images, file merges, outputs, chat participants, MCP servers, and more.
  * Supports tracing, safety validation, token management, and MCP server integration.
  *
  * Parameters:
@@ -1262,7 +1265,7 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
  * - options: Optional configurations for model templates, tracing, cancellation, token flexibility, and MCP server handling.
  *
  * Returns:
- * - A rendered prompt node with associated metadata, messages, resources, tools, errors, and disposables.
+ * - A rendered prompt node with associated metadata, messages, resources, tools, errors, disposables, schemas, images, file outputs, and prediction.
  */
 export async function renderPromptNode(
     modelId: string,
@@ -1450,12 +1453,17 @@ ${trimNewlines(schemaText)}
 
     if (mcpServers.length) {
         for (const mcpServer of mcpServers) {
+            dbgMcp(`starting server ${mcpServer.id}`)
             const res = await runtimeHost.mcp.startMcpServer(mcpServer, {
                 trace,
             })
             disposables.push(res)
-            const tools = await res.listTools()
-            tools.push(...tools)
+            const mcpTools = await res.listTools()
+            dbgMcp(
+                `tools %O`,
+                mcpTools?.map((t) => t.spec.name)
+            )
+            tools.push(...mcpTools)
         }
     }
     m()
@@ -1473,6 +1481,11 @@ ${trimNewlines(schemaText)}
         prediction,
         disposables,
     })
+
+    dbg(
+        `${res.messages.length} messages, tools: %o`,
+        res.functions.map((t) => t.spec.name)
+    )
     return res
 }
 

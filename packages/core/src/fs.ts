@@ -7,6 +7,7 @@ import { host } from "./host"
 import { readFile } from "fs/promises"
 import { dirname } from "path"
 import { JSON5TryParse } from "./json5"
+import { homedir } from "os"
 
 /**
  * Changes the file extension of a given file name.
@@ -17,7 +18,7 @@ import { JSON5TryParse } from "./json5"
  */
 export function changeext(filename: string, newext: string) {
     dbg(`checking if newext starts with a dot`)
-    if (!newext.startsWith(".")) {
+    if (newext && !newext.startsWith(".")) {
         newext = "." + newext
     }
     return filename.replace(/\.[^.]+$/, newext)
@@ -58,6 +59,17 @@ export async function tryReadText(fn: string) {
 export async function ensureDir(dir: string) {
     dbg(`ensuring directory exists ${dir}`)
     await mkdir(dir, { recursive: true })
+}
+
+/**
+ * Expands homedir
+ */
+export function expandHomeDir(dir: string) {
+    if (dir?.startsWith("~/")) {
+        const home = homedir()
+        dir = host.path.join(home, dir.slice(2))
+    }
+    return dir
 }
 
 /**

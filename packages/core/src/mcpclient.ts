@@ -146,7 +146,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             const listResources: McpClient["listResources"] = async () => {
                 const { resources } = await client.listResources(
                     {},
-                    { signal, onprogress: progress("list ressources") }
+                    { signal, onprogress: progress("list resources") }
                 )
                 return resources.map((r) => ({
                     name: r.name,

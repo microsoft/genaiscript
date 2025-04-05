@@ -46,8 +46,6 @@ export async function activateChatParticipant(state: ExtensionState) {
             token: vscode.CancellationToken
         ) => {
             let { command, prompt, references, model } = request
-            await state.parseWorkspace()
-            if (token.isCancellationRequested) return
 
             const md = (t: string, ...enabledCommands: string[]) => {
                 const ms = new vscode.MarkdownString(t + "\n", true)
@@ -57,6 +55,23 @@ export async function activateChatParticipant(state: ExtensionState) {
                     }
                 response.markdown(ms)
             }
+
+            // this command does not require any parsing
+            if (command === "models") {
+                const chatModels = await vscode.lm.selectChatModels()
+                const languageChatModels = await state.languageChatModels()
+                md(`This is the current model alias mapping:\n`)
+                for (const chatModel of chatModels) {
+                    md(
+                        `- \`${languageChatModels[chatModel.id] || "---"}\` > \`${chatModel.id}\`, ${chatModel.name}, max ${chatModel.maxInputTokens}\n`
+                    )
+                }
+                return
+            }
+
+            // parse and analyze results
+            await state.parseWorkspace()
+            if (token.isCancellationRequested) return
 
             const { project } = state
             const templates = project.scripts
@@ -80,6 +95,8 @@ export async function activateChatParticipant(state: ExtensionState) {
                     response.markdown(` ${s.title}\n`)
                 })
             }
+
+            // list command
             if (command === "list") {
                 if (templates.length) {
                     md("Use `@genaiscript /run <scriptid> ...` with:\n")
@@ -89,58 +106,39 @@ export async function activateChatParticipant(state: ExtensionState) {
                 }
                 mdHelp()
                 return
-            } else if (command === "models") {
-                const chatModels = await vscode.lm.selectChatModels()
-                const languageChatModels = await state.languageChatModels()
-                md(`This is the current model alias mapping:\n`)
-                for (const chatModel of chatModels) {
-                    md(
-                        `- \`${languageChatModels[chatModel.id] || "---"}\` > \`${chatModel.id}\`, ${chatModel.name}, max ${chatModel.maxInputTokens}\n`
-                    )
-                }
-                return
             }
 
+            // try resolving template or handling run
+            let scriptid = ""
             let template: PromptScript
             if (command === "run") {
-                const scriptid = prompt.split(" ")[0]
+                scriptid = prompt.split(" ")[0]
                 prompt = prompt.slice(scriptid.length).trim()
                 template = templates.find((t) => t.id === scriptid)
-                if (!template) {
-                    if (scriptid === "")
-                        md(`😓 Please specify a genaiscript to run.\n`)
-                    else
-                        md(
-                            `😕 Oops, I could not find any genaiscript matching \`${scriptid}\`.\n`
-                        )
-                    if (templates.length === 0) {
-                        mdEmpty()
-                    } else {
-                        md(`Try one of the following:\n`)
-                        mdTemplateList()
-                    }
-                    mdHelp()
-                    return
-                }
             } else {
                 template = templates.find(
                     (t) => t.id === COPILOT_CHAT_PARTICIPANT_SCRIPT_ID
                 )
-                if (!template) {
-                    const picked = await vscode.window.showQuickPick(
-                        templatesToQuickPickItems(templates),
-                        {
-                            title: `Pick a GenAIScript to run`,
-                        }
-                    )
-                    template = picked?.template
-                    if (!template) {
-                        md(`\n\n😬 Cancelled, no script selected.`)
-                        mdHelp()
-                        return
-                    }
-                }
             }
+
+            // tell user which templates are available
+            if (!template) {
+                if (scriptid === "")
+                    md(`😓 Please specify a genaiscript to run.\n`)
+                else
+                    md(
+                        `😕 Oops, I could not find any genaiscript matching \`${scriptid}\`.\n`
+                    )
+                if (templates.length === 0) {
+                    mdEmpty()
+                } else {
+                    md(`Try one of the following:\n`)
+                    mdTemplateList()
+                }
+                mdHelp()
+                return
+            }
+
             const { files, vars } = resolveReference(references)
             const history = renderHistory(context)
             const fragment: Fragment = {

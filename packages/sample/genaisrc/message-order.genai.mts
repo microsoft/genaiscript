@@ -18,8 +18,8 @@ $`5`.role("system")
 
 defChatParticipant((context, messages) => {
     console.log(messages)
-    if (!messages[0].content.includes("5"))
+    if (!(messages[0].content as string).includes("5"))
         throw new Error("message 5 should be a system message")
-    if (!messages[1].content.includes("1"))
+    if (!(messages[1].content as string).includes("1"))
         throw new Error("message 5 should be before message 1")
 })

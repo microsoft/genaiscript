@@ -14,7 +14,7 @@
  * @param url - The complete URL to be shortened.
  * @returns A shortened version of the URL or undefined if parsing fails.
  */
-export function ellipseUri(url: string) {
+export function redactUri(url: string) {
     try {
         const uri = new URL(url) // Parse the URL string into a URL object.
         let res = `${uri.protocol}//${uri.hostname}${uri.pathname}` // Construct the base URL with protocol, hostname, and pathname.

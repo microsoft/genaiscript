@@ -15,7 +15,7 @@ defChatParticipant(
     async (ctx, messages) => {
         turn++
         if (turn <= 1) {
-            const text = messages.at(-1).content
+            const text = messages.at(-1).content as string
             const questions =
                 text
                     ?.split("\n")

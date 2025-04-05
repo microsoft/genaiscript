@@ -4,6 +4,7 @@ import { prettier } from "./src/prettier.mts"
 
 script({
     title: "Generate TypeScript function documentation using AST insertion",
+    group: "dev",
     description: `
 ## Docs!
 
@@ -69,7 +70,7 @@ if (!applyEdits)
     )
 
 // filter by diff
-const gitDiff = diff ? await git.diff({ base: "main" }) : undefined
+const gitDiff = diff ? await git.diff({ base: "dev" }) : undefined
 console.debug(gitDiff)
 const diffFiles = gitDiff ? DIFF.parse(gitDiff) : undefined
 if (diffFiles?.length) {
@@ -203,7 +204,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
             }
         )
         fileStats.judge += judge.usage?.total || 0
-        fileStats.judegeCost += judge.usage?.cost || 0
+        fileStats.judgeCost += judge.usage?.cost || 0
         if (judge.label !== "ok") {
             output.warn(judge.label)
             output.fence(judge.answer)

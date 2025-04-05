@@ -188,14 +188,14 @@ function StatsBadge() {
     const { usage } = result || {}
     if (!usage) return null
     const { cost, prompt, completion, duration } = usage
-    if (!cost && !completion) return null
+    if (!cost && !prompt && !completion && !duration) return null
     return (
         <>
             {[
-                prettyDuration(duration),
-                prettyTokens(prompt),
-                prettyTokens(completion),
-                prettyCost(cost),
+                duration > 0 ? prettyDuration(duration) : undefined,
+                prompt > 0 ? prettyTokens(prompt) : undefined,
+                prompt > 0 ? prettyTokens(completion) : undefined,
+                cost > 0 ? prettyCost(cost) : undefined,
             ]
                 .filter((l) => !!l)
                 .map((s, i) => (

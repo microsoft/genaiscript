@@ -33,6 +33,7 @@ import { UrlAdapter, defaultUrlAdapters } from "./urlAdapters"
 import { tidyData } from "./tidy"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { prettyBytes } from "./pretty"
+import { normalizeInt } from "./cleaners"
 
 /**
  * Resolves the content of a file by decoding, fetching, or parsing it based on its type or source.
@@ -110,11 +111,12 @@ export async function resolveFileContent(
             },
         })
         trace?.itemValue(`status`, `${resp.status}, ${resp.statusText}`)
-
         dbg(`response status: ${resp.status}, ${resp.statusText}`)
+
         // Set file content based on response and adapter type
         if (resp.ok) {
             file.type = resp.headers.get("Content-Type")
+            file.size = normalizeInt(resp.headers.get("Content-Length"))
             file.content =
                 adapter?.contentType === "application/json"
                     ? adapter.adapter(await resp.json())
@@ -124,24 +126,30 @@ export async function resolveFileContent(
     // Handle PDF files
     else if (PDF_REGEX.test(filename)) {
         dbg(`file is pdf`)
+        const stat = await tryStat(filename)
         const { content } = await parsePdf(filename, options)
         file.type = PDF_MIME_TYPE
         file.content = content
+        file.size = stat?.size
     }
     // Handle DOCX files
     else if (DOCX_REGEX.test(filename)) {
         dbg(`file is docx`)
+        const stat = await tryStat(filename)
         const res = await DOCXTryParse(filename, options)
         file.type = DOCX_MIME_TYPE
         file.content = res.file?.content
+        file.size = res.file?.size
     }
     // Handle XLSX files
     else if (XLSX_REGEX.test(filename)) {
         dbg(`file is xlsx`)
+        const stat = await tryStat(filename)
         const bytes = await host.readFile(filename)
         const sheets = await XLSXParse(bytes)
         file.type = XLSX_MIME_TYPE
         file.content = JSON.stringify(sheets, null, 2)
+        file.size = stat?.size
     }
     // Handle other file types
     else {
@@ -149,6 +157,7 @@ export async function resolveFileContent(
         const isBinary = isBinaryMimeType(mime)
         file.type = mime
         const info = await tryStat(filename)
+        file.size = info?.size
         if (!info) {
             dbg(`file not found: ${filename}`)
             return file

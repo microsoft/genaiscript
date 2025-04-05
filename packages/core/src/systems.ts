@@ -15,9 +15,9 @@ import { deleteUndefinedValues } from "./cleaners"
 
 /**
  * Resolves and returns a list of unique systems based on the provided script and project.
- * Analyzes script options, JavaScript source code, tools, and resolved tools to determine applicable systems.
+ * Analyzes script options, JavaScript source code, tools, resolved tools, and MCP servers to determine applicable systems.
  *
- * @param prj - The project object containing templates, tools, and other project-related data.
+ * @param prj - The project object containing templates, tools, scripts, and other project-related data.
  * @param script - An object containing prompt system options, model options, content safety options, and optionally JavaScript source code.
  * @param resolvedTools - An optional array of tools resolved externally for additional system inclusion.
  * @returns An array of unique system prompt instances applicable based on the analysis, including both system IDs and instances.
@@ -29,7 +29,14 @@ export function resolveSystems(
         ContentSafetyOptions & { jsSource?: string },
     resolvedTools?: ToolCallback[]
 ): SystemPromptInstance[] {
-    const { jsSource, responseType, responseSchema, systemSafety } = script
+    const {
+        jsSource,
+        responseType,
+        responseSchema,
+        systemSafety,
+        mcpServers,
+        mcpAgentServers,
+    } = script
     // Initialize systems array from script.system, converting to array if necessary using arrayify utility
     let systems = arrayify(script.system).filter((s) => typeof s === "string")
     const systemInstances = arrayify(script.system).filter(
@@ -67,11 +74,6 @@ export function resolveSystems(
                 dbgr(`adding system.output_markdown`)
                 systems.push("system.output_markdown")
             }
-        }
-
-        if (/today/i.test(jsSource)) {
-            dbgr(`adding system.today to systems`)
-            systems.push("system.today")
         }
 
         // Add planner system if any tool starts with "agent"
@@ -125,6 +127,11 @@ export function resolveSystems(
             dbgr(`GitHub references found, adding system.github_info`)
             systems.push("system.github_info")
         }
+        // Add system.today if "today" is found in jsSource
+        if (/today/i.test(jsSource)) {
+            dbgr(`adding system.today to systems`)
+            systems.push("system.today")
+        }
     }
 
     // insert safety first
@@ -163,6 +170,31 @@ export function resolveSystems(
         tools.forEach((tool) =>
             systems.push(...resolveSystemFromTools(prj, tool))
         )
+    }
+
+    // map mcps to system scripts
+    if (typeof mcpServers === "object") {
+        for (const [id, config] of Object.entries(mcpServers)) {
+            systemInstances.push({
+                id: "system.mcp",
+                parameters: {
+                    id,
+                    ...config,
+                },
+            })
+        }
+    }
+
+    if (typeof mcpAgentServers === "object") {
+        for (const [id, config] of Object.entries(mcpAgentServers)) {
+            systemInstances.push({
+                id: "system.agent_mcp",
+                parameters: {
+                    id,
+                    ...config,
+                },
+            })
+        }
     }
 
     // filter out

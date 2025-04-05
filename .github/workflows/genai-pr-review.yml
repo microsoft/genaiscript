@@ -5,7 +5,6 @@ on:
         types: [opened, ready_for_review, reopened]
         paths:
             - yarn.lock
-            - ".github/workflows/ollama.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
@@ -38,7 +37,7 @@ jobs:
             - name: start ollama
               run: yarn ollama:start
             - name: git stuff
-              run: git fetch origin && git pull origin main:main
+              run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-describe
               continue-on-error: true
               run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd -m reasoning --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
