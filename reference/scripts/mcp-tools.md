@@ -1,0 +1,133 @@
+import { Image } from "astro:assets"
+import { YouTube } from "astro-embed"
+import logoPng from "../../../../assets/mcp.png"
+import logoPngTxt from "../../../../assets/mcp.png.txt?raw"
+
+<Image src={logoPng} alt={logoPngTxt} />
+
+[Model Context Protocol](https://modelcontextprotocol.io/) (MCP) is an emerging standard
+for portable tool definitions.
+
+The MCP defines a protocol that allows to share [tools](https://modelcontextprotocol.io/docs/concepts/tools)
+and consume them regardless of the underlying framework/runtime.
+
+**GenAIScript implements a client for MCP tools**.
+
+<YouTube id="https://youtu.be/q4Um2Mlvxy8" posterQuality="high" />
+
+:::tip
+
+GenAIScript also implements a server for MCP which exposes any script as a tool.
+See [MCP server](/genaiscript/reference/scripts/mcp-server) for more details.
+
+:::
+
+## Configuring servers
+
+You can declare the MCP server configuration in the `script` function (as tools or agents) or load them dynamically using `defTool`.
+
+### `mcpServers`
+
+You can declare the MCP server configuration in the `mcpServers` field of `script` or `runPrompt`.
+This is the same configuration as Claude configuration file.
+
+```js "mcp:"
+script({
+    mcpServers: {
+        memory: {
+            command: "npx",
+            args: ["-y", "@modelcontextprotocol/server-memory"],
+        },
+        filesystem: {
+            command: "npx",
+            args: [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                path.resolve("."),
+            ],
+        },
+    },
+})
+```
+
+### `mcpAgentServers`
+
+The `mcpAgentServers` declares a set of MCP servers that will be wrapped into separate agents and injected in the tools list.
+This is an efficient way to load
+
+This is the same configuration with an additional `description` and optional `instructions` parameter.
+The description is injected in the agent description, and the instructions are injected in the agent prompt.
+
+```js
+script({
+    mcpAgentServers: {
+        memory: {
+            description: "A memory server",
+            instructions: "Use this server to store and retrieve data.",
+            command: "npx",
+            args: ["-y", "@modelcontextprotocol/server-memory"],
+        },
+        filesystem: {
+            description: "A filesystem server",
+            instructions: "Use this server to read and write files.",
+            command: "npx",
+            args: [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                path.resolve("."),
+            ],
+        },
+    },
+})
+```
+
+### `defTool`
+
+You can use [defTool](/genaiscript/reference/scripts/tools) to declare a set of server configurations,
+using the same syntax as in the [Claude configuration file](https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#using-an-mcp-client).
+
+```js
+defTool({
+    memory: {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-memory"],
+    },
+    filesystem: {
+        command: "npx",
+        args: [
+            "-y",
+            "@modelcontextprotocol/server-filesystem",
+            path.resolve("."),
+        ],
+    },
+})
+```
+
+GenAIScript will launch the server and register all the tools listed by the server.
+The tool identifier will be `server_toolname` to avoid clashes.
+
+:::tip
+
+If your tool has a name that is not a valid identifier,
+you can use the `["tool-name"]` syntax.
+
+```js '["server-memory"]
+defTool({
+    ["server-memory"]: {
+        ...
+    },
+})
+```
+
+:::
+
+## Lifecycle of servers
+
+Servers are started when rendering the prompt and stopped once the chat session is completed.
+
+This means that if you define servers in an [inline prompt](/genaiscript/reference/scripts/inline-prompts),
+the server will be started/stopped for each inline prompt.
+
+## Finding servers
+
+The list of available servers can be found in the [Model Context Protocol Servers project](https://github.com/modelcontextprotocol/servers).

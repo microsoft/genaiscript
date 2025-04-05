@@ -1,0 +1,137 @@
+While most LLMs do not support videos natively, they can be integrated in scripts by rendering frames
+and adding them as images to the prompt. This can be tedious and GenAIScript provides efficient helpers
+to streamline this process.
+
+## ffmpeg configuration
+
+The functionalities to render and analyze videos rely on [ffmpeg](https://ffmpeg.org/)
+and [ffprobe](https://ffmpeg.org/ffprobe.html).
+
+On Linux, you can try
+
+```sh
+sudo apt-get update && sudo apt-get install ffmpeg
+```
+
+Make sure these tools are installed locally and available in your PATH,
+or configure the `FFMPEG_PATH` / `FFPROBE_PATH` environment variables to point to the `ffmpeg`/`ffprobe` executable.
+
+## Extracting frames
+
+As mentionned above, multi-modal LLMs typically support images as a sequence
+of frames (or screenshots).
+
+The `ffmpeg.extractFrames` will render frames from a video file
+and return them as an array of file paths. You can use the result with `defImages` directly.
+
+- by default, extract keyframes (intra-frames)
+
+```js
+const frames = await ffmpeg.extractFrames("path_to_video")
+defImages(frames)
+```
+
+- specify a number of frames using `count`
+
+```js "count: 10"
+const frames = await ffmpeg.extractFrames("...", { count: 10 })
+```
+
+- specify timestamps in seconds or percentages of the video duration using `timestamps` (or `times`)
+
+```js "timestamps"
+const frames = await ffmpeg.extractFrames("...", {
+    timestamps: ["00:00", "05:00"],
+})
+```
+
+- specify the transcript computed by the [transcribe](/genaiscript/reference/scripts/transcription) function. GenAIScript
+  will extract a frame at the start of each segment.
+
+```js "timestamps"
+const transcript = await transcribe("...")
+const frames = await ffmpeg.extractFrames("...", { transcript })
+```
+
+- specify a scene threshold (between 0 and 1)
+
+```js "sceneThreshold"
+const transcript = await transcribe("...", { sceneThreshold: 0.3 })
+```
+
+## Extracting audio
+
+The `ffmpeg.extractAudio` will extract the audio from a video file
+as a `.wav` file.
+
+```js
+const audio = await ffmpeg.extractAudio("path_to_video")
+```
+
+The conversion to audio happens automatically
+for videos when using [transcribe](/genaiscript/reference/scripts/transcription).
+
+## Extracting clips
+
+You can extract a clip from a video file using `ffmpeg.extractClip`.
+
+```js
+const clip = await ffmpeg.extractClip("path_to_video", {
+    start: "00:00:10",
+    duration: 5,
+})
+```
+
+:::note
+
+This operation is quite fast as it does not require any reencoding. You can specify
+the output size but this will be much slower as it will require re-encoding.
+
+:::
+
+## Probing videos
+
+You can extract metadata from a video file using `ffmpeg.probe`.
+
+```js
+const info = await ffmpeg.probe("path_to_video")
+const { duration } = info.streams[0]
+console.log(`video duration: ${duration} seconds`)
+```
+
+## Custom ffmpeg options
+
+You can further customize the `ffmpeg` configuration
+by passing `outputOptions`.
+
+```js 'outputOptions: "-b:a 16k",'
+const audio = await ffmpeg.extractAudio("path_to_video", {
+    outputOptions: "-b:a 16k",
+})
+```
+
+Or interact directly with the `ffmpeg` command builder
+(which is the native [fluent-ffmpeg](https://www.npmjs.com/package/fluent-ffmpeg) command builder).
+Note that in this case, you should also provide a cache "hash" to avoid re-rendering.
+
+```js wrap
+const custom = await ffmpeg.run(
+    "src/audio/helloworld.mp4",
+    (cmd) => {
+        cmd.noAudio()
+        cmd.keepDisplayAspectRatio()
+        cmd.autopad()
+        cmd.size(`200x200`)
+        return "out.mp4"
+    },
+    { cache: "kar-200x200" }
+)
+```
+
+## CLI
+
+The [cli](/genaiscript/reference/cli/video) supports various command to run the video transformations.
+
+```sh
+genaiscript video probe myvid.mp4
+```
