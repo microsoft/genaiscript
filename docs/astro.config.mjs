@@ -150,7 +150,7 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                 },
                 {
                     label: "Contributing",
-                    link: "https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md",
+                    link: "dev",
                 },
             ],
         }),
