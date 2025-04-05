@@ -2,6 +2,7 @@
 // It imports necessary libraries for HTML conversion and logging purposes.
 /// <reference path="./html-escaper.d.ts" />
 
+import { CancellationOptions, checkCancelled } from "./cancellation"
 import { TraceOptions } from "./trace" // Import TraceOptions for optional logging features
 import { escape as HTMLEscape_ } from "html-escaper"
 
@@ -30,14 +31,15 @@ export async function HTMLTablesToJSON(
  */
 export async function HTMLToText(
     html: string,
-    options?: HTMLToTextOptions & TraceOptions
+    options?: HTMLToTextOptions & TraceOptions & CancellationOptions
 ): Promise<string> {
     if (!html) return "" // Return empty string if no HTML content is provided
 
-    const { trace } = options || {} // Extract trace for logging if available
+    const { trace, cancellationToken } = options || {} // Extract trace for logging if available
 
     try {
         const { convert: convertToText } = await import("html-to-text") // Import the convert function from html-to-text library
+        checkCancelled(cancellationToken) // Check for cancellation token
         const text = convertToText(html, options) // Perform conversion to plain text
         return text
     } catch (e) {
@@ -55,13 +57,14 @@ export async function HTMLToText(
  */
 export async function HTMLToMarkdown(
     html: string,
-    options?: HTMLToMarkdownOptions & TraceOptions
+    options?: HTMLToMarkdownOptions & TraceOptions & CancellationOptions
 ): Promise<string> {
     if (!html) return html // Return original content if no HTML is provided
-    const { disableGfm, trace } = options || {} // Extract trace for logging if available
+    const { disableGfm, trace, cancellationToken } = options || {} // Extract trace for logging if available
 
     try {
         const Turndown = (await import("turndown")).default // Import Turndown library for HTML to Markdown conversion
+        checkCancelled(cancellationToken) // Check for cancellation token
         const turndown = new Turndown()
         turndown.remove("script")
         turndown.remove("style")

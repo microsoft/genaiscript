@@ -5483,7 +5483,9 @@ type FetchOptions = RequestInit & {
     maxDelay?: number // Maximum delay between retries
 }
 
-type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window">
+type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window"> & {
+    convert?: "markdown" | "text"
+}
 
 interface PythonRuntimeOptions {
     cache?: string

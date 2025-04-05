@@ -20,6 +20,7 @@ import { deleteUndefinedValues } from "./cleaners"
 import { prettyBytes } from "./pretty"
 import debug from "debug"
 import { redactUri } from "./url"
+import { HTMLToMarkdown, HTMLToText } from "./html"
 const dbg = debug("genaiscript:fetch")
 
 export type FetchType = (
@@ -165,10 +166,18 @@ export async function fetch(
  */
 export async function fetchText(
     urlOrFile: string | WorkspaceFile,
-    fetchOptions?: FetchTextOptions & TraceOptions
+    fetchOptions?: FetchTextOptions & TraceOptions & CancellationOptions
 ) {
-    const { retries, retryDelay, retryOn, maxDelay, trace, ...rest } =
-        fetchOptions || {}
+    const {
+        retries,
+        retryDelay,
+        retryOn,
+        maxDelay,
+        trace,
+        convert,
+        cancellationToken,
+        ...rest
+    } = fetchOptions || {}
     if (typeof urlOrFile === "string") {
         urlOrFile = {
             filename: urlOrFile,
@@ -188,6 +197,7 @@ export async function fetchText(
             retryOn,
             maxDelay,
             trace,
+            cancellationToken,
         })
         const resp = await f(url, rest)
         ok = resp.ok
@@ -227,6 +237,13 @@ export async function fetchText(
             mime
         )
         content = host.createUTF8Decoder().decode(bytes)
+        if (convert === "markdown")
+            content = await HTMLToMarkdown(content, {
+                trace,
+                cancellationToken,
+            })
+        else if (convert === "text")
+            content = await HTMLToText(content, { trace, cancellationToken })
     }
     ok = true
     const file: WorkspaceFile = deleteUndefinedValues({
@@ -236,6 +253,7 @@ export async function fetchText(
         content,
         size,
     })
+
     return {
         ok,
         status,
