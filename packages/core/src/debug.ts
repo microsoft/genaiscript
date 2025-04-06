@@ -1,3 +1,6 @@
-import debug from "debug"
+import debug, { Debugger } from "debug"
 
-export const genaiscriptDebug = debug("genaiscript")
+const _genaiscriptDebug = debug("genaiscript")
+export function genaiscriptDebug(namespace: string): Debugger {
+    return _genaiscriptDebug.extend(namespace)
+}

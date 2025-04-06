@@ -73,6 +73,7 @@ import { listRuns } from "./runs"
 import { startMcpServer } from "./mcpserver"
 import { error } from "./log"
 import { DEBUG_CATEGORIES } from "../../core/src/dbg"
+import { openTelemetryEnable } from "../../core/src/opentelemetry" // OpenTelemetry integration
 
 /**
  * Main function to initialize and run the CLI.
@@ -88,6 +89,8 @@ import { DEBUG_CATEGORIES } from "../../core/src/dbg"
  * Handles environment setup and NodeHost installation.
  */
 export async function cli() {
+    await openTelemetryEnable()
+
     let nodeHost: NodeHost // Variable to hold NodeHost instance
 
     // Handle uncaught exceptions globally

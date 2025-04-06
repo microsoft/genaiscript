@@ -1,5 +1,6 @@
 // debug-otel.ts
-import debug from "debug"
+import debug, { Debugger } from "debug"
+import { consoleLogFormat } from "./logging"
 
 export async function openTelemetryEnable() {
     const { trace, context } = await import("@opentelemetry/api")
@@ -8,30 +9,21 @@ export async function openTelemetryEnable() {
     const originalLog = debug.log.bind(debug)
 
     // Override the debug.log function to also send messages to OpenTelemetry
-    debug.log = (...args: unknown[]) => {
-        // Convert all arguments to a single string message.
-        const message = args
-            .map((arg) =>
-                typeof arg === "object"
-                    ? (() => {
-                          try {
-                              return JSON.stringify(arg)
-                          } catch {
-                              return String(arg)
-                          }
-                      })()
-                    : String(arg)
-            )
-            .join(" ")
-
-        // Get the current active span from the OpenTelemetry context
-        const activeSpan = trace.getSpan(context.active())
-        if (activeSpan) {
-            // Add the debug message as an event on the active span.
-            activeSpan.addEvent("debug", { message })
-        }
-
+    debug.log = function (...args: unknown[]) {
         // Call the original log so that debug continues to output as normal.
         originalLog(...args)
+
+        // send log to OpenTelemetry
+        const activeSpan = trace.getSpan(context.active())
+        if (activeSpan) {
+            const _this = this as any as Debugger
+            const { namespace, diff } = _this
+            const message = consoleLogFormat(args)
+            activeSpan.addEvent("debug", {
+                namespace,
+                message,
+                diff,
+            })
+        }
     }
 }
