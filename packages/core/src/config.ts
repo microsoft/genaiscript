@@ -27,9 +27,8 @@ import { host } from "./host"
 import { uniq } from "es-toolkit"
 import { expandHomeDir, tryReadText, tryStat } from "./fs"
 import { parseDefaultsFromEnv } from "./env"
-
-import debug from "debug"
-const dbg = debug("genaiscript:config")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("config")
 
 async function resolveGlobalConfiguration(
     dotEnvPaths?: string[]

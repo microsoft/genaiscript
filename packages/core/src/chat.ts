@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:chat")
-
 // cspell: disable
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
@@ -30,7 +27,6 @@ import {
     validateJSONWithSchema,
 } from "./schema"
 import {
-    CHAR_ENVELOPE,
     CHOICE_LOGIT_BIAS,
     MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
@@ -41,7 +37,6 @@ import {
 } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
-import { estimateChatTokens } from "./chatencoder"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { parseModelIdentifier, traceLanguageModelConnection } from "./models"
 import {
@@ -99,8 +94,9 @@ import { measure } from "./performance"
 import { renderMessagesToTerminal } from "./chatrenderterminal"
 import { fileCacheImage } from "./filecache"
 import { stderr } from "./stdio"
-import { prettyTokens } from "./pretty"
 import { isQuiet } from "./quiet"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("chat")
 
 function toChatCompletionImage(
     image: PromptImage

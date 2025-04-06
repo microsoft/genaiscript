@@ -31,6 +31,7 @@
     "@octokit/plugin-retry": "^7.2.0",
     "@octokit/plugin-throttling": "^9.6.0",
     "@octokit/rest": "^21.1.1",
+    "@opentelemetry/api": "^1.9.0",
     "@plussub/srt-vtt-parser": "^2.0.5",
     "@smithy/util-base64": "^4.0.0",
     "@tidyjs/tidy": "^2.5.2",

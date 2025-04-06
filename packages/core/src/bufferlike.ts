@@ -1,8 +1,8 @@
 import { resolveFileBytes } from "./file"
 import { TraceOptions } from "./trace"
 import { fileTypeFromBuffer } from "./filetype"
-import debug from "debug"
-const dbg = debug("genaiscript:buffer")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("buffer")
 
 /**
  * Resolves a buffer-like object into a Buffer.

@@ -4,8 +4,8 @@ import { MemoryCache } from "./memcache"
 import { host } from "./host"
 import { NotSupportedError } from "./error"
 import { CancellationOptions } from "./cancellation"
-import debug from "debug"
-const dbg = debug("genaiscript:cache")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("cache")
 
 /**
  * Represents a cache entry with a hashed identifier (`sha`), `key`, and `val`.
