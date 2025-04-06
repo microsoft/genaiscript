@@ -51,20 +51,22 @@ export async function dataTryParse(
                 : await host.readFile(filename)
         )
     else {
-        if (CSV_REGEX.test(filename)) data = CSVTryParse(content, options)
-        else if (INI_REGEX.test(filename)) data = INITryParse(content, options)
-        else if (TOML_REGEX.test(filename)) data = TOMLTryParse(content)
+        if (CSV_REGEX.test(filename)) data = await CSVTryParse(content, options)
+        else if (INI_REGEX.test(filename))
+            data = await INITryParse(content, options)
+        else if (TOML_REGEX.test(filename)) data = await TOMLTryParse(content)
         else if (JSON5_REGEX.test(filename))
             data = JSON5TryParse(content, { repair: true })
-        else if (YAML_REGEX.test(filename)) data = YAMLTryParse(content)
-        else if (XML_REGEX.test(filename)) data = XMLTryParse(content, options)
-        else if (JSONL_REGEX.test(filename)) data = JSONLTryParse(content)
+        else if (YAML_REGEX.test(filename)) data = await YAMLTryParse(content)
+        else if (XML_REGEX.test(filename))
+            data = await XMLTryParse(content, options)
+        else if (JSONL_REGEX.test(filename)) data = await JSONLTryParse(content)
         else if (MD_REGEX.test(filename) || MDX_REGEX.test(filename))
-            data = YAMLTryParse(splitMarkdown(content).frontmatter)
+            data = await YAMLTryParse(splitMarkdown(content).frontmatter)
         else {
             return undefined // unknown
         }
     }
 
-    return tryValidateJSONWithSchema(data, options)
+    return await tryValidateJSONWithSchema(data, options)
 }

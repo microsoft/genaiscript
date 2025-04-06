@@ -147,7 +147,7 @@
         "compile:runtime:code": "tsc src/runtime.ts --skipLibCheck --outDir built --target es2020 --moduleResolution node --module esnext --removeComments true",
         "compile:runtime": "yarn compile:runtime:declarations && yarn compile:runtime:code && mv built/runtime.js built/runtime.mjs",
         "compile:api": "esbuild src/api.ts --outfile=built/api.mjs",
-        "compile:cli": "node esbuild.config.mjs && node ../../scripts/patch-cli.mjs",
+        "compile:cli": "node build.mjs && node ../../scripts/patch-cli.mjs",
         "fix": "node built/genaiscript.cjs scripts fix",
         "compile": "yarn compile:api && yarn compile:runtime && yarn compile:cli",
         "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",

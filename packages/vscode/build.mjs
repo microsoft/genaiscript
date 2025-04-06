@@ -1,15 +1,18 @@
 import * as esbuild from "esbuild"
+import { writeFile } from "fs/promises"
 
 /** @type {import('esbuild').BuildOptions} */
 const config = {
-    entryPoints: ["src/main.ts"],
+    entryPoints: ["src/extension.ts"],
     bundle: true,
+    format: "cjs",
     platform: "node",
     target: "node20",
-    outfile: "built/genaiscript.cjs",
+    outfile: "built/extension.js",
     sourcemap: true,
     metafile: true,
     external: [
+        "vscode",
         "tsx",
         "esbuild",
         "get-tsconfig",
@@ -60,8 +63,11 @@ const config = {
         "debug",
         "@ast-grep/napi",
         "z3-solver",
+        "groq-js",
+        "toml",
     ],
 }
 
 const result = await esbuild.build(config)
-await esbuild.analyzeMetafile(result.metafile)
+const stats = await esbuild.analyzeMetafile(result.metafile)
+await writeFile("built/stats.txt", stats, { encoding: "utf-8" })

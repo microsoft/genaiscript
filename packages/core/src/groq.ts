@@ -1,4 +1,3 @@
-import { parse, evaluate } from "groq-js"
 /**
  * Loads and applies a GROQ query transformation to the input dataset.
  * @param query GROQ query string to parse and evaluate.
@@ -15,6 +14,7 @@ export async function GROQEvaluate(
 ): Promise<any> {
     if (dataset === undefined) return dataset
 
+    const { parse, evaluate } = await import("groq-js")
     const tree = parse(query)
     const value = await evaluate(tree, { dataset, ...(options || {}) })
     const res = await value.get()
