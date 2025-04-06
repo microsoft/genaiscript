@@ -110,6 +110,7 @@
         "smtlib",
         "socketserver",
         "spinbutton",
+        "stackgraphs",
         "stringifying",
         "structurify",
         "sysr",
