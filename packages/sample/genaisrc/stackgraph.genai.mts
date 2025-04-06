@@ -1,5 +1,5 @@
 script({ model: "none" })
-const dbg = host.logger("stackgraphs")
+const dbg = host.logger("stackgraph")
 
 export async function stackGraph(lang: OptionsOrString<"typescript">) {
     const crate = `tree-sitter-stack-graphs-${lang}`
@@ -23,8 +23,8 @@ export async function stackGraph(lang: OptionsOrString<"typescript">) {
     const query = async (node: SgNode) => {
         const sourcePath = node.getRoot().filename()
         const range = node.range()
-        const line = range.start.line
-        const column = range.start.column
+        const line = range.start.line + 1
+        const column = range.start.column + 1
 
         dbg(`querying ${sourcePath}:${line}:${column}...`)
         const res = await host.exec(
@@ -44,14 +44,44 @@ export async function stackGraph(lang: OptionsOrString<"typescript">) {
             (_, filename, line, column) => {
                 locs.push({
                     filename,
-                    line: parseInt(line),
-                    column: parseInt(column),
+                    line: parseInt(line) - 1,
+                    column: parseInt(column) - 1,
                 })
                 return ""
             }
         )
         dbg(`references: %O`, locs)
-        return locs
+        const refs: SgNode[] = []
+        for (const loc of locs) {
+            const line = (await workspace.readText(loc.filename)).content.split(
+                /\n/g
+            )[loc.line]
+            const end =
+                loc.column + /\W/.exec(line.slice(loc.column + 1))?.index + 1
+            dbg(
+                `ast-search ${loc.filename} (${loc.line}, ${loc.column})-(${loc.line}, ${end}) `
+            )
+            const node = await sg.search(lang, loc.filename, {
+                rule: {
+                    range: {
+                        start: {
+                            line: loc.line,
+                            column: loc.column,
+                        },
+                        end: {
+                            line: loc.line,
+                            column: end,
+                        },
+                    },
+                },
+            })
+            dbg(
+                `ast-search results: %O`,
+                node.matches.map((m) => `${m.text()}: ${m.kind()}`)
+            )
+            refs.push(...node.matches)
+        }
+        return refs
     }
 
     return {
@@ -80,6 +110,6 @@ for (const match of matches) {
     console.log(match.text())
     const locs = await graph.query(match)
     for (const loc of locs) {
-        console.log(`  ${loc.filename}:${loc.line}:${loc.column}`)
+        console.log(`  ${loc.text()}`)
     }
 }

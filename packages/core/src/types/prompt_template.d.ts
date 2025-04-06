@@ -4444,7 +4444,7 @@ interface SgPos {
     /** column number starting from 0 */
     column: number
     /** byte offset of the position */
-    index: number
+    index?: number
 }
 interface SgRange {
     /** starting position of the range */
@@ -4570,7 +4570,9 @@ interface SgRoot {
 type SgLang = OptionsOrString<
     | "html"
     | "js"
+    | "javascript"
     | "ts"
+    | "typescript"
     | "tsx"
     | "css"
     | "c"

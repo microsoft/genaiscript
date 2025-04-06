@@ -279,6 +279,9 @@ async function resolveLang(
         cts: Lang.TypeScript,
         mts: Lang.TypeScript,
         ts: Lang.TypeScript,
+        typescript: Lang.TypeScript,
+        javascript: Lang.JavaScript,
+        jsx: Lang.Tsx,
         tsx: Lang.Tsx,
         css: Lang.Css,
     }
