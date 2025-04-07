@@ -147,10 +147,3 @@ You can configure the OpenTelemetry endpoint by setting the `OTEL_EXPORTER_OTLP_
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 OTEL_EXPORTER_OTLP_TIMEOUT=10000
 ```
-
-There are many viewers for OpenTelemetry.
-If you want to try out the telemetry locally, you can try to launch a [standalone Aspire Dashboard](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/standalone?tabs=bash) instance with Docker.
-
-```sh wrap
-docker run --rm -it -p 18888:18888 -p 4317:18889 --name aspire-dashboard mcr.microsoft.com/dotnet/aspire-dashboard:latest
-```
