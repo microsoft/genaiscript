@@ -10,14 +10,15 @@ assert(
 
 /** @type {import('esbuild').BuildOptions} */
 const config = {
-    entryPoints: ["src/main.ts"],
+    entryPoints: ["src/extension.ts"],
     bundle: true,
+    format: "cjs",
     platform: "node",
     target: "node20",
-    outfile: "built/genaiscript.cjs",
+    outfile: "built/extension.js",
     sourcemap: true,
     metafile: true,
-    external
+    external,
 }
 
 const result = await esbuild.build(config)
