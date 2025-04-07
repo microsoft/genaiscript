@@ -864,7 +864,8 @@ async function processChatMessage(
             try {
                 const ctx = createChatTurnGenerationContext(
                     options,
-                    participantTrace
+                    participantTrace,
+                    cancellationToken
                 )
                 const { messages: newMessages } =
                     (await generator(

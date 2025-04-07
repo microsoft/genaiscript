@@ -26,6 +26,7 @@ import {
     createMcpServer,
     toDefRefName,
     resolveFenceFormat,
+    createFileImageNodes,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
@@ -59,7 +60,7 @@ import {
     mergeGenerationOptions,
     tracePromptResult,
 } from "./chat"
-import { checkCancelled } from "./cancellation"
+import { CancellationToken, checkCancelled } from "./cancellation"
 import { ChatCompletionMessageParam } from "./chattypes"
 import { resolveModelConnectionInfo } from "./models"
 import {
@@ -128,7 +129,8 @@ import { createCache } from "./cache"
  */
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
-    trace: MarkdownTrace
+    trace: MarkdownTrace,
+    cancellationToken: CancellationToken
 ): ChatTurnGenerationContext & { node: PromptNode } {
     const node: PromptNode = { children: [] }
     const fenceFormat = options.fenceFormat || resolveFenceFormat(options.model)
@@ -164,6 +166,72 @@ export function createChatTurnGenerationContext(
             }
         },
     })
+
+    const defImages = (
+        files: ElementOrArray<
+            string | WorkspaceFile | Buffer | Blob | ReadableStream
+        >,
+        defOptions?: DefImagesOptions
+    ) => {
+        checkCancelled(cancellationToken)
+        if (files === undefined || files === null) {
+            if (defOptions?.ignoreEmpty) return
+            throw new Error("no images provided")
+        }
+        if (Array.isArray(files)) {
+            if (!files.length) {
+                if (defOptions?.ignoreEmpty) return
+                throw new Error("no images provided")
+            }
+            const sliced = sliceData(files, defOptions)
+            if (!defOptions?.tiled)
+                sliced.forEach((file) => defImages(file, defOptions))
+            else {
+                appendChild(
+                    node,
+                    createImageNode(
+                        (async () => {
+                            if (!files.length) return undefined
+                            const encoded = await imageTileEncodeForLLM(files, {
+                                ...defOptions,
+                                cancellationToken,
+                                trace,
+                            })
+                            return encoded
+                        })()
+                    )
+                )
+            }
+        } else if (
+            typeof files === "string" ||
+            files instanceof Blob ||
+            files instanceof Buffer
+        ) {
+            const img = files
+            appendChild(
+                node,
+                createImageNode(
+                    (async () => {
+                        const encoded = await imageEncodeForLLM(img, {
+                            ...defOptions,
+                            cancellationToken,
+                            trace,
+                        })
+                        return encoded
+                    })()
+                )
+            )
+        } else {
+            const file = files as WorkspaceFile
+            appendChild(
+                node,
+                ...createFileImageNodes(undefined, file, defOptions, {
+                    trace,
+                    cancellationToken,
+                })
+            )
+        }
+    }
 
     const ctx: ChatTurnGenerationContext & { node: PromptNode } = {
         node,
@@ -267,7 +335,17 @@ export function createChatTurnGenerationContext(
                     !endsWith.some((ext) => filename.endsWith(ext))
                 )
                     return undefined
-                appendChild(node, createDef(name, file, doptions))
+
+                // more robust check
+                if (/\.(png|jpeg|jpg|gif|webp)$/i.test(filename)) {
+                    appendChild(
+                        node,
+                        ...createFileImageNodes(name, file, doptions, {
+                            trace,
+                            cancellationToken,
+                        })
+                    )
+                } else appendChild(node, createDef(name, file, doptions))
             } else if (
                 typeof body === "object" &&
                 (body as ShellOutput).exitCode !== undefined
@@ -311,6 +389,7 @@ export function createChatTurnGenerationContext(
             }
             return toDefRefName(name, doptions)
         },
+        defImages,
         defData: (name, data, defOptions) => {
             name = name ?? ""
             const doptions = { ...(defOptions || {}), trace }
@@ -386,7 +465,11 @@ export function createChatGenerationContext(
     const { cancellationToken, infoCb, userState } = options || {}
     const { prj, env } = projectOptions
     assert(!!env.output, "output missing")
-    const turnCtx = createChatTurnGenerationContext(options, trace)
+    const turnCtx = createChatTurnGenerationContext(
+        options,
+        trace,
+        cancellationToken
+    )
     const node = turnCtx.node
 
     // Default output processor for the prompt
@@ -634,81 +717,6 @@ export function createChatGenerationContext(
         appendChild(node, createSchemaNode(name, schema, defOptions))
 
         return name
-    }
-
-    const defImages = (
-        files: ElementOrArray<
-            string | WorkspaceFile | Buffer | Blob | ReadableStream
-        >,
-        defOptions?: DefImagesOptions
-    ) => {
-        checkCancelled(cancellationToken)
-        if (files === undefined || files === null) {
-            if (defOptions?.ignoreEmpty) return
-            throw new Error("no images provided")
-        }
-        if (Array.isArray(files)) {
-            if (!files.length) {
-                if (defOptions?.ignoreEmpty) return
-                throw new Error("no images provided")
-            }
-            const sliced = sliceData(files, defOptions)
-            if (!defOptions?.tiled)
-                sliced.forEach((file) => defImages(file, defOptions))
-            else {
-                appendChild(
-                    node,
-                    createImageNode(
-                        (async () => {
-                            if (!files.length) return undefined
-                            const encoded = await imageTileEncodeForLLM(files, {
-                                ...defOptions,
-                                cancellationToken,
-                                trace,
-                            })
-                            return encoded
-                        })()
-                    )
-                )
-            }
-        } else if (
-            typeof files === "string" ||
-            files instanceof Blob ||
-            files instanceof Buffer
-        ) {
-            const img = files
-            appendChild(
-                node,
-                createImageNode(
-                    (async () => {
-                        const encoded = await imageEncodeForLLM(img, {
-                            ...defOptions,
-                            cancellationToken,
-                            trace,
-                        })
-                        return encoded
-                    })()
-                )
-            )
-        } else {
-            const file = files as WorkspaceFile
-            appendChild(
-                node,
-                createImageNode(
-                    (async () => {
-                        const encoded = await imageEncodeForLLM(file, {
-                            ...defOptions,
-                            cancellationToken,
-                            trace,
-                        })
-                        return {
-                            filename: file.filename,
-                            ...encoded,
-                        }
-                    })()
-                )
-            )
-        }
     }
 
     const defChatParticipant = (
@@ -1286,7 +1294,6 @@ export function createChatGenerationContext(
         defAgent,
         defTool,
         defSchema,
-        defImages,
         defChatParticipant,
         defFileOutput,
         defOutputProcessor,

@@ -51,6 +51,7 @@ import { redactSecrets } from "./secretscanner"
 import { escapeToolName } from "./tools"
 import { measure } from "./performance"
 import debug from "debug"
+import { imageEncodeForLLM } from "./image"
 const dbg = debug("genaiscript:prompt:dom")
 const dbgMcp = debug("genaiscript:prompt:dom:mcp")
 
@@ -481,6 +482,40 @@ export function createImageNode(
     return { type: "image", value, ...(options || {}) }
 }
 
+export function createFileImageNodes(
+    name: string,
+    file: WorkspaceFile,
+    defOptions?: DefImagesOptions,
+    options?: TraceOptions & CancellationOptions
+): PromptNode[] {
+    const { trace, cancellationToken } = options || {}
+    const filename =
+        file.filename && !/^data:\/\//.test(file.filename)
+            ? file.filename
+            : undefined
+    return [
+        name
+            ? createTextNode(
+                  `<${name}${filename ? ` filename="${filename}"` : ``}>`
+              )
+            : undefined,
+        createImageNode(
+            (async () => {
+                const encoded = await imageEncodeForLLM(file, {
+                    ...(defOptions || {}),
+                    cancellationToken,
+                    trace,
+                })
+                return {
+                    filename: file.filename,
+                    ...encoded,
+                }
+            })()
+        ),
+        name ? createTextNode(`</${name}>`) : undefined,
+    ].filter((n) => !!n)
+}
+
 /**
  * Creates a schema node with a specified name, value, and optional configuration.
  *
@@ -631,11 +666,14 @@ export function createDefData(
 }
 
 // Function to append a child node to a parent node.
-export function appendChild(parent: PromptNode, child: PromptNode): void {
+export function appendChild(
+    parent: PromptNode,
+    ...children: PromptNode[]
+): void {
     if (!parent.children) {
         parent.children = []
     }
-    parent.children.push(child)
+    parent.children.push(...children)
 }
 
 // Interface for visiting different types of prompt nodes.

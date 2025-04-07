@@ -4002,6 +4002,10 @@ interface ChatTurnGenerationContext {
             | RunPromptResult,
         options?: DefOptions
     ): string
+    defImages(
+        files: ElementOrArray<BufferLike>,
+        options?: DefImagesOptions
+    ): void
     defData(
         name: string,
         data: Awaitable<object[] | object>,
@@ -4230,10 +4234,6 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         schema: JSONSchema | ZodTypeLike,
         options?: DefSchemaOptions
     ): string
-    defImages(
-        files: ElementOrArray<BufferLike>,
-        options?: DefImagesOptions
-    ): void
     defTool(
         tool:
             | ToolCallback

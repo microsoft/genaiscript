@@ -2,7 +2,7 @@ script({
     title: "Image Processor",
     description: "Image processing and manipulation.",
     model: "large",
-    files: ["*.png"],
+    files: "src/robots.jpg",
 })
 
 for (const image of env.files) {
