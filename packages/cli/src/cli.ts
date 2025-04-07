@@ -3,7 +3,6 @@
  * for interacting with scripts, parsing files, testing, and managing cache.
  */
 import debug from "debug"
-const dbg = debug("genaiscript:cli")
 import { NodeHost } from "./nodehost" // Handles node environment setup
 import { Command, Option, program } from "commander" // Command-line argument parsing library
 import { isQuiet, setQuiet } from "../../core/src/quiet" // Logging utilities
@@ -73,7 +72,12 @@ import { listRuns } from "./runs"
 import { startMcpServer } from "./mcpserver"
 import { error } from "./log"
 import { DEBUG_CATEGORIES } from "../../core/src/dbg"
-import { openTelemetryEnable } from "../../core/src/opentelemetry" // OpenTelemetry integration
+import {
+    openTelemetryRegister,
+    openTelemetryShutdown,
+} from "../../core/src/opentelemetry" // OpenTelemetry integration
+import { genaiscriptDebug } from "../../core/src/debug"
+const dbg = genaiscriptDebug("cli")
 
 /**
  * Main function to initialize and run the CLI.
@@ -89,15 +93,15 @@ import { openTelemetryEnable } from "../../core/src/opentelemetry" // OpenTeleme
  * Handles environment setup and NodeHost installation.
  */
 export async function cli() {
-    await openTelemetryEnable()
-
     let nodeHost: NodeHost // Variable to hold NodeHost instance
 
     // Handle uncaught exceptions globally
-    process.on("uncaughtException", (err) => {
+    process.on("uncaughtException", async (err) => {
         const se = serializeError(err) // Serialize the error object
         error(errorMessage(se)) // Log the error message
         if (!isQuiet && se?.stack && nodeHost) logVerbose(se?.stack) // Log stack trace if not in quiet mode
+
+        await openTelemetryShutdown()
         if (isRequestError(err)) {
             const exitCode = (err as RequestError).status // Use the error status as exit code
             process.exit(exitCode) // Exit with the error status code
@@ -113,7 +117,9 @@ export async function cli() {
     }
 
     program.hook("preAction", async (cmd) => {
-        const { env }: { env: string[] } = cmd.opts() // Get environment options from command
+        const { env, telemetry }: { env: string[]; telemetry?: boolean } =
+            cmd.opts() // Get environment options from command
+        if (telemetry) await openTelemetryRegister()
         nodeHost = await NodeHost.install(env?.length ? env : undefined) // Install NodeHost with environment options
     })
 
@@ -135,6 +141,7 @@ export async function cli() {
             `debug categories (${DEBUG_CATEGORIES.map((c) => c).join(", ")})`
         )
         .option("--perf", "enable performance logging")
+        .option("--telemetry", "Enable OpenTelemetry traces")
 
     // Set options for color and verbosity
     program.on("option:cwd", (cwd) => process.chdir(cwd)) // Change working directory if specified

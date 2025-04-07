@@ -2,39 +2,44 @@
 import debug, { Debugger } from "debug"
 import { consoleLogFormat } from "./logging"
 import { genaiscriptDebug } from "./debug"
+import { TOOL_ID } from "./constants"
+import { CORE_VERSION } from "./version"
 const dbg = genaiscriptDebug("otel")
 
-async function registerOTLPExporter() {
-    const url = process.env.GENAISCRIPT_OPENTELEMETRY_COLLECTOR_URL
-    dbg(`registering OTLP exporter at ${url}`)
+let shutdown: () => Promise<void>
+
+export async function openTelemetryRegister() {
+    dbg(`enabling OpenTelemetry`)
+
+    const { trace } = await import("@opentelemetry/api")
     const { NodeTracerProvider, BatchSpanProcessor } = await import(
         "@opentelemetry/sdk-trace-node"
     )
     const { OTLPTraceExporter } = await import(
         "@opentelemetry/exporter-trace-otlp-http"
     )
-    const collectorOptions = {
-        url, // url is optional and can be omitted - default is http://localhost:4318/v1/traces
-        headers: {},
-        concurrencyLimit: 10,
-    }
-    const exporter = new OTLPTraceExporter(collectorOptions)
+    const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } = await import(
+        "@opentelemetry/semantic-conventions"
+    )
+    const { resourceFromAttributes } = await import("@opentelemetry/resources")
+
+    const resource = resourceFromAttributes({
+        [ATTR_SERVICE_NAME]: TOOL_ID,
+        [ATTR_SERVICE_VERSION]: CORE_VERSION,
+    })
+    // url: OTEL_EXPORTER_OTLP_ENDPOINT
+    // timeout: OTEL_EXPORTER_OTLP_TIMEOUT
+    const exporter = new OTLPTraceExporter()
     const provider = new NodeTracerProvider({
-        spanProcessors: [
-            new BatchSpanProcessor(exporter, {
-                // The maximum queue size. After the size is reached spans are dropped.
-                maxQueueSize: 1000,
-                // The interval between two consecutive exports
-                scheduledDelayMillis: 30000,
-            }),
-        ],
+        resource,
+        spanProcessors: [new BatchSpanProcessor(exporter)],
     })
     provider.register()
-}
-
-async function instrumentDebug() {
-    dbg(`instrumenting debug`)
-    const { trace, context } = await import("@opentelemetry/api")
+    const tracer = trace.getTracer(TOOL_ID, CORE_VERSION)
+    shutdown = async () => {
+        await provider.shutdown()
+        shutdown = undefined
+    }
 
     // Save the original debug.log function
     const originalLog = debug.log.bind(debug)
@@ -45,22 +50,25 @@ async function instrumentDebug() {
         originalLog(...args)
 
         // send log to OpenTelemetry
-        const activeSpan = trace.getSpan(context.active())
-        if (activeSpan) {
-            const _this = this as any as Debugger
-            const { namespace, diff } = _this
+        let span
+        try {
+            const { namespace, diff } = this as any as Debugger
+            span = tracer.startSpan(namespace)
             const message = consoleLogFormat(args)
-            activeSpan.addEvent("debug", {
+            span.addEvent("debug", {
                 namespace,
                 message,
                 diff,
             })
+        } finally {
+            span.end()
         }
     }
+    dbg(`OpenTelemetry enabled`)
 }
 
-export async function openTelemetryEnable() {
-    dbg(`enabling OpenTelemetry`)
-    await registerOTLPExporter()
-    await instrumentDebug()
+export async function openTelemetryShutdown() {
+    dbg(`shutting down OpenTelemetry`)
+    shutdown?.()
+    shutdown = undefined
 }
