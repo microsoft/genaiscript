@@ -111,6 +111,7 @@ import {
     openTelemetryFlush,
     openTelemetryGetTracer,
 } from "../../core/src/opentelemetry"
+import { CORE_VERSION } from "../../core/src/version"
 
 /**
  * Executes a script with a possible retry mechanism and exits the process with the appropriate code.
@@ -139,7 +140,7 @@ export async function runScriptWithExitCode(
     const canceller = createCancellationController()
     const cancellationToken = canceller.token
 
-    const otelTracer = await openTelemetryGetTracer("cli")
+    const otelTracer = await openTelemetryGetTracer("cli", CORE_VERSION)
     const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
