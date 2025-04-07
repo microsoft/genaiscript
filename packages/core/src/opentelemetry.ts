@@ -4,11 +4,13 @@ import { consoleLogFormat } from "./logging"
 import { genaiscriptDebug } from "./debug"
 import { TOOL_ID } from "./constants"
 import { CORE_VERSION } from "./version"
+import { setConsoleColors } from "./consolecolor"
 const dbg = genaiscriptDebug("otel")
 
-let shutdown: () => Promise<void>
+let _shutdown: () => Promise<void>
 
 export async function openTelemetryRegister() {
+    setConsoleColors(false)
     dbg(`enabling OpenTelemetry`)
 
     const { trace } = await import("@opentelemetry/api")
@@ -36,6 +38,7 @@ export async function openTelemetryRegister() {
     })
     const loggerProvider = new LoggerProvider({
         resource,
+        forceFlushTimeoutMillis: 5000,
     })
     loggerProvider.addLogRecordProcessor(
         new BatchLogRecordProcessor(new OTLPLogExporter())
@@ -46,10 +49,10 @@ export async function openTelemetryRegister() {
         spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter())],
     })
     tracerProvider.register()
-    shutdown = async () => {
+    _shutdown = async () => {
         await loggerProvider.shutdown()
         await tracerProvider.shutdown()
-        shutdown = undefined
+        _shutdown = undefined
     }
 
     const tracer = trace.getTracer(TOOL_ID, CORE_VERSION)
@@ -63,12 +66,26 @@ export async function openTelemetryRegister() {
         originalLog(...args)
 
         // render
+        const { namespace, diff } = this as any as Debugger
         const body = consoleLogFormat(args)
 
-        // send log to OpenTelemetry
-        const { namespace, diff } = this as any as Debugger
-        const logger = loggerProvider.getLogger(namespace)
+        // create span
+        /*
+        const span = tracer.startSpan("genaiscript", {
+            attributes: {
+                namespace,
+                body,
+                diff,
+            },
+        })
+        span.end()
+        */
+
+        // send logs
         const isGenaiscriptNamespace = /^genaiscript:/.test(namespace)
+        const logger = loggerProvider.getLogger(
+            isGenaiscriptNamespace ? "genaiscript" : namespace
+        )
         logger.emit({
             body,
             severityNumber: isGenaiscriptNamespace
@@ -84,7 +101,9 @@ export async function openTelemetryRegister() {
 }
 
 export async function openTelemetryShutdown() {
-    dbg(`shutting down OpenTelemetry`)
-    shutdown?.()
-    shutdown = undefined
+    if (_shutdown) {
+        dbg(`shutting down OpenTelemetry`)
+        _shutdown?.()
+        _shutdown = undefined
+    }
 }
