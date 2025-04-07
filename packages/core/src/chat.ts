@@ -1217,12 +1217,14 @@ export async function executeChatSession(
                         reasoning_effort: reasoningEffort,
                         top_p: topP,
                         tool_choice:
-                            typeof toolChoice === "object"
-                                ? {
-                                      type: "function",
-                                      function: { name: toolChoice.name },
-                                  }
-                                : toolChoice,
+                            !fallbackTools && tools?.length
+                                ? typeof toolChoice === "object"
+                                    ? {
+                                          type: "function",
+                                          function: { name: toolChoice.name },
+                                      }
+                                    : toolChoice
+                                : undefined,
                         max_tokens: maxTokens,
                         logit_bias,
                         seed,
