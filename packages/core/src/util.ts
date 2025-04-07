@@ -3,6 +3,12 @@ import { isCancelError, serializeError } from "./error"
 import { host } from "./host"
 import { YAMLStringify } from "./yaml"
 import { arrayify as arrayify_ } from "./cleaners"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("log")
+const dbgVerbose = dbg.extend("debug")
+const dbgInfo = dbg.extend("info")
+const dbgWarn = dbg.extend("warn")
+const dbgError = dbg.extend("error")
 
 /**
  * Compares two strings lexicographically.
@@ -173,6 +179,7 @@ export function relativePath(root: string, fn: string) {
  * @param msg - The message to log. Must be a string containing the information to log.
  */
 export function logInfo(msg: string) {
+    dbgInfo(msg)
     host.log("info", msg)
 }
 
@@ -182,6 +189,7 @@ export function logInfo(msg: string) {
  * @param msg - The message to be logged at debug level.
  */
 export function logVerbose(msg: string) {
+    dbgVerbose(msg)
     host.log("debug", msg)
 }
 
@@ -191,6 +199,7 @@ export function logVerbose(msg: string) {
  * @param msg - The warning message to log. Should be a descriptive string providing details about the warning.
  */
 export function logWarn(msg: string) {
+    dbgWarn(msg)
     host.log("warn", msg)
 }
 
@@ -206,6 +215,7 @@ export function logWarn(msg: string) {
  * - Logs the stack trace and additional serialized error data at "debug" severity if present.
  */
 export function logError(msg: string | Error | SerializedError) {
+    dbgError(msg)
     const err = serializeError(msg)
     const { message, name, stack, ...e } = err || {}
     if (isCancelError(err)) {
