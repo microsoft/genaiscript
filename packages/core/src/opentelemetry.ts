@@ -5,7 +5,8 @@ import { genaiscriptDebug } from "./debug"
 import { TOOL_ID } from "./constants"
 import { CORE_VERSION } from "./version"
 import { setConsoleColors } from "./consolecolor"
-import type { TraceAPI } from "@opentelemetry/api"
+import type { Context, Span, TraceAPI } from "@opentelemetry/api"
+import type { ReadableSpan } from "@opentelemetry/sdk-trace-node"
 const dbg = genaiscriptDebug("otel")
 
 let _flush: () => Promise<void>
@@ -54,7 +55,23 @@ export async function openTelemetryRegister() {
 
     const tracerProvider = new NodeTracerProvider({
         resource,
-        spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter())],
+        spanProcessors: [
+            new SimpleSpanProcessor(new OTLPTraceExporter()),
+            {
+                forceFlush: async () => {
+                    dbg(`span force flush`)
+                },
+                onStart: (_span: Span, _parentContext: Context) => {
+                    dbg(`span start`)
+                },
+                onEnd: (span: ReadableSpan) => {
+                    dbg(`span flags: ${span.spanContext().traceFlags}`)
+                },
+                shutdown: async () => {
+                    dbg(`span shutdown`)
+                },
+            },
+        ],
     })
     tracerProvider.register()
     _trace = trace
@@ -74,6 +91,7 @@ export async function openTelemetryRegister() {
         dbg(`shut down`)
     }
 
+    /*
     // Save the original debug.log function
     const originalLog = debug.log.bind(debug)
 
@@ -102,7 +120,8 @@ export async function openTelemetryRegister() {
             },
         })
     }
-    dbg(`OpenTelemetry enabled`)
+        */
+    dbg(`enabled`)
 }
 
 export async function openTelemetryGetTracer(name: string, version?: string) {
