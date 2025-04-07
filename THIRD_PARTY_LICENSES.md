@@ -2924,7 +2924,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.125.0
+ - genaiscript-vscode@1.125.2
 
 This package contains the following license:
 
@@ -5950,7 +5950,7 @@ third-party archives.
 
 The following npm package may be included in this product:
 
- - typescript@5.8.2
+ - typescript@5.8.3
 
 This package contains the following license:
 
@@ -6017,7 +6017,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/core@3.775.0
  - @aws-sdk/credential-provider-http@3.775.0
  - @aws-sdk/nested-clients@3.782.0
- - pyodide@0.27.4
+ - pyodide@0.27.5
 
 These packages each contain the following license:
 
@@ -8849,10 +8849,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.125.0
- - genaiscript-sample@1.125.0
- - genaiscript-web@1.125.0
- - genaiscript@1.125.0
+ - genaiscript-core-internal@1.125.2
+ - genaiscript-sample@1.125.2
+ - genaiscript-web@1.125.2
+ - genaiscript@1.125.2
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9450,7 +9450,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - pkce-challenge@4.1.0
+ - pkce-challenge@5.0.0
 
 This package contains the following license:
 
@@ -10234,7 +10234,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.8.0
+ - @modelcontextprotocol/sdk@1.9.0
 
 This package contains the following license:
 

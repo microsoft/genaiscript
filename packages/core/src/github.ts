@@ -15,7 +15,7 @@ import {
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { prettifyMarkdown } from "./markdown"
-import { arrayify, assert, logError, logVerbose } from "./util"
+import { arrayify, assert, ellipse, logError, logVerbose } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
 import { fetchText } from "./fetch"
@@ -27,7 +27,7 @@ import { LanguageModelInfo } from "./server/messages"
 import { LanguageModel, ListModelsFunction } from "./chat"
 import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { errorMessage, serializeError } from "./error"
-import { normalizeInt } from "./cleaners"
+import { deleteUndefinedValues, normalizeInt } from "./cleaners"
 import { diffCreatePatch } from "./diff"
 
 export interface GithubConnectionInfo {
@@ -65,7 +65,7 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
             /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue
     )
 
-    return {
+    return deleteUndefinedValues({
         token,
         apiUrl,
         repository,
@@ -78,7 +78,7 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
         runId,
         runUrl,
         commitSha,
-    }
+    }) satisfies GithubConnectionInfo
 }
 
 async function githubGetPullRequestNumber() {
@@ -122,7 +122,9 @@ export async function githubParseEnv(
         Pick<GithubConnectionInfo, "owner" | "repo">
     >
 ): Promise<GithubConnectionInfo> {
+    dbg(`resolving connection info`)
     const res = githubFromEnv(env)
+    dbg(`found %O`, Object.keys(res).join(","))
     try {
         if (options?.owner && options?.repo) {
             res.owner = options.owner
@@ -162,6 +164,17 @@ export async function githubParseEnv(
     } catch (e) {
         logVerbose(errorMessage(e))
     }
+
+    deleteUndefinedValues(res)
+    dbg(
+        `resolved connection info: %O`,
+        Object.fromEntries(
+            Object.entries(res).map(([k, v]) => [
+                k,
+                k === "token" ? ellipse(v, 4) : v,
+            ])
+        )
+    )
     return Object.freeze(res)
 }
 
@@ -671,7 +684,9 @@ export class GitHubClient implements GitHub {
 
     private connection(): Promise<GithubConnectionInfo> {
         if (!this._connection) {
-            this._connection = githubParseEnv(process.env, this._info)
+            this._connection = githubParseEnv(process.env, {
+                ...this._info,
+            })
         }
         return this._connection
     }

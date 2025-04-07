@@ -9,16 +9,21 @@ script({
         "system.safety_validate_harmful_content",
     ],
     tools: ["fs", "git"],
-    cache: "prr",
+    parameters: {
+        base: {
+            type: "string",
+            description: "The base branch of the pull request",
+        },
+    },
 })
 
-const defaultBranch = await git.defaultBranch()
+const base = env.vars.base || (await git.defaultBranch())
 const changes = await git.diff({
-    base: defaultBranch,
+    base,
 })
 console.log(changes)
 def("GIT_DIFF", changes, {
-    maxTokens: 20000,
+    maxTokens: 14000,
     detectPromptInjection: "available",
 })
 
