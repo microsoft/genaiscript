@@ -1256,7 +1256,7 @@ export function createChatGenerationContext(
             const filename = dotGenaiscriptPath("image", h + "." + ext)
             await host.writeFile(filename, buf)
 
-            if (consoleColors) {
+            if (consoleColors()) {
                 const size = terminalSize()
                 stderr.write(
                     await renderImageToTerminal(buf, {

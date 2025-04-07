@@ -1,8 +1,12 @@
 import { stdout } from "./stdio"
 
+setConsoleColors(!stdout.isTTY)
+
 // Boolean indicating if console supports colors
 // Determines if the console supports color output based on terminal capability
-export let consoleColors = !!stdout.isTTY
+export function consoleColors() {
+    return process.env.DEBUG_COLORS === "1"
+}
 
 /**
  * Enables or disables console color output.
@@ -10,7 +14,7 @@ export let consoleColors = !!stdout.isTTY
  * @param enabled - Whether to enable or disable color output.
  */
 export function setConsoleColors(enabled: boolean) {
-    consoleColors = !!enabled
+    process.env.DEBUG_COLORS = enabled ? "1" : ""
 }
 
 /**

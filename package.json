@@ -98,8 +98,8 @@
         "whisper:stop": "docker stop whisper && docker rm ollama",
         "jaeger:start": "docker run -d --name jaeger -e COLLECTOR_OTLP_ENABLED=true -p 16686:16686 -p 4317:4317 -p 4318:4318 jaegertracing/all-in-one:latest && echo http://localhost:16686",
         "jaeger:stop": "docker stop jaeger && docker rm jaeger",
-        "aspire:start": "docker run --rm -it -p 18888:18888 -p 4317:4317 --name aspire-dashboard mcr.microsoft.com/dotnet/aspire-dashboard:latest",
-        "aspire:stop": "docker stop aspire-dashboard && docker rm aspire-dashboard"
+        "aspire:start": "docker run --rm -it -p 18888:18888 -p 4317:18889 --name aspire-dashboard mcr.microsoft.com/dotnet/aspire-dashboard:latest",
+        "aspire:stop": "docker stop aspire-dashboard"
     },
     "release-it": {
         "github": {

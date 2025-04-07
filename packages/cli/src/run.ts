@@ -106,6 +106,7 @@ import {
     getRunDir,
     createStatsDir,
 } from "../../core/src/workdir"
+import { openTelemetryShutdown } from "../../core/src/opentelemetry"
 
 /**
  * Executes a script with a possible retry mechanism and exits the process with the appropriate code.
@@ -161,6 +162,7 @@ export async function runScriptWithExitCode(
     }
     if (cancellationToken.isCancellationRequested)
         exitCode = USER_CANCELLED_ERROR_CODE
+    await openTelemetryShutdown()
     process.exit(exitCode)
 }
 
@@ -415,7 +417,7 @@ export async function runScriptInternal(
                     reasoningOutput = false
                 }
                 if (stream) {
-                    if (responseTokens && consoleColors) {
+                    if (responseTokens && consoleColors()) {
                         const colors = inner
                             ? CONSOLE_TOKEN_INNER_COLORS
                             : CONSOLE_TOKEN_COLORS

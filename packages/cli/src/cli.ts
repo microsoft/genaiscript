@@ -107,8 +107,8 @@ export async function cli() {
             process.exit(exitCode) // Exit with the error status code
         } else process.exit(UNHANDLED_ERROR_CODE) // Exit with a generic error code
     })
-    process.on("beforeExit", async () => {
-        await openTelemetryShutdown()
+    process.on("beforeExit", () => {
+        openTelemetryShutdown()
     })
 
     // Verify Node.js version compatibility

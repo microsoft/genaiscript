@@ -5,6 +5,7 @@ import { genaiscriptDebug } from "./debug"
 import { TOOL_ID } from "./constants"
 import { CORE_VERSION } from "./version"
 import { setConsoleColors } from "./consolecolor"
+import { SimpleLogRecordProcessor } from "@opentelemetry/sdk-logs"
 const dbg = genaiscriptDebug("otel")
 
 let _shutdown: () => Promise<void>
@@ -13,7 +14,9 @@ export async function openTelemetryRegister() {
     setConsoleColors(false)
     dbg(`enabling OpenTelemetry`)
 
-    const { trace } = await import("@opentelemetry/api")
+    const { trace, diag, DiagConsoleLogger, DiagLogLevel } = await import(
+        "@opentelemetry/api"
+    )
     const { NodeTracerProvider, BatchSpanProcessor } = await import(
         "@opentelemetry/sdk-trace-node"
     )
@@ -32,6 +35,10 @@ export async function openTelemetryRegister() {
     )
     const { resourceFromAttributes } = await import("@opentelemetry/resources")
 
+    // Enable diagnostic logging
+    if (process.env.OTEL_DEBUG)
+        diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.ALL)
+
     const resource = resourceFromAttributes({
         [ATTR_SERVICE_NAME]: TOOL_ID,
         [ATTR_SERVICE_VERSION]: CORE_VERSION,
@@ -41,7 +48,7 @@ export async function openTelemetryRegister() {
         forceFlushTimeoutMillis: 5000,
     })
     loggerProvider.addLogRecordProcessor(
-        new BatchLogRecordProcessor(new OTLPLogExporter())
+        new SimpleLogRecordProcessor(new OTLPLogExporter())
     )
 
     const tracerProvider = new NodeTracerProvider({
@@ -50,9 +57,10 @@ export async function openTelemetryRegister() {
     })
     tracerProvider.register()
     _shutdown = async () => {
+        dbg(`force flush`)
         await loggerProvider.shutdown()
         await tracerProvider.shutdown()
-        _shutdown = undefined
+        dbg(`shut down`)
     }
 
     const tracer = trace.getTracer(TOOL_ID, CORE_VERSION)
@@ -102,8 +110,8 @@ export async function openTelemetryRegister() {
 
 export async function openTelemetryShutdown() {
     if (_shutdown) {
-        dbg(`shutting down OpenTelemetry`)
-        _shutdown?.()
+        const st = _shutdown
         _shutdown = undefined
+        st()
     }
 }
