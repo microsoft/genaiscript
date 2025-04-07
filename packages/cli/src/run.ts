@@ -539,6 +539,9 @@ export async function runScriptInternal(
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
 
+    dbg(`result: %s`, result.finishReason)
+    dbg(`annotations: %d`, result.annotations?.length)
+
     await aggregateResults(scriptId, outTrace, stats, result)
     await traceAgentMemory({ userState, trace })
 
@@ -676,19 +679,22 @@ export async function runScriptInternal(
     }
 
     if (pullRequestReviews && result.annotations?.length) {
-        // github action or repo
+        dbg(`adding pull request reviews`)
         const ghInfo = await resolveGitHubInfo()
-        if (ghInfo.repository && ghInfo.issue && ghInfo.commitSha) {
-            await githubCreatePullRequestReviews(
-                script,
-                ghInfo,
-                result.annotations
-            )
+        if (ghInfo.repository && ghInfo.issue) {
+            if (!ghInfo.commitSha)
+                dbg(`no commit sha found, skipping pull request reviews`)
+            else
+                await githubCreatePullRequestReviews(
+                    script,
+                    ghInfo,
+                    result.annotations
+                )
         }
     }
 
     if (pullRequestComment && result.text) {
-        // github action or repo
+        dbg(`upsert pull request comment`)
         const ghInfo = await resolveGitHubInfo()
         if (
             ghInfo.repository &&
