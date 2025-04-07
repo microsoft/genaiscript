@@ -126,6 +126,12 @@ DEBUG=genaiscript:* genaiscript run ...
 
 ## OpenTelemetry
 
+:::caution
+
+OpenTelemetry is still under development.
+
+:::
+
 Using the `--telemetry` flag, you can enable OpenTelemetry tracing for your script.
 GenAIScript will configure a [otlp-over-http trace exporter](https://www.npmjs.com/package/@opentelemetry/exporter-trace-otlp-http) at the standard endpoint,
 and send all enabled logging messages to the OpenTelemetry collector.
@@ -135,7 +141,7 @@ DEBUG=* genaiscript run poem --telemetry
 ```
 
 You can configure the OpenTelemetry endpoint by setting the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable
-(see [full documentation](https://www.npmjs.com/package/@opentelemetry/exporter-trace-otlp-http)).
+(see [full documentation](https://www.npmjs.com/package/@opentelemetry/exporter-logs-otlp-http)).
 
 ```sh title=".env"
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317

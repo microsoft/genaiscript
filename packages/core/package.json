@@ -32,6 +32,7 @@
     "@octokit/plugin-throttling": "^9.6.0",
     "@octokit/rest": "^21.1.1",
     "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/api-logs": "^0.200.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.200.0",
     "@opentelemetry/resources": "^2.0.0",
     "@opentelemetry/sdk-node": "^0.200.0",
@@ -117,6 +118,8 @@
     "test": "node --import tsx --test src/**.test.*ts"
   },
   "dependencies": {
+    "@opentelemetry/exporter-logs-otlp-http": "^0.200.0",
+    "@opentelemetry/sdk-logs": "^0.200.0",
     "@types/diff": "^6.0.0",
     "@types/turndown": "^5.0.5",
     "pyodide": "^0.27.4",

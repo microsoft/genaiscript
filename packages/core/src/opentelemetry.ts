@@ -18,6 +18,13 @@ export async function openTelemetryRegister() {
     const { OTLPTraceExporter } = await import(
         "@opentelemetry/exporter-trace-otlp-http"
     )
+    const { SeverityNumber } = await import("@opentelemetry/api-logs")
+    const { OTLPLogExporter } = await import(
+        "@opentelemetry/exporter-logs-otlp-http"
+    )
+    const { LoggerProvider, BatchLogRecordProcessor } = await import(
+        "@opentelemetry/sdk-logs"
+    )
     const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } = await import(
         "@opentelemetry/semantic-conventions"
     )
@@ -27,19 +34,25 @@ export async function openTelemetryRegister() {
         [ATTR_SERVICE_NAME]: TOOL_ID,
         [ATTR_SERVICE_VERSION]: CORE_VERSION,
     })
-    // url: OTEL_EXPORTER_OTLP_ENDPOINT
-    // timeout: OTEL_EXPORTER_OTLP_TIMEOUT
-    const exporter = new OTLPTraceExporter()
-    const provider = new NodeTracerProvider({
+    const loggerProvider = new LoggerProvider({
         resource,
-        spanProcessors: [new BatchSpanProcessor(exporter)],
     })
-    provider.register()
-    const tracer = trace.getTracer(TOOL_ID, CORE_VERSION)
+    loggerProvider.addLogRecordProcessor(
+        new BatchLogRecordProcessor(new OTLPLogExporter())
+    )
+
+    const tracerProvider = new NodeTracerProvider({
+        resource,
+        spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter())],
+    })
+    tracerProvider.register()
     shutdown = async () => {
-        await provider.shutdown()
+        await loggerProvider.shutdown()
+        await tracerProvider.shutdown()
         shutdown = undefined
     }
+
+    const tracer = trace.getTracer(TOOL_ID, CORE_VERSION)
 
     // Save the original debug.log function
     const originalLog = debug.log.bind(debug)
@@ -49,20 +62,23 @@ export async function openTelemetryRegister() {
         // Call the original log so that debug continues to output as normal.
         originalLog(...args)
 
+        // render
+        const body = consoleLogFormat(args)
+
         // send log to OpenTelemetry
-        let span
-        try {
-            const { namespace, diff } = this as any as Debugger
-            span = tracer.startSpan(namespace)
-            const message = consoleLogFormat(args)
-            span.addEvent("debug", {
-                namespace,
-                message,
+        const { namespace, diff } = this as any as Debugger
+        const logger = loggerProvider.getLogger(namespace)
+        const isGenaiscriptNamespace = /^genaiscript:/.test(namespace)
+        logger.emit({
+            body,
+            severityNumber: isGenaiscriptNamespace
+                ? SeverityNumber.DEBUG
+                : SeverityNumber.INFO,
+            severityText: isGenaiscriptNamespace ? "DEBUG" : "INFO",
+            attributes: {
                 diff,
-            })
-        } finally {
-            span.end()
-        }
+            },
+        })
     }
     dbg(`OpenTelemetry enabled`)
 }
