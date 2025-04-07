@@ -71,6 +71,7 @@ Options:
   -mt, --max-tokens <number>                 maximum completion tokens for the run
   -mdr, --max-data-repairs <number>          maximum data repairs
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
+  -tc, --tool-choice <string>                tool choice for the run, 'none', 'auto', 'required', or a function name
   -se, --seed <number>                       seed for the run
   -c, --cache                                enable LLM result cache
   -cn, --cache-name <name>                   custom cache file name

@@ -192,7 +192,8 @@ export const MODEL_PROVIDER_WINDOWS_AI = "windows_ai"
 export const MODEL_PROVIDER_ECHO = "echo"
 export const MODEL_PROVIDER_NONE = "none"
 
-export const MODEL_GITHUB_COPILOT_CHAT_CURRENT = MODEL_PROVIDER_GITHUB_COPILOT_CHAT + ":current"
+export const MODEL_GITHUB_COPILOT_CHAT_CURRENT =
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT + ":current"
 
 export const MODEL_PROVIDER_OPENAI_HOSTS = Object.freeze([
     MODEL_PROVIDER_OPENAI,
@@ -234,6 +235,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         logprobs?: boolean
         topLogprobs?: boolean
         topP?: boolean
+        toolChoice?: boolean
         prediction?: boolean
         bearerToken?: boolean
         listModels?: boolean

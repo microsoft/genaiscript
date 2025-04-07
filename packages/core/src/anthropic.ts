@@ -340,6 +340,18 @@ const completerFactory = (
 
         let temperature = req.temperature
         let top_p = req.top_p
+        let tool_choice: Anthropic.Beta.MessageCreateParams["tool_choice"] =
+            req.tool_choice === "auto"
+                ? { type: "auto" }
+                : req.tool_choice === "none"
+                  ? { type: "none" }
+                  : req.tool_choice !== "required" &&
+                      typeof req.tool_choice === "object"
+                    ? {
+                          type: "tool",
+                          name: req.tool_choice.function.name,
+                      }
+                    : undefined
         let thinking: Anthropic.ThinkingConfigParam = undefined
         const reasoningEfforts = MODEL_PROVIDERS.find(
             ({ id }) => id === provider
@@ -366,6 +378,7 @@ const completerFactory = (
             max_tokens,
             temperature,
             top_p,
+            tool_choice,
             thinking,
             stream: true,
         })

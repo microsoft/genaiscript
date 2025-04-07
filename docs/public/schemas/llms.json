@@ -47,6 +47,10 @@
                         "type": "boolean",
                         "description": "Indicates if top_p is supported"
                     },
+                    "toolChoice": {
+                        "type": "boolean",
+                        "description": "Indicates if tool_choice is supported"
+                    },
                     "seed": {
                         "type": "boolean",
                         "description": "Indicates if seeding is supported"

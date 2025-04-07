@@ -357,6 +357,17 @@ interface ModelAliasesOptions extends ModelConnectionOptions {
 
 type ReasoningEffortType = "high" | "medium" | "low"
 
+type ChatToolChoice =
+    | "none"
+    | "auto"
+    | "required"
+    | {
+          /**
+           * The name of the function to call.
+           */
+          name: string
+      }
+
 interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
@@ -422,6 +433,11 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
      *
      */
     maxTokens?: number
+
+    /**
+     * Tool selection strategy. Default is 'auto'.
+     */
+    toolChoice?: ChatCompletion
 
     /**
      * Maximum number of tool calls to make.

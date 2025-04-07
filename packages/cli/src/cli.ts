@@ -237,6 +237,10 @@ export async function cli() {
             "-mtc, --max-tool-calls <number>",
             "maximum tool calls for the run"
         )
+        .option(
+            "-tc, --tool-choice <string>",
+            "tool choice for the run, 'none', 'auto', 'required', or a function name"
+        )
         .option("-se, --seed <number>", "seed for the run")
         .option("-c, --cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")

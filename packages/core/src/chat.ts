@@ -1106,6 +1106,7 @@ export async function executeChatSession(
         temperature,
         reasoningEffort,
         topP,
+        toolChoice,
         maxTokens,
         seed,
         responseType,
@@ -1215,6 +1216,13 @@ export async function executeChatSession(
                         temperature,
                         reasoning_effort: reasoningEffort,
                         top_p: topP,
+                        tool_choice:
+                            typeof toolChoice === "object"
+                                ? {
+                                      type: "function",
+                                      function: { name: toolChoice.name },
+                                  }
+                                : toolChoice,
                         max_tokens: maxTokens,
                         logit_bias,
                         seed,
@@ -1368,39 +1376,45 @@ function updateChatFeatures(
     const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
 
     if (!isNaN(req.seed) && features?.seed === false) {
-        logVerbose(`seed: disabled, not supported by ${provider}`)
+        dbg(`seed: disabled, not supported by ${provider}`)
         trace.itemValue(`seed`, `disabled`)
         delete req.seed // some providers do not support seed
     }
     if (req.logit_bias && features?.logitBias === false) {
-        logVerbose(`logit_bias: disabled, not supported by ${provider}`)
+        dbg(`logit_bias: disabled, not supported by ${provider}`)
         trace.itemValue(`logit_bias`, `disabled`)
         delete req.logit_bias // some providers do not support logit_bias
     }
     if (!isNaN(req.top_p) && features?.topP === false) {
-        logVerbose(`top_p: disabled, not supported by ${provider}`)
+        dbg(`top_p: disabled, not supported by ${provider}`)
         trace.itemValue(`top_p`, `disabled`)
         delete req.top_p
     }
+    if (req.tool_choice && features?.toolChoice === false) {
+        dbg(`tool_choice: disabled, not supported by ${provider}`)
+        trace.itemValue(`tool_choice`, `disabled`)
+        delete req.tool_choice
+    }
     if (req.logprobs && features?.logprobs === false) {
-        logVerbose(`logprobs: disabled, not supported by ${provider}`)
+        dbg(`logprobs: disabled, not supported by ${provider}`)
         trace.itemValue(`logprobs`, `disabled`)
         delete req.logprobs
         delete req.top_logprobs
     }
     if (req.prediction && features?.prediction === false) {
-        logVerbose(`prediciont: disabled, not supported by ${provider}`)
+        dbg(`prediction: disabled, not supported by ${provider}`)
         delete req.prediction
     }
     if (
         req.top_logprobs &&
         (features?.logprobs === false || features?.topLogprobs === false)
     ) {
-        logVerbose(`top_logprobs: disabled, not supported by ${provider}`)
+        dbg(`top_logprobs: disabled, not supported by ${provider}`)
         trace.itemValue(`top_logprobs`, `disabled`)
         delete req.top_logprobs
     }
     if (/^o1/i.test(model) && !req.max_completion_tokens) {
+        dbg(`max_tokens: renamed to max_completion_tokens`)
         req.max_completion_tokens = req.max_tokens
         delete req.max_tokens
     }
