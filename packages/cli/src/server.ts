@@ -66,6 +66,7 @@ import { generateId } from "../../core/src/id"
 import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { nodeTryReadPackage } from "../../core/src/nodepackage"
+import { openTelemetryGetTracer } from "../../core/src/opentelemetry"
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -482,6 +483,8 @@ export async function startServer(
                             new AbortSignalCancellationController()
                         const cancellationToken = canceller.token
                         const trace = new MarkdownTrace({ cancellationToken })
+                        const otelTracer =
+                            await openTelemetryGetTracer("server")
                         const outputTrace = new MarkdownTrace({
                             cancellationToken,
                         })
@@ -516,6 +519,7 @@ export async function startServer(
                             runId,
                             trace,
                             outputTrace,
+                            otelTracer,
                             runTrace: false,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {

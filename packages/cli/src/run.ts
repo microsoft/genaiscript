@@ -106,7 +106,8 @@ import {
     getRunDir,
     createStatsDir,
 } from "../../core/src/workdir"
-import { openTelemetryShutdown } from "../../core/src/opentelemetry"
+import type { Tracer } from "@opentelemetry/api"
+import { openTelemetryGetTracer } from "../../core/src/opentelemetry"
 
 /**
  * Executes a script with a possible retry mechanism and exits the process with the appropriate code.
@@ -140,10 +141,12 @@ export async function runScriptWithExitCode(
     for (let r = 0; r < runRetry; ++r) {
         if (cancellationToken.isCancellationRequested) break
 
+        const otelTracer = await openTelemetryGetTracer("cli")
         const res = await runScriptInternal(scriptId, files, {
             ...options,
             cancellationToken,
             cli: true,
+            otelTracer,
         })
         exitCode = res.exitCode
         if (
@@ -162,7 +165,6 @@ export async function runScriptWithExitCode(
     }
     if (cancellationToken.isCancellationRequested)
         exitCode = USER_CANCELLED_ERROR_CODE
-    await openTelemetryShutdown()
     process.exit(exitCode)
 }
 
@@ -209,10 +211,15 @@ export async function runScriptInternal(
             cli?: boolean
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
+            otelTracer?: Tracer
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
     const runId = options.runId || generateId()
     const runDir = options.out || getRunDir(scriptId, runId)
+    const otelSpan = options?.otelTracer?.startSpan("run", {
+        attributes: { scriptId, runId },
+    })
+    otelSpan?.addEvent("start")
     dbg(`run id: `, runId)
     dbg(`run dir: `, runDir)
     const cancellationToken = options.cancellationToken
@@ -268,6 +275,8 @@ export async function runScriptInternal(
     const fail = (msg: string, exitCode: number, url?: string) => {
         logError(url ? `${msg} (see ${url})` : msg)
         trace?.error(msg)
+        otelSpan?.recordException(msg)
+        otelSpan?.end()
         return { exitCode, result }
     }
 
@@ -304,6 +313,7 @@ export async function runScriptInternal(
     const toolFiles: string[] = []
     if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
+    otelSpan?.addEvent("build")
     const prj = await buildProject({
         toolFiles,
     })
@@ -804,6 +814,7 @@ export async function runScriptInternal(
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
+    otelSpan?.end()
     return { exitCode: 0, result }
 }
 

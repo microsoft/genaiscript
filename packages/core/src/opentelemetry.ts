@@ -5,19 +5,20 @@ import { genaiscriptDebug } from "./debug"
 import { TOOL_ID } from "./constants"
 import { CORE_VERSION } from "./version"
 import { setConsoleColors } from "./consolecolor"
-import { SimpleLogRecordProcessor } from "@opentelemetry/sdk-logs"
+import type { TraceAPI } from "@opentelemetry/api"
 const dbg = genaiscriptDebug("otel")
 
 let _shutdown: () => Promise<void>
+let _trace: TraceAPI
 
 export async function openTelemetryRegister() {
     setConsoleColors(false)
-    dbg(`enabling OpenTelemetry`)
+    dbg(`registering`)
 
     const { trace, diag, DiagConsoleLogger, DiagLogLevel } = await import(
         "@opentelemetry/api"
     )
-    const { NodeTracerProvider, BatchSpanProcessor } = await import(
+    const { NodeTracerProvider, SimpleSpanProcessor } = await import(
         "@opentelemetry/sdk-trace-node"
     )
     const { OTLPTraceExporter } = await import(
@@ -45,25 +46,23 @@ export async function openTelemetryRegister() {
     })
     const loggerProvider = new LoggerProvider({
         resource,
-        forceFlushTimeoutMillis: 5000,
     })
     loggerProvider.addLogRecordProcessor(
-        new SimpleLogRecordProcessor(new OTLPLogExporter())
+        new BatchLogRecordProcessor(new OTLPLogExporter())
     )
 
     const tracerProvider = new NodeTracerProvider({
         resource,
-        spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter())],
+        spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter())],
     })
     tracerProvider.register()
+    _trace = trace
     _shutdown = async () => {
         dbg(`force flush`)
         await loggerProvider.shutdown()
         await tracerProvider.shutdown()
         dbg(`shut down`)
     }
-
-    const tracer = trace.getTracer(TOOL_ID, CORE_VERSION)
 
     // Save the original debug.log function
     const originalLog = debug.log.bind(debug)
@@ -76,18 +75,6 @@ export async function openTelemetryRegister() {
         // render
         const { namespace, diff } = this as any as Debugger
         const body = consoleLogFormat(args)
-
-        // create span
-        /*
-        const span = tracer.startSpan("genaiscript", {
-            attributes: {
-                namespace,
-                body,
-                diff,
-            },
-        })
-        span.end()
-        */
 
         // send logs
         const isGenaiscriptNamespace = /^genaiscript:/.test(namespace)
@@ -108,7 +95,13 @@ export async function openTelemetryRegister() {
     dbg(`OpenTelemetry enabled`)
 }
 
+export async function openTelemetryGetTracer(name: string, version?: string) {
+    const tracer = _trace?.getTracer(name, version)
+    return tracer
+}
+
 export async function openTelemetryShutdown() {
+    _trace = undefined
     if (_shutdown) {
         const st = _shutdown
         _shutdown = undefined

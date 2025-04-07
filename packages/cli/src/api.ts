@@ -38,18 +38,24 @@ export async function run(
          * The signal to use for aborting the operation. Terminates the worker thread.
          */
         signal?: AbortSignal
+
+        /**
+         * Enable OpenTelemetry for this operation.
+         */
+        telemetry?: boolean
     }
 ): Promise<GenerationResult> {
     if (!scriptId) throw new Error("scriptId is required")
     dbg(`run ${scriptId}`)
     if (typeof files === "string") files = [files]
 
-    const { envVars, signal, ...rest } = options || {}
+    const { envVars, signal, telemetry, ...rest } = options || {}
     const workerData = {
         type: "run",
         scriptId,
         files: files || [],
         options: rest,
+        telemetry,
     }
     const filename =
         typeof __filename === "undefined"

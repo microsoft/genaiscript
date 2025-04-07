@@ -1,11 +1,12 @@
-import { stdout } from "./stdio"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("console")
 
-setConsoleColors(!stdout.isTTY)
+dbg(`console colors: ${consoleColors()}`)
 
 // Boolean indicating if console supports colors
 // Determines if the console supports color output based on terminal capability
 export function consoleColors() {
-    return process.env.DEBUG_COLORS === "1"
+    return process.env.DEBUG_COLORS !== "0"
 }
 
 /**
@@ -14,7 +15,8 @@ export function consoleColors() {
  * @param enabled - Whether to enable or disable color output.
  */
 export function setConsoleColors(enabled: boolean) {
-    process.env.DEBUG_COLORS = enabled ? "1" : ""
+    dbg(`set console colors: ${enabled}`)
+    process.env.DEBUG_COLORS = enabled ? "1" : "0"
 }
 
 /**
@@ -30,7 +32,7 @@ export function setConsoleColors(enabled: boolean) {
  * @param message - The message to wrap. Returns the original message if colors are disabled.
  */
 export function wrapColor(n: number | string, message: string) {
-    if (consoleColors) return `\x1B[${n}m${message}\x1B[0m`
+    if (consoleColors()) return `\x1B[${n}m${message}\x1B[0m`
     else return message
 }
 
@@ -49,7 +51,7 @@ export function wrapRgbColor(
     text: string,
     background?: boolean
 ): string {
-    if (!consoleColors) return text
+    if (!consoleColors()) return text
     const r = (rgb >> 16) & 0xff
     const g = (rgb >> 8) & 0xff
     const b = rgb & 0xff
