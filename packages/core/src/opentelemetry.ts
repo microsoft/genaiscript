@@ -8,6 +8,7 @@ import { setConsoleColors } from "./consolecolor"
 import type { TraceAPI } from "@opentelemetry/api"
 const dbg = genaiscriptDebug("otel")
 
+let _flush: () => Promise<void>
 let _shutdown: () => Promise<void>
 let _trace: TraceAPI
 
@@ -28,7 +29,7 @@ export async function openTelemetryRegister() {
     const { OTLPLogExporter } = await import(
         "@opentelemetry/exporter-logs-otlp-http"
     )
-    const { LoggerProvider, BatchLogRecordProcessor } = await import(
+    const { LoggerProvider, SimpleLogRecordProcessor } = await import(
         "@opentelemetry/sdk-logs"
     )
     const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } = await import(
@@ -48,7 +49,7 @@ export async function openTelemetryRegister() {
         resource,
     })
     loggerProvider.addLogRecordProcessor(
-        new BatchLogRecordProcessor(new OTLPLogExporter())
+        new SimpleLogRecordProcessor(new OTLPLogExporter())
     )
 
     const tracerProvider = new NodeTracerProvider({
@@ -56,9 +57,19 @@ export async function openTelemetryRegister() {
         spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter())],
     })
     tracerProvider.register()
+    trace.setGlobalTracerProvider(tracerProvider)
     _trace = trace
-    _shutdown = async () => {
+    _flush = async () => {
         dbg(`force flush`)
+        try {
+            await tracerProvider.forceFlush()
+        } catch (e) {}
+        try {
+            await loggerProvider.forceFlush()
+        } catch (e) {}
+        dbg(`flushed`)
+    }
+    _shutdown = async () => {
         await loggerProvider.shutdown()
         await tracerProvider.shutdown()
         dbg(`shut down`)
@@ -100,8 +111,13 @@ export async function openTelemetryGetTracer(name: string, version?: string) {
     return tracer
 }
 
+export async function openTelemetryFlush() {
+    _flush?.()
+}
+
 export async function openTelemetryShutdown() {
     _trace = undefined
+    _flush = undefined
     if (_shutdown) {
         const st = _shutdown
         _shutdown = undefined

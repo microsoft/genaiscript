@@ -107,7 +107,10 @@ import {
     createStatsDir,
 } from "../../core/src/workdir"
 import type { Tracer } from "@opentelemetry/api"
-import { openTelemetryGetTracer } from "../../core/src/opentelemetry"
+import {
+    openTelemetryFlush,
+    openTelemetryGetTracer,
+} from "../../core/src/opentelemetry"
 
 /**
  * Executes a script with a possible retry mechanism and exits the process with the appropriate code.
@@ -136,12 +139,12 @@ export async function runScriptWithExitCode(
     const canceller = createCancellationController()
     const cancellationToken = canceller.token
 
+    const otelTracer = await openTelemetryGetTracer("cli")
     const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
         if (cancellationToken.isCancellationRequested) break
 
-        const otelTracer = await openTelemetryGetTracer("cli")
         const res = await runScriptInternal(scriptId, files, {
             ...options,
             cancellationToken,
@@ -165,6 +168,7 @@ export async function runScriptWithExitCode(
     }
     if (cancellationToken.isCancellationRequested)
         exitCode = USER_CANCELLED_ERROR_CODE
+    await openTelemetryFlush()
     process.exit(exitCode)
 }
 
