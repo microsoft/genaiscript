@@ -57,7 +57,6 @@ export async function openTelemetryRegister() {
         spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter())],
     })
     tracerProvider.register()
-    trace.setGlobalTracerProvider(tracerProvider)
     _trace = trace
     _flush = async () => {
         dbg(`force flush`)
