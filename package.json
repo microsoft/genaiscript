@@ -127,6 +127,7 @@
     "@huggingface/transformers",
     "@inquirer/prompts",
     "@lvce-editor/ripgrep",
+    "@microsoft/tsdoc",
     "@modelcontextprotocol/sdk",
     "@octokit/plugin-paginate-rest",
     "@octokit/plugin-retry",

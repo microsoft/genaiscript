@@ -59,6 +59,7 @@
     "@azure/identity": "^4.8.0",
     "@azure/search-documents": "^12.1.0",
     "@inquirer/prompts": "^7.4.0",
+    "@microsoft/tsdoc": "^0.15.1",
     "@modelcontextprotocol/sdk": "^1.9.0",
     "@octokit/plugin-paginate-rest": "^11.6.0",
     "@octokit/plugin-retry": "^7.2.0",

@@ -112,6 +112,7 @@
     "test": "node --import tsx --test src/**.test.*ts"
   },
   "dependencies": {
+    "@microsoft/tsdoc": "^0.15.1",
     "@types/diff": "^6.0.0",
     "@types/turndown": "^5.0.5",
     "pyodide": "^0.27.5",
