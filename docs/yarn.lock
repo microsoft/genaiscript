@@ -193,10 +193,10 @@
     stream-replace-string "^2.0.0"
     zod "^3.24.2"
 
-"@astrojs/starlight@^0.32.5":
-  version "0.32.5"
-  resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.32.5.tgz#623991177c5d3906ae9bba411fe0ed2e4ab313c1"
-  integrity sha512-KYZsYbA5eEAsCO3XNc6DWDPml1JCD6GVusuB15fYq5dbxyB7RtC6kgwbtiEmr84maIjcQUmDtFJCz3sN4CdaSg==
+"@astrojs/starlight@^0.32.6":
+  version "0.32.6"
+  resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.32.6.tgz#af6723cc3c46a5110076da88628dd340c7656efd"
+  integrity sha512-ASWGwNzq+0TmJ+GJFFxFFxx6Yra7BqIIMQbvOy/cweTHjqejB6mcaEWtS3Mag12LM7tXCES7v/fzmdPgjz8Yxw==
   dependencies:
     "@astrojs/mdx" "^4.0.5"
     "@astrojs/sitemap" "^3.2.1"
@@ -1560,7 +1560,7 @@ astro-remote@^0.3.3:
     marked-smartypants "^1.1.6"
     ultrahtml "^1.5.3"
 
-astro@^5.5.5:
+astro@^5.6.1:
   version "5.6.1"
   resolved "https://registry.yarnpkg.com/astro/-/astro-5.6.1.tgz#063719f320d5eafacf895e9842ae4c060bc2e036"
   integrity sha512-aQ2TV7wIf+q2Oi6gGWMINHWEAZqoP0eH6/mihodfTJYATPWyd03JIGVfjtYUJlkNdNSKxDXwEe/r/Zx4CZ1FPg==
@@ -3213,9 +3213,9 @@ marked@^12.0.0:
   integrity sha512-qXUm7e/YKFoqFPYPa3Ukg9xlI5cyAtGmyEIzMfW//m6kXwCy2Ps9DYf5ioijFKQ8qyuscrHoY04iJGctu2Kg0Q==
 
 marked@^15.0.4, marked@^15.0.7:
-  version "15.0.7"
-  resolved "https://registry.yarnpkg.com/marked/-/marked-15.0.7.tgz#f67d7e34d202ce087e6b879107b5efb04e743314"
-  integrity sha512-dgLIeKGLx5FwziAnsk4ONoGwHwGPJzselimvlVskE9XLN4Orv9u2VA3GWw/lYUqjfA0rUT/6fqKwfZJapP9BEg==
+  version "15.0.8"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-15.0.8.tgz#39873a3fdf91a520111e48aeb2ef3746d58d7166"
+  integrity sha512-rli4l2LyZqpQuRve5C0rkn6pj3hT8EWPC+zkAxFTAJLxRbENfTAhEQq9itrmf1Y81QtAX5D/MYlGlIomNgj9lA==
 
 mdast-util-definitions@^6.0.0:
   version "6.0.0"
@@ -4668,10 +4668,10 @@ starlight-blog@^0.19.0:
     marked-plaintify "^1.1.1"
     ultrahtml "^1.5.3"
 
-starlight-links-validator@^0.14.3:
-  version "0.14.3"
-  resolved "https://registry.yarnpkg.com/starlight-links-validator/-/starlight-links-validator-0.14.3.tgz#cc342c5883bc28bd83bc0ee86b7620e6f59c12a6"
-  integrity sha512-2CvQs0ZdIVExrEQ1bn0r2aFx4n+VSOb6vDWK+gTNb5N1c+nXJ7VjUbEsQhj+9Lb7XgY6Nxqz9JXUM9364hJ3ZA==
+starlight-links-validator@^0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/starlight-links-validator/-/starlight-links-validator-0.15.0.tgz#2272c4cdd6be8f2f4c7cc91cbc7b9788a963afd2"
+  integrity sha512-NZeb9WF5Skdz1dQnALFtxU2sQW9mSMqudDUG7B2w3NCe4xDAwKEdBOOSn7hfJtzziFWksZXobvUgEBhR4S5eXA==
   dependencies:
     "@types/picomatch" "^3.0.1"
     github-slugger "^2.0.0"
@@ -4853,15 +4853,15 @@ typescript-auto-import-cache@^0.3.3:
   dependencies:
     semver "^7.3.8"
 
-typescript@5.8.2:
-  version "5.8.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.8.2.tgz#8170b3702f74b79db2e5a96207c15e65807999e4"
-  integrity sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==
+typescript@5.8.3:
+  version "5.8.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.8.3.tgz#92f8a3e5e3cf497356f4178c34cd65a7f5e8440e"
+  integrity sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==
 
 ufo@^1.5.4:
-  version "1.5.4"
-  resolved "https://registry.yarnpkg.com/ufo/-/ufo-1.5.4.tgz#16d6949674ca0c9e0fbbae1fa20a71d7b1ded754"
-  integrity sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/ufo/-/ufo-1.6.0.tgz#97c0729950279476b94b4ccdfd264a7206f7c872"
+  integrity sha512-AkgU2cV/+Xb4Uz6cic0kMZbtM42nbltnGvTVOt/8gMCbO2/z64nE47TOygh7HjgFPkUkVRBEyNFqpqi3zo+BJA==
 
 uhyphen@^0.2.0:
   version "0.2.0"
