@@ -123,3 +123,28 @@ DEBUG=genaiscript:* genaiscript run ...
 ```sh
 DEBUG=genaiscript:* genaiscript run ...
 ```
+
+## OpenTelemetry
+
+Using the `--telemetry` flag, you can enable OpenTelemetry tracing for your script.
+GenAIScript will configure a [otlp-over-http trace exporter](https://www.npmjs.com/package/@opentelemetry/exporter-trace-otlp-http) at the standard endpoint,
+and send all enabled logging messages to the OpenTelemetry collector.
+
+```sh "--telemetry"
+DEBUG=* genaiscript run poem --telemetry
+```
+
+You can configure the OpenTelemetry endpoint by setting the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable
+(see [full documentation](https://www.npmjs.com/package/@opentelemetry/exporter-trace-otlp-http)).
+
+```sh title=".env"
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+OTEL_EXPORTER_OTLP_TIMEOUT=10000
+```
+
+If you want to try out the telemetry locally, launch a [Jaeger](https://www.jaegertracing.io/) instance with Docker
+and navigate to `http://localhost:16686` to see the traces.
+
+```sh wrap
+docker run -d --name jaeger -e COLLECTOR_OTLP_ENABLED=true -p 16686:16686 -p 4317:4317 -p 4318:4318 jaegertracing/all-in-one:latest
+```

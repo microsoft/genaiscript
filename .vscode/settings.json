@@ -51,6 +51,7 @@
         "hostpath",
         "huggingface",
         "icontains",
+        "jaegertracing",
         "Jamba",
         "JSONLLM",
         "labeli",
