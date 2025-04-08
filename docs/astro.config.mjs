@@ -45,6 +45,19 @@ export default defineConfig({
                 starlightTypeDoc({
                     entryPoints: ["../genaisrc/genaiscript.d.ts"],
                     tsconfig: "../genaisrc/tsconfig.json",
+                    sidebar: {
+                        collapsed: true,
+                    },
+                    typeDoc: {
+                        excludeInternal: true,
+                        excludePrivate: true,
+                        excludeProtected: true,
+                        excludeExternals: true,
+                        excludeReferences: true,
+                        excludeNotDocumentedKinds: ["Namespace"],
+                        readme: "none",
+                        theme: "starlight-typedoc",
+                    },
                 }),
                 starlightLlmsTxt({
                     description: `GenAIScript is a JavaScript/TypeScript library and environment to build productive script using LLMs.`,
