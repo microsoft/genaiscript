@@ -15,9 +15,9 @@
  * @returns A shortened version of the URL or undefined if parsing fails.
  */
 export function redactUri(url: string) {
-    if (!url) return url
+    if (!url) return undefined
     const uri = URL.parse(url)
-    if (!uri) return url
+    if (!uri) return undefined
 
     let res = `${uri.protocol}//${uri.hostname}${uri.pathname}` // Construct the base URL with protocol, hostname, and pathname.
     if (uri.search) res += `?...` // Append ellipses if there are query parameters.

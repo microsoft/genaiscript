@@ -137,7 +137,7 @@ export async function runScriptWithExitCode(
     files: string[],
     options: Partial<PromptScriptRunOptions> & TraceOptions
 ) {
-    dbg(`run %s`, redactUri(scriptId))
+    dbg(`run %s`, scriptId)
     await ensureDotGenaiscriptPath()
     const canceller = createCancellationController()
     const cancellationToken = canceller.token
