@@ -9,6 +9,8 @@ sidebar:
 They are essentially Git repositories that can be created and shared easily.
 Gists can be public or secret, and they support versioning, making them a great tool for collaboration.
 
+![A screenshot of GistPad in Visual Studio Code](./gistpad.png)
+
 ## Running GenAIScript from Gists
 
 GenAIScript supports the following URL formats to run scripts directly from a gist.
@@ -55,3 +57,9 @@ In order to load the GenAIScript types, you'll need to "nudge" the TypeScript co
 
 - open the `genaiscript.d.ts` file from the GistPad tree (this loads the types in memory)
 - open your GenAIScript file in the GistPad tree and it should have type checking!
+
+## Limitations
+
+Since the GistPad extension is not a full-fledged IDE, there are some limitations to be aware of:
+
+- imports will probably not resolve
