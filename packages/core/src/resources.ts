@@ -1,7 +1,6 @@
 import { fileURLToPath } from "node:url"
 import { isBinaryMimeType } from "./binary"
 import { CancellationOptions } from "./cancellation"
-import { RESOURCE_MAX_SIZE } from "./constants"
 import { genaiscriptDebug } from "./debug"
 import { createFetch } from "./fetch"
 import { GitHubClient } from "./github"
@@ -30,10 +29,6 @@ const uriResolvers: Record<
         if (!res.ok) return undefined
         const contentType = res.headers.get("Content-Type")
         const size = parseInt(res.headers.get("Context-Length"))
-        if (size > RESOURCE_MAX_SIZE) {
-            dbg(`file too large %d`, size)
-            return undefined
-        }
         if (isBinaryMimeType(contentType)) {
             const buffer = await res.arrayBuffer()
             return {
