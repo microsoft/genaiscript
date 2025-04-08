@@ -9,7 +9,7 @@ import { TraceOptions } from "./trace"
 import { redactUri } from "./url"
 import { resolveFileContent } from "./file"
 import { prettyBytes } from "./pretty"
-const dbg = genaiscriptDebug("res")
+const dbg = genaiscriptDebug("resources")
 
 const uriResolvers: Record<
     string,
@@ -53,14 +53,14 @@ const uriResolvers: Record<
     gist: async (url) => {
         // gist://id/filename
         const gh = GitHubClient.default()
-        const { id, filename } =
-            /^(?<id>[a-zA-Z0-9\-]+)\/(?<filename>.*)$/.exec(url.pathname)
-                ?.groups || {}
+        const id = url.hostname
+        const filename = url.pathname.slice(1)
         if (!id || !filename) {
-            dbg(`missing gist uri`)
+            dbg(`missing gist id or filename`)
             return undefined
         }
 
+        dbg(`gist %s %s`, id, filename)
         const gist = await gh.getGist(id)
         if (!gist) {
             dbg(`missing gist %s`, id)
@@ -87,7 +87,8 @@ export async function tryResolveResource(
     dbg(`resolving %s`, redactUri(url))
     try {
         // try to resolve
-        const resolver = uriResolvers[uri.protocol.toLowerCase()]
+        const resolver =
+            uriResolvers[uri.protocol.replace(/:$/, "").toLowerCase()]
         if (!resolver) {
             dbg(`unsupported protocol %s`, uri.protocol)
             return undefined
@@ -105,6 +106,7 @@ export async function tryResolveResource(
 
         // success
         dbg(`resolved %s, %s`, redactUri(url), prettyBytes(file.size))
+
         return file
     } catch (error) {
         dbg(`failed to parse uri %s`, redactUri(url), error)

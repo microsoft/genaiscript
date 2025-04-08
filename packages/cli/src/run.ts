@@ -1,5 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:run")
 import { capitalize } from "inflection"
 import { resolve, join, relative } from "node:path"
 import { isQuiet } from "../../core/src/quiet"
@@ -41,6 +39,8 @@ import {
     REASONING_START_MARKER,
     LARGE_MODEL_ID,
     NEGATIVE_GLOB_REGEX,
+    GENAI_MTS_EXT,
+    RESOURCE_HASH_LENGTH,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -105,7 +105,14 @@ import {
     ensureDotGenaiscriptPath,
     getRunDir,
     createStatsDir,
+    dotGenaiscriptPath,
 } from "../../core/src/workdir"
+import { tryResolveResource } from "../../core/src/resources"
+import { genaiscriptDebug } from "../../core/src/debug"
+import { redactUri } from "../../core/src/url"
+import { hash } from "../../core/src/crypto"
+import { ProjectWatcher } from "./watch"
+const dbg = genaiscriptDebug("run")
 
 /**
  * Executes a script with a possible retry mechanism and exits the process with the appropriate code.
@@ -130,10 +137,10 @@ export async function runScriptWithExitCode(
     files: string[],
     options: Partial<PromptScriptRunOptions> & TraceOptions
 ) {
+    dbg(`run %s`, redactUri(scriptId))
     await ensureDotGenaiscriptPath()
     const canceller = createCancellationController()
     const cancellationToken = canceller.token
-
     const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
@@ -305,7 +312,18 @@ export async function runScriptInternal(
         })
 
     const toolFiles: string[] = []
-    if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
+    const scriptFile = await tryResolveResource(scriptId, {
+        trace,
+        cancellationToken,
+    })
+    if (scriptFile) {
+        const sha = await hash([scriptFile], { length: RESOURCE_HASH_LENGTH })
+        const fn = dotGenaiscriptPath("resources", sha + GENAI_MTS_EXT)
+        dbg(`resolved script file: %s`, fn)
+        await writeText(fn, scriptFile.content)
+        toolFiles.push(fn)
+        scriptId = fn
+    } else if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
     const prj = await buildProject({
         toolFiles,
@@ -323,7 +341,14 @@ export async function runScriptInternal(
                 GENAI_ANY_REGEX.test(scriptId) &&
                 resolve(t.filename) === resolve(scriptId))
     )
-    if (!script) throw new Error(`script ${scriptId} not found`)
+    if (!script) {
+        dbg(`script id not found: %s`, scriptId)
+        dbg(
+            `scripts: %s`,
+            prj.scripts.map((s) => ({ id: s.id, filename: s.filename }))
+        )
+        throw new Error(`script ${scriptId} not found`)
+    }
     const applyGitIgnore =
         options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     dbg(`apply gitignore: ${applyGitIgnore}`)

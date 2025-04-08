@@ -79,8 +79,8 @@ export function expandHomeDir(dir: string) {
  * @param content - The textual content to write into the file.
  */
 export async function writeText(fn: string, content: string) {
+    await ensureDir(dirname(fn))
     dbg(`writing text to file ${fn}`)
-    await mkdir(dirname(fn), { recursive: true })
     await writeFile(fn, content, { encoding: "utf8" })
 }
 

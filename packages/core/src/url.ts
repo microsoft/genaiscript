@@ -15,15 +15,12 @@
  * @returns A shortened version of the URL or undefined if parsing fails.
  */
 export function redactUri(url: string) {
-    try {
-        const uri = new URL(url) // Parse the URL string into a URL object.
-        let res = `${uri.protocol}//${uri.hostname}${uri.pathname}` // Construct the base URL with protocol, hostname, and pathname.
+    if (!url) return url
+    const uri = URL.parse(url)
+    if (!uri) return url
 
-        if (uri.search) res += `?...` // Append ellipses if there are query parameters.
-        if (uri.hash) res += `#...` // Append ellipses if there is a fragment identifier.
-
-        return res // Return the shortened URL.
-    } catch {
-        return undefined // Return undefined if the URL is invalid.
-    }
+    let res = `${uri.protocol}//${uri.hostname}${uri.pathname}` // Construct the base URL with protocol, hostname, and pathname.
+    if (uri.search) res += `?...` // Append ellipses if there are query parameters.
+    if (uri.hash) res += `#...` // Append ellipses if there is a fragment identifier.
+    return res // Return the shortened URL.
 }
