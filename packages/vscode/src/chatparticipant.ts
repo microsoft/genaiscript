@@ -149,6 +149,7 @@ export async function activateChatParticipant(state: ExtensionState) {
                 async () => await state.cancelAiRequest()
             )
             const res = await state.requestAI({
+                scriptId: template.id,
                 template,
                 label: "genaiscript agent",
                 parameters: deleteUndefinedValues({

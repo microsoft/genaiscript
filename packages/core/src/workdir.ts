@@ -9,6 +9,7 @@ import { randomHex } from "./crypto"
 import { ensureDir } from "./fs"
 import { gitIgnoreEnsure } from "./gitignore"
 import { host } from "./host"
+import { sanitizeFilename } from "./sanitize"
 
 /**
  * Constructs a resolved file path within the `.genaiscript` directory of the project.
@@ -60,7 +61,9 @@ export function getRunDir(scriptId: string, runId: string) {
     const name = createDatedFolder(runId)
     const out = dotGenaiscriptPath(
         RUNS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+        sanitizeFilename(
+            host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, "")
+        ),
         name
     )
     return out

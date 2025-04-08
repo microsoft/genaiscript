@@ -222,6 +222,11 @@
                     "command": "genaiscript.fragment.debug",
                     "when": "!inDebugMode",
                     "group": "genaiscript@2"
+                },
+                {
+                    "command": "genaiscript.fragment.fix",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
+                    "group": "genaiscript@2"
                 }
             ],
             "file/newFile": [
@@ -241,9 +246,14 @@
                     "group": "genaiscript@2"
                 },
                 {
+                    "command": "genaiscript.fragment.fix",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
+                    "group": "genaiscript@2"
+                },
+                {
                     "command": "genaiscript.server.show",
                     "when": "activeWebviewPanelId == genaiscript",
-                    "group": "genaiscript@3"
+                    "group": "genaiscript@4"
                 }
             ],
             "commandPalette": [
@@ -398,6 +408,12 @@
                 "title": "Debug GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(debug)"
+            },
+            {
+                "command": "genaiscript.fragment.fix",
+                "title": "Fix GenAIScript Types",
+                "category": "GenAIScript",
+                "icon": "$(lightbulb-autofix)"
             },
             {
                 "command": "genaiscript.prompt.navigate",

@@ -152,6 +152,7 @@ export const PROMPTFOO_REDTEAM_NUM_TESTS = 5
 export const PROMPTFOO_TEST_MAX_CONCURRENCY = 1
 
 export const TYPE_DEFINITION_BASENAME = "genaiscript.d.ts"
+export const TYPE_DEFINITION_REFERENCE = `/// <reference path="./${TYPE_DEFINITION_BASENAME}" />\n`
 
 export const RUNS_DIR_NAME = "runs"
 export const CONVERTS_DIR_NAME = "converts"
@@ -274,9 +275,10 @@ export const MODEL_PRICINGS = Object.freeze<
 export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `
 export const PDF_SCALE = 4
-export const PDF_HASH_LENGTH = 18
-export const DOCX_HASH_LENGTH = 18
-export const VECTOR_INDEX_HASH_LENGTH = 18
+export const PDF_HASH_LENGTH = 22
+export const DOCX_HASH_LENGTH = 22
+export const VECTOR_INDEX_HASH_LENGTH = 22
+export const RESOURCE_HASH_LENGTH = 22
 
 export const PDF_MIME_TYPE = "application/pdf"
 export const DOCX_MIME_TYPE =
@@ -432,3 +434,5 @@ export const CACHE_FORMAT_VERSION = "1"
 export const CACHE_SHA_LENGTH = 32
 
 export const MCP_RESOURCE_PROTOCOL = TOOL_ID
+
+export const RESOURCE_MAX_SIZE = 1024 * 1024 * 10 // 10MB

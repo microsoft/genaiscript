@@ -134,6 +134,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                 }
                 const parameters = { ...heap, ...vars }
                 await state.requestAI({
+                    scriptId: template.id,
                     template,
                     label: "Executing cell",
                     parameters,

@@ -126,7 +126,7 @@ export function installGlobals() {
     }
 
     // Instantiate GitHub client
-    glb.github = new GitHubClient(undefined)
+    glb.github = GitHubClient.default()
 
     // Instantiate Git client
     glb.git = new GitClient(undefined)

@@ -678,6 +678,12 @@ export class GitHubClient implements GitHub {
         | undefined
     >
 
+    private static _default: GitHubClient
+    static default() {
+        if (!this._default) this._default = new GitHubClient(undefined)
+        return this._default
+    }
+
     constructor(info: Pick<GithubConnectionInfo, "owner" | "repo">) {
         this._info = info
     }
@@ -797,6 +803,50 @@ export class GitHubClient implements GitHub {
             ...rest,
         })
         const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res
+    }
+
+    async getGist(gist_id?: string): Promise<GitHubGist | undefined> {
+        if (typeof gist_id === "string") {
+            gist_id = gist_id.trim()
+        }
+        const { client, owner } = await this.api()
+        dbg(`retrieving gist details for gist ID: ${gist_id}`)
+        if (!gist_id) {
+            return undefined
+        }
+        const { data } = await client.rest.gists.get({
+            gist_id,
+            owner,
+        })
+        const { files, ...rest } = data
+        if (
+            Object.values(files || {}).some(
+                (f) => f.encoding !== "utf-8" && f.encoding != "base64"
+            )
+        ) {
+            dbg(`unsupported encoding for gist files`)
+            return undefined
+        }
+        const res = {
+            ...rest,
+            files: Object.values(files).map(
+                ({ filename, content, size, encoding }) =>
+                    deleteUndefinedValues({
+                        filename,
+                        content,
+                        encoding:
+                            encoding === "utf-8"
+                                ? undefined
+                                : encoding === "base64"
+                                  ? "base64"
+                                  : undefined,
+                        size,
+                    }) satisfies WorkspaceFile
+            ),
+        } satisfies GitHubGist
+
+        dbg(`gist: %d files, %s`, res.files.length, res.description || "")
         return res
     }
 
