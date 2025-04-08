@@ -11,7 +11,10 @@ Gists can be public or secret, and they support versioning, making them a great 
 
 ## Running GenAIScript from Gists
 
-GenAIScript supports the `gist://<gist id>/<file name>` URL format to run scripts directly from a gist.
+GenAIScript supports the following URL formats to run scripts directly from a gist.
+
+- `gist://<gist id>/<file name>`
+- `vscode://vsls-contrib.gistfs/open?gist=<gist id>&file=<file>`
 
 ```sh
 genaiscript gist://8f7db2674f7b0eaaf563eae28253c2b0/poem.genai.mts
