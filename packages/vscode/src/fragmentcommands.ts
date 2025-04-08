@@ -18,13 +18,13 @@ type TemplateQuickPickItem = {
 } & vscode.QuickPickItem
 
 async function showPromptParametersQuickPicks(
-    template: PromptScript
+    script: PromptScript
 ): Promise<PromptParameters> {
+    if (!script) return undefined
+
     const parameters: PromptParameters = {}
-    for (const param in template.parameters || {}) {
-        const schema = promptParameterTypeToJSONSchema(
-            template.parameters[param]
-        )
+    for (const param in script.parameters || {}) {
+        const schema = promptParameterTypeToJSONSchema(script.parameters[param])
         switch (schema.type) {
             case "string": {
                 let value: string
@@ -221,23 +221,23 @@ export function activateFragmentCommands(state: ExtensionState) {
         let { fragment, template } = options || {}
 
         await state.cancelAiRequest()
-        await state.parseWorkspace()
 
+        let scriptId = template?.id
         if (
             fragment instanceof vscode.Uri &&
             GENAI_ANY_REGEX.test(fragment.path)
         ) {
-            const file = fragment
-            template = findScript(file)
-            if (!template) {
-                return
-            }
+            scriptId = fragment.toString()
+            template = findScript(fragment)
             fragment = undefined
+            if (template) scriptId = template.id
         }
         fragment = await resolveSpec(fragment)
-        if (!template) {
-            template = await pickTemplate()
-            if (!template) return
+        if (!scriptId) {
+            await state.parseWorkspace()
+            const s = await pickTemplate()
+            if (!s) return
+            scriptId = template?.id
         }
 
         const parameters = await showPromptParametersQuickPicks(template)
@@ -245,8 +245,9 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         await state.requestAI({
             fragment,
+            scriptId,
             template,
-            label: template.id,
+            label: scriptId,
             parameters,
         })
     }

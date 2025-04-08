@@ -36,6 +36,7 @@ export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
 
 export interface AIRequestOptions {
     label: string
+    scriptId: string
     template: PromptScript
     fragment: Fragment
     parameters: PromptParameters
@@ -252,7 +253,7 @@ export class ExtensionState extends EventTarget {
         trace.addEventListener(CHANGE, reqChange)
         reqChange()
 
-        const { template, fragment, label, runOptions } = options
+        const { scriptId, fragment, runOptions } = options
         const { files } = fragment || {}
         const infoCb = (partialResponse: { text: string }) => {
             r.response = partialResponse
@@ -261,15 +262,14 @@ export class ExtensionState extends EventTarget {
 
         // todo: send js source
         const client = await this.host.server.client()
-        const { runId, request } = await client.runScript(template.id, files, {
+        const { runId, request } = await client.runScript(scriptId, files, {
             ...(runOptions || {}),
             jsSource: options.jsSource,
             signal,
             trace,
             infoCb,
             partialCb,
-            label,
-            cache: cache ? template.cache : undefined,
+            cache,
             vars: structuredClone(options.parameters),
         })
         r.runId = runId
