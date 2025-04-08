@@ -18,7 +18,7 @@ const config = {
     outfile: "built/extension.js",
     sourcemap: true,
     metafile: true,
-    external,
+    external: ["vscode", "pdfjs-dist", "skia-canvas"],
 }
 
 const result = await esbuild.build(config)
