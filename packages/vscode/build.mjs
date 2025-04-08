@@ -1,12 +1,5 @@
 import * as esbuild from "esbuild"
 import { writeFile } from "fs/promises"
-import pkg from "../../package.json" with { type: "json" }
-import assert from "node:assert/strict"
-const external = pkg.external
-assert(
-    external.length > 0,
-    "No external dependencies found in package.json. Please add them to the 'external' field."
-)
 
 /** @type {import('esbuild').BuildOptions} */
 const config = {

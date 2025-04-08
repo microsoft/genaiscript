@@ -94,7 +94,6 @@
     "serialize-error": "^12.0.0",
     "shell-quote": "^1.8.2",
     "tabletojson": "^4.1.5",
-    "terminal-link": "^3.0.0",
     "terminal-size": "^4.0.0",
     "toml": "^3.0.0",
     "tree-sitter-wasms": "^0.1.11",
