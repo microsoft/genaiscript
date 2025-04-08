@@ -290,11 +290,11 @@ export class GenerationStats {
                 this.children.length > 1
                     ? `${CHAR_UP_DOWN_ARROWS}${this.children.length}`
                     : undefined,
+                prettyDuration(au.duration),
                 prettyTokens(au.prompt_tokens, "prompt"),
                 prettyTokens(au.completion_tokens, "completion"),
                 prettyTokensPerSecond(au),
                 prettyCost(c),
-                prettyDuration(au.duration),
             ]
                 .filter((n) => !!n)
                 .join(" ")
@@ -369,7 +369,8 @@ export class GenerationStats {
 
         const cost = estimateCost(model, usage)
         logVerbose(
-            `└─🏁 ${cached ? CHAR_FLOPPY_DISK : ""} ${prettyDuration(duration) || ""} ${model} ${CHAR_ENVELOPE} ${messages.length} ${[
+            `└─🏁 ${cached ? CHAR_FLOPPY_DISK : ""} ${model} ${CHAR_ENVELOPE} ${messages.length} ${[
+                prettyDuration(duration),
                 prettyTokens(usage.total_tokens, "both"),
                 prettyTokens(usage.prompt_tokens, "prompt"),
                 prettyTokens(usage.completion_tokens, "completion"),
