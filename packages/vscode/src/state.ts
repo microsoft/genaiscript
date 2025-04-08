@@ -10,23 +10,16 @@ import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { fixCustomPrompts, fixPromptDefinitions } from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
-import {
-    TOOL_NAME,
-    CHANGE,
-    AI_REQUESTS_CACHE,
-    TOOL_ID,
-} from "../../core/src/constants"
+import { TOOL_NAME, CHANGE, TOOL_ID } from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
 import { MarkdownTrace } from "../../core/src/trace"
 import { logInfo, groupBy } from "../../core/src/util"
-import { CORE_VERSION } from "../../core/src/version"
 import { GenerationResult } from "../../core/src/server/messages"
-import { hash, randomHex } from "../../core/src/crypto"
+import { randomHex } from "../../core/src/crypto"
 import { delay } from "es-toolkit"
 import { Fragment } from "../../core/src/generation"
 import { createWebview } from "./webview"
 import { isEmptyString } from "../../core/src/cleaners"
-import { createCache } from "../../core/src/cache"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"

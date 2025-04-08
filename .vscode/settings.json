@@ -54,6 +54,7 @@
         "GROQ",
         "Gruber",
         "hostpath",
+        "htmlescape",
         "huggingface",
         "icontains",
         "jaegertracing",

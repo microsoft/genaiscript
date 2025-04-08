@@ -70,7 +70,7 @@ import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml"
 import { resolveTokenEncoder } from "./encoders"
 import { approximateTokens, truncateTextToTokens } from "./tokens"
 import { computeFileEdits } from "./fileedits"
-import { HTMLEscape } from "./html"
+import { HTMLEscape } from "./htmlescape"
 import { XMLTryParse } from "./xml"
 import {
     computePerplexity,
