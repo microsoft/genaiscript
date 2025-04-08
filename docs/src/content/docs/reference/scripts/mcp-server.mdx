@@ -125,7 +125,7 @@ You can use this script to load resources or do any other setup you need.
 
 ## IDE configuration
 
-The `mcp` command lanches the MCP server using the stdio transport.
+The `mcp` command launches the MCP server using the stdio transport.
 
 - [@modelcontextprotocol/inspector](https://www.npmjs.com/package/@modelcontextprotocol/inspector)
   is a MCP client that can be used to inspect the server and list the available tools.
@@ -134,7 +134,24 @@ The `mcp` command lanches the MCP server using the stdio transport.
 npx --yes @modelcontextprotocol/inspector npx --yes genaiscript mcp
 ```
 
-- Claude Desktop
+### Visual Studio Code Insiders with GitHub Copilot Chat
+
+You will need Visual Studio Code v1.99 or higher and the [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extension installed.
+
+```json title=".vscode/mcp.json"
+{
+    "servers": {
+        "genaiscript": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "genaiscript", "mcp", "--cwd", "${workspaceFolder}"],
+            "envFile": "${workspaceFolder}/.env"
+        }
+    }
+}
+```
+
+### Claude Desktop
 
 ```json
 {
@@ -147,23 +164,24 @@ npx --yes @modelcontextprotocol/inspector npx --yes genaiscript mcp
 }
 ```
 
-- Visual Studio Code Insiders with GitHub Copilot Chat
+### Filtering scripts
 
-:::note
+If you need to filter out which scripts are exposed as MCP tools, you can use the `--groups` flag and
+set the `mcp` group in your scripts.
 
-MCP support is not yet available in the stable version of Visual Studio Code.
-It is changing and things might not work as expected.
+```js 'group: "mcp"'
+script({
+    group: "mcp",
+})
+```
 
-:::
-
-```json title=".vscode/mcp.json"
+```json title=".vscode/mcp.json" ', "--groups", "mcp"'
 {
     "servers": {
         "genaiscript": {
             "type": "stdio",
-            "command": "node",
+            "command": "npx",
             "args": [
-                "npx",
                 "-y",
                 "genaiscript",
                 "mcp",
