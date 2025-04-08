@@ -20,9 +20,9 @@ type TemplateQuickPickItem = {
 async function showPromptParametersQuickPicks(
     script: PromptScript
 ): Promise<PromptParameters> {
-    if (!script) return undefined
-
     const parameters: PromptParameters = {}
+    if (!script?.parameters) return {}
+
     for (const param in script.parameters || {}) {
         const schema = promptParameterTypeToJSONSchema(script.parameters[param])
         switch (schema.type) {
@@ -138,24 +138,6 @@ export function activateFragmentCommands(state: ExtensionState) {
             logVerbose(`${p.filename} => ${sfp} => ${sfp === f}`)
             return sfp === f
         })
-
-        if (!script) {
-            const reportIssue = "Report Issue"
-            vscode.window
-                .showErrorMessage(
-                    `Could not find a GenAIScript ${filename}. This is most likely a bug in GenAIScript.`,
-                    "Report Issue"
-                )
-                .then((cmd) => {
-                    if (cmd === reportIssue) {
-                        vscode.commands.executeCommand(
-                            "genaiscript.openIssueReporter",
-                            [`Could not find a GenAIScript issue`]
-                        )
-                    }
-                })
-        }
-
         return script
     }
 
@@ -221,6 +203,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         let { fragment, template } = options || {}
 
         await state.cancelAiRequest()
+        await state.parseWorkspace()
 
         let scriptId = template?.id
         if (
