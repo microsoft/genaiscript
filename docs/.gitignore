@@ -20,3 +20,7 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+
+# typedoc
+src/content/docs/api/

@@ -4,6 +4,7 @@ import starlightBlog from "starlight-blog"
 import rehypeMermaid from "rehype-mermaid"
 import starlightLinksValidator from "starlight-links-validator"
 import starlightLlmsTxt from "starlight-llms-txt"
+import starlightTypeDoc, { typeDocSidebarGroup } from "starlight-typedoc"
 
 // https://astro.build/config
 export default defineConfig({
@@ -40,6 +41,10 @@ export default defineConfig({
                             url: "https://github.com/pelikhan",
                         },
                     },
+                }),
+                starlightTypeDoc({
+                    entryPoints: ["../genaisrc/genaiscript.d.ts"],
+                    tsconfig: "../genaisrc/tsconfig.json",
                 }),
                 starlightLlmsTxt({
                     description: `GenAIScript is a JavaScript/TypeScript library and environment to build productive script using LLMs.`,
@@ -152,6 +157,7 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                     label: "Contributing",
                     link: "dev",
                 },
+                typeDocSidebarGroup,
             ],
         }),
     ],

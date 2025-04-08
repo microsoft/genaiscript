@@ -30,5 +30,10 @@
     "starlight-package-managers": "^0.10.0",
     "typescript": "5.8.3",
     "zx": "^8.4.1"
+  },
+  "dependencies": {
+    "starlight-typedoc": "^0.21.0",
+    "typedoc": "^0.28.2",
+    "typedoc-plugin-markdown": "^4.6.1"
   }
 }
