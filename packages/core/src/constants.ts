@@ -152,6 +152,7 @@ export const PROMPTFOO_REDTEAM_NUM_TESTS = 5
 export const PROMPTFOO_TEST_MAX_CONCURRENCY = 1
 
 export const TYPE_DEFINITION_BASENAME = "genaiscript.d.ts"
+export const TYPE_DEFINITION_REFERENCE = `/// <reference path="./${TYPE_DEFINITION_BASENAME}" />\n`
 
 export const RUNS_DIR_NAME = "runs"
 export const CONVERTS_DIR_NAME = "converts"

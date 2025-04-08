@@ -15,7 +15,8 @@
                 "file-icons.file-icons",
                 "GitHub.vscode-pull-request-github",
                 "usernamehw.errorlens",
-                "goessner.mdmath"
+                "goessner.mdmath",
+                "vsls-contrib.gistfs"
             ]
         }
     },

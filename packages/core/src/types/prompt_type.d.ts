@@ -9,7 +9,7 @@ declare var console: PromptGenerationConsole
 
 /**
  * Setup prompt title and other parameters.
- * Exactly one call should be present on top of .genai.js file.
+ * Exactly one call should be present on top of .genai.mts file.
  */
 declare function script(options: PromptArgs): void
 

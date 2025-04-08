@@ -32,3 +32,18 @@ The [GistPad extension](https://marketplace.visualstudio.com/items?itemName=vsls
 for Visual Studio Code allows you to create, edit, and manage gists directly from your editor.
 
 You can open a file in a Gist and run it using the `genaiscript` command.
+
+### Type Checking
+
+To get type checking working, we need to upload the `genaiscript.d.ts` to the gist and setup a reference to it
+by adding this comment **at the top of the file**:
+
+```js
+/// <reference path="./genaiscript.d.ts" />
+```
+
+This can be done automatically:
+
+- right click on the Gist GenAIScript file
+- select `GenAIScript: Fix Type Definitions`
+- You might be prompted to allow GenAIScript to use your GitHub account. GenAIScript will request a token with `gist` scope to upload the missing files.
