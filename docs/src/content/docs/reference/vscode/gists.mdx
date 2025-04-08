@@ -50,3 +50,8 @@ This can be done automatically:
 - right click on the Gist GenAIScript file
 - select `GenAIScript: Fix Type Definitions`
 - You might be prompted to allow GenAIScript to use your GitHub account. GenAIScript will request a token with `gist` scope to upload the missing files.
+
+In order to load the GenAIScript types, you'll need to "nudge" the TypeScript compiler:
+
+- open the `genaiscript.d.ts` file from the GistPad tree (this loads the types in memory)
+- open your GenAIScript file in the GistPad tree and it should have type checking!
