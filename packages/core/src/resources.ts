@@ -96,9 +96,6 @@ export async function tryResolveResource(
             return undefined
         }
 
-        // download content if needed
-        await resolveFileContent(file, options)
-
         // success
         dbg(`resolved %s, %s`, redactUri(url), prettyBytes(file.size))
 
