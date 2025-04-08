@@ -61,13 +61,26 @@ const uriResolvers: Record<
             dbg(`missing gist %s`, id)
             return undefined
         }
-
         const file = gist.files.find((f) => f.filename === filename)
         if (!file) {
             dbg(`missing file %s`, filename)
             return undefined
         }
         return file
+    },
+    vscode: async (url) => {
+        // vscode://vsls-contrib.gistfs/open?gist=8f7db2674f7b0eaaf563eae28253c2b0&file=poem.genai.mts
+        if (url.host === "vsls-contrib.gistfs" && url.pathname === "/open") {
+            const params = new URLSearchParams(url.search)
+            const gist = params.get("gist")
+            const file = params.get("file")
+            if (!gist || !file) {
+                dbg(`missing gist id %s or filename %s`, gist, file)
+                return undefined
+            }
+            return uriResolvers.gist(new URL(`gist://${gist}/${file}`))
+        }
+        return undefined
     },
 }
 
