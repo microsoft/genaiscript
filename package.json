@@ -2,7 +2,7 @@
   "name": "genaiscript-workspace",
   "displayName": "GenAIScript",
   "description": "Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.",
-  "version": "1.125.2",
+  "version": "1.126.0",
   "license": "MIT",
   "private": true,
   "workspaces": {
@@ -123,7 +123,7 @@
     "@ast-grep/napi",
     "@azure/identity",
     "@azure/search-documents",
-    "@huggingface/jinja",    
+    "@huggingface/jinja",
     "@huggingface/transformers",
     "@inquirer/prompts",
     "@lvce-editor/ripgrep",
