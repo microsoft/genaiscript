@@ -432,3 +432,5 @@ export const CACHE_FORMAT_VERSION = "1"
 export const CACHE_SHA_LENGTH = 32
 
 export const MCP_RESOURCE_PROTOCOL = TOOL_ID
+
+export const RESOURCE_MAX_SIZE = 1024 * 1024 * 10 // 10MB

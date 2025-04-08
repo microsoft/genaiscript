@@ -3290,6 +3290,12 @@ interface GitHubRelease {
     body?: string
 }
 
+interface GitHubGist {
+    description?: string
+    created_at?: string
+    files: WorkspaceFile[]
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -3354,6 +3360,12 @@ interface GitHub {
             mentioned?: string
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]>
+
+    /**
+     * Gets the files of a gist
+     * @param gist_id
+     */
+    getGist(gist_id: string): Promise<GitHubGist | undefined>
 
     /**
      * Gets the details of a GitHub issue
