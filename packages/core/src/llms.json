@@ -677,6 +677,14 @@
         "think": "reasoning_small"
     },
     "pricings": {
+        "github:gpt-4o": {
+            "price_per_million_input_tokens": 2.5,
+            "price_per_million_output_tokens": 10
+        },
+        "github:gpt-4o-mini": {
+            "price_per_million_input_tokens": 0.15,
+            "price_per_million_output_tokens": 0.6
+        },
         "github:gpt-4o-2024-11-20": {
             "price_per_million_input_tokens": 2.5,
             "price_per_million_output_tokens": 10
