@@ -17,6 +17,15 @@ cover:
     color palette of five colors create a minimalist and iconic scene, devoid of
     people or text."
   image: ./llm-agents.png
+excerpt: Building interactive agents using GenAIScript opens up new
+  possibilities for tailored, user-driven experiences. In this guide, we
+  explored how to design an "Agent that can ask questions to the user." By
+  leveraging prompts, tools, and model configurations, you can create
+  applications that not only gather input but dynamically interact with users to
+  validate and refine their responses. Whether it’s confirming choices or
+  engaging users with creative scenarios, this approach gives your agents the
+  clarity and control to actively guide conversations. Ready to integrate
+  conversational AI into your workflow?
 
 ---
 

@@ -18,6 +18,12 @@ cover:
     five accent colors, creating a vibe of technological progress in a corporate
     context.
   image: ./webview.png
+excerpt: We've introduced a custom webview experience for GenAIScript in Visual
+  Studio Code, stepping beyond the built-in Markdown preview. This new approach
+  enables smoother rendering for elements like mermaid diagrams, annotations,
+  and math. You can even access the GenAIScript view externally, running scripts
+  right in your browser or other webview-supported applications. Explore the
+  possibilities with better control and flexibility!
 
 ---
 

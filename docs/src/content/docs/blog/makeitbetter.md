@@ -15,6 +15,11 @@ cover:
     it better" suggests an enhancement process. The backdrop features a simple,
     five-color geometric pattern, evoking a futuristic corporate environment.
   image: ./makeitbetter.png
+excerpt: Improving code is rarely straightforward, but have you explored the
+  power of iteration with tools like GenAIScript? Using functions like
+  `makeItBetter`, you can refine your code in cycles. For example, by setting
+  the repeat option to 2, you instruct the AI to analyze and optimize your code
+  step by step. Ready to rethink how you approach debugging and enhancements?
 
 ---
 
@@ -28,26 +33,31 @@ Let's walk through the script line by line:
 ```js
 import { makeItBetter } from "genaiscript/runtime"
 ```
+
 This line imports the `makeItBetter` function from the GenAIScript runtime. This function is used to improve code by repeating a set of instructions multiple times.
 
 ```js
 def("CODE", env.files)
 ```
+
 This line defines a constant named "CODE" that represents the files in the environment. It essentially sets up the context for the code that needs improvement.
 
 ```js
 $`Analyze and improve the code.`
 ```
+
 This line is a prompt for the AI model. It instructs the system to analyze and enhance the code. The `$` is used to denote that this is a special instruction, not a regular code command.
 
 ```js
 // tell the LLM to 'make it better' 2 times
 ```
+
 This comment explains the upcoming line of code, making it clear that the `makeItBetter` function will be called twice.
 
 ```js
 makeItBetter({ repeat: 2 })
 ```
+
 This line calls the `makeItBetter` function with an option to repeat the improvement process twice. It triggers the enhancement process.
 
 ## How to Run the Script

@@ -18,6 +18,11 @@ cover:
     rectangle, indicating the use of a GenAIScript transformation. The backdrop
     is a plain, corporate hue.
   image: ./search-transform-genai.png
+excerpt: Ever struggled with searching and transforming patterns across multiple
+  files in your project? This guide introduces an automated approach to
+  streamline the process, removing the tedium and boosting efficiency. It
+  specifically tackles converting old command formats to a cleaner, updated
+  syntax. Dive into the linked resource for practical applications and insights.
 
 ---
 
