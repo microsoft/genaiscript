@@ -10,6 +10,7 @@
         "argk",
         "argkv",
         "arrayify",
+        "astrojs",
         "Automatable",
         "azurecontentsafety",
         "azureopenai",
@@ -44,6 +45,7 @@
         "docstrings",
         "domcontentloaded",
         "doptions",
+        "dotjs",
         "Entra",
         "Evals",
         "execa",
@@ -69,6 +71,7 @@
         "JSONLLM",
         "labeli",
         "labelledby",
+        "Lasorsa",
         "limitrows",
         "LITELLM",
         "LLAMAFILE",
@@ -164,7 +167,8 @@
         "waltoss",
         "wasms",
         "whisperasr",
-        "xpai"
+        "xpai",
+        "Yohan"
     ],
     "sarif-viewer.connectToGithubCodeScanning": "on",
     "cSpell.language": "en,en-US",

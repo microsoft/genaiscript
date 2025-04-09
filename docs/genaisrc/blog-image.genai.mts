@@ -38,7 +38,11 @@ Rephrase the prompt in a way that would be useful for someone who cannot see the
 Do not start with "Alt Text:".
 
 IMAGE_PROMPT:
-${imagePrompt}`.options({ responseType: "text", systemSafety: false, label: "alt-text" })
+${imagePrompt}`.options({
+        responseType: "text",
+        systemSafety: false,
+        label: "alt-text",
+    })
 
     // phase 4: patch frontmatter
     fm.cover = {
@@ -46,6 +50,25 @@ ${imagePrompt}`.options({ responseType: "text", systemSafety: false, label: "alt
         image: "./" + path.basename(target),
     }
     await workspace.copyFile(image.image.filename, target)
+}
+
+if (!fm.tags?.length) {
+    const res = await prompt`
+Generate 5 keyword tags from <BLOG_POST>. The tags are used for SEO purposes in a blog.
+Respond with 1 tag per line.
+
+<BLOG_POST>
+${MD.content(file.content)}
+</BLOG_POST>`.options({
+        responseType: "text",
+        systemSafety: false,
+        label: "tags",
+    })
+    if (!res.error)
+        fm.tags = res.text
+            ?.split(/\r?\n/g)
+            .map((tag) => tag.trim())
+            .filter(Boolean)
 }
 
 if (!fm.excerpt) {
