@@ -614,7 +614,7 @@ export async function cli() {
         .action(prompty2genaiscript) // Action to convert prompty files
     parser
         .command("jinja2")
-        .description("Renders Jinj2 or prompty template")
+        .description("Renders Jinja2 or prompty template")
         .argument("<file>", "input Jinja2 or prompty template file")
         .option(
             "--vars <namevalue...>",
