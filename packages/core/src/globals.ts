@@ -13,7 +13,7 @@ import {
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { CancelError } from "./error"
-import { fetchText } from "./fetch"
+import { fetchText } from "./fetchtext"
 import { GitHubClient } from "./github"
 import { GitClient } from "./git"
 import { estimateTokens, truncateTextToTokens } from "./tokens"

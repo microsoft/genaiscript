@@ -21,7 +21,7 @@ import { LocalOpenAICompatibleModel } from "./openai"
 import { TransformersModel } from "./transformers"
 import { GitHubModel } from "./github"
 import { LMStudioModel } from "./lmstudio"
-import { WhiserAsrModel } from "./whisperasr"
+import { WhisperAsrModel } from "./whisperasr"
 import { AzureOpenAIModel } from "./azureopenai"
 import { EchoModel } from "./echomodel"
 import { NoneModel } from "./nonemodel"
@@ -55,7 +55,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
         return AnthropicBedrockModel
     if (provider === MODEL_PROVIDER_TRANSFORMERS) return TransformersModel
     if (provider === MODEL_PROVIDER_LMSTUDIO) return LMStudioModel
-    if (provider === MODEL_PROVIDER_WHISPERASR) return WhiserAsrModel
+    if (provider === MODEL_PROVIDER_WHISPERASR) return WhisperAsrModel
     if (provider === MODEL_PROVIDER_ECHO) return EchoModel
     if (provider === MODEL_PROVIDER_NONE) return NoneModel
 

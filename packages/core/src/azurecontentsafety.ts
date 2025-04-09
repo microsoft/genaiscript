@@ -1,4 +1,4 @@
-import { createFetch, traceFetchPost } from "./fetch"
+import { createFetch } from "./fetch"
 import { TraceOptions } from "./trace"
 import { arrayify } from "./util"
 import {
@@ -11,7 +11,8 @@ import { YAMLStringify } from "./yaml"
 import { AzureCredentialsType } from "./server/messages"
 import { trimTrailingSlash } from "./cleaners"
 import { chunkString } from "./chunkers"
-import { CacheOptions, createCache } from "./cache"
+import { createCache } from "./cache"
+import { traceFetchPost } from "./fetchtext"
 
 interface AzureContentSafetyRequest {
     userPrompt?: string

@@ -18,7 +18,7 @@ import { prettifyMarkdown } from "./markdown"
 import { arrayify, assert, ellipse, logError, logVerbose } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
-import { fetchText } from "./fetch"
+import { fetchText } from "./fetchtext"
 import { concurrentLimit } from "./concurrency"
 import { llmifyDiff } from "./llmdiff"
 import { JSON5TryParse } from "./json5"
@@ -1096,7 +1096,7 @@ export class GitHubClient implements GitHub {
         return text
     }
 
-    private async downladJob(job_id: number) {
+    private async downloadJob(job_id: number) {
         const { client, owner, repo } = await this.api()
         dbg(`downloading job log for job ID: ${job_id}`)
         const filename = `job-${job_id}.log`
@@ -1112,11 +1112,11 @@ export class GitHubClient implements GitHub {
     }
 
     async diffWorkflowJobLogs(job_id: number, other_job_id: number) {
-        const job = await this.downladJob(job_id)
+        const job = await this.downloadJob(job_id)
         dbg(
             `diffing workflow job logs for job IDs: ${job_id} and ${other_job_id}`
         )
-        const other = await this.downladJob(other_job_id)
+        const other = await this.downloadJob(other_job_id)
 
         job.content = parseJobLog(job.content)
         other.content = parseJobLog(other.content)

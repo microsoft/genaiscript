@@ -34,7 +34,7 @@ import {
     isCancelError,
     serializeError,
 } from "./error"
-import { createFetch, traceFetchPost } from "./fetch"
+import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
 import {
@@ -69,6 +69,7 @@ import {
 } from "./cleaners"
 import { fromBase64 } from "./base64"
 import debug from "debug"
+import { traceFetchPost } from "./fetchtext"
 const dbg = debug("genaiscript:openai")
 const dbgMessages = debug("genaiscript:openai:msg")
 
