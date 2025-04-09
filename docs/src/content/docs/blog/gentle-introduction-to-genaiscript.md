@@ -15,13 +15,6 @@ authors:
 cover:
   alt: Screenshot of GenAIScript in the VS Code marketplace
   image: ./gentle-introduction-to-genaiscript.png
-excerpt: Looking to streamline your interactions with Large Language Models?
-  Meet GenAIScript, a tool that transforms JavaScript-based scripts into
-  effective prompts for AI models. Whether you're automating document reviews or
-  crafting creative outputs, GenAIScript offers structured results, metadata
-  configuration, and support for multiple LLM providers like OpenAI and GitHub
-  Models. Dive in and discover how to integrate prompt engineering directly into
-  your workflow.
 
 ---
 

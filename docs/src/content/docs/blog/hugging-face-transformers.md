@@ -19,9 +19,6 @@ cover:
     environment. The image is simplified using a 5-color palette, maintaining a
     consistent and coherent aesthetic. No people or text are present.
   image: ./hugging-face-transformers.png
-excerpt: Run large language models directly in your browser or Node.js with
-  Hugging Face Transformers.js. Fully local with no server dependencies. Perfect
-  for text generation, fine-tuning, and more. Ready to explore?
 
 ---
 

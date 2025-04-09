@@ -17,13 +17,6 @@ cover:
     from 8-bit style. It employs just five bold colors to keep the look clear
     and corporate, with no people or language visible.
   image: ./video.png
-excerpt: The latest update introduces built-in support for video and audio
-  transcript analysis in your scripts. Traditional methods of video analysis
-  with LLMs often run into issues like context limitations from extracting
-  frames manually. GenAIScript simplifies this by automatically handling video
-  frame extraction and transcript generation, making your workflow more
-  efficient. You can integrate these new capabilities through specialized tools
-  or delegate the task entirely to an automated agent.
 
 ---
 

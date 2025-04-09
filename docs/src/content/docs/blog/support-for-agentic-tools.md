@@ -13,11 +13,6 @@ tags:
   - Ecosystem
   - Integration
   - Tool Integration
-excerpt: Agentic simplifies integrating TypeScript AI tools into your projects,
-  offering seamless debugging and testing, especially for LLM-based workflows.
-  It supports APIs like Bing, Wolfram Alpha, and Wikipedia, enhancing automation
-  possibilities. Learn more about its features and documentation to streamline
-  your development process.
 
 ---
 

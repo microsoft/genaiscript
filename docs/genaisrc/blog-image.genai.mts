@@ -52,7 +52,7 @@ ${imagePrompt}`.options({
     await workspace.copyFile(image.image.filename, target)
 }
 
-if (!fm.tags?.length) {
+if (env.vars.force || !fm.tags?.length) {
     const res = await prompt`
 Generate 5 keyword tags from <BLOG_POST>. The tags are used for SEO purposes in a blog.
 Respond with 1 tag per line.
@@ -71,6 +71,10 @@ ${MD.content(file.content)}
             .filter(Boolean)
 }
 
+
+fm.excerpt = null // remove when RSS bug is fixed
+/**
+ * BUG IN BLOG
 if (!fm.excerpt) {
     const res = await prompt`
 Generate an excerpt from <BLOG_POST>.
@@ -88,6 +92,7 @@ ${MD.content(file.content)}
     })
     if (!res.error) fm.excerpt = res.text.trim()
 }
+*/
 
 // phase 5: save files
 file.content = MD.updateFrontmatter(file.content, fm)

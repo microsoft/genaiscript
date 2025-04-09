@@ -15,11 +15,6 @@ cover:
     it better" suggests an enhancement process. The backdrop features a simple,
     five-color geometric pattern, evoking a futuristic corporate environment.
   image: ./makeitbetter.png
-excerpt: Improving code is rarely straightforward, but have you explored the
-  power of iteration with tools like GenAIScript? Using functions like
-  `makeItBetter`, you can refine your code in cycles. For example, by setting
-  the repeat option to 2, you instruct the AI to analyze and optimize your code
-  step by step. Ready to rethink how you approach debugging and enhancements?
 
 ---
 

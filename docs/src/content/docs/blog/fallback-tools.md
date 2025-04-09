@@ -15,13 +15,6 @@ cover:
     geometric shapes that give a corporate and tech-focused feel, using a
     consistent 5-color scheme without any human figures or text.
   image: ./fallback-tools.png
-excerpt: Navigating the complexities of advanced LLM workflows often requires
-  integrating external tools effectively. If your model doesn't support tools
-  natively, fallback tools in GenAIScript 1.72.0 provide a seamless alternative.
-  Designed to guide LLMs on available tools and their usage, this functionality
-  ensures robust performance—even for unsupported models. Activation is
-  flexible, with configuration options in both script setups and CLI commands.
-  Enhance your LLM's potential by leveraging this technical adaptability.
 
 ---
 
