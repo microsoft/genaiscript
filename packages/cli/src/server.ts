@@ -17,13 +17,7 @@ import { isCancelError, serializeError } from "../../core/src/error"
 import { host, LogEvent, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import { chunkLines, chunkString } from "../../core/src/chunkers"
-import {
-    logVerbose,
-    logError,
-    assert,
-    logInfo,
-    logWarn,
-} from "../../core/src/util"
+import { logVerbose, logError, assert, logWarn } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
     RequestMessages,
@@ -51,7 +45,7 @@ import { buildProject } from "./build"
 import * as http from "http"
 import { extname, join } from "path"
 import { createReadStream } from "fs"
-import { URL } from "url"
+import { URL } from "node:url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { networkInterfaces } from "os"
 import { exists } from "fs-extra"

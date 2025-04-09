@@ -12,7 +12,7 @@ import { hash } from "./crypto"
 import { dotGenaiscriptPath } from "./workdir"
 import { join } from "node:path"
 import { runtimeHost } from "./host"
-import { URL } from "url"
+import { URL } from "node:url"
 const dbg = genaiscriptDebug("resources")
 
 const uriResolvers: Record<
@@ -108,8 +108,15 @@ export async function tryResolveResource(
     options?: TraceOptions & CancellationOptions
 ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
     if (!url) return undefined
-    const uri = URL.parse(url)
-    if (!uri) return undefined
+
+    let uri: URL
+    try {
+        uri = URL.parse(url)
+        if (!uri) return undefined
+    } catch (error) {
+        dbg(`%O`, error)
+        return undefined
+    }
 
     dbg(`resolving %s`, redactUri(url))
     try {
