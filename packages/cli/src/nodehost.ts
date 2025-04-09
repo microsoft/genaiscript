@@ -391,10 +391,12 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             }
         }
 
-        dbg(`resolved token for ${modelId}: %O`, {
-            ...tok,
-            token: tok.token ? "***" : undefined,
-        })
+        if (tok) {
+            dbg(`resolved token for ${modelId}: %O`, {
+                ...tok,
+                token: tok.token ? "***" : undefined,
+            })
+        } else dbg(`no token found for ${modelId}`)
         return tok
     }
 
