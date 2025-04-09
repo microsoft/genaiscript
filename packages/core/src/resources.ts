@@ -6,8 +6,12 @@ import { createFetch } from "./fetch"
 import { GitHubClient } from "./github"
 import { TraceOptions } from "./trace"
 import { redactUri } from "./url"
-import { resolveFileContent } from "./file"
-import { prettyBytes } from "./pretty"
+import { arrayify } from "./cleaners"
+import { RESOURCE_HASH_LENGTH } from "./constants"
+import { hash } from "./crypto"
+import { dotGenaiscriptPath } from "./workdir"
+import { join } from "node:path"
+import { runtimeHost } from "./host"
 const dbg = genaiscriptDebug("resources")
 
 const uriResolvers: Record<
@@ -15,7 +19,7 @@ const uriResolvers: Record<
     (
         url: URL,
         options?: TraceOptions & CancellationOptions
-    ) => Promise<WorkspaceFile>
+    ) => Promise<ElementOrArray<WorkspaceFile>>
 > = {
     file: async (uri) => {
         const filename = fileURLToPath(uri)
@@ -28,7 +32,6 @@ const uriResolvers: Record<
         dbg(`fetch %d %s`, res.status, res.statusText)
         if (!res.ok) return undefined
         const contentType = res.headers.get("Content-Type")
-        const size = parseInt(res.headers.get("Context-Length"))
         if (isBinaryMimeType(contentType)) {
             const buffer = await res.arrayBuffer()
             return {
@@ -36,6 +39,7 @@ const uriResolvers: Record<
                 content: Buffer.from(buffer).toString("base64"),
                 encoding: "base64",
                 type: contentType,
+                size: buffer.byteLength,
             } satisfies WorkspaceFile
         } else {
             return {
@@ -46,11 +50,12 @@ const uriResolvers: Record<
         }
     },
     gist: async (url) => {
+        // gist://id/
         // gist://id/filename
         const gh = GitHubClient.default()
         const id = url.hostname
-        const filename = url.pathname.slice(1)
-        if (!id || !filename) {
+        const filename = url.pathname.slice(1) || ""
+        if (!id) {
             dbg(`missing gist id or filename`)
             return undefined
         }
@@ -61,21 +66,34 @@ const uriResolvers: Record<
             dbg(`missing gist %s`, id)
             return undefined
         }
-        const file = gist.files.find((f) => f.filename === filename)
-        if (!file) {
-            dbg(`missing file %s`, filename)
-            return undefined
+        const files = gist.files
+        if (filename) {
+            dbg(`moving file %s to top`, filename)
+            const i = gist.files.findIndex((f) => f.filename === filename)
+            if (i < 0) {
+                dbg(`file %s not found in gist`, filename)
+                return undefined
+            }
+            const file = files[i]
+            files.splice(i, 1)
+            files.unshift(file)
         }
-        return file
+        dbg(
+            `found %d files in gist %s %o`,
+            files.length,
+            id,
+            files.map((f) => f.filename)
+        )
+        return files
     },
     vscode: async (url) => {
         // vscode://vsls-contrib.gistfs/open?gist=8f7db2674f7b0eaaf563eae28253c2b0&file=poem.genai.mts
         if (url.host === "vsls-contrib.gistfs" && url.pathname === "/open") {
             const params = new URLSearchParams(url.search)
             const gist = params.get("gist")
-            const file = params.get("file")
-            if (!gist || !file) {
-                dbg(`missing gist id %s or filename %s`, gist, file)
+            const file = params.get("file") || ""
+            if (!gist) {
+                dbg(`missing gist id %s`, gist)
                 return undefined
             }
             return uriResolvers.gist(new URL(`gist://${gist}/${file}`))
@@ -87,7 +105,7 @@ const uriResolvers: Record<
 export async function tryResolveResource(
     url: string,
     options?: TraceOptions & CancellationOptions
-): Promise<WorkspaceFile> {
+): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
     if (!url) return undefined
     const uri = URL.parse(url)
     if (!uri) return undefined
@@ -103,18 +121,38 @@ export async function tryResolveResource(
         }
 
         // download
-        const file = await resolver(uri, options)
-        if (!file) {
+        const files = arrayify(await resolver(uri, options))
+        if (!files) {
             dbg(`failed to resolve %s`, redactUri(url))
             return undefined
         }
 
         // success
-        dbg(`resolved %s, %s`, redactUri(url), prettyBytes(file.size))
-
-        return file
+        return { uri, files }
     } catch (error) {
         dbg(`failed to parse uri %s`, redactUri(url), error)
         return undefined
     }
+}
+
+export async function tryResolveScript(
+    url: string,
+    options?: TraceOptions & CancellationOptions
+) {
+    const resource = await tryResolveResource(url, options)
+    if (!resource) return undefined
+
+    const { uri, files } = resource
+    dbg(`resolved resource %s %d`, uri, files.length)
+    const sha = await hash([resource.files], {
+        length: RESOURCE_HASH_LENGTH,
+    })
+    const fn = dotGenaiscriptPath("resources", uri.protocol, uri.hostname, sha)
+    dbg(`resolved cache: %s`, fn)
+    const cached = resource.files.map((f) => ({
+        ...f,
+        filename: join(fn, f.filename),
+    }))
+    await runtimeHost.workspace.writeFiles(cached)
+    return cached[0].filename
 }
