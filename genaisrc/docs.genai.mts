@@ -1,6 +1,4 @@
 import { classify } from "genaiscript/runtime"
-import { docify } from "./src/docs.mts"
-import { prettier } from "./src/prettier.mts"
 
 script({
     title: "Generate TypeScript function documentation using AST insertion",
@@ -335,5 +333,27 @@ rule:
         await prettier(file)
     } else {
         output.diff(file, modifiedFiles[0])
+    }
+}
+
+function docify(docs: string) {
+    docs = parsers.unfence(docs, "*")
+    if (!/^\/\*\*.*.*\*\/$/s.test(docs))
+        docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
+    return docs.replace(/\n+$/, "")
+}
+
+async function prettier(
+    file: WorkspaceFile,
+    options?: { curly?: boolean }
+) {
+    dbg(file.filename)
+    const args = ["--write"]
+    if (options?.curly) args.push("--plugin=prettier-plugin-curly")
+    // format
+    const res = await host.exec("prettier", [...args, file.filename])
+    if (res.exitCode) {
+        dbg(`error: %d\n%s`, res.exitCode, res.stderr)
+        throw new Error(`${res.stdout} (${res.exitCode})`)
     }
 }

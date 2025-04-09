@@ -586,7 +586,7 @@ Commands:
   tokens [options] <files...>   Count tokens in a set of files
   jsonl2json                    Converts JSONL files to a JSON file
   prompty [options] <file...>   Converts .prompty files to genaiscript
-  jinja2 [options] <file>       Renders Jinj2 or prompty template
+  jinja2 [options] <file>       Renders Jinja2 or prompty template
   secrets <file...>             Applies secret scanning and redaction to files
   markdown [options] <file>     Chunks markdown files
 ```
@@ -711,7 +711,7 @@ Options:
 ```
 Usage: genaiscript parse jinja2 [options] <file>
 
-Renders Jinj2 or prompty template
+Renders Jinja2 or prompty template
 
 Arguments:
   file                   input Jinja2 or prompty template file
