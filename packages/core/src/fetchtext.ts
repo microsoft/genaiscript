@@ -8,7 +8,7 @@ import { toBase64 } from "./base64"
 import { deleteUndefinedValues } from "./cleaners"
 import { prettyBytes } from "./pretty"
 import debug from "debug"
-import { redactUri } from "./url"
+import { uriRedact } from "./url"
 import { HTMLToMarkdown, HTMLToText } from "./html"
 import { createFetch } from "./fetch"
 const dbg = debug("genaiscript:fetch:text")
@@ -56,7 +56,7 @@ export async function fetchText(
     let statusText: string
     let bytes: Uint8Array
     if (/^https?:\/\//i.test(url)) {
-        dbg("requesting external URL: %s", redactUri(url))
+        dbg("requesting external URL: %s", uriRedact(url))
         const f = await createFetch({
             retries,
             retryDelay,

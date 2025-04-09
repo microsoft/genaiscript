@@ -5,7 +5,7 @@ import { genaiscriptDebug } from "./debug"
 import { createFetch } from "./fetch"
 import { GitHubClient } from "./github"
 import { TraceOptions } from "./trace"
-import { redactUri } from "./url"
+import { uriRedact, uriTryParse } from "./url"
 import { arrayify } from "./cleaners"
 import { RESOURCE_HASH_LENGTH } from "./constants"
 import { hash } from "./crypto"
@@ -109,16 +109,10 @@ export async function tryResolveResource(
 ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
     if (!url) return undefined
 
-    let uri: URL
-    try {
-        uri = URL.parse(url)
-        if (!uri) return undefined
-    } catch (error) {
-        dbg(`%O`, error)
-        return undefined
-    }
+    const uri = uriTryParse(url)
+    if (!uri) return undefined
 
-    dbg(`resolving %s`, redactUri(url))
+    dbg(`resolving %s`, uriRedact(url))
     try {
         // try to resolve
         const resolver =
@@ -131,14 +125,14 @@ export async function tryResolveResource(
         // download
         const files = arrayify(await resolver(uri, options))
         if (!files) {
-            dbg(`failed to resolve %s`, redactUri(url))
+            dbg(`failed to resolve %s`, uriRedact(url))
             return undefined
         }
 
         // success
         return { uri, files }
     } catch (error) {
-        dbg(`failed to parse uri %s`, redactUri(url), error)
+        dbg(`failed to parse uri %s`, uriRedact(url), error)
         return undefined
     }
 }
