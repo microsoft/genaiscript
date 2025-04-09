@@ -2021,6 +2021,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/client-cognito-identity@3.782.0
  - @aws-sdk/client-sso@3.782.0
  - @aws-sdk/credential-provider-cognito-identity@3.782.0
+ - @aws-sdk/middleware-eventstream@3.775.0
  - @aws-sdk/util-user-agent-browser@3.775.0
  - @aws-sdk/util-user-agent-node@3.782.0
  - @smithy/eventstream-codec@2.2.0
@@ -2244,7 +2245,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.782.0
+ - @aws-sdk/client-bedrock-runtime@3.785.0
 
 This package contains the following license:
 
@@ -2454,6 +2455,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
+ - @aws-sdk/eventstream-handler-node@3.775.0
  - @aws-sdk/middleware-host-header@3.775.0
  - @aws-sdk/middleware-recursion-detection@3.775.0
  - @aws-sdk/middleware-user-agent@3.782.0
@@ -2892,6 +2894,7 @@ The following npm packages may be included in this product:
  - @types/node@16.9.1
  - @types/node@18.19.86
  - @types/node@22.14.0
+ - @types/sarif@2.1.7
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
  - @types/yauzl@2.10.3
@@ -2924,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.125.2
+ - genaiscript-vscode@1.126.3
 
 This package contains the following license:
 
@@ -6547,6 +6550,37 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
+The following npm package may be included in this product:
+
+ - toml@3.0.0
+
+This package contains the following license:
+
+Copyright (c) 2012 Michelle Tilley
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+-----------
+
 The following npm packages may be included in this product:
 
  - jwa@1.4.1
@@ -8849,10 +8883,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.125.2
- - genaiscript-sample@1.125.2
- - genaiscript-web@1.125.2
- - genaiscript@1.125.2
+ - genaiscript-core-internal@1.126.3
+ - genaiscript-sample@1.126.3
+ - genaiscript-web@1.126.3
+ - genaiscript@1.126.3
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9721,7 +9755,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@3.4.1
+ - @azure/msal-node@3.5.0
 
 This package contains the following license:
 
@@ -9908,6 +9942,36 @@ This package contains the following license:
 MIT License
 
 Copyright (c) 2021 Zilong Yao
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - node-sarif-builder@3.2.0
+
+This package contains the following license:
+
+MIT License
+
+Copyright (c) 2022 - Nicolas Vuillamy
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -10663,9 +10727,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@4.8.0
- - @azure/msal-common@15.3.0
- - @azure/msal-common@15.4.0
+ - @azure/msal-browser@4.10.0
+ - @azure/msal-common@15.5.0
 
 These packages each contain the following license:
 
@@ -10735,6 +10798,7 @@ The following npm packages may be included in this product:
  - string-width@5.1.2
  - strip-ansi@7.1.0
  - strip-final-newline@4.0.0
+ - supports-color@10.0.0
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0

@@ -131,11 +131,11 @@
     "glob": "^11.0.1",
     "memorystream": "^0.3.1",
     "octokit": "^4.1.2",
-    "openai": "^4.92.0",
+    "openai": "^4.93.0",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.1",
-    "zx": "^8.4.1"
+    "zx": "^8.5.2"
   },
   "scripts": {
     "compile:runtime:declarations": "tsc src/runtime.ts --skipLibCheck --outDir built --declaration --target es2020 --moduleResolution node --module esnext --emitDeclarationOnly",

@@ -1698,25 +1698,25 @@
   integrity sha512-/hnE/qP5ZoGpol0a5mDi45bOd7t3tjYJBjsgCsivow7D48cJeV5l05RD82lPqi7gRiphZM37rnhW1l6ZoCNNnQ==
 
 "@vueuse/core@^13.0.0":
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-13.0.0.tgz#60bf419e3f9fb003b51f1dfed550afffdb1691ff"
-  integrity sha512-rkgb4a8/0b234lMGCT29WkCjPfsX0oxrIRR7FDndRoW3FsaC9NBzefXg/9TLhAgwM11f49XnutshM4LzJBrQ5g==
+  version "13.1.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-13.1.0.tgz#d5964c391e4d4fea3407909819c45de4bcb58211"
+  integrity sha512-PAauvdRXZvTWXtGLg8cPUFjiZEddTqmogdwYpnn60t08AA5a8Q4hZokBnpTOnVNqySlFlTcRYIC8OqreV4hv3Q==
   dependencies:
     "@types/web-bluetooth" "^0.0.21"
-    "@vueuse/metadata" "13.0.0"
-    "@vueuse/shared" "13.0.0"
+    "@vueuse/metadata" "13.1.0"
+    "@vueuse/shared" "13.1.0"
 
 "@vueuse/math@^13.0.0":
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/@vueuse/math/-/math-13.0.0.tgz#9fcc251ab69555f8420cb833fe394ac413bf33e7"
-  integrity sha512-OrDYBFZ4XUaUse7W7JkjfIk2Jr4dKVtk5cP1IqBQwP5RPfczqEE57jFRKyoCpXggP0gsK0R9z4v/qOjCuAjSjg==
+  version "13.1.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/math/-/math-13.1.0.tgz#b06f276dae39c4978c473f866f2986ea532147ea"
+  integrity sha512-iTpUKYUWhZHzc6RTbkEkpA9L/CJBtIY7nwN0Lc6JkX3KOFTRU1vmN9odX9ZTNnndlE51HS5d68VvUBh1v5n84A==
   dependencies:
-    "@vueuse/shared" "13.0.0"
+    "@vueuse/shared" "13.1.0"
 
-"@vueuse/metadata@13.0.0":
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-13.0.0.tgz#f9c70e1d4958869693e6dcf385d3294cdd304b58"
-  integrity sha512-TRNksqmvtvqsuHf7bbgH9OSXEV2b6+M3BSN4LR5oxWKykOFT9gV78+C2/0++Pq9KCp9KQ1OQDPvGlWNQpOb2Mw==
+"@vueuse/metadata@13.1.0":
+  version "13.1.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-13.1.0.tgz#959f8f2da5b18fb9b80529714dddb6ab69131d82"
+  integrity sha512-+TDd7/a78jale5YbHX9KHW3cEDav1lz1JptwDvep2zSG8XjCsVE+9mHIzjTOaPbHUAk5XiE4jXLz51/tS+aKQw==
 
 "@vueuse/motion@^3.0.3":
   version "3.0.3"
@@ -1732,10 +1732,10 @@
   optionalDependencies:
     "@nuxt/kit" "^3.13.0"
 
-"@vueuse/shared@13.0.0", "@vueuse/shared@^13.0.0":
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-13.0.0.tgz#4bc454ac359303904d4cf9b23e0dd265be90bf2d"
-  integrity sha512-9MiHhAPw+sqCF/RLo8V6HsjRqEdNEWVpDLm2WBRW2G/kSQjb8X901sozXpSCaeLG0f7TEfMrT4XNaA5m1ez7Dg==
+"@vueuse/shared@13.1.0", "@vueuse/shared@^13.0.0":
+  version "13.1.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-13.1.0.tgz#b01ad108f0de3f1b02e0591c6fc54a9ee0029298"
+  integrity sha512-IVS/qRRjhPTZ6C2/AM3jieqXACGwFZwWTdw5sNTSKk2m/ZpkuuN+ri+WCVUP8TqaKwJYt/KuMwmXspMAw8E6ew==
 
 acorn@^8.14.0, acorn@^8.14.1:
   version "8.14.1"
@@ -2543,9 +2543,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.5.73:
-  version "1.5.133"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.133.tgz#1e0aba775a9ae51a42d70a2c5e562fab515105f4"
-  integrity sha512-mrR+g6Y1at0GKDlPlMMwLAkI6c47q3d7U/vKS3rGTa3V4xStu18oT4UCPg5ErcAhUqk7swSjXSPUGstOYd2qBw==
+  version "1.5.134"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.134.tgz#d90008c4f8a506c1a6d1b329f922d83e18904101"
+  integrity sha512-zSwzrLg3jNP3bwsLqWHmS5z2nIOQ5ngMnfMZOWWtXnqqQkPVyOipxK98w+1beLw1TB+EImPNcG8wVP/cLVs2Og==
 
 emoji-regex-xs@^1.0.0:
   version "1.0.0"
@@ -4469,9 +4469,9 @@ uc.micro@^2.0.0, uc.micro@^2.1.0:
   integrity sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==
 
 ufo@^1.5.4:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/ufo/-/ufo-1.6.0.tgz#97c0729950279476b94b4ccdfd264a7206f7c872"
-  integrity sha512-AkgU2cV/+Xb4Uz6cic0kMZbtM42nbltnGvTVOt/8gMCbO2/z64nE47TOygh7HjgFPkUkVRBEyNFqpqi3zo+BJA==
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/ufo/-/ufo-1.6.1.tgz#ac2db1d54614d1b22c1d603e3aef44a85d8f146b"
+  integrity sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==
 
 unconfig@~7.0.0:
   version "7.0.0"
@@ -4510,9 +4510,9 @@ unicorn-magic@^0.3.0:
   integrity sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA==
 
 unimport@^4.1.3:
-  version "4.1.3"
-  resolved "https://registry.yarnpkg.com/unimport/-/unimport-4.1.3.tgz#938f37f90faa6f29dd156ded98f1990bd5acee50"
-  integrity sha512-H+IVJ7rAkE3b+oC8rSJ2FsPaVsweeMC8eKZc+C6Mz7+hxDF45AnrY/tVCNRBvzMwWNcJEV67WdAVcal27iMjOw==
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/unimport/-/unimport-4.2.0.tgz#c25211d206d3430e9160cc7d458e9fa9ba828ac0"
+  integrity sha512-mYVtA0nmzrysnYnyb3ALMbByJ+Maosee2+WyE0puXl+Xm2bUwPorPaaeZt0ETfuroPOtG8jj1g/qeFZ6buFnag==
   dependencies:
     acorn "^8.14.1"
     escape-string-regexp "^5.0.0"
@@ -4759,9 +4759,9 @@ vite-plugin-remote-assets@^2.0.0:
     ohash "^2.0.11"
 
 vite-plugin-static-copy@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/vite-plugin-static-copy/-/vite-plugin-static-copy-2.3.0.tgz#bba1d8faae92b6436b264a38911906e3d8f299dc"
-  integrity sha512-LLKwhhHetGaCnWz4mas4qqjjguDka6/6b4+SeIohRroj8aCE7QTfiZECfPecslFQkWZ3HdQuq5kOPmWZjNYlKA==
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/vite-plugin-static-copy/-/vite-plugin-static-copy-2.3.1.tgz#f3b9ce44529d7728b2b61837ac18e06791489e06"
+  integrity sha512-EfsPcBm3ewg3UMG8RJaC0ADq6/qnUZnokXx4By4+2cAcipjT9i0Y0owIJGqmZI7d6nxk4qB1q5aXOwNuSyPdyA==
   dependencies:
     chokidar "^3.5.3"
     fast-glob "^3.2.11"
@@ -4910,7 +4910,7 @@ zwitch@^2.0.0, zwitch@^2.0.4:
   resolved "https://registry.yarnpkg.com/zwitch/-/zwitch-2.0.4.tgz#c827d4b0acb76fc3e685a4c6ec2902d51070e9d7"
   integrity sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==
 
-zx@^8.4.1:
-  version "8.5.0"
-  resolved "https://registry.yarnpkg.com/zx/-/zx-8.5.0.tgz#8133293836ce5a096861ab66657e3037f6835048"
-  integrity sha512-XS5/oKOQxKNfG2sVO6TQQjZF5RqWGE5QGSUOCZZVTnvYr3RDBTdbX3IFmV9CrnycCAQWcY0hAD3DDUa4RJE4+w==
+zx@^8.5.2:
+  version "8.5.2"
+  resolved "https://registry.yarnpkg.com/zx/-/zx-8.5.2.tgz#52615d9c95c5085a90e4a6287ddbd745ec53e490"
+  integrity sha512-eIxjTkCtlzvDNRhw3RD1gGBPA4nxOTn6PafpKl+MW4eE2jR/u/R6mqq7oyUCXwarM5DSP96kWtq6XkrL2kSFrg==

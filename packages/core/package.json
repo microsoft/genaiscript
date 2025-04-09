@@ -82,7 +82,7 @@
     "mustache": "^4.2.0",
     "nanoid": "^5.1.5",
     "object-inspect": "^1.13.4",
-    "openai": "^4.92.0",
+    "openai": "^4.93.0",
     "p-limit": "^6.2.0",
     "package-manager-detector": "^0.2.11",
     "parse-diff": "^0.11.1",
