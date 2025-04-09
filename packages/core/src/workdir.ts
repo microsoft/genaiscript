@@ -21,7 +21,7 @@ export function dotGenaiscriptPath(...segments: string[]) {
     return host.resolvePath(
         host.projectFolder(),
         GENAISCRIPT_FOLDER,
-        ...segments
+        ...segments.map((s) => sanitizeFilename(s))
     )
 }
 
@@ -36,7 +36,7 @@ export function dotGenaiscriptPath(...segments: string[]) {
  * @returns A promise that resolves once the directory is created and configured.
  */
 export async function ensureDotGenaiscriptPath() {
-    const dir = dotGenaiscriptPath(".")
+    const dir = dotGenaiscriptPath()
     await ensureDir(dir)
     await gitIgnoreEnsure(dir, ["*"])
 }
@@ -61,9 +61,7 @@ export function getRunDir(scriptId: string, runId: string) {
     const name = createDatedFolder(runId)
     const out = dotGenaiscriptPath(
         RUNS_DIR_NAME,
-        sanitizeFilename(
-            host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, "")
-        ),
+        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
         name
     )
     return out

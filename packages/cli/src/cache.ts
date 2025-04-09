@@ -1,6 +1,7 @@
 import { join } from "node:path"
 import { dotGenaiscriptPath } from "../../core/src/workdir"
 import { emptyDir } from "fs-extra"
+import { sanitizeFilename } from "../../core/src/sanitize"
 
 /**
  * This module provides a function to clear a specified cache directory.
@@ -21,7 +22,7 @@ export async function cacheClear(name: string) {
     let dir = dotGenaiscriptPath("cache")
 
     // If the name is 'tests', adjust the directory path to include the 'tests' subdirectory.
-    if (["tests"].includes(name)) dir = join(dir, name)
+    if (["tests"].includes(name)) dir = join(dir, sanitizeFilename(name))
 
     // Log the directory being cleared to the console for debugging purposes.
     console.log(`removing ${dir}`)
