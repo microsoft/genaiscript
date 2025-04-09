@@ -1,3 +1,5 @@
+import { URL } from "node:url"
+
 /**
  * Utility functions for handling URL shortening.
  *

@@ -12,6 +12,7 @@ import { hash } from "./crypto"
 import { dotGenaiscriptPath } from "./workdir"
 import { join } from "node:path"
 import { runtimeHost } from "./host"
+import { URL } from "url"
 const dbg = genaiscriptDebug("resources")
 
 const uriResolvers: Record<

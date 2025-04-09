@@ -60,6 +60,7 @@ import {
     OpenAIAPIType,
 } from "./server/messages"
 import { arrayify } from "./util"
+import { URL } from "node:url"
 
 /**
  * Parses the OLLAMA host environment variable and returns a standardized URL.
