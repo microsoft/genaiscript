@@ -1203,10 +1203,9 @@ async function validateSafetyPromptNode(
 
     const resolveContentSafety = async () => {
         if (!_contentSafety)
-            _contentSafety =
-                (await runtimeHost.contentSafety(undefined, {
-                    trace,
-                })) || {}
+            _contentSafety = (await runtimeHost.contentSafety(undefined, {
+                trace,
+            })) || { id: undefined }
         return _contentSafety.detectPromptInjection
     }
 
