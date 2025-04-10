@@ -19,6 +19,11 @@ cover:
     environment. The image is simplified using a 5-color palette, maintaining a
     consistent and coherent aesthetic. No people or text are present.
   image: ./hugging-face-transformers.png
+excerpt: Hugging Face Transformers.js brings large language models to your
+  browser or Node.js environment, enabling text generation tasks entirely
+  locally. With GenAIScript integration, configuring and caching models is
+  straightforward, letting you tap into a wide range of options or fine-tune
+  your own. Explore new ways to harness LLMs efficiently and seamlessly.
 
 ---
 

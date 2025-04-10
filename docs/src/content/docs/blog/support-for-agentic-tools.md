@@ -13,6 +13,11 @@ tags:
   - Ecosystem
   - Integration
   - Tool Integration
+excerpt: Agentic is a TypeScript library designed to streamline AI tool
+  integration, supporting both local scripts and LLM-based workflows. It
+  connects seamlessly with APIs like Bing, Wolfram Alpha, and Wikipedia,
+  improving testing and debugging efficiency. If you're working with tools for
+  intelligent automation, Agentic offers a flexible foundation to build from.
 
 ---
 

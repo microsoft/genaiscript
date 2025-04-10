@@ -16,6 +16,12 @@ cover:
     colors, emitting a corporate, high-tech feeling without any human figures or
     text.
   image: ./scripts-as-mcp-tools.png
+excerpt: The Model Context Protocol (MCP) is reshaping how we approach
+  integration with AI-driven tools. Platforms like GitHub Copilot Chat and
+  Copilot Studio are leading adoption efforts, and GenAIScript is now enabling
+  you to expose scripts as MCP tools, streamlining workflows with smarter
+  decision-making by LLMs. Ready to elevate your development process? Explore
+  the details in the documentation.
 
 ---
 

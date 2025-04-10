@@ -8,7 +8,7 @@ script({
         "system.safety_harmful_content",
         "system.safety_validate_harmful_content",
     ],
-    tools: ["fs", "git"],
+    tools: ["agent_fs", "agent_git"],
     parameters: {
         base: {
             type: "string",
@@ -27,7 +27,7 @@ def("GIT_DIFF", changes, {
     detectPromptInjection: "available",
 })
 
-$`Report errors in GIT_DIFF using the annotation format.
+$`Report errors in <GIT_DIFF> using the annotation format.
 
 - Use best practices of the programming language of each file.
 - If available, provide a URL to the official documentation for the best practice. do NOT invent URLs.
