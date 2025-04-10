@@ -34,7 +34,10 @@ class AzureContentSafetyClient implements ContentSafety {
         object
     >
     constructor(readonly options?: TraceOptions & CancellationOptions) {
-        this.cache = createCache("azurecontentsafety", { type: "fs" })
+        this.cache = createCache("azurecontentsafety", {
+            ...(options || {}),
+            type: "fs",
+        })
     }
 
     async detectHarmfulContent(
@@ -271,10 +274,7 @@ export function isAzureContentSafetyClientConfigured() {
  * - `detectPromptInjection`: Analyzes text or documents for prompt injection attacks.
  */
 export function createAzureContentSafetyClient(
-    options: CancellationOptions &
-        TraceOptions & {
-            signal?: AbortSignal
-        }
+    options: CancellationOptions & TraceOptions
 ): ContentSafety {
     const client = new AzureContentSafetyClient(options)
     return {

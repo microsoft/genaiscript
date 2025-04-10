@@ -15,6 +15,8 @@ import { deleteUndefinedValues } from "./cleaners"
 import { hash } from "./crypto"
 import { fileWriteCachedJSON } from "./filecache"
 import { dotGenaiscriptPath } from "./workdir"
+import { runtimeHost } from "./host"
+import { YAMLStringify } from "./yaml"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClient[] = []
@@ -33,6 +35,8 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             version = "1.0.0",
             params = [],
             toolsSha,
+            detectPromptInjection,
+            contentSafety,
             ...rest
         } = serverConfig
         const dbgc = debug(`mcp:${id}`)
@@ -77,6 +81,12 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                     })),
                     "json"
                 )
+                const toolsFile = await fileWriteCachedJSON(
+                    dotGenaiscriptPath("mcp", id, "tools"),
+                    toolDefinitions
+                )
+
+                logVerbose(`mcp ${id}: tools: ${toolsFile}`)
 
                 const sha = await hash(JSON.stringify(toolDefinitions))
                 trace.itemValue("tools sha", sha)
@@ -87,15 +97,34 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                             `mcp ${id}: tools signature validated successfully`
                         )
                     else {
-                        const toolsFile = await fileWriteCachedJSON(
-                            dotGenaiscriptPath("mcp", id, "tools"),
-                            toolDefinitions
-                        )
-                        logInfo(`mcp ${id}: tools: ${toolsFile}`)
                         logError(
                             `mcp ${id}: tools signature changed, please review the tools and update 'toolsSha' in the mcp server configuration.`
                         )
                         throw new Error(`mcp ${id} tools signature changed`)
+                    }
+                }
+
+                if (detectPromptInjection) {
+                    const { detectPromptInjection: detector } =
+                        (await runtimeHost.contentSafety(contentSafety, {
+                            trace,
+                        })) || {}
+                    if (
+                        (!detector && detectPromptInjection === true) ||
+                        detectPromptInjection === "always"
+                    )
+                        throw new Error(
+                            `mcp ${id}: content safety provider not configured`
+                        )
+
+                    const result = await detector(
+                        YAMLStringify(toolDefinitions)
+                    )
+                    if (result.attackDetected) {
+                        dbgc("%O", result)
+                        throw new Error(
+                            `mcp ${id}: prompt injection detected in tools`
+                        )
                     }
                 }
 
