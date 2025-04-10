@@ -198,3 +198,22 @@ script({
     }
 })
 ```
+
+### Scanning Tool Outputs
+
+A tool may return data that contains prompt injection attacks.
+For example, a tool that fetches a URL may return a page that contains prompt injection attacks.
+
+To prevent this, you can enable the `detectPromptInjection` option. It will run your [content safety scanner](/genaiscript/reference/scripts/content-safety) services
+on the tool output and will erase the answer if an attack is detected.
+
+```js 'toolsSha: ""'
+script({
+    mcpServers: {
+        playwright: {
+            ...,
+            detectPromptInjection: "always"
+        }
+    }
+})
+```

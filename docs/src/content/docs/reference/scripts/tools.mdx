@@ -168,6 +168,7 @@ The performance of this feature will vary greatly based on the LLM model you dec
 ## Prompt Injection Detection
 
 A tool may retrieve data that contains prompt injection attacks. For example, a tool that fetches a URL may return a page that contains prompt injection attacks.
+
 To prevent this, you can enable the `detectPromptInjection` option. It will run your [content safety scanner](/genaiscript/reference/scripts/content-safety) services
 on the tool output and will erase the answer if an attack is detected.
 
