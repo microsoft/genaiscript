@@ -3,8 +3,14 @@ script({
     description: "Generate a pull request description from the git diff",
     temperature: 0.5,
     systemSafety: true,
+    parameters: {
+        base: {
+            type: "string",
+            description: "The base branch of the pull request",
+        },
+    },
 })
-const defaultBranch = "dev"
+const defaultBranch = env.vars.base || (await git.defaultBranch())
 const branch = await git.branch()
 if (branch === defaultBranch) cancel("you are already on the default branch")
 

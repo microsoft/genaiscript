@@ -20,6 +20,13 @@ cover:
     product launch efficiency. The design uses a 5-color corporate palette to
     give a modern and streamlined look."
   image: ./creating-release-notes-with-genai.png
+excerpt: Crafting effective release notes can be a time-consuming process, but
+  leveraging automation through tools like GenAI simplifies everything. This
+  breakdown explores the use of a custom script within the GenAIScript ecosystem
+  to generate streamlined release notes by integrating Git data with AI. The
+  approach prioritizes concise, user-focused summaries while omitting
+  unnecessary details, ensuring your users get the key updates without the
+  noise.
 
 ---
 

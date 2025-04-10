@@ -2927,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.126.3
+ - genaiscript-vscode@1.126.6
 
 This package contains the following license:
 
@@ -7367,6 +7367,22 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----------
 
+The following npm package may be included in this product:
+
+ - @octokit/openapi-types@25.0.0
+
+This package contains the following license:
+
+Copyright (c) GitHub 2025 - Licensed as MIT.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-----------
+
 The following npm packages may be included in this product:
 
  - @azure/core-client@1.9.3
@@ -8883,10 +8899,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.126.3
- - genaiscript-sample@1.126.3
- - genaiscript-web@1.126.3
- - genaiscript@1.126.3
+ - genaiscript-core-internal@1.126.6
+ - genaiscript-sample@1.126.6
+ - genaiscript-web@1.126.6
+ - genaiscript@1.126.6
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9334,7 +9350,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @octokit/plugin-retry@7.2.0
+ - @octokit/plugin-retry@7.2.1
 
 This package contains the following license:
 
@@ -11115,6 +11131,7 @@ The following npm packages may be included in this product:
  - @octokit/plugin-paginate-rest@11.6.0
  - @octokit/plugin-rest-endpoint-methods@13.5.0
  - @octokit/types@13.10.0
+ - @octokit/types@14.0.0
 
 These packages each contain the following license:
 
@@ -11981,10 +11998,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @octokit/endpoint@10.1.3
- - @octokit/graphql@8.2.1
+ - @octokit/endpoint@10.1.4
+ - @octokit/graphql@8.2.2
  - @octokit/plugin-throttling@9.6.1
- - @octokit/request@9.2.2
+ - @octokit/request@9.2.3
 
 These packages each contain the following license:
 
@@ -12015,8 +12032,8 @@ THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/auth-token@5.1.2
- - @octokit/core@6.1.4
- - @octokit/request-error@6.1.7
+ - @octokit/core@6.1.5
+ - @octokit/request-error@6.1.8
 
 These packages each contain the following license:
 

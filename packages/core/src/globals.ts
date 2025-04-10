@@ -129,7 +129,7 @@ export function installGlobals() {
     glb.github = GitHubClient.default()
 
     // Instantiate Git client
-    glb.git = new GitClient(undefined)
+    glb.git = GitClient.default()
 
     glb.tokenizers = Object.freeze<Tokenizers>({
         resolve: resolveTokenEncoder,

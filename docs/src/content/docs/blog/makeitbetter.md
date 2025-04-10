@@ -15,6 +15,12 @@ cover:
     it better" suggests an enhancement process. The backdrop features a simple,
     five-color geometric pattern, evoking a futuristic corporate environment.
   image: ./makeitbetter.png
+excerpt: Harnessing the power of the `makeItBetter` function in GenAIScript
+  simplifies code refinement by automating improvement loops. By analyzing and
+  enhancing your code in just a few steps, this tool maximizes efficiency
+  without the need for manual optimizations. If you're diving into AI-driven
+  coding workflows, this approach offers a streamlined way to iterate and
+  elevate your results.
 
 ---
 

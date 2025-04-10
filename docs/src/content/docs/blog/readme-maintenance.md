@@ -20,6 +20,13 @@ cover:
     setting is a stylized corporate office, depicted with minimal geometric
     shapes and a 5-color palette, giving it a classic, retro aesthetic.
   image: ./readme-maintenance.png
+excerpt: A strong `README` can define your project's success in the open source
+  world. The GenAIScript used in the GenAI project is a great example of
+  automating `README` maintenance by pulling the latest details from
+  documentation and samples. This ensures your project's first impression stays
+  both current and engaging. Curious about how to run it? The GenAIScript CLI
+  makes it seamless. Keep your contributions visible, your documentation sharp,
+  and your users informed.
 
 ---
 
