@@ -148,9 +148,16 @@ MCP is a powerful protocol that also brings a number of security risks that one 
 GenAIScript implements various protection mechanisms to mitigate these risks. However, it is important to
 understand the risks and how to use them.
 
-### Pin package versions
+### Dockerized packages
 
-You can pin the version of the MCP server executed with `npx`.
+Many packages are available as Docker images. This is a good way to run a package in an isolated environment.
+It also solves configuration/tool installation issues.
+
+### Pinning package versions
+
+You can pin the version of the MCP server executed with `npx` or other package managers.
+This is a good way to ensure that the server is not updated to a new version that may break your script
+or introduce a vulnerability.
 
 ```js '@0.6.2'
 script({
