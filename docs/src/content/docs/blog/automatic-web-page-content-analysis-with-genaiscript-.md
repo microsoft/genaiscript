@@ -18,6 +18,10 @@ cover:
     abstract geometric shapes representing data analysis. The design
     incorporates five distinct colors arranged in an orderly pattern.
   image: ./automatic-web-page-content-analysis-with-genaiscript-.png
+excerpt: Automating web page content analysis is simplified with GenAIScript and
+  Playwright. From extracting text to analyzing page insights, this method
+  eliminates manual effort while streamlining workflows. Explore practical use
+  cases for competitive audits and scalable automation in your toolkit.
 
 ---
 

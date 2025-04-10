@@ -71,10 +71,6 @@ ${MD.content(file.content)}
             .filter(Boolean)
 }
 
-
-fm.excerpt = null // remove when RSS bug is fixed
-/**
- * BUG IN BLOG
 if (!fm.excerpt) {
     const res = await prompt`
 Generate an excerpt from <BLOG_POST>.
@@ -92,7 +88,6 @@ ${MD.content(file.content)}
     })
     if (!res.error) fm.excerpt = res.text.trim()
 }
-*/
 
 // phase 5: save files
 file.content = MD.updateFrontmatter(file.content, fm)

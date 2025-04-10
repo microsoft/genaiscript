@@ -18,6 +18,11 @@ cover:
     rectangle, indicating the use of a GenAIScript transformation. The backdrop
     is a plain, corporate hue.
   image: ./search-transform-genai.png
+excerpt: Ever found yourself manually sifting through files to identify patterns
+  and update outdated syntax? This guide introduces an automated approach to
+  streamline such transformations, enhancing efficiency and accuracy. From
+  identifying legacy usage to adopting updated conventions, it's a step toward
+  more maintainable codebases.
 
 ---
 

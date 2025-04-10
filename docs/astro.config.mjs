@@ -107,10 +107,18 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                 Head: "./src/components/Head.astro",
                 Footer: "./src/components/Footer.astro",
             },
-            social: {
-                github: "https://github.com/microsoft/genaiscript",
-                youtube: "https://www.youtube.com/@pelihalleux",
-            },
+            social: [
+                {
+                    icon: "github",
+                    label: "GitHub",
+                    href: "https://github.com/microsoft/genaiscript",
+                },
+                {
+                    icon: "youtube",
+                    label: "YouTube",
+                    href: "https://www.youtube.com/@pelihalleux",
+                },
+            ],
             editLink: {
                 baseUrl:
                     "https://github.com/microsoft/genaiscript/edit/main/docs/",

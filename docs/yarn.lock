@@ -193,10 +193,10 @@
     stream-replace-string "^2.0.0"
     zod "^3.24.2"
 
-"@astrojs/starlight@^0.32.6":
-  version "0.32.6"
-  resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.32.6.tgz#af6723cc3c46a5110076da88628dd340c7656efd"
-  integrity sha512-ASWGwNzq+0TmJ+GJFFxFFxx6Yra7BqIIMQbvOy/cweTHjqejB6mcaEWtS3Mag12LM7tXCES7v/fzmdPgjz8Yxw==
+"@astrojs/starlight@^0.33.0":
+  version "0.33.0"
+  resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.33.0.tgz#ca589127be65f1b9f9008cf218d23a72a6b15617"
+  integrity sha512-BAdz3TJ5f7e0iDwu7ZNy6i6Rlca2sgi416K8pGPN3VMIlgJmj9NCqSUGZh+OQhk5FNzmnssi8w+xQQeNpe5hDw==
   dependencies:
     "@astrojs/mdx" "^4.0.5"
     "@astrojs/sitemap" "^3.2.1"
@@ -3207,12 +3207,7 @@ marked-smartypants@^1.1.6:
   dependencies:
     smartypants "^0.2.2"
 
-marked@^12.0.0:
-  version "12.0.2"
-  resolved "https://registry.yarnpkg.com/marked/-/marked-12.0.2.tgz#b31578fe608b599944c69807b00f18edab84647e"
-  integrity sha512-qXUm7e/YKFoqFPYPa3Ukg9xlI5cyAtGmyEIzMfW//m6kXwCy2Ps9DYf5ioijFKQ8qyuscrHoY04iJGctu2Kg0Q==
-
-marked@^15.0.4, marked@^15.0.7:
+marked@15.0.8, marked@^12.0.0, marked@^15.0.4, marked@^15.0.7:
   version "15.0.8"
   resolved "https://registry.yarnpkg.com/marked/-/marked-15.0.8.tgz#39873a3fdf91a520111e48aeb2ef3746d58d7166"
   integrity sha512-rli4l2LyZqpQuRve5C0rkn6pj3hT8EWPC+zkAxFTAJLxRbENfTAhEQq9itrmf1Y81QtAX5D/MYlGlIomNgj9lA==
@@ -4655,10 +4650,10 @@ space-separated-tokens@^2.0.0:
   resolved "https://registry.yarnpkg.com/space-separated-tokens/-/space-separated-tokens-2.0.2.tgz#1ecd9d2350a3844572c3f4a312bceb018348859f"
   integrity sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==
 
-starlight-blog@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.19.0.tgz#440551d1e21c019a6e817ba8177fc2416af6218c"
-  integrity sha512-GWeSxqy4PPClbaDHZ0viWNSGdWwvB93DB6GQypSg+TzdxcmdXFjGLSqxHfeGXMR3gAYJj9ly3HkRXRL5zw7HEw==
+starlight-blog@^0.20.0:
+  version "0.20.0"
+  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.20.0.tgz#59da0eccbd93179b1ebc57bfc62985f3c937a5bd"
+  integrity sha512-+bhu1RBNsV9UQGieJRPKgV6rol5Jg92yuCRaMAevrprHZDejTGYm+2/MzV/guQM4/0QbYMfF50FdheiIZwbT4g==
   dependencies:
     "@astrojs/mdx" "^4.0.8"
     "@astrojs/rss" "^4.0.11"
@@ -4668,7 +4663,7 @@ starlight-blog@^0.19.0:
     marked-plaintify "^1.1.1"
     ultrahtml "^1.5.3"
 
-starlight-links-validator@^0.15.0:
+starlight-links-validator@^0.15.1:
   version "0.15.1"
   resolved "https://registry.yarnpkg.com/starlight-links-validator/-/starlight-links-validator-0.15.1.tgz#ac644400fa332490577be036de98318c7f7ac83e"
   integrity sha512-RlrP7mg+t0mPSHre+WFzPKeNdzyrKezMIRWwHygRivyKWv+OCN+3jildryJSC+3mXjHWsNYrGpZSvy0m99mXDw==
@@ -5353,7 +5348,7 @@ zwitch@^2.0.0, zwitch@^2.0.4:
   resolved "https://registry.yarnpkg.com/zwitch/-/zwitch-2.0.4.tgz#c827d4b0acb76fc3e685a4c6ec2902d51070e9d7"
   integrity sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==
 
-zx@^8.4.1:
+zx@^8.5.2:
   version "8.5.2"
   resolved "https://registry.yarnpkg.com/zx/-/zx-8.5.2.tgz#52615d9c95c5085a90e4a6287ddbd745ec53e490"
   integrity sha512-eIxjTkCtlzvDNRhw3RD1gGBPA4nxOTn6PafpKl+MW4eE2jR/u/R6mqq7oyUCXwarM5DSP96kWtq6XkrL2kSFrg==
