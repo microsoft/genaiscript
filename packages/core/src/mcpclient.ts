@@ -2,7 +2,7 @@ import debug from "debug"
 const dbg = debug("genaiscript:mcp:client")
 
 import { TraceOptions } from "./trace"
-import { arrayify, logVerbose } from "./util"
+import { arrayify, logError, logInfo, logVerbose } from "./util"
 import type {
     TextContent,
     ImageContent,
@@ -12,6 +12,9 @@ import { errorMessage } from "./error"
 import { CancellationOptions, toSignal } from "./cancellation"
 import type { ProgressCallback } from "@modelcontextprotocol/sdk/shared/protocol.js"
 import { deleteUndefinedValues } from "./cleaners"
+import { hash } from "./crypto"
+import { fileWriteCachedJSON } from "./filecache"
+import { dotGenaiscriptPath } from "./workdir"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClient[] = []
@@ -25,7 +28,13 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
     ): Promise<McpClient> {
         const { cancellationToken } = options || {}
         const signal = toSignal(cancellationToken)
-        const { id, version = "1.0.0", params = [], ...rest } = serverConfig
+        const {
+            id,
+            version = "1.0.0",
+            params = [],
+            toolsSha,
+            ...rest
+        } = serverConfig
         const dbgc = debug(`mcp:${id}`)
         dbgc(`starting ${id}`)
         const trace = options.trace.startTraceDetails(`🪚 mcp ${id}`)
@@ -68,6 +77,28 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                     })),
                     "json"
                 )
+
+                const sha = await hash(JSON.stringify(toolDefinitions))
+                trace.itemValue("tools sha", sha)
+                logVerbose(`mcp ${id}: tools sha: ${sha}`)
+                if (toolsSha !== undefined) {
+                    if (sha === toolsSha)
+                        logVerbose(
+                            `mcp ${id}: tools signature validated successfully`
+                        )
+                    else {
+                        const toolsFile = await fileWriteCachedJSON(
+                            dotGenaiscriptPath("mcp", id, "tools"),
+                            toolDefinitions
+                        )
+                        logInfo(`mcp ${id}: tools: ${toolsFile}`)
+                        logError(
+                            `mcp ${id}: tools signature changed, please review the tools and update 'toolsSha' in the mcp server configuration.`
+                        )
+                        throw new Error(`mcp ${id} tools signature changed`)
+                    }
+                }
+
                 const tools = toolDefinitions.map(
                     ({ name, description, inputSchema }) =>
                         ({

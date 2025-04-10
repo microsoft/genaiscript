@@ -11,13 +11,10 @@ import logoPngTxt from "../../../../assets/mcp.png.txt?raw"
 
 <Image src={logoPng} alt={logoPngTxt} />
 
-[Model Context Protocol](https://modelcontextprotocol.io/) (MCP) is an emerging standard
-for portable tool definitions.
-
-The MCP defines a protocol that allows to share [tools](https://modelcontextprotocol.io/docs/concepts/tools)
+The [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) defines a protocol that allows to share [tools](https://modelcontextprotocol.io/docs/concepts/tools)
 and consume them regardless of the underlying framework/runtime.
 
-**GenAIScript implements a client for MCP tools**.
+**GenAIScript implements a client for MCP servers/tools**.
 
 <YouTube id="https://youtu.be/q4Um2Mlvxy8" posterQuality="high" />
 
@@ -30,7 +27,8 @@ See [MCP server](/genaiscript/reference/scripts/mcp-server) for more details.
 
 ## Configuring servers
 
-You can declare the MCP server configuration in the `script` function (as tools or agents) or load them dynamically using `defTool`.
+You can declare the MCP server configuration in the `script` function (as tools or agents)
+or load them dynamically using `defTool`.
 
 ### `mcpServers`
 
@@ -55,6 +53,12 @@ script({
     },
 })
 ```
+
+:::tip
+
+See the [Security](#security) section for options to secure the use of MCP servers.
+
+:::
 
 ### `mcpAgentServers`
 
@@ -137,3 +141,45 @@ the server will be started/stopped for each inline prompt.
 ## Finding servers
 
 The list of available servers can be found in the [Model Context Protocol Servers project](https://github.com/modelcontextprotocol/servers).
+
+## Security
+
+MCP is a powerful protocol that also brings a number of security risks that one should be aware of.
+GenAIScript implements various protection mechanisms to mitigate these risks. However, it is important to
+understand the risks and how to use them.
+
+### Validating Tools signature
+
+GenAIScript supports setting the `signature` of the tools declared by a server. If the tools signature does not match,
+GenAIScript will refuse to load the server (and throw an error).
+
+This prevents **rug pull attacks**, where a MCP server would change the tools
+based on some external condition (e.g. running a second time).
+
+To enable this feature, you first want to set `toolsSha` to a empty value to trigger the validation.
+
+```js 'toolsSha: ""'
+script({
+    mcpServers: {
+        playwright: {
+            ...,
+            toolsSha: ""
+        }
+    }
+})
+```
+
+Then run your script and it will fail to load the MCP server. The terminal log will contain the computed
+signature of the tools and a cached file with the tools content so that you can review it further.
+If everything looks ok, you can set the signature to `toolsSha` and run the script again.
+
+```js 'toolsSha: ""'
+script({
+    mcpServers: {
+        playwright: {
+            ...,
+            toolsSha: "52cf857f903a115dd40faacfaf5882ea532351566c9bc8949ac1e31a72ab44a5"
+        }
+    }
+})
+```

@@ -32,6 +32,11 @@ system({
             minimum: 16,
             description: "Maximum number of tokens returned by the tools.",
         },
+        toolsSha: {
+            type: "string",
+            description:
+                "The SHA256 hash of the tools returned by the MCP server.",
+        },
     },
 })
 
@@ -46,17 +51,26 @@ export default function (ctx: ChatGenerationContext) {
     const params = (vars["system.mcp.params"] as string[]) || []
     const version = vars["system.mcp.version"] as string
     const maxTokens = vars["system.mcp.maxTokens"] as number
+    const toolsSha = vars["system.mcp.toolsSha"] as string
 
     if (!id) throw new Error("Missing required parameter: id")
     if (!command) throw new Error("Missing required parameter: command")
 
-    dbg(`loading %s %O`, id, { command, args, params, version, maxTokens })
+    dbg(`loading %s %O`, id, {
+        command,
+        args,
+        params,
+        version,
+        maxTokens,
+        toolsSha,
+    })
     const configs = {
         [id]: {
             command,
             args,
             params,
             version,
+            toolsSha,
         },
     } satisfies McpServersConfig
     defTool(configs, { maxTokens })

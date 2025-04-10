@@ -279,6 +279,7 @@ export const PDF_HASH_LENGTH = 22
 export const DOCX_HASH_LENGTH = 22
 export const VECTOR_INDEX_HASH_LENGTH = 22
 export const RESOURCE_HASH_LENGTH = 22
+export const FILE_HASH_LENGTH = 64
 
 export const PDF_MIME_TYPE = "application/pdf"
 export const DOCX_MIME_TYPE =

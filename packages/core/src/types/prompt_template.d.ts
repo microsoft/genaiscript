@@ -4088,6 +4088,13 @@ interface McpServerConfig {
 
     id: string
     options?: DefToolOptions
+
+    /**
+     * The sha signature of the tools returned by the server.
+     * If set, the tools will be validated against this sha.
+     * This is used to ensure that the tools are not modified by the server.
+     */
+    toolsSha?: string
 }
 
 type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
