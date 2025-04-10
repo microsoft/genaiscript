@@ -2,7 +2,7 @@ import debug from "debug"
 const dbg = debug("genaiscript:mcp:client")
 
 import { TraceOptions } from "./trace"
-import { arrayify, logError, logInfo, logVerbose } from "./util"
+import { arrayify, logError, logVerbose } from "./util"
 import type {
     TextContent,
     ImageContent,
@@ -15,8 +15,8 @@ import { deleteUndefinedValues } from "./cleaners"
 import { hash } from "./crypto"
 import { fileWriteCachedJSON } from "./filecache"
 import { dotGenaiscriptPath } from "./workdir"
-import { runtimeHost } from "./host"
 import { YAMLStringify } from "./yaml"
+import { resolveContentSafety } from "./contentsafety"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClient[] = []
@@ -106,17 +106,10 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
 
                 if (detectPromptInjection) {
                     const { detectPromptInjection: detector } =
-                        (await runtimeHost.contentSafety(contentSafety, {
+                        await resolveContentSafety(serverConfig, {
                             trace,
-                        })) || {}
-                    if (
-                        (!detector && detectPromptInjection === true) ||
-                        detectPromptInjection === "always"
-                    )
-                        throw new Error(
-                            `mcp ${id}: content safety provider not configured`
-                        )
-
+                            cancellationToken,
+                        })
                     const result = await detector(
                         YAMLStringify(toolDefinitions)
                     )
