@@ -35,7 +35,7 @@ or load them dynamically using `defTool`.
 You can declare the MCP server configuration in the `mcpServers` field of `script` or `runPrompt`.
 This is the same configuration as Claude configuration file.
 
-```js "mcp:"
+```js "mcpServers:"
 script({
     mcpServers: {
         memory: {
@@ -147,6 +147,21 @@ The list of available servers can be found in the [Model Context Protocol Server
 MCP is a powerful protocol that also brings a number of security risks that one should be aware of.
 GenAIScript implements various protection mechanisms to mitigate these risks. However, it is important to
 understand the risks and how to use them.
+
+### Pin package versions
+
+You can pin the version of the MCP server executed with `npx`.
+
+```js '@0.6.2'
+script({
+    mcpServers: {
+        memory: {
+            command: "npx",
+            args: ["-y", "@modelcontextprotocol/server-memory@0.6.2"],
+        },
+    },
+})
+```
 
 ### Validating Tools signature
 
