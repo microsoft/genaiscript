@@ -16,7 +16,7 @@ import { hash } from "./crypto"
 import { fileWriteCachedJSON } from "./filecache"
 import { dotGenaiscriptPath } from "./workdir"
 import { YAMLStringify } from "./yaml"
-import { resolveContentSafety } from "./contentsafety"
+import { resolvePromptInjectionDetector } from "./contentsafety"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClient[] = []
@@ -105,11 +105,13 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 }
 
                 if (detectPromptInjection) {
-                    const { detectPromptInjection: detector } =
-                        await resolveContentSafety(serverConfig, {
+                    const detector = await resolvePromptInjectionDetector(
+                        serverConfig,
+                        {
                             trace,
                             cancellationToken,
-                        })
+                        }
+                    )
                     const result = await detector(
                         YAMLStringify(toolDefinitions)
                     )

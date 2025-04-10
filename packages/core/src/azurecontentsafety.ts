@@ -1,4 +1,4 @@
-import { createFetch } from "./fetch"
+import { createFetch, statusToMessage } from "./fetch"
 import { TraceOptions } from "./trace"
 import { arrayify } from "./util"
 import {
@@ -13,6 +13,8 @@ import { trimTrailingSlash } from "./cleaners"
 import { chunkString } from "./chunkers"
 import { createCache } from "./cache"
 import { traceFetchPost } from "./fetchtext"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("contentsafety:azure")
 
 interface AzureContentSafetyRequest {
     userPrompt?: string
@@ -29,6 +31,7 @@ interface AzureContentSafetyResponse {
 }
 
 class AzureContentSafetyClient implements ContentSafety {
+    readonly id: "azure"
     private readonly cache: WorkspaceFileCache<
         { route: string; body: object; options: object },
         object
@@ -55,6 +58,7 @@ class AzureContentSafetyClient implements ContentSafety {
         const route = "text:analyze"
 
         try {
+            dbg(`detecting harmful content`)
             trace?.startDetails("🛡️ content safety: detecting harmful content")
 
             const fetcher = await this.createClient(route)
@@ -68,10 +72,12 @@ class AzureContentSafetyClient implements ContentSafety {
                 }
 
                 const res = await fetcher(body)
-                if (!res.ok)
+                if (!res.ok) {
+                    dbg(statusToMessage(res))
                     throw new Error(
                         `Azure Content Safety API failed with status ${res.status}`
                     )
+                }
                 const resBody = (await res.json()) as {
                     blockslistMath: string[]
                     categoriesAnalysis: { category: string; severity: number }[]
@@ -104,6 +110,7 @@ class AzureContentSafetyClient implements ContentSafety {
             }
 
             trace?.item("no harmful content detected")
+            dbg(`no harmful content detected`)
             return { harmfulContentDetected: false }
         } finally {
             trace?.endDetails()
@@ -120,6 +127,7 @@ class AzureContentSafetyClient implements ContentSafety {
         const route = "text:shieldPrompt"
 
         try {
+            dbg(`detecting prompt injection`)
             trace?.startDetails("🛡️ content safety: detecting prompt injection")
 
             const input = arrayify(await content)
@@ -135,10 +143,12 @@ class AzureContentSafetyClient implements ContentSafety {
                     return cached as { attackDetected: boolean }
                 }
                 const res = await fetcher(body)
-                if (!res.ok)
+                if (!res.ok) {
+                    dbg(statusToMessage(res))
                     throw new Error(
                         `Azure Content Safety API failed with status ${res.status}`
                     )
+                }
                 const resBody = (await res.json()) as AzureContentSafetyResponse
                 const attackDetected =
                     !!resBody.userPromptAnalysis?.attackDetected ||
@@ -182,6 +192,7 @@ class AzureContentSafetyClient implements ContentSafety {
                 }
             }
             trace.item("no attack detected")
+            dbg(`no attack detected`)
             return { attackDetected: false }
         } finally {
             trace?.endDetails()
@@ -205,6 +216,7 @@ class AzureContentSafetyClient implements ContentSafety {
             process.env.AZURE_CONTENT_SAFETY_API_KEY
         let apiToken: string
         if (!apiKey) {
+            dbg(`requesting Azure token`)
             const { token, error } = await runtimeHost.azureToken.token(
                 credentialsType,
                 options
@@ -212,6 +224,7 @@ class AzureContentSafetyClient implements ContentSafety {
             apiToken = token.token
         }
         const version = process.env.AZURE_CONTENT_SAFETY_VERSION || "2024-09-01"
+        dbg(`azure version: %s`, version)
 
         if (!endpoint)
             throw new Error(
@@ -278,6 +291,7 @@ export function createAzureContentSafetyClient(
 ): ContentSafety {
     const client = new AzureContentSafetyClient(options)
     return {
+        id: client.id,
         detectHarmfulContent: client.detectHarmfulContent.bind(client),
         detectPromptInjection: client.detectPromptInjection.bind(client),
     } satisfies ContentSafety

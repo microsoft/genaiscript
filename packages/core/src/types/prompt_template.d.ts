@@ -3636,6 +3636,11 @@ interface CSV {
  */
 interface ContentSafety {
     /**
+     * Service identifier
+     */
+    id: string
+
+    /**
      * Scans text for the risk of a User input attack on a Large Language Model.
      * If not supported, the method is not defined.
      */
