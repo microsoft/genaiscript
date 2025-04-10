@@ -511,7 +511,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
 
     async contentSafety(
         id?: "azure",
-        options?: TraceOptions
+        options?: TraceOptions & CancellationOptions
     ): Promise<ContentSafety> {
         if (!id && isAzureContentSafetyClientConfigured()) {
             id = "azure"

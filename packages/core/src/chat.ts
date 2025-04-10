@@ -99,8 +99,8 @@ import { measure } from "./performance"
 import { renderMessagesToTerminal } from "./chatrenderterminal"
 import { fileCacheImage } from "./filecache"
 import { stderr } from "./stdio"
-import { prettyTokens } from "./pretty"
 import { isQuiet } from "./quiet"
+import { resolvePromptInjectionDetector } from "./contentsafety"
 
 function toChatCompletionImage(
     image: PromptImage
@@ -245,6 +245,7 @@ async function runToolCalls(
         try {
             await runToolCall(
                 toolTrace,
+                cancellationToken,
                 call,
                 tools,
                 edits,
@@ -267,6 +268,7 @@ async function runToolCalls(
 
 async function runToolCall(
     trace: MarkdownTrace,
+    cancellationToken: CancellationToken,
     call: ChatCompletionToolCall,
     tools: ToolCallback[],
     edits: Edits[],
@@ -401,6 +403,29 @@ ${fenceMD(content, " ")}
                     return { filename: fn, ...rest }
                 })
             )
+        }
+
+        const detector = await resolvePromptInjectionDetector(tool.options, {
+            trace,
+            cancellationToken,
+        })
+        if (detector) {
+            dbg(`checking tool result for prompt injection`)
+            logVerbose(`tool ${tool.spec.name}: checking for prompt injection`)
+            const result = await detector(toolContent)
+            dbg(`attack detected: ${result?.attackDetected}`)
+            if (result.attackDetected) {
+                logWarn(`tool ${tool.spec.name}: prompt injection detected`)
+                trace.error(
+                    `tool ${tool.spec.name}: prompt injection detected`,
+                    result
+                )
+                toolContent = `!WARNING! prompt injection detected in tool ${tool.spec.name} !WARNING!`
+            } else {
+                logVerbose(
+                    `tool: ${tool.spec.name} prompt injection not detected`
+                )
+            }
         }
 
         const toolContentTokens = approximateTokens(toolContent)

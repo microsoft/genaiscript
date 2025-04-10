@@ -2,7 +2,7 @@ import debug from "debug"
 const dbg = debug("genaiscript:mcp:client")
 
 import { TraceOptions } from "./trace"
-import { arrayify, logError, logInfo, logVerbose } from "./util"
+import { arrayify, logError, logVerbose } from "./util"
 import type {
     TextContent,
     ImageContent,
@@ -15,6 +15,8 @@ import { deleteUndefinedValues } from "./cleaners"
 import { hash } from "./crypto"
 import { fileWriteCachedJSON } from "./filecache"
 import { dotGenaiscriptPath } from "./workdir"
+import { YAMLStringify } from "./yaml"
+import { resolvePromptInjectionDetector } from "./contentsafety"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClient[] = []
@@ -33,8 +35,15 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             version = "1.0.0",
             params = [],
             toolsSha,
+            detectPromptInjection,
+            contentSafety,
             ...rest
         } = serverConfig
+
+        const toolOptions = deleteUndefinedValues({
+            contentSafety,
+            detectPromptInjection,
+        }) satisfies DefToolOptions
         const dbgc = debug(`mcp:${id}`)
         dbgc(`starting ${id}`)
         const trace = options.trace.startTraceDetails(`🪚 mcp ${id}`)
@@ -77,6 +86,12 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                     })),
                     "json"
                 )
+                const toolsFile = await fileWriteCachedJSON(
+                    dotGenaiscriptPath("mcp", id, "tools"),
+                    toolDefinitions
+                )
+
+                logVerbose(`mcp ${id}: tools: ${toolsFile}`)
 
                 const sha = await hash(JSON.stringify(toolDefinitions))
                 trace.itemValue("tools sha", sha)
@@ -87,15 +102,29 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                             `mcp ${id}: tools signature validated successfully`
                         )
                     else {
-                        const toolsFile = await fileWriteCachedJSON(
-                            dotGenaiscriptPath("mcp", id, "tools"),
-                            toolDefinitions
-                        )
-                        logInfo(`mcp ${id}: tools: ${toolsFile}`)
                         logError(
                             `mcp ${id}: tools signature changed, please review the tools and update 'toolsSha' in the mcp server configuration.`
                         )
                         throw new Error(`mcp ${id} tools signature changed`)
+                    }
+                }
+
+                if (detectPromptInjection) {
+                    const detector = await resolvePromptInjectionDetector(
+                        serverConfig,
+                        {
+                            trace,
+                            cancellationToken,
+                        }
+                    )
+                    const result = await detector(
+                        YAMLStringify(toolDefinitions)
+                    )
+                    if (result.attackDetected) {
+                        dbgc("%O", result)
+                        throw new Error(
+                            `mcp ${id}: prompt injection detected in tools`
+                        )
                     }
                 }
 
@@ -107,6 +136,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                                 description,
                                 parameters: inputSchema as any,
                             },
+                            options: toolOptions,
                             impl: async (args: any) => {
                                 const { context, ...rest } = args
                                 const res = await client.callTool(

@@ -1723,6 +1723,9 @@ interface FileFilterOptions extends GitIgnoreFilterOptions {
 }
 
 interface ContentSafetyOptions {
+    /**
+     * Configure the content safety provider.
+     */
     contentSafety?: ContentSafetyProvider
     /**
      * Runs the default content safety validator
@@ -3633,6 +3636,11 @@ interface CSV {
  */
 interface ContentSafety {
     /**
+     * Service identifier
+     */
+    id: string
+
+    /**
      * Scans text for the risk of a User input attack on a Large Language Model.
      * If not supported, the method is not defined.
      */
@@ -4043,7 +4051,7 @@ interface RunPromptResultPromiseWithOptions extends Promise<RunPromptResult> {
     options(values?: PromptGeneratorOptions): RunPromptResultPromiseWithOptions
 }
 
-interface DefToolOptions {
+interface DefToolOptions extends ContentSafetyOptions {
     /**
      * Maximum number of tokens per tool content response
      */
@@ -4079,8 +4087,8 @@ type ChatAgentHandler = (
     args: ChatFunctionArgs
 ) => Awaitable<unknown>
 
-interface McpServerConfig {
-    command: OptionsOrString<"npx" | "uv">
+interface McpServerConfig extends ContentSafetyOptions {
+    command: OptionsOrString<"npx" | "uv" | "dotnet" | "docker" | "cargo">
     args: string[]
     params?: string[]
     version?: string

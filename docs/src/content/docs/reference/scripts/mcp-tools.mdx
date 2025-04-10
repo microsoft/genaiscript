@@ -148,9 +148,16 @@ MCP is a powerful protocol that also brings a number of security risks that one 
 GenAIScript implements various protection mechanisms to mitigate these risks. However, it is important to
 understand the risks and how to use them.
 
-### Pin package versions
+### Dockerized packages
 
-You can pin the version of the MCP server executed with `npx`.
+Many packages are available as Docker images. This is a good way to run a package in an isolated environment.
+It also solves configuration/tool installation issues.
+
+### Pinning package versions
+
+You can pin the version of the MCP server executed with `npx` or other package managers.
+This is a good way to ensure that the server is not updated to a new version that may break your script
+or introduce a vulnerability.
 
 ```js '@0.6.2'
 script({
@@ -194,6 +201,25 @@ script({
         playwright: {
             ...,
             toolsSha: "52cf857f903a115dd40faacfaf5882ea532351566c9bc8949ac1e31a72ab44a5"
+        }
+    }
+})
+```
+
+### Scanning Tool Outputs
+
+A tool may return data that contains prompt injection attacks.
+For example, a tool that fetches a URL may return a page that contains prompt injection attacks.
+
+To prevent this, you can enable the `detectPromptInjection` option. It will run your [content safety scanner](/genaiscript/reference/scripts/content-safety) services
+on the tool output and will erase the answer if an attack is detected.
+
+```js 'toolsSha: ""'
+script({
+    mcpServers: {
+        playwright: {
+            ...,
+            detectPromptInjection: "always"
         }
     }
 })
