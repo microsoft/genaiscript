@@ -411,12 +411,13 @@ ${fenceMD(content, " ")}
         })
         if (detector) {
             dbg(`checking tool result for prompt injection`)
+            logVerbose(`tool ${tool.spec.name}: checking for prompt injection`)
             const result = await detector(toolContent)
             dbg(`attack detected: ${result?.attackDetected}`)
             if (result.attackDetected) {
-                logWarn(`tool: ${tool.spec.name} prompt injection detected`)
+                logWarn(`tool ${tool.spec.name}: prompt injection detected`)
                 trace.error(
-                    `tool: ${tool.spec.name} prompt injection detected`,
+                    `tool ${tool.spec.name}: prompt injection detected`,
                     result
                 )
                 toolContent = `!WARNING! prompt injection detected in tool ${tool.spec.name} !WARNING!`

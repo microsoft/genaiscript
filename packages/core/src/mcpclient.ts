@@ -39,6 +39,11 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             contentSafety,
             ...rest
         } = serverConfig
+
+        const toolOptions = deleteUndefinedValues({
+            contentSafety,
+            detectPromptInjection,
+        }) satisfies DefToolOptions
         const dbgc = debug(`mcp:${id}`)
         dbgc(`starting ${id}`)
         const trace = options.trace.startTraceDetails(`🪚 mcp ${id}`)
@@ -131,6 +136,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                                 description,
                                 parameters: inputSchema as any,
                             },
+                            options: toolOptions,
                             impl: async (args: any) => {
                                 const { context, ...rest } = args
                                 const res = await client.callTool(
