@@ -728,10 +728,6 @@ interface PromptRedteam {
     >
 }
 
-interface ContentSafetyOptions {
-    contentSafety?: ContentSafetyProvider
-}
-
 /**
  * Different ways to render a fence block.
  */
@@ -758,6 +754,7 @@ interface PromptScript
         PromptSystemOptions,
         EmbeddingsModelOptions,
         ContentSafetyOptions,
+        SecretDetectionOptions,
         GitIgnoreFilterOptions,
         ScriptRuntimeOptions {
     /**
@@ -1725,7 +1722,8 @@ interface FileFilterOptions extends GitIgnoreFilterOptions {
     glob?: ElementOrArray<string>
 }
 
-interface ContentSafetyOptions extends SecretDetectionOptions {
+interface ContentSafetyOptions {
+    contentSafety?: ContentSafetyProvider
     /**
      * Runs the default content safety validator
      * to prevent prompt injection.
@@ -3900,7 +3898,8 @@ type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 interface PromptGeneratorOptions
     extends ModelOptions,
         PromptSystemOptions,
-        ContentSafetyOptions {
+        ContentSafetyOptions,
+        SecretDetectionOptions {
     /**
      * Label for trace
      */

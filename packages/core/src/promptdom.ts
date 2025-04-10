@@ -1550,7 +1550,8 @@ export function finalizeMessages(
         fileOutputs?: FileOutput[]
     } & ModelOptions &
         TraceOptions &
-        ContentSafetyOptions
+        ContentSafetyOptions &
+        SecretDetectionOptions
 ) {
     const m = measure("prompt.dom.finalize")
     const { fileOutputs, trace, secretScanning } = options || {}
