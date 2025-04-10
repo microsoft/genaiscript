@@ -472,7 +472,7 @@ interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {
     embeddingsModel?: EmbeddingsModelType
 }
 
-interface PromptSystemOptions {
+interface PromptSystemOptions extends PromptSystemSafetyOptions {
     /**
      * List of system script ids used by the prompt.
      */
@@ -1731,7 +1731,9 @@ interface ContentSafetyOptions extends SecretDetectionOptions {
      * to prevent prompt injection.
      */
     detectPromptInjection?: "always" | "available" | boolean
+}
 
+interface PromptSystemSafetyOptions {
     /**
      * Policy to inject builtin system prompts. See to `false` prevent automatically injecting.
      */
