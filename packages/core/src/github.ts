@@ -29,6 +29,7 @@ import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { errorMessage, serializeError } from "./error"
 import { deleteUndefinedValues, normalizeInt } from "./cleaners"
 import { diffCreatePatch } from "./diff"
+import { GitClient } from "./git"
 
 export interface GithubConnectionInfo {
     token: string
@@ -118,9 +119,11 @@ async function githubGetPullRequestNumber() {
  */
 export async function githubParseEnv(
     env: Record<string, string>,
-    options?: { issue?: number; resolveIssue?: boolean } & Partial<
-        Pick<GithubConnectionInfo, "owner" | "repo">
-    >
+    options?: {
+        issue?: number
+        resolveIssue?: boolean
+        resolveCommit?: boolean
+    } & Partial<Pick<GithubConnectionInfo, "owner" | "repo">>
 ): Promise<GithubConnectionInfo> {
     dbg(`resolving connection info`)
     const res = githubFromEnv(env)
@@ -160,6 +163,9 @@ export async function githubParseEnv(
         if (isNaN(res.issue) && options?.resolveIssue) {
             dbg(`attempting to resolve issue number`)
             res.issue = await githubGetPullRequestNumber()
+        }
+        if (!res.commitSha && options?.resolveCommit) {
+            res.commitSha = await GitClient.default().lastCommitSha()
         }
     } catch (e) {
         logVerbose(errorMessage(e))
