@@ -446,7 +446,7 @@ ${fenceMD(content, " ")}
         // intent validation
         if (tool.options?.intent) {
             let { intent } = tool.options
-            if (intent === "description") intent = tool.spec.description
+            if (intent === "description") intent = tool.spec.description?.trim()
             if (!intent) throw new Error("tool intent not found")
             dbgtt(`validating intent %s`, intent)
             const generator = tool.generator
