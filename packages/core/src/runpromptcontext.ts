@@ -1017,7 +1017,7 @@ export function createChatGenerationContext(
             const {
                 errors,
                 schemas: scs,
-                functions: fns,
+                tools: fns,
                 messages: msgs,
                 chatParticipants: cps,
                 fileMerges: fms,

@@ -758,12 +758,11 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
     await visitor.afterNode?.(node)
 }
 
-// Interface for representing a rendered prompt node.
-export interface PromptNodeRender {
+interface PromptNodeRender {
     images: PromptImage[] // Images included in the prompt
     errors: unknown[] // Errors encountered during rendering
     schemas: Record<string, JSONSchema> // Schemas included in the prompt
-    functions: ToolCallback[] // Functions included in the prompt
+    tools: ToolCallback[] // tools included in the prompt
     fileMerges: FileMergeHandler[] // File merge handlers
     outputProcessors: PromptOutputProcessorHandler[] // Output processor handlers
     chatParticipants: ChatParticipant[] // Chat participants
@@ -1508,7 +1507,7 @@ ${trimNewlines(schemaText)}
     const res = Object.freeze<PromptNodeRender>({
         images,
         schemas,
-        functions: tools,
+        tools,
         fileMerges,
         outputProcessors,
         chatParticipants,
@@ -1521,7 +1520,7 @@ ${trimNewlines(schemaText)}
 
     dbg(
         `${res.messages.length} messages, tools: %o`,
-        res.functions.map((t) => t.spec.name)
+        res.tools.map((t) => t.spec.name)
     )
     return res
 }

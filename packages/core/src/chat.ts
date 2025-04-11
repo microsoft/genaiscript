@@ -428,6 +428,12 @@ ${fenceMD(content, " ")}
             }
         }
 
+        // intent validation
+        if (tool.options?.intent) {
+            const { intent } = tool.options
+            // TODO intent validation
+        }
+
         const toolContentTokens = approximateTokens(toolContent)
         if (toolContentTokens > maxToolContentTokens) {
             logWarn(

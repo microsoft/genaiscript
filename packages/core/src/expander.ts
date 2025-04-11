@@ -95,7 +95,7 @@ export async function callExpander(
             images: imgs,
             errors,
             schemas: schs,
-            functions: fns,
+            tools: fns,
             fileMerges: fms,
             outputProcessors: ops,
             chatParticipants: cps,
