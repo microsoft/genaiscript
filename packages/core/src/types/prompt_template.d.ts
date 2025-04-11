@@ -4072,6 +4072,11 @@ interface DefToolOptions extends ContentSafetyOptions {
      * Updated description for the variant
      */
     variantDescription?: string
+
+    /**
+     * Intent of the tool that will be used for LLM judge validation of the output.
+     */
+    intent?: string
 }
 
 interface DefAgentOptions
@@ -4093,6 +4098,17 @@ type ChatAgentHandler = (
     args: ChatFunctionArgs
 ) => Awaitable<unknown>
 
+interface McpToolSpecification {
+    /**
+     * Tool identifier
+     */
+    id: string
+    /**
+     * The high level intent of the tool, which can be used for LLM judge validation.
+     */
+    intent?: string
+}
+
 interface McpServerConfig extends ContentSafetyOptions {
     command: OptionsOrString<"npx" | "uv" | "dotnet" | "docker" | "cargo">
     args: string[]
@@ -4101,6 +4117,12 @@ interface McpServerConfig extends ContentSafetyOptions {
 
     id: string
     options?: DefToolOptions
+
+    /**
+     * A list of allowed tools and their specifications. This filtering is applied
+     * before computing the sha signature.
+     */
+    tools?: ElementOrArray<string | McpToolSpecification>
 
     /**
      * The sha signature of the tools returned by the server.

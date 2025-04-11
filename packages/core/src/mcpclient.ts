@@ -37,9 +37,10 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             toolsSha,
             detectPromptInjection,
             contentSafety,
+            tools: _toolsConfig,
             ...rest
         } = serverConfig
-
+        const toolSpecs = arrayify(_toolsConfig).map(toMcpToolSpecification)
         const toolOptions = deleteUndefinedValues({
             contentSafety,
             detectPromptInjection,
@@ -75,7 +76,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             const listTools: McpClient["listTools"] = async () => {
                 // list tools
                 dbgc(`listing tools`)
-                const { tools: toolDefinitions } = await client.listTools(
+                let { tools: toolDefinitions } = await client.listTools(
                     {},
                     { signal, onprogress: progress("list tools") }
                 )
@@ -92,6 +93,19 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 )
 
                 logVerbose(`mcp ${id}: tools: ${toolsFile}`)
+
+                // apply filter
+                if (toolSpecs.length > 0) {
+                    dbg(`filtering tools`)
+                    trace.fence(toolSpecs, "json")
+                    toolDefinitions = toolDefinitions.filter((tool) =>
+                        toolSpecs.some((s) => s.id === tool.name)
+                    )
+                    dbg(
+                        `filtered tools: %d`,
+                        toolDefinitions.map((t) => t.name).join(", ")
+                    )
+                }
 
                 const sha = await hash(JSON.stringify(toolDefinitions))
                 trace.itemValue("tools sha", sha)
@@ -129,14 +143,18 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 }
 
                 const tools = toolDefinitions.map(
-                    ({ name, description, inputSchema }) =>
-                        ({
+                    ({ name, description, inputSchema }) => {
+                        const toolSpec = toolSpecs.find(({ id }) => id === name)
+                        return {
                             spec: {
                                 name: `${id}_${name}`,
                                 description,
                                 parameters: inputSchema as any,
                             },
-                            options: toolOptions,
+                            options: {
+                                ...toolOptions,
+                                ...(toolSpec || {}),
+                            },
                             impl: async (args: any) => {
                                 const { context, ...rest } = args
                                 const res = await client.callTool(
@@ -177,8 +195,14 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                                 }
                                 return text
                             },
-                        }) satisfies ToolCallback
+                        } satisfies ToolCallback
+                    }
                 )
+                dbgc(
+                    `tools (imported): %O`,
+                    tools.map((t) => t.spec)
+                )
+
                 return tools
             }
             const readResource: McpClient["readResource"] = async (
@@ -261,4 +285,11 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
     }
 
     async [Symbol.asyncDispose](): Promise<void> {}
+}
+
+function toMcpToolSpecification(
+    spec: string | McpToolSpecification
+): McpToolSpecification {
+    if (typeof spec === "string") return { id: spec }
+    else return spec
 }
