@@ -1160,7 +1160,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @grpc/grpc-js@1.13.2
+ - @grpc/grpc-js@1.13.3
  - @grpc/proto-loader@0.7.13
  - detect-libc@2.0.3
  - docker-modem@5.0.6
@@ -2018,12 +2018,12 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.782.0
- - @aws-sdk/client-sso@3.782.0
- - @aws-sdk/credential-provider-cognito-identity@3.782.0
+ - @aws-sdk/client-cognito-identity@3.787.0
+ - @aws-sdk/client-sso@3.787.0
+ - @aws-sdk/credential-provider-cognito-identity@3.787.0
  - @aws-sdk/middleware-eventstream@3.775.0
  - @aws-sdk/util-user-agent-browser@3.775.0
- - @aws-sdk/util-user-agent-node@3.782.0
+ - @aws-sdk/util-user-agent-node@3.787.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.2
  - @smithy/middleware-retry@4.1.0
@@ -2245,7 +2245,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.785.0
+ - @aws-sdk/client-bedrock-runtime@3.787.0
 
 This package contains the following license:
 
@@ -2458,7 +2458,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/eventstream-handler-node@3.775.0
  - @aws-sdk/middleware-host-header@3.775.0
  - @aws-sdk/middleware-recursion-detection@3.775.0
- - @aws-sdk/middleware-user-agent@3.782.0
+ - @aws-sdk/middleware-user-agent@3.787.0
  - @smithy/core@3.2.0
  - @smithy/eventstream-serde-browser@4.0.2
  - @smithy/eventstream-serde-config-resolver@4.1.0
@@ -2927,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.126.6
+ - genaiscript-vscode@1.127.0
 
 This package contains the following license:
 
@@ -4855,13 +4855,13 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-env@3.775.0
- - @aws-sdk/credential-provider-ini@3.782.0
- - @aws-sdk/credential-provider-node@3.782.0
- - @aws-sdk/credential-providers@3.782.0
+ - @aws-sdk/credential-provider-ini@3.787.0
+ - @aws-sdk/credential-provider-node@3.787.0
+ - @aws-sdk/credential-providers@3.787.0
  - @aws-sdk/region-config-resolver@3.775.0
- - @aws-sdk/token-providers@3.782.0
+ - @aws-sdk/token-providers@3.787.0
  - @aws-sdk/types@3.775.0
- - @aws-sdk/util-endpoints@3.782.0
+ - @aws-sdk/util-endpoints@3.787.0
  - @aws-sdk/util-locate-window@3.723.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@2.2.0
@@ -5115,8 +5115,8 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-process@3.775.0
- - @aws-sdk/credential-provider-sso@3.782.0
- - @aws-sdk/credential-provider-web-identity@3.782.0
+ - @aws-sdk/credential-provider-sso@3.787.0
+ - @aws-sdk/credential-provider-web-identity@3.787.0
 
 These packages each contain the following license:
 
@@ -6019,7 +6019,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/core@3.775.0
  - @aws-sdk/credential-provider-http@3.775.0
- - @aws-sdk/nested-clients@3.782.0
+ - @aws-sdk/nested-clients@3.787.0
  - pyodide@0.27.5
 
 These packages each contain the following license:
@@ -8899,10 +8899,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.126.6
- - genaiscript-sample@1.126.6
- - genaiscript-web@1.126.6
- - genaiscript@1.126.6
+ - genaiscript-core-internal@1.127.0
+ - genaiscript-sample@1.127.0
+ - genaiscript-web@1.127.0
+ - genaiscript@1.127.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -10191,7 +10191,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @huggingface/jinja@0.3.3
+ - @huggingface/jinja@0.3.4
 
 This package contains the following license:
 

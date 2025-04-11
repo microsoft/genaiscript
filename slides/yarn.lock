@@ -833,7 +833,7 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/merge-streams/-/merge-streams-2.3.0.tgz#719df7fb41766bc143369eaa0dd56d8dc87c9958"
   integrity sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg==
 
-"@slidev/cli@^51.4.0":
+"@slidev/cli@^51.5.0":
   version "51.5.0"
   resolved "https://registry.yarnpkg.com/@slidev/cli/-/cli-51.5.0.tgz#e56ef0e6474df397b9674e4c2a03991ba9b12a07"
   integrity sha512-kyAF53dK9Nu05tM4fdnEtWizoA3t15MsszUt0uMS2CWuGH+0ZgnvDL8F73T1nwKzJ0AS84+JsRLH+L4jw/L8bA==
@@ -2521,9 +2521,9 @@ domutils@^3.2.1:
     domhandler "^5.0.3"
 
 dotenv@^16.4.7:
-  version "16.4.7"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.4.7.tgz#0e20c5b82950140aa99be360a8a5f52335f53c26"
-  integrity sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==
+  version "16.5.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.5.0.tgz#092b49f25f808f020050051d1ff258e404c78692"
+  integrity sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==
 
 drauu@^0.4.3:
   version "0.4.3"
@@ -2543,9 +2543,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.5.73:
-  version "1.5.135"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.135.tgz#6d835020fa0c7f02f30d7608c2f3c0a764236699"
-  integrity sha512-8gXUdEmvb+WCaYUhA0Svr08uSeRjM2w3x5uHOc1QbaEVzJXB8rgm5eptieXzyKoVEtinLvW6MtTcurA65PeS1Q==
+  version "1.5.136"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.136.tgz#854b45e6a892137762cb026ed6ec77391fc5c07b"
+  integrity sha512-kL4+wUTD7RSA5FHx5YwWtjDnEEkIIikFgWHR4P6fqjw1PPLlqYkxeOb++wAauAssat0YClCy8Y3C5SxgSkjibQ==
 
 emoji-regex-xs@^1.0.0:
   version "1.0.0"
@@ -4649,9 +4649,9 @@ unplugin-vue-markdown@^28.3.1:
     unplugin-utils "^0.2.4"
 
 unplugin@^2.1.0, unplugin@^2.2.0, unplugin@^2.2.2:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/unplugin/-/unplugin-2.3.0.tgz#90c304962a5840625cbf1f2e7384931624008a78"
-  integrity sha512-zNTDfbzOZzkbgXvH1QgQFW5nAyvjA0q3q9FGPFx2sKpDnaoU09VP1wT1mE+LYa6EF2rfezfd1y2EPLLR8ka6nw==
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/unplugin/-/unplugin-2.3.1.tgz#03701083d8cd41335128ecddd8f0cb0367c7b7e6"
+  integrity sha512-l9lOQPGN82rUAnyX7Qw8z0E9oLgQ8tkPxFyAqX3x7DnX/jvgLHUqKX1b8u5RP6u6K0/GKfgvaiaB018j7zr+Nw==
   dependencies:
     acorn "^8.14.1"
     picomatch "^4.0.2"
