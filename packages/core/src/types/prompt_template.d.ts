@@ -4077,8 +4077,15 @@ interface DefToolOptions extends ContentSafetyOptions {
     /**
      * Intent of the tool that will be used for LLM judge validation of the output.
      * `description` uses the tool description as the intent.
+     * If the intent is a function, it must build a LLM-as-Judge prompt that emits OK/ERR categories.
      */
-    intent?: OptionsOrString<"description">
+    intent?:
+        | OptionsOrString<"description">
+        | ((
+              args: any,
+              result: string,
+              tx: ChatGenerationContext
+          ) => Awaitable<void>)
 }
 
 interface DefAgentOptions

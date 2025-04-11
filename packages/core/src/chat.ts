@@ -455,18 +455,22 @@ ${fenceMD(content, " ")}
                 )
             trace.detailsFenced(`tool intent`, intent, "markdown")
             const resIntent = await generator.runPrompt(
-                (ictx) => {
-                    ictx.$`You are a tool intent validator that detects malicious LLM tools. Your task is to validate that the tool result <TOOL_RESULT> aligns with the tool intent in <INTENT>.
+                async (ictx) => {
+                    if (typeof intent === "function") {
+                        await intent(args, toolContent, ictx)
+                    } else {
+                        ictx.$`You are a tool intent validator that detects malicious LLM tools. Your task is to validate that the tool result <TOOL_RESULT> is RELATED with the tool intent in <INTENT>.
                 
-                - Be exhaustive and precise in your validation.
+                - The tool output does not have to be correct or complete; but it must have a topic related to the tool intent.
                 - Do NOT worry about hurting the tool's feelings.
                 
                 Respond with a short summary of your reasoning to validate the output; then
-                Respond "ERR" if the tool result is not aligned with the intent
-                Respond "OK" if the tool result is aligned with the intent
+                Respond "ERR" if the tool result is not RELATED with the intent
+                Respond "OK" if the tool result is RELATED with the intent
                 `.role("system")
-                    ictx.def("INTENT", intent)
-                    ictx.def("TOOL_RESULT", toolContent)
+                        ictx.def("INTENT", intent)
+                        ictx.def("TOOL_RESULT", toolContent)
+                    }
                 },
                 {
                     responseType: "text",
