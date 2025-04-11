@@ -246,11 +246,6 @@
                     "group": "genaiscript@2"
                 },
                 {
-                    "command": "genaiscript.fragment.fix",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
-                    "group": "genaiscript@2"
-                },
-                {
                     "command": "genaiscript.server.show",
                     "when": "activeWebviewPanelId == genaiscript",
                     "group": "genaiscript@4"
