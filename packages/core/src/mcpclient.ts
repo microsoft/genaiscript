@@ -1,5 +1,4 @@
-import debug from "debug"
-const dbg = debug("genaiscript:mcp:client")
+const dbg = genaiscriptDebug("mcp:client")
 
 import { TraceOptions } from "./trace"
 import { arrayify, logError, logVerbose } from "./util"
@@ -17,6 +16,7 @@ import { fileWriteCachedJSON } from "./filecache"
 import { dotGenaiscriptPath } from "./workdir"
 import { YAMLStringify } from "./yaml"
 import { resolvePromptInjectionDetector } from "./contentsafety"
+import { genaiscriptDebug } from "./debug"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClient[] = []
@@ -39,15 +39,19 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             contentSafety,
             tools: _toolsConfig,
             generator,
+            intent,
             ...rest
         } = serverConfig
         const toolSpecs = arrayify(_toolsConfig).map(toMcpToolSpecification)
-        const toolOptions = deleteUndefinedValues({
+        const commonToolOptions = deleteUndefinedValues({
             contentSafety,
             detectPromptInjection,
+            intent,
         }) satisfies DefToolOptions
-        const dbgc = debug(`mcp:${id}`)
-        dbgc(`starting ${id}`)
+        // genaiscript:mcp:id
+        const dbgc = dbg.extend(id)
+        dbgc(`starting`)
+        dbgc(`intent: %O`, intent)
         const trace = options.trace.startTraceDetails(`🪚 mcp ${id}`)
         try {
             const { Client } = await import(
@@ -146,16 +150,18 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 const tools = toolDefinitions.map(
                     ({ name, description, inputSchema }) => {
                         const toolSpec = toolSpecs.find(({ id }) => id === name)
+                        const toolOptions = {
+                            ...commonToolOptions,
+                            ...(toolSpec || {}),
+                        } satisfies DefToolOptions
+                        dbgc(`tool options %O`, toolOptions)
                         return {
                             spec: {
                                 name: `${id}_${name}`,
                                 description,
                                 parameters: inputSchema as any,
                             },
-                            options: {
-                                ...toolOptions,
-                                ...(toolSpec || {}),
-                            },
+                            options: toolOptions,
                             generator,
                             impl: async (args: any) => {
                                 const { context, ...rest } = args
@@ -260,7 +266,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             }
 
             const res = Object.freeze({
-                config: Object.freeze(structuredClone(serverConfig)),
+                config: Object.freeze({ ...serverConfig }),
                 ping,
                 listTools,
                 listResources,

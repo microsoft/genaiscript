@@ -37,6 +37,10 @@ system({
             description:
                 "The SHA256 hash of the tools returned by the MCP server.",
         },
+        intent: {
+            type: "any",
+            description: "the intent of the tools",
+        },
     },
 })
 
@@ -58,6 +62,7 @@ export default function (ctx: ChatGenerationContext) {
     const detectPromptInjection = vars[
         "system.mcp.detectPromptInjection"
     ] as ContentSafetyOptions["detectPromptInjection"]
+    const intent = vars["system.mcp.intent"]
 
     if (!id) throw new Error("Missing required parameter: id")
     if (!command) throw new Error("Missing required parameter: command")
@@ -70,6 +75,7 @@ export default function (ctx: ChatGenerationContext) {
         toolsSha,
         contentSafety,
         detectPromptInjection,
+        intent,
     } satisfies Omit<McpServerConfig, "id">
     const toolOptions = {
         maxTokens,

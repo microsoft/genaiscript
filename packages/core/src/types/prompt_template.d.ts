@@ -4081,11 +4081,12 @@ interface DefToolOptions extends ContentSafetyOptions {
      */
     intent?:
         | OptionsOrString<"description">
-        | ((
-              args: any,
-              result: string,
-              tx: ChatGenerationContext
-          ) => Awaitable<void>)
+        | ((options: {
+              tool: ToolDefinition
+              args: any
+              result: string
+              generator: ChatGenerationContext
+          }) => Awaitable<void>)
 }
 
 interface DefAgentOptions
@@ -4140,6 +4141,11 @@ interface McpServerConfig extends ContentSafetyOptions {
      * This is used to ensure that the tools are not modified by the server.
      */
     toolsSha?: string
+
+    /**
+     * Validates that each tool has responses related to their description.
+     */
+    intent?: DefToolOptions["intent"]
 
     generator?: ChatGenerationContext
 }

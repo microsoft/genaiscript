@@ -3,7 +3,7 @@ script({
 })
 defTool(
     "weather",
-    "Gets live weather updates for a given location",
+    `Gets live weather updates for a given location.`,
     {
         location: "seattle",
         sidenote: "extra information",
