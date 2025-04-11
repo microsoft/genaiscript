@@ -184,6 +184,27 @@ defTool("fetch", "Fetch a URL", {
 })
 ```
 
+## Output Intent validation
+
+You can configure GenAIScript to execute a LLM-as-a-Judge validation of the tool result based on the description or a custom intent.
+The LLM-as-a-Judge will happen on every tool response using the `intent` model alias, which maps to `small` by default.
+
+The `description` intent is a special value that gets expanded to the tool description.
+
+```js 'intent: "description"''
+defTool(
+    "fetch",
+    "Gets the live weather",
+    {
+        location: "Seattle",
+    },
+    async (args) => { ... },
+    {
+        intent: "description",
+    }
+)
+```
+
 ## Packaging as System scripts
 
 To pick and choose which tools to include in a script,

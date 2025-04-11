@@ -54,6 +54,17 @@ script({
 })
 ```
 
+If you are looking for a subset of the tools, you can provide a list of tool ids.
+
+```json '"tools": ["tool1", "tool2"]'
+    mcpServers {
+        "...": {
+            "...": "...",
+            "tools": ["tool1", "tool2"]
+        }
+    }
+```
+
 :::tip
 
 See the [Security](#security) section for options to secure the use of MCP servers.
@@ -114,7 +125,7 @@ defTool({
 ```
 
 GenAIScript will launch the server and register all the tools listed by the server.
-The tool identifier will be `server_toolname` to avoid clashes.
+The tool identifier will be `server_tool_name` to avoid clashes.
 
 :::tip
 
@@ -143,6 +154,8 @@ the server will be started/stopped for each inline prompt.
 The list of available servers can be found in the [Model Context Protocol Servers project](https://github.com/modelcontextprotocol/servers).
 
 ## Security
+
+GenAIScript uses the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) to communicate with
 
 MCP is a powerful protocol that also brings a number of security risks that one should be aware of.
 GenAIScript implements various protection mechanisms to mitigate these risks. However, it is important to
@@ -175,6 +188,12 @@ script({
 GenAIScript supports setting the `signature` of the tools declared by a server. If the tools signature does not match,
 GenAIScript will refuse to load the server (and throw an error).
 
+```mermaid
+flowchart TD
+    A[MCP Server] --> B[Tools]
+    B -->|Signature check| C[LLM]
+```
+
 This prevents **rug pull attacks**, where a MCP server would change the tools
 based on some external condition (e.g. running a second time).
 
@@ -200,7 +219,7 @@ script({
     mcpServers: {
         playwright: {
             ...,
-            toolsSha: "52cf857f903a115dd40faacfaf5882ea532351566c9bc8949ac1e31a72ab44a5"
+            toolsSha: "52cf857f903...72ab44a5"
         }
     }
 })
@@ -211,10 +230,15 @@ script({
 A tool may return data that contains prompt injection attacks.
 For example, a tool that fetches a URL may return a page that contains prompt injection attacks.
 
+```mermaid
+flowchart TD
+    A[Tool] -->|Project Injection Scanner| C[LLM]
+```
+
 To prevent this, you can enable the `detectPromptInjection` option. It will run your [content safety scanner](/genaiscript/reference/scripts/content-safety) services
 on the tool output and will erase the answer if an attack is detected.
 
-```js 'toolsSha: ""'
+```js 'detectPromptInjection: "always"'
 script({
     mcpServers: {
         playwright: {
@@ -223,4 +247,26 @@ script({
         }
     }
 })
+```
+
+## Output Intent validation
+
+You can configure GenAIScript to execute a LLM-as-a-Judge validation of the tool result based on the description or a custom intent.
+The LLM-as-a-Judge will happen on every tool response using the `intent` model alias, which maps to `small` by default.
+
+```mermaid
+flowchart TD
+    A[Tool] -->|Intent Validation| C[LLM]
+```
+
+The `description` intent is a special value that gets expanded to the tool description.
+
+```js
+mcpServers: {
+    playwright: {
+        command: "npx",
+        args: ["--yes", "@playwright/mcp@latest", "--headless"],
+        intent: "description",
+    },
+},
 ```

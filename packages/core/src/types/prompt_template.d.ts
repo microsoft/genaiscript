@@ -1341,6 +1341,7 @@ interface ToolCallContext {
 interface ToolCallback {
     spec: ToolDefinition
     options?: DefToolOptions
+    generator: ChatGenerationContext
     impl: (
         args: { context: ToolCallContext } & Record<string, any>
     ) => Awaitable<ToolCallOutput>
@@ -4072,6 +4073,20 @@ interface DefToolOptions extends ContentSafetyOptions {
      * Updated description for the variant
      */
     variantDescription?: string
+
+    /**
+     * Intent of the tool that will be used for LLM judge validation of the output.
+     * `description` uses the tool description as the intent.
+     * If the intent is a function, it must build a LLM-as-Judge prompt that emits OK/ERR categories.
+     */
+    intent?:
+        | OptionsOrString<"description">
+        | ((options: {
+              tool: ToolDefinition
+              args: any
+              result: string
+              generator: ChatGenerationContext
+          }) => Awaitable<void>)
 }
 
 interface DefAgentOptions
@@ -4093,6 +4108,18 @@ type ChatAgentHandler = (
     args: ChatFunctionArgs
 ) => Awaitable<unknown>
 
+interface McpToolSpecification {
+    /**
+     * Tool identifier
+     */
+    id: string
+    /**
+     * The high level intent of the tool, which can be used for LLM judge validation.
+     * `description` uses the tool description as the intent.
+     */
+    intent?: DefToolOptions["intent"]
+}
+
 interface McpServerConfig extends ContentSafetyOptions {
     command: OptionsOrString<"npx" | "uv" | "dotnet" | "docker" | "cargo">
     args: string[]
@@ -4103,11 +4130,24 @@ interface McpServerConfig extends ContentSafetyOptions {
     options?: DefToolOptions
 
     /**
+     * A list of allowed tools and their specifications. This filtering is applied
+     * before computing the sha signature.
+     */
+    tools?: ElementOrArray<string | McpToolSpecification>
+
+    /**
      * The sha signature of the tools returned by the server.
      * If set, the tools will be validated against this sha.
      * This is used to ensure that the tools are not modified by the server.
      */
     toolsSha?: string
+
+    /**
+     * Validates that each tool has responses related to their description.
+     */
+    intent?: DefToolOptions["intent"]
+
+    generator?: ChatGenerationContext
 }
 
 type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>

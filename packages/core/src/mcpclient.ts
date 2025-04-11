@@ -1,5 +1,4 @@
-import debug from "debug"
-const dbg = debug("genaiscript:mcp:client")
+const dbg = genaiscriptDebug("mcp:client")
 
 import { TraceOptions } from "./trace"
 import { arrayify, logError, logVerbose } from "./util"
@@ -17,6 +16,7 @@ import { fileWriteCachedJSON } from "./filecache"
 import { dotGenaiscriptPath } from "./workdir"
 import { YAMLStringify } from "./yaml"
 import { resolvePromptInjectionDetector } from "./contentsafety"
+import { genaiscriptDebug } from "./debug"
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClient[] = []
@@ -37,15 +37,21 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             toolsSha,
             detectPromptInjection,
             contentSafety,
+            tools: _toolsConfig,
+            generator,
+            intent,
             ...rest
         } = serverConfig
-
-        const toolOptions = deleteUndefinedValues({
+        const toolSpecs = arrayify(_toolsConfig).map(toMcpToolSpecification)
+        const commonToolOptions = deleteUndefinedValues({
             contentSafety,
             detectPromptInjection,
+            intent,
         }) satisfies DefToolOptions
-        const dbgc = debug(`mcp:${id}`)
-        dbgc(`starting ${id}`)
+        // genaiscript:mcp:id
+        const dbgc = dbg.extend(id)
+        dbgc(`starting`)
+        dbgc(`intent: %O`, intent)
         const trace = options.trace.startTraceDetails(`🪚 mcp ${id}`)
         try {
             const { Client } = await import(
@@ -75,7 +81,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             const listTools: McpClient["listTools"] = async () => {
                 // list tools
                 dbgc(`listing tools`)
-                const { tools: toolDefinitions } = await client.listTools(
+                let { tools: toolDefinitions } = await client.listTools(
                     {},
                     { signal, onprogress: progress("list tools") }
                 )
@@ -92,6 +98,19 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 )
 
                 logVerbose(`mcp ${id}: tools: ${toolsFile}`)
+
+                // apply filter
+                if (toolSpecs.length > 0) {
+                    dbg(`filtering tools`)
+                    trace.fence(toolSpecs, "json")
+                    toolDefinitions = toolDefinitions.filter((tool) =>
+                        toolSpecs.some((s) => s.id === tool.name)
+                    )
+                    dbg(
+                        `filtered tools: %d`,
+                        toolDefinitions.map((t) => t.name).join(", ")
+                    )
+                }
 
                 const sha = await hash(JSON.stringify(toolDefinitions))
                 trace.itemValue("tools sha", sha)
@@ -129,14 +148,21 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 }
 
                 const tools = toolDefinitions.map(
-                    ({ name, description, inputSchema }) =>
-                        ({
+                    ({ name, description, inputSchema }) => {
+                        const toolSpec = toolSpecs.find(({ id }) => id === name)
+                        const toolOptions = {
+                            ...commonToolOptions,
+                            ...(toolSpec || {}),
+                        } satisfies DefToolOptions
+                        dbgc(`tool options %O`, toolOptions)
+                        return {
                             spec: {
                                 name: `${id}_${name}`,
                                 description,
                                 parameters: inputSchema as any,
                             },
                             options: toolOptions,
+                            generator,
                             impl: async (args: any) => {
                                 const { context, ...rest } = args
                                 const res = await client.callTool(
@@ -177,8 +203,14 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                                 }
                                 return text
                             },
-                        }) satisfies ToolCallback
+                        } satisfies ToolCallback
+                    }
                 )
+                dbgc(
+                    `tools (imported): %O`,
+                    tools.map((t) => t.spec)
+                )
+
                 return tools
             }
             const readResource: McpClient["readResource"] = async (
@@ -234,7 +266,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             }
 
             const res = Object.freeze({
-                config: Object.freeze(structuredClone(serverConfig)),
+                config: Object.freeze({ ...serverConfig }),
                 ping,
                 listTools,
                 listResources,
@@ -261,4 +293,11 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
     }
 
     async [Symbol.asyncDispose](): Promise<void> {}
+}
+
+function toMcpToolSpecification(
+    spec: string | McpToolSpecification
+): McpToolSpecification {
+    if (typeof spec === "string") return { id: spec }
+    else return spec
 }
