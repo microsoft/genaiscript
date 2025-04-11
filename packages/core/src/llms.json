@@ -20,7 +20,8 @@
                 "reasoning_small": "o3-mini",
                 "transcription": "whisper-1",
                 "speech": "tts-1",
-                "image": "dall-e-3"
+                "image": "dall-e-3",
+                "intent": "gpt-4o-mini"
             },
             "models": {
                 "o1-preview": {
@@ -674,7 +675,8 @@
         "summarize": "small",
         "cast": "small",
         "ocr": "vision_small",
-        "think": "reasoning_small"
+        "think": "reasoning_small",
+        "intent": "small"
     },
     "pricings": {
         "github:gpt-4o": {

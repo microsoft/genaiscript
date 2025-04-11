@@ -4076,8 +4076,9 @@ interface DefToolOptions extends ContentSafetyOptions {
 
     /**
      * Intent of the tool that will be used for LLM judge validation of the output.
+     * `description` uses the tool description as the intent.
      */
-    intent?: string
+    intent?: OptionsOrString<"description">
 }
 
 interface DefAgentOptions
@@ -4106,8 +4107,9 @@ interface McpToolSpecification {
     id: string
     /**
      * The high level intent of the tool, which can be used for LLM judge validation.
+     * `description` uses the tool description as the intent.
      */
-    intent?: string
+    intent?: DefToolOptions["intent"]
 }
 
 interface McpServerConfig extends ContentSafetyOptions {
