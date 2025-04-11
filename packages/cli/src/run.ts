@@ -578,7 +578,7 @@ export async function runScriptInternal(
                     : /\.ya?ml$/i.test(outAnnotations)
                       ? YAMLStringify(result.annotations)
                       : /\.sarif$/i.test(outAnnotations)
-                        ? convertDiagnosticsToSARIF(script, result.annotations)
+                        ? await convertDiagnosticsToSARIF(script, result.annotations)
                         : JSON.stringify(result.annotations, null, 2)
             )
     }
@@ -644,7 +644,7 @@ export async function runScriptInternal(
     if (sariff)
         await writeText(
             sariff,
-            convertDiagnosticsToSARIF(script, result.annotations)
+            await convertDiagnosticsToSARIF(script, result.annotations)
         )
     if (changelogf && result.changelogs?.length)
         await writeText(changelogf, result.changelogs.join("\n"))
