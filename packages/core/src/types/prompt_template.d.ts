@@ -1341,20 +1341,10 @@ interface ToolCallContext {
 interface ToolCallback {
     spec: ToolDefinition
     options?: DefToolOptions
-    generator: ChatGenerationContext
+    generator?: ChatGenerationContext
     impl: (
         args: { context: ToolCallContext } & Record<string, any>
     ) => Awaitable<ToolCallOutput>
-}
-
-type AgenticToolCallback = Omit<ToolCallback, "spec"> & {
-    spec: Omit<ToolDefinition, "parameters"> & {
-        parameters: Record<string, any>
-    }
-}
-
-interface AgenticToolProviderCallback {
-    functions: Iterable<AgenticToolCallback>
 }
 
 interface ChatContentPartText {
@@ -4309,11 +4299,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefSchemaOptions
     ): string
     defTool(
-        tool:
-            | ToolCallback
-            | AgenticToolCallback
-            | AgenticToolProviderCallback
-            | McpServersConfig,
+        tool: Omit<ToolCallback, "generator"> | McpServersConfig,
         options?: DefToolOptions
     ): void
     defTool(

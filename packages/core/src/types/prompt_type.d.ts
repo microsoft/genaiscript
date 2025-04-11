@@ -104,11 +104,7 @@ declare function defFileOutput(
  * @param fn callback invoked when the LLM requests to run this function
  */
 declare function defTool(
-    tool:
-        | ToolCallback
-        | AgenticToolCallback
-        | AgenticToolProviderCallback
-        | McpServersConfig,
+    tool: Omit<ToolCallback, "generator"> | McpServersConfig,
     options?: DefToolOptions
 ): void
 declare function defTool(
