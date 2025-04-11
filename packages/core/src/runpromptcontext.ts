@@ -647,7 +647,8 @@ export function createChatGenerationContext(
 
                 const res = await ctx.runPrompt(
                     async (_) => {
-                        if (typeof fn === "string") _.writeText(dedent(fn))
+                        if (typeof fn === "string")
+                            _.writeText(dedent(fn), { role: "system" })
                         else await fn(_, args)
                         _.$`Make a plan and solve the task described in <QUERY>.
                         
