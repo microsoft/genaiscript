@@ -262,6 +262,7 @@ export async function cli() {
             "number of retries for the entire run"
         )
         .option("--no-run-trace", "disable automatic trace generation")
+        .option("--no-output-trace", "disable automatic output generation")
         .action(runScriptWithExitCode) // Action to execute the script with exit code
 
     // runs commands

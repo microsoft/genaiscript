@@ -509,7 +509,7 @@ export async function startServer(
                             ...options,
                             runId,
                             trace,
-                            outputTrace,
+                            runOutputTrace: outputTrace,
                             runTrace: false,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {

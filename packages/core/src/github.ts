@@ -812,6 +812,42 @@ export class GitHubClient implements GitHub {
         return res
     }
 
+    async listGists(
+        options?: {
+            since?: string
+            filenameAsResources?: boolean
+        } & GitHubPaginationOptions
+    ): Promise<GitHubGist[]> {
+        const { client } = await this.api()
+        dbg(`listing gists for user`)
+        const {
+            count = GITHUB_REST_PAGE_DEFAULT,
+            filenameAsResources,
+            ...rest
+        } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.gists.list, {
+            ...rest,
+        })
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res.map(
+            (r) =>
+                ({
+                    id: r.id,
+                    description: r.description,
+                    created_at: r.created_at,
+                    files: Object.values(r.files).map(
+                        ({ filename, size }) =>
+                            ({
+                                filename: filenameAsResources
+                                    ? `gist://${r.id}/${filename}`
+                                    : filename,
+                                size,
+                            }) satisfies WorkspaceFile
+                    ),
+                }) satisfies GitHubGist
+        )
+    }
+
     async getGist(gist_id?: string): Promise<GitHubGist | undefined> {
         if (typeof gist_id === "string") {
             gist_id = gist_id.trim()
@@ -825,7 +861,7 @@ export class GitHubClient implements GitHub {
             gist_id,
             owner,
         })
-        const { files, ...rest } = data
+        const { files, id, description, created_at, ...rest } = data
         if (
             Object.values(files || {}).some(
                 (f) => f.encoding !== "utf-8" && f.encoding != "base64"
@@ -835,7 +871,9 @@ export class GitHubClient implements GitHub {
             return undefined
         }
         const res = {
-            ...rest,
+            id,
+            description,
+            created_at,
             files: Object.values(files).map(
                 ({ filename, content, size, encoding }) =>
                     deleteUndefinedValues({

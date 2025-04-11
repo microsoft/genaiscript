@@ -81,6 +81,7 @@ Options:
   --vars <namevalue...>                      variables, as name=value, stored in env.vars. Use environment variables GENAISCRIPT_VAR_name=value to pass variable through the environment
   -rr, --run-retry <number>                  number of retries for the entire run
   --no-run-trace                             disable automatic trace generation
+  --no-output-trace                          disable automatic output generation
   -h, --help                                 display help for command
 ```
 

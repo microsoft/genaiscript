@@ -191,6 +191,7 @@ export interface PromptScriptRunOptions {
     fenceFormat: FenceFormat
     workspaceFiles?: WorkspaceFile[]
     runTrace: boolean
+    outputTrace: boolean
 }
 
 export interface RunResultList extends RequestMessage {

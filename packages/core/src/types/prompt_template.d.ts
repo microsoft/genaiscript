@@ -3294,6 +3294,7 @@ interface GitHubRelease {
 }
 
 interface GitHubGist {
+    id: string
     description?: string
     created_at?: string
     files: WorkspaceFile[]
@@ -3363,6 +3364,11 @@ interface GitHub {
             mentioned?: string
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]>
+
+    /**
+     * Lists gists for a given user
+     */
+    listGists(): Promise<GitHubGist[]>
 
     /**
      * Gets the files of a gist

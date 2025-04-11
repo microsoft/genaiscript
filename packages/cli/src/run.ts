@@ -204,7 +204,7 @@ export async function runScriptInternal(
         TraceOptions &
         CancellationOptions & {
             runId?: string
-            outputTrace?: MarkdownTrace
+            runOutputTrace?: MarkdownTrace
             cli?: boolean
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
@@ -217,7 +217,7 @@ export async function runScriptInternal(
     const cancellationToken = options.cancellationToken
     const {
         trace = new MarkdownTrace({ cancellationToken, dir: runDir }),
-        outputTrace = new MarkdownTrace({ cancellationToken, dir: runDir }),
+        runOutputTrace = new MarkdownTrace({ cancellationToken, dir: runDir }),
         infoCb,
         partialCb,
     } = options || {}
@@ -290,10 +290,10 @@ export async function runScriptInternal(
                   join(runDir, TRACE_FILENAME)
               )
     const outputFilename =
-        options.runTrace === false
+        options.outputTrace === false
             ? undefined
             : await setupTraceWriting(
-                  outputTrace,
+                  runOutputTrace,
                   "output",
                   join(runDir, OUTPUT_FILENAME),
                   { ignoreInner: true }
@@ -301,7 +301,7 @@ export async function runScriptInternal(
     if (outTrace && !/^false$/i.test(outTrace))
         await setupTraceWriting(trace, " trace", outTrace)
     if (outOutput && !/^false$/i.test(outOutput))
-        await setupTraceWriting(outputTrace, " output", outOutput, {
+        await setupTraceWriting(runOutputTrace, " output", outOutput, {
             ignoreInner: true,
         })
 
@@ -340,6 +340,7 @@ export async function runScriptInternal(
         )
         throw new Error(`script ${scriptId} not found`)
     }
+    if (script.filename) logVerbose(`script: ${script.filename}`)
     const applyGitIgnore =
         options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     dbg(`apply gitignore: ${applyGitIgnore}`)
@@ -411,7 +412,7 @@ export async function runScriptInternal(
     )
     let tokenColor = 0
     let reasoningOutput = false
-    outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
+    runOutputTrace.addEventListener(TRACE_CHUNK, (ev) => {
         const { progress, chunk } = ev as TraceChunkEvent
         if (progress) {
             const { responseChunk, responseTokens, inner, reasoningChunk } =
@@ -518,7 +519,7 @@ export async function runScriptInternal(
                 }
             },
             partialCb: (args) => {
-                outputTrace.chatProgress(args)
+                runOutputTrace.chatProgress(args)
                 partialCb?.(args)
             },
             label,
@@ -539,7 +540,7 @@ export async function runScriptInternal(
             maxDelay,
             vars,
             trace,
-            outputTrace,
+            outputTrace: runOutputTrace,
             fallbackTools,
             logprobs,
             topLogprobs,
@@ -578,7 +579,10 @@ export async function runScriptInternal(
                     : /\.ya?ml$/i.test(outAnnotations)
                       ? YAMLStringify(result.annotations)
                       : /\.sarif$/i.test(outAnnotations)
-                        ? await convertDiagnosticsToSARIF(script, result.annotations)
+                        ? await convertDiagnosticsToSARIF(
+                              script,
+                              result.annotations
+                          )
                         : JSON.stringify(result.annotations, null, 2)
             )
     }
