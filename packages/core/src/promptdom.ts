@@ -182,6 +182,7 @@ export interface PromptToolNode extends PromptNode {
     parameters: JSONSchema // Parameters for the function
     impl: ChatFunctionHandler // Implementation of the function
     options?: DefToolOptions
+    generator: ChatGenerationContext
 }
 
 export interface PromptMcpServerNode extends PromptNode {
@@ -542,7 +543,8 @@ export function createToolNode(
     description: string,
     parameters: JSONSchema,
     impl: ChatFunctionHandler,
-    options?: DefToolOptions
+    options: DefToolOptions,
+    generator: ChatGenerationContext
 ): PromptToolNode {
     assert(!!name)
     assert(!!description)
@@ -555,6 +557,7 @@ export function createToolNode(
         parameters,
         impl,
         options,
+        generator,
     } satisfies PromptToolNode
 }
 
@@ -623,11 +626,12 @@ export function createImportTemplate(
 export function createMcpServer(
     id: string,
     config: McpServerConfig,
-    options?: DefToolOptions
+    options: DefToolOptions,
+    generator: ChatGenerationContext
 ): PromptMcpServerNode {
     return {
         type: "mcpServer",
-        config: { ...config, id, options },
+        config: { ...config, generator, id, options },
     } satisfies PromptMcpServerNode
 }
 
@@ -1442,7 +1446,7 @@ ${trimNewlines(schemaText)}
                 )
         },
         tool: (n) => {
-            const { description, parameters, impl: fn, options } = n
+            const { description, parameters, impl: fn, options, generator } = n
             const { variant, variantDescription } = options || {}
             const name = escapeToolName(
                 variant ? `${n.name}_${variant}` : n.name
@@ -1453,6 +1457,7 @@ ${trimNewlines(schemaText)}
                     description: variantDescription || description,
                     parameters,
                 },
+                generator,
                 impl: fn,
                 options,
             })

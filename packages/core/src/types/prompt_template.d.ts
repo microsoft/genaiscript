@@ -1341,6 +1341,7 @@ interface ToolCallContext {
 interface ToolCallback {
     spec: ToolDefinition
     options?: DefToolOptions
+    generator: ChatGenerationContext
     impl: (
         args: { context: ToolCallContext } & Record<string, any>
     ) => Awaitable<ToolCallOutput>
@@ -4130,6 +4131,8 @@ interface McpServerConfig extends ContentSafetyOptions {
      * This is used to ensure that the tools are not modified by the server.
      */
     toolsSha?: string
+
+    generator?: ChatGenerationContext
 }
 
 type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>

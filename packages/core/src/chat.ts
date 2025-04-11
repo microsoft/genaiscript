@@ -319,6 +319,7 @@ async function runToolCall(
                     name: call.name,
                     description: "unknown tool",
                 },
+                generator: undefined,
                 impl: async () => {
                     dbg("tool_not_found", call.name)
                     return `unknown tool ${call.name}`

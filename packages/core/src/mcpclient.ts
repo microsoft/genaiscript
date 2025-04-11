@@ -38,6 +38,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             detectPromptInjection,
             contentSafety,
             tools: _toolsConfig,
+            generator,
             ...rest
         } = serverConfig
         const toolSpecs = arrayify(_toolsConfig).map(toMcpToolSpecification)
@@ -155,6 +156,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                                 ...toolOptions,
                                 ...(toolSpec || {}),
                             },
+                            generator,
                             impl: async (args: any) => {
                                 const { context, ...rest } = args
                                 const res = await client.callTool(

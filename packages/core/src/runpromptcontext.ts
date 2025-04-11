@@ -506,7 +506,8 @@ export function createChatGenerationContext(
                     description,
                     parameterSchema,
                     fn,
-                    defOptions
+                    defOptions,
+                    ctx
                 )
             )
         } else if (
@@ -521,7 +522,8 @@ export function createChatGenerationContext(
                     tool.spec.description,
                     tool.spec.parameters as any,
                     tool.impl,
-                    defOptions
+                    defOptions,
+                    ctx
                 )
             )
         } else if (
@@ -537,7 +539,8 @@ export function createChatGenerationContext(
                         tool.spec.description,
                         tool.spec.parameters as any,
                         tool.impl,
-                        defOptions
+                        defOptions,
+                        ctx
                     )
                 )
         } else if (typeof name === "object") {
@@ -548,7 +551,7 @@ export function createChatGenerationContext(
                     const serverConfig = def as McpServerConfig
                     appendChild(
                         node,
-                        createMcpServer(id, serverConfig, defOptions)
+                        createMcpServer(id, serverConfig, defOptions, ctx)
                     )
                 }
             }
