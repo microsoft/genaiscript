@@ -30,6 +30,7 @@ import { mergeEnvVarsWithSystem } from "./vars"
 import { installGlobalPromptContext } from "./globals"
 import { mark } from "./performance"
 import { nodeIsPackageTypeModule } from "./nodepackage"
+import { parseModelIdentifier } from "./models"
 
 /**
  * Executes a prompt expansion process based on the provided prompt script, variables, and options.
@@ -261,6 +262,7 @@ export async function expandTemplate(
     )
 
     // finalize options
+    const { provider } = parseModelIdentifier(model)
     env.meta.model = model
     Object.freeze(env.meta)
 
@@ -410,7 +412,7 @@ export async function expandTemplate(
         addToolDefinitionsMessage(messages, tools)
     }
 
-    const { responseType, responseSchema } = finalizeMessages(messages, {
+    const { responseType, responseSchema } = finalizeMessages(model, messages, {
         ...template,
         fileOutputs,
         trace,

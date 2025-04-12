@@ -225,7 +225,6 @@ export async function cast(
             else if (typeof instructions === "function") await instructions(_)
         },
         {
-            responseType: "json",
             responseSchema,
             ...rest,
             label,

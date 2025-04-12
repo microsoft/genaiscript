@@ -97,6 +97,7 @@ import { stderr } from "./stdio"
 import { isQuiet } from "./quiet"
 import { resolvePromptInjectionDetector } from "./contentsafety"
 import { genaiscriptDebug } from "./debug"
+import { providerFeatures } from "./features"
 const dbg = genaiscriptDebug("chat")
 const dbgt = dbg.extend("tool")
 
@@ -1464,7 +1465,7 @@ function updateChatFeatures(
     req: CreateChatCompletionRequest
 ) {
     const { provider, model } = parseModelIdentifier(modelid)
-    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
+    const features = providerFeatures(provider)
 
     if (!isNaN(req.seed) && features?.seed === false) {
         dbg(`seed: disabled, not supported by ${provider}`)

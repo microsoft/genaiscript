@@ -68,6 +68,7 @@ import { ci } from "./ci"
 import { arrayify } from "../../core/src/cleaners"
 import { McpClientManager } from "../../core/src/mcpclient"
 import { ResourceManager } from "../../core/src/mcpresource"
+import { providerFeatures } from "../../core/src/features"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -291,9 +292,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                         options
                     )
                 if (!azureToken) {
-                    const providerName = MODEL_PROVIDERS.find(
-                        ({ id }) => id === tok.provider
-                    ).detail
+                    const providerName = providerFeatures(tok.provider)?.detail
                     if (azureTokenError) {
                         logError(
                             `${providerName} token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`
