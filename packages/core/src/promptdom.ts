@@ -1575,6 +1575,7 @@ ${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file
         options.responseSchema
     ) as JSONSchemaObject
     let responseType = options.responseType
+    
     if (responseSchema && !responseType && responseType !== "json_schema")
         responseType = "json"
     if (responseType) trace.itemValue(`response type`, responseType)

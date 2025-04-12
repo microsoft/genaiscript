@@ -8,7 +8,6 @@ import {
     MODEL_PROVIDER_LMSTUDIO,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_TRANSFORMERS,
-    MODEL_PROVIDERS,
     MODEL_PROVIDER_WHISPERASR,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_ECHO,
@@ -26,6 +25,7 @@ import { AzureOpenAIModel } from "./azureopenai"
 import { EchoModel } from "./echomodel"
 import { NoneModel } from "./nonemodel"
 import { AzureAIInferenceModel } from "./azureaiinference"
+import { providerFeatures } from "./features"
 
 /**
  * Resolves and returns a language model based on the provided model provider identifier.
@@ -59,7 +59,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_ECHO) return EchoModel
     if (provider === MODEL_PROVIDER_NONE) return NoneModel
 
-    const features = MODEL_PROVIDERS.find((p) => p.id === provider)
+    const features = providerFeatures(provider)
     return LocalOpenAICompatibleModel(provider, {
         listModels: features?.listModels !== false,
         transcribe: features?.transcribe,

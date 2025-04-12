@@ -13,7 +13,8 @@
         "noEmit": true,
         "allowImportingTsExtensions": true,
         "verbatimModuleSyntax": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "erasableSyntaxOnly": true
     },
     "include": [
         "*.mjs",

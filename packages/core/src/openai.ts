@@ -7,7 +7,6 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_OPENAI_HOSTS,
-    MODEL_PROVIDERS,
     OPENROUTER_API_CHAT_URL,
     OPENROUTER_SITE_NAME_HEADER,
     OPENROUTER_SITE_URL_HEADER,
@@ -70,6 +69,7 @@ import {
 import { fromBase64 } from "./base64"
 import debug from "debug"
 import { traceFetchPost } from "./fetchtext"
+import { providerFeatures } from "./features"
 const dbg = debug("genaiscript:openai")
 const dbgMessages = debug("genaiscript:openai:msg")
 
@@ -92,7 +92,7 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
         const keys = INITryParse(token)
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
     }
-    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
+    const features = providerFeatures(provider)
     const useBearer = features?.bearerToken !== false
     const isBearer = /^Bearer /i.test(cfg.token)
     const Authorization = isBearer
@@ -128,7 +128,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { provider, model, family, reasoningEffort } = parseModelIdentifier(
         req.model
     )
-    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
+    const features = providerFeatures(provider)
     const { encode: encoder } = await resolveTokenEncoder(family)
 
     const postReq = structuredClone({

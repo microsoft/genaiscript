@@ -44,6 +44,7 @@ import {
 } from "./server/messages"
 import { deleteUndefinedValues } from "./cleaners"
 import debug from "debug"
+import { providerFeatures } from "./features"
 const dbg = debug("genaiscript:anthropic")
 const dbgMessages = debug("genaiscript:anthropic:msg")
 
@@ -353,9 +354,7 @@ const completerFactory = (
                       }
                     : undefined
         let thinking: Anthropic.ThinkingConfigParam = undefined
-        const reasoningEfforts = MODEL_PROVIDERS.find(
-            ({ id }) => id === provider
-        ).reasoningEfforts
+        const reasoningEfforts = providerFeatures(provider)?.reasoningEfforts
         const budget_tokens =
             reasoningEfforts[req.reasoning_effort || reasoningEffort]
         let max_tokens = req.max_tokens
