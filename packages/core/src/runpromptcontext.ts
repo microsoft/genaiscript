@@ -1118,8 +1118,8 @@ export function createChatGenerationContext(
                 addToolDefinitionsMessage(messages, tools)
             }
 
-            finalizeMessages(messages, {
-                ...(runOptions || {}),
+            finalizeMessages(genOptions.model, messages, {
+                ...genOptions,
                 fileOutputs,
                 trace: runTrace,
             })

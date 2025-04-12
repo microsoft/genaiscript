@@ -52,6 +52,8 @@ import { escapeToolName } from "./tools"
 import { measure } from "./performance"
 import debug from "debug"
 import { imageEncodeForLLM } from "./image"
+import { providerFeatures } from "./features"
+import { parseModelIdentifier } from "./models"
 const dbg = debug("genaiscript:prompt:dom")
 const dbgMcp = debug("genaiscript:prompt:dom:mcp")
 
@@ -1548,6 +1550,7 @@ ${trimNewlines(schemaText)}
  * @returns An object containing response type and schema details.
  */
 export function finalizeMessages(
+    model: string,
     messages: ChatCompletionMessageParam[],
     options: {
         fileOutputs?: FileOutput[]
@@ -1556,6 +1559,7 @@ export function finalizeMessages(
         ContentSafetyOptions &
         SecretDetectionOptions
 ) {
+    dbg(`finalize messages for ${model}`)
     const m = measure("prompt.dom.finalize")
     const { fileOutputs, trace, secretScanning } = options || {}
     if (fileOutputs?.length > 0) {
@@ -1575,9 +1579,13 @@ ${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file
         options.responseSchema
     ) as JSONSchemaObject
     let responseType = options.responseType
-    
-    if (responseSchema && !responseType && responseType !== "json_schema")
-        responseType = "json"
+
+    if (responseSchema && !responseType && responseType !== "json_schema") {
+        const { provider } = parseModelIdentifier(model)
+        const features = providerFeatures(provider)
+        responseType = features?.responseType || "json"
+        dbg(`response type: %s (auto)`, responseType)
+    }
     if (responseType) trace.itemValue(`response type`, responseType)
     if (responseSchema) {
         trace.detailsFenced("📜 response schema", responseSchema)
