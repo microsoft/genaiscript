@@ -30,7 +30,6 @@ export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
 export interface AIRequestOptions {
     label: string
     scriptId: string
-    template: PromptScript
     fragment: Fragment
     parameters: PromptParameters
     mode?: "notebook" | "chat"
@@ -176,6 +175,8 @@ export class ExtensionState extends EventTarget {
     async requestAI(
         options: AIRequestOptions
     ): Promise<Partial<GenerationResult>> {
+        if (!options.scriptId)
+            throw new Error("error starting run, no script id selected")
         try {
             const req = await this.startAIRequest(options)
             if (!req) {

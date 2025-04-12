@@ -210,9 +210,10 @@ export async function runScriptInternal(
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
+    dbg(`scriptid: %s`, scriptId)
     const runId = options.runId || generateId()
-    const runDir = options.out || getRunDir(scriptId, runId)
     dbg(`run id: `, runId)
+    const runDir = options.out || getRunDir(scriptId, runId)
     dbg(`run dir: `, runDir)
     const cancellationToken = options.cancellationToken
     const {

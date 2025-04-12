@@ -17,7 +17,7 @@ export function activateStatusBar(state: ExtensionState) {
         const { server } = host
         const { status } = server
         const { computing, progress, options } = aiRequest || {}
-        const { template, fragment } = options || {}
+        const { fragment } = options || {}
         const { tokensSoFar } = progress || {}
         statusBarItem.text = toStringList(
             `${
@@ -37,9 +37,6 @@ export function activateStatusBar(state: ExtensionState) {
                     ? `server: [${server.authority}](${server.browserUrl})`
                     : `server: ${status}`,
                 fragment?.files?.[0],
-                template
-                    ? `-  script: ${template.title} (${template.id})`
-                    : undefined,
                 ...Object.entries(languageChatModels).map(
                     ([m, c]) => `-  language chat model: ${m} -> ${c}`
                 )

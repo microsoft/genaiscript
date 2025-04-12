@@ -150,7 +150,6 @@ export async function activateChatParticipant(state: ExtensionState) {
             )
             const res = await state.requestAI({
                 scriptId: template.id,
-                template,
                 label: "genaiscript agent",
                 parameters: deleteUndefinedValues({
                     ...vars,

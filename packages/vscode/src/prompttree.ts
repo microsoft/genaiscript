@@ -40,8 +40,8 @@ class PromptTreeDataProvider
             } = element
             const ai = this.state.aiRequest
             const { computing, options, progress } = ai || {}
-            const { template } = options || {}
-            const generating = computing && template === element
+            const { scriptId } = options || {}
+            const generating = computing && scriptId === element.id
             const item = new vscode.TreeItem(
                 title,
                 vscode.TreeItemCollapsibleState.None

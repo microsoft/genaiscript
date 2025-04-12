@@ -232,16 +232,16 @@ export function activateFragmentCommands(state: ExtensionState) {
             await state.parseWorkspace()
             const s = await pickTemplate()
             if (!s) return
-            scriptId = template?.id
+            scriptId = s.id
         }
 
+        // TODO
         const parameters = await showPromptParametersQuickPicks(template)
         if (parameters === undefined) return
 
         await state.requestAI({
             fragment,
             scriptId,
-            template,
             label: scriptId,
             parameters,
         })
