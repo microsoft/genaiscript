@@ -16,6 +16,7 @@ import { XMLTryParse } from "./xml"
 import { YAMLTryParse } from "./yaml"
 import { dirname } from "path"
 import { createCache } from "./cache"
+import { tryValidateJSONWithSchema } from "./schema"
 
 /**
  * Creates a file system interface for interacting with workspace files.
@@ -101,18 +102,20 @@ export function createWorkspaceFileSystem(): Omit<
             return file
         },
         readJSON: async (
-            f: string | Awaitable<WorkspaceFile>
+            f: string | Awaitable<WorkspaceFile>,
+            options?: JSONSchemaValidationOptions
         ): Promise<any> => {
             const file = await fs.readText(f)
             const res = JSON5TryParse(file.content, undefined)
-            return res
+            return tryValidateJSONWithSchema(res, options)
         },
         readYAML: async (
-            f: string | Awaitable<WorkspaceFile>
+            f: string | Awaitable<WorkspaceFile>,
+            options?: JSONSchemaValidationOptions
         ): Promise<any> => {
             const file = await fs.readText(f)
             const res = YAMLTryParse(file.content)
-            return res
+            return tryValidateJSONWithSchema(res, options)
         },
         readXML: async (
             f: string | Awaitable<WorkspaceFile>,
@@ -120,7 +123,7 @@ export function createWorkspaceFileSystem(): Omit<
         ) => {
             const file = await fs.readText(f)
             const res = XMLTryParse(file.content, options)
-            return res
+            return tryValidateJSONWithSchema(res, options)
         },
         readCSV: async <T extends object>(
             f: string | Awaitable<WorkspaceFile>,
@@ -128,7 +131,7 @@ export function createWorkspaceFileSystem(): Omit<
         ): Promise<T[]> => {
             const file = await fs.readText(f)
             const res = CSVTryParse(file.content, options) as T[]
-            return res
+            return tryValidateJSONWithSchema(res, options)
         },
         readINI: async (
             f: string | Awaitable<WorkspaceFile>,
@@ -136,13 +139,14 @@ export function createWorkspaceFileSystem(): Omit<
         ): Promise<any> => {
             const file = await fs.readText(f)
             const res = INITryParse(file.content, options?.defaultValue)
-            return res
+            return tryValidateJSONWithSchema(res, options)
         },
         readData: async (
-            f: string | Awaitable<WorkspaceFile>
+            f: string | Awaitable<WorkspaceFile>,
+            options?: JSONSchemaValidationOptions
         ): Promise<any> => {
             const file = await f
-            const data = await dataTryParse(toWorkspaceFile(file))
+            const data = await dataTryParse(toWorkspaceFile(file), options)
             return data
         },
         cache: async (name: string) => {

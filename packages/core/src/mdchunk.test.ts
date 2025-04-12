@@ -215,15 +215,4 @@ There are many variations of passages of Lorem Ipsum available, but the majority
             console.debug(`llms-full ${i} => ${result.length}`)
         }
     })
-    await test(`chunk hono/llms-full.txt`, async () => {
-        const markdown = await (
-            await fetch("https://hono.dev/llms-full.txt")
-        ).text()
-        for (let i = 0; i < 12; ++i) {
-            const result = await chunkMarkdown(markdown, estimateTokens, {
-                maxTokens: 1 << i,
-            })
-            console.debug(`llms-full ${i} => ${result.length}`)
-        }
-    })
 })

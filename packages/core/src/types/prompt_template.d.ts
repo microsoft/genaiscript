@@ -184,10 +184,10 @@ type ModelType = OptionsOrString<
     | "github_copilot_chat:o1:low"
     | "github_copilot_chat:o1:medium"
     | "github_copilot_chat:o1:high"
-    | "github_copilot_chat:o3-mini" 
-    | "github_copilot_chat:o3-mini:low" 
-    | "github_copilot_chat:o3-mini:medium" 
-    | "github_copilot_chat:o3-mini:high" 
+    | "github_copilot_chat:o3-mini"
+    | "github_copilot_chat:o3-mini:low"
+    | "github_copilot_chat:o3-mini:medium"
+    | "github_copilot_chat:o3-mini:high"
     | "azure:gpt-4o"
     | "azure:gpt-4o-mini"
     | "azure:o1"
@@ -1142,7 +1142,7 @@ interface WorkspaceGrepResult {
     matches: WorkspaceFile[]
 }
 
-interface INIParseOptions {
+interface INIParseOptions extends JSONSchemaValidationOptions {
     defaultValue?: any
 }
 
@@ -1169,6 +1169,11 @@ interface FileStats {
      */
     size: number
     mode: number
+}
+
+interface JSONSchemaValidationOptions {
+    schema?: JSONSchema
+    throwOnValidationError?: boolean
 }
 
 interface WorkspaceFileSystem {
@@ -1213,13 +1218,19 @@ interface WorkspaceFileSystem {
      * Reads the content of a file and parses to JSON, using the JSON5 parser.
      * @param path
      */
-    readJSON(path: string | Awaitable<WorkspaceFile>): Promise<any>
+    readJSON(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: JSONSchemaValidationOptions
+    ): Promise<any>
 
     /**
      * Reads the content of a file and parses to YAML.
      * @param path
      */
-    readYAML(path: string | Awaitable<WorkspaceFile>): Promise<any>
+    readYAML(
+        path: string | Awaitable<WorkspaceFile>,
+        options?: JSONSchemaValidationOptions
+    ): Promise<any>
 
     /**
      * Reads the content of a file and parses to XML, using the XML parser.
@@ -1253,7 +1264,10 @@ interface WorkspaceFileSystem {
      */
     readData(
         path: string | Awaitable<WorkspaceFile>,
-        options?: CSVParseOptions & INIParseOptions & XMLParseOptions
+        options?: CSVParseOptions &
+            INIParseOptions &
+            XMLParseOptions &
+            JSONSchemaValidationOptions
     ): Promise<any>
 
     /**
@@ -1656,7 +1670,7 @@ interface JSONSchemaAnyOf {
     anyOf: JSONSchemaType[]
 }
 
-interface JSONSchemaDescripted {
+interface JSONSchemaDescribed {
     /**
      * A short description of the property
      */
@@ -1667,7 +1681,7 @@ interface JSONSchemaDescripted {
     description?: string
 }
 
-interface JSONSchemaString extends JSONSchemaDescripted {
+interface JSONSchemaString extends JSONSchemaDescribed {
     type: "string"
     uiType?: "textarea"
     uiSuggestions?: string[]
@@ -1676,7 +1690,7 @@ interface JSONSchemaString extends JSONSchemaDescripted {
     pattern?: string
 }
 
-interface JSONSchemaNumber extends JSONSchemaDescripted {
+interface JSONSchemaNumber extends JSONSchemaDescribed {
     type: "number" | "integer"
     default?: number
     minimum?: number
@@ -1685,13 +1699,13 @@ interface JSONSchemaNumber extends JSONSchemaDescripted {
     exclusiveMaximum?: number
 }
 
-interface JSONSchemaBoolean extends JSONSchemaDescripted {
+interface JSONSchemaBoolean extends JSONSchemaDescribed {
     type: "boolean"
     uiType?: "runOption"
     default?: boolean
 }
 
-interface JSONSchemaObject extends JSONSchemaDescripted {
+interface JSONSchemaObject extends JSONSchemaDescribed {
     $schema?: string
     type: "object"
     properties?: {
@@ -1703,7 +1717,7 @@ interface JSONSchemaObject extends JSONSchemaDescripted {
     default?: object
 }
 
-interface JSONSchemaArray extends JSONSchemaDescripted {
+interface JSONSchemaArray extends JSONSchemaDescribed {
     $schema?: string
     type: "array"
     items?: JSONSchemaType
@@ -1882,7 +1896,7 @@ interface Fenced {
     validation?: FileEditValidation
 }
 
-interface XMLParseOptions {
+interface XMLParseOptions extends JSONSchemaValidationOptions {
     allowBooleanAttributes?: boolean
     ignoreAttributes?: boolean
     ignoreDeclaration?: boolean
@@ -1953,7 +1967,7 @@ interface Tokenizer {
     decode: TokenDecoder
 }
 
-interface CSVParseOptions {
+interface CSVParseOptions extends JSONSchemaValidationOptions {
     delimiter?: string
     headers?: string[]
     repair?: boolean
@@ -2188,7 +2202,7 @@ interface Parsers {
      */
     JSON5(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any }
+        options?: { defaultValue?: any } & JSONSchemaValidationOptions
     ): any | undefined
 
     /**
@@ -2208,7 +2222,7 @@ interface Parsers {
      */
     YAML(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any }
+        options?: { defaultValue?: any } & JSONSchemaValidationOptions
     ): any | undefined
 
     /**
@@ -2217,7 +2231,7 @@ interface Parsers {
      */
     TOML(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any }
+        options?: { defaultValue?: any } & JSONSchemaValidationOptions
     ): any | undefined
 
     /**
@@ -2227,7 +2241,10 @@ interface Parsers {
      */
     frontmatter(
         content: string | WorkspaceFile,
-        options?: { defaultValue?: any; format: "yaml" | "json" | "toml" }
+        options?: {
+            defaultValue?: any
+            format: "yaml" | "json" | "toml"
+        } & JSONSchemaValidationOptions
     ): any | undefined
 
     /**

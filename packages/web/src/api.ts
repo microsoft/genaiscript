@@ -8,6 +8,16 @@ import {
 } from "../../core/src/server/messages"
 import { apiKey, base } from "./configuration"
 
+async function checkFetchError(res: Response): Promise<never> {
+    if (res.ok) return
+
+    let msg: string
+    try {
+        msg = await res.text()
+    } catch {}
+    throw new Error(msg || `${res.status} ${res.statusText}`)
+}
+
 export const fetchScripts = async (): Promise<Project> => {
     const res = await fetch(`${base}/api/scripts`, {
         headers: {
@@ -15,7 +25,7 @@ export const fetchScripts = async (): Promise<Project> => {
             Authorization: apiKey,
         },
     })
-    if (!res.ok) throw new Error(await res.json())
+    checkFetchError(res)
 
     const j: PromptScriptListResponse = await res.json()
     return j.project
@@ -27,7 +37,7 @@ export const fetchEnv = async (): Promise<ServerEnvResponse> => {
             Authorization: apiKey,
         },
     })
-    if (!res.ok) throw new Error(await res.json())
+    checkFetchError(res)
 
     const j: ServerEnvResponse = await res.json()
     return j
@@ -39,7 +49,7 @@ export const fetchRuns = async (): Promise<RunResultListResponse> => {
             Authorization: apiKey,
         },
     })
-    if (!res.ok) throw new Error(await res.json())
+    checkFetchError(res)
 
     const j: RunResultListResponse = await res.json()
     return j
@@ -51,7 +61,7 @@ export const fetchModels = async (): Promise<ChatModels> => {
             Authorization: apiKey,
         },
     })
-    if (!res.ok) throw new Error(await res.json())
+    checkFetchError(res)
 
     const j: ChatModels = await res.json()
     return j
@@ -66,7 +76,7 @@ export const fetchRun = async (
             Authorization: apiKey,
         },
     })
-    if (!res.ok) throw new Error(await res.json())
+    checkFetchError(res)
 
     const j: PromptScriptEndResponseEvent = await res.json()
     return j

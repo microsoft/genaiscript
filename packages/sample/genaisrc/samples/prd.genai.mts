@@ -4,9 +4,7 @@ script({
     temperature: 0.5,
     systemSafety: true,
 })
-const { safety } = env.vars
-
-const defaultBranch = await git.defaultBranch()
+const defaultBranch = "dev"
 const branch = await git.branch()
 if (branch === defaultBranch) cancel("you are already on the default branch")
 
