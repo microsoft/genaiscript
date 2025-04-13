@@ -15,7 +15,7 @@ import {
     TemplateQuickPickItem,
     showPromptParametersQuickPicks,
 } from "./parameterquickpick"
-import { templatesToQuickPickItems } from "./scriptquickpick"
+import { scriptsToQuickPickItems } from "./scriptquickpick"
 
 export function activateFragmentCommands(state: ExtensionState) {
     const { context, host } = state
@@ -45,7 +45,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             .filter(filter)
 
         const picked = await vscode.window.showQuickPick(
-            templatesToQuickPickItems(templates, { create: true }),
+            scriptsToQuickPickItems(templates, { create: true }),
             {
                 title: `Pick a GenAIScript`,
             }

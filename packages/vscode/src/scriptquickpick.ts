@@ -3,7 +3,7 @@ import { templateGroup } from "../../core/src/ast"
 import { groupBy } from "../../core/src/util"
 import { TemplateQuickPickItem } from "./parameterquickpick"
 
-export function templatesToQuickPickItems(
+export function scriptsToQuickPickItems(
     templates: globalThis.PromptScript[],
     options?: { create?: boolean }
 ): TemplateQuickPickItem[] {
