@@ -399,27 +399,6 @@ export class ExtensionState extends EventTarget {
         await this._parseWorkspacePromise
     }
 
-    async parseDirectory(
-        uri: vscode.Uri,
-        token?: vscode.CancellationToken
-    ): Promise<Fragment> {
-        const files = await listFiles(uri)
-
-        return <Fragment>{
-            files: files.map((fs) => fs.fsPath),
-        }
-    }
-
-    async parseDocument(
-        document: vscode.Uri,
-        token?: vscode.CancellationToken
-    ): Promise<Fragment> {
-        const fsPath = document.fsPath
-        return <Fragment>{
-            files: [fsPath],
-        }
-    }
-
     private setDiagnostics() {
         this._diagColl.clear()
         if (this._aiRequest?.options?.mode === "notebook") return

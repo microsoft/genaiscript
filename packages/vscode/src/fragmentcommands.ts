@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { checkDirectoryExists, checkFileExists } from "./fs"
+import { checkDirectoryExists, checkFileExists, listFiles } from "./fs"
 import { registerCommand } from "./commands"
 import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants"
 import { Fragment } from "../../core/src/generation"
@@ -53,79 +53,51 @@ export function activateFragmentCommands(state: ExtensionState) {
         } else return (picked as TemplateQuickPickItem)?.template
     }
 
-    const resolveSpec = async (frag: Fragment | string | vscode.Uri) => {
-        let fragment: Fragment
-        // active text editor
-        if (frag === undefined && vscode.window.activeTextEditor) {
-            const document = vscode.window.activeTextEditor.document
-            if (
-                document &&
-                document.uri.scheme === "file" &&
-                !GENAI_ANY_REGEX.test(document.fileName)
-            )
-                frag = document.uri.fsPath
-        }
-        if (frag instanceof vscode.Uri) frag = frag.fsPath
-        if (typeof frag === "string") {
-            const fragUri = host.toUri(frag)
-            if (await checkFileExists(fragUri)) {
-                fragment = await state.parseDocument(fragUri)
-            } else if (await checkDirectoryExists(fragUri)) {
-                fragment = await state.parseDirectory(fragUri)
-            }
-        } else {
-            fragment = frag
-        }
-        return fragment
+    const resolveSpec = async (fileOrFolder: vscode.Uri) => {
+        if (await checkFileExists(fileOrFolder)) {
+            return [fileOrFolder.fsPath]
+        } else if (await checkDirectoryExists(fileOrFolder)) {
+            const files = await listFiles(fileOrFolder)
+            return files.map((fs) => fs.fsPath)
+        } else return undefined
     }
 
-    const fragmentPrompt = async (
-        options:
-            | {
-                  fragment?: Fragment | string | vscode.Uri
-                  template?: PromptScript
-              }
-            | vscode.Uri
-    ) => {
-        if (typeof options === "object" && options instanceof vscode.Uri)
-            options = { fragment: options }
-        let { fragment, template } = options || {}
+    const scriptRun = async (fileOrFolder: vscode.Uri) => {
+        // editor context menu
+        // explorer context menu (file or folder) - uri to file or folder
+        // edit file run button: uri to genai file in editor
+        logVerbose(`run ${fileOrFolder}`)
 
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
-        let scriptId = template?.id
-        if (
-            fragment instanceof vscode.Uri &&
-            GENAI_ANY_REGEX.test(fragment.path)
-        ) {
-            scriptId = fragment.toString()
-            template = findScript(fragment)
-            fragment = undefined
-            if (template) scriptId = template.id
-        }
-        fragment = await resolveSpec(fragment)
-        if (!scriptId) {
-            await state.parseWorkspace()
-            const s = await pickTemplate()
-            if (!s) return
-            scriptId = s.id
-        }
+        let scriptId: string
+        let files: string[]
+        let parameters: PromptParameters
 
-        // TODO
-        const parameters = await showPromptParametersQuickPicks(template)
-        if (parameters === undefined) return
-
-        assert(!!scriptId, "scriptId is required")
+        if (GENAI_ANY_REGEX.test(fileOrFolder.path)) {
+            const script = findScript(fileOrFolder)
+            parameters = await showPromptParametersQuickPicks(script)
+            if (parameters === undefined) return
+            scriptId = script?.id || fileOrFolder.fsPath
+            files = []
+        } else {
+            const script = await pickTemplate()
+            if (!script) return
+            parameters = await showPromptParametersQuickPicks(script)
+            if (parameters === undefined) return
+            scriptId = script.id
+            files = await resolveSpec(fileOrFolder)
+        }
         await state.requestAI({
-            fragment,
+            fragment: { files },
             scriptId,
             label: scriptId,
             parameters,
         })
     }
 
-    const fragmentDebug = async (file: vscode.Uri) => {
+    const scriptDebug = async (file: vscode.Uri) => {
         if (!file) return
         await state.cancelAiRequest()
         await state.parseWorkspace()
@@ -189,7 +161,7 @@ export function activateFragmentCommands(state: ExtensionState) {
     }
 
     subscriptions.push(
-        registerCommand("genaiscript.fragment.prompt", fragmentPrompt),
-        registerCommand("genaiscript.fragment.debug", fragmentDebug)
+        registerCommand("genaiscript.fragment.prompt", scriptRun),
+        registerCommand("genaiscript.fragment.debug", scriptDebug)
     )
 }
