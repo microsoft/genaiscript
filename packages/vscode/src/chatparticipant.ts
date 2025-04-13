@@ -10,7 +10,6 @@ import {
 import { Fragment } from "../../core/src/generation"
 import { convertAnnotationsToItems } from "../../core/src/annotations"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
-import { templatesToQuickPickItems } from "./fragmentcommands"
 import { patchCachedImages } from "../../core/src/filecache"
 
 export async function activateChatParticipant(state: ExtensionState) {
@@ -150,7 +149,6 @@ export async function activateChatParticipant(state: ExtensionState) {
             )
             const res = await state.requestAI({
                 scriptId: template.id,
-                template,
                 label: "genaiscript agent",
                 parameters: deleteUndefinedValues({
                     ...vars,

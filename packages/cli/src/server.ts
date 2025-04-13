@@ -60,6 +60,8 @@ import { generateId } from "../../core/src/id"
 import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { nodeTryReadPackage } from "../../core/src/nodepackage"
+import { genaiscriptDebug } from "../../core/src/debug"
+const dbg = genaiscriptDebug("server")
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -406,6 +408,7 @@ export async function startServer(
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
             const { id, type } = data
+            dbg(`%s: %O`, type, data)
             let response: ResponseStatus
             try {
                 switch (type) {

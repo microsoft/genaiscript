@@ -13,7 +13,7 @@ import { logMeasure } from "../../core/src/perf"
 import { TOOL_NAME, CHANGE, TOOL_ID } from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
 import { MarkdownTrace } from "../../core/src/trace"
-import { logInfo, groupBy } from "../../core/src/util"
+import { logInfo, groupBy, logVerbose } from "../../core/src/util"
 import { GenerationResult } from "../../core/src/server/messages"
 import { randomHex } from "../../core/src/crypto"
 import { delay } from "es-toolkit"
@@ -30,7 +30,6 @@ export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
 export interface AIRequestOptions {
     label: string
     scriptId: string
-    template: PromptScript
     fragment: Fragment
     parameters: PromptParameters
     mode?: "notebook" | "chat"
@@ -88,7 +87,6 @@ export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
 
 export class ExtensionState extends EventTarget {
     readonly host: VSCodeHost
-    private _parseWorkspacePromise: Promise<void>
     private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _diagColl: vscode.DiagnosticCollection
@@ -176,6 +174,8 @@ export class ExtensionState extends EventTarget {
     async requestAI(
         options: AIRequestOptions
     ): Promise<Partial<GenerationResult>> {
+        if (!options.scriptId)
+            throw new Error("error starting run, no script id selected")
         try {
             const req = await this.startAIRequest(options)
             if (!req) {
@@ -286,10 +286,6 @@ export class ExtensionState extends EventTarget {
         return r
     }
 
-    get parsing() {
-        return !!this._parseWorkspacePromise
-    }
-
     get aiRequest() {
         return this._aiRequest
     }
@@ -327,7 +323,6 @@ export class ExtensionState extends EventTarget {
     }
 
     get project() {
-        if (!this._project) this.parseWorkspace()
         return this._project
     }
 
@@ -373,50 +368,17 @@ export class ExtensionState extends EventTarget {
     }
 
     async parseWorkspace() {
-        if (this._parseWorkspacePromise) return this._parseWorkspacePromise
-
-        const parser = async () => {
-            try {
-                this.dispatchChange()
-                performance.mark(`save-docs`)
-                await saveAllTextDocuments()
-                performance.mark(`project-start`)
-                performance.mark(`scan-tools`)
-                const client = await this.host.server.client()
-                const newProject = await client.listScripts()
-                await this.setProject(newProject)
-                this.setDiagnostics()
-                logMeasure(`project`, `project-start`, `project-end`)
-            } finally {
-                this._parseWorkspacePromise = undefined
-                this.dispatchChange()
-            }
-        }
-
-        this._parseWorkspacePromise = parser()
+        logVerbose(`parse workspace`)
         this.dispatchChange()
-        await this._parseWorkspacePromise
-    }
-
-    async parseDirectory(
-        uri: vscode.Uri,
-        token?: vscode.CancellationToken
-    ): Promise<Fragment> {
-        const files = await listFiles(uri)
-
-        return <Fragment>{
-            files: files.map((fs) => fs.fsPath),
-        }
-    }
-
-    async parseDocument(
-        document: vscode.Uri,
-        token?: vscode.CancellationToken
-    ): Promise<Fragment> {
-        const fsPath = document.fsPath
-        return <Fragment>{
-            files: [fsPath],
-        }
+        performance.mark(`save-docs`)
+        await saveAllTextDocuments()
+        performance.mark(`project-start`)
+        performance.mark(`scan-tools`)
+        const client = await this.host.server.client()
+        const newProject = await client.listScripts()
+        await this.setProject(newProject)
+        this.setDiagnostics()
+        logMeasure(`project`, `project-start`, `project-end`)
     }
 
     private setDiagnostics() {
