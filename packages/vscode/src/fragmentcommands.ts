@@ -78,7 +78,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             const script = findScript(fileOrFolder)
             parameters = await showPromptParametersQuickPicks(script)
             if (parameters === undefined) return
-            scriptId = script?.id || fileOrFolder.fsPath
+            scriptId = script?.id || fileOrFolder.toString()
             files = []
         } else {
             const script = await pickTemplate()
