@@ -4,7 +4,7 @@ import { groupBy } from "../../core/src/util"
 import { TemplateQuickPickItem } from "./parameterquickpick"
 
 export function scriptsToQuickPickItems(
-    templates: globalThis.PromptScript[],
+    templates: PromptScript[],
     options?: { create?: boolean }
 ): TemplateQuickPickItem[] {
     const { create } = options || {}
