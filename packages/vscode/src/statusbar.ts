@@ -13,7 +13,7 @@ export function activateStatusBar(state: ExtensionState) {
     )
     statusBarItem.command = "genaiscript.request.status"
     const updateStatusBar = async () => {
-        const { parsing, aiRequest, languageChatModels, host } = state
+        const { aiRequest, languageChatModels, host } = state
         const { server } = host
         const { status } = server
         const { computing, progress, options } = aiRequest || {}
@@ -21,7 +21,6 @@ export function activateStatusBar(state: ExtensionState) {
         const { tokensSoFar } = progress || {}
         statusBarItem.text = toStringList(
             `${
-                parsing ||
                 status === "starting" ||
                 status === "stopping" ||
                 (computing && !tokensSoFar)
