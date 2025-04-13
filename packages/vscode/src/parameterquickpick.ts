@@ -12,7 +12,7 @@ export async function showPromptParametersQuickPicks(
     script: PromptScript
 ): Promise<PromptParameters> {
     const parameters: PromptParameters = {}
-    if (!script?.parameters) return {}
+    if (!script?.parameters) return parameters
 
     for (const param in script.parameters || {}) {
         const schema = promptParameterTypeToJSONSchema(script.parameters[param])

@@ -2,12 +2,9 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
 import { registerCommand } from "./commands"
-import { templateGroup } from "../../core/src/ast"
 import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants"
-import { NotSupportedError } from "../../core/src/error"
-import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
 import { Fragment } from "../../core/src/generation"
-import { groupBy, logInfo, logVerbose } from "../../core/src/util"
+import { assert, logInfo, logVerbose } from "../../core/src/util"
 import { resolveCli } from "./config"
 import { YAMLStringify } from "../../core/src/yaml"
 import { dotGenaiscriptPath } from "../../core/src/workdir"
@@ -119,6 +116,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         const parameters = await showPromptParametersQuickPicks(template)
         if (parameters === undefined) return
 
+        assert(!!scriptId, "scriptId is required")
         await state.requestAI({
             fragment,
             scriptId,
@@ -132,31 +130,30 @@ export function activateFragmentCommands(state: ExtensionState) {
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
-        let template: PromptScript
+        let script: PromptScript
         let files: vscode.Uri[]
         if (GENAI_ANY_REGEX.test(file.path)) {
-            template = findScript(file)
-            if (!template) {
+            script = findScript(file)
+            if (!script) {
                 return
             }
             files = []
         } else {
-            template = await pickTemplate()
-            if (!template) return
+            script = await pickTemplate()
+            if (!script) return
             files = [file]
         }
+        const parameters = await showPromptParametersQuickPicks(script)
+        if (parameters === undefined) return
 
         const { cliPath, cliVersion } = await resolveCli(state)
         const args = [
             "run",
-            vscode.workspace.asRelativePath(template.filename),
+            vscode.workspace.asRelativePath(script.filename),
             ...files.map((file) =>
                 vscode.workspace.asRelativePath(file.fsPath)
             ),
         ]
-
-        const parameters = await showPromptParametersQuickPicks(template)
-        if (parameters === undefined) return
         for (const [name, value] of Object.entries(parameters)) {
             args.push(`--vars`, `${name}=${value}`)
         }
