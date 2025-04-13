@@ -84,6 +84,7 @@ ${MarkdownStringify(rest, { quoteValues: true })}
         const project = this.state.project
         const templates = project?.scripts || []
         if (!element) {
+            if (!project) this.state.parseWorkspace()
             if (!templates.length) return []
             const groups = Object.keys(groupBy(templates, templateGroup))
             return [...groups.filter((t) => t !== "system"), "system"]

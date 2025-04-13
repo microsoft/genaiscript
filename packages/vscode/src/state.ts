@@ -328,7 +328,6 @@ export class ExtensionState extends EventTarget {
     }
 
     get project() {
-        if (!this._project) this.parseWorkspace()
         return this._project
     }
 

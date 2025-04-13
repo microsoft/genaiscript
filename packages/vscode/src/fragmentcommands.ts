@@ -57,8 +57,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         if (await checkFileExists(fileOrFolder)) {
             return [fileOrFolder.fsPath]
         } else if (await checkDirectoryExists(fileOrFolder)) {
-            const files = await listFiles(fileOrFolder)
-            return files.map((fs) => fs.fsPath)
+            return [state.host.path.join(fileOrFolder.fsPath, "**")]
         } else return undefined
     }
 
