@@ -12,17 +12,18 @@
             "imageGeneration": true,
             "responseFormat": "json_schema",
             "aliases": {
-                "large": "gpt-4o",
-                "small": "gpt-4o-mini",
-                "vision": "gpt-4o",
-                "vision_small": "gpt-4o-mini",
+                "large": "gpt-4.1",
+                "small": "gpt-4.1-mini",
+                "tiny": "gpt-4.1-nano",
+                "vision": "gpt-4.1",
+                "vision_small": "gpt-4.1-mini",
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1",
                 "reasoning_small": "o3-mini",
                 "transcription": "whisper-1",
                 "speech": "tts-1",
                 "image": "dall-e-3",
-                "intent": "gpt-4o-mini"
+                "intent": "gpt-4.1-mini"
             },
             "models": {
                 "o1-preview": {
@@ -223,9 +224,9 @@
             "listModels": false,
             "bearerToken": true,
             "aliases": {
-                "large": "gpt-4o",
+                "large": "gpt-4.1",
                 "small": "gpt-4o-mini",
-                "vision": "gpt-4o",
+                "vision": "gpt-4.1",
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1-preview",
                 "reasoning_small": "o1-mini"
@@ -671,6 +672,7 @@
     "aliases": {
         "agent": "large",
         "long": "large",
+        "tiny": "small",
         "memory": "small",
         "classify": "small",
         "summarize": "small",
@@ -680,6 +682,36 @@
         "intent": "small"
     },
     "pricings": {
+        "github:gpt-4.1": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-2025-04-14": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-mini": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-mini-2025-04-14": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-nano": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-nano-2025-04-14": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
         "github:gpt-4o": {
             "price_per_million_input_tokens": 2.5,
             "price_per_million_output_tokens": 10
@@ -701,6 +733,36 @@
             "price_per_million_input_tokens": 1.1,
             "price_per_million_output_tokens": 4.4,
             "input_cache_token_rebate": 0.5
+        },
+        "openai:gpt-4.1": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-2025-04-14": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-mini": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-mini-2025-04-14": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-nano": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-nano-2025-04-14": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
         },
         "openai:gpt-4o": {
             "price_per_million_input_tokens": 2.5,

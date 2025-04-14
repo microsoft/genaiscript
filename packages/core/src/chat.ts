@@ -872,6 +872,7 @@ function parseAssistantMessage(
 }
 
 async function processChatMessage(
+    model: string,
     timer: () => number,
     req: CreateChatCompletionRequest,
     resp: ChatCompletionResponse,
@@ -890,10 +891,9 @@ async function processChatMessage(
         maxToolCalls = MAX_TOOL_CALLS,
         trace,
         cancellationToken,
-        choices,
     } = options
 
-    stats.addRequestUsage(req, resp)
+    stats.addRequestUsage(model, req, resp)
     const assisantMessage = parseAssistantMessage(resp)
     if (assisantMessage) {
         messages.push(assisantMessage)
@@ -1422,6 +1422,7 @@ export async function executeChatSession(
                 }
 
                 const output = await processChatMessage(
+                    model,
                     timer,
                     req,
                     resp,
