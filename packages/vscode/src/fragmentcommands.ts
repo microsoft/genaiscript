@@ -53,20 +53,14 @@ export function activateFragmentCommands(state: ExtensionState) {
         } else return (picked as TemplateQuickPickItem)?.template
     }
 
-    const resolveSpec = async (fileOrFolder: vscode.Uri) => {
-        if (await checkFileExists(fileOrFolder)) {
-            return [fileOrFolder.fsPath]
-        } else if (await checkDirectoryExists(fileOrFolder)) {
-            return [state.host.path.join(fileOrFolder.fsPath, "**")]
-        } else return undefined
-    }
-
-    const scriptRun = async (fileOrFolder: vscode.Uri) => {
+    const scriptRun = async (
+        fileOrFolder: vscode.Uri,
+        fileOrFolders: vscode.Uri[]
+    ) => {
         // editor context menu
         // explorer context menu (file or folder) - uri to file or folder
         // edit file run button: uri to genai file in editor
-        logVerbose(`run ${fileOrFolder}`)
-
+        logVerbose(`run ${fileOrFolder}, ${fileOrFolders?.length || 0} files`)
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
@@ -74,7 +68,10 @@ export function activateFragmentCommands(state: ExtensionState) {
         let files: string[]
         let parameters: PromptParameters
 
-        if (GENAI_ANY_REGEX.test(fileOrFolder.path)) {
+        if (
+            fileOrFolders?.length === 1 &&
+            GENAI_ANY_REGEX.test(fileOrFolder.path)
+        ) {
             const script = findScript(fileOrFolder)
             parameters = await showPromptParametersQuickPicks(script)
             if (parameters === undefined) return
@@ -86,7 +83,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             parameters = await showPromptParametersQuickPicks(script)
             if (parameters === undefined) return
             scriptId = script.id
-            files = await resolveSpec(fileOrFolder)
+            files = fileOrFolders.map((f) => f.fsPath)
         }
         await state.requestAI({
             fragment: { files },

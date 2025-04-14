@@ -478,7 +478,8 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         }
     ): Promise<string[]> {
         const { ignore, applyGitIgnore } = options || {}
-        const paths = arrayify(path)
+        const paths = arrayify(path).filter((p) => !!p)
+        dbg(`finding files: ${paths}`)
         const negatives = paths
             .filter((p) => NEGATIVE_GLOB_REGEX.test(p))
             .map((p) => p.replace(NEGATIVE_GLOB_REGEX, ""))

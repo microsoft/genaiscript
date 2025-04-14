@@ -474,6 +474,8 @@ export async function startServer(
                         // Cancel any active scripts
                         const { script, files = [], options = {}, runId } = data
                         if (!script) throw new Error("missing script")
+                        if (files.some((f) => !f))
+                            throw new Error("invalid file")
                         cancelAll()
                         const canceller =
                             new AbortSignalCancellationController()

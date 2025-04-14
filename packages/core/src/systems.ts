@@ -1,7 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:systems")
-const dbgr = debug("genaiscript:systems:resolve")
-
 // cspell: disable
 // This module resolves and returns a list of applicable systems based on the provided script and project.
 // It analyzes script options and the JavaScript source code to determine which systems to include or exclude.
@@ -12,6 +8,10 @@ import type { GenerationOptions } from "./generation"
 import { isToolsSupported } from "./tools"
 import type { Project } from "./server/messages"
 import { deleteUndefinedValues } from "./cleaners"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("systems")
+const dbgr = dbg.extend("resolve")
+dbgr.enabled = false
 
 /**
  * Resolves and returns a list of unique systems based on the provided script and project.
