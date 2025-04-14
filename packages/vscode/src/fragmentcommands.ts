@@ -55,7 +55,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
     const scriptRun = async (
         fileOrFolder: vscode.Uri,
-        ...fileOrFolders: vscode.Uri[]
+        fileOrFolders: vscode.Uri[]
     ) => {
         // editor context menu
         // explorer context menu (file or folder) - uri to file or folder
