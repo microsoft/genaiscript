@@ -472,9 +472,9 @@ export async function startServer(
                     // Handle script start request
                     case "script.start": {
                         // Cancel any active scripts
-                        cancelAll()
-
                         const { script, files = [], options = {}, runId } = data
+                        if (!script) throw new Error("missing script")
+                        cancelAll()
                         const canceller =
                             new AbortSignalCancellationController()
                         const cancellationToken = canceller.token
