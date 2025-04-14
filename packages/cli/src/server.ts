@@ -61,6 +61,7 @@ import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { nodeTryReadPackage } from "../../core/src/nodepackage"
 import { genaiscriptDebug } from "../../core/src/debug"
+import { a2aAgentCard } from "./a2a/server"
 const dbg = genaiscriptDebug("server")
 
 /**
@@ -733,6 +734,9 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                 res.statusCode = 404
                 res.end()
             }
+        } else if (method === "GET" && route === "/.well-known/agent.json") {
+            await a2aAgentCard(res)
+            return
         } else {
             // api, validate apikey
             if (!checkApiKey(req)) {
