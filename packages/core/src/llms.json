@@ -709,7 +709,7 @@
             "price_per_million_output_tokens": 8,
             "input_cache_token_rebate": 0.25
         },
-        "gpt-4.1-2025-04-14": {
+        "openai:gpt-4.1-2025-04-14": {
             "price_per_million_input_tokens": 2,
             "price_per_million_output_tokens": 8,
             "input_cache_token_rebate": 0.25
