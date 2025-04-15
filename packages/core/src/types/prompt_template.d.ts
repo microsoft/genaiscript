@@ -752,6 +752,31 @@ interface ModelTemplateOptions extends FenceFormatOptions {
     flexTokens?: number
 }
 
+interface McpToolAnnotations {
+    /**
+     * Annotations for MCP tools
+     * @link https://modelcontextprotocol.io/docs/concepts/tools#available-tool-annotations
+     */
+    annotations?: {
+        /**
+         * If true, indicates the tool does not modify its environment
+         */
+        readOnlyHint?: boolean
+        /**
+         * If true, the tool may perform destructive updates (only meaningful when readOnlyHint is false)
+         */
+        destructiveHint?: boolean
+        /**
+         * If true, calling the tool repeatedly with the same arguments has no additional effect (only meaningful when readOnlyHint is false)
+         */
+        idempotentHint?: boolean
+        /**
+         * If true, the tool may interact with an “open world” of external entities
+         */
+        openWorldHint?: boolean
+    }
+}
+
 interface PromptScript
     extends PromptLike,
         ModelOptions,
@@ -761,7 +786,8 @@ interface PromptScript
         ContentSafetyOptions,
         SecretDetectionOptions,
         GitIgnoreFilterOptions,
-        ScriptRuntimeOptions {
+        ScriptRuntimeOptions,
+        McpToolAnnotations {
     /**
      * Which provider to prefer when picking a model.
      */
