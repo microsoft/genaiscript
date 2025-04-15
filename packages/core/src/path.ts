@@ -10,6 +10,7 @@ import {
 } from "node:path"
 import { changeext } from "../../core/src/fs"
 import { fileURLToPath } from "node:url"
+import { sanitizeFilename } from "../../core/src/sanitize"
 
 /**
  * Creates a frozen object that provides various path manipulation functions.
@@ -32,5 +33,6 @@ export function createNodePath(): Path {
         isAbsolute, // Check if a path is absolute
         changeext,
         resolveFileURL: fileURLToPath,
+        sanitize: sanitizeFilename,
     } satisfies Path)
 }

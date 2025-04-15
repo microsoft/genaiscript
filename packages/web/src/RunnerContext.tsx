@@ -117,6 +117,7 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
             vars: parameters,
             workspaceFiles,
         })
+        setResult(undefined)
     }
 
     const cancel = () => {

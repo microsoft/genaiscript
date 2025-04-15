@@ -23,7 +23,8 @@ export const AZURE_MANAGEMENT_API_VERSION = "2024-10-01"
 export const AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
 ])
-export const AZURE_AI_INFERENCE_VERSION = "2024-08-01-preview"
+// https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation
+export const AZURE_AI_INFERENCE_VERSION = "2025-03-01-preview"
 export const AZURE_AI_INFERENCE_TOKEN_SCOPES = Object.freeze([
     "https://ml.azure.com/.default",
 ])
@@ -152,6 +153,7 @@ export const PROMPTFOO_REDTEAM_NUM_TESTS = 5
 export const PROMPTFOO_TEST_MAX_CONCURRENCY = 1
 
 export const TYPE_DEFINITION_BASENAME = "genaiscript.d.ts"
+export const TYPE_DEFINITION_REFERENCE = `/// <reference path="./${TYPE_DEFINITION_BASENAME}" />\n`
 
 export const RUNS_DIR_NAME = "runs"
 export const CONVERTS_DIR_NAME = "converts"
@@ -192,7 +194,8 @@ export const MODEL_PROVIDER_WINDOWS_AI = "windows_ai"
 export const MODEL_PROVIDER_ECHO = "echo"
 export const MODEL_PROVIDER_NONE = "none"
 
-export const MODEL_GITHUB_COPILOT_CHAT_CURRENT = MODEL_PROVIDER_GITHUB_COPILOT_CHAT + ":current"
+export const MODEL_GITHUB_COPILOT_CHAT_CURRENT =
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT + ":current"
 
 export const MODEL_PROVIDER_OPENAI_HOSTS = Object.freeze([
     MODEL_PROVIDER_OPENAI,
@@ -234,6 +237,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         logprobs?: boolean
         topLogprobs?: boolean
         topP?: boolean
+        toolChoice?: boolean
         prediction?: boolean
         bearerToken?: boolean
         listModels?: boolean
@@ -243,6 +247,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         hidden?: boolean
         imageGeneration?: boolean
         singleModel?: boolean
+        responseType?: "json" | "json_object" | "json_schema"
         reasoningEfforts?: Record<string, number>
         aliases?: Record<string, string>
         models?: Record<string, { tools?: boolean }>
@@ -272,9 +277,11 @@ export const MODEL_PRICINGS = Object.freeze<
 export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `
 export const PDF_SCALE = 4
-export const PDF_HASH_LENGTH = 18
-export const DOCX_HASH_LENGTH = 18
-export const VECTOR_INDEX_HASH_LENGTH = 18
+export const PDF_HASH_LENGTH = 22
+export const DOCX_HASH_LENGTH = 22
+export const VECTOR_INDEX_HASH_LENGTH = 22
+export const RESOURCE_HASH_LENGTH = 22
+export const FILE_HASH_LENGTH = 64
 
 export const PDF_MIME_TYPE = "application/pdf"
 export const DOCX_MIME_TYPE =
@@ -351,7 +358,7 @@ export const CLI_ENV_VAR_RX = /^genaiscript_var_/i
 
 export const GIT_DIFF_MAX_TOKENS = 8000
 export const GIT_LOG_COUNT = 10
-export const MAX_TOOL_CONTENT_TOKENS = 4000
+export const MAX_TOOL_CONTENT_TOKENS = 8000
 
 export const AGENT_MEMORY_CACHE_NAME = "agent_memory"
 export const AGENT_MEMORY_FLEX_TOKENS = 20000
@@ -422,7 +429,7 @@ export const CHAR_UP_ARROW = "↑"
 export const CHAR_DOWN_ARROW = "↓"
 export const CHAR_ENVELOPE = "✉"
 export const CHAR_UP_DOWN_ARROWS = "⇅ "
-export const CHAR_FLOPPY_DISK = "🖫"
+export const CHAR_FLOPPY_DISK = "🖫 "
 
 export const DEBUG_SCRIPT_CATEGORY = "script"
 
@@ -430,3 +437,5 @@ export const CACHE_FORMAT_VERSION = "1"
 export const CACHE_SHA_LENGTH = 32
 
 export const MCP_RESOURCE_PROTOCOL = TOOL_ID
+
+export const RESOURCE_MAX_SIZE = 1024 * 1024 * 10 // 10MB

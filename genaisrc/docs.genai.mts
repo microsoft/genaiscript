@@ -1,9 +1,8 @@
 import { classify } from "genaiscript/runtime"
-import { docify } from "./src/docs.mts"
-import { prettier } from "./src/prettier.mts"
 
 script({
     title: "Generate TypeScript function documentation using AST insertion",
+    group: "dev",
     description: `
 ## Docs!
 
@@ -69,7 +68,7 @@ if (!applyEdits)
     )
 
 // filter by diff
-const gitDiff = diff ? await git.diff({ base: "main" }) : undefined
+const gitDiff = diff ? await git.diff({ base: "dev" }) : undefined
 console.debug(gitDiff)
 const diffFiles = gitDiff ? DIFF.parse(gitDiff) : undefined
 if (diffFiles?.length) {
@@ -203,7 +202,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
             }
         )
         fileStats.judge += judge.usage?.total || 0
-        fileStats.judegeCost += judge.usage?.cost || 0
+        fileStats.judgeCost += judge.usage?.cost || 0
         if (judge.label !== "ok") {
             output.warn(judge.label)
             output.fence(judge.answer)
@@ -334,5 +333,27 @@ rule:
         await prettier(file)
     } else {
         output.diff(file, modifiedFiles[0])
+    }
+}
+
+function docify(docs: string) {
+    docs = parsers.unfence(docs, "*")
+    if (!/^\/\*\*.*.*\*\/$/s.test(docs))
+        docs = `/**\n* ${docs.split(/\r?\n/g).join("\n* ")}\n*/`
+    return docs.replace(/\n+$/, "")
+}
+
+async function prettier(
+    file: WorkspaceFile,
+    options?: { curly?: boolean }
+) {
+    dbg(file.filename)
+    const args = ["--write"]
+    if (options?.curly) args.push("--plugin=prettier-plugin-curly")
+    // format
+    const res = await host.exec("prettier", [...args, file.filename])
+    if (res.exitCode) {
+        dbg(`error: %d\n%s`, res.exitCode, res.stderr)
+        throw new Error(`${res.stdout} (${res.exitCode})`)
     }
 }

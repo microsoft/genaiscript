@@ -2,7 +2,7 @@
     "name": "genaiscript-workspace",
     "displayName": "GenAIScript",
     "description": "Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.",
-    "version": "1.124.3",
+    "version": "1.129.4",
     "license": "MIT",
     "private": true,
     "workspaces": {
@@ -16,7 +16,7 @@
         "setup:az": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
         "setup:bicep": "az bicep upgrade",
         "az:login": "az login --scope api://trapi/.default",
-        "install:playwright": "yarn install playwright --with-deps",
+        "install:playwright": "sudo yarn playwright install-deps",
         "install:force": "rm yarn.lock && yarn install && yarn --cwd docs install:force && yarn --cwd slides install:force && yarn gen:licenses",
         "compile-ext": "yarn --cwd packages/core run prompts:bundle && yarn --cwd packages/vscode run compile && yarn --cwd packages/web run compile",
         "compile-cli": "yarn --cwd packages/cli run compile",
@@ -80,12 +80,13 @@
         "genai:blogify": "node packages/cli/built/genaiscript.cjs run blogify-sample",
         "genai:tweetify": "node packages/cli/built/genaiscript.cjs run tweetify",
         "genai:docify": "node packages/cli/built/genaiscript.cjs run docify",
-        "genai:debugify": "node packages/cli/built/genaiscript.cjs run debugify",
+        "genai:debugify": "node packages/cli/built/genaiscript.cjs run dbg-if",
         "genai:blog-images": "node packages/cli/built/genaiscript.cjs convert blog-image docs/src/content/docs/blog/*.md*",
         "commit": "yarn pretty && yarn compile && yarn test:core && yarn gcm",
         "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model gcm",
-        "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4o",
-        "prr": "node packages/cli/built/genaiscript.cjs run prr -prr --model github:gpt-4o-mini",
+        "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4.1 --vars base=dev",
+        "prd:dev": "node packages/cli/built/genaiscript.cjs run prd -prd --model azure:gpt-4.1_2025-04-14 --vars maxTokens=500000",
+        "prr": "node packages/cli/built/genaiscript.cjs run prr -prr --model github:gpt-4.1 --vars base=dev",
         "genai": "node packages/cli/built/genaiscript.cjs run",
         "genai:convert": "node packages/cli/built/genaiscript.cjs convert",
         "genai:debug": "yarn compile-debug && node packages/cli/built/genaiscript.cjs run",
@@ -109,12 +110,12 @@
         }
     },
     "devDependencies": {
-        "@inquirer/prompts": "^7.4.0",
+        "@inquirer/prompts": "^7.4.1",
         "glob": "^11.0.1",
-        "npm-check-updates": "^17.1.16",
+        "npm-check-updates": "^17.1.18",
         "npm-run-all": "^4.1.5",
         "prettier": "^3.5.3",
-        "prettier-plugin-curly": "^0.3.1",
-        "zx": "^8.4.1"
+        "prettier-plugin-curly": "^0.3.2",
+        "zx": "^8.5.2"
     }
 }

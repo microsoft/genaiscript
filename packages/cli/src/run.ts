@@ -1,5 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:run")
 import { capitalize } from "inflection"
 import { resolve, join, relative } from "node:path"
 import { isQuiet } from "../../core/src/quiet"
@@ -106,6 +104,9 @@ import {
     getRunDir,
     createStatsDir,
 } from "../../core/src/workdir"
+import { tryResolveScript } from "../../core/src/resources"
+import { genaiscriptDebug } from "../../core/src/debug"
+const dbg = genaiscriptDebug("run")
 
 /**
  * Executes a script with a possible retry mechanism and exits the process with the appropriate code.
@@ -130,10 +131,10 @@ export async function runScriptWithExitCode(
     files: string[],
     options: Partial<PromptScriptRunOptions> & TraceOptions
 ) {
+    dbg(`run %s`, scriptId)
     await ensureDotGenaiscriptPath()
     const canceller = createCancellationController()
     const cancellationToken = canceller.token
-
     const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
@@ -203,20 +204,21 @@ export async function runScriptInternal(
         TraceOptions &
         CancellationOptions & {
             runId?: string
-            outputTrace?: MarkdownTrace
+            runOutputTrace?: MarkdownTrace
             cli?: boolean
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
+    dbg(`scriptid: %s`, scriptId)
     const runId = options.runId || generateId()
-    const runDir = options.out || getRunDir(scriptId, runId)
     dbg(`run id: `, runId)
+    const runDir = options.out || getRunDir(scriptId, runId)
     dbg(`run dir: `, runDir)
     const cancellationToken = options.cancellationToken
     const {
         trace = new MarkdownTrace({ cancellationToken, dir: runDir }),
-        outputTrace = new MarkdownTrace({ cancellationToken, dir: runDir }),
+        runOutputTrace = new MarkdownTrace({ cancellationToken, dir: runDir }),
         infoCb,
         partialCb,
     } = options || {}
@@ -245,6 +247,11 @@ export async function runScriptInternal(
     const fallbackTools = options.fallbackTools
     const reasoningEffort = options.reasoningEffort
     const topP = normalizeFloat(options.topP)
+    const toolChoice: ChatToolChoice = options.toolChoice
+        ? ["none", "auto", "required"].includes(options.toolChoice)
+            ? (options.toolChoice as "none" | "auto" | "required")
+            : { name: options.toolChoice }
+        : undefined
     const seed = normalizeFloat(options.seed)
     const maxTokens = normalizeInt(options.maxTokens)
     const maxToolCalls = normalizeInt(options.maxToolCalls)
@@ -284,10 +291,10 @@ export async function runScriptInternal(
                   join(runDir, TRACE_FILENAME)
               )
     const outputFilename =
-        options.runTrace === false
+        options.outputTrace === false
             ? undefined
             : await setupTraceWriting(
-                  outputTrace,
+                  runOutputTrace,
                   "output",
                   join(runDir, OUTPUT_FILENAME),
                   { ignoreInner: true }
@@ -295,12 +302,20 @@ export async function runScriptInternal(
     if (outTrace && !/^false$/i.test(outTrace))
         await setupTraceWriting(trace, " trace", outTrace)
     if (outOutput && !/^false$/i.test(outOutput))
-        await setupTraceWriting(outputTrace, " output", outOutput, {
+        await setupTraceWriting(runOutputTrace, " output", outOutput, {
             ignoreInner: true,
         })
 
     const toolFiles: string[] = []
-    if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
+    const resourceScript = await tryResolveScript(scriptId, {
+        trace,
+        cancellationToken,
+    })
+    if (resourceScript) {
+        scriptId = resourceScript
+        dbg(`resolved script file: %s`, scriptId)
+        toolFiles.push(scriptId)
+    } else if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
     const prj = await buildProject({
         toolFiles,
@@ -318,7 +333,15 @@ export async function runScriptInternal(
                 GENAI_ANY_REGEX.test(scriptId) &&
                 resolve(t.filename) === resolve(scriptId))
     )
-    if (!script) throw new Error(`script ${scriptId} not found`)
+    if (!script) {
+        dbg(`script id not found: %s`, scriptId)
+        dbg(
+            `scripts: %O`,
+            prj.scripts.map((s) => ({ id: s.id, filename: s.filename }))
+        )
+        throw new Error(`script ${scriptId} not found`)
+    }
+    if (script.filename) logVerbose(`script: ${script.filename}`)
     const applyGitIgnore =
         options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     dbg(`apply gitignore: ${applyGitIgnore}`)
@@ -390,7 +413,7 @@ export async function runScriptInternal(
     )
     let tokenColor = 0
     let reasoningOutput = false
-    outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
+    runOutputTrace.addEventListener(TRACE_CHUNK, (ev) => {
         const { progress, chunk } = ev as TraceChunkEvent
         if (progress) {
             const { responseChunk, responseTokens, inner, reasoningChunk } =
@@ -497,7 +520,7 @@ export async function runScriptInternal(
                 }
             },
             partialCb: (args) => {
-                outputTrace.chatProgress(args)
+                runOutputTrace.chatProgress(args)
                 partialCb?.(args)
             },
             label,
@@ -505,6 +528,7 @@ export async function runScriptInternal(
             temperature,
             reasoningEffort,
             topP,
+            toolChoice,
             seed,
             cancellationToken,
             maxTokens,
@@ -517,7 +541,7 @@ export async function runScriptInternal(
             maxDelay,
             vars,
             trace,
-            outputTrace,
+            outputTrace: runOutputTrace,
             fallbackTools,
             logprobs,
             topLogprobs,
@@ -539,6 +563,9 @@ export async function runScriptInternal(
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
 
+    dbg(`result: %s`, result.finishReason)
+    dbg(`annotations: %d`, result.annotations?.length)
+
     await aggregateResults(scriptId, outTrace, stats, result)
     await traceAgentMemory({ userState, trace })
 
@@ -553,7 +580,10 @@ export async function runScriptInternal(
                     : /\.ya?ml$/i.test(outAnnotations)
                       ? YAMLStringify(result.annotations)
                       : /\.sarif$/i.test(outAnnotations)
-                        ? convertDiagnosticsToSARIF(script, result.annotations)
+                        ? await convertDiagnosticsToSARIF(
+                              script,
+                              result.annotations
+                          )
                         : JSON.stringify(result.annotations, null, 2)
             )
     }
@@ -619,7 +649,7 @@ export async function runScriptInternal(
     if (sariff)
         await writeText(
             sariff,
-            convertDiagnosticsToSARIF(script, result.annotations)
+            await convertDiagnosticsToSARIF(script, result.annotations)
         )
     if (changelogf && result.changelogs?.length)
         await writeText(changelogf, result.changelogs.join("\n"))
@@ -646,6 +676,7 @@ export async function runScriptInternal(
             _ghInfo = await githubParseEnv(process.env, {
                 issue: pullRequest,
                 resolveIssue: true,
+                resolveCommit: true,
             })
         return _ghInfo
     }
@@ -676,19 +707,22 @@ export async function runScriptInternal(
     }
 
     if (pullRequestReviews && result.annotations?.length) {
-        // github action or repo
+        dbg(`adding pull request reviews`)
         const ghInfo = await resolveGitHubInfo()
-        if (ghInfo.repository && ghInfo.issue && ghInfo.commitSha) {
-            await githubCreatePullRequestReviews(
-                script,
-                ghInfo,
-                result.annotations
-            )
+        if (ghInfo.repository && ghInfo.issue) {
+            if (!ghInfo.commitSha)
+                dbg(`no commit sha found, skipping pull request reviews`)
+            else
+                await githubCreatePullRequestReviews(
+                    script,
+                    ghInfo,
+                    result.annotations
+                )
         }
     }
 
     if (pullRequestComment && result.text) {
-        // github action or repo
+        dbg(`upsert pull request comment`)
         const ghInfo = await resolveGitHubInfo()
         if (
             ghInfo.repository &&

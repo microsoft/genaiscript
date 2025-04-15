@@ -24,8 +24,8 @@ import {
     prettyDuration,
     prettyTokens,
 } from "./pretty"
-import debug from "debug"
-const dbg = debug("genaiscript:usage")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("usage")
 
 /**
  * Estimates the cost of a chat completion based on model pricing and token usage.
@@ -39,17 +39,22 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
 
     const { completion_tokens, prompt_tokens } = usage
     let { provider, model } = parseModelIdentifier(modelId)
-    let cost = MODEL_PRICINGS[`${provider}:${model}`.toLowerCase()]
+    let mid = `${provider}:${model}`.toLowerCase()
+    let cost = MODEL_PRICINGS[mid]
     if (!cost) {
         const m = model.match(
-            /^gpt-(3\.5|4|4o|o1|o3|o1-mini|o1-preview|4o-mini|o3-mini)/
+            /^gpt-(3\.5|4|4o|o1|o3|o1-mini|o1-preview|4o-mini|o3-mini|4\.1|4\.1-mini|4\.1-nano)/
         )
         if (m) {
             model = m[0]
-            cost = MODEL_PRICINGS[`${provider}:${model}`.toLowerCase()]
+            mid = `${provider}:${model}`.toLowerCase()
+            cost = MODEL_PRICINGS[mid]
         }
     }
-    if (!cost) return undefined
+    dbg(`pricing: %s <- %s %o`, mid, modelId, cost)
+    if (!cost) {
+        return undefined
+    }
 
     const {
         price_per_million_output_tokens,
@@ -290,11 +295,11 @@ export class GenerationStats {
                 this.children.length > 1
                     ? `${CHAR_UP_DOWN_ARROWS}${this.children.length}`
                     : undefined,
+                prettyDuration(au.duration),
                 prettyTokens(au.prompt_tokens, "prompt"),
                 prettyTokens(au.completion_tokens, "completion"),
                 prettyTokensPerSecond(au),
                 prettyCost(c),
-                prettyDuration(au.duration),
             ]
                 .filter((n) => !!n)
                 .join(" ")
@@ -342,10 +347,6 @@ export class GenerationStats {
                 usage.completion_tokens_details?.audio_tokens ?? 0
             this.usage.completion_tokens_details.reasoning_tokens +=
                 usage.completion_tokens_details?.reasoning_tokens ?? 0
-            this.usage.completion_tokens_details.audio_tokens +=
-                usage.prompt_tokens_details?.audio_tokens ?? 0
-            this.usage.completion_tokens_details.reasoning_tokens +=
-                usage.prompt_tokens_details?.cached_tokens ?? 0
             this.usage.completion_tokens_details.accepted_prediction_tokens +=
                 usage.completion_tokens_details?.accepted_prediction_tokens ?? 0
             this.usage.completion_tokens_details.rejected_prediction_tokens +=
@@ -360,6 +361,7 @@ export class GenerationStats {
      * @param usage - The usage statistics to be added.
      */
     addRequestUsage(
+        modelId: string,
         req: CreateChatCompletionRequest,
         resp: ChatCompletionResponse
     ) {
@@ -371,8 +373,18 @@ export class GenerationStats {
         } = resp
         const { messages } = req
 
-        dbg(
-            `${cached ? CHAR_FLOPPY_DISK : "+"}  ${model} ${CHAR_ENVELOPE} ${messages.length} ${prettyTokens(usage.total_tokens)}`
+        const cost = estimateCost(modelId, usage)
+        logVerbose(
+            `└─🏁 ${cached ? CHAR_FLOPPY_DISK : ""} ${model} ${CHAR_ENVELOPE} ${messages.length} ${[
+                prettyDuration(duration),
+                prettyTokens(usage.total_tokens, "both"),
+                prettyTokens(usage.prompt_tokens, "prompt"),
+                prettyTokens(usage.completion_tokens, "completion"),
+                prettyTokensPerSecond(usage),
+                prettyCost(cost),
+            ]
+                .filter((s) => !!s)
+                .join(" ")}`
         )
         if (!cached) {
             this.addUsage(usage, duration)

@@ -22,7 +22,7 @@ For each generated test, implement the TypeScript source code in a test file wit
 in the same folder as the source file.
 
 - always organize tests using 'describe' blocks
-- this is imporant, generate all the source code
+- this is important, generate all the source code
 - use "describe", "test", "beforeEach" from the "node:test" test runner framework
 
 ${fence('import test, { beforeEach, describe } from "node:test"', { language: "js" })}

@@ -237,6 +237,10 @@ export async function cli() {
             "-mtc, --max-tool-calls <number>",
             "maximum tool calls for the run"
         )
+        .option(
+            "-tc, --tool-choice <string>",
+            "tool choice for the run, 'none', 'auto', 'required', or a function name"
+        )
         .option("-se, --seed <number>", "seed for the run")
         .option("-c, --cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
@@ -258,6 +262,7 @@ export async function cli() {
             "number of retries for the entire run"
         )
         .option("--no-run-trace", "disable automatic trace generation")
+        .option("--no-output-trace", "disable automatic output generation")
         .action(runScriptWithExitCode) // Action to execute the script with exit code
 
     // runs commands
@@ -610,7 +615,7 @@ export async function cli() {
         .action(prompty2genaiscript) // Action to convert prompty files
     parser
         .command("jinja2")
-        .description("Renders Jinj2 or prompty template")
+        .description("Renders Jinja2 or prompty template")
         .argument("<file>", "input Jinja2 or prompty template file")
         .option(
             "--vars <namevalue...>",

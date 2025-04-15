@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-web",
-  "version": "1.124.3",
+  "version": "1.129.4",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -12,14 +12,14 @@
   "devDependencies": {
     "@daiji256/rehype-mathml": "^1.2.0",
     "@types/marked": "^6.0.0",
-    "@types/react": "^19.0.12",
-    "@types/react-dom": "^19.0.4",
-    "@vscode-elements/elements": "1.14.1-pre.3",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vscode-elements/elements": "1.15.0",
     "@vscode-elements/webview-playground": "^1.6.0",
     "@vscode/codicons": "^0.0.36",
     "clsx": "^2.1.1",
     "es-toolkit": "^1.34.1",
-    "esbuild": "^0.25.1",
+    "esbuild": "^0.25.2",
     "html-escaper": "3.0.3",
     "mermaid": "^11.6.0",
     "nanoid": "^5.1.5",
@@ -37,7 +37,7 @@
     "remark-github-blockquote-alert": "^1.3.0",
     "remark-math": "^6.0.0",
     "remark-mermaid": "^0.2.0",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "victory": "^37.3.6"
   }
 }

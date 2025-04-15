@@ -16,7 +16,7 @@ const recent = posts.filter(({ draft }) => !draft).slice(0, count || 5)
             <LinkCard
                 title={title}
                 href={href}
-                description={`${createdAt.toLocaleDateString()}, ${entry?.data?.description || ""}`}
+                description={`${createdAt.toLocaleDateString()}, ${entry?.data?.excerpt || entry?.data?.description || ""}`}
             />
         ))
     }

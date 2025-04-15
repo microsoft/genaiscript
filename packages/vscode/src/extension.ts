@@ -17,11 +17,13 @@ import { activateConnectionInfoTree } from "./connectioninfotree"
 import { activeTaskProvider } from "./taskprovider"
 import { activateChatParticipant } from "./chatparticipant"
 import { activeWebview } from "./webview"
+import { activateFixCommand } from "./fixcommand"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
+    activateFixCommand(state)
     activateMarkdownTextDocumentContentProvider(state)
 
     activateTraceTreeDataProvider(state)

@@ -20,12 +20,12 @@ script({
     },*/
 })
 
-defTool(calculator)
+defTool(calculator as any)
 
 const weather = new WeatherClient()
 const res = await weather.getCurrentWeather({ q: city })
 console.log(`weather: ${YAML.stringify(res)}`)
-defTool(weather)
+defTool(weather as any)
 
 $`Answer the following arithmetic question:
 

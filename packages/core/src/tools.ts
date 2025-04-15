@@ -1,8 +1,8 @@
 import debug from "debug"
 const dbg = debug("genaiscript:tools")
 
-import { MODEL_PROVIDERS } from "./constants"
 import { parseModelIdentifier } from "./models"
+import { providerFeatures } from "./features"
 
 /**
  * Escapes a tool name by sanitizing it according to specific rules.
@@ -40,7 +40,7 @@ export function isToolsSupported(modelId: string): boolean | undefined {
     const { provider, family } = parseModelIdentifier(modelId)
 
     dbg(`searching for provider info for provider: ${provider}`)
-    const info = MODEL_PROVIDERS.find(({ id }) => provider === id)
+    const info = providerFeatures(provider)
     if (info) {
         dbg(`tools support is explicitly disabled for model family: ${family}`)
         const value = info.models?.[family]?.tools

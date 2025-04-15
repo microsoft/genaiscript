@@ -7,7 +7,6 @@ import {
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
     MODEL_PROVIDER_OPENAI_HOSTS,
-    MODEL_PROVIDERS,
     OPENROUTER_API_CHAT_URL,
     OPENROUTER_SITE_NAME_HEADER,
     OPENROUTER_SITE_URL_HEADER,
@@ -34,7 +33,7 @@ import {
     isCancelError,
     serializeError,
 } from "./error"
-import { createFetch, traceFetchPost } from "./fetch"
+import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
 import {
@@ -69,6 +68,8 @@ import {
 } from "./cleaners"
 import { fromBase64 } from "./base64"
 import debug from "debug"
+import { traceFetchPost } from "./fetchtext"
+import { providerFeatures } from "./features"
 const dbg = debug("genaiscript:openai")
 const dbgMessages = debug("genaiscript:openai:msg")
 
@@ -91,7 +92,7 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
         const keys = INITryParse(token)
         if (keys && Object.keys(keys).length > 1) token = keys[cfg.model]
     }
-    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
+    const features = providerFeatures(provider)
     const useBearer = features?.bearerToken !== false
     const isBearer = /^Bearer /i.test(cfg.token)
     const Authorization = isBearer
@@ -127,7 +128,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { provider, model, family, reasoningEffort } = parseModelIdentifier(
         req.model
     )
-    const features = MODEL_PROVIDERS.find(({ id }) => id === provider)
+    const features = providerFeatures(provider)
     const { encode: encoder } = await resolveTokenEncoder(family)
 
     const postReq = structuredClone({
@@ -147,7 +148,15 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
-        if (/^o(1|3)/.test(family)) {
+        if (/^o1|o3|gpt-4\.1/.test(family)) {
+            dbg(`changing max_tokens to max_completion_tokens`)
+            if (postReq.max_tokens) {
+                postReq.max_completion_tokens = postReq.max_tokens
+                delete postReq.max_tokens
+            }
+        }
+
+        if (/^o1|o3/.test(family)) {
             dbg(`removing options to support o1/o3`)
             delete postReq.temperature
             delete postReq.top_p
@@ -156,10 +165,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             delete postReq.logprobs
             delete postReq.top_logprobs
             delete postReq.logit_bias
-            if (postReq.max_tokens) {
-                postReq.max_completion_tokens = postReq.max_tokens
-                delete postReq.max_tokens
-            }
             if (!postReq.reasoning_effort && reasoningEffort) {
                 postReq.model = family
                 postReq.reasoning_effort = reasoningEffort
@@ -210,7 +215,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
-            family.replace(/\./g, "") +
+            family +
             `/chat/completions?api-version=${version}`
     } else if (cfg.type === "azure_ai_inference") {
         const version = cfg.version
@@ -236,7 +241,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
-            family.replace(/\./g, "") +
+            family +
             `/chat/completions?api-version=${version}`
         // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "pass-through"
@@ -768,7 +773,7 @@ export async function OpenAIImageGeneration(
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
-            body.model.replace(/\./g, "") +
+            body.model +
             `/images/generations?api-version=${version}`
         delete body.model
     }
@@ -843,7 +848,7 @@ export async function OpenAIEmbedder(
             type === "azure" ||
             type === "azure_serverless"
         ) {
-            url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
+            url = `${trimTrailingSlash(base)}/${model}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
             delete body.model
         } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
             url = base.replace(/^https?:\/\/([^/]+)\/?/, body.model)

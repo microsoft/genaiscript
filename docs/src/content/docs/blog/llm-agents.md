@@ -17,6 +17,15 @@ cover:
     color palette of five colors create a minimalist and iconic scene, devoid of
     people or text."
   image: ./llm-agents.png
+excerpt: GenAIScript redefines how agents interact with users by integrating
+  inline prompts and tools to enhance task execution. In this guide, we explore
+  building a user-interaction agent that actively seeks user input, confirms
+  decisions, and adapts based on user responses. By defining clear metadata,
+  flexible agent behavior, and model configurations, developers can create
+  agents that are both dynamic and intuitive. This approach not only simplifies
+  user-agent communication but also emphasizes context-driven interactions for
+  more accurate outputs. Check the GitHub link included for real-world
+  implementation details.
 
 ---
 

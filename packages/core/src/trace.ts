@@ -16,7 +16,7 @@ import { host } from "./host"
 import { ellipse, toStringList } from "./util"
 import { renderWithPrecision } from "./precision"
 import { fenceMD } from "./mkmd"
-import { HTMLEscape } from "./html"
+import { HTMLEscape } from "./htmlescape"
 import { resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { dedent } from "./indent"
@@ -24,11 +24,12 @@ import { CSVStringify, dataToMarkdownTable } from "./csv"
 import { INIStringify } from "./ini"
 import { ChatCompletionsProgressReport } from "./chattypes"
 import { parseTraceTree, TraceTree } from "./traceparser"
-import { fileCacheImage, fileWriteCached } from "./filecache"
+import { fileCacheImage } from "./filecache"
 import { CancellationOptions } from "./cancellation"
 import { generateId } from "./id"
 import { diffCreatePatch } from "./diff"
 import { prettyBytes } from "./pretty"
+import assert from "node:assert/strict"
 
 export class TraceChunkEvent extends Event {
     constructor(
@@ -37,6 +38,10 @@ export class TraceChunkEvent extends Event {
         readonly progress?: ChatCompletionsProgressReport
     ) {
         super(TRACE_CHUNK)
+        assert(
+            typeof chunk === "string",
+            `chunk must be a string, got ${typeof chunk}`
+        )
     }
 
     clone(): TraceChunkEvent {
@@ -99,15 +104,21 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
             this._tree = undefined
             this.dispatchChange()
         }
-        this.dispatchEvent(new TraceChunkEvent(responseChunk, inner, progress))
+        if (responseChunk)
+            this.dispatchEvent(
+                new TraceChunkEvent(responseChunk, inner, progress)
+            )
     }
 
     appendContent(value: string) {
         if (value !== undefined && value !== null && value !== "") {
-            this._content.push(value)
-            this._tree = undefined
-            this.dispatchChange()
-            this.dispatchEvent(new TraceChunkEvent(value, false))
+            if (typeof value !== "string") this.fence(value, "json")
+            else {
+                this._content.push(value)
+                this._tree = undefined
+                this.dispatchChange()
+                this.dispatchEvent(new TraceChunkEvent(value, false))
+            }
         }
     }
 

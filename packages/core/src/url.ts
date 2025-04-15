@@ -1,3 +1,5 @@
+import { URL } from "node:url"
+
 /**
  * Utility functions for handling URL shortening.
  *
@@ -14,16 +16,22 @@
  * @param url - The complete URL to be shortened.
  * @returns A shortened version of the URL or undefined if parsing fails.
  */
-export function ellipseUri(url: string) {
+export function uriRedact(url: string) {
+    if (!url) return undefined
+    const uri = uriTryParse(url)
+    if (!uri) return undefined
+
+    let res = `${uri.protocol}//${uri.hostname}${uri.pathname}` // Construct the base URL with protocol, hostname, and pathname.
+    if (uri.search) res += `?...` // Append ellipses if there are query parameters.
+    if (uri.hash) res += `#...` // Append ellipses if there is a fragment identifier.
+    return res // Return the shortened URL.
+}
+
+export function uriTryParse(url: string) {
+    if (!url) return undefined
     try {
-        const uri = new URL(url) // Parse the URL string into a URL object.
-        let res = `${uri.protocol}//${uri.hostname}${uri.pathname}` // Construct the base URL with protocol, hostname, and pathname.
-
-        if (uri.search) res += `?...` // Append ellipses if there are query parameters.
-        if (uri.hash) res += `#...` // Append ellipses if there is a fragment identifier.
-
-        return res // Return the shortened URL.
-    } catch {
-        return undefined // Return undefined if the URL is invalid.
+        return new URL(url)
+    } catch (error) {
+        return undefined
     }
 }
