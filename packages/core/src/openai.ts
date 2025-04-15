@@ -215,7 +215,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
-            family.replace(/\./g, "") +
+            family +
             `/chat/completions?api-version=${version}`
     } else if (cfg.type === "azure_ai_inference") {
         const version = cfg.version
@@ -241,7 +241,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
-            family.replace(/\./g, "") +
+            family +
             `/chat/completions?api-version=${version}`
         // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "pass-through"
@@ -773,7 +773,7 @@ export async function OpenAIImageGeneration(
         url =
             trimTrailingSlash(cfg.base) +
             "/" +
-            body.model.replace(/\./g, "") +
+            body.model +
             `/images/generations?api-version=${version}`
         delete body.model
     }
@@ -848,7 +848,7 @@ export async function OpenAIEmbedder(
             type === "azure" ||
             type === "azure_serverless"
         ) {
-            url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
+            url = `${trimTrailingSlash(base)}/${model}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
             delete body.model
         } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
             url = base.replace(/^https?:\/\/([^/]+)\/?/, body.model)
