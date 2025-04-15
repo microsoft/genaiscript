@@ -18,11 +18,6 @@ system({
             items: { type: "string" },
             description: "The arguments to pass to the command.",
         },
-        params: {
-            type: "array",
-            items: { type: "string" },
-            description: "The parameters to pass to the command.",
-        },
         version: {
             type: "string",
             description: "The version of the MCP server.",
@@ -36,6 +31,19 @@ system({
             type: "string",
             description:
                 "The SHA256 hash of the tools returned by the MCP server.",
+        },
+        contentSafety: {
+            type: "string",
+            description: "Content safety provider",
+            enum: ["azure"],
+        },
+        detectPromptInjection: {
+            anyOf: [
+                { type: "string" },
+                { type: "boolean", enum: ["always", "available"] },
+            ],
+            description:
+                "Whether to detect prompt injection attacks in the MCP server.",
         },
         intent: {
             type: "any",
@@ -52,7 +60,6 @@ export default function (ctx: ChatGenerationContext) {
     const id = vars["system.mcp.id"] as string
     const command = vars["system.mcp.command"] as string
     const args = (vars["system.mcp.args"] as string[]) || []
-    const params = (vars["system.mcp.params"] as string[]) || []
     const version = vars["system.mcp.version"] as string
     const maxTokens = vars["system.mcp.maxTokens"] as number
     const toolsSha = vars["system.mcp.toolsSha"] as string
@@ -70,7 +77,6 @@ export default function (ctx: ChatGenerationContext) {
     const config = {
         command,
         args,
-        params,
         version,
         toolsSha,
         contentSafety,

@@ -22,11 +22,6 @@ system({
             items: { type: "string" },
             description: "The arguments to pass to the command.",
         },
-        params: {
-            type: "array",
-            items: { type: "string" },
-            description: "The parameters to pass to the command.",
-        },
         version: {
             type: "string",
             description: "The version of the MCP server.",
@@ -41,6 +36,28 @@ system({
             minimum: 16,
             description: "Maximum number of tokens returned by the tools.",
         },
+        toolsSha: {
+            type: "string",
+            description:
+                "The SHA256 hash of the tools returned by the MCP server.",
+        },
+        contentSafety: {
+            type: "string",
+            description: "Content safety provider",
+            enum: ["azure"],
+        },
+        detectPromptInjection: {
+            anyOf: [
+                { type: "string" },
+                { type: "boolean", enum: ["always", "available"] },
+            ],
+            description:
+                "Whether to detect prompt injection attacks in the MCP server.",
+        },
+        intent: {
+            type: "any",
+            description: "the intent of the tools",
+        },
     },
 })
 
@@ -53,10 +70,17 @@ export default function (ctx: ChatGenerationContext) {
     const description = vars["system.agent_mcp.description"] as string
     const command = vars["system.agent_mcp.command"] as string
     const args = (vars["system.agent_mcp.args"] as string[]) || []
-    const params = (vars["system.agent_mcp.params"] as string[]) || []
     const version = vars["system.agent_mcp.version"] as string
     const instructions = vars["system.agent_mcp.instructions"] as string
     const maxTokens = vars["system.agent_mcp.maxTokens"] as number
+    const toolsSha = vars["system.mcp.toolsSha"] as string
+    const contentSafety = vars[
+        "system.mcp.contentSafety"
+    ] as ContentSafetyOptions["contentSafety"]
+    const detectPromptInjection = vars[
+        "system.mcp.detectPromptInjection"
+    ] as ContentSafetyOptions["detectPromptInjection"]
+    const intent = vars["system.mcp.intent"]
 
     if (!id) throw new Error("Missing required parameter: id")
     if (!description) throw new Error("Missing required parameter: description")
@@ -66,21 +90,29 @@ export default function (ctx: ChatGenerationContext) {
         [id]: {
             command,
             args,
-            params,
             version,
+            toolsSha,
+            contentSafety,
+            detectPromptInjection,
+            intent,
         },
     } satisfies McpServersConfig
-    dbg(`loading %O`, configs)
+    const toolOptions = {
+        maxTokens,
+        contentSafety,
+        detectPromptInjection,
+    } satisfies DefToolOptions
+    dbg(`loading %s %O %O`, id, configs, toolOptions)
     defAgent(
         id,
         description,
         async (agentCtx) => {
             dbg("defining agent %s", id)
-            agentCtx.defTool(configs, { maxTokens })
+            agentCtx.defTool(configs, toolOptions)
             if (instructions) agentCtx.$`${instructions}`.role("system")
         },
         {
-            maxTokens,
+            ...toolOptions,
             system: [
                 "system",
                 "system.tools",
