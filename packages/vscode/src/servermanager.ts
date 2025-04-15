@@ -134,6 +134,7 @@ export class TerminalServerManager
         client.chatRequest = createChatModelRunner(this.state)
         client.addEventListener(OPEN, async () => {
             if (client !== this._client) return
+            this.status = "running"
             this._terminalStartAttempts = 0
             // check version
             const v = await this._client.version()
@@ -160,7 +161,6 @@ export class TerminalServerManager
         })
         await this.start()
         this._startClientPromise = undefined
-        this.status = "running"
         return this._client
     }
 
@@ -191,8 +191,6 @@ export class TerminalServerManager
             }),
             hideFromUser,
         })
-        this.dispatchChange()
-
         const { cliPath, cliVersion } = await resolveCli(this.state)
         const githubCopilotChatClient = isLanguageModelsAvailable()
             ? " --github-copilot-chat-client"
