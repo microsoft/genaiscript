@@ -114,19 +114,11 @@ export default function Markdown(props: {
                     <ReactMarkdown
                         components={{
                             pre({ node, className, children, ...props }) {
-                                console.log({
-                                    node,
-                                    className,
-                                    children,
-                                    props,
-                                })
                                 const codeClassName = (node as any)
                                     .children?.[0]?.properties
                                     ?.className?.[1] as string
                                 const codeText = (node as any).children?.[0]
                                     ?.children?.[0]?.value as string
-                                console.log(codeClassName, codeText)
-                                console.log(node.children[0])
                                 if (
                                     /language-(barchart|linechart)/.test(
                                         codeClassName

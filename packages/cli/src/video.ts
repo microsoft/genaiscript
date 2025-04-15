@@ -61,7 +61,7 @@ export async function extractVideoFrames(
  * Probes the provided video file and retrieves detailed metadata.
  *
  * @param file - Path to the video file to be analyzed.
- * @returns Logs the metadata of the video file in JSON format.
+ * Logs the metadata of the video file in JSON format.
  */
 export async function probeVideo(file: string) {
     const res = await ffmpeg.probe(file)

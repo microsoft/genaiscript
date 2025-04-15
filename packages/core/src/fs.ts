@@ -7,6 +7,7 @@ import { host } from "./host"
 import { readFile } from "fs/promises"
 import { dirname } from "path"
 import { JSON5TryParse } from "./json5"
+import { homedir } from "os"
 
 /**
  * Changes the file extension of a given file name.
@@ -17,7 +18,7 @@ import { JSON5TryParse } from "./json5"
  */
 export function changeext(filename: string, newext: string) {
     dbg(`checking if newext starts with a dot`)
-    if (!newext.startsWith(".")) {
+    if (newext && !newext.startsWith(".")) {
         newext = "." + newext
     }
     return filename.replace(/\.[^.]+$/, newext)
@@ -61,14 +62,25 @@ export async function ensureDir(dir: string) {
 }
 
 /**
+ * Expands homedir
+ */
+export function expandHomeDir(dir: string) {
+    if (dir?.startsWith("~/")) {
+        const home = homedir()
+        dir = host.path.join(home, dir.slice(2))
+    }
+    return dir
+}
+
+/**
  * Writes text content to a specified file, creating directories if necessary.
  *
  * @param fn - The path of the file to write to. Directories in the path will be created if they do not exist.
  * @param content - The textual content to write into the file.
  */
 export async function writeText(fn: string, content: string) {
+    await ensureDir(dirname(fn))
     dbg(`writing text to file ${fn}`)
-    await mkdir(dirname(fn), { recursive: true })
     await writeFile(fn, content, { encoding: "utf8" })
 }
 

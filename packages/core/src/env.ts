@@ -60,6 +60,7 @@ import {
     OpenAIAPIType,
 } from "./server/messages"
 import { arrayify } from "./util"
+import { URL } from "node:url"
 
 /**
  * Parses the OLLAMA host environment variable and returns a standardized URL.
@@ -216,15 +217,6 @@ export async function parseTokenFromEnv(
         if (type === "azure") {
             base = cleanAzureBase(base)
         }
-        if (
-            type === "azure" &&
-            version &&
-            version !== AZURE_OPENAI_API_VERSION
-        ) {
-            throw new Error(
-                `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-            )
-        }
         if (!token && !/^http:\/\//i.test(base)) {
             // localhost typically requires no key
             throw new Error("OPENAI_API_KEY missing")
@@ -303,7 +295,7 @@ export async function parseTokenFromEnv(
             throw new Error("AZURE_OPENAI_API_ENDPOINT must be a valid URL")
         }
         const version =
-            env[`AZURE_OPENA_API_VERSION_${model.toLocaleUpperCase()}`] ||
+            env[`AZURE_OPENAI_API_VERSION_${model.toLocaleUpperCase()}`] ||
             env.AZURE_OPENAI_API_VERSION ||
             env.AZURE_API_VERSION
         const azureCredentialsType =

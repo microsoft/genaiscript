@@ -153,6 +153,9 @@ type ModelType = OptionsOrString<
     | "vision_small"
     | "reasoning"
     | "reasoning_small"
+    | "openai:gpt-4.1"
+    | "openai:gpt-4.1-mini"
+    | "openai:gpt-4.1-nano"
     | "openai:gpt-4o"
     | "openai:gpt-4o-mini"
     | "openai:gpt-3.5-turbo"
@@ -163,6 +166,7 @@ type ModelType = OptionsOrString<
     | "openai:o1"
     | "openai:o1-mini"
     | "openai:o1-preview"
+    | "github:gpt-4.1"
     | "github:gpt-4o"
     | "github:gpt-4o-mini"
     | "github:o1"
@@ -197,6 +201,7 @@ type ModelType = OptionsOrString<
     | "azure:o3-mini:low"
     | "azure:o3-mini:medium"
     | "azure:o3-mini:high"
+    | "azure_ai_inference:gpt-4.1"
     | "azure_ai_inference:gpt-4o"
     | "azure_ai_inference:gpt-4o-mini"
     | "azure_ai_inference:o1"
@@ -206,7 +211,7 @@ type ModelType = OptionsOrString<
     | "azure_ai_inference:o3-mini:low"
     | "azure_ai_inference:o3-mini:medium"
     | "azure_ai_inference:o3-mini:high"
-    | "azure_ai_inference:deepSseek-v3"
+    | "azure_ai_inference:deepSeek-v3"
     | "azure_ai_inference:deepseek-r1"
     | "ollama:gemma3:4b"
     | "ollama:marco-o1"
@@ -357,6 +362,17 @@ interface ModelAliasesOptions extends ModelConnectionOptions {
 
 type ReasoningEffortType = "high" | "medium" | "low"
 
+type ChatToolChoice =
+    | "none"
+    | "auto"
+    | "required"
+    | {
+          /**
+           * The name of the function to call.
+           */
+          name: string
+      }
+
 interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
@@ -424,6 +440,11 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     maxTokens?: number
 
     /**
+     * Tool selection strategy. Default is 'auto'.
+     */
+    toolChoice?: ChatCompletion
+
+    /**
      * Maximum number of tool calls to make.
      */
     maxToolCalls?: number
@@ -456,7 +477,7 @@ interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {
     embeddingsModel?: EmbeddingsModelType
 }
 
-interface PromptSystemOptions {
+interface PromptSystemOptions extends PromptSystemSafetyOptions {
     /**
      * List of system script ids used by the prompt.
      */
@@ -471,6 +492,16 @@ interface PromptSystemOptions {
      * List of system to exclude from the prompt.
      */
     excludedSystem?: ElementOrArray<SystemPromptId>
+
+    /**
+     * MCP server configuration. The tools will be injected into the prompt.
+     */
+    mcpServers?: McpServersConfig
+
+    /**
+     * MCP agent configuration. Each mcp server will be wrapped with an agent.
+     */
+    mcpAgentServers?: McpAgentServersConfig
 }
 
 interface ScriptRuntimeOptions extends LineNumberingOptions {
@@ -702,10 +733,6 @@ interface PromptRedteam {
     >
 }
 
-interface ContentSafetyOptions {
-    contentSafety?: ContentSafetyProvider
-}
-
 /**
  * Different ways to render a fence block.
  */
@@ -725,6 +752,31 @@ interface ModelTemplateOptions extends FenceFormatOptions {
     flexTokens?: number
 }
 
+interface McpToolAnnotations {
+    /**
+     * Annotations for MCP tools
+     * @link https://modelcontextprotocol.io/docs/concepts/tools#available-tool-annotations
+     */
+    annotations?: {
+        /**
+         * If true, indicates the tool does not modify its environment
+         */
+        readOnlyHint?: boolean
+        /**
+         * If true, the tool may perform destructive updates (only meaningful when readOnlyHint is false)
+         */
+        destructiveHint?: boolean
+        /**
+         * If true, calling the tool repeatedly with the same arguments has no additional effect (only meaningful when readOnlyHint is false)
+         */
+        idempotentHint?: boolean
+        /**
+         * If true, the tool may interact with an “open world” of external entities
+         */
+        openWorldHint?: boolean
+    }
+}
+
 interface PromptScript
     extends PromptLike,
         ModelOptions,
@@ -732,8 +784,10 @@ interface PromptScript
         PromptSystemOptions,
         EmbeddingsModelOptions,
         ContentSafetyOptions,
+        SecretDetectionOptions,
         GitIgnoreFilterOptions,
-        ScriptRuntimeOptions {
+        ScriptRuntimeOptions,
+        McpToolAnnotations {
     /**
      * Which provider to prefer when picking a model.
      */
@@ -1318,25 +1372,183 @@ interface ToolCallContext {
 interface ToolCallback {
     spec: ToolDefinition
     options?: DefToolOptions
+    generator?: ChatGenerationContext
     impl: (
         args: { context: ToolCallContext } & Record<string, any>
     ) => Awaitable<ToolCallOutput>
 }
 
-type AgenticToolCallback = Omit<ToolCallback, "spec"> & {
-    spec: Omit<ToolDefinition, "parameters"> & {
-        parameters: Record<string, any>
-    }
+interface ChatContentPartText {
+    /**
+     * The text content.
+     */
+    text: string
+
+    /**
+     * The type of the content part.
+     */
+    type: "text"
 }
 
-interface AgenticToolProviderCallback {
-    functions: Iterable<AgenticToolCallback>
+interface ChatContentPartImage {
+    image_url: {
+        /**
+         * Either a URL of the image or the base64 encoded image data.
+         */
+        url: string
+
+        /**
+         * Specifies the detail level of the image. Learn more in the
+         * [Vision guide](https://platform.openai.com/docs/guides/vision#low-or-high-fidelity-image-understanding).
+         */
+        detail?: "auto" | "low" | "high"
+    }
+
+    /**
+     * The type of the content part.
+     */
+    type: "image_url"
 }
+
+interface ChatContentPartRefusal {
+    /**
+     * The refusal message generated by the model.
+     */
+    refusal: string
+
+    /**
+     * The type of the content part.
+     */
+    type: "refusal"
+}
+
+interface ChatSystemMessage {
+    /**
+     * The contents of the system message.
+     */
+    content: string | ChatContentPartText[]
+
+    /**
+     * The role of the messages author, in this case `system`.
+     */
+    role: "system"
+
+    /**
+     * An optional name for the participant. Provides the model information to
+     * differentiate between participants of the same role.
+     */
+    name?: string
+}
+
+interface ChatToolMessage {
+    /**
+     * The contents of the tool message.
+     */
+    content: string | ChatContentPartText[]
+
+    /**
+     * The role of the messages author, in this case `tool`.
+     */
+    role: "tool"
+
+    /**
+     * Tool call that this message is responding to.
+     */
+    tool_call_id: string
+}
+
+interface ChatMessageToolCall {
+    /**
+     * The ID of the tool call.
+     */
+    id: string
+
+    /**
+     * The function that the model called.
+     */
+    function: {
+        /**
+         * The arguments to call the function with, as generated by the model in JSON
+         * format. Note that the model does not always generate valid JSON, and may
+         * hallucinate parameters not defined by your function schema. Validate the
+         * arguments in your code before calling your function.
+         */
+        arguments: string
+
+        /**
+         * The name of the function to call.
+         */
+        name: string
+    }
+
+    /**
+     * The type of the tool. Currently, only `function` is supported.
+     */
+    type: "function"
+}
+
+interface ChatAssistantMessage {
+    /**
+     * The role of the messages author, in this case `assistant`.
+     */
+    role: "assistant"
+
+    /**
+     * The contents of the assistant message. Required unless `tool_calls` or
+     * `function_call` is specified.
+     */
+    content?: string | (ChatContentPartText | ChatContentPartRefusal)[]
+
+    /**
+     * An optional name for the participant. Provides the model information to
+     * differentiate between participants of the same role.
+     */
+    name?: string
+
+    /**
+     * The refusal message by the assistant.
+     */
+    refusal?: string | null
+
+    /**
+     * The tool calls generated by the model, such as function calls.
+     */
+    tool_calls?: ChatMessageToolCall[]
+
+    /**
+     * The reasoning of the model
+     */
+    reasoning?: string
+}
+
+interface ChatUserMessage {
+    /**
+     * The contents of the user message.
+     */
+    content: string | (ChatContentPartText | ChatContentPartImage)[]
+
+    /**
+     * The role of the messages author, in this case `user`.
+     */
+    role: "user"
+
+    /**
+     * An optional name for the participant. Provides the model information to
+     * differentiate between participants of the same role.
+     */
+    name?: string
+}
+
+type ChatMessage =
+    | ChatSystemMessage
+    | ChatUserMessage
+    | ChatAssistantMessage
+    | ChatToolMessage
 
 type ChatParticipantHandler = (
     context: ChatTurnGenerationContext,
-    messages: ChatCompletionMessageParam[]
-) => Awaitable<{ messages?: ChatCompletionMessageParam[] } | undefined | void>
+    messages: ChatMessage[]
+) => Awaitable<{ messages?: ChatMessage[] } | undefined | void>
 
 interface ChatParticipantOptions {
     label?: string
@@ -1532,13 +1744,19 @@ interface FileFilterOptions extends GitIgnoreFilterOptions {
     glob?: ElementOrArray<string>
 }
 
-interface ContentSafetyOptions extends SecretDetectionOptions {
+interface ContentSafetyOptions {
+    /**
+     * Configure the content safety provider.
+     */
+    contentSafety?: ContentSafetyProvider
     /**
      * Runs the default content safety validator
      * to prevent prompt injection.
      */
     detectPromptInjection?: "always" | "available" | boolean
+}
 
+interface PromptSystemSafetyOptions {
     /**
      * Policy to inject builtin system prompts. See to `false` prevent automatically injecting.
      */
@@ -1817,7 +2035,7 @@ interface RunPromptResult {
     edits?: Edits[]
     changelogs?: ChangeLog[]
     model?: ModelType
-    choices?: LogProb[]
+    choices?: Logprob[]
     logprobs?: Logprob[]
     perplexity?: number
     uncertainty?: number
@@ -1885,6 +2103,12 @@ interface Path {
      * @param fileUrl
      */
     resolveFileURL(fileUrl: string): string
+
+    /**
+     * Sanitize a string to be safe for use as a filename by removing directory paths and invalid characters. 
+     * @param path file path
+     */
+    sanitize(path: string): string
 }
 
 interface Fenced {
@@ -3097,6 +3321,13 @@ interface GitHubRelease {
     body?: string
 }
 
+interface GitHubGist {
+    id: string
+    description?: string
+    created_at?: string
+    files: WorkspaceFile[]
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -3161,6 +3392,17 @@ interface GitHub {
             mentioned?: string
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]>
+
+    /**
+     * Lists gists for a given user
+     */
+    listGists(): Promise<GitHubGist[]>
+
+    /**
+     * Gets the files of a gist
+     * @param gist_id
+     */
+    getGist(gist_id: string): Promise<GitHubGist | undefined>
 
     /**
      * Gets the details of a GitHub issue
@@ -3428,6 +3670,11 @@ interface CSV {
  */
 interface ContentSafety {
     /**
+     * Service identifier
+     */
+    id: string
+
+    /**
      * Scans text for the risk of a User input attack on a Large Language Model.
      * If not supported, the method is not defined.
      */
@@ -3693,7 +3940,8 @@ type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 interface PromptGeneratorOptions
     extends ModelOptions,
         PromptSystemOptions,
-        ContentSafetyOptions {
+        ContentSafetyOptions,
+        SecretDetectionOptions {
     /**
      * Label for trace
      */
@@ -3809,6 +4057,10 @@ interface ChatTurnGenerationContext {
             | RunPromptResult,
         options?: DefOptions
     ): string
+    defImages(
+        files: ElementOrArray<BufferLike>,
+        options?: DefImagesOptions
+    ): void
     defData(
         name: string,
         data: Awaitable<object[] | object>,
@@ -3833,7 +4085,7 @@ interface RunPromptResultPromiseWithOptions extends Promise<RunPromptResult> {
     options(values?: PromptGeneratorOptions): RunPromptResultPromiseWithOptions
 }
 
-interface DefToolOptions {
+interface DefToolOptions extends ContentSafetyOptions {
     /**
      * Maximum number of tokens per tool content response
      */
@@ -3848,6 +4100,20 @@ interface DefToolOptions {
      * Updated description for the variant
      */
     variantDescription?: string
+
+    /**
+     * Intent of the tool that will be used for LLM judge validation of the output.
+     * `description` uses the tool description as the intent.
+     * If the intent is a function, it must build a LLM-as-Judge prompt that emits OK/ERR categories.
+     */
+    intent?:
+        | OptionsOrString<"description">
+        | ((options: {
+              tool: ToolDefinition
+              args: any
+              result: string
+              generator: ChatGenerationContext
+          }) => Awaitable<void>)
 }
 
 interface DefAgentOptions
@@ -3869,17 +4135,83 @@ type ChatAgentHandler = (
     args: ChatFunctionArgs
 ) => Awaitable<unknown>
 
-interface McpServerConfig {
-    command: string
+interface McpToolSpecification {
+    /**
+     * Tool identifier
+     */
+    id: string
+    /**
+     * The high level intent of the tool, which can be used for LLM judge validation.
+     * `description` uses the tool description as the intent.
+     */
+    intent?: DefToolOptions["intent"]
+}
+
+interface McpServerConfig extends ContentSafetyOptions {
+    /**
+     * The executable to run to start the server.
+     */
+    command: OptionsOrString<"npx" | "uv" | "dotnet" | "docker" | "cargo">
+    /**
+     * Command line arguments to pass to the executable.
+     */
     args: string[]
-    params?: string[]
+    /**
+     * The server version
+     */
     version?: string
+    /**
+     * The environment to use when spawning the process.
+     *
+     * If not specified, the result of getDefaultEnvironment() will be used.
+     */
+    env?: Record<string, string>
+    /**
+     * The working directory to use when spawning the process.
+     *
+     * If not specified, the current working directory will be inherited.
+     */
+    cwd?: string
 
     id: string
     options?: DefToolOptions
+
+    /**
+     * A list of allowed tools and their specifications. This filtering is applied
+     * before computing the sha signature.
+     */
+    tools?: ElementOrArray<string | McpToolSpecification>
+
+    /**
+     * The sha signature of the tools returned by the server.
+     * If set, the tools will be validated against this sha.
+     * This is used to ensure that the tools are not modified by the server.
+     */
+    toolsSha?: string
+
+    /**
+     * Validates that each tool has responses related to their description.
+     */
+    intent?: DefToolOptions["intent"]
+
+    generator?: ChatGenerationContext
 }
 
 type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>
+
+interface McpAgentServerConfig extends McpServerConfig {
+    description: string
+    instructions?: string
+    /**
+     * Maximum number of tokens per tool content response
+     */
+    maxTokens?: number
+}
+
+type McpAgentServersConfig = Record<
+    string,
+    Omit<McpAgentServerConfig, "id" | "options">
+>
 
 type ZodTypeLike = { _def: any; safeParse: any; refine: any }
 
@@ -4023,16 +4355,8 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         schema: JSONSchema | ZodTypeLike,
         options?: DefSchemaOptions
     ): string
-    defImages(
-        files: ElementOrArray<BufferLike>,
-        options?: DefImagesOptions
-    ): void
     defTool(
-        tool:
-            | ToolCallback
-            | AgenticToolCallback
-            | AgenticToolProviderCallback
-            | McpServersConfig,
+        tool: Omit<ToolCallback, "generator"> | McpServersConfig,
         options?: DefToolOptions
     ): void
     defTool(
@@ -4253,7 +4577,7 @@ interface SgPos {
     /** column number starting from 0 */
     column: number
     /** byte offset of the position */
-    index: number
+    index?: number
 }
 interface SgRange {
     /** starting position of the range */
@@ -4379,7 +4703,9 @@ interface SgRoot {
 type SgLang = OptionsOrString<
     | "html"
     | "js"
+    | "javascript"
     | "ts"
+    | "typescript"
     | "tsx"
     | "css"
     | "c"
@@ -4387,6 +4713,13 @@ type SgLang = OptionsOrString<
     | "angular"
     | "csharp"
     | "python"
+    | "rust"
+    | "elixir"
+    | "haskell"
+    | "go"
+    | "dart"
+    | "swift"
+    | "scala"
 >
 
 interface SgChangeSet {
@@ -4426,12 +4759,40 @@ interface Sg {
 }
 
 interface DebugLogger {
+    /**
+     * Creates a debug logging function. Debug uses printf-style formatting. Below are the officially supported formatters:
+     * - `%O`	Pretty-print an Object on multiple lines.
+     * - `%o`	Pretty-print an Object all on a single line.
+     * - `%s`	String.
+     * - `%d`	Number (both integer and float).
+     * - `%j`	JSON. Replaced with the string '[Circular]' if the argument contains circular references.
+     * - `%%`	Single percent sign ('%'). This does not consume an argument.
+     * @param category
+     * @see https://www.npmjs.com/package/debug
+     */
     (formatter: any, ...args: any[]): void
+    /**
+     * Indicates if this logger is enabled
+     */
     enabled: boolean
+    /**
+     * The namespace of the logger provided when calling 'host.logger'
+     */
     namespace: string
 }
 
 interface LoggerHost {
+    /**
+     * Creates a debug logging function. Debug uses printf-style formatting. Below are the officially supported formatters:
+     * - `%O`	Pretty-print an Object on multiple lines.
+     * - `%o`	Pretty-print an Object all on a single line.
+     * - `%s`	String.
+     * - `%d`	Number (both integer and float).
+     * - `%j`	JSON. Replaced with the string '[Circular]' if the argument contains circular references.
+     * - `%%`	Single percent sign ('%'). This does not consume an argument.
+     * @param category
+     * @see https://www.npmjs.com/package/debug
+     */
     logger(category: string): DebugLogger
 }
 
@@ -5264,7 +5625,9 @@ type FetchOptions = RequestInit & {
     maxDelay?: number // Maximum delay between retries
 }
 
-type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window">
+type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window"> & {
+    convert?: "markdown" | "text"
+}
 
 interface PythonRuntimeOptions {
     cache?: string

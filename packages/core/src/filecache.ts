@@ -9,6 +9,8 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
 import debug from "debug"
+import { FILE_HASH_LENGTH } from "./constants"
+import { tryStat } from "./fs"
 const dbg = debug("genaiscript:filecache")
 
 /**
@@ -31,7 +33,7 @@ export async function fileWriteCached(
     checkCancelled(cancellationToken)
     const { ext } = (await fileTypeFromBuffer(bytes)) || { ext: "bin" }
     checkCancelled(cancellationToken)
-    const filename = await hash(bytes, { length: 64 })
+    const filename = await hash(bytes, { length: FILE_HASH_LENGTH })
     checkCancelled(cancellationToken)
     const f = filename + "." + ext
     const fn = join(dir, f)
@@ -41,6 +43,20 @@ export async function fileWriteCached(
     } catch {}
 
     dbg(`image cache: ${fn} (${prettyBytes(bytes.length)})`)
+    await ensureDir(dirname(fn))
+    await writeFile(fn, bytes)
+
+    return fn
+}
+
+export async function fileWriteCachedJSON(dir: string, data: any) {
+    const bytes = Buffer.from(JSON.stringify(data, null, 2))
+    const filename = await hash(bytes, { length: FILE_HASH_LENGTH })
+    const fn = join(dir, filename + ".json")
+    const stat = await tryStat(fn)
+    if (stat && stat.isFile()) return fn
+
+    dbg(`json cache: ${fn} (${prettyBytes(bytes.length)})`)
     await ensureDir(dirname(fn))
     await writeFile(fn, bytes)
 

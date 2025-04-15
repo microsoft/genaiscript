@@ -17,6 +17,11 @@ cover:
     from 8-bit style. It employs just five bold colors to keep the look clear
     and corporate, with no people or language visible.
   image: ./video.png
+excerpt: Analyze videos with ease. Traditional LLMs require timestamp-based
+  screenshots, often leading to context window issues. GenAIScript simplifies
+  video and audio analysis by enabling automated frame extraction and transcript
+  integration. Learn how tools and agents streamline these tasks for your
+  scripts in the documentation.
 
 ---
 

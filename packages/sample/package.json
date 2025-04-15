@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-sample",
-  "version": "1.124.3",
+  "version": "1.129.4",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -27,7 +27,7 @@
     "@huggingface/transformers": "3.4.0",
     "@langchain/core": "^0.3.42",
     "@langchain/langgraph": "^0.2.57",
-    "@modelcontextprotocol/sdk": "^1.8.0",
+    "@modelcontextprotocol/sdk": "^1.9.0",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "vectorstore": "^0.0.4",

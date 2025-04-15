@@ -159,11 +159,13 @@ export async function createParsers(
             HTMLToText(filenameOrFileToContent(text), {
                 ...(options || {}),
                 trace,
+                cancellationToken,
             }),
         HTMLToMarkdown: (text, options) =>
             HTMLToMarkdown(filenameOrFileToContent(text), {
                 ...(options || {}),
                 trace,
+                cancellationToken,
             }),
         DOCX: async (file, options) => await DOCXTryParse(file, options),
         PDF: async (file, options) => {

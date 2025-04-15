@@ -11,10 +11,7 @@ import logoPngTxt from "../../../../assets/mcp.png.txt?raw"
 
 <Image src={logoPng} alt={logoPngTxt} />
 
-[Model Context Protocol](https://modelcontextprotocol.io/) (MCP) is an emerging standard
-for portable tool definitions.
-
-The MCP defines a protocol that allows to share [tools](https://modelcontextprotocol.io/docs/concepts/tools)
+The [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) defines a protocol that allows to share [tools](https://modelcontextprotocol.io/docs/concepts/tools)
 and consume them regardless of the underlying framework/runtime.
 
 **GenAIScript implements a server that turns scripts into MCP tools**.
@@ -30,6 +27,10 @@ See [MCP tools](/genaiscript/reference/scripts/mcp-tools) for more details.
 
 GenAIScript launches a MCP server that exposes each GenAIScript script as a MCP tool (not to be confused with `defTool`).
 
+The MCP tool description is the script description.
+**Make sure to carefully craft the description** as it is how the LLM decides
+which tool to use when running a script. If your tool does not get picked up by the LLM, it's probably a description issue.
+
 The MCP tool parameters is inferred from the [script parameters](/genaiscript/reference/scripts/parameters) and files automatically.
 The MCP parameters will then populate the `env.vars` object in the script
 as usual.
@@ -42,6 +43,7 @@ and the LLM output is sent back.
 
 ```js title="task.genai.mjs"
 script({
+    description: "You MUST provide a description!",
     parameters: {
         task: {
             type: "string",
@@ -61,6 +63,7 @@ A more advanced script might not use the top-level context and instead use the `
 
 ```js title="task.genai.mjs"
 script({
+    description: "You MUST provide a description!",
     accept: "none", // this script does not use 'env.files'
     parameters: {
         task: {
@@ -81,6 +84,32 @@ const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the promp
 // build the output
 output.fence(`The result is ${res.text}`)
 ```
+
+### Annotations
+
+[Tool annotations](https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations) provide additional metadata about a tool’s behavior,
+helping clients understand how to present and manage tools.
+These annotations are hints that describe the nature and impact of a tool, but should not be relied upon for security decisions.
+
+```js "annotations"
+script({
+    ...,
+    annotations: {
+        readOnlyHint: true,
+        openWorldHint: true,
+    },
+})
+```
+
+- `title` is populated from the script title.
+- `readOnlyHint`: `boolean`, default: `false`  
+   If true, indicates the tool does not modify its environment.
+- `destructiveHint`: `boolean`, default: `true`  
+   If true, the tool may perform destructive updates (only meaningful when `readOnlyHint` is false).
+- `idempotentHint`: `boolean`, default: `false`  
+   If true, calling the tool repeatedly with the same arguments has no additional effect (only meaningful when `readOnlyHint` is false).
+- `openWorldHint`: `boolean`, default: `true`  
+   If true, the tool may interact with an “open world” of external entities.
 
 ## Resources
 
@@ -125,7 +154,7 @@ You can use this script to load resources or do any other setup you need.
 
 ## IDE configuration
 
-The `mcp` command lanches the MCP server using the stdio transport.
+The `mcp` command launches the MCP server using the stdio transport.
 
 - [@modelcontextprotocol/inspector](https://www.npmjs.com/package/@modelcontextprotocol/inspector)
   is a MCP client that can be used to inspect the server and list the available tools.
@@ -134,7 +163,24 @@ The `mcp` command lanches the MCP server using the stdio transport.
 npx --yes @modelcontextprotocol/inspector npx --yes genaiscript mcp
 ```
 
-- Claude Desktop
+### Visual Studio Code Insiders with GitHub Copilot Chat
+
+You will need Visual Studio Code v1.99 or higher and the [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extension installed.
+
+```json title=".vscode/mcp.json"
+{
+    "servers": {
+        "genaiscript": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "genaiscript", "mcp", "--cwd", "${workspaceFolder}"],
+            "envFile": "${workspaceFolder}/.env"
+        }
+    }
+}
+```
+
+### Claude Desktop
 
 ```json
 {
@@ -147,23 +193,24 @@ npx --yes @modelcontextprotocol/inspector npx --yes genaiscript mcp
 }
 ```
 
-- Visual Studio Code Insiders with GitHub Copilot Chat
+### Filtering scripts
 
-:::note
+If you need to filter out which scripts are exposed as MCP tools, you can use the `--groups` flag and
+set the `mcp` group in your scripts.
 
-MCP support is not yet available in the stable version of Visual Studio Code.
-It is changing and things might not work as expected.
+```js 'group: "mcp"'
+script({
+    group: "mcp",
+})
+```
 
-:::
-
-```json title=".vscode/mcp.json"
+```json title=".vscode/mcp.json" ', "--groups", "mcp"'
 {
     "servers": {
         "genaiscript": {
             "type": "stdio",
-            "command": "node",
+            "command": "npx",
             "args": [
-                "npx",
                 "-y",
                 "genaiscript",
                 "mcp",

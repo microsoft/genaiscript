@@ -20,12 +20,7 @@ export default async function (ctx: ChatGenerationContext) {
             },
             required: ["thought"],
         },
-        async ({ thought }) => {
-            const res = runPrompt(thought, {
-                model: "think",
-            })
-            return res
-        }
+        async ({ thought }) => thought
     )
 
     $`## Using the think tool

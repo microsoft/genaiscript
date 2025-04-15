@@ -65,7 +65,12 @@ export default function (ctx: ChatGenerationContext) {
     defChatParticipant((ctx, messages) => {
         const assistants = messages.filter(({ role }) => role === "assistant")
         const matches = assistants.filter(({ content }) =>
-            canaries.some((canary) => content.includes(canary))
+            canaries.some(
+                (canary) =>
+                    (typeof content === "string" && content.includes(canary)) ||
+                    (Array.isArray(content) &&
+                        content.some((c) => c.text?.includes(canary)))
+            )
         )
         if (matches.length > 0)
             throw new Error("Canary word detected in assistant message")

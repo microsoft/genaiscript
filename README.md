@@ -12,6 +12,7 @@ Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, t
 - Built-in support for GitHub Copilot and GitHub Models, OpenAI, Azure OpenAI, Anthropic, and more
 
 - 📄 **Read the ONLINE DOCUMENTATION at [microsoft.github.io/genaiscript](https://microsoft.github.io/genaiscript/)**
+- 📝 Read the [blog](https://microsoft.github.io/genaiscript/blog/) for the latest news
 - 📺 Watch [Mr. Maeda's Cozy AI Kitchen](https://youtu.be/ajEbAm6kjI4)
 - 📺 Watch an [interview on YouTube with nickyt](https://www.youtube.com/watch?v=aeXQ2MJ0Ye0)
 
@@ -148,7 +149,7 @@ Classify text, images or a mix of all.
 
 ```js
 const joke = await classify(
-    "Why did the chicken cross the roard? To fry in the sun.",
+    "Why did the chicken cross the road? To fry in the sun.",
     {
         yes: "funny",
         no: "not funny",
@@ -232,7 +233,7 @@ script({ ..., model: "ollama:phi3" })
 
 ### 🐍 Code Interpreter
 
-Let the LLM run code in a sandboxed execution environment.
+Let the LLM run code in a sand-boxed execution environment.
 
 ```js
 script({ tools: ["python_code_interpreter"] })
@@ -310,7 +311,7 @@ Scan your chats for secrets using [secret scanning](/genaiscript/reference/scrip
 
 ### ⚙ Automate with CLI or API
 
-Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) or [API](https://microsoft.github.io/genaiscript/reference/cli/api).
+Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) or [API](https://microsoft.github.io/genaiscript/reference/api).
 
 ```bash
 npx genaiscript run tlaplus-linter "*.tla"

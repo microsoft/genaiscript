@@ -13,7 +13,7 @@ import {
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { CancelError } from "./error"
-import { fetchText } from "./fetch"
+import { fetchText } from "./fetchtext"
 import { GitHubClient } from "./github"
 import { GitClient } from "./git"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
@@ -126,10 +126,10 @@ export function installGlobals() {
     }
 
     // Instantiate GitHub client
-    glb.github = new GitHubClient(undefined)
+    glb.github = GitHubClient.default()
 
     // Instantiate Git client
-    glb.git = new GitClient(undefined)
+    glb.git = GitClient.default()
 
     glb.tokenizers = Object.freeze<Tokenizers>({
         resolve: resolveTokenEncoder,

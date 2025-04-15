@@ -1,7 +1,7 @@
 import debug from "debug"
 const dbg = debug("genaiscript:mcp:server")
 
-import { logVerbose, toStringList } from "../../core/src/util"
+import { logVerbose, logWarn } from "../../core/src/util"
 import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
 import { ScriptFilterOptions } from "../../core/src/ast"
@@ -20,7 +20,6 @@ import { errorMessage } from "../../core/src/error"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
-import { setMcpMode } from "../../core/src/mcp"
 import { runtimeHost } from "../../core/src/host"
 import { Resource, ResourceContents } from "../../core/src/mcpresource"
 
@@ -41,7 +40,6 @@ export async function startMcpServer(
 ) {
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
-    setMcpMode("server")
 
     await applyRemoteOptions(options)
     const { startup } = options || {}
@@ -79,28 +77,42 @@ export async function startMcpServer(
     server.setRequestHandler(ListToolsRequestSchema, async (req) => {
         dbg(`fetching scripts from watcher`)
         const scripts = await watcher.scripts()
-        const tools = scripts.map((script) => {
-            const { id, title, description, inputSchema, accept } = script
-            const scriptSchema = (inputSchema?.properties
-                .script as JSONSchemaObject) || {
-                type: "object",
-                properties: {},
-            }
-            if (accept !== "none")
-                scriptSchema.properties.files = {
-                    type: "array",
-                    items: {
-                        type: "string",
-                        description: "File paths to be passed to the script",
-                    },
+        const tools = scripts
+            .map((script) => {
+                const {
+                    id,
+                    title,
+                    description,
+                    inputSchema,
+                    accept,
+                    annotations = {},
+                } = script
+                const scriptSchema = (inputSchema?.properties
+                    .script as JSONSchemaObject) || {
+                    type: "object",
+                    properties: {},
                 }
-            return {
-                name: id,
-                description: toStringList(title, description),
-                inputSchema:
-                    scriptSchema as ListToolsResult["tools"][0]["inputSchema"],
-            } satisfies ListToolsResult["tools"][0]
-        })
+                if (accept !== "none")
+                    scriptSchema.properties.files = {
+                        type: "array",
+                        items: {
+                            type: "string",
+                            description: `Filename or globs relative to the workspace used by the script.${accept ? ` Accepts: ${accept}` : ""}`,
+                        },
+                    }
+                if (!description) logWarn(`script ${id} has no description`)
+                return {
+                    name: id,
+                    description,
+                    inputSchema:
+                        scriptSchema as ListToolsResult["tools"][0]["inputSchema"],
+                    annotations: {
+                        ...annotations,
+                        title,
+                    },
+                } satisfies ListToolsResult["tools"][0]
+            })
+            .filter((t) => !!t)
         dbg(`returning tool list with ${tools.length} tools`)
         return { tools } satisfies ListToolsResult
     })

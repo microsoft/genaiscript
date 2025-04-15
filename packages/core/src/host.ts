@@ -260,7 +260,7 @@ export interface RuntimeHost extends Host {
      */
     contentSafety(
         id?: ContentSafetyProvider,
-        options?: TraceOptions
+        options?: TraceOptions & CancellationOptions
     ): Promise<ContentSafety>
 }
 

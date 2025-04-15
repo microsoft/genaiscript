@@ -5,6 +5,7 @@ import { parseKeyValuePair } from "../../core/src/fence"
 import { runtimeHost } from "../../core/src/host"
 import { logVerbose } from "../../core/src/util"
 import { PromptScriptRunOptions } from "./server/messages"
+import { providerFeatures } from "./features"
 
 /**
  * Configures model provider aliases based on the given provider ID and source type.
@@ -22,7 +23,7 @@ export function applyModelProviderAliases(
 ) {
     dbg(`apply provider ${id} from ${source}`)
     if (!id) return
-    const provider = MODEL_PROVIDERS.find((p) => p.id === id)
+    const provider = providerFeatures(id)
     if (!provider) throw new Error(`Model provider not found: ${id}`)
     for (const [key, value] of Object.entries(provider.aliases || {}))
         runtimeHost.setModelAlias(source, key, provider.id + ":" + value)

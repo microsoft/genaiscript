@@ -21,7 +21,8 @@ import { createWriteStream } from "node:fs"
  *
  * This function ensures the target directory exists and initializes an empty file.
  * It listens for TRACE_CHUNK events to append trace chunks to the file using a
- * buffered write stream, and TRACE_DETAILS events to flush and write the entire content.
+ * buffered write stream. TRACE_DETAILS events flush the write stream (if open) and write
+ * the entire content to the file.
  */
 export async function setupTraceWriting(
     trace: MarkdownTrace,

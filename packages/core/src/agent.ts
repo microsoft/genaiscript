@@ -6,7 +6,7 @@ import {
 } from "./constants"
 import { errorMessage } from "./error"
 import { GenerationOptions } from "./generation"
-import { HTMLEscape } from "./html"
+import { HTMLEscape } from "./htmlescape"
 import { prettifyMarkdown } from "./markdown"
 import { TraceOptions } from "./trace"
 import { ellipse } from "./util"

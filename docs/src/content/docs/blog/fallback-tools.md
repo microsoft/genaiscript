@@ -15,6 +15,12 @@ cover:
     geometric shapes that give a corporate and tech-focused feel, using a
     consistent 5-color scheme without any human figures or text.
   image: ./fallback-tools.png
+excerpt: Enhance your LLM's capabilities with fallback tools. When your chosen
+  model lacks native tool support, fallback tools step in, teaching the model
+  how to utilize external resources for better problem-solving. Automatically
+  enabled for recognized models, this feature ensures efficient workflows and
+  can be manually configured for broader compatibility. Stay ahead by
+  integrating smarter solutions.
 
 ---
 

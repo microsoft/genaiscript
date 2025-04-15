@@ -1,20 +1,20 @@
-script({ model: "echo"})
+script({ model: "echo" })
 const { output } = env
 
 for (let i = 1; i <= 6; i++) output.heading(i, "heading " + i)
 
 $`Write 2 word poem`
 
-output.warn("this is a warning");
-output.caution("this is a caution");
-output.item("this is an item");
-output.itemValue("item", "value");
-output.note("this is a note");
+output.warn("this is a warning")
+output.caution("this is a caution")
+output.item("this is an item")
+output.itemValue("item", "value")
+output.note("this is a note")
 output.diff(
-`A
+    `A
 B
 C`,
-`AA
+    `AA
 B`
 )
 output.fence(
@@ -50,13 +50,15 @@ output.fence(
     ],
     "csv"
 )
+
 output.fence(`A --> B`, "mermaid")
 output.item(`- testing broken mermaid chart`)
 output.fence(`A -> B`, "mermaid")
+
 output.appendContent(`$$
 E = mc^2
 $$`)
-output.fence(`unknown language`, "asdfasdfsdf")
+output.fence(`unknown language`, "unknown")
 output.fence(
     `
 sequenceDiagram
@@ -72,7 +74,7 @@ sequenceDiagram
     `,
     "mermaid"
 )
-output.image(
+await output.image(
     "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png?raw=true",
     "icon"
 )
@@ -86,4 +88,6 @@ output.table([
     { a: 1, b: 2 },
     { a: 3, b: 4 },
 ])
-output.appendContent("<XML>hello</XML>")
+output.appendContent("<XML>hello</XML>\n")
+
+output.appendContent("☺️".repeat(50000))

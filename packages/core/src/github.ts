@@ -15,10 +15,10 @@ import {
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { prettifyMarkdown } from "./markdown"
-import { arrayify, assert, logError, logVerbose } from "./util"
+import { arrayify, assert, ellipse, logError, logVerbose } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
-import { fetchText } from "./fetch"
+import { fetchText } from "./fetchtext"
 import { concurrentLimit } from "./concurrency"
 import { llmifyDiff } from "./llmdiff"
 import { JSON5TryParse } from "./json5"
@@ -27,8 +27,9 @@ import { LanguageModelInfo } from "./server/messages"
 import { LanguageModel, ListModelsFunction } from "./chat"
 import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { errorMessage, serializeError } from "./error"
-import { normalizeInt } from "./cleaners"
+import { deleteUndefinedValues, normalizeInt } from "./cleaners"
 import { diffCreatePatch } from "./diff"
+import { GitClient } from "./git"
 
 export interface GithubConnectionInfo {
     token: string
@@ -65,7 +66,7 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
             /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue
     )
 
-    return {
+    return deleteUndefinedValues({
         token,
         apiUrl,
         repository,
@@ -78,7 +79,7 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
         runId,
         runUrl,
         commitSha,
-    }
+    }) satisfies GithubConnectionInfo
 }
 
 async function githubGetPullRequestNumber() {
@@ -118,11 +119,15 @@ async function githubGetPullRequestNumber() {
  */
 export async function githubParseEnv(
     env: Record<string, string>,
-    options?: { issue?: number; resolveIssue?: boolean } & Partial<
-        Pick<GithubConnectionInfo, "owner" | "repo">
-    >
+    options?: {
+        issue?: number
+        resolveIssue?: boolean
+        resolveCommit?: boolean
+    } & Partial<Pick<GithubConnectionInfo, "owner" | "repo">>
 ): Promise<GithubConnectionInfo> {
+    dbg(`resolving connection info`)
     const res = githubFromEnv(env)
+    dbg(`found %O`, Object.keys(res).join(","))
     try {
         if (options?.owner && options?.repo) {
             res.owner = options.owner
@@ -159,9 +164,23 @@ export async function githubParseEnv(
             dbg(`attempting to resolve issue number`)
             res.issue = await githubGetPullRequestNumber()
         }
+        if (!res.commitSha && options?.resolveCommit) {
+            res.commitSha = await GitClient.default().lastCommitSha()
+        }
     } catch (e) {
         logVerbose(errorMessage(e))
     }
+
+    deleteUndefinedValues(res)
+    dbg(
+        `resolved connection info: %O`,
+        Object.fromEntries(
+            Object.entries(res).map(([k, v]) => [
+                k,
+                k === "token" ? ellipse(v, 4) : v,
+            ])
+        )
+    )
     return Object.freeze(res)
 }
 
@@ -665,13 +684,21 @@ export class GitHubClient implements GitHub {
         | undefined
     >
 
+    private static _default: GitHubClient
+    static default() {
+        if (!this._default) this._default = new GitHubClient(undefined)
+        return this._default
+    }
+
     constructor(info: Pick<GithubConnectionInfo, "owner" | "repo">) {
         this._info = info
     }
 
     private connection(): Promise<GithubConnectionInfo> {
         if (!this._connection) {
-            this._connection = githubParseEnv(process.env, this._info)
+            this._connection = githubParseEnv(process.env, {
+                ...this._info,
+            })
         }
         return this._connection
     }
@@ -782,6 +809,88 @@ export class GitHubClient implements GitHub {
             ...rest,
         })
         const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res
+    }
+
+    async listGists(
+        options?: {
+            since?: string
+            filenameAsResources?: boolean
+        } & GitHubPaginationOptions
+    ): Promise<GitHubGist[]> {
+        const { client } = await this.api()
+        dbg(`listing gists for user`)
+        const {
+            count = GITHUB_REST_PAGE_DEFAULT,
+            filenameAsResources,
+            ...rest
+        } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.gists.list, {
+            ...rest,
+        })
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res.map(
+            (r) =>
+                ({
+                    id: r.id,
+                    description: r.description,
+                    created_at: r.created_at,
+                    files: Object.values(r.files).map(
+                        ({ filename, size }) =>
+                            ({
+                                filename: filenameAsResources
+                                    ? `gist://${r.id}/${filename}`
+                                    : filename,
+                                size,
+                            }) satisfies WorkspaceFile
+                    ),
+                }) satisfies GitHubGist
+        )
+    }
+
+    async getGist(gist_id?: string): Promise<GitHubGist | undefined> {
+        if (typeof gist_id === "string") {
+            gist_id = gist_id.trim()
+        }
+        const { client, owner } = await this.api()
+        dbg(`retrieving gist details for gist ID: ${gist_id}`)
+        if (!gist_id) {
+            return undefined
+        }
+        const { data } = await client.rest.gists.get({
+            gist_id,
+            owner,
+        })
+        const { files, id, description, created_at, ...rest } = data
+        if (
+            Object.values(files || {}).some(
+                (f) => f.encoding !== "utf-8" && f.encoding != "base64"
+            )
+        ) {
+            dbg(`unsupported encoding for gist files`)
+            return undefined
+        }
+        const res = {
+            id,
+            description,
+            created_at,
+            files: Object.values(files).map(
+                ({ filename, content, size, encoding }) =>
+                    deleteUndefinedValues({
+                        filename,
+                        content,
+                        encoding:
+                            encoding === "utf-8"
+                                ? undefined
+                                : encoding === "base64"
+                                  ? "base64"
+                                  : undefined,
+                        size,
+                    }) satisfies WorkspaceFile
+            ),
+        } satisfies GitHubGist
+
+        dbg(`gist: %d files, %s`, res.files.length, res.description || "")
         return res
     }
 
@@ -1031,7 +1140,7 @@ export class GitHubClient implements GitHub {
         return text
     }
 
-    private async downladJob(job_id: number) {
+    private async downloadJob(job_id: number) {
         const { client, owner, repo } = await this.api()
         dbg(`downloading job log for job ID: ${job_id}`)
         const filename = `job-${job_id}.log`
@@ -1047,11 +1156,11 @@ export class GitHubClient implements GitHub {
     }
 
     async diffWorkflowJobLogs(job_id: number, other_job_id: number) {
-        const job = await this.downladJob(job_id)
+        const job = await this.downloadJob(job_id)
         dbg(
             `diffing workflow job logs for job IDs: ${job_id} and ${other_job_id}`
         )
-        const other = await this.downladJob(other_job_id)
+        const other = await this.downloadJob(other_job_id)
 
         job.content = parseJobLog(job.content)
         other.content = parseJobLog(other.content)

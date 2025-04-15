@@ -1,7 +1,7 @@
 import type { GenerationResult } from "../../core/src/server/messages"
 import type { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { Worker } from "node:worker_threads"
-import { fileURLToPath } from "url"
+import { fileURLToPath } from "node:url"
 import { dirname, join } from "node:path"
 import debug from "debug"
 import { runtimeHost } from "../../core/src/host"

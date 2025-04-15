@@ -13,7 +13,10 @@ defTool(
         },
         required: ["city"],
     },
-    () => "sunny"
+    () => "sunny",
+    {
+        intent: "description",
+    }
 )
 defTool(
     "browse",

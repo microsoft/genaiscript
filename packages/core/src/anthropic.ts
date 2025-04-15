@@ -7,7 +7,6 @@ import {
     ANTHROPIC_MAX_TOKEN,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
-    MODEL_PROVIDERS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 import { NotSupportedError, serializeError } from "./error"
@@ -44,6 +43,7 @@ import {
 } from "./server/messages"
 import { deleteUndefinedValues } from "./cleaners"
 import debug from "debug"
+import { providerFeatures } from "./features"
 const dbg = debug("genaiscript:anthropic")
 const dbgMessages = debug("genaiscript:anthropic:msg")
 
@@ -340,10 +340,20 @@ const completerFactory = (
 
         let temperature = req.temperature
         let top_p = req.top_p
+        let tool_choice: Anthropic.Beta.MessageCreateParams["tool_choice"] =
+            req.tool_choice === "auto"
+                ? { type: "auto" }
+                : req.tool_choice === "none"
+                  ? { type: "none" }
+                  : req.tool_choice !== "required" &&
+                      typeof req.tool_choice === "object"
+                    ? {
+                          type: "tool",
+                          name: req.tool_choice.function.name,
+                      }
+                    : undefined
         let thinking: Anthropic.ThinkingConfigParam = undefined
-        const reasoningEfforts = MODEL_PROVIDERS.find(
-            ({ id }) => id === provider
-        ).reasoningEfforts
+        const reasoningEfforts = providerFeatures(provider)?.reasoningEfforts
         const budget_tokens =
             reasoningEfforts[req.reasoning_effort || reasoningEffort]
         let max_tokens = req.max_tokens
@@ -366,6 +376,7 @@ const completerFactory = (
             max_tokens,
             temperature,
             top_p,
+            tool_choice,
             thinking,
             stream: true,
         })

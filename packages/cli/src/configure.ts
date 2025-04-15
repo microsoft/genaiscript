@@ -9,6 +9,7 @@ import { logInfo, logVerbose, logWarn } from "../../core/src/util"
 import { run } from "./api"
 import { tryReadText } from "../../core/src/fs"
 import { stderr } from "../../core/src/stdio"
+import { URL } from "node:url"
 
 /**
  * Configures a selected language model provider by updating the environment file
@@ -40,7 +41,7 @@ export async function configure(options: { provider?: string }) {
               })
         if (!provider) break
 
-        logInfo(`configurating ${provider.id} (${provider.detail})`)
+        logInfo(`configuring ${provider.id} (${provider.detail})`)
         logVerbose(
             `- docs: https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`
         )

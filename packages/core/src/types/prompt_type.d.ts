@@ -9,7 +9,7 @@ declare var console: PromptGenerationConsole
 
 /**
  * Setup prompt title and other parameters.
- * Exactly one call should be present on top of .genai.js file.
+ * Exactly one call should be present on top of .genai.mts file.
  */
 declare function script(options: PromptArgs): void
 
@@ -104,11 +104,7 @@ declare function defFileOutput(
  * @param fn callback invoked when the LLM requests to run this function
  */
 declare function defTool(
-    tool:
-        | ToolCallback
-        | AgenticToolCallback
-        | AgenticToolProviderCallback
-        | McpServersConfig,
+    tool: Omit<ToolCallback, "generator"> | McpServersConfig,
     options?: DefToolOptions
 ): void
 declare function defTool(

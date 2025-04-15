@@ -3,20 +3,26 @@ title: Scripts as MCP tools!
 description: Learn how GenAIScript can now surface any script as a MCP tool.
 date: 2025-03-22
 authors:
-    - pelikhan
+  - pelikhan
 tags:
-    - MCP
+  - MCP
 canonical_url: https://microsoft.github.io/genaiscript/blog/scripts-as-mcp-tools
 cover:
-    alt:
-        Imagine an 8-bit style scene showing a futuristic, tech-heavy landscape. In
-        the center, there's a large, geometric server block labeled "GenAIScript MCP
-        Server," connected to two smaller devices tagged as "script A MCP Tool" and
-        "script B MCP Tool." A line connects "GitHub Copilot Chat" to the main
-        server, representing integration. The design is minimalist with only five
-        colors, emitting a corporate, high-tech feeling without any human figures or
-        text.
-    image: ./scripts-as-mcp-tools.png
+  alt: Imagine an 8-bit style scene showing a futuristic, tech-heavy landscape. In
+    the center, there's a large, geometric server block labeled "GenAIScript MCP
+    Server," connected to two smaller devices tagged as "script A MCP Tool" and
+    "script B MCP Tool." A line connects "GitHub Copilot Chat" to the main
+    server, representing integration. The design is minimalist with only five
+    colors, emitting a corporate, high-tech feeling without any human figures or
+    text.
+  image: ./scripts-as-mcp-tools.png
+excerpt: The Model Context Protocol (MCP) is reshaping how we approach
+  integration with AI-driven tools. Platforms like GitHub Copilot Chat and
+  Copilot Studio are leading adoption efforts, and GenAIScript is now enabling
+  you to expose scripts as MCP tools, streamlining workflows with smarter
+  decision-making by LLMs. Ready to elevate your development process? Explore
+  the details in the documentation.
+
 ---
 
 🚀 The [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) is taking the tech world by storm, and we're thrilled to announce that GenAIScript is at the forefront of this revolution!

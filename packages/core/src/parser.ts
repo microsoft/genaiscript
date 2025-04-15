@@ -10,6 +10,8 @@ import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { readdir } from "node:fs/promises"
 import { uniq } from "es-toolkit"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("parser")
 
 /**
  * Converts a string to a character position represented as [row, column].
@@ -43,9 +45,11 @@ export async function parseProject(options: { scriptFiles: string[] }) {
             "genaisrc"
         )
     ) // ignore esbuild warning
+    dbg(`genaisrc: %s`, genaisrcDir)
     const systemPrompts = await (
         await readdir(genaisrcDir)
     ).filter((f) => GENAI_ANYTS_REGEX.test(f))
+    dbg(`system prompts: %d`, systemPrompts.length)
     // Process each script file, parsing its content and updating the project
     const scripts: Record<string, PromptScript> = {}
     for (const fn of systemPrompts) {
@@ -59,6 +63,7 @@ export async function parseProject(options: { scriptFiles: string[] }) {
         scripts[tmpl.id] = tmpl
     }
 
+    dbg(`user scripts: %d`, scriptFiles.length)
     for (const f of uniq(scriptFiles).filter(
         (f) => resolve(dirname(f)) !== genaisrcDir
     )) {

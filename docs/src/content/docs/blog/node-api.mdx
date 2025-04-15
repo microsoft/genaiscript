@@ -16,13 +16,19 @@ cover:
     The image uses five colors that highlight a digital, clean, and tech-focused
     aesthetic, remaining iconic and free of human elements or text.
   image: ./node-api.png
+excerpt: "Introducing a new Node.js API for GenAIScript: now you can integrate
+  GenAIScript's functionality directly into your TypeScript workflows (v1.83+).
+  Mimicking the CLI's behavior, the `run` API simplifies tasks like file
+  summarization while maintaining a lightweight and side-effect-free design.
+  Ready to streamline your automation? Check out the documentation for details."
 
 ---
-import { PackageManagers } from 'starlight-package-managers'
+
+import { PackageManagers } from "starlight-package-managers"
 
 A long standing feature request has been to run GenAIScript programmatically from other scripts. We are happy to announce that we have released a Node.JS API for GenAIScript. This API allows you to call GenAIScript from other TypeScript scripts (v1.83+).
 
-- [Documentation](https://microsoft.github.io/genaiscript/reference/cli/api/)
+- [Documentation](https://microsoft.github.io/genaiscript/reference/api/)
 
 ## Installation
 
@@ -47,8 +53,8 @@ On the caller side, the [run implementation](https://github.com/microsoft/genais
 
 - No global added
 - No package loaded
-- A few hunbred `b` of memory used
+- A few hundred `b` of memory used
 
 ## Help us improve it!
 
-Obvisouly this is a first draft and we could do a better job at providing callbacks for progress. Send us your feedback!
+Obviously this is a first draft and we could do a better job at providing callbacks for progress. Send us your feedback!
