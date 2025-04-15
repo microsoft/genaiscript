@@ -1,7 +1,7 @@
 import debug from "debug"
 const dbg = debug("genaiscript:mcp:server")
 
-import { logVerbose, toStringList } from "../../core/src/util"
+import { logVerbose, logWarn } from "../../core/src/util"
 import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
 import { ScriptFilterOptions } from "../../core/src/ast"
@@ -100,9 +100,10 @@ export async function startMcpServer(
                             description: `Filename or globs relative to the workspace used by the script.${accept ? ` Accepts: ${accept}` : ""}`,
                         },
                     }
+                if (!description) logWarn(`script ${id} has no description`)
                 return {
                     name: id,
-                    description: description ?? title,
+                    description,
                     inputSchema:
                         scriptSchema as ListToolsResult["tools"][0]["inputSchema"],
                     annotations: {
