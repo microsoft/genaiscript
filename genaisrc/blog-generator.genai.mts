@@ -43,8 +43,8 @@ Use these files to help you generate a topic for the blog post.
             temperature: 1,
             system: [
                 "system.tools",
-                "system.fs_find_files",
-                "system.fs_read_file",
+                "system.md_find_files",
+                "system.md_frontmatter"
             ],
         }
     )
