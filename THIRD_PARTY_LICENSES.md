@@ -2893,7 +2893,7 @@ The following npm packages may be included in this product:
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
  - @types/node@18.19.86
- - @types/node@22.14.0
+ - @types/node@22.14.1
  - @types/sarif@2.1.7
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
@@ -2927,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.127.0
+ - genaiscript-vscode@1.129.1
 
 This package contains the following license:
 
@@ -8899,10 +8899,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.127.0
- - genaiscript-sample@1.127.0
- - genaiscript-web@1.127.0
- - genaiscript@1.127.0
+ - genaiscript-core-internal@1.129.1
+ - genaiscript-sample@1.129.1
+ - genaiscript-web@1.129.1
+ - genaiscript@1.129.1
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9801,7 +9801,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @ast-grep/napi@0.36.2
+ - @ast-grep/napi@0.37.0
 
 This package contains the following license:
 
@@ -10804,7 +10804,7 @@ The following npm packages may be included in this product:
  - mimic-response@4.0.0
  - normalize-url@8.0.1
  - npm-run-path@6.0.0
- - open@10.1.0
+ - open@10.1.1
  - p-cancelable@4.0.1
  - parse-ms@4.0.0
  - path-exists@5.0.0
@@ -10818,7 +10818,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.39.1
+ - type-fest@4.40.0
  - uint8array-extras@1.4.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
