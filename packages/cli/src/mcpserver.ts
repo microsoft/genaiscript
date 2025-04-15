@@ -77,39 +77,42 @@ export async function startMcpServer(
     server.setRequestHandler(ListToolsRequestSchema, async (req) => {
         dbg(`fetching scripts from watcher`)
         const scripts = await watcher.scripts()
-        const tools = scripts.map((script) => {
-            const {
-                id,
-                title,
-                description,
-                inputSchema,
-                accept,
-                annotations = {},
-            } = script
-            const scriptSchema = (inputSchema?.properties
-                .script as JSONSchemaObject) || {
-                type: "object",
-                properties: {},
-            }
-            if (accept !== "none")
-                scriptSchema.properties.files = {
-                    type: "array",
-                    items: {
-                        type: "string",
-                        description: "File paths to be passed to the script",
-                    },
-                }
-            return {
-                name: id,
-                description,
-                inputSchema:
-                    scriptSchema as ListToolsResult["tools"][0]["inputSchema"],
-                annotations: {
-                    ...annotations,
+        const tools = scripts
+            .map((script) => {
+                const {
+                    id,
                     title,
-                },
-            } satisfies ListToolsResult["tools"][0]
-        })
+                    description,
+                    inputSchema,
+                    accept,
+                    annotations = {},
+                } = script
+                const scriptSchema = (inputSchema?.properties
+                    .script as JSONSchemaObject) || {
+                    type: "object",
+                    properties: {},
+                }
+                if (accept !== "none")
+                    scriptSchema.properties.files = {
+                        type: "array",
+                        items: {
+                            type: "string",
+                            description:
+                                "File paths to be passed to the script",
+                        },
+                    }
+                return {
+                    name: id,
+                    description: description ?? title,
+                    inputSchema:
+                        scriptSchema as ListToolsResult["tools"][0]["inputSchema"],
+                    annotations: {
+                        ...annotations,
+                        title,
+                    },
+                } satisfies ListToolsResult["tools"][0]
+            })
+            .filter((t) => !!t)
         dbg(`returning tool list with ${tools.length} tools`)
         return { tools } satisfies ListToolsResult
     })

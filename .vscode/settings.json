@@ -52,6 +52,7 @@
         "dtype",
         "eargs",
         "echomodel",
+        "emojify",
         "Entra",
         "Evals",
         "execa",

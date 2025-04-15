@@ -1,6 +1,7 @@
 script({
     title: "Converts each file to an emoji",
     files: ["src/*.txt", "src/*.cpp"],
+    group: "mcp"
 })
 
 def("FILE", env.files)
