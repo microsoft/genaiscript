@@ -8,8 +8,14 @@ script({
             type: "string",
             description: "The base branch of the pull request",
         },
+        maxTokens: {
+            type: "number",
+            description: "The maximum number of tokens to generate",
+            default: 14000,
+        },
     },
 })
+const maxTokens = env.vars.maxTokens
 const defaultBranch = env.vars.base || (await git.defaultBranch())
 const branch = await git.branch()
 if (branch === defaultBranch) cancel("you are already on the default branch")
@@ -21,7 +27,7 @@ const changes = await git.diff({
 console.log(changes)
 
 def("GIT_DIFF", changes, {
-    maxTokens: 14000,
+    maxTokens,
     detectPromptInjection: "available",
 })
 
