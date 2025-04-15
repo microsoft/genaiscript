@@ -916,6 +916,36 @@
             "price_per_million_input_tokens": 0.4,
             "price_per_million_output_tokens": 0.4
         },
+        "azure:gpt-4.1": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-2025-04-14": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-mini": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-mini-2025-04-14": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-nano": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-nano-2025-04-14": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
         "azure:o1": {
             "price_per_million_input_tokens": 15,
             "price_per_million_output_tokens": 60,
@@ -969,6 +999,36 @@
         "azure:gpt-4-32k": {
             "price_per_million_input_tokens": 60,
             "price_per_million_output_tokens": 120
+        },
+        "azure_serverless:gpt-4.1": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-2025-04-14": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-mini": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-mini-2025-04-14": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-nano": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-nano-2025-04-14": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
         },
         "azure_serverless:gpt-4o": {
             "price_per_million_input_tokens": 5,
