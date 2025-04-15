@@ -17,7 +17,7 @@ script({
             type: "number",
             default: 4,
             description:
-                "Safeguard against huge commits. Askes confirmation to the user before running more than maxChunks chunks",
+                "Safeguard against huge commits. Asks confirmation to the user before running more than maxChunks chunks",
         },
         gitmoji: {
             type: "boolean",
