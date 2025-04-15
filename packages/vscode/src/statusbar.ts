@@ -19,13 +19,13 @@ export function activateStatusBar(state: ExtensionState) {
         const { computing, progress, options } = aiRequest || {}
         const { fragment } = options || {}
         const { tokensSoFar } = progress || {}
+        const loading =
+            status === "starting" ||
+            status === "stopping" ||
+            (computing && !tokensSoFar)
         statusBarItem.text = toStringList(
             `${
-                status === "starting" ||
-                status === "stopping" ||
-                (computing && !tokensSoFar)
-                    ? `$(loading~spin)`
-                    : `$(${ICON_LOGO_NAME})`
+                loading ? `$(loading~spin)` : `$(${ICON_LOGO_NAME})`
             }${tokensSoFar ? ` ${tokensSoFar} tokens` : ""}`
         )
 

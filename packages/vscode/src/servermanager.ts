@@ -191,6 +191,8 @@ export class TerminalServerManager
             }),
             hideFromUser,
         })
+        this.dispatchChange()
+
         const { cliPath, cliVersion } = await resolveCli(this.state)
         const githubCopilotChatClient = isLanguageModelsAvailable()
             ? " --github-copilot-chat-client"
