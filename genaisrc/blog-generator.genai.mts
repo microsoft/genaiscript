@@ -1,6 +1,5 @@
 script({
     description: "Generate a blog post for Dev.to from the documentation",
-    model: "openai:gpt-4-turbo",
     system: [],
     tools: ["fs", "md"],
     parameters: {
