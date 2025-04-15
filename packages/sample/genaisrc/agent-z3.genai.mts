@@ -1,6 +1,6 @@
 script({
     title: "Use Z3 tool to solve SMT2 problems",
-    tools: ["agent_z3"],
+    tools: ["agent_z3"]
 })
 
 const problem = await host.fetchText(

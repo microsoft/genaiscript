@@ -10,6 +10,7 @@ script({
     ],
     temperature: 0.2,
     cache: "sc",
+    group: "mcp",
 })
 const files = def("FILES", env.files)
 

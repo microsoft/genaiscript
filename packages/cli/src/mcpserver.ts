@@ -97,8 +97,7 @@ export async function startMcpServer(
                         type: "array",
                         items: {
                             type: "string",
-                            description:
-                                "File paths to be passed to the script",
+                            description: `Filename or globs relative to the workspace used by the script.${accept ? ` Accepts: ${accept}` : ""}`,
                         },
                     }
                 return {
