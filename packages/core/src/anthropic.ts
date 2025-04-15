@@ -7,7 +7,6 @@ import {
     ANTHROPIC_MAX_TOKEN,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
-    MODEL_PROVIDERS,
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 import { NotSupportedError, serializeError } from "./error"

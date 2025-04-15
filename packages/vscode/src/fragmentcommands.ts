@@ -55,8 +55,11 @@ export function activateFragmentCommands(state: ExtensionState) {
 
     const scriptRun = async (
         fileOrFolder: vscode.Uri,
-        fileOrFolders: vscode.Uri[]
+        extraArgs: vscode.Uri[] | { groupId: unknown } | undefined
     ) => {
+        const fileOrFolders = Array.isArray(extraArgs)
+            ? (extraArgs as vscode.Uri[])
+            : undefined
         // editor context menu
         // explorer context menu (file or folder) - uri to file or folder
         // edit file run button: uri to genai file in editor
@@ -68,10 +71,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         let files: string[]
         let parameters: PromptParameters
 
-        if (
-            fileOrFolders?.length === 1 &&
-            GENAI_ANY_REGEX.test(fileOrFolder.path)
-        ) {
+        if (GENAI_ANY_REGEX.test(fileOrFolder.path)) {
             const script = findScript(fileOrFolder)
             parameters = await showPromptParametersQuickPicks(script)
             if (parameters === undefined) return
@@ -83,7 +83,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             parameters = await showPromptParametersQuickPicks(script)
             if (parameters === undefined) return
             scriptId = script.id
-            files = fileOrFolders.map((f) => f.fsPath)
+            files = fileOrFolders?.map((f) => f.fsPath) || [fileOrFolder.fsPath]
         }
         await state.requestAI({
             fragment: { files },
