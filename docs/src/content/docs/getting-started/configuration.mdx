@@ -22,6 +22,8 @@ import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?r
 import oaiModelsSrc from "../../../assets/openai-model-names.png"
 import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
 
+import { AZURE_OPENAI_API_VERSION } from "../../../../../packages/core/src/constants"
+
 You will need to configure the LLM connection and authorization secrets. You can use remote (like OpenAI, Azure, etc.) and local models (like Ollama, Jan, LMStudio, etc.) with GenAIScript.
 
 ## Model selection
@@ -556,7 +558,11 @@ AZURE_OPENAI_TOKEN_SCOPES=...
 
 ### API Version
 
-GenAIScript maintains a [default API version](https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation) to access Azure OpenAI. You can override this value using the `AZURE_OPENAI_API_VERSION` environment variable.
+GenAIScript maintains a [default API version](https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation) to access Azure OpenAI.
+
+- current version: {AZURE_OPENAI_API_VERSION}
+
+You can override this value using the `AZURE_OPENAI_API_VERSION` environment variable.
 
 ```txt title=".env"
 AZURE_OPENAI_API_VERSION=2025-01-01-preview
