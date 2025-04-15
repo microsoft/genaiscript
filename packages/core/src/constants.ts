@@ -23,7 +23,8 @@ export const AZURE_MANAGEMENT_API_VERSION = "2024-10-01"
 export const AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
 ])
-export const AZURE_AI_INFERENCE_VERSION = "2024-08-01-preview"
+// https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation
+export const AZURE_AI_INFERENCE_VERSION = "2025-03-01-preview"
 export const AZURE_AI_INFERENCE_TOKEN_SCOPES = Object.freeze([
     "https://ml.azure.com/.default",
 ])
