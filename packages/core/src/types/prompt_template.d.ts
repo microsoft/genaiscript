@@ -2103,6 +2103,12 @@ interface Path {
      * @param fileUrl
      */
     resolveFileURL(fileUrl: string): string
+
+    /**
+     * Sanitize a string to be safe for use as a filename by removing directory paths and invalid characters. 
+     * @param path file path
+     */
+    sanitize(path: string): string
 }
 
 interface Fenced {

@@ -44,7 +44,7 @@ Use these files to help you generate a topic for the blog post.
             system: [
                 "system.tools",
                 "system.md_find_files",
-                "system.md_frontmatter"
+                "system.md_frontmatter",
             ],
         }
     )
@@ -70,7 +70,7 @@ let snippet: string | Fenced
                     // write file to a scratch folder
                     console.log(`checking source code`)
                     await workspace.writeText(
-                        "temp/blog-post/script.genai.mjs",
+                        "temp/blog-post/script.genai.mts",
                         source
                     )
                     return await host.exec(
@@ -181,7 +181,7 @@ defOutputProcessor((output) => {
     const fn =
         `docs/src/content/docs/blog/drafts/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.md`.toLocaleLowerCase()
     const sn =
-        `packages/sample/genaisrc/blog/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.genai.mjs`.toLocaleLowerCase()
+        `packages/sample/genaisrc/blog/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.genai.mts`.toLocaleLowerCase()
     return {
         files: {
             [fn]: md,
