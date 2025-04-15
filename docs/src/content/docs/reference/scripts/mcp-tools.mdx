@@ -223,7 +223,20 @@ script({
 })
 ```
 
-### Scanning Tool Outputs
+### Secret Detection in Tool Outputs
+
+A tool may accidentally read a secret from the environment or from the input.
+For example, a tool that fetches a URL may return a page that contains a secret.
+
+```mermaid
+flowchart TD
+    A[Tool] -->|secret detection| C[LLM]
+```
+
+To prevent this, the [secret scanner](/genaiscript/reference/scripts/secret-scanning)
+on all tool outputs.
+
+### Prompt Injection in Tool Outputs
 
 A tool may return data that contains prompt injection attacks.
 For example, a tool that fetches a URL may return a page that contains prompt injection attacks.
@@ -247,7 +260,7 @@ script({
 })
 ```
 
-## Output Intent validation
+## Tool Output Intent validation
 
 You can configure GenAIScript to execute a LLM-as-a-Judge validation of the tool result based on the description or a custom intent.
 The LLM-as-a-Judge will happen on every tool response using the `intent` model alias, which maps to `small` by default.

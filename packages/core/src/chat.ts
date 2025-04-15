@@ -98,6 +98,7 @@ import { isQuiet } from "./quiet"
 import { resolvePromptInjectionDetector } from "./contentsafety"
 import { genaiscriptDebug } from "./debug"
 import { providerFeatures } from "./features"
+import { redactSecrets } from "./secretscanner"
 const dbg = genaiscriptDebug("chat")
 const dbgt = dbg.extend("tool")
 
@@ -407,6 +408,17 @@ ${fenceMD(content, " ")}
             )
         }
 
+        // remove leaked secrets
+        const { text: toolContentRedacted, found } = redactSecrets(
+            toolContent,
+            { trace }
+        )
+        if (toolContentRedacted !== toolContent) {
+            dbgtt(`secrets found: %o`, found)
+            toolContent = toolContentRedacted
+        }
+
+        // check for prompt injection
         const detector = await resolvePromptInjectionDetector(tool.options, {
             trace,
             cancellationToken,
