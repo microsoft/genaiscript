@@ -4142,10 +4142,30 @@ interface McpToolSpecification {
 }
 
 interface McpServerConfig extends ContentSafetyOptions {
+    /**
+     * The executable to run to start the server.
+     */
     command: OptionsOrString<"npx" | "uv" | "dotnet" | "docker" | "cargo">
+    /**
+     * Command line arguments to pass to the executable.
+     */
     args: string[]
-    params?: string[]
+    /**
+     * The server version
+     */
     version?: string
+    /**
+     * The environment to use when spawning the process.
+     *
+     * If not specified, the result of getDefaultEnvironment() will be used.
+     */
+    env?: Record<string, string>
+    /**
+     * The working directory to use when spawning the process.
+     *
+     * If not specified, the current working directory will be inherited.
+     */
+    cwd?: string
 
     id: string
     options?: DefToolOptions

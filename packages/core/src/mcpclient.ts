@@ -1,5 +1,3 @@
-const dbg = genaiscriptDebug("mcp:client")
-
 import { TraceOptions } from "./trace"
 import { arrayify, logError, logVerbose } from "./util"
 import type {
@@ -17,6 +15,7 @@ import { dotGenaiscriptPath } from "./workdir"
 import { YAMLStringify } from "./yaml"
 import { resolvePromptInjectionDetector } from "./contentsafety"
 import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("mcp:client")
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClient[] = []
@@ -33,7 +32,6 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         const {
             id,
             version = "1.0.0",
-            params = [],
             toolsSha,
             detectPromptInjection,
             contentSafety,
@@ -67,10 +65,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 ...rest,
                 stderr: "inherit",
             })
-            let client = new Client(
-                { name: id, version, params },
-                { capabilities }
-            )
+            let client = new Client({ name: id, version }, { capabilities })
             dbg(`connecting client to transport`)
             await client.connect(transport)
 
