@@ -79,6 +79,31 @@ const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the promp
 output.fence(`The result is ${res.text}`)
 ```
 
+### Annotations
+
+[Tool annotations](https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations) provide additional metadata about a tool’s behavior,
+helping clients understand how to present and manage tools.
+These annotations are hints that describe the nature and impact of a tool, but should not be relied upon for security decisions.
+
+```js "annotations"
+script({
+    ...,
+    annotations: {
+        readOnlyHint: true,
+        openWorldHint: true,
+    },
+})
+```
+
+- `readOnlyHint`: `boolean`, default: `false`  
+   If true, indicates the tool does not modify its environment.
+- `destructiveHint`: `boolean`, default: `true`  
+   If true, the tool may perform destructive updates (only meaningful when `readOnlyHint` is false).
+- `idempotentHint`: `boolean`, default: `false`  
+   If true, calling the tool repeatedly with the same arguments has no additional effect (only meaningful when `readOnlyHint` is false).
+- `openWorldHint`: `boolean`, default: `true`  
+   If true, the tool may interact with an “open world” of external entities.
+
 ## Resources
 
 [Resources](https://modelcontextprotocol.io/docs/concepts/resources)
