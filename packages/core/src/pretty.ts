@@ -96,3 +96,17 @@ export function prettyBytes(bytes: number) {
     if (isNaN(bytes)) return ""
     return _prettyBytes(bytes)
 }
+
+
+/**
+ * Converts a list of strings into a single comma-separated string.
+ *
+ * @param token - An array of strings to be processed. Empty, null, or undefined strings are ignored.
+ * @returns A single string with valid input strings concatenated and separated by commas.
+ */
+export function prettyStrings(...token: string[]) {
+    const md = token
+        .filter((l) => l !== undefined && l !== null && l !== "")
+        .join(", ")
+    return md
+}

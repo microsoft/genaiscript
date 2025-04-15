@@ -6,9 +6,12 @@ import {
     STATS_DIR_NAME,
 } from "./constants"
 import { randomHex } from "./crypto"
+import { genaiscriptDebug } from "./debug"
 import { ensureDir } from "./fs"
 import { gitIgnoreEnsure } from "./gitignore"
 import { host } from "./host"
+import { sanitizeFilename } from "./sanitize"
+const dbg = genaiscriptDebug("dirs")
 
 /**
  * Constructs a resolved file path within the `.genaiscript` directory of the project.
@@ -20,7 +23,7 @@ export function dotGenaiscriptPath(...segments: string[]) {
     return host.resolvePath(
         host.projectFolder(),
         GENAISCRIPT_FOLDER,
-        ...segments
+        ...segments.map((s) => sanitizeFilename(s))
     )
 }
 
@@ -35,7 +38,7 @@ export function dotGenaiscriptPath(...segments: string[]) {
  * @returns A promise that resolves once the directory is created and configured.
  */
 export async function ensureDotGenaiscriptPath() {
-    const dir = dotGenaiscriptPath(".")
+    const dir = dotGenaiscriptPath()
     await ensureDir(dir)
     await gitIgnoreEnsure(dir, ["*"])
 }
@@ -57,12 +60,14 @@ function createDatedFolder(id: string) {
  * @returns The resolved path for the specified run directory.
  */
 export function getRunDir(scriptId: string, runId: string) {
+    dbg(`run: %s %s`, scriptId, runId)
     const name = createDatedFolder(runId)
     const out = dotGenaiscriptPath(
         RUNS_DIR_NAME,
         host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
         name
     )
+    dbg("run dir: %s", out)
     return out
 }
 
@@ -76,12 +81,15 @@ export function getRunDir(scriptId: string, runId: string) {
  *          for the converted files.
  */
 export function getConvertDir(scriptId: string) {
-    const name = createDatedFolder(randomHex(6))
+    const runId = randomHex(6)
+    dbg(`convert: %s %s`, scriptId, runId)
+    const name = createDatedFolder(runId)
     const out = dotGenaiscriptPath(
         CONVERTS_DIR_NAME,
         host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
         name
     )
+    dbg("convert dir: %s", out)
     return out
 }
 

@@ -1,6 +1,7 @@
 script({
     title: "blog using generated knowledge",
     model: "small",
+    group: "mcp",
     description:
         "Using Generated Knowledge technique. More at https://learnprompting.org/docs/intermediate/generated_knowledge",
     tests: {

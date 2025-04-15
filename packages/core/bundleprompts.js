@@ -95,6 +95,7 @@ async function main() {
                     allowImportingTsExtensions: true,
                     verbatimModuleSyntax: true,
                     resolveJsonModule: true,
+                    erasableSyntaxOnly: true,
                 },
                 include: ["*.mjs", "*.mts", "src/*.mts", "./genaiscript.d.ts"],
             },

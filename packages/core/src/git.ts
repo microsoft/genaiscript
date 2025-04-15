@@ -40,7 +40,13 @@ export class GitClient implements Git {
     private _branch: string // Stores the current branch name
 
     constructor(cwd: string) {
-        this.cwd = cwd
+        this.cwd = cwd || process.cwd()
+    }
+
+    private static _default: GitClient
+    static default() {
+        if (!this._default) this._default = new GitClient(undefined)
+        return this._default
     }
 
     private async resolveExcludedPaths(options?: {
@@ -236,6 +242,12 @@ export class GitClient implements Git {
             "--abbrev=0",
             "HEAD^",
         ])
+        return res.split("\n")[0]
+    }
+
+    async lastCommitSha(): Promise<string> {
+        dbg(`fetching last commit`)
+        const res = await this.exec(["rev-parse", "HEAD"])
         return res.split("\n")[0]
     }
 

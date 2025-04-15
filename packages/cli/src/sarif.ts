@@ -1,9 +1,3 @@
-import {
-    SarifBuilder,
-    SarifRunBuilder,
-    SarifResultBuilder,
-    SarifRuleBuilder,
-} from "node-sarif-builder"
 import { relative } from "node:path"
 import {
     SARIFF_BUILDER_TOOL_DRIVER_NAME,
@@ -35,10 +29,17 @@ export function isSARIFFilename(f: string) {
  * @param issues - Array of diagnostic issues to convert. Each issue should include severity, message, filename, and range.
  * @returns A stringified SARIF JSON object representing the diagnostic issues, formatted with indentation for readability.
  */
-export function convertDiagnosticsToSARIF(
+export async function convertDiagnosticsToSARIF(
     template: PromptScript,
     issues: Diagnostic[]
 ) {
+    const {
+        SarifBuilder,
+        SarifRunBuilder,
+        SarifResultBuilder,
+        SarifRuleBuilder,
+    } = await import("node-sarif-builder")
+
     // Initialize a SARIF run with tool driver information
     const sarifRunBuilder = new SarifRunBuilder().initSimple({
         toolDriverName: SARIFF_BUILDER_TOOL_DRIVER_NAME,

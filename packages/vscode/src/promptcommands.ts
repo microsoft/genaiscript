@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { templatesToQuickPickItems } from "./fragmentcommands"
+import { scriptsToQuickPickItems } from "./scriptquickpick"
 import { registerCommand } from "./commands"
 import { createScript } from "../../core/src/scripts"
 import { copyPrompt } from "../../core/src/copy"
@@ -41,7 +41,7 @@ export function activatePromptCommands(state: ExtensionState) {
                     const templates = state.project?.scripts
                     if (!templates?.length) return
                     const picked = await vscode.window.showQuickPick(
-                        templatesToQuickPickItems(templates),
+                        scriptsToQuickPickItems(templates),
                         {
                             title: `Pick a GenAIScript to fork`,
                         }

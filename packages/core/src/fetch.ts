@@ -1,5 +1,5 @@
 import wrapFetch from "fetch-retry"
-import { MarkdownTrace, TraceOptions } from "./trace"
+import { TraceOptions } from "./trace"
 import {
     FETCH_RETRY_DEFAULT,
     FETCH_RETRY_DEFAULT_DEFAULT,
@@ -7,17 +7,15 @@ import {
     FETCH_RETRY_MAX_DELAY_DEFAULT,
 } from "./constants"
 import { errorMessage } from "./error"
-import { logVerbose, toStringList } from "./util"
+import { logVerbose } from "./util"
 import { CancellationOptions, CancellationToken } from "./cancellation"
 import { resolveHttpProxyAgent } from "./proxy"
 import { host } from "./host"
 import { renderWithPrecision } from "./precision"
 import crossFetch from "cross-fetch"
-import { fileTypeFromBuffer } from "./filetype"
-import { isBinaryMimeType } from "./binary"
-import { toBase64 } from "./base64"
-import { deleteUndefinedValues } from "./cleaners"
-import { prettyBytes } from "./pretty"
+import debug from "debug"
+import { prettyStrings } from "./pretty"
+const dbg = debug("genaiscript:fetch")
 
 export type FetchType = (
     input: string | URL | globalThis.Request,
@@ -68,7 +66,10 @@ export async function createFetch(
         : crossFetch
 
     // Return the default fetch if no retry status codes are specified
-    if (!retryOn?.length) return crossFetchWithProxy
+    if (!retryOn?.length) {
+        dbg("no retry logic applied, using crossFetchWithProxy directly")
+        return crossFetchWithProxy
+    }
 
     // Create a fetch function with retry logic
     const fetchRetry = wrapFetch(crossFetchWithProxy, {
@@ -76,13 +77,16 @@ export async function createFetch(
         retries,
         retryDelay: (attempt, error, response) => {
             const code: string = (error as any)?.code as string
+            dbg(`retry attempt: %d, error code: %s`, attempt, code)
             if (
                 code === "ECONNRESET" ||
                 code === "ENOTFOUND" ||
                 cancellationToken?.isCancellationRequested
-            )
+            ) {
+                dbg("fatal error or cancellation")
                 // Return undefined for fatal errors or cancellations to stop retries
                 return undefined
+            }
 
             const message = errorMessage(error)
             const status = statusToMessage(response)
@@ -92,7 +96,7 @@ export async function createFetch(
                     Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
                 ) *
                 (1 + Math.random() / 20) // 5% jitter for delay randomization
-            const msg = toStringList(
+            const msg = prettyStrings(
                 `retry #${attempt + 1} in ${renderWithPrecision(Math.floor(delay) / 1000, 1)}s`,
                 message,
                 status
@@ -138,142 +142,6 @@ export async function fetch(
 }
 
 /**
- * Fetches text content from a URL or file.
- *
- * Fetches content from an HTTP(S) URL or reads from the file system for local files.
- * Retries on specific HTTP statuses if configured. Supports tracing and cancellation.
- * Handles binary content using base64 encoding.
- *
- * @param urlOrFile - The URL or file path to fetch from. If a string, it is treated as a filename.
- * @param fetchOptions - Configuration for retries, delays, tracing, cancellation, and fetch settings.
- *   - retries: Number of retry attempts.
- *   - retryDelay: Initial delay between retries.
- *   - retryOn: HTTP status codes to retry on.
- *   - maxDelay: Maximum delay between retries.
- *   - trace: Trace options for logging.
- *   - cancellationToken: Token to cancel the fetch operation.
- * @returns An object containing fetch status, content, metadata, and file details.
- */
-export async function fetchText(
-    urlOrFile: string | WorkspaceFile,
-    fetchOptions?: FetchTextOptions & TraceOptions
-) {
-    const { retries, retryDelay, retryOn, maxDelay, trace, ...rest } =
-        fetchOptions || {}
-    if (typeof urlOrFile === "string") {
-        urlOrFile = {
-            filename: urlOrFile,
-            content: "",
-        }
-    }
-    const url = urlOrFile.filename
-    let ok = false
-    let status = 404
-    let statusText: string
-    let bytes: Uint8Array
-    if (/^https?:\/\//i.test(url)) {
-        const f = await createFetch({
-            retries,
-            retryDelay,
-            retryOn,
-            maxDelay,
-            trace,
-        })
-        const resp = await f(url, rest)
-        ok = resp.ok
-        status = resp.status
-        statusText = resp.statusText
-        if (ok) bytes = new Uint8Array(await resp.arrayBuffer())
-    } else {
-        try {
-            bytes = await host.readFile(url)
-        } catch (e) {
-            logVerbose(e)
-            ok = false
-            status = 404
-        }
-    }
-
-    let content: string
-    let encoding: "base64"
-    let type: string
-    const size = bytes?.length
-    const mime = await fileTypeFromBuffer(bytes)
-    if (isBinaryMimeType(mime?.mime)) {
-        encoding = "base64"
-        content = toBase64(bytes)
-    } else {
-        content = host.createUTF8Decoder().decode(bytes)
-    }
-    ok = true
-    const file: WorkspaceFile = deleteUndefinedValues({
-        filename: urlOrFile.filename,
-        encoding,
-        type,
-        content,
-        size,
-    })
-    return {
-        ok,
-        status,
-        statusText,
-        text: content,
-        bytes,
-        file,
-    }
-}
-
-/**
- * Logs a POST request for tracing.
- *
- * Constructs a curl command to represent the POST request, including headers
- * and body. Authorization headers can be optionally masked.
- *
- * @param trace - Trace object for logging details. If not provided, logs the command verbosely.
- * @param url - Target URL for the request.
- * @param headers - Headers to include in the request. Sensitive authorization headers may be masked.
- * @param body - Request body, either as FormData or a raw object. FormData fields include file sizes if applicable.
- * @param options - Configuration for masking authorization headers.
- */
-export function traceFetchPost(
-    trace: MarkdownTrace,
-    url: string,
-    headers: Record<string, string>,
-    body: FormData | any,
-    options?: { showAuthorization?: boolean }
-) {
-    if (!trace) return
-    const { showAuthorization } = options || {}
-    headers = { ...(headers || {}) }
-    if (!showAuthorization)
-        Object.entries(headers)
-            .filter(([k]) =>
-                /^(authorization|api-key|ocp-apim-subscription-key)$/i.test(k)
-            )
-            .forEach(
-                ([k]) =>
-                    (headers[k] = /Bearer /i.test(headers[k])
-                        ? "Bearer ***" // Mask Bearer tokens
-                        : "***") // Mask other authorization headers
-            )
-    let cmd = `curl ${url} \\
---no-buffer \\
-${Object.entries(headers)
-    .map(([k, v]) => `-H "${k}: ${v}"`)
-    .join(" \\\n")} \\
-`
-    if (body instanceof FormData) {
-        body.forEach((value, key) => {
-            cmd += `-F ${key}=${value instanceof File ? `... (${prettyBytes(value.size)})` : "" + value}\n`
-        })
-    } else
-        cmd += `-d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
-`
-    if (trace) trace.detailsFenced(`🌐 fetch`, cmd, "bash")
-    else logVerbose(cmd)
-}
-
-/**
  * Converts the HTTP response status and status text into a list of strings.
  *
  * Extracts the status and status text from the response object for logging and debugging.
@@ -286,7 +154,7 @@ export function statusToMessage(res?: {
     statusText?: string
 }) {
     const { status, statusText } = res || {}
-    return toStringList(
+    return prettyStrings(
         typeof status === "number" ? status + "" : undefined,
         statusText
     )
@@ -302,13 +170,17 @@ export async function* iterateBody(
         const reader = r.body.getReader()
         while (!cancellationToken?.isCancellationRequested) {
             const { done, value } = await reader.read()
-            if (done) break
+            if (done) {
+                break
+            }
             const text = decoder.decode(value, { stream: true })
             yield text
         }
     } else {
         for await (const value of r.body as any) {
-            if (cancellationToken?.isCancellationRequested) break
+            if (cancellationToken?.isCancellationRequested) {
+                break
+            }
             const text = decoder.decode(value, { stream: true })
             yield text
         }

@@ -1,6 +1,5 @@
 script({
     description: "Generate a blog post for Dev.to from the documentation",
-    model: "openai:gpt-4-turbo",
     system: [],
     tools: ["fs", "md"],
     parameters: {
@@ -13,7 +12,7 @@ script({
             description: "The topic and goal of the article",
         },
     },
-    group: "docs"
+    group: "docs",
 })
 let { topic, theme } = env.vars
 
@@ -44,8 +43,8 @@ Use these files to help you generate a topic for the blog post.
             temperature: 1,
             system: [
                 "system.tools",
-                "system.fs_find_files",
-                "system.fs_read_file",
+                "system.md_find_files",
+                "system.md_frontmatter",
             ],
         }
     )
@@ -71,11 +70,12 @@ let snippet: string | Fenced
                     // write file to a scratch folder
                     console.log(`checking source code`)
                     await workspace.writeText(
-                        "temp/blog-post/script.genai.mjs",
+                        "temp/blog-post/script.genai.mts",
                         source
                     )
-                    return await host.exec("node packages/cli/built/genaiscript.cjs scripts compile temp/blog-post")
-
+                    return await host.exec(
+                        "node packages/cli/built/genaiscript.cjs scripts compile temp/blog-post"
+                    )
                 }
             )
 
@@ -181,7 +181,7 @@ defOutputProcessor((output) => {
     const fn =
         `docs/src/content/docs/blog/drafts/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.md`.toLocaleLowerCase()
     const sn =
-        `packages/sample/genaisrc/blog/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.genai.mjs`.toLocaleLowerCase()
+        `packages/sample/genaisrc/blog/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.genai.mts`.toLocaleLowerCase()
     return {
         files: {
             [fn]: md,

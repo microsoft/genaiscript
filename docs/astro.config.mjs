@@ -59,7 +59,7 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
 `,
                     pageSeparator: "\n\n=|=|=|=|=|=\n\n",
                     minify: {
-                        customSelectors: ["picture"]
+                        customSelectors: ["picture"],
                     },
                     promote: ["index*", "getting-started*", "!*/*"],
                     customSets: [
@@ -84,8 +84,8 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                         {
                             label: "Reference CLI",
                             description:
-                                "full reference documentation for the command line interface",
-                            paths: ["reference/cli/**"],
+                                "full reference documentation for the command line interface and Node.JS runtime",
+                            paths: ["reference/cli/**", "reference/api/**"],
                         },
                         {
                             label: "Guides",
@@ -107,10 +107,18 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                 Head: "./src/components/Head.astro",
                 Footer: "./src/components/Footer.astro",
             },
-            social: {
-                github: "https://github.com/microsoft/genaiscript",
-                youtube: "https://www.youtube.com/@pelihalleux",
-            },
+            social: [
+                {
+                    icon: "github",
+                    label: "GitHub",
+                    href: "https://github.com/microsoft/genaiscript",
+                },
+                {
+                    icon: "youtube",
+                    label: "YouTube",
+                    href: "https://www.youtube.com/@pelihalleux",
+                },
+            ],
             editLink: {
                 baseUrl:
                     "https://github.com/microsoft/genaiscript/edit/main/docs/",
@@ -150,7 +158,7 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                 },
                 {
                     label: "Contributing",
-                    link: "https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md",
+                    link: "dev",
                 },
             ],
         }),

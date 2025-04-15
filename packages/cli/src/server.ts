@@ -17,13 +17,7 @@ import { isCancelError, serializeError } from "../../core/src/error"
 import { host, LogEvent, runtimeHost } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import { chunkLines, chunkString } from "../../core/src/chunkers"
-import {
-    logVerbose,
-    logError,
-    assert,
-    logInfo,
-    logWarn,
-} from "../../core/src/util"
+import { logVerbose, logError, assert, logWarn } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import {
     RequestMessages,
@@ -51,7 +45,7 @@ import { buildProject } from "./build"
 import * as http from "http"
 import { extname, join } from "path"
 import { createReadStream } from "fs"
-import { URL } from "url"
+import { URL } from "node:url"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { networkInterfaces } from "os"
 import { exists } from "fs-extra"
@@ -66,6 +60,8 @@ import { generateId } from "../../core/src/id"
 import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { nodeTryReadPackage } from "../../core/src/nodepackage"
+import { genaiscriptDebug } from "../../core/src/debug"
+const dbg = genaiscriptDebug("server")
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -412,6 +408,7 @@ export async function startServer(
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
             const { id, type } = data
+            dbg(`%s: %O`, type, data)
             let response: ResponseStatus
             try {
                 switch (type) {
@@ -475,9 +472,11 @@ export async function startServer(
                     // Handle script start request
                     case "script.start": {
                         // Cancel any active scripts
-                        cancelAll()
-
                         const { script, files = [], options = {}, runId } = data
+                        if (!script) throw new Error("missing script")
+                        if (files.some((f) => !f))
+                            throw new Error("invalid file")
+                        cancelAll()
                         const canceller =
                             new AbortSignalCancellationController()
                         const cancellationToken = canceller.token
@@ -515,7 +514,7 @@ export async function startServer(
                             ...options,
                             runId,
                             trace,
-                            outputTrace,
+                            runOutputTrace: outputTrace,
                             runTrace: false,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {

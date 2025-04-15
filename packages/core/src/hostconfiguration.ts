@@ -15,7 +15,7 @@ export interface HostConfiguration {
     include?: string[]
 
     /**
-     * Configures a list of known aliases. Overriden by environment variables and CLI arguments
+     * Configures a list of known aliases. Overridden by environment variables and CLI arguments
      */
     modelAliases?: Record<string, string | ModelConfiguration>
 

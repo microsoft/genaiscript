@@ -25,7 +25,7 @@ import defaultConfig from "./config.json"
 import { CancellationOptions } from "./cancellation"
 import { host } from "./host"
 import { uniq } from "es-toolkit"
-import { tryReadText, tryStat } from "./fs"
+import { expandHomeDir, tryReadText, tryStat } from "./fs"
 import { parseDefaultsFromEnv } from "./env"
 
 import debug from "debug"
@@ -127,7 +127,9 @@ async function resolveGlobalConfiguration(
         ]
     }
     dbg("resolving env file paths")
-    config.envFile = uniq(arrayify(config.envFile).map((f) => resolve(f)))
+    config.envFile = uniq(
+        arrayify(config.envFile).map((f) => expandHomeDir(resolve(f)))
+    )
     dbg(`resolved env files: ${config.envFile.join(", ")}`)
     return config
 }
@@ -167,7 +169,7 @@ export async function readConfig(
             dbg(`loading ${dotEnv}`)
             const res = dotenv.config({
                 path: dotEnv,
-                debug: !!process.env.DEBUG,
+                debug: /dotenv/.test(process.env.DEBUG),
                 override: true,
             })
             if (res.error) {

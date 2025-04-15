@@ -4,7 +4,7 @@ const dbg = debug("genaiscript:importprompt")
 import { host } from "./host"
 import { logError } from "./util"
 import { TraceOptions } from "./trace"
-import { pathToFileURL } from "url"
+import { pathToFileURL } from "node:url"
 import { mark } from "./performance"
 
 /**

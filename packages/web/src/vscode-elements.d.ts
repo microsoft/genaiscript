@@ -90,10 +90,9 @@ declare module "react" {
             "vscode-tab-panel": WebComponentProps<VscodeTabPanel>
             "vscode-table": WebComponentProps<VscodeTable>
             "vscode-table-body": WebComponentProps<VscodeTableBody>
-            "vscode-table-body": WebComponentProps<VscodeTableCell>
+            "vscode-table-cell": WebComponentProps<VscodeTableCell>
             "vscode-table-header": WebComponentProps<VscodeTableHeader>
             "vscode-table-header-cell": WebComponentProps<VscodeTableHeaderCell>
-            "vscode-table-cell": WebComponentProps<VscodeTableCell>
             "vscode-table-row": WebComponentProps<VscodeTableRow>
             "vscode-tabs": WebComponentProps<VscodeTabs> & {
                 "onvsc-tabs-select"?: CustomEventHandler<VscTabsSelectEvent>

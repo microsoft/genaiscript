@@ -8,7 +8,7 @@ import { TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { PLAYWRIGHT_VERSION } from "./version"
-import { ellipseUri } from "../../core/src/url"
+import { uriRedact } from "../../core/src/url"
 import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
 import { createVideoDir } from "../../core/src/workdir"
 
@@ -156,7 +156,7 @@ export class BrowserManager {
             ...rest
         } = options || {}
 
-        logVerbose(`browsing ${ellipseUri(url)}`)
+        logVerbose(`browsing ${uriRedact(url)}`)
         const browser = await this.launchBrowser(options)
         let page: Page
 

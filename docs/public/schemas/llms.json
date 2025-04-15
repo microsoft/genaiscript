@@ -47,6 +47,10 @@
                         "type": "boolean",
                         "description": "Indicates if top_p is supported"
                     },
+                    "toolChoice": {
+                        "type": "boolean",
+                        "description": "Indicates if tool_choice is supported"
+                    },
                     "seed": {
                         "type": "boolean",
                         "description": "Indicates if seeding is supported"
@@ -92,6 +96,11 @@
                         "type": "boolean",
                         "description": "Indicates if image generation is supported"
                     },
+                    "responseFormat": {
+                        "type": "string",
+                        "description": "Preferred response format",
+                        "enum": ["json_object", "json_schema"]
+                    },
                     "reasoningEfforts": {
                         "type": "object",
                         "description": "Reasoning effort configuration",
@@ -109,11 +118,7 @@
                                 "description": "High reasoning effort"
                             }
                         },
-                        "required": [
-                            "low",
-                            "medium",
-                            "high"
-                        ]
+                        "required": ["low", "medium", "high"]
                     },
                     "singleModel": {
                         "type": "boolean",
@@ -199,9 +204,7 @@
                                     "format": {
                                         "type": "string",
                                         "description": "Format of the variable",
-                                        "enum": [
-                                            "url"
-                                        ]
+                                        "enum": ["url"]
                                     },
                                     "enum": {
                                         "type": "array",
@@ -216,10 +219,7 @@
                     }
                 },
                 "additionalProperties": false,
-                "required": [
-                    "id",
-                    "detail"
-                ]
+                "required": ["id", "detail"]
             }
         }
     },
@@ -278,8 +278,5 @@
             }
         }
     },
-    "required": [
-        "providers",
-        "pricings"
-    ]
+    "required": ["providers", "pricings"]
 }

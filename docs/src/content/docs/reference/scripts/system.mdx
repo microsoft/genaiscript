@@ -440,6 +440,143 @@ export default function (ctx: ChatGenerationContext) {
 `````
 
 
+### `system.agent_mcp`
+
+Model Context Protocol Agent
+
+Wraps a MCP server with an agent.
+
+
+
+`````js wrap title="system.agent_mcp"
+system({
+    title: "Model Context Protocol Agent",
+    description: "Wraps a MCP server with an agent.",
+    parameters: {
+        description: {
+            type: "string",
+            description: "Description of the MCP server and agent.",
+            required: true,
+        },
+        id: {
+            type: "string",
+            description: "The unique identifier for the MCP server.",
+            required: true,
+        },
+        command: {
+            type: "string",
+            description: "The command to run the MCP server.",
+            required: true,
+        },
+        args: {
+            type: "array",
+            items: { type: "string" },
+            description: "The arguments to pass to the command.",
+        },
+        version: {
+            type: "string",
+            description: "The version of the MCP server.",
+        },
+        instructions: {
+            type: "string",
+            description:
+                "Instructions for the agent on how to use the MCP server.",
+        },
+        maxTokens: {
+            type: "integer",
+            minimum: 16,
+            description: "Maximum number of tokens returned by the tools.",
+        },
+        toolsSha: {
+            type: "string",
+            description:
+                "The SHA256 hash of the tools returned by the MCP server.",
+        },
+        contentSafety: {
+            type: "string",
+            description: "Content safety provider",
+            enum: ["azure"],
+        },
+        detectPromptInjection: {
+            anyOf: [
+                { type: "string" },
+                { type: "boolean", enum: ["always", "available"] },
+            ],
+            description:
+                "Whether to detect prompt injection attacks in the MCP server.",
+        },
+        intent: {
+            type: "any",
+            description: "the intent of the tools",
+        },
+    },
+})
+
+export default function (ctx: ChatGenerationContext) {
+    const { env, defAgent } = ctx
+    const { vars } = env
+    const dbg = host.logger("genaiscript:mcp:agent")
+
+    const id = vars["system.agent_mcp.id"] as string
+    const description = vars["system.agent_mcp.description"] as string
+    const command = vars["system.agent_mcp.command"] as string
+    const args = (vars["system.agent_mcp.args"] as string[]) || []
+    const version = vars["system.agent_mcp.version"] as string
+    const instructions = vars["system.agent_mcp.instructions"] as string
+    const maxTokens = vars["system.agent_mcp.maxTokens"] as number
+    const toolsSha = vars["system.mcp.toolsSha"] as string
+    const contentSafety = vars[
+        "system.mcp.contentSafety"
+    ] as ContentSafetyOptions["contentSafety"]
+    const detectPromptInjection = vars[
+        "system.mcp.detectPromptInjection"
+    ] as ContentSafetyOptions["detectPromptInjection"]
+    const intent = vars["system.mcp.intent"]
+
+    if (!id) throw new Error("Missing required parameter: id")
+    if (!description) throw new Error("Missing required parameter: description")
+    if (!command) throw new Error("Missing required parameter: command")
+
+    const configs = {
+        [id]: {
+            command,
+            args,
+            version,
+            toolsSha,
+            contentSafety,
+            detectPromptInjection,
+            intent,
+        },
+    } satisfies McpServersConfig
+    const toolOptions = {
+        maxTokens,
+        contentSafety,
+        detectPromptInjection,
+    } satisfies DefToolOptions
+    dbg(`loading %s %O %O`, id, configs, toolOptions)
+    defAgent(
+        id,
+        description,
+        async (agentCtx) => {
+            dbg("defining agent %s", id)
+            agentCtx.defTool(configs, toolOptions)
+            if (instructions) agentCtx.$`${instructions}`.role("system")
+        },
+        {
+            ...toolOptions,
+            system: [
+                "system",
+                "system.tools",
+                "system.explanations",
+                "system.assistant",
+            ],
+        }
+    )
+}
+
+`````
+
+
 ### `system.agent_planner`
 
 A planner agent
@@ -589,6 +726,69 @@ export default function (ctx: ChatGenerationContext) {
                 "system.safety_protected_material",
                 "system.retrieval_web_search",
             ],
+        }
+    )
+}
+
+`````
+
+
+### `system.agent_z3`
+
+Agent that can formalize and solve problems using Z3.
+
+
+
+
+
+`````js wrap title="system.agent_z3"
+system({
+    title: "Agent that can formalize and solve problems using Z3.",
+})
+
+export default function (ctx: ChatGenerationContext) {
+    const { defAgent } = ctx
+
+    defAgent(
+        "z3",
+        "can formalize and solve problems using the Z3 constraint solver. If you need to run Z3, use this tool.",
+        async (_) => {
+            _.$`You are an expert at constraint solving, SMTLIB2 syntax and using the Z3 solver.
+        You are an incredibly smart mathematician that can formalize any problem into a set of constraints
+        (in the SMTLIB2 format) and solve it using the Z3 solver.
+        
+        Your task is to
+
+        1. formalize the content of <QUESTION> into a SMTLIB2 formula
+        2. call the 'z3' tool to solve it
+        3. interpret the 'z3' tool response back into natural language
+
+        ## Output 
+
+        You should return the SMTLIB2 formula, the Z3 response and the interpretation of the Z3 response in natural language
+        using the following template:
+
+        smtlib2:
+        (... smtlib2 formula ...)
+        z3:
+        ... z3 response ...
+        interpretation:
+        ... interpretation of the z3 response ...
+
+
+        ## Constraints
+
+        - do NOT ask the user for any information, just proceed with the task. Do not give up.
+        - do NOT try to reason on your own, just formalize the problem and call the 'z3' tool
+        - do NOT use any other tool than 'z3'
+        - do NOT use any other language than SMTLIB2
+        - do NOT use any other format than SMTLIB2
+        - do NOT suggest to use the Z3 bindings, the 'z3' tool is running the Z3 solver already
+        `
+        },
+        {
+            responseType: "text",
+            tools: ["z3"],
         }
     )
 }
@@ -1760,7 +1960,7 @@ export default async function (ctx: ChatGenerationContext) {
 
 github workflows
 
-Queries results from workflows in GitHub actions. Prefer using dffs to compare logs.
+Queries results from workflows in GitHub actions. Prefer using diffs to compare logs.
 
 -  tool `github_actions_workflows_list`: List all github workflows.
 -  tool `github_actions_jobs_list`: List all jobs for a github workflow run.
@@ -1771,7 +1971,7 @@ Queries results from workflows in GitHub actions. Prefer using dffs to compare l
 system({
     title: "github workflows",
     description:
-        "Queries results from workflows in GitHub actions. Prefer using dffs to compare logs.",
+        "Queries results from workflows in GitHub actions. Prefer using diffs to compare logs.",
 })
 
 export default function (ctx: ChatGenerationContext) {
@@ -1824,7 +2024,7 @@ export default function (ctx: ChatGenerationContext) {
         async (args) => {
             const { workflow_id, branch, status, context, count } = args
             context.log(
-                `github action list ${status || ""} runs for ${workflow_id ? `worfklow ${workflow_id}` : `repository`} and branch ${branch || "all"}`
+                `github action list ${status || ""} runs for ${workflow_id ? `workflow ${workflow_id}` : `repository`} and branch ${branch || "all"}`
             )
             const res = await github.listWorkflowRuns(workflow_id, {
                 branch,
@@ -2412,6 +2612,115 @@ export default function (ctx: ChatGenerationContext) {
             return res
         }
     )
+}
+
+`````
+
+
+### `system.mcp`
+
+Loads tools from Model Context Protocol server
+
+This system script should be configured with a MCP server configuration.
+
+
+
+`````js wrap title="system.mcp"
+system({
+    title: "Loads tools from Model Context Protocol server",
+    description:
+        "This system script should be configured with a MCP server configuration.",
+    parameters: {
+        id: {
+            type: "string",
+            description: "The unique identifier for the MCP server.",
+            required: true,
+        },
+        command: {
+            type: "string",
+            description: "The command to run the MCP server.",
+            required: true,
+        },
+        args: {
+            type: "array",
+            items: { type: "string" },
+            description: "The arguments to pass to the command.",
+        },
+        version: {
+            type: "string",
+            description: "The version of the MCP server.",
+        },
+        maxTokens: {
+            type: "integer",
+            minimum: 16,
+            description: "Maximum number of tokens returned by the tools.",
+        },
+        toolsSha: {
+            type: "string",
+            description:
+                "The SHA256 hash of the tools returned by the MCP server.",
+        },
+        contentSafety: {
+            type: "string",
+            description: "Content safety provider",
+            enum: ["azure"],
+        },
+        detectPromptInjection: {
+            anyOf: [
+                { type: "string" },
+                { type: "boolean", enum: ["always", "available"] },
+            ],
+            description:
+                "Whether to detect prompt injection attacks in the MCP server.",
+        },
+        intent: {
+            type: "any",
+            description: "the intent of the tools",
+        },
+    },
+})
+
+export default function (ctx: ChatGenerationContext) {
+    const { env, defTool } = ctx
+    const { vars } = env
+    const dbg = host.logger("genaiscript:mcp:system")
+
+    const id = vars["system.mcp.id"] as string
+    const command = vars["system.mcp.command"] as string
+    const args = (vars["system.mcp.args"] as string[]) || []
+    const version = vars["system.mcp.version"] as string
+    const maxTokens = vars["system.mcp.maxTokens"] as number
+    const toolsSha = vars["system.mcp.toolsSha"] as string
+    const contentSafety = vars[
+        "system.mcp.contentSafety"
+    ] as ContentSafetyOptions["contentSafety"]
+    const detectPromptInjection = vars[
+        "system.mcp.detectPromptInjection"
+    ] as ContentSafetyOptions["detectPromptInjection"]
+    const intent = vars["system.mcp.intent"]
+
+    if (!id) throw new Error("Missing required parameter: id")
+    if (!command) throw new Error("Missing required parameter: command")
+
+    const config = {
+        command,
+        args,
+        version,
+        toolsSha,
+        contentSafety,
+        detectPromptInjection,
+        intent,
+    } satisfies Omit<McpServerConfig, "id">
+    const toolOptions = {
+        maxTokens,
+        contentSafety,
+        detectPromptInjection,
+    } satisfies DefToolOptions
+    dbg(`loading %s %O %O`, id, config, toolOptions)
+    const configs = {
+        [id]: config,
+    } satisfies McpServersConfig
+    defTool(configs, toolOptions)
 }
 
 `````
@@ -3593,7 +3902,12 @@ export default function (ctx: ChatGenerationContext) {
     defChatParticipant((ctx, messages) => {
         const assistants = messages.filter(({ role }) => role === "assistant")
         const matches = assistants.filter(({ content }) =>
-            canaries.some((canary) => content.includes(canary))
+            canaries.some(
+                (canary) =>
+                    (typeof content === "string" && content.includes(canary)) ||
+                    (Array.isArray(content) &&
+                        content.some((c) => c.text?.includes(canary)))
+            )
         )
         if (matches.length > 0)
             throw new Error("Canary word detected in assistant message")
@@ -3861,12 +4175,7 @@ export default async function (ctx: ChatGenerationContext) {
             },
             required: ["thought"],
         },
-        async ({ thought }) => {
-            const res = runPrompt(thought, {
-                model: "think",
-            })
-            return res
-        }
+        async ({ thought }) => thought
     )
 
     $`## Using the think tool
@@ -4421,6 +4730,117 @@ export default function (ctx: ChatGenerationContext) {
                 }
             )
             return res
+        }
+    )
+}
+
+`````
+
+
+### `system.z3`
+
+Zero-shot Chain Of Thought
+
+Zero-shot Chain Of Thought technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.
+
+-  tool `z3`: Solves a SMTLIB2 problem using the Z3 constraint solver. Send problems one at a time. Use this tool if you need to run Z3.
+
+`````js wrap title="system.z3"
+system({
+    title: "Zero-shot Chain Of Thought",
+    description:
+        "Zero-shot Chain Of Thought technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
+})
+const dbg = host.logger("system:z3")
+
+let _z3: Promise<ReturnType<(typeof import("z3-solver"))["init"]>> = undefined
+
+async function importZ3(): Promise<
+    ReturnType<(typeof import("z3-solver"))["init"]>
+> {
+    try {
+        dbg(`importing z3-solver`)
+        const z3 = await import("z3-solver")
+        dbg(`initializing`)
+        const res = await z3.init()
+        dbg(`initialized`)
+        return res
+    } catch (e) {
+        dbg(e?.message)
+        return undefined
+    }
+}
+
+async function Z3Run(context: ToolCallContext, input: string) {
+    // init z3
+    const z3p = await (_z3 || (_z3 = importZ3()))
+    if (!z3p) {
+        context.log(
+            "Z3 not available. Make sure to install the https://www.npmjs.com/package/z3-solver package."
+        )
+        return undefined
+    }
+
+    const { Z3 } = z3p
+    // done on every snippet
+    const cfg = Z3.mk_config()
+    const ctx = Z3.mk_context(cfg)
+    Z3.del_config(cfg)
+
+    const timeStart = new Date().getTime()
+    const timeout = 10000
+
+    Z3.global_param_set("timeout", String(timeout))
+
+    let output = ""
+    let error = ""
+
+    try {
+        output = (await Z3.eval_smtlib2_string(ctx, input)) ?? ""
+    } catch (e) {
+        // error with running z3
+        error = e.message ?? "Error message is empty"
+    } finally {
+        Z3.del_context(ctx)
+    }
+
+    if (/unknown/.test(output)) {
+        const timeEnd = new Date().getTime()
+        if (timeEnd - timeStart >= timeout) {
+            output = output + "\nZ3 timeout\n"
+        }
+    }
+
+    // we are guaranteed to have non-undefined output and error
+    if (!error) return output
+    else
+        return `error: ${error}
+
+${output || ""}`
+}
+
+export default async function (_: ChatGenerationContext) {
+    const { defTool } = _
+
+    defTool(
+        "z3",
+        "Solves a SMTLIB2 problem using the Z3 constraint solver. Send problems one at a time. Use this tool if you need to run Z3.",
+        {
+            type: "object",
+            properties: {
+                smtlib2: {
+                    type: "string",
+                    description: "SMTLIB2 problem to solve",
+                },
+            },
+            required: ["smtlib2"],
+        },
+        async (args) => {
+            const { context, smtlib2 } = args
+            dbg(`query: ${smtlib2}`)
+            const result = await Z3Run(context, smtlib2)
+            dbg(`result: ${result}`)
+            return result
         }
     )
 }

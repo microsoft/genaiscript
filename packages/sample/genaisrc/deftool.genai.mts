@@ -2,7 +2,7 @@ import { calculator } from "@agentic/calculator"
 
 // usual
 defTool("foo", "bar", {}, () => "")
-// Toolcallback
+// Tool callback
 defTool({
     spec: {
         name: "test",
@@ -17,4 +17,4 @@ defTool({
     },
 })
 // agentic
-defTool(calculator)
+defTool(calculator as any)

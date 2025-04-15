@@ -2,7 +2,7 @@ import { serializeError } from "serialize-error"
 import { CancellationOptions } from "./cancellation"
 import { CreateTranscriptionRequest, LanguageModel } from "./chat"
 import { MODEL_PROVIDER_WHISPERASR } from "./constants"
-import { traceFetchPost } from "./fetch"
+import { traceFetchPost } from "./fetchtext"
 import { getConfigHeaders } from "./openai"
 import { LanguageModelConfiguration } from "./server/messages"
 import { TraceOptions } from "./trace"
@@ -58,7 +58,7 @@ async function WhisperASRTranscribe(
     }
 }
 
-export const WhiserAsrModel: LanguageModel = Object.freeze({
+export const WhisperAsrModel: LanguageModel = Object.freeze({
     id: MODEL_PROVIDER_WHISPERASR,
     transcriber: WhisperASRTranscribe,
 } satisfies LanguageModel)

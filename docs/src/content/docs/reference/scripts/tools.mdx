@@ -107,7 +107,7 @@ script({
         {
             id: "system.agent_git", // same system script
             parameters: { repo: "microsoft/genaiscript" } // but with new parameters
-            variant: "genaiscript" // appened to the identifier to keep tool identifiers unique
+            variant: "genaiscript" // appended to the identifier to keep tool identifiers unique
         }
     ]
 })
@@ -131,20 +131,6 @@ defTool({
 
 See [Model Context Protocol Tools](/genaiscript/reference/scripts/mcp-tools) for more information.
 
-## Agentic Tools
-
-[Agentic](https://agentic.so) is
-a standard library of AI functions / tools
-which are optimized for both normal TS-usage as well as LLM-based usage.
-You can register any agentic tool in your script using `defTool`.
-
-```js
-import { calculator } from "@agentic/calculator"
-defTool(calculator)
-```
-
-See [Agentic tools](/genaiscript/guides/agentic-tools) for more information.
-
 ## Fallback Tool Support <a href="" id="fallbacktools" />
 
 Some LLM models do not have built-in model support.
@@ -167,7 +153,7 @@ script({
 })
 ```
 
-- or add the `--fallack-tools` flag to the CLI
+- or add the `--fallback-tools` flag to the CLI
 
 ```sh "--fallback-tools"
 npx genaiscript run ... --fallback-tools
@@ -178,6 +164,46 @@ npx genaiscript run ... --fallback-tools
 The performance of this feature will vary greatly based on the LLM model you decide to use.
 
 :::
+
+## Prompt Injection Detection
+
+A tool may retrieve data that contains prompt injection attacks. For example, a tool that fetches a URL may return a page that contains prompt injection attacks.
+
+To prevent this, you can enable the `detectPromptInjection` option. It will run your [content safety scanner](/genaiscript/reference/scripts/content-safety) services
+on the tool output and will erase the answer if an attack is detected.
+
+```js 'detectPromptInjection: "always"'
+defTool("fetch", "Fetch a URL", {
+    url: {
+        type: "string",
+        description: "The URL to fetch",
+    },
+}, async (args) => ...,
+{
+    detectPromptInjection: "always",
+})
+```
+
+## Output Intent validation
+
+You can configure GenAIScript to execute a LLM-as-a-Judge validation of the tool result based on the description or a custom intent.
+The LLM-as-a-Judge will happen on every tool response using the `intent` model alias, which maps to `small` by default.
+
+The `description` intent is a special value that gets expanded to the tool description.
+
+```js 'intent: "description"''
+defTool(
+    "fetch",
+    "Gets the live weather",
+    {
+        location: "Seattle",
+    },
+    async (args) => { ... },
+    {
+        intent: "description",
+    }
+)
+```
 
 ## Packaging as System scripts
 

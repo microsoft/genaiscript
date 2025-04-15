@@ -1,14 +1,27 @@
 ---
 title: Unlocking the Power of Prompts - A Gentle Introduction to GenAIScript 🚀
-description: Learn how to use GenAIScript for prompt generation and more with this engaging introduction.
-tags: [GenAIScript, JavaScript, AI, LLM, Prompt Engineering]
+description: Learn how to use GenAIScript for prompt generation and more with
+  this engaging introduction.
+tags:
+  - GenAIScript
+  - JavaScript
+  - AI
+  - LLM
+  - Prompt Engineering
 date: 2024-08-20
-authors: 
-    - genaiscript
-    - pelikhan
+authors:
+  - genaiscript
+  - pelikhan
 cover:
-    alt: Screenshot of GenAIScript in the VS Code marketplace
-    image: ./gentle-introduction-to-genaiscript.png
+  alt: Screenshot of GenAIScript in the VS Code marketplace
+  image: ./gentle-introduction-to-genaiscript.png
+excerpt: Curious about integrating Large Language Models into your workflows?
+  Discover how GenAIScript streamlines prompt creation, automates structured
+  results, and supports various LLMs like OpenAI and GitHub Models. From adding
+  context to leveraging metadata, it provides flexibility to fit your unique
+  needs. Learn more about optimizing your interactions with AI tools
+  effectively.
+
 ---
 
 Ever wondered how to leverage the power of AI and Large Language Models (LLMs) in your projects? Look no further! 

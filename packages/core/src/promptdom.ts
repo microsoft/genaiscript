@@ -50,6 +50,12 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { redactSecrets } from "./secretscanner"
 import { escapeToolName } from "./tools"
 import { measure } from "./performance"
+import debug from "debug"
+import { imageEncodeForLLM } from "./image"
+import { providerFeatures } from "./features"
+import { parseModelIdentifier } from "./models"
+const dbg = debug("genaiscript:prompt:dom")
+const dbgMcp = debug("genaiscript:prompt:dom:mcp")
 
 // Definition of the PromptNode interface which is an essential part of the code structure.
 export interface PromptNode extends ContextExpansionOptions {
@@ -178,6 +184,7 @@ export interface PromptToolNode extends PromptNode {
     parameters: JSONSchema // Parameters for the function
     impl: ChatFunctionHandler // Implementation of the function
     options?: DefToolOptions
+    generator: ChatGenerationContext
 }
 
 export interface PromptMcpServerNode extends PromptNode {
@@ -478,6 +485,40 @@ export function createImageNode(
     return { type: "image", value, ...(options || {}) }
 }
 
+export function createFileImageNodes(
+    name: string,
+    file: WorkspaceFile,
+    defOptions?: DefImagesOptions,
+    options?: TraceOptions & CancellationOptions
+): PromptNode[] {
+    const { trace, cancellationToken } = options || {}
+    const filename =
+        file.filename && !/^data:\/\//.test(file.filename)
+            ? file.filename
+            : undefined
+    return [
+        name
+            ? createTextNode(
+                  `<${name}${filename ? ` filename="${filename}"` : ``}>`
+              )
+            : undefined,
+        createImageNode(
+            (async () => {
+                const encoded = await imageEncodeForLLM(file, {
+                    ...(defOptions || {}),
+                    cancellationToken,
+                    trace,
+                })
+                return {
+                    filename: file.filename,
+                    ...encoded,
+                }
+            })()
+        ),
+        name ? createTextNode(`</${name}>`) : undefined,
+    ].filter((n) => !!n)
+}
+
 /**
  * Creates a schema node with a specified name, value, and optional configuration.
  *
@@ -504,7 +545,8 @@ export function createToolNode(
     description: string,
     parameters: JSONSchema,
     impl: ChatFunctionHandler,
-    options?: DefToolOptions
+    options: DefToolOptions,
+    generator: ChatGenerationContext
 ): PromptToolNode {
     assert(!!name)
     assert(!!description)
@@ -517,6 +559,7 @@ export function createToolNode(
         parameters,
         impl,
         options,
+        generator,
     } satisfies PromptToolNode
 }
 
@@ -585,11 +628,12 @@ export function createImportTemplate(
 export function createMcpServer(
     id: string,
     config: McpServerConfig,
-    options?: DefToolOptions
+    options: DefToolOptions,
+    generator: ChatGenerationContext
 ): PromptMcpServerNode {
     return {
         type: "mcpServer",
-        config: { ...config, id, options },
+        config: { ...config, generator, id, options },
     } satisfies PromptMcpServerNode
 }
 
@@ -628,11 +672,14 @@ export function createDefData(
 }
 
 // Function to append a child node to a parent node.
-export function appendChild(parent: PromptNode, child: PromptNode): void {
+export function appendChild(
+    parent: PromptNode,
+    ...children: PromptNode[]
+): void {
     if (!parent.children) {
         parent.children = []
     }
-    parent.children.push(child)
+    parent.children.push(...children)
 }
 
 // Interface for visiting different types of prompt nodes.
@@ -717,12 +764,11 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
     await visitor.afterNode?.(node)
 }
 
-// Interface for representing a rendered prompt node.
-export interface PromptNodeRender {
+interface PromptNodeRender {
     images: PromptImage[] // Images included in the prompt
     errors: unknown[] // Errors encountered during rendering
     schemas: Record<string, JSONSchema> // Schemas included in the prompt
-    functions: ToolCallback[] // Functions included in the prompt
+    tools: ToolCallback[] // tools included in the prompt
     fileMerges: FileMergeHandler[] // File merge handlers
     outputProcessors: PromptOutputProcessorHandler[] // Output processor handlers
     chatParticipants: ChatParticipant[] // Chat participants
@@ -733,12 +779,12 @@ export interface PromptNodeRender {
 }
 
 /**
- * Determines the default fence format for a given model ID.
+ * Resolves and returns the default fence format.
  *
- * @param modelid - The identifier of the model for which the fence format is to be resolved.
- * @returns The default fence format for the specified model.
+ * @param modelId - The identifier of the model. This parameter is currently unused.
+ * @returns The default fence format.
  */
-export function resolveFenceFormat(modelid: string): FenceFormat {
+export function resolveFenceFormat(modelId: string): FenceFormat {
     return DEFAULT_FENCE_FORMAT
 }
 
@@ -1162,10 +1208,9 @@ async function validateSafetyPromptNode(
 
     const resolveContentSafety = async () => {
         if (!_contentSafety)
-            _contentSafety =
-                (await runtimeHost.contentSafety(undefined, {
-                    trace,
-                })) || {}
+            _contentSafety = (await runtimeHost.contentSafety(undefined, {
+                trace,
+            })) || { id: undefined }
         return _contentSafety.detectPromptInjection
     }
 
@@ -1253,7 +1298,7 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
  * Main function to render a prompt node.
  *
  * Resolves, deduplicates, flexes, truncates, and validates the prompt node.
- * Handles various node types including text, system, assistant, schemas, tools, images, file merges, outputs, and more.
+ * Handles various node types including text, system, assistant, schemas, tools, images, file merges, outputs, chat participants, MCP servers, and more.
  * Supports tracing, safety validation, token management, and MCP server integration.
  *
  * Parameters:
@@ -1262,7 +1307,7 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
  * - options: Optional configurations for model templates, tracing, cancellation, token flexibility, and MCP server handling.
  *
  * Returns:
- * - A rendered prompt node with associated metadata, messages, resources, tools, errors, and disposables.
+ * - A rendered prompt node with associated metadata, messages, resources, tools, errors, disposables, schemas, images, file outputs, and prediction.
  */
 export async function renderPromptNode(
     modelId: string,
@@ -1403,7 +1448,7 @@ ${trimNewlines(schemaText)}
                 )
         },
         tool: (n) => {
-            const { description, parameters, impl: fn, options } = n
+            const { description, parameters, impl: fn, options, generator } = n
             const { variant, variantDescription } = options || {}
             const name = escapeToolName(
                 variant ? `${n.name}_${variant}` : n.name
@@ -1414,6 +1459,7 @@ ${trimNewlines(schemaText)}
                     description: variantDescription || description,
                     parameters,
                 },
+                generator,
                 impl: fn,
                 options,
             })
@@ -1450,12 +1496,17 @@ ${trimNewlines(schemaText)}
 
     if (mcpServers.length) {
         for (const mcpServer of mcpServers) {
+            dbgMcp(`starting server ${mcpServer.id}`)
             const res = await runtimeHost.mcp.startMcpServer(mcpServer, {
                 trace,
             })
             disposables.push(res)
-            const tools = await res.listTools()
-            tools.push(...tools)
+            const mcpTools = await res.listTools()
+            dbgMcp(
+                `tools %O`,
+                mcpTools?.map((t) => t.spec.name)
+            )
+            tools.push(...mcpTools)
         }
     }
     m()
@@ -1463,7 +1514,7 @@ ${trimNewlines(schemaText)}
     const res = Object.freeze<PromptNodeRender>({
         images,
         schemas,
-        functions: tools,
+        tools,
         fileMerges,
         outputProcessors,
         chatParticipants,
@@ -1473,6 +1524,11 @@ ${trimNewlines(schemaText)}
         prediction,
         disposables,
     })
+
+    dbg(
+        `${res.messages.length} messages, tools: %o`,
+        res.tools.map((t) => t.spec.name)
+    )
     return res
 }
 
@@ -1494,13 +1550,16 @@ ${trimNewlines(schemaText)}
  * @returns An object containing response type and schema details.
  */
 export function finalizeMessages(
+    model: string,
     messages: ChatCompletionMessageParam[],
     options: {
         fileOutputs?: FileOutput[]
     } & ModelOptions &
         TraceOptions &
-        ContentSafetyOptions
+        ContentSafetyOptions &
+        SecretDetectionOptions
 ) {
+    dbg(`finalize messages for ${model}`)
     const m = measure("prompt.dom.finalize")
     const { fileOutputs, trace, secretScanning } = options || {}
     if (fileOutputs?.length > 0) {
@@ -1520,8 +1579,13 @@ ${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file
         options.responseSchema
     ) as JSONSchemaObject
     let responseType = options.responseType
-    if (responseSchema && !responseType && responseType !== "json_schema")
-        responseType = "json"
+
+    if (responseSchema && !responseType && responseType !== "json_schema") {
+        const { provider } = parseModelIdentifier(model)
+        const features = providerFeatures(provider)
+        responseType = features?.responseType || "json"
+        dbg(`response type: %s (auto)`, responseType)
+    }
     if (responseType) trace.itemValue(`response type`, responseType)
     if (responseSchema) {
         trace.detailsFenced("📜 response schema", responseSchema)
