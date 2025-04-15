@@ -1,5 +1,7 @@
 script({
     title: "Uses playwright MCP tools.",
+    group: "mcp",
+    accept: "none",
     mcpServers: {
         playwright: {
             command: "npx",
