@@ -5,5 +5,5 @@
     "genai": "node ../cli/built/genaiscript.cjs run",
     "test": "yarn genai poem-js-module"
   },
-  "version": "1.129.7"
+  "version": "1.129.8"
 }
