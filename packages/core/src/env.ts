@@ -61,6 +61,7 @@ import {
 } from "./server/messages"
 import { arrayify } from "./util"
 import { URL } from "node:url"
+import { uriTryParse } from "./url"
 
 /**
  * Parses the OLLAMA host environment variable and returns a standardized URL.
@@ -192,7 +193,7 @@ export async function parseTokenFromEnv(
         dbg(`retrieved OPENAI_API_KEY: ${env.OPENAI_API_KEY}`)
         let base = env.OPENAI_API_BASE
         let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai"
-        const version = env.OPENAI_API_VERSION
+        const version = env.OPENAI_API_VERSION || parseAzureVersionFromUrl(base)
         if (
             type !== "azure" &&
             type !== "openai" &&
@@ -290,14 +291,15 @@ export async function parseTokenFromEnv(
         if (base === PLACEHOLDER_API_BASE) {
             throw new Error("AZURE_OPENAI_API_ENDPOINT not configured")
         }
+        const version =
+            env[`AZURE_OPENAI_API_VERSION_${model.toLocaleUpperCase()}`] ||
+            env.AZURE_OPENAI_API_VERSION ||
+            env.AZURE_API_VERSION ||
+            parseAzureVersionFromUrl(base)
         base = cleanAzureBase(base)
         if (!URL.canParse(base)) {
             throw new Error("AZURE_OPENAI_API_ENDPOINT must be a valid URL")
         }
-        const version =
-            env[`AZURE_OPENAI_API_VERSION_${model.toLocaleUpperCase()}`] ||
-            env.AZURE_OPENAI_API_VERSION ||
-            env.AZURE_API_VERSION
         const azureCredentialsType =
             env.AZURE_OPENAI_API_CREDENTIALS?.toLowerCase().trim() as AzureCredentialsType
         return {
@@ -824,6 +826,11 @@ export async function parseTokenFromEnv(
             trimTrailingSlash(b.replace(/\/openai\/deployments.*$/, "")) +
             `/openai/deployments`
         return b
+    }
+
+    function parseAzureVersionFromUrl(url: string) {
+        const uri = uriTryParse(url)
+        return uri?.searchParams.get("api-version") || undefined
     }
 
     function cleanApiBase(b: string) {

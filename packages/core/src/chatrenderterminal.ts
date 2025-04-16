@@ -162,7 +162,7 @@ export async function renderMessagesToTerminal(
         res.push(
             wrapColor(
                 CONSOLE_COLOR_DEBUG,
-                `┌─💬 chat with ${model} (${CHAR_ENVELOPE} ${messages.length}, ~${prettyTokens(tokens, "prompt")})\n`
+                `┌─💬 ${model} ${CHAR_ENVELOPE} ${messages.length} ~${prettyTokens(tokens, "prompt")}\n`
             )
         )
     }
