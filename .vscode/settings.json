@@ -169,6 +169,7 @@
         "smtlib",
         "socketserver",
         "spinbutton",
+        "sres",
         "stackgraph",
         "stackgraphs",
         "strcmp",

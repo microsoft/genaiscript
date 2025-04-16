@@ -380,9 +380,10 @@ export class DockerManager {
         hostPath: string
     ): Promise<ContainerHost> {
         const { trace, persistent } = options
+        const dbgc = name ? dbg.extend(name) : dbg
 
         const stop: () => Promise<void> = async () => {
-            dbg(`stopping container with id ${container.id}`)
+            dbgc(`stopping`)
             await this.stopContainer(container.id)
         }
 
@@ -394,16 +395,16 @@ export class DockerManager {
         }
 
         const resume: () => Promise<void> = async () => {
-            dbg(`resuming container with id ${container.id}`)
+            dbgc(`resuming`)
             let state = await container.inspect()
             if (state.State.Status === "paused") {
-                dbg(`unpausing container`)
+                dbgc(`unpausing`)
                 await container.unpause()
             } else if (state.State.Status === "exited") {
-                dbg(`starting exited container`)
+                dbgc(`starting exited`)
                 await container.start()
             } else if (state.State.Status === "restarting") {
-                dbg(`waiting for restarting container to stabilize`)
+                dbgc(`waiting for restarting container to stabilize`)
                 let retry = 0
                 while (state.State.Restarting && retry++ < 5) {
                     await delay(1000)
@@ -415,7 +416,7 @@ export class DockerManager {
         const pause: () => Promise<void> = async () => {
             const state = await container.inspect()
             if (state.State.Running || state.State.Restarting) {
-                dbg(`pausing running or restarting container`)
+                dbgc(`pausing running or restarting`)
                 await container.pause()
             }
         }
@@ -425,6 +426,8 @@ export class DockerManager {
             args?: string[] | ShellOptions,
             options?: ShellOptions
         ): Promise<ShellOutput> => {
+            dbgc(`exec %s %o`, command, args)
+
             // Parse the command and arguments if necessary
             if (!Array.isArray(args) && typeof args === "object") {
                 // exec("cmd arg arg", {...})
@@ -447,9 +450,6 @@ export class DockerManager {
                 "/" + host.path.join(DOCKER_CONTAINER_VOLUME, userCwd || ".")
 
             try {
-                dbg(
-                    `executing command in container: ${command} ${args?.join(" ")}`
-                )
                 trace?.startDetails(
                     `📦 ▶️ container exec: ${userCwd || ""}> ${label || command}`
                 )
@@ -505,6 +505,7 @@ export class DockerManager {
                 }
                 return sres
             } catch (e) {
+                dbgc(e)
                 trace?.error(`${command} failed`, e)
                 return {
                     exitCode: -1,
@@ -517,6 +518,7 @@ export class DockerManager {
         }
 
         const writeText = async (filename: string, content: string) => {
+            dbgc(`write %s`, filename)
             const hostFilename = host.path.resolve(
                 hostPath,
                 resolveContainerPath(filename)
@@ -528,6 +530,7 @@ export class DockerManager {
         }
 
         const readText = async (filename: string) => {
+            dbgc(`read %s`, filename)
             const hostFilename = host.path.resolve(
                 hostPath,
                 resolveContainerPath(filename)
@@ -543,6 +546,7 @@ export class DockerManager {
             from: string | string[],
             to: string
         ): Promise<string[]> => {
+            dbgc(`copy %o to %s`, from, to)
             const cto = resolveContainerPath(to)
             const files = await host.findFiles(from)
             const res: string[] = []
@@ -557,6 +561,7 @@ export class DockerManager {
         }
 
         const listFiles = async (to: string) => {
+            dbgc(`list files %s`, to)
             const source = host.path.resolve(hostPath, resolveContainerPath(to))
             try {
                 const files = await readdir(source)
@@ -567,7 +572,7 @@ export class DockerManager {
         }
 
         const disconnect = async () => {
-            dbg(`disconnecting container from networks`)
+            dbgc(`disconnect network`)
             const networks = await this._docker.listNetworks()
             for (const network of networks.filter(
                 ({ Name }) => Name === "bridge"
