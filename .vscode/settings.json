@@ -19,6 +19,7 @@
         "azuretoken",
         "bitindex",
         "blockslist",
+        "cancellers",
         "cctx",
         "changeext",
         "chatencoder",
