@@ -48,7 +48,10 @@ async function renderMessageContent(
         const head = Math.min(rows >> 1, lines.length)
         const tail = Math.max(0, lines.length - (rows - head))
         const trimmed = lines.slice(0, head)
-        if (tail) trimmed.push("...", ...lines.slice(tail))
+        if (tail) {
+            if (head + tail < lines.length) trimmed.push("...")
+            trimmed.push(...lines.slice(tail))
+        }
         const res = trimmed.map((l) =>
             wrapColor(CONSOLE_COLOR_DEBUG, "│" + ellipse(l, width) + "\n")
         )
