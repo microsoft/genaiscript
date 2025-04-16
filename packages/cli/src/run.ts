@@ -360,24 +360,29 @@ export async function runScriptInternal(
             resolvedFiles.add(arg)
             continue
         }
-        const stats = await host.statFile(arg)
-        if (stats?.type === "directory") {
-            dbg(`path is directory, expanding children`)
-            arg = host.path.join(arg, "**", "*")
-        }
-        dbg(`find ${arg}`)
-        const ffs = await host.findFiles(arg, {
-            applyGitIgnore,
-        })
-        if (!ffs?.length && arg.includes("*")) {
-            // edge case when gitignore dumps 1 file
-            return fail(
-                `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
-                FILES_NOT_FOUND_ERROR_CODE
-            )
-        }
-        for (const file of ffs) {
-            resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
+        const stat = await host.statFile(arg)
+        if (stat?.type === "file") {
+            dbg(`add %s`, arg)
+            resolvedFiles.add(filePathOrUrlToWorkspaceFile(arg))
+        } else {
+            if (stat?.type === "directory") {
+                dbg(`path is directory, expanding children`)
+                arg = host.path.join(arg, "**", "*")
+            }
+            dbg(`expand ${arg} (apply .gitignore: ${applyGitIgnore})`)
+            const ffs = await host.findFiles(arg, {
+                applyGitIgnore,
+            })
+            if (!ffs?.length && arg.includes("*")) {
+                // edge case when gitignore dumps 1 file
+                return fail(
+                    `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
+                    FILES_NOT_FOUND_ERROR_CODE
+                )
+            }
+            for (const file of ffs) {
+                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
+            }
         }
     }
 

@@ -4,7 +4,7 @@ script({
     group: "mcp"
 })
 
-def("FILE", env.files)
+def("FILE", env.files, { maxTokens: 100 })
 
 $`Your task is to summarize each file as an emoji.
 

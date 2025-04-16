@@ -41,7 +41,6 @@ import {
     CreateChatCompletionRequest,
 } from "../../core/src/chattypes"
 import { randomHex } from "../../core/src/crypto"
-import { buildProject } from "./build"
 import * as http from "http"
 import { extname, join } from "path"
 import { createReadStream } from "fs"
@@ -320,7 +319,7 @@ export async function startServer(
         cancelAll()
     })
 
-    // send loggign messages
+    // send logging messages
     ;(runtimeHost as NodeHost).addEventListener(LOG, (ev) => {
         const lev = ev as LogEvent
         const messages = chunkLines(lev.message, WS_MAX_FRAME_CHUNK_LENGTH)

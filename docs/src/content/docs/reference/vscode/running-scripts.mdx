@@ -47,3 +47,13 @@ This mode allows to run scripts on any combination of files and folders, which w
 
 - open an file in the editor (not a GenAIScript file)
 - right-click and select **Run GenAIScript** from the context menu
+
+## .gitignore rules
+
+GenAIScript tries to respect the **top-level `.gitignore` rules in the project workspace** (it ignores nested .gitignore files).
+This means that if you have a `.gitignore` file in your project, GenAIScript will ignore any files or folders that are ignored by Git.
+
+There are exceptions to this rule:
+
+- if you run **Run GenAIScript** on individual files, those files are not filtered by `.gitignore` since you explicitly chose them. Folders are always filtered.
+- if you specify `---ignore-git-ignore` in the command line, GenAIScript will ignore the `.gitignore` file and run the script on all files and folders.
