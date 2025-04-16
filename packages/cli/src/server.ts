@@ -61,6 +61,7 @@ import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { nodeTryReadPackage } from "../../core/src/nodepackage"
 import { genaiscriptDebug } from "../../core/src/debug"
+import { startProjectWatcher } from "./watch"
 const dbg = genaiscriptDebug("server")
 
 /**
@@ -105,6 +106,7 @@ export async function startServer(
     const cwd = process.cwd()
 
     await applyRemoteOptions(options)
+    const watcher = await startProjectWatcher({})
 
     // read current project info
     const { name, displayName, description, version, homepage, author } =
@@ -231,7 +233,7 @@ export async function startServer(
 
     const scriptList = async () => {
         logVerbose(`project: list scripts`)
-        const project = await buildProject()
+        const project = await watcher.project()
         const scripts = project?.scripts || []
         logVerbose(
             `project: found ${scripts.filter((s) => !s.unlisted).length} scripts (${scripts.filter((s) => !!s.unlisted).length} unlisted)`

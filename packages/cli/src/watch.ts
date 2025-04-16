@@ -2,12 +2,13 @@ import { FSWatcher, watch } from "chokidar"
 import { basename, resolve } from "node:path"
 import { CHANGE, CLOSE, GENAI_ANY_REGEX, OPEN } from "../../core/src/constants"
 import { createGitIgnorer } from "../../core/src/gitignore"
-import { tsImport } from "tsx/esm/api"
 import { Project } from "../../core/src/server/messages"
 import { buildProject } from "./build"
 import { filterScripts, ScriptFilterOptions } from "../../core/src/ast"
 import { CancellationOptions, toSignal } from "../../core/src/cancellation"
-import { logError, logVerbose } from "../../core/src/util"
+import { logError } from "../../core/src/util"
+import { genaiscriptDebug } from "../../core/src/debug"
+const dbg = genaiscriptDebug("watch")
 
 interface ProjectWatcherOptions extends ScriptFilterOptions {
     paths: ElementOrArray<string>
@@ -32,6 +33,7 @@ export class ProjectWatcher extends EventTarget {
     async open() {
         if (this._watcher) return
 
+        dbg(`starting`)
         await this.refresh()
         const { paths, cwd } = this.options
         const gitIgnorer = await createGitIgnorer()
@@ -62,6 +64,7 @@ export class ProjectWatcher extends EventTarget {
             cwd,
         })
         const changed = () => {
+            dbg(`changed`)
             this.dispatchEvent(new Event(CHANGE))
         }
         this._watcher
@@ -78,7 +81,10 @@ export class ProjectWatcher extends EventTarget {
     }
 
     async project() {
-        if (!this._project) this._project = await buildProject()
+        if (!this._project) {
+            dbg(`building project`)
+            this._project = await buildProject()
+        }
         return this._project
     }
 
@@ -91,6 +97,7 @@ export class ProjectWatcher extends EventTarget {
     }
 
     async close() {
+        dbg(`closing`)
         await this._watcher?.close()
         this._watcher = undefined
         this.dispatchEvent(new Event(CLOSE))
