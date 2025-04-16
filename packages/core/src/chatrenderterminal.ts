@@ -43,12 +43,12 @@ async function renderMessageContent(
 
     const render = (s: string) => {
         const lines = s.split(/\n/g).filter((l) => !!l)
-        const trimmed = lines.slice(-rows)
+        const trimmed = lines.slice(0, rows >> 1)
+        if (lines.length > rows) trimmed.push("...")
+        trimmed.push(...lines.slice(-(rows >> 1)))
         const res = trimmed.map((l) =>
             wrapColor(CONSOLE_COLOR_DEBUG, "│" + ellipse(l, width) + "\n")
         )
-        if (lines.length > trimmed.length)
-            res.unshift(wrapColor(CONSOLE_COLOR_DEBUG, "│...\n"))
         return res
     }
 

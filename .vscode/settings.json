@@ -21,6 +21,7 @@
         "blockslist",
         "cctx",
         "changeext",
+        "chatencoder",
         "chattypes",
         "Chunker",
         "chunkers",
