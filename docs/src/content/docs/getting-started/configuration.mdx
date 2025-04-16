@@ -22,7 +22,10 @@ import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?r
 import oaiModelsSrc from "../../../assets/openai-model-names.png"
 import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
 
-import { AZURE_OPENAI_API_VERSION } from "../../../../../packages/core/src/constants"
+import {
+    AZURE_OPENAI_API_VERSION,
+    AZURE_AI_INFERENCE_VERSION,
+} from "../../../../../packages/core/src/constants"
 
 You will need to configure the LLM connection and authorization secrets. You can use remote (like OpenAI, Azure, etc.) and local models (like Ollama, Jan, LMStudio, etc.) with GenAIScript.
 
@@ -619,7 +622,7 @@ that are supported in GenAIScript:
 - with deployments for non-OpenAI models, use the [Azure AI Serverless Models](#azure_serverless_models) provider.
 
 You can deploy "serverless" models through [Azure AI Foundry](https://ai.azure.com/) and pay as you go per token.
-You can browse the [Azure AI Foundary model catalog](https://ai.azure.com/explore/models)
+You can browse the [Azure AI Foundry model catalog](https://ai.azure.com/explore/models)
 and use the [serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) filter to see the available models.
 
 There are two types of serverless deployments that require different configurations: OpenAI models and all other models.
@@ -725,6 +728,18 @@ script({ model: "azure_ai_inference:model-id" })
 </ol>
 
 </Steps>
+
+#### API Version
+
+The default API version for Azure AI Inference is {AZURE_AI_INFERENCE_VERSION}.
+You can change it by setting the `AZURE_AI_INFERENCE_API_VERSION` environment variable
+(see [Azure AI Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation))
+
+```txt title=".env"
+AZURE_AI_INFERENCE_API_VERSION=2025-01-01-preview
+```
+
+<LLMProviderFeatures provider="azure_ai_inference" />
 
 ### Azure AI OpenAI Serverless <a href="" id="azure_serverless" />
 
