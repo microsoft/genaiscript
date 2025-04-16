@@ -46,14 +46,12 @@ async function renderMessageContent(
     const render = (s: string) => {
         const lines = s.split(/\n/g).filter((l) => !!l)
         const head = Math.min(rows >> 1, lines.length)
-        const tail = Math.max(0, lines.length - (rows - head))
+        const tail = Math.max(0, lines.length - 1 - (rows - head))
         const trimmed = lines.slice(0, head)
         if (tail) {
             const hidden = lines.length - head - tail
-            if (hidden > 0)
-                trimmed.push(
-                    `... (${hidden} ${hidden > 1 ? "lines" : "line"} hidden)`
-                )
+            if (hidden === 1) trimmed.push(lines[tail - 1])
+            else if (hidden > 0) trimmed.push(`... (${hidden} lines)`)
             trimmed.push(...lines.slice(tail))
         }
         const res = trimmed.map((l) =>
