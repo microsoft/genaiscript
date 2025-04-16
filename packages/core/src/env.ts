@@ -830,7 +830,12 @@ export async function parseTokenFromEnv(
 
     function parseAzureVersionFromUrl(url: string) {
         const uri = uriTryParse(url)
-        return uri?.searchParams.get("api-version") || undefined
+        const v = uri?.searchParams.get("api-version") || undefined
+        // azure:gpt-4o_2024-11-20
+        // {api-version}
+        if (v?.startsWith("{")) return undefined
+
+        return v
     }
 
     function cleanApiBase(b: string) {
