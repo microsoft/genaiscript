@@ -1,13 +1,12 @@
-import debug from "debug"
-const dbg = debug("genaiscript:fs")
 
-import { lstat, mkdir, writeFile } from "fs/promises"
+import { lstat, mkdir, writeFile, readFile, rm } from "fs/promises"
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
-import { readFile } from "fs/promises"
 import { dirname } from "path"
 import { JSON5TryParse } from "./json5"
 import { homedir } from "os"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("fs")
 
 /**
  * Changes the file extension of a given file name.

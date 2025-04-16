@@ -1,10 +1,6 @@
-import debug from "debug"
-const dbg = debug("genaiscript:docker")
-
 import MemoryStream from "memorystream"
 import { finished } from "stream/promises"
-import { remove } from "fs-extra"
-import { copyFile, readFile, writeFile, readdir } from "fs/promises"
+import { copyFile, readFile, writeFile, readdir, rm } from "fs/promises"
 import {
     DOCKER_DEFAULT_IMAGE,
     DOCKER_VOLUMES_DIR,
@@ -24,8 +20,15 @@ import { delay } from "es-toolkit"
 import { generateId } from "../../core/src/id"
 import { dotGenaiscriptPath } from "../../core/src/workdir"
 import { ensureDir } from "../../core/src/fs"
+import { genaiscriptDebug } from "../../core/src/debug"
+const dbg = genaiscriptDebug("docker")
 
 type DockerodeType = import("dockerode")
+
+function dbgContainer(c: ContainerHost) {
+    const name = c?.name
+    return name ? dbg.extend(name) : dbg
+}
 
 export class DockerManager {
     private containers: ContainerHost[] = []
@@ -49,28 +52,39 @@ export class DockerManager {
         if (!this._docker) {
             return
         }
+        dbg(`stopping %d containers`, this.containers?.length)
         for (const container of this.containers.filter((c) => !c.persistent)) {
-            logVerbose(`container: removing ${container.name}`)
+            logVerbose(`container: removing ${container.id}`)
+            const dbgc = dbgContainer(container)
             const c = await this._docker.getContainer(container.id)
             if (!c) {
+                dbgc(`container not found, nothing to do`)
                 continue
             }
             try {
-                dbg(`stopping container with id ${container.id}`)
+                dbgc(`stopping`)
                 await c.stop()
             } catch (e) {
+                dbgc(e)
                 logVerbose(e)
             }
             try {
-                dbg(`removing container with id ${container.id}`)
+                dbgc(`removing`)
                 await c.remove()
             } catch (e) {
+                dbgc(e)
                 logVerbose(e)
             }
             try {
-                dbg(`removing host path ${container.hostPath}`)
-                await remove(container.hostPath)
+                dbgc(`rm host path %s`, container.hostPath)
+                await rm(container.hostPath, {
+                    recursive: true,
+                    maxRetries: 3,
+                    retryDelay: 1000,
+                    force: true,
+                })
             } catch (e) {
+                dbgc(e)
                 logVerbose(e)
             }
         }
@@ -93,10 +107,17 @@ export class DockerManager {
         const i = this.containers.findIndex((c) => c.id === id)
         if (i > -1) {
             const container = this.containers[i]
+            const dbgc = dbgContainer(container)
             try {
-                dbg(`removing host path ${container.hostPath}`)
-                await remove(container.hostPath)
+                dbgc(`rm host path`)
+                await rm(container.hostPath, {
+                    recursive: true,
+                    maxRetries: 3,
+                    retryDelay: 1000,
+                    force: true,
+                })
             } catch (e) {
+                dbgc(e)
                 logError(e)
             }
             this.containers.splice(i, 1)
@@ -126,26 +147,28 @@ export class DockerManager {
         }
 
         // pull image
+        const dbgp = dbg.extend(`pull:${image}`)
         try {
-            dbg(`starting to pull image ${image}`)
+            dbgp(`starting`)
             trace?.startDetails(`📥 pull image ${image}`)
             const res = await this._docker.pull(image)
             this._docker.modem.followProgress(
                 res,
                 (err) => {
                     if (err) {
-                        dbg(`error pulling image ${image}: ${err}`)
+                        dbgp(err)
                         trace?.error(`failed to pull image ${image}`, err)
                     }
                 },
                 (ev) => {
-                    dbg(`pull progress: ${ev.progress || ev.status}`)
+                    dbgp(ev.progress || ev.status)
                     trace?.item(ev.progress || ev.status)
                 }
             )
             await finished(res)
+            dbgp(`done`)
         } catch (e) {
-            dbg(`error pulling image ${image}: ${e}`)
+            dbgp(e)
             trace?.error(`failed to pull image ${image}`, e)
             throw e
         } finally {
@@ -174,17 +197,20 @@ export class DockerManager {
                 return this._docker.getContainer(info.Id)
             }
             dbg(`no container found with the given filters`)
-        } catch {}
+        } catch (e) {
+            dbg(e)
+        }
         return undefined
     }
 
     async startContainer(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
-        dbg(`starting container with options: ${JSON.stringify(options)}`)
+        const { trace, ...dockerOptions } = options || {}
+        dbg(`starting container %O`, dockerOptions)
         await this.init()
-        const { persistent, trace } = options || {}
-        if (persistent) {
+        if (dockerOptions.persistent) {
+            dbg(`trying to find existing container`)
             const { name, hostPath } = await this.containerName(options)
             const c = this.containers.find((c) => c.name === name)
             if (c) {

@@ -23,6 +23,8 @@ import {
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { prettyTokens } from "./pretty"
 import { estimateChatTokens } from "./chatencoder"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("chat:render")
 
 async function renderMessageContent(
     msg:
@@ -43,9 +45,10 @@ async function renderMessageContent(
 
     const render = (s: string) => {
         const lines = s.split(/\n/g).filter((l) => !!l)
-        const trimmed = lines.slice(0, rows >> 1)
-        if (lines.length > rows) trimmed.push("...")
-        trimmed.push(...lines.slice(-(rows >> 1)))
+        const head = Math.min(rows >> 1, lines.length)
+        const tail = Math.max(0, lines.length - (rows - head))
+        const trimmed = lines.slice(0, head)
+        if (tail) trimmed.push("...", ...lines.slice(tail))
         const res = trimmed.map((l) =>
             wrapColor(CONSOLE_COLOR_DEBUG, "│" + ellipse(l, width) + "\n")
         )
@@ -135,6 +138,7 @@ export async function renderMessagesToTerminal(
     } = options || {}
 
     const { columns } = terminalSize()
+    dbg(`render %O`, messages)
 
     const msgRows = (msg: ChatCompletionMessageParam, visibility: boolean) =>
         msg === messages.at(-1)

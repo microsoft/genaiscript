@@ -1,5 +1,5 @@
 script({
-    model: "small",
+    model: "large",
 })
 const container = await host.container({
     image: "gcc",
@@ -7,7 +7,7 @@ const container = await host.container({
 let sourceIndex = 0
 defTool(
     "gcc",
-    "GNU Compiler Collection (GCC), C/C++ compiler",
+    "GNU Compiler Collection (GCC), C/C++ compiler. Use this tool to compile C/C++ source code.",
     {
         source: "",
     },
@@ -21,4 +21,4 @@ defTool(
     }
 )
 
-$`Generate a valid C program that prints "Hello, World!"`
+$`Generate a valid C program that prints "Hello, World!" and use gcc to validate the syntax.`
