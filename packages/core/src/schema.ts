@@ -25,20 +25,42 @@ export function isJSONSchema(obj: any) {
  * @param schema - The JSON Schema to convert. Supports objects, arrays, and primitive types.
  * @returns A string representation of function parameters, compatible with the provided schema.
  */
-export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
+export function JSONSchemaToFunctionParameters(
+    schema: JSONSchemaType | JSONSchemaTypeName
+): string {
+    return renderJSONSchemaToFunctionParameters(schema, 0)
+}
+
+function renderJSONSchemaToFunctionParameters(
+    schema: JSONSchemaType | JSONSchemaTypeName,
+    depth: number
+): string {
+    depth = depth + 1
     if (!schema) return ""
+    else if (schema === "string") return "string"
+    else if (schema === "number") return "number"
+    else if (schema === "integer") return "number"
+    else if (schema === "boolean") return "boolean"
+    else if (schema === "null") return "null"
     else if ((schema as JSONSchemaAnyOf).anyOf) {
         const anyof = schema as JSONSchemaAnyOf
         return (anyof.anyOf || [])
-            .map((x) => JSONSchemaToFunctionParameters(x))
+            .map((x) => renderJSONSchemaToFunctionParameters(x, depth))
+            .join(" | ")
+    } else if (Array.isArray(schema)) {
+        return schema
+            .filter((t) => t !== "null")
+            .map((x) => renderJSONSchemaToFunctionParameters(x, depth))
             .join(" | ")
     } else {
         const single = schema as JSONSchemaSimpleType
-        if (single.type === "array")
-            return `{ ${JSONSchemaToFunctionParameters(single.items)} }[]`
-        else if (single.type === "object") {
+        if (single.type === "array") {
+            return `{ ${renderJSONSchemaToFunctionParameters(single.items, depth)} }[]`
+        } else if (single.type === "object") {
             const required = single.required || []
-            return Object.entries(single.properties)
+            return `${depth > 1 ? `{ ` : ""}${Object.entries(
+                single.properties
+            )
                 .sort(
                     (l, r) =>
                         (required.includes(l[0]) ? -1 : 1) -
@@ -46,9 +68,9 @@ export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
                 )
                 .map(
                     ([name, prop]) =>
-                        `${name}${required.includes(name) ? "" : "?"}: ${JSONSchemaToFunctionParameters(prop)}`
+                        `${name}${required.includes(name) ? "" : "?"}: ${renderJSONSchemaToFunctionParameters(prop, depth)}`
                 )
-                .join(", ")
+                .join(", ")}${depth > 1 ? " }" : ""}`
         } else if (single.type === "string") return "string"
         else if (single.type === "boolean") return "boolean"
         else if (single.type === "number" || single.type === "integer")
