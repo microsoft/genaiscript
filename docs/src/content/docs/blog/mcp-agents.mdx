@@ -5,33 +5,37 @@ date: 2025-04-04
 author: pelikhan
 canonical_url: https://microsoft.github.io/genaiscript/blog/mcp-agents
 cover:
-  alt: A pixelated, geometric graphic depicting interconnected computer servers,
-    each surrounded by angular shield-like shapes. One server displays a browser
-    icon linked to "Playwright MCP tools," while a network grid above shows data
-    flow, emphasizing a connection to a "https://azure.microsoft.com" website
-    icon. The design uses five corporate-style colors in a minimalist layout
-    without text or human figures.
-  image: ./mcp-agents.png
+    alt:
+        A pixelated, geometric graphic depicting interconnected computer servers,
+        each surrounded by angular shield-like shapes. One server displays a browser
+        icon linked to "Playwright MCP tools," while a network grid above shows data
+        flow, emphasizing a connection to a "https://azure.microsoft.com" website
+        icon. The design uses five corporate-style colors in a minimalist layout
+        without text or human figures.
+    image: ./mcp-agents.png
 keywords:
-  - MCP
-  - agents
-  - servers
-  - tools
-  - Playwright
-  - automation
-  - browser
-  - GenAI
+    - MCP
+    - agents
+    - servers
+    - tools
+    - Playwright
+    - automation
+    - browser
+    - GenAI
 tags:
-  - MCP server configuration
-  - Parallel MCP servers
-  - Playwright MCP server
-  - Agent abstraction for MCP
-  - Browser automation tools
+    - MCP server configuration
+    - Parallel MCP servers
+    - Playwright MCP server
+    - Agent abstraction for MCP
+    - Browser automation tools
 excerpt: Configure and run multiple MCP servers in parallel with agent support.
-  Use the `mcpAgentServers` for seamless agent integration or streamline
-  directly via the `mcpServers` field to fit your automation needs.
-
+    Use the `mcpAgentServers` for seamless agent integration or streamline
+    directly via the `mcpServers` field to fit your automation needs.
 ---
+
+import BlogNarration from "../../../components/BlogNarration.astro"
+
+<BlogNarration />
 
 We've added support to configure MCP servers in the script metadata and wrap them with agents.
 As a result, you can now run multiple MCP servers in parallel, each with its own agent.

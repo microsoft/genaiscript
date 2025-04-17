@@ -2,35 +2,37 @@
 title: Creating Release Notes with GenAI
 date: 2024-08-26
 tags:
-  - release notes
-  - automation
-  - scripting
-  - software development
-  - AI
+    - release notes
+    - automation
+    - scripting
+    - software development
+    - AI
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai
 description: Learn how to automate the creation of engaging software release
-  notes using GenAI and GenAIScript.
+    notes using GenAI and GenAIScript.
 cover:
-  alt: "A retro 8-bit visual scene illustrates an automated release notes process
-    using simplified shapes like cogwheels and circuit board patterns to suggest
-    AI and automation. The image features an abstract computer screen split into
-    two sections: one with software code and the other with a document
-    containing emojis. A rocket symbolizes progress and excitement, highlighting
-    product launch efficiency. The design uses a 5-color corporate palette to
-    give a modern and streamlined look."
-  image: ./creating-release-notes-with-genai.png
+    alt:
+        "A retro 8-bit visual scene illustrates an automated release notes process
+        using simplified shapes like cogwheels and circuit board patterns to suggest
+        AI and automation. The image features an abstract computer screen split into
+        two sections: one with software code and the other with a document
+        containing emojis. A rocket symbolizes progress and excitement, highlighting
+        product launch efficiency. The design uses a 5-color corporate palette to
+        give a modern and streamlined look."
+    image: ./creating-release-notes-with-genai.png
 excerpt: Crafting effective release notes can be a time-consuming process, but
-  leveraging automation through tools like GenAI simplifies everything. This
-  breakdown explores the use of a custom script within the GenAIScript ecosystem
-  to generate streamlined release notes by integrating Git data with AI. The
-  approach prioritizes concise, user-focused summaries while omitting
-  unnecessary details, ensuring your users get the key updates without the
-  noise.
-
+    leveraging automation through tools like GenAI simplifies everything. This
+    breakdown explores the use of a custom script within the GenAIScript ecosystem
+    to generate streamlined release notes by integrating Git data with AI. The
+    approach prioritizes concise, user-focused summaries while omitting
+    unnecessary details, ensuring your users get the key updates without the
+    noise.
 ---
 
-## Automating Your Release Notes with GenAI
+import BlogNarration from "../../../components/BlogNarration.astro"
+
+<BlogNarration />
 
 Bringing a new version of a product into the world is always exciting! But alongside the thrill comes the duty of informing users about what's changed. That's where generating crisp, engaging release notes comes into play. ✨
 
@@ -75,8 +77,9 @@ We are reading the current version from `package.json` and using Git to find the
 #### Step 4: Gathering Commits
 
 ```javascript
-const { stdout: commits } = await host.exec(`git log --grep='skip ci' --invert-grep --no-merges HEAD...${tag}`)
-
+const { stdout: commits } = await host.exec(
+    `git log --grep='skip ci' --invert-grep --no-merges HEAD...${tag}`
+)
 ```
 
 This block runs a Git command to retrieve the list of commits that will be included in the release notes, excluding any with 'skip ci' in the message.
@@ -84,8 +87,9 @@ This block runs a Git command to retrieve the list of commits that will be inclu
 #### Step 5: Obtaining the Diff
 
 ```javascript
-const { stdout: diff } = await host.exec(`git diff ${tag}..HEAD --no-merges -- ':!**/package.json' ':!**/genaiscript.d.ts' ':!**/jsconfig.json' ':!docs/**' ':!.github/*' ':!.vscode/*' ':!*yarn.lock' ':!*THIRD_PARTY_NOTICES.md'`)
-
+const { stdout: diff } = await host.exec(
+    `git diff ${tag}..HEAD --no-merges -- ':!**/package.json' ':!**/genaiscript.d.ts' ':!**/jsconfig.json' ':!docs/**' ':!.github/*' ':!.vscode/*' ':!*yarn.lock' ':!*THIRD_PARTY_NOTICES.md'`
+)
 ```
 
 Next, we get the diff of changes since the last release, excluding certain files and directories that aren't relevant to the user-facing release notes.

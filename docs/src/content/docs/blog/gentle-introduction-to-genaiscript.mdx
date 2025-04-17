@@ -1,35 +1,38 @@
 ---
 title: Unlocking the Power of Prompts - A Gentle Introduction to GenAIScript 🚀
 description: Learn how to use GenAIScript for prompt generation and more with
-  this engaging introduction.
+    this engaging introduction.
 tags:
-  - GenAIScript
-  - JavaScript
-  - AI
-  - LLM
-  - Prompt Engineering
+    - GenAIScript
+    - JavaScript
+    - AI
+    - LLM
+    - Prompt Engineering
 date: 2024-08-20
 authors:
-  - genaiscript
-  - pelikhan
+    - genaiscript
+    - pelikhan
 cover:
-  alt: Screenshot of GenAIScript in the VS Code marketplace
-  image: ./gentle-introduction-to-genaiscript.png
+    alt: Screenshot of GenAIScript in the VS Code marketplace
+    image: ./gentle-introduction-to-genaiscript.png
 excerpt: Curious about integrating Large Language Models into your workflows?
-  Discover how GenAIScript streamlines prompt creation, automates structured
-  results, and supports various LLMs like OpenAI and GitHub Models. From adding
-  context to leveraging metadata, it provides flexibility to fit your unique
-  needs. Learn more about optimizing your interactions with AI tools
-  effectively.
-
+    Discover how GenAIScript streamlines prompt creation, automates structured
+    results, and supports various LLMs like OpenAI and GitHub Models. From adding
+    context to leveraging metadata, it provides flexibility to fit your unique
+    needs. Learn more about optimizing your interactions with AI tools
+    effectively.
 ---
 
-Ever wondered how to leverage the power of AI and Large Language Models (LLMs) in your projects? Look no further! 
+import BlogNarration from "../../../components/BlogNarration.astro"
+
+<BlogNarration />
+
+Ever wondered how to leverage the power of AI and Large Language Models (LLMs) in your projects? Look no further!
 This post will introduce you to [GenAIScript](https://microsoft.github.io/genaiscript), a tool designed to simplify the creation of prompts and interactions with LLMs. Let's dive in! 🌊
 
 ## What is GenAIScript?
 
-GenAIScript uses a stylized version of JavaScript to generate prompts, which are then sent to an LLM. 
+GenAIScript uses a stylized version of JavaScript to generate prompts, which are then sent to an LLM.
 Scripts are stored as files (`genaisrc/*.genai.mjs`), executed to produce the prompt text and structured results (files, diagnostics) are extracted automatically.
 
 ## Getting Started
@@ -76,7 +79,7 @@ Execute this script to see the generated user message and the assistant's respon
 <summary>👤 User</summary>
 
 ```markdown
-FILES: 
+FILES:
 file="src/samples/markdown.md"
 What is Markdown?
 Markdown is a lightweight markup language that...
@@ -91,7 +94,7 @@ Review the documents in FILES and report the 2 most important issues.
 <summary>🤖 Assistant</summary>
 
 ```markdown
-I reviewed the document in "src/samples/markdown.md" 
+I reviewed the document in "src/samples/markdown.md"
 and found the following two important issues:
 
 1. **Missing Consistency in Heading Styles**: ...
@@ -122,4 +125,3 @@ Review the documents in FILES and report the 2 most important issues.`
 - Explore more advanced scripts by following the [Prompt As Code guide](https://microsoft.github.io/genaiscript/guides/prompt-as-code).
 
 There you have it! A gentle introduction to GenAIScript to get you started on your prompt engineering journey. Happy scripting! 💻✨
-

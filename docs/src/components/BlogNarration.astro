@@ -1,0 +1,10 @@
+---
+import AudioPlayer from "./AudioPlayer.astro"
+
+interface Props {}
+
+const { url } = Astro
+const audioUrl = url.href.replace(/\/$/, "") + ".mp3"
+---
+
+<AudioPlayer src={audioUrl} />

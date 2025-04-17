@@ -4,31 +4,34 @@ date: 2025-04-11
 authors: pelikhan
 canonical_url: https://microsoft.github.io/genaiscript/blog/mcp-intents
 cover:
-  alt: "An 8-bit style illustration shows a weather tool trying to access a
-    computer file, symbolized by a small cloud and a folder graphic. Two
-    pathways extend from the tool: one pathway shows regular sunny weather
-    updates with a sun icon, while the other displays an alert warning triangle
-    for unauthorized file access. The simple geometric shapes and corporate
-    color palette give the image a clean, untextured digital appearance."
-  image: ./mcp-intents.png
+    alt: "An 8-bit style illustration shows a weather tool trying to access a
+        computer file, symbolized by a small cloud and a folder graphic. Two
+        pathways extend from the tool: one pathway shows regular sunny weather
+        updates with a sun icon, while the other displays an alert warning triangle
+        for unauthorized file access. The simple geometric shapes and corporate
+        color palette give the image a clean, untextured digital appearance."
+    image: ./mcp-intents.png
 tags:
-  - 1. Intent Validation
-  - 2. LLM as a Judge
-  - 3. MCP Tool Risks
-  - 4. Tool Description Hashing
-  - 5. Tool Misbehavior Detection
+    - 1. Intent Validation
+    - 2. LLM as a Judge
+    - 3. MCP Tool Risks
+    - 4. Tool Description Hashing
+    - 5. Tool Misbehavior Detection
 excerpt: Exploring the integration of intent validation within tool response
-  frameworks can greatly enhance their reliability. By leveraging
-  LLM-as-a-Judge, it’s possible to evaluate whether a tool functions according
-  to its predefined behavior, especially when dealing with potential tool misuse
-  or error scenarios. As demonstrated with a simple weather tool scenario,
-  intent validation can prevent actions that deviate from expected outputs,
-  ensuring greater accuracy and data integrity. This approach not only curtails
-  inappropriate tool interactions but also reinforces the importance of
-  maintaining clear tool descriptions and configurations to mitigate potential
-  risks.
-
+    frameworks can greatly enhance their reliability. By leveraging
+    LLM-as-a-Judge, it’s possible to evaluate whether a tool functions according
+    to its predefined behavior, especially when dealing with potential tool misuse
+    or error scenarios. As demonstrated with a simple weather tool scenario,
+    intent validation can prevent actions that deviate from expected outputs,
+    ensuring greater accuracy and data integrity. This approach not only curtails
+    inappropriate tool interactions but also reinforces the importance of
+    maintaining clear tool descriptions and configurations to mitigate potential
+    risks.
 ---
+
+import BlogNarration from "../../../components/BlogNarration.astro"
+
+<BlogNarration />
 
 Following up the previous post on [MCP Tool Validation](/genaiscript/blog/mcp-tool-validation),
 we have added an experimental tool intent validation to mitigate risks associated to MCP tools.
