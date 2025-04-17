@@ -44,6 +44,6 @@ const target = path.join(`./docs/public/blog/narrations`, targetName)
 console.log(`target file: ${target}`)
 await workspace.copyFile(filename, target)
 file.content = MD.updateFrontmatter(file.content, {
-    narration: "/genaiscript/blog/narrations/" + targetName,
+    narration: "/genaiscript/blog/" + targetName,
 })
 await workspace.writeFiles(file)

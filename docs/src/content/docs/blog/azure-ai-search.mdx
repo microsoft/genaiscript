@@ -3,29 +3,29 @@ title: Azure AI Search
 date: 2025-03-17
 authors: pelikhan
 tags:
-  - azure
-  - search
-  - rag
+    - azure
+    - search
+    - rag
 canonical_url: https://microsoft.github.io/genaiscript/blog/azure-ai-search
 description: Support for Azure AI Search.
 cover:
-  alt: The image shows a cartoon-like computer interface featuring a "retrieval
-    index" with a magnifying glass icon and several files, which are illustrated
-    with animal icons of cats and dogs. This represents the process of indexing
-    in a vector database. There is a visual flow from the files to the database,
-    using icons to depict cats and dogs for the purpose of similarity search.
-    The style is characterized by bold geometric shapes, using a limited
-    corporate color palette of five colors, and maintaining a simple 8-bit
-    aesthetic.
-  image: ./azure-ai-search.png
+    alt:
+        The image shows a cartoon-like computer interface featuring a "retrieval
+        index" with a magnifying glass icon and several files, which are illustrated
+        with animal icons of cats and dogs. This represents the process of indexing
+        in a vector database. There is a visual flow from the files to the database,
+        using icons to depict cats and dogs for the purpose of similarity search.
+        The style is characterized by bold geometric shapes, using a limited
+        corporate color palette of five colors, and maintaining a simple 8-bit
+        aesthetic.
+    image: ./azure-ai-search.png
 excerpt: Discover how GenAIScript simplifies interaction with Azure AI Search
-  for building vector-based search systems. With built-in support for chunking,
-  vectorization, and indexing, you can efficiently implement Retrieval Augmented
-  Generation (RAG) workflows, leveraging embeddings for similarity searches
-  across your data. Learn how to streamline file indexing and query execution
-  using straightforward functions and enhance your AI toolset.
-narration: /genaiscript/blog/narrations/azure-ai-search.mp3
-
+    for building vector-based search systems. With built-in support for chunking,
+    vectorization, and indexing, you can efficiently implement Retrieval Augmented
+    Generation (RAG) workflows, leveraging embeddings for similarity searches
+    across your data. Learn how to streamline file indexing and query execution
+    using straightforward functions and enhance your AI toolset.
+narration: blog/azure-ai-search.mp3
 ---
 
 The `retrieval` APIs has been extended to support [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
@@ -43,7 +43,7 @@ def("RAG", res)
 ```
 
 GenAIScript provides a simple and efficient way to interact with Azure AI Search. It will handle
-chunking, vecorization, and indexing of the files. The `retrieval.index` function creates an index
+chunking, vectorization, and indexing of the files. The `retrieval.index` function creates an index
 with the specified name and type. The `insertOrUpdate` function indexes the files into the database.
 Finally, the `search` function retrieves the files that match the query.
 
