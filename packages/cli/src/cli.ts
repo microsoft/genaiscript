@@ -362,6 +362,8 @@ export async function cli() {
             "-cc, --concurrency <number>",
             "number of concurrent conversions"
         )
+        .option("--no-run-trace", "disable automatic trace generation")
+        .option("--no-output-trace", "disable automatic output generation")
         .action(convertFiles)
 
     // Define 'scripts' command group for script management tasks

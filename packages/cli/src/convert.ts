@@ -60,8 +60,15 @@ export async function convertFiles(
         concurrency?: string
     }
 ): Promise<void> {
-    const { excludedFiles, rewrite, cancelWord, concurrency, ...restOptions } =
-        options || {}
+    const {
+        excludedFiles,
+        rewrite,
+        cancelWord,
+        concurrency,
+        runTrace,
+        outputTrace,
+        ...restOptions
+    } = options || {}
 
     await ensureDotGenaiscriptPath()
     const canceller = createCancellationController()
@@ -161,19 +168,33 @@ export async function convertFiles(
         if (cancellationToken.isCancellationRequested) return
         const outf = rewrite ? file.filename : file.filename + suffix
         logInfo(`${file.filename} -> ${outf}`)
-        const fileOutTrace = join(
-            outTraceDir,
-            (await hash(file.filename, { length: 7 })) + ".md"
-        )
+        const fni = await hash(file.filename, { length: 7 })
+        const fileOutTrace =
+            runTrace === false
+                ? undefined
+                : join(outTraceDir, fni + ".trace.md")
+        const fileOutOutput =
+            outputTrace === false
+                ? undefined
+                : join(outTraceDir, fni + ".output.md")
         const fileTrace = convertTrace.startTraceDetails(file.filename)
-        convertTrace.item(link("trace", fileOutTrace))
-        logVerbose(`trace: ${fileOutTrace}`)
+        if (fileOutTrace) {
+            convertTrace.item(link("trace", fileOutTrace))
+            logVerbose(`trace: ${fileOutTrace}`)
+        }
+        if (fileOutOutput) {
+            convertTrace.item(link("output", fileOutOutput))
+            logVerbose(`output: ${fileOutOutput}`)
+        }
         const m = measure("convert")
         try {
             // apply AI transformation
             const result = await run(script.filename, file.filename, {
                 label: file.filename,
                 outTrace: fileOutTrace,
+                outOutput: fileOutOutput,
+                runTrace: false,
+                outputTrace: false,
                 signal,
                 ...restOptions,
             })

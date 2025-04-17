@@ -341,7 +341,6 @@ export async function runScriptInternal(
         )
         throw new Error(`script ${scriptId} not found`)
     }
-    if (script.filename) logVerbose(`script: ${script.filename}`)
     const applyGitIgnore =
         options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     dbg(`apply gitignore: ${applyGitIgnore}`)
