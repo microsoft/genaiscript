@@ -45,7 +45,7 @@ async function renderMessageContent(
 
     const render = (s: string) => {
         const lines = s.split(/\n/g).filter((l) => !!l)
-        const head = Math.min(rows >> 1, lines.length)
+        const head = Math.min(rows >> 1, lines.length - 1)
         const tail = rows - head
         const trimmed = lines.slice(0, head)
         if (tail) {

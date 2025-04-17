@@ -43,7 +43,7 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     let cost = MODEL_PRICINGS[mid]
     if (!cost) {
         const m = model.match(
-            /^gpt-(3\.5|4|4o|o1|o3|o1-mini|o1-preview|4o-mini|o3-mini|4\.1|4\.1-mini|4\.1-nano)/
+            /^gpt-(3\.5|4|4o|o1|o3|o4|o4-mini|o1-mini|o1-preview|4o-mini|o3-mini|4\.1|4\.1-mini|4\.1-nano)/
         )
         if (m) {
             model = m[0]

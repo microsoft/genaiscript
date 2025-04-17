@@ -248,8 +248,6 @@ Options:
   -c, --cache                        enable LLM result cache
   -cn, --cache-name <name>           custom cache file name
   -cc, --concurrency <number>        number of concurrent conversions
-  --no-run-trace                     disable automatic trace generation
-  --no-output-trace                  disable automatic output generation
   -h, --help                         display help for command
 ```
 
