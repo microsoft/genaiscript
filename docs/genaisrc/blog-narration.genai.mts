@@ -129,7 +129,7 @@ console.log(`audio file: ${filename}`)
 
 console.log(`target file: ${target}`)
 await workspace.copyFile(filename, target)
-//file.content = MD.updateFrontmatter(file.content, {
-//    narration: "/genaiscript/blog/" + targetName,
-//})
-//await workspace.writeFiles(file)
+// convert to video
+await host.exec(
+    `ffmpeg -loop 1 -i docs/src/assets/logo.svg -i "${target}" -c:v libx264 -c:a copy -shortest "${path.changeext(target, ".mp4")}"`
+)
