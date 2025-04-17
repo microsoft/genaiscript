@@ -28,10 +28,14 @@ export function isJSONSchema(obj: any) {
 export function JSONSchemaToFunctionParameters(schema: JSONSchemaType): string {
     if (!schema) return ""
     else if ((schema as JSONSchemaAnyOf).anyOf) {
+        const anyof = schema as JSONSchemaAnyOf
+        return (anyof.anyOf || [])
+            .map((x) => JSONSchemaToFunctionParameters(x))
+            .join(" | ")
     } else {
         const single = schema as JSONSchemaSimpleType
         if (single.type === "array")
-            return `args: (${JSONSchemaToFunctionParameters(single.items)})[]`
+            return `{ ${JSONSchemaToFunctionParameters(single.items)} }[]`
         else if (single.type === "object") {
             const required = single.required || []
             return Object.entries(single.properties)

@@ -25,7 +25,7 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { prettyTemperature, prettyTokens } from "./pretty"
 import { estimateChatTokens } from "./chatencoder"
 import { genaiscriptDebug } from "./debug"
-import { JSONSchemaStringifyToTypeScript } from "./schema"
+import { JSONSchemaToFunctionParameters } from "./schema"
 const dbg = genaiscriptDebug("chat:render")
 
 function renderTrimmed(s: string, rows: number, width: number) {
@@ -187,7 +187,7 @@ export async function renderMessagesToTerminal(
             res.push(
                 wrapColor(
                     CONSOLE_COLOR_DEBUG,
-                    `│ ${JSON.stringify(json_schema.schema?.properties)}\n`
+                    `│ ${JSONSchemaToFunctionParameters(json_schema.schema as any)}\n`
                 )
             )
         }
