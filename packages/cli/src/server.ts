@@ -11,6 +11,7 @@ import {
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     WS_MAX_FRAME_LENGTH,
     LOG,
+    TRACE_FILENAME,
     WS_MAX_FRAME_CHUNK_LENGTH,
 } from "../../core/src/constants"
 import { isCancelError, serializeError } from "../../core/src/error"
@@ -783,7 +784,9 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                         const runResult =
                             (await tryReadJSON(join(run.dir, "res.json"))) || {}
                         const runTrace =
-                            (await tryReadText(join(run.dir, "trace.md"))) || ""
+                            (await tryReadText(
+                                join(run.dir, TRACE_FILENAME)
+                            )) || ""
                         response = (<PromptScriptEndResponseEvent>{
                             ok: true,
                             type: "script.end",

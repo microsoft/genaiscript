@@ -160,7 +160,7 @@ export const CONVERTS_DIR_NAME = "converts"
 export const TEST_RUNS_DIR_NAME = "test-runs"
 export const STATS_DIR_NAME = "stats"
 export const TRACE_FILENAME = "trace.md"
-export const OUTPUT_FILENAME = "output.md"
+export const OUTPUT_FILENAME = "readme.md"
 
 export const EMOJI_SUCCESS = "✅"
 export const EMOJI_FAIL = "❌"

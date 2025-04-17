@@ -5,6 +5,7 @@ import {
     JSON5_REGEX,
     TRACE_FILENAME,
     YAML_REGEX,
+    OUTPUT_FILENAME,
 } from "../../core/src/constants"
 import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs"
 import { host } from "../../core/src/host"
@@ -172,11 +173,11 @@ export async function convertFiles(
         const fileOutTrace =
             runTrace === false
                 ? undefined
-                : join(outTraceDir, fni + ".trace.md")
+                : join(outTraceDir, fni, TRACE_FILENAME)
         const fileOutOutput =
             outputTrace === false
                 ? undefined
-                : join(outTraceDir, fni + ".output.md")
+                : join(outTraceDir, fni, OUTPUT_FILENAME)
         const fileTrace = convertTrace.startTraceDetails(file.filename)
         if (fileOutTrace) {
             convertTrace.item(link("trace", fileOutTrace))
