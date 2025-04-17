@@ -2105,7 +2105,7 @@ interface Path {
     resolveFileURL(fileUrl: string): string
 
     /**
-     * Sanitize a string to be safe for use as a filename by removing directory paths and invalid characters. 
+     * Sanitize a string to be safe for use as a filename by removing directory paths and invalid characters.
      * @param path file path
      */
     sanitize(path: string): string
@@ -4315,6 +4315,8 @@ type SpeechVoiceType = OptionsOrString<
     | "nova"
     | "sage"
     | "shimmer"
+    | "verse"
+    | "ballad"
 >
 
 interface SpeechOptions {
