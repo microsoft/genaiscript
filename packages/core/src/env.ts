@@ -59,7 +59,7 @@ import {
     LanguageModelConfiguration,
     OpenAIAPIType,
 } from "./server/messages"
-import { arrayify } from "./util"
+import { arrayify, ellipse } from "./util"
 import { URL } from "node:url"
 import { uriTryParse } from "./url"
 
@@ -190,7 +190,7 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_OPENAI) {
         dbg(`processing ${MODEL_PROVIDER_OPENAI}`)
         const token = env.OPENAI_API_KEY ?? ""
-        dbg(`retrieved OPENAI_API_KEY: ${env.OPENAI_API_KEY}`)
+        dbg(`retrieved OPENAI_API_KEY: %s`, ellipse(token, 12))
         let base = env.OPENAI_API_BASE
         let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai"
         const version = env.OPENAI_API_VERSION || parseAzureVersionFromUrl(base)

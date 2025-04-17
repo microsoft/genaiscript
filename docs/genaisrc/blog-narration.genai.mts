@@ -2,7 +2,7 @@ script({
     title: "Blog Post Narrator",
     description: "Creates narrated summaries of blog posts",
     accept: ".mdx,.md",
-    model: "large",
+    model: "openai:gpt-4.1",
     system: ["system.annotations"],
     files: "docs/src/content/docs/blog/azure-ai-search.mdx",
     parameters: {
@@ -93,7 +93,6 @@ const {
     },
     {
         temperature: 1.1,
-        responseType: "json_schema",
         responseSchema: {
             instructions: "voice description",
             voice: {
@@ -117,6 +116,8 @@ const {
         },
     }
 )
+
+if (!instructions) cancel("failed to generate instructions")
 
 // 3. Generate speech from the summary
 const { filename } = await speak(summary, {
