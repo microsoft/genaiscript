@@ -1354,14 +1354,13 @@ export async function executeChatSession(
                                     }
                                   : undefined,
                         messages,
-                    }
+                    } satisfies CreateChatCompletionRequest
                     updateChatFeatures(reqTrace, model, req)
                     if (!isQuiet)
                         stderr.write(
-                            await renderMessagesToTerminal(messages, {
+                            await renderMessagesToTerminal(req, {
                                 user: true,
                                 tools,
-                                model,
                             })
                         )
 

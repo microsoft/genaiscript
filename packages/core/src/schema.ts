@@ -173,8 +173,8 @@ export function JSONSchemaStringifyToTypeScript(
 
     // Convert a JSON Schema array to TypeScript
     function stringifyArray(array: JSONSchemaArray): void {
-        append(`Array<`)
         indent++
+        append(`Array<`)
         const v = stringifyNode(array.items)
         indent--
         if (v) lines[lines.length - 1] = lines[lines.length - 1] + v + ">"
