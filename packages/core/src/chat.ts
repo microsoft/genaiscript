@@ -1347,7 +1347,8 @@ export async function executeChatSession(
                                         json_schema: {
                                             name: "result",
                                             schema: toStrictJSONSchema(
-                                                responseSchema
+                                                responseSchema,
+                                                { noDefaults: true }
                                             ),
                                             strict: true,
                                         },
@@ -1373,6 +1374,11 @@ export async function executeChatSession(
                         dbg(
                             `infer ${req.model} with ${req.messages.length} messages`
                         )
+                        if (req.response_format)
+                            dbg(
+                                `response format: %O`,
+                                JSON.stringify(req.response_format, null, 2)
+                            )
                         const cres = await completer(
                             req,
                             connectionToken,

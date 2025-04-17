@@ -5,8 +5,8 @@ import Ajv from "ajv"
 import { YAMLParse } from "./yaml"
 import { errorMessage } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import debug from "debug"
-const dbg = debug("genaiscript:schema")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("schema")
 
 /**
  * Checks if the given object is a valid JSON Schema.
@@ -204,6 +204,7 @@ export function tryValidateJSONWithSchema<T = unknown>(
     if (object !== undefined && schema) {
         const validation = validateJSONWithSchema(object, schema, { trace })
         if (validation.schemaError) {
+            dbg("%O", validation)
             if (throwOnValidationError) throw new Error(validation.schemaError)
             return undefined
         }
@@ -341,10 +342,14 @@ export function JSONSchemaStringify(schema: JSONSchema) {
  * @returns A strict JSON Schema with enforced constraints.
  */
 export function toStrictJSONSchema(
-    schema: PromptParametersSchema | JSONSchema
+    schema: PromptParametersSchema | JSONSchema,
+    options?: {
+        noDefaults?: boolean
+    }
 ): any {
+    const { noDefaults } = options || {}
     const clone: JSONSchema = structuredClone(
-        promptParametersSchemaToJSONSchema(schema)
+        promptParametersSchemaToJSONSchema(schema, { noDefaults })
     )
     visit(clone)
 

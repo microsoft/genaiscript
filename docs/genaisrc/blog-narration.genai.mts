@@ -93,8 +93,13 @@ const {
     },
     {
         temperature: 1.1,
+        responseType: "json_schema",
         responseSchema: {
-            instructions: "voice description",
+            instructions: {
+                required: true,
+                description: "voice description",
+                type: "string",
+            },
             voice: {
                 required: true,
                 type: "string",
