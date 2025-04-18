@@ -300,13 +300,52 @@ depending on your subscription.
 script({ model: "github:gpt-4o" })
 ```
 
-:::tip
+### Codespace configuration
 
-If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.
+If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you...
+It just works.
 
-:::
+### GitHub Actions configuration
 
-<YouTube id="Wya3MQRIbmE" posterQuality="high" />
+As of [April 2025](https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/),
+you can use the GitHub Actions token (`GITHUB_TOKEN`) to call AI models directly inside your workflows.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Ensure that the `models` permission is enabled in your workflow configuration.
+
+```yaml title="genai.yml" "models: read"
+permissions:
+  models: read
+```
+
+</li>
+
+<li>
+
+Pass the `GITHUB_TOKEN` when running `genaiscript`
+
+```yaml title="genai.yml" "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
+    run: npx -y genaiscript run ...
+    env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+Read more in the [GitHub Documentation](https://docs.github.com/en/github-models/integrating-ai-models-into-your-development-workflow#using-ai-models-with-github-actions)
+
+### Configuring with your own token
+
+If you are not using GitHub Actions or Codespaces, you can use your own token to access the models.
 
 <Steps>
 
