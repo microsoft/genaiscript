@@ -5806,7 +5806,7 @@ interface ContainerHost extends ShellHost {
     copyTo(
         fromHost: string | string[],
         toContainer: string,
-        options: Omit<FindFilesOptions, "readText">
+        options?: Omit<FindFilesOptions, "readText">
     ): Promise<string[]>
 
     /**
