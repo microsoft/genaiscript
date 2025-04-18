@@ -2,29 +2,41 @@
 layout: two-cols
 ---
 
-## GenAIScript Introduction
+# GenAIScript
+## Scripts your LLMs
 
 Each GenAIScript is JavaScript that defines a call/return to an LLM
 
-- Define context for the LLM using \
-`def` (from code, docs, URLs, images, etc)
-- Describe the task you want in `$` prompt
-- Send the request to the LLM
-- Process the output of the LLM 
+- `def` is for context
+- `$` is for instructions
+
+GenAIScript
+- Optimizes context for LLM
+- Send request to LLM
+- Process LLM output 
+
 &nbsp;
 
 ::right::
 
 ## Example
 
+- `summarizer.genai.mts`
+
 ```js
 // metadata and model configuration
-script({ title: "Summarize", model: "gpt4" })
+script({ model: "small", accept: ".txt" })
 
 // insert the context, define a "FILE" variable
 def("FILE", env.files)
-def("FILE", await workspace.findFile("**/*.txt"))
 
-// appends text to the prompt (file is the variable name)
-$`Summarize FILE. Save output to summary.txt`
+// $ appends text to the prompt
+$`Summarize <FILE>.`
 ```
+
+- execute on all .txt files
+```sh
+genaiscript run summarizer **.txt
+```
+
+https://microsoft.github.io/genaiscript
