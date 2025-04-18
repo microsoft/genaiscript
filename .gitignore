@@ -41,3 +41,4 @@ packages/sample/src/mlads/*
 packages/core/src/dbg.ts
 TypeScript/
 react/
+docs/public/blog/*.mp4
