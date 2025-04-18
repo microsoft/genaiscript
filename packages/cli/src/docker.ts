@@ -544,11 +544,12 @@ export class DockerManager {
 
         const copyTo = async (
             from: string | string[],
-            to: string
+            to: string,
+            options?: Omit<FindFilesOptions, "readText">
         ): Promise<string[]> => {
-            dbgc(`copy %o to %s`, from, to)
+            dbgc(`copy %o to %s %o`, from, to, options)
             const cto = resolveContainerPath(to)
-            const files = await host.findFiles(from)
+            const files = await host.findFiles(from, options)
             const res: string[] = []
             for (const file of files) {
                 const source = host.path.resolve(file)
