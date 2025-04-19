@@ -2,8 +2,18 @@
 title: Diagrams
 sidebar:
   order: 20
-description: Create diagrams and charts within markdown using GenAIScript and the mermaid extension for visual representation of data and processes.
+description: Create diagrams and charts within markdown using GenAIScript and
+  the mermaid extension for visual representation of data and processes.
 keywords: diagrams, charts, mermaid, GenAIScript, data visualization
+hero:
+  image:
+    alt: A flat, minimalistic 8-bit illustration showing two parallel colored lines,
+      each symbolizing a separate branch, that join together into one line,
+      representing a merge in version control. The design is geometric, strictly
+      simple, sized 128x128 pixels, with no background, text, people, shading,
+      or 3D effects, and uses only five distinct corporate colors.
+    file: ./diagrams.png
+
 ---
 
 It is often useful to request an LLM to generate a diagram. Fortunately,

@@ -3,9 +3,18 @@ title: CSV
 description: Learn how to parse and stringify CSV data using the CSV class in scripting.
 keywords: CSV parsing, CSV stringifying, CSV data, CSV manipulation, CSV utility
 sidebar:
-    order: 17
+  order: 17
 genaiscript:
-    files: src/samples/penguins.csv
+  files: src/samples/penguins.csv
+hero:
+  image:
+    alt: A simplified 8-bit style illustration shows a CSV file icon with a
+      checkmark, a grid pattern representing spreadsheet rows and columns, and a
+      small gear to indicate data parsing tools. The design uses only five solid
+      colors, has no human figures, text, shadows, gradients, or background, and
+      appears completely flat and two-dimensional.
+    file: ./csv.png
+
 ---
 
 Parsing and stringifying of Comma Separated Values (CSV) data.

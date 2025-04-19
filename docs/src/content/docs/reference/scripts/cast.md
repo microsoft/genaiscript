@@ -1,8 +1,20 @@
 ---
-title: "Cast"
-description: "Use the cast helper to convert text to structured data"
+title: Cast
+description: Use the cast helper to convert text to structured data
 sidebar:
-    order: 80
+  order: 80
+hero:
+  image:
+    alt: A flat, minimalist 8-bit illustration at a size of 128x128 pixels displays
+      a geometric file folder containing structured data sheets, each shown as
+      rectangles with horizontal lines. These sheets emerge from a vivid,
+      abstract text block and a simple image icon. Surrounding the folder are
+      clean, minimal circuit or chip symbols indicating AI, along with lines or
+      shapes representing data connections. The entire image is created using
+      just five distinct corporate colors and lacks any background, shadows, or
+      gradients.
+    file: ./cast.png
+
 ---
 
 The `cast` function in GenAIScript allows you to convert text or images to structured data.

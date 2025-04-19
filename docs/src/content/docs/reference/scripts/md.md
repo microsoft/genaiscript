@@ -8,7 +8,17 @@ keywords:
   - frontmatter
   - parsing
   - documentation
-description: Enhance your markdown capabilities with MD class helpers for parsing and managing frontmatter efficiently.
+description: Enhance your markdown capabilities with MD class helpers for
+  parsing and managing frontmatter efficiently.
+hero:
+  image:
+    alt: "An 8-bit icon with two rectangles: the top one has three colored
+      horizontal lines representing YAML frontmatter, the bottom features a
+      large stylized “M” for markdown. Abstract arrows point between them to
+      indicate extracting and updating data. The graphic is flat, geometric, 2D,
+      with five solid corporate colors, no people, text, or decorative effects,
+      and measures 128 by 128 pixels."
+    file: ./md.png
 
 ---
 

@@ -1,5 +1,5 @@
-script({ parameters: { force: false } })
-const file = env.files.find(({ filename }) => /\.mdx?$/.test(filename))
+script({ parameters: { force: false }, accept: ".md,.mdx" })
+const file = env.files[0]
 const target = path.changeext(file.filename, ".png")
 
 const fm = MD.frontmatter(file.content)

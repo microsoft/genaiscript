@@ -1,13 +1,21 @@
 ---
 title: Response Priming
 sidebar:
-    order: 100
+  order: 100
 description: Learn how to prime LLM responses with specific syntax or format
-    using the writeText function in scripts.
+  using the writeText function in scripts.
 keywords: response priming, LLM syntax, script formatting, writeText function,
-    assistant message
+  assistant message
 genaiscript:
-    model: openai:gpt-3.5-turbo
+  model: openai:gpt-3.5-turbo
+hero:
+  image:
+    alt: Five sharp-edged, solid-colored squares—red, blue, green, yellow, and
+      purple—are evenly lined up in a row on a plain field, designed in minimal,
+      flat 8-bit style with no background, text, people, gradients, or shadows,
+      and sized at 128 by 128 pixels.
+    file: ./response-priming.png
+
 ---
 
 It is possible to provide the start of the LLM response (`assistant` message) in the script.

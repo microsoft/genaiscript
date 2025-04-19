@@ -1,11 +1,20 @@
 ---
 title: Prompty
 sidebar:
-    order: 51
-description:
-    Learn about the .prompty file format for parameterized prompts and its
-    integration with GenAIScript for AI scripting.
+  order: 51
+description: Learn about the .prompty file format for parameterized prompts and
+  its integration with GenAIScript for AI scripting.
 keywords: prompty, scripts, AI, parameterized prompts, automation
+hero:
+  image:
+    alt: A small, simple 8-bit-style illustration of a computer monitor with a
+      markdown file icon on its screen, surrounded by geometric shapes
+      symbolizing parameter fields, a settings gear, and chat bubbles for an AI
+      assistant, all in five flat corporate colors, arranged in a clean,
+      minimalistic layout without any background or realistic details. No
+      people, text, or shading appear in the image.
+    file: ./prompty.png
+
 ---
 
 GenAIScript supports running [.prompty](https://prompty.ai/) files as scripts (with some limitations) or importing them in a script.
