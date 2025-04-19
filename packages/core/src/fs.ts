@@ -1,4 +1,3 @@
-
 import { lstat, mkdir, writeFile, readFile, rm } from "fs/promises"
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
@@ -78,6 +77,7 @@ export function expandHomeDir(dir: string) {
  * @param content - The textual content to write into the file.
  */
 export async function writeText(fn: string, content: string) {
+    if (!fn) throw new Error("filename is required")
     await ensureDir(dirname(fn))
     dbg(`writing text to file ${fn}`)
     await writeFile(fn, content, { encoding: "utf8" })
@@ -105,7 +105,7 @@ export async function fileExists(fn: string) {
 export async function tryStat(fn: string) {
     try {
         dbg(`getting file stats for ${fn}`)
-        return await lstat(fn)
+        return fn && (await lstat(fn))
     } catch {
         return undefined
     }
@@ -119,6 +119,7 @@ export async function tryStat(fn: string) {
  * @throws Throws an error if the file cannot be read or parsed as JSON.
  */
 export async function readJSON(fn: string) {
+    if (!fn) throw new Error("filename is required")
     dbg(`reading JSON from file ${fn}`)
     return JSON.parse(await readText(fn))
 }
@@ -131,6 +132,7 @@ export async function readJSON(fn: string) {
  */
 export async function tryReadJSON(fn: string) {
     try {
+        if (!fn) return undefined
         return JSON.parse(await readText(fn))
     } catch {
         return undefined
@@ -152,6 +154,7 @@ export async function tryReadJSON5(fn: string) {
  * @param obj - The JSON object to be written to the file.
  */
 export async function writeJSON(fn: string, obj: any) {
+    if (!fn) throw new Error("filename is required")
     dbg(`writing JSON to file ${fn}`)
     await writeText(fn, JSON.stringify(obj))
 }

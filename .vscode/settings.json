@@ -1,6 +1,7 @@
 {
     "devicescript.devtools.autoStart": false,
     "cSpell.words": [
+        "accum",
         "adoinfo",
         "Agentic",
         "AIAPI",
@@ -134,6 +135,7 @@
         "napi",
         "nemo",
         "networkidle",
+        "newext",
         "nickyt",
         "nodehost",
         "nodepackage",

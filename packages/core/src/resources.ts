@@ -13,7 +13,7 @@ import { dotGenaiscriptPath } from "./workdir"
 import { join } from "node:path"
 import { runtimeHost } from "./host"
 import { URL } from "node:url"
-const dbg = genaiscriptDebug("resources")
+const dbg = genaiscriptDebug("res")
 
 const uriResolvers: Record<
     string,
@@ -67,7 +67,7 @@ const uriResolvers: Record<
             dbg(`missing gist %s`, id)
             return undefined
         }
-        const files = gist.files
+        const files = gist.files || []
         if (filename) {
             dbg(`moving file %s to top`, filename)
             const i = gist.files.findIndex((f) => f.filename === filename)
@@ -115,16 +115,16 @@ export async function tryResolveResource(
     dbg(`resolving %s`, uriRedact(url))
     try {
         // try to resolve
-        const resolver =
-            uriResolvers[uri.protocol.replace(/:$/, "").toLowerCase()]
+        const protocol = uri.protocol.replace(/:$/, "").toLowerCase()
+        const resolver = uriResolvers[protocol]
         if (!resolver) {
-            dbg(`unsupported protocol %s`, uri.protocol)
+            dbg(`unsupported protocol %s`, protocol)
             return undefined
         }
 
         // download
         const files = arrayify(await resolver(uri, options))
-        if (!files) {
+        if (!files.length) {
             dbg(`failed to resolve %s`, uriRedact(url))
             return undefined
         }
@@ -140,21 +140,32 @@ export async function tryResolveResource(
 export async function tryResolveScript(
     url: string,
     options?: TraceOptions & CancellationOptions
-) {
+): Promise<string> {
     const resource = await tryResolveResource(url, options)
     if (!resource) return undefined
 
     const { uri, files } = resource
-    dbg(`resolved resource %s %d`, uri, files.length)
-    const sha = await hash([resource.files], {
-        length: RESOURCE_HASH_LENGTH,
-    })
-    const fn = dotGenaiscriptPath("resources", uri.protocol, uri.hostname, sha)
-    dbg(`resolved cache: %s`, fn)
-    const cached = resource.files.map((f) => ({
-        ...f,
-        filename: join(fn, f.filename),
-    }))
-    await runtimeHost.workspace.writeFiles(cached)
-    return cached[0].filename
+    dbg(`resolved resource %s %d`, uri, files?.length)
+    if (!files?.length) return undefined
+
+    const cache = files.some((f) => f.content)
+    if (!cache) return files[0].filename
+    else {
+        const sha = await hash([files], {
+            length: RESOURCE_HASH_LENGTH,
+        })
+        const fn = dotGenaiscriptPath(
+            "resources",
+            uri.protocol,
+            uri.hostname,
+            sha
+        )
+        dbg(`resolved cache: %s`, fn)
+        const cached = files.map((f) => ({
+            ...f,
+            filename: join(fn, f.filename),
+        }))
+        await runtimeHost.workspace.writeFiles(cached)
+        return cached[0].filename
+    }
 }
