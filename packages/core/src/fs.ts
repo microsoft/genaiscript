@@ -99,13 +99,14 @@ export async function fileExists(fn: string) {
  * Attempts to retrieve the file status for a given file path.
  * If an error occurs (e.g., the file does not exist), it returns undefined.
  *
- * @param fn - The path of the file to retrieve the status for.
+ * @param fn - The path of the file to retrieve the status for. If not provided, returns undefined.
  * @returns The file status object if the file exists, or undefined if it does not.
  */
 export async function tryStat(fn: string) {
     try {
         dbg(`getting file stats for ${fn}`)
-        return fn && (await lstat(fn))
+        if (!fn) return undefined
+        return await lstat(fn)
     } catch {
         return undefined
     }
