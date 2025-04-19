@@ -29,7 +29,7 @@ if (jobUrl) {
     $`1. Find the failed run ${failure_run_id} of ${workflow} for branch ${branch}
     2. Find the last successful run before the failed run for the same workflow and branch`
 } else {
-    $`0. Find the worflow ${workflow} in the repository
+    $`0. Find the workflow ${workflow} in the repository
 1. Find the latest failed run of ${workflow} for branch ${branch}
 2. Find the last successful run before the failed run`
 }
@@ -38,7 +38,7 @@ $`3. Compare the run job logs between the failed run and the last successful run
     - show a diff of the source code that created the problem if possible
 5. Analyze all the above information and identify the root cause of the failure
     - generate a patch to fix the problem if possible
-6. Generate a detailled report of the failure and the root cause
+6. Generate a detailed report of the failure and the root cause
     - include a list of all HTML urls to the relevant runs, commits, pull requests or issues
     - include diff of code changes
     - include the patch if generated
