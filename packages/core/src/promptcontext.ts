@@ -328,8 +328,8 @@ export async function createPromptContext(
             })
             return res
         },
-        select: async (message, options) =>
-            await runtimeHost.select(message, options),
+        select: async (message, choices, options) =>
+            await runtimeHost.select(message, choices, options),
         input: async (message) => await runtimeHost.input(message),
         confirm: async (message) => await runtimeHost.confirm(message),
         promiseQueue: (concurrency) => new PLimitPromiseQueue(concurrency),

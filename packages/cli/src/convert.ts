@@ -218,7 +218,14 @@ export async function convertFiles(
                 return
             }
             const end = m()
-            usage.addUsage(result.usage, end)
+            usage.addUsage(
+                {
+                    total_tokens: result.usage?.total,
+                    prompt_tokens: result.usage?.prompt,
+                    completion_tokens: result.usage?.completion,
+                },
+                end
+            )
             if (result.usage) stats.push(result.usage)
             logVerbose(Object.keys(result.fileEdits || {}).join("\n"))
             // structured extraction

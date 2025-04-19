@@ -247,11 +247,7 @@ export async function runScriptInternal(
     const fallbackTools = options.fallbackTools
     const reasoningEffort = options.reasoningEffort
     const topP = normalizeFloat(options.topP)
-    const toolChoice: ChatToolChoice = options.toolChoice
-        ? ["none", "auto", "required"].includes(options.toolChoice)
-            ? (options.toolChoice as "none" | "auto" | "required")
-            : { name: options.toolChoice }
-        : undefined
+    const toolChoice = options.toolChoice
     const seed = normalizeFloat(options.seed)
     const maxTokens = normalizeInt(options.maxTokens)
     const maxToolCalls = normalizeInt(options.maxToolCalls)

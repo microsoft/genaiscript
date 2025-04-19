@@ -5,6 +5,27 @@
 
 import { unfence } from "./unwrappers"
 
+// Represents a chunk of code with a start and end line and its content.
+export interface ChangeLogChunk {
+    start: number // Starting line number
+    end: number // Ending line number
+    lines: { index: number; content: string }[] // Lines of code within the chunk
+}
+
+// Represents a change between an original and a changed code chunk.
+export interface ChangeLogChange {
+    original: ChangeLogChunk // Original code chunk
+    changed: ChangeLogChunk // Changed code chunk
+}
+
+// Represents a complete changelog for a file.
+export interface ChangeLog {
+    index: number // Index of the changelog entry
+    filename: string // Filename associated with the changelog
+    description: string // Description of the changes
+    changes: ChangeLogChange[] // List of changes within the changelog
+}
+
 /**
  * Parses a raw changelog string into a structured array of ChangeLog objects.
  *

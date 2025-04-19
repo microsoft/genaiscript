@@ -13,8 +13,10 @@ export type ChatModels = {
     object: "list"
     data: Partial<ChatModel>[]
 }
-export type ChatCompletionToolChoiceOption = OpenAI.Chat.ChatCompletionToolChoiceOption
-export type ChatCompletionNamedToolChoice = OpenAI.Chat.ChatCompletionNamedToolChoice
+export type ChatCompletionToolChoiceOption =
+    OpenAI.Chat.ChatCompletionToolChoiceOption
+export type ChatCompletionNamedToolChoice =
+    OpenAI.Chat.ChatCompletionNamedToolChoice
 export type ChatCompletionReasoningEffort = OpenAI.ReasoningEffort
 
 // Aliases for OpenAI chat completion types
@@ -35,6 +37,9 @@ export type ChatCompletionContentPart =
     OpenAI.Chat.Completions.ChatCompletionContentPart
 export type ChatCompletionContentPartRefusal =
     OpenAI.Chat.Completions.ChatCompletionContentPartRefusal
+
+export type ChatCompletionContentPartInputAudio =
+    OpenAI.Chat.Completions.ChatCompletionContentPartInputAudio
 
 // Tool used in a chat completion
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
