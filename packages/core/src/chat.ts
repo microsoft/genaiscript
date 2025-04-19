@@ -1,6 +1,11 @@
 // cspell: disable
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { PromptImage, PromptPrediction, renderPromptNode } from "./promptdom"
+import {
+    PromptAudio,
+    PromptImage,
+    PromptPrediction,
+    renderPromptNode,
+} from "./promptdom"
 import { host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
 import { dispose } from "./dispose"
@@ -42,6 +47,7 @@ import { parseModelIdentifier, traceLanguageModelConnection } from "./models"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImage,
+    ChatCompletionContentPartInputAudio,
     ChatCompletionMessageParam,
     ChatCompletionResponse,
     ChatCompletionsOptions,

@@ -63,6 +63,7 @@ export interface PromptNode extends ContextExpansionOptions {
     type?:
         | "text"
         | "image"
+        | "audio"
         | "schema"
         | "tool"
         | "fileMerge"
@@ -166,6 +167,18 @@ export interface PromptImageNode extends PromptNode {
     type: "image"
     value: Awaitable<PromptImage> // Image information
     resolved?: PromptImage // Resolved image information
+}
+
+export interface PromptAudio {
+    filename?: string
+    data: string
+    format: "mp3" | "wav"
+}
+
+export interface PromptAudioNode extends PromptNode {
+    type: "audio"
+    value: Awaitable<PromptAudio> // Image information
+    resolved?: PromptAudio // Resolved image information
 }
 
 // Interface for a schema node.
@@ -691,6 +704,7 @@ export interface PromptNodeVisitor {
     def?: (node: PromptDefNode) => Awaitable<void> // Definition node visitor
     defData?: (node: PromptDefDataNode) => Awaitable<void> // Definition data node visitor
     image?: (node: PromptImageNode) => Awaitable<void> // Image node visitor
+    audio?: (node: PromptAudioNode) => Awaitable<void> // Audio node visitor
     schema?: (node: PromptSchemaNode) => Awaitable<void> // Schema node visitor
     tool?: (node: PromptToolNode) => Awaitable<void> // Function node visitor
     fileMerge?: (node: PromptFileMergeNode) => Awaitable<void> // File merge node visitor
@@ -719,6 +733,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             break
         case "image":
             await visitor.image?.(node as PromptImageNode)
+            break
+        case "audio":
+            await visitor.audio?.(node as PromptAudioNode)
             break
         case "schema":
             await visitor.schema?.(node as PromptSchemaNode)
@@ -766,6 +783,7 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
 
 interface PromptNodeRender {
     images: PromptImage[] // Images included in the prompt
+    audios: PromptAudio[]
     errors: unknown[] // Errors encountered during rendering
     schemas: Record<string, JSONSchema> // Schemas included in the prompt
     tools: ToolCallback[] // tools included in the prompt
@@ -982,6 +1000,15 @@ async function resolvePromptNode(
                 const v = await n.value
                 n.resolved = v
                 n.preview = "image" // TODO
+            } catch (e) {
+                n.error = e
+            }
+        },
+        audio: async (n) => {
+            try {
+                const v = await n.value
+                n.resolved = v
+                n.preview = n.resolved ? `<audio />` : undefined
             } catch (e) {
                 n.error = e
             }
@@ -1358,6 +1385,7 @@ export async function renderPromptNode(
     ) => appendAssistantMessage(messages, content, options)
 
     const images: PromptImage[] = []
+    const audios: PromptAudio[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
     const tools: ToolCallback[] = []
@@ -1413,6 +1441,16 @@ export async function renderPromptNode(
             if (value?.url) {
                 images.push(value)
                 appendUser(value, n)
+            }
+        },
+        audio: async (n) => {
+            const value = n.resolved
+            if (value?.data) {
+                audios.push(value)
+                if (trace) {
+                    trace.startDetails(`🎤 audio ${value.filename || ""}`)
+                    trace.endDetails()
+                }
             }
         },
         schema: (n) => {
@@ -1513,6 +1551,7 @@ ${trimNewlines(schemaText)}
 
     const res = Object.freeze<PromptNodeRender>({
         images,
+        audios,
         schemas,
         tools,
         fileMerges,
