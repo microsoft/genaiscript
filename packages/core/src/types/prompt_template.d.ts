@@ -65,7 +65,7 @@ interface PromptDefinition {
     defTools?: { id: string; description: string; kind: "tool" | "agent" }[]
 }
 
-interface PromptLike extends PromptDefinition, PromptToolsDefinition {
+interface PromptLike extends PromptDefinition {
     /**
      * File where the prompt comes from (if any).
      */
@@ -88,7 +88,7 @@ interface PromptLike extends PromptDefinition, PromptToolsDefinition {
     resolvedSystem?: SystemPromptInstance[]
 
     /**
-     * Infered input schema for parameters
+     * Inferred input schema for parameters
      */
     inputSchema?: JSONSchemaObject
 }
@@ -180,7 +180,7 @@ type ModelType = OptionsOrString<
     | "github:deepseek-r1"
     | "github:Phi-4"
     | "github_copilot_chat:current"
-    | "github_copilot_chat:gpt-3.5-turbo",
+    | "github_copilot_chat:gpt-3.5-turbo"
     | "github_copilot_chat:gpt-4o-mini"
     | "github_copilot_chat:gpt-4o-2024-11-20"
     | "github_copilot_chat:gpt-4"
@@ -442,7 +442,7 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     /**
      * Tool selection strategy. Default is 'auto'.
      */
-    toolChoice?: ChatCompletion
+    toolChoice?: ChatToolChoice
 
     /**
      * Maximum number of tool calls to make.
@@ -470,7 +470,7 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
     modelConcurrency?: Record<string, number>
 }
 
-interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {
+interface EmbeddingsModelOptions {
     /**
      * LLM model to use for embeddings.
      */
@@ -646,7 +646,7 @@ interface PromptRedteam {
     purpose: string
 
     /**
-     * Redteam identifer used for reporting purposes
+     * Redteam identifier used for reporting purposes
      */
     label?: string
 
@@ -951,7 +951,7 @@ interface OutputTrace extends ToolCallTrace {
     startTraceDetails(
         title: string,
         options?: { expanded?: boolean }
-    ): MarkdownTrace
+    ): OutputTrace
 
     /**
      * Appends content to the trace.
@@ -1824,9 +1824,10 @@ interface ImageTransformOptions {
      */
     maxHeight?: number
     /**
-     * Removes colour from the image using ITU Rec 709 luminance values
+     * Removes colors from the image using ITU Rec 709 luminance values
      */
     greyscale?: boolean
+
     /**
      * Flips the image horizontally and/or vertically.
      */
@@ -2014,8 +2015,29 @@ interface RunPromptUsage {
     total: number
 }
 
+// Represents a chunk of code with a start and end line and its content.
+interface ChangeLogChunk {
+    start: number // Starting line number
+    end: number // Ending line number
+    lines: { index: number; content: string }[] // Lines of code within the chunk
+}
+
+// Represents a change between an original and a changed code chunk.
+interface ChangeLogChange {
+    original: ChangeLogChunk // Original code chunk
+    changed: ChangeLogChunk // Changed code chunk
+}
+
+// Represents a complete changelog for a file.
+interface ChangeLog {
+    index: number // Index of the changelog entry
+    filename: string // Filename associated with the changelog
+    description: string // Description of the changes
+    changes: ChangeLogChange[] // List of changes within the changelog
+}
+
 interface RunPromptResult {
-    messages: ChatCompletionMessageParam[]
+    messages: ChatMessage[]
     text: string
     reasoning?: string
     annotations?: Diagnostic[]
@@ -2836,7 +2858,11 @@ interface JSONSchemaUtilities {
 
 interface HTMLTableToJSONOptions {
     useFirstRowForHeadings?: boolean
-    headers?: HeaderRows
+    headers?: {
+        from?: number
+        to: number
+        concatWith: string
+    }
     stripHtmlFromHeadings?: boolean
     stripHtmlFromCells?: boolean
     stripHtml?: boolean | null
@@ -3038,7 +3064,7 @@ interface FfmpegCommandBuilder {
     audioFrequency(freq: number): FfmpegCommandBuilder
     audioQuality(quality: number): FfmpegCommandBuilder
     audioFilters(
-        filters: string | string[] | AudioVideoFilter[]
+        filters: string | string[] /*| AudioVideoFilter[]*/
     ): FfmpegCommandBuilder
     toFormat(format: string): FfmpegCommandBuilder
 
@@ -3505,7 +3531,7 @@ interface GitHub {
             glob?: string
             downloadContent?: boolean
             maxDownloadSize?: number
-            type?: (typeof GitHubFile)["type"]
+            type?: GitHubFile["type"]
         }
     ): Promise<GitHubFile[]>
 
@@ -3983,8 +4009,6 @@ interface ImportTemplateOptions {
     format?: "mustache" | "jinja"
 }
 
-type PromptCacheControlType = "ephemeral"
-
 interface PromptTemplateString {
     /**
      * Set a priority similar to CSS z-index
@@ -4408,7 +4432,7 @@ interface GenerationOutput {
     /**
      * full chat history
      */
-    messages: ChatCompletionMessageParam[]
+    messages: ChatMessage[]
 
     /**
      * LLM output.
@@ -4453,7 +4477,7 @@ interface GenerationOutput {
     /**
      * Usage stats
      */
-    usage: ChatCompletionStats
+    usage?: RunPromptUsage
 }
 
 type Point = {
@@ -4596,7 +4620,7 @@ interface SgMatcher {
 type SgStrictness = "cst" | "smart" | "ast" | "relaxed" | "signature"
 interface SgPatternObject {
     context: string
-    selector?: NamedKinds<M> // only named node types
+    selector?: string //NamedKinds<M> // only named node types
     strictness?: SgStrictness
 }
 type SgPatternStyle = string | SgPatternObject
@@ -5056,7 +5080,7 @@ interface BrowserLocatorSelector {
             name?: string
             selected?: boolean
         } & TimeoutOptions
-    ): Locator
+    ): BrowserLocator
 
     /**
      * Allows locating input elements by the text of the associated <label> or aria-labelledby element, or by the aria-label attribute.
@@ -5066,7 +5090,7 @@ interface BrowserLocatorSelector {
     getByLabel(
         name: string,
         options?: { exact?: boolean } & TimeoutOptions
-    ): Locator
+    ): BrowserLocator
 
     /**
      * Allows locating elements that contain given text.
@@ -5076,10 +5100,10 @@ interface BrowserLocatorSelector {
     getByText(
         text: string,
         options?: { exact?: boolean } & TimeoutOptions
-    ): Locator
+    ): BrowserLocator
 
     /** Locate element by the test id. */
-    getByTestId(testId: string, options?: TimeoutOptions): Locator
+    getByTestId(testId: string, options?: TimeoutOptions): BrowserLocator
 }
 
 /**
@@ -5179,7 +5203,7 @@ interface BrowserLocator extends BrowserLocatorSelector {
             hasNotText?: string | RegExp
             hasText?: string | RegExp
         } & TimeoutOptions
-    ): Locator
+    ): BrowserLocator
 }
 
 /**
@@ -5504,11 +5528,7 @@ interface UserInterfaceHost {
      * @param message question to ask
      * @param options options to select from
      */
-    select(
-        message: string,
-        options: (string | ShellSelectChoice)[],
-        options?: ShellSelectOptions
-    ): Promise<string>
+    select(message: string, options?: ShellSelectOptions): Promise<string>
 
     /**
      * Asks the user to input a text
@@ -5661,7 +5681,7 @@ interface PythonProxy {
      */
     get<T>(name: string): T
     /**
-     * Copyies a value into the python object
+     * Copy a value into the python object
      * @param name
      * @param value
      */
