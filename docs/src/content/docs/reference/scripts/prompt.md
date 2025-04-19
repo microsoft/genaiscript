@@ -8,6 +8,16 @@ keywords: tagged template, prompt expansion, dynamic prompts, JavaScript
   templates, GenAI scripting
 genaiscript:
   model: openai:gpt-3.5-turbo
+hero:
+  image:
+    alt: An 8-bit-style flat icon features a geometric speech bubble containing code
+      brackets and a dollar sign, symbolizing coding or template expressions.
+      Around the bubble are small, simple blocks and circles representing
+      variables and template elements, all rendered in a clean, minimal,
+      five-color corporate palette on a transparent background, using only basic
+      geometric shapes. The image excludes people, text, shadows, gradients, or
+      3D effects.
+    file: ./prompt.png
 
 ---
 

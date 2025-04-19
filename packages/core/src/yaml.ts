@@ -48,9 +48,10 @@ export function YAMLTryParse<T = any>(
 
 /**
  * Parses a YAML string or workspace file into a JavaScript object.
+ * Converts the input to content if it is a workspace file.
  * Assumes the input is valid YAML.
  *
- * @param text - The YAML string or workspace file to parse. Must be convertible to content.
+ * @param text - The YAML string or workspace file to parse.
  * @returns The parsed JavaScript object.
  */
 export function YAMLParse(text: string | WorkspaceFile): any {
@@ -74,8 +75,11 @@ export function YAMLStringify(obj: any): string {
  * Combines the functionality to parse YAML strings, stringify objects to YAML,
  * and process template string inputs into parsed YAML objects.
  *
+ * The handler function allows interpolation of values within template strings,
+ * parses the resulting YAML string, and returns the parsed object.
+ *
  * @param strings - An array of template string literals.
- * @param values - Corresponding interpolated values.
+ * @param values - Corresponding interpolated values to be included in the YAML string.
  * @returns A parsed object generated from the combined template strings and values.
  */
 export function createYAML(): YAML {

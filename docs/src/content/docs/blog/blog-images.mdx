@@ -31,6 +31,10 @@ excerpt: Automatically generating blog post cover images may sound mundane, but
 import { Code } from "@astrojs/starlight/components"
 import code from "../../../../genaisrc/blog-image.genai.mts?raw"
 
+import BlogNarration from "../../../components/BlogNarration.astro"
+
+<BlogNarration />
+
 We generate cover images to the blog, this in itself is completely uninteresting... but the script that generated the images
 is worth a look.
 

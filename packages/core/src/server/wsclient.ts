@@ -29,11 +29,15 @@ import type {
     ServerVersion,
 } from "./messages"
 
+interface Awaiter {
+    msg: Omit<RequestMessage, "id">
+    promise?: Promise<any>
+    resolve: (data: any) => void
+    reject: (error: unknown) => void
+}
+
 export class WebSocketClient extends EventTarget {
-    private awaiters: Record<
-        string,
-        { resolve: (data: any) => void; reject: (error: unknown) => void }
-    > = {}
+    private awaiters: Record<string, Awaiter> = {}
     private _nextId = 1
     private _ws: WebSocket
     private _pendingMessages: string[] = []
@@ -148,7 +152,20 @@ export class WebSocketClient extends EventTarget {
         this.dispatchEvent(new Event(CONNECT))
     }
 
-    queue<T extends RequestMessage>(msg: Omit<T, "id">): Promise<T> {
+    queue<T extends RequestMessage>(
+        msg: Omit<T, "id">,
+        options?: { reuse: boolean }
+    ): Promise<T> {
+        const { reuse } = options || {}
+        if (reuse) {
+            const awaiter = Object.values(this.awaiters).find(
+                (a) => a.msg.type === msg.type
+            )
+            if (awaiter?.promise) {
+                return awaiter.promise
+            }
+        }
+
         const id = this._nextId++ + ""
         const mo: any = { ...msg, id }
         // avoid pollution
@@ -157,15 +174,19 @@ export class WebSocketClient extends EventTarget {
         const m = JSON.stringify(mo)
 
         this.init()
-        return new Promise<T>((resolve, reject) => {
-            this.awaiters[id] = {
+        let awaiter: Awaiter
+        const p = new Promise<T>((resolve, reject) => {
+            awaiter = this.awaiters[id] = {
+                msg,
                 resolve: (data) => resolve(data),
                 reject,
-            }
+            } satisfies Awaiter
             if (this._ws?.readyState === WebSocket.OPEN) {
                 this._ws.send(m)
             } else this._pendingMessages.push(m)
         })
+        awaiter.promise = p
+        return p
     }
 
     get pending() {
@@ -218,26 +239,38 @@ export class WebSocketClient extends EventTarget {
         modelId: string,
         options?: { token?: boolean }
     ): Promise<LanguageModelConfiguration | undefined> {
-        const res = await this.queue<LanguageModelConfigurationRequest>({
-            type: "model.configuration",
-            model: modelId,
-            token: options?.token,
-        })
+        const res = await this.queue<LanguageModelConfigurationRequest>(
+            {
+                type: "model.configuration",
+                model: modelId,
+                token: options?.token,
+            },
+            { reuse: true }
+        )
         return res.response?.ok ? res.response.info : undefined
     }
 
     async version(): Promise<ServerResponse> {
-        const res = await this.queue<ServerVersion>({ type: "server.version" })
+        const res = await this.queue<ServerVersion>(
+            { type: "server.version" },
+            { reuse: true }
+        )
         return res.response as ServerResponse
     }
 
     async infoEnv(): Promise<ServerEnvResponse> {
-        const res = await this.queue<ServerEnv>({ type: "server.env" })
+        const res = await this.queue<ServerEnv>(
+            { type: "server.env" },
+            { reuse: true }
+        )
         return res.response as ServerEnvResponse
     }
 
     async listScripts(): Promise<Project> {
-        const res = await this.queue<PromptScriptList>({ type: "script.list" })
+        const res = await this.queue<PromptScriptList>(
+            { type: "script.list" },
+            { reuse: true }
+        )
         const project = (res.response as PromptScriptListResponse)?.project
         return project
     }

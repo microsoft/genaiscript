@@ -40,7 +40,7 @@ const _parsers: Record<string, Promise<any>> = {}
  * @param filename - The name of the file containing the syntax node.
  * @param node - The syntax node to serialize.
  * @returns A structured object containing the type, text, filename, start row, end row,
- * and serialized representations of child nodes.
+ * and serialized representations of child nodes. Each child node is recursively serialized.
  */
 export function serializeSyntaxNode(filename: string, node: SyntaxNode): any {
     return {
@@ -60,7 +60,7 @@ export function serializeSyntaxNode(filename: string, node: SyntaxNode): any {
  *
  * @param filename - The name of the file where the captured node exists.
  * @param capture - The query capture to serialize, including its name and associated syntax node.
- * @returns An object representing the serialized query capture, including its name and a serialized syntax node.
+ * @returns An object containing the name of the capture and a serialized representation of its syntax node.
  */
 export function serializeQueryCapture(filename: string, capture: QueryCapture) {
     return {
@@ -90,7 +90,7 @@ export function resolveTags(language: string) {
  * Transforms query capture nodes into a formatted string representation.
  *
  * @param nodes - An array of query captures representing nodes to render. Each capture contains a node and its associated name.
- * @returns A formatted string with details of each capture. Each entry specifies the tag name, position (line and column), type, and text of the node.
+ * @returns A formatted string with details of each capture. Each entry specifies the tag name, position (line and column), type, and text of the node. The line and column values are 1-based.
  */
 export function renderCaptures(nodes: QueryCapture[]) {
     return nodes
@@ -109,13 +109,14 @@ export function renderCaptures(nodes: QueryCapture[]) {
  * @param file - The file to analyze, containing filename and content properties.
  * @param query - An optional query string or predefined query (e.g., "tags") to run on the syntax tree. If undefined, returns the full syntax tree as a capture.
  * @param options - Optional tracing options, enabling detailed trace logging for debugging or monitoring.
- * @returns - A promise resolving to an object containing query captures. Each capture includes a node and its associated metadata.
+ * @returns A promise resolving to an object containing query captures. Each capture includes a node and its associated metadata.
  *
  * Notes:
  * - Initializes and configures a Tree-sitter parser for the file's language.
  * - Determines the language based on file extension and resolves the required WebAssembly module.
- * - If the `query` is "tags", it uses predefined queries specific to the language.
+ * - If the query is "tags", it uses predefined queries specific to the language.
  * - Outputs structured results with syntax node details.
+ * - Uses a caching mechanism for parsers to avoid redundant initialization.
  */
 export async function treeSitterQuery(
     file: WorkspaceFile,

@@ -27,6 +27,12 @@ export function uriRedact(url: string) {
     return res // Return the shortened URL.
 }
 
+/**
+ * Attempts to parse a given URL string into a URL object.
+ *
+ * @param url - The URL string to be parsed. If the input is empty or invalid, the function returns undefined.
+ * @returns A URL object if parsing is successful, otherwise undefined.
+ */
 export function uriTryParse(url: string) {
     if (!url) return undefined
     try {

@@ -20,6 +20,7 @@ import { RESOURCE_CHANGE } from "../../core/src/constants"
  *     - Redirects stdout to stderr.
  *     - Installs NodeHost with environment options.
  *     - Handles resource change events and communicates them to the parent thread.
+ *     - Ensures compatibility with Windows by setting the SystemRoot environment variable.
  */
 export async function worker() {
     overrideStdoutWithStdErr()

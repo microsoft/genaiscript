@@ -2,7 +2,17 @@
 title: Serve
 description: Launch local web server.
 sidebar:
-    order: 2
+  order: 2
+hero:
+  image:
+    alt: A simple 2D server icon in 8-bit style features a computer tower and a
+      globe representing network connectivity. Color-coded buttons indicate API
+      functions, accompanied by a shield symbol for API key security, a gear
+      icon for settings, and an abstract chain to represent CORS. The icon uses
+      a five-color flat corporate palette, fits within a 128x128 frame, has a
+      transparent background, and includes no text, people, or shadows.
+    file: ./serve.png
+
 ---
 
 Launch a local web server that is used to run the playground

@@ -124,7 +124,7 @@ const dbg = genaiscriptDebug("run")
  * @property options.model - Model configuration for the script execution.
  * @property options.vars - Variables to pass to the script.
  *
- * Exits with a success code if the script completes successfully, or with an appropriate error code if it fails or is cancelled.
+ * Exits with a success code if the script completes successfully, or with an appropriate error code if it fails, is cancelled, or encounters an unrecoverable error.
  */
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -172,7 +172,7 @@ export async function runScriptWithExitCode(
  * @param files - Array of file paths or URLs to be processed by the script.
  * @param options - Configuration object including additional execution parameters:
  *   - runId: Optional identifier for the execution run.
- *   - outputTrace: Instance for capturing trace outputs.
+ *   - runOutputTrace: Instance for capturing output trace events.
  *   - cli: Indicates if CLI mode is active.
  *   - infoCb: Callback function for informational messages.
  *   - partialCb: Callback for reporting partial progress in chat completions.
@@ -191,7 +191,18 @@ export async function runScriptWithExitCode(
  *   - jsSource: JavaScript source code for the script.
  *   - logprobs/topLogprobs: Configurations for log probability outputs.
  *   - fenceFormat: Specifies the format for fenced code blocks.
- *   - other parameters for retries, limits, model settings, etc.
+ *   - workspaceFiles: Additional files to include in the workspace.
+ *   - excludedFiles: Files to exclude from processing.
+ *   - ignoreGitIgnore: Disables applying .gitignore rules when resolving files.
+ *   - label: Optional label for the execution run.
+ *   - temperature: Sampling temperature for model execution.
+ *   - fallbackTools: Fallback tools to use if primary tools fail.
+ *   - topP: Top-p sampling parameter for model execution.
+ *   - toolChoice: Specifies the tool to use for execution.
+ *   - seed: Random seed for reproducibility.
+ *   - maxTokens: Maximum number of tokens for model responses.
+ *   - maxToolCalls: Maximum number of tool calls allowed.
+ *   - maxDataRepairs: Maximum number of data repair attempts.
  *
  * @returns A Promise resolving to an object containing:
  *   - exitCode: Final exit code of the script execution.
@@ -247,11 +258,7 @@ export async function runScriptInternal(
     const fallbackTools = options.fallbackTools
     const reasoningEffort = options.reasoningEffort
     const topP = normalizeFloat(options.topP)
-    const toolChoice: ChatToolChoice = options.toolChoice
-        ? ["none", "auto", "required"].includes(options.toolChoice)
-            ? (options.toolChoice as "none" | "auto" | "required")
-            : { name: options.toolChoice }
-        : undefined
+    const toolChoice = options.toolChoice
     const seed = normalizeFloat(options.seed)
     const maxTokens = normalizeInt(options.maxTokens)
     const maxToolCalls = normalizeInt(options.maxToolCalls)
@@ -341,7 +348,6 @@ export async function runScriptInternal(
         )
         throw new Error(`script ${scriptId} not found`)
     }
-    if (script.filename) logVerbose(`script: ${script.filename}`)
     const applyGitIgnore =
         options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     dbg(`apply gitignore: ${applyGitIgnore}`)
@@ -360,24 +366,29 @@ export async function runScriptInternal(
             resolvedFiles.add(arg)
             continue
         }
-        const stats = await host.statFile(arg)
-        if (stats?.type === "directory") {
-            dbg(`path is directory, expanding children`)
-            arg = host.path.join(arg, "**", "*")
-        }
-        dbg(`find ${arg}`)
-        const ffs = await host.findFiles(arg, {
-            applyGitIgnore,
-        })
-        if (!ffs?.length && arg.includes("*")) {
-            // edge case when gitignore dumps 1 file
-            return fail(
-                `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
-                FILES_NOT_FOUND_ERROR_CODE
-            )
-        }
-        for (const file of ffs) {
-            resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
+        const stat = await host.statFile(arg)
+        if (stat?.type === "file") {
+            dbg(`add %s`, arg)
+            resolvedFiles.add(filePathOrUrlToWorkspaceFile(arg))
+        } else {
+            if (stat?.type === "directory") {
+                dbg(`path is directory, expanding children`)
+                arg = host.path.join(arg, "**", "*")
+            }
+            dbg(`expand ${arg} (apply .gitignore: ${applyGitIgnore})`)
+            const ffs = await host.findFiles(arg, {
+                applyGitIgnore,
+            })
+            if (!ffs?.length && arg.includes("*")) {
+                // edge case when gitignore dumps 1 file
+                return fail(
+                    `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
+                    FILES_NOT_FOUND_ERROR_CODE
+                )
+            }
+            for (const file of ffs) {
+                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
+            }
         }
     }
 

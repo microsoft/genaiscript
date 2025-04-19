@@ -27,6 +27,7 @@ export function isSARIFFilename(f: string) {
  *
  * @param template - The template containing script metadata, including id, title, and description.
  * @param issues - Array of diagnostic issues to convert. Each issue should include severity, message, filename, and range.
+ * Each range is a tuple where the first element is the start position and the second element is the end position.
  * @returns A stringified SARIF JSON object representing the diagnostic issues, formatted with indentation for readability.
  */
 export async function convertDiagnosticsToSARIF(

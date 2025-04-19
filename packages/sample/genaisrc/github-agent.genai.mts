@@ -55,7 +55,7 @@ defOutputProcessor(async ({ messages }) => {
             messages
                 .map(
                     (msg) =>
-                        _.$`- ${msg.role}: ${msg.content || msg.value || JSON.stringify(msg)}`
+                        _.$`- ${msg.role}: ${msg.content || JSON.stringify(msg)}`
                 )
                 .join("\n")
         )

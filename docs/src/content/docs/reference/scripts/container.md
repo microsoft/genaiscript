@@ -1,9 +1,19 @@
 ---
 title: Containers
-description: Learn how to use containers for secure and isolated execution of untrusted code with Docker in software development.
+description: Learn how to use containers for secure and isolated execution of
+  untrusted code with Docker in software development.
 keywords: Docker, Containers, Software Development, Code Isolation, Execution Environment
 sidebar:
-    order: 20
+  order: 20
+hero:
+  image:
+    alt: A small, pixel-style image shows a geometric box with a gear and code
+      brackets inside, representing a software package. A tiny shield stands
+      beside the box to signal security. Clean lines and shapes suggest network
+      connections and ports, using five corporate colors, arranged simply and
+      without any text or background.
+    file: ./container.png
+
 ---
 
 Containers, like [Docker](https://www.docker.com/), are a way to package software and its dependencies into a standardized unit for software development. Containers are lightweight, standalone, and executable software packages that include everything needed to run an application: code, runtime, system tools, system libraries, and settings.

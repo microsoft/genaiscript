@@ -163,6 +163,7 @@ no
  * @param options.ctx - Chat generation context to use. Defaults to the environment generator if not provided.
  * @param options.repeat - Number of improvement iterations to perform. Defaults to 1.
  * @param options.instructions - Custom instructions for improvement. Defaults to "Make it better!".
+ * The instructions are applied in each iteration.
  */
 export function makeItBetter(options?: {
     ctx?: ChatGenerationContext
@@ -187,7 +188,7 @@ export function makeItBetter(options?: {
  *
  * @param data - Input text or a prompt generator function to convert.
  * @param itemSchema - JSON schema defining the target data structure. If `multiple` is true, this will be treated as an array schema.
- * @param options - Configuration options for the conversion process, including context, instructions, label, and additional settings.
+ * @param options - Configuration options for the conversion process, including context, instructions, label, and additional settings. If `multiple` is true, the schema will be treated as an array schema.
  * @returns An object containing the converted data, error information if applicable, and the raw text response.
  */
 export async function cast(
@@ -240,7 +241,7 @@ export async function cast(
  * Converts a PDF file to markdown format with intelligent formatting preservation.
  *
  * @param file - PDF file to convert.
- * @param options - Configuration options for PDF processing and markdown conversion, including instructions, context, and additional settings. The options can include rendering images, providing custom instructions, and specifying the context for processing.
+ * @param options - Configuration options for PDF processing and markdown conversion, including instructions, context, and additional settings. The options can include rendering images, providing custom instructions, and specifying the context for processing. The text and images from the PDF are analyzed to ensure accurate markdown formatting.
  * @returns An object containing the original pages, rendered images, and markdown content for each page.
  */
 export async function markdownifyPdf(

@@ -4,6 +4,7 @@ import {
     JSONSchemaInfer,
     JSONSchemaStringify,
     JSONSchemaStringifyToTypeScript,
+    JSONSchemaToFunctionParameters,
     toStrictJSONSchema,
     tryValidateJSONWithSchema,
     validateJSONWithSchema,
@@ -387,5 +388,75 @@ of the city.`,
         const trace = new MarkdownTrace()
         const result = tryValidateJSONWithSchema(object, { schema, trace })
         assert.deepStrictEqual(result, object)
+    })
+    test("JSONSchemaToFunctionParameters - primitive types", () => {
+        assert.strictEqual(JSONSchemaToFunctionParameters("string"), "string")
+        assert.strictEqual(JSONSchemaToFunctionParameters("number"), "number")
+        assert.strictEqual(JSONSchemaToFunctionParameters("integer"), "number")
+        assert.strictEqual(JSONSchemaToFunctionParameters("boolean"), "boolean")
+        assert.strictEqual(JSONSchemaToFunctionParameters("null"), "null")
+    })
+
+    test("JSONSchemaToFunctionParameters - anyOf types", () => {
+        const schema: JSONSchemaAnyOf = {
+            anyOf: [{ type: "string" }, { type: "number" }],
+        }
+        assert.strictEqual(
+            JSONSchemaToFunctionParameters(schema),
+            "string | number"
+        )
+    })
+
+    test("JSONSchemaToFunctionParameters - array type", () => {
+        const schema: JSONSchemaArray = {
+            type: "array",
+            items: { type: "string" },
+        }
+        assert.strictEqual(
+            JSONSchemaToFunctionParameters(schema),
+            "{ string }[]"
+        )
+    })
+
+    test("JSONSchemaToFunctionParameters - object type", () => {
+        const schema: JSONSchemaObject = {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                age: { type: "number" },
+            },
+            required: ["name"],
+        }
+        assert.strictEqual(
+            JSONSchemaToFunctionParameters(schema),
+            "name: string, age?: number"
+        )
+    })
+
+    test("JSONSchemaToFunctionParameters - nested object", () => {
+        const schema: JSONSchemaObject = {
+            type: "object",
+            properties: {
+                user: {
+                    type: "object",
+                    properties: {
+                        name: { type: "string" },
+                        age: { type: "number" },
+                    },
+                    required: ["name"],
+                },
+            },
+            required: ["user"],
+        }
+        assert.strictEqual(
+            JSONSchemaToFunctionParameters(schema),
+            "user: { name: string, age?: number }"
+        )
+    })
+
+
+    test("JSONSchemaToFunctionParameters - unsupported schema", () => {
+        const schema: any = { type: "unsupported" }
+        assert.strictEqual(JSONSchemaToFunctionParameters(schema), "?")
     })
 })

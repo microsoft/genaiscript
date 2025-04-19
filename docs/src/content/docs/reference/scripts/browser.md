@@ -1,15 +1,24 @@
 ---
 title: Browser Automation
 sidebar:
-    order: 30
+  order: 30
 description: Discover how GenAIScript integrates with Playwright for web
-    scraping and browser automation tasks.
+  scraping and browser automation tasks.
 tags:
-    - GenAIScript
-    - Playwright
-    - web scraping
-    - automation
-    - browser
+  - GenAIScript
+  - Playwright
+  - web scraping
+  - automation
+  - browser
+hero:
+  image:
+    alt: A bold, minimalistic 8-bit icon features a web browser window with a basic
+      table of columns and rows, a floating geometric film strip and play button
+      to indicate video recording, a gear for automation, and a diamond or
+      chevron for data parsing. The image uses five corporate colors, has flat,
+      simple shapes, no people or text, and a transparent background.
+    file: ./browser.png
+
 ---
 
 GenAIScript provides a simplified API to interact with a headless browser using [Playwright](https://playwright.dev/) .

@@ -35,6 +35,7 @@ import { JSONSchemaToFunctionParameters } from "../../core/src/schema"
  * Outputs the list in plain text or JSON format based on the json option.
  * @param ids - An array of script IDs to filter.
  * @param options - Additional filtering options, including whether to output in JSON format.
+ *                 If not provided, defaults to plain text output.
  */
 export async function listScripts(
     ids: string[],
@@ -67,6 +68,16 @@ export async function listScripts(
         )
 }
 
+/**
+ * Retrieves detailed information about a specific script by its ID.
+ * Outputs metadata such as its title, file location, and accepted input types.
+ * Also displays the script's function signature, including its input schema and file handling capabilities.
+ *
+ * @param scriptId - The unique identifier of the script to locate.
+ *
+ * The function checks if the script exists in the project. If found, it prints
+ * metadata and the script's function signature. If not found, it logs an error message.
+ */
 export async function scriptInfo(scriptId: string) {
     const prj = await buildProject()
     const script = prj.scripts.find((t) => t.id === scriptId)
@@ -98,9 +109,10 @@ export async function scriptInfo(scriptId: string) {
 /**
  * Creates a new script.
  * Prompts the user for the script name if not provided.
- * Calls core function to create a script and copies prompt definitions.
+ * Calls the core function to create a script and copies prompt definitions.
  * Compiles the newly created script immediately after creation.
- * @param name - The name of the script to be created.
+ * Logs the location of the created script.
+ * @param name - The name of the script to be created. If not provided, the user will be prompted to enter it.
  * @param options - Options for script creation, including whether to use TypeScript.
  */
 export async function createScript(
@@ -128,7 +140,7 @@ export async function createScript(
  * Used to correct any issues in the prompt definitions.
  * Accesses project information by building the project first.
  *
- * @param options - Optional settings to fix specific types of prompts, such as GitHub Copilot prompts or documentation prompts.
+ * @param options - Optional settings to fix specific types of prompts, such as GitHub Copilot prompts or custom prompts.
  */
 export async function fixScripts(options?: {
     githubCopilotPrompt?: boolean
@@ -141,11 +153,12 @@ export async function fixScripts(options?: {
 
 /**
  * Compiles scripts in specified folders or all if none specified.
- * @param folders - An array of folder names to compile. Compiles all if empty.
  * Fixes prompt definitions before compiling.
  * Handles both JavaScript and TypeScript compilation based on folder content.
  * Logs errors and verbose output during the compilation process.
  * Exits process with error code if any compilation fails.
+ *
+ * @param folders - An array of folder names to compile. If empty, compiles all available script folders.
  */
 export async function compileScript(folders: string[]) {
     const project = await buildProject() // Build the project to gather script information

@@ -30,8 +30,9 @@ export function escapeToolName(name: string) {
  * @returns `true` if tools are supported, `false` if not supported, or `undefined` if unknown.
  *
  * The function examines the model's provider and family from the parsed model ID.
- * It checks the `MODEL_PROVIDERS` data for explicit tool support configurations.
+ * It checks the `providerFeatures` data for explicit tool support configurations.
  * If no configuration is found, it applies additional restrictions based on the family name.
+ * Models with family names matching the restricted patterns (e.g., "o1-mini" or "o1-preview") are not supported.
  */
 export function isToolsSupported(modelId: string): boolean | undefined {
     if (!modelId) {

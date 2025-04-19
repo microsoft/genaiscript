@@ -1,11 +1,22 @@
 ---
 title: Import Template
 sidebar:
-    order: 50
+  order: 50
 description: Learn how to import prompt templates into GenAIScript using
-    `importTemplate` with support for mustache variable interpolation and file
-    globs.
+  `importTemplate` with support for mustache variable interpolation and file
+  globs.
 keywords: importTemplate, prompts, mustache, variable interpolation, file globs
+hero:
+  image:
+    alt: A digital scene in classic 8-bit style shows stacked rectangles with tabs,
+      symbolizing documents, linked by bold arrows to a computer screen with
+      bracket and brace icons representing code. Small circles suggest
+      variables, a simple clock icon refers to time, and minimal template shapes
+      are present. The image uses five corporate colors on a flat, single-color
+      background, is highly simplified and geometric, and measures 128 by 128
+      pixels. There are no people, no words, and no realistic effects.
+    file: ./import-template.png
+
 ---
 
 Various LLM tools allow storing prompts in text or markdown files.

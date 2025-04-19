@@ -101,7 +101,7 @@ function createEnv() {
 /**
  * Runs prompt script tests based on provided IDs and options, returns the test results.
  * @param ids - Array of script IDs to run tests on.
- * @param options - Options to configure the test run, including output paths, CLI settings, caching, verbosity, concurrency, and redteam mode.
+ * @param options - Options to configure the test run, including output paths, CLI settings, caching, verbosity, concurrency, redteam mode, promptfoo version, output summary, test delay, and cancellation options.
  * @returns A Promise resolving to the test run response, including results, status, and error details if applicable.
  */
 export async function runPromptScriptTests(
@@ -376,7 +376,7 @@ async function listTests(options: {
 /**
  * Executes prompt script tests, outputs the results, and exits the process with a status code.
  * @param ids - Array of script IDs to run tests on.
- * @param options - Options to configure the test run, including output paths, CLI settings, verbosity, caching, test delay, groups, and concurrency settings.
+ * @param options - Options to configure the test run, including output paths, CLI settings, verbosity, caching, test delay, groups, concurrency settings, and redteam mode.
  */
 export async function scriptsTest(
     ids: string[],
@@ -409,8 +409,9 @@ export async function scriptsTest(
 /**
  * Lists available test scripts and prints their IDs and filenames.
  * Filters the scripts based on the provided options.
+ *
  * @param options - Options to filter the scripts by groups or redteam flag.
- * Includes filtering by groups and whether the scripts are for redteam testing.
+ * Filters the scripts by groups and whether they are for redteam testing.
  */
 export async function scriptTestList(options: {
     groups?: string[]
@@ -424,6 +425,7 @@ export async function scriptTestList(options: {
  * Launches a server to view promptfoo test results.
  * Ensures necessary directories are created before starting the server.
  * Logs a debug message before launching the server.
+ * Executes the command to start the server using the specified or default promptfoo version.
  * @param options - Options to specify the promptfoo version.
  */
 export async function scriptTestsView(options: { promptfooVersion?: string }) {

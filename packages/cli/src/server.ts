@@ -11,6 +11,7 @@ import {
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     WS_MAX_FRAME_LENGTH,
     LOG,
+    TRACE_FILENAME,
     WS_MAX_FRAME_CHUNK_LENGTH,
 } from "../../core/src/constants"
 import { isCancelError, serializeError } from "../../core/src/error"
@@ -41,7 +42,6 @@ import {
     CreateChatCompletionRequest,
 } from "../../core/src/chattypes"
 import { randomHex } from "../../core/src/crypto"
-import { buildProject } from "./build"
 import * as http from "http"
 import { extname, join } from "path"
 import { createReadStream } from "fs"
@@ -61,6 +61,7 @@ import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { nodeTryReadPackage } from "../../core/src/nodepackage"
 import { genaiscriptDebug } from "../../core/src/debug"
+import { startProjectWatcher } from "./watch"
 const dbg = genaiscriptDebug("server")
 
 /**
@@ -75,6 +76,7 @@ const dbg = genaiscriptDebug("server")
  *   - dispatchProgress: Whether to dispatch progress updates to all clients.
  *   - githubCopilotChatClient: Whether to enable GitHub Copilot Chat client integration.
  *   - remote: Remote configuration options.
+ *   - remoteBranch: Optional branch name for remote configuration.
  */
 export async function startServer(
     options: {
@@ -105,6 +107,7 @@ export async function startServer(
     const cwd = process.cwd()
 
     await applyRemoteOptions(options)
+    const watcher = await startProjectWatcher({})
 
     // read current project info
     const { name, displayName, description, version, homepage, author } =
@@ -231,7 +234,7 @@ export async function startServer(
 
     const scriptList = async () => {
         logVerbose(`project: list scripts`)
-        const project = await buildProject()
+        const project = await watcher.project()
         const scripts = project?.scripts || []
         logVerbose(
             `project: found ${scripts.filter((s) => !s.unlisted).length} scripts (${scripts.filter((s) => !!s.unlisted).length} unlisted)`
@@ -318,7 +321,7 @@ export async function startServer(
         cancelAll()
     })
 
-    // send loggign messages
+    // send logging messages
     ;(runtimeHost as NodeHost).addEventListener(LOG, (ev) => {
         const lev = ev as LogEvent
         const messages = chunkLines(lev.message, WS_MAX_FRAME_CHUNK_LENGTH)
@@ -782,7 +785,9 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
                         const runResult =
                             (await tryReadJSON(join(run.dir, "res.json"))) || {}
                         const runTrace =
-                            (await tryReadText(join(run.dir, "trace.md"))) || ""
+                            (await tryReadText(
+                                join(run.dir, TRACE_FILENAME)
+                            )) || ""
                         response = (<PromptScriptEndResponseEvent>{
                             ok: true,
                             type: "script.end",

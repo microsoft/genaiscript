@@ -1,9 +1,20 @@
 ---
 title: TypeScript
 sidebar:
-    order: 15
-description: Learn how to use TypeScript for better tooling and scalability in your GenAIScript projects.
+  order: 15
+description: Learn how to use TypeScript for better tooling and scalability in
+  your GenAIScript projects.
 keywords: TypeScript, JavaScript, ESM, dynamic imports, type checking
+hero:
+  image:
+    alt: 'A simple 8-bit style image shows a blue file icon marked ".mts" linked
+      with dotted lines to two other file icons: a dark gray one representing
+      JavaScript and a light gray one for TypeScript. All icons are arranged on
+      a plain white background with a geometric arrow indicating import, using
+      blue, gray, black, white, and yellow. The design is flat, highly
+      simplified, without people or text, and measures 128 by 128 pixels.'
+    file: ./typescript.png
+
 ---
 
 [TypeScript](https://www.typescriptlang.org/) is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. GenAIScript scripts can be authored in TypeScript.

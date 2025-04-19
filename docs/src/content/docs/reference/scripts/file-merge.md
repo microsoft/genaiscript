@@ -1,9 +1,20 @@
 ---
 title: File Merge
-description: Customize file merging in scripts with defFileMerge function to handle different file formats and merging strategies.
-keywords: file merging, custom merge, defFileMerge, script customization, content appending
+description: Customize file merging in scripts with defFileMerge function to
+  handle different file formats and merging strategies.
+keywords: file merging, custom merge, defFileMerge, script customization,
+  content appending
 sidebar:
-    order: 11
+  order: 11
+hero:
+  image:
+    alt: An 8-bit style icon shows a computer file with a folded corner, split into
+      blue on one side and green on the other, representing "before" and
+      "generated" document icons. An orange arrow connects both halves into one
+      merged file with a bold plus sign at the center. The design uses five flat
+      colors, simple geometric shapes, and no background.
+    file: ./file-merge.png
+
 ---
 
 The `defFileMerge` function allows you to register a custom callback to override the default file merge behavior.

@@ -4,21 +4,23 @@ script({
         keywords: ["Python", "3."],
     },
 })
+const { dbg } = env
 
 const persistent = env.vars.purge === "no"
 const container = await host.container({
     name: "testing",
     networkEnabled: true,
     postCreateCommands: "pip install --root-user-action ignore pandas",
+    persistent,
 })
 const version = await container.exec("python", ["--version"])
 if (!/^python \d/i.test(version.stdout))
     throw new Error("python --version failed")
-await container.writeText("pythonversion.txt", version.stdout)
-const fversion = await container.readText("pythonversion.txt")
-if (version.stdout !== fversion)
+await container.writeText("python_version.txt", version.stdout)
+const fVersion = await container.readText("python_version.txt")
+if (version.stdout !== fVersion)
     throw new Error(
-        `writetext/readtext error, expected '${version.stdout}', got '${fversion}'`
+        `write_text/read_text error, expected '${version.stdout}', got '${fVersion}'`
     )
 await container.copyTo("src/rag/*.md", "/copied")
 console.log(await container.listFiles("/copied"))

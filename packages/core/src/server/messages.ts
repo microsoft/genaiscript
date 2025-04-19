@@ -166,7 +166,7 @@ export interface PromptScriptRunOptions {
     temperature: string | number
     reasoningEffort: "high" | "low" | "medium"
     topP: string | number
-    toolChoice: string
+    toolChoice: ChatToolChoice
     seed: string | number
     maxTokens: string | number
     maxToolCalls: string | number

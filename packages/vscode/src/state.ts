@@ -367,18 +367,30 @@ export class ExtensionState extends EventTarget {
         if (githubCopilotPrompt) fixCustomPrompts({ githubCopilotPrompt: true }) // finish async
     }
 
-    async parseWorkspace() {
-        logVerbose(`parse workspace`)
-        this.dispatchChange()
-        performance.mark(`save-docs`)
-        await saveAllTextDocuments()
-        performance.mark(`project-start`)
-        performance.mark(`scan-tools`)
-        const client = await this.host.server.client()
-        const newProject = await client.listScripts()
-        await this.setProject(newProject)
-        this.setDiagnostics()
-        logMeasure(`project`, `project-start`, `project-end`)
+    private _parseWorkspacePromise: Promise<void> = undefined
+    parseWorkspace(): Promise<void> {
+        const p =
+            this._parseWorkspacePromise ||
+            (this._parseWorkspacePromise = this.uncachedParseWorkspace())
+        return p
+    }
+
+    private async uncachedParseWorkspace() {
+        try {
+            logVerbose(`parse workspace`)
+            this.dispatchChange()
+            performance.mark(`save-docs`)
+            await saveAllTextDocuments()
+            performance.mark(`project-start`)
+            performance.mark(`scan-tools`)
+            const client = await this.host.server.client()
+            const newProject = await client.listScripts()
+            await this.setProject(newProject)
+            this.setDiagnostics()
+            logMeasure(`project`, `project-start`, `project-end`)
+        } finally {
+            this._parseWorkspacePromise = undefined
+        }
     }
 
     private setDiagnostics() {

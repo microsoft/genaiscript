@@ -13,7 +13,7 @@ import { YAMLStringify } from "../../core/src/yaml"
  *   @param excludedFiles - List of files to exclude from indexing.
  *   @param embeddingsModel - Model used to generate embeddings.
  *   @param ignoreGitIgnore - Whether to bypass .gitignore rules.
- *   @param database - Backend type for storing the generated index.
+ *   @param database - Backend type for storing the generated index. Can be "local" or "azure_ai_search".
  */
 export async function retrievalIndex(
     indexName: string,

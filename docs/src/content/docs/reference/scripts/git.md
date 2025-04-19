@@ -2,7 +2,18 @@
 title: Git
 description: Git utilities for repository operations
 sidebar:
-    order: 51
+  order: 51
+hero:
+  image:
+    alt: An 8-bit style, two-dimensional file directory icon features branching
+      lines with geometric nodes to represent git branches, a small gear for
+      settings, and a tag icon for version tags. A directional arrow points
+      toward a repository box to indicate shallow cloning, while a dashed
+      outline marks an ignored file. The artwork uses five solid corporate
+      colors in a flat, minimalist design with no background or gradients,
+      created for a 128x128 size.
+    file: ./git.png
+
 ---
 
 The `git` helper provides a thin wrapper around invoking the [git](https://git-scm.com/) executable for repository operations.

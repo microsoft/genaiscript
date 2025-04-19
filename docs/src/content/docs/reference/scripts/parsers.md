@@ -1,9 +1,22 @@
 ---
 title: Parsers
 sidebar:
-    order: 12
-description: Comprehensive guide on various data format parsers including JSON5, YAML, TOML, CSV, PDF, DOCX, and token estimation for LLM.
+  order: 12
+description: Comprehensive guide on various data format parsers including JSON5,
+  YAML, TOML, CSV, PDF, DOCX, and token estimation for LLM.
 keywords: parsers, JSON5, YAML, TOML, CSV, token estimation
+hero:
+  image:
+    alt: A small, square digital illustration shows flat, simplified icons
+      representing various file formats arranged neatly in a grid. Symbols
+      include a curly bracket for JSON5, flowing lines with dashes for YAML and
+      TOML, stacked bars for CSV/Excel, a single angle bracket for XML, a double
+      quotation mark for code, a pie chart with an equation symbol for math and
+      data, and a zipper indicating compressed ZIP files. Each symbol uses
+      clean, geometric shapes within a limited color palette, with no
+      background, shadows, text, or human figures.
+    file: ./parsers.png
+
 ---
 
 The `parsers` object provides various parsers for common data formats.

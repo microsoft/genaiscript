@@ -1,9 +1,22 @@
 ---
 title: Custom Output
-description: Learn how to use the defOutputProcessor function for custom file processing in script generation.
-keywords: custom output, defOutputProcessor, file processing, script generation, post processing
+description: Learn how to use the defOutputProcessor function for custom file
+  processing in script generation.
+keywords: custom output, defOutputProcessor, file processing, script generation,
+  post processing
 sidebar:
-    order: 12
+  order: 12
+hero:
+  image:
+    alt: A minimalistic 8-bit style image depicts a stylized computer file with a
+      glowing gear symbol and an arrow, suggesting file processing or
+      modification. Nearby, a trash can has small colored documents hovering
+      above it, representing files being cleaned or deleted. The image uses five
+      flat colors, geometric forms, and has no background, text, people,
+      shadows, or gradients, maintaining a clean, corporate-friendly look in a
+      128x128 pixel format.
+    file: ./custom-output.png
+
 ---
 
 The `defOutputProcessor` function registers a callback to perform custom processing of the LLM output at the end of the generation process. This function allows the creation of new files or modification of existing ones.

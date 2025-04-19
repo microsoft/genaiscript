@@ -1,9 +1,23 @@
 ---
 title: Context (env+def)
 sidebar:
-    order: 3
-description: Detailed documentation on the script execution context and environment variables in GenAIScript.
+  order: 3
+description: Detailed documentation on the script execution context and
+  environment variables in GenAIScript.
 keywords: script execution, env object, GenAIScript context, def function, env files
+hero:
+  image:
+    alt: A simplified 2D digital illustration displays a plain folder with several
+      file icons above it, each symbolizing a different file type—PDF, Markdown,
+      Python, and CSV—distinguished by subtle color differences. The files float
+      in a curved arc above the folder. Shapes like divided rectangles and
+      arrows suggest data comparison or file differences. A small cogwheel icon
+      represents automation. The scene uses only five solid colors, with sharp
+      boundaries and very minimal detail. All items are spaced apart on a blank,
+      transparent background, with no text, people, shading, or
+      three-dimensional effects.
+    file: ./context.png
+
 ---
 
 Information about the context of script execution is available in the `env` global object.

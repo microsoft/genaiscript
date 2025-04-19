@@ -1,9 +1,20 @@
 ---
 title: PDF
-description: Learn how to extract text from PDF files for prompt generation using GenAIScript's PDF parsing capabilities.
+description: Learn how to extract text from PDF files for prompt generation
+  using GenAIScript's PDF parsing capabilities.
 sidebar:
-    order: 9
+  order: 9
 keywords: PDF parsing, text extraction, pdf-parse, document conversion, prompt generation
+hero:
+  image:
+    alt: A flat, 2D 8-bit style icon set on a plain background, featuring a
+      geometric PDF document symbol with a small cogwheel to signify parsing,
+      two overlapping page icons to illustrate page-by-page analysis, and a
+      simplified camera graphic indicating image extraction; the design uses
+      only five corporate colors and has no people, text, background elements,
+      shadows, gradients, reflections, or 3D effects.
+    file: ./pdf.png
+
 ---
 
 The `def` function will automatically parse PDF files and extract text from them. This is useful for generating prompts from PDF files.

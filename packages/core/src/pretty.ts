@@ -2,9 +2,11 @@ import type { ChatCompletionUsage } from "./chattypes"
 import _prettyBytes from "pretty-bytes"
 import {
     CHAR_DOWN_ARROW,
+    CHAR_TEMPERATURE,
     CHAR_UP_ARROW,
     CHAR_UP_DOWN_ARROWS,
 } from "./constants"
+import { roundWithPrecision } from "./precision"
 
 /**
  * Formats token usage into a human-readable string indicating tokens per second.
@@ -26,7 +28,7 @@ export function prettyTokensPerSecond(usage: ChatCompletionUsage) {
  * @param direction - Optional indicator for token type:
  *   "prompt" for input tokens (adds "↑" as prefix) or
  *   "completion" for output tokens (adds "↓" as prefix). Defaults to no prefix.
- * @returns A formatted string with units "t" for tokens, "kt" for kilotokens, or "Mt" for megatokens.
+ * @returns A formatted string with units "t" for tokens, "kt" for kilo-tokens, or "Mt" for mega-tokens.
  */
 export function prettyTokens(
     n: number,
@@ -97,7 +99,6 @@ export function prettyBytes(bytes: number) {
     return _prettyBytes(bytes)
 }
 
-
 /**
  * Converts a list of strings into a single comma-separated string.
  *
@@ -109,4 +110,19 @@ export function prettyStrings(...token: string[]) {
         .filter((l) => l !== undefined && l !== null && l !== "")
         .join(", ")
     return md
+}
+
+export function prettyValue(
+    value: number | undefined,
+    options?: { emoji?: string; precision?: number }
+) {
+    if (isNaN(value)) return ""
+    const { emoji, precision = 2 } = options || {}
+    const v = roundWithPrecision(value, precision)
+    const s = emoji ? `${emoji}${v}` : v.toString()
+    return s
+}
+
+export function prettyTemperature(value: number) {
+    return prettyValue(value, { emoji: CHAR_TEMPERATURE, precision: 1 })
 }

@@ -15,9 +15,9 @@ import { logVerbose } from "./util"
  * Estimates the token count of a given text by dividing its length
  * by an approximate token length and adding a constant overhead.
  *
- * @param text The input text to estimate tokens for.
+ * @param text The input text to estimate tokens for. If empty, returns 0.
  * @param options Optional parameters:
- *   - overcount: Adjusts the token length by subtracting this value from 4.
+ *   - overcount: Adjusts the token length by subtracting this value from 4. Defaults to 0.
  * @returns The estimated token count, including overhead.
  */
 export function approximateTokens(
@@ -37,7 +37,7 @@ export function approximateTokens(
  *
  * @param text - The input text to estimate tokens for. If empty or undefined, returns 0.
  * @param encoder - A function that encodes the text into tokens.
- * @returns The estimated token count, including overhead.
+ * @returns The estimated token count, including overhead. If an error occurs during encoding, falls back to an approximate token count.
  */
 export function estimateTokens(text: string, encoder: TokenEncoder) {
     // If the text is empty or undefined, return 0
@@ -64,9 +64,9 @@ export function estimateTokens(text: string, encoder: TokenEncoder) {
  * @param maxTokens - The token limit to enforce.
  * @param encoder - The function to encode text into tokens.
  * @param options - Additional options:
- *   - tokens: Precomputed token count of the content.
- *   - last: Truncate from the end of the content if true.
- *   - threshold: Minimum token adjustment threshold for binary search.
+ *   - tokens: Precomputed token count of the content. Defaults to an estimated value if not provided.
+ *   - last: Truncate from the end of the content if true. Defaults to false.
+ *   - threshold: Minimum token adjustment threshold for binary search. Defaults to a constant value.
  * @returns Truncated content adjusted to fit within the token limit.
  */
 export function truncateTextToTokens(

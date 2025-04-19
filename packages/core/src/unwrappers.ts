@@ -3,7 +3,7 @@ import { arrayify } from "./cleaners"
 /**
  * Remove code fences from a fenced block for the specified language.
  * @param text - The text containing the fenced block.
- * @param language - The language or array of languages used in the fence. Use "*" to match any language.
+ * @param language - The language or array of languages used in the fence. Use "*" to match any language. Null or undefined values in the array are ignored.
  * @returns The text without fences, or the original text if no fences are found.
  */
 export function unfence(text: string, language?: "*" | ElementOrArray<string>) {
@@ -26,9 +26,9 @@ export function unfence(text: string, language?: "*" | ElementOrArray<string>) {
 }
 
 /**
- * Remove quotes from a string if they exist.
+ * Remove quotes from the beginning and end of a string if they exist and match.
  * @param s - The string to unquote.
- * @returns The unquoted string.
+ * @returns The unquoted string, or the original string if no matching quotes are found.
  */
 export function unquote(s: string) {
     for (const sep of "\"'`")

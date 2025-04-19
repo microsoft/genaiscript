@@ -1,9 +1,21 @@
 ---
 title: Annotations
-description: Learn how to add annotations such as errors, warnings, or notes to LLM output for integration with VSCode or CI environments.
+description: Learn how to add annotations such as errors, warnings, or notes to
+  LLM output for integration with VSCode or CI environments.
 keywords: annotations, LLM output, VSCode integration, CI environment, GitHub Actions
 sidebar:
-    order: 11
+  order: 11
+hero:
+  image:
+    alt: "A simple 8-bit style icon shows a blocky computer monitor with a piece of
+      code displayed, overlaid by three symbols: a red triangle signaling an
+      error, a yellow exclamation for warning, and a blue note. Next to the
+      monitor, flat colored squares symbolize integration points for GitHub,
+      VSCode, and a checklist, all designed with basic geometric shapes and
+      limited to five distinct colors. The scene has no background or human
+      figures."
+    file: ./annotations.png
+
 ---
 
 Annotations are errors, warnings, or notes that can be added to the LLM output. They are extracted and integrated into VSCode or your CI environment.

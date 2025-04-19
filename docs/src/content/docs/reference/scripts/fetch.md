@@ -1,9 +1,21 @@
 ---
 title: Fetch
 sidebar:
-    order: 14
-description: Learn how to use fetch and fetchText in scripts to make HTTP requests and handle text responses.
+  order: 14
+description: Learn how to use fetch and fetchText in scripts to make HTTP
+  requests and handle text responses.
 keywords: fetch API, fetchText, HTTP requests, scripts, API key
+hero:
+  image:
+    alt: A small, flat 2D image in 8-bit style shows a computer screen displaying a
+      simple browser window. In the window, there are four basic icons—a
+      right-pointing arrow, a cloud symbolizing the internet, a file icon, and a
+      gear for settings—each connected by straight lines to illustrate a
+      simplified API process. The image uses only five solid corporate-style
+      colors and no text, people, shadows, gradients, or backgrounds. The
+      composition is strictly geometric and minimal at 128 by 128 pixels.
+    file: ./fetch.png
+
 ---
 
 The JavaScript `fetch` API is available; but we also provide a helper

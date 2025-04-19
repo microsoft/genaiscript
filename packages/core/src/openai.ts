@@ -148,7 +148,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
-        if (/^o1|o3|gpt-4\.1/.test(family)) {
+        if (/^o\d|gpt-4\.1/.test(family)) {
             dbg(`changing max_tokens to max_completion_tokens`)
             if (postReq.max_tokens) {
                 postReq.max_completion_tokens = postReq.max_tokens
@@ -156,8 +156,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
         }
 
-        if (/^o1|o3/.test(family)) {
-            dbg(`removing options to support o1/o3`)
+        if (/^o\d/.test(family)) {
+            dbg(`removing options to support o1/o3/o4`)
             delete postReq.temperature
             delete postReq.top_p
             delete postReq.presence_penalty

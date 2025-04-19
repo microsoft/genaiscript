@@ -1,10 +1,6 @@
-import debug from "debug"
-const dbg = debug("genaiscript:docker")
-
 import MemoryStream from "memorystream"
 import { finished } from "stream/promises"
-import { remove } from "fs-extra"
-import { copyFile, readFile, writeFile, readdir } from "fs/promises"
+import { copyFile, readFile, writeFile, readdir, rm } from "fs/promises"
 import {
     DOCKER_DEFAULT_IMAGE,
     DOCKER_VOLUMES_DIR,
@@ -24,8 +20,15 @@ import { delay } from "es-toolkit"
 import { generateId } from "../../core/src/id"
 import { dotGenaiscriptPath } from "../../core/src/workdir"
 import { ensureDir } from "../../core/src/fs"
+import { genaiscriptDebug } from "../../core/src/debug"
+const dbg = genaiscriptDebug("docker")
 
 type DockerodeType = import("dockerode")
+
+function dbgContainer(c: ContainerHost) {
+    const name = c?.name
+    return name ? dbg.extend(name) : dbg
+}
 
 export class DockerManager {
     private containers: ContainerHost[] = []
@@ -49,28 +52,39 @@ export class DockerManager {
         if (!this._docker) {
             return
         }
+        dbg(`stopping %d containers`, this.containers?.length)
         for (const container of this.containers.filter((c) => !c.persistent)) {
-            logVerbose(`container: removing ${container.name}`)
+            logVerbose(`container: removing ${container.id}`)
+            const dbgc = dbgContainer(container)
             const c = await this._docker.getContainer(container.id)
             if (!c) {
+                dbgc(`container not found, nothing to do`)
                 continue
             }
             try {
-                dbg(`stopping container with id ${container.id}`)
+                dbgc(`stopping`)
                 await c.stop()
             } catch (e) {
+                dbgc(e)
                 logVerbose(e)
             }
             try {
-                dbg(`removing container with id ${container.id}`)
+                dbgc(`removing`)
                 await c.remove()
             } catch (e) {
+                dbgc(e)
                 logVerbose(e)
             }
             try {
-                dbg(`removing host path ${container.hostPath}`)
-                await remove(container.hostPath)
+                dbgc(`rm host path %s`, container.hostPath)
+                await rm(container.hostPath, {
+                    recursive: true,
+                    maxRetries: 3,
+                    retryDelay: 1000,
+                    force: true,
+                })
             } catch (e) {
+                dbgc(e)
                 logVerbose(e)
             }
         }
@@ -93,10 +107,17 @@ export class DockerManager {
         const i = this.containers.findIndex((c) => c.id === id)
         if (i > -1) {
             const container = this.containers[i]
+            const dbgc = dbgContainer(container)
             try {
-                dbg(`removing host path ${container.hostPath}`)
-                await remove(container.hostPath)
+                dbgc(`rm host path`)
+                await rm(container.hostPath, {
+                    recursive: true,
+                    maxRetries: 3,
+                    retryDelay: 1000,
+                    force: true,
+                })
             } catch (e) {
+                dbgc(e)
                 logError(e)
             }
             this.containers.splice(i, 1)
@@ -126,26 +147,28 @@ export class DockerManager {
         }
 
         // pull image
+        const dbgp = dbg.extend(`pull:${image}`)
         try {
-            dbg(`starting to pull image ${image}`)
+            dbgp(`starting`)
             trace?.startDetails(`📥 pull image ${image}`)
             const res = await this._docker.pull(image)
             this._docker.modem.followProgress(
                 res,
                 (err) => {
                     if (err) {
-                        dbg(`error pulling image ${image}: ${err}`)
+                        dbgp(err)
                         trace?.error(`failed to pull image ${image}`, err)
                     }
                 },
                 (ev) => {
-                    dbg(`pull progress: ${ev.progress || ev.status}`)
+                    dbgp(ev.progress || ev.status)
                     trace?.item(ev.progress || ev.status)
                 }
             )
             await finished(res)
+            dbgp(`done`)
         } catch (e) {
-            dbg(`error pulling image ${image}: ${e}`)
+            dbgp(e)
             trace?.error(`failed to pull image ${image}`, e)
             throw e
         } finally {
@@ -174,17 +197,20 @@ export class DockerManager {
                 return this._docker.getContainer(info.Id)
             }
             dbg(`no container found with the given filters`)
-        } catch {}
+        } catch (e) {
+            dbg(e)
+        }
         return undefined
     }
 
     async startContainer(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
-        dbg(`starting container with options: ${JSON.stringify(options)}`)
+        const { trace, ...dockerOptions } = options || {}
+        dbg(`starting container %O`, dockerOptions)
         await this.init()
-        const { persistent, trace } = options || {}
-        if (persistent) {
+        if (dockerOptions.persistent) {
+            dbg(`trying to find existing container`)
             const { name, hostPath } = await this.containerName(options)
             const c = this.containers.find((c) => c.name === name)
             if (c) {
@@ -354,9 +380,10 @@ export class DockerManager {
         hostPath: string
     ): Promise<ContainerHost> {
         const { trace, persistent } = options
+        const dbgc = name ? dbg.extend(name) : dbg
 
         const stop: () => Promise<void> = async () => {
-            dbg(`stopping container with id ${container.id}`)
+            dbgc(`stopping`)
             await this.stopContainer(container.id)
         }
 
@@ -368,16 +395,16 @@ export class DockerManager {
         }
 
         const resume: () => Promise<void> = async () => {
-            dbg(`resuming container with id ${container.id}`)
+            dbgc(`resuming`)
             let state = await container.inspect()
             if (state.State.Status === "paused") {
-                dbg(`unpausing container`)
+                dbgc(`unpausing`)
                 await container.unpause()
             } else if (state.State.Status === "exited") {
-                dbg(`starting exited container`)
+                dbgc(`starting exited`)
                 await container.start()
             } else if (state.State.Status === "restarting") {
-                dbg(`waiting for restarting container to stabilize`)
+                dbgc(`waiting for restarting container to stabilize`)
                 let retry = 0
                 while (state.State.Restarting && retry++ < 5) {
                     await delay(1000)
@@ -389,7 +416,7 @@ export class DockerManager {
         const pause: () => Promise<void> = async () => {
             const state = await container.inspect()
             if (state.State.Running || state.State.Restarting) {
-                dbg(`pausing running or restarting container`)
+                dbgc(`pausing running or restarting`)
                 await container.pause()
             }
         }
@@ -399,6 +426,8 @@ export class DockerManager {
             args?: string[] | ShellOptions,
             options?: ShellOptions
         ): Promise<ShellOutput> => {
+            dbgc(`exec %s %o`, command, args)
+
             // Parse the command and arguments if necessary
             if (!Array.isArray(args) && typeof args === "object") {
                 // exec("cmd arg arg", {...})
@@ -421,9 +450,6 @@ export class DockerManager {
                 "/" + host.path.join(DOCKER_CONTAINER_VOLUME, userCwd || ".")
 
             try {
-                dbg(
-                    `executing command in container: ${command} ${args?.join(" ")}`
-                )
                 trace?.startDetails(
                     `📦 ▶️ container exec: ${userCwd || ""}> ${label || command}`
                 )
@@ -479,6 +505,7 @@ export class DockerManager {
                 }
                 return sres
             } catch (e) {
+                dbgc(e)
                 trace?.error(`${command} failed`, e)
                 return {
                     exitCode: -1,
@@ -491,6 +518,7 @@ export class DockerManager {
         }
 
         const writeText = async (filename: string, content: string) => {
+            dbgc(`write %s`, filename)
             const hostFilename = host.path.resolve(
                 hostPath,
                 resolveContainerPath(filename)
@@ -502,6 +530,7 @@ export class DockerManager {
         }
 
         const readText = async (filename: string) => {
+            dbgc(`read %s`, filename)
             const hostFilename = host.path.resolve(
                 hostPath,
                 resolveContainerPath(filename)
@@ -515,10 +544,12 @@ export class DockerManager {
 
         const copyTo = async (
             from: string | string[],
-            to: string
+            to: string,
+            options?: Omit<FindFilesOptions, "readText">
         ): Promise<string[]> => {
+            dbgc(`copy %o to %s %o`, from, to, options)
             const cto = resolveContainerPath(to)
-            const files = await host.findFiles(from)
+            const files = await host.findFiles(from, options)
             const res: string[] = []
             for (const file of files) {
                 const source = host.path.resolve(file)
@@ -531,6 +562,7 @@ export class DockerManager {
         }
 
         const listFiles = async (to: string) => {
+            dbgc(`list files %s`, to)
             const source = host.path.resolve(hostPath, resolveContainerPath(to))
             try {
                 const files = await readdir(source)
@@ -541,7 +573,7 @@ export class DockerManager {
         }
 
         const disconnect = async () => {
-            dbg(`disconnecting container from networks`)
+            dbgc(`disconnect network`)
             const networks = await this._docker.listNetworks()
             for (const network of networks.filter(
                 ({ Name }) => Name === "bridge"

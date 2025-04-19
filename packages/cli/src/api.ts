@@ -15,6 +15,8 @@ const dbg = debug("genaiscript:api")
  * @param scriptId The script identifier or full file path. This parameter is required.
  * @param files List of file paths to run the script on, leave empty if not needed.
  * @param options GenAIScript generation options, including optional environment variables, an abort signal, and additional options. The options may include a label for the worker thread.
+ *   - envVars: Environment variables to use for the operation.
+ *   - signal: The signal to use for aborting the operation. Terminates the worker thread.
  * @returns A promise that resolves with the generation result or rejects if an error occurs.
  */
 export async function run(

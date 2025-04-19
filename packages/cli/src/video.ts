@@ -64,6 +64,7 @@ export async function extractVideoFrames(
  * Logs the metadata of the video file in JSON format.
  */
 export async function probeVideo(file: string) {
+    const ffmpeg = new FFmepgClient()
     const res = await ffmpeg.probe(file)
     console.log(JSON.stringify(res, null, 2))
 }

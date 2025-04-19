@@ -1,13 +1,11 @@
-import debug from "debug"
-const dbg = debug("genaiscript:fs")
-
-import { lstat, mkdir, writeFile } from "fs/promises"
+import { lstat, mkdir, writeFile, readFile, rm } from "fs/promises"
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
-import { readFile } from "fs/promises"
 import { dirname } from "path"
 import { JSON5TryParse } from "./json5"
 import { homedir } from "os"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("fs")
 
 /**
  * Changes the file extension of a given file name.
@@ -79,6 +77,7 @@ export function expandHomeDir(dir: string) {
  * @param content - The textual content to write into the file.
  */
 export async function writeText(fn: string, content: string) {
+    if (!fn) throw new Error("filename is required")
     await ensureDir(dirname(fn))
     dbg(`writing text to file ${fn}`)
     await writeFile(fn, content, { encoding: "utf8" })
@@ -100,12 +99,13 @@ export async function fileExists(fn: string) {
  * Attempts to retrieve the file status for a given file path.
  * If an error occurs (e.g., the file does not exist), it returns undefined.
  *
- * @param fn - The path of the file to retrieve the status for.
+ * @param fn - The path of the file to retrieve the status for. If not provided, returns undefined.
  * @returns The file status object if the file exists, or undefined if it does not.
  */
 export async function tryStat(fn: string) {
     try {
         dbg(`getting file stats for ${fn}`)
+        if (!fn) return undefined
         return await lstat(fn)
     } catch {
         return undefined
@@ -120,6 +120,7 @@ export async function tryStat(fn: string) {
  * @throws Throws an error if the file cannot be read or parsed as JSON.
  */
 export async function readJSON(fn: string) {
+    if (!fn) throw new Error("filename is required")
     dbg(`reading JSON from file ${fn}`)
     return JSON.parse(await readText(fn))
 }
@@ -132,6 +133,7 @@ export async function readJSON(fn: string) {
  */
 export async function tryReadJSON(fn: string) {
     try {
+        if (!fn) return undefined
         return JSON.parse(await readText(fn))
     } catch {
         return undefined
@@ -153,6 +155,7 @@ export async function tryReadJSON5(fn: string) {
  * @param obj - The JSON object to be written to the file.
  */
 export async function writeJSON(fn: string, obj: any) {
+    if (!fn) throw new Error("filename is required")
     dbg(`writing JSON to file ${fn}`)
     await writeText(fn, JSON.stringify(obj))
 }

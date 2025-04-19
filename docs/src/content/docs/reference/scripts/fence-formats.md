@@ -1,10 +1,21 @@
 ---
 title: Fence Formats
 sidebar:
-    order: 90
+  order: 90
 description: Explore various fence formats supported by GenAIScript for optimal
-    LLM input text formatting.
+  LLM input text formatting.
 keywords: fence format, LLM input, markdown, xml, GenAIScript
+hero:
+  image:
+    alt: 'An 8-bit style icon shows three overlapping geometric panels: one features
+      angle brackets symbolizing XML, another displays a triple backtick and
+      smiley for Markdown, and the last is a plain rectangle with a smiley for
+      "none." Each panel is a different color, outlined simply, and there are no
+      gradients or shadows. The composition is flat, balanced, and uses only
+      five distinct corporate colors on a transparent or plain background at
+      128x128 pixels.'
+    file: ./fence-formats.png
+
 ---
 
 GenAIScript supports various types of "fence" formats when rendering [def](/genaiscript/reference/scripts/context) function, since LLMs may behave differently depending on the format of the input text.

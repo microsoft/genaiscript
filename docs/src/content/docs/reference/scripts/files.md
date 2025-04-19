@@ -1,9 +1,21 @@
 ---
 title: Files
-description: Learn how to perform file system operations using the workspace object in your scripts.
+description: Learn how to perform file system operations using the workspace
+  object in your scripts.
 keywords: file system, workspace object, readText, findFiles, paths
 sidebar:
-    order: 13
+  order: 13
+hero:
+  image:
+    alt: A clean, flat 2D illustration in retro 8-bit style uses a five-color
+      corporate palette. It displays a folder icon for workspace root,
+      overlapping icons for PDF, DOCX, CSV, JSON, and XML files, along with
+      simple gear and funnel icons symbolizing filtering and searching. A shield
+      icon represents gitignore rules, and a pencil stands for output writing.
+      All icons are geometric, minimalistic, and arranged compactly on a blank
+      background.
+    file: ./files.png
+
 ---
 
 GenAIScript provides access to the file system of workspace and to the selected files in the user interface.
