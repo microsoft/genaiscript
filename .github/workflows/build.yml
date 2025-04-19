@@ -2,7 +2,7 @@ name: build
 
 on:
     push:
-        branches: [main]
+        branches: [main, dev]
     pull_request:
     workflow_dispatch:
 jobs:
@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node-version: [20, 22]
+                node-version: [20, 22, 23]
         steps:
             - uses: actions/checkout@v4
               with:
@@ -36,3 +36,5 @@ jobs:
               run: yarn test:core
             - name: unit tests
               run: yarn test:samples
+            - name: unit tests (2)
+              run: yarn test:modulesamples

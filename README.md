@@ -8,9 +8,12 @@ Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, t
 
 - JavaScript toolbox to work with prompts
 - Abstraction to make it easy and productive
-- Seamless Visual Studio Code integration
+- Seamless Visual Studio Code integration or flexible command line
+- Built-in support for GitHub Copilot and GitHub Models, OpenAI, Azure OpenAI, Anthropic, and more
 
 - 📄 **Read the ONLINE DOCUMENTATION at [microsoft.github.io/genaiscript](https://microsoft.github.io/genaiscript/)**
+- 📝 Read the [blog](https://microsoft.github.io/genaiscript/blog/) for the latest news
+- 📺 Watch [Mr. Maeda's Cozy AI Kitchen](https://youtu.be/ajEbAm6kjI4)
 - 📺 Watch an [interview on YouTube with nickyt](https://www.youtube.com/watch?v=aeXQ2MJ0Ye0)
 
 ---
@@ -146,7 +149,7 @@ Classify text, images or a mix of all.
 
 ```js
 const joke = await classify(
-    "Why did the chicken cross the roard? To fry in the sun.",
+    "Why did the chicken cross the road? To fry in the sun.",
     {
         yes: "funny",
         no: "not funny",
@@ -189,10 +192,12 @@ defAgent(
 then use it as a tool
 
 ```js
-script({ tools: "agent" })
+script({ tools: "agent_git" })
 
 $`Do a statistical analysis of the last commits`
 ```
+
+See the [git agent source](https://github.com/microsoft/genaiscript/blob/main/packages/cli/genaisrc/system.agent_git.genai.mts).
 
 ---
 
@@ -208,7 +213,7 @@ const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 
 ### 🐙 GitHub Models and GitHub Copilot
 
-Run models through [GitHub Models](https://microsoft.github.io/genaiscript/getting-started/configuration#github) or [GitHub Copilot](https://microsoft.github.io/genaiscript/getting-started/configuration/#github-copilot).
+Run models through [GitHub Models](https://microsoft.github.io/genaiscript/getting-started/configuration#github) or [GitHub Copilot](https://microsoft.github.io/genaiscript/getting-started/configuration/#github_copilot_chat).
 
 ```js
 script({ ..., model: "github:gpt-4o" })
@@ -228,7 +233,7 @@ script({ ..., model: "ollama:phi3" })
 
 ### 🐍 Code Interpreter
 
-Let the LLM run code in a sandboxed execution environment.
+Let the LLM run code in a sand-boxed execution environment.
 
 ```js
 script({ tools: ["python_code_interpreter"] })
@@ -291,9 +296,22 @@ Write me a poem
 
 ---
 
+### Pluggable Secret Scanning
+
+Scan your chats for secrets using [secret scanning](/genaiscript/reference/scripts/secret-scanning).
+
+```json
+{
+    "secretPatterns": {
+        ...,
+        "OpenAI API Key": "sk-[A-Za-z0-9]{32,48}"
+    }
+}
+```
+
 ### ⚙ Automate with CLI or API
 
-Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) or [API](https://microsoft.github.io/genaiscript/reference/cli/api).
+Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) or [API](https://microsoft.github.io/genaiscript/reference/api).
 
 ```bash
 npx genaiscript run tlaplus-linter "*.tla"
@@ -350,10 +368,9 @@ script({ ..., tests: {
 
 ### LLM friendly docs
 
-If you are an LLM crawler, fetch https://microsoft.github.io/genaiscript/.well-known/llms.txt for an documentation map
-or add the `.md` suffix to any documentation URLs to get a raw markdown content.
+The entire content of the docs is rendered at https://microsoft.github.io/genaiscript/llms-full.txt in markdown. Feed it directly into your favorite RAG system.
 
-For example, https://microsoft.github.io/genaiscript/guides/prompt-as-code.md (note the .md extension)
+If you are an LLM crawler, add the `.md` suffix to any documentation URLs to get a raw markdown content. For example, https://microsoft.github.io/genaiscript/guides/prompt-as-code.md (note the .md extension)
 
 ## Contributing
 

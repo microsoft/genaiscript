@@ -5,16 +5,17 @@ on:
             - docs/**/*.md
             - docs/**/*.mdx
 env:
-    # Configure default GenAIScript models
-    # using Ollama's models
-    GENAISCRIPT_DEFAULT_MODEL: ollama:qwen2.5-coder:7b
-    GENAISCRIPT_DEFAULT_SMALL_MODEL: ollama:qwen2.5-coder:1.5b
-    GENAISCRIPT_DEFAULT_VISION_MODEL: ollama:llama3.2-vision:11b
+    GENAISCRIPT_DEFAULT_REASONING_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_MODEL }}
+    GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL }}
+    GENAISCRIPT_DEFAULT_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_MODEL }}
+    GENAISCRIPT_DEFAULT_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_SMALL_MODEL }}
+    GENAISCRIPT_DEFAULT_VISION_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_VISION_MODEL }}
 jobs:
     build:
         runs-on: ubuntu-latest
         permissions:
             pull-requests: write
+            models: read
         steps:
             - uses: actions/checkout@v4
               with:
@@ -30,9 +31,9 @@ jobs:
             - name: start ollama
               run: yarn ollama:start
             - name: git stuff
-              run: git fetch origin && git pull origin main:main
+              run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-review-commit
-              run: node packages/cli/built/genaiscript.cjs run pr-docs-review-commit --out ./temp/genai/pr-docs-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run pr-docs-review-commit --out ./temp/genai/pr-docs-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

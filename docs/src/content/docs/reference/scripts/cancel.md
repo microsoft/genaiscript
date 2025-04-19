@@ -1,6 +1,6 @@
 ---
 title: Cancel
-siderbar:
+sidebar:
   order: 15
 description: Learn how to immediately stop script execution with the cancel function in your automation scripts.
 keywords: cancel function, script termination, stop execution, automation, script control

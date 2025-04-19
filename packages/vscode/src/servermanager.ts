@@ -1,43 +1,48 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
-    SERVER_PORT,
     RECONNECT,
     OPEN,
     TOOL_NAME,
     ICON_LOGO_NAME,
     TOOL_ID,
     VSCODE_SERVER_MAX_RETRIES,
+    CHANGE,
+    SERVER_LOCALHOST,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
 import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
 import { VsCodeClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
-import { createChatModelRunner } from "./lmaccess"
+import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
 import { resolveCli } from "./config"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
+import { findRandomOpenPort } from "../../core/src/net"
 
-function findRandomOpenPort() {
-    return new Promise<number>((resolve, reject) => {
-        const server = require("net").createServer()
-        server.unref()
-        server.on("error", reject)
-        server.listen(0, () => {
-            const port = server.address().port
-            server.close(() => resolve(port))
-        })
-    })
-}
-
-export class TerminalServerManager implements ServerManager {
+export class TerminalServerManager
+    extends EventTarget
+    implements ServerManager
+{
     private _terminal: vscode.Terminal
     private _terminalStartAttempts = 0
     private _port: number
     private _startClientPromise: Promise<VsCodeClient>
     private _client: VsCodeClient
 
+    private _status: "stopped" | "stopping" | "starting" | "running" = "stopped"
+    get status() {
+        return this._status
+    }
+    private set status(value: "stopped" | "stopping" | "starting" | "running") {
+        if (this._status !== value) {
+            this._status = value
+            this.dispatchChange()
+        }
+    }
+
     constructor(readonly state: ExtensionState) {
+        super()
         const { context } = state
         const { subscriptions } = context
         subscriptions.push(this)
@@ -72,6 +77,10 @@ export class TerminalServerManager implements ServerManager {
         )
     }
 
+    private dispatchChange() {
+        this.dispatchEvent(new Event(CHANGE))
+    }
+
     async client(options?: { doNotStart?: boolean }): Promise<VsCodeClient> {
         if (this._client) return this._client
         if (options?.doNotStart) return undefined
@@ -82,13 +91,19 @@ export class TerminalServerManager implements ServerManager {
     }
 
     get authority() {
-        assert(!!this._port)
-        return `http://127.0.0.1:${this._port}`
+        if (!this._port) return undefined
+        return `${SERVER_LOCALHOST}:${this._port}`
     }
 
-    private get url() {
+    get url() {
         return this.state.sessionApiKey
             ? `${this.authority}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
+            : this.authority
+    }
+
+    get browserUrl() {
+        return this.state.sessionApiKey
+            ? `${this.authority}#api-key=${encodeURIComponent(this.state.sessionApiKey)}`
             : this.authority
     }
 
@@ -119,6 +134,7 @@ export class TerminalServerManager implements ServerManager {
         client.chatRequest = createChatModelRunner(this.state)
         client.addEventListener(OPEN, async () => {
             if (client !== this._client) return
+            this.status = "running"
             this._terminalStartAttempts = 0
             // check version
             const v = await this._client.version()
@@ -151,9 +167,16 @@ export class TerminalServerManager implements ServerManager {
     async start() {
         if (this._terminal) return
 
+        this.status = "starting"
+        const config = this.state.getConfiguration()
+        const diagnostics = this.state.diagnostics
+        const debug = diagnostics ? "*" : this.state.debug
+        const hideFromUser = !diagnostics && !!config.get("hideServerTerminal")
         const cwd = host.projectFolder()
         await this.allocatePort()
-        logVerbose(`starting server on port ${this._port} at ${cwd}`)
+        logVerbose(
+            `starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`
+        )
         if (this._client) this._client.reconnectAttempts = 0
         this._terminalStartAttempts++
         this._terminal = vscode.window.createTerminal({
@@ -163,28 +186,40 @@ export class TerminalServerManager implements ServerManager {
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
             env: deleteUndefinedValues({
                 GENAISCRIPT_API_KEY: this.state.sessionApiKey,
+                DEBUG: debug,
+                DEBUG_COLORS: "1",
             }),
+            hideFromUser,
         })
-        const { cliPath, cliVersion } = await resolveCli()
+        const { cliPath, cliVersion } = await resolveCli(this.state)
+        const githubCopilotChatClient = isLanguageModelsAvailable()
+            ? " --github-copilot-chat-client"
+            : ""
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
             )
         else
             this._terminal.sendText(
-                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"`
+                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
             )
-        this._terminal.show()
-    }
-
-    get started() {
-        return !!this._terminal
+        if (!hideFromUser) this._terminal.show(true)
     }
 
     async close() {
-        this._startClientPromise = undefined
-        this._client?.kill()
-        this.closeTerminal()
+        try {
+            this.status = "stopping"
+            this._startClientPromise = undefined
+            this._client?.kill()
+            this.closeTerminal()
+        } finally {
+            this.status = "stopped"
+        }
+    }
+
+    async show(preserveFocus?: boolean) {
+        if (!this._terminal) await this.start()
+        this._terminal?.show(preserveFocus)
     }
 
     private closeTerminal() {

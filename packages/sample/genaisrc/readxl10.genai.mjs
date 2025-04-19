@@ -2,6 +2,10 @@ script({
     title: "readxl10",
     group: "spreadsheets",
     system: ["system"],
+    files: "src/penguins.xlsx",
+    tests: {
+        files: "src/penguins.xlsx",
+    },
 })
 
 const sheets = await parsers.XLSX(env.files[0])

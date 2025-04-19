@@ -6,7 +6,7 @@ description: Learn how to use GenAIScript with this interactive tutorial noteboo
 keywords: tutorial, GenAIScript notebook, interactive learning, JavaScript, markdown
 ---
 
-This Notebook is a GenAISCript tutorial. It is a Markdown document where each JavaScript code section is a runnable GenAIScript. You can execute each code block individually and see the results in the output section below the code block. To open this notebook in Visual Studio Code, press **F1** and run **GenAIScript: Create GenAIScript Markdown Notebook**.
+This Notebook is a GenAIScript tutorial. It is a Markdown document where each JavaScript code section is a runnable GenAIScript. You can execute each code block individually and see the results in the output section below the code block. To open this notebook in Visual Studio Code, press **F1** and run **GenAIScript: Create GenAIScript Markdown Notebook**.
 
 Follow the steps in [configuration](https://microsoft.github.io/genaiscript/getting-started/configuration) to set up your environment and LLM access.
 

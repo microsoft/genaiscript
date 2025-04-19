@@ -8,11 +8,15 @@ import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { host, runtimeHost } from "../../core/src/host"
 import {
     ModelConnectionInfo,
+    resolveModelAlias,
     resolveModelConnectionInfo,
 } from "../../core/src/models"
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
+import { deleteUndefinedValues } from "../../core/src/cleaners"
+import { LARGE_MODEL_ID } from "../../core/src/constants"
+import { CSVStringify } from "../../core/src/csv"
 
 /**
  * Outputs basic system information including node version, platform, architecture, and process ID.
@@ -28,16 +32,19 @@ export async function systemInfo() {
 /**
  * Outputs environment information for model providers.
  * @param provider - The specific provider to filter by (optional).
- * @param options - Configuration options, including whether to show tokens.
+ * @param options - Configuration options, including whether to show tokens, errors, or models. The output hides sensitive information by default.
  */
 export async function envInfo(
     provider: string,
-    options?: { token?: boolean; error?: boolean; models?: boolean }
+    options: { token?: boolean; error?: boolean; models?: boolean }
 ) {
     const config = await runtimeHost.readConfig()
     const res: any = {}
     res[".env"] = config.envFile ?? ""
-    res.providers = await resolveLanguageModelConfigurations(provider, options)
+    res.providers = await resolveLanguageModelConfigurations(provider, {
+        ...(options || {}),
+        hide: true,
+    })
     console.log(YAMLStringify(res))
 }
 
@@ -65,15 +72,19 @@ async function resolveScriptsConnectionInfo(
     // Resolve model connection information
     const res: ModelConnectionInfo[] = await Promise.all(
         Object.values(models).map((conn) =>
-            resolveModelConnectionInfo(conn, options).then((res) => res.info)
+            resolveModelConnectionInfo(conn, {
+                ...(options || {}),
+                defaultModel: LARGE_MODEL_ID,
+            }).then((res) => res.info)
         )
     )
     return res
 }
 
 /**
- * Outputs model connection info for a given script.
- * @param script - The specific script ID or filename to filter by (optional).
+ * Outputs model connection information for a given script by resolving its templates.
+ * Filters the scripts based on the provided script ID or filename. If no script is provided, all scripts are included.
+ * @param script - The specific script ID or filename to filter by. If not provided, all scripts are included.
  * @param options - Configuration options, including whether to show tokens.
  */
 export async function scriptModelInfo(
@@ -91,6 +102,57 @@ export async function scriptModelInfo(
     console.log(YAMLStringify(info))
 }
 
+/**
+ * Outputs detailed information about model aliases and their resolved configurations.
+ * Each alias is expanded with its resolved counterpart.
+ *
+ * This function iterates over the `modelAliases` in the runtime host,
+ * retrieves configuration details for each alias, resolves them using `resolveModelAlias`,
+ * and outputs the data in YAML format.
+ *
+ * @param none This function does not require any parameters.
+ */
 export async function modelAliasesInfo() {
-    console.log(YAML.stringify(runtimeHost.modelAliases))
+    const res = Object.fromEntries(
+        Object.entries(runtimeHost.modelAliases).map(([k, v]) => [
+            k,
+            {
+                ...v,
+                resolved: resolveModelAlias(k),
+            },
+        ])
+    )
+    console.log(YAMLStringify(res))
+}
+
+/**
+ * Outputs a list of models and their information for the specified provider.
+ * @param provider - The specific provider to filter by (optional).
+ * @param options - Configuration options, including whether to include errors, tokens, models, and the output format (JSON or YAML).
+ */
+export async function modelList(
+    provider: string,
+    options?: { error?: boolean; format?: "json" | "yaml" }
+) {
+    await runtimeHost.readConfig()
+    const providers = await resolveLanguageModelConfigurations(provider, {
+        ...(options || {}),
+        models: true,
+        error: true,
+        hide: true,
+        token: true,
+    })
+
+    if (options?.format === "json")
+        console.log(JSON.stringify(providers, null, 2))
+    else
+        console.log(
+            YAMLStringify(
+                deleteUndefinedValues(
+                    Object.fromEntries(
+                        providers.map((p) => [p.provider, p.error || p.models])
+                    )
+                )
+            )
+        )
 }

@@ -10,6 +10,7 @@ import { Code } from "@astrojs/starlight/components"
 import { Content as BuiltinTools } from "../../../../components/BuiltinTools.mdx"
 import weatherScriptSource from "../../../../../../packages/sample/genaisrc/weather.genai.js?raw"
 import mathScriptSource from "../../../../../../packages/sample/genaisrc/math-agent.genai.mjs?raw"
+import { YouTube } from "astro-embed"
 
 You can register **tools** (also known as **functions**) that the LLM may decide to call as part of assembling the answer.
 See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling), [Ollama tools](https://ollama.com/blog/tool-support),
@@ -17,26 +18,25 @@ or [Anthropic tool use](https://docs.anthropic.com/en/docs/build-with-claude/too
 
 Not all LLM models support tools, in those cases, GenAIScript also support a fallback mechanism to implement tool call through system prompts (see [Fallback Tools](#fallbacktools)).
 
+<YouTube
+    id="https://www.youtube.com/watch?v=E2oBlNK69-c"
+    posterQuality="high"
+/>
+
 ## `defTool`
 
 `defTool` is used to define a tool that can be called by the LLM.
 It takes a JSON schema to define the input and expects a string output.
+The parameters are defined using the [parameters schema](/genaiscript/reference/scripts/parameters).
 
 **The LLM decides to call this tool on its own!**
 
-```javascript
+```js wrap
 defTool(
     "current_weather",
     "get the current weather",
     {
-        type: "object",
-        properties: {
-            location: {
-                type: "string",
-                description: "The city and state, e.g. San Francisco, CA",
-            },
-        },
-        required: ["location"],
+        city: "",
     },
     (args) => {
         const { location } = args
@@ -76,19 +76,41 @@ to evaluate a math expression.
 
 You can define tools in a system script and include them in your main script as any other system script or tool.
 
-```javascript title="system.random.genai.mjs"
+```js wrap title="system.random.genai.mjs"
 system({ description: "Random tools" })
-defTool("random", "Generate a random number", {}, () => Math.random())
+
+export default function (ctx: ChatGenerationContext) {
+    const { defTool } = ctx
+    defTool("random", "Generate a random number", {}, () => Math.random())
+}
 ```
 
 - Make sure to use `system` instead of `script` in the system script.
 
-```javascript title="random-script.genai.mjs" 'tools: ["random"]'
+```js wrap title="random-script.genai.mjs" 'tools: ["random"]'
 script({
     title: "Random number",
     tools: ["random"],
 })
 $`Generate a random number.
+```
+
+### Multiple instances of the same system script
+
+You can include the same system script multiple times in a script
+with different parameters.
+
+```js wrap
+script({
+    system: [
+        "system.agent_git", // git operations on current repository
+        {
+            id: "system.agent_git", // same system script
+            parameters: { repo: "microsoft/genaiscript" } // but with new parameters
+            variant: "genaiscript" // appended to the identifier to keep tool identifiers unique
+        }
+    ]
+})
 ```
 
 ## Model Context Protocol Tools
@@ -108,20 +130,6 @@ defTool({
 ```
 
 See [Model Context Protocol Tools](/genaiscript/reference/scripts/mcp-tools) for more information.
-
-## Agentic Tools
-
-[Agentic](https://agentic.so) is
-a standard library of AI functions / tools
-which are optimized for both normal TS-usage as well as LLM-based usage.
-You can register any agentic tool in your script using `defTool`.
-
-```js
-import { calculator } from "@agentic/calculator"
-defTool(calculator)
-```
-
-See [Agentic tools](/genaiscript/guides/agentic-tools) for more information.
 
 ## Fallback Tool Support <a href="" id="fallbacktools" />
 
@@ -145,7 +153,7 @@ script({
 })
 ```
 
-- or add the `--fallack-tools` flag to the CLI
+- or add the `--fallback-tools` flag to the CLI
 
 ```sh "--fallback-tools"
 npx genaiscript run ... --fallback-tools
@@ -157,13 +165,53 @@ The performance of this feature will vary greatly based on the LLM model you dec
 
 :::
 
+## Prompt Injection Detection
+
+A tool may retrieve data that contains prompt injection attacks. For example, a tool that fetches a URL may return a page that contains prompt injection attacks.
+
+To prevent this, you can enable the `detectPromptInjection` option. It will run your [content safety scanner](/genaiscript/reference/scripts/content-safety) services
+on the tool output and will erase the answer if an attack is detected.
+
+```js 'detectPromptInjection: "always"'
+defTool("fetch", "Fetch a URL", {
+    url: {
+        type: "string",
+        description: "The URL to fetch",
+    },
+}, async (args) => ...,
+{
+    detectPromptInjection: "always",
+})
+```
+
+## Output Intent validation
+
+You can configure GenAIScript to execute a LLM-as-a-Judge validation of the tool result based on the description or a custom intent.
+The LLM-as-a-Judge will happen on every tool response using the `intent` model alias, which maps to `small` by default.
+
+The `description` intent is a special value that gets expanded to the tool description.
+
+```js 'intent: "description"''
+defTool(
+    "fetch",
+    "Gets the live weather",
+    {
+        location: "Seattle",
+    },
+    async (args) => { ... },
+    {
+        intent: "description",
+    }
+)
+```
+
 ## Packaging as System scripts
 
 To pick and choose which tools to include in a script,
 you can group them in system scripts. For example,
 the `current_weather` tool can be included the `system.current_weather.genai.mjs` script.
 
-```javascript file="system.current_weather.genai.mjs" 'defTool("current_weather", ...)'
+```js wrap file="system.current_weather.genai.mjs" 'defTool("current_weather", ...)'
 script({
     title: "Get the current weather",
 })

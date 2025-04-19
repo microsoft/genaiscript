@@ -1,6 +1,6 @@
 script({
     files: "packages/sample/genaisrc/readme-updater.genai.mts",
-    system: ["system.files"],
+    system: ["system", "system.assistant", "system.files"],
     tools: ["fs"],
     model: "large",
     temperature: 0.8,
@@ -13,7 +13,7 @@ const dd = String(today.getDate()).padStart(2, "0")
 const formattedDate = `${yyyy}-${mm}-${dd}`
 
 def("FILE", env.files)
-defFileOutput("docs/src/content/docs/blog/drafts/*.md", "generated blog posts")
+defFileOutput("docs/src/content/docs/blog/drafts/*.mdx", "generated blog posts")
 
 $`Create a blog post file that explains the GenAIScript source code in FILE.
 
@@ -22,8 +22,9 @@ $`Create a blog post file that explains the GenAIScript source code in FILE.
 - explain the script code line by line as if you were writing the script from scratch. Assume the reader is a beginner. Show the code being explained. Also explain prompts ($\`...\` line by line)
 - explain all the code, don't skip any line. this is important
 - add a section that explains how to run the script with the genaiscript cli. Do not explain how to install the cli, link to the documentation instead.
+- be minimalistic, avoid jargon, use simple words
 
-# Format
+# Instructions
 
 - use a technical blog tone, see https://dev.to/p/editor_guide
 - Do not use <details> tag
@@ -41,13 +42,16 @@ $`Create a blog post file that explains the GenAIScript source code in FILE.
 - do NOT repeat page title in markdown content
 - save generate text to blog post drafts folder
 - ignore existing blog posts
-- avoid using "delve"
+- avoid using "delve", "streamline"
 - do not repeat or explain the script file top comment
 - include canonical_url to genaiscript blog at https://microsoft.github.io/genaiscript/blog/<topic>
 - use language "ts" for mts snippets and "js" for mjs snippets
 - use markdown headers starting from level 2
 - use lowercase characters, dashes for filenames
 - when invoking the CLI, prefer using the script filename instead of the full path : "genaiscript run <filename_without_genai_extension>"
+- if the script imports code from "genaiscript/runtime", explain what those imports do. The source is in file packages/cli/src/runtime.ts
+- make sure to generate a filename for the blog post. The filename should be the same as the script filename without the "genai" extension. For example, if the script filename is "makeitbetter.genai.mjs", the blog post filename should be "makeitbetter.md"
+
 
 # File information
 
@@ -59,5 +63,10 @@ $`Create a blog post file that explains the GenAIScript source code in FILE.
 - online documentation: https://microsoft.github.io/genaiscript/ . The routing is docs/src/content/docs/**/<route>.md* becomes https://microsoft.github.io/genaiscript/<route>.
 - use links to online documentation
 - github repository: https://github.com/microsoft/genaiscript . "main" is the default branch.
+
+## Output
+
+Render the output as a markdown file using
+the FILE formats. Make sure the output code section as 5 back ticks.
 
 `

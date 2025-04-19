@@ -2,7 +2,6 @@ import test, { describe } from "node:test"
 import { parseModelIdentifier } from "./models"
 import assert from "node:assert"
 import {
-    MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
@@ -11,14 +10,6 @@ import {
 
 // generate unit tests for parseModelIdentifier
 describe("parseModelIdentifier", () => {
-    test("aici:gpt-3.5:en", () => {
-        const { provider, model, tag, family } =
-            parseModelIdentifier("aici:gpt-3.5:en")
-        assert(provider === MODEL_PROVIDER_AICI)
-        assert(family === "gpt-3.5")
-        assert(tag === "en")
-        assert(model === "gpt-3.5:en")
-    })
     test("ollama:phi3", () => {
         const { provider, model, tag, family } =
             parseModelIdentifier("ollama:phi3")
@@ -37,7 +28,7 @@ describe("parseModelIdentifier", () => {
         const { provider, model, family } = parseModelIdentifier("llamafile")
         assert(provider === MODEL_PROVIDER_LLAMAFILE)
         assert(family === "*")
-        assert(model === "llamafile")
+        assert(model === "*")
     })
     test("github:gpt4", () => {
         const { provider, model, family } = parseModelIdentifier("github:gpt4")
@@ -45,10 +36,52 @@ describe("parseModelIdentifier", () => {
         assert(model === "gpt4")
         assert(family === "gpt4")
     })
-    test("gpt4", () => {
-        const { provider, model, family } = parseModelIdentifier("gpt4")
+    test("openai:gpt4", () => {
+        const { provider, model, family } = parseModelIdentifier("openai:gpt4")
         assert(provider === MODEL_PROVIDER_OPENAI)
         assert(model === "gpt4")
         assert(family === "gpt4")
+    })
+    test("anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0", () => {
+        const res = parseModelIdentifier(
+            "anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0"
+        )
+        assert.deepEqual(res, {
+            provider: "anthropic_bedrock",
+            family: "anthropic.claude-3-7-sonnet-20250219-v1",
+            model: "anthropic.claude-3-7-sonnet-20250219-v1:0",
+            tag: "0",
+        })
+    })
+    test("anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0:high", () => {
+        const res = parseModelIdentifier(
+            "anthropic_bedrock:anthropic.claude-3-7-sonnet-20250219-v1:0:high"
+        )
+        assert.deepEqual(res, {
+            provider: "anthropic_bedrock",
+            family: "anthropic.claude-3-7-sonnet-20250219-v1",
+            model: "anthropic.claude-3-7-sonnet-20250219-v1:0",
+            tag: "0",
+            reasoningEffort: "high",
+        })
+    })
+    test("anthropic:claude-3-7-sonnet-latest", () => {
+        const res = parseModelIdentifier("anthropic:claude-3-7-sonnet-latest")
+        assert.deepEqual(res, {
+            provider: "anthropic",
+            family: "claude-3-7-sonnet-latest",
+            model: "claude-3-7-sonnet-latest",
+        })
+    })
+    test("anthropic:claude-3-7-sonnet-latest:high", () => {
+        const res = parseModelIdentifier(
+            "anthropic:claude-3-7-sonnet-latest:high"
+        )
+        assert.deepEqual(res, {
+            provider: "anthropic",
+            family: "claude-3-7-sonnet-latest",
+            model: "claude-3-7-sonnet-latest",
+            reasoningEffort: "high",
+        })
     })
 })

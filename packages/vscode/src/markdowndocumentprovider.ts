@@ -8,32 +8,22 @@ import {
 } from "./state"
 import { showMarkdownPreview } from "./markdown"
 import { registerCommand } from "./commands"
-import { getChatCompletionCache } from "../../core/src/chatcache"
-import {
-    TRACE_NODE_PREFIX,
-    CACHE_LLMREQUEST_PREFIX,
-    CACHE_AIREQUEST_TRACE_PREFIX,
-    BUILTIN_PREFIX,
-    GENAI_ANY_REGEX,
-    CACHE_AIREQUEST_TEXT_PREFIX,
-    GENAI_MJS_EXT,
-} from "../../core/src/constants"
-import { defaultPrompts } from "../../core/src/default_prompts"
-import { extractFenced, renderFencedVariables } from "../../core/src/fence"
-import { renderTraceTree, prettifyMarkdown } from "../../core/src/markdown"
+import { TRACE_NODE_PREFIX } from "../../core/src/constants"
+import { prettifyMarkdown } from "../../core/src/markdown"
 import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
 } from "../../core/src/logprob"
 import { fenceMD } from "../../core/src/mkmd"
+import { renderTraceTree } from "../../core/src/traceparser"
 
 const SCHEME = "genaiscript"
 
 const noRequest = `
-No GenAIScript request found yet. Please run a GenAiScript.
+No GenAIScript request found yet. Please run a GenAIScript.
 `
 const noResponse = `
-Waiting for GenAiScript response...
+Waiting for GenAIScript response...
 `
 
 export function hasOutputOrTraceOpened() {
@@ -65,8 +55,8 @@ class MarkdownTextDocumentContentProvider
         const tree = this.state.aiRequest?.trace?.tree
         const node = tree?.nodes[id]
         if (typeof node === "object" && node?.type === "details")
-            return node.content.map(renderTraceTree).join("\n")
-        return renderTraceTree(node)
+            return node.content.map((n) => renderTraceTree(n, 3)).join("\n")
+        return renderTraceTree(node, 3)
     }
 
     async provideTextDocumentContent(
@@ -79,7 +69,7 @@ class MarkdownTextDocumentContentProvider
         const wrap = (md: string) => {
             if (!aiRequest) return noRequest
             if (!md) return noResponse
-            return `${computing ? `> **GenAiScript run in progress.**\n` : ""} 
+            return `${computing ? `> **GenAIScript run in progress.**\n` : ""} 
 ${prettifyMarkdown(md)}    
             `
         }
@@ -112,105 +102,12 @@ ${prettifyMarkdown(md)}
                 .replace(/\.md$/, "")
             return this.previewTraceNode(id)
         }
-        if (uri.path.startsWith(CACHE_LLMREQUEST_PREFIX)) {
-            const sha = uri.path
-                .slice(CACHE_LLMREQUEST_PREFIX.length)
-                .replace(/\.md$/, "")
-            return previewOpenAICacheEntry(sha)
-        }
-        if (uri.path.startsWith(CACHE_AIREQUEST_TRACE_PREFIX)) {
-            const sha = uri.path
-                .slice(CACHE_AIREQUEST_TRACE_PREFIX.length)
-                .replace(/\.md$/, "")
-            return this.previewAIRequest(sha, "trace")
-        }
-        if (uri.path.startsWith(CACHE_AIREQUEST_TEXT_PREFIX)) {
-            const sha = uri.path
-                .slice(CACHE_AIREQUEST_TEXT_PREFIX.length)
-                .replace(/\.md$/, "")
-            return this.previewAIRequest(sha, "text")
-        }
-        if (uri.path.startsWith(BUILTIN_PREFIX)) {
-            const id = uri.path
-                .slice(BUILTIN_PREFIX.length)
-                .replace(GENAI_ANY_REGEX, "")
-            return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
-        }
         return ""
     }
-
-    private async previewAIRequest(sha: string, type: "trace" | "text") {
-        const cache = this.state.aiRequestCache()
-        const { key, val } = (await cache.getEntryBySha(sha)) || {}
-        if (!key)
-            return `## Oops
-        
-        Request \`${sha}\` not found in cache.
-        `
-
-        return type === "trace" ? val?.trace : val?.response?.text
-    }
-}
-
-async function previewOpenAICacheEntry(sha: string) {
-    const cache = getChatCompletionCache()
-    const { key, val } = (await cache.getEntryBySha(sha)) || {}
-    if (!key)
-        return `## Oops
-    
-    Request \`${sha}\` not found in cache.
-    `
-
-    const extr = extractFenced(val.text)
-    return `# Cached Request
-
--   \`${sha}\`
-
-## Request
-
-${Object.entries(key)
-    .filter(([, value]) => typeof value !== "object")
-    .map(([k, v]) => `-  ${k}: \`${JSON.stringify(v, null, 2)}\``)
-    .join("\n")}
-
-### Messages
-
-${key.messages
-    .map(
-        (msg) => `-   **${msg.role}:**
-\`\`\`\`\`
-${
-    typeof msg.content === "string"
-        ? msg.content.trim()
-        : JSON.stringify(msg.content)
-}
-\`\`\`\`\`
-`
-    )
-    .join("\n")}
-
-## Extracted variables    
-
-${renderFencedVariables(extr)}
-
-## Raw Response
-
-\`\`\`\`\`
-${val}
-\`\`\`\`\`
-
-`
 }
 
 export function infoUri(path: string) {
     return vscode.Uri.from({ scheme: SCHEME, path })
-}
-
-export function builtinPromptUri(id: string) {
-    return vscode.Uri.from({
-        scheme: SCHEME,
-        path: BUILTIN_PREFIX + id + GENAI_MJS_EXT,
-    })
 }
 
 export function activateMarkdownTextDocumentContentProvider(

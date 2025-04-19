@@ -1,0 +1,28 @@
+---
+import { LinkCard, CardGrid } from "@astrojs/starlight/components"
+
+interface Props {
+    count?: number
+}
+const { count } = Astro.props
+
+const { posts } = Astro.locals.starlightBlog || { posts: [] } // llms.txt
+const recent = posts.filter(({ draft }) => !draft).slice(0, count || 5)
+---
+
+<CardGrid>
+    {
+        recent.map(({ title, href, createdAt, entry }) => (
+            <LinkCard
+                title={title}
+                href={href}
+                description={`${createdAt.toLocaleDateString()}, ${entry?.data?.excerpt || entry?.data?.description || ""}`}
+            />
+        ))
+    }
+    <LinkCard
+        title="More posts..."
+        href="/genaiscript/blog"
+        description="Open the blog page to see more posts"
+    />
+</CardGrid>

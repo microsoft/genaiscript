@@ -12,8 +12,7 @@ $`## Step 1
 For each file in ${code}, 
 generate a plan to test the source code in each file
 
-- generate self-contained tests as much as possible by inlining all necessary values
-- if needed, use input test files from packages/sample/src/rag/*
+- use test files from packages/sample/src/rag/*
 - only generate tests for files in ${code}
 - update the existing test files (<code filename>.test.ts). keep old tests if possible.
 
@@ -23,7 +22,7 @@ For each generated test, implement the TypeScript source code in a test file wit
 in the same folder as the source file.
 
 - always organize tests using 'describe' blocks
-- this is imporant, generate all the source code
+- this is important, generate all the source code
 - use "describe", "test", "beforeEach" from the "node:test" test runner framework
 
 ${fence('import test, { beforeEach, describe } from "node:test"', { language: "js" })}
@@ -37,6 +36,11 @@ ${fence('import test, { beforeEach, describe } from "node:test"', { language: "j
 - do NOT generate negative test cases
 - do NOT generate trace instance
 - do NOT use tools in generated code
+- do NOT leave TODOs, implement all code
+- use 'test' function, not 'it' function
+- use 'describe' function to group tests
+- when initializing a variable, provide a type annotation
+- do NOT use 'any' type
 
 ## Step 3 
 
@@ -45,7 +49,21 @@ Validate and fix test sources.
 Call the 'run_test' tool to execute the generated test code and fix the test code to make tests pass.
 
 - this is important.
+- if the test fails because of missing 'host' or 'runtimeHost' add 
+TestHost.install() in the beforeEach block
+
 `
+fence(
+    `import { beforeEach } from "node:test";
+import { TestHost } from "./testhost"
+...
+describe(..., () => {
+    beforeEach(async () => {
+        TestHost.install()
+    })
+    ...
+`
+)
 
 defFileOutput(
     env.files.map(
@@ -57,12 +75,21 @@ defTool(
     "run_test",
     "run test code with node:test",
     {
-        filename: "full path to the test file",
-        source: "source of the test file",
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description: "full path to the test file",
+            },
+            source: { type: "string", description: "source of the test file" },
+        },
+        required: ["filename", "source"],
     },
     async (args) => {
         const { filename, source } = args
-        if (source) await workspace.writeText(filename, source)
+        if (!filename) return "error: missing 'filename' parameter"
+        if (!source) return "error: missing 'source' parameter"
+        await workspace.writeText(filename, source)
         console.debug(`running test code ${filename}`)
         return host.exec(`node`, ["--import", "tsx", "--test", filename])
     }

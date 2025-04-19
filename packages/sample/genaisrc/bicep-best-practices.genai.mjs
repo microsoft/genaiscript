@@ -1,7 +1,8 @@
 script({
     title: "Bicep Best Practices",
     temperature: 0,
-    system: ["system", "system.annotations"]
+    system: ["system", "system.annotations"],
+    accept: ".bicep",
 })
 
 def("FILE", env.files, { endsWith: ".bicep" })

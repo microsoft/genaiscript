@@ -14,9 +14,10 @@ import { parseKeyValuePairs } from "../../core/src/fence"
 import { frontmatterTryParse } from "../../core/src/frontmatter"
 import { details } from "../../core/src/mkmd"
 import { parsePromptScriptMeta } from "../../core/src/template"
-import { arrayify, parseBoolean } from "../../core/src/util"
+import { arrayify, normalizeBoolean } from "../../core/src/cleaners"
 import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml"
 import { Fragment } from "../../core/src/generation"
+import { fileCacheImage } from "../../core/src/filecache"
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts
@@ -133,7 +134,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                 }
                 const parameters = { ...heap, ...vars }
                 await state.requestAI({
-                    template,
+                    scriptId: template.id,
                     label: "Executing cell",
                     parameters,
                     fragment,
@@ -171,14 +172,18 @@ function activateNotebookExecutor(state: ExtensionState) {
                 heap.output = output
 
                 const {
-                    system = meta.system?.length > 0 ? undefined : "false",
+                    system = arrayify(meta.system)?.length > 0
+                        ? undefined
+                        : "false",
                     user,
                     assistant,
                 } = parseKeyValuePairs(cell.metadata.options || "") || {}
-                let chat = renderMessagesToMarkdown(messages, {
-                    system: parseBoolean(system),
-                    user: parseBoolean(user),
-                    assistant: parseBoolean(assistant),
+                let chat = await renderMessagesToMarkdown(messages, {
+                    textLang: "markdown",
+                    system: normalizeBoolean(system),
+                    user: normalizeBoolean(user),
+                    assistant: normalizeBoolean(assistant),
+                    cacheImage: fileCacheImage,
                 })
                 if (error)
                     chat += details(`${EMOJI_FAIL} error`, errorMessage(error))

@@ -5,8 +5,7 @@ script({
         "system",
         "system.output_markdown",
         "system.assistant",
-        "system.fs_find_files",
-        "system.fs_read_file",
+        "system.english",
     ],
     parameters: {
         defaultBranch: {
@@ -38,10 +37,11 @@ def("GIT_DIFF", changes, {
 })
 
 $`You are an expert software developer and architect.
+You are an expert at writing English technical documentation.
 
 ## Task
 
-- Describe a high level summary of the changes in GIT_DIFF in a way that a software engineer will understand.
+- Describe a high level summary of the changes in GIT_DIFF for a pull request in a way that a software engineer will understand.
 
 ## Instructions
 

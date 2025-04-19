@@ -8,21 +8,26 @@ script({
         "system.safety_harmful_content",
         "system.safety_validate_harmful_content",
     ],
-    tools: ["fs", "git"],
-    cache: "prr",
+    tools: ["agent_fs", "agent_git"],
+    parameters: {
+        base: {
+            type: "string",
+            description: "The base branch of the pull request",
+        },
+    },
 })
 
-const defaultBranch = await git.defaultBranch()
+const base = env.vars.base || (await git.defaultBranch())
 const changes = await git.diff({
-    base: defaultBranch,
+    base,
 })
 console.log(changes)
 def("GIT_DIFF", changes, {
-    maxTokens: 20000,
+    maxTokens: 14000,
     detectPromptInjection: "available",
 })
 
-$`Report errors in GIT_DIFF using the annotation format.
+$`Report errors in <GIT_DIFF> using the annotation format.
 
 - Use best practices of the programming language of each file.
 - If available, provide a URL to the official documentation for the best practice. do NOT invent URLs.

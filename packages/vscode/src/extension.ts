@@ -6,36 +6,30 @@ import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePromptTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
-import { activateLLMRequestTreeDataProvider } from "./llmrequesttree"
-import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateTestController } from "./testcontroller"
 import { activateDocsNotebook } from "./docsnotebook"
 import { activateTraceTreeDataProvider } from "./tracetree"
 import { registerCommand } from "./commands"
-import {
-    DOCS_CONFIGURATION_URL,
-    EXTENSION_ID,
-    TOOL_NAME,
-} from "../../core/src/constants"
+import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants"
 import type MarkdownIt from "markdown-it"
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
 import { activateConnectionInfoTree } from "./connectioninfotree"
 import { activeTaskProvider } from "./taskprovider"
-import { activateSamplesCommands } from "./samplescommands"
 import { activateChatParticipant } from "./chatparticipant"
 import { activeWebview } from "./webview"
+import { activateFixCommand } from "./fixcommand"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
-    activateSamplesCommands(state)
+    activateFixCommand(state)
     activateMarkdownTextDocumentContentProvider(state)
+
+    activateTraceTreeDataProvider(state)
     activatePromptTreeDataProvider(state)
     activateConnectionInfoTree(state)
-    activateAIRequestTreeDataProvider(state)
-    activateLLMRequestTreeDataProvider(state)
-    activateTraceTreeDataProvider(state)
+
     activateStatusBar(state)
     activateDocsNotebook(state)
     activeTaskProvider(state)
@@ -43,6 +37,15 @@ export async function activate(context: ExtensionContext) {
     activeWebview(state)
 
     context.subscriptions.push(
+        registerCommand("genaiscript.server.start", async () => {
+            await state.host.server.start()
+        }),
+        registerCommand("genaiscript.server.stop", async () => {
+            await state.host.server.close()
+        }),
+        registerCommand("genaiscript.server.show", async () => {
+            await state.host.server.show()
+        }),
         registerCommand("genaiscript.request.abort", async () => {
             await state.cancelAiRequest()
             await vscode.window.showInformationMessage(
@@ -55,10 +58,6 @@ export async function activate(context: ExtensionContext) {
                 canPickMany: false,
             })
             if (res) vscode.commands.executeCommand(res.cmd)
-        }),
-        registerCommand("genaiscript.info.env", async () => {
-            const client = await state.host.server.client()
-            await client.infoEnv()
         }),
         registerCommand(
             "genaiscript.openIssueReporter",

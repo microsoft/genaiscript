@@ -6,51 +6,29 @@
 import { readFile, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import {
-    LogLevel,
     ServerManager,
     UTF8Decoder,
     UTF8Encoder,
     setRuntimeHost,
     RuntimeHost,
-    AzureTokenResolver,
     ModelConfigurations,
     ModelConfiguration,
 } from "./host"
 import { TraceOptions } from "./trace"
-import {
-    dirname,
-    extname,
-    basename,
-    join,
-    normalize,
-    relative,
-    resolve,
-    isAbsolute,
-} from "node:path"
+import { resolve } from "node:path"
 import { LanguageModel } from "./chat"
 import { NotSupportedError } from "./error"
 import {
     LanguageModelConfiguration,
+    LogLevel,
     Project,
     ResponseStatus,
 } from "./server/messages"
 import { defaultModelConfigurations } from "./llms"
 import { CancellationToken } from "./cancellation"
-
-// Function to create a frozen object representing Node.js path methods
-// This object provides utility methods for path manipulations
-export function createNodePath(): Path {
-    return <Path>Object.freeze({
-        dirname,
-        extname,
-        basename,
-        join,
-        normalize,
-        relative,
-        resolve,
-        isAbsolute,
-    })
-}
+import { createNodePath } from "./path"
+import { McpClientManager } from "./mcpclient"
+import { ResourceManager } from "./mcpresource"
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
@@ -63,15 +41,21 @@ export class TestHost implements RuntimeHost {
     path: Path = createNodePath()
     // File system for workspace
     workspace: WorkspaceFileSystem
-    azureToken: AzureTokenResolver = undefined
 
     // Default options for language models
     readonly modelAliases: ModelConfigurations = defaultModelConfigurations()
+    readonly mcp: McpClientManager
+    readonly resources: ResourceManager
 
     // Static method to set this class as the runtime host
     static install() {
         setRuntimeHost(new TestHost())
     }
+
+    constructor() {
+        this.resources = new ResourceManager()
+    }
+
     async pullModel(
         cfg: LanguageModelConfiguration,
         options?: TraceOptions & CancellationToken
@@ -91,6 +75,10 @@ export class TestHost implements RuntimeHost {
         this.modelAliases[id] = value
     }
     async readConfig() {
+        return {}
+    }
+
+    get config() {
         return {}
     }
 
@@ -148,7 +136,7 @@ export class TestHost implements RuntimeHost {
 
     // Placeholder for logging functionality
     log(level: LogLevel, msg: string): void {
-        throw new Error("Method not implemented.")
+        console[level](msg)
     }
 
     // Method to read a file and return its content as a Uint8Array
@@ -174,8 +162,8 @@ export class TestHost implements RuntimeHost {
     }
 
     // Placeholder for finding files with a glob pattern
-    findFiles(glob: string, options?: {}): Promise<string[]> {
-        throw new Error("Method not implemented.")
+    async findFiles(pattern: string, options?: {}): Promise<string[]> {
+        return [pattern]
     }
 
     // Placeholder for creating a directory
@@ -203,6 +191,13 @@ export class TestHost implements RuntimeHost {
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
         throw new Error("Method not implemented.")
+    }
+
+    /**
+     * Instantiates a python evaluation environment
+     */
+    python(options?: PythonRuntimeOptions): Promise<PythonRuntime> {
+        throw new Error("python")
     }
 
     // Async method to remove containers

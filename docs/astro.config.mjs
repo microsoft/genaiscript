@@ -3,6 +3,7 @@ import starlight from "@astrojs/starlight"
 import starlightBlog from "starlight-blog"
 import rehypeMermaid from "rehype-mermaid"
 import starlightLinksValidator from "starlight-links-validator"
+import starlightLlmsTxt from "starlight-llms-txt"
 
 // https://astro.build/config
 export default defineConfig({
@@ -40,16 +41,84 @@ export default defineConfig({
                         },
                     },
                 }),
+                starlightLlmsTxt({
+                    description: `GenAIScript is a JavaScript/TypeScript library and environment to build productive script using LLMs.`,
+                    details: `## Markdown Documentation
+All pages of the documentation have a markdown route by adding '.md' to the URL.
+For example, the markdown for https://microsoft.github.io/genaiscript/reference/scripts 
+is at https://microsoft.github.io/genaiscript/reference/scripts.md
+
+## Guidance for Code Generation
+- GenAIScript programs are meant to be executed through the genaiscript cli (https://www.npmjs.com/package/genaiscript).
+- When generating code for GenAIScript, always target TypeScript, Node.JS, ESM. Prefer await/async, keep it simple.
+- ambient types and definitions defined in "genaiscript.d.ts" are preloaded at runtime. you do not need to import them.
+- you keep the code simple, avoid exception handlers or error checking.
+- you add TODOs where you are unsure so that the user can review them
+- you use the global types in genaiscript.d.ts are already loaded in the global context, no need to import them.
+- save generated code in the "./genaisrc" folder with ".genai.mts" extension
+`,
+                    pageSeparator: "\n\n=|=|=|=|=|=\n\n",
+                    minify: {
+                        customSelectors: ["picture"],
+                    },
+                    promote: ["index*", "getting-started*", "!*/*"],
+                    customSets: [
+                        {
+                            label: "Getting Started",
+                            description:
+                                "Sequence of short tutorials on how to get started with GenAIScript",
+                            paths: ["getting-started/**"],
+                        },
+                        {
+                            label: "Reference",
+                            description:
+                                "full reference documentation (runtime and cli)",
+                            paths: ["reference/**"],
+                        },
+                        {
+                            label: "Reference Scripts",
+                            description:
+                                "full reference documentation for the runtime",
+                            paths: ["reference/scripts/**"],
+                        },
+                        {
+                            label: "Reference CLI",
+                            description:
+                                "full reference documentation for the command line interface and Node.JS runtime",
+                            paths: ["reference/cli/**", "reference/api/**"],
+                        },
+                        {
+                            label: "Guides",
+                            description:
+                                "Guides on various LLM programming topics",
+                            paths: ["guides/**", "case-studies/**"],
+                        },
+                        {
+                            label: "Samples",
+                            description:
+                                "Advanced samples used for specific common scenarios",
+                            paths: ["samples/**"],
+                        },
+                    ],
+                }),
                 starlightLinksValidator(),
             ],
             components: {
                 Head: "./src/components/Head.astro",
                 Footer: "./src/components/Footer.astro",
             },
-            social: {
-                github: "https://github.com/microsoft/genaiscript",
-                youtube: "https://www.youtube.com/@pelihalleux"
-            },
+            social: [
+                {
+                    icon: "github",
+                    label: "GitHub",
+                    href: "https://github.com/microsoft/genaiscript",
+                },
+                {
+                    icon: "youtube",
+                    label: "YouTube",
+                    href: "https://www.youtube.com/@pelihalleux",
+                },
+            ],
             editLink: {
                 baseUrl:
                     "https://github.com/microsoft/genaiscript/edit/main/docs/",
@@ -89,7 +158,7 @@ export default defineConfig({
                 },
                 {
                     label: "Contributing",
-                    link: "https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md",
+                    link: "dev",
                 },
             ],
         }),

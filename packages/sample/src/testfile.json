@@ -1,0 +1,20 @@
+[
+    {
+        "files": "src/rag/markdown.md",
+        "vars": {
+            "value": 1
+        }
+    },
+    {
+        "files": "src/rag/markdown.md",
+        "vars": {
+            "value": 2
+        }
+    },
+    {
+        "files": "src/rag/loremipsum.pdf",
+        "vars": {
+            "value": 1
+        }
+    }
+]

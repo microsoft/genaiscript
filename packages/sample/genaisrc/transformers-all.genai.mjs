@@ -1,5 +1,6 @@
 script({
     files: [],
+    tests: {},
 })
 
 import { pipeline, env as transformersEnv } from "@huggingface/transformers"

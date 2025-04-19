@@ -1,0 +1,70 @@
+---
+title: Super Charge Copilot Chat
+description: Super charge your Copilot chat with these tips and tricks.
+date: 2025-03-11
+authors: pelikhan
+tags:
+  - GitHub Copilot
+  - GitHub Copilot Chat
+  - Tips and Tricks
+  - Productivity
+cover:
+  alt: The image depicts a stylized, 8-bit graphic of a computer screen showcasing
+    GitHub Copilot Chat. Abstract visual elements represent API documentation
+    using small code snippets and blocks, illustrating their integration within
+    the chat interface. The scene conveys a sense of technology and software
+    development, designed with corporate aesthetics using a simple five-color
+    palette, without any people or text.
+  image: ./super-charge-copilot-chat.png
+excerpt: "Here’s a game-changer for boosting GitHub Copilot Chat’s performance
+  with GenAIScript: integrate your entire documentation into the chat session.
+  By compressing the GenAIScript docs to fit into the context window, you enable
+  Copilot Chat to deliver sharper, more context-aware results. This approach
+  takes advantage of the latest support for reusable prompts and local workspace
+  indexing, seamlessly embedding documentation to refine interactions. Curious
+  about setting it up? Dive into the linked guide and unlock its potential."
+
+---
+
+import prompt from "../../../../../.github/prompts/genaiscript.prompt.md?raw"
+import { Code } from "@astrojs/starlight/components"
+import { YouTube } from "astro-embed"
+import BlogNarration from "../../../components/BlogNarration.astro"
+
+<BlogNarration />
+
+Do you know to know an awesome trick to make GitHub Copilot Chat an expert in GenAIScript?
+Here's how you can supercharge your Copilot chat with simple technique.
+
+**Add your entire documentation to the chat session!**
+
+Sounds crazy? Not really! The GenAIScript contains countless examples and examples of usage of APIs. It just needs to be compressed
+to fit into the context window.
+
+## How do I try this?
+
+With the latest release of GenAIScript, you can now add a **`genaiscript`** prompt to your chat session.
+This prompt, crafted by the GenAIScript team, will include the GenAIScript documentation
+into the context to help the LLM provider better answers.
+
+<YouTube id="https://youtu.be/0GkbxnW0J34" posterQuality="high" />
+
+- [Follow this guide](/genaiscript/reference/vscode/github-copilot-chat/#genaiscript-custom-prompt)
+
+## How it works?
+
+The release of the latest GitHub Copilot Chat is adding support for [reusable prompts](https://code.visualstudio.com/docs/copilot/copilot-customization#_reusable-prompt-files-experimental).
+GiHub Copilot Chat also added support for local workspace indexing, which helps with handling large amount of context.
+
+GenAIScript leverages these features by adding a custom prompt that includes the GenAIScript documentation.
+
+<Code
+    code={prompt}
+    wrap={true}
+    lang="text"
+    title=".genaiscript/prompts/genaiscript.prompt.md"
+/>
+
+## To be continued
+
+This technique is really new and there's probably lots of improvment to be done.

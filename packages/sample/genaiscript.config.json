@@ -1,4 +1,5 @@
 {
+    "$schema": "../../docs/public/schemas/config.json",
     "include": ["../../genaisrc/*.genai.mts"],
     "modelAliases": {
         "llama32": "ollama:llama3.2:1b",
@@ -6,5 +7,9 @@
             "model": "ollama:llama3.2:1b",
             "temperature": 2
         }
+    },
+    "modelEncodings": {
+        "azure:gpt__4o_random_name": "gpt-4o",
+        "azure:gpt-4o_2024-08-06": "gpt-4o"
     }
 }

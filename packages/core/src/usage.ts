@@ -12,24 +12,49 @@ import {
 import { MarkdownTrace } from "./trace"
 import { logVerbose, toStringList } from "./util"
 import { parseModelIdentifier } from "./models"
-import { MODEL_PRICINGS, MODEL_PROVIDER_AICI } from "./constants"
+import {
+    CHAR_ENVELOPE,
+    CHAR_FLOPPY_DISK,
+    CHAR_UP_DOWN_ARROWS,
+    MODEL_PRICINGS,
+} from "./constants"
+import {
+    prettyCost,
+    prettyTokensPerSecond,
+    prettyDuration,
+    prettyTokens,
+} from "./pretty"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("usage")
 
 /**
- * Estimates the cost of a chat completion based on the model and usage.
+ * Estimates the cost of a chat completion based on model pricing and token usage.
  *
  * @param modelId - The identifier of the model used for chat completion.
- * @param usage - The usage statistics for the chat completion.
- * @returns The estimated cost or undefined if estimation is not possible.
+ * @param usage - The token usage statistics, including prompt, completion, and cached tokens.
+ * @returns The estimated cost, or undefined if pricing data is unavailable. The cost is calculated using input and output token prices, with a rebate applied to cached tokens. If the model's pricing data cannot be determined, the function returns undefined.
  */
 export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (!modelId || !usage.total_tokens) return undefined
 
     const { completion_tokens, prompt_tokens } = usage
     let { provider, model } = parseModelIdentifier(modelId)
-    if (provider === MODEL_PROVIDER_AICI) return undefined
-    const m = `${provider}:${model}`.toLowerCase()
-    const cost = MODEL_PRICINGS[m]
-    if (!cost) return undefined
+    let mid = `${provider}:${model}`.toLowerCase()
+    let cost = MODEL_PRICINGS[mid]
+    if (!cost) {
+        const m = model.match(
+            /^gpt-(3\.5|4|4o|o1|o3|o4|o4-mini|o1-mini|o1-preview|4o-mini|o3-mini|4\.1|4\.1-mini|4\.1-nano)/
+        )
+        if (m) {
+            model = m[0]
+            mid = `${provider}:${model}`.toLowerCase()
+            cost = MODEL_PRICINGS[mid]
+        }
+    }
+    dbg(`pricing: %s <- %s %o`, mid, modelId, cost)
+    if (!cost) {
+        return undefined
+    }
 
     const {
         price_per_million_output_tokens,
@@ -42,24 +67,16 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
         (prompt_tokens - cached) * price_per_million_input_tokens +
         cached * cost.price_per_million_input_tokens * input_cache_token_rebate
     const output = completion_tokens * price_per_million_output_tokens
-    return (input + output) / 1e6
+    return (input + output) / 1000000
 }
 
 /**
- * Renders the cost as a string for display purposes.
+ * Determines if the specified model has associated pricing data by checking
+ * if any pricing entries start with the provider's prefix.
  *
- * @param value - The cost to be rendered.
- * @returns A string representation of the cost.
+ * @param model - The identifier of the model to check.
+ * @returns True if the model has pricing data available, otherwise false.
  */
-export function renderCost(value: number) {
-    if (!value) return ""
-    return value <= 0.01
-        ? `${(value * 100).toFixed(3)}¢`
-        : value <= 0.1
-          ? `${(value * 100).toFixed(2)}¢`
-          : `${value.toFixed(2)}$`
-}
-
 export function isCosteable(model: string): boolean {
     const { provider } = parseModelIdentifier(model)
     const prefix = `${provider}:`
@@ -95,6 +112,7 @@ export class GenerationStats {
         this.model = model
         this.label = label
         this.usage = {
+            duration: 0,
             completion_tokens: 0,
             prompt_tokens: 0,
             total_tokens: 0,
@@ -122,11 +140,13 @@ export class GenerationStats {
      */
     cost(): number {
         return [
-            ...this.chatTurns.map(
-                ({ usage, model }) =>
-                    estimateCost(model, usage) ??
-                    estimateCost(this.model, usage)
-            ),
+            ...this.chatTurns
+                .filter((c) => !c.cached)
+                .map(
+                    ({ usage, model }) =>
+                        estimateCost(model, usage) ??
+                        estimateCost(this.model, usage)
+                ),
             ...this.children.map((c) => c.cost()),
         ].reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
     }
@@ -140,6 +160,7 @@ export class GenerationStats {
         const res: ChatCompletionUsage = structuredClone(this.usage)
         for (const child of this.children) {
             const childUsage = child.accumulatedUsage()
+            res.duration += childUsage.duration
             res.completion_tokens += childUsage.completion_tokens
             res.prompt_tokens += childUsage.prompt_tokens
             res.total_tokens += childUsage.total_tokens
@@ -180,7 +201,7 @@ export class GenerationStats {
      * @param trace - The MarkdownTrace instance used for tracing.
      */
     trace(trace: MarkdownTrace) {
-        trace.startDetails("🪙 generation stats")
+        trace.startDetails("🪙 usage")
         try {
             this.traceStats(trace)
         } finally {
@@ -197,8 +218,12 @@ export class GenerationStats {
         trace.itemValue("prompt", this.usage.prompt_tokens)
         trace.itemValue("completion", this.usage.completion_tokens)
         trace.itemValue("tokens", this.usage.total_tokens)
-        const c = renderCost(this.cost())
+        const c = prettyCost(this.cost())
         if (c) trace.itemValue("cost", c)
+        const ts = prettyTokensPerSecond(this.usage)
+        if (ts) trace.itemValue("t/s", ts)
+        if (this.usage.duration)
+            trace.itemValue("duration", this.usage.duration)
         if (this.toolCalls) trace.itemValue("tool calls", this.toolCalls)
         if (this.repairs) trace.itemValue("repairs", this.repairs)
         if (this.turns) trace.itemValue("turns", this.turns)
@@ -225,12 +250,13 @@ export class GenerationStats {
         if (this.chatTurns.length > 1) {
             trace.startDetails("chat turns")
             try {
-                for (const { messages, usage } of this.chatTurns) {
+                for (const { cached, messages, usage } of this.chatTurns) {
                     trace.item(
                         toStringList(
-                            `${messages.length} messages`,
+                            cached ? CHAR_FLOPPY_DISK : "",
+                            `${CHAR_ENVELOPE} ${messages.length}`,
                             usage.total_tokens
-                                ? `${usage.total_tokens} tokens`
+                                ? `${prettyTokens(usage.total_tokens)}`
                                 : undefined
                         )
                     )
@@ -263,9 +289,22 @@ export class GenerationStats {
         const unknowns = new Set<string>()
         const c = this.cost()
         const au = this.accumulatedUsage()
-        if (au?.total_tokens > 0 && (this.resolvedModel || c)) {
+
+        if (au?.total_tokens > 0) {
+            const stats = [
+                this.children.length > 1
+                    ? `${CHAR_UP_DOWN_ARROWS}${this.children.length}`
+                    : undefined,
+                prettyDuration(au.duration),
+                prettyTokens(au.prompt_tokens, "prompt"),
+                prettyTokens(au.completion_tokens, "completion"),
+                prettyTokensPerSecond(au),
+                prettyCost(c),
+            ]
+                .filter((n) => !!n)
+                .join(" ")
             logVerbose(
-                `${indent}${this.label ? `${this.label} (${this.resolvedModel})` : this.resolvedModel}> ${au.total_tokens} tokens (${au.prompt_tokens} -> ${au.completion_tokens}) ${renderCost(c)}`
+                `${indent}${this.label ? `${this.label}:` : ""}${this.resolvedModel}> ${stats}`
             )
         }
         if (this.model && isNaN(c) && isCosteable(this.model))
@@ -276,6 +315,7 @@ export class GenerationStats {
                 messages,
                 usage,
                 model: turnModel,
+                cached,
             } of chatTurns.filter(
                 ({ usage }) => usage.total_tokens !== undefined
             )) {
@@ -283,7 +323,7 @@ export class GenerationStats {
                 if (cost === undefined && isCosteable(turnModel))
                     unknowns.add(this.model)
                 logVerbose(
-                    `${indent}  ${toStringList(`${messages.length} messages`, usage.total_tokens ? `${usage.total_tokens} tokens` : undefined, renderCost(cost))}`
+                    `${indent}  ${cached ? CHAR_FLOPPY_DISK : ""}${toStringList(`${CHAR_ENVELOPE} ${messages.length}`, prettyTokens(usage.total_tokens), prettyCost(cost), prettyTokensPerSecond(usage))}`
                 )
             }
             if (this.chatTurns.length > chatTurns.length)
@@ -296,21 +336,9 @@ export class GenerationStats {
             logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
     }
 
-    /**
-     * Adds usage statistics to the current instance.
-     *
-     * @param req - The request containing details about the chat completion.
-     * @param usage - The usage statistics to be added.
-     */
-    addUsage(req: CreateChatCompletionRequest, resp: ChatCompletionResponse) {
-        const {
-            usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 },
-            model,
-            cached,
-        } = resp
-        const { messages } = req
-
-        if (!cached) {
+    addUsage(usage: ChatCompletionUsage, duration?: number) {
+        this.usage.duration += duration ?? 0
+        if (usage) {
             this.usage.completion_tokens += usage.completion_tokens ?? 0
             this.usage.prompt_tokens += usage.prompt_tokens ?? 0
             this.usage.total_tokens += usage.total_tokens ?? 0
@@ -319,14 +347,47 @@ export class GenerationStats {
                 usage.completion_tokens_details?.audio_tokens ?? 0
             this.usage.completion_tokens_details.reasoning_tokens +=
                 usage.completion_tokens_details?.reasoning_tokens ?? 0
-            this.usage.completion_tokens_details.audio_tokens +=
-                usage.prompt_tokens_details?.audio_tokens ?? 0
-            this.usage.completion_tokens_details.reasoning_tokens +=
-                usage.prompt_tokens_details?.cached_tokens ?? 0
             this.usage.completion_tokens_details.accepted_prediction_tokens +=
                 usage.completion_tokens_details?.accepted_prediction_tokens ?? 0
             this.usage.completion_tokens_details.rejected_prediction_tokens +=
                 usage.completion_tokens_details?.rejected_prediction_tokens ?? 0
+        }
+    }
+
+    /**
+     * Adds usage statistics to the current instance.
+     *
+     * @param req - The request containing details about the chat completion.
+     * @param usage - The usage statistics to be added.
+     */
+    addRequestUsage(
+        modelId: string,
+        req: CreateChatCompletionRequest,
+        resp: ChatCompletionResponse
+    ) {
+        const {
+            usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 },
+            model,
+            cached,
+            duration,
+        } = resp
+        const { messages } = req
+
+        const cost = estimateCost(modelId, usage)
+        logVerbose(
+            `└─🏁 ${cached ? CHAR_FLOPPY_DISK : ""} ${modelId} ${CHAR_ENVELOPE} ${messages.length} ${[
+                prettyDuration(duration),
+                prettyTokens(usage.total_tokens, "both"),
+                prettyTokens(usage.prompt_tokens, "prompt"),
+                prettyTokens(usage.completion_tokens, "completion"),
+                prettyTokensPerSecond(usage),
+                prettyCost(cost),
+            ]
+                .filter((s) => !!s)
+                .join(" ")}`
+        )
+        if (!cached) {
+            this.addUsage(usage, duration)
         }
 
         const { provider } = parseModelIdentifier(this.model)

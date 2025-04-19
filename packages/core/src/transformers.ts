@@ -11,12 +11,13 @@ import type {
 } from "@huggingface/transformers"
 import { NotSupportedError } from "./error"
 import { ChatCompletionMessageParam, ChatCompletionResponse } from "./chattypes"
-import { dotGenaiscriptPath, logVerbose } from "./util"
+import { logVerbose } from "./util"
 import { parseModelIdentifier } from "./models"
-import prettyBytes from "pretty-bytes"
 import { hash } from "./crypto"
 import { PLimitPromiseQueue } from "./concurrency"
 import { deleteUndefinedValues } from "./cleaners"
+import { dotGenaiscriptPath } from "./workdir"
+import { prettyBytes } from "./pretty"
 
 function progressBar(): ProgressCallback {
     const progress: Record<string, number> = {}
@@ -44,14 +45,14 @@ const generationQueue = new PLimitPromiseQueue(1)
 
 async function loadGenerator(
     family: string,
-    options: object
+    options: any
 ): Promise<TextGenerationPipeline> {
     const h = await hash({ family, options })
     let p = generators[h]
     if (!p) {
         const { pipeline } = await import("@huggingface/transformers")
         p = generators[h] = pipeline("text-generation", family, {
-            ...options,
+            ...(options || {}),
             cache_dir: dotGenaiscriptPath("cache", "transformers"),
             progress_callback: progressBar(),
         })
@@ -81,7 +82,7 @@ export const TransformersCompletion: ChatCompletionHandler = async (
             device,
         })
     )
-    const msgs: Chat = chatMessagesToTranformerMessages(messages)
+    const msgs: Chat = await chatMessagesToTranformerMessages(messages)
     trace.detailsFenced("messages", msgs, "yaml")
     const tokenizer = generator.tokenizer
     const chatTemplate = !!tokenizer.chat_template
@@ -147,20 +148,21 @@ export const TransformersModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_TRANSFORMERS,
 })
 
-function chatMessagesToTranformerMessages(
+async function chatMessagesToTranformerMessages(
     messages: ChatCompletionMessageParam[]
-): Chat {
-    return messages.map((msg) => {
+): Promise<Chat> {
+    const res: Chat = []
+    for (const msg of messages) {
         switch (msg.role) {
             case "function":
-            case "aici":
             case "tool":
                 throw new NotSupportedError(`role ${msg.role} not supported`)
             default:
-                return {
+                res.push({
                     role: msg.role,
-                    content: renderMessageContent(msg),
-                } satisfies Message
+                    content: await renderMessageContent(msg),
+                } satisfies Message)
         }
-    })
+    }
+    return res
 }

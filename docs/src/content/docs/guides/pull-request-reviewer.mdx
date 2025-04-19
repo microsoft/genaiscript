@@ -52,6 +52,16 @@ def("GIT_DIFF", diff, {
 })
 ```
 
+:::tip
+
+GenAIScript provides a LLM-optimized [git diff command](/genaiscript/reference/scripts/git).
+
+```js
+const diff= await git.diff({ base: "main", files: ["**.ts"] })
+```
+
+:::
+
 ### Task
 
 The second part of the prompt consists of creating the task and the persona for the LLM.

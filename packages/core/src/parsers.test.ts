@@ -66,6 +66,34 @@ describe("parsers", async () => {
         assert(result.file.content.includes("Lorem"))
     })
 
+    await test("DOCX - markdown", async () => {
+        const result = await parsers.DOCX(
+            {
+                filename: "../sample/src/rag/Document.docx",
+            },
+            { format: "markdown" }
+        )
+        assert(result.file.content.includes("Microsoft"))
+    })
+    await test("DOCX - html", async () => {
+        const result = await parsers.DOCX(
+            {
+                filename: "../sample/src/rag/Document.docx",
+            },
+            { format: "html" }
+        )
+        assert(result.file.content.includes("Microsoft"))
+    })
+    await test("DOCX - text", async () => {
+        const result = await parsers.DOCX(
+            {
+                filename: "../sample/src/rag/Document.docx",
+            },
+            { format: "text" }
+        )
+        assert(result.file.content.includes("Microsoft"))
+    })
+
     test("CSV", () => {
         const result = parsers.CSV("key,value\n1,2")
         assert.deepStrictEqual(result, [{ key: "1", value: "2" }])
@@ -123,5 +151,63 @@ describe("parsers", async () => {
             { length: 20, version: false }
         )
         assert.strictEqual(result, "43ebfdc72c65bbf157ff") // Example hash value
+    })
+
+    test("dedent", () => {
+        const indentedText = `
+            This is an indented line
+                This is more indented
+            Back to first level
+        `
+        const result = parsers.dedent(indentedText)
+        assert.strictEqual(
+            result,
+            `This is an indented line
+    This is more indented
+Back to first level`
+        )
+    })
+
+    test("unthink", () => {
+        const text =
+            "I think the answer is 42. <think>Actually, it should be 43</think>"
+        const result = parsers.unthink(text)
+        assert.strictEqual(result, "I think the answer is 42. ")
+    })
+
+    test("tokens", () => {
+        const result = parsers.tokens("Hello world")
+        assert(typeof result === "number")
+        assert(result > 0)
+    })
+    test("transcription", () => {
+        const vttContent = `WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.000
+Hello world
+
+2
+00:00:05.500 --> 00:00:10.000
+This is a test`
+
+        const result = parsers.transcription(vttContent)
+        assert.deepStrictEqual(result[0], {
+            id: "1",
+            start: 0,
+            end: 5000,
+            text: "Hello world",
+        })
+        assert.deepStrictEqual(result[1], {
+            id: "2",
+            start: 5500,
+            end: 10000,
+            text: "This is a test",
+        })
+    })
+    test("unfence", () => {
+        const fencedText = '```json\n{"key": "value"}\n```'
+        const result = parsers.unfence(fencedText, "json")
+        assert.strictEqual(result, '{"key": "value"}')
     })
 })

@@ -1,9 +1,43 @@
-import { resolveFileContents } from "../../core/src/file"
+import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
 import { expandFiles } from "../../core/src/fs"
 import { fuzzSearch } from "../../core/src/fuzzsearch"
-import { dotGenaiscriptPath, normalizeInt } from "../../core/src/util"
-import { vectorSearch } from "../../core/src/vectorsearch"
+import { vectorIndex, vectorSearch } from "../../core/src/vectorsearch"
 import { YAMLStringify } from "../../core/src/yaml"
+
+/**
+ * Generates a vector index for retrieval tasks by processing specified files.
+ *
+ * @param indexName - Name of the index to be created.
+ * @param filesGlobs - Glob patterns defining the target files for indexing.
+ * @param options - Additional configuration options.
+ *   @param excludedFiles - List of files to exclude from indexing.
+ *   @param embeddingsModel - Model used to generate embeddings.
+ *   @param ignoreGitIgnore - Whether to bypass .gitignore rules.
+ *   @param database - Backend type for storing the generated index. Can be "local" or "azure_ai_search".
+ */
+export async function retrievalIndex(
+    indexName: string,
+    filesGlobs: string[],
+    options: {
+        excludedFiles: string[]
+        embeddingsModel: string
+        ignoreGitIgnore: boolean
+        database: "local" | "azure_ai_search"
+    }
+) {
+    const { excludedFiles, embeddingsModel, ignoreGitIgnore, database } =
+        options || {}
+    const files = (
+        await expandFiles(filesGlobs, {
+            excludedFiles,
+            applyGitIgnore: !ignoreGitIgnore,
+        })
+    ).map((filename) => <WorkspaceFile>{ filename })
+    await vectorIndex(indexName, files, {
+        embeddingsModel,
+        type: database,
+    })
+}
 
 /**
  * This file contains functions to perform retrieval searches on files.
@@ -19,8 +53,10 @@ import { YAMLStringify } from "../../core/src/yaml"
  * @param options - Additional options for the search.
  *   @param excludedFiles - Files to exclude from the search.
  *   @param topK - The number of top results to return.
+ *   @param minScore - The minimum score threshold for results.
  *   @param name - Index name for storing vectors.
  *   @param embeddingsModel - Model to use for generating embeddings.
+ *   @param ignoreGitIgnore - Whether to ignore .gitignore rules.
  */
 export async function retrievalSearch(
     q: string,
@@ -28,8 +64,10 @@ export async function retrievalSearch(
     options: {
         excludedFiles: string[]
         topK: string
+        minScore: string
         name: string
         embeddingsModel: string
+        ignoreGitIgnore: boolean
     }
 ) {
     // Destructure options with default values
@@ -37,32 +75,32 @@ export async function retrievalSearch(
         excludedFiles,
         name: indexName,
         topK,
+        minScore,
         embeddingsModel,
+        ignoreGitIgnore,
     } = options || {}
 
     // Expand file globs and map to WorkspaceFile object
     // Excludes specified files
-    const files = (await expandFiles(filesGlobs, excludedFiles)).map(
-        (filename) => <WorkspaceFile>{ filename }
-    )
-
-    // Resolve the contents of the files to ensure they can be processed
-    await resolveFileContents(files)
-
-    // Determine the folder path for storing vectors
-    // Uses a default name if none is provided
-    const folderPath = dotGenaiscriptPath("vectors", indexName ?? "default")
+    const files = (
+        await expandFiles(filesGlobs, {
+            excludedFiles,
+            applyGitIgnore: !ignoreGitIgnore,
+        })
+    ).map((filename) => <WorkspaceFile>{ filename })
 
     // Perform vector search with the given query and options
     // Searches using embeddings to find relevant files
-    const res = await vectorSearch(q, files, {
+    const res = await vectorSearch(indexName, q, files, {
         topK: normalizeInt(topK),
-        folderPath,
+        minScore: normalizeFloat(minScore),
         embeddingsModel,
     })
 
     // Output the results in YAML format for readability
-    console.log(YAMLStringify(res))
+    console.log(
+        YAMLStringify(res.map(({ filename, score }) => ({ filename, score })))
+    )
 }
 
 /**
@@ -70,10 +108,12 @@ export async function retrievalSearch(
  * Uses fuzzy matching to find approximate matches for a query.
  *
  * @param q - The query string to search for.
- * @param filesGlobs - Glob patterns specifying which files to search.
+ * @param filesGlobs - Glob patterns specifying which files to search. Defaults to all files if not provided.
  * @param options - Additional options for the search.
- *   @param excludedFiles - Files to exclude from the search.
+ *   @param excludedFiles - Files to exclude from the search. Defaults to excluding node_modules if not provided.
  *   @param topK - The number of top results to return.
+ *   @param minScore - The minimum score threshold for matches.
+ *   @param ignoreGitIgnore - Whether to ignore .gitignore rules.
  */
 export async function retrievalFuzz(
     q: string,
@@ -81,10 +121,12 @@ export async function retrievalFuzz(
     options: {
         excludedFiles: string[]
         topK: string
+        minScore: string
+        ignoreGitIgnore: boolean
     }
 ) {
     // Destructure options with default values
-    let { excludedFiles, topK } = options || {}
+    let { excludedFiles, topK, minScore } = options || {}
 
     // Default to searching all files if no globs are provided
     if (!filesGlobs?.length) filesGlobs = ["**"]
@@ -93,7 +135,7 @@ export async function retrievalFuzz(
     if (!excludedFiles?.length) excludedFiles = ["**/node_modules/**"]
 
     // Expand file globs and resolve the list of files
-    const files = await expandFiles(filesGlobs, excludedFiles)
+    const files = await expandFiles(filesGlobs, options)
 
     // Log the number of files being searched for transparency
     console.log(`searching '${q}' in ${files.length} files`)
@@ -103,9 +145,11 @@ export async function retrievalFuzz(
     const res = await fuzzSearch(
         q,
         files.map((filename) => ({ filename })),
-        { topK: normalizeInt(topK) }
+        { topK: normalizeInt(topK), minScore: normalizeFloat(minScore) }
     )
 
     // Output the results in YAML format for readability
-    console.log(YAMLStringify(res))
+    console.log(
+        YAMLStringify(res.map(({ filename, score }) => ({ filename, score })))
+    )
 }

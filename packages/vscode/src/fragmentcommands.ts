@@ -1,79 +1,18 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { checkDirectoryExists, checkFileExists } from "./fs"
+import { checkDirectoryExists, checkFileExists, listFiles } from "./fs"
 import { registerCommand } from "./commands"
-import { templateGroup } from "../../core/src/ast"
 import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants"
-import { NotSupportedError } from "../../core/src/error"
-import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
 import { Fragment } from "../../core/src/generation"
-import {
-    dotGenaiscriptPath,
-    groupBy,
-    logInfo,
-    logVerbose,
-} from "../../core/src/util"
+import { assert, logInfo, logVerbose } from "../../core/src/util"
 import { resolveCli } from "./config"
 import { YAMLStringify } from "../../core/src/yaml"
-
-type TemplateQuickPickItem = {
-    template?: PromptScript
-    action?: "create"
-} & vscode.QuickPickItem
-
-async function showPromptParametersQuickPicks(
-    template: PromptScript
-): Promise<PromptParameters> {
-    const parameters: PromptParameters = {}
-    for (const param in template.parameters || {}) {
-        const schema = promptParameterTypeToJSONSchema(
-            template.parameters[param]
-        )
-        switch (schema.type) {
-            case "string": {
-                const value = await vscode.window.showInputBox({
-                    title: `Enter value for ${param}`,
-                    value: schema.default,
-                    prompt: schema.description,
-                })
-                if (value === undefined) return undefined
-                parameters[param] = value
-                break
-            }
-            case "boolean": {
-                const value = await vscode.window.showQuickPick(
-                    [{ label: "yes" }, { label: "no" }],
-                    {
-                        title: `Choose ${param} ${schema.description || ""}`,
-                        canPickMany: false,
-                    }
-                )
-                if (value === undefined) return undefined
-                parameters[param] = value.label === "yes"
-                break
-            }
-            case "number": {
-                const value = await vscode.window.showInputBox({
-                    title: `Enter value for ${param}`,
-                    value: schema.default?.toLocaleString(),
-                    prompt: schema.description,
-                    validateInput: (v) =>
-                        isNaN(parseFloat(v))
-                            ? "Enter a valid number"
-                            : undefined,
-                })
-                if (value === undefined) return undefined
-                parameters[param] = parseFloat(value)
-                break
-            }
-            default:
-                throw new NotSupportedError(
-                    "Unsupported parameter type " + schema.type
-                )
-        }
-    }
-    return parameters
-}
+import { dotGenaiscriptPath } from "../../core/src/workdir"
+import {
+    TemplateQuickPickItem,
+    showPromptParametersQuickPicks,
+} from "./parameterquickpick"
+import { scriptsToQuickPickItems } from "./scriptquickpick"
 
 export function activateFragmentCommands(state: ExtensionState) {
     const { context, host } = state
@@ -88,24 +27,6 @@ export function activateFragmentCommands(state: ExtensionState) {
             logVerbose(`${p.filename} => ${sfp} => ${sfp === f}`)
             return sfp === f
         })
-
-        if (!script) {
-            const reportIssue = "Report Issue"
-            vscode.window
-                .showErrorMessage(
-                    `Could not find a GenAiScript ${filename}. This is most likely a bug in GenAIScript.`,
-                    "Report Issue"
-                )
-                .then((cmd) => {
-                    if (cmd === reportIssue) {
-                        vscode.commands.executeCommand(
-                            "genaiscript.openIssueReporter",
-                            [`Could not find a GenAiScript issue`]
-                        )
-                    }
-                })
-        }
-
         return script
     }
 
@@ -114,13 +35,16 @@ export function activateFragmentCommands(state: ExtensionState) {
     }) => {
         const { filter = () => true } = options || {}
         const templates = state.project.scripts
-            .filter((t) => !t.isSystem && t.group !== "infrastructure")
+            .filter(
+                (t) =>
+                    !t.isSystem && t.group !== "infrastructure" && !t.unlisted
+            )
             .filter(filter)
 
         const picked = await vscode.window.showQuickPick(
-            templatesToQuickPickItems(templates, { create: true }),
+            scriptsToQuickPickItems(templates, { create: true }),
             {
-                title: `Pick a GenAiScript`,
+                title: `Pick a GenAIScript`,
             }
         )
         if (picked?.action === "create") {
@@ -129,107 +53,82 @@ export function activateFragmentCommands(state: ExtensionState) {
         } else return (picked as TemplateQuickPickItem)?.template
     }
 
-    const resolveSpec = async (frag: Fragment | string | vscode.Uri) => {
-        let fragment: Fragment
-        // active text editor
-        if (frag === undefined && vscode.window.activeTextEditor) {
-            const document = vscode.window.activeTextEditor.document
-            if (
-                document &&
-                document.uri.scheme === "file" &&
-                !GENAI_ANY_REGEX.test(document.fileName)
-            )
-                frag = document.uri.fsPath
-        }
-        if (frag instanceof vscode.Uri) frag = frag.fsPath
-        if (typeof frag === "string") {
-            const fragUri = host.toUri(frag)
-            if (await checkFileExists(fragUri)) {
-                fragment = await state.parseDocument(fragUri)
-            } else if (await checkDirectoryExists(fragUri)) {
-                fragment = await state.parseDirectory(fragUri)
-            }
-        } else {
-            fragment = frag
-        }
-        return fragment
-    }
-
-    const fragmentPrompt = async (
-        options:
-            | {
-                  fragment?: Fragment | string | vscode.Uri
-                  template?: PromptScript
-              }
-            | vscode.Uri
+    const scriptRun = async (
+        fileOrFolder: vscode.Uri | undefined,
+        extraArgs: vscode.Uri[] | { groupId: unknown } | undefined
     ) => {
-        if (typeof options === "object" && options instanceof vscode.Uri)
-            options = { fragment: options }
-        let { fragment, template } = options || {}
-
+        // fileOrFolder is undefined from the command palette
+        const fileOrFolders = Array.isArray(extraArgs)
+            ? (extraArgs as vscode.Uri[])
+            : undefined
+        // editor context menu
+        // explorer context menu (file or folder) - uri to file or folder
+        // edit file run button: uri to genai file in editor
+        logVerbose(`run ${fileOrFolder}, ${fileOrFolders?.length || 0} files`)
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
-        if (
-            fragment instanceof vscode.Uri &&
-            GENAI_ANY_REGEX.test(fragment.path)
-        ) {
-            const file = fragment
-            template = findScript(file)
-            if (!template) {
-                return
-            }
-            fragment = undefined
-        }
-        fragment = await resolveSpec(fragment)
-        if (!template) {
-            template = await pickTemplate()
-            if (!template) return
-        }
+        let scriptId: string
+        let files: string[]
+        let parameters: PromptParameters
 
-        const parameters = await showPromptParametersQuickPicks(template)
-        if (parameters === undefined) return
-
+        if (GENAI_ANY_REGEX.test(fileOrFolder?.path)) {
+            const script = findScript(fileOrFolder)
+            parameters = await showPromptParametersQuickPicks(script)
+            if (parameters === undefined) return
+            scriptId = script?.id || fileOrFolder.toString()
+            files = []
+        } else {
+            const script = await pickTemplate()
+            if (!script) return
+            parameters = await showPromptParametersQuickPicks(script)
+            if (parameters === undefined) return
+            scriptId = script.id
+            files = fileOrFolders?.map((f) => f.fsPath) || [
+                fileOrFolder?.fsPath,
+            ]
+        }
         await state.requestAI({
-            fragment,
-            template,
-            label: template.id,
+            fragment: { files: files.filter((f) => !!f) },
+            scriptId,
+            label: scriptId,
             parameters,
         })
     }
 
-    const fragmentDebug = async (file: vscode.Uri) => {
+    const scriptDebug = async (file: vscode.Uri) => {
         if (!file) return
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
-        let template: PromptScript
+        let script: PromptScript
         let files: vscode.Uri[]
         if (GENAI_ANY_REGEX.test(file.path)) {
-            template = findScript(file)
-            if (!template) {
+            script = findScript(file)
+            if (!script) {
                 return
             }
-            files = vscode.window.visibleTextEditors
-                .filter(
-                    (editor) =>
-                        editor.document.uri.fsPath !== file.fsPath &&
-                        editor.document.uri.scheme === "file"
-                )
-                .map((editor) => editor.document.uri)
+            files = []
         } else {
-            template = await pickTemplate()
+            script = await pickTemplate()
+            if (!script) return
             files = [file]
         }
+        const parameters = await showPromptParametersQuickPicks(script)
+        if (parameters === undefined) return
 
-        const { cliPath, cliVersion } = await resolveCli()
+        const { cliPath, cliVersion } = await resolveCli(state)
         const args = [
             "run",
-            vscode.workspace.asRelativePath(template.filename),
+            vscode.workspace.asRelativePath(script.filename),
             ...files.map((file) =>
                 vscode.workspace.asRelativePath(file.fsPath)
             ),
         ]
+        for (const [name, value] of Object.entries(parameters)) {
+            args.push(`--vars`, `${name}=${value}`)
+        }
+
         const configuration = cliPath
             ? ((<vscode.DebugConfiguration>{
                   type: "node",
@@ -260,55 +159,8 @@ export function activateFragmentCommands(state: ExtensionState) {
         )
     }
 
-
-
     subscriptions.push(
-        registerCommand("genaiscript.fragment.prompt", fragmentPrompt),
-        registerCommand("genaiscript.fragment.debug", fragmentDebug)
+        registerCommand("genaiscript.fragment.prompt", scriptRun),
+        registerCommand("genaiscript.fragment.debug", scriptDebug)
     )
-}
-
-export function templatesToQuickPickItems(
-    templates: globalThis.PromptScript[],
-    options?: { create?: boolean }
-): TemplateQuickPickItem[] {
-    const { create } = options || {}
-    const cats = groupBy(templates, templateGroup)
-    const items: vscode.QuickPickItem[] = []
-    for (const cat in cats) {
-        items.push(<vscode.QuickPickItem>{
-            label: cat,
-            kind: vscode.QuickPickItemKind.Separator,
-        })
-        items.push(
-            ...cats[cat].map(
-                (template) =>
-                    <TemplateQuickPickItem>{
-                        label:
-                            template.title ??
-                            (template.filename &&
-                                vscode.workspace.asRelativePath(
-                                    template.filename
-                                )) ??
-                            template.id,
-                        description: `${template.id} ${
-                            template.description || ""
-                        }`,
-                        template,
-                    }
-            )
-        )
-    }
-    if (create) {
-        items.push(<vscode.QuickPickItem>{
-            label: "",
-            kind: vscode.QuickPickItemKind.Separator,
-        })
-        items.push(<TemplateQuickPickItem>{
-            label: "Create a new GenAiScript script...",
-            description: "Create a new script script in the current workspace.",
-            action: "create",
-        })
-    }
-    return items
 }

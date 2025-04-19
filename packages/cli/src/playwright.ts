@@ -5,12 +5,12 @@ import type {
     Page,
 } from "playwright"
 import { TraceOptions } from "../../core/src/trace"
-import { dotGenaiscriptPath, logError, logVerbose } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { PLAYWRIGHT_VERSION } from "./version"
-import { ellipseUri } from "../../core/src/url"
+import { uriRedact } from "../../core/src/url"
 import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
-import { ensureDir } from "fs-extra"
+import { createVideoDir } from "../../core/src/workdir"
 
 /**
  * Manages browser instances using Playwright, including launching,
@@ -65,16 +65,28 @@ export class BrowserManager {
      * @param options Optional settings for the browser launch.
      * @returns A promise that resolves to a Browser instance.
      */
-    private async launchBrowser(options?: BrowserOptions): Promise<Browser> {
-        const { browser = PLAYWRIGHT_DEFAULT_BROWSER, ...rest } = options || {}
-        try {
+    private async launchBrowser(
+        options?: BrowseSessionOptions
+    ): Promise<Browser> {
+        const launch = async () => {
             const playwright = await this.init()
-            return await playwright[browser].launch(rest)
+            const engine = playwright[browser]
+            if (connectOverCDP)
+                return await engine.connectOverCDP(connectOverCDP)
+            return await engine.launch(rest)
+        }
+
+        const {
+            browser = PLAYWRIGHT_DEFAULT_BROWSER,
+            connectOverCDP,
+            ...rest
+        } = options || {}
+        try {
+            return await launch()
         } catch {
             logVerbose("trying to install playwright...")
             await this.installDependencies(browser)
-            const playwright = await this.init()
-            return await playwright[browser].launch(rest)
+            return await launch()
         }
     }
 
@@ -115,10 +127,8 @@ export class BrowserManager {
         // Close all active browsers
         for (const browser of browsers) {
             try {
-                if (browser.isConnected()) {
-                    logVerbose(`browsers: closing browser`)
-                    await browser.close()
-                }
+                logVerbose(`browsers: closing browser`)
+                await browser.close()
             } catch (e) {
                 logError(e)
             }
@@ -132,13 +142,21 @@ export class BrowserManager {
      * @returns A promise that resolves to a Page object.
      */
     async browse(
-        url: string,
+        url?: string,
         options?: BrowseSessionOptions & TraceOptions
     ): Promise<BrowserPage> {
-        const { trace, incognito, timeout, recordVideo, ...rest } =
-            options || {}
+        const {
+            trace,
+            incognito,
+            timeout,
+            recordVideo,
+            waitUntil,
+            referer,
+            connectOverCDP,
+            ...rest
+        } = options || {}
 
-        logVerbose(`browsing ${ellipseUri(url)}`)
+        logVerbose(`browsing ${uriRedact(url)}`)
         const browser = await this.launchBrowser(options)
         let page: Page
 
@@ -146,11 +164,7 @@ export class BrowserManager {
         if (incognito || recordVideo) {
             const options = { ...rest } as BrowserContextOptions
             if (recordVideo) {
-                const dir = dotGenaiscriptPath(
-                    "videos",
-                    `${new Date().toISOString().replace(/[:.]/g, "-")}`
-                )
-                await ensureDir(dir)
+                const dir = await createVideoDir()
                 trace?.itemValue(`video dir`, dir)
                 options.recordVideo = { dir }
                 if (typeof recordVideo === "object")
@@ -175,7 +189,7 @@ export class BrowserManager {
         if (timeout !== undefined) page.setDefaultTimeout(timeout)
 
         // Navigate to the specified URL
-        if (url) await page.goto(url)
+        if (url) await page.goto(url, { waitUntil, referer, timeout })
 
         return page
     }

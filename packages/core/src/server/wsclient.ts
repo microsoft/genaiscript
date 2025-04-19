@@ -1,16 +1,19 @@
 import {
+    CHANGE,
     CLIENT_RECONNECT_DELAY,
     CLOSE,
     CONNECT,
     ERROR,
     MESSAGE,
     OPEN,
+    QUEUE_SCRIPT_START,
     RECONNECT,
 } from "../constants"
 import type {
     ChatEvents,
     LanguageModelConfiguration,
     LanguageModelConfigurationRequest,
+    LogMessageEvent,
     Project,
     PromptScriptAbort,
     PromptScriptList,
@@ -21,19 +24,25 @@ import type {
     RequestMessage,
     ResponseStatus,
     ServerEnv,
+    ServerEnvResponse,
     ServerResponse,
     ServerVersion,
 } from "./messages"
 
+interface Awaiter {
+    msg: Omit<RequestMessage, "id">
+    promise?: Promise<any>
+    resolve: (data: any) => void
+    reject: (error: unknown) => void
+}
+
 export class WebSocketClient extends EventTarget {
-    private awaiters: Record<
-        string,
-        { resolve: (data: any) => void; reject: (error: unknown) => void }
-    > = {}
+    private awaiters: Record<string, Awaiter> = {}
     private _nextId = 1
     private _ws: WebSocket
     private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
+    private _error: unknown | undefined
     connectedOnce = false
     reconnectAttempts = 0
 
@@ -41,9 +50,23 @@ export class WebSocketClient extends EventTarget {
         super()
     }
 
+    private dispatchChange() {
+        this.dispatchEvent(new Event(CHANGE))
+    }
+
     async init(): Promise<void> {
         if (this._ws) return Promise.resolve(undefined)
         this.connect()
+    }
+
+    get readyState(): "connecting" | "open" | "closing" | "closed" | "error" {
+        const states = ["connecting", "open", "closing", "closed", "error"]
+        if (this._error) return "error"
+        return (states[this._ws?.readyState] as any) || "closed"
+    }
+
+    get error() {
+        return this._error
     }
 
     private reconnect() {
@@ -52,11 +75,17 @@ export class WebSocketClient extends EventTarget {
         this._ws = undefined
         clearTimeout(this._reconnectTimeout)
         this._reconnectTimeout = setTimeout(() => {
-            this.connect()
+            try {
+                this.connect()
+            } catch (e) {
+                this._error = e
+                this.dispatchChange()
+            }
         }, CLIENT_RECONNECT_DELAY)
     }
 
     private connect(): void {
+        this._error = undefined
         this._ws = new WebSocket(this.url)
         this._ws.addEventListener(
             OPEN,
@@ -72,6 +101,7 @@ export class WebSocketClient extends EventTarget {
                 )
                     this._ws.send(m)
                 this.dispatchEvent(new Event(OPEN))
+                this.dispatchChange()
             },
             false
         )
@@ -79,16 +109,18 @@ export class WebSocketClient extends EventTarget {
             ERROR,
             (ev) => {
                 this.reconnect()
+                this.dispatchChange()
             },
             false
         )
         this._ws.addEventListener(
             CLOSE,
-            (ev: CloseEvent) => {
-                this.cancel(ev.reason)
-                this.dispatchEvent(
-                    new CloseEvent(CLOSE, { code: ev.code, reason: ev.reason })
-                )
+            // CloseEvent not defined in electron
+            (ev: Event) => {
+                const reason = (ev as any).reason || "websocket closed"
+                this.cancel(reason)
+                this.dispatchEvent(new Event(CLOSE))
+                this.dispatchChange()
                 this.reconnect()
             },
             false
@@ -108,10 +140,11 @@ export class WebSocketClient extends EventTarget {
                 }
                 // not a response
                 this.dispatchEvent(
-                    new MessageEvent<PromptScriptResponseEvents | ChatEvents>(
-                        MESSAGE,
-                        { data }
-                    )
+                    new MessageEvent<
+                        | PromptScriptResponseEvents
+                        | ChatEvents
+                        | LogMessageEvent
+                    >(MESSAGE, { data })
                 )
             }),
             false
@@ -119,7 +152,20 @@ export class WebSocketClient extends EventTarget {
         this.dispatchEvent(new Event(CONNECT))
     }
 
-    queue<T extends RequestMessage>(msg: Omit<T, "id">): Promise<T> {
+    queue<T extends RequestMessage>(
+        msg: Omit<T, "id">,
+        options?: { reuse: boolean }
+    ): Promise<T> {
+        const { reuse } = options || {}
+        if (reuse) {
+            const awaiter = Object.values(this.awaiters).find(
+                (a) => a.msg.type === msg.type
+            )
+            if (awaiter?.promise) {
+                return awaiter.promise
+            }
+        }
+
         const id = this._nextId++ + ""
         const mo: any = { ...msg, id }
         // avoid pollution
@@ -128,15 +174,19 @@ export class WebSocketClient extends EventTarget {
         const m = JSON.stringify(mo)
 
         this.init()
-        return new Promise<T>((resolve, reject) => {
-            this.awaiters[id] = {
+        let awaiter: Awaiter
+        const p = new Promise<T>((resolve, reject) => {
+            awaiter = this.awaiters[id] = {
+                msg,
                 resolve: (data) => resolve(data),
                 reject,
-            }
+            } satisfies Awaiter
             if (this._ws?.readyState === WebSocket.OPEN) {
                 this._ws.send(m)
             } else this._pendingMessages.push(m)
         })
+        awaiter.promise = p
+        return p
     }
 
     get pending() {
@@ -189,26 +239,38 @@ export class WebSocketClient extends EventTarget {
         modelId: string,
         options?: { token?: boolean }
     ): Promise<LanguageModelConfiguration | undefined> {
-        const res = await this.queue<LanguageModelConfigurationRequest>({
-            type: "model.configuration",
-            model: modelId,
-            token: options?.token,
-        })
+        const res = await this.queue<LanguageModelConfigurationRequest>(
+            {
+                type: "model.configuration",
+                model: modelId,
+                token: options?.token,
+            },
+            { reuse: true }
+        )
         return res.response?.ok ? res.response.info : undefined
     }
 
     async version(): Promise<ServerResponse> {
-        const res = await this.queue<ServerVersion>({ type: "server.version" })
+        const res = await this.queue<ServerVersion>(
+            { type: "server.version" },
+            { reuse: true }
+        )
         return res.response as ServerResponse
     }
 
-    async infoEnv(): Promise<ResponseStatus> {
-        const res = await this.queue<ServerEnv>({ type: "server.env" })
-        return res.response
+    async infoEnv(): Promise<ServerEnvResponse> {
+        const res = await this.queue<ServerEnv>(
+            { type: "server.env" },
+            { reuse: true }
+        )
+        return res.response as ServerEnvResponse
     }
 
     async listScripts(): Promise<Project> {
-        const res = await this.queue<PromptScriptList>({ type: "script.list" })
+        const res = await this.queue<PromptScriptList>(
+            { type: "script.list" },
+            { reuse: true }
+        )
         const project = (res.response as PromptScriptListResponse)?.project
         return project
     }
@@ -219,6 +281,7 @@ export class WebSocketClient extends EventTarget {
         files: string[],
         options: Partial<PromptScriptRunOptions>
     ) {
+        this.dispatchEvent(new Event(QUEUE_SCRIPT_START))
         return this.queue<PromptScriptStart>({
             type: "script.start",
             runId,
@@ -228,7 +291,7 @@ export class WebSocketClient extends EventTarget {
         })
     }
 
-    async abortScript(runId: string, reason?: string): Promise<ResponseStatus> {
+    async abortScript(runId: string, reason: string): Promise<ResponseStatus> {
         if (!runId) return { ok: true }
         const res = await this.queue<PromptScriptAbort>({
             type: "script.abort",

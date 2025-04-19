@@ -1,7 +1,6 @@
 script({
     tests: {},
-    model: "small",
-    files: "src/cities.md"
+    model: "small"
 })
 
 // JSON schema to constrain the output of the tool.
@@ -26,4 +25,4 @@ const schema = defSchema("CITY_SCHEMA", {
     },
 })
 
-$`Give 5 cities with their populations in YAML using the ${schema} schema.`
+$`Give 5 cities with their populations in JSON using the ${schema} schema.`

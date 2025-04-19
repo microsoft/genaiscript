@@ -23,6 +23,10 @@
                         "type": "string",
                         "description": "Description of the LLM provider"
                     },
+                    "hidden": {
+                        "type": "boolean",
+                        "description": "Indicates if the provider is hidden"
+                    },
                     "limitations": {
                         "type": "string",
                         "description": "General note about limitations"
@@ -42,6 +46,10 @@
                     "topP": {
                         "type": "boolean",
                         "description": "Indicates if top_p is supported"
+                    },
+                    "toolChoice": {
+                        "type": "boolean",
+                        "description": "Indicates if tool_choice is supported"
                     },
                     "seed": {
                         "type": "boolean",
@@ -83,6 +91,38 @@
                     "tokenless": {
                         "type": "boolean",
                         "description": "Indicates if connection without token is allowed"
+                    },
+                    "imageGeneration": {
+                        "type": "boolean",
+                        "description": "Indicates if image generation is supported"
+                    },
+                    "responseFormat": {
+                        "type": "string",
+                        "description": "Preferred response format",
+                        "enum": ["json_object", "json_schema"]
+                    },
+                    "reasoningEfforts": {
+                        "type": "object",
+                        "description": "Reasoning effort configuration",
+                        "properties": {
+                            "low": {
+                                "type": "number",
+                                "description": "Low reasoning effort"
+                            },
+                            "medium": {
+                                "type": "number",
+                                "description": "Medium reasoning effort"
+                            },
+                            "high": {
+                                "type": "number",
+                                "description": "High reasoning effort"
+                            }
+                        },
+                        "required": ["low", "medium", "high"]
+                    },
+                    "singleModel": {
+                        "type": "boolean",
+                        "description": "Indicates if the provider uses a single model"
                     },
                     "aliases": {
                         "type": "object",
@@ -127,6 +167,53 @@
                             "transcription": {
                                 "type": "string",
                                 "description": "Alias for transcription model"
+                            }
+                        }
+                    },
+                    "models": {
+                        "type": "object",
+                        "description": "Additional configuration flags of models",
+                        "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                                "tools": {
+                                    "type": "boolean",
+                                    "description": "Indicates if tools are supported"
+                                }
+                            }
+                        }
+                    },
+                    "env": {
+                        "type": "object",
+                        "description": "Environment variables for the provider",
+                        "additionalProperties": {
+                            "^[a-zA-Z0-9:_-]+$": {
+                                "type": "object",
+                                "properties": {
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "required": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the variable is required"
+                                    },
+                                    "secret": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the variable is a secret"
+                                    },
+                                    "format": {
+                                        "type": "string",
+                                        "description": "Format of the variable",
+                                        "enum": ["url"]
+                                    },
+                                    "enum": {
+                                        "type": "array",
+                                        "description": "List of allowed values",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

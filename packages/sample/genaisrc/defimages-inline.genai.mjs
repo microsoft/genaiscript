@@ -1,6 +1,6 @@
 script({
-    files: "src/robots.jpg",
-    model: "github:gpt-4o",
+    files: ["src/robots.jpg", "src/vision/apollo11.jpg"],
+    model: "vision",
 })
 const res = await runPrompt((_) => {
     _.defImages(env.files)

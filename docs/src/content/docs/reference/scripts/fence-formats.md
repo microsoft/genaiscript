@@ -78,5 +78,5 @@ def("TEXT", ":)", { fenceFormat: "xml" })
 or through the `--fence-format` flag on the cli:
 
 ```sh
-npx --yes genaiscript run ... --fence-format xml
+genaiscript run ... --fence-format xml
 ```

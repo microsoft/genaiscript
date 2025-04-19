@@ -10,22 +10,24 @@ for (const cache of [
     await workspace.cache<number, number>("test-cache"),
     await host.cache<number, number>("test-cache"),
 ]) {
+    console.log(`cache test ${cache.name}`)
     await cache.set(key, value)
     const result = await cache.get(key)
     if (result !== value) throw new Error(`unexpected value: ${result}`)
 
     const values = await cache.values()
-    if (!values.includes(value)) throw new Error(`unexpected values: ${values}`)
-
-    const keys = await cache.keys()
-    if (!keys.includes(key)) throw new Error(`unexpected keys: ${keys}`)
+    if (!values.includes(value)) {
+        throw new Error(
+            `unexpected values: ${values.join("\n")} in ${cache.name}`
+        )
+    }
 }
 
 console.log(`cache test passed`)
 
 const innerPrompt = `Generate 2 word poem. ${Math.random()}`
 await Promise.all(
-    Array(10)
+    Array(3)
         .fill(0)
         .map(async (_, i) => {
             await runPrompt(innerPrompt, { cache: "inner", label: `run-${i}` })

@@ -2,17 +2,21 @@ script({
     title: "Pull Request Descriptor",
     description: "Generate a pull request description from the git diff",
     temperature: 0.5,
-    system: [
-        "system",
-        "system.assistant",
-        "system.safety_jailbreak",
-        "system.safety_harmful_content",
-        "system.safety_validate_harmful_content",
-    ],
+    systemSafety: true,
+    parameters: {
+        base: {
+            type: "string",
+            description: "The base branch of the pull request",
+        },
+        maxTokens: {
+            type: "number",
+            description: "The maximum number of tokens to generate",
+            default: 14000,
+        },
+    },
 })
-const { safety } = env.vars
-
-const defaultBranch = await git.defaultBranch()
+const maxTokens = env.vars.maxTokens
+const defaultBranch = env.vars.base || (await git.defaultBranch())
 const branch = await git.branch()
 if (branch === defaultBranch) cancel("you are already on the default branch")
 
@@ -22,10 +26,17 @@ const changes = await git.diff({
 })
 console.log(changes)
 
+def("GIT_DIFF", changes, {
+    maxTokens,
+    detectPromptInjection: "available",
+})
+
 // task
 $`## Task
 
-Describe a high level summary of the changes in GIT_DIFF in a way that a software engineer will understand.
+You are an expert code reviewer with great English technical writing skills.
+
+Your task is to generate a high level summary of the changes in <GIT_DIFF> for a pull request in a way that a software engineer will understand.
 This description will be used as the pull request description.
 
 ## Instructions
@@ -35,7 +46,6 @@ This description will be used as the pull request description.
 - use bullet points to list the changes
 - use emojis to make the description more engaging
 - focus on the most important changes
+- do not try to fix issues, only describe the changes
 - ignore comments about imports (like added, remove, changed, etc.)
 `
-
-def("GIT_DIFF", changes, { maxTokens: 30000, detectPromptInjection: "available" })

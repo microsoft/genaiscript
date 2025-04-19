@@ -3,7 +3,7 @@ import assert from "node:assert/strict"
 import {
     CSVParse,
     CSVTryParse,
-    CSVToMarkdown,
+    dataToMarkdownTable,
     CSVStringify,
     CSVChunk,
 } from "./csv"
@@ -72,15 +72,12 @@ describe("CSVToMarkdown", () => {
             { name: "John", age: "30" },
             { name: "Jane", age: "25" },
         ]
-        const result = CSVToMarkdown(csv)
-        const expected = `
-|name|age|
+        const result = dataToMarkdownTable(csv)
+        const expected = `|name|age|
 |-|-|
 |John|30|
 |Jane|25|
-`
-            .trim()
-            .replace(/[\t ]+/g, " ")
+`.replace(/[\t ]+/g, " ")
         assert.equal(result, expected)
     })
 
@@ -89,20 +86,17 @@ describe("CSVToMarkdown", () => {
             { name: "John", age: "30" },
             { name: "Jane", age: "25" },
         ]
-        const result = CSVToMarkdown(csv, { headers: ["age", "name"] })
-        const expected = `
-|age|name|
+        const result = dataToMarkdownTable(csv, { headers: ["age", "name"] })
+        const expected = `|age|name|
 |-|-|
 |30|John|
 |25|Jane|
-`
-            .trim()
-            .replace(/[\t ]+/g, " ")
+`.replace(/[\t ]+/g, " ")
         assert.equal(result, expected)
     })
 
     test("Handle empty CSV data input", () => {
-        const result = CSVToMarkdown([])
+        const result = dataToMarkdownTable([])
         assert.equal(result, "")
     })
 })

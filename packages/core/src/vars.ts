@@ -1,10 +1,77 @@
 import { resolveScript } from "./ast"
 import { resolveSystems } from "./systems"
-import { logError, normalizeFloat, normalizeInt } from "./util"
+import { logError } from "./util"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
-import { promptParameterTypeToJSONSchema } from "./parameters"
+import {
+    promptParametersSchemaToJSONSchema,
+    promptParameterTypeToJSONSchema,
+} from "./parameters"
+import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
 
+/**
+ * Resolves and generates a JSON schema object representing the parameters schema
+ * for a given script and its associated systems in the project.
+ *
+ * @param prj - The project context containing scripts and systems.
+ * @param script - The script for which the parameters schema is to be resolved.
+ * @returns A JSON schema object describing the structure of the parameters
+ *          for the script and its associated systems. The schema includes properties
+ *          for the script itself and for each system associated with the script.
+ */
+export function resolveScriptParametersSchema(
+    prj: Project,
+    script: PromptScript
+): JSONSchemaObject {
+    const res: JSONSchemaObject = {
+        type: "object",
+        properties: {},
+    }
+    const schema = promptParametersSchemaToJSONSchema(script.parameters)
+    res.properties["script"] = schema
+    for (const system of resolveSystems(prj, script)
+        .map((s) => resolveScript(prj, s))
+        .filter((t) => t?.parameters)) {
+        Object.entries(system.parameters).forEach(([k, v]) => {
+            res.properties[system.id] = promptParametersSchemaToJSONSchema(
+                system.parameters
+            )
+        })
+    }
+    return res
+}
+
+/**
+ * Constructs a variable name for a system parameter by combining the system's unique identifier
+ * with the parameter name.
+ *
+ * @param system - The system instance to which the parameter belongs.
+ * @param name - The name of the parameter to be converted into a variable name.
+ * @returns A string representing the parameter's variable name in the format "systemId.parameterName".
+ */
+export function systemParameterToVarName(
+    system: SystemPromptInstance,
+    name: string
+) {
+    return `${system.id}.${name}`
+}
+
+/**
+ * Parses and resolves prompt parameters for the provided project and script,
+ * applying defaults, normalizing keys, and incorporating user-supplied variables.
+ *
+ * - Creates a combined parameter structure from the script and its associated systems.
+ * - Applies default values from the parameter definitions or their JSON schema.
+ * - Overrides defaults with user-supplied variables.
+ * - Normalizes parameter keys to a consistent format.
+ * - Logs errors for duplicate normalized keys.
+ *
+ * @param prj - The project instance used to resolve systems and scripts.
+ * @param script - The prompt script containing the initial parameters and variables.
+ * @param optionsVars - Additional variables provided by the user to override or extend script parameters.
+ *
+ * @returns A frozen object containing the resolved and normalized prompt parameters.
+ */
 export function parsePromptParameters(
     prj: Project,
     script: PromptScript,
@@ -20,7 +87,7 @@ export function parsePromptParameters(
         .map((s) => resolveScript(prj, s))
         .filter((t) => t?.parameters)) {
         Object.entries(system.parameters).forEach(([k, v]) => {
-            parameters[`${system.id}.${k}`] = v
+            parameters[systemParameterToVarName(system, k)] = v
         })
     }
 
@@ -67,48 +134,97 @@ export function parsePromptParameters(
     return Object.freeze(res)
 }
 
-export function proxifyVars(res: PromptParameters) {
-    const varsProxy: PromptParameters = new Proxy(res, {
-        get(target: PromptParameters, prop: string) {
-            if ((prop as any) === Object.prototype.toString)
-                return YAMLStringify(
-                    Object.fromEntries(
-                        Object.entries(res).map(([k, v]) => [
-                            normalizeVarKey(k),
-                            v,
-                        ])
+/**
+ * Creates a proxy for environment variables, normalizing keys to a consistent format
+ * and providing additional handling for specific operations.
+ *
+ * @param res - The resolved prompt parameters to proxify.
+ * @returns A proxy object that normalizes variable keys and provides access to the parameter values.
+ *
+ * Object behavior:
+ * - Keys are normalized using `normalizeVarKey`.
+ * - The proxy supports fetching keys, enumerating own keys, and retrieving property descriptors.
+ * - The `Object.prototype.toString` method is overridden to return a YAML stringified version
+ *   of the proxified parameters.
+ * - The proxy allows access to parameter values using normalized keys.
+ */
+export function proxifyEnvVars(res: PromptParameters) {
+    const varsProxy: PromptParameters = new Proxy(
+        Object.fromEntries(
+            Object.entries(res).map(([k, v]) => [normalizeVarKey(k), v])
+        ),
+        {
+            get(target: PromptParameters, prop: string) {
+                if ((prop as any) === Object.prototype.toString)
+                    return YAMLStringify(
+                        Object.fromEntries(
+                            Object.entries(res).map(([k, v]) => [
+                                normalizeVarKey(k),
+                                v,
+                            ])
+                        )
                     )
+                if (typeof prop === "string")
+                    return target[normalizeVarKey(prop)]
+                return undefined
+            },
+            ownKeys(target: PromptParameters) {
+                return Reflect.ownKeys(target).map((k) =>
+                    normalizeVarKey(k as string)
                 )
-            return typeof prop === "string"
-                ? target[normalizeVarKey(prop)]
-                : undefined
-        },
-        ownKeys(target: PromptParameters) {
-            return Reflect.ownKeys(target).map((k) =>
-                normalizeVarKey(k as string)
-            )
-        },
-        getOwnPropertyDescriptor(target: PromptParameters, prop: string) {
-            const normalizedKey = normalizeVarKey(prop)
-            const value = target[normalizedKey]
-            if (value !== undefined) {
-                return {
-                    enumerable: true,
-                    configurable: false,
-                    writable: false,
-                    value,
+            },
+            getOwnPropertyDescriptor(target: PromptParameters, prop: string) {
+                const normalizedKey = normalizeVarKey(prop)
+                const value = target[normalizedKey]
+                if (value !== undefined) {
+                    return {
+                        enumerable: true,
+                        configurable: true,
+                        writable: false,
+                        value,
+                    }
                 }
-            }
-            return undefined
-        },
-    })
+                return undefined
+            },
+        }
+    )
     return varsProxy
 }
 
-function normalizeVarKey(key: string) {
-    return key.toLowerCase().replace(/[^a-z0-9\.]/g, "")
+/**
+ * Merges existing environment variables with parameters and variables from a system instance.
+ *
+ * @param ev - The current environment variables, including `vars` and any additional properties.
+ * @param system - The system instance containing `parameters` and `vars` to merge.
+ * @returns A new object with `vars` containing merged environment variables, system parameters, and system variables, along with the rest of the `ev` properties.
+ */
+export function mergeEnvVarsWithSystem(
+    ev: ExpansionVariables,
+    system: SystemPromptInstance
+): ExpansionVariables {
+    const { parameters, vars } = system
+    if (!parameters && !vars) return ev
+
+    const { vars: envVars, ...rest } = ev
+    const parameterVars = Object.fromEntries(
+        Object.entries(parameters || {}).map(([k, v]) => [
+            systemParameterToVarName(system, k),
+            v,
+        ])
+    )
+    const newVars = { ...envVars, ...parameterVars, ...(vars || {}) }
+
+    return { vars: newVars, ...rest }
 }
 
+/**
+ * Converts a set of parameters into an array of strings in the format "key=value".
+ *
+ * @param parameters - An object containing key-value pairs representing the parameters.
+ *                     Keys represent parameter names and values represent their corresponding values.
+ * @returns An array of strings where each string represents a parameter as "key=value".
+ *          Returns undefined if the input is not provided.
+ */
 export function parametersToVars(parameters: PromptParameters): string[] {
     if (!parameters) return undefined
     return Object.keys(parameters).map((k) => `${k}=${parameters[k]}`)

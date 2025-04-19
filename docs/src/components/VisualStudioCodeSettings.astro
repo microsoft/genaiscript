@@ -1,0 +1,29 @@
+---
+import pkg from "../../../packages/vscode/package.json"
+
+const properties: [
+    string,
+    {
+        description: string
+        type: string
+        default?: boolean | string | undefined
+    },
+][] = Object.entries(pkg.contributes.configuration[0].properties)
+---
+
+The following settings are available for the extension. You can set them in your
+`settings.json` file, or open the command palette (Ctrl+Shift+P) and search for
+"Preferences: Open Settings (UI)".
+
+<ul>
+    {
+        properties.map(([id, { description, type, default: _default }]) => (
+            <li id={id}>
+                <code>{id}</code>: {description}
+                    {_default !== undefined ? (
+                        <span>(default: <code>{JSON.stringify(_default)}</code>)</span>
+                    ) : null}
+            </li>
+        ))
+    }
+</ul>

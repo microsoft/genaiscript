@@ -1,12 +1,11 @@
 import { describe, test } from "node:test"
 import assert from "node:assert"
-import { NotSupportedError } from "./error"
 
 import {
     promptParameterTypeToJSONSchema,
     promptParametersSchemaToJSONSchema,
 } from "./parameters"
-import { parametersToVars, proxifyVars } from "./vars"
+import { parametersToVars, proxifyEnvVars } from "./vars"
 
 describe("promptParameterTypeToJSONSchema", () => {
     test("string type", () => {
@@ -31,7 +30,7 @@ describe("promptParameterTypeToJSONSchema", () => {
 
     test("number type", () => {
         const result = promptParameterTypeToJSONSchema(42)
-        assert.deepStrictEqual(result, { type: "number", default: 42 })
+        assert.deepStrictEqual(result, { type: "integer", default: 42 })
     })
 
     test("boolean type", () => {
@@ -43,7 +42,7 @@ describe("promptParameterTypeToJSONSchema", () => {
         const result = promptParameterTypeToJSONSchema([42])
         assert.deepStrictEqual(result, {
             type: "array",
-            items: { type: "number", default: 42 },
+            items: { type: "integer", default: 42 },
         })
     })
 
@@ -72,15 +71,12 @@ describe("promptParameterTypeToJSONSchema", () => {
     })
 
     test("unsupported type", () => {
-        assert.throws(
-            () => promptParameterTypeToJSONSchema(() => {}),
-            Error
-        )
+        assert.throws(() => promptParameterTypeToJSONSchema(() => {}), Error)
     })
 })
 
 describe("promptParametersSchemaToJSONSchema", () => {
-    test("convert parameters schema to JSON schema", () => {
+    test("'value'", () => {
         const parameters = { key: "value" }
         const result = promptParametersSchemaToJSONSchema(parameters)
         assert.deepStrictEqual(result, {
@@ -89,12 +85,48 @@ describe("promptParametersSchemaToJSONSchema", () => {
             required: [],
         })
     })
+    test("''", () => {
+        const parameters = { key: "" }
+        const result = promptParametersSchemaToJSONSchema(parameters)
+        assert.deepStrictEqual(result, {
+            type: "object",
+            properties: { key: { type: "string" } },
+            required: ["key"],
+        })
+    })
+    test("123", () => {
+        const parameters = { key: 123 }
+        const result = promptParametersSchemaToJSONSchema(parameters)
+        assert.deepStrictEqual(result, {
+            type: "object",
+            properties: { key: { type: "integer", default: 123 } },
+            required: [],
+        })
+    })
+    test("12.3", () => {
+        const parameters = { key: 12.3 }
+        const result = promptParametersSchemaToJSONSchema(parameters)
+        assert.deepStrictEqual(result, {
+            type: "object",
+            properties: { key: { type: "number", default: 12.3 } },
+            required: [],
+        })
+    })
+    test("NaN", () => {
+        const parameters = { key: NaN }
+        const result = promptParametersSchemaToJSONSchema(parameters)
+        assert.deepStrictEqual(result, {
+            type: "object",
+            properties: { key: { type: "number" } },
+            required: ["key"],
+        })
+    })
 })
 
 describe("proxifyVars", () => {
     test("proxify variables", () => {
         const res = { key: "value" }
-        const proxy = proxifyVars(res)
+        const proxy = proxifyEnvVars(res)
         assert.strictEqual(proxy.key, "value")
     })
 })

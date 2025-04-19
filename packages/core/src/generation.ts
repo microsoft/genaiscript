@@ -18,6 +18,7 @@ export interface GenerationOptions
         ContentSafetyOptions,
         ScriptRuntimeOptions {
     inner: boolean // Indicates if the process is an inner operation
+    runId?: string
     runDir?: string
     cancellationToken?: CancellationToken // Token to cancel the operation
     infoCb?: (partialResponse: { text: string }) => void // Callback for providing partial responses
@@ -32,4 +33,5 @@ export interface GenerationOptions
     }
     vars?: PromptParameters // Variables for prompt customization
     stats: GenerationStats // Statistics of the generation
+    userState: Record<string, any>
 }

@@ -10,6 +10,7 @@ on:
     push:
         branches:
             - main
+            - dev
         paths:
             - yarn.lock
             - ".github/workflows/playwright.yml"
@@ -36,4 +37,4 @@ jobs:
             - name: download ollama docker
               run: yarn ollama:start
             - name: run browse-text
-              run: yarn run:script browse-text --out ./temp/browse-text --model ollama:phi3.5
+              run: yarn run:script browse-text --out ./temp/browse-text --model ollama:smollm2:135m

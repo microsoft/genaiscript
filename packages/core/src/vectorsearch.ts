@@ -3,245 +3,221 @@
  * and performing vector search on documents.
  */
 
-import { encode, decode } from "gpt-tokenizer"
-import { resolveModelConnectionInfo } from "./models"
-import { runtimeHost, host } from "./host"
-import {
-    AZURE_OPENAI_API_VERSION,
-    MODEL_PROVIDER_AZURE_OPENAI,
-    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
-    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-} from "./constants"
-import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
-import { createFetch, traceFetchPost } from "./fetch"
-import { JSONLineCache } from "./cache"
-import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chattypes"
-import { LanguageModelConfiguration } from "./server/messages"
-import { getConfigHeaders } from "./openai"
-import { logVerbose, trimTrailingSlash } from "./util"
 import { TraceOptions } from "./trace"
-import { CancellationOptions } from "./cancellation"
+import { CancellationOptions, checkCancelled } from "./cancellation"
+import { resolveFileContent } from "./file"
+import { vectraWorkspaceFileIndex } from "./vectra"
+import { azureAISearchIndex } from "./azureaisearch"
+import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat"
+import { resolveModelConnectionInfo } from "./models"
+import { EMBEDDINGS_MODEL_ID } from "./constants"
+import { runtimeHost } from "./host"
+import { resolveLanguageModel } from "./lm"
+import { EmbeddingsResponse } from "vectra"
+import { assert } from "./util"
+import { createCache } from "./cache"
 
 /**
  * Represents the cache key for embeddings.
  * This is used to store and retrieve cached embeddings.
  */
-export interface EmbeddingsCacheKey {
+interface EmbeddingsCacheKey {
     base: string
     provider: string
     model: string
-    inputs: string | string[]
+    inputs: string
+    salt?: string
 }
 
 /**
  * Type alias for the embeddings cache.
  * Maps cache keys to embedding responses.
  */
-export type EmbeddingsCache = JSONLineCache<
+type EmbeddingsCache = WorkspaceFileCache<
     EmbeddingsCacheKey,
     EmbeddingsResponse
 >
 
 /**
- * Class for creating embeddings using the OpenAI API.
- * Implements the EmbeddingsModel interface.
+ * Creates a cached embedding function that stores and retrieves embeddings
+ * results from a cache before invoking the provided embedding function.
+ *
+ * @param embedder The original embedding function to wrap with caching.
+ * @param options Configuration options for caching.
+ * @param options.cacheName The name of the cache to be used. Defaults to "embeddings" if not provided.
+ * @param options.cacheSalt An optional string used as a salt to differentiate cache keys.
+ * @returns A wrapped embedding function with caching capabilities.
+ *
+ * The returned function takes inputs, configuration, and options, checks the cache for existing results,
+ * and if not found, invokes the original embedding function, caches the result, and returns it.
  */
-class OpenAIEmbeddings implements EmbeddingsModel {
-    readonly cache: JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
+export function createCachedEmbedder(
+    embedder: EmbeddingFunction,
+    options?: { cacheName?: string; cacheSalt?: string }
+): EmbeddingFunction {
+    const { cacheName, cacheSalt } = options || {}
+    const cache: EmbeddingsCache = createCache<
+        EmbeddingsCacheKey,
+        EmbeddingsResponse
+    >(cacheName || "embeddings", { type: "fs" })
 
-    /**
-     * Constructs an instance of OpenAIEmbeddings.
-     * @param info Connection options for the model.
-     * @param configuration Configuration for the language model.
-     * @param options Options for tracing.
-     */
-    public constructor(
-        readonly info: ModelConnectionOptions,
-        readonly configuration: LanguageModelConfiguration,
-        readonly options?: TraceOptions
-    ) {
-        this.cache = JSONLineCache.byName<
-            EmbeddingsCacheKey,
-            EmbeddingsResponse
-        >("embeddings")
-    }
-
-    // Maximum number of tokens for embeddings
-    maxTokens = 512
-
-    /**
-     * Creates embeddings for the given inputs using the OpenAI API.
-     * @param inputs Text inputs to create embeddings for.
-     * @returns A `EmbeddingsResponse` with a status and the generated embeddings or a message when an error occurs.
-     */
-    public async createEmbeddings(
-        inputs: string | string[]
-    ): Promise<EmbeddingsResponse> {
-        const { provider, base, model } = this.configuration
-
-        // Define the cache key for the current request
-        const cacheKey: EmbeddingsCacheKey = { inputs, model, provider, base }
-
-        // Check if the result is already cached
-        const cached = await this.cache.get(cacheKey)
+    return async (inputs: string, cfg, options) => {
+        const key: EmbeddingsCacheKey = {
+            base: "embeddings",
+            provider: "openai",
+            model: "default",
+            inputs,
+            salt: cacheSalt,
+        }
+        const cached = await cache.get(key)
         if (cached) return cached
-
-        // Create embeddings if not cached
-        const res = await this.uncachedCreateEmbeddings(inputs)
-        if (res.status === "success") this.cache.set(cacheKey, res)
-
-        return res
-    }
-
-    /**
-     * Creates embeddings without using the cache.
-     * @param input The input text or texts.
-     * @returns The response containing the embeddings or error information.
-     */
-    private async uncachedCreateEmbeddings(
-        input: string | string[]
-    ): Promise<EmbeddingsResponse> {
-        const { provider, base, model, type } = this.configuration
-        const { trace } = this.options || {}
-        const body: EmbeddingCreateParams = { input, model }
-        let url: string
-        const headers: Record<string, string> = getConfigHeaders(
-            this.configuration
-        )
-        headers["Content-Type"] = "application/json"
-
-        // Determine the URL based on provider type
-        if (
-            provider === MODEL_PROVIDER_AZURE_OPENAI ||
-            provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
-            type === "azure" ||
-            type === "azure_serverless"
-        ) {
-            url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
-            delete body.model
-        } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
-            url = base.replace(/^https?:\/\/([^/]+)\/?/, body.model)
-            delete body.model
-        } else {
-            url = `${base}/embeddings`
-        }
-        const fetch = await createFetch({ retryOn: [429] })
-        if (trace) traceFetchPost(trace, url, headers, body)
-        logVerbose(`embedding ${model}`)
-
-        // Send POST request to create embeddings
-        const resp = await fetch(url, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(body),
-        })
-        trace?.itemValue(`response`, `${resp.status} ${resp.statusText}`)
-
-        // Process the response
-        if (resp.status < 300) {
-            const data = (await resp.json()) as EmbeddingCreateResponse
-            return {
-                status: "success",
-                output: data.data
-                    .sort((a, b) => a.index - b.index)
-                    .map((item) => item.embedding),
-            }
-        } else if (resp.status == 429) {
-            return {
-                status: "rate_limited",
-                message: `The embeddings API returned a rate limit error.`,
-            }
-        } else {
-            return {
-                status: "error",
-                message: `The embeddings API returned an error status of ${resp.status}: ${resp.statusText}`,
-            }
-        }
+        const result = await embedder(inputs, cfg, options)
+        if (result.status === "success") await cache.set(key, result)
+        return result
     }
 }
 
 /**
- * Performs a vector search on documents based on a query.
- * @param query The search query.
- * @param files The files to search within.
- * @param options Options for vector search, including folder path and tracing.
- * @returns The files with scores based on relevance to the query.
+ * Creates a vector index for documents using embeddings.
+ *
+ * @param indexName The name of the index to create.
+ * @param options Configuration options, including index type, embeddings model, cancellation token, tracing, vector size, provider, and other runtime settings.
+ * If the vector size is not provided, it will be determined automatically by generating a sample embedding.
+ * @returns A workspace file index instance.
+ */
+export async function vectorCreateIndex(
+    indexName: string,
+    options?: VectorIndexOptions & TraceOptions & CancellationOptions
+): Promise<WorkspaceFileIndex> {
+    assert(!!indexName)
+    options = options || {}
+    const {
+        type = "local",
+        embeddingsModel,
+        cancellationToken,
+        trace,
+    } = options || {}
+
+    let factory: WorkspaceFileIndexCreator
+    if (type === "azure_ai_search") factory = azureAISearchIndex
+    else factory = vectraWorkspaceFileIndex
+
+    // Resolve connection info for the embeddings model
+    const { info, configuration } = await resolveModelConnectionInfo(
+        {
+            model: embeddingsModel || EMBEDDINGS_MODEL_ID,
+        },
+        {
+            token: true,
+            defaultModel: EMBEDDINGS_MODEL_ID,
+        }
+    )
+    checkCancelled(cancellationToken)
+    if (info.error) throw new Error(info.error)
+    if (!configuration)
+        throw new Error("No configuration found for vector search")
+    // get embedder
+    const { embedder } = await resolveLanguageModel(info.provider)
+    if (!embedder)
+        throw new Error(`${info.provider} does not support embeddings`)
+
+    const cachedEmbedder = createCachedEmbedder(embedder)
+    // Pull the model
+    await runtimeHost.pullModel(configuration, { trace, cancellationToken })
+    checkCancelled(cancellationToken)
+
+    if (!options.vectorSize) {
+        const sniff = await cachedEmbedder(
+            `Lorem ipsum dolor sit amet, consectetur adipiscing elit
+sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
+            configuration,
+            options
+        )
+        options.vectorSize = sniff.data[0].length
+    }
+
+    return await factory(indexName, configuration, cachedEmbedder, options)
+}
+
+/**
+ * Indexes a set of files into a vector index using embeddings.
+ * @param indexName The name of the index to create or update. Defaults to "default" if not provided.
+ * @param files The list of files to index. Their content will be resolved before indexing.
+ * @param options Configuration options, including embeddings model, cancellation token, tracing, and other runtime settings.
+ */
+export async function vectorIndex(
+    indexName: string,
+    files: WorkspaceFile[],
+    options: VectorSearchOptions & TraceOptions & CancellationOptions
+): Promise<void> {
+    indexName = indexName || "default"
+    const { embeddingsModel, cancellationToken, trace } = options
+
+    trace?.startDetails(`🔍 embeddings: indexing`)
+    try {
+        indexName = indexName || "default"
+        trace?.itemValue(`name`, indexName)
+        trace?.itemValue(`model`, embeddingsModel)
+        const index = await vectorCreateIndex(indexName, {
+            ...options,
+            trace: trace,
+        })
+        checkCancelled(cancellationToken)
+        for (const file of files) {
+            await resolveFileContent(file, { trace })
+            checkCancelled(cancellationToken)
+            await index.insertOrUpdate(file)
+            checkCancelled(cancellationToken)
+        }
+    } finally {
+        trace?.endDetails()
+    }
+}
+
+/**
+ * Performs a vector search on documents using an index and query.
+ * @param indexName The name of the index to search. Defaults to "default" if not provided.
+ * @param query The query string used for the search.
+ * @param files The files to search within. Their content will be resolved and indexed.
+ * @param options Options for vector search, including top results, minimum score, embeddings model, cancellation token, and tracing.
+ * @param options.topK The maximum number of top results to return.
+ * @param options.minScore The minimum score threshold for results. Defaults to 0.
+ * @param options.embeddingsModel The embeddings model to use for the search.
+ * @param options.cancellationToken A token to handle cancellation of the operation.
+ * @param options.trace An optional tracing object to log details of the operation.
+ * @returns A list of files with scores reflecting their relevance to the query.
  */
 export async function vectorSearch(
+    indexName: string,
     query: string,
     files: WorkspaceFile[],
-    options: VectorSearchOptions & { folderPath: string } & TraceOptions &
-        CancellationOptions
+    options: VectorSearchOptions & TraceOptions & CancellationOptions
 ): Promise<WorkspaceFileWithScore[]> {
+    indexName = indexName || "default"
     const {
         topK,
-        folderPath,
-        embeddingsModel = runtimeHost.modelAliases.embeddings.model,
+        embeddingsModel,
         minScore = 0,
-        trace,
         cancellationToken,
+        trace,
     } = options
 
-    trace?.startDetails(`🔍 embeddings`)
+    trace?.startDetails(`🔍 embeddings: searching`)
     try {
+        trace?.itemValue(`name`, indexName)
         trace?.itemValue(`model`, embeddingsModel)
-
-        // Import the local document index
-        const { LocalDocumentIndex } = await import(
-            "vectra/lib/LocalDocumentIndex"
-        )
-        const tokenizer = { encode, decode }
-
-        // Resolve connection info for the embeddings model
-        const { info, configuration } = await resolveModelConnectionInfo(
-            {
-                model: embeddingsModel,
-            },
-            {
-                token: true,
-            }
-        )
-        if (info.error) throw new Error(info.error)
-        if (!configuration)
-            throw new Error("No configuration found for vector search")
-
-        // Pull the model
-        await runtimeHost.pullModel(configuration, { trace, cancellationToken })
-        const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
-
-        // Create a local document index
-        const index = new LocalDocumentIndex({
-            tokenizer,
-            folderPath,
-            embeddings,
-            chunkingConfig: {
-                chunkSize: 512,
-                chunkOverlap: 128,
-                tokenizer,
-            },
+        const index = await vectorCreateIndex(indexName, {
+            ...options,
+            trace: trace,
         })
-        await index.createIndex({ version: 1, deleteIfExists: true })
-
-        // Insert documents into the index
+        checkCancelled(cancellationToken)
         for (const file of files) {
-            const { filename, content } = file
-            await index.upsertDocument(filename, content)
+            await resolveFileContent(file, { trace })
+            checkCancelled(cancellationToken)
+            await index.insertOrUpdate(file)
+            checkCancelled(cancellationToken)
         }
-
-        // Query documents based on the search query
-        const res = await index.queryDocuments(query, { maxDocuments: topK })
-        const r: WorkspaceFileWithScore[] = []
-
-        // Filter and return results that meet the minScore
-        for (const re of res.filter((re) => re.score >= minScore)) {
-            r.push(<WorkspaceFileWithScore>{
-                filename: re.uri,
-                content: (await re.renderAllSections(8000))
-                    .map((s) => s.text)
-                    .join("\n...\n"),
-                score: re.score,
-            })
-        }
+        const r = await index.search(query, { topK, minScore })
         return r
     } finally {
         trace?.endDetails()

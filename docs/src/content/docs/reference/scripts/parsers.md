@@ -188,6 +188,14 @@ const res = await parsers.XLSX("...filename.xlsx", {
 })
 ```
 
+## VTT, SRT
+
+The `parsers.transcription` parses VTT or SRT transcription files into a sequence of segments.
+
+```js
+const segments = await parsers.transcription("WEBVTT...")
+```
+
 ## Unzip
 
 Unpacks the contents of a zip file and returns an array of files.
@@ -216,7 +224,7 @@ const { captures } = await parsers.code(file)
 const { captures } = await parsers.code(file, "(interface_declaration) @i")
 ```
 
-The `tags` query is a built-in alias for the [tree-sitter `tags` query](https://tree-sitter.github.io/tree-sitter/code-navigation-systems) that is made available in most tree-sitter libraries.
+The `tags` query is a built-in alias for the [tree-sitter `tags` query](https://tree-sitter.github.io/tree-sitter/4-code-navigation.html#tagging-and-captures) that is made available in most tree-sitter libraries.
 
 ````js
 const { captures } = await parsers.code(file, 'tags')
@@ -327,9 +335,12 @@ const d = parsers.tidyData(rows, { sliceSample: 100, sort: "name" })
 Apply a [GROQ](https://groq.dev/) query to a JSON object.
 
 ```js
-const d = parsers.GROQ(`*[completed == true && userId == 2]{
+const d = parsers.GROQ(
+    `*[completed == true && userId == 2]{
   title
-}`, data)
+}`,
+    data
+)
 ```
 
 ## hash
@@ -342,11 +353,26 @@ const h = parsers.hash({ obj, other }, { length: 12 })
 
 By default, uses `sha-1`, but `sha-256` can also be used. The hash packing logic may change between versions of genaiscript.
 
+## unthink
+
+Some models return their internal reasonings inside `<think>` tags.
+
+```markdown
+<think>This is my reasoning...</think>
+Yes
+```
+
+The `unthink` function removes the `<think>` tags.
+
+```js
+const text = parsers.unthink(res.text)
+```
+
 ## Command line
 
 Use the [parse](/genaiscript/reference/cli/commands#parse) command from the CLI to try out various parsers.
 
 ```sh
 # convert any known data format to JSON
-npx --yes genaiscript parse data mydata.csv
+genaiscript parse data mydata.csv
 ```

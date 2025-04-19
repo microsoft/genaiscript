@@ -2,6 +2,7 @@
 import mime from "mime"
 
 // Define constant MIME types for specific programming languages
+export const FSTAR_MIME_TYPE = "text/x-fstar"
 export const TYPESCRIPT_MIME_TYPE = "text/x-typescript"
 export const CSHARP_MIME_TYPE = "text/x-csharp"
 export const PYTHON_MIME_TYPE = "text/x-python"
@@ -25,5 +26,6 @@ export function lookupMime(filename: string) {
     if (/\.py$/i.test(filename)) return PYTHON_MIME_TYPE
     if (/\.astro$/i.test(filename)) return ASTRO_MIME_TYPE
     if (/\.(md|prompty)$/i.test(filename)) return MARKDOWN_MIME_TYPE
+    if (/\.(fst|fsti)$/i.test(filename)) return FSTAR_MIME_TYPE
     return mime.getType(filename) || ""
 }

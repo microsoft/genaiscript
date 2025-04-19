@@ -1,0 +1,28 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "genaiscript.genaiscript-vscode",
+                "github.copilot-chat",
+                "github.vscode-pull-request-github",
+                "github.vscode-github-actions",
+                "esbenp.prettier-vscode",
+                "ms-python.python"
+            ]
+        }
+    },
+    "forwardPorts": [8003],
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {},
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/azure-cli:1": {},
+        "ghcr.io/devcontainers/features/python:1": {},
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers-extra/features/ffmpeg-apt-get:1": {},
+        "ghcr.io/ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/rust:1": {}
+    },
+    "postStartCommand": "npm install -g genaiscript",
+    "runArgs": ["--env-file", ".env.genaiscript"]
+}

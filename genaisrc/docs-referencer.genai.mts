@@ -1,6 +1,6 @@
 script({
     title: "API reference documentation generator",
-    description: "Generate reference documentation from a GenAISCript API type",
+    description: "Generate reference documentation from a GenAIScript API type",
     parameters: {
         api: {
             type: "string",

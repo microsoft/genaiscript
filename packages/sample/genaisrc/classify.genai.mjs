@@ -32,6 +32,6 @@ const robots = await classify(
         object: "Depicts objects, machines, robots, toys, ...",
         animal: "Animals, pets, monsters",
     },
-    { other: true }
+    { other: true, model: "vision" }
 )
 console.log(robots)

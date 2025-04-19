@@ -1,3 +1,6 @@
+import debug from "debug"
+const dbg = debug("genaiscript:github")
+
 import type { Octokit } from "@octokit/rest"
 import type { PaginateInterface } from "@octokit/plugin-paginate-rest"
 import {
@@ -12,18 +15,21 @@ import {
 import { createFetch } from "./fetch"
 import { runtimeHost } from "./host"
 import { prettifyMarkdown } from "./markdown"
-import { arrayify, assert, logError, logVerbose, normalizeInt } from "./util"
+import { arrayify, assert, ellipse, logError, logVerbose } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
-import { fetchText } from "./fetch"
+import { fetchText } from "./fetchtext"
 import { concurrentLimit } from "./concurrency"
-import { createDiff, llmifyDiff } from "./diff"
+import { llmifyDiff } from "./llmdiff"
 import { JSON5TryParse } from "./json5"
 import { link } from "./mkmd"
 import { LanguageModelInfo } from "./server/messages"
 import { LanguageModel, ListModelsFunction } from "./chat"
-import { OpenAIChatCompletion } from "./openai"
+import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { errorMessage, serializeError } from "./error"
+import { deleteUndefinedValues, normalizeInt } from "./cleaners"
+import { diffCreatePatch } from "./diff"
+import { GitClient } from "./git"
 
 export interface GithubConnectionInfo {
     token: string
@@ -60,7 +66,7 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
             /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue
     )
 
-    return {
+    return deleteUndefinedValues({
         token,
         apiUrl,
         repository,
@@ -73,7 +79,7 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
         runId,
         runUrl,
         commitSha,
-    }
+    }) satisfies GithubConnectionInfo
 }
 
 async function githubGetPullRequestNumber() {
@@ -82,49 +88,115 @@ async function githubGetPullRequestNumber() {
         "gh",
         ["pr", "view", "--json", "number"],
         {
-            label: "resolve current pull request number",
+            label: "github: resolve current pull request number",
         }
     )
+    if (res.failed) {
+        logVerbose(res.stderr)
+        return undefined
+    }
     const resj = JSON5TryParse(res.stdout) as { number: number }
-    return resj?.number
+    const id = resj?.number
+    logVerbose(`github: pull request number: ${isNaN(id) ? "not found" : id}`)
+    return id
 }
 
+/**
+ * Parses GitHub environment variables to construct connection info for API usage.
+ *
+ * @param env - Environment variables to parse, typically `process.env`.
+ * @param options - Optional parameters:
+ *   - issue: The issue number to set explicitly.
+ *   - resolveIssue: Flag to resolve issue number via the GitHub CLI if not provided.
+ *   - owner: Repository owner to override environment variables.
+ *   - repo: Repository name to override environment variables.
+ * @returns A promise resolving to an object containing parsed GitHub connection information, including owner, repo, repository, issue, and token details.
+ *
+ * Notes:
+ * - If owner, repo, or repository details are missing, attempts to resolve them using the GitHub CLI.
+ * - If issue resolution is enabled and not provided, tries to determine the pull request number via the GitHub CLI.
+ * - Handles errors gracefully by logging verbose error messages but does not throw.
+ */
 export async function githubParseEnv(
     env: Record<string, string>,
-    options?: { issue?: number; resolveIssue?: boolean } & Partial<
-        Pick<GithubConnectionInfo, "owner" | "repo">
-    >
+    options?: {
+        issue?: number
+        resolveIssue?: boolean
+        resolveCommit?: boolean
+    } & Partial<Pick<GithubConnectionInfo, "owner" | "repo">>
 ): Promise<GithubConnectionInfo> {
+    dbg(`resolving connection info`)
     const res = githubFromEnv(env)
+    dbg(`found %O`, Object.keys(res).join(","))
     try {
         if (options?.owner && options?.repo) {
             res.owner = options.owner
+            dbg(`overriding owner with options.owner: ${options.owner}`)
             res.repo = options.repo
+            dbg(`overriding repo with options.repo: ${options.repo}`)
             res.repository = res.owner + "/" + res.repo
         }
-        if (!isNaN(options?.issue)) res.issue = options.issue
+        if (!isNaN(options?.issue)) {
+            dbg(`overriding issue with options.issue: ${options.issue}`)
+            res.issue = options.issue
+        }
         if (!res.owner || !res.repo || !res.repository) {
-            const { name: repo, owner } = JSON.parse(
-                (
-                    await runtimeHost.exec(
-                        undefined,
-                        "gh",
-                        ["repo", "view", "--json", "url,name,owner"],
-                        {}
-                    )
-                ).stdout
+            dbg(
+                `owner, repo, or repository missing, attempting to resolve via gh CLI`
             )
-            res.repo = repo
-            res.owner = owner.login
-            res.repository = res.owner + "/" + res.repo
+            const repoInfo = await runtimeHost.exec(
+                undefined,
+                "gh",
+                ["repo", "view", "--json", "url,name,owner"],
+                {}
+            )
+            if (repoInfo.failed) {
+                logVerbose(repoInfo.stderr)
+            } else if (!repoInfo.failed) {
+                const { name: repo, owner } = JSON.parse(repoInfo.stdout)
+                dbg(`retrieved repository info via gh CLI: ${repoInfo.stdout}`)
+                res.repo = repo
+                res.owner = owner.login
+                res.repository = res.owner + "/" + res.repo
+            }
         }
-        if (isNaN(res.issue) && options?.resolveIssue)
+        if (isNaN(res.issue) && options?.resolveIssue) {
+            dbg(`attempting to resolve issue number`)
             res.issue = await githubGetPullRequestNumber()
-    } catch (e) {}
+        }
+        if (!res.commitSha && options?.resolveCommit) {
+            res.commitSha = await GitClient.default().lastCommitSha()
+        }
+    } catch (e) {
+        logVerbose(errorMessage(e))
+    }
+
+    deleteUndefinedValues(res)
+    dbg(
+        `resolved connection info: %O`,
+        Object.fromEntries(
+            Object.entries(res).map(([k, v]) => [
+                k,
+                k === "token" ? ellipse(v, 4) : v,
+            ])
+        )
+    )
     return Object.freeze(res)
 }
 
-// https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
+/**
+ * Updates the description of a pull request on GitHub.
+ * Parameters:
+ * - script: The script instance used to generate the footer.
+ * - info: Object containing apiUrl, repository, issue, and runUrl. The issue field must be provided.
+ * - text: The new description text to update. It will be prettified, merged with the existing description, and appended with a footer.
+ * - commentTag: Tag used to identify and merge the description. Must be provided.
+ * Returns:
+ * - An object indicating whether the update was successful and the status text.
+ * Notes:
+ * - Requires a valid GitHub token to authenticate API requests.
+ * - If the issue number is missing, the update will not proceed.
+ */
 export async function githubUpdatePullRequestDescription(
     script: PromptScript,
     info: Pick<
@@ -137,15 +209,23 @@ export async function githubUpdatePullRequestDescription(
     const { apiUrl, repository, issue } = info
     assert(!!commentTag)
 
-    if (!issue) return { updated: false, statusText: "missing issue number" }
+    if (!issue) {
+        dbg(`missing issue number, cannot update pull request description`)
+        return { updated: false, statusText: "missing issue number" }
+    }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
-    if (!token) return { updated: false, statusText: "missing github token" }
+    if (!token) {
+        dbg(`retrieved GitHub token`)
+        return { updated: false, statusText: "missing github token" }
+    }
 
     text = prettifyMarkdown(text)
+    dbg(`prettified markdown text`)
     text += generatedByFooter(script, info)
 
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}`
+    dbg(`fetching pull request details from URL: ${url}`)
     // get current body
     const resGet = await fetch(url, {
         method: "GET",
@@ -160,6 +240,7 @@ export async function githubUpdatePullRequestDescription(
         html_url: string
     }
     const body = mergeDescription(commentTag, resGetJson.body, text)
+    dbg(`merging pull request description`)
     const res = await fetch(url, {
         method: "PATCH",
         headers: {
@@ -174,15 +255,28 @@ export async function githubUpdatePullRequestDescription(
         statusText: res.statusText,
     }
 
-    if (!r.updated)
+    if (!r.updated) {
         logError(
             `pull request ${resGetJson.html_url} update failed, ${r.statusText}`
         )
-    else logVerbose(`pull request ${resGetJson.html_url} updated`)
+    } else {
+        logVerbose(`pull request ${resGetJson.html_url} updated`)
+    }
 
     return r
 }
 
+/**
+ * Merges a new comment or text segment into the existing body, enclosed
+ * within the specified comment tags. If tags exist, updates the content
+ * between them; otherwise, appends the entire section.
+ *
+ * @param commentTag - The unique identifier tag used to demarcate the section
+ *                     in the body where merging occurs.
+ * @param body - The existing text or content to be updated.
+ * @param text - The new content to merge into the body.
+ * @returns Updated body text with merged and formatted content.
+ */
 export function mergeDescription(
     commentTag: string,
     body: string,
@@ -210,6 +304,15 @@ export function mergeDescription(
     return body
 }
 
+/**
+ * Generates a footer indicating the content was AI-generated.
+ *
+ * @param script - The script instance responsible for generating the content.
+ * @param info - An object containing metadata, such as the URL to the workflow run.
+ *   - runUrl - Optional URL to the current workflow or run.
+ * @param code - Optional identifier code to be appended to the footer.
+ * @returns A formatted string serving as a footer, warning readers about the AI-generated content.
+ */
 export function generatedByFooter(
     script: PromptScript,
     info: { runUrl?: string },
@@ -218,6 +321,18 @@ export function generatedByFooter(
     return `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect\n\n`
 }
 
+/**
+ * Appends an AI-generated comment with diagnostic details to a script.
+ *
+ * @param script - The script instance where the comment will be appended.
+ * @param info - Contains contextual information such as the run URL for generating the footer link.
+ *   - runUrl - The URL of the workflow or job run, if available.
+ * @param annotation - The diagnostic information to include in the comment.
+ *   - message - The diagnostic message to be displayed.
+ *   - code - An optional code identifier related to the diagnostic.
+ *   - severity - The level of severity (e.g., warning or error) for the diagnostic.
+ * @returns A formatted Markdown string representing the AI-generated comment with a footer and diagnostic details.
+ */
 export function appendGeneratedComment(
     script: PromptScript,
     info: { runUrl?: string },
@@ -243,12 +358,18 @@ export async function githubCreateIssueComment(
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
     const { apiUrl, repository, issue } = info
 
-    if (!issue) return { created: false, statusText: "missing issue number" }
+    if (!issue) {
+        dbg(`missing issue number, cannot create issue comment`)
+        return { created: false, statusText: "missing issue number" }
+    }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
-    if (!token) return { created: false, statusText: "missing github token" }
+    if (!token) {
+        return { created: false, statusText: "missing github token" }
+    }
 
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
+    dbg(`creating issue comment at URL: ${url}`)
 
     body += generatedByFooter(script, info)
 
@@ -266,14 +387,17 @@ export async function githubCreateIssueComment(
                 },
             }
         )
-        if (resListComments.status !== 200)
+        if (resListComments.status !== 200) {
+            dbg(`failed to list existing comments`)
             return { created: false, statusText: resListComments.statusText }
+        }
         const comments = (await resListComments.json()) as {
             id: string
             body: string
         }[]
         const comment = comments.find((c) => c.body.includes(tag))
         if (comment) {
+            dbg(`found existing comment with tag, deleting it`)
             const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
             const resd = await fetch(delurl, {
                 method: "DELETE",
@@ -282,8 +406,9 @@ export async function githubCreateIssueComment(
                     "X-GitHub-Api-Version": GITHUB_API_VERSION,
                 },
             })
-            if (!resd.ok)
+            if (!resd.ok) {
                 logError(`issue comment delete failed, ` + resd.statusText)
+            }
         }
     }
 
@@ -302,11 +427,13 @@ export async function githubCreateIssueComment(
         statusText: res.statusText,
         html_url: resp.html_url,
     }
-    if (!r.created)
+    if (!r.created) {
         logError(
             `pull request ${issue} comment creation failed, ${r.statusText}`
         )
-    else logVerbose(`pull request ${issue} comment created at ${r.html_url}`)
+    } else {
+        logVerbose(`pull request ${issue} comment created at ${r.html_url}`)
+    }
 
     return r
 }
@@ -323,6 +450,7 @@ async function githubCreatePullRequestReview(
 ) {
     assert(!!token)
     const { apiUrl, repository, issue, commitSha } = info
+    dbg(`creating pull request review comment`)
 
     const prettyMessage = prettifyMarkdown(annotation.message)
     const line = annotation.range?.[1]?.[0] + 1
@@ -351,6 +479,7 @@ async function githubCreatePullRequestReview(
     }
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
+    dbg(`posting new pull request review comment at URL: ${url}`)
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -370,11 +499,26 @@ async function githubCreatePullRequestReview(
         logVerbose(
             `pull request ${commitSha} comment creation failed, ${r.statusText}`
         )
-    } else
+    } else {
         logVerbose(`pull request ${commitSha} comment created at ${r.html_url}`)
+    }
     return r
 }
 
+/**
+ * Creates pull request review comments on GitHub for a set of code annotations.
+ *
+ * @param script - The script instance generating the comments.
+ * @param info - Connection details for GitHub, including API URL, repository, pull request issue number, run URL, and commit SHA.
+ * @param annotations - List of diagnostics or annotations to provide as review comments on the pull request.
+ * @returns A promise resolving to a boolean indicating whether all review comments were successfully created.
+ *
+ * Notes:
+ * - If no annotations are provided, the function skips creating reviews and resolves to true.
+ * - If the issue number or commit SHA is missing, the function logs an error and resolves to false.
+ * - Retrieves an authentication token from the secrets store to authenticate API requests.
+ * - Fetches existing pull request comments to avoid duplication when creating review comments.
+ */
 export async function githubCreatePullRequestReviews(
     script: PromptScript,
     info: Pick<
@@ -385,24 +529,28 @@ export async function githubCreatePullRequestReviews(
 ): Promise<boolean> {
     const { repository, issue, commitSha, apiUrl } = info
 
-    if (!annotations?.length) return true
+    if (!annotations?.length) {
+        dbg(`no annotations provided, skipping pull request reviews`)
+        return true
+    }
     if (!issue) {
-        logError("missing pull request number")
+        logError("github: missing pull request number")
         return false
     }
     if (!commitSha) {
-        logError("missing commit sha")
+        logError("github: missing commit sha")
         return false
     }
     const token = await runtimeHost.readSecret(GITHUB_TOKEN)
     if (!token) {
-        logError("missing github token")
+        logError("github: missing token")
         return false
     }
 
     // query existing reviews
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
+    dbg(`fetching existing pull request comments from URL: ${url}`)
     const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
         headers: {
             Accept: "application/vnd.github+json",
@@ -410,7 +558,10 @@ export async function githubCreatePullRequestReviews(
             "X-GitHub-Api-Version": GITHUB_API_VERSION,
         },
     })
-    if (resListComments.status !== 200) return false
+    if (resListComments.status !== 200) {
+        dbg(`failed to fetch existing pull request comments`)
+        return false
+    }
     const comments = (await resListComments.json()) as {
         id: string
         path: string
@@ -419,6 +570,7 @@ export async function githubCreatePullRequestReviews(
     }[]
     // code annotations
     for (const annotation of annotations) {
+        dbg(`iterating over annotations to create pull request reviews`)
         await githubCreatePullRequestReview(
             script,
             info,
@@ -438,10 +590,15 @@ async function paginatorToArray<T, R>(
 ): Promise<R[]> {
     const result: R[] = []
     for await (const item of await iterator) {
+        dbg(`processing item in paginator`)
         let r = iteratorItem(item)
-        if (elementFilter) r = r.filter(elementFilter)
+        if (elementFilter) {
+            r = r.filter(elementFilter)
+        }
         result.push(...r)
-        if (result.length >= count) break
+        if (result.length >= count) {
+            break
+        }
     }
     return result.slice(0, count)
 }
@@ -481,12 +638,14 @@ const listModels: ListModelsFunction = async (cfg, options) => {
                 }),
             }
         )
-        if (!modelsRes.ok)
+        if (!modelsRes.ok) {
+            dbg(`failed to fetch models, status: ${modelsRes.status}`)
             return {
                 ok: false,
                 status: modelsRes.status,
                 error: serializeError(modelsRes.statusText),
             }
+        }
 
         const models = (await modelsRes.json())
             .summaries as GitHubMarketplaceModel[]
@@ -510,6 +669,7 @@ export const GitHubModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_GITHUB,
     completer: OpenAIChatCompletion,
     listModels,
+    embedder: OpenAIEmbedder,
 })
 
 export class GitHubClient implements GitHub {
@@ -524,13 +684,22 @@ export class GitHubClient implements GitHub {
         | undefined
     >
 
+    private static _default: GitHubClient
+    static default() {
+        if (!this._default) this._default = new GitHubClient(undefined)
+        return this._default
+    }
+
     constructor(info: Pick<GithubConnectionInfo, "owner" | "repo">) {
         this._info = info
     }
 
     private connection(): Promise<GithubConnectionInfo> {
-        if (!this._connection)
-            this._connection = githubParseEnv(process.env, this._info)
+        if (!this._connection) {
+            this._connection = githubParseEnv(process.env, {
+                ...this._info,
+            })
+        }
         return this._connection
     }
 
@@ -632,6 +801,7 @@ export class GitHubClient implements GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubIssue[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing issues for repository`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.issues.listForRepo, {
             owner,
@@ -642,12 +812,100 @@ export class GitHubClient implements GitHub {
         return res
     }
 
+    async listGists(
+        options?: {
+            since?: string
+            filenameAsResources?: boolean
+        } & GitHubPaginationOptions
+    ): Promise<GitHubGist[]> {
+        const { client } = await this.api()
+        dbg(`listing gists for user`)
+        const {
+            count = GITHUB_REST_PAGE_DEFAULT,
+            filenameAsResources,
+            ...rest
+        } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.gists.list, {
+            ...rest,
+        })
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res.map(
+            (r) =>
+                ({
+                    id: r.id,
+                    description: r.description,
+                    created_at: r.created_at,
+                    files: Object.values(r.files).map(
+                        ({ filename, size }) =>
+                            ({
+                                filename: filenameAsResources
+                                    ? `gist://${r.id}/${filename}`
+                                    : filename,
+                                size,
+                            }) satisfies WorkspaceFile
+                    ),
+                }) satisfies GitHubGist
+        )
+    }
+
+    async getGist(gist_id?: string): Promise<GitHubGist | undefined> {
+        if (typeof gist_id === "string") {
+            gist_id = gist_id.trim()
+        }
+        const { client, owner } = await this.api()
+        dbg(`retrieving gist details for gist ID: ${gist_id}`)
+        if (!gist_id) {
+            return undefined
+        }
+        const { data } = await client.rest.gists.get({
+            gist_id,
+            owner,
+        })
+        const { files, id, description, created_at, ...rest } = data
+        if (
+            Object.values(files || {}).some(
+                (f) => f.encoding !== "utf-8" && f.encoding != "base64"
+            )
+        ) {
+            dbg(`unsupported encoding for gist files`)
+            return undefined
+        }
+        const res = {
+            id,
+            description,
+            created_at,
+            files: Object.values(files).map(
+                ({ filename, content, size, encoding }) =>
+                    deleteUndefinedValues({
+                        filename,
+                        content,
+                        encoding:
+                            encoding === "utf-8"
+                                ? undefined
+                                : encoding === "base64"
+                                  ? "base64"
+                                  : undefined,
+                        size,
+                    }) satisfies WorkspaceFile
+            ),
+        } satisfies GitHubGist
+
+        dbg(`gist: %d files, %s`, res.files.length, res.description || "")
+        return res
+    }
+
     async getIssue(issue_number?: number | string): Promise<GitHubIssue> {
-        if (typeof issue_number === "string")
+        if (typeof issue_number === "string") {
             issue_number = parseInt(issue_number)
+        }
         const { client, owner, repo } = await this.api()
-        if (isNaN(issue_number)) issue_number = (await this._connection).issue
-        if (isNaN(issue_number)) return undefined
+        dbg(`retrieving issue details for issue number: ${issue_number}`)
+        if (isNaN(issue_number)) {
+            issue_number = (await this._connection).issue
+        }
+        if (isNaN(issue_number)) {
+            return undefined
+        }
         const { data } = await client.rest.issues.get({
             owner,
             repo,
@@ -660,11 +918,17 @@ export class GitHubClient implements GitHub {
         issue_number: number | string,
         body: string
     ): Promise<GitHubComment> {
-        if (typeof issue_number === "string")
+        if (typeof issue_number === "string") {
             issue_number = parseInt(issue_number)
+        }
         const { client, owner, repo } = await this.api()
-        if (isNaN(issue_number)) issue_number = (await this._connection).issue
-        if (isNaN(issue_number)) return undefined
+        dbg(`creating comment for issue number: ${issue_number}`)
+        if (isNaN(issue_number)) {
+            issue_number = (await this._connection).issue
+        }
+        if (isNaN(issue_number)) {
+            return undefined
+        }
         const { data } = await client.rest.issues.createComment({
             owner,
             repo,
@@ -682,6 +946,7 @@ export class GitHubClient implements GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubPullRequest[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing pull requests for repository`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.pulls.list, {
             owner,
@@ -695,10 +960,17 @@ export class GitHubClient implements GitHub {
     async getPullRequest(
         pull_number?: number | string
     ): Promise<GitHubPullRequest> {
-        if (typeof pull_number === "string") pull_number = parseInt(pull_number)
+        if (typeof pull_number === "string") {
+            pull_number = parseInt(pull_number)
+        }
         const { client, owner, repo } = await this.api()
-        if (isNaN(pull_number)) pull_number = (await this._connection).issue
-        if (isNaN(pull_number)) return undefined
+        dbg(`retrieving pull request details for pull number: ${pull_number}`)
+        if (isNaN(pull_number)) {
+            pull_number = (await this._connection).issue
+        }
+        if (isNaN(pull_number)) {
+            return undefined
+        }
 
         const { data } = await client.rest.pulls.get({
             owner,
@@ -713,6 +985,7 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing review comments for pull request number: ${pull_number}`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
             client.rest.pulls.listReviewComments,
@@ -732,6 +1005,7 @@ export class GitHubClient implements GitHub {
         options?: { reactions?: boolean } & GitHubPaginationOptions
     ): Promise<GitHubComment[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing comments for issue number: ${issue_number}`)
         const {
             reactions,
             count = GITHUB_REST_PAGE_DEFAULT,
@@ -747,6 +1021,21 @@ export class GitHubClient implements GitHub {
         return res
     }
 
+    async listReleases(
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubRelease[]> {
+        const { client, owner, repo } = await this.api()
+        dbg(`listing releases for repository`)
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(client.rest.repos.listReleases, {
+            owner,
+            repo,
+            ...rest,
+        })
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        return res
+    }
+
     async listWorkflowRuns(
         workflowIdOrFilename: string | number,
         options?: {
@@ -755,6 +1044,9 @@ export class GitHubClient implements GitHub {
         } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowRun[]> {
         const { client, owner, repo } = await this.api()
+        dbg(
+            `listing workflow runs for workflow ID or filename: ${workflowIdOrFilename}`
+        )
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
             workflowIdOrFilename
@@ -782,6 +1074,7 @@ export class GitHubClient implements GitHub {
         options?: { filter?: "all" | "latest" } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowJob[]> {
         // Get the jobs for the specified workflow run
+        dbg(`listing jobs for workflow run ID: ${run_id}`)
         const { client, owner, repo } = await this.api()
         const {
             filter,
@@ -800,9 +1093,14 @@ export class GitHubClient implements GitHub {
         const jobs = await paginatorToArray(ite, count, (i) => i.data)
 
         const res: GitHubWorkflowJob[] = []
+        dbg(`processing workflow jobs`)
         for (const job of jobs) {
-            if (job.conclusion === "skipped" || job.conclusion === "cancelled")
+            if (
+                job.conclusion === "skipped" ||
+                job.conclusion === "cancelled"
+            ) {
                 continue
+            }
             const { url: logs_url } =
                 await client.rest.actions.downloadJobLogsForWorkflowRun({
                     owner,
@@ -836,12 +1134,15 @@ export class GitHubClient implements GitHub {
                 job_id,
             })
         let { text } = await fetchText(logs_url)
-        if (options?.llmify) text = parseJobLog(text)
+        if (options?.llmify) {
+            text = parseJobLog(text)
+        }
         return text
     }
 
-    private async downladJob(job_id: number) {
+    private async downloadJob(job_id: number) {
         const { client, owner, repo } = await this.api()
+        dbg(`downloading job log for job ID: ${job_id}`)
         const filename = `job-${job_id}.log`
         const { url } = await client.rest.actions.downloadJobLogsForWorkflowRun(
             {
@@ -855,18 +1156,22 @@ export class GitHubClient implements GitHub {
     }
 
     async diffWorkflowJobLogs(job_id: number, other_job_id: number) {
-        const job = await this.downladJob(job_id)
-        const other = await this.downladJob(other_job_id)
+        const job = await this.downloadJob(job_id)
+        dbg(
+            `diffing workflow job logs for job IDs: ${job_id} and ${other_job_id}`
+        )
+        const other = await this.downloadJob(other_job_id)
 
         job.content = parseJobLog(job.content)
         other.content = parseJobLog(other.content)
 
-        const diff = createDiff(job, other)
+        const diff = diffCreatePatch(job, other)
         return llmifyDiff(diff)
     }
 
     async getFile(filename: string, ref: string): Promise<WorkspaceFile> {
         const { client, owner, repo } = await this.api()
+        dbg(`retrieving file content for filename: ${filename} and ref: ${ref}`)
         const { data: content } = await client.rest.repos.getContent({
             owner,
             repo,
@@ -890,6 +1195,7 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubCodeSearchResult[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`searching code with query: ${query}`)
         const q = query + `+repo:${owner}/${repo}`
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.search.code, {
@@ -913,6 +1219,7 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubWorkflow[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing workflows for repository`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(
             client.rest.actions.listRepoWorkflows,
@@ -931,6 +1238,7 @@ export class GitHubClient implements GitHub {
     }
 
     async listBranches(options?: GitHubPaginationOptions): Promise<string[]> {
+        dbg(`listing branches for repository`)
         const { client, owner, repo } = await this.api()
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
         const ite = client.paginate.iterator(client.rest.repos.listBranches, {
@@ -944,6 +1252,7 @@ export class GitHubClient implements GitHub {
 
     async listRepositoryLanguages(): Promise<Record<string, number>> {
         const { client, owner, repo } = await this.api()
+        dbg(`listing languages for repository`)
         const { data: languages } = await client.rest.repos.listLanguages({
             owner,
             repo,
@@ -962,6 +1271,7 @@ export class GitHubClient implements GitHub {
         }
     ): Promise<GitHubFile[]> {
         const { client, owner, repo } = await this.api()
+        dbg(`retrieving repository content for path: ${path}`)
         const { ref, type, glob, downloadContent, maxDownloadSize } =
             options ?? {}
         const { data: contents } = await client.rest.repos.getContent({
@@ -1029,16 +1339,22 @@ function parseJobLog(text: string) {
                 text: "",
             }
         } else if (line.startsWith("##[endgroup]")) {
-            if (current) groups.push(current)
+            if (current) {
+                groups.push(current)
+            }
             current = undefined
         } else if (line.includes("Post job cleanup.")) {
             break // ignore cleanup typically
         } else {
-            if (!current) current = { title: "", text: "" }
+            if (!current) {
+                current = { title: "", text: "" }
+            }
             current.text += line + "\n"
         }
     }
-    if (current) groups.push(current)
+    if (current) {
+        groups.push(current)
+    }
 
     const ignoreSteps = [
         "Runner Image",

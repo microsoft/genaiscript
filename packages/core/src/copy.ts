@@ -2,7 +2,7 @@
 // including constructing file paths and handling copy operations,
 // with optional forking functionality.
 
-import { GENAI_MJS_EXT, GENAI_SRC } from "./constants" // Import constants for file extensions and source directory
+import { GENAI_MJS_EXT, GENAI_MTS_EXT, GENAI_SRC } from "./constants" // Import constants for file extensions and source directory
 import { host } from "./host" // Import host module for file operations
 import { fileExists, writeText } from "./fs" // Import file system utilities
 
@@ -14,26 +14,29 @@ import { fileExists, writeText } from "./fs" // Import file system utilities
  * @param id - Identifier for the prompt script
  * @returns The file path as a string
  */
-function promptPath(id: string) {
+function promptPath(id: string, options?: { javascript?: boolean }) {
+    const { javascript } = options || {}
     const prompts = host.resolvePath(host.projectFolder(), GENAI_SRC) // Resolve base prompt directory
     if (id === null) return prompts // Return base path if id is not provided
-    return host.resolvePath(prompts, id + GENAI_MJS_EXT) // Construct full path if id is provided
+    const ext = javascript ? GENAI_MJS_EXT : GENAI_MTS_EXT
+    return host.resolvePath(prompts, id + ext) // Construct full path if id is provided
 }
 
 /**
  * Copies a prompt script to a new location.
- * Can optionally fork the script if needed, ensuring that the new filename is unique.
+ * Optionally forks the script, ensuring the new filename is unique if needed.
  *
- * @param t - The prompt script object
- * @param options - Configuration options for the copy
- * @param options.fork - Indicates if the script should be forked
- * @param options.name - Optional new name for the copied script
- * @returns The file path of the copied script
- * @throws If the file already exists in the target location
+ * @param t - The prompt script object containing the source code.
+ * @param options - Configuration options for the copy operation.
+ * @param options.fork - Whether to fork the script by appending a unique suffix.
+ * @param options.name - Optional new name for the copied script.
+ * @param options.javascript - Whether to use the JavaScript file extension.
+ * @returns The file path of the copied script.
+ * @throws If the file already exists in the target location.
  */
 export async function copyPrompt(
     t: PromptScript,
-    options: { fork: boolean; name?: string }
+    options: { fork: boolean; name?: string; javascript?: boolean }
 ) {
     // Ensure the prompt directory exists
     await host.createDirectory(promptPath(null))
@@ -46,7 +49,7 @@ export async function copyPrompt(
     if (options.fork && (await fileExists(fn))) {
         let suff = 2
         for (;;) {
-            fn = promptPath(n + "_" + suff) // Construct new name with suffix
+            fn = promptPath(n + "_" + suff, options) // Construct new name with suffix
             if (await fileExists(fn)) {
                 // Check if file already exists
                 suff++

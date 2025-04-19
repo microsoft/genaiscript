@@ -1,9 +1,8 @@
 // This file defines the creation of a prompt context, which includes various services
 // like file operations, web search, fuzzy search, vector search, and more.
 // The context is essential for executing prompts within a project environment.
-
-import { host } from "./host"
-import { arrayify, assert, dotGenaiscriptPath } from "./util"
+import debug from "debug"
+import { arrayify, assert } from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { createParsers } from "./parsers"
@@ -16,27 +15,39 @@ import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
-import { vectorSearch } from "./vectorsearch"
+import { vectorCreateIndex, vectorSearch } from "./vectorsearch"
 import { Project } from "./server/messages"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
-import { NotSupportedError } from "./error"
-import { MemoryCache } from "./cache"
-import { proxifyVars } from "./vars"
-import { HTMLEscape } from "./html"
+import { proxifyEnvVars } from "./vars"
+import { HTMLEscape } from "./htmlescape"
 import { hash } from "./crypto"
 import { resolveModelConnectionInfo } from "./models"
-import { DOCS_WEB_SEARCH_URL } from "./constants"
-import { fetch, fetchText } from "./fetch"
+import { DOCS_WEB_SEARCH_URL, VECTOR_INDEX_HASH_LENGTH } from "./constants"
+import { fetch } from "./fetch"
+import { fetchText } from "./fetchtext"
+import { fileWriteCached } from "./filecache"
+import { join } from "node:path"
+import { createMicrosoftTeamsChannelClient } from "./teams"
+import { dotGenaiscriptPath } from "./workdir"
+import {
+    astGrepCreateChangeSet,
+    astGrepFindFiles,
+    astGrepParse,
+} from "./astgrep"
+import { createCache } from "./cache"
+
+const dbg = debug("genaiscript:promptcontext")
 
 /**
- * Creates a prompt context for the given project, variables, trace, options, and model.
+ * Creates a prompt context for the specified project, variables, trace, options, and model.
+ *
  * @param prj The project for which the context is created.
- * @param vars Expansion variables used in the context.
- * @param trace Markdown trace for logging purposes.
- * @param options Generation options for the prompt.
- * @param model The model identifier for context creation.
- * @returns A context object that includes methods and properties for prompt execution.
+ * @param ev Expansion variables including generator, output, debugging, run directory, and other configurations.
+ * @param trace Markdown trace for logging and debugging.
+ * @param options Generation options such as cancellation tokens, embeddings models, and content safety.
+ * @param model The model identifier used for context creation.
+ * @returns A context object providing methods for file operations, web retrieval, searches, execution, container operations, caching, and other utilities. Includes workspace file system operations (read/write files, grep, find files), retrieval methods (web search, fuzzy search, vector search), and host operations (command execution, browsing, container management, etc.).
  */
 export async function createPromptContext(
     prj: Project,
@@ -45,36 +56,50 @@ export async function createPromptContext(
     options: GenerationOptions,
     model: string
 ) {
-    const { generator, vars, output, ...varsNoGenerator } = ev
+    const { cancellationToken } = options
+    const { generator, vars, dbg, output, ...varsNoGenerator } = ev
+
     // Clone variables to prevent modification of the original object
-    const env = { generator, vars, output, ...structuredClone(varsNoGenerator) }
+    const env = {
+        generator,
+        vars,
+        output,
+        dbg,
+        ...structuredClone(varsNoGenerator),
+    }
     assert(!!output, "missing output")
     // Create parsers for the given trace and model
-    const parsers = await createParsers({ trace, model })
+    const parsers = await createParsers({ trace, cancellationToken, model })
     const path = runtimeHost.path
+    const runDir = ev.runDir
+    assert(!!runDir, "missing run directory")
 
     // Define the workspace file system operations
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
-        readJSON: (f) => runtimeHost.workspace.readJSON(f),
-        readYAML: (f) => runtimeHost.workspace.readYAML(f),
+        readJSON: (f, o) => runtimeHost.workspace.readJSON(f, o),
+        readYAML: (f, o) => runtimeHost.workspace.readYAML(f, o),
         readXML: (f, o) => runtimeHost.workspace.readXML(f, o),
         readCSV: (f, o) => runtimeHost.workspace.readCSV(f, o),
         readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
         readData: (f, o) => runtimeHost.workspace.readData(f, o),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
+        writeCached: async (f, options) => {
+            const { scope } = options || {}
+            const dir =
+                scope === "run"
+                    ? join(runDir, "files")
+                    : dotGenaiscriptPath("cache", "files")
+            return await fileWriteCached(dir, f)
+        },
+        copyFile: (src, dest) => runtimeHost.workspace.copyFile(src, dest),
         cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {
-            // Log and find files matching the given pattern
             const res = await runtimeHost.workspace.findFiles(pattern, options)
-            trace.files(res, {
-                title: `🗃 find files <code>${HTMLEscape(pattern)}</code>`,
-                maxLength: -1,
-                secrets: env.secrets,
-            })
             return res
         },
         stat: (filename) => runtimeHost.workspace.stat(filename),
+        writeFiles: (file) => runtimeHost.workspace.writeFiles(file),
         grep: async (
             query,
             grepOptions: string | WorkspaceGrepOptions,
@@ -102,7 +127,11 @@ export async function createPromptContext(
                     ...rest,
                     trace: grepTrace,
                 })
-                grepTrace.files(matches, { model, secrets: env.secrets })
+                grepTrace.files(matches, {
+                    model,
+                    secrets: env.secrets,
+                    maxLength: 0,
+                })
                 return { files, matches }
             } finally {
                 grepTrace.endDetails()
@@ -143,7 +172,11 @@ export async function createPromptContext(
                         `No search provider configured. See ${DOCS_WEB_SEARCH_URL}.`
                     )
                 }
-                webTrace.files(files, { model, secrets: env.secrets })
+                webTrace.files(files, {
+                    model,
+                    secrets: env.secrets,
+                    maxLength: 0,
+                })
                 return files
             } finally {
                 webTrace.endDetails()
@@ -169,12 +202,26 @@ export async function createPromptContext(
                         model,
                         secrets: env.secrets,
                         skipIfEmpty: true,
+                        maxLength: 0,
                     })
                     return res
                 }
             } finally {
                 fuzzTrace.endDetails()
             }
+        },
+        index: async (indexId, indexOptions) => {
+            const opts = {
+                ...(indexOptions || {}),
+                embeddingsModel:
+                    indexOptions?.embeddingsModel || options?.embeddingsModel,
+            }
+            const res = await vectorCreateIndex(indexId, {
+                ...opts,
+                trace,
+                cancellationToken,
+            })
+            return res
         },
         vectorSearch: async (q, files_, searchOptions) => {
             // Perform a vector-based search on the provided files
@@ -191,21 +238,17 @@ export async function createPromptContext(
 
                 await resolveFileContents(files)
                 searchOptions.embeddingsModel =
-                    searchOptions?.embeddingsModel ??
-                    options?.embeddingsModel ??
-                    runtimeHost.modelAliases.embeddings.model
-                const key = await hash({ files, searchOptions }, { length: 12 })
-                const folderPath = dotGenaiscriptPath("vectors", key)
-                const res = await vectorSearch(q, files, {
+                    searchOptions?.embeddingsModel ?? options?.embeddingsModel
+                const key =
+                    searchOptions?.indexName ||
+                    (await hash(
+                        { files, searchOptions },
+                        { length: VECTOR_INDEX_HASH_LENGTH }
+                    ))
+                const res = await vectorSearch(key, q, files, {
                     ...searchOptions,
-                    folderPath,
                     trace: vecTrace,
-                })
-                // Log search results
-                vecTrace.files(res, {
-                    model,
-                    secrets: env.secrets,
-                    skipIfEmpty: true,
+                    cancellationToken,
                 })
                 return res
             } finally {
@@ -216,6 +259,12 @@ export async function createPromptContext(
 
     // Define the host for executing commands, browsing, and other operations
     const promptHost: PromptHost = Object.freeze<PromptHost>({
+        logger: (category) => debug(category),
+        mcpServer: async (options) =>
+            await runtimeHost.mcp.startMcpServer(options, { trace }),
+        publishResource: async (name, content, options) =>
+            await runtimeHost.resources.publishResource(name, content, options),
+        resources: async () => await runtimeHost.resources.resources(),
         fetch: (url, options) => fetch(url, { ...(options || {}), trace }),
         fetchText: (url, options) =>
             fetchText(url, { ...(options || {}), trace }),
@@ -233,8 +282,7 @@ export async function createPromptContext(
             } satisfies LanguageModelReference
         },
         cache: async (name: string) => {
-            if (!name) throw new NotSupportedError("missing cache name")
-            const res = MemoryCache.byName<any, any>(name)
+            const res = createCache<any, any>(name, { type: "memory" })
             return res
         },
         exec: async (
@@ -259,7 +307,7 @@ export async function createPromptContext(
             }
             // Execute the command using the runtime host
             const res = await runtimeHost.exec(undefined, command, args, {
-                cwd: options?.cwd,
+                ...(options || {}),
                 trace,
             })
             return res
@@ -280,14 +328,35 @@ export async function createPromptContext(
             })
             return res
         },
-        select: async (message, options) =>
-            await runtimeHost.select(message, options),
+        select: async (message, choices, options) =>
+            await runtimeHost.select(message, choices, options),
         input: async (message) => await runtimeHost.input(message),
         confirm: async (message) => await runtimeHost.confirm(message),
         promiseQueue: (concurrency) => new PLimitPromiseQueue(concurrency),
         contentSafety: async (id) =>
             await runtimeHost.contentSafety(id || options?.contentSafety, {
                 trace,
+            }),
+        python: async (pyOptions) =>
+            await runtimeHost.python({
+                trace,
+                cancellationToken,
+                ...(pyOptions || {}),
+            }),
+        teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
+        astGrep: async () =>
+            Object.freeze<Sg>({
+                changeset: astGrepCreateChangeSet,
+                search: (lang, glob, matcher, sgOptions) =>
+                    astGrepFindFiles(lang, glob, matcher, {
+                        ...(sgOptions || {}),
+                        cancellationToken,
+                    }),
+                parse: (file, sgOptions) =>
+                    astGrepParse(file, {
+                        ...(sgOptions || {}),
+                        cancellationToken,
+                    }),
             }),
     })
 
@@ -306,7 +375,7 @@ export async function createPromptContext(
         host: promptHost,
     }
     env.generator = ctx
-    env.vars = proxifyVars(env.vars)
+    env.vars = proxifyEnvVars(env.vars)
     ctx.env = Object.freeze<ExpansionVariables>(env as ExpansionVariables)
 
     return ctx

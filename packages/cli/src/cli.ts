@@ -2,14 +2,15 @@
  * CLI entry point for the GenAIScript tool, providing various commands and options
  * for interacting with scripts, parsing files, testing, and managing cache.
  */
-
+import debug from "debug"
+const dbg = debug("genaiscript:cli")
 import { NodeHost } from "./nodehost" // Handles node environment setup
 import { Command, Option, program } from "commander" // Command-line argument parsing library
-import { error, isQuiet, setConsoleColors, setQuiet } from "./log" // Logging utilities
+import { isQuiet, setQuiet } from "../../core/src/quiet" // Logging utilities
 import { startServer } from "./server" // Function to start server
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version" // Version constants
 import { runScriptWithExitCode } from "./run" // Execute scripts with exit code
-import { retrievalFuzz, retrievalSearch } from "./retrieval" // Retrieval functions
+import { retrievalFuzz, retrievalIndex, retrievalSearch } from "./retrieval" // Retrieval functions
 import { helpAll } from "./help" // Display help for all commands
 import {
     jsonl2json,
@@ -18,13 +19,27 @@ import {
     parseFence,
     parseHTMLToText,
     parseJinja2,
+    parseMarkdown,
     parsePDF,
+    parseSecrets,
     parseTokens,
     prompty2genaiscript,
 } from "./parse" // Parsing functions
-import { compileScript, createScript, fixScripts, listScripts } from "./scripts" // Script utilities
+import {
+    compileScript,
+    createScript,
+    fixScripts,
+    listScripts,
+    scriptInfo,
+} from "./scripts" // Script utilities
 import { codeQuery } from "./codequery" // Code parsing and query execution
-import { envInfo, modelAliasesInfo, scriptModelInfo, systemInfo } from "./info" // Information utilities
+import {
+    envInfo,
+    modelAliasesInfo,
+    modelList,
+    scriptModelInfo,
+    systemInfo,
+} from "./info" // Information utilities
 import { scriptTestList, scriptTestsView, scriptsTest } from "./test" // Test functions
 import { cacheClear } from "./cache" // Cache management
 import "node:console" // Importing console for side effects
@@ -38,7 +53,7 @@ import {
     OPENAI_RETRY_DEFAULT_DEFAULT,
     OPENAI_MAX_RETRY_COUNT,
     MODEL_PROVIDERS,
-    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+    DEBUG_SCRIPT_CATEGORY,
 } from "../../core/src/constants" // Core constants
 import {
     errorMessage,
@@ -51,9 +66,28 @@ import { logVerbose } from "../../core/src/util" // Utility logging
 import { semverSatisfies } from "../../core/src/semver" // Semantic version checking
 import { convertFiles } from "./convert"
 import { extractAudio, extractVideoFrames, probeVideo } from "./video"
+import { configure } from "./configure"
+import { logPerformance } from "../../core/src/performance"
+import { setConsoleColors } from "../../core/src/consolecolor"
+import { listRuns } from "./runs"
+import { startMcpServer } from "./mcpserver"
+import { error } from "./log"
+import { DEBUG_CATEGORIES } from "../../core/src/dbg"
 
 /**
  * Main function to initialize and run the CLI.
+ *
+ * Sets up global error handling for uncaught exceptions.
+ * Verifies Node.js version compatibility.
+ * Configures CLI options and commands, including:
+ * - `configure`: Interactive help to configure providers.
+ * - `run`: Executes a GenAIScript against files with various options for output, retries, and caching.
+ * - `runs`: Commands to manage and list previous runs.
+ * - `test`: Group of commands for running and managing tests, including listing and viewing tests.
+ * - `convert`: Converts files through a GenAIScript with options for output, concurrency, and file-specific settings.
+ * Handles environment setup and NodeHost installation.
+ * Adds support for various CLI options such as working directory, environment files, color output, verbosity, and performance logging.
+ * Includes error handling for request errors and runtime compatibility issues.
  */
 export async function cli() {
     let nodeHost: NodeHost // Variable to hold NodeHost instance
@@ -78,7 +112,8 @@ export async function cli() {
     }
 
     program.hook("preAction", async (cmd) => {
-        nodeHost = await NodeHost.install(cmd.opts().env) // Install NodeHost with environment options
+        const { env }: { env: string[] } = cmd.opts() // Get environment options from command
+        nodeHost = await NodeHost.install(env?.length ? env : undefined) // Install NodeHost with environment options
     })
 
     // Configure CLI program options and commands
@@ -87,13 +122,42 @@ export async function cli() {
         .version(CORE_VERSION)
         .description(`CLI for ${TOOL_NAME} ${GITHUB_REPO}`)
         .showHelpAfterError(true)
-        .option("--env <path>", "path to .env file, default is './.env'")
+        .option("--cwd <string>", "Working directory")
+        .option(
+            "--env <paths...>",
+            "paths to .env files, defaults to './.env' if not specified"
+        )
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")
+        .option(
+            "-d, --debug <categories...>",
+            `debug categories (${DEBUG_CATEGORIES.map((c) => c).join(", ")})`
+        )
+        .option("--perf", "enable performance logging")
 
     // Set options for color and verbosity
+    program.on("option:cwd", (cwd) => process.chdir(cwd)) // Change working directory if specified
     program.on("option:no-colors", () => setConsoleColors(false))
     program.on("option:quiet", () => setQuiet(true))
+    program.on("option:perf", () => logPerformance())
+    program.on("option:debug", (c: string) =>
+        debug.enable(c === DEBUG_SCRIPT_CATEGORY ? c : `genaiscript:${c}`)
+    )
+
+    program
+        .command("configure")
+        .description("Interactive help to configure providers")
+        .addOption(
+            new Option(
+                "-p, --provider <string>",
+                "Preferred LLM provider aliases"
+            ).choices(
+                MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map(
+                    ({ id }) => id
+                )
+            )
+        )
+        .action(configure)
 
     // Define 'run' command for executing scripts
     const run = program
@@ -108,8 +172,8 @@ export async function cli() {
         )
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
-            "-egi, --exclude-git-ignore",
-            "exclude files that are ignored through the .gitignore file in the workspace root"
+            "-igi, --ignore-git-ignore",
+            "by default, files ignored by .gitignore are excluded. disables this mode"
         )
         .option(
             "-ft, --fallback-tools",
@@ -144,6 +208,7 @@ export async function cli() {
             "-prr, --pull-request-reviews",
             "create pull request reviews from annotations"
         )
+        .option("-tm, --teams-message", "Posts a message to the teams channel")
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
         .option(`-fe, --fail-on-errors`, `fails on detected annotation error`)
@@ -174,11 +239,11 @@ export async function cli() {
             "-mtc, --max-tool-calls <number>",
             "maximum tool calls for the run"
         )
-        .option("-se, --seed <number>", "seed for the run")
         .option(
-            "-em, --embeddings-model <string>",
-            "embeddings model for the run"
+            "-tc, --tool-choice <string>",
+            "tool choice for the run, 'none', 'auto', 'required', or a function name"
         )
+        .option("-se, --seed <number>", "seed for the run")
         .option("-c, --cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
         .option("-cs, --csv-separator <string>", "csv separator", "\t")
@@ -198,10 +263,21 @@ export async function cli() {
             "-rr, --run-retry <number>",
             "number of retries for the entire run"
         )
+        .option("--no-run-trace", "disable automatic trace generation")
+        .option("--no-output-trace", "disable automatic output generation")
         .action(runScriptWithExitCode) // Action to execute the script with exit code
 
+    // runs commands
+    const runs = program
+        .command("runs")
+        .description("Commands to open previous runs")
+    runs.command("list")
+        .description("List all available run reports in workspace")
+        .argument("[script]", "Script id")
+        .action(listRuns)
+
     // Define 'test' command group for running tests
-    const test = program.command("test")
+    const test = program.command("test").alias("eval")
 
     const testRun = test
         .command("run", { isDefault: true })
@@ -210,11 +286,13 @@ export async function cli() {
             "[script...]",
             "Script ids. If not provided, all scripts are tested"
         )
+        .option("--redteam", "run red team tests")
     addModelOptions(testRun) // Add model options to the command
         .option(
             "--models <models...>",
             "models to test where mode is the key value pair list of m (model), s (small model), t (temperature), p (top-p)"
         )
+        .option("--max-concurrency <number>", "maximum concurrency", "1")
         .option("-o, --out <folder>", "output folder")
         .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("--cli <string>", "override path to the cli")
@@ -235,18 +313,19 @@ export async function cli() {
     // List available tests
     test.command("list")
         .description("List available tests in workspace")
-        .action(scriptTestList) // Action to list the tests
+        .option("--redteam", "list red team tests")
         .option(
             "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
         )
+        .action(scriptTestList) // Action to list the tests
 
     // Launch test viewer
     test.command("view")
         .description("Launch test viewer")
         .action(scriptTestsView) // Action to view the tests
 
-    program
+    const convert = program
         .command("convert")
         .description(
             "Converts file through a GenAIScript. Each file is processed separately through the GenAIScript and the LLM output is saved to a <filename>.genai.md (or custom suffix)."
@@ -263,13 +342,10 @@ export async function cli() {
         )
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
-            "-egi, --exclude-git-ignore",
-            "exclude files that are ignored through the .gitignore file in the workspace root"
+            "-igi, --ignore-git-ignore",
+            "by default, files ignored by .gitignore are excluded. disables this mode"
         )
-        .option("-m, --model <string>", "'large' model alias (default)")
-        .option("-sm, --small-model <string>", "'small' alias model")
-        .option("-vm, --vision-model <string>", "'vision' alias model")
-        .option("-ma, --model-alias <nameid...>", "model alias as name=modelid")
+    addModelOptions(convert)
         .option(
             "-ft, --fallback-tools",
             "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls"
@@ -288,6 +364,8 @@ export async function cli() {
             "-cc, --concurrency <number>",
             "number of concurrent conversions"
         )
+        .option("--no-run-trace", "disable automatic trace generation")
+        .option("--no-output-trace", "disable automatic output generation")
         .action(convertFiles)
 
     // Define 'scripts' command group for script management tasks
@@ -298,6 +376,9 @@ export async function cli() {
     scripts
         .command("list", { isDefault: true })
         .description("List all available scripts in workspace")
+        .argument("[script...]", "Script ids")
+        .option("--unlisted", "show unlisted scripts")
+        .option("--json", "output in JSON format")
         .option(
             "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
@@ -306,11 +387,23 @@ export async function cli() {
     scripts
         .command("create")
         .description("Create a new script")
-        .argument("<name>", "Name of the script")
+        .argument("[name]", "Name of the script")
+        .option(
+            "-t, --typescript",
+            "Generate TypeScript file (.genai.mts)",
+            true
+        )
         .action(createScript) // Action to create a script
     scripts
         .command("fix")
-        .description("fix all definition files")
+        .description(
+            "Write TypeScript definition files in the script folder to enable type checking."
+        )
+        .option(
+            "-gcp, --github-copilot-prompt",
+            "Write GitHub Copilot custom prompt for better GenAIScript code generation"
+        )
+        .option("--docs", "Download documentation")
         .action(fixScripts) // Action to fix scripts
     scripts
         .command("compile")
@@ -323,6 +416,12 @@ export async function cli() {
         .argument("[script]", "Script id or file")
         .option("-t, --token", "show token")
         .action(scriptModelInfo) // Action to show model information
+    scripts
+        .command("help")
+        .alias("info")
+        .description("Show help information for a script")
+        .argument("<script>", "Script id")
+        .action(scriptInfo) // Action to show model information
 
     // Define 'cache' command for cache management
     const cache = program.command("cache").description("Cache management")
@@ -364,12 +463,32 @@ export async function cli() {
         .command("retrieval")
         .alias("retreival")
         .description("RAG support")
+    const index = retrieval
+        .command("index")
+        .arguments("<name> <files...>")
+        .description("Index files for vector search")
+        .option("-ef, --excluded-files <string...>", "excluded files")
+        .option(
+            "-igi, --ignore-git-ignore",
+            "by default, files ignored by .gitignore are excluded. disables this mode"
+        )
+        .option("-em, --embeddings-model <string>", "'embeddings' alias model")
+        .addOption(
+            new Option(
+                "--database <string>",
+                "Type of database to use for indexing"
+            ).choices(["local", "azure_ai_search"])
+        )
+        .action(retrievalIndex) // Action to index files for vector search
+
     retrieval
-        .command("search")
+        .command("vector")
+        .alias("search")
         .description("Search using vector embeddings similarity")
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of results")
+        .option("-ms, --min-score <number>", "minimum score")
         .action(retrievalSearch) // Action to perform vector search
     retrieval
         .command("fuzz")
@@ -377,12 +496,13 @@ export async function cli() {
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of results")
+        .option("-ms, --min-score <number>", "minimum score")
         .action(retrievalFuzz) // Action to perform fuzzy search
 
     // Define 'serve' command to start a local server
-    program
+    const serve = program
         .command("serve")
-        .description("Start a GenAIScript local server")
+        .description("Start a GenAIScript local web server")
         .option(
             "-p, --port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
@@ -396,18 +516,31 @@ export async function cli() {
             "-c, --cors <string>",
             "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
         )
-        .option("--remote <string>", "Remote repository URL to serve")
-        .option("--remote-branch <string>", "Branch to serve from the remote")
-        .option("--remote-force", "Force pull from remote repository")
-        .option(
-            "--remote-install",
-            "Install dependencies from remote repository"
-        )
         .option(
             "--dispatch-progress",
             "Dispatch progress events to all clients"
         )
+        .option(
+            "--github-copilot-chat-client",
+            "Allow github_copilot_chat provider to connect to connected Visual Studio Code"
+        )
         .action(startServer) // Action to start the server
+    addRemoteOptions(serve) // Add remote options to the command
+
+    const mcp = program
+        .command("mcp")
+        .option("--groups <string...>", "Filter script by groups")
+        .option("--ids <string...>", "Filter script by ids")
+        .option(
+            "--startup <string>",
+            "Startup script id, executed after the server is started"
+        )
+        .alias("mcps")
+        .description(
+            "Starts a Model Context Protocol server that exposes scripts as tools"
+        )
+        .action(startMcpServer)
+    addRemoteOptions(mcp) // Add remote options to the command
 
     // Define 'parse' command group for parsing tasks
     const parser = program
@@ -443,10 +576,25 @@ export async function cli() {
     parser
         .command("docx <file>")
         .description("Parse a DOCX into texts")
+        .addOption(
+            new Option("-f, --format <string>", "output format").choices([
+                "markdown",
+                "html",
+                "text",
+            ])
+        )
         .action(parseDOCX) // Action to parse DOCX files
     parser
-        .command("html-to-text <file>")
-        .description("Parse an HTML file into text")
+        .command("html")
+        .argument("<file_or_url>", "HTML file or URL")
+        .addOption(
+            new Option("-f, --format <string>", "output format").choices([
+                "markdown",
+                "text",
+            ])
+        )
+        .option("-o, --out <string>", "output file")
+        .description("Parse an HTML file to text")
         .action(parseHTMLToText) // Action to parse HTML files
     parser
         .command("code")
@@ -471,13 +619,25 @@ export async function cli() {
         .action(prompty2genaiscript) // Action to convert prompty files
     parser
         .command("jinja2")
-        .description("Renders Jinj2 or prompty template")
+        .description("Renders Jinja2 or prompty template")
         .argument("<file>", "input Jinja2 or prompty template file")
         .option(
             "--vars <namevalue...>",
             "variables, as name=value passed to the template"
         )
         .action(parseJinja2)
+    parser
+        .command("secrets")
+        .description("Applies secret scanning and redaction to files")
+        .argument("<file...>", "input files")
+        .action(parseSecrets)
+    parser
+        .command("markdown")
+        .description("Chunks markdown files")
+        .argument("<file>", "input markdown file")
+        .option("-m, --model <string>", "encoding model")
+        .option("-mt, --max-tokens <number>", "maximum tokens per chunk")
+        .action(parseMarkdown)
 
     // Define 'info' command group for utility information tasks
     const info = program.command("info").description("Utility tasks")
@@ -494,13 +654,39 @@ export async function cli() {
         .option("-e, --error", "show errors")
         .option("-m, --models", "show models if possible")
         .action(envInfo) // Action to show environment information
-    const models = info.command("models")
+    const models = program.command("models")
+    const modelsList = models
+        .command("list", { isDefault: true })
+        .description("List all available models")
+        .arguments("[provider]")
+    modelsList
+        .addOption(
+            new Option("-f, --format <string>", "output format").choices([
+                "json",
+                "yaml",
+            ])
+        )
+        .action(modelList)
     models
         .command("alias")
         .description("Show model alias mapping")
         .action(modelAliasesInfo)
 
     program.parse() // Parse command-line arguments
+
+    function addRemoteOptions(command: Command) {
+        return command
+            .option("--remote <string>", "Remote repository URL to serve")
+            .option(
+                "--remote-branch <string>",
+                "Branch to serve from the remote"
+            )
+            .option("--remote-force", "Force pull from remote repository")
+            .option(
+                "--remote-install",
+                "Install dependencies from remote repository"
+            )
+    }
 
     function addModelOptions(command: Command) {
         return command
@@ -509,17 +695,27 @@ export async function cli() {
                     "-p, --provider <string>",
                     "Preferred LLM provider aliases"
                 ).choices(
-                    MODEL_PROVIDERS.filter(
-                        ({ id }) => id !== MODEL_PROVIDER_GITHUB_COPILOT_CHAT
-                    ).map(({ id }) => id)
+                    MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map(
+                        ({ id }) => id
+                    )
                 )
             )
             .option("-m, --model <string>", "'large' model alias (default)")
             .option("-sm, --small-model <string>", "'small' alias model")
             .option("-vm, --vision-model <string>", "'vision' alias model")
             .option(
+                "-em, --embeddings-model <string>",
+                "'embeddings' alias model"
+            )
+            .option(
                 "-ma, --model-alias <nameid...>",
                 "model alias as name=modelid"
+            )
+            .addOption(
+                new Option(
+                    "-re, --reasoning-effort <string>",
+                    "Reasoning effort for o* models"
+                ).choices(["high", "medium", "low"])
             )
     }
 }

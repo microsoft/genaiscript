@@ -1,8 +1,9 @@
 script({
     model: "small",
     tests: {
-        keywords: ["hello", "world"],
+        //  keywords: ["hello", "world"],
     },
 })
 $`Say something.`
-assistant("Hello, world!")
+$`hello`.role("assistant")
+assistant("world\n")

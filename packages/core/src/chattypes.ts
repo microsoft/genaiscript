@@ -7,18 +7,22 @@
 
 import OpenAI from "openai"
 
-/**
- * Interface representing a custom AI Chat Interface request.
- */
-export interface AICIRequest extends ChatCompletionMessageParamCacheControl {
-    role: "aici" // The role for this type of request
-    content?: string // Optional content of the request
-    error?: unknown // Optional error information
-    functionName: string // Name of the function being requested
+export type ChatModel = OpenAI.Models.Model
+
+export type ChatModels = {
+    object: "list"
+    data: Partial<ChatModel>[]
 }
+export type ChatCompletionToolChoiceOption =
+    OpenAI.Chat.ChatCompletionToolChoiceOption
+export type ChatCompletionNamedToolChoice =
+    OpenAI.Chat.ChatCompletionNamedToolChoice
+export type ChatCompletionReasoningEffort = OpenAI.ReasoningEffort
 
 // Aliases for OpenAI chat completion types
-export type ChatCompletionUsage = OpenAI.Completions.CompletionUsage
+export type ChatCompletionUsage = OpenAI.Completions.CompletionUsage & {
+    duration?: number
+}
 export type ChatCompletionUsageCompletionTokensDetails =
     OpenAI.Completions.CompletionUsage.CompletionTokensDetails
 export type ChatCompletionUsagePromptTokensDetails =
@@ -31,6 +35,11 @@ export type ChatCompletionContentPartText =
 // General content part of a chat completion
 export type ChatCompletionContentPart =
     OpenAI.Chat.Completions.ChatCompletionContentPart
+export type ChatCompletionContentPartRefusal =
+    OpenAI.Chat.Completions.ChatCompletionContentPartRefusal
+
+export type ChatCompletionContentPartInputAudio =
+    OpenAI.Chat.Completions.ChatCompletionContentPartInputAudio
 
 // Tool used in a chat completion
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
@@ -38,16 +47,24 @@ export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 // Chunk of a chat completion response
 export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
 export type ChatCompletionChunkChoice =
-    OpenAI.Chat.Completions.ChatCompletionChunk.Choice
+    OpenAI.Chat.Completions.ChatCompletionChunk.Choice & {
+        delta?: ChatCompletionMessageReasoningContentParam
+    }
+
 export type ChatCompletionTokenLogprob = OpenAI.ChatCompletionTokenLogprob
 
 export type ChatCompletion = OpenAI.Chat.Completions.ChatCompletion
-export type ChatCompletionChoice = OpenAI.Chat.Completions.ChatCompletion.Choice
+export type ChatCompletionChoice =
+    OpenAI.Chat.Completions.ChatCompletion.Choice & {
+        message: ChatCompletionMessage
+    }
 
 export interface ChatCompletionMessageParamCacheControl {
     cacheControl?: PromptCacheControlType
 }
-
+export type ChatCompletionMessage =
+    OpenAI.Chat.Completions.ChatCompletionMessage &
+        ChatCompletionMessageReasoningContentParam
 // Parameters for a system message in a chat completion
 export type ChatCompletionSystemMessageParam =
     OpenAI.Chat.Completions.ChatCompletionSystemMessageParam &
@@ -62,7 +79,7 @@ export type ChatCompletionFunctionMessageParam =
         ChatCompletionMessageParamCacheControl
 
 /**
- * Type representing parameters for chat completion messages, including custom AICIRequest.
+ * Type representing parameters for chat completion messages.
  */
 export type ChatCompletionMessageParam =
     | ChatCompletionSystemMessageParam
@@ -70,7 +87,6 @@ export type ChatCompletionMessageParam =
     | ChatCompletionAssistantMessageParam
     | ChatCompletionToolMessageParam
     | ChatCompletionFunctionMessageParam
-    | AICIRequest
 
 /**
  * Type representing a request to create a chat completion, extending from OpenAI's
@@ -86,10 +102,20 @@ export type CreateChatCompletionRequest = Omit<
     messages: ChatCompletionMessageParam[]
 }
 
+export interface ChatCompletionMessageReasoningContentParam {
+    reasoning_content?: string
+    signature?: string
+}
+
 // Parameters for an assistant message in a chat completion
 export type ChatCompletionAssistantMessageParam =
     OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam &
-        ChatCompletionMessageParamCacheControl
+        ChatCompletionMessageParamCacheControl &
+        ChatCompletionMessageReasoningContentParam
+
+export type ChatCompletionChunkChoiceChoiceDelta =
+    OpenAI.Chat.Completions.ChatCompletionChunk.Choice.Delta &
+        ChatCompletionMessageReasoningContentParam
 
 // Parameters for a user message in a chat completion
 export type ChatCompletionUserMessageParam =
@@ -100,14 +126,21 @@ export type ChatCompletionUserMessageParam =
 export type ChatCompletionContentPartImage =
     OpenAI.Chat.Completions.ChatCompletionContentPartImage
 
-export type ChatCompletionContentPartInputAudio =
-    OpenAI.Chat.Completions.ChatCompletionContentPartInputAudio
+export type ChatCompletionMessageToolCall =
+    OpenAI.Chat.Completions.ChatCompletionMessageToolCall
 
 // Parameters for creating embeddings
 export type EmbeddingCreateParams = OpenAI.Embeddings.EmbeddingCreateParams
 
 // Response type for creating embeddings
 export type EmbeddingCreateResponse = OpenAI.Embeddings.CreateEmbeddingResponse
+
+export interface EmbeddingResult {
+    data?: number[][]
+    model?: string
+    error?: string
+    status: "success" | "error" | "rate_limited" | "cancelled"
+}
 
 /**
  * Interface representing a call to a chat completion tool.
@@ -123,6 +156,8 @@ export interface ChatCompletionToolCall {
  */
 export interface ChatCompletionResponse {
     text?: string // Optional text response
+    reasoning?: string // Optional reasoning content
+    signature?: string // cryptographic signature of the response
     cached?: boolean // Indicates if the response was cached
     variables?: Record<string, string> // Optional variables associated with the response
     toolCalls?: ChatCompletionToolCall[] // List of tool calls made during the response
@@ -132,6 +167,7 @@ export interface ChatCompletionResponse {
     model?: string // Model used for the completion
     error?: SerializedError
     logprobs?: ChatCompletionTokenLogprob[]
+    duration?: number // Duration of the completion in milliseconds
 }
 
 export type ChatFinishReason = ChatCompletionResponse["finishReason"]
@@ -147,6 +183,9 @@ export interface ChatCompletionsProgressReport {
     responseSoFar: string // Partial response generated so far
     responseChunk: string // Current chunk of response being processed
     responseTokens?: Logprob[] // Tokens in the current response chunk
+    reasoningTokens?: Logprob[] // Tokens in the current reasoning content
+    reasoningSoFar?: string // Partial reasoning content generated so far
+    reasoningChunk?: string // Current chunk of reasoning content being processed
     inner: boolean // Indicates if this is an inner report
 }
 

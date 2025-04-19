@@ -1,10 +1,8 @@
-import { DOCX_MIME_TYPE, PDF_MIME_TYPE, XLSX_MIME_TYPE } from "./constants"
-
 /**
  * Determines if a given MIME type is binary.
- * Checks against common and additional specified binary types.
- * @param mimeType - The MIME type to check.
- * @returns boolean - True if the MIME type is binary, otherwise false.
+ * Checks against common binary types and a predefined list of binary MIME types.
+ * @param mimeType - The MIME type to evaluate.
+ * @returns True if the MIME type is binary, otherwise false.
  */
 export function isBinaryMimeType(mimeType: string) {
     return (

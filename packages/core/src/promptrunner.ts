@@ -1,3 +1,6 @@
+import debug from "debug"
+const runnerDbg = debug("genaiscript:promptrunner")
+
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat"
 import { GenerationStatus, Project } from "./server/messages"
@@ -6,7 +9,7 @@ import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { CORE_VERSION } from "./version"
 import { expandFiles } from "./fs"
-import { CSVToMarkdown } from "./csv"
+import { dataToMarkdownTable } from "./csv"
 import { Fragment, GenerationOptions } from "./generation"
 import { traceCliArgs } from "./clihelp"
 import { GenerationResult } from "./server/messages"
@@ -18,6 +21,10 @@ import { resolveFileContent } from "./file"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
 import { checkCancelled } from "./cancellation"
+import { lastAssistantReasoning } from "./chatrender"
+import { unthink } from "./think"
+import { deleteUndefinedValues } from "./cleaners"
+import { DEBUG_SCRIPT_CATEGORY } from "./constants"
 
 // Asynchronously resolve expansion variables needed for a template
 /**
@@ -50,7 +57,11 @@ async function resolveExpansionVars(
     const filenames = await expandFiles(
         referenceFiles.length || workspaceFiles.length
             ? referenceFiles
-            : templateFiles
+            : templateFiles,
+        {
+            applyGitIgnore: false,
+            accept: template.accept,
+        }
     )
     for (let filename of filenames) {
         filename = relativePath(root, filename)
@@ -62,13 +73,12 @@ async function resolveExpansionVars(
         files.push(file)
     }
 
-    if (workspaceFiles.length)
-        for (const wf of workspaceFiles) {
-            if (!files.find((f) => f.filename === wf.filename)) {
-                await resolveFileContent(wf)
-                files.push(wf)
-            }
+    for (const wf of workspaceFiles) {
+        if (!files.find((f) => f.filename === wf.filename)) {
+            await resolveFileContent(wf)
+            files.push(wf)
         }
+    }
 
     // Parse and obtain attributes from prompt parameters
     const attrs = parsePromptParameters(project, template, vars)
@@ -84,16 +94,14 @@ async function resolveExpansionVars(
     }
 
     // Create and return an object containing resolved variables
-    const meta: PromptDefinition & ModelConnectionOptions = Object.freeze(
-        structuredClone({
-            id: template.id,
-            title: template.title,
-            description: template.description,
-            group: template.group,
-            model: template.model,
-            defTools: template.defTools,
-        })
-    )
+    const meta: PromptDefinition & ModelConnectionOptions = structuredClone({
+        id: template.id,
+        title: template.title,
+        description: template.description,
+        group: template.group,
+        model: template.model,
+        defTools: template.defTools,
+    }) // frozen later
     const res = {
         dir: ".",
         files,
@@ -103,6 +111,7 @@ async function resolveExpansionVars(
         output,
         generator: undefined as ChatGenerationContext,
         runDir,
+        dbg: debug(DEBUG_SCRIPT_CATEGORY),
     } satisfies ExpansionVariables
     return res
 }
@@ -110,11 +119,12 @@ async function resolveExpansionVars(
 // Main function to run a template with given options
 /**
  * Executes a prompt template with specified options.
- * @param prj The project context.
- * @param template The prompt script template.
- * @param fragment The fragment containing additional context.
- * @param options Options for generation, including model and trace.
- * @returns A generation result with details of the execution.
+ *
+ * @param prj The project context providing runtime and configuration.
+ * @param template The prompt script template to execute.
+ * @param fragment Additional context such as files, workspace files, and metadata.
+ * @param options Configuration for generation, including model, trace, output trace, cancellation token, stats, and other generation parameters.
+ * @returns A generation result containing execution details, outputs, and potential errors, including status, messages, edits, annotations, file changes, and usage statistics.
  */
 export async function runTemplate(
     prj: Project,
@@ -126,8 +136,15 @@ export async function runTemplate(
     assert(options !== undefined)
     assert(options.trace !== undefined)
     assert(options.outputTrace !== undefined)
-    const { label, cliInfo, trace, outputTrace, cancellationToken, model } =
-        options
+    const {
+        label,
+        cliInfo,
+        trace,
+        outputTrace,
+        cancellationToken,
+        model,
+        runId,
+    } = options
     const version = CORE_VERSION
     assert(model !== undefined)
 
@@ -135,7 +152,7 @@ export async function runTemplate(
 
     try {
         if (cliInfo) {
-            trace.heading(3, `🧠 ${template.id}`)
+            trace.heading(3, `🤖 ${template.id}`)
             traceCliArgs(trace, template, options)
         }
 
@@ -160,8 +177,10 @@ export async function runTemplate(
             status,
             statusText,
             temperature,
+            reasoningEffort,
             topP,
             maxTokens,
+            fallbackTools,
             seed,
             responseType,
             responseSchema,
@@ -170,7 +189,9 @@ export async function runTemplate(
             disposables,
             cache,
         } = await expandTemplate(prj, template, options, env)
-        const { output, generator, secrets, ...restEnv } = env
+        const { output, generator, secrets, dbg: envDbg, ...restEnv } = env
+
+        runnerDbg(`messages ${messages.length}`)
 
         // Handle failed expansion scenario
         if (status !== "success" || !messages.length) {
@@ -182,15 +203,17 @@ export async function runTemplate(
                 env: restEnv,
                 label,
                 version,
-                text: outputTrace.content,
+                text: unthink(outputTrace.content),
+                reasoning: lastAssistantReasoning(messages),
                 edits: [],
                 annotations: [],
                 changelogs: [],
                 fileEdits: {},
                 fences: [],
                 frames: [],
-                genVars: {},
                 schemas: {},
+                usage: undefined,
+                runId,
             } satisfies GenerationResult
         }
 
@@ -214,23 +237,25 @@ export async function runTemplate(
         )
         if (!ok) {
             trace.renderErrors()
-            return {
+            return deleteUndefinedValues({
                 status: "error",
                 statusText: "",
                 messages,
                 env: restEnv,
                 label,
                 version,
-                text: outputTrace.content,
+                text: unthink(outputTrace.content),
+                reasoning: lastAssistantReasoning(messages),
                 edits: [],
                 annotations: [],
                 changelogs: [],
                 fileEdits: {},
                 fences: [],
                 frames: [],
-                genVars: {},
                 schemas: {},
-            } satisfies GenerationResult
+                usage: undefined,
+                runId,
+            } satisfies GenerationResult)
         }
 
         const { completer } = await resolveLanguageModel(
@@ -238,6 +263,7 @@ export async function runTemplate(
         )
 
         // Execute chat session with the resolved configuration
+        const runStats = options.stats.createChild(connection.info.model)
         const genOptions: GenerationOptions = {
             ...options,
             cache,
@@ -246,12 +272,14 @@ export async function runTemplate(
             responseSchema,
             model,
             temperature,
+            reasoningEffort,
             maxTokens,
             topP,
             seed,
             logprobs,
             topLogprobs,
-            stats: options.stats.createChild(connection.info.model),
+            fallbackTools,
+            stats: runStats,
         }
         const chatResult = await executeChatSession(
             connection.configuration,
@@ -274,10 +302,8 @@ export async function runTemplate(
             json,
             fences,
             frames,
-            genVars = {},
             error,
             finishReason,
-            usages,
             fileEdits,
             changelogs,
             edits,
@@ -296,7 +322,7 @@ export async function runTemplate(
         if (annotations?.length)
             trace.details(
                 "⚠️ annotations",
-                CSVToMarkdown(
+                dataToMarkdownTable(
                     annotations.map((a) => ({
                         ...a,
                         line: a.range?.[0]?.[0],
@@ -334,19 +360,19 @@ export async function runTemplate(
             annotations,
             changelogs,
             fileEdits,
-            text: outputTrace.content,
+            text: unthink(outputTrace.content),
+            reasoning: lastAssistantReasoning(messages),
             version,
             fences,
             frames,
-            genVars,
             schemas,
             json,
+            choices: chatResult.choices,
             logprobs: chatResult.logprobs,
             perplexity: chatResult.perplexity,
-            stats: {
-                cost: options.stats.cost(),
-                ...options.stats.accumulatedUsage(),
-            },
+            uncertainty: chatResult.uncertainty,
+            usage: chatResult.usage,
+            runId,
         }
 
         // If there's an error, provide status text
@@ -356,6 +382,7 @@ export async function runTemplate(
         return res
     } finally {
         // Cleanup any resources like running containers or browsers
+        runtimeHost.userState = {}
         await runtimeHost.removeContainers()
         await runtimeHost.removeBrowsers()
     }

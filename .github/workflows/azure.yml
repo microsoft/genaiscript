@@ -30,7 +30,7 @@ jobs:
             - name: compile
               run: yarn compile:action
             - name: poem
-              run: yarn run:script poem --model azure:gpt-4o -tlp 5 --out-trace $GITHUB_STEP_SUMMARY
+              run: yarn run:script poem --model azure:gpt-4.1 -tlp 5 --out-trace $GITHUB_STEP_SUMMARY
               env:
                   AZURE_OPENAI_API_ENDPOINT: ${{ secrets.AZURE_OPENAI_API_ENDPOINT }}
                   AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}

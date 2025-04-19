@@ -1,18 +1,30 @@
 ---
-import type { Props } from "@astrojs/starlight/props"
 import Default from "@astrojs/starlight/components/Head.astro"
 
+const url = Astro.url
 const canonical = Astro.site
     ? new URL(Astro.url.pathname, Astro.site)
     : undefined
 const llms = Astro.site
-    ? new URL("/genaiscript/.well-known/llms.txt", Astro.site)
+    ? new URL("/genaiscript/llms.txt", Astro.site)
     : undefined
 const slug = canonical?.href.replace(/\/$/, "") + ".md"
+const audio = /blog\/azure-ai-search/.test(url.href)
+    ? url.href.slice(0, -1) + ".mp3"
+    : undefined
 ---
 
-<Default {...Astro.props}>
+<Default>
     <slot />
 </Default>
 <link href={llms} rel="llms-txt" type="text/markdown" />
 <link href={slug} rel="alternate" type="text/markdown" />
+{
+    audio ? (
+        <>
+            <meta property="og:audio" content={audio} />
+            <meta property="og:audio:secure_url" content={audio} />
+            <meta property="og:audio:type" content="audio/mp3" />
+        </>
+    ) : null
+}

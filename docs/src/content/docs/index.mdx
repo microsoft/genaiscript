@@ -11,6 +11,10 @@ hero:
           link: /genaiscript/getting-started/
           icon: right-arrow
           variant: primary
+        - text: Blog
+          link: /genaiscript/blog/
+          icon: rocket
+          variant: primary
         - text: GitHub
           link: https://github.com/microsoft/genaiscript/
           icon: github
@@ -23,7 +27,8 @@ import { YouTube } from "astro-embed"
 import AudioPlayer from "../../components/AudioPlayer.astro"
 import DirectoryLinks from "../../components/DirectoryLinks.astro"
 import { Content as BuiltinAgents } from "../../components/BuiltinAgents.mdx"
-
+import RecentBlogPosts from "../../components/RecentBlogPosts.astro"
+import { LinkButton } from "@astrojs/starlight/components"
 import vscodeSrc from "../../../public/images/visual-studio-code.png"
 
 import debuggerSrc from "../../assets/debugger.png"
@@ -41,7 +46,8 @@ Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, t
 
 - JavaScript toolbox to work with prompts
 - Abstraction to make it easy and productive
-- Seamless Visual Studio Code integration
+- Seamless Visual Studio Code integration or flexible command line
+- Built-in support for GitHub Copilot and GitHub Models, OpenAI, Azure OpenAI, Anthropic, and more
 
 ## Hello world
 
@@ -68,18 +74,15 @@ The `def` function includes the content of the file, and optimizes it if necessa
 and will extract the `data.json` file automatically.
 
 <center>
-    <YouTube id="https://youtu.be/ENunZe--7j0" posterQuality="high" />
+    <YouTube id="https://youtu.be/ajEbAm6kjI4" posterQuality="high" />
 </center>
 
 ## Next steps
 
 <CardGrid stagger>
-    <Card title="Listen to the podcast" icon="seti:audio">
-        <AudioPlayer src="/genaiscript/podcasts/overview.wav" />
-    </Card>
-    <Card title="Install the extension" icon="puzzle">
-        Install the [Visual Studio Code
-        Extension](/genaiscript/getting-started/installation/) to get started.
+    <Card title="Install the extension or cli" icon="puzzle">
+        Install the [Visual Studio Code Extension or the
+        CLI](/genaiscript/getting-started/installation/) to get started.
     </Card>
     <Card title="Configure your LLMs" icon="setting">
         Configure the [secrets](/genaiscript/getting-started/configuration) to
@@ -101,6 +104,14 @@ and will extract the `data.json` file automatically.
     alt="A screenshot of VSCode with a genaiscript opened"
     loading="lazy"
 />
+
+<center>
+    <YouTube id="https://youtu.be/ENunZe--7j0" posterQuality="high" />
+</center>
+
+## Latest news
+
+<RecentBlogPosts />
 
 ## Features
 
@@ -142,18 +153,11 @@ defTool("weather", "live weather",
 )
 ```
 
-or use [@agentic tools](/genaiscript/guides/agentic-tools/)
-
-```js wrap
-import { WeatherClient } from "@agentic/weather"
-defTool(new WeatherClient())
-```
-
 </Card>
 
-<Card title="Model Context Provider Client" icon="setting">
+<Card title="MCP Client" icon="setting">
 
-Use [tools](https://modelcontextprotocol.io/docs/concepts/tools) exposed in [MCP Servers](/genaiscript/reference/scripts/mcp-tools)
+Use [tools](https://modelcontextprotocol.io/docs/concepts/tools) exposed in [Model Context Provider Servers](/genaiscript/reference/scripts/mcp-tools)
 
 ```js wrap
 defTool({
@@ -162,6 +166,21 @@ defTool({
         args: ["-y", "@modelcontextprotocol/server-memory"],
     },
 })
+```
+
+</Card>
+
+<Card title="MCP Server" icon="setting">
+
+Every script is a [Model Context Provider Tool](/genaiscript/reference/scripts/mcp-server).
+
+```js wrap
+script({
+    parameters: {
+        question: "What is the weather in Paris?",
+    },
+})
+$`Answer the question ${env.parameters.question}.`
 ```
 
 </Card>
@@ -272,6 +291,8 @@ Include images in prompts, we'll crop/resize/resize then for you.
 defImages(images, { autoCrop: true, details: "low" })
 ```
 
+<YouTube id="https://youtu.be/XbWgDn7NdTg" />
+
 </Card>
 
 <Card title="Videos" icon="seti:video">
@@ -324,7 +345,7 @@ const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 [Web search](/genaiscript/reference/scripts/web-search) using Bing or Tavily.
 
 ```js wrap
-const pages = await retreival.webSearch("what are the latest news about AI?")
+const pages = await retrieval.webSearch("what are the latest news about AI?")
 ```
 
 </Card>
@@ -343,10 +364,13 @@ def("TABLE", await HTML.convertToMarkdown(table))
 
 <Card title="RAG built-in" icon="magnifier">
 
-[Vector search](/genaiscript/reference/scripts/vector-search/).
+[Vector search](/genaiscript/reference/scripts/vector-search/)
+using a local database or [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
 
 ```js wrap
-const { files } = await retrieval.vectorSearch("cats", "**/*.md")
+const index = await retrieval.index("animals", { type: "azure_ai_search" })
+await index.insertOrUpdate(env.files)
+const docs = await index.search("cat dog")
 ```
 
 </Card>
@@ -358,7 +382,7 @@ to validate [content safety](/genaiscript/reference/scripts/content-safety).
 
 ```js wrap
 script({ ...,
-    system: ["system.safety_harmful_content", ...],
+    systemSafety: "default",
     contentSafety: "azure" // use azure content safety
 })
 
@@ -371,7 +395,7 @@ const res = await safety.detectPromptInjection(env.vars.input)
 <Card title="GitHub Models and GitHub Copilot" icon="github">
 
 Run models through GitHub using [GitHub Models](/genaiscript/getting-started/configuration#github)
-or [GitHub Copilot](/genaiscript/getting-started/configuration/#github-copilot).
+or [GitHub Copilot](/genaiscript/getting-started/configuration/#github_copilot_chat).
 
 ```js wrap
 script({ ..., model: "github:gpt-4o" })
@@ -381,13 +405,13 @@ script({ ..., model: "github:gpt-4o" })
 
 </Card>
 
-<Card title="Azure, Google, Anthropic, Amazon, Alibaba, ..." icon="rocket">
+<Card title="Azure AI Foundry, Google, Anthropic, Amazon, Alibaba, ..." icon="rocket">
 
-Run models from [Azure](https://ai.azure.com/), [Google](https://aistudio.google.com/), [Anthropic](https://www.anthropic.com/), [Alibaba](https://www.alibaba.com/), and more.
+Run models from [Azure AI Foundry](https://ai.azure.com/), [Google](https://aistudio.google.com/), [Anthropic](https://www.anthropic.com/), [Alibaba](https://www.alibaba.com/), and more.
 See [Configuration](/genaiscript/getting-started/configuration/).
 
 ```js wrap
-script({ ..., model: "google:gemini-1.5-flash"})
+script({ ..., model: "azure_ai_inference:o3-mini"})
 ```
 
 </Card>
@@ -447,6 +471,18 @@ $`Summarize all the summaries.`
 
 </Card>
 
+<Card title="Generate Images" icon="sun">
+
+[Generate images](/genaiscript/reference/scripts/image-generation) using OpenAI DALL-E or others.
+
+```js wrap
+const { image, revisedPrompt } = await generateImage(
+    `a cute cat. only one. photographic, high details. 4k resolution.`
+)
+```
+
+</Card>
+
 <Card title="Classify" icon="heart">
 
 Classify text, images or a mix of all.
@@ -480,6 +516,21 @@ user:
 
 ```js wrap
 importTemplate("poem.prompty", { something: "code " })
+```
+
+</Card>
+
+<Card title="Pluggable Secret Scanning" icon="seti:license">
+
+Scan your chats for secrets using [secret scanning](/genaiscript/reference/scripts/secret-scanning).
+
+```json title="genaiscript.config.json"
+{
+    "secretPatterns": {
+        ...,
+        "OpenAI API Key": "sk-[A-Za-z0-9]{32,48}"
+    }
+}
 ```
 
 </Card>
@@ -549,7 +600,7 @@ A cookbook full of recipes to make you a genius scripter.
 
 ## LLM friendly docs
 
-If you are an LLM crawler, fetch https://microsoft.github.io/genaiscript/.well-known/llms.txt for an documentation map
+If you are an LLM crawler, fetch https://microsoft.github.io/genaiscript/llms.txt for a documentation map
 or add the `.md` suffix to any documentation URLs to get a raw markdown content.
 
 For example, https://microsoft.github.io/genaiscript/guides/prompt-as-code.md (note the .md extension)

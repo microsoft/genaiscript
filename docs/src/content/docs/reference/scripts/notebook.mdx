@@ -8,7 +8,6 @@ keywords: Markdown Notebook, documentation authoring, script snippets, inline
     results
 genaiscript:
     files: src/samples/markdown.md
-    model: openai:gpt-3.5-turbo
 ---
 
 import { Steps } from "@astrojs/starlight/components"
@@ -16,7 +15,7 @@ import src from "../../../../assets/vscode-notebook.png"
 import alt from "../../../../assets/vscode-notebook.png.txt?raw"
 import { Image } from "astro:assets"
 
-The GenAISCript Markdown Notebook is currently used to author the GenAIScript documentation.
+The GenAIScript Markdown Notebook is currently used to author the GenAIScript documentation.
 
 <Image src={src} alt={alt} loading="lazy" />
 
@@ -104,7 +103,7 @@ You can provide global configuration settings in the front matter. The front mat
 ---
 title: My genai notebook
 genaiscript:
-  model: openai:gpt-3.5-turbo
+  model: openai:gpt-4.1
   ...
 ---
 ```
@@ -117,7 +116,7 @@ You can specify the LLM configuration metadata from `script`.
 ---
 genaiscript:
     provider: openai
-    model: openai:gpt-3.5-turbo
+    model: openai:gpt-4.1
     temperature: 0
 ---
 ```

@@ -1,6 +1,6 @@
 script({
-    title: "azure summarize",
+    title: "azure long name",
     system: [],
-    model: "azure:gpt-3.5-turbo"
+    model: "azure:gpt-4o-mini_2024-07-18"
 })
 $`write a poem.`

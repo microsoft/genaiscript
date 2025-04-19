@@ -7,7 +7,6 @@ description: Learn how to create and execute your initial GenAI script to
 keywords: GenAI script creation, language model automation, script execution,
     LLM prompt generation, genaisrc setup
 genaiscript:
-    model: openai:gpt-3.5-turbo
     files: src/samples/markdown.md
 ---
 
@@ -15,6 +14,7 @@ import { Tabs, TabItem } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 import { Steps } from "@astrojs/starlight/components"
 import { Content as CreateScript } from "../../../components/CreateScript.mdx"
+import { YouTube } from "astro-embed"
 
 GenAIScript use stylized JavaScript with minimal syntax.
 They are stored as files (`genaisrc/*.genai.mjs` or `genaisrc/*.genai.mts`) in your project.
@@ -32,19 +32,27 @@ The resulting file will be placed in the `genaisrc` folder in your project.
 
 <FileTree>
 
--   …
--   genaisrc scripts are created here by default
-    -   genaiscript.d.ts (TypeScript type definitions)
-    -   jsconfig.json (TypeScript compiler configuration)
-    -   **proofreader.genai.mjs**
-    -   …
--   …
+- …
+- genaisrc scripts are created here by default
+    - genaiscript.d.ts (TypeScript type definitions)
+    - jsconfig.json (TypeScript compiler configuration)
+    - **proofreader.genai.mjs**
+    - …
+- …
 
 </FileTree>
 
 </li>
 </ol>
 </Steps>
+
+:::tip
+
+Watch this video to learn how to turn super charge the knowledge of GenAIScript in GitHub Copilot Chat.
+
+<YouTube id="https://youtu.be/0GkbxnW0J34" posterQuality="high" />
+
+:::
 
 ## the Prompt
 
@@ -84,9 +92,9 @@ Roses bloom, hearts swoon, under the silver moon.
 
 GenAIScript exposes the context through the `env` variable. The context is implicitly defined by the location you start executing the script.
 
--   you can right click on a folder and the `env.files` will contain all the files nested in that folder.
--   you can right click on or in a file and the `env.files` will contain only that file.
--   you can run the script using the [command line interface](/genaiscript/reference/cli) and specify content of `env.files` in the CLI arguments.
+- you can right click on a folder and the `env.files` will contain all the files nested in that folder.
+- you can right click on or in a file and the `env.files` will contain only that file.
+- you can run the script using the [command line interface](/genaiscript/reference/cli) and specify content of `env.files` in the CLI arguments.
 
 ```js title="proofreader.genai.mjs" system=false assistant=false user=true
 def("FILES", env.files)
@@ -254,5 +262,5 @@ and can be helpful when the user is searching for a script.
 
 ## Next steps
 
--   Follow the [Prompt As Code guide](/genaiscript/guides/prompt-as-code) to dive deeper in programmatically generating prompts
--   [Run your script](/genaiscript/getting-started/running-scripts) from Visual Studio Code.
+- Follow the [Prompt As Code guide](/genaiscript/guides/prompt-as-code) to dive deeper in programmatically generating prompts
+- [Run your script](/genaiscript/getting-started/running-scripts) from Visual Studio Code.

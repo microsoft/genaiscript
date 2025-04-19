@@ -1,6 +1,7 @@
 import { describe, test } from "node:test"
-import { parseTraceTree, MarkdownStringify } from "./markdown"
+import { MarkdownStringify } from "./markdown"
 import assert from "node:assert/strict"
+import { parseTraceTree } from "./traceparser"
 
 describe("trace tree", () => {
     test("empty", () => {
@@ -8,13 +9,25 @@ describe("trace tree", () => {
         delete res.id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [""],
         })
     })
     test("stringify", () => {
-        assert.strictEqual(MarkdownStringify({ a: 1 }), "\n- a: 1")
-        assert.strictEqual(MarkdownStringify({ a: 1, b: 2 }), "\n- a: 1\n- b: 2")
+        assert.strictEqual(MarkdownStringify({ a: 1 }), "\n- a: 1\n")
+        assert.strictEqual(
+            MarkdownStringify({ a: 1, b: 2 }),
+            "\n- a: 1\n- b: 2\n"
+        )
+        assert.strictEqual(
+            MarkdownStringify({ a: "string" }, { quoteValues: true }),
+            "\n- a: `string`\n"
+        )
+        assert.strictEqual(MarkdownStringify([1, 2, 3]), "\n- 1\n- 2\n- 3\n")
+        assert.strictEqual(
+            MarkdownStringify({ a: 1 }, { headings: 0, headingLevel: 3 }),
+            "\n### A\n1\n"
+        )
     })
     test("flat", () => {
         const { root: res } = parseTraceTree(`
@@ -25,7 +38,7 @@ flat tree
         delete res.id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [
                 `
 flat tree
@@ -49,7 +62,7 @@ flat tree
         delete (res.content[1] as any).id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [
                 `
 flat tree`,
@@ -75,7 +88,7 @@ flat tree
         delete (res.content[1] as any).id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [
                 `
 flat tree`,
@@ -107,7 +120,7 @@ flat tree
         delete (res.content[1] as any).content[0].id
         assert.deepStrictEqual(res, {
             type: "details",
-            label: "root",
+            label: "trace",
             content: [
                 `
 flat tree`,

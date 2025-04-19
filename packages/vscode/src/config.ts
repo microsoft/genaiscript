@@ -6,9 +6,10 @@ import {
 } from "../../core/src/constants"
 import { CORE_VERSION, VSCODE_CLI_VERSION } from "../../core/src/version"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
+import { ExtensionState } from "./state"
 
-export async function resolveCli() {
-    const config = vscode.workspace.getConfiguration(TOOL_ID)
+export async function resolveCli(state: ExtensionState) {
+    const config = state.getConfiguration()
     const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
     const cliVersion =
         (config.get(VSCODE_CONFIG_CLI_VERSION) as string) ||

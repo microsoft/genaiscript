@@ -20,7 +20,9 @@ class PromptTreeDataProvider
         if (typeof element === "string") {
             const item = new vscode.TreeItem(
                 element,
-                vscode.TreeItemCollapsibleState.Collapsed
+                element === "system"
+                    ? vscode.TreeItemCollapsibleState.Collapsed
+                    : vscode.TreeItemCollapsibleState.Expanded
             )
             item.id = `genaiscript.promptCategory.${element}`
             return item
@@ -38,8 +40,8 @@ class PromptTreeDataProvider
             } = element
             const ai = this.state.aiRequest
             const { computing, options, progress } = ai || {}
-            const { template } = options || {}
-            const generating = computing && template === element
+            const { scriptId } = options || {}
+            const generating = computing && scriptId === element.id
             const item = new vscode.TreeItem(
                 title,
                 vscode.TreeItemCollapsibleState.None
@@ -82,6 +84,7 @@ ${MarkdownStringify(rest, { quoteValues: true })}
         const project = this.state.project
         const templates = project?.scripts || []
         if (!element) {
+            if (!project) this.state.parseWorkspace()
             if (!templates.length) return []
             const groups = Object.keys(groupBy(templates, templateGroup))
             return [...groups.filter((t) => t !== "system"), "system"]

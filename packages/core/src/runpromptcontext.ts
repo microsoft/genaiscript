@@ -1,3 +1,5 @@
+import debug from "debug"
+const dbg = debug("genaiscript:prompt:context")
 // cspell: disable
 import {
     PromptNode,
@@ -24,50 +26,55 @@ import {
     createMcpServer,
     toDefRefName,
     resolveFenceFormat,
+    createFileImageNodes,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { consoleLogFormat, stdout } from "./logging"
+import { consoleLogFormat } from "./logging"
 import { isGlobMatch } from "./glob"
 import {
     arrayify,
     assert,
-    dotGenaiscriptPath,
     ellipse,
     logError,
     logVerbose,
     logWarn,
 } from "./util"
-import { renderShellOutput } from "./chatrender"
+import { lastAssistantReasoning, renderShellOutput } from "./chatrender"
 import { jinjaRender } from "./jinja"
 import { mustacheRender } from "./mustache"
-import { imageEncodeForLLM } from "./image"
+import {
+    imageEncodeForLLM,
+    imageTileEncodeForLLM,
+    imageTransform,
+    renderImageToTerminal,
+} from "./image"
 import { delay, uniq } from "es-toolkit"
 import {
     addToolDefinitionsMessage,
     appendSystemMessage,
+    CreateImageRequest,
     CreateSpeechRequest,
     executeChatSession,
     mergeGenerationOptions,
-    toChatCompletionUserMessage,
     tracePromptResult,
 } from "./chat"
-import { checkCancelled } from "./cancellation"
+import { CancellationToken, checkCancelled } from "./cancellation"
 import { ChatCompletionMessageParam } from "./chattypes"
-import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
+import { resolveModelConnectionInfo } from "./models"
 import {
     CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT,
     TOKEN_MISSING_INFO,
     TOKEN_NO_ANSWER,
-    MODEL_PROVIDER_AICI,
     DOCS_DEF_FILES_IS_EMPTY_URL,
     TRANSCRIPTION_CACHE_NAME,
     TRANSCRIPTION_MODEL_ID,
     SPEECH_MODEL_ID,
+    IMAGE_GENERATION_MODEL_ID,
+    LARGE_MODEL_ID,
 } from "./constants"
-import { renderAICI } from "./aici"
-import { resolveSystems, resolveTools } from "./systems"
+import { addFallbackToolSystems, resolveSystems, resolveTools } from "./systems"
 import { callExpander } from "./expander"
 import {
     errorMessage,
@@ -81,26 +88,49 @@ import { resolveScript } from "./ast"
 import { dedent } from "./indent"
 import { runtimeHost } from "./host"
 import { writeFileEdits } from "./fileedits"
-import { agentAddMemory, agentQueryMemory } from "./agent"
+import { agentAddMemory, agentCreateCache, agentQueryMemory } from "./agent"
 import { YAMLStringify } from "./yaml"
 import { Project } from "./server/messages"
-import { parametersToVars } from "./vars"
-import prettyBytes from "pretty-bytes"
-import { JSONLineCache } from "./cache"
+import { mergeEnvVarsWithSystem, parametersToVars } from "./vars"
 import { FFmepgClient } from "./ffmpeg"
 import { BufferToBlob } from "./bufferlike"
 import { host } from "./host"
 import { srtVttRender } from "./transcription"
-import { deleteEmptyValues } from "./cleaners"
 import { hash } from "./crypto"
-import { fileTypeFromBuffer } from "file-type"
-import { writeFile } from "fs"
+import { fileTypeFromBuffer } from "./filetype"
 import { deleteUndefinedValues } from "./cleaners"
 import { sliceData } from "./tidy"
+import { toBase64 } from "@smithy/util-base64"
+import { consoleColors } from "./consolecolor"
+import { terminalSize } from "./terminal"
+import { stderr, stdout } from "./stdio"
+import { dotGenaiscriptPath } from "./workdir"
+import { prettyBytes } from "./pretty"
+import { createCache } from "./cache"
 
+/**
+ * Creates a context for generating chat turn prompts.
+ *
+ * @param options - Contains generation options such as model, lineNumbers, and fenceFormat.
+ * @param trace - Trace object used to log the process and record outputs.
+ *
+ * @returns A context object used to generate prompt nodes and manage output-related functionalities.
+ *
+ * The returned context includes methods:
+ * - `writeText`: Appends a text node to the prompt for a specified role, priority, and max token limit.
+ * - `assistant`: Shortcut for writing text with an "assistant" role.
+ * - `$`: Creates and appends a template string node, returning a chainable interface for modifiers (e.g., priority, transforms).
+ * - `def`: Creates and appends a definition node for body content or external files, supporting error handling for empty definitions.
+ * - `defData`: Adds structured data as a definition.
+ * - `defDiff`: Adds a diff comparison between two data sets.
+ * - `fence`: Shortcut for creating definition nodes with code fences.
+ * - `importTemplate`: Imports a pre-defined template with associated data and appends it to the node tree.
+ * - `console`: Diagnostic methods (`log`, `debug`, `warn`, `error`) for capturing and printing logs or errors during the generation process.
+ */
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
-    trace: MarkdownTrace
+    trace: MarkdownTrace,
+    cancellationToken: CancellationToken
 ): ChatTurnGenerationContext & { node: PromptNode } {
     const node: PromptNode = { children: [] }
     const fenceFormat = options.fenceFormat || resolveFenceFormat(options.model)
@@ -136,6 +166,72 @@ export function createChatTurnGenerationContext(
             }
         },
     })
+
+    const defImages = (
+        files: ElementOrArray<
+            string | WorkspaceFile | Buffer | Blob | ReadableStream
+        >,
+        defOptions?: DefImagesOptions
+    ) => {
+        checkCancelled(cancellationToken)
+        if (files === undefined || files === null) {
+            if (defOptions?.ignoreEmpty) return
+            throw new Error("no images provided")
+        }
+        if (Array.isArray(files)) {
+            if (!files.length) {
+                if (defOptions?.ignoreEmpty) return
+                throw new Error("no images provided")
+            }
+            const sliced = sliceData(files, defOptions)
+            if (!defOptions?.tiled)
+                sliced.forEach((file) => defImages(file, defOptions))
+            else {
+                appendChild(
+                    node,
+                    createImageNode(
+                        (async () => {
+                            if (!files.length) return undefined
+                            const encoded = await imageTileEncodeForLLM(files, {
+                                ...defOptions,
+                                cancellationToken,
+                                trace,
+                            })
+                            return encoded
+                        })()
+                    )
+                )
+            }
+        } else if (
+            typeof files === "string" ||
+            files instanceof Blob ||
+            files instanceof Buffer
+        ) {
+            const img = files
+            appendChild(
+                node,
+                createImageNode(
+                    (async () => {
+                        const encoded = await imageEncodeForLLM(img, {
+                            ...defOptions,
+                            cancellationToken,
+                            trace,
+                        })
+                        return encoded
+                    })()
+                )
+            )
+        } else {
+            const file = files as WorkspaceFile
+            appendChild(
+                node,
+                ...createFileImageNodes(undefined, file, defOptions, {
+                    trace,
+                    cancellationToken,
+                })
+            )
+        }
+    }
 
     const ctx: ChatTurnGenerationContext & { node: PromptNode } = {
         node,
@@ -239,7 +335,17 @@ export function createChatTurnGenerationContext(
                     !endsWith.some((ext) => filename.endsWith(ext))
                 )
                     return undefined
-                appendChild(node, createDef(name, file, doptions))
+
+                // more robust check
+                if (/\.(png|jpeg|jpg|gif|webp)$/i.test(filename)) {
+                    appendChild(
+                        node,
+                        ...createFileImageNodes(name, file, doptions, {
+                            trace,
+                            cancellationToken,
+                        })
+                    )
+                } else appendChild(node, createDef(name, file, doptions))
             } else if (
                 typeof body === "object" &&
                 (body as ShellOutput).exitCode !== undefined
@@ -283,6 +389,7 @@ export function createChatTurnGenerationContext(
             }
             return toDefRefName(name, doptions)
         },
+        defImages,
         defData: (name, data, defOptions) => {
             name = name ?? ""
             const doptions = { ...(defOptions || {}), trace }
@@ -320,6 +427,33 @@ export interface RunPromptContextNode extends ChatGenerationContext {
     node: PromptNode
 }
 
+/**
+ * Creates a chat generation context for handling prompts and related tasks in a conversational context.
+ *
+ * @param options - Configuration options for generation, including cancellation token, info callback, and user state.
+ * @param trace - Tracing utilities for logging and debugging execution.
+ * @param projectOptions - Project-specific parameters, including the project instance and environment variables.
+ * @returns A context object with various utility functions and properties for managing prompts and AI interactions.
+ *
+ * Utility Functions:
+ * - `defAgent(name, description, fn, options)`: Defines an agent with tools, memory, and task-solving capabilities.
+ * - `defTool(name, description, parameters, fn, defOptions)`: Registers a tool for use in the chat session. Supports multiple formats for tool definitions, including callbacks and MCP server configurations.
+ * - `defSchema(name, schema, defOptions)`: Defines a JSON schema for validation or metadata.
+ * - `defImages(files, defOptions)`: Processes and encodes image files for their integration into prompts. Supports tiling and slicing of images.
+ * - `defChatParticipant(generator, options)`: Adds chat participant logic (e.g., other agents or external systems).
+ * - `defFileOutput(pattern, description, options)`: Specifies output file patterns for tracking in the session.
+ * - `defOutputProcessor(fn)`: Adds output post-processing logic.
+ * - `defFileMerge(fn)`: Declares logic for merging file changes in the session output.
+ * - `prompt(strings, ...args)`: Runs a prompt with given input and additional options.
+ * - `runPrompt(generator, runOptions)`: Executes prompt logic and generates results, supporting inner execution.
+ * - `transcribe(audio, options)`: Transcribes audio input into text, with optional caching and language options.
+ * - `speak(input, options)`: Converts text to speech and saves the audio file.
+ * - `generateImage(prompt, imageOptions)`: Generates an image based on a textual description and custom options.
+ *
+ * Context Properties:
+ * - `node`: Root node capturing children elements in the prompt structure.
+ * - `env`: Environment variables passed to the project context for dynamic adjustments.
+ */
 export function createChatGenerationContext(
     options: GenerationOptions,
     trace: MarkdownTrace,
@@ -328,32 +462,33 @@ export function createChatGenerationContext(
         env: ExpansionVariables
     }
 ): RunPromptContextNode {
-    const { cancellationToken, infoCb } = options || {}
+    const { cancellationToken, infoCb, userState } = options || {}
     const { prj, env } = projectOptions
     assert(!!env.output, "output missing")
-    const turnCtx = createChatTurnGenerationContext(options, trace)
+    const turnCtx = createChatTurnGenerationContext(
+        options,
+        trace,
+        cancellationToken
+    )
     const node = turnCtx.node
 
     // Default output processor for the prompt
     const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
+        checkCancelled(cancellationToken)
         if (fn) appendChild(node, createOutputProcessor(fn))
     }
 
     const defTool: (
-        name:
-            | string
-            | ToolCallback
-            | AgenticToolCallback
-            | AgenticToolProviderCallback
-            | McpServersConfig,
+        name: string | ToolCallback | McpServersConfig,
         description: string | DefToolOptions,
         parameters?: PromptParametersSchema | JSONSchemaObject,
         fn?: ChatFunctionHandler,
         defOptions?: DefToolOptions
     ) => void = (name, description, parameters, fn, defOptions) => {
+        checkCancelled(cancellationToken)
         if (name === undefined || name === null)
             throw new Error("tool name is missing")
-
+        dbg(`tool %s`, name)
         if (typeof name === "string") {
             if (typeof description !== "string")
                 throw new Error("tool description is missing")
@@ -366,14 +501,12 @@ export function createChatGenerationContext(
                     description,
                     parameterSchema,
                     fn,
-                    defOptions
+                    defOptions,
+                    ctx
                 )
             )
-        } else if (
-            typeof name === "object" &&
-            (name as ToolCallback | AgenticToolCallback).impl
-        ) {
-            const tool = name as ToolCallback | AgenticToolCallback
+        } else if (typeof name === "object" && (name as ToolCallback).impl) {
+            const tool = name as ToolCallback
             appendChild(
                 node,
                 createToolNode(
@@ -381,39 +514,26 @@ export function createChatGenerationContext(
                     tool.spec.description,
                     tool.spec.parameters as any,
                     tool.impl,
-                    defOptions
+                    defOptions,
+                    ctx
                 )
             )
-        } else if (
-            typeof name === "object" &&
-            (name as AgenticToolProviderCallback).functions
-        ) {
-            const tools = (name as AgenticToolProviderCallback).functions
-            for (const tool of tools)
-                appendChild(
-                    node,
-                    createToolNode(
-                        tool.spec.name,
-                        tool.spec.description,
-                        tool.spec.parameters as any,
-                        tool.impl,
-                        defOptions
-                    )
-                )
         } else if (typeof name === "object") {
+            dbg(`mcp %O`, name)
             for (const kv of Object.entries(name)) {
                 const [id, def] = kv
                 if ((def as McpServerConfig).command) {
                     const serverConfig = def as McpServerConfig
                     appendChild(
                         node,
-                        createMcpServer(id, serverConfig, defOptions)
+                        createMcpServer(id, serverConfig, defOptions, ctx)
                     )
                 }
             }
         }
     }
 
+    const adbgm = debug(`agent:memory`)
     const defAgent = (
         name: string,
         description: string,
@@ -423,13 +543,24 @@ export function createChatGenerationContext(
         ) => Promise<void>,
         options?: DefAgentOptions
     ): void => {
-        const { tools, system, disableMemory, disableMemoryQuery, ...rest } =
-            options || {}
-        const memory = !disableMemory
+        checkCancelled(cancellationToken)
+        const {
+            variant,
+            tools,
+            system,
+            disableMemory,
+            disableMemoryQuery,
+            ...rest
+        } = options || {}
+        const memory = disableMemory
+            ? undefined
+            : agentCreateCache({ userState })
 
         name = name.replace(/^agent_/i, "")
-        const agentName = `agent_${name}`
-        const agentLabel = `agent ${name}`
+        const adbg = debug(`agent:${name}`)
+        adbg(`created ${variant || ""}`)
+        const agentName = `agent_${name}${variant ? "_" + variant : ""}`
+        const agentLabel = `agent ${name}${variant ? " " + variant : ""}`
 
         const agentSystem = uniq([
             "system.assistant",
@@ -449,6 +580,7 @@ export function createChatGenerationContext(
             `Agent that uses an LLM to ${description}.\nAvailable tools:${agentTools.map((t) => `- ${t.description}`).join("\n")}`,
             1020
         ) // DO NOT LEAK TOOL ID HERE
+        dbg(`description: ${agentDescription}`)
 
         defTool(
             agentName,
@@ -465,27 +597,38 @@ export function createChatGenerationContext(
             },
             async (args) => {
                 // the LLM automatically adds extract arguments to the context
-                const { context, ...rest } = args
-                const { query, ...argsNoQuery } = rest
+                checkCancelled(cancellationToken)
+                const { context, ...argsRest } = args
+                const { query, ...argsNoQuery } = argsRest
+
                 infoCb?.({
                     text: `${agentLabel}: ${query} ${parametersToVars(argsNoQuery)}`,
                 })
+                adbg(`query: ${query}`)
 
                 const hasExtraArgs = Object.keys(argsNoQuery).length > 0
+                if (hasExtraArgs) adbg(`extra args: %O`, argsNoQuery)
+
                 let memoryAnswer: string
-                if (memory && query && !disableMemoryQuery)
+                if (memory && query && !disableMemoryQuery) {
                     memoryAnswer = await agentQueryMemory(
+                        memory,
                         ctx,
-                        query + hasExtraArgs
-                            ? `\n${YAMLStringify(argsNoQuery)}`
-                            : ""
+                        query +
+                            (hasExtraArgs
+                                ? `\n${YAMLStringify(argsNoQuery)}`
+                                : ""),
+                        { trace }
                     )
+                    if (memoryAnswer) adbgm(`found ${memoryAnswer}`)
+                }
 
                 const res = await ctx.runPrompt(
                     async (_) => {
-                        if (typeof fn === "string") _.writeText(dedent(fn))
+                        if (typeof fn === "string")
+                            _.writeText(dedent(fn), { role: "system" })
                         else await fn(_, args)
-                        _.$`Make a plan and solve the task described in QUERY.
+                        _.$`Make a plan and solve the task described in <QUERY>.
                         
                         - Assume that your answer will be analyzed by an LLM, not a human.
                         - If you are missing information, reply "${TOKEN_MISSING_INFO}: <what is missing>".
@@ -493,7 +636,7 @@ export function createChatGenerationContext(
                         - Be concise. Minimize output to the most relevant information to save context tokens.
                         `.role("system")
                         if (memoryAnswer)
-                            _.$`- The QUERY applied to the agent memory is in MEMORY.`.role(
+                            _.$`- The <QUERY> applied to the agent memory is in <MEMORY>.`.role(
                                 "system"
                             )
                         _.def("QUERY", query)
@@ -511,13 +654,18 @@ export function createChatGenerationContext(
                                         text.startsWith(TOKEN_MISSING_INFO) ||
                                         text.startsWith(TOKEN_NO_ANSWER)
                                     )
-                                )
+                                ) {
+                                    adbgm(`add ${text}`)
                                     await agentAddMemory(
+                                        memory,
                                         agentName,
                                         query,
                                         text,
-                                        trace
+                                        {
+                                            trace,
+                                        }
                                     )
+                                }
                             })
                     },
                     {
@@ -528,8 +676,13 @@ export function createChatGenerationContext(
                         ...rest,
                     }
                 )
-                if (res.error) throw res.error
-                return deleteEmptyValues(res)
+                if (res.error) {
+                    adbg(`error: ${res.error}`)
+                    throw res.error
+                }
+                const response = res.text
+                adbgm(`response: %O`, response)
+                return response
             }
         )
     }
@@ -539,63 +692,17 @@ export function createChatGenerationContext(
         schema: JSONSchema,
         defOptions?: DefSchemaOptions
     ) => {
+        checkCancelled(cancellationToken)
         appendChild(node, createSchemaNode(name, schema, defOptions))
 
         return name
-    }
-
-    const defImages = (
-        files: ElementOrArray<
-            string | WorkspaceFile | Buffer | Blob | ReadableStream
-        >,
-        defOptions?: DefImagesOptions
-    ) => {
-        const { detail } = defOptions || {}
-        if (Array.isArray(files)) {
-            const sliced = sliceData(files, defOptions)
-            sliced.forEach((file) => defImages(file, defOptions))
-        } else if (
-            typeof files === "string" ||
-            files instanceof Blob ||
-            files instanceof Buffer
-        ) {
-            const img = files
-            appendChild(
-                node,
-                createImageNode(
-                    (async () => {
-                        const encoded = await imageEncodeForLLM(img, {
-                            ...defOptions,
-                            trace,
-                        })
-                        return encoded
-                    })()
-                )
-            )
-        } else {
-            const file = files as WorkspaceFile
-            appendChild(
-                node,
-                createImageNode(
-                    (async () => {
-                        const encoded = await imageEncodeForLLM(file.filename, {
-                            ...defOptions,
-                            trace,
-                        })
-                        return {
-                            filename: file.filename,
-                            ...encoded,
-                        }
-                    })()
-                )
-            )
-        }
     }
 
     const defChatParticipant = (
         generator: ChatParticipantHandler,
         options?: ChatParticipantOptions
     ) => {
+        checkCancelled(cancellationToken)
         if (generator)
             appendChild(node, createChatParticipant({ generator, options }))
     }
@@ -605,6 +712,7 @@ export function createChatGenerationContext(
         description: string,
         options?: FileOutputOptions
     ): void => {
+        checkCancelled(cancellationToken)
         if (pattern)
             appendChild(
                 node,
@@ -622,6 +730,7 @@ export function createChatGenerationContext(
         strings: TemplateStringsArray,
         ...args: any[]
     ): RunPromptResultPromiseWithOptions => {
+        checkCancelled(cancellationToken)
         const options: PromptGeneratorOptions = {}
         const p: RunPromptResultPromiseWithOptions =
             new Promise<RunPromptResult>(async (resolve, reject) => {
@@ -647,16 +756,18 @@ export function createChatGenerationContext(
         audio: string | WorkspaceFile,
         options?: TranscriptionOptions
     ): Promise<TranscriptionResult> => {
+        checkCancelled(cancellationToken)
         const { cache, ...rest } = options || {}
         const transcriptionTrace = trace.startTraceDetails("🎤 transcribe")
         try {
             const conn: ModelConnectionOptions = {
-                model: options?.model || TRANSCRIPTION_MODEL_ID,
+                model: options?.model,
             }
             const { info, configuration } = await resolveModelConnectionInfo(
                 conn,
                 {
                     trace: transcriptionTrace,
+                    defaultModel: TRANSCRIPTION_MODEL_ID,
                     cancellationToken,
                     token: true,
                 }
@@ -709,7 +820,7 @@ export function createChatGenerationContext(
             }
 
             let res: TranscriptionResult
-            const _cache = JSONLineCache.byName<
+            const _cache = createCache<
                 { file: Blob } & TranscriptionOptions,
                 TranscriptionResult
             >(
@@ -717,7 +828,8 @@ export function createChatGenerationContext(
                     ? TRANSCRIPTION_CACHE_NAME
                     : typeof cache === "string"
                       ? cache
-                      : undefined
+                      : undefined,
+                { type: "fs" }
             )
             if (cache) {
                 const hit = await _cache.getOrUpdate(
@@ -751,7 +863,8 @@ export function createChatGenerationContext(
         input: string,
         options?: SpeechOptions
     ): Promise<SpeechResult> => {
-        const { cache, voice, ...rest } = options || {}
+        checkCancelled(cancellationToken)
+        const { cache, voice, instructions, ...rest } = options || {}
         const speechTrace = trace.startTraceDetails("🦜 speak")
         try {
             const conn: ModelConnectionOptions = {
@@ -761,6 +874,7 @@ export function createChatGenerationContext(
                 conn,
                 {
                     trace: speechTrace,
+                    defaultModel: SPEECH_MODEL_ID,
                     cancellationToken,
                     token: true,
                 }
@@ -784,6 +898,7 @@ export function createChatGenerationContext(
                 input,
                 model: configuration.model,
                 voice,
+                instructions: dedent(instructions),
             }) satisfies CreateSpeechRequest
             const res = await speaker(req, configuration, {
                 trace: speechTrace,
@@ -812,24 +927,32 @@ export function createChatGenerationContext(
         }
     }
 
+    const defFileMerge = (fn: FileMergeHandler) => {
+        checkCancelled(cancellationToken)
+        appendChild(node, createFileMerge(fn))
+    }
+
     const runPrompt = async (
         generator: string | PromptGenerator,
         runOptions?: PromptGeneratorOptions
     ): Promise<RunPromptResult> => {
+        checkCancelled(cancellationToken)
+        Object.freeze(runOptions)
         const { label, applyEdits, throwOnError } = runOptions || {}
-        const runTrace = trace.startTraceDetails(`🎁 run prompt ${label || ""}`)
+        const runTrace = trace.startTraceDetails(`🎁 ${label || "prompt"}`)
         let messages: ChatCompletionMessageParam[] = []
         try {
-            infoCb?.({ text: `prompt ${label || ""}` })
+            infoCb?.({ text: label || "prompt" })
 
             const genOptions = mergeGenerationOptions(options, runOptions)
-            genOptions.fallbackTools = undefined
             genOptions.inner = true
             genOptions.trace = runTrace
             const { info, configuration } = await resolveModelConnectionInfo(
                 genOptions,
                 {
                     trace: runTrace,
+                    defaultModel: LARGE_MODEL_ID,
+                    cancellationToken,
                     token: true,
                 }
             )
@@ -869,72 +992,81 @@ export function createChatGenerationContext(
             let prediction: PromptPrediction
 
             // expand template
-            const { provider } = parseModelIdentifier(genOptions.model)
-            if (provider === MODEL_PROVIDER_AICI) {
-                const { aici } = await renderAICI("prompt", node)
-                // todo: output processor?
-                messages.push(aici)
-            } else {
-                const {
-                    errors,
-                    schemas: scs,
-                    functions: fns,
-                    messages: msgs,
-                    chatParticipants: cps,
-                    fileMerges: fms,
-                    outputProcessors: ops,
-                    fileOutputs: fos,
-                    images: imgs,
-                    prediction: pred,
-                    disposables: dps,
-                } = await renderPromptNode(genOptions.model, node, {
-                    flexTokens: genOptions.flexTokens,
-                    fenceFormat: genOptions.fenceFormat,
-                    trace: runTrace,
-                    cancellationToken,
-                })
+            const {
+                errors,
+                schemas: scs,
+                tools: fns,
+                messages: msgs,
+                chatParticipants: cps,
+                fileMerges: fms,
+                outputProcessors: ops,
+                fileOutputs: fos,
+                images: imgs,
+                prediction: pred,
+                disposables: dps,
+            } = await renderPromptNode(genOptions.model, node, {
+                flexTokens: genOptions.flexTokens,
+                fenceFormat: genOptions.fenceFormat,
+                trace: runTrace,
+                cancellationToken,
+            })
 
-                schemas = scs
-                tools = fns
-                chatParticipants = cps
-                messages.push(...msgs)
-                fileMerges.push(...fms)
-                outputProcessors.push(...ops)
-                fileOutputs.push(...fos)
-                images.push(...imgs)
-                disposables.push(...dps)
-                prediction = pred
+            schemas = scs
+            tools = fns
+            chatParticipants = cps
+            messages.push(...msgs)
+            fileMerges.push(...fms)
+            outputProcessors.push(...ops)
+            fileOutputs.push(...fos)
+            images.push(...imgs)
+            disposables.push(...dps)
+            prediction = pred
 
-                if (errors?.length) {
-                    logError(errors.map((err) => errorMessage(err)).join("\n"))
-                    throw new Error("errors while running prompt")
-                }
+            if (errors?.length) {
+                logError(errors.map((err) => errorMessage(err)).join("\n"))
+                throw new Error("errors while running prompt")
             }
 
-            const systemScripts = resolveSystems(
-                prj,
-                runOptions ?? {},
-                tools,
-                genOptions
-            )
+            const systemScripts = resolveSystems(prj, runOptions ?? {}, tools)
+            if (
+                addFallbackToolSystems(
+                    systemScripts,
+                    tools,
+                    runOptions,
+                    genOptions
+                )
+            ) {
+                assert(!Object.isFrozen(genOptions))
+                genOptions.fallbackTools = true
+                dbg(`fallback tools added ${genOptions.fallbackTools}`)
+            }
+
             if (systemScripts.length)
                 try {
                     runTrace.startDetails("👾 systems")
                     for (const systemId of systemScripts) {
                         checkCancelled(cancellationToken)
-
+                        dbg(`system ${systemId.id}`, {
+                            fallbackTools: genOptions.fallbackTools,
+                        })
                         const system = resolveScript(prj, systemId)
                         if (!system)
                             throw new Error(
-                                `system template ${systemId} not found`
+                                `system template ${systemId.id} not found`
                             )
                         runTrace.startDetails(`👾 ${system.id}`)
+                        if (systemId.parameters)
+                            runTrace.detailsFenced(
+                                `parameters`,
+                                YAMLStringify(systemId.parameters)
+                            )
                         const sysr = await callExpander(
                             prj,
                             system,
-                            env,
+                            mergeEnvVarsWithSystem(env, systemId),
                             runTrace,
-                            genOptions
+                            genOptions,
+                            false
                         )
                         if (sysr.images?.length)
                             throw new NotSupportedError("images")
@@ -966,13 +1098,13 @@ export function createChatGenerationContext(
                                     "only string user messages supported in system"
                                 )
                         }
-                        if (sysr.aici) {
-                            runTrace.fence(sysr.aici, "yaml")
-                            messages.push(sysr.aici)
-                        }
                         genOptions.logprobs =
                             genOptions.logprobs || system.logprobs
-                        runTrace.detailsFenced("js", system.jsSource, "js")
+                        runTrace.detailsFenced(
+                            "💻 script source",
+                            system.jsSource,
+                            "js"
+                        )
                         runTrace.endDetails()
                         if (sysr.status !== "success")
                             throw new Error(
@@ -982,14 +1114,17 @@ export function createChatGenerationContext(
                 } finally {
                     runTrace.endDetails()
                 }
-            if (systemScripts.includes("system.tool_calls")) {
-                addToolDefinitionsMessage(messages, tools)
-                genOptions.fallbackTools = true
-            }
-            if (images?.length)
-                messages.push(toChatCompletionUserMessage("", images))
 
-            finalizeMessages(messages, { fileOutputs })
+            if (genOptions.fallbackTools) {
+                dbg(`fallback tools definitions added`)
+                addToolDefinitionsMessage(messages, tools)
+            }
+
+            finalizeMessages(genOptions.model, messages, {
+                ...genOptions,
+                fileOutputs,
+                trace: runTrace,
+            })
             const { completer } = await resolveLanguageModel(
                 configuration.provider
             )
@@ -1004,6 +1139,7 @@ export function createChatGenerationContext(
                 "model:" + genOptions.model,
                 modelConcurrency
             )
+            dbg(`run ${genOptions.model}`)
             const resp = await modelLimit(() =>
                 executeChatSession(
                     configuration,
@@ -1035,6 +1171,7 @@ export function createChatGenerationContext(
             return {
                 messages,
                 text: "",
+                reasoning: lastAssistantReasoning(messages),
                 finishReason: isCancelError(e) ? "cancel" : "fail",
                 error: serializeError(e),
             }
@@ -1043,8 +1180,94 @@ export function createChatGenerationContext(
         }
     }
 
-    const defFileMerge = (fn: FileMergeHandler) => {
-        appendChild(node, createFileMerge(fn))
+    const generateImage = async (
+        prompt: string,
+        imageOptions?: ImageGenerationOptions
+    ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }> => {
+        if (!prompt) throw new Error("prompt is missing")
+
+        const imgTrace = trace.startTraceDetails("🖼️ generate image")
+        try {
+            const { style, quality, size } = imageOptions || {}
+            const conn: ModelConnectionOptions = {
+                model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
+            }
+            const { info, configuration } = await resolveModelConnectionInfo(
+                conn,
+                {
+                    trace: imgTrace,
+                    defaultModel: IMAGE_GENERATION_MODEL_ID,
+                    cancellationToken,
+                    token: true,
+                }
+            )
+            if (info.error) throw new Error(info.error)
+            if (!configuration)
+                throw new Error(
+                    `model configuration not found for ${conn.model}`
+                )
+            checkCancelled(cancellationToken)
+            const { ok } = await runtimeHost.pullModel(configuration, {
+                trace: imgTrace,
+                cancellationToken,
+            })
+            if (!ok) throw new Error(`failed to pull model '${conn}'`)
+            checkCancelled(cancellationToken)
+            const { imageGenerator } = await resolveLanguageModel(
+                configuration.provider
+            )
+            if (!imageGenerator)
+                throw new Error("image generator not found for " + info.model)
+            imgTrace.itemValue(`model`, configuration.model)
+            const req = deleteUndefinedValues({
+                model: configuration.model,
+                prompt: dedent(prompt),
+                size,
+                quality,
+                style,
+            }) satisfies CreateImageRequest
+            const res = await imageGenerator(req, configuration, {
+                trace: imgTrace,
+                cancellationToken,
+            })
+            if (res.error) {
+                imgTrace.error(errorMessage(res.error))
+                return undefined
+            }
+
+            const h = await hash(res.image, { length: 20 })
+            const buf = await imageTransform(res.image, {
+                ...(imageOptions || {}),
+                cancellationToken,
+                trace: imgTrace,
+            })
+            const { ext } = (await fileTypeFromBuffer(buf)) || {}
+            const filename = dotGenaiscriptPath("image", h + "." + ext)
+            await host.writeFile(filename, buf)
+
+            if (consoleColors) {
+                const size = terminalSize()
+                stderr.write(
+                    await renderImageToTerminal(buf, {
+                        ...size,
+                        label: filename,
+                    })
+                )
+            } else logVerbose(`image: ${filename}`)
+
+            imgTrace.image(filename, `generated image`)
+            imgTrace.detailsFenced(`🔀 revised prompt`, res.revisedPrompt)
+            return {
+                image: {
+                    filename,
+                    encoding: "base64",
+                    content: toBase64(res.image),
+                } satisfies WorkspaceFile,
+                revisedPrompt: res.revisedPrompt,
+            }
+        } finally {
+            imgTrace.endDetails()
+        }
     }
 
     const ctx: RunPromptContextNode = Object.freeze<RunPromptContextNode>({
@@ -1052,7 +1275,6 @@ export function createChatGenerationContext(
         defAgent,
         defTool,
         defSchema,
-        defImages,
         defChatParticipant,
         defFileOutput,
         defOutputProcessor,
@@ -1061,6 +1283,8 @@ export function createChatGenerationContext(
         runPrompt,
         transcribe,
         speak,
+        generateImage,
+        env,
     })
 
     return ctx

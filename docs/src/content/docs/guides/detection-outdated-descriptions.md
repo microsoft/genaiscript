@@ -60,7 +60,7 @@ by selecting **Run GenAIScript...**.
 You can automatically run this tool on your documentation files to identify outdated descriptions using the [cli](/genaiscript/reference/cli).
 
 ```sh
-npx --yes genaiscript run detect-outdated-descriptions **/*.md
+genaiscript run detect-outdated-descriptions **/*.md
 ```
 
 This script can be integrated into your CI/CD pipeline to automate the detection process.

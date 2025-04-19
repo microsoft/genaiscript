@@ -1,9 +1,22 @@
+script({ model: "echo" })
 const { output } = env
 
-output.heading(3, "hello world")
+for (let i = 1; i <= 6; i++) output.heading(i, "heading " + i)
 
-$`Write a poem`
+$`Write 2 word poem`
 
+output.warn("this is a warning")
+output.caution("this is a caution")
+output.item("this is an item")
+output.itemValue("item", "value")
+output.note("this is a note")
+output.diff(
+    `A
+B
+C`,
+    `AA
+B`
+)
 output.fence(
     `---
 title: What is Markdown? - Understanding Markdown Syntax
@@ -20,7 +33,6 @@ For example, to denote a heading, you add a number sign before it (e.g., # Headi
 `,
     "md"
 )
-
 output.fence(`let x = "abc"`, "js")
 output.itemValue("item", "value")
 output.fence("This is a fence")
@@ -38,12 +50,15 @@ output.fence(
     ],
     "csv"
 )
+
 output.fence(`A --> B`, "mermaid")
+output.item(`- testing broken mermaid chart`)
 output.fence(`A -> B`, "mermaid")
+
 output.appendContent(`$$
 E = mc^2
 $$`)
-output.fence(`unknown language`, "asdfasdfsdf")
+output.fence(`unknown language`, "unknown")
 output.fence(
     `
 sequenceDiagram
@@ -59,4 +74,20 @@ sequenceDiagram
     `,
     "mermaid"
 )
-output.image("https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png?raw=true", "icon")
+await output.image(
+    "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png?raw=true",
+    "icon"
+)
+
+output.detailsFenced("A", "AAA")
+output.detailsFenced("B", "BBB")
+output.detailsFenced("C", "CCC")
+output.detailsFenced("D", "DDD")
+
+output.table([
+    { a: 1, b: 2 },
+    { a: 3, b: 4 },
+])
+output.appendContent("<XML>hello</XML>\n")
+
+output.appendContent("☺️".repeat(50000))

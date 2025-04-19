@@ -3,18 +3,31 @@ import type {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
+    ChatCompletionTool,
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
 } from "./chattypes"
+import { collapseNewlines } from "./cleaners"
 
 // Import utility functions for JSON5 parsing, markdown formatting, and YAML stringification.
 import { JSONLLMTryParse } from "./json5"
 import { details, fenceMD } from "./mkmd"
 import { stringify as YAMLStringify } from "yaml"
+import { CancellationOptions, checkCancelled } from "./cancellation"
+
+export interface ChatRenderOptions extends CancellationOptions {
+    textLang?: "markdown" | "text" | "json" | "raw"
+    system?: boolean
+    user?: boolean
+    assistant?: boolean
+    cacheImage?: (url: string) => Promise<string>
+    tools?: ChatCompletionTool[]
+}
+
 /**
- * Renders the output of a shell command.
- * @param output - The shell output containing exit code, stdout, and stderr.
- * @returns A formatted string representing the shell output.
+ * Formats the output of a shell command into a readable string.
+ * @param output - The shell execution result containing exitCode, stdout, and stderr.
+ * @returns A formatted string summarizing the shell output. Includes exit code if non-zero, stdout formatted as text, and stderr formatted as text, separated by double newlines. Returns stdout directly if the exit code is zero.
  */
 export function renderShellOutput(output: ShellOutput) {
     // Destructure the output object to retrieve exitCode, stdout, and stderr.
@@ -37,57 +50,82 @@ export function renderShellOutput(output: ShellOutput) {
 }
 
 /**
- * Renders message content to a string.
- * @param msg - The message which could be of various types.
- * @returns A string representing the message content or undefined.
+ * Renders the content of a message into a formatted string.
+ *
+ * @param msg - The message object containing content, which may include text, images, audio, or other types.
+ *              Supports both string and array-based content. Unknown types are rendered as "unknown message".
+ * @param options - Optional configuration for rendering, including text formatting, image caching, and language.
+ *                  Supports a function for caching images and defaults to markdown formatting if not specified.
+ *                  If textLang is "raw", returns raw content without formatting.
+ * @returns A formatted string representation of the message content, or undefined if the content is invalid or unsupported.
  */
-export function renderMessageContent(
+export async function renderMessageContent(
     msg:
         | ChatCompletionAssistantMessageParam
         | ChatCompletionSystemMessageParam
         | ChatCompletionUserMessageParam
-        | ChatCompletionToolMessageParam
-): string {
+        | ChatCompletionToolMessageParam,
+    options?: ChatRenderOptions
+): Promise<string | undefined> {
+    const { cacheImage, textLang } = options || {}
     const content = msg.content
+
     // Return the content directly if it's a simple string.
-    if (typeof content === "string") return content
+    if (typeof content === "string") {
+        if (textLang === "raw") return content
+        else return fenceMD(content, textLang)
+    }
     // If the content is an array, process each element based on its type.
-    else if (Array.isArray(content))
-        return (
-            content
-                .map((c) =>
-                    // Handle different types of content: text, refusal, and image.
-                    c.type === "text"
-                        ? c.text
-                        : c.type === "image_url"
-                          ? `![](${c.image_url})`
-                          : c.type === "input_audio"
-                            ? `🔊 [audio](${c.input_audio})`
-                            : c.type === "refusal"
-                              ? `refused: ${c.refusal}`
-                              : `unknown message`
-                )
-                // Join the content array into a single string with spaces.
-                .join(` `)
-        )
+    else if (Array.isArray(content)) {
+        const res: string[] = []
+        for (const c of content) {
+            switch (c.type) {
+                case "text":
+                    if (textLang === "raw") res.push(c.text)
+                    else res.push(fenceMD(c.text, textLang))
+                    break
+                case "image_url":
+                    res.push(
+                        `\n\n![image](${(await cacheImage?.(c.image_url.url)) || c.image_url.url})\n\n`
+                    )
+                    break
+                case "input_audio":
+                    res.push(`🔊 [audio](${c.input_audio})`)
+                    break
+                case "refusal":
+                    res.push(`refused: ${c.refusal}`)
+                    break
+                default:
+                    res.push(`unknown message`)
+            }
+        }
+        return res.join(" ")
+    }
     // Return undefined if the content is neither a string nor an array.
     return undefined
 }
 
 /**
- * Converts a list of chat messages to a markdown string.
- * @param messages - Array of chat messages.
- * @param options - Optional filtering options for different roles.
- * @returns A formatted markdown string of the chat messages.
+ * Retrieves the reasoning content from the last assistant message in a message array.
+ *
+ * @param messages - An array of chat messages to search through.
+ * @returns The reasoning content of the last assistant message, or undefined if none is found.
  */
-export function renderMessagesToMarkdown(
+export function lastAssistantReasoning(messages: ChatCompletionMessageParam[]) {
+    const last = messages.at(-1)
+    return last?.role === "assistant" && last.reasoning_content
+}
+
+/**
+ * Renders a list of chat messages into a formatted markdown string.
+ *
+ * @param messages - The list of chat messages to render.
+ * @param options - Configuration options for rendering, including text language, role filtering, cancellation token, and tool inclusion. Filters messages by system, user, assistant, and tool roles. Includes tools if provided. Handles cancellation tokens.
+ * @returns A markdown string representation of the chat messages.
+ */
+export async function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],
-    options?: {
-        textLang?: "markdown" | "text"
-        system?: boolean
-        user?: boolean
-        assistant?: boolean
-    }
+    options?: ChatRenderOptions
 ) {
     // Set default options for filtering message roles.
     const {
@@ -95,92 +133,119 @@ export function renderMessagesToMarkdown(
         system = undefined, // Include system messages unless explicitly set to false.
         user = undefined, // Include user messages unless explicitly set to false.
         assistant = true, // Include assistant messages by default.
+        cancellationToken,
+        tools,
     } = options || {}
+    options = {
+        textLang,
+        system,
+        user,
+        assistant,
+        cancellationToken,
+        tools,
+    }
+    const optionsMarkdown: ChatRenderOptions = {
+        textLang: "markdown",
+        system,
+        user,
+        assistant,
+        cancellationToken,
+        tools,
+    }
 
     const res: string[] = []
-    messages
-        ?.filter((msg) => {
-            // Filter messages based on their roles.
-            switch (msg.role) {
-                case "system":
-                    return system !== false
-                case "user":
-                    return user !== false
-                case "assistant":
-                    return assistant !== false
-                default:
-                    return true
-            }
-        })
-        ?.forEach((msg) => {
-            const { role } = msg
-            switch (role) {
-                case "system":
-                    res.push(
-                        details(
-                            "📙 system",
-                            fenceMD(renderMessageContent(msg), textLang),
-                            false
-                        )
+
+    if (tools?.length) {
+        res.push(
+            details(
+                `🔧 tools (${tools.length})`,
+                tools
+                    .map(
+                        (tool) =>
+                            `-  \`${tool.function.name}\`: ${tool.function.description || ""}`
                     )
-                    break
-                case "user":
-                    let content: string
-                    if (typeof msg.content === "string")
-                        content = fenceMD(msg.content, textLang)
-                    else if (Array.isArray(msg.content)) {
-                        content = ""
-                        for (const part of msg.content) {
-                            if (part.type === "text")
-                                content += fenceMD(part.text, textLang)
-                            else if (part.type === "image_url")
-                                content += `\n![image](${part.image_url.url})`
-                            else if (part.type === "input_audio")
-                                content += `\n🔊 [audio](${part.input_audio})`
-                            else content += fenceMD(YAMLStringify(part), "yaml")
-                        }
-                    } else content = fenceMD(YAMLStringify(msg), "yaml")
-                    res.push(details(`👤 user`, content, user === true))
-                    break
-                case "assistant":
-                    res.push(
-                        details(
-                            `🤖 assistant ${msg.name ? msg.name : ""}`,
-                            [
-                                fenceMD(renderMessageContent(msg), textLang),
-                                ...(msg.tool_calls?.map((tc) =>
-                                    details(
-                                        `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
-                                        renderToolArguments(
-                                            tc.function.arguments
-                                        )
-                                    )
-                                ) || []),
-                            ]
-                                .filter((s) => !!s)
-                                .join("\n\n"),
-                            assistant === true
-                        )
+                    .join("\n")
+            )
+        )
+    }
+
+    for (const msg of messages?.filter((msg) => {
+        // Filter messages based on their roles.
+        switch (msg.role) {
+            case "system":
+                return system !== false
+            case "user":
+                return user !== false
+            case "assistant":
+                return assistant !== false
+            default:
+                return true
+        }
+    })) {
+        checkCancelled(cancellationToken)
+        const { role } = msg
+        switch (role) {
+            case "system":
+                res.push(
+                    details(
+                        "📙 system",
+                        await renderMessageContent(msg, optionsMarkdown),
+                        false
                     )
-                    break
-                case "aici":
-                    res.push(details(`AICI`, fenceMD(msg.content, textLang)))
-                    break
-                case "tool":
-                    res.push(
-                        details(
-                            `🛠️ tool output <code>${msg.tool_call_id}</code>`,
-                            fenceMD(renderMessageContent(msg), "json")
-                        )
+                )
+                break
+            case "user":
+                res.push(
+                    details(
+                        `👤 user`,
+                        await renderMessageContent(msg, options),
+                        user === true
                     )
-                    break
-                default:
-                    res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
-                    break
-            }
-        })
+                )
+                break
+            case "assistant":
+                res.push(
+                    details(
+                        `🤖 assistant ${msg.name ? msg.name : ""}`,
+                        [
+                            msg.reasoning_content
+                                ? details(
+                                      "🤔 reasoning",
+                                      fenceMD(msg.reasoning_content, "markdown")
+                                  )
+                                : undefined,
+                            await renderMessageContent(msg, optionsMarkdown),
+                            ...(msg.tool_calls?.map((tc) =>
+                                details(
+                                    `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
+                                    renderToolArguments(tc.function.arguments)
+                                )
+                            ) || []),
+                        ]
+                            .filter((s) => !!s)
+                            .join("\n\n"),
+                        assistant === true
+                    )
+                )
+                break
+            case "tool":
+                res.push(
+                    details(
+                        `🛠️ tool output <code>${msg.tool_call_id}</code>`,
+                        await renderMessageContent(msg, {
+                            ...(options || {}),
+                            textLang: "json",
+                        })
+                    )
+                )
+                break
+            default:
+                res.push(role, fenceMD(JSON.stringify(msg, null, 2), "json"))
+                break
+        }
+    }
     // Join the result array into a single markdown string.
-    return res.filter((s) => s !== undefined).join("\n")
+    return collapseNewlines(res.filter((s) => s !== undefined).join("\n"))
 }
 
 /**
@@ -195,6 +260,18 @@ function renderToolArguments(args: string) {
     else return fenceMD(args, "json")
 }
 
+/**
+ * Collapses chat messages to streamline content and remove redundancy.
+ *
+ * @param messages - The array of chat messages to process.
+ *                   Each message contains properties such as role, content, and cacheControl.
+ *                   Messages can include system, user, assistant, or tool roles.
+ *
+ * - Combines consecutive "system" messages at the start into a single "system" message by
+ *   concatenating their content. The combined message is added back to the array, replacing the original messages.
+ * - Removes empty text content from "user" messages. For array-based content, filters out
+ *   "text" types with no content.
+ */
 export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
     // concat the content of system messages at the start of the messages into a single message
     const startSystem = messages.findIndex((m) => m.role === "system")

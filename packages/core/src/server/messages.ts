@@ -14,9 +14,11 @@ export type OpenAIAPIType =
     | "openai"
     | "azure"
     | "localai"
+    | "azure_ai_inference"
     | "azure_serverless"
     | "azure_serverless_models"
     | "alibaba"
+    | "huggingface"
 
 export type AzureCredentialsType =
     | "default"
@@ -32,7 +34,6 @@ export interface LanguageModelConfiguration extends LanguageModelReference {
     token: string
     source?: string
     type?: OpenAIAPIType
-    aici?: boolean
     version?: string
     azureCredentialsType?: AzureCredentialsType
 }
@@ -41,6 +42,11 @@ export interface LanguageModelInfo {
     id: string
     details?: string
     url?: string
+    version?: string
+    /**
+     * Base model name
+     */
+    family?: string
 }
 
 export type ResolvedLanguageModelConfiguration =
@@ -83,6 +89,14 @@ export interface ServerEnvResponse extends ResponseStatus {
         url: string
         branch?: string
     }
+    configuration: {
+        name?: string
+        description?: string
+        version?: string
+        homepage?: string
+        readme?: string
+        author?: string
+    }
 }
 
 export interface PromptScriptTestRunOptions
@@ -106,7 +120,22 @@ export interface PromptScriptTestRun extends RequestMessage {
 
 export interface PromptScriptTestResult extends ResponseStatus {
     script: string
-    value?: { evalId: string } /** OutputFile */
+    value?: {
+        evalId: string
+        results: {
+            stats?: {
+                successes: number
+                failures: number
+                errors: number
+                tokenUsage?: {
+                    cached?: number
+                    completion?: number
+                    prompt?: number
+                    total?: number
+                }
+            }
+        }
+    }
 }
 
 export interface PromptScriptTestRunResponse extends ResponseStatus {
@@ -115,7 +144,7 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
 
 export interface PromptScriptRunOptions {
     excludedFiles: string[]
-    excludeGitIgnore: boolean
+    ignoreGitIgnore: boolean
     runRetry: string
     out: string
     retry: string
@@ -131,10 +160,13 @@ export interface PromptScriptRunOptions {
     pullRequestComment: string | boolean
     pullRequestDescription: string | boolean
     pullRequestReviews: boolean
+    teamsMessage: boolean
     outData: string
     label: string
     temperature: string | number
+    reasoningEffort: "high" | "low" | "medium"
     topP: string | number
+    toolChoice: ChatToolChoice
     seed: string | number
     maxTokens: string | number
     maxToolCalls: string | number
@@ -158,6 +190,16 @@ export interface PromptScriptRunOptions {
     topLogprobs: number
     fenceFormat: FenceFormat
     workspaceFiles?: WorkspaceFile[]
+    runTrace: boolean
+    outputTrace: boolean
+}
+
+export interface RunResultList extends RequestMessage {
+    type: "run.list"
+}
+
+export interface RunResultListResponse extends ResponseStatus {
+    runs: { scriptId: string; runId: string; creationTime: string }[]
 }
 
 export interface PromptScriptList extends RequestMessage {
@@ -186,6 +228,10 @@ export type GenerationStatus = "success" | "error" | "cancelled" | undefined
 // Interface for the result of a generation process
 export interface GenerationResult extends GenerationOutput {
     /**
+     * Run identifier
+     */
+    runId: string
+    /**
      * The environment variables passed to the prompt
      */
     env: Partial<ExpansionVariables>
@@ -213,7 +259,7 @@ export interface GenerationResult extends GenerationOutput {
     /**
      * Error message or object, if any error occurred
      */
-    error?: unknown
+    error?: SerializedError
 
     /**
      * Status of the generation process (success, error, or cancelled)
@@ -241,6 +287,11 @@ export interface GenerationResult extends GenerationOutput {
     version: string
 
     /**
+     * Log probs of the choices
+     */
+    choices?: Logprob[]
+
+    /**
      * Logprobs if computed
      */
     logprobs?: Logprob[]
@@ -251,18 +302,17 @@ export interface GenerationResult extends GenerationOutput {
     perplexity?: number
 
     /**
-     * Statistics of the generation
+     * Structural uncertainty
      */
-    stats?: {
-        cost: number
-    } & ChatCompletionUsage
+    uncertainty?: number
 }
 
 export interface PromptScriptEndResponseEvent {
     type: "script.end"
     runId: string
     exitCode: number
-    result: Partial<GenerationResult>
+    result?: Partial<GenerationResult>
+    trace?: string
 }
 
 export interface PromptScriptAbort extends RequestMessage {
@@ -281,9 +331,15 @@ export interface PromptScriptProgressResponseEvent {
     progress?: string
 
     tokens?: number
+
     response?: string
     responseChunk?: string
     responseTokens?: Logprob[]
+
+    reasoning?: string
+    reasoningChunk?: string
+    reasoningTokens?: Logprob[]
+
     inner?: boolean
 }
 
@@ -331,6 +387,14 @@ export interface ChatChunk extends RequestMessage {
     error?: SerializedError
 }
 
+export type LogLevel = "debug" | "info" | "warn" | "error"
+
+export interface LogMessageEvent {
+    type: "log"
+    message: string
+    level: LogLevel
+}
+
 export type RequestMessages =
     | ServerKill
     | ServerEnv
@@ -341,6 +405,7 @@ export type RequestMessages =
     | ChatChunk
     | LanguageModelConfigurationRequest
     | PromptScriptList
+    | RunResultList
 
 export type PromptScriptResponseEvents =
     | PromptScriptProgressResponseEvent

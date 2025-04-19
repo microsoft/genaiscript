@@ -1,5 +1,9 @@
 import { uniq } from "es-toolkit"
-import { GENAI_ANY_REGEX, GENAI_ANYJS_GLOB } from "../../core/src/constants"
+import {
+    GENAI_ANY_REGEX,
+    GENAI_ANYJS_GLOB,
+    GENAISCRIPT_FOLDER,
+} from "../../core/src/constants"
 import { host, runtimeHost } from "../../core/src/host"
 import { parseProject } from "../../core/src/parser"
 import { arrayify } from "../../core/src/util"
@@ -9,8 +13,8 @@ import { arrayify } from "../../core/src/util"
  *
  * @param options - Optional configuration for building the project.
  * @param options.toolFiles - Specific tool files to include in the build.
- * @param options.toolsPath - Path to search for tool files if none are provided.
- * @returns A promise that resolves to the new project structure.
+ * @param options.toolsPath - Path or paths to search for tool files if none are provided.
+ * @returns A promise that resolves to the newly parsed project structure.
  */
 export async function buildProject(options?: {
     toolFiles?: string[]
@@ -23,13 +27,15 @@ export async function buildProject(options?: {
     } else {
         let tps = arrayify(toolsPath)
         if (!tps?.length) {
-            const config = await runtimeHost.readConfig()
+            const config = await runtimeHost.config
             tps = [GENAI_ANYJS_GLOB, ...arrayify(config.include)]
         }
         tps = arrayify(tps)
         scriptFiles = []
         for (const tp of tps) {
-            const fs = await host.findFiles(tp)
+            const fs = await host.findFiles(tp, {
+                ignore: `**/${GENAISCRIPT_FOLDER}/**`,
+            })
             scriptFiles.push(...fs)
         }
     }

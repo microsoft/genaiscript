@@ -3,8 +3,8 @@
 ## VSCode 
 
 - Run: command from file/folder/editor
-- Debugger: set breakpoint and press `F5`!
-- Trace: observe every step of the pipeline
+- @genaiscript in Copilot Chat!
+- Debugger + Trace
 - Authentication: from `.env` file or environment, Azure Entra
 
 ## Command Line
@@ -13,8 +13,10 @@
 - Uses Node.js
 
 ```
-npx genaiscript scripts create [script]
-npx genaiscript run [script] [...files]
+genaiscript configure
+genaiscript scripts create [script]
+genaiscript run [script] [...files]
+genaiscript serve [script]
 ```
 
 - CI/CD  friendly: GitHub Actions, Azure DevOps

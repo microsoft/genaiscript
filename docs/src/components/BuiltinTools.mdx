@@ -10,14 +10,13 @@ import { LinkCard } from '@astrojs/starlight/components';
 <LinkCard title="fs_data_query" description="Query data in a file using GROQ syntax" href="/genaiscript/reference/scripts/system#systemfs_data_query" />
 <LinkCard title="fs_diff_files" description="Computes a diff between two different files. Use git diff instead to compare versions of a file." href="/genaiscript/reference/scripts/system#systemfs_diff_files" />
 <LinkCard title="fs_find_files" description="Finds file matching a glob pattern. Use pattern to specify a regular expression to search for in the file content. Be careful about asking too many files." href="/genaiscript/reference/scripts/system#systemfs_find_files" />
-<LinkCard title="fs_infer_schema" description="Infers the JSON schema of a file" href="/genaiscript/reference/scripts/system#systemfs_infer_schema" />
 <LinkCard title="fs_read_file" description="Reads a file as text from the file system. Returns undefined if the file does not exist." href="/genaiscript/reference/scripts/system#systemfs_read_file" />
-<LinkCard title="git_branch_default" description="Gets the default branch using git." href="/genaiscript/reference/scripts/system#systemgit" />
-<LinkCard title="git_branch_current" description="Gets the current branch using git." href="/genaiscript/reference/scripts/system#systemgit" />
-<LinkCard title="git_branch_list" description="List all branches using git." href="/genaiscript/reference/scripts/system#systemgit" />
+<LinkCard title="git_branch_default" description="Gets the default branch using client." href="/genaiscript/reference/scripts/system#systemgit" />
+<LinkCard title="git_branch_current" description="Gets the current branch using client." href="/genaiscript/reference/scripts/system#systemgit" />
+<LinkCard title="git_branch_list" description="List all branches using client." href="/genaiscript/reference/scripts/system#systemgit" />
 <LinkCard title="git_list_commits" description="Generates a history of commits using the git log command." href="/genaiscript/reference/scripts/system#systemgit" />
-<LinkCard title="git_status" description="Generates a status of the repository using git." href="/genaiscript/reference/scripts/system#systemgit" />
-<LinkCard title="git_last_tag" description="Gets the last tag using git." href="/genaiscript/reference/scripts/system#systemgit" />
+<LinkCard title="git_status" description="Generates a status of the repository using client." href="/genaiscript/reference/scripts/system#systemgit" />
+<LinkCard title="git_last_tag" description="Gets the last tag using client." href="/genaiscript/reference/scripts/system#systemgit" />
 <LinkCard title="git_diff" description="Computes file diffs using the git diff command. If the diff is too large, it returns the list of modified/added files." href="/genaiscript/reference/scripts/system#systemgit_diff" />
 <LinkCard title="github_actions_workflows_list" description="List all github workflows." href="/genaiscript/reference/scripts/system#systemgithub_actions" />
 <LinkCard title="github_actions_jobs_list" description="List all jobs for a github workflow run." href="/genaiscript/reference/scripts/system#systemgithub_actions" />
@@ -43,12 +42,15 @@ import { LinkCard } from '@astrojs/starlight/components';
 <LinkCard title="retrieval_fuzz_search" description="Search for keywords using the full text of files and a fuzzy distance." href="/genaiscript/reference/scripts/system#systemretrieval_fuzz_search" />
 <LinkCard title="retrieval_vector_search" description="Search files using embeddings and similarity distance." href="/genaiscript/reference/scripts/system#systemretrieval_vector_search" />
 <LinkCard title="retrieval_web_search" description="Search the web for a user query using Tavily or Bing Search." href="/genaiscript/reference/scripts/system#systemretrieval_web_search" />
+<LinkCard title="think" description="Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed." href="/genaiscript/reference/scripts/system#systemthink" />
 <LinkCard title="transcribe" description="Generate a transcript from a audio/video file using a speech-to-text model." href="/genaiscript/reference/scripts/system#systemtranscribe" />
 <LinkCard title="user_input_confirm" description="Ask the user to confirm a message." href="/genaiscript/reference/scripts/system#systemuser_input" />
 <LinkCard title="user_input_select" description="Ask the user to select an option." href="/genaiscript/reference/scripts/system#systemuser_input" />
 <LinkCard title="user_input_text" description="Ask the user to input text." href="/genaiscript/reference/scripts/system#systemuser_input" />
 <LinkCard title="video_probe" description="Probe a video file and returns the metadata information" href="/genaiscript/reference/scripts/system#systemvideo" />
 <LinkCard title="video_extract_audio" description="Extract audio from a video file into an audio file. Returns the audio filename." href="/genaiscript/reference/scripts/system#systemvideo" />
+<LinkCard title="video_extract_clip" description="Extract a clip from from a video file. Returns the video filename." href="/genaiscript/reference/scripts/system#systemvideo" />
 <LinkCard title="video_extract_frames" description="Extract frames from a video file" href="/genaiscript/reference/scripts/system#systemvideo" />
 <LinkCard title="vision_ask_images" description="Use vision model to run a query on multiple images" href="/genaiscript/reference/scripts/system#systemvision_ask_images" />
+<LinkCard title="z3" description="Solves a SMTLIB2 problem using the Z3 constraint solver. Send problems one at a time. Use this tool if you need to run Z3." href="/genaiscript/reference/scripts/system#systemz3" />
 

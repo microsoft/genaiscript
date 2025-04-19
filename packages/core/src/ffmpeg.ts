@@ -1,4 +1,7 @@
-import { arrayify, dotGenaiscriptPath, logVerbose } from "./util"
+import debug from "debug"
+const dbg = debug("genaiscript:ffmpeg")
+
+import { logVerbose } from "./util"
 import { TraceOptions } from "./trace"
 import { lookupMime } from "./mime"
 import pLimit from "p-limit"
@@ -10,12 +13,17 @@ import { VIDEO_HASH_LENGTH } from "./constants"
 import { writeFile, readFile } from "fs/promises"
 import { errorMessage, serializeError } from "./error"
 import { fromBase64 } from "./base64"
-import { fileTypeFromBuffer } from "file-type"
+import { fileTypeFromBuffer } from "./filetype"
 import { appendFile, readdir, stat } from "node:fs/promises"
 import prettyBytes from "pretty-bytes"
 import { filenameOrFileToFilename } from "./unwrappers"
 import { Stats } from "node:fs"
 import { roundWithPrecision } from "./precision"
+import { parseTimestamps } from "./transcription"
+import { mark } from "./performance"
+import { dotGenaiscriptPath } from "./workdir"
+import { arrayify } from "./cleaners"
+import { tryStat } from "./fs"
 
 const ffmpegLimit = pLimit(1)
 const WILD_CARD = "%06d"
@@ -38,15 +46,16 @@ async function ffmpegCommand(options?: { timeout?: number }) {
 
 async function computeHashFolder(
     filename: string | WorkspaceFile,
-    options: TraceOptions & FFmpegCommandOptions
+    options: TraceOptions & FFmpegCommandOptions & { salt?: any }
 ) {
-    const { trace, ...rest } = options
+    const { trace, salt, ...rest } = options
     const h = await hash(
         [typeof filename === "string" ? { filename } : filename, rest],
         {
             readWorkspaceFiles: true,
             version: true,
             length: VIDEO_HASH_LENGTH,
+            salt,
         }
     )
     return dotGenaiscriptPath("cache", "ffmpeg", h)
@@ -62,17 +71,16 @@ async function resolveInput(
             const mime = await fileTypeFromBuffer(bytes)
             filename = join(folder, "input." + mime.ext)
             await writeFile(filename, bytes)
-        } else filename = filename.filename
+        } else {
+            filename = filename.filename
+        }
     }
     return filename
 }
 
 async function logFile(filename: string | WorkspaceFile, action: string) {
     filename = filenameOrFileToFilename(filename)
-    let stats: Stats
-    try {
-        stats = await stat(filename)
-    } catch {}
+    const stats = await tryStat(filename)
     logVerbose(
         `ffmpeg: ${action} ${filename} (${stats ? prettyBytes(stats.size) : "0"})`
     )
@@ -87,11 +95,13 @@ export class FFmepgClient implements Ffmpeg {
             cmd: FfmpegCommandBuilder,
             options?: { input: string; dir: string }
         ) => Awaitable<string>,
-        options?: FFmpegCommandOptions
+        options?: FFmpegCommandOptions & { salt?: any }
     ): Promise<string[]> {
         await logFile(input, "input")
         const { filenames } = await runFfmpeg(input, builder, options || {})
-        for (const filename of filenames) await logFile(filename, "output")
+        for (const filename of filenames) {
+            await logFile(filename, "output")
+        }
         return filenames
     }
 
@@ -99,8 +109,10 @@ export class FFmepgClient implements Ffmpeg {
         filename: string | WorkspaceFile,
         options?: VideoExtractFramesOptions
     ): Promise<string[]> {
-        if (!filename) throw new Error("filename is required")
-
+        if (!filename) {
+            throw new Error("filename is required")
+        }
+        mark("ffmpeg.extractFrames")
         const {
             transcript,
             count,
@@ -149,13 +161,22 @@ export class FFmepgClient implements Ffmpeg {
                 }) satisfies FFmpegCommandRenderer
             )
         } else {
-            if (transcript?.segments?.length && !soptions.timestamps?.length)
+            if (typeof transcript === "string") {
+                soptions.timestamps = parseTimestamps(transcript)
+            } else if (
+                typeof transcript === "object" &&
+                transcript?.segments?.length &&
+                !soptions.timestamps?.length
+            ) {
                 soptions.timestamps = transcript.segments.map((s) => s.start)
+            }
             if (count && !soptions.timestamps?.length) {
+                dbg(`calculating timestamps for count: ${count}`)
                 const info = await this.probeVideo(filename)
                 const duration = Number(info.duration)
-                if (count === 1) soptions.timestamps = [0]
-                else
+                if (count === 1) {
+                    soptions.timestamps = [0]
+                } else {
                     soptions.timestamps = Array(count)
                         .fill(0)
                         .map((_, i) =>
@@ -167,8 +188,12 @@ export class FFmepgClient implements Ffmpeg {
                                 3
                             )
                         )
+                }
             }
-            if (!soptions.timestamps?.length) soptions.timestamps = [0]
+            if (!soptions.timestamps?.length) {
+                dbg(`timestamps not provided, defaulting to [0]`)
+                soptions.timestamps = [0]
+            }
             renderers.push(
                 ...soptions.timestamps.map(
                     (ts) =>
@@ -186,9 +211,17 @@ export class FFmepgClient implements Ffmpeg {
         const { filenames } = await runFfmpeg(filename, renderers, {
             ...soptions,
             cache,
+            salt: {
+                transcript,
+                count,
+                format,
+                size,
+            },
         })
         logVerbose(`ffmpeg: extracted ${filenames.length} frames`)
-        for (const filename of filenames) await logFile(filename, "output")
+        for (const filename of filenames) {
+            await logFile(filename, "output")
+        }
         return filenames
     }
 
@@ -196,7 +229,9 @@ export class FFmepgClient implements Ffmpeg {
         filename: string | WorkspaceFile,
         options?: VideoExtractAudioOptions
     ): Promise<string> {
-        if (!filename) throw new Error("filename is required")
+        if (!filename) {
+            throw new Error("filename is required")
+        }
 
         const { forceConversion, ...foptions } = options || {}
         const { transcription = true } = foptions
@@ -206,7 +241,10 @@ export class FFmepgClient implements Ffmpeg {
             typeof filename === "string"
         ) {
             const mime = lookupMime(filename)
-            if (/^audio/.test(mime)) return filename
+            if (/^audio/.test(mime)) {
+                dbg(`filename is already an audio file: ${filename}`)
+                return filename
+            }
         }
         const res = await this.run(
             filename,
@@ -226,20 +264,67 @@ export class FFmepgClient implements Ffmpeg {
                     return "audio.mp3"
                 }
             },
-            { ...foptions, cache: foptions.cache || "audio-voip" }
+            {
+                ...foptions,
+                cache: foptions.cache || "audio-voip",
+                salt: {
+                    transcription,
+                },
+            }
+        )
+        return res[0]
+    }
+
+    async extractClip(
+        filename: string | WorkspaceFile,
+        options: VideoExtractClipOptions
+    ): Promise<string> {
+        if (!filename) {
+            throw new Error("filename is required")
+        }
+
+        const { start, duration, end, ...rest } = options || {}
+        const res = await this.run(
+            filename,
+            async (cmd) => {
+                cmd.seekInput(start)
+                if (duration !== undefined) {
+                    cmd.duration(duration)
+                }
+                if (end !== undefined) {
+                    cmd.inputOptions(`-to ${end}`)
+                }
+                if (!options?.size) {
+                    cmd.outputOptions("-c copy")
+                }
+                return `clip-${start}-${duration || end}.mp4`
+            },
+            {
+                ...rest,
+                salt: {
+                    start,
+                    duration,
+                    end,
+                },
+            }
         )
         return res[0]
     }
 
     async probe(filename: string | WorkspaceFile): Promise<VideoProbeResult> {
-        if (!filename) throw new Error("filename is required")
+        if (!filename) {
+            throw new Error("filename is required")
+        }
         const res = await runFfmpeg(
             filename,
             async (cmd) => {
                 const res = new Promise<VideoProbeResult>((resolve, reject) => {
                     cmd.ffprobe((err, data) => {
-                        if (err) reject(err)
-                        else resolve(data as any as VideoProbeResult)
+                        if (err) {
+                            reject(err)
+                        } else {
+                            resolve(data as any as VideoProbeResult)
+                        }
                     })
                 })
                 const meta = await res
@@ -273,15 +358,20 @@ export class FFmepgClient implements Ffmpeg {
 async function runFfmpeg(
     filename: string | WorkspaceFile,
     renderer: FFmpegCommandRenderer | FFmpegCommandRenderer[],
-    options?: FFmpegCommandOptions
+    options?: FFmpegCommandOptions & { salt?: any }
 ): Promise<FFmpegCommandResult> {
-    if (!filename) throw new Error("filename is required")
+    if (!filename) {
+        throw new Error("filename is required")
+    }
     const { cache } = options || {}
     const folder = await computeHashFolder(filename, options)
     const resFilename = join(folder, "res.json")
     const readCache = async () => {
-        if (cache === false) return undefined
+        if (cache === false) {
+            return undefined
+        }
         try {
+            dbg(`reading cache from: ${resFilename}`)
             const res = JSON.parse(
                 await readFile(resFilename, {
                     encoding: "utf-8",
@@ -297,14 +387,18 @@ async function runFfmpeg(
     // try to hit cache before limit on ffmpeg
     {
         const cached = await readCache()
-        if (cached) return cached
+        if (cached) {
+            return cached
+        }
     }
 
     return ffmpegLimit(async () => {
         // try cache hit again
         {
             const cached = await readCache()
-            if (cached) return cached
+            if (cached) {
+                return cached
+            }
         }
 
         await ensureDir(folder)
@@ -322,9 +416,14 @@ async function runFfmpeg(
                 folder,
                 renderer
             )
-            if (rres.filenames?.length) res.filenames.push(...rres.filenames)
-            if (rres.data?.length) res.data.push(...rres.data)
+            if (rres.filenames?.length) {
+                res.filenames.push(...rres.filenames)
+            }
+            if (rres.data?.length) {
+                res.data.push(...rres.data)
+            }
         }
+        dbg(`writing ffmpeg result to cache: ${resFilename}`)
         await writeFile(resFilename, JSON.stringify(res, null, 2))
         return res
     })
@@ -342,11 +441,16 @@ async function runFfmpegCommandUncached(
 
         let output: string
         cmd.input(input)
-        if (options.size) cmd.size(options.size)
-        if (options.inputOptions)
+        if (options.size) {
+            cmd.size(options.size)
+        }
+        if (options.inputOptions) {
             cmd.inputOptions(...arrayify(options.inputOptions))
-        if (options.outputOptions)
+        }
+        if (options.outputOptions) {
             cmd.outputOption(...arrayify(options.outputOptions))
+        }
+        dbg(`adding filenames listener`)
         cmd.addListener("filenames", (fns: string[]) => {
             r.filenames.push(...fns.map((f) => join(folder, f)))
         })
@@ -354,6 +458,7 @@ async function runFfmpegCommandUncached(
             logVerbose(`ffmpeg: input audio ${data.audio}, video ${data.video}`)
         })
         cmd.addListener("end", async () => {
+            dbg(`processing wildcard output: ${output}`)
             if (output?.includes(WILD_CARD)) {
                 const [prefix, suffix] = output.split(WILD_CARD, 2)
                 const files = await readdir(folder)
@@ -364,7 +469,10 @@ async function runFfmpegCommandUncached(
             }
             end()
         })
-        cmd.addListener("error", (err) => reject(err))
+        cmd.addListener("error", (err) => {
+            dbg(`ffmpeg command encountered an error`)
+            reject(err)
+        })
         try {
             const rendering = await renderer(cmd, {
                 input,
@@ -375,7 +483,9 @@ async function runFfmpegCommandUncached(
                 const fo = join(folder, basename(output))
                 cmd.output(fo)
                 cmd.run()
-                if (!output.includes(WILD_CARD)) r.filenames.push(fo)
+                if (!output.includes(WILD_CARD)) {
+                    r.filenames.push(fo)
+                }
             } else if (typeof rendering === "object") {
                 r.data.push(rendering)
                 cmd.removeListener("end", end)
@@ -390,7 +500,7 @@ async function runFfmpegCommandUncached(
 function logCommand(folder: string, cmd: FfmpegCommand) {
     // console logging
     cmd.on("start", (commandLine) => logVerbose(commandLine))
-    if (process.env.FFMPEG_DEBUG) cmd.on("stderr", (s) => logVerbose(s))
+    cmd.on("stderr", (s) => dbg(s))
 
     // log to file
     const log: string[] = []

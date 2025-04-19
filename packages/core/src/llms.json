@@ -4,32 +4,152 @@
         {
             "id": "openai",
             "detail": "OpenAI (or compatible)",
+            "url": "https://platform.openai.com/docs/models",
             "bearerToken": true,
             "transcribe": true,
             "speech": true,
+            "listModels": true,
+            "imageGeneration": true,
+            "responseFormat": "json_schema",
             "aliases": {
-                "large": "gpt-4o",
-                "small": "gpt-4o-mini",
-                "vision": "gpt-4o",
+                "large": "gpt-4.1",
+                "small": "gpt-4.1-mini",
+                "tiny": "gpt-4.1-nano",
+                "vision": "gpt-4.1",
+                "vision_small": "gpt-4.1-mini",
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o1",
-                "reasoning_small": "o1-mini",
+                "reasoning_small": "o3-mini",
                 "transcription": "whisper-1",
-                "speech": "tts-1"
+                "speech": "tts-1",
+                "image": "dall-e-3",
+                "intent": "gpt-4.1-mini"
+            },
+            "models": {
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
+            },
+            "env": {
+                "OPENAI_API_KEY": {
+                    "description": "OpenAI API key",
+                    "required": true,
+                    "secret": true
+                },
+                "OPENAI_API_BASE": {
+                    "description": "OpenAI API base URL"
+                }
             }
         },
         {
             "id": "azure",
             "detail": "Azure OpenAI deployment",
-            "listModels": false,
+            "url": "https://azure.microsoft.com/en-us/products/ai-services/openai-service",
+            "listModels": true,
             "bearerToken": false,
             "prediction": false,
             "transcribe": true,
-            "speech": true
+            "speech": true,
+            "imageGeneration": true,
+            "aliases": {},
+            "models": {
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
+            },
+            "env": {
+                "AZURE_OPENAI_API_ENDPOINT": {
+                    "description": "Azure OpenAI endpoint. In the Azure Portal, open your Azure OpenAI resource, Keys and Endpoints, copy Endpoint.",
+                    "required": true,
+                    "format": "url"
+                },
+                "AZURE_OPENAI_API_KEY": {
+                    "description": "Azure OpenAI API key. **You do NOT need this if you are using Microsoft Entra ID.",
+                    "secret": true
+                },
+                "AZURE_OPENAI_SUBSCRIPTION_ID": {
+                    "description": "Azure OpenAI subscription ID to list available deployments (Microsoft Entra only)."
+                },
+                "AZURE_OPENAI_API_VERSION": {
+                    "description": "Azure OpenAI API version."
+                },
+                "AZURE_OPENAI_API_CREDENTIALS": {
+                    "description": "Azure OpenAI API credentials type. Leave as 'default' unless you have a special Azure setup.",
+                    "enum": [
+                        "default",
+                        "cli",
+                        "env",
+                        "powershell",
+                        "devcli",
+                        "managedidentity",
+                        "workloadidentity"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "azure_ai_inference",
+            "detail": "Azure AI Inference",
+            "url": "https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/overview",
+            "listModels": false,
+            "bearerToken": false,
+            "prediction": false,
+            "logprobs": false,
+            "topLogprobs": false,
+            "aliases": {
+                "large": "gpt-4o",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4o",
+                "vision_small": "gpt-4o-mini",
+                "reasoning": "o1",
+                "reasoning_small": "o1-mini",
+                "embeddings": "text-embedding-3-small"
+            },
+            "models": {
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
+            },
+            "env": {
+                "AZURE_AI_INFERENCE_API_KEY": {
+                    "description": "Azure AI Inference key",
+                    "required": true,
+                    "secret": true
+                },
+                "AZURE_AI_INFERENCE_API_ENDPOINT": {
+                    "description": "Azure Serverless OpenAI endpoint",
+                    "required": true
+                },
+                "AZURE_AI_INFERENCE_API_VERSION": {
+                    "description": "Azure Serverless OpenAI API version"
+                },
+                "AZURE_AI_INFERENCE_API_CREDENTIALS": {
+                    "description": "Azure Serverless OpenAI API credentials type"
+                }
+            }
         },
         {
             "id": "azure_serverless",
             "detail": "Azure AI OpenAI (serverless deployments)",
+            "url": "https://ai.azure.com/",
             "listModels": false,
             "bearerToken": false,
             "prediction": false,
@@ -37,44 +157,247 @@
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",
                 "vision": "gpt-4o",
+                "vision_small": "gpt-4o-mini",
                 "reasoning": "o1",
-                "reasoning_small": "o1-mini"
+                "reasoning_small": "o1-mini",
+                "embeddings": "text-embedding-3-small"
+            },
+            "models": {
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
+            },
+            "env": {
+                "AZURE_SERVERLESS_OPENAI_API_KEY": {
+                    "description": "Azure Serverless OpenAI API key",
+                    "required": true,
+                    "secret": true
+                },
+                "AZURE_SERVERLESS_OPENAI_ENDPOINT": {
+                    "description": "Azure Serverless OpenAI endpoint",
+                    "required": true
+                },
+                "AZURE_SERVERLESS_OPENAI_API_VERSION": {
+                    "description": "Azure Serverless OpenAI API version"
+                },
+                "AZURE_SERVERLESS_OPENAI_API_CREDENTIALS": {
+                    "description": "Azure Serverless OpenAI API credentials type"
+                }
             }
         },
         {
             "id": "azure_serverless_models",
             "detail": "Azure AI Models (serverless deployments, not OpenAI)",
+            "url": "https://ai.azure.com/",
             "listModels": false,
             "prediction": false,
-            "bearerToken": true
+            "bearerToken": true,
+            "env": {
+                "AZURE_SERVERLESS_MODELS_API_KEY": {
+                    "description": "Azure Serverless Models API key",
+                    "required": true,
+                    "secret": true
+                },
+                "AZURE_SERVERLESS_MODELS_ENDPOINT": {
+                    "description": "Azure Serverless Models endpoint",
+                    "required": true
+                },
+                "AZURE_SERVERLESS_MODELS_API_VERSION": {
+                    "description": "Azure Serverless Models API version"
+                }
+            }
+        },
+        {
+            "id": "github",
+            "detail": "GitHub Models",
+            "url": "https://github.com/marketplace/models-github",
+            "logprobs": false,
+            "topLogprobs": false,
+            "limitations": "Smaller context windows, and rate limiting",
+            "prediction": false,
+            "listModels": false,
+            "bearerToken": true,
+            "aliases": {
+                "large": "gpt-4.1",
+                "small": "gpt-4o-mini",
+                "vision": "gpt-4.1",
+                "embeddings": "text-embedding-3-small",
+                "reasoning": "o1-preview",
+                "reasoning_small": "o1-mini"
+            },
+            "models": {
+                "o1-preview": {
+                    "tools": false
+                },
+                "o1-mini": {
+                    "tools": false
+                },
+                "phi-3.5-mini-instruct": {
+                    "tools": false
+                }
+            },
+            "env": {
+                "GITHUB_TOKEN": {
+                    "description": "GitHub token",
+                    "required": true,
+                    "secret": true
+                }
+            }
+        },
+        {
+            "id": "ollama",
+            "detail": "Ollama local model",
+            "url": "https://ollama.ai/",
+            "logitBias": false,
+            "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
+            "prediction": false,
+            "bearerToken": true,
+            "tokenless": true,
+            "aliases": {
+                "embeddings": "nomic-embed-text"
+            },
+            "env": {
+                "OLLAMA_HOST": {
+                    "description": "Ollama host",
+                    "format": "url"
+                }
+            },
+            "models": {
+                "marco-o1": {
+                    "tools": false
+                },
+                "tulu3": {
+                    "tools": false
+                },
+                "opencoder": {
+                    "tools": false
+                },
+                "llama3.2-vision": {
+                    "tools": false
+                },
+                "phi3.5": {
+                    "tools": false
+                },
+                "gemma2": {
+                    "tools": false
+                },
+                "deep-seek-coder-v2": {
+                    "tools": false
+                },
+                "codegemma": {
+                    "tools": false
+                },
+                "llava": {
+                    "tools": false
+                },
+                "llama3": {
+                    "tools": false
+                },
+                "gemma": {
+                    "tools": false
+                },
+                "qwen": {
+                    "tools": false
+                },
+                "phi3": {
+                    "tools": false
+                },
+                "llama2": {
+                    "tools": false
+                },
+                "codellama": {
+                    "tools": false
+                },
+                "phi": {
+                    "tools": false
+                },
+                "deepseek-r1": {
+                    "tools": false
+                },
+                "gemma3": {
+                    "tools": false
+                }
+            }
+        },
+        {
+            "id": "windows_ai",
+            "detail": "Windows AI",
+            "url": "https://learn.microsoft.com/en-us/windows/ai/",
+            "prediction": false,
+            "tokenless": true,
+            "listModels": false,
+            "imageGeneration": false,
+            "speech": false,
+            "aliases": {
+                "small": "Phi-3-mini-4k-cpu-int4-rtn-block-32-onnx"
+            }
         },
         {
             "id": "anthropic",
             "detail": "Anthropic models",
+            "url": "https://docs.anthropic.com/en/docs/about-claude/models",
             "logprobs": false,
             "topLogprobs": false,
             "prediction": false,
-            "listModels": false,
             "aliases": {
-                "large": "claude-3-5-sonnet-latest",
+                "large": "claude-3-7-sonnet-latest",
                 "small": "claude-3-5-haiku-latest",
-                "vision": "claude-3-5-sonnet-latest"
+                "vision": "claude-3-7-sonnet-latest",
+                "vision_small": "claude-3-5-sonnet-latest",
+                "reasoning": "claude-3-7-sonnet-latest:high",
+                "reasoning_small": "claude-3-7-sonnet-latest:low"
+            },
+            "reasoningEfforts": {
+                "low": 1024,
+                "medium": 4096,
+                "high": 16384
+            },
+            "env": {
+                "ANTHROPIC_API_KEY": {
+                    "description": "Anthropic API key",
+                    "required": true,
+                    "secret": true
+                },
+                "ANTHROPIC_API_BASE": {
+                    "description": "Anthropic API base URL"
+                },
+                "ANTHROPIC_API_VERSION": {
+                    "description": "Anthropic API version"
+                }
             }
         },
         {
             "id": "anthropic_bedrock",
             "detail": "Anthropic on AWS Bedrock models",
+            "url": "https://support.anthropic.com/en/articles/7996918-what-is-amazon-bedrock",
             "logprobs": false,
             "topLogprobs": false,
             "prediction": false,
+            "reasoningEfforts": {
+                "low": 1024,
+                "medium": 4096,
+                "high": 16384
+            },
             "aliases": {
-                "large": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-                "small": "anthropic.claude-3-5-haiku-20241022-v1:0"
-            }
+                "reasoning": "anthropic.claude-3-7-sonnet-20250219-v1:0:high",
+                "reasoning_small": "anthropic.claude-3-7-sonnet-20250219-v1:0:low",
+                "large": "anthropic.claude-3-7-sonnet-20250219-v1:0:0",
+                "small": "anthropic.claude-3-5-haiku-20241022-v1:0",
+                "vision": "anthropic.claude-3-7-sonnet-20250219-v1:0:0",
+                "vision_small": "anthropic.claude-3-5-haiku-20241022-v1:0"
+            },
+            "env": {}
         },
         {
             "id": "google",
             "detail": "Google AI",
+            "url": "https://gemini.google.com/app",
             "seed": false,
             "tools": false,
             "logprobs": false,
@@ -91,11 +414,23 @@
                 "reasoning": "gemini-2.0-flash-thinking-exp-1219",
                 "reasoning_small": "gemini-2.0-flash-thinking-exp-1219",
                 "embeddings": "text-embedding-004"
+            },
+            "env": {
+                "GEMINI_API_KEY": {
+                    "description": "Google Gemini API key",
+                    "required": true,
+                    "secret": true
+                },
+                "GEMINI_API_BASE": {
+                    "description": "Google Gemini API base URL",
+                    "format": "url"
+                }
             }
         },
         {
             "id": "huggingface",
             "detail": "Hugging Face models",
+            "url": "https://huggingface.co/docs/api-inference/index",
             "prediction": false,
             "listModels": false,
             "openaiCompatibility": "https://huggingface.github.io/text-generation-inference/",
@@ -104,22 +439,46 @@
                 "small": "microsoft/phi-4",
                 "vision": "meta-llama/Llama-3.2-11B-Vision-Instruct",
                 "embeddings": "nomic-ai/nomic-embed-text-v1.5"
+            },
+            "env": {
+                "HUGGINGFACE_API_KEY": {
+                    "description": "Hugging Face API key",
+                    "required": true,
+                    "secret": true
+                },
+                "HUGGINGFACE_API_BASE": {
+                    "description": "Hugging Face API base URL",
+                    "format": "url"
+                }
             }
         },
         {
             "id": "mistral",
             "detail": "Mistral AI",
+            "url": "https://mistral.ai/",
             "prediction": false,
             "bearerToken": true,
             "aliases": {
                 "large": "mistral-large-latest",
                 "small": "mistral-small-latest",
                 "vision": "pixtral-large-latest"
+            },
+            "env": {
+                "MISTRAL_API_KEY": {
+                    "description": "Mistral API key",
+                    "required": true,
+                    "secret": true
+                },
+                "MISTRAL_API_BASE": {
+                    "description": "Mistral API base URL",
+                    "format": "url"
+                }
             }
         },
         {
             "id": "alibaba",
             "detail": "Alibaba models",
+            "url": "https://www.alibabacloud.com/",
             "openaiCompatibility": "https://www.alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope",
             "tools": false,
             "prediction": false,
@@ -130,24 +489,17 @@
                 "small": "qwen-turbo",
                 "long": "qwen-plus",
                 "embeddings": "text-embedding-v3"
-            }
-        },
-        {
-            "id": "github",
-            "detail": "GitHub Models",
-            "logprobs": false,
-            "topLogprobs": false,
-            "limitations": "Smaller context windows, and rate limiting",
-            "prediction": false,
-            "listModels": false,
-            "bearerToken": true,
-            "aliases": {
-                "large": "gpt-4o",
-                "small": "gpt-4o-mini",
-                "vision": "gpt-4o",
-                "embeddings": "text-embedding-3-small",
-                "reasoning": "o1-preview",
-                "reasoning_small": "o1-mini"
+            },
+            "env": {
+                "ALIBABA_API_KEY": {
+                    "description": "Alibaba API key",
+                    "required": true,
+                    "secret": true
+                },
+                "ALIBABA_API_BASE": {
+                    "description": "Alibaba API base URL",
+                    "format": "url"
+                }
             }
         },
         {
@@ -158,55 +510,120 @@
                 "large": "deepseek-chat",
                 "small": "deepseek-chat",
                 "vision": "deepseek-chat"
+            },
+            "env": {
+                "DEEPSEEK_API_KEY": {
+                    "description": "DeepSeek API key",
+                    "required": true,
+                    "secret": true
+                },
+                "DEEPSEEK_API_BASE": {
+                    "description": "DeepSeek API base URL",
+                    "format": "url"
+                }
             }
         },
         {
             "id": "transformers",
             "detail": "Hugging Face Transformers",
+            "url": "https://huggingface.co/docs/transformers.js/index",
             "prediction": false,
-            "tokenless": true
-        },
-        {
-            "id": "ollama",
-            "detail": "Ollama local model",
-            "logitBias": false,
-            "openaiCompatibility": "https://github.com/ollama/ollama/blob/main/docs/openai.md",
-            "prediction": false,
-            "bearerToken": true,
             "tokenless": true,
-            "aliases": {
-                "embeddings": "nomic-embed-text"
-            }
+            "env": {}
         },
         {
             "id": "lmstudio",
             "detail": "LM Studio local server",
+            "url": "https://lmstudio.ai/",
             "prediction": false,
             "bearerToken": true,
             "tokenless": true,
             "aliases": {
                 "embeddings": "text-embedding-nomic-embed-text-v1.5"
+            },
+            "env": {
+                "LMSTUDIO_API_BASE": {
+                    "description": "LM Studio API base URL",
+                    "format": "url"
+                }
             }
         },
         {
             "id": "jan",
             "detail": "Jan local server",
+            "url": "https://jan.ai/",
             "prediction": false,
             "listModels": true,
             "tokenless": true,
-            "topP": false
+            "topP": false,
+            "env": {
+                "JAN_API_BASE": {
+                    "description": "Jan API base URL",
+                    "format": "url"
+                }
+            }
         },
         {
             "id": "llamafile",
             "detail": "llamafile.ai local model",
+            "url": "https://llamafile.ai/",
             "prediction": false,
-            "tokenless": true
+            "tokenless": true,
+            "singleModel": true,
+            "listModels": false,
+            "speech": false,
+            "pullModel": false,
+            "env": {
+                "LLAMAFILE_API_BASE": {
+                    "description": "Llamafile API base URL",
+                    "format": "url"
+                }
+            }
+        },
+        {
+            "id": "sglang",
+            "detail": "SGLang local model",
+            "url": "https://docs.sglang.ai/",
+            "prediction": false,
+            "tokenless": true,
+            "listModels": false,
+            "speech": false,
+            "pullModel": false,
+            "env": {
+                "SGLANG_API_BASE": {
+                    "description": "SGLang API base URL",
+                    "format": "url"
+                }
+            }
+        },
+        {
+            "id": "vllm",
+            "detail": "vLLM local model",
+            "url": "https://docs.vllm.ai/",
+            "openaiCompatibility": "https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html",
+            "prediction": false,
+            "tokenless": true,
+            "listModels": false,
+            "speech": false,
+            "pullModel": false,
+            "env": {
+                "VLLM_API_BASE": {
+                    "description": "VLLM API base URL",
+                    "format": "url"
+                }
+            }
         },
         {
             "id": "litellm",
             "detail": "LiteLLM proxy",
             "prediction": false,
-            "tokenless": true
+            "tokenless": true,
+            "env": {
+                "LITELLM_API_BASE": {
+                    "description": "LiteLLM API base URL",
+                    "format": "url"
+                }
+            }
         },
         {
             "id": "whisperasr",
@@ -215,37 +632,162 @@
             "tokenless": true,
             "aliases": {
                 "transcription": "default"
+            },
+            "env": {
+                "WHISPERASR_API_BASE": {
+                    "description": "Whisper ASR API base URL",
+                    "format": "url"
+                }
             }
         },
         {
             "id": "github_copilot_chat",
             "detail": "GitHub Copilot Chat Models",
+            "hidden": true,
             "tools": false,
             "prediction": false,
             "tokenless": true,
             "aliases": {
                 "large": "gpt-4o",
                 "small": "gpt-4o-mini",
-                "reasoning": "o1-preview",
+                "reasoning": "o3-mini",
                 "reasoning_small": "o1-mini"
-            }
+            },
+            "env": {}
+        },
+        {
+            "id": "echo",
+            "detail": "A fake LLM provider that responds with the input messages.",
+            "tools": true,
+            "tokenless": true
+        },
+        {
+            "id": "none",
+            "tools": true,
+            "tokenless": true,
+            "hidden": true,
+            "detail": "A LLM provider that stops the execution. Used on top level script to prevent LLM execution."
         }
     ],
     "aliases": {
         "agent": "large",
         "long": "large",
+        "tiny": "small",
         "memory": "small",
-        "reasoning_small": "reasoning",
-        "classify": "small"
+        "classify": "small",
+        "summarize": "small",
+        "cast": "small",
+        "ocr": "vision_small",
+        "think": "reasoning_small",
+        "intent": "small"
     },
     "pricings": {
+        "github:o4-mini": {
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:o4-mini-2025-04-16": {
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-2025-04-14": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-mini": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-mini-2025-04-14": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-nano": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4.1-nano-2025-04-14": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "github:gpt-4o": {
+            "price_per_million_input_tokens": 2.5,
+            "price_per_million_output_tokens": 10
+        },
+        "github:gpt-4o-mini": {
+            "price_per_million_input_tokens": 0.15,
+            "price_per_million_output_tokens": 0.6
+        },
         "github:gpt-4o-2024-11-20": {
             "price_per_million_input_tokens": 2.5,
             "price_per_million_output_tokens": 10
         },
+        "github:o1": {
+            "price_per_million_input_tokens": 15,
+            "price_per_million_output_tokens": 60,
+            "input_cache_token_rebate": 0.5
+        },
         "github:o1-mini": {
-            "price_per_million_input_tokens": 3,
-            "price_per_million_output_tokens": 12
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
+            "input_cache_token_rebate": 0.5
+        },
+        "github:o3-mini": {
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
+            "input_cache_token_rebate": 0.5
+        },
+        "openai:o4-mini": {
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:o4-mini-2025-04-16": {
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-2025-04-14": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-mini": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-mini-2025-04-14": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-nano": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-4.1-nano-2025-04-14": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
         },
         "openai:gpt-4o": {
             "price_per_million_input_tokens": 2.5,
@@ -260,8 +802,8 @@
             "price_per_million_output_tokens": 10
         },
         "openai:gpt-4o-2024-05-13": {
-            "price_per_million_input_tokens": 5,
-            "price_per_million_output_tokens": 15
+            "price_per_million_input_tokens": 2.5,
+            "price_per_million_output_tokens": 10
         },
         "openai:gpt-4o-mini": {
             "price_per_million_input_tokens": 0.15,
@@ -292,13 +834,23 @@
             "input_cache_token_rebate": 0.5
         },
         "openai:o1-mini": {
-            "price_per_million_input_tokens": 3,
-            "price_per_million_output_tokens": 12,
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
             "input_cache_token_rebate": 0.5
         },
         "openai:o1-mini-2024-09-12": {
-            "price_per_million_input_tokens": 3,
-            "price_per_million_output_tokens": 12,
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
+            "input_cache_token_rebate": 0.5
+        },
+        "openai:o3-mini": {
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
+            "input_cache_token_rebate": 0.5
+        },
+        "openai:o3-mini-2025-01-31": {
+            "price_per_million_input_tokens": 1.1,
+            "price_per_million_output_tokens": 4.4,
             "input_cache_token_rebate": 0.5
         },
         "openai:text-embedding-3-small": {
@@ -322,8 +874,8 @@
             "price_per_million_output_tokens": 20
         },
         "openai:chatgpt-4o-latest": {
-            "price_per_million_input_tokens": 5,
-            "price_per_million_output_tokens": 15
+            "price_per_million_input_tokens": 2.5,
+            "price_per_million_output_tokens": 10
         },
         "openai:gpt-4-turbo": {
             "price_per_million_input_tokens": 10,
@@ -389,13 +941,53 @@
             "price_per_million_input_tokens": 0.4,
             "price_per_million_output_tokens": 0.4
         },
+        "azure:gpt-4.1": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-2025-04-14": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-mini": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-mini-2025-04-14": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-nano": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:gpt-4.1-nano-2025-04-14": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure:o1": {
+            "price_per_million_input_tokens": 15,
+            "price_per_million_output_tokens": 60,
+            "input_cache_token_rebate": 0.5
+        },
+        "azure:o1-mini": {
+            "price_per_million_input_tokens": 3.3,
+            "price_per_million_output_tokens": 13.2,
+            "input_cache_token_rebate": 0.5
+        },
         "azure:gpt-4o-2024-08-06": {
             "price_per_million_input_tokens": 2.5,
             "price_per_million_output_tokens": 10
         },
         "azure:gpt-4o": {
-            "price_per_million_input_tokens": 5,
-            "price_per_million_output_tokens": 15
+            "price_per_million_input_tokens": 2.5,
+            "price_per_million_output_tokens": 10
         },
         "azure:gpt-4o-mini": {
             "price_per_million_input_tokens": 0.15,
@@ -432,6 +1024,36 @@
         "azure:gpt-4-32k": {
             "price_per_million_input_tokens": 60,
             "price_per_million_output_tokens": 120
+        },
+        "azure_serverless:gpt-4.1": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-2025-04-14": {
+            "price_per_million_input_tokens": 2,
+            "price_per_million_output_tokens": 8,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-mini": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-mini-2025-04-14": {
+            "price_per_million_input_tokens": 0.4,
+            "price_per_million_output_tokens": 1.6,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-nano": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
+        },
+        "azure_serverless:gpt-4.1-nano-2025-04-14": {
+            "price_per_million_input_tokens": 0.1,
+            "price_per_million_output_tokens": 0.4,
+            "input_cache_token_rebate": 0.25
         },
         "azure_serverless:gpt-4o": {
             "price_per_million_input_tokens": 5,
@@ -536,6 +1158,10 @@
         "azure_serverless_models:ministral-3b": {
             "price_per_million_input_tokens": 0.04,
             "price_per_million_output_tokens": 0.04
+        },
+        "azure_ai_inference:deepseek-v3": {
+            "price_per_million_input_tokens": 0.00114,
+            "price_per_million_output_tokens": 0.00456
         },
         "google:gemini-1.5-flash": {
             "price_per_million_input_tokens": 0.075,
@@ -660,6 +1286,16 @@
         "mistral:mistral-nemo": {
             "price_per_million_input_tokens": 0.2,
             "price_per_million_output_tokens": 0.6
+        },
+        "anthropic:claude-3-7-sonnet-20250219": {
+            "price_per_million_input_tokens": 3,
+            "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
+        },
+        "anthropic:claude-3-7-sonnet-latest": {
+            "price_per_million_input_tokens": 3,
+            "price_per_million_output_tokens": 15,
+            "input_cache_token_rebate": 0.1
         },
         "anthropic:claude-3-5-sonnet-20240620": {
             "price_per_million_input_tokens": 3,

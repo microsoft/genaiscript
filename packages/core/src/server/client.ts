@@ -2,29 +2,20 @@ import type { ChatCompletionsProgressReport } from "../chattypes"
 import { CLOSE, MESSAGE } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
+import { generateId } from "../id"
 import { MarkdownTrace } from "../trace"
 import { logError } from "../util"
 import type {
-    ServerVersion,
     PromptScriptTestRun,
     PromptScriptTestRunOptions,
     PromptScriptTestRunResponse,
     PromptScriptRunOptions,
     PromptScriptStart,
-    PromptScriptAbort,
     PromptScriptResponseEvents,
-    ServerEnv,
     ChatEvents,
     ChatChunk,
     ChatStart,
-    LanguageModelConfigurationRequest,
-    Project,
-    PromptScriptList,
-    PromptScriptListResponse,
     GenerationResult,
-    LanguageModelConfiguration,
-    ResponseStatus,
-    ServerResponse,
 } from "./messages"
 import { WebSocketClient } from "./wsclient"
 
@@ -75,9 +66,9 @@ export class VsCodeClient extends WebSocketClient {
     private configure(): void {
         this.installPolyfill()
         this.addEventListener(CLOSE, (e) => {
-            const ev = e as CloseEvent
+            const reason = (e as any).reason || "websocket closed"
             for (const [runId, run] of Object.entries(this.runs)) {
-                run.reject(ev.reason || "websocket closed")
+                run.reject(reason)
                 delete this.runs[runId]
             }
         })
@@ -94,11 +85,13 @@ export class VsCodeClient extends WebSocketClient {
                 switch (type) {
                     case "script.progress": {
                         if (ev.trace) run.trace.appendContent(ev.trace)
-                        if (ev.progress) run.infoCb({ text: ev.progress })
+                        if (ev.progress && !ev.inner)
+                            run.infoCb({ text: ev.progress })
                         if (ev.response || ev.tokens !== undefined)
                             run.partialCb({
                                 responseChunk: ev.responseChunk,
                                 responseSoFar: ev.response,
+                                reasoningSoFar: ev.reasoning,
                                 tokensSoFar: ev.tokens,
                                 inner: ev.inner,
                             })
@@ -149,7 +142,7 @@ export class VsCodeClient extends WebSocketClient {
             partialCb: (progress: ChatCompletionsProgressReport) => void
         }
     ) {
-        const runId = randomHex(6)
+        const runId = generateId()
         const { signal, infoCb, partialCb, trace, ...optionsRest } = options
         let resolve: (value: Partial<GenerationResult>) => void
         let reject: (reason?: any) => void
@@ -169,8 +162,8 @@ export class VsCodeClient extends WebSocketClient {
             reject,
             signal,
         }
-        signal?.addEventListener("abort", () => {
-            this.abortScript(runId)
+        signal?.addEventListener("abort", (ev) => {
+            this.abortScript(runId, "user aborted")
         })
         const res = await this.queue<PromptScriptStart>({
             type: "script.start",
@@ -188,7 +181,7 @@ export class VsCodeClient extends WebSocketClient {
         return { runId, request: promise }
     }
 
-    abortScriptRuns(reason?: string) {
+    abortScriptRuns(reason: string) {
         for (const runId of Object.keys(this.runs)) {
             this.abortScript(runId, reason)
             delete this.runs[runId]

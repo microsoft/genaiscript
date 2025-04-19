@@ -1,4 +1,4 @@
-# Summary: GenAISCript Goals
+# Summary: GenAIScript Goals
 
 - Make writing scripts that use AI easier for programmers and non-programmers
     -

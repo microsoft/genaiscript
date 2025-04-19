@@ -26,6 +26,9 @@ import {
     ChatCompletionContentPartImage,
     ChatCompletionSystemMessageParam,
     ChatCompletionToolMessageParam,
+    ChatCompletionContentPart,
+    ChatCompletionContentPartRefusal,
+    ChatCompletionsProgressReport,
 } from "./chattypes"
 
 import { logError } from "./util"
@@ -39,6 +42,10 @@ import {
     LanguageModelInfo,
 } from "./server/messages"
 import { deleteUndefinedValues } from "./cleaners"
+import debug from "debug"
+import { providerFeatures } from "./features"
+const dbg = debug("genaiscript:anthropic")
+const dbgMessages = debug("genaiscript:anthropic:msg")
 
 const convertFinishReason = (
     stopReason: Anthropic.Message["stop_reason"]
@@ -87,10 +94,13 @@ const adjustUsage = (
 }
 
 const convertMessages = (
-    messages: ChatCompletionMessageParam[]
+    messages: ChatCompletionMessageParam[],
+    emitThinking: boolean
 ): Anthropic.MessageParam[] => {
     const res: Anthropic.MessageParam[] = []
-    for (const msg of messages.map(convertSingleMessage)) {
+    for (let i = 0; i < messages.length; ++i) {
+        const message = messages[i]
+        const msg = convertSingleMessage(message, emitThinking)
         const last = res.at(-1)
         if (last?.role !== msg.role) res.push(msg)
         else {
@@ -110,20 +120,17 @@ const convertMessages = (
 }
 
 const convertSingleMessage = (
-    msg: ChatCompletionMessageParam
+    msg: ChatCompletionMessageParam,
+    emitThinking: boolean
 ): Anthropic.MessageParam => {
     const { role } = msg
-    if (!role || role === "aici") {
-        // Handle AICIRequest or other custom types
+    if (!role) {
         return {
             role: "user",
             content: [{ type: "text", text: JSON.stringify(msg) }],
         }
-    } else if (msg.role === "assistant" && Array.isArray(msg.tool_calls)) {
-        return convertToolCallMessage({
-            ...msg,
-            tool_calls: msg.tool_calls,
-        })
+    } else if (msg.role === "assistant") {
+        return convertAssistantMessage(msg, emitThinking)
     } else if (role === "tool") {
         return convertToolResultMessage(msg)
     } else if (role === "function")
@@ -138,21 +145,32 @@ function toCacheControl(msg: ChatCompletionMessageParam): {
     return msg.cacheControl === "ephemeral" ? { type: "ephemeral" } : undefined
 }
 
-const convertToolCallMessage = (
-    msg: ChatCompletionAssistantMessageParam
+const convertAssistantMessage = (
+    msg: ChatCompletionAssistantMessageParam,
+    emitThinking: boolean
 ): Anthropic.MessageParam => {
     return {
         role: "assistant",
-        content: msg.tool_calls.map(
-            (tool) =>
-                deleteUndefinedValues({
-                    type: "tool_use",
-                    id: tool.id,
-                    input: JSONLLMTryParse(tool.function.arguments),
-                    name: tool.function.name,
-                    cache_control: toCacheControl(msg),
-                }) satisfies Anthropic.ToolUseBlockParam
-        ),
+        content: [
+            msg.reasoning_content && emitThinking
+                ? ({
+                      type: "thinking",
+                      thinking: msg.reasoning_content,
+                      signature: msg.signature,
+                  } satisfies Anthropic.ThinkingBlockParam)
+                : undefined,
+            ...((convertStandardMessage(msg)?.content || []) as any),
+            ...(msg.tool_calls || []).map(
+                (tool) =>
+                    deleteUndefinedValues({
+                        type: "tool_use",
+                        id: tool.id,
+                        input: JSONLLMTryParse(tool.function.arguments),
+                        name: tool.function.name,
+                        cache_control: toCacheControl(msg),
+                    }) satisfies Anthropic.ToolUseBlockParam
+            ),
+        ].filter((x) => !!x),
     }
 }
 
@@ -172,6 +190,35 @@ const convertToolResultMessage = (
     }
 }
 
+const convertBlockParam = (
+    block: ChatCompletionContentPart | ChatCompletionContentPartRefusal,
+    cache_control?: { type: "ephemeral" }
+) => {
+    if (typeof block === "string") {
+        return {
+            type: "text",
+            text: block,
+            cache_control,
+        } satisfies Anthropic.TextBlockParam
+    } else if (block.type === "text") {
+        if (!block.text) return undefined
+        return {
+            type: "text",
+            text: block.text,
+            cache_control,
+        } satisfies Anthropic.TextBlockParam
+    } else if (block.type === "image_url") {
+        return convertImageUrlBlock(block)
+    }
+    // audio?
+    // Handle other types or return a default
+    else
+        return {
+            type: "text",
+            text: JSON.stringify(block),
+        } satisfies Anthropic.TextBlockParam
+}
+
 const convertStandardMessage = (
     msg:
         | ChatCompletionSystemMessageParam
@@ -179,39 +226,18 @@ const convertStandardMessage = (
         | ChatCompletionUserMessageParam
 ): Anthropic.MessageParam => {
     const role = msg.role === "assistant" ? "assistant" : "user"
+    let res: Anthropic.MessageParam
     if (Array.isArray(msg.content)) {
-        return {
+        const cache_control = toCacheControl(msg)
+        res = {
             role,
             content: msg.content
-                .map((block) => {
-                    const cache_control = toCacheControl(msg)
-                    if (typeof block === "string") {
-                        return {
-                            type: "text",
-                            text: block,
-                            cache_control,
-                        } satisfies Anthropic.TextBlockParam
-                    } else if (block.type === "text") {
-                        return {
-                            type: "text",
-                            text: block.text,
-                            cache_control,
-                        } satisfies Anthropic.TextBlockParam
-                    } else if (block.type === "image_url") {
-                        return convertImageUrlBlock(block)
-                    }
-                    // audio?
-                    // Handle other types or return a default
-                    else
-                        return {
-                            type: "text",
-                            text: JSON.stringify(block),
-                        } satisfies Anthropic.TextBlockParam
-                })
+                .map((block) => convertBlockParam(block, cache_control))
+                .filter((t) => !!t)
                 .map(deleteUndefinedValues),
         }
-    } else {
-        return {
+    } else if (typeof msg.content === "string") {
+        res = {
             role,
             content: [
                 deleteUndefinedValues({
@@ -222,6 +248,8 @@ const convertStandardMessage = (
             ],
         }
     }
+
+    return res
 }
 
 const convertImageUrlBlock = (
@@ -262,7 +290,7 @@ const completerFactory = (
         cfg: LanguageModelConfiguration,
         httpAgent: HttpsProxyAgent<string>,
         fetch: FetchType
-    ) => Promise<Omit<Anthropic.Messages, "batches" | "countTokens">>
+    ) => Promise<Omit<Anthropic.Beta.Messages, "batches" | "countTokens">>
 ) => {
     const completion: ChatCompletionHandler = async (
         req,
@@ -280,7 +308,9 @@ const completerFactory = (
             retryDelay,
         } = options
         const { headers } = requestOptions || {}
-        const { model } = parseModelIdentifier(req.model)
+        const { provider, model, reasoningEffort } = parseModelIdentifier(
+            req.model
+        )
         const { encode: encoder } = await resolveTokenEncoder(model)
 
         const fetch = await createFetch({
@@ -296,25 +326,65 @@ const completerFactory = (
             req.messages.some((m) => m.cacheControl === "ephemeral")
         const httpAgent = resolveHttpProxyAgent()
         const messagesApi = await resolver(trace, cfg, httpAgent, fetch)
-        const messages = convertMessages(req.messages)
+        dbg("caching", caching)
         trace.itemValue(`caching`, caching)
 
         let numTokens = 0
         let chatResp = ""
+        let reasoningChatResp = ""
+        let signature = ""
         let finishReason: ChatCompletionResponse["finishReason"]
         let usage: ChatCompletionResponse["usage"] | undefined
         const toolCalls: ChatCompletionToolCall[] = []
         const tools = convertTools(req.tools)
 
-        const mreq = deleteUndefinedValues({
+        let temperature = req.temperature
+        let top_p = req.top_p
+        let tool_choice: Anthropic.Beta.MessageCreateParams["tool_choice"] =
+            req.tool_choice === "auto"
+                ? { type: "auto" }
+                : req.tool_choice === "none"
+                  ? { type: "none" }
+                  : req.tool_choice !== "required" &&
+                      typeof req.tool_choice === "object"
+                    ? {
+                          type: "tool",
+                          name: req.tool_choice.function.name,
+                      }
+                    : undefined
+        let thinking: Anthropic.ThinkingConfigParam = undefined
+        const reasoningEfforts = providerFeatures(provider)?.reasoningEfforts
+        const budget_tokens =
+            reasoningEfforts[req.reasoning_effort || reasoningEffort]
+        let max_tokens = req.max_tokens
+        if (budget_tokens && (!max_tokens || max_tokens < budget_tokens))
+            max_tokens = budget_tokens + ANTHROPIC_MAX_TOKEN
+        max_tokens = max_tokens || ANTHROPIC_MAX_TOKEN
+        if (budget_tokens) {
+            temperature = undefined
+            top_p = undefined
+            thinking = {
+                type: "enabled",
+                budget_tokens,
+            }
+        }
+        const messages = convertMessages(req.messages, !!thinking)
+        const mreq: Anthropic.Beta.MessageCreateParams = deleteUndefinedValues({
             model,
             tools,
             messages,
-            max_tokens: req.max_tokens || ANTHROPIC_MAX_TOKEN,
-            temperature: req.temperature,
-            top_p: req.top_p,
+            max_tokens,
+            temperature,
+            top_p,
+            tool_choice,
+            thinking,
             stream: true,
         })
+        // https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#extended-output-capabilities-beta
+        if (/claude-3-7-sonnet/.test(model) && max_tokens >= 128000) {
+            dbg("enabling 128k output")
+            mreq.betas = ["output-128k-2025-02-19"]
+        }
 
         trace.detailsFenced("✉️ body", mreq, "json")
         trace.appendContent("\n")
@@ -326,7 +396,10 @@ const completerFactory = (
                     finishReason = "cancel"
                     break
                 }
+                dbg(chunk.type)
+                dbgMessages(`%O`, chunk)
                 let chunkContent = ""
+                let reasoningContent = ""
                 switch (chunk.type) {
                     case "message_start":
                         usage = convertUsage(
@@ -346,14 +419,27 @@ const completerFactory = (
 
                     case "content_block_delta":
                         switch (chunk.delta.type) {
-                            case "text_delta":
-                                chunkContent = chunk.delta.text
-                                numTokens += estimateTokens(
-                                    chunkContent,
-                                    encoder
-                                )
-                                chatResp += chunkContent
+                            case "signature_delta":
+                                signature = chunk.delta.signature
+                                break
+                            case "thinking_delta":
+                                reasoningContent = chunk.delta.thinking
+                                trace.appendToken(reasoningContent)
+                                reasoningChatResp += reasoningContent
                                 trace.appendToken(chunkContent)
+                                break
+                            case "text_delta":
+                                if (!chunk.delta.text)
+                                    dbg(`empty text_delta`, chunk)
+                                else {
+                                    chunkContent = chunk.delta.text
+                                    numTokens += estimateTokens(
+                                        chunkContent,
+                                        encoder
+                                    )
+                                    chatResp += chunkContent
+                                    trace.appendToken(chunkContent)
+                                }
                                 break
 
                             case "input_json_delta":
@@ -379,13 +465,17 @@ const completerFactory = (
                     }
                 }
 
-                if (chunkContent)
-                    partialCb?.({
+                if (chunkContent || reasoningContent) {
+                    const progress = deleteUndefinedValues({
                         responseSoFar: chatResp,
+                        reasoningSoFar: reasoningContent,
                         tokensSoFar: numTokens,
                         responseChunk: chunkContent,
+                        reasoningChunk: reasoningContent,
                         inner,
-                    })
+                    } satisfies ChatCompletionsProgressReport)
+                    partialCb?.(progress)
+                }
             }
         } catch (e) {
             finishReason = "fail"
@@ -403,6 +493,8 @@ const completerFactory = (
         }
         return {
             text: chatResp,
+            reasoning: reasoningChatResp,
+            signature,
             finishReason,
             usage,
             model,
@@ -412,52 +504,31 @@ const completerFactory = (
     return completion
 }
 
-const listAnthropicModels: ListModelsFunction = async (
-    _: LanguageModelConfiguration
-) => {
-    // Anthropic doesn't expose an API to list models, so we return a static list
-    // based on the Model type defined in the Anthropic SDK
-    const models: Array<{ id: Anthropic.Model; details: string }> = [
-        {
-            id: "claude-3-5-sonnet-20240620",
-            details:
-                "Latest Claude 3 Sonnet model with improved capabilities and knowledge cutoff in June 2024.",
-        },
-        {
-            id: "claude-3-opus-20240229",
-            details:
-                "Most capable Claude 3 model, excelling at highly complex tasks. Knowledge cutoff in February 2024.",
-        },
-        {
-            id: "claude-3-sonnet-20240229",
-            details:
-                "Balanced Claude 3 model offering strong performance and speed. Knowledge cutoff in February 2024.",
-        },
-        {
-            id: "claude-3-haiku-20240307",
-            details:
-                "Fastest Claude 3 model, optimized for quick responses. Knowledge cutoff in March 2024.",
-        },
-        {
-            id: "claude-2.1",
-            details:
-                "Improved version of Claude 2, with enhanced capabilities and reliability.",
-        },
-        {
-            id: "claude-2.0",
-            details:
-                "Original Claude 2 model with strong general capabilities.",
-        },
-        {
-            id: "claude-instant-1.2",
-            details:
-                "Fast and cost-effective model for simpler tasks and high-volume use cases.",
-        },
-    ]
+const listModels: ListModelsFunction = async (cfg, options) => {
+    try {
+        const Anthropic = (await import("@anthropic-ai/sdk")).default
+        const anthropic = new Anthropic({
+            baseURL: cfg.base,
+            apiKey: cfg.token,
+            fetch,
+        })
 
-    return {
-        ok: true,
-        models: models.slice(0),
+        // Parse and format the response into LanguageModelInfo objects
+        const res = await anthropic.models.list({ limit: 999 })
+        return {
+            ok: true,
+            models: res.data
+                .filter(({ type }) => type === "model")
+                .map(
+                    (model) =>
+                        ({
+                            id: model.id,
+                            details: model.display_name,
+                        }) satisfies LanguageModelInfo
+                ),
+        }
+    } catch (e) {
+        return { ok: false, error: serializeError(e) }
     }
 }
 
@@ -475,11 +546,11 @@ export const AnthropicModel = Object.freeze<LanguageModel>({
                 `url`,
                 `[${anthropic.baseURL}](${anthropic.baseURL})`
             )
-        const messagesApi = anthropic.messages
+        const messagesApi = anthropic.beta.messages
         return messagesApi
     }),
     id: MODEL_PROVIDER_ANTHROPIC,
-    listModels: listAnthropicModels,
+    listModels,
 })
 
 export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
@@ -496,8 +567,42 @@ export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
                 `url`,
                 `[${anthropic.baseURL}](${anthropic.baseURL})`
             )
-        return anthropic.messages
+        return anthropic.beta.messages
     }),
     id: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
-    listModels: listAnthropicModels,
+    listModels: async () => {
+        return {
+            ok: true,
+            models: [
+                {
+                    id: "anthropic.claude-3-7-sonnet-20250219-v1:0",
+                    details: "Claude 3.7 Sonnet",
+                },
+                {
+                    id: "anthropic.claude-3-5-haiku-20241022-v1:0",
+                    details: "Claude 3.5 Haiku",
+                },
+                {
+                    id: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                    details: "Claude 3.5 Sonnet v2",
+                },
+                {
+                    id: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+                    details: "Claude 3.5 Sonnet",
+                },
+                {
+                    id: "anthropic.claude-3-opus-20240229-v1:0",
+                    details: "Claude 3 Opus",
+                },
+                {
+                    id: "anthropic.claude-3-sonnet-20240229-v1:0",
+                    details: "Claude 3 Sonnet",
+                },
+                {
+                    id: "anthropic.claude-3-haiku-20240307-v1:0",
+                    details: "Claude 3 Haiku",
+                },
+            ],
+        }
+    },
 })

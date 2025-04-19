@@ -66,5 +66,8 @@ console.log(
 const branches = await github.listBranches()
 console.log(branches)
 
+const releases = await github.listReleases()
+console.log(releases)
+
 if (info.issueNumber)
     await github.createIssueComment(info.issueNumber, "Hello from GenAIClient")

@@ -1,13 +1,13 @@
-import prettyBytes from "pretty-bytes"
 import { serializeError } from "serialize-error"
 import { CancellationOptions } from "./cancellation"
 import { CreateTranscriptionRequest, LanguageModel } from "./chat"
-import { MODEL_WHISPERASR_PROVIDER } from "./constants"
-import { traceFetchPost } from "./fetch"
+import { MODEL_PROVIDER_WHISPERASR } from "./constants"
+import { traceFetchPost } from "./fetchtext"
 import { getConfigHeaders } from "./openai"
 import { LanguageModelConfiguration } from "./server/messages"
 import { TraceOptions } from "./trace"
 import { logVerbose, logError } from "./util"
+import { prettyBytes } from "./pretty"
 
 async function WhisperASRTranscribe(
     req: CreateTranscriptionRequest,
@@ -58,7 +58,7 @@ async function WhisperASRTranscribe(
     }
 }
 
-export const WhiserAsrModel: LanguageModel = Object.freeze({
-    id: MODEL_WHISPERASR_PROVIDER,
+export const WhisperAsrModel: LanguageModel = Object.freeze({
+    id: MODEL_PROVIDER_WHISPERASR,
     transcriber: WhisperASRTranscribe,
 } satisfies LanguageModel)

@@ -7,7 +7,7 @@ export interface HostConfiguration {
     /**
      * Path to the .env file
      */
-    envFile?: string
+    envFile?: string | string[]
 
     /**
      * List of glob paths to scan for genai scripts
@@ -15,7 +15,17 @@ export interface HostConfiguration {
     include?: string[]
 
     /**
-     * Configures a list of known aliases. Overriden by environment variables and CLI arguments
+     * Configures a list of known aliases. Overridden by environment variables and CLI arguments
      */
     modelAliases?: Record<string, string | ModelConfiguration>
+
+    /**
+     * Model identifier to encoding mapping
+     */
+    modelEncodings?: Record<string, string>
+
+    /**
+     * A map of secret name and their respective regex pattern
+     */
+    secretPatterns?: Record<string, string>
 }

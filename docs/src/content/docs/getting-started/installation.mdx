@@ -2,8 +2,8 @@
 title: Installation
 sidebar:
     order: 1
-description: Learn how to install GenAiScript as a Visual Studio Code extension or use it via command line for seamless integration into your development workflow.
-keywords: Visual Studio Code, GenAiScript extension, command line tool, manual installation, Node.js
+description: Learn how to install GenAIScript as a Visual Studio Code extension or use it via command line for seamless integration into your development workflow.
+keywords: Visual Studio Code, GenAIScript extension, command line tool, manual installation, Node.js
 ---
 
 import { Image } from "astro:assets"
@@ -19,11 +19,11 @@ import marketplaceAlt from "../../../assets/vscode-marketplace.png.txt?raw"
 import vscodeViewSrc from "../../../assets/vscode-genaiscript-view.png"
 import vscodeViewAlt from "../../../assets/vscode-genaiscript-view.png.txt?raw"
 
-GenAiScript is available as a [command line](#command-line) or a [Visual Studio Code Extension](#visual-studio-code-extension).
+GenAIScript is available as a [command line](#command-line) or a [Visual Studio Code Extension](#visual-studio-code-extension).
 
 ## Node.JS
 
-GenAiScript requires [Node.JS](https://nodejs.org/) to run.
+GenAIScript requires [Node.JS](https://nodejs.org/) to run.
 We recommend installing the LTS version using a [node version manager](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
 <Steps>
@@ -33,6 +33,7 @@ We recommend installing the LTS version using a [node version manager](https://d
 <li>
 
 Install Node.JS (node) [with a package manager](https://nodejs.org/en/download/package-manager).
+**You need at least Node.JS v20.**
 
 </li>
 
@@ -119,8 +120,8 @@ in your repository and using the manual installation steps.
 GenAIScript launches a node server in the default terminal. If the default terminal is not configured
 or does not support node.js, you may need to update it in your user/workspace settings.
 
--   Open command palette `Ctrl+Shift+P` and search for `Terminal: Select Default Profile`.
--   Select the terminal profile like **Git Bash**
+- Open command palette `Ctrl+Shift+P` and search for `Terminal: Select Default Profile`.
+- Select the terminal profile like **Git Bash**
 
 ### Manual Installation (Advanced)
 
@@ -141,12 +142,12 @@ Download the `genaiscript.vsix` into your project root folder
 
 <FileTree>
 
--   ...
--   .genaiscript/ folder created by the extension to store supporting files
-    -   cache/ various cache files
-    -   retrieval/ retrieval database caches
-    -   ... supporting files
--   **genaiscript.vsix**
+- ...
+- .genaiscript/ folder created by the extension to store supporting files
+    - cache/ various cache files
+    - retrieval/ retrieval database caches
+    - ... supporting files
+- **genaiscript.vsix**
 
 </FileTree>
 
@@ -180,32 +181,34 @@ from any terminal.
 npx genaiscript run my-script some/path/*.pdf
 ```
 
-`npx` will automatically install and cache the CLI. You can also add it as a `devDependency` to your project.
+`npx` will automatically install and cache the CLI.
 
-```sh
-npm install -D genaiscript
+:::tip
+
+**npx can be slow**. Learn how to install locally in the [cli reference](/genaiscript/reference/cli/).
+
+:::
+
+## DevContainer
+
+You can add this file in your project to use GenAIScript in a
+[DevContainer](https://containers.dev/), it contains a minimum of tools to get started..
+
+```json title=".devcontainer/devcontainer.json"
+{
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+    "customizations": {
+        "vscode": {
+            "extensions": ["genaiscript.genaiscript-vscode"]
+        }
+    }
+}
 ```
 
-:::note
-
-While most examples in the documentation assume you are using the Visual Studio Code extension,
-the command line tool lets you use GenAiScript from any editor as well.
-
-:::
-
-:::note
-
-Some optional packages used by the CLI do not support an installation behind an HTTP proxy, which is very common in an enterprise setting.
-
-If your work environment requires going through a proxy, you should use `npm install --omit=optional` to have optional packages fail gracefully during the installation.
-
-:::
-
-:::note
-
-If your work environment requires going through a proxy, you can set one of the following environment variables (`HTTP_PROXY`, `HTTPS_PROXY`, `http_proxy` or `https_proxy`) to have the CLI use a proxy, e.g. `HTTP_PROXY=http://proxy.acme.com:3128`.
-:::
-
+The devcontainer definition will automatically be used by
+[GitHub CodeSpaces](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers),
+the [devcontainer cli](https://github.com/devcontainers/cli)
+or various [editor integrations](https://containers.dev/supporting).
 
 ## Next steps
 

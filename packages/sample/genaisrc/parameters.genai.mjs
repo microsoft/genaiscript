@@ -1,32 +1,122 @@
 script({
-    accept: ".txt,.md,.pdf",
+    accept: "*.prompty,.txt,.md,.pdf",
     files: "src/*",
     model: "small",
+    tools: "agent_fs",
+    group: "mcp",
+    description: `This is markdown.
+    
+- item
+## heading
+
+\`\`\`mermaid
+graph TD
+    A --> B
+    B --> C
+\`\`\`
+
+\`\`\`barchart
+[
+{
+    "city": "Tokyo",
+    "year": 1,
+    "value": 7.0,
+    "thermal": 0.5
+}, {
+    "city": "Berlin",
+    "year": 2,
+    "value": 6.9    ,
+    "thermal": 1
+}, {
+    "city": "London",
+    "year": 3,
+    "value": 5.7,
+    "thermal": -0.5
+}
+]
+\`\`\`
+
+\`\`\`linechart
+[
+{
+    "city": "Tokyo",
+    "year": 1,
+    "value": 7.0,
+    "thermal": 1
+}, {
+    "city": "Berlin",
+    "year": 2,
+    "value": 6.9    ,
+    "thermal": 0.5
+}, {
+    "city": "London",
+    "year": 3,
+    "value": 5.7,
+    "thermal": -1
+}
+]
+\`\`\`
+
+
+`,
     parameters: {
         string: "abc",
-        number: 123,
+        number: 12.3,
+        integer: 123,
         boolean: true,
+        stringsEnum: {
+            type: "string",
+            enum: ["aaa", "bbbb", "bbb"],
+        },
+        suggested: {
+            type: "string",
+            uiSuggestions: ["a", "b", "c"],
+        },
         stringSchema: {
             type: "string",
             default: "efg",
+            title: "a string bound by a schema",
             description: "A string parameter with a description",
+            uiType: "textarea",
         },
         numberSchema: {
             type: "number",
             default: 456,
             description: "A number parameter with a description",
         },
+        integerSchema: {
+            type: "integer",
+            required: true,
+            description: "A integer parameter with a description",
+        },
         booleanSchema: {
             type: "boolean",
             default: true,
             description: "A boolean parameter with a description",
+        },
+        runOption: {
+            type: "boolean",
+            uiType: "runOption",
+        },
+        notRequired: {
+            type: "integer",
+            required: false,
+            description: `
+## A Markdown description
+
+\`\`\`
+code
+\`\`\`
+
+`,
         },
     },
     tests: {
         files: "src/*",
         vars: {
             string: "abc",
-            number: 123,
+            number: 12.3,
+            integer: 123,
             boolean: true,
             stringSchema: "efg",
             numberSchema: 456,
@@ -41,6 +131,7 @@ console.log(Object.entries(env.vars))
 console.log(Object.values(env.vars))
 console.log(`string: ${env.vars.string} ${typeof env.vars.string}`)
 console.log(`number: ${env.vars.number} ${typeof env.vars.number}`)
+console.log(`integer: ${env.vars.integer} ${typeof env.vars.integer}`)
 console.log(`boolean: ${env.vars.boolean} ${typeof env.vars.boolean}`)
 console.log(
     `stringSchema: ${env.vars.stringSchema} ${typeof env.vars.stringSchema}`
@@ -57,7 +148,8 @@ console.log(
 console.log(`boolean-schema: ${env.vars["boolean-schema"]}`)
 
 if (env.vars["string"] !== "abc") throw new Error("string parameter not set")
-if (env.vars["number"] !== 123) throw new Error("number parameter not set")
+if (env.vars["number"] !== 12.3) throw new Error("number parameter not set")
+if (env.vars["integer"] !== 123) throw new Error("number parameter not set")
 if (env.vars["boolean"] !== true) throw new Error("boolean parameter not set")
 if (env.vars["stringSchema"] !== "efg")
     throw new Error("stringSchema parameter not set")
@@ -75,3 +167,5 @@ if (env.vars["boolean-schema"] !== true)
 console.log({ files: env.files.map((f) => f.filename) })
 if (env.files.some((f) => f.filename.endsWith(".ts")))
     throw new Error("accept not working")
+
+$`say hi`

@@ -11,11 +11,15 @@
         "allowJs": true,
         "skipLibCheck": true,
         "noEmit": true,
-        "allowImportingTsExtensions": true
+        "allowImportingTsExtensions": true,
+        "verbatimModuleSyntax": true,
+        "resolveJsonModule": true,
+        "erasableSyntaxOnly": true
     },
     "include": [
         "*.mjs",
         "*.mts",
+        "src/*.mts",
         "./genaiscript.d.ts"
     ]
 }

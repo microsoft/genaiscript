@@ -28,9 +28,9 @@ This file is excluded from git by default.
 
 <FileTree>
 
--   .genaiscript
-    -   cache
-        -   chat.jsonl
+- .genaiscript
+    - cache
+        - chat.jsonl
 
 </FileTree>
 
@@ -54,9 +54,9 @@ npx genaiscript run .... --cache-name summary
 
 <FileTree>
 
--   .genaiscript
-    -   cache
-        -   summary.jsonl
+- .genaiscript
+    - cache
+        - summary.jsonl
 
 </FileTree>
 
@@ -65,13 +65,11 @@ npx genaiscript run .... --cache-name summary
 You can instantiate a custom cache object to manage the cache programmatically.
 
 ```js
-const cache = await workspace.cache("summary")
+const cache = await workspace.cache("custom")
 // write entries
 await cache.set("file.txt", "...")
 // read value
 const content = await cache.get("file.txt")
-// list keys
-const keys = await cache.keys()
 // list values
 const values = await cache.values()
 ```

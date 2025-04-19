@@ -13,24 +13,32 @@ export function activateStatusBar(state: ExtensionState) {
     )
     statusBarItem.command = "genaiscript.request.status"
     const updateStatusBar = async () => {
-        const { parsing, aiRequest, languageChatModels } = state
+        const { aiRequest, languageChatModels, host } = state
+        const { server } = host
+        const { status } = server
         const { computing, progress, options } = aiRequest || {}
-        const { template, fragment } = options || {}
+        const { fragment } = options || {}
         const { tokensSoFar } = progress || {}
+        const loading =
+            status === "starting" ||
+            status === "stopping" ||
+            (computing && !tokensSoFar)
         statusBarItem.text = toStringList(
             `${
-                parsing || (computing && !tokensSoFar)
-                    ? `$(loading~spin)`
-                    : `$(${ICON_LOGO_NAME})`
+                loading ? `$(loading~spin)` : `$(${ICON_LOGO_NAME})`
             }${tokensSoFar ? ` ${tokensSoFar} tokens` : ""}`
         )
 
+        const authority = server.authority
         const md = new vscode.MarkdownString(
             toMarkdownString(
+                authority && status === "running"
+                    ? `server: [${server.authority}](${server.browserUrl})`
+                    : `GenAIScript: ${status}...`,
+                status === "starting"
+                    ? `On the first run, it may take a while to start the server while npx install 'genaiscript'.`
+                    : "",
                 fragment?.files?.[0],
-                template
-                    ? `-  tool: ${template.title} (${template.id})`
-                    : undefined,
                 ...Object.entries(languageChatModels).map(
                     ([m, c]) => `-  language chat model: ${m} -> ${c}`
                 )
@@ -42,6 +50,7 @@ export function activateStatusBar(state: ExtensionState) {
     }
 
     state.addEventListener(CHANGE, updateStatusBar)
+    state.host.server.addEventListener(CHANGE, updateStatusBar)
 
     updateStatusBar()
     context.subscriptions.push(statusBarItem)

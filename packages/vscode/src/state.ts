@@ -5,28 +5,21 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { listFiles, saveAllTextDocuments } from "./fs"
-import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
-import { JSONLineCache } from "../../core/src/cache"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
-import { fixPromptDefinitions } from "../../core/src/scripts"
+import { fixCustomPrompts, fixPromptDefinitions } from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
-import {
-    TOOL_NAME,
-    CHANGE,
-    AI_REQUESTS_CACHE,
-    TOOL_ID,
-} from "../../core/src/constants"
+import { TOOL_NAME, CHANGE, TOOL_ID } from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
 import { MarkdownTrace } from "../../core/src/trace"
-import { logInfo, groupBy } from "../../core/src/util"
-import { CORE_VERSION } from "../../core/src/version"
+import { logInfo, groupBy, logVerbose } from "../../core/src/util"
 import { GenerationResult } from "../../core/src/server/messages"
-import { hash, randomHex } from "../../core/src/crypto"
+import { randomHex } from "../../core/src/crypto"
 import { delay } from "es-toolkit"
 import { Fragment } from "../../core/src/generation"
 import { createWebview } from "./webview"
+import { isEmptyString } from "../../core/src/cleaners"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -36,10 +29,11 @@ export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
 
 export interface AIRequestOptions {
     label: string
-    template: PromptScript
+    scriptId: string
     fragment: Fragment
     parameters: PromptParameters
     mode?: "notebook" | "chat"
+    githubCopilotChatModelId?: string
     jsSource?: string
     runOptions?: Partial<PromptScriptRunOptions>
 }
@@ -93,14 +87,9 @@ export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
 
 export class ExtensionState extends EventTarget {
     readonly host: VSCodeHost
-    private _parseWorkspacePromise: Promise<void>
     private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _diagColl: vscode.DiagnosticCollection
-    private _aiRequestCache: JSONLineCache<
-        AIRequestSnapshotKey,
-        AIRequestSnapshot
-    > = undefined
     readonly output: vscode.LogOutputChannel
     readonly sessionApiKey: string
     private panel: vscode.WebviewPanel
@@ -122,11 +111,6 @@ export class ExtensionState extends EventTarget {
         this._diagColl = vscode.languages.createDiagnosticCollection(TOOL_NAME)
         subscriptions.push(this._diagColl)
 
-        this._aiRequestCache = JSONLineCache.byName<
-            AIRequestSnapshotKey,
-            AIRequestSnapshot
-        >(AI_REQUESTS_CACHE)
-
         // clear errors when file edited (remove me?)
         subscriptions.push(
             vscode.workspace.onDidChangeTextDocument(
@@ -147,28 +131,26 @@ export class ExtensionState extends EventTarget {
         } else if (reveal) this.panel.reveal()
     }
 
+    getConfiguration() {
+        const config = vscode.workspace.getConfiguration(TOOL_ID)
+        return config
+    }
+
     async updateLanguageChatModels(model: string, chatModel: string) {
         const res = await this.languageChatModels()
         if (res[model] !== chatModel) {
             if (chatModel === undefined) delete res[model]
             else res[model] = chatModel
-            const config = vscode.workspace.getConfiguration(TOOL_ID)
+            const config = this.getConfiguration()
             await config.update("languageChatModels", res)
         }
     }
 
     async languageChatModels() {
-        const config = vscode.workspace.getConfiguration(TOOL_ID)
+        const config = this.getConfiguration()
         const res =
-            ((await config.get("languageChatModels")) as Record<
-                string,
-                string
-            >) || {}
+            (config.get("languageChatModels") as Record<string, string>) || {}
         return res
-    }
-
-    aiRequestCache() {
-        return this._aiRequestCache
     }
 
     async applyEdits() {
@@ -191,7 +173,9 @@ export class ExtensionState extends EventTarget {
 
     async requestAI(
         options: AIRequestOptions
-    ): Promise<Partial<GenerationResult> & { requestSha: string }> {
+    ): Promise<Partial<GenerationResult>> {
+        if (!options.scriptId)
+            throw new Error("error starting run, no script id selected")
         try {
             const req = await this.startAIRequest(options)
             if (!req) {
@@ -206,40 +190,15 @@ export class ExtensionState extends EventTarget {
                 else if (text) this.showWebview({ reveal: false })
             }
 
-            const { key, sha } = await this.snapshotAIRequestKey(req)
-            const snapshot = snapshotAIRequest(req)
-            await this._aiRequestCache.set(key, snapshot)
             this.setDiagnostics()
             this.dispatchChange()
 
             if (edits?.length && options.mode != "notebook") this.applyEdits()
-            return { ...res, requestSha: sha }
+            return res
         } catch (e) {
             if (isCancelError(e)) return undefined
             throw e
         }
-    }
-
-    private async snapshotAIRequestKey(r: AIRequest) {
-        const { options } = r
-        const key: AIRequestSnapshotKey = {
-            template: {
-                id: options.template.id,
-                title: options.template.title,
-                hash: await hash(
-                    {
-                        template: options.template,
-                        parameters: options.parameters,
-                        mode: options.mode,
-                        runOptions: options.runOptions,
-                    },
-                    { version: true }
-                ),
-            },
-            fragment: options.fragment,
-            version: CORE_VERSION,
-        }
-        return { key, sha: await this._aiRequestCache.getKeySHA(key) }
     }
 
     dispatchAIRequestChange() {
@@ -250,8 +209,8 @@ export class ExtensionState extends EventTarget {
         options: AIRequestOptions
     ): Promise<AIRequest> {
         const controller = new AbortController()
-        const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const cache = config.get("cache") as boolean
+        const config = this.getConfiguration()
+        const cache = !!config.get("cache")
         const signal = controller.signal
         const trace = new MarkdownTrace()
 
@@ -276,6 +235,7 @@ export class ExtensionState extends EventTarget {
             if (!r.response) r.response = { text: "" }
             if (r.response) {
                 r.response.text = progress.responseSoFar
+                r.response.reasoning = progress.reasoningSoFar
                 r.response.logprobs = progress.responseTokens
                 if (/\n/.test(progress.responseChunk))
                     r.response.annotations = parseAnnotations(r.response.text)
@@ -286,7 +246,7 @@ export class ExtensionState extends EventTarget {
         trace.addEventListener(CHANGE, reqChange)
         reqChange()
 
-        const { template, fragment, label, runOptions } = options
+        const { scriptId, fragment, runOptions } = options
         const { files } = fragment || {}
         const infoCb = (partialResponse: { text: string }) => {
             r.response = partialResponse
@@ -295,24 +255,23 @@ export class ExtensionState extends EventTarget {
 
         // todo: send js source
         const client = await this.host.server.client()
-        const { runId, request } = await client.runScript(template.id, files, {
+        const { runId, request } = await client.runScript(scriptId, files, {
             ...(runOptions || {}),
             jsSource: options.jsSource,
             signal,
             trace,
             infoCb,
             partialCb,
-            label,
-            cache: cache ? template.cache : undefined,
+            cache,
             vars: structuredClone(options.parameters),
         })
         r.runId = runId
         r.request = request
-        if (options.mode !== "chat")
-            vscode.commands.executeCommand(
-                "workbench.view.extension.genaiscript"
-            )
-        if (!options.mode) this.showWebview({ reveal: false })
+        //        if (options.mode !== "chat")
+        //            vscode.commands.executeCommand(
+        //                "workbench.view.extension.genaiscript"
+        //            )
+        if (!options.mode) this.showWebview({ reveal: true })
         r.request
             .then((resp) => {
                 r.response = resp
@@ -327,19 +286,19 @@ export class ExtensionState extends EventTarget {
         return r
     }
 
-    get parsing() {
-        return !!this._parseWorkspacePromise
-    }
-
     get aiRequest() {
         return this._aiRequest
     }
 
     get diagnostics() {
-        const diagnostics = !!vscode.workspace
-            .getConfiguration(TOOL_ID)
-            .get("diagnostics")
+        const diagnostics = !!this.getConfiguration().get("diagnostics")
         return diagnostics
+    }
+
+    get debug() {
+        const res = this.getConfiguration().get("debug") as string
+        if (isEmptyString(res)) return undefined
+        return res
     }
 
     private set aiRequest(r: AIRequest) {
@@ -364,7 +323,6 @@ export class ExtensionState extends EventTarget {
     }
 
     get project() {
-        if (!this._project) this.parseWorkspace()
         return this._project
     }
 
@@ -390,53 +348,48 @@ export class ExtensionState extends EventTarget {
 
     async fixPromptDefinitions() {
         const project = this.project
-        if (project) await fixPromptDefinitions(project)
+        if (!project) return
+
+        const cwd = this.host.projectFolder().toLowerCase()
+        const hasProjects = project.scripts?.some(
+            (s) =>
+                !s.unlisted &&
+                s.filename &&
+                s.filename.toLowerCase().startsWith(cwd)
+        )
+        if (!hasProjects) return
+
+        const config = this.getConfiguration()
+        const localTypeDefinitions = !!config.get("localTypeDefinitions")
+        if (localTypeDefinitions) await fixPromptDefinitions(project)
+
+        const githubCopilotPrompt = !!config.get("githubCopilotPrompt")
+        if (githubCopilotPrompt) fixCustomPrompts({ githubCopilotPrompt: true }) // finish async
     }
 
-    async parseWorkspace() {
-        if (this._parseWorkspacePromise) return this._parseWorkspacePromise
-
-        const parser = async () => {
-            try {
-                this.dispatchChange()
-                performance.mark(`save-docs`)
-                await saveAllTextDocuments()
-                performance.mark(`project-start`)
-                performance.mark(`scan-tools`)
-                const client = await this.host.server.client()
-                const newProject = await client.listScripts()
-                await this.setProject(newProject)
-                this.setDiagnostics()
-                logMeasure(`project`, `project-start`, `project-end`)
-            } finally {
-                this._parseWorkspacePromise = undefined
-                this.dispatchChange()
-            }
-        }
-
-        this._parseWorkspacePromise = parser()
-        this.dispatchChange()
-        await this._parseWorkspacePromise
+    private _parseWorkspacePromise: Promise<void> = undefined
+    parseWorkspace(): Promise<void> {
+        const p =
+            this._parseWorkspacePromise ||
+            (this._parseWorkspacePromise = this.uncachedParseWorkspace())
+        return p
     }
 
-    async parseDirectory(
-        uri: vscode.Uri,
-        token?: vscode.CancellationToken
-    ): Promise<Fragment> {
-        const files = await listFiles(uri)
-
-        return <Fragment>{
-            files: files.map((fs) => fs.fsPath),
-        }
-    }
-
-    async parseDocument(
-        document: vscode.Uri,
-        token?: vscode.CancellationToken
-    ): Promise<Fragment> {
-        const fsPath = document.fsPath
-        return <Fragment>{
-            files: [fsPath],
+    private async uncachedParseWorkspace() {
+        try {
+            logVerbose(`parse workspace`)
+            this.dispatchChange()
+            performance.mark(`save-docs`)
+            await saveAllTextDocuments()
+            performance.mark(`project-start`)
+            performance.mark(`scan-tools`)
+            const client = await this.host.server.client()
+            const newProject = await client.listScripts()
+            await this.setProject(newProject)
+            this.setDiagnostics()
+            logMeasure(`project`, `project-start`, `project-end`)
+        } finally {
+            this._parseWorkspacePromise = undefined
         }
     }
 

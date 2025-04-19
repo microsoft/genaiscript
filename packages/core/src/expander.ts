@@ -1,13 +1,11 @@
+import debug from "debug"
+const dbg = debug("genaiscript:expander")
+
 import { resolveScript } from "./ast"
-import { assert, normalizeFloat, normalizeInt } from "./util"
+import { assert } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError, NotSupportedError } from "./error"
-import {
-    JS_REGEX,
-    MAX_TOOL_CALLS,
-    MODEL_PROVIDER_AICI,
-    PROMPTY_REGEX,
-} from "./constants"
+import { JS_REGEX, MAX_TOOL_CALLS, PROMPTY_REGEX } from "./constants"
 import {
     finalizeMessages,
     PromptAudio,
@@ -17,34 +15,48 @@ import {
 } from "./promptdom"
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
-import { renderAICI } from "./aici"
-import {
-    addToolDefinitionsMessage,
-    appendSystemMessage,
-    toChatCompletionUserMessage,
-} from "./chat"
+import { addToolDefinitionsMessage, appendSystemMessage } from "./chat"
 import { importPrompt } from "./importprompt"
-import { parseModelIdentifier } from "./models"
-import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
-import { host, runtimeHost } from "./host"
-import { resolveSystems } from "./systems"
+import { runtimeHost } from "./host"
+import { addFallbackToolSystems, resolveSystems } from "./systems"
 import { GenerationOptions } from "./generation"
-import { AICIRequest, ChatCompletionMessageParam } from "./chattypes"
-import { promptParametersSchemaToJSONSchema } from "./parameters"
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionReasoningEffort,
+} from "./chattypes"
 import { GenerationStatus, Project } from "./server/messages"
 import { dispose } from "./dispose"
+import { normalizeFloat, normalizeInt } from "./cleaners"
+import { mergeEnvVarsWithSystem } from "./vars"
+import { installGlobalPromptContext } from "./globals"
+import { mark } from "./performance"
+import { nodeIsPackageTypeModule } from "./nodepackage"
+import { parseModelIdentifier } from "./models"
 
+/**
+ * Executes a prompt expansion process based on the provided prompt script, variables, and options.
+ *
+ * @param prj - The project instance in which the prompt script is executed.
+ * @param r - The prompt script to be evaluated, containing the logic and structure of the prompt.
+ * @param ev - Expansion variables to customize the prompt script evaluation.
+ * @param trace - The trace object used for generating logs and debugging details.
+ * @param options - Configuration options that influence the prompt expansion and evaluation.
+ * @param installGlobally - Specifies whether the prompt context should be installed globally.
+ * @returns An object containing the status of the operation, generated messages, images, schema definitions, tools, logs, and other related outputs.
+ */
 export async function callExpander(
     prj: Project,
     r: PromptScript,
-    vars: ExpansionVariables,
+    ev: ExpansionVariables,
     trace: MarkdownTrace,
-    options: GenerationOptions
+    options: GenerationOptions,
+    installGlobally: boolean
 ) {
+    mark("prompt.expand.main")
     assert(!!options.model)
     const modelId = r.model ?? options.model
-    const { provider } = parseModelIdentifier(modelId)
-    const ctx = await createPromptContext(prj, vars, trace, options, modelId)
+    const ctx = await createPromptContext(prj, ev, trace, options, modelId)
+    if (installGlobally) installGlobalPromptContext(ctx)
 
     let status: GenerationStatus = undefined
     let statusText: string = undefined
@@ -60,16 +72,17 @@ export async function callExpander(
     let fileOutputs: FileOutput[] = []
     let disposables: AsyncDisposable[] = []
     let prediction: PromptPrediction
-    let aici: AICIRequest
 
     const logCb = (msg: any) => {
         logs += msg + "\n"
     }
 
+    // package.json { type: "module" }
+    const isModule = await nodeIsPackageTypeModule()
     try {
         if (
             r.filename &&
-            !JS_REGEX.test(r.filename) &&
+            (isModule || !JS_REGEX.test(r.filename)) &&
             !PROMPTY_REGEX.test(r.filename)
         )
             await importPrompt(ctx, r, { logCb, trace })
@@ -80,47 +93,38 @@ export async function callExpander(
             })
         }
         const node = ctx.node
-        if (provider !== MODEL_PROVIDER_AICI) {
-            const {
-                messages: msgs,
-                images: imgs,
-                audios: auds,
-                errors,
-                schemas: schs,
-                functions: fns,
-                fileMerges: fms,
-                outputProcessors: ops,
-                chatParticipants: cps,
-                fileOutputs: fos,
-                prediction: pred,
-                disposables: mcps,
-            } = await renderPromptNode(modelId, node, {
-                flexTokens: options.flexTokens,
-                fenceFormat: options.fenceFormat,
-                trace,
-            })
-            messages = msgs
-            images = imgs
-            audios = auds
-            schemas = schs
-            functions = fns
-            fileMerges = fms
-            outputProcessors = ops
-            chatParticipants = cps
-            fileOutputs = fos
-            disposables = mcps
-            prediction = pred
-            if (errors?.length) {
-                for (const error of errors) trace.error(``, error)
-                status = "error"
-                statusText = errors.map((e) => errorMessage(e)).join("\n")
-            } else {
-                status = "success"
-            }
+        const {
+            messages: msgs,
+            images: imgs,
+            errors,
+            schemas: schs,
+            tools: fns,
+            fileMerges: fms,
+            outputProcessors: ops,
+            chatParticipants: cps,
+            fileOutputs: fos,
+            prediction: pred,
+            disposables: mcps,
+        } = await renderPromptNode(modelId, node, {
+            flexTokens: options.flexTokens,
+            fenceFormat: options.fenceFormat,
+            trace,
+        })
+        messages = msgs
+        images = imgs
+        schemas = schs
+        functions = fns
+        fileMerges = fms
+        outputProcessors = ops
+        chatParticipants = cps
+        fileOutputs = fos
+        disposables = mcps
+        prediction = pred
+        if (errors?.length) {
+            for (const error of errors) trace.error(``, error)
+            status = "error"
+            statusText = errors.map((e) => errorMessage(e)).join("\n")
         } else {
-            const tmp = await renderAICI(r.id.replace(/[^a-z0-9_]/gi, ""), node)
-            outputProcessors = tmp.outputProcessors
-            aici = tmp.aici
             status = "success"
         }
     } catch (e) {
@@ -149,7 +153,6 @@ export async function callExpander(
         fileOutputs,
         disposables,
         prediction,
-        aici,
     })
 }
 
@@ -164,6 +167,7 @@ function traceEnv(
         model,
         skipIfEmpty: true,
         secrets: env.secrets,
+        maxLength: 0,
     })
     const vars = Object.entries(env.vars || {})
     if (vars.length) {
@@ -180,12 +184,32 @@ function traceEnv(
     trace.endDetails()
 }
 
+/**
+ * /**
+ *  * Expands a template into a structured prompt to be used for generation.
+ *  *
+ *  * @param prj The project context for resolution of scripts and systems.
+ *  * @param template The template script to be expanded.
+ *  * @param options Configuration options for template expansion and generation.
+ *  * @param env The environment variables and metadata for the template expansion process.
+ *  * @returns An object containing the expanded prompt details, including messages, images, schemas, tools, and more.
+ *  *
+ *  * Parameters:
+ *  * @param prj
+ *  * - The current project instance, used to resolve associated systems and scripts.
+ *  *
+ *  * @param template
+ *  * - The source template script containing configurations and definitions for prompt generation.
+ *  *
+ *  * @param  - has parameters/options i
+ */
 export async function expandTemplate(
     prj: Project,
     template: PromptScript,
     options: GenerationOptions,
     env: ExpansionVariables
 ) {
+    mark("prompt.expand.script")
     const trace = options.trace
     const model = options.model
     assert(!!trace)
@@ -195,7 +219,7 @@ export async function expandTemplate(
     const lineNumbers =
         options.lineNumbers ??
         template.lineNumbers ??
-        resolveSystems(prj, template, undefined, options)
+        resolveSystems(prj, template, undefined)
             .map((s) => resolveScript(prj, s))
             .some((t) => t?.lineNumbers)
     const temperature =
@@ -203,6 +227,15 @@ export async function expandTemplate(
         normalizeFloat(env.vars["temperature"]) ??
         template.temperature ??
         runtimeHost.modelAliases.large.temperature
+    options.fallbackTools =
+        options.fallbackTools ??
+        template.fallbackTools ??
+        runtimeHost.modelAliases.large.fallbackTools
+    const reasoningEffort: ChatCompletionReasoningEffort =
+        options.reasoningEffort ??
+        env.vars["reasoning_effort"] ??
+        template.reasoningEffort ??
+        runtimeHost.modelAliases.large.reasoningEffort
     const topP =
         options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
     const maxTokens =
@@ -231,24 +264,37 @@ export async function expandTemplate(
         template.topLogprobs || 0
     )
 
-    trace.startDetails("💾 script")
+    // finalize options
+    const { provider } = parseModelIdentifier(model)
+    env.meta.model = model
+    Object.freeze(env.meta)
+
+    trace.startDetails("💾 script", { expanded: true })
 
     traceEnv(model, trace, env)
 
-    trace.startDetails("🧬 prompt")
-    trace.detailsFenced("📓 script source", template.jsSource, "js")
+    trace.startDetails("🧬 prompt", { expanded: true })
+    trace.detailsFenced("💻 script source", template.jsSource, "js")
 
-    const prompt = await callExpander(prj, template, env, trace, {
-        ...options,
-        maxTokens,
-        maxToolCalls,
-        flexTokens,
-        seed,
-        topP,
-        temperature,
-        lineNumbers,
-        fenceFormat,
-    })
+    const prompt = await callExpander(
+        prj,
+        template,
+        env,
+        trace,
+        {
+            ...options,
+            maxTokens,
+            maxToolCalls,
+            flexTokens,
+            seed,
+            topP,
+            temperature,
+            reasoningEffort,
+            lineNumbers,
+            fenceFormat,
+        },
+        true
+    )
 
     const { status, statusText, messages } = prompt
     const images = prompt.images.slice(0)
@@ -263,7 +309,6 @@ export async function expandTemplate(
     const disposables = prompt.disposables.slice(0)
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
     if (cancellationToken?.isCancellationRequested || status === "cancelled") {
@@ -285,23 +330,25 @@ export async function expandTemplate(
         }
     }
 
-    if (images?.length || audios?.length)
-        messages.push(toChatCompletionUserMessage("", images, audios))
-    if (prompt.aici) messages.push(prompt.aici)
-
     const addSystemMessage = (content: string) => {
         appendSystemMessage(messages, content)
         trace.fence(content, "markdown")
     }
 
-    const systems = resolveSystems(prj, template, tools, options)
+    const systems = resolveSystems(prj, template, tools)
     if (systems.length)
         if (messages[0].role === "system")
             // there's already a system message. add empty before
             messages.unshift({ role: "system", content: "" })
 
+    if (addFallbackToolSystems(systems, tools, template, options)) {
+        dbg("added fallback tools")
+        assert(!Object.isFrozen(options))
+        options.fallbackTools = true
+    }
+
     try {
-        trace.startDetails("👾 systems")
+        trace.startDetails("👾 systems", { expanded: true })
         for (let i = 0; i < systems.length; ++i) {
             if (cancellationToken?.isCancellationRequested) {
                 await dispose(disposables, { trace })
@@ -312,12 +359,21 @@ export async function expandTemplate(
                 }
             }
 
-            const system = resolveScript(prj, systems[i])
+            const systemId = systems[i]
+            dbg(`system ${systemId.id}`)
+            const system = resolveScript(prj, systemId)
             if (!system)
-                throw new Error(`system template ${systems[i]} not found`)
+                throw new Error(`system template ${systemId.id} not found`)
 
             trace.startDetails(`👾 ${system.id}`)
-            const sysr = await callExpander(prj, system, env, trace, options)
+            const sysr = await callExpander(
+                prj,
+                system,
+                mergeEnvVarsWithSystem(env, systemId),
+                trace,
+                options,
+                false
+            )
 
             if (sysr.images) images.push(...sysr.images)
             if (sysr.audios) audios.push(...sysr.audios)
@@ -339,13 +395,9 @@ export async function expandTemplate(
                         "only string user messages supported in system"
                     )
             }
-            if (sysr.aici) {
-                trace.fence(sysr.aici, "yaml")
-                messages.push(sysr.aici)
-            }
             logprobs = logprobs || system.logprobs
             topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)
-            trace.detailsFenced("js", system.jsSource, "js")
+            trace.detailsFenced("💻 script source", system.jsSource, "js")
             trace.endDetails()
 
             if (sysr.status !== "success") {
@@ -361,39 +413,15 @@ export async function expandTemplate(
         trace.endDetails()
     }
 
-    if (systems.includes("system.tool_calls")) {
+    if (options.fallbackTools) {
         addToolDefinitionsMessage(messages, tools)
-        options.fallbackTools = true
     }
 
-    const responseSchema = promptParametersSchemaToJSONSchema(
-        template.responseSchema
-    ) as JSONSchemaObject
-    if (responseSchema)
-        trace.detailsFenced("📜 response schema", responseSchema)
-    let responseType = template.responseType
-    if (responseSchema && responseType !== "json_schema") {
-        responseType = "json_object"
-        const typeName = "Output"
-        const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
-            typeName,
-        })
-        addSystemMessage(`You are a service that translates user requests 
-into JSON objects of type "${typeName}" 
-according to the following TypeScript definitions:
-\`\`\`ts
-${schemaTs}
-\`\`\``)
-    } else if (responseType === "json_object") {
-        addSystemMessage("Answer using JSON.")
-    } else if (responseType === "json_schema") {
-        if (!responseSchema)
-            throw new Error(`responseSchema is required for json_schema`)
-        // try conversion
-        toStrictJSONSchema(responseSchema)
-    }
-
-    finalizeMessages(messages, { fileOutputs })
+    const { responseType, responseSchema } = finalizeMessages(model, messages, {
+        ...template,
+        fileOutputs,
+        trace,
+    })
 
     trace.endDetails()
 
@@ -408,6 +436,7 @@ ${schemaTs}
         statusText: statusText,
         model,
         temperature,
+        reasoningEffort,
         topP,
         maxTokens,
         maxToolCalls,
@@ -422,5 +451,6 @@ ${schemaTs}
         logprobs,
         topLogprobs,
         disposables,
+        fallbackTools: options.fallbackTools,
     }
 }

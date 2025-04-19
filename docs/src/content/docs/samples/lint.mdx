@@ -38,11 +38,11 @@ script({
 })
 ```
 
--   **`script({...})`**: This function initializes a GenAI script.
--   **`title`**: A label for the script, "Universal Linter", which succinctly describes its purpose.
--   **`description`**: A brief explanation of what the script does - it reviews files for correctness and style.
--   **`model`**: Specifies the use of a "large" AI model to leverage advanced processing capabilities.
--   **`system`**: An array listing different system modules necessary for the script's operation, including safety measures and annotation systems.
+- **`script({...})`**: This function initializes a GenAI script.
+- **`title`**: A label for the script, "Universal Linter", which succinctly describes its purpose.
+- **`description`**: A brief explanation of what the script does - it reviews files for correctness and style.
+- **`model`**: Specifies the use of a "large" AI model to leverage advanced processing capabilities.
+- **`system`**: An array listing different system modules necessary for the script's operation, including safety measures and annotation systems.
 
 The script also contains a prompt block:
 
@@ -65,10 +65,10 @@ Your task is to review the content in FILE and report warnings and errors.
 `.role("system")
 ```
 
--   **`$``Task`**: Begins a prompt section where the AI's task is defined.
--   **`You are Linty...`**: Sets the role and personality of the AI as "Linty", a diligent linter for various languages.
--   **`Your task...`**: Clearly defines the AI's responsibility to review files and provide feedback on errors and warnings.
--   **`Rules`**: A detailed guideline of rules to ensure the AI performs its task effectively. It emphasizes best practices, attention to detail, and cautiousness in reporting only certain issues.
+- **`$``Task`**: Begins a prompt section where the AI's task is defined.
+- **`You are Linty...`**: Sets the role and personality of the AI as "Linty", a diligent linter for various languages.
+- **`Your task...`**: Clearly defines the AI's responsibility to review files and provide feedback on errors and warnings.
+- **`Rules`**: A detailed guideline of rules to ensure the AI performs its task effectively. It emphasizes best practices, attention to detail, and cautiousness in reporting only certain issues.
 
 Finally, the script specifies files to be processed:
 
@@ -76,14 +76,14 @@ Finally, the script specifies files to be processed:
 def("FILE", env.files, { lineNumbers: true })
 ```
 
--   **`def("FILE", env.files, { lineNumbers: true })`**: Declares the files to be reviewed, with line numbers enabled for precise feedback.
+- **`def("FILE", env.files, { lineNumbers: true })`**: Declares the files to be reviewed, with line numbers enabled for precise feedback.
 
 ### Running the Script
 
 To execute this script, you can run it from Visual Studio Code or use the GenAIScript CLI. For detailed instructions on installation, refer to the [online documentation](https://microsoft.github.io/genaiscript/getting-started).
 
 ```bash
-npx --yes genaiscript run lint <file1> <file2> ...
+genaiscript run lint <file1> <file2> ...
 ```
 
 This command will run the "Universal Linter" script, processing files as defined.

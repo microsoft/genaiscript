@@ -14,9 +14,10 @@ You can rename any `.genai.js` file to `.genai.mjs` to enable module imports.
 
 ## Module Imports
 
-You can import node packages installed in your project.
+You can import node packages installed in your project
+in `.mjs` or `.mts`.
 
-```js
+```js title="script.genai.mjs"
 import { parse } from "ini"
 
 // static import
@@ -30,7 +31,8 @@ console.log(stringify(res))
 
 ## JavaScript imports
 
-You can also import other local **JavaScript** files (using static or dynamic imports).
+You can also import other local **JavaScript** module files (using static or dynamic imports).
+**Use `.mjs` extension for module JavaScript files.**
 
 ```js title="summarizer.mjs"
 export function summarize(files) {
@@ -55,13 +57,21 @@ summarize(env.generator, env.files)
 
 ## TypeScript imports
 
-[TypeScript module files](/genaiscript/reference/scripts/typescript) (`.mts`) can be imported using **dynamic** import only.
+You can import [TypeScript module files](/genaiscript/reference/scripts/typescript) (`.mts`).
+**Use `.mts` extension for module TypeScript files.**
 
 ```js title="summarizer.mts"
 export function summarize(files: string[]) {
     def("FILE", files)
     $`Summarize each file. Be concise.`
 }
+```
+
+- static import (`import ... from ...`)
+
+```js
+import { summarize } from "./summarizer.mts"
+summarize(env.generator, env.files)
 ```
 
 - dynamic import (`async import(...)`)
@@ -82,6 +92,25 @@ export function summarize(_, files) {
 }
 ```
 
+## JSON Modules
+
+You can import JSON files using the `import` statement and get automatic type inference.
+
+```js title="data.json"
+{
+    "name": "GenAIScript"
+}
+```
+
+Use the `with { type: "json" }` syntax to import JSON files in `.mjs` or `.mts` files.
+The file path is relative to the genaiscript source file.
+
+```js title="script.genai.mts"
+import data from "./data.json" with { type: "json" }
+
+console.log(data.name) // GenAIScript
+```
+
 ## Default function export
 
 If you set a function as the default export, GenAIScript will call it.
@@ -92,4 +121,26 @@ script(...)
 export default async function() {
     $`Write a poem.`
 }
+```
+
+## Package type
+
+If you have a `package.json` file in your project, you can set the `type` field to `module` to enable module imports in all `.js` files.
+
+```json
+{
+    "type": "module"
+}
+```
+
+This will allow you to use module imports in all `.js` files in your project.
+
+## Current script file
+
+You can use the `import.meta.url` to get the current script file URL.
+This is useful to get the current script file path and use it in your script.
+
+```js title="script.genai.mjs"
+// convert file:// to absolute path
+const filename = path.resolveFileURL(import.meta.url)
 ```

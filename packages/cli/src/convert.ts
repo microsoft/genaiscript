@@ -1,22 +1,16 @@
 import {
-    CONVERTS_DIR_NAME,
     FILES_NOT_FOUND_ERROR_CODE,
     GENAI_ANY_REGEX,
-    GENAI_ANYTS_REGEX,
     HTTPS_REGEX,
     JSON5_REGEX,
     TRACE_FILENAME,
+    YAML_REGEX,
+    OUTPUT_FILENAME,
 } from "../../core/src/constants"
 import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs"
 import { host } from "../../core/src/host"
-import { MarkdownTrace, TraceOptions } from "../../core/src/trace"
-import {
-    dotGenaiscriptPath,
-    logError,
-    logInfo,
-    logVerbose,
-    normalizeInt,
-} from "../../core/src/util"
+import { MarkdownTrace } from "../../core/src/trace"
+import { logError, logInfo, logVerbose } from "../../core/src/util"
 import { buildProject } from "./build"
 import { run } from "./api"
 import { writeText } from "../../core/src/fs"
@@ -24,27 +18,41 @@ import { PromptScriptRunOptions } from "./main"
 import { PLimitPromiseQueue } from "../../core/src/concurrency"
 import { createPatch } from "diff"
 import { unfence } from "../../core/src/unwrappers"
-import { JSONLLMTryParse, JSONTryParse } from "../../core/src/json5"
-import { applyModelOptions } from "./modelalias"
-import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
+import { applyModelOptions } from "../../core/src/modelalias"
+import { setupTraceWriting } from "./trace"
 import { tracePromptResult } from "../../core/src/chat"
 import { dirname, join } from "node:path"
 import { link } from "../../core/src/mkmd"
-import { hash, randomHex } from "../../core/src/crypto"
+import { hash } from "../../core/src/crypto"
 import { createCancellationController } from "./cancel"
 import { toSignal } from "../../core/src/cancellation"
+import { normalizeInt } from "../../core/src/cleaners"
+import { YAMLStringify } from "../../core/src/yaml"
+import { ensureDotGenaiscriptPath, getConvertDir } from "../../core/src/workdir"
+import { GenerationStats } from "../../core/src/usage"
+import { measure } from "../../core/src/performance"
 
-function getConvertDir(scriptId: string) {
-    const runId =
-        new Date().toISOString().replace(/[:.]/g, "-") + "-" + randomHex(6)
-    const out = dotGenaiscriptPath(
-        CONVERTS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        runId
-    )
-    return out
-}
-
+/**
+ * Converts a set of files based on a specified script, applying transformations and generating output files.
+ *
+ * @param scriptId - Identifier of the script to use for file conversion.
+ * @param fileGlobs - Array of file paths or glob patterns identifying files to be transformed.
+ * @param options - Additional configuration for the conversion process:
+ *   - `suffix` - Custom suffix for the output files.
+ *   - `rewrite` - If true, overwrites existing files instead of creating new ones with a suffix.
+ *   - `cancelWord` - A keyword that cancels processing if found in the result.
+ *   - `concurrency` - Number of files to process concurrently.
+ *   - `excludedFiles` - Array of file paths or glob patterns to exclude from processing.
+ *   - `ignoreGitIgnore` - If true, ignores .gitignore rules during file resolution.
+ *   - `runTrace` - If false, disables trace generation for individual files.
+ *   - `outputTrace` - If false, disables output trace generation for individual files.
+ *   - Other options passed to the transformation process.
+ *
+ * @throws Error if the script is not found or no files match the given patterns.
+ *
+ * Resolves files matching the provided patterns, filters them based on exclusion and rewrite options,
+ * applies AI transformations using the specified script, and writes results to output files.
+ */
 export async function convertFiles(
     scriptId: string,
     fileGlobs: string[],
@@ -57,10 +65,11 @@ export async function convertFiles(
 ): Promise<void> {
     const {
         excludedFiles,
-        excludeGitIgnore,
         rewrite,
         cancelWord,
         concurrency,
+        runTrace,
+        outputTrace,
         ...restOptions
     } = options || {}
 
@@ -70,11 +79,15 @@ export async function convertFiles(
     const signal = toSignal(cancellationToken)
     applyModelOptions(options, "cli")
     const convertDir = getConvertDir(scriptId)
-    const convertTrace = new MarkdownTrace()
+    const convertTrace = new MarkdownTrace({
+        cancellationToken,
+        dir: convertDir,
+    })
     const outTraceFilename = await setupTraceWriting(
         convertTrace,
         "trace",
-        join(convertDir, TRACE_FILENAME)
+        join(convertDir, TRACE_FILENAME),
+        { ignoreInner: true }
     )
     const outTraceDir = dirname(outTraceFilename)
 
@@ -99,12 +112,22 @@ export async function convertFiles(
         convertTrace.error(`script ${scriptId} not found`)
         throw new Error(`script ${scriptId} not found`)
     }
-
-    const suffix = options?.suffix || `.genai.${script.id}.md`
+    const { responseType, responseSchema } = script
+    const ext =
+        responseType === "yaml"
+            ? ".yaml"
+            : responseType === "text"
+              ? ".txt"
+              : /^json/.test(responseType) || responseSchema
+                ? ".json"
+                : ".md"
+    const suffix = options?.suffix || `.genai.${script.id}${ext}`
     convertTrace.heading(2, `convert with ${script.id}`)
     convertTrace.itemValue(`suffix`, suffix)
 
     // resolve files
+    const applyGitIgnore =
+        options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
     const resolvedFiles = new Set<string>()
     for (let arg of fileGlobs) {
         if (HTTPS_REGEX.test(arg)) {
@@ -114,11 +137,11 @@ export async function convertFiles(
         const stats = await host.statFile(arg)
         if (stats?.type === "directory") arg = host.path.join(arg, "**", "*")
         const ffs = await host.findFiles(arg, {
-            applyGitIgnore: excludeGitIgnore,
+            applyGitIgnore,
         })
         if (!ffs?.length) {
             return fail(
-                `no files matching ${arg} under ${process.cwd()}`,
+                `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
                 FILES_NOT_FOUND_ERROR_CODE
             )
         }
@@ -140,29 +163,46 @@ export async function convertFiles(
         (filename) => ({ filename }) as WorkspaceFile
     )
 
+    const stats: object[] = []
+    const usage = new GenerationStats("convert")
     const results: Record<string, string> = {}
     const p = new PLimitPromiseQueue(normalizeInt(concurrency) || 1)
     await p.mapAll(files, async (file) => {
         if (cancellationToken.isCancellationRequested) return
         const outf = rewrite ? file.filename : file.filename + suffix
         logInfo(`${file.filename} -> ${outf}`)
-        const fileOutTrace = join(
-            outTraceDir,
-            (await hash(file.filename, { length: 7 })) + ".md"
-        )
+        const fni = await hash(file.filename, { length: 7 })
+        const fileOutTrace =
+            runTrace === false
+                ? undefined
+                : join(outTraceDir, fni, TRACE_FILENAME)
+        const fileOutOutput =
+            outputTrace === false
+                ? undefined
+                : join(outTraceDir, fni, OUTPUT_FILENAME)
         const fileTrace = convertTrace.startTraceDetails(file.filename)
-        convertTrace.item(link("trace", fileOutTrace))
-        logVerbose(`trace: ${fileOutTrace}`)
+        if (fileOutTrace) {
+            convertTrace.item(link("trace", fileOutTrace))
+            logVerbose(`trace: ${fileOutTrace}`)
+        }
+        if (fileOutOutput) {
+            convertTrace.item(link("output", fileOutOutput))
+            logVerbose(`output: ${fileOutOutput}`)
+        }
+        const m = measure("convert")
         try {
             // apply AI transformation
             const result = await run(script.filename, file.filename, {
                 label: file.filename,
                 outTrace: fileOutTrace,
+                outOutput: fileOutOutput,
+                runTrace: false,
+                outputTrace: false,
                 signal,
                 ...restOptions,
             })
             tracePromptResult(fileTrace, result)
-            const { error } = result || {}
+            const { error, json } = result || {}
             if (error) {
                 logError(error)
                 fileTrace.error(undefined, error)
@@ -179,6 +219,16 @@ export async function convertFiles(
                 fileTrace.itemValue(`cancel word detected`, cancelWord)
                 return
             }
+            const end = m()
+            usage.addUsage(
+                {
+                    total_tokens: result.usage?.total,
+                    prompt_tokens: result.usage?.prompt,
+                    completion_tokens: result.usage?.completion,
+                },
+                end
+            )
+            if (result.usage) stats.push(result.usage)
             logVerbose(Object.keys(result.fileEdits || {}).join("\n"))
             // structured extraction
             const fileEdit = Object.entries(result.fileEdits || {}).find(
@@ -213,17 +263,8 @@ export async function convertFiles(
             if (text === undefined) text = unfence(result.text, "markdown")
 
             // normalize JSON
-            if (JSON5_REGEX.test(outf) && text) {
-                // normalize data
-                let data = JSONTryParse(text)
-                if (data === undefined) {
-                    data = JSONLLMTryParse(text)
-                    if (data !== undefined) {
-                        logVerbose("repair json")
-                        text = JSON.stringify(text, null, 2)
-                    }
-                }
-            }
+            if (JSON5_REGEX.test(outf)) text = JSON.stringify(json, null, 2)
+            else if (YAML_REGEX.test(outf)) text = YAMLStringify(json)
 
             // save file
             const existing = await tryReadText(outf)
@@ -252,5 +293,9 @@ export async function convertFiles(
         }
     })
 
+    usage.log()
+    usage.trace(convertTrace)
+
+    convertTrace.table(stats)
     logVerbose(`trace: ${outTraceFilename}`)
 }

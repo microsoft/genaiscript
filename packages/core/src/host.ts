@@ -5,10 +5,25 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import {
     AzureCredentialsType,
     LanguageModelConfiguration,
+    LogLevel,
     Project,
     ResponseStatus,
 } from "./server/messages"
 import { HostConfiguration } from "./hostconfiguration"
+import { LOG } from "./constants"
+import type { TokenCredential } from "@azure/identity"
+import { McpClientManager } from "./mcpclient"
+import { ResourceManager } from "./mcpresource"
+
+export class LogEvent extends Event {
+    static Name = "log"
+    constructor(
+        public readonly level: LogLevel,
+        public readonly message: string
+    ) {
+        super(LOG)
+    }
+}
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -22,13 +37,6 @@ export interface UTF8Decoder {
 
 export interface UTF8Encoder {
     encode(input: string): Uint8Array
-}
-
-export enum LogLevel {
-    Verbose = 1,
-    Info = 2,
-    Warn = 3,
-    Error = 4,
 }
 
 export interface RetrievalClientOptions {
@@ -59,8 +67,19 @@ export interface ServerManager {
 export interface AuthenticationToken {
     token: string
     expiresOnTimestamp: number
+    credential: TokenCredential
 }
 
+/**
+ * Determines whether an Azure authentication token has expired.
+ *
+ * @param token - The authentication token to check. Contains the token string, expiration timestamp, and credential object.
+ *                If null or undefined, the token is considered expired.
+ * @returns True if the token is expired or invalid; false otherwise.
+ *
+ * Note: The function considers a token expired if its expiration timestamp is within 5 seconds
+ * of the current time, to account for potential timing discrepancies.
+ */
 export function isAzureTokenExpired(token: AuthenticationToken) {
     // Consider the token expired 5 seconds before the actual expiration to avoid timing issues
     return !token || token.expiresOnTimestamp < Date.now() - 5_000
@@ -70,11 +89,17 @@ export interface AzureTokenResolver {
     token(
         credentialsType: AzureCredentialsType,
         options?: CancellationOptions
-    ): Promise<{ token?: AuthenticationToken; error?: SerializedError }>
+    ): Promise<{
+        token?: AuthenticationToken
+        error?: SerializedError
+    }>
 }
 
 export type ModelConfiguration = Readonly<
-    Pick<ModelOptions, "model" | "temperature"> & {
+    Pick<
+        ModelOptions,
+        "model" | "temperature" | "reasoningEffort" | "fallbackTools"
+    > & {
         source: "cli" | "env" | "script" | "config" | "default"
         candidates?: string[]
     }
@@ -88,7 +113,7 @@ export type ModelConfigurations = {
 } & Record<string, ModelConfiguration>
 
 export interface Host {
-    userState: any
+    userState: Record<string, any>
     server: ServerManager
     path: Path
 
@@ -127,10 +152,18 @@ export interface Host {
 
 export interface RuntimeHost extends Host {
     project: Project
-    workspace: Omit<WorkspaceFileSystem, "grep">
-    azureToken: AzureTokenResolver
+    workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">
+
+    azureToken?: AzureTokenResolver
+    azureAIServerlessToken?: AzureTokenResolver
+    azureManagementToken?: AzureTokenResolver
+    microsoftGraphToken?: AzureTokenResolver
+
     modelAliases: Readonly<ModelConfigurations>
     clientLanguageModel?: LanguageModel
+
+    mcp: McpClientManager
+    resources: ResourceManager
 
     pullModel(
         cfg: LanguageModelConfiguration,
@@ -144,7 +177,18 @@ export interface RuntimeHost extends Host {
         value: string | Omit<ModelConfiguration, "source">
     ): void
 
+    /**
+     * Reloads the configuration
+     */
     readConfig(): Promise<HostConfiguration>
+    /**
+     * Gets the current loaded configuration
+     */
+    get config(): HostConfiguration
+    /**
+     * Reads a secret
+     * @param name
+     */
     readSecret(name: string): Promise<string | undefined>
     // executes a process
     exec(
@@ -159,6 +203,13 @@ export interface RuntimeHost extends Host {
      * @param options
      */
     container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
+
+    /**
+     * Instantiates a python evaluation environment
+     */
+    python(
+        options?: PythonRuntimeOptions & TraceOptions & CancellationOptions
+    ): Promise<PythonRuntime>
 
     /**
      * Launches a browser page
@@ -209,15 +260,27 @@ export interface RuntimeHost extends Host {
      */
     contentSafety(
         id?: ContentSafetyProvider,
-        options?: TraceOptions
+        options?: TraceOptions & CancellationOptions
     ): Promise<ContentSafety>
 }
 
 export let host: Host
+/**
+ * Assigns a Host implementation to the global `host` variable.
+ *
+ * @param h - The Host instance to set as the global host. This allows integration
+ *            with the provided Host functionality for further operations and services.
+ */
 export function setHost(h: Host) {
     host = h
 }
 export let runtimeHost: RuntimeHost
+/**
+ * Sets the runtime host instance and updates the global host reference.
+ *
+ * @param h - An instance of RuntimeHost representing the runtime host to be set.
+ *            This will also update the `host` to refer to the same instance.
+ */
 export function setRuntimeHost(h: RuntimeHost) {
     setHost(h)
     runtimeHost = h

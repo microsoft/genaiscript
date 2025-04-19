@@ -10,7 +10,18 @@ script({
                     type: "string",
                 },
             },
+            wordCount: {
+                type: "integer",
+            },
+            sentenceCount: {
+                type: "number",
+            },
         },
+        required: ["sentences", "wordCount", "sentenceCount"],
     },
 })
-$`Generate 3 random sentences!`
+$`Generate 10 random sentences of 5 words. Use quotes (") to start a word, single quote ' to finish a word!
+Place problematic characters for JSON in the sentences.
+
+"hello' "sir' "!'
+`

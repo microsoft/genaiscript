@@ -5,7 +5,9 @@ sidebar:
     order: 7.1
 ---
 
+import { Code } from "@astrojs/starlight/components"
 import { Content as BuiltinAgents } from "../../../../components/BuiltinAgents.mdx"
+import sourceMulti from "../../../../../../packages/sample/genaisrc/agent_git_other.genai.mjs?raw"
 
 GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tools) that
 runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent's LLM is typically augmented with
@@ -47,7 +49,9 @@ flowchart LR
 
 ## Agent vs Tools
 
-Note that in this simple example, you could also decide to flatten this tree and give access to the git tools to the main LLM and skip the agent.
+An "agent" is a tool that queries an LLM, equipped with other tools, to accomplish tasks. It is a higher-level abstraction that can be used to group multiple tools together.
+In some scenarios, you might decide to remove that abstraction and skip the agent by "giving" the tools to the calling LLM.
+In this simple example, you could also decide to flatten this tree and give access to the git tools to the main LLM and skip the agent.
 
 ```mermaid
 flowchart LR
@@ -139,8 +143,14 @@ defAgent(
 )
 ```
 
--   the agent id will become the tool id `agent_<id>`
--   the description of the agent will automatically be augmented with information about the available tools
+- the agent id will become the tool id `agent_<id>`
+- the description of the agent will automatically be augmented with information about the available tools
+
+## Multiple instances of the same agent
+
+Some agents, like `agent_git`, can be instantiated with different configurations, like working on different repositories.
+
+<Code code={sourceMulti} wrap={true} lang="js" title="multi-agents.genai.mts" />
 
 <BuiltinAgents />
 
@@ -193,8 +203,8 @@ defTool(
 
 Inside callback, we use `runPrompt` to run an LLM query.
 
--   the prompt takes the query argument and tells the LLM how to handle it.
--   note the use of `ctx.` for nested prompts
+- the prompt takes the query argument and tells the LLM how to handle it.
+- note the use of `ctx.` for nested prompts
 
 ```js wrap
         const res = await runPrompt(
@@ -235,3 +245,14 @@ We use the `system` parameter to configure the tools exposed to the LLM. In this
 ```
 
 This full source of this agent is defined in the [system.agent_github](/genaiscript/reference/scripts/system/#systemagent_github) system prompt.
+
+## Logging
+
+Each agent uses a `agent:<name>` [logging](/genaiscript/reference/scripts/logging) namespace
+to report debugging information.
+
+To get logging from the cli, you can use the `DEBUG` environment variable to enable logging for a specific agent.
+
+```sh
+DEBUG=agent:github* genascript run ...
+```

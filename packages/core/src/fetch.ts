@@ -1,5 +1,5 @@
 import wrapFetch from "fetch-retry"
-import { MarkdownTrace, TraceOptions } from "./trace"
+import { TraceOptions } from "./trace"
 import {
     FETCH_RETRY_DEFAULT,
     FETCH_RETRY_DEFAULT_DEFAULT,
@@ -7,17 +7,15 @@ import {
     FETCH_RETRY_MAX_DELAY_DEFAULT,
 } from "./constants"
 import { errorMessage } from "./error"
-import { logVerbose, toStringList } from "./util"
+import { logVerbose } from "./util"
 import { CancellationOptions, CancellationToken } from "./cancellation"
 import { resolveHttpProxyAgent } from "./proxy"
 import { host } from "./host"
 import { renderWithPrecision } from "./precision"
 import crossFetch from "cross-fetch"
-import prettyBytes from "pretty-bytes"
-import { fileTypeFromBuffer } from "file-type"
-import { isBinaryMimeType } from "./binary"
-import { toBase64 } from "./base64"
-import { deleteUndefinedValues } from "./cleaners"
+import debug from "debug"
+import { prettyStrings } from "./pretty"
+const dbg = debug("genaiscript:fetch")
 
 export type FetchType = (
     input: string | URL | globalThis.Request,
@@ -27,12 +25,18 @@ export type FetchType = (
 /**
  * Creates a fetch function with retry logic.
  *
- * This function wraps the `crossFetch` with retry capabilities based
- * on provided options. It allows configuring the number of retries,
- * delay between retries, and specific HTTP status codes to retry on.
+ * Wraps `crossFetch` with retry capabilities based on the provided options.
+ * Configures the number of retries, delay between retries, HTTP status codes to retry on,
+ * and supports cancellation and proxy configuration.
  *
- * @param options - Options for retry configuration and tracing.
- * @returns A fetch function with retry capabilities.
+ * @param options - Configuration for retries, delays, HTTP status codes, cancellation token, and tracing.
+ *   - retryOn: HTTP status codes to retry on.
+ *   - retries: Number of retry attempts.
+ *   - retryDelay: Initial delay between retries.
+ *   - maxDelay: Maximum delay between retries.
+ *   - cancellationToken: Token to cancel the fetch.
+ *   - trace: Trace options for logging.
+ * @returns A fetch function with retry and cancellation support.
  */
 export async function createFetch(
     options?: {
@@ -45,7 +49,7 @@ export async function createFetch(
 ): Promise<FetchType> {
     const {
         retries = FETCH_RETRY_DEFAULT,
-        retryOn = [429, 500, 504],
+        retryOn = [408, 429, 500, 504],
         trace,
         retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
         maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
@@ -62,7 +66,10 @@ export async function createFetch(
         : crossFetch
 
     // Return the default fetch if no retry status codes are specified
-    if (!retryOn?.length) return crossFetchWithProxy
+    if (!retryOn?.length) {
+        dbg("no retry logic applied, using crossFetchWithProxy directly")
+        return crossFetchWithProxy
+    }
 
     // Create a fetch function with retry logic
     const fetchRetry = wrapFetch(crossFetchWithProxy, {
@@ -70,13 +77,16 @@ export async function createFetch(
         retries,
         retryDelay: (attempt, error, response) => {
             const code: string = (error as any)?.code as string
+            dbg(`retry attempt: %d, error code: %s`, attempt, code)
             if (
                 code === "ECONNRESET" ||
                 code === "ENOTFOUND" ||
                 cancellationToken?.isCancellationRequested
-            )
+            ) {
+                dbg("fatal error or cancellation")
                 // Return undefined for fatal errors or cancellations to stop retries
                 return undefined
+            }
 
             const message = errorMessage(error)
             const status = statusToMessage(response)
@@ -86,7 +96,7 @@ export async function createFetch(
                     Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
                 ) *
                 (1 + Math.random() / 20) // 5% jitter for delay randomization
-            const msg = toStringList(
+            const msg = prettyStrings(
                 `retry #${attempt + 1} in ${renderWithPrecision(Math.floor(delay) / 1000, 1)}s`,
                 message,
                 status
@@ -99,6 +109,22 @@ export async function createFetch(
     return fetchRetry
 }
 
+/**
+ * Executes an HTTP(S) request with optional retry logic.
+ *
+ * Wraps the input request with retry capabilities and additional configurations.
+ * Leverages `createFetch` to handle retry conditions and builds a final fetch function.
+ *
+ * @param input - The input to the fetch request. Can be a string URL, URL object, or Request object.
+ * @param options - Configuration options for the fetch operation.
+ *   - retryOn: Array of HTTP status codes to retry on.
+ *   - retries: Number of retry attempts.
+ *   - retryDelay: Initial delay between retries in milliseconds.
+ *   - maxDelay: Maximum allowable delay between retries in milliseconds.
+ *   - trace: Trace options for logging the fetch operation.
+ *   - ...rest: Additional options passed to the fetch request.
+ * @returns A Promise resolving with the HTTP Response.
+ */
 export async function fetch(
     input: string | URL | globalThis.Request,
     options?: FetchOptions & TraceOptions
@@ -116,144 +142,19 @@ export async function fetch(
 }
 
 /**
- * Fetches text content from a URL or file.
+ * Converts the HTTP response status and status text into a list of strings.
  *
- * This function attempts to fetch content from either a URL or a local file.
- * It supports HTTP(S) URLs and reads directly from the file system for local files.
+ * Extracts the status and status text from the response object for logging and debugging.
  *
- * @param urlOrFile - The URL or file to fetch from.
- * @param fetchOptions - Optional fetch configuration.
- * @returns An object containing fetch status and content.
- */
-export async function fetchText(
-    urlOrFile: string | WorkspaceFile,
-    fetchOptions?: FetchTextOptions & TraceOptions
-) {
-    const { retries, retryDelay, retryOn, maxDelay, trace, ...rest } =
-        fetchOptions || {}
-    if (typeof urlOrFile === "string") {
-        urlOrFile = {
-            filename: urlOrFile,
-            content: "",
-        }
-    }
-    const url = urlOrFile.filename
-    let ok = false
-    let status = 404
-    let bytes: Uint8Array
-    if (/^https?:\/\//i.test(url)) {
-        const f = await createFetch({
-            retries,
-            retryDelay,
-            retryOn,
-            maxDelay,
-            trace,
-        })
-        const resp = await f(url, rest)
-        ok = resp.ok
-        status = resp.status
-        if (ok) bytes = new Uint8Array(await resp.arrayBuffer())
-    } else {
-        try {
-            bytes = await host.readFile(url)
-        } catch (e) {
-            logVerbose(e)
-            ok = false
-            status = 404
-        }
-    }
-
-    let content: string
-    let encoding: "base64"
-    let type: string
-    const mime = await fileTypeFromBuffer(bytes)
-    if (isBinaryMimeType(mime?.mime)) {
-        encoding = "base64"
-        content = toBase64(bytes)
-    } else {
-        content = host.createUTF8Decoder().decode(bytes)
-    }
-    ok = true
-    const file: WorkspaceFile = deleteUndefinedValues({
-        filename: urlOrFile.filename,
-        encoding,
-        type,
-        content,
-    })
-    return {
-        ok,
-        status,
-        text: content,
-        bytes,
-        file,
-    }
-}
-
-/**
- * Logs a POST request for tracing.
- *
- * Constructs a curl command representing the POST request with appropriate headers
- * and body, optionally masking sensitive information like authorization headers.
- *
- * @param trace - Markdown trace object for logging.
- * @param url - The URL of the request.
- * @param headers - The request headers.
- * @param body - The request body.
- * @param options - Options for displaying authorization header.
- */
-export function traceFetchPost(
-    trace: MarkdownTrace,
-    url: string,
-    headers: Record<string, string>,
-    body: FormData | any,
-    options?: { showAuthorization?: boolean }
-) {
-    if (!trace) return
-    const { showAuthorization } = options || {}
-    headers = { ...(headers || {}) }
-    if (!showAuthorization)
-        Object.entries(headers)
-            .filter(([k]) =>
-                /^(authorization|api-key|ocp-apim-subscription-key)$/i.test(k)
-            )
-            .forEach(
-                ([k]) =>
-                    (headers[k] = /Bearer /i.test(headers[k])
-                        ? "Bearer ***" // Mask Bearer tokens
-                        : "***") // Mask other authorization headers
-            )
-    let cmd = `curl ${url} \\
---no-buffer \\
-${Object.entries(headers)
-    .map(([k, v]) => `-H "${k}: ${v}"`)
-    .join(" \\\n")} \\
-`
-    if (body instanceof FormData) {
-        body.forEach((value, key) => {
-            cmd += `-F ${key}=${value instanceof File ? `... (${prettyBytes(value.size)})` : "" + value}\n`
-        })
-    } else
-        cmd += `-d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
-`
-    if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
-    else logVerbose(cmd)
-}
-
-/**
- * Converts a response status to a message.
- *
- * Converts the HTTP response status and status text into a string list
- * to facilitate logging and debugging.
- *
- * @param res - The response object.
- * @returns A list of status and status text.
+ * @param res - The HTTP response object. Includes optional status and statusText fields.
+ * @returns A list of strings containing the status and status text if provided.
  */
 export function statusToMessage(res?: {
     status?: number
     statusText?: string
 }) {
     const { status, statusText } = res || {}
-    return toStringList(
+    return prettyStrings(
         typeof status === "number" ? status + "" : undefined,
         statusText
     )
@@ -269,13 +170,17 @@ export async function* iterateBody(
         const reader = r.body.getReader()
         while (!cancellationToken?.isCancellationRequested) {
             const { done, value } = await reader.read()
-            if (done) break
+            if (done) {
+                break
+            }
             const text = decoder.decode(value, { stream: true })
             yield text
         }
     } else {
         for await (const value of r.body as any) {
-            if (cancellationToken?.isCancellationRequested) break
+            if (cancellationToken?.isCancellationRequested) {
+                break
+            }
             const text = decoder.decode(value, { stream: true })
             yield text
         }

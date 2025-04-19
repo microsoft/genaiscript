@@ -7,10 +7,10 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.95.0",
+    "version": "1.130.1",
     "icon": "icon.png",
     "engines": {
-        "vscode": "^1.95.0"
+        "vscode": "^1.98.0"
     },
     "keywords": [
         "javascript",
@@ -24,9 +24,11 @@
         "scripting",
         "python",
         "llm",
-        "gpt"
+        "gpt",
+        "mcp"
     ],
     "categories": [
+        "AI",
         "Programming Languages",
         "Machine Learning",
         "Education",
@@ -71,6 +73,12 @@
                         "description": "Runs a GenAIScript script. The query should start with the script filename without the extension.",
                         "isSticky": false,
                         "sampleRequest": "/run poem"
+                    },
+                    {
+                        "name": "models",
+                        "description": "Lists available Language Models and the aliases.",
+                        "isSticky": false,
+                        "sampleRequest": "/models"
                     }
                 ]
             }
@@ -123,8 +131,8 @@
                 "steps": [
                     {
                         "id": "genaiscript.tutirla.node",
-                        "title": "Install Node.JS LTS",
-                        "description": "GenAIScript requires Node.JS LTS to run. [Read more...](https://microsoft.github.io/genaiscript/getting-started/installation/)",
+                        "title": "Install Node.JS LTS (v20+)",
+                        "description": "GenAIScript requires Node.JS LTS (v20+) to run. [Read more...](https://microsoft.github.io/genaiscript/getting-started/installation/)",
                         "media": {
                             "image": "media/tutorial-start.png",
                             "altText": ""
@@ -133,7 +141,7 @@
                     {
                         "id": "genaiscript.tutorial.start",
                         "title": "Open Tutorial Notebook",
-                        "description": "You will learn how to create LLM-powered scripts using JavaScript.\nOpen the command palette and select **GenAIScript: Create Mardown Notebook** to get started.",
+                        "description": "You will learn how to create LLM-powered scripts using JavaScript.\nOpen the command palette and select **GenAIScript: Create Markdown Notebook** to get started.",
                         "media": {
                             "image": "media/tutorial-start.png",
                             "altText": ""
@@ -182,27 +190,24 @@
             "genaiscript": [
                 {
                     "id": "genaiscript.trace",
-                    "name": "Trace"
+                    "name": "Trace",
+                    "visibility": "visible",
+                    "type": "tree",
+                    "icon": "./icon.svg"
                 },
                 {
                     "id": "genaiscript.connections",
                     "name": "Connections",
-                    "visibility": "collapsed"
+                    "visibility": "collapsed",
+                    "type": "tree",
+                    "icon": "./icon.svg"
                 },
                 {
                     "id": "genaiscript.prompts",
                     "name": "Scripts",
-                    "visibility": "collapsed"
-                },
-                {
-                    "id": "genaiscript.prompts.requests",
-                    "name": "Runs",
-                    "visibility": "collapsed"
-                },
-                {
-                    "id": "genaiscript.llm.requests",
-                    "name": "Chat Requests",
-                    "visibility": "collapsed"
+                    "visibility": "collapsed",
+                    "type": "tree",
+                    "icon": "./icon.svg"
                 }
             ]
         },
@@ -216,6 +221,11 @@
                 {
                     "command": "genaiscript.fragment.debug",
                     "when": "!inDebugMode",
+                    "group": "genaiscript@2"
+                },
+                {
+                    "command": "genaiscript.fragment.fix",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
                     "group": "genaiscript@2"
                 }
             ],
@@ -234,6 +244,11 @@
                     "command": "genaiscript.fragment.debug",
                     "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
                     "group": "genaiscript@2"
+                },
+                {
+                    "command": "genaiscript.server.show",
+                    "when": "activeWebviewPanelId == genaiscript",
+                    "group": "genaiscript@4"
                 }
             ],
             "commandPalette": [
@@ -258,7 +273,7 @@
                     "when": "false"
                 },
                 {
-                    "command": "genaiscript.samples.download",
+                    "command": "genaiscript.connections.refresh",
                     "when": "false"
                 }
             ],
@@ -266,6 +281,11 @@
                 {
                     "command": "genaiscript.request.abort",
                     "when": "view == genaiscript.trace",
+                    "group": "navigation"
+                },
+                {
+                    "command": "genaiscript.connections.refresh",
+                    "when": "view == genaiscript.connections",
                     "group": "navigation"
                 },
                 {
@@ -297,6 +317,21 @@
             {
                 "title": "GenAIScript",
                 "properties": {
+                    "genaiscript.localTypeDefinitions": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Use local type definitions for GenAIScript (.genaiscript.d.ts and tsconfig.json in any project containing *.genai.* files)."
+                    },
+                    "genaiscript.githubCopilotPrompt": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Add custom prompt in .github/prompts folder to support GenAIScript script generation."
+                    },
+                    "genaiscript.hideServerTerminal": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Hide server terminal from user."
+                    },
                     "genaiscript.languageChatModels": {
                         "type": "object",
                         "description": "Mapping from GenAIScript model (openai:gpt-4) to Visual Studio Code Language Chat Model (github...)"
@@ -304,7 +339,12 @@
                     "genaiscript.diagnostics": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Enable developer diagnostic mode. Including leaving terminals opened."
+                        "description": "Enable developer diagnostic mode. Including opening server terminal and leaving terminals opened."
+                    },
+                    "genaiscript.debug": {
+                        "type": "string",
+                        "default": "script",
+                        "description": "List of logging categories that will be set as 'DEBUG' environment variable when launching the GenAIScript server. If 'diagnostics' is on, it is overriden by '*'."
                     },
                     "genaiscript.cache": {
                         "type": "boolean",
@@ -324,8 +364,26 @@
         ],
         "commands": [
             {
+                "command": "genaiscript.server.stop",
+                "title": "Stop GenAIScript server",
+                "category": "GenAIScript",
+                "icon": "$(close)"
+            },
+            {
+                "command": "genaiscript.server.start",
+                "title": "Start GenAIScript server",
+                "category": "GenAIScript",
+                "icon": "$(server-process)"
+            },
+            {
+                "command": "genaiscript.server.show",
+                "title": "Show GenAIScript server",
+                "category": "GenAIScript",
+                "icon": "$(terminal)"
+            },
+            {
                 "command": "genaiscript.notebook.create",
-                "title": "Create GenAIScript Mardown Notebook",
+                "title": "Create GenAIScript Markdown Notebook",
                 "category": "GenAIScript"
             },
             {
@@ -336,15 +394,21 @@
             },
             {
                 "command": "genaiscript.fragment.prompt",
-                "title": "Run GenAiScript...",
+                "title": "Run GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(genaiscript-logo)"
             },
             {
                 "command": "genaiscript.fragment.debug",
-                "title": "Debug GenAiScript...",
+                "title": "Debug GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(debug)"
+            },
+            {
+                "command": "genaiscript.fragment.fix",
+                "title": "Fix GenAIScript Types",
+                "category": "GenAIScript",
+                "icon": "$(lightbulb-autofix)"
             },
             {
                 "command": "genaiscript.prompt.navigate",
@@ -365,12 +429,12 @@
             },
             {
                 "command": "genaiscript.newfile.script",
-                "title": "GenAiScript File",
+                "title": "GenAIScript File",
                 "category": "GenAIScript"
             },
             {
                 "command": "genaiscript.prompt.fork",
-                "title": "Fork GenAiScript...",
+                "title": "Fork GenAIScript...",
                 "category": "GenAIScript",
                 "icon": "$(repo-forked)"
             },
@@ -400,19 +464,10 @@
                 "category": "GenAIScript"
             },
             {
-                "command": "genaiscript.openIssueReporter",
-                "title": "Report Issue...",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.info.env",
-                "title": "Configuration information...",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.samples.download",
-                "title": "Download sample...",
-                "category": "GenAIScript"
+                "command": "genaiscript.connections.refresh",
+                "title": "Refresh",
+                "category": "GenAIScript",
+                "icon": "$(refresh)"
             }
         ]
     },
@@ -420,7 +475,7 @@
         "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/",
         "vscode:prepublish": "yarn run compile",
         "compile:icons": "node updatefonts.mjs",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --metafile=./esbuild.meta.json --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:vscode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:@lvce-editor/ripgrep --external:gpt-3-encoder  --external:skia-canvas --external:@huggingface/transformers --external:@modelcontextprotocol/sdk",
+        "compile:extension": "node build.mjs",
         "compile": "yarn compile:icons && yarn compile:extension",
         "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
         "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
@@ -435,16 +490,16 @@
     },
     "devDependencies": {
         "@types/markdown-it": "^14.1.2",
-        "@types/vscode": "^1.95.0",
-        "@vscode/vsce": "^3.2.1",
+        "@types/vscode": "^1.98.0",
+        "@vscode/vsce": "^3.3.2",
         "assert": "^2.1.0",
-        "es-toolkit": "^1.31.0",
-        "markdown-it-github-alerts": "^0.3.0",
+        "es-toolkit": "^1.34.1",
+        "markdown-it-github-alerts": "0.2.0",
         "process": "^0.11.10",
-        "typescript": "5.7.3",
-        "vscode-uri": "^3.0.8",
+        "typescript": "5.8.3",
+        "vscode-uri": "^3.1.0",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.3.0"
+        "zx": "^8.5.2"
     }
 }

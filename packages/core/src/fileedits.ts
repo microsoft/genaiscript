@@ -1,6 +1,6 @@
 import { applyChangeLog, parseChangeLogs } from "./changelog"
-import { CSVToMarkdown } from "./csv"
-import { applyLLMDiff, applyLLMPatch, createDiff, parseLLMDiffs } from "./diff"
+import { dataToMarkdownTable } from "./csv"
+import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./llmdiff"
 import { errorMessage } from "./error"
 import { unquote } from "./unwrappers"
 import { fileExists, readText } from "./fs"
@@ -13,7 +13,31 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { logError, logVerbose, relativePath } from "./util"
 import { YAMLParse } from "./yaml"
 import { writeText } from "./fs"
+import { diffCreatePatch } from "./diff"
 
+/**
+ * Computes file edits based on the specified runtime prompt result and processing options.
+ *
+ * @param res The result of the runtime prompt execution, containing text, annotations, fences, frames, and messages.
+ * @param options Configuration options for processing the result:
+ *   - trace: A trace object for logging details of the computation.
+ *   - fileOutputs: A list of file output rules applied to edited files.
+ *   - schemas: JSON schemas for validation of file outputs and content.
+ *   - fileMerges: Handlers for custom merging of file content.
+ *   - outputProcessors: Handlers for post-processing generated content and files.
+ *
+ * Performs the following operations:
+ * - Processes fenced code blocks in the result to determine edits (file or diff).
+ * - Applies changes to files based on their type:
+ *   - Direct file updates.
+ *   - Diff-based patches or merges.
+ * - Processes changelogs to update relevant files.
+ * - Executes custom output processors if specified.
+ * - Validates file outputs against specified schemas or patterns.
+ * - Generates structured edits for tracked file changes.
+ * - Updates the result structure with computed edits, changelogs, annotations, and file modifications.
+ * - Logs details of the computation process, including errors and skipped files.
+ */
 export async function computeFileEdits(
     res: RunPromptResult,
     options: TraceOptions & {
@@ -25,7 +49,7 @@ export async function computeFileEdits(
 ): Promise<void> {
     const { trace, fileOutputs, fileMerges, outputProcessors, schemas } =
         options || {}
-    const { fences, frames, genVars, messages } = res
+    const { fences, frames, messages, usage } = res
     let text = res.text
     let annotations = res.annotations?.slice(0)
     const fileEdits: Record<string, FileUpdate> = {}
@@ -133,10 +157,10 @@ export async function computeFileEdits(
                     fileEdits,
                     fences,
                     frames,
-                    genVars,
                     annotations,
                     schemas,
                     messages,
+                    usage,
                 })) || {}
 
                 if (newText !== undefined) {
@@ -197,7 +221,7 @@ export async function computeFileEdits(
     if (edits.length)
         trace.details(
             "✏️ edits",
-            CSVToMarkdown(edits, {
+            dataToMarkdownTable(edits, {
                 headers: ["type", "filename", "message", "validated"],
             })
         )
@@ -280,8 +304,10 @@ function validateFileOutputs(
 /**
  * Asynchronously writes file edits to disk.
  *
- * @param res - The result of a generation process containing file edits.
- * @param applyEdits - A flag indicating whether edits should be applied even if validation fails.
+ * @param fileEdits - A record of file updates, including filename, original content, updated content, and validation details. Skips files with invalid schemas unless applyEdits is true.
+ * @param options - Options for applying edits and tracing details:
+ *   - applyEdits: If true, applies edits even if validation fails.
+ *   - trace: A trace object for logging details, including skipped files, changes, and diff information.
  */
 export async function writeFileEdits(
     fileEdits: Record<string, FileUpdate>, // Contains the edits to be applied to files
@@ -316,7 +342,7 @@ export async function writeFileEdits(
             )
             trace.detailsFenced(
                 `updating ${fn}`,
-                createDiff(
+                diffCreatePatch(
                     { filename: fn, content: before },
                     { filename: fn, content: after }
                 ),

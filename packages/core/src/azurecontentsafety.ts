@@ -1,6 +1,6 @@
-import { createFetch, traceFetchPost } from "./fetch"
+import { createFetch, statusToMessage } from "./fetch"
 import { TraceOptions } from "./trace"
-import { arrayify, chunkString, trimTrailingSlash } from "./util"
+import { arrayify } from "./util"
 import {
     AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
     DOCS_CONFIGURATION_CONTENT_SAFETY_URL,
@@ -8,8 +8,13 @@ import {
 import { runtimeHost } from "./host"
 import { CancellationOptions } from "./cancellation"
 import { YAMLStringify } from "./yaml"
-import { JSONLineCache } from "./cache"
 import { AzureCredentialsType } from "./server/messages"
+import { trimTrailingSlash } from "./cleaners"
+import { chunkString } from "./chunkers"
+import { createCache } from "./cache"
+import { traceFetchPost } from "./fetchtext"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("contentsafety:azure")
 
 interface AzureContentSafetyRequest {
     userPrompt?: string
@@ -26,12 +31,16 @@ interface AzureContentSafetyResponse {
 }
 
 class AzureContentSafetyClient implements ContentSafety {
-    private readonly cache: JSONLineCache<
+    readonly id: "azure"
+    private readonly cache: WorkspaceFileCache<
         { route: string; body: object; options: object },
         object
     >
     constructor(readonly options?: TraceOptions & CancellationOptions) {
-        this.cache = JSONLineCache.byName("azurecontentsafety")
+        this.cache = createCache("azurecontentsafety", {
+            ...(options || {}),
+            type: "fs",
+        })
     }
 
     async detectHarmfulContent(
@@ -49,6 +58,7 @@ class AzureContentSafetyClient implements ContentSafety {
         const route = "text:analyze"
 
         try {
+            dbg(`detecting harmful content`)
             trace?.startDetails("🛡️ content safety: detecting harmful content")
 
             const fetcher = await this.createClient(route)
@@ -62,10 +72,12 @@ class AzureContentSafetyClient implements ContentSafety {
                 }
 
                 const res = await fetcher(body)
-                if (!res.ok)
+                if (!res.ok) {
+                    dbg(statusToMessage(res))
                     throw new Error(
                         `Azure Content Safety API failed with status ${res.status}`
                     )
+                }
                 const resBody = (await res.json()) as {
                     blockslistMath: string[]
                     categoriesAnalysis: { category: string; severity: number }[]
@@ -98,6 +110,7 @@ class AzureContentSafetyClient implements ContentSafety {
             }
 
             trace?.item("no harmful content detected")
+            dbg(`no harmful content detected`)
             return { harmfulContentDetected: false }
         } finally {
             trace?.endDetails()
@@ -114,6 +127,7 @@ class AzureContentSafetyClient implements ContentSafety {
         const route = "text:shieldPrompt"
 
         try {
+            dbg(`detecting prompt injection`)
             trace?.startDetails("🛡️ content safety: detecting prompt injection")
 
             const input = arrayify(await content)
@@ -129,10 +143,12 @@ class AzureContentSafetyClient implements ContentSafety {
                     return cached as { attackDetected: boolean }
                 }
                 const res = await fetcher(body)
-                if (!res.ok)
+                if (!res.ok) {
+                    dbg(statusToMessage(res))
                     throw new Error(
                         `Azure Content Safety API failed with status ${res.status}`
                     )
+                }
                 const resBody = (await res.json()) as AzureContentSafetyResponse
                 const attackDetected =
                     !!resBody.userPromptAnalysis?.attackDetected ||
@@ -176,6 +192,7 @@ class AzureContentSafetyClient implements ContentSafety {
                 }
             }
             trace.item("no attack detected")
+            dbg(`no attack detected`)
             return { attackDetected: false }
         } finally {
             trace?.endDetails()
@@ -199,6 +216,7 @@ class AzureContentSafetyClient implements ContentSafety {
             process.env.AZURE_CONTENT_SAFETY_API_KEY
         let apiToken: string
         if (!apiKey) {
+            dbg(`requesting Azure token`)
             const { token, error } = await runtimeHost.azureToken.token(
                 credentialsType,
                 options
@@ -206,6 +224,7 @@ class AzureContentSafetyClient implements ContentSafety {
             apiToken = token.token
         }
         const version = process.env.AZURE_CONTENT_SAFETY_VERSION || "2024-09-01"
+        dbg(`azure version: %s`, version)
 
         if (!endpoint)
             throw new Error(
@@ -237,6 +256,17 @@ class AzureContentSafetyClient implements ContentSafety {
     }
 }
 
+/**
+ * Determines if the Azure Content Safety client is configured by checking for the presence of a valid endpoint.
+ *
+ * @returns {boolean} - Returns true if the Azure Content Safety API endpoint is configured, false otherwise.
+ *
+ * Environment Variables:
+ * - AZURE_CONTENT_SAFETY_ENDPOINT: The base endpoint for the Azure Content Safety API, if provided.
+ * - AZURE_CONTENT_SAFETY_API_ENDPOINT: Alternative variable for the base endpoint, if the primary variable is not set.
+ *
+ * The function trims trailing slashes from the endpoint before validation.
+ */
 export function isAzureContentSafetyClientConfigured() {
     const endpoint = trimTrailingSlash(
         process.env.AZURE_CONTENT_SAFETY_ENDPOINT ||
@@ -245,14 +275,23 @@ export function isAzureContentSafetyClientConfigured() {
     return !!endpoint
 }
 
+/**
+ * Creates an Azure Content Safety client to detect harmful content and prompt injection in text or documents.
+ *
+ * @param options - Configuration options for the client.
+ * - Includes properties for tracing operations, cancellation signals, and additional configurations.
+ * - `signal` - Optional AbortSignal for request cancellation.
+ *
+ * @returns An object implementing ContentSafety, with methods:
+ * - `detectHarmfulContent`: Analyzes text or documents for harmful content.
+ * - `detectPromptInjection`: Analyzes text or documents for prompt injection attacks.
+ */
 export function createAzureContentSafetyClient(
-    options: CancellationOptions &
-        TraceOptions & {
-            signal?: AbortSignal
-        }
+    options: CancellationOptions & TraceOptions
 ): ContentSafety {
     const client = new AzureContentSafetyClient(options)
     return {
+        id: client.id,
         detectHarmfulContent: client.detectHarmfulContent.bind(client),
         detectPromptInjection: client.detectPromptInjection.bind(client),
     } satisfies ContentSafety

@@ -30,8 +30,17 @@ npx genaiscript run <script> "src/*.bicep" "src/*.ts"
 
 `run` takes one or more [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) patterns to match files in the workspace.
 
-```bash sh
+```bash
 npx genaiscript run <script> "**/*.md" "**/*.ts"
+```
+
+### Piping
+
+`run` takes the stdin content and converts it into the `stdin` file.
+The LLM output is sent to `stdout`, while the rest of the logging is sent to `stderr`.
+
+```bash
+cat README.md | genaiscript run summarize > summary.md
 ```
 
 ### --excluded-files &lt;files...&gt;
@@ -54,7 +63,7 @@ npx genaiscript run <script> <files> --exclude-git-ignore
 
 ### --model ...
 
-Configure the default or `large` model alias
+Configure the default or `large` model alias. Use `echo` to do a dry run and return the messages instead of calling a LLM provider.
 
 ## --provider ...
 

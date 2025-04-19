@@ -1,6 +1,6 @@
 import { capitalize } from "inflection"
 import { resolve, join, relative } from "node:path"
-import { consoleColors, isQuiet, wrapColor, wrapRgbColor } from "./log"
+import { isQuiet } from "../../core/src/quiet"
 import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
@@ -27,16 +27,18 @@ import {
     GENAI_ANY_REGEX,
     UNRECOVERABLE_ERROR_CODES,
     SUCCESS_ERROR_CODE,
-    RUNS_DIR_NAME,
     CONSOLE_COLOR_DEBUG,
     DOCS_CONFIGURATION_URL,
-    STATS_DIR_NAME,
-    GENAI_ANYTS_REGEX,
     CONSOLE_TOKEN_COLORS,
     CONSOLE_TOKEN_INNER_COLORS,
     TRACE_CHUNK,
     OUTPUT_FILENAME,
     TRACE_FILENAME,
+    CONSOLE_COLOR_REASONING,
+    REASONING_END_MARKER,
+    REASONING_START_MARKER,
+    LARGE_MODEL_ID,
+    NEGATIVE_GLOB_REGEX,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -54,11 +56,8 @@ import {
     TraceChunkEvent,
 } from "../../core/src/trace"
 import {
-    normalizeFloat,
-    normalizeInt,
     logVerbose,
     logError,
-    dotGenaiscriptPath,
     logInfo,
     logWarn,
     assert,
@@ -72,7 +71,6 @@ import {
     azureDevOpsParseEnv,
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
-import { resolveTokenEncoder } from "../../core/src/encoders"
 import { writeFile } from "fs/promises"
 import { prettifyMarkdown } from "../../core/src/markdown"
 import { delay } from "es-toolkit"
@@ -81,38 +79,62 @@ import { traceAgentMemory } from "../../core/src/agent"
 import { appendFile } from "node:fs/promises"
 import { parseOptionsVars } from "./vars"
 import { logprobColor } from "../../core/src/logprob"
+import { overrideStdoutWithStdErr, stderr, stdout } from "../../core/src/stdio"
+import { setupTraceWriting } from "./trace"
 import {
-    overrideStdoutWithStdErr,
-    stderr,
-    stdout,
-} from "../../core/src/logging"
-import { ensureDotGenaiscriptPath, setupTraceWriting } from "./trace"
-import { applyModelOptions, logModelAliases } from "./modelalias"
+    applyModelOptions,
+    applyScriptModelAliases,
+    logModelAliases,
+} from "../../core/src/modelalias"
 import { createCancellationController } from "./cancel"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { Fragment } from "../../core/src/generation"
-import { randomHex } from "../../core/src/crypto"
+import { normalizeFloat, normalizeInt } from "../../core/src/cleaners"
+import { microsoftTeamsChannelPostMessage } from "../../core/src/teams"
+import { confirmOrSkipInCI } from "./ci"
+import { readStdIn } from "./stdin"
+import {
+    consoleColors,
+    wrapColor,
+    wrapRgbColor,
+} from "../../core/src/consolecolor"
+import { generateId } from "../../core/src/id"
+import {
+    ensureDotGenaiscriptPath,
+    getRunDir,
+    createStatsDir,
+} from "../../core/src/workdir"
+import { tryResolveScript } from "../../core/src/resources"
+import { genaiscriptDebug } from "../../core/src/debug"
+const dbg = genaiscriptDebug("run")
 
-function getRunDir(scriptId: string) {
-    const runId =
-        new Date().toISOString().replace(/[:.]/g, "-") + "-" + randomHex(6)
-    const out = dotGenaiscriptPath(
-        RUNS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        runId
-    )
-    return out
-}
-
+/**
+ * Executes a script with a possible retry mechanism and exits the process with the appropriate code.
+ * Ensures necessary setup, handles retries on failure or cancellation, and supports CLI mode.
+ *
+ * @param scriptId - The identifier of the script to execute.
+ * @param files - A list of file paths to use as input for the script.
+ * @param options - Configuration options for running the script. Includes retry parameters, trace configuration, cancellation token, and other execution-related settings.
+ *
+ * @property options.runRetry - The maximum number of retries on script failure.
+ * @property options.cancellationToken - Token to monitor if the operation is cancelled.
+ * @property options.cli - Indicates the script runs in CLI mode (set to true).
+ * @property options.out - Directory for output trace and result files.
+ * @property options.runTrace - Controls whether to enable trace writing for the run.
+ * @property options.model - Model configuration for the script execution.
+ * @property options.vars - Variables to pass to the script.
+ *
+ * Exits with a success code if the script completes successfully, or with an appropriate error code if it fails, is cancelled, or encounters an unrecoverable error.
+ */
 export async function runScriptWithExitCode(
     scriptId: string,
     files: string[],
     options: Partial<PromptScriptRunOptions> & TraceOptions
 ) {
+    dbg(`run %s`, scriptId)
     await ensureDotGenaiscriptPath()
     const canceller = createCancellationController()
     const cancellationToken = canceller.token
-
     const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
@@ -143,31 +165,79 @@ export async function runScriptWithExitCode(
     process.exit(exitCode)
 }
 
+/**
+ * Executes a script internally with supplied options and handles outputs.
+ *
+ * @param scriptId - The identifier of the script to be executed.
+ * @param files - Array of file paths or URLs to be processed by the script.
+ * @param options - Configuration object including additional execution parameters:
+ *   - runId: Optional identifier for the execution run.
+ *   - runOutputTrace: Instance for capturing output trace events.
+ *   - cli: Indicates if CLI mode is active.
+ *   - infoCb: Callback function for informational messages.
+ *   - partialCb: Callback for reporting partial progress in chat completions.
+ *   - cancellationToken: Token for handling cancellation requests.
+ *   - runTrace: Enables/disables trace file writing.
+ *   - json/yaml: Toggles structured output formats.
+ *   - vars: Variables to pass to the script.
+ *   - reasoningEffort: Specifies reasoning intensity for model execution.
+ *   - annotations/changelogs/data/output options: Configs for exporting diagnostics, changes, intermediate data, and results.
+ *   - pullRequestComments, descriptions, or reviews: Enables integration with GitHub or Azure DevOps for updates.
+ *   - applyEdits: Indicates if file edits should be applied.
+ *   - retry/retryDelay/maxDelay: Configurations for retry logic.
+ *   - cache: Cache name or configuration.
+ *   - csvSeparator: Separator for CSV outputs.
+ *   - removeOut: Indicates if the output directory should be cleared before execution.
+ *   - jsSource: JavaScript source code for the script.
+ *   - logprobs/topLogprobs: Configurations for log probability outputs.
+ *   - fenceFormat: Specifies the format for fenced code blocks.
+ *   - workspaceFiles: Additional files to include in the workspace.
+ *   - excludedFiles: Files to exclude from processing.
+ *   - ignoreGitIgnore: Disables applying .gitignore rules when resolving files.
+ *   - label: Optional label for the execution run.
+ *   - temperature: Sampling temperature for model execution.
+ *   - fallbackTools: Fallback tools to use if primary tools fail.
+ *   - topP: Top-p sampling parameter for model execution.
+ *   - toolChoice: Specifies the tool to use for execution.
+ *   - seed: Random seed for reproducibility.
+ *   - maxTokens: Maximum number of tokens for model responses.
+ *   - maxToolCalls: Maximum number of tool calls allowed.
+ *   - maxDataRepairs: Maximum number of data repair attempts.
+ *
+ * @returns A Promise resolving to an object containing:
+ *   - exitCode: Final exit code of the script execution.
+ *   - result: Generation result object from script processing.
+ */
 export async function runScriptInternal(
     scriptId: string,
     files: string[],
     options: Partial<PromptScriptRunOptions> &
         TraceOptions &
         CancellationOptions & {
-            outputTrace?: MarkdownTrace
+            runId?: string
+            runOutputTrace?: MarkdownTrace
             cli?: boolean
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
+    dbg(`scriptid: %s`, scriptId)
+    const runId = options.runId || generateId()
+    dbg(`run id: `, runId)
+    const runDir = options.out || getRunDir(scriptId, runId)
+    dbg(`run dir: `, runDir)
+    const cancellationToken = options.cancellationToken
     const {
-        trace = new MarkdownTrace(),
-        outputTrace = new MarkdownTrace(),
+        trace = new MarkdownTrace({ cancellationToken, dir: runDir }),
+        runOutputTrace = new MarkdownTrace({ cancellationToken, dir: runDir }),
         infoCb,
         partialCb,
     } = options || {}
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
-    const workspaceFiles = options.workspaceFiles
-    const excludedFiles = options.excludedFiles
-    const excludeGitIgnore = !!options.excludeGitIgnore
-    const runDir = options.out || getRunDir(scriptId)
+    const workspaceFiles = options.workspaceFiles || []
+    const excludedFiles = options.excludedFiles || []
     const stream = !options.json && !options.yaml
     const retry = normalizeInt(options.retry) || 8
     const retryDelay = normalizeInt(options.retryDelay) || 15000
@@ -181,10 +251,14 @@ export async function runScriptInternal(
     const pullRequestComment = options.pullRequestComment
     const pullRequestDescription = options.pullRequestDescription
     const pullRequestReviews = options.pullRequestReviews
+    const teamsMessage = options.teamsMessage
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
+    const fallbackTools = options.fallbackTools
+    const reasoningEffort = options.reasoningEffort
     const topP = normalizeFloat(options.topP)
+    const toolChoice = options.toolChoice
     const seed = normalizeFloat(options.seed)
     const maxTokens = normalizeInt(options.maxTokens)
     const maxToolCalls = normalizeInt(options.maxToolCalls)
@@ -193,9 +267,7 @@ export async function runScriptInternal(
     const applyEdits = !!options.applyEdits
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
-    const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
-    const fallbackTools = !!options.fallbackTools
     const logprobs = options.logprobs
     const topLogprobs = normalizeInt(options.topLogprobs)
     const fenceFormat = options.fenceFormat
@@ -211,59 +283,46 @@ export async function runScriptInternal(
         return { exitCode, result }
     }
 
-    logInfo(`genaiscript: ${scriptId}`)
+    logInfo(`genaiscript: ${scriptId} (run: ${runId})`)
 
     // manage out folder
     if (removeOut) await emptyDir(runDir)
     await ensureDir(runDir)
 
-    const outTraceFilename = await setupTraceWriting(
-        trace,
-        " trace",
-        join(runDir, TRACE_FILENAME)
-    )
-    const outputFilename = await setupTraceWriting(
-        outputTrace,
-        "output",
-        join(runDir, OUTPUT_FILENAME)
-    )
+    const outTraceFilename =
+        options.runTrace === false
+            ? undefined
+            : await setupTraceWriting(
+                  trace,
+                  "trace",
+                  join(runDir, TRACE_FILENAME)
+              )
+    const outputFilename =
+        options.outputTrace === false
+            ? undefined
+            : await setupTraceWriting(
+                  runOutputTrace,
+                  "output",
+                  join(runDir, OUTPUT_FILENAME),
+                  { ignoreInner: true }
+              )
     if (outTrace && !/^false$/i.test(outTrace))
         await setupTraceWriting(trace, " trace", outTrace)
     if (outOutput && !/^false$/i.test(outOutput))
-        await setupTraceWriting(outputTrace, " output", outTrace)
-    const toolFiles: string[] = []
-    const resolvedFiles = new Set<string>()
-
-    if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
-
-    for (let arg of files) {
-        if (HTTPS_REGEX.test(arg)) {
-            resolvedFiles.add(arg)
-            continue
-        }
-        const stats = await host.statFile(arg)
-        if (stats?.type === "directory") arg = host.path.join(arg, "**", "*")
-        const ffs = await host.findFiles(arg, {
-            applyGitIgnore: excludeGitIgnore,
+        await setupTraceWriting(runOutputTrace, " output", outOutput, {
+            ignoreInner: true,
         })
-        if (!ffs?.length) {
-            return fail(
-                `no files matching ${arg} under ${process.cwd()}`,
-                FILES_NOT_FOUND_ERROR_CODE
-            )
-        }
-        for (const file of ffs) {
-            resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
-        }
-    }
 
-    if (excludedFiles?.length) {
-        for (const arg of excludedFiles) {
-            const ffs = await host.findFiles(arg)
-            for (const f of ffs)
-                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
-        }
-    }
+    const toolFiles: string[] = []
+    const resourceScript = await tryResolveScript(scriptId, {
+        trace,
+        cancellationToken,
+    })
+    if (resourceScript) {
+        scriptId = resourceScript
+        dbg(`resolved script file: %s`, scriptId)
+        toolFiles.push(scriptId)
+    } else if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
     const prj = await buildProject({
         toolFiles,
@@ -281,24 +340,114 @@ export async function runScriptInternal(
                 GENAI_ANY_REGEX.test(scriptId) &&
                 resolve(t.filename) === resolve(scriptId))
     )
-    if (!script) throw new Error(`script ${scriptId} not found`)
+    if (!script) {
+        dbg(`script id not found: %s`, scriptId)
+        dbg(
+            `scripts: %O`,
+            prj.scripts.map((s) => ({ id: s.id, filename: s.filename }))
+        )
+        throw new Error(`script ${scriptId} not found`)
+    }
+    const applyGitIgnore =
+        options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true
+    dbg(`apply gitignore: ${applyGitIgnore}`)
+    const resolvedFiles = new Set<string>()
+    // move exclusions to excludedFiles
+    excludedFiles.push(
+        ...files
+            .filter((f) => NEGATIVE_GLOB_REGEX.test(f))
+            .map((f) => f.replace(NEGATIVE_GLOB_REGEX, ""))
+    )
+    files = files.filter((f) => !NEGATIVE_GLOB_REGEX.test(f))
+    for (let arg of files) {
+        dbg(`resolving ${arg}`)
+        if (HTTPS_REGEX.test(arg)) {
+            dbg(`url handled later`)
+            resolvedFiles.add(arg)
+            continue
+        }
+        const stat = await host.statFile(arg)
+        if (stat?.type === "file") {
+            dbg(`add %s`, arg)
+            resolvedFiles.add(filePathOrUrlToWorkspaceFile(arg))
+        } else {
+            if (stat?.type === "directory") {
+                dbg(`path is directory, expanding children`)
+                arg = host.path.join(arg, "**", "*")
+            }
+            dbg(`expand ${arg} (apply .gitignore: ${applyGitIgnore})`)
+            const ffs = await host.findFiles(arg, {
+                applyGitIgnore,
+            })
+            if (!ffs?.length && arg.includes("*")) {
+                // edge case when gitignore dumps 1 file
+                return fail(
+                    `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
+                    FILES_NOT_FOUND_ERROR_CODE
+                )
+            }
+            for (const file of ffs) {
+                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
+            }
+        }
+    }
+
+    if (excludedFiles.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs)
+                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
+        }
+    }
+
+    // try reading stdin
+    const stdin = await readStdIn()
+    if (stdin) workspaceFiles.push(stdin)
 
     if (script.accept) {
         const exts = script.accept
             .split(",")
-            .map((s) => s.trim())
+            .map((s) => s.trim().replace(/^\*\./, "."))
             .filter((s) => !!s)
         for (const rf of resolvedFiles) {
             if (!exts.some((ext) => rf.endsWith(ext))) resolvedFiles.delete(rf)
         }
     }
 
+    const reasoningEndMarker = wrapColor(
+        CONSOLE_COLOR_REASONING,
+        REASONING_END_MARKER
+    )
+    const reasoningStartMarker = wrapColor(
+        CONSOLE_COLOR_REASONING,
+        REASONING_START_MARKER
+    )
     let tokenColor = 0
-    outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
+    let reasoningOutput = false
+    runOutputTrace.addEventListener(TRACE_CHUNK, (ev) => {
         const { progress, chunk } = ev as TraceChunkEvent
         if (progress) {
-            const { responseChunk, responseTokens, inner } = progress
-            if (responseChunk !== undefined && responseChunk !== null) {
+            const { responseChunk, responseTokens, inner, reasoningChunk } =
+                progress
+            if (
+                !isQuiet &&
+                reasoningChunk !== undefined &&
+                reasoningChunk !== null &&
+                reasoningChunk !== ""
+            ) {
+                if (!reasoningOutput) stderr.write(reasoningStartMarker)
+                reasoningOutput = true
+                stderr.write(wrapColor(CONSOLE_COLOR_REASONING, reasoningChunk))
+            }
+            if (
+                responseChunk !== undefined &&
+                responseChunk !== null &&
+                responseChunk !== ""
+            ) {
+                if (reasoningOutput) {
+                    stderr.write(reasoningEndMarker)
+                    reasoningOutput = false
+                }
                 if (stream) {
                     if (responseTokens && consoleColors) {
                         const colors = inner
@@ -319,15 +468,26 @@ export async function runScriptInternal(
                         }
                     } else {
                         if (!inner) stdout.write(responseChunk)
-                        else
+                        else {
                             stderr.write(
                                 wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
                             )
+                        }
                     }
-                } else if (!isQuiet)
+                } else if (!isQuiet) {
                     stderr.write(wrapColor(CONSOLE_COLOR_DEBUG, responseChunk))
+                }
             }
-        } else if (!isQuiet) {
+        } else if (
+            !isQuiet &&
+            chunk !== undefined &&
+            chunk !== null &&
+            chunk !== ""
+        ) {
+            if (reasoningOutput) {
+                stderr.write(reasoningEndMarker)
+                reasoningOutput = false
+            }
             stdout.write(chunk)
         }
     })
@@ -340,13 +500,15 @@ export async function runScriptInternal(
         ? parseOptionsVars(options.vars, process.env)
         : structuredClone(options.vars || {})
     const stats = new GenerationStats("")
+    const userState: Record<string, any> = {}
     try {
         if (options.label) trace.heading(2, options.label)
-        applyModelOptions(script, "script")
+        applyScriptModelAliases(script)
         logModelAliases()
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
             model: options.model,
+            defaultModel: LARGE_MODEL_ID,
             token: true,
         })
         if (info.error) {
@@ -357,9 +519,9 @@ export async function runScriptInternal(
                 DOCS_CONFIGURATION_URL
             )
         }
-        trace.options.encoder = (await resolveTokenEncoder(info.model)).encode
 
         result = await runTemplate(prj, script, fragment, {
+            runId,
             inner: false,
             infoCb: (args) => {
                 const { text } = args
@@ -369,28 +531,28 @@ export async function runScriptInternal(
                 }
             },
             partialCb: (args) => {
-                outputTrace.chatProgress(args)
+                runOutputTrace.chatProgress(args)
                 partialCb?.(args)
             },
             label,
             cache,
             temperature,
+            reasoningEffort,
             topP,
+            toolChoice,
             seed,
             cancellationToken,
             maxTokens,
             maxToolCalls,
             maxDataRepairs,
             model: info.model,
-            embeddingsModel:
-                options.embeddingsModel ??
-                runtimeHost.modelAliases.embeddings.model,
+            embeddingsModel: options.embeddingsModel,
             retry,
             retryDelay,
             maxDelay,
             vars,
             trace,
-            outputTrace,
+            outputTrace: runOutputTrace,
             fallbackTools,
             logprobs,
             topLogprobs,
@@ -402,6 +564,7 @@ export async function runScriptInternal(
                   }
                 : undefined,
             stats,
+            userState,
         })
     } catch (err) {
         stats.log()
@@ -411,8 +574,11 @@ export async function runScriptInternal(
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
 
+    dbg(`result: %s`, result.finishReason)
+    dbg(`annotations: %d`, result.annotations?.length)
+
     await aggregateResults(scriptId, outTrace, stats, result)
-    await traceAgentMemory(trace)
+    await traceAgentMemory({ userState, trace })
 
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
@@ -425,7 +591,10 @@ export async function runScriptInternal(
                     : /\.ya?ml$/i.test(outAnnotations)
                       ? YAMLStringify(result.annotations)
                       : /\.sarif$/i.test(outAnnotations)
-                        ? convertDiagnosticsToSARIF(script, result.annotations)
+                        ? await convertDiagnosticsToSARIF(
+                              script,
+                              result.annotations
+                          )
                         : JSON.stringify(result.annotations, null, 2)
             )
     }
@@ -491,7 +660,7 @@ export async function runScriptInternal(
     if (sariff)
         await writeText(
             sariff,
-            convertDiagnosticsToSARIF(script, result.annotations)
+            await convertDiagnosticsToSARIF(script, result.annotations)
         )
     if (changelogf && result.changelogs?.length)
         await writeText(changelogf, result.changelogs.join("\n"))
@@ -507,10 +676,10 @@ export async function runScriptInternal(
 
     if (options.json && result !== undefined)
         // needs to go to process.stdout
-        process.stdout.write(JSON.stringify(result, null, 2))
+        stdout.write(JSON.stringify(result, null, 2))
     if (options.yaml && result !== undefined)
         // needs to go to process.stdout
-        process.stdout.write(YAMLStringify(result))
+        stdout.write(YAMLStringify(result))
 
     let _ghInfo: GithubConnectionInfo = undefined
     const resolveGitHubInfo = async () => {
@@ -518,27 +687,64 @@ export async function runScriptInternal(
             _ghInfo = await githubParseEnv(process.env, {
                 issue: pullRequest,
                 resolveIssue: true,
+                resolveCommit: true,
             })
         return _ghInfo
     }
     let adoInfo: AzureDevOpsEnv = undefined
 
-    if (pullRequestReviews && result.annotations?.length) {
-        // github action or repo
+    if (teamsMessage && result.text) {
         const ghInfo = await resolveGitHubInfo()
-        if (ghInfo.repository && ghInfo.issue && ghInfo.commitSha) {
-            await githubCreatePullRequestReviews(
-                script,
-                ghInfo,
-                result.annotations
+        const channelURL =
+            process.env.GENAISCRIPT_TEAMS_CHANNEL_URL ||
+            process.env.TEAMS_CHANNEL_URL
+        if (
+            channelURL &&
+            (await confirmOrSkipInCI("Would you like to post to Teams?", {
+                preview: result.text,
+            }))
+        ) {
+            await microsoftTeamsChannelPostMessage(
+                channelURL,
+                prettifyMarkdown(result.text),
+                {
+                    script,
+                    info: ghInfo,
+                    cancellationToken,
+                    trace,
+                }
             )
         }
     }
 
-    if (pullRequestComment && result.text) {
-        // github action or repo
+    if (pullRequestReviews && result.annotations?.length) {
+        dbg(`adding pull request reviews`)
         const ghInfo = await resolveGitHubInfo()
         if (ghInfo.repository && ghInfo.issue) {
+            if (!ghInfo.commitSha)
+                dbg(`no commit sha found, skipping pull request reviews`)
+            else
+                await githubCreatePullRequestReviews(
+                    script,
+                    ghInfo,
+                    result.annotations
+                )
+        }
+    }
+
+    if (pullRequestComment && result.text) {
+        dbg(`upsert pull request comment`)
+        const ghInfo = await resolveGitHubInfo()
+        if (
+            ghInfo.repository &&
+            ghInfo.issue &&
+            (await confirmOrSkipInCI(
+                "Would you like to add a pull request comment?",
+                {
+                    preview: result.text,
+                }
+            ))
+        ) {
             await githubCreateIssueComment(
                 script,
                 ghInfo,
@@ -549,7 +755,15 @@ export async function runScriptInternal(
             )
         } else {
             adoInfo = adoInfo ?? (await azureDevOpsParseEnv(process.env))
-            if (adoInfo.collectionUri) {
+            if (
+                adoInfo.collectionUri &&
+                (await confirmOrSkipInCI(
+                    "Would you like to add a pull request comment?",
+                    {
+                        preview: result.text,
+                    }
+                ))
+            ) {
                 await azureDevOpsCreateIssueComment(
                     script,
                     adoInfo,
@@ -568,7 +782,16 @@ export async function runScriptInternal(
     if (pullRequestDescription && result.text) {
         // github action or repo
         const ghInfo = await resolveGitHubInfo()
-        if (ghInfo.repository && ghInfo.issue) {
+        if (
+            ghInfo.repository &&
+            ghInfo.issue &&
+            (await confirmOrSkipInCI(
+                "Would you like to update the pull request description?",
+                {
+                    preview: result.text,
+                }
+            ))
+        ) {
             await githubUpdatePullRequestDescription(
                 script,
                 ghInfo,
@@ -580,7 +803,15 @@ export async function runScriptInternal(
         } else {
             // azure devops pipeline
             adoInfo = adoInfo ?? (await azureDevOpsParseEnv(process.env))
-            if (adoInfo.collectionUri) {
+            if (
+                adoInfo.collectionUri &&
+                (await confirmOrSkipInCI(
+                    "Would you like to update the pull request description?",
+                    {
+                        preview: result.text,
+                    }
+                ))
+            ) {
                 await azureDevOpsUpdatePullRequestDescription(
                     script,
                     adoInfo,
@@ -602,8 +833,8 @@ export async function runScriptInternal(
         logWarn(`genaiscript: ${result.status}`)
     else logError(`genaiscript: ${result.status}`)
     stats.log()
-    logVerbose(`   trace: ${outTraceFilename}`)
-    logVerbose(`  output: ${outputFilename}`)
+    if (outTraceFilename) logVerbose(`   trace: ${outTraceFilename}`)
+    if (outputFilename) logVerbose(`  output: ${outputFilename}`)
 
     if (result.status !== "success" && result.status !== "cancelled") {
         const msg =
@@ -625,8 +856,7 @@ async function aggregateResults(
     stats: GenerationStats,
     result: GenerationResult
 ) {
-    const statsDir = dotGenaiscriptPath(STATS_DIR_NAME)
-    await ensureDir(statsDir)
+    const statsDir = await createStatsDir()
     const statsFile = host.path.join(statsDir, "runs.csv")
     if (!(await exists(statsFile)))
         await writeFile(
@@ -643,15 +873,16 @@ async function aggregateResults(
             ].join(",") + "\n",
             { encoding: "utf-8" }
         )
+    const acc = stats.accumulatedUsage()
     await appendFile(
         statsFile,
         [
             scriptId,
             result.status,
             stats.cost(),
-            stats.usage.total_tokens,
-            stats.usage.prompt_tokens,
-            stats.usage.completion_tokens,
+            acc.total_tokens,
+            acc.prompt_tokens,
+            acc.completion_tokens,
             outTrace ? host.path.basename(outTrace) : "",
             result.version,
         ]

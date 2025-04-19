@@ -25,7 +25,7 @@ the [CLI](/genaiscript/reference/cli). The CLI has a **--apply-edits** flag to a
 
 ```sh
 for file in src/**/*.md; do
-  npx --yes genaiscript run frontmatter "$file" --apply-edits
+  genaiscript run frontmatter "$file" --apply-edits
 ```
 
 You can run this command in your CI/CD pipeline to keep your SEO front matter up to date.

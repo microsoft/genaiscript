@@ -1,6 +1,6 @@
 script({
     model: "small",
-    tools: ["fs"],
+    tools: ["fs_find_files", "fs_read_file", "fs_ask_file"],
     tests: {},
 })
 

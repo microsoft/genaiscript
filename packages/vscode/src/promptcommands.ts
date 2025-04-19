@@ -1,7 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { builtinPromptUri } from "./markdowndocumentprovider"
-import { templatesToQuickPickItems } from "./fragmentcommands"
+import { scriptsToQuickPickItems } from "./scriptquickpick"
 import { registerCommand } from "./commands"
 import { createScript } from "../../core/src/scripts"
 import { copyPrompt } from "../../core/src/copy"
@@ -11,9 +10,7 @@ export function activatePromptCommands(state: ExtensionState) {
     const { subscriptions } = context
 
     async function showPrompt(fn: string) {
-        await state.fixPromptDefinitions()
         vscode.window.showTextDocument(host.toUri(fn))
-        await state.parseWorkspace()
     }
 
     subscriptions.push(
@@ -27,11 +24,12 @@ export function activatePromptCommands(state: ExtensionState) {
             "genaiscript.prompt.create",
             async (template?: PromptScript) => {
                 const name = await vscode.window.showInputBox({
-                    title: "Pick a file name for the new GenAiScript.",
+                    title: "Pick a file name for the new GenAIScript.",
                 })
                 if (name === undefined) return
                 const t = createScript(name, { template })
                 const pr = await copyPrompt(t, { fork: false, name })
+                await state.parseWorkspace()
                 await showPrompt(pr)
             }
         ),
@@ -43,9 +41,9 @@ export function activatePromptCommands(state: ExtensionState) {
                     const templates = state.project?.scripts
                     if (!templates?.length) return
                     const picked = await vscode.window.showQuickPick(
-                        templatesToQuickPickItems(templates),
+                        scriptsToQuickPickItems(templates),
                         {
-                            title: `Pick a GenAiScript to fork`,
+                            title: `Pick a GenAIScript to fork`,
                         }
                     )
                     if (picked === undefined) return
@@ -56,20 +54,18 @@ export function activatePromptCommands(state: ExtensionState) {
                         (t) => t.id === template
                     )
                 }
-                await showPrompt(
-                    await copyPrompt(template, {
-                        fork: true,
-                        name: template.id,
-                    })
-                )
+                const newPrompt = await copyPrompt(template, {
+                    fork: true,
+                    name: template.id,
+                })
+                await state.parseWorkspace()
+                await showPrompt(newPrompt)
             }
         ),
         registerCommand(
             "genaiscript.prompt.navigate",
             async (prompt: PromptScript) => {
-                const uri = prompt.filename
-                    ? host.toUri(prompt.filename)
-                    : builtinPromptUri(prompt.id)
+                const uri = host.toUri(prompt.filename)
                 await vscode.window.showTextDocument(uri)
             }
         )
@@ -83,6 +79,9 @@ export function commandButtons(state: ExtensionState) {
     const view = "View"
     const output = "Output"
     const trace = "Trace"
+    const show = "Show"
+    const start = "Start"
+    const stop = "Stop"
     const cmds: { label: string; description?: string; cmd: string }[] = []
     if (computing) cmds.push({ label: abort, cmd: "genaiscript.request.abort" })
     cmds.push({
@@ -100,6 +99,24 @@ export function commandButtons(state: ExtensionState) {
         description: "Inspect script execution and LLM response.",
         cmd: "genaiscript.request.open.trace",
     })
+    if (state.host.server.status !== "stopped") {
+        cmds.push({
+            label: show,
+            description: "Show GenAIScript server terminal",
+            cmd: "genaiscript.server.show",
+        })
+        cmds.push({
+            label: stop,
+            description: "Stop GenAIScript server",
+            cmd: "genaiscript.server.stop",
+        })
+    } else {
+        cmds.push({
+            label: start,
+            description: "Start GenAIScript server",
+            cmd: "genaiscript.server.start",
+        })
+    }
 
     return cmds
 }

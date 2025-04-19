@@ -1,6 +1,8 @@
+import debug from "debug"
+const dbg = debug("globals")
 // Import various parsing and stringifying utilities
-import { YAMLParse, YAMLStringify } from "./yaml"
-import { CSVParse, CSVToMarkdown, CSVStringify, CSVChunk } from "./csv"
+import { createYAML, YAMLParse, YAMLStringify } from "./yaml"
+import { CSVParse, dataToMarkdownTable, CSVStringify, CSVChunk } from "./csv"
 import { INIParse, INIStringify } from "./ini"
 import { XMLParse } from "./xml"
 import {
@@ -11,55 +13,50 @@ import {
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { CancelError } from "./error"
-import { fetchText } from "./fetch"
+import { fetchText } from "./fetchtext"
 import { GitHubClient } from "./github"
 import { GitClient } from "./git"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { chunk, resolveTokenEncoder } from "./encoders"
-import { runtimeHost } from "./host"
 import { JSON5Stringify, JSON5TryParse } from "./json5"
 import { JSONSchemaInfer } from "./schema"
 import { FFmepgClient } from "./ffmpeg"
-
-/**
- * This file defines global utilities and installs them into the global context.
- * It includes functions to parse and stringify various data formats, handle errors,
- * and manage GitHub and Git clients. The utilities are frozen to prevent modification.
- */
-
-/**
- * Resolves the global context depending on the environment.
- * @returns The global object depending on the current environment.
- * @throws Will throw an error if the global context cannot be determined.
- */
-export function resolveGlobal(): any {
-    if (typeof window !== "undefined")
-        return window // Browser environment
-    else if (typeof self !== "undefined")
-        return self // Web worker environment
-    else if (typeof global !== "undefined") return global // Node.js environment
-    throw new Error("Could not find global") // Error if no global context is found
-}
+import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { chunkMarkdown } from "./mdchunk"
+import { resolveGlobal } from "./global"
+import { MarkdownStringify } from "./markdown"
+import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff"
 
 /**
  * Installs global utilities for various data formats and operations.
- * This function sets up global objects with frozen utilities for parsing
- * and stringifying different data formats, as well as other functionalities.
+ * Sets up global objects with frozen utilities for parsing, stringifying, and manipulating
+ * different data formats, handling tokenization, Git operations, HTML conversion, and more.
+ *
+ * Parameters:
+ * - None.
+ *
+ * Throws:
+ * - CancelError if cancellation is triggered.
+ *
+ * Notes:
+ * - Includes utilities for YAML, CSV, INI, XML, Markdown, JSONL, JSON5, HTML, and more.
+ * - Provides tokenization-related utilities such as counting, truncating, and chunking text.
+ * - Instantiates Git and GitHub clients.
+ * - Includes a fetchText function for retrieving text from URLs or files.
+ * - Includes an ffmpeg client for multimedia operations.
  */
 export function installGlobals() {
+    dbg("install")
     const glb = resolveGlobal() // Get the global context
 
     // Freeze YAML utilities to prevent modification
-    glb.YAML = Object.freeze<YAML>({
-        stringify: YAMLStringify, // Convert objects to YAML string
-        parse: YAMLParse, // Parse YAML string to objects
-    })
+    glb.YAML = createYAML()
 
     // Freeze CSV utilities
     glb.CSV = Object.freeze<CSV>({
         parse: CSVParse, // Parse CSV string to objects
         stringify: CSVStringify, // Convert objects to CSV string
-        markdownify: CSVToMarkdown, // Convert CSV to Markdown format
+        markdownify: dataToMarkdownTable, // Convert CSV to Markdown format
         chunk: CSVChunk,
     })
 
@@ -76,11 +73,23 @@ export function installGlobals() {
 
     // Freeze Markdown utilities with frontmatter operations
     glb.MD = Object.freeze<MD>({
+        stringify: MarkdownStringify,
         frontmatter: (text, format) =>
             frontmatterTryParse(text, { format })?.value ?? {}, // Parse frontmatter from markdown
         content: (text) => splitMarkdown(text)?.content, // Extract content from markdown
         updateFrontmatter: (text, frontmatter, format): string =>
             updateFrontmatter(text, frontmatter, { format }), // Update frontmatter in markdown
+        chunk: async (text, options) => {
+            const encoding = await resolveTokenEncoder(options?.model, {
+                disableFallback: false,
+            })
+            const res = chunkMarkdown(
+                text,
+                (text) => encoding.encode(text).length,
+                options
+            )
+            return res
+        },
     })
 
     // Freeze JSONL utilities
@@ -96,18 +105,7 @@ export function installGlobals() {
 
     glb.JSONSchema = Object.freeze<JSONSchemaUtilities>({
         infer: JSONSchemaInfer,
-    })
-
-    // Freeze AICI utilities with a generation function
-    glb.AICI = Object.freeze<AICI>({
-        gen: (options: AICIGenOptions) => {
-            // Validate options
-            return {
-                type: "aici", // Type of generation
-                name: "gen", // Name of the generation function
-                options, // Options for generation
-            }
-        },
+        fromParameters: promptParametersSchemaToJSONSchema,
     })
 
     // Freeze HTML utilities
@@ -123,27 +121,28 @@ export function installGlobals() {
      * @param [reason] - Optional reason for cancellation.
      */
     glb.cancel = (reason?: string) => {
+        dbg("cancel", reason)
         throw new CancelError(reason || "user cancelled") // Trigger cancel error
     }
 
     // Instantiate GitHub client
-    glb.github = new GitHubClient(undefined)
+    glb.github = GitHubClient.default()
 
     // Instantiate Git client
-    glb.git = new GitClient(undefined)
+    glb.git = GitClient.default()
 
     glb.tokenizers = Object.freeze<Tokenizers>({
         resolve: resolveTokenEncoder,
         count: async (text, options) => {
             const { encode: encoder } = await resolveTokenEncoder(
-                options?.model || runtimeHost.modelAliases.large.model
+                options?.model
             )
             const c = await estimateTokens(text, encoder)
             return c
         },
         truncate: async (text, maxTokens, options) => {
             const { encode: encoder } = await resolveTokenEncoder(
-                options?.model || runtimeHost.modelAliases.large.model
+                options?.model
             )
             return await truncateTextToTokens(text, maxTokens, encoder, options)
         },
@@ -162,7 +161,32 @@ export function installGlobals() {
     // ffmpeg
     glb.ffmpeg = new FFmepgClient()
 
+    glb.DIFF = Object.freeze<DIFF>({
+        parse: tryDiffParse,
+        createPatch: diffCreatePatch,
+        findChunk: diffFindChunk,
+    })
+
     // these are overriden, ignored
     glb.script = () => {}
     glb.system = () => {}
+}
+
+/**
+ * Installs fields from the provided context into the global context.
+ * Overrides existing global properties if fields in the context share the same name.
+ *
+ * Parameters:
+ * - ctx: A context object containing properties to be added or overridden in the global context.
+ *
+ * Notes:
+ * - Uses `resolveGlobal` to access the global context.
+ * - Iterates over the keys of the provided context, mapping them into the global context.
+ */
+export function installGlobalPromptContext(ctx: PromptContext) {
+    const glb = resolveGlobal() // Get the global context
+
+    for (const field of Object.keys(ctx)) {
+        glb[field] = (ctx as any)[field]
+    }
 }

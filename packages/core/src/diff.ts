@@ -1,361 +1,78 @@
-import { assert } from "./util"
 import parseDiff from "parse-diff"
+import { arrayify, isEmptyString } from "./cleaners"
+import debug from "debug"
+import { errorMessage } from "./error"
 import { createTwoFilesPatch } from "diff"
+import { resolve } from "node:path"
+const dbg = debug("genaiscript:diff")
 
 /**
- * Represents a chunk of changes in a diff.
+ * Parses a diff string into a structured format.
+ *
+ * @param input - The diff string to parse. Should be in a valid diff format.
+ * @returns An array of parsed file objects. If the input is empty or invalid, returns an empty array.
  */
-export interface Chunk {
-    state: "existing" | "deleted" | "added"
-    lines: string[]
-    lineNumbers: number[]
+export function diffParse(input: string) {
+    if (isEmptyString(input)) return []
+    const files = parseDiff(input)
+    return files
 }
 
 /**
- * Parses a text in the LLMD diff format into a list of chunks.
- * The format may lose indentation or some code during regeneration.
- * @param text - The diff text to parse.
- * @returns An array of chunks representing the diff.
+ * Resolves the input into an array of DiffFile objects.
+ *
+ * @param input - The input to resolve. Can be a diff string in valid format or an ElementOrArray of DiffFile objects.
+ * @returns An array of DiffFile objects. If the input is a string, it is parsed into DiffFile objects using diffParse. If the input is already an ElementOrArray of DiffFile objects, it is converted to an array using arrayify.
  */
-export function parseLLMDiffs(text: string): Chunk[] {
-    const lines = text.split("\n")
-    const chunks: Chunk[] = []
-
-    // Initialize the first chunk
-    let chunk: Chunk = { state: "existing", lines: [], lineNumbers: [] }
-    chunks.push(chunk)
-
-    let currentLine = Number.NaN
-    for (let i = 0; i < lines.length; ++i) {
-        let line = lines[i]
-        const diffM = /^(\[(\d+)\] )?(-|\+) (\[(\d+)\] )?/.exec(line)
-
-        // Process lines that match the diff pattern
-        if (diffM) {
-            const l = line.substring(diffM[0].length)
-            let diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN
-            const op = diffM[3]
-
-            // Adjust line numbers
-            if (isNaN(diffln) && !isNaN(currentLine)) {
-                currentLine++
-                diffln = currentLine
-                if (op === "-") currentLine--
-            } else {
-                currentLine = diffln
-            }
-
-            // Handle added lines
-            if (op === "+") {
-                const l = line.substring(diffM[0].length)
-                if (lines[diffln] === l) {
-                    // Skip duplicate line
-                    continue
-                }
-                if (chunk.state === "added") {
-                    chunk.lines.push(l)
-                    chunk.lineNumbers.push(diffln)
-                } else {
-                    chunk = {
-                        state: "added",
-                        lines: [l],
-                        lineNumbers: [diffln],
-                    }
-                    chunks.push(chunk)
-                }
-            } else {
-                // Handle deleted lines
-                assert(op === "-")
-                if (chunk.state === "deleted") {
-                    chunk.lines.push(l)
-                    chunk.lineNumbers.push(diffln)
-                } else {
-                    chunk = {
-                        state: "deleted",
-                        lines: [l],
-                        lineNumbers: [diffln],
-                    }
-                    chunks.push(chunk)
-                }
-            }
-        } else {
-            // Handle existing lines
-            const lineM = /^\[(\d+)\] /.exec(line)
-            let lineNumber = lineM ? parseInt(lineM[1]) : Number.NaN
-            const l = line.substring(lineM ? lineM[0].length : 0)
-            if (isNaN(lineNumber) && !isNaN(currentLine)) {
-                currentLine++
-                lineNumber = currentLine
-            } else {
-                currentLine = lineNumber
-            }
-            if (chunk.state === "existing") {
-                chunk.lines.push(l)
-                chunk.lineNumbers.push(lineNumber)
-            } else {
-                chunk = {
-                    state: "existing",
-                    lines: [l],
-                    lineNumbers: [lineNumber],
-                }
-                chunks.push(chunk)
-            }
-        }
-    }
-
-    // Clean trailing empty lines in the last chunk
-    if (chunk.state === "existing") {
-        while (/^\s*$/.test(chunk.lines[chunk.lines.length - 1])) {
-            chunk.lines.pop()
-            chunk.lineNumbers.pop()
-        }
-        if (chunk.lines.length === 0) chunks.pop()
-    }
-
-    // Remove duplicate lines added without changes
-    for (let i = 0; i < chunks.length - 1; ++i) {
-        const current = chunks[i]
-        const next = chunks[i + 1]
-        if (
-            current.lines.length === 1 &&
-            next.lines.length === 1 &&
-            current.state === "existing" &&
-            next.state === "added" &&
-            current.lines[0] === next.lines[0]
-        ) {
-            // Remove current, added line since it does not change the file
-            chunks.splice(i, 2)
-        }
-    }
-
-    return chunks
-}
-
-const MIN_CHUNK_SIZE = 4
-
-/**
- * Finds the starting position of a chunk in the given lines.
- * @param lines - The array of lines to search through.
- * @param chunk - The chunk to find.
- * @param startLine - The line to start the search from.
- * @returns The index of the starting line of the chunk, or -1 if not found.
- */
-function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
-    const chunkLines = chunk.lines
-    if (chunkLines.length === 0) return startLine
-    const chunkStart = chunkLines[0].trim()
-    let linei = startLine
-    while (linei < lines.length) {
-        const line = lines[linei].trim()
-        if (line === chunkStart) {
-            let found = true
-            let i = 1
-            for (
-                ;
-                i < Math.min(MIN_CHUNK_SIZE, chunkLines.length) &&
-                linei + i < lines.length;
-                ++i
-            ) {
-                if (lines[linei + i].trim() !== chunkLines[i].trim()) {
-                    found = false
-                    break
-                }
-            }
-            if (found && i === chunkLines.length) return linei
-        }
-        ++linei
-    }
-    return -1
+export function diffResolve(
+    input: string | ElementOrArray<DiffFile>
+): DiffFile[] {
+    if (typeof input === "string") return diffParse(input)
+    else return arrayify(input)
 }
 
 /**
- * Applies a series of LLMDiff chunks to a source string.
- * @param source - The original source content.
- * @param chunks - The chunks representing changes to apply.
- * @returns The modified source content.
- */
-export function applyLLMDiff(source: string, chunks: Chunk[]): string {
-    if (!chunks?.length || !source) return source
-
-    const lines = source.split("\n")
-    let current = 0
-    let i = 0
-    while (i + 1 < chunks.length) {
-        const chunk = chunks[i++]
-        if (chunk.state !== "existing")
-            throw new Error("expecting existing chunk")
-
-        // Find location of existing chunk
-        const chunkStart = findChunk(lines, chunk, current)
-        if (chunkStart === -1) break
-        current = chunkStart + chunk.lines.length
-
-        // Handle deleted chunk
-        if (chunks[i]?.state === "deleted") {
-            const deletedChunk = chunks[i++]
-            const chunkDel = findChunk(lines, deletedChunk, current)
-            if (chunkDel === current) {
-                lines.splice(current, deletedChunk.lines.length)
-            }
-            if (chunks[i]?.state === "existing") continue
-        }
-
-        const addedChunk = chunks[i++]
-        if (!addedChunk) break
-        if (addedChunk?.state !== "added")
-            throw new Error("expecting added chunk")
-
-        // Find the end of the next existing chunk
-        let nextChunk = chunks[i]
-        if (nextChunk && nextChunk.state !== "existing")
-            throw new Error("expecting existing chunk")
-        const chunkEnd = nextChunk
-            ? findChunk(lines, nextChunk, current)
-            : lines.length
-
-        if (chunkEnd === -1) break
-
-        // Finally, replace the lines with the added chunk
-        const toRemove = chunkEnd - current
-        lines.splice(current, toRemove, ...addedChunk.lines)
-
-        current += addedChunk.lines.length - toRemove
-    }
-
-    return lines.join("\n")
-}
-
-/**
- * Custom error class for handling diff-related errors.
- */
-export class DiffError extends Error {
-    constructor(message: string) {
-        super(message)
-    }
-}
-
-/**
- * Applies a series of LLMDiff chunks to a source string using line numbers.
- * @param source - The original source content.
- * @param chunks - The chunks representing changes to apply.
- * @returns The modified source content.
- */
-export function applyLLMPatch(source: string, chunks: Chunk[]): string {
-    if (!chunks?.length || !source) return source
-
-    const lines = source.split("\n")
-
-    // Process modified and deleted chunks
-    chunks
-        .filter((c) => c.state !== "added")
-        .forEach((chunk) => {
-            for (let li = 0; li < chunk.lines.length; ++li) {
-                const line =
-                    chunk.state === "deleted" ? undefined : chunk.lines[li]
-                const linei = chunk.lineNumbers[li] - 1
-                if (isNaN(linei))
-                    throw new DiffError(`diff: missing or nan line number`)
-                if (linei < 0 || linei >= lines.length)
-                    throw new DiffError(
-                        `diff: invalid line number ${linei} in ${lines.length}`
-                    )
-                lines[linei] = line
-            }
-        })
-
-    // Insert added chunks after processing deletions and modifications
-    for (let ci = chunks.length - 1; ci > 0; ci--) {
-        const chunk = chunks[ci]
-        if (chunk.state !== "added") continue
-        let previ = ci - 1
-        let prev = chunks[previ]
-        // Find the previous existing chunk
-        while (prev && prev.state !== "existing") {
-            prev = chunks[--previ]
-        }
-        if (!prev) throw new Error("missing previous chunk for added chunk")
-        const prevLinei = prev.lineNumbers[prev.lineNumbers.length - 1]
-        lines.splice(prevLinei, 0, ...chunk.lines)
-    }
-
-    // Filter out undefined lines (deleted)
-    return lines.filter((l) => l !== undefined).join("\n")
-}
-
-/**
- * Tries to parse a diff string into a structured format.
+ * Attempts to parse a diff string into a structured format.
+ * If parsing fails, logs the error message and returns an empty array.
+ *
  * @param diff - The diff string to parse.
- * @returns The parsed diff as an array of files, or undefined if parsing fails.
+ * @returns An array of parsed file objects if successful, or an empty array if parsing fails. Logs an error message if parsing fails.
  */
-export function tryParseDiff(diff: string) {
-    let parsed: parseDiff.File[]
+export function tryDiffParse(diff: string) {
     try {
-        parsed = parseDiff(diff)
-        if (!parsed?.length) parsed = undefined
+        return diffParse(diff)
     } catch (e) {
-        parsed = undefined
+        dbg(`diff parsing failed: ${errorMessage(e)}`)
+        return []
     }
-    return parsed
 }
 
 /**
- * Converts a diff string into the LLMDiff format.
- * @param diff - The diff string to convert.
- * @returns The LLMDiff formatted string, or undefined if parsing fails.
+ * Creates a unified diff between two workspace files.
+ * If the input is a string, it is wrapped in a WorkspaceFile object with a default filename.
+ * If the input is an object, it should contain a filename and content.
+ *
+ * @param left - The original workspace file or its content. If a string, it is wrapped in a WorkspaceFile object with the filename "left".
+ * @param right - The modified workspace file or its content. If a string, it is wrapped in a WorkspaceFile object with the filename "right".
+ * @param options - Optional parameters, such as the number of context lines, case sensitivity, and whitespace handling. Defaults to ignoring case and whitespace. Additional options can be provided.
+ * @returns The diff as a string, with redundant headers removed. The diff is generated using createTwoFilesPatch.
  */
-export function llmifyDiff(diff: string) {
-    if (!diff) return diff
-
-    const parsed = tryParseDiff(diff)
-    if (!parsed) return undefined
-
-    for (const file of parsed) {
-        for (const chunk of file.chunks) {
-            let currentLineNumber = chunk.newStart
-            for (const change of chunk.changes) {
-                if (change.type === "del") continue
-                ;(change as any).line = currentLineNumber
-                currentLineNumber++
-            }
-        }
+export function diffCreatePatch(
+    left: string | WorkspaceFile,
+    right: string | WorkspaceFile,
+    options?: {
+        context?: number
+        ignoreCase?: boolean
+        ignoreWhitespace?: boolean
     }
-
-    // Convert back to unified diff format
-    let result = ""
-    for (const file of parsed) {
-        result += `--- ${file.from}\n+++ ${file.to}\n`
-        for (const chunk of file.chunks) {
-            result += `${chunk.content}\n`
-            for (const change of chunk.changes) {
-                const ln =
-                    (change as any).line !== undefined
-                        ? `[${(change as any).line}] `
-                        : ""
-                result += `${ln}${change.content}\n`
-            }
-        }
-    }
-
-    return result
-}
-
-/**
- * Creates a diff between two workspace files.
- * @param left - The original workspace file.
- * @param right - The modified workspace file.
- * @param options - Optional settings for creating the diff.
- * @returns The diff as a string, with certain headers removed.
- */
-export function createDiff(
-    left: WorkspaceFile,
-    right: WorkspaceFile,
-    options?: { context?: number }
 ) {
+    if (typeof left === "string") left = { filename: "left", content: left }
+    if (typeof right === "string") right = { filename: "right", content: right }
     const res = createTwoFilesPatch(
-        left.filename || "",
-        right.filename || "",
-        left.content || "",
-        right.content || "",
+        left?.filename || "",
+        right?.filename || "",
+        left?.content || "",
+        right?.content || "",
         undefined,
         undefined,
         {
@@ -365,4 +82,66 @@ export function createDiff(
         }
     )
     return res.replace(/^[^=]*={10,}\n/, "")
+}
+
+/**
+ * Determines if two number ranges overlap.
+ *
+ * @param start1 - Start of first range.
+ * @param end1 - End of first range (inclusive).
+ * @param start2 - Start of second range.
+ * @param end2 - End of second range (inclusive).
+ * @returns True if the ranges overlap, false otherwise.
+ */
+function rangesOverlap(
+    start1: number,
+    end1: number,
+    start2: number,
+    end2: number
+): boolean {
+    return Math.max(start1, start2) <= Math.min(end1, end2)
+}
+
+/**
+ * Finds a chunk in a diff corresponding to a specified file and line number.
+ *
+ * @param file - The file path to search for in the diff. Can be empty to search all files.
+ * @param range - The line number or numbers (zero-based) to locate in the specified file's diff.
+ * @param diff - The diff data, containing an array of file diffs. Can be a single diff file or an array of diff files.
+ * @returns An object containing the matching file and the chunk if found, or an object with only the file if no chunk matches. Returns undefined if no file matches.
+ */
+export function diffFindChunk(
+    file: string,
+    range: number | [number, number],
+    diff: ElementOrArray<DiffFile>
+): { file?: DiffFile; chunk?: DiffChunk } | undefined {
+    // line is zero-based!
+    const fn = file ? resolve(file) : undefined
+    const df = arrayify(diff).find(
+        (f) => (!file && !f.to) || resolve(f.to) === fn
+    )
+    if (!df) return undefined // file not found in diff
+
+    const { chunks } = df
+    const lines = arrayify(range)
+    if (lines.length === 0) return { file: df } // no lines to search for
+    if (lines.length === 1) lines[1] = lines[0] // if only one line, make it a range
+    if (lines[0] > lines[1]) {
+        // if the range is inverted, swap it
+        const tmp = lines[0]
+        lines[0] = lines[1]
+        lines[1] = tmp
+    }
+    for (const chunk of chunks) {
+        if (
+            rangesOverlap(
+                lines[0],
+                lines[1],
+                chunk.newStart,
+                chunk.newStart + chunk.newLines
+            )
+        )
+            return { file: df, chunk }
+    }
+    return { file: df }
 }

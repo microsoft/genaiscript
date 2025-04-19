@@ -6,37 +6,46 @@ import {
     TOOL_ID,
     TRACE_CHUNK,
     TRACE_DETAILS,
+    TRACE_MAX_FENCE_SIZE,
     TRACE_MAX_FILE_SIZE,
-    TRACE_MAX_IMAGE_SIZE,
 } from "./constants"
-import { parseTraceTree, TraceTree } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
-import prettyBytes from "pretty-bytes"
 import { host } from "./host"
 import { ellipse, toStringList } from "./util"
-import { estimateTokens } from "./tokens"
 import { renderWithPrecision } from "./precision"
 import { fenceMD } from "./mkmd"
-import { HTMLEscape } from "./html"
+import { HTMLEscape } from "./htmlescape"
 import { resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { dedent } from "./indent"
-import { CSVStringify, CSVToMarkdown } from "./csv"
+import { CSVStringify, dataToMarkdownTable } from "./csv"
 import { INIStringify } from "./ini"
 import { ChatCompletionsProgressReport } from "./chattypes"
+import { parseTraceTree, TraceTree } from "./traceparser"
+import { fileCacheImage } from "./filecache"
+import { CancellationOptions } from "./cancellation"
+import { generateId } from "./id"
+import { diffCreatePatch } from "./diff"
+import { prettyBytes } from "./pretty"
+import assert from "node:assert/strict"
 
 export class TraceChunkEvent extends Event {
     constructor(
         readonly chunk: string,
+        readonly inner: boolean,
         readonly progress?: ChatCompletionsProgressReport
     ) {
         super(TRACE_CHUNK)
+        assert(
+            typeof chunk === "string",
+            `chunk must be a string, got ${typeof chunk}`
+        )
     }
 
     clone(): TraceChunkEvent {
-        const ev = new TraceChunkEvent(this.chunk, this.progress)
+        const ev = new TraceChunkEvent(this.chunk, this.inner, this.progress)
         return ev
     }
 }
@@ -47,11 +56,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     private _content: (string | MarkdownTrace)[] = []
     private _tree: TraceTree
 
-    constructor(
-        readonly options?: {
-            encoder?: TokenEncoder
-        }
-    ) {
+    constructor(readonly options?: CancellationOptions & { dir?: string }) {
         super()
         this.options = options || {}
     }
@@ -62,7 +67,8 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     }
 
     get tree() {
-        if (!this._tree) this._tree = parseTraceTree(this.content)
+        if (!this._tree)
+            this._tree = parseTraceTree(this.content, { parseItems: true })
         return this._tree
     }
 
@@ -70,9 +76,13 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         return this._content
             .map((c) => (typeof c === "string" ? c : c.content))
             .join("")
+            .replace(/(\r?\n){3,}/g, "\n\n")
     }
 
-    startTraceDetails(title: string, options?: { expanded?: boolean }) {
+    startTraceDetails(
+        title: string,
+        options?: { expanded?: boolean; success?: boolean }
+    ) {
         const trace = new MarkdownTrace({ ...this.options })
         trace.addEventListener(TRACE_CHUNK, (ev) =>
             this.dispatchEvent((ev as TraceChunkEvent).clone())
@@ -86,23 +96,29 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
     }
 
     chatProgress(progress: ChatCompletionsProgressReport) {
-        const { inner, responseChunk: value } = progress
-        if (!value) return
+        const { inner, responseChunk, reasoningChunk } = progress
+        if (!responseChunk && !reasoningChunk) return
 
-        if (!inner) {
-            this._content.push(value)
+        if (!inner && responseChunk) {
+            this._content.push(responseChunk)
             this._tree = undefined
             this.dispatchChange()
         }
-        this.dispatchEvent(new TraceChunkEvent(value, progress))
+        if (responseChunk)
+            this.dispatchEvent(
+                new TraceChunkEvent(responseChunk, inner, progress)
+            )
     }
 
     appendContent(value: string) {
         if (value !== undefined && value !== null && value !== "") {
-            this._content.push(value)
-            this._tree = undefined
-            this.dispatchChange()
-            this.dispatchEvent(new TraceChunkEvent(value))
+            if (typeof value !== "string") this.fence(value, "json")
+            else {
+                this._content.push(value)
+                this._tree = undefined
+                this.dispatchChange()
+                this.dispatchEvent(new TraceChunkEvent(value, false))
+            }
         }
     }
 
@@ -115,6 +131,15 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         )
     }
 
+    diff(
+        left: string | WorkspaceFile,
+        right: string | WorkspaceFile,
+        options?: { context?: number }
+    ) {
+        const d = diffCreatePatch(left, right, options)
+        this.fence(d, "diff")
+    }
+
     /**
      * Logs a markdown table
      * @param rows
@@ -124,7 +149,7 @@ export class MarkdownTrace extends EventTarget implements OutputTrace {
         options?: { headers?: ElementOrArray<string> }
     ): void {
         if (!rows?.length) return
-        const md = CSVToMarkdown(rows, options)
+        const md = dataToMarkdownTable(rows, options)
         this.appendContent(`\n\n${md}\n\n`)
     }
 
@@ -256,11 +281,14 @@ ${this.toResultIcon(success, "")}${title}
         this.appendContent("\n````\n")
     }
 
-    fence(message: string | unknown, contentType?: string) {
+    fence(
+        message: string | unknown,
+        contentType?: OptionsOrString<"md" | "json" | "csv" | "yaml" | "ini">
+    ) {
         if (message === undefined || message === null || message === "") return
-
+        if (contentType === "markdown") contentType = "md"
         if (contentType === "md" && Array.isArray(message)) {
-            this.appendContent(CSVToMarkdown(message))
+            this.appendContent(dataToMarkdownTable(message))
             return
         }
 
@@ -271,12 +299,20 @@ ${this.toResultIcon(success, "")}${title}
             } else if (contentType === "ini") {
                 res = INIStringify(message)
             } else if (contentType === "csv") {
-                res = CSVStringify(Array.isArray(message) ? message : [message])
+                res = CSVStringify(
+                    Array.isArray(message) ? message : [message],
+                    { header: true }
+                )
             } else {
                 res = yamlStringify(message)
                 contentType = "yaml"
             }
         } else res = message
+
+        if (res.length > TRACE_MAX_FENCE_SIZE) {
+            const fn = `${generateId()}.${contentType || "txt"}`
+            res = ellipse(res, TRACE_MAX_FENCE_SIZE)
+        }
         this.appendContent(fenceMD(res, contentType))
     }
 
@@ -285,15 +321,18 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     heading(level: number, message: string) {
-        this.appendContent(`${"#".repeat(level)} ${message}\n\n`)
+        this.appendContent(`\n\n${"#".repeat(level)} ${message}\n\n`)
     }
 
-    async image(url: string, caption: string) {
-        if (/^https?:\/\//.test(url) || url.length < TRACE_MAX_IMAGE_SIZE)
-            return this.appendContent(
-                `\n\n![${caption || "image"}](${url})\n\n`
-            )
-        else return this.appendContent(`\n\n${caption} (too large...)\n\n`)
+    async image(urlOrImage: string, caption: string) {
+        const imageUrl = await fileCacheImage(urlOrImage, {
+            trace: this,
+            ...this.options,
+        })
+        if (!imageUrl) return
+        return this.appendContent(
+            `\n\n![${caption || "image"}](${imageUrl})\n\n`
+        )
     }
 
     private toResultIcon(value: boolean, missing: string) {
@@ -405,20 +444,27 @@ ${this.toResultIcon(success, "")}${title}
         this.disableChange(() => {
             try {
                 if (title) this.startDetails(title)
+                if (model) this.itemValue("model", model)
                 const encoder = host.createUTF8Encoder()
                 for (const file of files) {
-                    const content = file.content ?? ""
-                    const buf = encoder.encode(content)
-                    const size = prettyBytes(buf.length)
                     const score = !isNaN(file.score)
                         ? `score: ${renderWithPrecision(file.score || 0, 2)}`
                         : undefined
-                    const tokens =
-                        model && this.options?.encoder
-                            ? `${estimateTokens(content, this.options.encoder)} t`
-                            : undefined
-                    const suffix = toStringList(tokens, size, score)
-                    if (maxLength > 0) {
+                    let size: string
+                    let content: string
+                    if (file.encoding) {
+                        size = prettyBytes(
+                            file.size ??
+                                Buffer.from(file.content, file.encoding).length
+                        )
+                    } else {
+                        content = file.content ?? ""
+                        size = prettyBytes(
+                            file.size ?? encoder.encode(content).length
+                        )
+                    }
+                    const suffix = toStringList(size, score)
+                    if (content && maxLength > 0) {
                         let preview = ellipse(content, maxLength).replace(
                             /\b[A-Za-z0-9\-_]{20,40}\b/g,
                             (m) => m.slice(0, 10) + "***"
@@ -429,16 +475,15 @@ ${this.toResultIcon(success, "")}${title}
                                 secret.slice(0, 3) +
                                     "*".repeat(secret.length - 3)
                             )
-                        const ext = host.path.extname(file.filename).slice(1)
                         this.detailsFenced(
                             `<code>${file.filename}</code>: ${suffix}`,
                             preview,
-                            ext
+                            "text"
                         )
                     } else
                         this.itemValue(
                             `\`${file.filename}\``,
-                            toStringList(tokens, size, score)
+                            toStringList(size, score)
                         )
                 }
             } finally {
