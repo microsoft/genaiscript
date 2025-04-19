@@ -124,7 +124,7 @@ const dbg = genaiscriptDebug("run")
  * @property options.model - Model configuration for the script execution.
  * @property options.vars - Variables to pass to the script.
  *
- * Exits with a success code if the script completes successfully, or with an appropriate error code if it fails or is cancelled.
+ * Exits with a success code if the script completes successfully, or with an appropriate error code if it fails, is cancelled, or encounters an unrecoverable error.
  */
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -172,7 +172,7 @@ export async function runScriptWithExitCode(
  * @param files - Array of file paths or URLs to be processed by the script.
  * @param options - Configuration object including additional execution parameters:
  *   - runId: Optional identifier for the execution run.
- *   - outputTrace: Instance for capturing trace outputs.
+ *   - runOutputTrace: Instance for capturing output trace events.
  *   - cli: Indicates if CLI mode is active.
  *   - infoCb: Callback function for informational messages.
  *   - partialCb: Callback for reporting partial progress in chat completions.
@@ -191,7 +191,18 @@ export async function runScriptWithExitCode(
  *   - jsSource: JavaScript source code for the script.
  *   - logprobs/topLogprobs: Configurations for log probability outputs.
  *   - fenceFormat: Specifies the format for fenced code blocks.
- *   - other parameters for retries, limits, model settings, etc.
+ *   - workspaceFiles: Additional files to include in the workspace.
+ *   - excludedFiles: Files to exclude from processing.
+ *   - ignoreGitIgnore: Disables applying .gitignore rules when resolving files.
+ *   - label: Optional label for the execution run.
+ *   - temperature: Sampling temperature for model execution.
+ *   - fallbackTools: Fallback tools to use if primary tools fail.
+ *   - topP: Top-p sampling parameter for model execution.
+ *   - toolChoice: Specifies the tool to use for execution.
+ *   - seed: Random seed for reproducibility.
+ *   - maxTokens: Maximum number of tokens for model responses.
+ *   - maxToolCalls: Maximum number of tool calls allowed.
+ *   - maxDataRepairs: Maximum number of data repair attempts.
  *
  * @returns A Promise resolving to an object containing:
  *   - exitCode: Final exit code of the script execution.

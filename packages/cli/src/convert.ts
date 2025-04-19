@@ -44,6 +44,8 @@ import { measure } from "../../core/src/performance"
  *   - `concurrency` - Number of files to process concurrently.
  *   - `excludedFiles` - Array of file paths or glob patterns to exclude from processing.
  *   - `ignoreGitIgnore` - If true, ignores .gitignore rules during file resolution.
+ *   - `runTrace` - If false, disables trace generation for individual files.
+ *   - `outputTrace` - If false, disables output trace generation for individual files.
  *   - Other options passed to the transformation process.
  *
  * @throws Error if the script is not found or no files match the given patterns.

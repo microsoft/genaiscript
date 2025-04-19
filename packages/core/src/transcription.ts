@@ -70,15 +70,13 @@ export function srtVttRender(transcription: TranscriptionResult) {
 }
 
 /**
- * """
  * Parses timestamps enclosed in square brackets from the given transcription string.
  *
- * Arguments:
+ * Parameters:
  * - transcription: A string containing transcription text with timestamps enclosed in square brackets.
  *
  * Returns:
- * - A list of extracted timestamp strings in the format `[hh:mm:ss.sss]` or `[mm:ss.sss]`.
- * """
+ * - An array of extracted timestamp strings in the format `[hh:mm:ss.sss]` or `[mm:ss.sss]`.
  */
 export function parseTimestamps(transcription: string) {
     let ts: string[] = []
@@ -95,8 +93,11 @@ export function parseTimestamps(transcription: string) {
 /**
  * Parses a transcription string in VTT or SRT format and converts it into an array of transcription segments.
  *
- * @param transcription - The transcription string to be parsed. Expected to be in valid VTT or SRT format.
- * @returns An array of transcription segments, where each segment contains the start time, end time, text, and ID of the segment.
+ * Parameters:
+ * - transcription: The transcription string to be parsed. Expected to be in valid VTT or SRT format.
+ *
+ * Returns:
+ * - An array of transcription segments, where each segment contains the ID, start time, end time, and text of the segment.
  */
 export function vttSrtParse(transcription: string): TranscriptionSegment[] {
     if (!transcription) return []

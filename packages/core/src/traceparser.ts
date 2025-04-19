@@ -33,6 +33,9 @@ export interface TraceTree {
  * @param options.parseItems - Flag to indicate if item nodes should be parsed.
  * @param options.openeds - Set of IDs for details nodes that should be open.
  * @returns The generated TraceTree structure containing the root node and a dictionary of nodes by ID.
+ *
+ * The function processes the input string line by line, identifying details blocks, summary tags, and item nodes based on specific patterns.
+ * It calculates a hash for each line to generate unique IDs for nodes and maintains a stack to manage nested details blocks.
  */
 export function parseTraceTree(
     text: string,

@@ -83,9 +83,11 @@ import { DEBUG_CATEGORIES } from "../../core/src/dbg"
  * - `configure`: Interactive help to configure providers.
  * - `run`: Executes a GenAIScript against files with various options for output, retries, and caching.
  * - `runs`: Commands to manage and list previous runs.
- * - `test`: Group of commands for running and managing tests.
- * - `convert`: Converts files through a GenAIScript with options for output and concurrency.
+ * - `test`: Group of commands for running and managing tests, including listing and viewing tests.
+ * - `convert`: Converts files through a GenAIScript with options for output, concurrency, and file-specific settings.
  * Handles environment setup and NodeHost installation.
+ * Adds support for various CLI options such as working directory, environment files, color output, verbosity, and performance logging.
+ * Includes error handling for request errors and runtime compatibility issues.
  */
 export async function cli() {
     let nodeHost: NodeHost // Variable to hold NodeHost instance

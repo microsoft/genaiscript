@@ -76,6 +76,7 @@ const dbg = genaiscriptDebug("server")
  *   - dispatchProgress: Whether to dispatch progress updates to all clients.
  *   - githubCopilotChatClient: Whether to enable GitHub Copilot Chat client integration.
  *   - remote: Remote configuration options.
+ *   - remoteBranch: Optional branch name for remote configuration.
  */
 export async function startServer(
     options: {

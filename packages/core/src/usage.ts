@@ -32,7 +32,7 @@ const dbg = genaiscriptDebug("usage")
  *
  * @param modelId - The identifier of the model used for chat completion.
  * @param usage - The token usage statistics, including prompt, completion, and cached tokens.
- * @returns The estimated cost, or undefined if pricing data is unavailable. The cost is calculated using input and output token prices, with a rebate applied to cached tokens.
+ * @returns The estimated cost, or undefined if pricing data is unavailable. The cost is calculated using input and output token prices, with a rebate applied to cached tokens. If the model's pricing data cannot be determined, the function returns undefined.
  */
 export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     if (!modelId || !usage.total_tokens) return undefined
@@ -71,8 +71,8 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
 }
 
 /**
- * Determines whether the specified model has associated pricing data, and is
- * therefore costeable.
+ * Determines if the specified model has associated pricing data by checking
+ * if any pricing entries start with the provider's prefix.
  *
  * @param model - The identifier of the model to check.
  * @returns True if the model has pricing data available, otherwise false.

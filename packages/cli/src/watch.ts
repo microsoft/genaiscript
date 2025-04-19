@@ -110,7 +110,8 @@ export class ProjectWatcher extends EventTarget {
  * @param options - Optional configuration object:
  *   - paths: One or more paths to watch. Defaults to the current directory.
  *   - cwd: The current working directory for the watcher. Defaults to the resolved current directory.
- *   - rest: Additional options including cancellation token and script filtering options.
+ *   - cancellationToken: A token to signal cancellation of the watcher.
+ *   - rest: Additional options including script filtering options.
  * @returns An initialized ProjectWatcher instance.
  */
 export async function startProjectWatcher(

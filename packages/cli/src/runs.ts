@@ -21,8 +21,8 @@ import { dotGenaiscriptPath } from "../../core/src/workdir"
  *   - runId: The unique identifier for the run.
  *   - dir: The directory path of the run.
  *   - creationTme: The creation time of the run, parsed from its name.
- *   - report: The size of the `res.json` file in the run.
- *   - trace: The size of the `trace.md` file in the run.
+ *   - report: The size of the `res.json` file in the run, or 0 if it does not exist.
+ *   - trace: The size of the `trace.md` file in the run, or 0 if it does not exist.
  */
 export async function collectRuns(options?: { scriptid?: string }) {
     const { scriptid } = options || {}

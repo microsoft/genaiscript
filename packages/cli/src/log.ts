@@ -45,7 +45,7 @@ export function warn(...args: any[]) {
 /**
  * Logs error messages with optional color.
  * Utilizes console.error to print to stderr.
- * Combines string and number arguments into a single colored message if consoleColors is enabled.
+ * Combines string and number arguments into a single colored message if applicable.
  * @param args - The arguments to log
  */
 export function error(...args: any[]) {

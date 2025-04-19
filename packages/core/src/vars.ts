@@ -16,7 +16,8 @@ import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
  * @param prj - The project context containing scripts and systems.
  * @param script - The script for which the parameters schema is to be resolved.
  * @returns A JSON schema object describing the structure of the parameters
- *          for the script and its associated systems.
+ *          for the script and its associated systems. The schema includes properties
+ *          for the script itself and for each system associated with the script.
  */
 export function resolveScriptParametersSchema(
     prj: Project,
@@ -57,13 +58,19 @@ export function systemParameterToVarName(
 
 /**
  * Parses and resolves prompt parameters for the provided project and script,
- * applying defaults and incorporating user-supplied variables.
+ * applying defaults, normalizing keys, and incorporating user-supplied variables.
+ *
+ * - Creates a combined parameter structure from the script and its associated systems.
+ * - Applies default values from the parameter definitions or their JSON schema.
+ * - Overrides defaults with user-supplied variables.
+ * - Normalizes parameter keys to a consistent format.
+ * - Logs errors for duplicate normalized keys.
  *
  * @param prj - The project instance used to resolve systems and scripts.
  * @param script - The prompt script containing the initial parameters and variables.
  * @param optionsVars - Additional variables provided by the user to override or extend script parameters.
  *
- * @returns Frozen prompt parameters object after applying defaults and resolving all variables.
+ * @returns A frozen object containing the resolved and normalized prompt parameters.
  */
 export function parsePromptParameters(
     prj: Project,
@@ -139,6 +146,7 @@ export function parsePromptParameters(
  * - The proxy supports fetching keys, enumerating own keys, and retrieving property descriptors.
  * - The `Object.prototype.toString` method is overridden to return a YAML stringified version
  *   of the proxified parameters.
+ * - The proxy allows access to parameter values using normalized keys.
  */
 export function proxifyEnvVars(res: PromptParameters) {
     const varsProxy: PromptParameters = new Proxy(
@@ -188,7 +196,7 @@ export function proxifyEnvVars(res: PromptParameters) {
  *
  * @param ev - The current environment variables, including `vars` and any additional properties.
  * @param system - The system instance containing `parameters` and `vars` to merge.
- * @returns A new object with `vars` containing merged environment variables and system parameters, along with the rest of the `ev` properties.
+ * @returns A new object with `vars` containing merged environment variables, system parameters, and system variables, along with the rest of the `ev` properties.
  */
 export function mergeEnvVarsWithSystem(
     ev: ExpansionVariables,
