@@ -3,7 +3,20 @@ title: Best Practices
 description: Suggestions for using GenAIScripts more effectively
 keywords: best practices, writing scripts
 sidebar:
-    order: 6
+  order: 6
+hero:
+  image:
+    alt: A small, simple illustration using five solid colors shows rectangle icons
+      for scripts, each with symbols indicating parameters, arranged to appear
+      interconnected. There’s a plain document icon with a folded corner, and
+      two distinct file icons marked out by colored sections for PDF and DOCX
+      formats. Arrows connect these elements, illustrating the flow of input and
+      output between scripts. A cogwheel icon signals configuration, while two
+      overlapping speech bubble shapes symbolize different large language
+      models. All shapes are flat, iconic, and set on a blank, untextured
+      background with no people or written text.
+    file: ./best-practices.png
+
 ---
 
 ## GenAIScript allows chatbot users to create reusable scripts

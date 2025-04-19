@@ -1,8 +1,19 @@
 ---
-title: "Classify"
-description: "Use the classify helpers for your classification tasks"
+title: Classify
+description: Use the classify helpers for your classification tasks
 sidebar:
-    order: 80
+  order: 80
+hero:
+  image:
+    alt: Three simple, brightly colored geometric boxes, each labeled with either
+      "bug," "feature," or "qa," arranged in a corporate flat 8-bit art style.
+      Above the boxes, abstract interconnected lines suggest AI or neural
+      network analysis and a small digital bar shows classification probability.
+      One box stands out as highlighted, indicating it has been selected. The
+      image is small, uses only five bold colors, minimal shapes, and has no
+      background, shadows, or people.
+    file: ./classify.png
+
 ---
 
 The `classify` function in GenAIScript allows you to categorize inputs based on a machine learning model.
