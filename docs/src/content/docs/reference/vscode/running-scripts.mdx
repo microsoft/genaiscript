@@ -1,21 +1,21 @@
 ---
 title: Running Scripts
 sidebar:
-  order: 3
+    order: 3
 description: Learn how to run GenAIScripts in Visual Studio Code using the
-  GenAIScript extension.
+    GenAIScript extension.
 keywords: GenAIScript, Visual Studio Code, run scripts, command palette, context menu
 hero:
-  image:
-    alt: "An 8-bit style image displays a basic computer screen set at a small
-      square size. On screen are geometric icons: a script file with a play
-      button, a file explorer showing several files and folders, and one
-      file—labeled as .gitignore—stands out with a highlight. The palette uses
-      only five businesslike colors; the graphics are flat, minimal, and use
-      simple shapes, with no background, shading, or words. Everything is
-      arranged for a tidy, iconic appearance."
-    file: ./running-scripts.png
-
+    image:
+        alt:
+            "An 8-bit style image displays a basic computer screen set at a small
+            square size. On screen are geometric icons: a script file with a play
+            button, a file explorer showing several files and folders, and one
+            file—labeled as .gitignore—stands out with a highlight. The palette uses
+            only five businesslike colors; the graphics are flat, minimal, and use
+            simple shapes, with no background, shading, or words. Everything is
+            arranged for a tidy, iconic appearance."
+        file: ./running-scripts.png
 ---
 
 import { YouTube } from "astro-embed"
@@ -59,6 +59,18 @@ This mode allows to run scripts on any combination of files and folders, which w
 
 - open an file in the editor (not a GenAIScript file)
 - right-click and select **Run GenAIScript** from the context menu
+
+## Using the selected text in your script
+
+Whenever you launch a script, GenAIScript will grab the selected text in the active text editor
+and store in the `editor.selectedText` variable.
+
+```js
+const text = env.vars["editor.selectedText"]
+```
+
+If value will be undefined if you run your script from the command line,
+so you should handle that case in your script.
 
 ## .gitignore rules
 

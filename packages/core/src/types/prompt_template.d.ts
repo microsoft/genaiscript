@@ -1666,6 +1666,10 @@ interface ExpansionVariables {
          * Selected model identifier in GitHub Copilot Chat
          */
         "copilot.model"?: string
+        /**
+         * selected text in active text editor
+         */
+        "editor.selectedText"?: string
     }
 
     /**
