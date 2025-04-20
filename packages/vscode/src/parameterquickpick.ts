@@ -23,6 +23,7 @@ export async function showPromptParametersQuickPicks(
         const schema = promptParameterTypeToJSONSchema(script.parameters[param])
         switch (schema.type) {
             case "string": {
+                let value: string | undefined
                 const enums = schema.enum
                 const uiSuggestions = schema.uiSuggestions
                 if (enums?.length) {
