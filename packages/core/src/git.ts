@@ -441,7 +441,7 @@ ${await this.diff({ ...options, nameOnly: true })}
         repository: string,
         options?: {
             /**
-             * Brnach to clone
+             * branch to clone
              */
             branch?: string
 
