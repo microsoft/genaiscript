@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url"
 import { isBinaryMimeType } from "./binary"
-import { CancellationOptions } from "./cancellation"
+import { CancellationOptions, checkCancelled } from "./cancellation"
 import { genaiscriptDebug } from "./debug"
 import { createFetch } from "./fetch"
 import { GitHubClient } from "./github"
@@ -16,6 +16,7 @@ import { GitClient } from "./git"
 import { expandFiles } from "./fs"
 import debug from "debug"
 import { join } from "node:path"
+import { isCancelError } from "./error"
 const dbg = genaiscriptDebug("res")
 const dbgAdaptors = dbg.extend("adaptors")
 const dbgFiles = dbg.extend("files")
@@ -184,6 +185,7 @@ export async function tryResolveResource(
     url = applyUrlAdapters(url)
     const uri = uriTryParse(url)
     if (!uri) return undefined
+    const { cancellationToken } = options || {}
     dbg(`resolving %s`, uriRedact(url))
 
     try {
@@ -198,6 +200,7 @@ export async function tryResolveResource(
         // download
         const dbgUri = dbg.extend(uri.protocol.replace(/:$/, ""))
         const files = arrayify(await resolver(dbgUri, uri, options))
+        checkCancelled(cancellationToken)
         dbg(`resolved %d files`, files.length)
         dbgFiles(
             "%O",
@@ -211,6 +214,7 @@ export async function tryResolveResource(
         // success
         return { uri, files }
     } catch (error) {
+        if (isCancelError(error)) throw error
         dbg(`failed to parse uri %s`, uriRedact(uri.href), error)
         return undefined
     }

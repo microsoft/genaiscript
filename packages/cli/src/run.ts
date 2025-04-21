@@ -5,7 +5,7 @@ import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
-import { CancellationOptions } from "../../core/src/cancellation"
+import { CancellationOptions, checkCancelled } from "../../core/src/cancellation"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { runTemplate } from "../../core/src/promptrunner"
 import {
@@ -104,8 +104,9 @@ import {
     getRunDir,
     createStatsDir,
 } from "../../core/src/workdir"
-import { tryResolveScript } from "../../core/src/resources"
+import { tryResolveResource, tryResolveScript } from "../../core/src/resources"
 import { genaiscriptDebug } from "../../core/src/debug"
+import { uriTryParse } from "../../core/src/url"
 const dbg = genaiscriptDebug("run")
 
 /**
@@ -236,7 +237,7 @@ export async function runScriptInternal(
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
-    const workspaceFiles = options.workspaceFiles || []
+    let workspaceFiles = options.workspaceFiles || []
     const excludedFiles = options.excludedFiles || []
     const stream = !options.json && !options.yaml
     const retry = normalizeInt(options.retry) || 8
@@ -360,10 +361,20 @@ export async function runScriptInternal(
     )
     files = files.filter((f) => !NEGATIVE_GLOB_REGEX.test(f))
     for (let arg of files) {
+        checkCancelled(cancellationToken)
         dbg(`resolving ${arg}`)
-        if (HTTPS_REGEX.test(arg)) {
-            dbg(`url handled later`)
-            resolvedFiles.add(arg)
+        if (uriTryParse(arg)) {
+            dbg(`uri handled later`)
+            const resource = await tryResolveResource(arg, {
+                trace,
+                cancellationToken,
+            })
+            if (!resource)
+                return fail(
+                    `resource ${arg} not found`,
+                    FILES_NOT_FOUND_ERROR_CODE
+                )
+            workspaceFiles.push(...resource.files)
             continue
         }
         const stat = await host.statFile(arg)
@@ -412,6 +423,9 @@ export async function runScriptInternal(
         for (const rf of resolvedFiles) {
             if (!exts.some((ext) => rf.endsWith(ext))) resolvedFiles.delete(rf)
         }
+        workspaceFiles = workspaceFiles.filter(
+            ({ filename }) => !exts.some((ext) => filename.endsWith(ext))
+        )
     }
 
     const reasoningEndMarker = wrapColor(

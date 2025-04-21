@@ -54,6 +54,8 @@ export async function resolveFileContent(
     } = options || {}
     if (!file) return file
 
+    checkCancelled(cancellationToken)
+
     // decode known files
     if (file.encoding === "base64") {
         dbg(`decode base64`)
@@ -290,9 +292,11 @@ export async function resolveFileBytes(
  */
 export async function resolveFileDataUri(
     filename: string,
-    options?: TraceOptions
+    options?: TraceOptions & CancellationOptions
 ) {
+    const { cancellationToken } = options || {}
     const bytes = await resolveFileBytes(filename, options)
+    checkCancelled(cancellationToken)
 
     const mime = (await fileTypeFromBuffer(bytes))?.mime
     if (!mime) {
