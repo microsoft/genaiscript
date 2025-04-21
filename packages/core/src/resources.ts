@@ -74,7 +74,7 @@ const uriResolvers: Record<
     },
     https: async (dbg, url, options) => {
         // https://.../.../....git
-        if (/\.git$/.test(url.pathname))
+        if (/\.git($|\/)/.test(url.pathname))
             return await uriResolvers.git(dbg, url, options)
 
         // regular fetch
@@ -152,11 +152,11 @@ const uriResolvers: Record<
         return undefined
     },
     git: async (dbg, url) => {
-        // (git|https)://github.com/pelikhan/amazing-demo.git
-        const [owner, repo, ...filename] = url.pathname
+        // (git|https)://github.com/pelikhan/amazing-demo.git(/....)
+        let [owner, repo, ...filename] = url.pathname
             .replace(/^\//, "")
-            .replace(/\.git$/, "")
             .split("/")
+        repo = repo.replace(/\.git$/, "")
         const repository = [url.origin, owner, repo].join("/")
         const branch = url.hash.replace(/^#/, "")
         dbg(`git %s %s %s`, repository, branch, filename)
