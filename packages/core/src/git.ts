@@ -23,6 +23,7 @@ import { rm } from "node:fs/promises"
 import { packageResolveInstall } from "./packagemanagers"
 import { normalizeInt } from "./cleaners"
 import { dotGenaiscriptPath } from "./workdir"
+import { join } from "node:path"
 
 async function checkDirectoryExists(directory: string): Promise<boolean> {
     const stat = await tryStat(directory)
@@ -461,12 +462,10 @@ ${await this.diff({ ...options, nameOnly: true })}
             depth?: number
         }
     ): Promise<GitClient> {
+        dbg(`cloning repository: ${repository}`)
         let { branch, force, install, depth, ...rest } = options || {}
         depth = normalizeInt(depth)
-        if (isNaN(depth)) {
-            depth = 1
-        }
-        dbg(`cloning repository: ${repository}`)
+        if (isNaN(depth)) depth = 1
 
         // normalize short github url
         // check if the repository is in the form of `owner/repo`
@@ -483,13 +482,11 @@ ${await this.diff({ ...options, nameOnly: true })}
             branch || `HEAD`,
             sha
         )
-        if (branch) {
-            directory = host.path.join(directory, branch)
-        }
+        if (branch) directory = join(directory, branch)
         logVerbose(`git: shallow cloning ${repository} to ${directory}`)
         if (await checkDirectoryExists(directory)) {
-            dbg(`directory already exists`)
             if (!force) {
+                dbg(`directory already exists`)
                 return new GitClient(directory)
             }
             dbg(`removing existing directory`)

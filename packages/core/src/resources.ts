@@ -10,14 +10,16 @@ import { arrayify } from "./cleaners"
 import { RESOURCE_HASH_LENGTH } from "./constants"
 import { hash } from "./crypto"
 import { dotGenaiscriptPath } from "./workdir"
-import { join } from "node:path"
 import { runtimeHost } from "./host"
 import { URL } from "node:url"
 import { GitClient } from "./git"
-import { expandFileOrWorkspaceFiles } from "./fs"
+import { expandFiles } from "./fs"
 import debug from "debug"
+import { join } from "node:path"
 const dbg = genaiscriptDebug("res")
 const dbgAdaptors = dbg.extend("adaptors")
+const dbgFiles = dbg.extend("files")
+dbgFiles.enabled = false
 
 const urlAdapters: {
     id: string
@@ -49,11 +51,11 @@ function applyUrlAdapters(url: string) {
     for (const a of urlAdapters) {
         const newUrl = a.matcher(url)
         if (newUrl) {
-            dbgAdaptors(`%s -> %s`, uriRedact(newUrl), a.id)
-            return new URL(newUrl)
+            dbgAdaptors(`%s: %s`, a.id, uriRedact(url))
+            return newUrl
         }
     }
-    return undefined
+    return url
 }
 
 const uriResolvers: Record<
@@ -141,26 +143,36 @@ const uriResolvers: Record<
                 dbg(`missing gist id %s`, gist)
                 return undefined
             }
-            return uriResolvers.gist(dbg, new URL(`gist://${gist}/${file}`))
+            return await uriResolvers.gist(
+                dbg,
+                new URL(`gist://${gist}/${file}`)
+            )
         }
         return undefined
     },
     git: async (dbg, url) => {
-        dbg(url)
         // (git|https)://github.com/pelikhan/amazing-demo.git
         const [owner, repo, ...filename] = url.pathname
             .replace(/^\//, "")
             .replace(/\.git$/, "")
             .split("/")
-        const repository = [url.hostname, owner, repo].join("/")
+        const repository = [url.origin, owner, repo].join("/")
         const branch = url.hash.replace(/^#/, "")
         dbg(`git %s %s %s`, repository, branch, filename)
         const client = await GitClient.default()
-        const clone = await client.shallowClone(repository, { branch })
+        const clone = await client.shallowClone(repository, {
+            branch,
+        })
         const cwd = clone.cwd
-        return await expandFileOrWorkspaceFiles([
-            path.join(cwd, path.join(...filename) || "**/*"),
-        ])
+        const glob = filename.length ? join(...filename) : "**/*"
+        dbg(`cloned at %s, glob %s`, cwd, glob)
+        const gitFolder = join(cwd, ".git")
+        const files = (
+            await expandFiles([join(cwd, glob)], {
+                applyGitIgnore: false,
+            })
+        ).filter((f) => !f.startsWith(gitFolder))
+        return files.map((filename) => ({ filename }))
     },
 }
 
@@ -169,13 +181,10 @@ export async function tryResolveResource(
     options?: TraceOptions & CancellationOptions
 ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
     if (!url) return undefined
-    let uri = uriTryParse(url)
+    url = applyUrlAdapters(url)
+    const uri = uriTryParse(url)
     if (!uri) return undefined
     dbg(`resolving %s`, uriRedact(url))
-
-    // first, try to rewrite the uri
-    const rewrittenUri = applyUrlAdapters(url)
-    if (rewrittenUri) uri = rewrittenUri
 
     try {
         // try to resolve
@@ -189,6 +198,11 @@ export async function tryResolveResource(
         // download
         const dbgUri = dbg.extend(uri.protocol.replace(/:$/, ""))
         const files = arrayify(await resolver(dbgUri, uri, options))
+        dbg(`resolved %d files`, files.length)
+        dbgFiles(
+            "%O",
+            files.map((f) => f.filename)
+        )
         if (!files.length) {
             dbg(`failed to resolve %s`, uriRedact(uri.href))
             return undefined
