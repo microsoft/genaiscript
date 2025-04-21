@@ -13,11 +13,10 @@ import {
 import { llmifyDiff } from "./llmdiff"
 import { resolveFileContents } from "./file"
 import { tryReadText, tryStat } from "./fs"
-import { host, runtimeHost } from "./host"
+import { runtimeHost } from "./host"
 import { shellParse, shellQuote } from "./shell"
-import { arrayify, logVerbose } from "./util"
-import { approximateTokens, truncateTextToTokens } from "./tokens"
-import { resolveTokenEncoder } from "./encoders"
+import { arrayify, ellipse, logVerbose } from "./util"
+import { approximateTokens } from "./tokens"
 import { underscore } from "inflection"
 import { rm } from "node:fs/promises"
 import { packageResolveInstall } from "./packagemanagers"
@@ -414,7 +413,6 @@ export class GitClient implements Git {
         if (!nameOnly && llmify) {
             dbg(`llmifying diff`)
             res = llmifyDiff(res)
-            const { encode: encoder } = await resolveTokenEncoder(undefined)
             dbg(`encoding diff`)
             const tokens = approximateTokens(res)
             if (tokens > maxTokensFullDiff) {
@@ -422,7 +420,7 @@ export class GitClient implements Git {
                 res = `## Diff
 Truncated diff to large (${tokens} tokens). Diff files individually for details.
 
-${truncateTextToTokens(res, maxTokensFullDiff, encoder)}
+${ellipse(res, maxTokensFullDiff * 3)}
 ...
 
 ## Files

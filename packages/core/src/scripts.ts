@@ -2,24 +2,17 @@ import { collectFolders } from "./ast"
 import {
     DOCS_URL,
     NEW_SCRIPT_TEMPLATE,
-    RESOURCE_HASH_LENGTH,
     TYPE_DEFINITION_BASENAME,
 } from "./constants"
 import { githubCopilotCustomPrompt, promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
-import { host, runtimeHost } from "./host"
+import { host } from "./host"
 import { logVerbose } from "./util"
 import { Project } from "./server/messages"
-import { fetchText } from "./fetchtext"
 import { collapseNewlines } from "./cleaners"
 import { gitIgnoreEnsure } from "./gitignore"
 import { dotGenaiscriptPath } from "./workdir"
-import { join } from "node:path"
-import { CancellationOptions } from "./cancellation"
-import { tryResolveResource } from "./resources"
-import { TraceOptions } from "./trace"
 import { genaiscriptDebug } from "./debug"
-import { hash } from "./crypto"
 const dbg = genaiscriptDebug("scripts")
 
 /**
@@ -163,10 +156,11 @@ export async function fixCustomPrompts(options?: {
         const dn = host.path.join(ddir, route)
         let text = _fullDocsText
         if (!text) {
-            const content = await fetchText(url)
+            const content = await fetch(url)
             if (!content.ok) logVerbose(`failed to fetch ${url}`)
+            text = await content.text()
             text = _fullDocsText = collapseNewlines(
-                content.text.replace(
+                text.replace(
                     /^\!\[\]\(<data:image\/svg\+xml,.*$/gm,
                     "<!-- mermaid diagram -->"
                 )

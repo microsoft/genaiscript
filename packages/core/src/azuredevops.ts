@@ -1,5 +1,5 @@
 import { createFetch } from "./fetch"
-import { generatedByFooter, mergeDescription } from "./github"
+import { generatedByFooter, mergeDescription } from "./githubclient"
 import { prettifyMarkdown } from "./markdown"
 import { logError, logVerbose } from "./util"
 

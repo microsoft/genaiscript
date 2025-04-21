@@ -17,7 +17,7 @@ import {
     githubUpdatePullRequestDescription,
     githubParseEnv,
     GithubConnectionInfo,
-} from "../../core/src/github"
+} from "../../core/src/githubclient"
 import {
     HTTPS_REGEX,
     FILES_NOT_FOUND_ERROR_CODE,
