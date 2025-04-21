@@ -5,7 +5,10 @@ import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
-import { CancellationOptions, checkCancelled } from "../../core/src/cancellation"
+import {
+    CancellationOptions,
+    checkCancelled,
+} from "../../core/src/cancellation"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { runTemplate } from "../../core/src/promptrunner"
 import {
@@ -61,6 +64,7 @@ import {
     logInfo,
     logWarn,
     assert,
+    ellipse,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
@@ -413,19 +417,26 @@ export async function runScriptInternal(
 
     // try reading stdin
     const stdin = await readStdIn()
-    if (stdin) workspaceFiles.push(stdin)
+    if (stdin) {
+        dbg(`stdin: %s`, ellipse(stdin.content, 42))
+        workspaceFiles.push(stdin)
+    }
 
-    if (script.accept) {
-        const exts = script.accept
+    const accept = script.accept || options.accept
+    if (accept) {
+        dbg(`accept: %s`, accept)
+        const exts = accept
             .split(",")
             .map((s) => s.trim().replace(/^\*\./, "."))
             .filter((s) => !!s)
+        dbg(`extensions: %o`, exts)
         for (const rf of resolvedFiles) {
             if (!exts.some((ext) => rf.endsWith(ext))) resolvedFiles.delete(rf)
         }
-        workspaceFiles = workspaceFiles.filter(
-            ({ filename }) => !exts.some((ext) => filename.endsWith(ext))
+        workspaceFiles = workspaceFiles.filter(({ filename }) =>
+            exts.some((ext) => filename.endsWith(ext))
         )
+        dbg(`filtered files: %d %d`, resolvedFiles.size, workspaceFiles.length)
     }
 
     const reasoningEndMarker = wrapColor(
@@ -510,6 +521,11 @@ export async function runScriptInternal(
         files: Array.from(resolvedFiles),
         workspaceFiles,
     }
+    dbg(
+        `%O\n%O`,
+        fragment.files,
+        fragment.workspaceFiles.map((f) => f.filename)
+    )
     const vars = Array.isArray(options.vars)
         ? parseOptionsVars(options.vars, process.env)
         : structuredClone(options.vars || {})
