@@ -111,7 +111,7 @@ import {
 import { tryResolveResource } from "../../core/src/resources"
 import { genaiscriptDebug } from "../../core/src/debug"
 import { uriTryParse } from "../../core/src/url"
-import { tryResolveScript } from "../../core/src/scripts"
+import { tryResolveScript } from "../../core/src/scriptresolver"
 const dbg = genaiscriptDebug("run")
 
 /**
