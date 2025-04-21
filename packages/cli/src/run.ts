@@ -108,9 +108,10 @@ import {
     getRunDir,
     createStatsDir,
 } from "../../core/src/workdir"
-import { tryResolveResource, tryResolveScript } from "../../core/src/resources"
+import { tryResolveResource } from "../../core/src/resources"
 import { genaiscriptDebug } from "../../core/src/debug"
 import { uriTryParse } from "../../core/src/url"
+import { tryResolveScript } from "../../core/src/scripts"
 const dbg = genaiscriptDebug("run")
 
 /**
@@ -368,7 +369,6 @@ export async function runScriptInternal(
         checkCancelled(cancellationToken)
         dbg(`resolving ${arg}`)
         if (uriTryParse(arg)) {
-            dbg(`uri handled later`)
             const resource = await tryResolveResource(arg, {
                 trace,
                 cancellationToken,
@@ -378,6 +378,7 @@ export async function runScriptInternal(
                     `resource ${arg} not found`,
                     FILES_NOT_FOUND_ERROR_CODE
                 )
+            dbg(`resolved %d files`, resource.files.length)
             workspaceFiles.push(...resource.files)
             continue
         }

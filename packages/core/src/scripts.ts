@@ -2,17 +2,25 @@ import { collectFolders } from "./ast"
 import {
     DOCS_URL,
     NEW_SCRIPT_TEMPLATE,
+    RESOURCE_HASH_LENGTH,
     TYPE_DEFINITION_BASENAME,
 } from "./constants"
 import { githubCopilotCustomPrompt, promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
-import { host } from "./host"
+import { host, runtimeHost } from "./host"
 import { logVerbose } from "./util"
 import { Project } from "./server/messages"
 import { fetchText } from "./fetchtext"
 import { collapseNewlines } from "./cleaners"
 import { gitIgnoreEnsure } from "./gitignore"
 import { dotGenaiscriptPath } from "./workdir"
+import { join } from "node:path"
+import { CancellationOptions } from "./cancellation"
+import { tryResolveResource } from "./resources"
+import { TraceOptions } from "./trace"
+import { genaiscriptDebug } from "./debug"
+import { hash } from "./crypto"
+const dbg = genaiscriptDebug("scripts")
 
 /**
  * Creates a new script object based on the provided name and optional template.
@@ -163,5 +171,38 @@ export async function fixCustomPrompts(options?: {
             )
         }
         await writeText(dn, text) // Write the GitHub Copilot prompt file
+    }
+}
+
+export async function tryResolveScript(
+    url: string,
+    options?: TraceOptions & CancellationOptions
+): Promise<string> {
+    const resource = await tryResolveResource(url, options)
+    if (!resource) return undefined
+
+    const { uri, files } = resource
+    dbg(`resolved resource %s %d`, uri, files?.length)
+    if (!files?.length) return undefined
+
+    const cache = files.some((f) => f.content)
+    if (!cache) return files[0].filename
+    else {
+        const sha = await hash([files], {
+            length: RESOURCE_HASH_LENGTH,
+        })
+        const fn = dotGenaiscriptPath(
+            "resources",
+            uri.protocol,
+            uri.hostname,
+            sha
+        )
+        dbg(`resolved cache: %s`, fn)
+        const cached = files.map((f) => ({
+            ...f,
+            filename: join(fn, f.filename),
+        }))
+        await runtimeHost.workspace.writeFiles(cached)
+        return cached[0].filename
     }
 }

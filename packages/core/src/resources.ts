@@ -14,9 +14,9 @@ import { runtimeHost } from "./host"
 import { URL } from "node:url"
 import { GitClient } from "./git"
 import { expandFiles } from "./fs"
-import debug from "debug"
 import { join } from "node:path"
 import { isCancelError } from "./error"
+import { i } from "mathjs"
 const dbg = genaiscriptDebug("res")
 const dbgAdaptors = dbg.extend("adaptors")
 const dbgFiles = dbg.extend("files")
@@ -42,6 +42,18 @@ const urlAdapters: {
                 )
             return m
                 ? `https://raw.githubusercontent.com/${m.groups.owner}/${m.groups.repo}/${m.groups.path}`
+                : undefined
+        },
+    },
+    {
+        id: "gist",
+        matcher: (url) => {
+            const m =
+                /^https:\/\/(gist\.)?github\.com\/(?<owner>[^\/]+)\/(?<id>\w+)(\/(?<filename>.*))?$/i.exec(
+                    url
+                )
+            return m
+                ? `gist://${m.groups.id}/${m.groups.filename || ""}`
                 : undefined
         },
     },
@@ -217,38 +229,5 @@ export async function tryResolveResource(
         if (isCancelError(error)) throw error
         dbg(`failed to parse uri %s`, uriRedact(uri.href), error)
         return undefined
-    }
-}
-
-export async function tryResolveScript(
-    url: string,
-    options?: TraceOptions & CancellationOptions
-): Promise<string> {
-    const resource = await tryResolveResource(url, options)
-    if (!resource) return undefined
-
-    const { uri, files } = resource
-    dbg(`resolved resource %s %d`, uri, files?.length)
-    if (!files?.length) return undefined
-
-    const cache = files.some((f) => f.content)
-    if (!cache) return files[0].filename
-    else {
-        const sha = await hash([files], {
-            length: RESOURCE_HASH_LENGTH,
-        })
-        const fn = dotGenaiscriptPath(
-            "resources",
-            uri.protocol,
-            uri.hostname,
-            sha
-        )
-        dbg(`resolved cache: %s`, fn)
-        const cached = files.map((f) => ({
-            ...f,
-            filename: join(fn, f.filename),
-        }))
-        await runtimeHost.workspace.writeFiles(cached)
-        return cached[0].filename
     }
 }
