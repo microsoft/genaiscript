@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url"
 import { join } from "node:path"
 import { mkdtempSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
+import { rmdir } from "node:fs/promises"
 
 describe("resources", async () => {
     let tempDir: string
@@ -13,8 +14,9 @@ describe("resources", async () => {
         tempDir = mkdtempSync(join(tmpdir(), "resources-test-"))
     })
 
-    afterEach(() => {
+    afterEach(async () => {
         // Cleanup is left minimal intentionally
+        await rmdir(tempDir, { recursive: true })
     })
 
     await test("should resolve file URLs", async () => {
@@ -58,7 +60,6 @@ describe("resources", async () => {
             "https://github.com/pelikhan/7f3f28389b7a9712da340f08cd19cff5/"
         const result = await tryResolveResource(url)
 
-        console.log(result)
         assert(result)
         assert(result.files.length > 0)
         assert(result.files[0].content.includes("GenAIScript"))
@@ -69,7 +70,6 @@ describe("resources", async () => {
             "https://gist.github.com/pelikhan/7f3f28389b7a9712da340f08cd19cff5/"
         const result = await tryResolveResource(url)
 
-        console.log(result)
         assert(result)
         assert(result.files.length > 0)
         assert(result.files[0].content.includes("GenAIScript"))
