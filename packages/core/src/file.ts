@@ -56,6 +56,12 @@ export async function resolveFileContent(
 
     checkCancelled(cancellationToken)
 
+    const stats = await tryStat(file.filename)
+    if (stats && !stats.isFile()) {
+        dbg(`skip, not a file`)
+        return file // ignore, this is a directory
+    }
+
     // decode known files
     if (file.encoding === "base64") {
         dbg(`decode base64`)
