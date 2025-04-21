@@ -8,6 +8,11 @@ import {
     promptParameterTypeToJSONSchema,
 } from "./parameters"
 import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("vars")
+const dbgSchema = dbg.extend("schema")
+const dbgSystem = dbg.extend("system")
+dbgSchema.enabled = false
 
 /**
  * Resolves and generates a JSON schema object representing the parameters schema
@@ -28,7 +33,7 @@ export function resolveScriptParametersSchema(
         properties: {},
     }
     const schema = promptParametersSchemaToJSONSchema(script.parameters)
-    res.properties["script"] = schema
+    if (schema) res.properties["script"] = schema
     for (const system of resolveSystems(prj, script)
         .map((s) => resolveScript(prj, s))
         .filter((t) => t?.parameters)) {
@@ -38,6 +43,7 @@ export function resolveScriptParametersSchema(
             )
         })
     }
+    dbgSchema(`%s: %O`, script.id, res.properties)
     return res
 }
 
@@ -131,6 +137,8 @@ export function parsePromptParameters(
             delete res[key]
         }
     }
+
+    dbg(`%s: %O`, script.id, res)
     return Object.freeze(res)
 }
 
@@ -145,7 +153,7 @@ export function parsePromptParameters(
  * - Keys are normalized using `normalizeVarKey`.
  * - The proxy supports fetching keys, enumerating own keys, and retrieving property descriptors.
  * - The `Object.prototype.toString` method is overridden to return a YAML stringified version
- *   of the proxified parameters.
+ *   of the proxify-ed parameters.
  * - The proxy allows access to parameter values using normalized keys.
  */
 export function proxifyEnvVars(res: PromptParameters) {
@@ -203,7 +211,10 @@ export function mergeEnvVarsWithSystem(
     system: SystemPromptInstance
 ): ExpansionVariables {
     const { parameters, vars } = system
-    if (!parameters && !vars) return ev
+    if (!parameters && !vars) {
+        dbgSystem(`%s: no vars`, system.id)
+        return ev
+    }
 
     const { vars: envVars, ...rest } = ev
     const parameterVars = Object.fromEntries(
@@ -214,7 +225,9 @@ export function mergeEnvVarsWithSystem(
     )
     const newVars = { ...envVars, ...parameterVars, ...(vars || {}) }
 
-    return { vars: newVars, ...rest }
+    const res = { vars: newVars, ...rest }
+    dbgSystem(`%s: %O`, system.id, res.vars)
+    return res
 }
 
 /**

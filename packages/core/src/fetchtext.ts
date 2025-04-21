@@ -9,7 +9,7 @@ import { deleteUndefinedValues } from "./cleaners"
 import { prettyBytes } from "./pretty"
 import debug from "debug"
 import { uriRedact } from "./url"
-import { HTMLToMarkdown, HTMLToText } from "./html"
+import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { createFetch } from "./fetch"
 const dbg = debug("genaiscript:fetch:text")
 
@@ -110,6 +110,8 @@ export async function fetchText(
             })
         else if (convert === "text")
             content = await HTMLToText(content, { trace, cancellationToken })
+        else if (convert === "tables")
+            content = JSON.stringify(await HTMLTablesToJSON(content))
     }
     ok = true
     const file: WorkspaceFile = deleteUndefinedValues({
