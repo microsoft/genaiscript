@@ -41,3 +41,7 @@ export function uriTryParse(url: string) {
         return undefined
     }
 }
+
+export function uriScheme(uri: URL) {
+    return uri.protocol.replace(/:$/, "").toLowerCase()
+}

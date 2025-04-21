@@ -5,7 +5,7 @@ import { genaiscriptDebug } from "./debug"
 import { createFetch } from "./fetch"
 import { GitHubClient } from "./github"
 import { TraceOptions } from "./trace"
-import { uriRedact, uriTryParse } from "./url"
+import { uriRedact, uriScheme, uriTryParse } from "./url"
 import { arrayify } from "./cleaners"
 import { RESOURCE_HASH_LENGTH } from "./constants"
 import { hash } from "./crypto"
@@ -13,24 +13,72 @@ import { dotGenaiscriptPath } from "./workdir"
 import { join } from "node:path"
 import { runtimeHost } from "./host"
 import { URL } from "node:url"
+import { GitClient } from "./git"
+import { expandFileOrWorkspaceFiles } from "./fs"
+import debug from "debug"
 const dbg = genaiscriptDebug("res")
+const dbgAdaptors = dbg.extend("adaptors")
+
+const urlAdapters: {
+    id: string
+    matcher: (url: string) => string
+}[] = [
+    {
+        id: "github blob",
+        /**
+         * Matches GitHub blob URLs and converts them to raw content URLs.
+         * Extracts user, repository, and file path from the blob URL.
+         * Constructs a raw URL using the extracted components.
+         * @param url - The GitHub blob URL.
+         * @returns The corresponding raw URL or undefined if no match is found.
+         */
+        matcher: (url) => {
+            const m =
+                /^https:\/\/github\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/blob\/(?<path>.+)#?/i.exec(
+                    url
+                )
+            return m
+                ? `https://raw.githubusercontent.com/${m.groups.owner}/${m.groups.repo}/${m.groups.path}`
+                : undefined
+        },
+    },
+]
+
+function applyUrlAdapters(url: string) {
+    // Use URL adapters to modify the URL if needed
+    for (const a of urlAdapters) {
+        const newUrl = a.matcher(url)
+        if (newUrl) {
+            dbgAdaptors(`%s -> %s`, uriRedact(newUrl), a.id)
+            return new URL(newUrl)
+        }
+    }
+    return undefined
+}
 
 const uriResolvers: Record<
     string,
     (
+        dbg: debug.Debugger,
         url: URL,
         options?: TraceOptions & CancellationOptions
     ) => Promise<ElementOrArray<WorkspaceFile>>
 > = {
-    file: async (uri) => {
+    file: async (dbg, uri) => {
         const filename = fileURLToPath(uri)
         const file = { filename } satisfies WorkspaceFile
         return file
     },
-    https: async (url, options) => {
+    https: async (dbg, url, options) => {
+        // https://.../.../....git
+        if (/\.git$/.test(url.pathname))
+            return uriResolvers.git(dbg, url, options)
+
+        // regular fetch
         const fetch = await createFetch(options)
+        dbg(`fetch %s`, uriRedact(url.href))
         const res = await fetch(url, { method: "GET" })
-        dbg(`fetch %d %s`, res.status, res.statusText)
+        dbg(`res: %d %s`, res.status, res.statusText)
         if (!res.ok) return undefined
         const contentType = res.headers.get("Content-Type")
         if (isBinaryMimeType(contentType)) {
@@ -43,14 +91,16 @@ const uriResolvers: Record<
                 size: buffer.byteLength,
             } satisfies WorkspaceFile
         } else {
+            const content = await res.text()
             return {
                 filename: url.pathname,
-                content: await res.text(),
+                content,
                 type: contentType,
+                size: Buffer.byteLength(content, "utf8"),
             } satisfies WorkspaceFile
         }
     },
-    gist: async (url) => {
+    gist: async (dbg, url) => {
         // gist://id/
         // gist://id/filename
         const gh = GitHubClient.default()
@@ -79,15 +129,9 @@ const uriResolvers: Record<
             files.splice(i, 1)
             files.unshift(file)
         }
-        dbg(
-            `found %d files in gist %s %o`,
-            files.length,
-            id,
-            files.map((f) => f.filename)
-        )
         return files
     },
-    vscode: async (url) => {
+    vscode: async (dbg, url) => {
         // vscode://vsls-contrib.gistfs/open?gist=8f7db2674f7b0eaaf563eae28253c2b0&file=poem.genai.mts
         if (url.host === "vsls-contrib.gistfs" && url.pathname === "/open") {
             const params = new URLSearchParams(url.search)
@@ -97,9 +141,24 @@ const uriResolvers: Record<
                 dbg(`missing gist id %s`, gist)
                 return undefined
             }
-            return uriResolvers.gist(new URL(`gist://${gist}/${file}`))
+            return uriResolvers.gist(dbg, new URL(`gist://${gist}/${file}`))
         }
         return undefined
+    },
+    git: async (dbg, url) => {
+        // (git|https)://github.com/pelikhan/amazing-demo.git
+        const [owner, repo, ...filename] = url.pathname
+            .replace(/\.git$/, "")
+            .split("/")
+        const repository = [url.host, owner, repo].join("/")
+        const branch = url.hash.replace(/^#/, "")
+        dbg(`git %s %s %s`, repository, branch, filename)
+        const client = await GitClient.default()
+        const clone = await client.shallowClone(repository, { branch })
+        const cwd = clone.cwd
+        return await expandFileOrWorkspaceFiles([
+            path.join(cwd, path.join(...filename) || "**/*"),
+        ])
     },
 }
 
@@ -108,31 +167,35 @@ export async function tryResolveResource(
     options?: TraceOptions & CancellationOptions
 ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
     if (!url) return undefined
-
-    const uri = uriTryParse(url)
+    let uri = uriTryParse(url)
     if (!uri) return undefined
-
     dbg(`resolving %s`, uriRedact(url))
+
+    // first, try to rewrite the uri
+    const rewrittenUri = applyUrlAdapters(url)
+    if (rewrittenUri) uri = rewrittenUri
+
     try {
         // try to resolve
-        const protocol = uri.protocol.replace(/:$/, "").toLowerCase()
-        const resolver = uriResolvers[protocol]
+        const scheme = uriScheme(uri)
+        const resolver = uriResolvers[scheme]
         if (!resolver) {
-            dbg(`unsupported protocol %s`, protocol)
+            dbg(`unsupported protocol %s`, scheme)
             return undefined
         }
 
         // download
-        const files = arrayify(await resolver(uri, options))
+        const dbgUri = dbg.extend(uri.protocol.replace(/:$/, ""))
+        const files = arrayify(await resolver(dbgUri, uri, options))
         if (!files.length) {
-            dbg(`failed to resolve %s`, uriRedact(url))
+            dbg(`failed to resolve %s`, uriRedact(uri.href))
             return undefined
         }
 
         // success
         return { uri, files }
     } catch (error) {
-        dbg(`failed to parse uri %s`, uriRedact(url), error)
+        dbg(`failed to parse uri %s`, uriRedact(uri.href), error)
         return undefined
     }
 }
