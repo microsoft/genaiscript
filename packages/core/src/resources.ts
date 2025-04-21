@@ -7,16 +7,11 @@ import { GitHubClient } from "./github"
 import { TraceOptions } from "./trace"
 import { uriRedact, uriScheme, uriTryParse } from "./url"
 import { arrayify } from "./cleaners"
-import { RESOURCE_HASH_LENGTH } from "./constants"
-import { hash } from "./crypto"
-import { dotGenaiscriptPath } from "./workdir"
-import { runtimeHost } from "./host"
 import { URL } from "node:url"
 import { GitClient } from "./git"
 import { expandFiles } from "./fs"
 import { join } from "node:path"
 import { isCancelError } from "./error"
-import { i } from "mathjs"
 const dbg = genaiscriptDebug("res")
 const dbgAdaptors = dbg.extend("adaptors")
 const dbgFiles = dbg.extend("files")
