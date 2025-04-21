@@ -33,18 +33,17 @@ export default function (ctx: ChatGenerationContext) {
                 required: false,
                 enum: ["markdown", "text"],
             },
-            ask: {
+            skipToContent: {
                 type: "string",
-                description:
-                    "A LLM query to process and summarize the data content.",
+                description: "Skip to a specific string in the content.",
                 required: false,
             },
         },
         async ({ context, ...args }) => {
-            const { url, convert, ask } = args as {
+            const { url, convert, skipToContent } = args as {
                 url: string
                 convert: FetchTextOptions["convert"]
-                ask: string
+                skipToContent: string
             }
             const method = "GET"
             const uri = new URL(url)
@@ -56,30 +55,14 @@ export default function (ctx: ChatGenerationContext) {
             const res = await host.fetchText(url, { convert })
             dbg(`response: %d`, res.status)
             if (!res.ok) return `error: ${res.status}`
-            if (!res.text) return res.file
+            if (!res.text) return res.file ?? res.status
 
             let result = res.text
-            if (ask) {
-                if (!convert) result = await HTML.convertToMarkdown(result)
-                const resAsk = await runPrompt(
-                    (_) => {
-                        const askVar = _.def("QUESTION", ask)
-                        const contentVar = _.def("CONTENT", result)
-                        _.$`Analyze the content of ${contentVar} and generate a respond for the question in ${askVar}.
-                        Your response is the output of a LLM tool.
-                        - Use information from ${contentVar} exclusively to answer.
-                        - If you cannot find the information in ${contentVar}, respond with 'I do not have enough information to answer the question.'`.role(
-                            "system"
-                        )
-                    },
-                    {
-                        model: "summarize",
-                        responseType: "text",
-                        systemSafety: true,
-                        label: `asking fetched data`,
-                    }
-                )
-                if (!resAsk.error) result = resAsk.text
+            if (skipToContent) {
+                const index = result.indexOf(skipToContent)
+                if (index === -1)
+                    return `error: skipTo '${skipToContent}' not found.`
+                result = result.slice(index + skipToContent.length)
             }
             return result
         },
