@@ -5695,7 +5695,7 @@ type FetchOptions = RequestInit & {
 }
 
 type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window"> & {
-    convert?: "markdown" | "text"
+    convert?: "markdown" | "text" | "tables"
 }
 
 interface PythonRuntimeOptions {

@@ -218,8 +218,7 @@ system({ ...,
     parameters: {
         model: {
             type: "string",
-            description: "LLM model to use",
-            default: "gpt-35-turbo",
+            description: "LLM model to use"
         },
     },
 })
