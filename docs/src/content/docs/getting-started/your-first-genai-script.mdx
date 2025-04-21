@@ -1,26 +1,26 @@
 ---
 title: Your first GenAI script
 sidebar:
-  order: 3
+    order: 3
 description: Learn how to create and execute your initial GenAI script to
-  automate interactions with language models.
+    automate interactions with language models.
 keywords: GenAI script creation, language model automation, script execution,
-  LLM prompt generation, genaisrc setup
+    LLM prompt generation, genaisrc setup
 genaiscript:
-  files: src/samples/markdown.md
+    files: src/samples/markdown.md
 hero:
-  image:
-    alt: A clean, pixel-art style image shows a geometric file folder holding
-      several colored file icons, with one icon visibly highlighted as if
-      selected. Nearby are stylized shapes representing documents, a code
-      symbol, a prompt box displaying a sample poem line, and simple icons
-      including a pen and a check mark suggesting proofreading tools. Abstract
-      interface elements hint at creating prompts and running scripts. The
-      artwork uses flat blue, yellow, green, orange, and gray shapes on a plain
-      white background, without any shadows, people, or actual text. The
-      composition is simple and compact, fitting a small square format.
-    file: ./your-first-genai-script.png
-
+    image:
+        alt:
+            A clean, pixel-art style image shows a geometric file folder holding
+            several colored file icons, with one icon visibly highlighted as if
+            selected. Nearby are stylized shapes representing documents, a code
+            symbol, a prompt box displaying a sample poem line, and simple icons
+            including a pen and a check mark suggesting proofreading tools. Abstract
+            interface elements hint at creating prompts and running scripts. The
+            artwork uses flat blue, yellow, green, orange, and gray shapes on a plain
+            white background, without any shadows, people, or actual text. The
+            composition is simple and compact, fitting a small square format.
+        file: ./your-first-genai-script.png
 ---
 
 import { Tabs, TabItem } from "@astrojs/starlight/components"
@@ -30,7 +30,7 @@ import { Content as CreateScript } from "../../../components/CreateScript.mdx"
 import { YouTube } from "astro-embed"
 
 GenAIScript use stylized JavaScript with minimal syntax.
-They are stored as files (`genaisrc/*.genai.mjs` or `genaisrc/*.genai.mts`) in your project.
+They are stored as JavaScript files (`genaisrc/*.genai.mjs)` or TypeScript files (`genaisrc/*.genai.mts`) in your project.
 The execution of a genaiscript creates the prompt that will be sent to the LLM.
 
 <Steps>
@@ -48,8 +48,8 @@ The resulting file will be placed in the `genaisrc` folder in your project.
 - …
 - genaisrc scripts are created here by default
     - genaiscript.d.ts (TypeScript type definitions)
-    - jsconfig.json (TypeScript compiler configuration)
-    - **proofreader.genai.mjs**
+    - tsconfig.json (TypeScript compiler configuration)
+    - **proofreader.genai.mts**
     - …
 - …
 
@@ -75,7 +75,7 @@ that gets sent to the LLM model.
 The ` $``...`` ` template string function formats and write the string to the prompt;
 which gets sent to the LLM.
 
-```js title="poem.genai.mjs" system=false assistant=true
+```js title="poem.genai.mts" system=false assistant=true
 $`Write a one sentence poem.`
 ```
 
@@ -109,7 +109,7 @@ GenAIScript exposes the context through the `env` variable. The context is impli
 - you can right click on or in a file and the `env.files` will contain only that file.
 - you can run the script using the [command line interface](/genaiscript/reference/cli) and specify content of `env.files` in the CLI arguments.
 
-```js title="proofreader.genai.mjs" system=false assistant=false user=true
+```js title="proofreader.genai.mts" system=false assistant=false user=true
 def("FILES", env.files)
 ```
 
@@ -147,7 +147,7 @@ For example, to denote a heading, you add a number sign before it (e.g., # Headi
 The `$` function is used to build the prompt text, it renders and writes the text to the prompt
 (`$` is a [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)).
 
-```js title="proofreader.genai.mjs"
+```js title="proofreader.genai.mts"
 def("FILES", env.files)
 $`You are an expert technical writer and proofreader.
 Review the documents in FILE and report the 2 most important issues.`
@@ -205,7 +205,7 @@ These are the two most important issues that need to be addressed in the documen
 You can add a call to the `script` function to provides metadata about the script
 and the model. The metadata is used to display the script in the UI and configure the LLM model.
 
-```js title="proofreader.genai.mjs"
+```js title="proofreader.genai.mts"
 // the metadata
 script({
     // user interface
