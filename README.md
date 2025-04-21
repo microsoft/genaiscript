@@ -20,7 +20,7 @@ Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, t
 
 ## Hello world
 
-Say to you want to create an LLM script that generates a 'hello world' poem. You can write the following script:
+Let's say that you want to create an LLM script that generates a 'hello world' poem. You can write the following script:
 
 ```js
 $`Write a 'hello world' poem.`
