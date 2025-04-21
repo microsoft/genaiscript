@@ -136,6 +136,8 @@ let _fullDocsText: string
  * Writes the TypeScript definition file (`genaiscript.d.ts`) and manages files within the
  * `.genaiscript` directory. Optionally, creates GitHub Copilot prompt and documentation files
  * based on the provided options. Fetches external content for documentation updates if applicable.
+ * Ensures `.gitignore` is updated to ignore all files in the `.genaiscript` directory.
+ * Fetches and processes external documentation content if required.
  */
 export async function fixCustomPrompts(options?: {
     githubCopilotPrompt?: boolean
@@ -174,6 +176,19 @@ export async function fixCustomPrompts(options?: {
     }
 }
 
+/**
+ * Attempts to resolve a script from the provided URL and manages caching.
+ *
+ * @param url - The URL of the resource to resolve.
+ * @param options - Optional tracing and cancellation options.
+ *   - TraceOptions: Includes trace-level details for debugging purposes.
+ *   - CancellationOptions: Optionally permits cancellation during the process.
+ * @returns The filename of the resolved script or undefined if resolution fails.
+ *
+ * If the resource is found, it checks for cached content. If cached, it computes a hash
+ * and resolves the resource file within a managed `.genaiscript/resources` directory.
+ * If no cached content is found, it returns the filename of the first file in the resource.
+ */
 export async function tryResolveScript(
     url: string,
     options?: TraceOptions & CancellationOptions

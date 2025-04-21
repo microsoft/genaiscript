@@ -209,6 +209,18 @@ export async function runScriptWithExitCode(
  *   - maxTokens: Maximum number of tokens for model responses.
  *   - maxToolCalls: Maximum number of tool calls allowed.
  *   - maxDataRepairs: Maximum number of data repair attempts.
+ *   - accept: Specifies file extensions to accept for processing.
+ *   - failOnErrors: Indicates if the script should fail on errors.
+ *   - outTrace: Path to write trace output.
+ *   - outOutput: Path to write output trace.
+ *   - outAnnotations: Path to write annotations.
+ *   - outChangelogs: Path to write changelogs.
+ *   - outData: Path to write intermediate data.
+ *   - pullRequest: Pull request ID for integration.
+ *   - pullRequestComment: Enables adding comments to pull requests.
+ *   - pullRequestDescription: Enables updating pull request descriptions.
+ *   - pullRequestReviews: Enables adding reviews to pull requests.
+ *   - teamsMessage: Enables sending messages to Microsoft Teams.
  *
  * @returns A Promise resolving to an object containing:
  *   - exitCode: Final exit code of the script execution.
