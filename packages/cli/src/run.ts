@@ -5,7 +5,10 @@ import { emptyDir, ensureDir, exists } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
-import { CancellationOptions } from "../../core/src/cancellation"
+import {
+    CancellationOptions,
+    checkCancelled,
+} from "../../core/src/cancellation"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { runTemplate } from "../../core/src/promptrunner"
 import {
@@ -61,6 +64,7 @@ import {
     logInfo,
     logWarn,
     assert,
+    ellipse,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
@@ -104,8 +108,10 @@ import {
     getRunDir,
     createStatsDir,
 } from "../../core/src/workdir"
-import { tryResolveScript } from "../../core/src/resources"
+import { tryResolveResource } from "../../core/src/resources"
 import { genaiscriptDebug } from "../../core/src/debug"
+import { uriTryParse } from "../../core/src/url"
+import { tryResolveScript } from "../../core/src/scripts"
 const dbg = genaiscriptDebug("run")
 
 /**
@@ -203,6 +209,18 @@ export async function runScriptWithExitCode(
  *   - maxTokens: Maximum number of tokens for model responses.
  *   - maxToolCalls: Maximum number of tool calls allowed.
  *   - maxDataRepairs: Maximum number of data repair attempts.
+ *   - accept: Specifies file extensions to accept for processing.
+ *   - failOnErrors: Indicates if the script should fail on errors.
+ *   - outTrace: Path to write trace output.
+ *   - outOutput: Path to write output trace.
+ *   - outAnnotations: Path to write annotations.
+ *   - outChangelogs: Path to write changelogs.
+ *   - outData: Path to write intermediate data.
+ *   - pullRequest: Pull request ID for integration.
+ *   - pullRequestComment: Enables adding comments to pull requests.
+ *   - pullRequestDescription: Enables updating pull request descriptions.
+ *   - pullRequestReviews: Enables adding reviews to pull requests.
+ *   - teamsMessage: Enables sending messages to Microsoft Teams.
  *
  * @returns A Promise resolving to an object containing:
  *   - exitCode: Final exit code of the script execution.
@@ -236,7 +254,7 @@ export async function runScriptInternal(
 
     runtimeHost.clearModelAlias("script")
     let result: GenerationResult
-    const workspaceFiles = options.workspaceFiles || []
+    let workspaceFiles = options.workspaceFiles || []
     const excludedFiles = options.excludedFiles || []
     const stream = !options.json && !options.yaml
     const retry = normalizeInt(options.retry) || 8
@@ -360,10 +378,20 @@ export async function runScriptInternal(
     )
     files = files.filter((f) => !NEGATIVE_GLOB_REGEX.test(f))
     for (let arg of files) {
+        checkCancelled(cancellationToken)
         dbg(`resolving ${arg}`)
-        if (HTTPS_REGEX.test(arg)) {
-            dbg(`url handled later`)
-            resolvedFiles.add(arg)
+        if (uriTryParse(arg)) {
+            const resource = await tryResolveResource(arg, {
+                trace,
+                cancellationToken,
+            })
+            if (!resource)
+                return fail(
+                    `resource ${arg} not found`,
+                    FILES_NOT_FOUND_ERROR_CODE
+                )
+            dbg(`resolved %d files`, resource.files.length)
+            workspaceFiles.push(...resource.files)
             continue
         }
         const stat = await host.statFile(arg)
@@ -402,16 +430,26 @@ export async function runScriptInternal(
 
     // try reading stdin
     const stdin = await readStdIn()
-    if (stdin) workspaceFiles.push(stdin)
+    if (stdin) {
+        dbg(`stdin: %s`, ellipse(stdin.content, 42))
+        workspaceFiles.push(stdin)
+    }
 
-    if (script.accept) {
-        const exts = script.accept
+    const accept = script.accept || options.accept
+    if (accept) {
+        dbg(`accept: %s`, accept)
+        const exts = accept
             .split(",")
             .map((s) => s.trim().replace(/^\*\./, "."))
             .filter((s) => !!s)
+        dbg(`extensions: %o`, exts)
         for (const rf of resolvedFiles) {
             if (!exts.some((ext) => rf.endsWith(ext))) resolvedFiles.delete(rf)
         }
+        workspaceFiles = workspaceFiles.filter(({ filename }) =>
+            exts.some((ext) => filename.endsWith(ext))
+        )
+        dbg(`filtered files: %d %d`, resolvedFiles.size, workspaceFiles.length)
     }
 
     const reasoningEndMarker = wrapColor(
@@ -496,6 +534,11 @@ export async function runScriptInternal(
         files: Array.from(resolvedFiles),
         workspaceFiles,
     }
+    dbg(
+        `%O\n%O`,
+        fragment.files,
+        fragment.workspaceFiles.map((f) => f.filename)
+    )
     const vars = Array.isArray(options.vars)
         ? parseOptionsVars(options.vars, process.env)
         : structuredClone(options.vars || {})

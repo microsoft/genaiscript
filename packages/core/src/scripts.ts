@@ -2,17 +2,25 @@ import { collectFolders } from "./ast"
 import {
     DOCS_URL,
     NEW_SCRIPT_TEMPLATE,
+    RESOURCE_HASH_LENGTH,
     TYPE_DEFINITION_BASENAME,
 } from "./constants"
 import { githubCopilotCustomPrompt, promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
-import { host } from "./host"
+import { host, runtimeHost } from "./host"
 import { logVerbose } from "./util"
 import { Project } from "./server/messages"
 import { fetchText } from "./fetchtext"
 import { collapseNewlines } from "./cleaners"
 import { gitIgnoreEnsure } from "./gitignore"
 import { dotGenaiscriptPath } from "./workdir"
+import { join } from "node:path"
+import { CancellationOptions } from "./cancellation"
+import { tryResolveResource } from "./resources"
+import { TraceOptions } from "./trace"
+import { genaiscriptDebug } from "./debug"
+import { hash } from "./crypto"
+const dbg = genaiscriptDebug("scripts")
 
 /**
  * Creates a new script object based on the provided name and optional template.
@@ -128,6 +136,8 @@ let _fullDocsText: string
  * Writes the TypeScript definition file (`genaiscript.d.ts`) and manages files within the
  * `.genaiscript` directory. Optionally, creates GitHub Copilot prompt and documentation files
  * based on the provided options. Fetches external content for documentation updates if applicable.
+ * Ensures `.gitignore` is updated to ignore all files in the `.genaiscript` directory.
+ * Fetches and processes external documentation content if required.
  */
 export async function fixCustomPrompts(options?: {
     githubCopilotPrompt?: boolean
@@ -163,5 +173,51 @@ export async function fixCustomPrompts(options?: {
             )
         }
         await writeText(dn, text) // Write the GitHub Copilot prompt file
+    }
+}
+
+/**
+ * Attempts to resolve a script from the provided URL and manages caching.
+ *
+ * @param url - The URL of the resource to resolve.
+ * @param options - Optional tracing and cancellation options.
+ *   - TraceOptions: Includes trace-level details for debugging purposes.
+ *   - CancellationOptions: Optionally permits cancellation during the process.
+ * @returns The filename of the resolved script or undefined if resolution fails.
+ *
+ * If the resource is found, it checks for cached content. If cached, it computes a hash
+ * and resolves the resource file within a managed `.genaiscript/resources` directory.
+ * If no cached content is found, it returns the filename of the first file in the resource.
+ */
+export async function tryResolveScript(
+    url: string,
+    options?: TraceOptions & CancellationOptions
+): Promise<string> {
+    const resource = await tryResolveResource(url, options)
+    if (!resource) return undefined
+
+    const { uri, files } = resource
+    dbg(`resolved resource %s %d`, uri, files?.length)
+    if (!files?.length) return undefined
+
+    const cache = files.some((f) => f.content)
+    if (!cache) return files[0].filename
+    else {
+        const sha = await hash([files], {
+            length: RESOURCE_HASH_LENGTH,
+        })
+        const fn = dotGenaiscriptPath(
+            "resources",
+            uri.protocol,
+            uri.hostname,
+            sha
+        )
+        dbg(`resolved cache: %s`, fn)
+        const cached = files.map((f) => ({
+            ...f,
+            filename: join(fn, f.filename),
+        }))
+        await runtimeHost.workspace.writeFiles(cached)
+        return cached[0].filename
     }
 }

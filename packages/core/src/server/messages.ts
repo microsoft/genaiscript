@@ -192,6 +192,7 @@ export interface PromptScriptRunOptions {
     workspaceFiles?: WorkspaceFile[]
     runTrace: boolean
     outputTrace: boolean
+    accept: string
 }
 
 export interface RunResultList extends RequestMessage {

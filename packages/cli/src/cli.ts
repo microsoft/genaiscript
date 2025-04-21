@@ -164,6 +164,10 @@ export async function cli() {
         .command("run")
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
+        .option(
+            "-a, --accept <string>",
+            "comma separated list of accepted file extensions"
+        )
     addModelOptions(run) // Add model options to the command
         .option("-lp, --logprobs", "enable reporting token probabilities")
         .option(

@@ -1,12 +1,11 @@
-import debug from "debug"
-const dbg = debug("genaiscript:gitignore")
-
 // Import the 'ignore' library to handle .gitignore file parsing and filtering
 import ignorer from "ignore"
 import { tryReadText, writeText } from "./fs"
 import { GENAISCRIPTIGNORE, GIT_IGNORE, GIT_IGNORE_GENAI } from "./constants"
 import { host } from "./host"
 import { logVerbose } from "./util"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("files:gitignore")
 
 export type GitIgnorer = (files: string[]) => string[]
 

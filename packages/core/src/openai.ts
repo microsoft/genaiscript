@@ -72,6 +72,7 @@ import { traceFetchPost } from "./fetchtext"
 import { providerFeatures } from "./features"
 const dbg = debug("genaiscript:openai")
 const dbgMessages = debug("genaiscript:openai:msg")
+dbgMessages.enabled = false
 
 /**
  * Generates configuration headers for API requests based on the provided configuration object.
