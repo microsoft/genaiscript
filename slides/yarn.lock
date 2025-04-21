@@ -1318,12 +1318,12 @@
   integrity sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==
 
 "@unhead/vue@^2.0.2":
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/@unhead/vue/-/vue-2.0.5.tgz#7c34b598cf1a3381bda6b43ea4edd2483ca575fd"
-  integrity sha512-csjNmBHvJGzSestlpApOpgxqaTdXSN2zwNIPFuWB+C4rtLX4x3+Tm7C5rQwU0iYy3CNJGjJT9cCcSyV55Jg4EQ==
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/@unhead/vue/-/vue-2.0.8.tgz#80ee7c4aa76d3c5e4ce0eaf457fc3a909a7fa4d4"
+  integrity sha512-e30+CfCl1avR+hzFtpvnBSesZ5TN2KbShStdT2Z+zs5WIBUvobQwVxSR0arX43To6KfwtCXAfi0iOOIH0kufHQ==
   dependencies:
     hookable "^5.5.3"
-    unhead "2.0.5"
+    unhead "2.0.8"
 
 "@unocss/astro@66.0.0":
   version "66.0.0"
@@ -1759,7 +1759,7 @@ ansi-styles@^4.0.0:
   dependencies:
     color-convert "^2.0.1"
 
-ansis@^3.16.0, ansis@^3.17.0:
+ansis@^3.17.0:
   version "3.17.0"
   resolved "https://registry.yarnpkg.com/ansis/-/ansis-3.17.0.tgz#fa8d9c2a93fe7d1177e0c17f9eeb562a58a832d7"
   integrity sha512-0qWUglt9JEqLFr3w1I1pbrChn1grhaiAR2ocX1PP/flRmxgtwTzPFFFnfIlD6aMOLQZgSuCRlidD70lvx8yhzg==
@@ -1872,9 +1872,9 @@ cacheable-request@^10.2.8:
     responselike "^3.0.0"
 
 caniuse-lite@^1.0.30001688:
-  version "1.0.30001713"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001713.tgz#6b33a8857e6c7dcb41a0caa2dd0f0489c823a52d"
-  integrity sha512-wCIWIg+A4Xr7NfhTuHdX+/FKh3+Op3LBbSp2N5Pfx6T/LhdQy3GTyoTg48BReaW/MyMNZAkTadsBtai3ldWK0Q==
+  version "1.0.30001715"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001715.tgz#bd325a37ad366e3fe90827d74062807a34fbaeb2"
+  integrity sha512-7ptkFGMm2OAOgvZpwgA4yjQ5SQbrNVGdRjzH0pBdy1Fasvcr+KAeECmbCAECzTuDuoX0FCY8KzUxjf9+9kfZEw==
 
 ccount@^2.0.0:
   version "2.0.1"
@@ -2543,9 +2543,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.5.73:
-  version "1.5.137"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.137.tgz#53a7fef3ea9f7eb5fcf704454050ff930c43ed92"
-  integrity sha512-/QSJaU2JyIuTbbABAo/crOs+SuAZLS+fVVS10PVrIT9hrRkmZl8Hb0xPSkKRUUWHQtYzXHpQUW3Dy5hwMzGZkA==
+  version "1.5.139"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.139.tgz#56ae7d42439e2967a54badbadaeb12f748987f37"
+  integrity sha512-GGnRYOTdN5LYpwbIr0rwP/ZHOQSvAF6TG0LSzp28uCBb9JiXHJGmaaKw29qjNJc5bGnnp6kXJqRnGMQoELwi5w==
 
 emoji-regex-xs@^1.0.0:
   version "1.0.0"
@@ -2646,9 +2646,9 @@ estree-walker@^3.0.3:
     "@types/estree" "^1.0.0"
 
 exsolve@^1.0.1, exsolve@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/exsolve/-/exsolve-1.0.4.tgz#7de5c75af82ecd15998328fbf5f2295883be3a39"
-  integrity sha512-xsZH6PXaER4XoV+NiT7JHp1bJodJVT+cxeSH1G0f0tlT0lJqYuHUP3bUx2HtfTDvOagMINYp8rsqusxud3RXhw==
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/exsolve/-/exsolve-1.0.5.tgz#1f5b6b4fe82ad6b28a173ccb955a635d77859dcf"
+  integrity sha512-pz5dvkYYKQ1AHVrgOzBKWeP4u4FRb3a6DNK2ucr0OoNwYIU4QWsJ+NM36LLzORT+z845MzKHHhpXiUF5nvQoJg==
 
 extend-shallow@^2.0.1:
   version "2.0.1"
@@ -2680,10 +2680,10 @@ fastq@^1.6.0:
   dependencies:
     reusify "^1.0.4"
 
-fdir@^6.4.3:
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/fdir/-/fdir-6.4.3.tgz#011cdacf837eca9b811c89dbb902df714273db72"
-  integrity sha512-PMXmW2y1hDDfTSRc9gaXIuCCRpuoz3Kaz8cUelp3smouvfT632ozg2vrT6lJsHKKOF59YLbOGfAWGUcKEfRMQw==
+fdir@^6.4.3, fdir@^6.4.4:
+  version "6.4.4"
+  resolved "https://registry.yarnpkg.com/fdir/-/fdir-6.4.4.tgz#1cfcf86f875a883e19a8fab53622cfe992e8d2f9"
+  integrity sha512-1NZP+GK4GfuAv3PqKvxQRDMjdSRZjnkq7KfhlNrCNNlZ0ygQFpebfrnfnq/W7fpUnAv9aGWmY1zKx7FYL3gwhg==
 
 file-saver@^2.0.5:
   version "2.0.5"
@@ -3795,7 +3795,7 @@ ofetch@^1.4.1:
     node-fetch-native "^1.6.4"
     ufo "^1.5.4"
 
-ohash@^2.0.11, ohash@^2.0.4:
+ohash@^2.0.11:
   version "2.0.11"
   resolved "https://registry.yarnpkg.com/ohash/-/ohash-2.0.11.tgz#60b11e8cff62ca9dee88d13747a5baa145f5900b"
   integrity sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ==
@@ -3808,9 +3808,9 @@ on-finished@~2.3.0:
     ee-first "1.1.1"
 
 oniguruma-parser@^0.11.0:
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/oniguruma-parser/-/oniguruma-parser-0.11.1.tgz#f9b6937f32cbc9051c079a5fe3cf30a2e3347c81"
-  integrity sha512-fX6SirDOsTUNqSUOnL3fDtD3R7PCXNWGA3WWPvv9egEfTWkNXzRLO/9CC1WkDusP6HyWRZig06kHeYPcw3mlqQ==
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/oniguruma-parser/-/oniguruma-parser-0.11.2.tgz#25aae5bd481b64a741b3285d84bcf6cee21ef796"
+  integrity sha512-F7Ld4oDZJCI5/wCZ8AOffQbqjSzIRpKH7I/iuSs1SkhZeCj0wS6PMZ4W6VA16TWHrAo0Y9bBKEJOe7tvwcTXnw==
 
 oniguruma-to-es@^4.1.0:
   version "4.2.0"
@@ -4154,7 +4154,7 @@ robust-predicates@^3.0.2:
   resolved "https://registry.yarnpkg.com/robust-predicates/-/robust-predicates-3.0.2.tgz#d5b28528c4824d20fc48df1928d41d9efa1ad771"
   integrity sha512-IXgzBWvWQwE6PrDI05OvmXUIruQTcoMDzRsOd5CDvHCVLcLHMTSYvOK5Cm46kWqlV3yAbuSpBZdJ5oP5OUoStg==
 
-rollup@^4.30.1:
+rollup@^4.34.9:
   version "4.40.0"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-4.40.0.tgz#13742a615f423ccba457554f006873d5a4de1920"
   integrity sha512-Noe455xmA96nnqH5piFtLobsGbCij7Tu+tb3c1vYjNbTkfzGqXqQXG3wJaYXkRZuQ0vEYN4bhwg7QnIrqB5B+w==
@@ -4397,11 +4397,11 @@ tinyexec@^1.0.0:
   integrity sha512-5uC6DDlmeqiOwCPmK9jMSdOuZTh8bU39Ys6yidB+UTt5hfZUPGAypSgFRiEp+jbi9qH40BLDvy85jIU88wKSqw==
 
 tinyglobby@^0.2.10, tinyglobby@^0.2.12:
-  version "0.2.12"
-  resolved "https://registry.yarnpkg.com/tinyglobby/-/tinyglobby-0.2.12.tgz#ac941a42e0c5773bd0b5d08f32de82e74a1a61b5"
-  integrity sha512-qkf4trmKSIiMTs/E63cxH+ojC2unam7rJ0WrauAzpT3ECNTxGRMlaXxVbfxMUC/w0LaYk6jQ4y/nGR9uBO3tww==
+  version "0.2.13"
+  resolved "https://registry.yarnpkg.com/tinyglobby/-/tinyglobby-0.2.13.tgz#a0e46515ce6cbcd65331537e57484af5a7b2ff7e"
+  integrity sha512-mEwzpUgrLySlveBwEVDMKk5B57bhLPYovRfPAXD5gA/98Opn0rCDj3GtLwFvCvH5RK9uPCExUROW5NjDwvqkxw==
   dependencies:
-    fdir "^6.4.3"
+    fdir "^6.4.4"
     picomatch "^4.0.2"
 
 to-regex-range@^5.0.1:
@@ -4497,10 +4497,10 @@ undici-types@~5.26.4:
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-5.26.5.tgz#bcd539893d00b56e964fd2657a4866b221a65617"
   integrity sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==
 
-unhead@2.0.5, unhead@^2.0.2:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/unhead/-/unhead-2.0.5.tgz#66ad4b3bddbcb19d90eff38bf680e1407c04075e"
-  integrity sha512-bG4wyp+KuW+ivQYtTQvnvtMM55ziIrQ9Yq1/VAm099buBgH0CoBWgu39jkSUoE4oZ4Qki8SsnMbq2gL0h3/sUA==
+unhead@2.0.8, unhead@^2.0.2:
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/unhead/-/unhead-2.0.8.tgz#84ab71657cc299c2866d77cb2ca9834caca9e6df"
+  integrity sha512-63WR+y08RZE7ChiFdgNY64haAkhCtUS5/HM7xo4Q83NA63txWbEh2WGmrKbArdQmSct+XlqbFN8ZL1yWpQEHEA==
   dependencies:
     hookable "^5.5.3"
 
@@ -4612,7 +4612,7 @@ unplugin-icons@^22.1.0:
     local-pkg "^1.0.0"
     unplugin "^2.2.0"
 
-unplugin-utils@^0.2.0, unplugin-utils@^0.2.4:
+unplugin-utils@^0.2.4:
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/unplugin-utils/-/unplugin-utils-0.2.4.tgz#56e4029a6906645a10644f8befc404b06d5d24d0"
   integrity sha512-8U/MtpkPkkk3Atewj1+RcKIjb5WBimZ/WSLhhR3w6SsIj8XJuKTacSP8g+2JhfSGw0Cb125Y+2zA/IzJZDVbhA==
@@ -4735,18 +4735,18 @@ vite-hot-client@^2.0.4:
   integrity sha512-W9LOGAyGMrbGArYJN4LBCdOC5+Zwh7dHvOHC0KmGKkJhsOzaKbpo/jEjpPKVHIW0/jBWj8RZG0NUxfgA8BxgAg==
 
 vite-plugin-inspect@^11.0.0:
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/vite-plugin-inspect/-/vite-plugin-inspect-11.0.0.tgz#7417875e1e17e066847392e018031d47b48ca987"
-  integrity sha512-Q0RDNcMs1mbI2yGRwOzSapnnA6NFO0j88+Vb8pJX0iYMw34WczwKJi3JgheItDhbWRq/CLUR0cs+ajZpcUaIFQ==
+  version "11.0.1"
+  resolved "https://registry.yarnpkg.com/vite-plugin-inspect/-/vite-plugin-inspect-11.0.1.tgz#2c84d74cb65e712ef3dcc4f877072383c91a1507"
+  integrity sha512-aABw7eGTr9Cmbn9RAs76e0BztVUFDl6a2R+/IJXpoUZxjx5YHB0P+Em3ZTWzpIPZzuRj28tAMblvcUyhgJc4aQ==
   dependencies:
-    ansis "^3.16.0"
+    ansis "^3.17.0"
     debug "^4.4.0"
     error-stack-parser-es "^1.0.5"
-    ohash "^2.0.4"
+    ohash "^2.0.11"
     open "^10.1.0"
     perfect-debounce "^1.0.0"
     sirv "^3.0.1"
-    unplugin-utils "^0.2.0"
+    unplugin-utils "^0.2.4"
     vite-dev-rpc "^1.0.7"
 
 vite-plugin-remote-assets@^2.0.0:
@@ -4781,13 +4781,16 @@ vite-plugin-vue-server-ref@^1.0.0:
     ufo "^1.5.4"
 
 vite@^6.2.3:
-  version "6.2.6"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-6.2.6.tgz#7f0ccf2fdc0c1eda079ce258508728e2473d3f61"
-  integrity sha512-9xpjNl3kR4rVDZgPNdTL0/c6ao4km69a/2ihNQbcANz8RuCOK3hQBmLSJf3bRKVQjVMda+YvizNE8AwvogcPbw==
+  version "6.3.2"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-6.3.2.tgz#4c1bb01b1cea853686a191657bbc14272a038f0a"
+  integrity sha512-ZSvGOXKGceizRQIZSz7TGJ0pS3QLlVY/9hwxVh17W3re67je1RKYzFHivZ/t0tubU78Vkyb9WnHPENSBCzbckg==
   dependencies:
     esbuild "^0.25.0"
+    fdir "^6.4.3"
+    picomatch "^4.0.2"
     postcss "^8.5.3"
-    rollup "^4.30.1"
+    rollup "^4.34.9"
+    tinyglobby "^0.2.12"
   optionalDependencies:
     fsevents "~2.3.3"
 
@@ -4912,6 +4915,6 @@ zwitch@^2.0.0, zwitch@^2.0.4:
   integrity sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==
 
 zx@^8.5.2:
-  version "8.5.2"
-  resolved "https://registry.yarnpkg.com/zx/-/zx-8.5.2.tgz#52615d9c95c5085a90e4a6287ddbd745ec53e490"
-  integrity sha512-eIxjTkCtlzvDNRhw3RD1gGBPA4nxOTn6PafpKl+MW4eE2jR/u/R6mqq7oyUCXwarM5DSP96kWtq6XkrL2kSFrg==
+  version "8.5.3"
+  resolved "https://registry.yarnpkg.com/zx/-/zx-8.5.3.tgz#65ca17906ff2ecf2bd3bdba5048ae4c49d9a7285"
+  integrity sha512-TsGLAt8Ngr4wDXLZmN9BT+6FWVLFbqdQ0qpXkV3tIfH7F+MgN/WUeSY7W4nNqAntjWunmnRaznpyxtJRPhCbUQ==

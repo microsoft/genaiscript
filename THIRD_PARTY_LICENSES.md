@@ -192,7 +192,7 @@ The following npm packages may be included in this product:
  - @aws-crypto/supports-web-crypto@5.2.0
  - @huggingface/transformers@3.4.0
  - flatbuffers@25.2.10
- - long@5.3.1
+ - long@5.3.2
 
 These packages each contain the following license:
 
@@ -1161,10 +1161,10 @@ Apache License
 The following npm packages may be included in this product:
 
  - @grpc/grpc-js@1.13.3
- - @grpc/proto-loader@0.7.13
+ - @grpc/proto-loader@0.7.15
  - detect-libc@2.0.3
  - docker-modem@5.0.6
- - dockerode@4.0.5
+ - dockerode@4.0.6
 
 These packages each contain the following license:
 
@@ -1584,8 +1584,8 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.51.1
- - playwright@1.51.1
+ - playwright-core@1.52.0
+ - playwright@1.52.0
 
 These packages each contain the following license:
 
@@ -2927,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.129.4
+ - genaiscript-vscode@1.130.2
 
 This package contains the following license:
 
@@ -6584,9 +6584,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - jwa@1.4.1
- - jwa@2.0.0
  - jws@3.2.2
- - jws@4.0.0
 
 These packages each contain the following license:
 
@@ -7388,7 +7386,7 @@ The following npm packages may be included in this product:
  - @azure/core-client@1.9.3
  - @azure/core-http-compat@2.2.0
  - @azure/core-rest-pipeline@1.19.1
- - @azure/identity@4.8.0
+ - @azure/identity@4.9.1
 
 These packages each contain the following license:
 
@@ -8899,10 +8897,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.129.4
- - genaiscript-sample@1.129.4
- - genaiscript-web@1.129.4
- - genaiscript@1.129.4
+ - genaiscript-core-internal@1.130.2
+ - genaiscript-sample@1.130.2
+ - genaiscript-web@1.130.2
+ - genaiscript@1.130.2
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9651,7 +9649,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - zod@3.24.2
+ - zod@3.24.3
 
 This package contains the following license:
 
@@ -9771,7 +9769,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@3.5.0
+ - @azure/msal-node@3.5.1
 
 This package contains the following license:
 
@@ -10314,7 +10312,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.9.0
+ - @modelcontextprotocol/sdk@1.10.1
 
 This package contains the following license:
 
@@ -10743,8 +10741,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@4.10.0
- - @azure/msal-common@15.5.0
+ - @azure/msal-browser@4.11.0
+ - @azure/msal-common@15.5.1
 
 These packages each contain the following license:
 
@@ -12964,36 +12962,6 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - stoppable@1.1.0
-
-This package contains the following license:
-
-The MIT License (MIT)
-
-Copyright (c) 2017 Hunter Loftis <hunter@hunterloftis.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
  - node-gyp-build@4.8.4
 
 This package contains the following license:
@@ -13795,7 +13763,7 @@ For more information, please refer to <https://unlicense.org>
 
 The following npm package may be included in this product:
 
- - protobufjs@7.4.0
+ - protobufjs@7.5.0
 
 This package contains the following license:
 
