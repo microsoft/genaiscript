@@ -1,12 +1,10 @@
 import type { GenerationResult } from "../../core/src/server/messages"
 import type { PromptScriptRunOptions } from "../../core/src/server/messages"
+import type { Resource } from "../../core/src/mcpresource"
 import { Worker } from "node:worker_threads"
 import { fileURLToPath } from "node:url"
 import { dirname, join } from "node:path"
 import debug from "debug"
-import { runtimeHost } from "../../core/src/host"
-import { RESOURCE_CHANGE } from "../../core/src/constants"
-import { Resource } from "../../core/src/mcpresource"
 const dbg = debug("genaiscript:api")
 
 /**
@@ -40,13 +38,19 @@ export async function run(
          * The signal to use for aborting the operation. Terminates the worker thread.
          */
         signal?: AbortSignal
+        /**
+         * Handles messages
+         */
+        onMessage?: (
+            data: { type: "resourceChange" } & Resource
+        ) => Awaitable<void>
     }
 ): Promise<GenerationResult> {
     if (!scriptId) throw new Error("scriptId is required")
     dbg(`run ${scriptId}`)
     if (typeof files === "string") files = [files]
 
-    const { envVars, signal, ...rest } = options || {}
+    const { envVars, signal, onMessage, ...rest } = options || {}
     const workerData = {
         type: "run",
         scriptId,
@@ -74,12 +78,10 @@ export async function run(
             if (type === "run") {
                 signal?.removeEventListener("abort", abort)
                 resolve(res.result)
-            } else if (type === RESOURCE_CHANGE) {
-                const resource = res as Resource
-                await runtimeHost.resources.upsetResource(
-                    resource.reference,
-                    resource.content
-                )
+            } else if (onMessage) {
+                await onMessage(res)
+            } else {
+                dbg(`unknown message type ${type}`)
             }
         })
         worker.on("error", (reason) => {
