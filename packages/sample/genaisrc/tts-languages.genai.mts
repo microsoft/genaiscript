@@ -7,13 +7,9 @@ const languages = [
     "Portuguese",
     "Italian",
     "Dutch",
-    "Russian",
     "Arabic",
     "Japanese",
     "Korean",
-    //   "Swedish",
-    "Turkish",
-    "Hindi",
 ]
 
 // randomize the languages
@@ -33,14 +29,15 @@ for (const lang of languages) {
     dbg(lang)
     output.heading(3, lang)
     const translated =
-        await prompt`Translate the following text to ${lang}. This is IMPORTANT. If you cannot help with the request, say 'SORRY' in English:\n\n${content}`.options(
+        await prompt`Translate <TEXT/> to ${lang}. This is IMPORTANT. If you cannot help with the request, say ':(' in English:\n\n<TEXT>\n${content}\n</TEXT>`.options(
             {
                 responseType: "text",
+                systemSafety: false,
                 model: "openai:gpt-4o",
             }
         )
     output.fence(translated.text, "text")
-    if (translated.text.includes("SORRY")) continue
+    if (translated.text.includes(":(")) continue
     const res = await speak(translated.text, {
         voice: "coral",
         instructions: `Podcast host, native, ${lang} accent`,
@@ -60,3 +57,5 @@ for (const lang of languages) {
 
 output.heading(3, "final")
 output.fence(content, "text")
+
+output.diff(original, content)
