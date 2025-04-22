@@ -1041,6 +1041,12 @@ interface OutputTrace extends ToolCallTrace {
      * @param msg - The note message to log.
      */
     note(msg: string): void
+
+    /**
+     * Logs an error object
+     * @param err
+     */
+    error(message: string, error?: unknown): void
 }
 
 /**
