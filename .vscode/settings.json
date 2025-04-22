@@ -75,6 +75,7 @@
         "ffprobe",
         "Fmepg",
         "frontmatter",
+        "fscache",
         "gdir",
         "genai",
         "Genaiscript",
@@ -99,6 +100,7 @@
         "importprompt",
         "jaegertracing",
         "Jamba",
+        "jsonlinecache",
         "JSONLLM",
         "labeli",
         "labelledby",
@@ -233,6 +235,7 @@
         "vsix",
         "waltoss",
         "wasms",
+        "WEBVTT",
         "whisperasr",
         "xpai",
         "Yohan"

@@ -638,7 +638,10 @@ export async function OpenAITranscribe(
         trace?.itemValue(`mime`, req.file.type)
         const body = new FormData()
         body.append("model", req.model)
-        body.append("response_format", "verbose_json")
+        body.append(
+            "response_format",
+            /whisper/.test(req.model) ? "verbose_json" : "json"
+        )
         if (req.temperature)
             body.append("temperature", req.temperature.toString())
         if (req.language) body.append("language", req.language)
