@@ -14,11 +14,13 @@ const languages = [
 
 // randomize the languages
 languages.sort(() => Math.random() - 0.5)
-languages.push("English")
+languages.push("English") // always finish with English
 
+// grab the file to audioify
 const file = env.files[0]
 if (!file) cancel(`No file provided.`)
 
+// start with a short summary in english
 output.heading(3, "original")
 const { text: original } =
     await prompt`Summarize ${file} into a short blog post excerpt. Single paragraph.`
@@ -26,18 +28,19 @@ output.fence(original, "text")
 
 let content = original
 for (const lang of languages) {
-    dbg(lang)
     output.heading(3, lang)
     const translated =
-        await prompt`Translate <TEXT/> to ${lang}. This is IMPORTANT. If you cannot help with the request, say ':(' in English:\n\n<TEXT>\n${content}\n</TEXT>`.options(
-            {
-                responseType: "text",
-                systemSafety: false,
-                model: "openai:gpt-4o",
-            }
-        )
+        await prompt`Translate <TEXT/> to ${lang}. This is IMPORTANT. 
+        If you cannot help with the request, respond ':('.
+        <TEXT>
+        ${content}
+        </TEXT>`.options({
+            responseType: "text",
+            systemSafety: false,
+            model: "openai:gpt-4o",
+        })
     output.fence(translated.text, "text")
-    if (translated.text.includes(":(")) continue
+    if (translated.text.includes(":(")) continue // retry?
     const res = await speak(translated.text, {
         voice: "coral",
         instructions: `Podcast host, native, ${lang} accent`,
@@ -55,6 +58,7 @@ for (const lang of languages) {
     }
 }
 
+// compare with the original
 output.heading(3, "final")
 output.fence(content, "text")
 
