@@ -16,7 +16,7 @@ const languages = [
 languages.sort(() => Math.random() - 0.5)
 languages.push("English") // always finish with English
 
-// grab the file to audioify
+// grab the file to audio-ify
 const file = env.files[0]
 if (!file) cancel(`No file provided.`)
 
