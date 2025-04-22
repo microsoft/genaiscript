@@ -3,20 +3,29 @@ script({
     systemSafety: false,
     system: ["system", "system.assistant", "system.annotations"],
     responseType: "text",
+    parameters: {
+        base: {
+            type: "string",
+            description: "The base commit to compare against.",
+            default: "HEAD^",
+        },
+    },
 })
-const { dbg, output } = env
+const { vars, dbg, output } = env
 
 const linters = await workspace.findFiles("genaisrc/linters/*.md")
 if (!linters) cancel("no linters found in genaisrc/linters/*.md")
+dbg(`found %d linters`, linters.length)
 
+const base: string = vars.base || (await git.defaultBranch())
 const diff = await git.diff({
-    base: "HEAD^",
+    base,
     llmify: true,
     ignoreSpaceChange: true,
 })
 if (!diff) cancel("nothing changed")
 
-def("DIFF", diff, { maxTokens: 4000 })
+def("DIFF", diff, { language: "diff", maxTokens: 4000 })
 
 $`You are an expert in code linting. 
 
