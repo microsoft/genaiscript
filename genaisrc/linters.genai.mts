@@ -9,7 +9,7 @@ const { dbg, output } = env
 const linters = await workspace.findFiles("genaisrc/linters/*.md")
 if (!linters) cancel("no linters found in genaisrc/linters/*.md")
 
-const diff = await git.diff({ base: "dev", llmify: true })
+const diff = await git.diff({ base: "HEAD^", llmify: true })
 if (!diff) cancel("nothing changed")
 
 def("DIFF", diff, { maxTokens: 4000 })
