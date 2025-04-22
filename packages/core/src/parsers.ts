@@ -39,6 +39,7 @@ import { dedent } from "./indent"
 import { vttSrtParse } from "./transcription"
 import { encodeIDs } from "./cleaners"
 import { diffCreatePatch } from "./diff"
+import { promptyParse } from "./prompty"
 
 /**
  * Asynchronously creates a set of parsers for handling various file formats, data operations,
@@ -211,5 +212,9 @@ export async function createParsers(
         unthink: unthink,
         dedent: dedent,
         encodeIDs: encodeIDs,
+        prompty: async (file) => {
+            await resolveFileContent(file, { trace })
+            return promptyParse(file.filename, file.content)
+        },
     })
 }

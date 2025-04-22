@@ -7,57 +7,6 @@ import { YAMLParse } from "./yaml"
 import { deleteUndefinedValues } from "./cleaners"
 import { JSON5Stringify } from "./json5"
 
-export interface PromptyFrontmatter {
-    name?: string
-    description?: string
-    version?: string
-    authors?: string[]
-    tags?: string[]
-    sample?: Record<string, any> | string
-    inputs?: Record<
-        string,
-        | JSONSchemaArray
-        | JSONSchemaNumber
-        | JSONSchemaBoolean
-        | JSONSchemaString
-        | JSONSchemaObject
-        | { type: "list" }
-    >
-    outputs?: JSONSchemaObject
-    model?: {
-        api?: "chat" | "completion"
-        configuration?: {
-            type?: string
-            name?: string
-            organization?: string
-            api_version?: string
-            azure_deployment: string
-            azure_endpoint: string
-        }
-        parameters?: {
-            response_format?: { type: "json_object" }
-            max_tokens?: number
-            temperature?: number
-            top_p?: number
-            n?: number
-            seed?: number
-            stream?: boolean // ignored
-            tools?: unknown[] // ignored
-        }
-    }
-
-    // unofficial
-    files?: string | string[]
-    tests?: PromptTest | PromptTest[]
-}
-
-export interface PromptyDocument {
-    meta: PromptArgs
-    frontmatter: PromptyFrontmatter
-    content: string
-    messages: ChatCompletionMessageParam[]
-}
-
 function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     const {
         name,

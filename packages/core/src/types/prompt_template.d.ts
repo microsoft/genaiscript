@@ -2773,6 +2773,12 @@ interface Parsers {
         matcher: RegExp
         ids: Record<string, string>
     }
+
+    /**
+     * Parses a prompty file
+     * @param file
+     */
+    prompty(file: WorkspaceFile): Promise<PromptyDocument>
 }
 
 interface YAML {
@@ -2790,6 +2796,57 @@ interface YAML {
      * Parses a YAML string to object
      */
     parse(text: string | WorkspaceFile): any
+}
+
+interface PromptyFrontmatter {
+    name?: string
+    description?: string
+    version?: string
+    authors?: string[]
+    tags?: string[]
+    sample?: Record<string, any> | string
+    inputs?: Record<
+        string,
+        | JSONSchemaArray
+        | JSONSchemaNumber
+        | JSONSchemaBoolean
+        | JSONSchemaString
+        | JSONSchemaObject
+        | { type: "list" }
+    >
+    outputs?: JSONSchemaObject
+    model?: {
+        api?: "chat" | "completion"
+        configuration?: {
+            type?: string
+            name?: string
+            organization?: string
+            api_version?: string
+            azure_deployment: string
+            azure_endpoint: string
+        }
+        parameters?: {
+            response_format?: { type: "json_object" | "json_schema" }
+            max_tokens?: number
+            temperature?: number
+            top_p?: number
+            n?: number
+            seed?: number
+            stream?: boolean // ignored
+            tools?: unknown[] // ignored
+        }
+    }
+
+    // unofficial
+    files?: string | string[]
+    tests?: PromptTest | PromptTest[]
+}
+
+interface PromptyDocument {
+    meta: PromptArgs
+    frontmatter: PromptyFrontmatter
+    content: string
+    messages: ChatCompletionMessageParam[]
 }
 
 interface DiffFile {
