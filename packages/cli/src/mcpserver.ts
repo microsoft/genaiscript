@@ -190,6 +190,16 @@ export async function startMcpServer(
         logVerbose(`startup script: ${startup}`)
         await run(startup, [], {
             vars: {},
+            onMessage: async (data) => {
+                if (data.type === RESOURCE_CHANGE) {
+                    await runtimeHost.resources.upsetResource(
+                        data.reference,
+                        data.content
+                    )
+                } else {
+                    dbg(`unknown message type: ${data.type}`)
+                }
+            },
         })
     }
 }
