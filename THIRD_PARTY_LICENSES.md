@@ -1162,7 +1162,7 @@ The following npm packages may be included in this product:
 
  - @grpc/grpc-js@1.13.3
  - @grpc/proto-loader@0.7.15
- - detect-libc@2.0.3
+ - detect-libc@2.0.4
  - docker-modem@5.0.6
  - dockerode@4.0.6
 
@@ -2927,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.130.2
+ - genaiscript-vscode@1.130.6
 
 This package contains the following license:
 
@@ -6671,7 +6671,7 @@ The following npm packages may be included in this product:
 
  - parse5-htmlparser2-tree-adapter@7.1.0
  - parse5-parser-stream@7.1.2
- - parse5@7.2.1
+ - parse5@7.3.0
 
 These packages each contain the following license:
 
@@ -7347,6 +7347,7 @@ The following npm packages may be included in this product:
  - domhandler@5.0.3
  - domutils@3.2.2
  - entities@4.5.0
+ - entities@6.0.0
  - nth-check@2.1.1
 
 These packages each contain the following license:
@@ -8897,10 +8898,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.130.2
- - genaiscript-sample@1.130.2
- - genaiscript-web@1.130.2
- - genaiscript@1.130.2
+ - genaiscript-core-internal@1.130.6
+ - genaiscript-sample@1.130.6
+ - genaiscript-web@1.130.6
+ - genaiscript@1.130.6
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -10312,7 +10313,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.10.1
+ - @modelcontextprotocol/sdk@1.10.2
 
 This package contains the following license:
 
@@ -10443,6 +10444,7 @@ The following npm packages may be included in this product:
  - @ast-grep/lang-cpp@0.0.1
  - @ast-grep/lang-csharp@0.0.1
  - @ast-grep/lang-python@0.0.1
+ - @ast-grep/lang-yaml@0.0.1
  - @ast-grep/setup-lang@0.0.3
 
 These packages each contain the following license:
