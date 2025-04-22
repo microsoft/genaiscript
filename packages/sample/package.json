@@ -22,7 +22,7 @@
     "@ast-grep/lang-cpp": "^0.0.1",
     "@ast-grep/lang-csharp": "^0.0.1",
     "@ast-grep/lang-python": "^0.0.1",
-    "@azure/identity": "^4.8.0",
+    "@azure/identity": "^4.9.1",
     "@azure/storage-blob": "^12.27.0",
     "@huggingface/transformers": "3.4.0",
     "@langchain/core": "^0.3.42",
@@ -31,7 +31,7 @@
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "vectorstore": "^0.0.4",
-    "zod": "^3.24.2",
+    "zod": "^3.24.3",
     "zod-to-json-schema": "^3.24.5"
   }
 }

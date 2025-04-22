@@ -18,7 +18,7 @@
     "@vscode-elements/webview-playground": "^1.6.0",
     "@vscode/codicons": "^0.0.36",
     "clsx": "^2.1.1",
-    "es-toolkit": "^1.34.1",
+    "es-toolkit": "^1.35.0",
     "esbuild": "^0.25.2",
     "html-escaper": "3.0.3",
     "mermaid": "^11.6.0",

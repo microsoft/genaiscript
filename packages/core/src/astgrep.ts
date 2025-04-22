@@ -295,6 +295,8 @@ async function resolveLang(
         cs: "csharp",
         py: "python",
         sql: "sql",
+        yml: "yaml",
+        yaml: "yaml",
     }
 
     const forbidden = ["bin", "exe", "dll"]
