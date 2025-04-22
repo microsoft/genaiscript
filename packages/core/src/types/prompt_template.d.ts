@@ -2852,7 +2852,7 @@ interface PromptyDocument {
     meta: PromptArgs
     frontmatter: PromptyFrontmatter
     content: string
-    messages: ChatCompletionMessageParam[]
+    messages: ChatMessage[]
 }
 
 interface DiffFile {
