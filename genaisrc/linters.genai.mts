@@ -13,8 +13,8 @@ script({
 })
 const { vars, dbg, output } = env
 
-const linters = await workspace.findFiles("genaisrc/linters/*.md")
-if (!linters) cancel("no linters found in genaisrc/linters/*.md")
+const linters = await workspace.findFiles(".github/linters/*.md")
+if (!linters) cancel("no linters found in .github/linters/*.md")
 dbg(`found %d linters`, linters.length)
 
 const base: string = vars.base || (await git.defaultBranch())
