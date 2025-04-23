@@ -17,7 +17,7 @@ hero:
         file: ./prompty.png
 ---
 
-GenAIScript supports running [.prompty](https://prompty.ai/) files as scripts (with some limitations) or importing them in a script.
+GenAIScript supports running [.prompty](https://prompty.ai/) files as scripts (with some limitations) or importing them in a script. It also provides a parser for those files.
 
 ## What is prompty?
 
