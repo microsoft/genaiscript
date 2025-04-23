@@ -1,7 +1,6 @@
 system({
-    title: "Zero-shot Chain Of Thought",
-    description:
-        "Zero-shot Chain Of Thought technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
+    title: "Z3",
+    description: "Solve constraints system using the Z3 constraint solver.",
 })
 const dbg = host.logger("system:z3")
 
