@@ -2,8 +2,8 @@ script({
     title: "Linters",
     systemSafety: false,
     system: ["system", "system.assistant", "system.annotations"],
-    responseType: "text",
-    tools: ["agent_fs", "agent_git"],
+    responseType: "markdown",
+    tools: ["agent_fs", "agent_git", "agent_github", "agent_planner"],
     parameters: {
         base: {
             type: "string",
