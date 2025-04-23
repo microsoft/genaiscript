@@ -12,11 +12,7 @@ concurrency:
     group: pr-review-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 env:
-    GENAISCRIPT_DEFAULT_REASONING_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_MODEL }}
-    GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_MODEL }}
-    GENAISCRIPT_DEFAULT_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_VISION_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_VISION_MODEL }}
+    GENAISCRIPT_MODEL_REVIEW: ${{ vars.GENAISCRIPT_MODEL_REVIEW }}
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -41,11 +37,11 @@ jobs:
               run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-describe
               continue-on-error: true
-              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd -m reasoning --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
+              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd -m review --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: genaiscript pr-review
-              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc -m reasoning --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
+              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc -m review --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
