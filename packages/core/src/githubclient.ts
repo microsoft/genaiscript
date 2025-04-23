@@ -314,7 +314,7 @@ export function generatedByFooter(
     info: { runUrl?: string },
     code?: string
 ) {
-    return `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect. Use 👍👎 to eval.\n\n`
+    return `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect. Use reactions to eval.\n\n`
 }
 
 /**
