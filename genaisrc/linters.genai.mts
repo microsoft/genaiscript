@@ -2,8 +2,15 @@ script({
     title: "Linters",
     systemSafety: false,
     system: ["system", "system.assistant", "system.annotations"],
-    responseType: "text",
-    tools: ["agent_fs", "agent_git"],
+    responseType: "markdown",
+    tools: [
+        "agent_fs",
+        "agent_git",
+        "agent_github",
+        "agent_planner",
+        "agent_docs",
+        "agent_interpreter",
+    ],
     parameters: {
         base: {
             type: "string",
@@ -48,19 +55,25 @@ to the code in the <DIFF> variable using the strategy below.
 for each linter:
    read the linter description
    apply the linter to the code in <DIFF>
-   report any errors or warnings using annotations format. Use the linter name as the code.
+   report any errors or warnings using annotations format. Use the linter name in the description.
 
 ## Linters
 
 `.role("system")
 for (const linter of linters) {
-    const name = path.basename(linter.filename)
+    const name = path.changeext(path.basename(linter.filename), "")
     const content = MD.content(linter)
 
-    $`### ${name}`.role("system")
+    $`### Linter: ${name}`.role("system")
     writeText(content, { role: "system" })
 }
 
-$`## Output
-You will output the results of the linting process using the annotation format.
+$`## Tools and Agents
+
+Use the tools and agents below to inquire additional information about the build status, git status
+and other information.
+
+## Output
+
+Use the full power of GitHub Flavored Markdown to create a glorious response.
 `.role("system")
