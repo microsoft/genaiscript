@@ -62,5 +62,6 @@ for (const linter of linters) {
 }
 
 $`## Output
-You will output the results of the linting process using the annotation format.
+
+Use the full power of GitHub Flavored Markdown to create a glorious response.
 `.role("system")
