@@ -6,6 +6,7 @@ on:
         paths:
             - yarn.lock
             - "docs/**"
+            - "genaisrc/**"
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
