@@ -1,7 +1,7 @@
 script({
     title: "Linters",
     systemSafety: false,
-    system: ["system", "system.assistant", "system.annotations"],
+    system: ["system", "system.assistant", "system.annotations", "system.diagrams"],
     responseType: "markdown",
     tools: [
         "agent_fs",

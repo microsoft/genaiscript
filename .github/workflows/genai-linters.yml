@@ -1,10 +1,12 @@
 name: genai linters
 on:
     workflow_dispatch:
+    push:
+        paths:
+            - "genaisrc/linters/*.md"
     pull_request:
         types: [opened, ready_for_review, reopened, review_requested]
         paths:
-            - yarn.lock
             - "docs/**"
             - "genaisrc/**"
             - "packages/core/**/*"
@@ -17,7 +19,8 @@ concurrency:
 env:
     GENAISCRIPT_MODEL_LINTER: ${{ vars.GENAISCRIPT_MODEL_LINTER }}
 jobs:
-    build:
+    lint:
+        if: ${{ github.event.issue.pull_request }}
         runs-on: ubuntu-latest
         permissions:
             pull-requests: write
