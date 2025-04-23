@@ -48,16 +48,16 @@ to the code in the <DIFF> variable using the strategy below.
 for each linter:
    read the linter description
    apply the linter to the code in <DIFF>
-   report any errors or warnings using annotations format. Use the linter name as the code.
+   report any errors or warnings using annotations format. Use the linter name in the description.
 
 ## Linters
 
 `.role("system")
 for (const linter of linters) {
-    const name = path.basename(linter.filename)
+    const name = path.changeext(path.basename(linter.filename), "")
     const content = MD.content(linter)
 
-    $`### ${name}`.role("system")
+    $`### Linter: ${name}`.role("system")
     writeText(content, { role: "system" })
 }
 
