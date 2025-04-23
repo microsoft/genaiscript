@@ -3,7 +3,14 @@ script({
     systemSafety: false,
     system: ["system", "system.assistant", "system.annotations"],
     responseType: "markdown",
-    tools: ["agent_fs", "agent_git", "agent_github", "agent_planner"],
+    tools: [
+        "agent_fs",
+        "agent_git",
+        "agent_github",
+        "agent_planner",
+        "agent_docs",
+        "agent_interpreter",
+    ],
     parameters: {
         base: {
             type: "string",
@@ -61,7 +68,12 @@ for (const linter of linters) {
     writeText(content, { role: "system" })
 }
 
-$`## Output
+$`## Tools and Agents
+
+Use the tools and agents below to inquire additional information about the build status, git status
+and other information.
+
+## Output
 
 Use the full power of GitHub Flavored Markdown to create a glorious response.
 `.role("system")
