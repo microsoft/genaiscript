@@ -19,6 +19,7 @@ const diff = await git.diff({
     base: defaultBranch,
     paths: ["docs/**.md", "docs/**.mdx"],
 })
+if (!diff) cancel("No changes in docs")
 const settings = await workspace.readJSON(".vscode/settings.json")
 
 def("GIT_DIFF", diff, {
