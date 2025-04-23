@@ -152,7 +152,7 @@ export async function traceAgentMemory(
         lookupOnly: true,
     })
     const memories = await loadMemories(cache)
-    if (memories) {
+    if (memories?.length) {
         try {
             trace.startDetails("🧠 agent memory")
             memories
