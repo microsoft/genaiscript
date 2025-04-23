@@ -344,7 +344,7 @@ export async function expandTemplate(
     }
 
     try {
-        trace.startDetails("👾 systems", { expanded: true })
+        trace.startDetails("👾 systems")
         for (let i = 0; i < systems.length; ++i) {
             if (cancellationToken?.isCancellationRequested) {
                 await dispose(disposables, { trace })

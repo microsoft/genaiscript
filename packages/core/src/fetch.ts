@@ -160,6 +160,16 @@ export function statusToMessage(res?: {
     )
 }
 
+export async function tryReadText(res: Response, defaultValue?: string) {
+    try {
+        const text = await res.text()
+        return text
+    } catch (e) {
+        dbg(e)
+        return defaultValue
+    }
+}
+
 export async function* iterateBody(
     r: Response,
     options?: CancellationOptions

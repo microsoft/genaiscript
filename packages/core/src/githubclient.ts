@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:github")
-
 import type { Octokit } from "@octokit/rest"
 import type { PaginateInterface } from "@octokit/plugin-paginate-rest"
 import {
@@ -26,6 +23,8 @@ import { errorMessage } from "./error"
 import { deleteUndefinedValues, normalizeInt } from "./cleaners"
 import { diffCreatePatch } from "./diff"
 import { GitClient } from "./git"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
     token: string
@@ -365,7 +364,7 @@ export async function githubCreateIssueComment(
 
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
-    dbg(`creating issue comment at URL: ${url}`)
+    dbg(`creating issue comment at %s`, url)
 
     body += generatedByFooter(script, info)
 
@@ -393,7 +392,7 @@ export async function githubCreateIssueComment(
         }[]
         const comment = comments.find((c) => c.body.includes(tag))
         if (comment) {
-            dbg(`found existing comment with tag, deleting it`)
+            dbg(`found existing comment %s with tag, deleting it`, comment.id)
             const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
             const resd = await fetch(delurl, {
                 method: "DELETE",
@@ -425,8 +424,9 @@ export async function githubCreateIssueComment(
     }
     if (!r.created) {
         logError(
-            `pull request ${issue} comment creation failed, ${r.statusText}`
+            `pull request ${issue} comment creation failed, ${r.statusText} (${res.status})`
         )
+        dbg(JSON.stringify(resp, null, 2))
     } else {
         logVerbose(`pull request ${issue} comment created at ${r.html_url}`)
     }
@@ -476,6 +476,7 @@ async function githubCreatePullRequestReview(
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     dbg(`posting new pull request review comment at URL: ${url}`)
+    dbg(`%O`, body)
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -493,8 +494,9 @@ async function githubCreatePullRequestReview(
     }
     if (!r.created) {
         logVerbose(
-            `pull request ${commitSha} comment creation failed, ${r.statusText}`
+            `pull request ${commitSha} comment creation failed, ${r.statusText} (${res.status})`
         )
+        dbg(JSON.stringify(resp, null, 2))
     } else {
         logVerbose(`pull request ${commitSha} comment created at ${r.html_url}`)
     }
