@@ -4,13 +4,18 @@ import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import { listFiles, saveAllTextDocuments } from "./fs"
+import { saveAllTextDocuments } from "./fs"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { fixCustomPrompts, fixPromptDefinitions } from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
-import { TOOL_NAME, CHANGE, TOOL_ID } from "../../core/src/constants"
+import {
+    TOOL_NAME,
+    CHANGE,
+    TOOL_ID,
+    GENAI_ANYTS_REGEX,
+} from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
 import { MarkdownTrace } from "../../core/src/trace"
 import { logInfo, groupBy, logVerbose } from "../../core/src/util"
@@ -113,13 +118,15 @@ export class ExtensionState extends EventTarget {
 
         // clear errors when file edited (remove me?)
         subscriptions.push(
-            vscode.workspace.onDidChangeTextDocument(
-                (ev) => {
-                    this._diagColl.set(ev.document.uri, [])
-                },
-                undefined,
-                subscriptions
-            )
+            vscode.workspace.onDidChangeTextDocument((ev) => {
+                this._diagColl.set(ev.document.uri, [])
+            }),
+            vscode.workspace.onDidOpenTextDocument(async (ev) => {
+                const uri = ev.uri
+                if (GENAI_ANYTS_REGEX.test(uri.toString())) {
+                    await this.parseWorkspace()
+                }
+            })
         )
     }
 
