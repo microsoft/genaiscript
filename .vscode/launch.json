@@ -29,7 +29,6 @@
                 "${workspaceFolder}/demo"
             ],
             "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
-            "preLaunchTask": "npm: compile",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
                 "!**/node_modules/**"
