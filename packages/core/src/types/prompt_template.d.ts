@@ -307,7 +307,7 @@ type ModelVisionType = OptionsOrString<
 >
 
 type ModelImageGenerationType = OptionsOrString<
-    "openai:dall-e-2" | "openai:dall-e-3"
+    "openai:gpt-image-1" | "openai:dall-e-2" | "openai:dall-e-3"
 >
 
 type ModelProviderType = OptionsOrString<

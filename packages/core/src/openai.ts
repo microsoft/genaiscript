@@ -771,6 +771,12 @@ export async function OpenAIImageGeneration(
         response_format: "b64_json",
         ...rest,
     }
+
+    if (/^gpt-/i.test(model)) {
+        delete body.style
+        delete body.response_format
+    }
+
     if (cfg.type === "azure") {
         const version = cfg.version || AZURE_OPENAI_API_VERSION
         trace?.itemValue(`version`, version)
@@ -797,6 +803,7 @@ export async function OpenAIImageGeneration(
         trace?.itemValue(`url`, `[${url}](${url})`)
         traceFetchPost(trace, url, freq.headers, body)
         const res = await fetch(url, freq as any)
+        dbg(`response: %d %s`, res.status, res.statusText)
         trace?.itemValue(`status`, `${res.status} ${res.statusText}`)
         if (!res.ok)
             return {
@@ -804,6 +811,7 @@ export async function OpenAIImageGeneration(
                 error: (await res.json())?.error || res.statusText,
             }
         const j = await res.json()
+        dbg(`%O`, j)
         const revisedPrompt = j.data[0]?.revised_prompt
         if (revisedPrompt)
             trace?.details(`📷 revised prompt`, j.data[0].revised_prompt)
