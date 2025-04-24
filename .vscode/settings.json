@@ -27,6 +27,7 @@
         "cctx",
         "changeext",
         "chatencoder",
+        "chatrender",
         "chattypes",
         "Chunker",
         "chunkers",
@@ -243,6 +244,7 @@
         "wasms",
         "WEBVTT",
         "whisperasr",
+        "wsclient",
         "xpai",
         "Yohan"
     ],
