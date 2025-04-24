@@ -1,23 +1,23 @@
 ---
 title: Configuration
 description: Set up your LLM connection and authorization with environment
-  variables for seamless integration.
+    variables for seamless integration.
 keywords: LLM setup, API configuration, environment variables, secure
-  authorization, LLM integration
+    authorization, LLM integration
 sidebar:
-  order: 2
+    order: 2
 hero:
-  image:
-    alt: A small, flat, 8-bit style illustration features simple colored blocks
-      linked by straight lines to depict API and cloud connections. Each block
-      displays a basic symbol, including representations of artificial
-      intelligence, a cloud, code, an environment file, and a lock for security.
-      Iconic, abstract shapes indicate major tech providers like OpenAI, Azure,
-      Google, Hugging Face, GitHub, and Anthropic. The arrangement is clear and
-      geometric, with each block in a unique color from a five-color palette,
-      all on a transparent background with no text, people, or visual effects.
-    file: ./configuration.png
-
+    image:
+        alt:
+            A small, flat, 8-bit style illustration features simple colored blocks
+            linked by straight lines to depict API and cloud connections. Each block
+            displays a basic symbol, including representations of artificial
+            intelligence, a cloud, code, an environment file, and a lock for security.
+            Iconic, abstract shapes indicate major tech providers like OpenAI, Azure,
+            Google, Hugging Face, GitHub, and Anthropic. The arrangement is clear and
+            geometric, with each block in a unique color from a five-color palette,
+            all on a transparent background with no text, people, or visual effects.
+        file: ./configuration.png
 ---
 
 import { FileTree } from "@astrojs/starlight/components"
@@ -334,7 +334,7 @@ Ensure that the `models` permission is enabled in your workflow configuration.
 
 ```yaml title="genai.yml" "models: read"
 permissions:
-  models: read
+    models: read
 ```
 
 </li>
@@ -344,9 +344,9 @@ permissions:
 Pass the `GITHUB_TOKEN` when running `genaiscript`
 
 ```yaml title="genai.yml" "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
-    run: npx -y genaiscript run ...
-    env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+run: npx -y genaiscript run ...
+env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 </li>
@@ -1178,7 +1178,10 @@ This mode is useful to run your scripts without having a separate LLM provider o
 and have additional limitations and rate limiting defined by the GitHub Copilot platform.
 
 There is no configuration needed as long as you have GitHub Copilot installed and configured in Visual Studio Code.
-You can force using this model by using `github_copilot_chat:*` as a model name.
+
+You can force using this model by using `github_copilot_chat:*` as a model name
+or set the **GenAIScript > Language Chat Models Provider** setting to true.
+This will default GenAIScript to use this provider for model aliases.
 
 <YouTube id="LRrVMiZgWJg" posterQuality="high" />
 
