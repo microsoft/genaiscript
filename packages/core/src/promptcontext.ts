@@ -36,6 +36,7 @@ import {
     astGrepParse,
 } from "./astgrep"
 import { createCache } from "./cache"
+import { loadZ3Client } from "./z3"
 
 const dbg = debug("genaiscript:promptcontext")
 
@@ -285,6 +286,7 @@ export async function createPromptContext(
             const res = createCache<any, any>(name, { type: "memory" })
             return res
         },
+        z3: () => loadZ3Client({ trace, cancellationToken }),
         exec: async (
             command: string,
             args?: string[] | ShellOptions,
