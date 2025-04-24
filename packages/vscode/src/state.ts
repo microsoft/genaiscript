@@ -261,7 +261,7 @@ export class ExtensionState extends EventTarget {
             reqChange()
         }
 
-        const provider = config.get("languageModels.preferred")
+        const provider = config.get("languageChatModelsProvider")
             ? MODEL_PROVIDER_GITHUB_COPILOT_CHAT
             : undefined
         const client = await this.host.server.client()
