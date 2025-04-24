@@ -48,7 +48,7 @@ const dbg = debug("genaiscript:promptcontext")
  * @param trace Markdown trace for logging and debugging.
  * @param options Generation options such as cancellation tokens, embeddings models, and content safety.
  * @param model The model identifier used for context creation.
- * @returns A context object providing methods for file operations, web retrieval, searches, execution, container operations, caching, and other utilities. Includes workspace file system operations (read/write files, grep, find files), retrieval methods (web search, fuzzy search, vector search), and host operations (command execution, browsing, container management, etc.).
+ * @returns A context object providing methods for file operations, web retrieval, searches, execution, container operations, caching, and other utilities. Includes workspace file system operations (read/write files, grep, find files), retrieval methods (web search, fuzzy search, vector search, index creation), and host operations (command execution, browsing, container management, resource publishing, server management, etc.).
  */
 export async function createPromptContext(
     prj: Project,
