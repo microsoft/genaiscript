@@ -339,7 +339,7 @@
                     "genaiscript.languageChatModels.preferred": {
                         "type": "boolean",
                         "description": "Use GitHub Copilot Chat Models (or other models provided in Visual Studio Code) as the preferred LLM provider when a model is not specified.",
-                        "default": true
+                        "default": false
                     },
                     "genaiscript.diagnostics": {
                         "type": "boolean",
