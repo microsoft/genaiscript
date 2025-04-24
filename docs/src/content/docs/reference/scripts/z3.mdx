@@ -1,26 +1,44 @@
 ---
 title: Z3
 description: Z3 is a high-performance theorem prover developed at Microsoft
-  Research. It is a built-in tool of GenAIScript.
+    Research. It is a built-in tool of GenAIScript.
 sidebar:
-  order: 200
+    order: 200
 hero:
-  image:
-    alt: "A small, 8-bit style computer chip labeled as Z3 is centrally positioned,
-      with fine lines linking it to three simple shapes: a circle containing a
-      checkmark to suggest problem solving, a square featuring an inequality
-      sign to indicate logical constraints, and a triangle with tiny gears
-      inside to represent verifying programs. The image uses only blue, gray,
-      black, white, and green, appears flat and geometric with a professional,
-      minimalistic look, and has no background or human figures."
-    file: ./z3.png
-
+    image:
+        alt:
+            "A small, 8-bit style computer chip labeled as Z3 is centrally positioned,
+            with fine lines linking it to three simple shapes: a circle containing a
+            checkmark to suggest problem solving, a square featuring an inequality
+            sign to indicate logical constraints, and a triangle with tiny gears
+            inside to represent verifying programs. The image uses only blue, gray,
+            black, white, and green, appears flat and geometric with a professional,
+            minimalistic look, and has no background or human figures."
+        file: ./z3.png
 ---
 
 [Z3](https://microsoft.github.io/z3guide/) is a high-performance theorem prover developed at Microsoft Research. It is a built-in tool of GenAIScript. Z3 is used to solve logical formulas
 and can be used for various applications, including program verification, constraint solving, and symbolic execution.
 
 GenAIScript uses the WebAssembly-based [z3-solver](https://www.npmjs.com/package/z3-solver) npm package to run Z3.
+
+## Z3 instance
+
+The `host.z3()` method creates a new Z3 instance. The instance can be used to run Z3 commands and get the results.
+The `z3` instance is a wrapper around the [z3-solver](https://www.npmjs.com/package/z3-solver) npm package.
+The `z3` instance has the `run` method that runs the given SMTLIB2 formula and returns the result.
+
+```js
+const z3 = await host.z3()
+const res = await z3.run(`
+(declare-const a Int)
+(declare-fun f (Int Bool) Int)
+(assert (< a 10))
+(assert (< (f a true) 100))
+(check-sat)
+`)
+console.log(res) // unsat
+```
 
 ## Z3 tool
 
