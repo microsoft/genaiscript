@@ -45,7 +45,7 @@ const dbg = genaiscriptDebug("file")
 export async function resolveFileContent(
     file: WorkspaceFile,
     options?: TraceOptions & { maxFileSize?: number } & CancellationOptions
-) {
+): Promise<WorkspaceFile> {
     const {
         trace,
         cancellationToken,
@@ -143,7 +143,7 @@ export async function resolveFileContent(
         }
         if (!info.isFile()) {
             dbg(`skip, not a file`)
-            return false // ignore, this is a directory
+            return file // ignore, this is a directory
         }
         if (!isBinary) {
             dbg(`text ${prettyBytes(info.size)}`)
