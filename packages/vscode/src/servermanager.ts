@@ -72,7 +72,7 @@ export class TerminalServerManager
         )
         subscriptions.push(
             vscode.workspace.onDidChangeConfiguration((e) => {
-                if (e.affectsConfiguration(TOOL_ID + ".cli")) this.close()
+                if (e.affectsConfiguration(TOOL_ID)) this.close()
             })
         )
     }
@@ -195,13 +195,19 @@ export class TerminalServerManager
         const githubCopilotChatClient = isLanguageModelsAvailable()
             ? " --github-copilot-chat-client"
             : ""
+        const githubCopilotChatProvider =
+            isLanguageModelsAvailable() &&
+            config.get("languageChatModels.preferred")
+                ? " --provider github_copilot_chat"
+                : ""
+
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}${githubCopilotChatProvider}`
             )
         else
             this._terminal.sendText(
-                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
+                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}${githubCopilotChatProvider}`
             )
         if (!hideFromUser) this._terminal.show(true)
     }
