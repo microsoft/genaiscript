@@ -233,6 +233,7 @@
         "typecheck",
         "unfence",
         "unmarkdown",
+        "unsat",
         "unthink",
         "unwrappers",
         "urllib",
