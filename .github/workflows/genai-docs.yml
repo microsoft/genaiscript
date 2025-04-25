@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
             pull-requests: write
-            content: write
+            contents: write
             models: read
         steps:
             - uses: actions/checkout@v4
