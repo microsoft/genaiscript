@@ -29,7 +29,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: /docs
-              run: node packages/cli/built/genaiscript.cjs run docs --out ./temp/genai/docs -prc -p github --out-trace $GITHUB_STEP_SUMMARY --vars pretty=true --vars applyEdits=true --vars defaultBranch=dev
+              run: node packages/cli/built/genaiscript.cjs run docs --out ./temp/genai/docs -prc -p github --out-trace $GITHUB_STEP_SUMMARY --vars diff=true --vars pretty=true --vars applyEdits=true --vars defaultBranch=dev
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha}}
