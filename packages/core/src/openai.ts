@@ -786,10 +786,30 @@ export async function OpenAIImageGeneration(
     if (!isDallE3) delete body.style
     if (isDallE) body.response_format = "b64_json"
 
+    if (isDallE3) {
+        if (body.size === "portrait") body.size = "1024x1792"
+        else if (body.size === "landscape") body.size = "1792x1024"
+        else if (body.size === "square") body.size = "1024x1024"
+    } else if (isDallE2) {
+        if (
+            body.size === "portrait" ||
+            body.size === "landscape" ||
+            body.size === "square"
+        )
+            body.size = "1024x1024"
+    } else if (isGpt) {
+        if (body.size === "portrait") body.size = "1024x1536"
+        else if (body.size === "landscape") body.size = "1536x1024"
+        else if (body.size === "square") body.size = "1024x1024"
+    }
+
+    if (body.size === "auto") delete body.size
+
     dbg({
         quality: body.quality,
         style: body.style,
         response_format: body.response_format,
+        size: body.size,
     })
 
     if (cfg.type === "azure") {

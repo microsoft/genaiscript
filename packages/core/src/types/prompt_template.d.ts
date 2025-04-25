@@ -4397,6 +4397,7 @@ interface ImageGenerationOptions extends ImageTransformOptions {
         | "auto"
         | "landscape"
         | "portrait"
+        | "square"
         | "1536x1024"
         | "1024x1536"
         | "256x256"
