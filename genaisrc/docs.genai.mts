@@ -95,21 +95,6 @@ for (const file of files) {
     // normalize spacing
     if (pretty) await prettier(file)
 
-    // generate missing docs
-    if (missing) {
-        stats.push({
-            filename: file.filename,
-            kind: "new",
-            gen: 0,
-            genCost: 0,
-            judge: 0,
-            judgeCost: 0,
-            edits: 0,
-            updated: 0,
-        })
-        await generateDocs(file, stats.at(-1))
-    }
-
     // generate updated docs
     if (update) {
         stats.push({
@@ -123,6 +108,21 @@ for (const file of files) {
             updated: 0,
         })
         await updateDocs(file, stats.at(-1))
+    }
+
+    // generate missing docs
+    if (missing) {
+        stats.push({
+            filename: file.filename,
+            kind: "new",
+            gen: 0,
+            genCost: 0,
+            judge: 0,
+            judgeCost: 0,
+            edits: 0,
+            updated: 0,
+        })
+        await generateDocs(file, stats.at(-1))
     }
 }
 
