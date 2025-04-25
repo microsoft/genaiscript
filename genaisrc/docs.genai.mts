@@ -258,7 +258,7 @@ rule:
                 _.def("FUNCTION", match.text(), { flex: 10 })
                 // this needs more eval-ing
                 _.$`Update the docstring <DOCSTRING> to match the code in function <FUNCTION>.
-                - If the docstring is up to date, return /NOP/.
+                - If the docstring is up to date, return /NOP/. It's ok to leave it as is.
                 - do not rephrase an existing sentence if it is correct.
                 - Make sure parameters are documented.
                 - do NOT include types, this is for TypeScript.
@@ -269,12 +269,14 @@ rule:
                 The source of the function is in <FUNCTION>.
                 The current docstring is <DOCSTRING>.
 
-                A good docstring should be using this structure and using the docstring syntax:
-                - a short description of the function
-                - a description of the parameters
-                - a description of the return value
-                - a description of the exceptions
-                - a description of the side effects                    
+                docstring:
+
+                /**
+                 * description
+                 * @param param1 - description
+                 * @param param2 - description
+                 * @returns description
+                 */
                 `
             },
             {

@@ -238,7 +238,7 @@ export async function jsonl2json(files: string[]) {
 /**
  * Estimates the number of tokens in the content of files and logs the results.
  * @param filesGlobs - An array of files or glob patterns to process.
- * @param options - Options for excluding files, specifying the model, and ignoring .gitignore.
+ * @param options - Options for processing files.
  *   - excludedFiles - A list of files to exclude from processing.
  *   - model - The name of the model used for token encoding.
  *   - ignoreGitIgnore - Whether to ignore .gitignore rules when expanding files.
@@ -269,6 +269,17 @@ export async function parseTokens(
     console.log(text)
 }
 
+/**
+ * Tokenizes the content of a specified file using a provided model and logs the tokens.
+ *
+ * @param file - Path to the file to tokenize.
+ * @param options - Object containing the following properties:
+ *   - model - The name of the model used for token encoding.
+ *
+ * The function reads the content of the file, tokenizes it using the given model,
+ * and logs each token along with its hexadecimal representation.
+ * Debug information about the process is also logged.
+ */
 export async function parseTokenize(file: string, options: { model: string }) {
     const text = await readText(file)
     dbg(`text: %s`, text)

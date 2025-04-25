@@ -78,17 +78,55 @@ import { DEBUG_CATEGORIES } from "../../core/src/dbg"
 /**
  * Main function to initialize and run the CLI.
  *
- * Sets up global error handling for uncaught exceptions.
- * Verifies Node.js version compatibility.
- * Configures CLI options and commands, including:
- * - `configure`: Interactive help to configure providers.
- * - `run`: Executes a GenAIScript against files with various options for output, retries, and caching.
- * - `runs`: Commands to manage and list previous runs.
- * - `test`: Group of commands for running and managing tests, including listing and viewing tests.
- * - `convert`: Converts files through a GenAIScript with options for output, concurrency, and file-specific settings.
- * Handles environment setup and NodeHost installation.
- * Adds support for various CLI options such as working directory, environment files, color output, verbosity, and performance logging.
- * Includes error handling for request errors and runtime compatibility issues.
+ * @param script - The script to execute.
+ * @param files - Optional list of files to process.
+ * @param cwd - Working directory for the CLI.
+ * @param env - Paths to environment files.
+ * @param noColors - Disable color output.
+ * @param quiet - Disable verbose output.
+ * @param debug - Debug categories to enable.
+ * @param perf - Enable performance logging.
+ * @param provider - Preferred LLM provider aliases.
+ * @param accept - Comma-separated list of accepted file extensions.
+ * @param excludedFiles - List of files to exclude.
+ * @param ignoreGitIgnore - Disable exclusion of files ignored by .gitignore.
+ * @param fallbackTools - Enable prompt-based tools instead of built-in LLM tool calls.
+ * @param out - Output folder for results.
+ * @param removeOut - Remove output folder if it exists.
+ * @param outTrace - Output file for trace.
+ * @param outOutput - Output file for output.
+ * @param outData - Output file for data, including JSON schema validation.
+ * @param outAnnotations - Output file for annotations.
+ * @param outChangelog - Output file for changelogs.
+ * @param pullRequest - Pull request identifier.
+ * @param pullRequestComment - Create a comment on a pull request with a unique ID.
+ * @param pullRequestDescription - Create a comment on a pull request description with a unique ID.
+ * @param pullRequestReviews - Create pull request reviews from annotations.
+ * @param teamsMessage - Post a message to the Teams channel.
+ * @param json - Emit full JSON response to output.
+ * @param yaml - Emit full YAML response to output.
+ * @param failOnErrors - Fail on detected annotation errors.
+ * @param retry - Number of retries for the run.
+ * @param retryDelay - Minimum delay between retries.
+ * @param maxDelay - Maximum delay between retries.
+ * @param label - Label for the run.
+ * @param temperature - Temperature for the run.
+ * @param topP - Top-p for the run.
+ * @param maxTokens - Maximum completion tokens for the run.
+ * @param maxDataRepairs - Maximum data repairs.
+ * @param maxToolCalls - Maximum tool calls for the run.
+ * @param toolChoice - Tool choice for the run.
+ * @param seed - Seed for the run.
+ * @param cache - Enable LLM result cache.
+ * @param cacheName - Custom cache file name.
+ * @param csvSeparator - CSV separator.
+ * @param fenceFormat - Fence format for output.
+ * @param applyEdits - Apply file edits.
+ * @param vars - Variables as name=value pairs.
+ * @param runRetry - Number of retries for the entire run.
+ * @param noRunTrace - Disable automatic trace generation.
+ * @param noOutputTrace - Disable automatic output generation.
+ * @returns Exit code indicating success or failure.
  */
 export async function cli() {
     let nodeHost: NodeHost // Variable to hold NodeHost instance
@@ -615,7 +653,9 @@ export async function cli() {
     parser
         .command("tokenize")
         .argument("<file>", "file to tokenize")
-        .description("Tokenizes a piece of text and display the tokens (in hex format)")
+        .description(
+            "Tokenizes a piece of text and display the tokens (in hex format)"
+        )
         .option("-m, --model <string>", "encoding model")
         .action(parseTokenize)
     parser
