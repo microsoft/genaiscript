@@ -150,6 +150,7 @@ find functions with docs
 
 - [source](https://github.com/microsoft/genaiscript/blob/main/genaisrc/docs.genai.mts)
 - [applied to TypeScript ](https://github.com/pelikhan/TypeScript/commit/0c90af56cd533a545257f332b883597e2c07f1b8)
+- [github action](https://github.com/microsoft/genaiscript/blob/dev/.github/workflows/genai-docs.yml)
 
 ![alt text](./pages/docs-diff.png)
 
@@ -170,7 +171,7 @@ parse out the debug statements
 save file
 ```
 
-- 2 LLM requests per file, LLM only regenerates debug statements
+- **2 LLM requests per file**, LLM only regenerates debug statements
 - [source](https://github.com/microsoft/genaiscript/blob/main/genaisrc/debugify.genai.mts)
 
 ::right::
