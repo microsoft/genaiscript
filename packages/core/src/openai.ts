@@ -805,7 +805,7 @@ export async function OpenAIImageGeneration(
 
     if (body.size === "auto") delete body.size
 
-    dbg('%o', {
+    dbg("%o", {
         quality: body.quality,
         style: body.style,
         response_format: body.response_format,
@@ -825,7 +825,9 @@ export async function OpenAIImageGeneration(
 
     const fetch = await createFetch(options)
     try {
-        logInfo(`generate image with ${cfg.provider}:${cfg.model}`)
+        logInfo(
+            `generate image with ${cfg.provider}:${cfg.model} (this may take a while)`
+        )
         const freq = {
             method: "POST",
             headers: {
