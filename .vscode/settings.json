@@ -22,6 +22,7 @@
         "azuretoken",
         "bitindex",
         "blockslist",
+        "bufferlike",
         "BYOG",
         "cancellers",
         "cctx",

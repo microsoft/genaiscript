@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:image")
-
 // Import necessary functions and types from other modules
 import { resolveBufferLike } from "./bufferlike"
 import {
@@ -16,6 +13,8 @@ import pLimit from "p-limit"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { wrapColor, wrapRgbColor } from "./consolecolor"
 import { assert } from "console"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("image")
 
 async function prepare(
     url: BufferLike,
