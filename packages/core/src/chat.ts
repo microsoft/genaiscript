@@ -167,7 +167,7 @@ export type SpeechFunction = (
 export type CreateImageRequest = {
     model: string
     prompt: string
-    quality?: "hd"
+    quality?: string
     size?: string
     style?: string
 }
