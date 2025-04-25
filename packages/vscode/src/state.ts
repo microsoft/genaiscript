@@ -15,6 +15,7 @@ import {
     CHANGE,
     TOOL_ID,
     GENAI_ANYTS_REGEX,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
 } from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
 import { MarkdownTrace } from "../../core/src/trace"
@@ -260,7 +261,9 @@ export class ExtensionState extends EventTarget {
             reqChange()
         }
 
-        // todo: send js source
+        const provider = config.get("languageChatModelsProvider")
+            ? MODEL_PROVIDER_GITHUB_COPILOT_CHAT
+            : undefined
         const client = await this.host.server.client()
         const { runId, request } = await client.runScript(scriptId, files, {
             ...(runOptions || {}),
@@ -270,6 +273,7 @@ export class ExtensionState extends EventTarget {
             infoCb,
             partialCb,
             cache,
+            provider,
             vars: structuredClone(options.parameters),
         })
         r.runId = runId

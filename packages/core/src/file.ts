@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:file")
-
 /**
  * This module provides functions to handle file content resolution, rendering,
  * and data URI conversion. It includes support for various file formats like
@@ -32,6 +29,8 @@ import { tidyData } from "./tidy"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { prettyBytes } from "./pretty"
 import { tryResolveResource } from "./resources"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("file")
 
 /**
  * Resolves the content of a file by decoding, fetching, or parsing it based on its type or source.
@@ -46,7 +45,7 @@ import { tryResolveResource } from "./resources"
 export async function resolveFileContent(
     file: WorkspaceFile,
     options?: TraceOptions & { maxFileSize?: number } & CancellationOptions
-) {
+): Promise<WorkspaceFile> {
     const {
         trace,
         cancellationToken,
@@ -118,7 +117,7 @@ export async function resolveFileContent(
         const res = await DOCXTryParse(filename, options)
         file.type = DOCX_MIME_TYPE
         file.content = res.file?.content
-        file.size = res.file?.size
+        file.size = res.file?.size || stat?.size
     }
     // Handle XLSX files
     else if (XLSX_REGEX.test(filename)) {
@@ -134,12 +133,17 @@ export async function resolveFileContent(
     else {
         const mime = file.type || lookupMime(filename)
         const isBinary = isBinaryMimeType(mime)
+        dbg(`mime %s binary %s`, mime, isBinary)
         file.type = mime
         const info = await tryStat(filename)
         file.size = info?.size
         if (!info) {
             dbg(`file not found: ${filename}`)
             return file
+        }
+        if (!info.isFile()) {
+            dbg(`skip, not a file`)
+            return file // ignore, this is a directory
         }
         if (!isBinary) {
             dbg(`text ${prettyBytes(info.size)}`)

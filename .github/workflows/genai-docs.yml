@@ -1,31 +1,26 @@
-name: genai linters
+name: genai docs
 on:
     workflow_dispatch:
     pull_request:
-        types: [opened, ready_for_review, reopened, review_requested]
+        types: [review_requested]
         paths:
-            - "docs/**"
-            - "genaisrc/**"
-            - "packages/core/**/*"
-            - "packages/cli/**/*"
-            - "packages/samples/**/*"
-            - "packages/vscode/**/*"
+            - "packages/**/*.ts"
 concurrency:
-    group: linters-${{ github.workflow }}-${{ github.ref }}
+    group: docs-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
-env:
-    GENAISCRIPT_MODEL_LINTER: ${{ vars.GENAISCRIPT_MODEL_LINTER }}
 jobs:
-    lint:
+    gen-docs:
         runs-on: ubuntu-latest
         permissions:
             pull-requests: write
+            contents: write
             models: read
         steps:
             - uses: actions/checkout@v4
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+                  ref: ${{ github.head_ref }}
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
@@ -33,15 +28,24 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
-            - name: git stuff
+            - name: git fetch dev
               run: git fetch origin && git pull origin dev:dev
-            - name: genaiscript
-              run: node packages/cli/built/genaiscript.cjs run linters --out ./temp/genai/linters -prr -prc -m linter --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
-              continue-on-error: true
+            - name: /docs
+              run: node packages/cli/built/genaiscript.cjs run docs "packages/**/*.ts" --out ./temp/genai/docs -prc -p github --out-trace $GITHUB_STEP_SUMMARY --vars diff=true --vars pretty=true --vars applyEdits=true --vars defaultBranch=dev
               env:
+                  DEBUG: "script*"
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha}}
-            - name: Archive genai results
+            - name: typecheck
+              run: yarn typecheck
+            - name: git status
+              run: git status
+            - name: commit
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  commit_message: "genai: /docs [skip ci]"
+                  commit_user_name: "genaiscript"
+            - name: archive
               if: always()
               uses: actions/upload-artifact@v4
               with:

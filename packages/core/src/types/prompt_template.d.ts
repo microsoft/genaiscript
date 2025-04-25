@@ -2804,6 +2804,26 @@ interface YAML {
     parse(text: string | WorkspaceFile): any
 }
 
+interface Z3Solver {
+    /**
+     * Runs Z3 on a given SMT string
+     * @param smt
+     */
+    run(smt: string): Promise<string>
+
+    /**
+     * Native underlying Z3 api
+     */
+    api(): any
+}
+
+interface Z3SolverHost {
+    /**
+     * Loads the Z3 solver from the host
+     */
+    z3(): Promise<Z3Solver>
+}
+
 interface PromptyFrontmatter {
     name?: string
     description?: string
@@ -5806,6 +5826,7 @@ interface PromptHost
         UserInterfaceHost,
         LanguageModelHost,
         SgHost,
+        Z3SolverHost,
         ContentSafetyHost {
     /**
      * A fetch wrapper with proxy, retry and timeout handling.

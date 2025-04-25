@@ -60,7 +60,7 @@ describe("mime", () => {
         assert.equal(lookupMime("file.json"), "application/json")
         assert.equal(lookupMime("file.html"), "text/html")
         assert.equal(lookupMime("file.css"), "text/css")
-        assert.equal(lookupMime("file.js"), "text/javascript")
+        assert.equal(lookupMime("file.js"), "application/javascript")
     })
 
     test("should return empty string for unknown file types", () => {

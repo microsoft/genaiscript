@@ -36,7 +36,7 @@ run this script with \`--vars 'applyEdits=true'\` to apply the edits.
         applyEdits: {
             type: "boolean",
             default: false,
-            description: "If true, the script will not modify the files.",
+            description: "If true, the script will modify the files.",
         },
         missing: {
             type: "boolean",
@@ -69,8 +69,9 @@ if (!applyEdits)
 
 // filter by diff
 const gitDiff = diff ? await git.diff({ base: "dev" }) : undefined
-console.debug(gitDiff)
+output.fence(gitDiff)
 const diffFiles = gitDiff ? DIFF.parse(gitDiff) : undefined
+if (diff && !diffFiles?.length) cancel(`no diff files found, exiting...`)
 if (diffFiles?.length) {
     dbg(`diff files: ${diffFiles.map((f) => f.to)}`)
     files = files.filter(({ filename }) =>
@@ -78,6 +79,7 @@ if (diffFiles?.length) {
     )
     dbg(`diff filtered files: ${files.length}`)
 }
+if (!files.length) cancel(`no files to process, exiting...`)
 
 if (maxFiles && files.length > maxFiles) {
     dbg(`random slicing files to ${maxFiles}`)
@@ -93,21 +95,6 @@ for (const file of files) {
     // normalize spacing
     if (pretty) await prettier(file)
 
-    // generate missing docs
-    if (missing) {
-        stats.push({
-            filename: file.filename,
-            kind: "new",
-            gen: 0,
-            genCost: 0,
-            judge: 0,
-            judgeCost: 0,
-            edits: 0,
-            updated: 0,
-        })
-        await generateDocs(file, stats.at(-1))
-    }
-
     // generate updated docs
     if (update) {
         stats.push({
@@ -121,6 +108,21 @@ for (const file of files) {
             updated: 0,
         })
         await updateDocs(file, stats.at(-1))
+    }
+
+    // generate missing docs
+    if (missing) {
+        stats.push({
+            filename: file.filename,
+            kind: "new",
+            gen: 0,
+            genCost: 0,
+            judge: 0,
+            judgeCost: 0,
+            edits: 0,
+            updated: 0,
+        })
+        await generateDocs(file, stats.at(-1))
     }
 }
 
@@ -343,10 +345,7 @@ function docify(docs: string) {
     return docs.replace(/\n+$/, "")
 }
 
-async function prettier(
-    file: WorkspaceFile,
-    options?: { curly?: boolean }
-) {
+async function prettier(file: WorkspaceFile, options?: { curly?: boolean }) {
     dbg(file.filename)
     const args = ["--write"]
     if (options?.curly) args.push("--plugin=prettier-plugin-curly")

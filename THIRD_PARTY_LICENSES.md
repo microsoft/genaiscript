@@ -2927,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.130.6
+ - genaiscript-vscode@1.131.0
 
 This package contains the following license:
 
@@ -4886,7 +4886,7 @@ The following npm packages may be included in this product:
  - @smithy/shared-ini-file-loader@2.4.0
  - @smithy/shared-ini-file-loader@4.0.2
  - @smithy/signature-v4@3.1.2
- - @smithy/signature-v4@5.0.2
+ - @smithy/signature-v4@5.1.0
  - @smithy/util-base64@2.3.0
  - @smithy/util-base64@4.0.0
  - @smithy/util-body-length-browser@4.0.0
@@ -7305,10 +7305,10 @@ The following npm packages may be included in this product:
  - @inquirer/input@4.1.9
  - @inquirer/number@3.0.12
  - @inquirer/password@4.0.12
- - @inquirer/prompts@7.4.1
- - @inquirer/rawlist@4.0.12
+ - @inquirer/prompts@7.5.0
+ - @inquirer/rawlist@4.1.0
  - @inquirer/search@3.0.12
- - @inquirer/select@4.1.1
+ - @inquirer/select@4.2.0
  - @inquirer/type@3.0.6
 
 These packages each contain the following license:
@@ -8892,16 +8892,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.25.2
+ - @esbuild/linux-x64@0.25.3
  - @napi-rs/canvas-linux-x64-gnu@0.1.69
  - @napi-rs/canvas-linux-x64-musl@0.1.69
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.130.6
- - genaiscript-sample@1.130.6
- - genaiscript-web@1.130.6
- - genaiscript@1.130.6
+ - genaiscript-core-internal@1.131.0
+ - genaiscript-sample@1.131.0
+ - genaiscript-web@1.131.0
+ - genaiscript@1.131.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9680,7 +9680,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - esbuild@0.25.2
+ - esbuild@0.25.3
 
 This package contains the following license:
 
@@ -11437,7 +11437,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - glob@11.0.1
+ - glob@11.0.2
 
 This package contains the following license:
 
