@@ -762,20 +762,35 @@ export async function OpenAIImageGeneration(
     const { trace } = options || {}
     let url = `${cfg.base}/images/generations`
 
-    const body = {
+    const isDallE = /^dall-e/i.test(model)
+    const isDallE2 = /^dall-e-3/i.test(model)
+    const isDallE3 = /^dall-e-3/i.test(model)
+    const isGpt = /^gpt-image/i.test(model)
+
+    const body: any = {
         model,
         prompt,
         size,
         quality,
         style,
-        response_format: "b64_json",
         ...rest,
     }
 
-    if (/^gpt-/i.test(model)) {
-        delete body.style
-        delete body.response_format
+    // auto is the default quality, so always delete it
+    if (body.quality === "auto" || isDallE2) delete body.quality
+    if (isDallE3) {
+        if (body.quality === "high") body.quality = "hd"
+        else delete body.quality
     }
+    if (isGpt && body.quality === "hd") body.quality = "high"
+    if (!isDallE3) delete body.style
+    if (isDallE) body.response_format = "b64_json"
+
+    dbg({
+        quality: body.quality,
+        style: body.style,
+        response_format: body.response_format,
+    })
 
     if (cfg.type === "azure") {
         const version = cfg.version || AZURE_OPENAI_API_VERSION

@@ -4380,10 +4380,34 @@ type TranscriptionModelType = OptionsOrString<
 
 interface ImageGenerationOptions extends ImageTransformOptions {
     model?: OptionsOrString<ModelImageGenerationType>
-    quality?: "hd"
+    /**
+     * The quality of the image that will be generated.
+     * auto (default value) will automatically select the best quality for the given model.
+     * high, medium and low are supported for gpt-image-1.
+     * high is supported for dall-e-3.
+     * dall-e-2 ignores this flag
+     */
+    quality?: "auto" | "low" | "medium" | "high"
+    /**
+     * Image size.
+     * For gpt-image-1: 1024x1024, 1536x1024 (landscape), 1024x1536 (portrait), or auto (default value)
+     * For dall-e: 256x256, 512x512, or 1024x1024 for dall-e-2, and one of 1024x1024, 1792x1024.
+     */
     size?: OptionsOrString<
-        "256x256" | "512x512" | "1024x1024" | "1024x1792" | "1792x1024"
+        | "auto"
+        | "landscape"
+        | "portrait"
+        | "1536x1024"
+        | "1024x1536"
+        | "256x256"
+        | "512x512"
+        | "1024x1024"
+        | "1024x1792"
+        | "1792x1024"
     >
+    /**
+     * Only used for DALL-E 3
+     */
     style?: OptionsOrString<"vivid" | "natural">
 }
 
