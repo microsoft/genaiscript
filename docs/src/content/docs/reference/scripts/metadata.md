@@ -1,9 +1,22 @@
 ---
 title: Metadata
 sidebar:
-    order: 2
-description: Learn how to configure script metadata to enhance functionality and user experience in GenAIScript.
-keywords: script metadata, configuration, LLM parameters, customization, script management
+  order: 2
+description: Learn how to configure script metadata to enhance functionality and
+  user experience in GenAIScript.
+keywords: script metadata, configuration, LLM parameters, customization, script
+  management
+hero:
+  image:
+    alt: A small, square digital illustration in 8-bit flat style showing a
+      simplified computer window. Inside are separated areas formed by
+      rectangles and circles, each sectioned with bold, bright colors to
+      represent different configuration settings—model, tokens, temperature, and
+      group options—depicted with shapes like sliders, toggles, and labeled
+      blocks. The design is clean with no text, people, backgrounds, or visual
+      effects, emphasizing a clear, easy-to-distinguish layout.
+    file: ./metadata.png
+
 ---
 
 Prompts use `script({ ... })` function call

@@ -35,7 +35,7 @@ script({
 })
 
 for (const responseType of ["yaml", "json", "json_object", "json_schema"]) {
-    const res = await runPrompt("Generate 5 cities with their populations", {
+    const res = await runPrompt("Generate 2 cities with their populations", {
         responseType: responseType as any,
         responseSchema: {
             type: "object",
@@ -68,8 +68,9 @@ for (const responseType of ["yaml", "json", "json_object", "json_schema"]) {
                 },
             },
         },
+        label: responseType
     })
     console.log(res.json)
 }
 
-$`Generate 5 cities with their populations.`
+$`Generate 2 cities with their populations.`

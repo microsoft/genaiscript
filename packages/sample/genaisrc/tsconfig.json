@@ -17,9 +17,8 @@
         "erasableSyntaxOnly": true
     },
     "include": [
-        "*.mjs",
-        "*.mts",
-        "src/*.mts",
+        "**/*.mjs",
+        "**/*.mts",
         "./genaiscript.d.ts"
     ]
 }

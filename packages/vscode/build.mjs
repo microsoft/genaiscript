@@ -15,5 +15,11 @@ const config = {
 }
 
 const result = await esbuild.build(config)
+await writeFile(
+    "built/metafile.json",
+    JSON.stringify(result.metafile, null, 2),
+    { encoding: "utf-8" }
+)
 const stats = await esbuild.analyzeMetafile(result.metafile)
 await writeFile("built/stats.txt", stats, { encoding: "utf-8" })
+console.debug(stats.split("\n").slice(0, 20).join("\n"))

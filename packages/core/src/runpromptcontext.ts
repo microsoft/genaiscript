@@ -108,25 +108,6 @@ import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
 import { createCache } from "./cache"
 
-/**
- * Creates a context for generating chat turn prompts.
- *
- * @param options - Contains generation options such as model, lineNumbers, and fenceFormat.
- * @param trace - Trace object used to log the process and record outputs.
- *
- * @returns A context object used to generate prompt nodes and manage output-related functionalities.
- *
- * The returned context includes methods:
- * - `writeText`: Appends a text node to the prompt for a specified role, priority, and max token limit.
- * - `assistant`: Shortcut for writing text with an "assistant" role.
- * - `$`: Creates and appends a template string node, returning a chainable interface for modifiers (e.g., priority, transforms).
- * - `def`: Creates and appends a definition node for body content or external files, supporting error handling for empty definitions.
- * - `defData`: Adds structured data as a definition.
- * - `defDiff`: Adds a diff comparison between two data sets.
- * - `fence`: Shortcut for creating definition nodes with code fences.
- * - `importTemplate`: Imports a pre-defined template with associated data and appends it to the node tree.
- * - `console`: Diagnostic methods (`log`, `debug`, `warn`, `error`) for capturing and printing logs or errors during the generation process.
- */
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
     trace: MarkdownTrace,
@@ -427,33 +408,6 @@ export interface RunPromptContextNode extends ChatGenerationContext {
     node: PromptNode
 }
 
-/**
- * Creates a chat generation context for handling prompts and related tasks in a conversational context.
- *
- * @param options - Configuration options for generation, including cancellation token, info callback, and user state.
- * @param trace - Tracing utilities for logging and debugging execution.
- * @param projectOptions - Project-specific parameters, including the project instance and environment variables.
- * @returns A context object with various utility functions and properties for managing prompts and AI interactions.
- *
- * Utility Functions:
- * - `defAgent(name, description, fn, options)`: Defines an agent with tools, memory, and task-solving capabilities.
- * - `defTool(name, description, parameters, fn, defOptions)`: Registers a tool for use in the chat session. Supports multiple formats for tool definitions, including callbacks and MCP server configurations.
- * - `defSchema(name, schema, defOptions)`: Defines a JSON schema for validation or metadata.
- * - `defImages(files, defOptions)`: Processes and encodes image files for their integration into prompts. Supports tiling and slicing of images.
- * - `defChatParticipant(generator, options)`: Adds chat participant logic (e.g., other agents or external systems).
- * - `defFileOutput(pattern, description, options)`: Specifies output file patterns for tracking in the session.
- * - `defOutputProcessor(fn)`: Adds output post-processing logic.
- * - `defFileMerge(fn)`: Declares logic for merging file changes in the session output.
- * - `prompt(strings, ...args)`: Runs a prompt with given input and additional options.
- * - `runPrompt(generator, runOptions)`: Executes prompt logic and generates results, supporting inner execution.
- * - `transcribe(audio, options)`: Transcribes audio input into text, with optional caching and language options.
- * - `speak(input, options)`: Converts text to speech and saves the audio file.
- * - `generateImage(prompt, imageOptions)`: Generates an image based on a textual description and custom options.
- *
- * Context Properties:
- * - `node`: Root node capturing children elements in the prompt structure.
- * - `env`: Environment variables passed to the project context for dynamic adjustments.
- */
 export function createChatGenerationContext(
     options: GenerationOptions,
     trace: MarkdownTrace,

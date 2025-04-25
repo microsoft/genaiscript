@@ -20,3 +20,6 @@ genaiscript.cjs
 esbuild.*
 genaiscript.manifest
 genaisrc/.gitattributes
+built/metafile.json
+built/stats.txt
+build.mjs

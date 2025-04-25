@@ -27,6 +27,12 @@ export function uriRedact(url: string) {
     return res // Return the shortened URL.
 }
 
+/**
+ * Attempts to parse a given URL string into a URL object.
+ *
+ * @param url - The URL string to be parsed. If the input is empty or invalid, the function returns undefined.
+ * @returns A URL object if parsing is successful, otherwise undefined.
+ */
 export function uriTryParse(url: string) {
     if (!url) return undefined
     try {
@@ -34,4 +40,16 @@ export function uriTryParse(url: string) {
     } catch (error) {
         return undefined
     }
+}
+
+/**
+ * Extracts and returns the scheme of a given URL.
+ *
+ * Removes the trailing colon from the protocol of the URL object and converts it to lowercase.
+ *
+ * @param uri - The URL object from which the scheme is to be extracted.
+ * @returns The URL scheme in lowercase without the trailing colon.
+ */
+export function uriScheme(uri: URL) {
+    return uri.protocol.replace(/:$/, "").toLowerCase()
 }

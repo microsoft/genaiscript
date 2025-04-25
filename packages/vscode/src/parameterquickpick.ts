@@ -9,16 +9,21 @@ export interface TemplateQuickPickItem extends vscode.QuickPickItem {
 }
 
 export async function showPromptParametersQuickPicks(
-    script: PromptScript
+    script: PromptScript,
+    defaultValues?: PromptParameters
 ): Promise<PromptParameters> {
-    const parameters: PromptParameters = {}
+    const parameters: PromptParameters = structuredClone(defaultValues || {})
     if (!script?.parameters) return parameters
 
-    for (const param in script.parameters || {}) {
+    const params = script.parameters || {}
+
+    for (const param in params) {
+        if (parameters[param] !== undefined) continue
+
         const schema = promptParameterTypeToJSONSchema(script.parameters[param])
         switch (schema.type) {
             case "string": {
-                let value: string
+                let value: string | undefined
                 const enums = schema.enum
                 const uiSuggestions = schema.uiSuggestions
                 if (enums?.length) {

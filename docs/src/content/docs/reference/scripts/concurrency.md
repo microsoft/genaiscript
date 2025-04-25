@@ -2,7 +2,18 @@
 title: Concurrency
 description: How to run multiple prompts concurrently
 sidebar:
-    order: 50
+  order: 50
+hero:
+  image:
+    alt: A minimalist 2D 8-bit image depicts three colored geometric boxes,
+      symbolizing promises, advancing side by side on a horizontal conveyor belt
+      with three lanes, and each sliding into separate square slots that
+      represent concurrent execution. Additional boxes form a queue, ready to
+      enter the belt. The design is flat, geometric, uses only five colors, has
+      no characters, background, or shadows, and maintains a small, iconic
+      appearance.
+    file: ./concurrency.png
+
 ---
 
 When working with GenAI, your program will likely be idle, waiting for tokens to return from the LLM.

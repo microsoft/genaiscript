@@ -26,11 +26,12 @@ import { Resource, ResourceContents } from "../../core/src/mcpresource"
 /**
  * Starts the MCP server.
  *
- * @param options - Configuration options for the server that may include script filtering options and remote settings.
+ * @param options - Configuration options for the server that may include script filtering options, remote settings, and startup script.
  *    - `options.scriptFilter` - Defines filters to apply to script discovery.
  *    - `options.remote` - Configuration for remote execution and related options.
+ *    - `options.startup` - Specifies a startup script to run after the server starts.
  *
- * Initializes and sets up the server with appropriate request handlers for listing tools and executing specific tool commands. Monitors project changes through a watcher and updates the tool list when changes occur. Uses a transport layer to handle server communication over standard I/O.
+ * Initializes and sets up the server with appropriate request handlers for listing tools, executing specific tool commands, listing resources, and reading resource contents. Monitors project changes through a watcher and updates the tool list and resource list when changes occur. Uses a transport layer to handle server communication over standard I/O.
  */
 export async function startMcpServer(
     options?: ScriptFilterOptions &
@@ -189,6 +190,16 @@ export async function startMcpServer(
         logVerbose(`startup script: ${startup}`)
         await run(startup, [], {
             vars: {},
+            onMessage: async (data) => {
+                if (data.type === RESOURCE_CHANGE) {
+                    await runtimeHost.resources.upsetResource(
+                        data.reference,
+                        data.content
+                    )
+                } else {
+                    dbg(`unknown message type: ${data.type}`)
+                }
+            },
         })
     }
 }

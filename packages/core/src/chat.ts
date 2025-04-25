@@ -32,7 +32,6 @@ import {
     MAX_TOOL_CALLS,
     MAX_TOOL_CONTENT_TOKENS,
     MAX_TOOL_DESCRIPTION_LENGTH,
-    MODEL_PROVIDERS,
     SYSTEM_FENCE,
 } from "./constants"
 import { parseAnnotations } from "./annotations"
@@ -168,7 +167,7 @@ export type SpeechFunction = (
 export type CreateImageRequest = {
     model: string
     prompt: string
-    quality?: "hd"
+    quality?: string
     size?: string
     style?: string
 }
@@ -971,7 +970,7 @@ async function processChatMessage(
                 const { messages: newMessages } =
                     (await generator(
                         ctx,
-                        structuredClone(messages) as ChatMessage[]
+                        structuredClone(messages) satisfies ChatMessage[]
                     )) || {}
                 const node = ctx.node
                 checkCancelled(cancellationToken)
@@ -1347,21 +1346,21 @@ export async function executeChatSession(
                                         json_schema: {
                                             name: "result",
                                             schema: toStrictJSONSchema(
-                                                responseSchema
+                                                responseSchema,
+                                                { noDefaults: true }
                                             ),
                                             strict: true,
                                         },
                                     }
                                   : undefined,
                         messages,
-                    }
+                    } satisfies CreateChatCompletionRequest
                     updateChatFeatures(reqTrace, model, req)
                     if (!isQuiet)
                         stderr.write(
-                            await renderMessagesToTerminal(messages, {
+                            await renderMessagesToTerminal(req, {
                                 user: true,
                                 tools,
-                                model,
                             })
                         )
 
@@ -1374,6 +1373,11 @@ export async function executeChatSession(
                         dbg(
                             `infer ${req.model} with ${req.messages.length} messages`
                         )
+                        if (req.response_format)
+                            dbg(
+                                `response format: %O`,
+                                JSON.stringify(req.response_format, null, 2)
+                            )
                         const cres = await completer(
                             req,
                             connectionToken,

@@ -72,6 +72,7 @@ import { traceFetchPost } from "./fetchtext"
 import { providerFeatures } from "./features"
 const dbg = debug("genaiscript:openai")
 const dbgMessages = debug("genaiscript:openai:msg")
+dbgMessages.enabled = false
 
 /**
  * Generates configuration headers for API requests based on the provided configuration object.
@@ -148,7 +149,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
-        if (/^o1|o3|gpt-4\.1/.test(family)) {
+        if (/^o\d|gpt-4\.1/.test(family)) {
             dbg(`changing max_tokens to max_completion_tokens`)
             if (postReq.max_tokens) {
                 postReq.max_completion_tokens = postReq.max_tokens
@@ -156,8 +157,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             }
         }
 
-        if (/^o1|o3/.test(family)) {
-            dbg(`removing options to support o1/o3`)
+        if (/^o\d/.test(family)) {
+            dbg(`removing options to support o1/o3/o4`)
             delete postReq.temperature
             delete postReq.top_p
             delete postReq.presence_penalty
@@ -637,7 +638,10 @@ export async function OpenAITranscribe(
         trace?.itemValue(`mime`, req.file.type)
         const body = new FormData()
         body.append("model", req.model)
-        body.append("response_format", "verbose_json")
+        body.append(
+            "response_format",
+            /whisper/.test(req.model) ? "verbose_json" : "json"
+        )
         if (req.temperature)
             body.append("temperature", req.temperature.toString())
         if (req.language) body.append("language", req.language)
@@ -758,15 +762,56 @@ export async function OpenAIImageGeneration(
     const { trace } = options || {}
     let url = `${cfg.base}/images/generations`
 
-    const body = {
+    const isDallE = /^dall-e/i.test(model)
+    const isDallE2 = /^dall-e-2/i.test(model)
+    const isDallE3 = /^dall-e-3/i.test(model)
+    const isGpt = /^gpt-image/i.test(model)
+
+    const body: any = {
         model,
         prompt,
         size,
         quality,
         style,
-        response_format: "b64_json",
         ...rest,
     }
+
+    // auto is the default quality, so always delete it
+    if (body.quality === "auto" || isDallE2) delete body.quality
+    if (isDallE3) {
+        if (body.quality === "high") body.quality = "hd"
+        else delete body.quality
+    }
+    if (isGpt && body.quality === "hd") body.quality = "high"
+    if (!isDallE3) delete body.style
+    if (isDallE) body.response_format = "b64_json"
+
+    if (isDallE3) {
+        if (body.size === "portrait") body.size = "1024x1792"
+        else if (body.size === "landscape") body.size = "1792x1024"
+        else if (body.size === "square") body.size = "1024x1024"
+    } else if (isDallE2) {
+        if (
+            body.size === "portrait" ||
+            body.size === "landscape" ||
+            body.size === "square"
+        )
+            body.size = "1024x1024"
+    } else if (isGpt) {
+        if (body.size === "portrait") body.size = "1024x1536"
+        else if (body.size === "landscape") body.size = "1536x1024"
+        else if (body.size === "square") body.size = "1024x1024"
+    }
+
+    if (body.size === "auto") delete body.size
+
+    dbg("%o", {
+        quality: body.quality,
+        style: body.style,
+        response_format: body.response_format,
+        size: body.size,
+    })
+
     if (cfg.type === "azure") {
         const version = cfg.version || AZURE_OPENAI_API_VERSION
         trace?.itemValue(`version`, version)
@@ -780,7 +825,9 @@ export async function OpenAIImageGeneration(
 
     const fetch = await createFetch(options)
     try {
-        logInfo(`generate image with ${cfg.provider}:${cfg.model}`)
+        logInfo(
+            `generate image with ${cfg.provider}:${cfg.model} (this may take a while)`
+        )
         const freq = {
             method: "POST",
             headers: {
@@ -793,6 +840,7 @@ export async function OpenAIImageGeneration(
         trace?.itemValue(`url`, `[${url}](${url})`)
         traceFetchPost(trace, url, freq.headers, body)
         const res = await fetch(url, freq as any)
+        dbg(`response: %d %s`, res.status, res.statusText)
         trace?.itemValue(`status`, `${res.status} ${res.statusText}`)
         if (!res.ok)
             return {
@@ -800,6 +848,7 @@ export async function OpenAIImageGeneration(
                 error: (await res.json())?.error || res.statusText,
             }
         const j = await res.json()
+        dbg(`%O`, j)
         const revisedPrompt = j.data[0]?.revised_prompt
         if (revisedPrompt)
             trace?.details(`📷 revised prompt`, j.data[0].revised_prompt)

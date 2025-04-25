@@ -1,7 +1,9 @@
-import { createFetch } from "./fetch"
-import { generatedByFooter, mergeDescription } from "./github"
+import { createFetch, tryReadText } from "./fetch"
+import { generatedByFooter, mergeDescription } from "./githubclient"
 import { prettifyMarkdown } from "./markdown"
 import { logError, logVerbose } from "./util"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("azuredevops")
 
 // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-7.1
 export interface AzureDevOpsEnv {
@@ -237,7 +239,8 @@ export async function azureDevOpsCreateIssueComment(
             ],
         }),
     })
-    if (res.status !== 200)
+    if (res.status !== 200) {
         logError(`pull request comment creation failed, ${res.statusText}`)
-    logVerbose(`pull request comment created`)
+        dbg(await tryReadText(res))
+    } else logVerbose(`pull request comment created`)
 }

@@ -4,6 +4,15 @@ description: Learn how to create and interpret file diffs within GenAIScript.
 sidebar:
   order: 15
 keywords: diff, file comparisons, script execution, concise output, GenAIScript
+hero:
+  image:
+    alt: "A flat, simple 8-bit icon shows two rectangles side by side, each
+      resembling a sheet of paper. Colorful lines highlight differences: some
+      lines are red for deleted content, green for added content, and gray for
+      unchanged content. The image uses only five colors, has no text, people,
+      background, shadows, or 3D effects, and measures 128 by 128 pixels."
+    file: ./diff.png
+
 ---
 
 # Diff

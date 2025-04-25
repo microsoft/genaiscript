@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../docs"
+		}
+	],
+	"settings": {
+		"genaiscript.cli.path": "../packages/cli/built/genaiscript.cjs"
+	}
+}

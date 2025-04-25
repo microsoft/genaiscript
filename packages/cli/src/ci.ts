@@ -10,8 +10,8 @@ const confirmed: string[] = []
  *
  * @param message - The prompt message to display to the user.
  * @param options - Optional configuration for the prompt.
- * @param options.preview - An optional preview message to display before the prompt.
- * @returns A promise that resolves to `true` if the user confirmed or if running in CI, and `false` otherwise.
+ * @param options.preview - An optional preview message to display before the prompt. If provided, it will be logged before the prompt.
+ * @returns A promise that resolves to `true` if the user confirmed, if running in CI, or if the message was already confirmed, and `false` otherwise.
  */
 export async function confirmOrSkipInCI(
     message: string,

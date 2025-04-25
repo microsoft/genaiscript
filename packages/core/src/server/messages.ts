@@ -166,7 +166,7 @@ export interface PromptScriptRunOptions {
     temperature: string | number
     reasoningEffort: "high" | "low" | "medium"
     topP: string | number
-    toolChoice: string
+    toolChoice: ChatToolChoice
     seed: string | number
     maxTokens: string | number
     maxToolCalls: string | number
@@ -192,6 +192,7 @@ export interface PromptScriptRunOptions {
     workspaceFiles?: WorkspaceFile[]
     runTrace: boolean
     outputTrace: boolean
+    accept: string
 }
 
 export interface RunResultList extends RequestMessage {

@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:file")
-
 /**
  * This module provides functions to handle file content resolution, rendering,
  * and data URI conversion. It includes support for various file formats like
@@ -22,18 +19,18 @@ import {
     CSV_REGEX,
     DOCX_MIME_TYPE,
     DOCX_REGEX,
-    HTTPS_REGEX,
     MAX_FILE_CONTENT_SIZE,
     PDF_MIME_TYPE,
     PDF_REGEX,
     XLSX_MIME_TYPE,
     XLSX_REGEX,
 } from "./constants"
-import { UrlAdapter, defaultUrlAdapters } from "./urlAdapters"
 import { tidyData } from "./tidy"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { prettyBytes } from "./pretty"
-import { normalizeInt } from "./cleaners"
+import { tryResolveResource } from "./resources"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("file")
 
 /**
  * Resolves the content of a file by decoding, fetching, or parsing it based on its type or source.
@@ -48,13 +45,21 @@ import { normalizeInt } from "./cleaners"
 export async function resolveFileContent(
     file: WorkspaceFile,
     options?: TraceOptions & { maxFileSize?: number } & CancellationOptions
-) {
+): Promise<WorkspaceFile> {
     const {
         trace,
         cancellationToken,
         maxFileSize = MAX_FILE_CONTENT_SIZE,
     } = options || {}
     if (!file) return file
+
+    checkCancelled(cancellationToken)
+
+    const stats = await tryStat(file.filename)
+    if (stats && !stats.isFile()) {
+        dbg(`skip, not a file`)
+        return file // ignore, this is a directory
+    }
 
     // decode known files
     if (file.encoding === "base64") {
@@ -86,42 +91,15 @@ export async function resolveFileContent(
     }
 
     dbg(`resolving ${filename}`)
-    // Handle URL files
-    if (HTTPS_REGEX.test(filename)) {
-        dbg(`handling URL file: ${filename}`)
-        let url = filename
-        let adapter: UrlAdapter = undefined
-
-        // Use URL adapters to modify the URL if needed
-        for (const a of defaultUrlAdapters) {
-            const newUrl = a.matcher(url)
-            if (newUrl) {
-                url = newUrl
-                adapter = a
-                break
-            }
-        }
-
-        dbg(`fetching URL: ${url}`)
-        trace?.item(`fetch ${url}`)
-        const fetch = await createFetch({ cancellationToken })
-        const resp = await fetch(url, {
-            headers: {
-                "Content-Type": adapter?.contentType ?? "text/plain",
-            },
-        })
-        trace?.itemValue(`status`, `${resp.status}, ${resp.statusText}`)
-        dbg(`response status: ${resp.status}, ${resp.statusText}`)
-
-        // Set file content based on response and adapter type
-        if (resp.ok) {
-            file.type = resp.headers.get("Content-Type")
-            file.size = normalizeInt(resp.headers.get("Content-Length"))
-            file.content =
-                adapter?.contentType === "application/json"
-                    ? adapter.adapter(await resp.json())
-                    : await resp.text()
-        }
+    const res = await tryResolveResource(filename, { trace, cancellationToken })
+    // Handle uris files
+    if (res) {
+        dbg(`resolved file uri`)
+        const resFile = res.files[0]
+        file.type = resFile.type
+        file.content = resFile.content
+        file.size = resFile.size
+        file.encoding = resFile.encoding
     }
     // Handle PDF files
     else if (PDF_REGEX.test(filename)) {
@@ -139,7 +117,7 @@ export async function resolveFileContent(
         const res = await DOCXTryParse(filename, options)
         file.type = DOCX_MIME_TYPE
         file.content = res.file?.content
-        file.size = res.file?.size
+        file.size = res.file?.size || stat?.size
     }
     // Handle XLSX files
     else if (XLSX_REGEX.test(filename)) {
@@ -155,12 +133,17 @@ export async function resolveFileContent(
     else {
         const mime = file.type || lookupMime(filename)
         const isBinary = isBinaryMimeType(mime)
+        dbg(`mime %s binary %s`, mime, isBinary)
         file.type = mime
         const info = await tryStat(filename)
         file.size = info?.size
         if (!info) {
             dbg(`file not found: ${filename}`)
             return file
+        }
+        if (!info.isFile()) {
+            dbg(`skip, not a file`)
+            return file // ignore, this is a directory
         }
         if (!isBinary) {
             dbg(`text ${prettyBytes(info.size)}`)
@@ -319,9 +302,11 @@ export async function resolveFileBytes(
  */
 export async function resolveFileDataUri(
     filename: string,
-    options?: TraceOptions
+    options?: TraceOptions & CancellationOptions
 ) {
+    const { cancellationToken } = options || {}
     const bytes = await resolveFileBytes(filename, options)
+    checkCancelled(cancellationToken)
 
     const mime = (await fileTypeFromBuffer(bytes))?.mime
     if (!mime) {

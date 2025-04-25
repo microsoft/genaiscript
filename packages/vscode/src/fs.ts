@@ -9,7 +9,10 @@ export async function findFiles(pattern: string) {
 export async function saveAllTextDocuments() {
     await Promise.all(
         vscode.workspace.textDocuments
-            .filter((doc) => doc.isDirty)
+            .filter(
+                (doc) =>
+                    doc.isDirty && !doc.isUntitled && doc.uri.scheme === "file"
+            )
             .map((doc) => doc.save())
     )
 }

@@ -13,16 +13,16 @@ import {
 import { llmifyDiff } from "./llmdiff"
 import { resolveFileContents } from "./file"
 import { tryReadText, tryStat } from "./fs"
-import { host, runtimeHost } from "./host"
+import { runtimeHost } from "./host"
 import { shellParse, shellQuote } from "./shell"
-import { arrayify, logVerbose } from "./util"
-import { approximateTokens, truncateTextToTokens } from "./tokens"
-import { resolveTokenEncoder } from "./encoders"
+import { arrayify, ellipse, logVerbose } from "./util"
+import { approximateTokens } from "./tokens"
 import { underscore } from "inflection"
 import { rm } from "node:fs/promises"
 import { packageResolveInstall } from "./packagemanagers"
 import { normalizeInt } from "./cleaners"
 import { dotGenaiscriptPath } from "./workdir"
+import { join } from "node:path"
 
 async function checkDirectoryExists(directory: string): Promise<boolean> {
     const stat = await tryStat(directory)
@@ -37,7 +37,6 @@ export class GitClient implements Git {
     readonly cwd: string
     readonly git = "git" // Git command identifier
     private _defaultBranch: string // Stores the default branch name
-    private _branch: string // Stores the current branch name
 
     constructor(cwd: string) {
         this.cwd = cwd || process.cwd()
@@ -72,12 +71,14 @@ export class GitClient implements Git {
      * @returns {Promise<string>} The default branch name.
      */
     async defaultBranch(): Promise<string> {
-        if (!this._defaultBranch) {
+        if (this._defaultBranch === undefined) {
             dbg(`fetching default branch from remote`)
-            const res = await this.exec(["remote", "show", "origin"], {})
-            this._defaultBranch = /^\s*HEAD branch:\s+(?<name>.+)\s*$/m.exec(
-                res
-            )?.groups?.name
+            const res = await this.exec(["remote", "show", "origin"], {
+                valueOnError: "",
+            })
+            this._defaultBranch =
+                /^\s*HEAD branch:\s+(?<name>.+)\s*$/m.exec(res)?.groups?.name ||
+                ""
         }
         return this._defaultBranch
     }
@@ -87,17 +88,16 @@ export class GitClient implements Git {
      * @returns
      */
     async branch(): Promise<string> {
-        if (!this._branch) {
-            dbg(`fetching current branch`)
-            const res = await this.exec(["branch", "--show-current"])
-            this._branch = res.trim()
-        }
-        return this._branch
+        dbg(`fetching current branch`)
+        const res = await this.exec(["branch", "--show-current"], {
+            valueOnError: "",
+        })
+        return res.trim()
     }
 
     async listBranches(): Promise<string[]> {
         dbg(`listing all branches`)
-        const res = await this.exec(["branch", "--list"])
+        const res = await this.exec(["branch", "--list"], { valueOnError: "" })
         return res
             .split("\n")
             .map((b) => b.trim())
@@ -112,8 +112,9 @@ export class GitClient implements Git {
      */
     async exec(
         args: string | string[],
-        options?: { label?: string }
+        options?: { label?: string; valueOnError?: string }
     ): Promise<string> {
+        const { valueOnError } = options || {}
         const opts: ShellOptions = {
             ...(options || {}),
             cwd: this.cwd,
@@ -128,6 +129,7 @@ export class GitClient implements Git {
         if (res.stdout) dbg(res.stdout)
         if (res.exitCode !== 0) {
             dbg(`error: ${res.stderr}`)
+            if (valueOnError !== undefined) return valueOnError
             throw new Error(res.stderr)
         }
         return res.stdout
@@ -413,7 +415,6 @@ export class GitClient implements Git {
         if (!nameOnly && llmify) {
             dbg(`llmifying diff`)
             res = llmifyDiff(res)
-            const { encode: encoder } = await resolveTokenEncoder(undefined)
             dbg(`encoding diff`)
             const tokens = approximateTokens(res)
             if (tokens > maxTokensFullDiff) {
@@ -421,7 +422,7 @@ export class GitClient implements Git {
                 res = `## Diff
 Truncated diff to large (${tokens} tokens). Diff files individually for details.
 
-${truncateTextToTokens(res, maxTokensFullDiff, encoder)}
+${ellipse(res, maxTokensFullDiff * 3)}
 ...
 
 ## Files
@@ -441,7 +442,7 @@ ${await this.diff({ ...options, nameOnly: true })}
         repository: string,
         options?: {
             /**
-             * Brnach to clone
+             * branch to clone
              */
             branch?: string
 
@@ -461,12 +462,10 @@ ${await this.diff({ ...options, nameOnly: true })}
             depth?: number
         }
     ): Promise<GitClient> {
+        dbg(`cloning repository: ${repository}`)
         let { branch, force, install, depth, ...rest } = options || {}
         depth = normalizeInt(depth)
-        if (isNaN(depth)) {
-            depth = 1
-        }
-        dbg(`cloning repository: ${repository}`)
+        if (isNaN(depth)) depth = 1
 
         // normalize short github url
         // check if the repository is in the form of `owner/repo`
@@ -483,13 +482,11 @@ ${await this.diff({ ...options, nameOnly: true })}
             branch || `HEAD`,
             sha
         )
-        if (branch) {
-            directory = host.path.join(directory, branch)
-        }
+        if (branch) directory = join(directory, branch)
         logVerbose(`git: shallow cloning ${repository} to ${directory}`)
         if (await checkDirectoryExists(directory)) {
-            dbg(`directory already exists`)
             if (!force) {
+                dbg(`directory already exists`)
                 return new GitClient(directory)
             }
             dbg(`removing existing directory`)

@@ -6,6 +6,7 @@ import {
     ChatCompletionTool,
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
+    CreateChatCompletionRequest,
 } from "./chattypes"
 import { renderImageToTerminal } from "./image"
 import { terminalSize } from "./terminal"
@@ -21,8 +22,31 @@ import {
     CONTROL_CHAT_LAST,
 } from "./constants"
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { prettyTokens } from "./pretty"
+import { prettyTemperature, prettyTokens } from "./pretty"
 import { estimateChatTokens } from "./chatencoder"
+import { genaiscriptDebug } from "./debug"
+import { JSONSchemaToFunctionParameters } from "./schema"
+const dbg = genaiscriptDebug("chat:render")
+
+function renderTrimmed(s: string, rows: number, width: number) {
+    const lines = s.split(/\n/g).filter((l) => !!l)
+    let trimmed = lines.slice(0)
+    if (lines.length > rows) {
+        const head = Math.min(rows >> 1, lines.length - 1)
+        const tail = rows - head
+        trimmed = lines.slice(0, head)
+        if (tail) {
+            const hidden = lines.length - head - tail
+            if (hidden === 1) trimmed.push(lines.at(-tail - 1))
+            else if (hidden > 0) trimmed.push(`... (${hidden} lines)`)
+            trimmed.push(...lines.slice(-tail))
+        }
+    }
+    const res = trimmed.map((l) =>
+        wrapColor(CONSOLE_COLOR_DEBUG, "│" + ellipse(l, width) + "\n")
+    )
+    return res
+}
 
 async function renderMessageContent(
     msg:
@@ -41,16 +65,7 @@ async function renderMessageContent(
     const margin = 2
     const width = columns - margin
 
-    const render = (s: string) => {
-        const lines = s.split(/\n/g).filter((l) => !!l)
-        const trimmed = lines.slice(-rows)
-        const res = trimmed.map((l) =>
-            wrapColor(CONSOLE_COLOR_DEBUG, "│" + ellipse(l, width) + "\n")
-        )
-        if (lines.length > trimmed.length)
-            res.unshift(wrapColor(CONSOLE_COLOR_DEBUG, "│...\n"))
-        return res
-    }
+    const render = (s: string) => renderTrimmed(s, rows, width)
 
     // Return the content directly if it's a simple string.
     if (typeof content === "string") return render(content)
@@ -117,24 +132,25 @@ function renderToolCall(
  * @returns The formatted string output for terminal rendering.
  */
 export async function renderMessagesToTerminal(
-    messages: ChatCompletionMessageParam[],
+    request: CreateChatCompletionRequest,
     options?: {
-        model?: string
         system?: boolean
         user?: boolean
         assistant?: boolean
         tools?: ChatCompletionTool[]
     }
 ) {
+    const { model, temperature, response_format } = request
+    let messages = request.messages.slice(0)
     const {
         system = undefined, // Include system messages unless explicitly set to false.
         user = undefined, // Include user messages unless explicitly set to false.
         assistant = true, // Include assistant messages by default.
         tools,
-        model,
     } = options || {}
 
     const { columns } = terminalSize()
+    dbg(`render %O`, messages)
 
     const msgRows = (msg: ChatCompletionMessageParam, visibility: boolean) =>
         msg === messages.at(-1)
@@ -162,16 +178,29 @@ export async function renderMessagesToTerminal(
         res.push(
             wrapColor(
                 CONSOLE_COLOR_DEBUG,
-                `┌─💬 chat with ${model} (${CHAR_ENVELOPE} ${messages.length}, ~${prettyTokens(tokens, "prompt")})\n`
+                `┌─💬 ${model} ${CHAR_ENVELOPE} ${messages.length} ~${prettyTokens(tokens, "prompt")} ${prettyTemperature(temperature)}\n`
             )
         )
     }
+    if (response_format) {
+        const { type } = response_format
+        res.push(wrapColor(CONSOLE_COLOR_DEBUG, `├─📦 ${type}\n`))
+        if (type === "json_schema") {
+            const { json_schema } = response_format
+            res.push(
+                wrapColor(
+                    CONSOLE_COLOR_DEBUG,
+                    `│ ${JSONSchemaToFunctionParameters(json_schema.schema as any)}\n`
+                )
+            )
+        }
+    }
     if (tools?.length) {
         res.push(
-            wrapColor(CONSOLE_COLOR_DEBUG, `┌─🔧 tools (${tools.length})\n`),
+            wrapColor(CONSOLE_COLOR_DEBUG, `├─🔧 tools (${tools.length})\n`),
             wrapColor(
                 CONSOLE_COLOR_DEBUG,
-                `| ${tools.map((tool) => tool.function.name).join(", ")}`
+                `│ ${tools.map((tool) => tool.function.name).join(", ")}`
             ),
             "\n"
         )

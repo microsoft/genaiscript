@@ -1,7 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:astgrep")
-const dbgLang = debug("genaiscript:astgrep:lang")
-
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { CancelError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
@@ -10,6 +6,9 @@ import { uniq } from "es-toolkit"
 import { readText, writeText } from "./fs"
 import { extname } from "node:path"
 import { diffFindChunk, diffResolve } from "./diff"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("astgrep")
+const dbgLang = dbg.extend("lang")
 
 class SgChangeSetImpl implements SgChangeSet {
     private pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {}
@@ -296,6 +295,8 @@ async function resolveLang(
         cs: "csharp",
         py: "python",
         sql: "sql",
+        yml: "yaml",
+        yaml: "yaml",
     }
 
     const forbidden = ["bin", "exe", "dll"]

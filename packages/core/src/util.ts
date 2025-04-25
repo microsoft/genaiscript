@@ -24,7 +24,7 @@ export const arrayify = arrayify_
  * Converts an array-like object into an array.
  *
  * @param a - The array-like object to convert. If null or undefined, it returns undefined.
- * @returns An array containing all elements from the input array-like object in the same order.
+ * @returns An array containing all elements from the input array-like object in the same order. If the input is null or undefined, it returns undefined.
  */
 export function toArray<T>(a: ArrayLike<T>): T[] {
     if (!a) return undefined
@@ -83,7 +83,7 @@ export function assert(
 /**
  * Concatenates multiple binary data chunks into a single buffer.
  *
- * @param chunks - An array of binary-like objects to be concatenated.
+ * @param chunks - A variable number of binary-like objects to be concatenated.
  *                 Each chunk must have a `length` property and support indexed access.
  * @returns A single buffer containing the combined data from all input chunks.
  */
@@ -154,7 +154,7 @@ export function utf8Decode(buf: Uint8Array) {
  * Resolves a file path relative to a specified root path.
  *
  * @param root The root directory to resolve the relative path against.
- * @param fn The file path to resolve. If it's empty or matches a URL pattern, it is returned unmodified.
+ * @param fn The file path to resolve. If it's empty, null, undefined, or matches a URL pattern, it is returned unmodified.
  * @returns The relative file path if it is within the root directory, otherwise the original file path.
  */
 export function relativePath(root: string, fn: string) {
@@ -204,6 +204,7 @@ export function logWarn(msg: string) {
  * - Extracts error details such as message, name, and stack from the error object.
  * - Logs the error message at "error" severity.
  * - Logs the stack trace and additional serialized error data at "debug" severity if present.
+ * - If the error is a cancellation, logs the message at "warn" severity instead.
  */
 export function logError(msg: string | Error | SerializedError) {
     const err = serializeError(msg)
@@ -234,7 +235,7 @@ export function concatArrays<T>(...arrays: T[][]): T[] {
 /**
  * Groups elements of a list into a record based on a key-generating function.
  *
- * @param list - The array of elements to group. Returns an empty record if null or undefined.
+ * @param list - The array of elements to group. If null or undefined, returns an empty record.
  * @param key - A function that generates a key for each element in the list. Elements with the same key are grouped together.
  * @returns A record where each key corresponds to a grouped array of elements.
  */
@@ -268,9 +269,9 @@ export function ellipse(text: string, length: number) {
 /**
  * Truncates the beginning of a string if it exceeds the specified length and adds an ellipsis at the beginning.
  *
- * @param text - The input string to process.
+ * @param text - The input string to process. Can be undefined or null.
  * @param length - The maximum allowed length of the string including the ellipsis.
- * @returns The processed string with an ellipsis at the start if it exceeds the specified length.
+ * @returns The processed string with an ellipsis at the start if it exceeds the specified length, or the original string if it does not.
  */
 export function ellipseLast(text: string, length: number) {
     if (text?.length > length) return "…" + text.slice(length - text.length + 1)

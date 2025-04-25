@@ -1,9 +1,20 @@
 ---
 title: Tutorial Notebook
 sidebar:
-    order: 100
-description: Learn how to use GenAIScript with this interactive tutorial notebook featuring executable JavaScript code blocks.
+  order: 100
+description: Learn how to use GenAIScript with this interactive tutorial
+  notebook featuring executable JavaScript code blocks.
 keywords: tutorial, GenAIScript notebook, interactive learning, JavaScript, markdown
+hero:
+  image:
+    alt: A simple 2D illustration uses geometric shapes to depict a computer screen
+      displaying code blocks, alongside icons for files and chat messages. It
+      features a recognizable script symbol, a document marked with hashtag and
+      asterisk symbols, and a magic wand or spark conveying automation. The
+      color scheme is limited to five bold corporate tones, with no people or
+      background, and follows a flat, 8-bit style at small size.
+    file: ./tutorial.png
+
 ---
 
 This Notebook is a GenAIScript tutorial. It is a Markdown document where each JavaScript code section is a runnable GenAIScript. You can execute each code block individually and see the results in the output section below the code block. To open this notebook in Visual Studio Code, press **F1** and run **GenAIScript: Create GenAIScript Markdown Notebook**.

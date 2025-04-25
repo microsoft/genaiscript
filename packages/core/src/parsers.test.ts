@@ -54,6 +54,14 @@ describe("parsers", async () => {
         assert(result.file.content.includes("Lorem"))
     })
 
+    await test("prompty", async () => {
+        const result = await parsers.prompty({
+            filename: "../sample/src/chat.prompty",
+        })
+        assert(result)
+        assert(result.messages.length === 2)
+    })
+
     await test("PDF-image", async () => {
         const result = await parsers.PDF(
             { filename: "../sample/src/rag/loremipsum.pdf" },

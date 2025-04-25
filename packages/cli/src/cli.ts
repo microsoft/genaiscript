@@ -22,6 +22,7 @@ import {
     parseMarkdown,
     parsePDF,
     parseSecrets,
+    parseTokenize,
     parseTokens,
     prompty2genaiscript,
 } from "./parse" // Parsing functions
@@ -77,15 +78,55 @@ import { DEBUG_CATEGORIES } from "../../core/src/dbg"
 /**
  * Main function to initialize and run the CLI.
  *
- * Sets up global error handling for uncaught exceptions.
- * Verifies Node.js version compatibility.
- * Configures CLI options and commands, including:
- * - `configure`: Interactive help to configure providers.
- * - `run`: Executes a GenAIScript against files with various options for output, retries, and caching.
- * - `runs`: Commands to manage and list previous runs.
- * - `test`: Group of commands for running and managing tests.
- * - `convert`: Converts files through a GenAIScript with options for output and concurrency.
- * Handles environment setup and NodeHost installation.
+ * @param script - The script to execute.
+ * @param files - Optional list of files to process.
+ * @param cwd - Working directory for the CLI.
+ * @param env - Paths to environment files.
+ * @param noColors - Disable color output.
+ * @param quiet - Disable verbose output.
+ * @param debug - Debug categories to enable.
+ * @param perf - Enable performance logging.
+ * @param provider - Preferred LLM provider aliases.
+ * @param accept - Comma-separated list of accepted file extensions.
+ * @param excludedFiles - List of files to exclude.
+ * @param ignoreGitIgnore - Disable exclusion of files ignored by .gitignore.
+ * @param fallbackTools - Enable prompt-based tools instead of built-in LLM tool calls.
+ * @param out - Output folder for results.
+ * @param removeOut - Remove output folder if it exists.
+ * @param outTrace - Output file for trace.
+ * @param outOutput - Output file for output.
+ * @param outData - Output file for data, including JSON schema validation.
+ * @param outAnnotations - Output file for annotations.
+ * @param outChangelog - Output file for changelogs.
+ * @param pullRequest - Pull request identifier.
+ * @param pullRequestComment - Create a comment on a pull request with a unique ID.
+ * @param pullRequestDescription - Create a comment on a pull request description with a unique ID.
+ * @param pullRequestReviews - Create pull request reviews from annotations.
+ * @param teamsMessage - Post a message to the Teams channel.
+ * @param json - Emit full JSON response to output.
+ * @param yaml - Emit full YAML response to output.
+ * @param failOnErrors - Fail on detected annotation errors.
+ * @param retry - Number of retries for the run.
+ * @param retryDelay - Minimum delay between retries.
+ * @param maxDelay - Maximum delay between retries.
+ * @param label - Label for the run.
+ * @param temperature - Temperature for the run.
+ * @param topP - Top-p for the run.
+ * @param maxTokens - Maximum completion tokens for the run.
+ * @param maxDataRepairs - Maximum data repairs.
+ * @param maxToolCalls - Maximum tool calls for the run.
+ * @param toolChoice - Tool choice for the run.
+ * @param seed - Seed for the run.
+ * @param cache - Enable LLM result cache.
+ * @param cacheName - Custom cache file name.
+ * @param csvSeparator - CSV separator.
+ * @param fenceFormat - Fence format for output.
+ * @param applyEdits - Apply file edits.
+ * @param vars - Variables as name=value pairs.
+ * @param runRetry - Number of retries for the entire run.
+ * @param noRunTrace - Disable automatic trace generation.
+ * @param noOutputTrace - Disable automatic output generation.
+ * @returns Exit code indicating success or failure.
  */
 export async function cli() {
     let nodeHost: NodeHost // Variable to hold NodeHost instance
@@ -162,6 +203,10 @@ export async function cli() {
         .command("run")
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
+        .option(
+            "-a, --accept <string>",
+            "comma separated list of accepted file extensions"
+        )
     addModelOptions(run) // Add model options to the command
         .option("-lp, --logprobs", "enable reporting token probabilities")
         .option(
@@ -362,6 +407,8 @@ export async function cli() {
             "-cc, --concurrency <number>",
             "number of concurrent conversions"
         )
+        .option("--no-run-trace", "disable automatic trace generation")
+        .option("--no-output-trace", "disable automatic output generation")
         .action(convertFiles)
 
     // Define 'scripts' command group for script management tasks
@@ -603,6 +650,14 @@ export async function cli() {
         .arguments("<files...>")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .action(parseTokens) // Action to count tokens in files
+    parser
+        .command("tokenize")
+        .argument("<file>", "file to tokenize")
+        .description(
+            "Tokenizes a piece of text and display the tokens (in hex format)"
+        )
+        .option("-m, --model <string>", "encoding model")
+        .action(parseTokenize)
     parser
         .command("jsonl2json", "Converts JSONL files to a JSON file")
         .argument("<file...>", "input JSONL files")

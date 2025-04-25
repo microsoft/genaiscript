@@ -59,6 +59,8 @@ function endError(
  * Processes the incoming request, validating the body and ensuring a valid model configuration is resolved.
  * Rejects requests with streaming enabled or missing a valid configuration. Communicates with a language model
  * to generate a chat completion. Returns the generated response or an appropriate error status in case of failures.
+ * Handles cases where the request is canceled or fails, returning appropriate error codes.
+ * Generates a fake OpenAI-like response with the chat completion results.
  */
 export async function openaiApiChatCompletions(
     req: IncomingMessage,

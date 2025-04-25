@@ -36,7 +36,7 @@ run this script with \`--vars 'applyEdits=true'\` to apply the edits.
         applyEdits: {
             type: "boolean",
             default: false,
-            description: "If true, the script will not modify the files.",
+            description: "If true, the script will modify the files.",
         },
         missing: {
             type: "boolean",
@@ -69,8 +69,9 @@ if (!applyEdits)
 
 // filter by diff
 const gitDiff = diff ? await git.diff({ base: "dev" }) : undefined
-console.debug(gitDiff)
+output.fence(gitDiff)
 const diffFiles = gitDiff ? DIFF.parse(gitDiff) : undefined
+if (diff && !diffFiles?.length) cancel(`no diff files found, exiting...`)
 if (diffFiles?.length) {
     dbg(`diff files: ${diffFiles.map((f) => f.to)}`)
     files = files.filter(({ filename }) =>
@@ -78,6 +79,7 @@ if (diffFiles?.length) {
     )
     dbg(`diff filtered files: ${files.length}`)
 }
+if (!files.length) cancel(`no files to process, exiting...`)
 
 if (maxFiles && files.length > maxFiles) {
     dbg(`random slicing files to ${maxFiles}`)
@@ -93,21 +95,6 @@ for (const file of files) {
     // normalize spacing
     if (pretty) await prettier(file)
 
-    // generate missing docs
-    if (missing) {
-        stats.push({
-            filename: file.filename,
-            kind: "new",
-            gen: 0,
-            genCost: 0,
-            judge: 0,
-            judgeCost: 0,
-            edits: 0,
-            updated: 0,
-        })
-        await generateDocs(file, stats.at(-1))
-    }
-
     // generate updated docs
     if (update) {
         stats.push({
@@ -121,6 +108,21 @@ for (const file of files) {
             updated: 0,
         })
         await updateDocs(file, stats.at(-1))
+    }
+
+    // generate missing docs
+    if (missing) {
+        stats.push({
+            filename: file.filename,
+            kind: "new",
+            gen: 0,
+            genCost: 0,
+            judge: 0,
+            judgeCost: 0,
+            edits: 0,
+            updated: 0,
+        })
+        await generateDocs(file, stats.at(-1))
     }
 }
 
@@ -160,7 +162,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
                 _.def("FILE", missingDoc.getRoot().root().text())
                 _.def("FUNCTION", missingDoc.text())
                 // this needs more eval-ing
-                _.$`Generate a function documentation for <FUNCTION>.
+                _.$`Generate a TypeScript function documentation for <FUNCTION>.
                 - Make sure parameters are documented.
                 - Be concise. Use technical tone.
                 - do NOT include types, this is for TypeScript.
@@ -255,8 +257,8 @@ rule:
                 _.def("DOCSTRING", comment.text(), { flex: 10 })
                 _.def("FUNCTION", match.text(), { flex: 10 })
                 // this needs more eval-ing
-                _.$`Update the docstring <DOCSTRING> to match the code in function <FUNCTION>.
-                - If the docstring is up to date, return /NOP/.
+                _.$`Update the TypeScript docstring <DOCSTRING> to match the code in function <FUNCTION>.
+                - If the docstring is up to date, return /NOP/. It's ok to leave it as is.
                 - do not rephrase an existing sentence if it is correct.
                 - Make sure parameters are documented.
                 - do NOT include types, this is for TypeScript.
@@ -266,6 +268,15 @@ rule:
                 The full source of the file is in <FILE> for reference.
                 The source of the function is in <FUNCTION>.
                 The current docstring is <DOCSTRING>.
+
+                docstring:
+
+                /**
+                 * description
+                 * @param param1 - description
+                 * @param param2 - description
+                 * @returns description
+                 */
                 `
             },
             {
@@ -343,10 +354,7 @@ function docify(docs: string) {
     return docs.replace(/\n+$/, "")
 }
 
-async function prettier(
-    file: WorkspaceFile,
-    options?: { curly?: boolean }
-) {
+async function prettier(file: WorkspaceFile, options?: { curly?: boolean }) {
     dbg(file.filename)
     const args = ["--write"]
     if (options?.curly) args.push("--plugin=prettier-plugin-curly")

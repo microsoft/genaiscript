@@ -2,7 +2,17 @@
 title: Tokenizers
 description: Tokenizers are used to split text into tokens.
 sidebar:
-    order: 60
+  order: 60
+hero:
+  image:
+    alt: An 8-bit style illustration of a geometric speech bubble made up of
+      distinct, colored blocks to represent separate text tokens; some small
+      colored rectangles detach from the main shape, symbolizing text chunking;
+      a basic slider icon illustrates truncation. The image is minimalistic,
+      flat, in five colors, sized 128x128 pixels, with no background or human
+      figures.
+    file: ./tokenizers.png
+
 ---
 
 The `tokenizers` helper module provides a set of functions to split text into tokens.
