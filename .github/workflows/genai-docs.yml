@@ -44,7 +44,7 @@ jobs:
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
                   commit_message: "genai: /docs [skip ci]"
-                  file_pattern: packages/**/*.ts
+                  commit_user_name: "genaiscript"
             - name: archive
               if: always()
               uses: actions/upload-artifact@v4
