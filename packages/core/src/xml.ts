@@ -17,7 +17,8 @@ export function XMLTryParse(
 ) {
     try {
         // Try parsing the text and return the result or defaultValue
-        return XMLParse(text, options) ?? defaultValue
+        const res = XMLParse(text, options) ?? defaultValue
+        return res
     } catch (e) {
         // Return the default value if parsing fails
         return defaultValue
