@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:image")
-
 // Import necessary functions and types from other modules
 import { resolveBufferLike } from "./bufferlike"
 import {
@@ -16,6 +13,8 @@ import pLimit from "p-limit"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { wrapColor, wrapRgbColor } from "./consolecolor"
 import { assert } from "console"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("image")
 
 async function prepare(
     url: BufferLike,
@@ -75,15 +74,33 @@ async function prepare(
 
     // Contain the image within specified max dimensions if provided
     if (options.maxWidth ?? options.maxHeight) {
-        dbg(
-            `containing image within ${options.maxWidth || ""}x${options.maxHeight || ""}`
-        )
-        contain(
-            img,
-            img.width > maxWidth ? maxWidth : img.width,
-            img.height > maxHeight ? maxHeight : img.height,
-            HorizontalAlign.CENTER | VerticalAlign.MIDDLE
-        )
+        if (options.maxWidth && !options.maxHeight) {
+            if (img.width > options.maxWidth) {
+                dbg(`resize width to %d`, options.maxWidth)
+                img.resize({
+                    w: options.maxWidth,
+                    h: Math.ceil((img.height / img.width) * options.maxWidth),
+                })
+            }
+        } else if (options.maxHeight && !options.maxWidth) {
+            if (img.height > options.maxHeight) {
+                dbg(`resize height to %d`, options.maxHeight)
+                img.resize({
+                    h: options.maxHeight,
+                    w: Math.ceil((img.width / img.height) * options.maxHeight),
+                })
+            }
+        } else {
+            dbg(
+                `containing image within ${options.maxWidth || ""}x${options.maxHeight || ""}`
+            )
+            contain(
+                img,
+                img.width > maxWidth ? maxWidth : img.width,
+                img.height > maxHeight ? maxHeight : img.height,
+                HorizontalAlign.CENTER | VerticalAlign.MIDDLE
+            )
+        }
     }
 
     // Auto-crop the image if required by options

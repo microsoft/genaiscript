@@ -10,7 +10,7 @@ if (env.vars.force || !(await workspace.stat(target))) {
     const { text: imagePrompt } = await runPrompt(
         (_) => {
             _.def("BLOG_POST", MD.content(file.content))
-            _.$`Generate an image prompt for DALLE-3 that illustrates the contents of <BLOG_POST>.
+            _.$`Generate an image prompt for gpt-image-1 that illustrates the contents of <BLOG_POST>.
 Include specific description related to the content of <BLOG_POST>.        
     ${style}`
         },
@@ -24,10 +24,9 @@ Include specific description related to the content of <BLOG_POST>.
     ${style}`,
         {
             mime: "image/png",
-            size: "1792x1024",
-            scale: 768 / 1792,
+            size: "landscape",
             maxHeight: 762,
-            style: "vivid",
+            model: "openai:gpt-image-1",
         }
     )
 
