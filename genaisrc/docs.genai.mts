@@ -36,7 +36,7 @@ run this script with \`--vars 'applyEdits=true'\` to apply the edits.
         applyEdits: {
             type: "boolean",
             default: false,
-            description: "If true, the script will not modify the files.",
+            description: "If true, the script will modify the files.",
         },
         missing: {
             type: "boolean",

@@ -1,25 +1,19 @@
-name: genai linters
+name: genai docs
 on:
     workflow_dispatch:
     pull_request:
-        types: [opened, ready_for_review, reopened, review_requested]
+        types: [review_requested]
         paths:
-            - "docs/**"
-            - "genaisrc/**"
-            - "packages/core/**/*"
-            - "packages/cli/**/*"
-            - "packages/samples/**/*"
-            - "packages/vscode/**/*"
+            - "packages/**/*.ts"
 concurrency:
-    group: linters-${{ github.workflow }}-${{ github.ref }}
+    group: docs-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
-env:
-    GENAISCRIPT_MODEL_LINTER: ${{ vars.GENAISCRIPT_MODEL_LINTER }}
 jobs:
     lint:
         runs-on: ubuntu-latest
         permissions:
             pull-requests: write
+            content: write
             models: read
         steps:
             - uses: actions/checkout@v4
@@ -36,11 +30,16 @@ jobs:
             - name: git stuff
               run: git fetch origin && git pull origin dev:dev
             - name: genaiscript
-              run: node packages/cli/built/genaiscript.cjs run linters --out ./temp/genai/linters -prr -prc -m linter --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
-              continue-on-error: true
+              run: node packages/cli/built/genaiscript.cjs run docs --out ./temp/genai/docs -p github --out-trace $GITHUB_STEP_SUMMARY --vars pretty=true --vars applyEdits=true --vars defaultBranch=dev
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha}}
+            - name: commit changes
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  commit_message: "genai: /docs [skip ci]"
+                  branch: ${{ github.head_ref || github.ref_name }}
+                  file_pattern: packages/**/*.ts
             - name: Archive genai results
               if: always()
               uses: actions/upload-artifact@v4
