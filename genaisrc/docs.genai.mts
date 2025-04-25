@@ -268,6 +268,13 @@ rule:
                 The full source of the file is in <FILE> for reference.
                 The source of the function is in <FUNCTION>.
                 The current docstring is <DOCSTRING>.
+
+                A good docstring should be using this structure and using the docstring syntax:
+                - a short description of the function
+                - a description of the parameters
+                - a description of the return value
+                - a description of the exceptions
+                - a description of the side effects                    
                 `
             },
             {

@@ -22,6 +22,7 @@ import {
     parseMarkdown,
     parsePDF,
     parseSecrets,
+    parseTokenize,
     parseTokens,
     prompty2genaiscript,
 } from "./parse" // Parsing functions
@@ -611,6 +612,12 @@ export async function cli() {
         .arguments("<files...>")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .action(parseTokens) // Action to count tokens in files
+    parser
+        .command("tokenize")
+        .argument("<file>", "file to tokenize")
+        .description("Tokenizes a piece of text and display the tokens (in hex format)")
+        .option("-m, --model <string>", "encoding model")
+        .action(parseTokenize)
     parser
         .command("jsonl2json", "Converts JSONL files to a JSON file")
         .argument("<file...>", "input JSONL files")

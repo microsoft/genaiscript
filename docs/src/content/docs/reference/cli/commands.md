@@ -588,6 +588,8 @@ Commands:
   code <file> [query]           Parse code using tree sitter and executes a
                                 query
   tokens [options] <files...>   Count tokens in a set of files
+  tokenize [options] <file>     Tokenizes a piece of text and display the
+                                tokens (in hex format)
   jsonl2json                    Converts JSONL files to a JSON file
   prompty [options] <file...>   Converts .prompty files to genaiscript
   jinja2 [options] <file>       Renders Jinja2 or prompty template
@@ -682,6 +684,21 @@ Count tokens in a set of files
 Options:
   -ef, --excluded-files <string...>  excluded files
   -h, --help                         display help for command
+```
+
+### `parse tokenize`
+
+```
+Usage: genaiscript parse tokenize [options] <file>
+
+Tokenizes a piece of text and display the tokens (in hex format)
+
+Arguments:
+  file                  file to tokenize
+
+Options:
+  -m, --model <string>  encoding model
+  -h, --help            display help for command
 ```
 
 ### `parse jsonl2json`
