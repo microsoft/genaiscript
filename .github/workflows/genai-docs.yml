@@ -27,7 +27,7 @@ jobs:
                   cache: yarn
             - run: yarn install --frozen-lockfile
             - name: compile
-              run: yarn compile:cli
+              run: yarn compile
             - name: /docs
               run: node packages/cli/built/genaiscript.cjs run docs --out ./temp/genai/docs -prc -p github --out-trace $GITHUB_STEP_SUMMARY --vars pretty=true --vars applyEdits=true --vars defaultBranch=dev
               env:
