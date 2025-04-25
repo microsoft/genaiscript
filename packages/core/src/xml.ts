@@ -53,3 +53,7 @@ export function XMLParse(
     // Parse the cleaned XML string and return the result
     return parser.parse(cleaned)
 }
+
+export function isOdd(n: number) {
+    return (n % 2) === 1
+}
