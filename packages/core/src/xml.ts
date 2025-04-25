@@ -52,3 +52,8 @@ export function XMLParse(
     // Parse the cleaned XML string and return the result
     return parser.parse(cleaned)
 }
+
+
+export function isOdd(x: number) {
+    return x % 2 === 1
+}
