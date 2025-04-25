@@ -14,7 +14,11 @@ import { parsePdf } from "../../core/src/pdf"
 import { estimateTokens } from "../../core/src/tokens"
 import { YAMLStringify } from "../../core/src/yaml"
 import { resolveTokenEncoder } from "../../core/src/encoders"
-import { MD_REGEX, PROMPTY_REGEX } from "../../core/src/constants"
+import {
+    CONSOLE_TOKEN_COLORS,
+    MD_REGEX,
+    PROMPTY_REGEX,
+} from "../../core/src/constants"
 import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty"
 import { basename, join } from "node:path"
 import { CSVStringify, dataToMarkdownTable } from "../../core/src/csv"
@@ -31,6 +35,10 @@ import { chunkMarkdown } from "../../core/src/mdchunk"
 import { normalizeInt } from "../../core/src/cleaners"
 import { prettyBytes } from "../../core/src/pretty"
 import { terminalSize } from "../../core/src/terminal"
+import { consoleColors, wrapColor } from "../../core/src/consolecolor"
+import { genaiscriptDebug } from "../../core/src/debug"
+import { stderr, stdout } from "../../core/src/stdio"
+const dbg = genaiscriptDebug("cli:parse")
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -230,7 +238,7 @@ export async function jsonl2json(files: string[]) {
 /**
  * Estimates the number of tokens in the content of files and logs the results.
  * @param filesGlobs - An array of files or glob patterns to process.
- * @param options - Options for excluding files, specifying the model, and ignoring .gitignore.
+ * @param options - Options for processing files.
  *   - excludedFiles - A list of files to exclude from processing.
  *   - model - The name of the model used for token encoding.
  *   - ignoreGitIgnore - Whether to ignore .gitignore rules when expanding files.
@@ -259,6 +267,36 @@ export async function parseTokens(
     }
     // Logs the aggregated text with file names and token estimates
     console.log(text)
+}
+
+/**
+ * Tokenizes the content of a specified file using a provided model and logs the tokens.
+ *
+ * @param file - Path to the file to tokenize.
+ * @param options - Object containing the following properties:
+ *   - model - The name of the model used for token encoding.
+ *
+ * The function reads the content of the file, tokenizes it using the given model,
+ * and logs each token along with its hexadecimal representation.
+ * Debug information about the process is also logged.
+ */
+export async function parseTokenize(file: string, options: { model: string }) {
+    const text = await readText(file)
+    dbg(`text: %s`, text)
+    const { model } = options || {}
+    const {
+        model: tokenModel,
+        encode: encoder,
+        decode: decoder,
+    } = await resolveTokenEncoder(model)
+
+    console.debug(`model: %s`, tokenModel)
+    const tokens = encoder(text)
+    for (const token of tokens) {
+        stdout.write(
+            `(${wrapColor(CONSOLE_TOKEN_COLORS[0], decoder([token]))}, x${wrapColor(CONSOLE_TOKEN_COLORS[1], token.toString(16))})`
+        )
+    }
 }
 
 /**

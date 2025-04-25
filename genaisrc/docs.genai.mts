@@ -162,7 +162,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
                 _.def("FILE", missingDoc.getRoot().root().text())
                 _.def("FUNCTION", missingDoc.text())
                 // this needs more eval-ing
-                _.$`Generate a function documentation for <FUNCTION>.
+                _.$`Generate a TypeScript function documentation for <FUNCTION>.
                 - Make sure parameters are documented.
                 - Be concise. Use technical tone.
                 - do NOT include types, this is for TypeScript.
@@ -257,8 +257,8 @@ rule:
                 _.def("DOCSTRING", comment.text(), { flex: 10 })
                 _.def("FUNCTION", match.text(), { flex: 10 })
                 // this needs more eval-ing
-                _.$`Update the docstring <DOCSTRING> to match the code in function <FUNCTION>.
-                - If the docstring is up to date, return /NOP/.
+                _.$`Update the TypeScript docstring <DOCSTRING> to match the code in function <FUNCTION>.
+                - If the docstring is up to date, return /NOP/. It's ok to leave it as is.
                 - do not rephrase an existing sentence if it is correct.
                 - Make sure parameters are documented.
                 - do NOT include types, this is for TypeScript.
@@ -268,6 +268,15 @@ rule:
                 The full source of the file is in <FILE> for reference.
                 The source of the function is in <FUNCTION>.
                 The current docstring is <DOCSTRING>.
+
+                docstring:
+
+                /**
+                 * description
+                 * @param param1 - description
+                 * @param param2 - description
+                 * @returns description
+                 */
                 `
             },
             {
