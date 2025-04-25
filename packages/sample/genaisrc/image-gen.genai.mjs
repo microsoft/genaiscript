@@ -1,9 +1,10 @@
+const { output } = env
 for (const model of [
     "openai:dall-e-2",
     "openai:dall-e-3",
     "openai:gpt-image-1",
 ]) {
-    env.output.heading(3, `Model: ${model}`)
+    output.heading(3, `Model: ${model}`)
     const { image, revisedPrompt } = await generateImage(
         `a cute cat. only one. iconic, high details. 8-bit resolution.`,
         {
@@ -14,6 +15,6 @@ for (const model of [
             size: "square",
         }
     )
-    env.output.image(image.filename)
-    env.output.fence(revisedPrompt)
+    await env.output.image(image.filename)
+    output.fence(revisedPrompt)
 }

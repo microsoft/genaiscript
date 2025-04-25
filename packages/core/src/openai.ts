@@ -763,7 +763,7 @@ export async function OpenAIImageGeneration(
     let url = `${cfg.base}/images/generations`
 
     const isDallE = /^dall-e/i.test(model)
-    const isDallE2 = /^dall-e-3/i.test(model)
+    const isDallE2 = /^dall-e-2/i.test(model)
     const isDallE3 = /^dall-e-3/i.test(model)
     const isGpt = /^gpt-image/i.test(model)
 
@@ -805,7 +805,7 @@ export async function OpenAIImageGeneration(
 
     if (body.size === "auto") delete body.size
 
-    dbg({
+    dbg('%o', {
         quality: body.quality,
         style: body.style,
         response_format: body.response_format,
