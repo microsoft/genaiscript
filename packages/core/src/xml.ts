@@ -53,7 +53,12 @@ export function XMLParse(
     return parser.parse(cleaned)
 }
 
-
+/**
+ * Determines if a given number is odd.
+ *
+ * @param x - The number to check for oddness.
+ * @returns True if the number is odd; otherwise, false.
+ */
 export function isOdd(x: number) {
     return x % 2 === 1
 }
