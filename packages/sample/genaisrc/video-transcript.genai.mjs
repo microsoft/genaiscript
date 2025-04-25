@@ -9,4 +9,4 @@ console.log(transcript)
 def("TRANSCRIPT", transcript.srt, {
     language: "srt",
 })
-$`Summarize the video transcript.`
+$`Summarize the text in the transcript in <TRANSCRIPT>.`

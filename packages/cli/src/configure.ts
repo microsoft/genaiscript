@@ -24,6 +24,7 @@ import { URL } from "node:url"
  * - Retrieving and displaying current configuration details.
  * - Testing the provider's configuration.
  * - Editing environment variables interactively. Supports secret values, enumerations, and basic validation.
+ * - Patching the environment file with updated values.
  */
 export async function configure(options: { provider?: string }) {
     while (true) {

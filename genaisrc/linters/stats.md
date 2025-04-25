@@ -1,0 +1,1 @@
+Compute some basic stats about the changes and display them in a markdown table.

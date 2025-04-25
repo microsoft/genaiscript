@@ -1,6 +1,10 @@
 import { readdir } from "fs/promises"
 import { join } from "path"
-import { RUNS_DIR_NAME, SERVER_PORT } from "../../core/src/constants"
+import {
+    RUNS_DIR_NAME,
+    SERVER_PORT,
+    TRACE_FILENAME,
+} from "../../core/src/constants"
 import { groupBy } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { dotGenaiscriptPath } from "../../core/src/workdir"
@@ -17,8 +21,8 @@ import { dotGenaiscriptPath } from "../../core/src/workdir"
  *   - runId: The unique identifier for the run.
  *   - dir: The directory path of the run.
  *   - creationTme: The creation time of the run, parsed from its name.
- *   - report: The size of the `res.json` file in the run.
- *   - trace: The size of the `trace.md` file in the run.
+ *   - report: The size of the `res.json` file in the run, or 0 if it does not exist.
+ *   - trace: The size of the `trace.md` file in the run, or 0 if it does not exist.
  */
 export async function collectRuns(options?: { scriptid?: string }) {
     const { scriptid } = options || {}
@@ -57,7 +61,7 @@ export async function collectRuns(options?: { scriptid?: string }) {
                 join(sdir, r.name, "res.json")
             )
             const tracemd = await runtimeHost.statFile(
-                join(sdir, r.name, "trace.md")
+                join(sdir, r.name, TRACE_FILENAME)
             )
             runs.push({
                 scriptId: sid.name,

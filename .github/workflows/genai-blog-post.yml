@@ -1,15 +1,11 @@
 name: genai blog post generator
 on:
     workflow_dispatch:
+    schedule:
+      - cron: '0 0 * * *'
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
+    group: blog-post-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
-env:
-    GENAISCRIPT_DEFAULT_REASONING_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_MODEL }}
-    GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_MODEL }}
-    GENAISCRIPT_DEFAULT_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_VISION_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_VISION_MODEL }}
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -22,6 +18,7 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+                  ref: dev
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
@@ -30,9 +27,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: generate blog post
-              run: yarn genai:blog-post --out-trace $GITHUB_STEP_SUMMARY
-            - name: docs
-              run: yarn build:docs
+              run: yarn genai:blog-post -p github --out-trace $GITHUB_STEP_SUMMARY
             - uses: stefanzweifel/git-auto-commit-action@v5
               with:
                   file_pattern: "docs/src/content/docs/blog/drafts/*.md"

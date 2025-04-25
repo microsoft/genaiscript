@@ -17,6 +17,8 @@ import { deleteUndefinedValues } from "./cleaners"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { measure } from "./performance"
 import { dotGenaiscriptPath } from "./workdir"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("pdf")
 
 let standardFontDataUrl: string
 
@@ -33,8 +35,10 @@ async function tryImportPdfjs(options?: TraceOptions) {
     let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
 
     // Adjust worker source path for Windows platform
-    if (os.platform() === "win32")
+    if (os.platform() === "win32") {
+        dbg("detected Windows platform, adjusting workerSrc: %s", workerSrc)
         workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
+    }
 
     standardFontDataUrl = workerSrc.replace(
         "build/pdf.worker.min.mjs",
@@ -53,6 +57,7 @@ class CanvasFactory {
 
     create(width: number, height: number) {
         if (width <= 0 || height <= 0) {
+            dbg("invalid canvas dimensions: width=%d, height=%d", width, height)
             throw new Error("Invalid canvas size")
         }
         const canvas = this._createCanvas(width, height)
@@ -66,9 +71,15 @@ class CanvasFactory {
 
     reset(canvasAndContext: any, width: number, height: number) {
         if (!canvasAndContext.canvas) {
+            dbg("reset called with missing canvas")
             throw new Error("Canvas is not specified")
         }
         if (width <= 0 || height <= 0) {
+            dbg(
+                "reset called with invalid canvas size: width=%d, height=%d",
+                width,
+                height
+            )
             throw new Error("Invalid canvas size")
         }
         canvasAndContext.canvas.width = width
@@ -77,6 +88,7 @@ class CanvasFactory {
 
     destroy(canvasAndContext: any) {
         if (!canvasAndContext.canvas) {
+            dbg("destroy called with missing canvas")
             throw new Error("Canvas is not specified")
         }
         // Zeroing the width and height cause Firefox to release graphics
@@ -96,7 +108,9 @@ class CanvasFactory {
 }
 
 async function tryImportCanvas() {
-    if (CanvasFactory.createCanvas) return CanvasFactory.createCanvas
+    if (CanvasFactory.createCanvas) {
+        return CanvasFactory.createCanvas
+    }
 
     try {
         const skia = await import("skia-canvas")
@@ -107,6 +121,7 @@ async function tryImportCanvas() {
         glob.Canvas ??= skia.Canvas
         glob.DOMMatrix ??= skia.DOMMatrix
         CanvasFactory.createCanvas = createCanvas
+        dbg(`pdf canvas initialized`)
         return createCanvas
     } catch (error) {
         logWarn("Failed to import canvas")
@@ -185,14 +200,17 @@ async function PDFTryParse(
     })
     const resFilename = join(folder, "res.json")
     const readCache = async () => {
-        if (cache === false) return undefined
+        if (cache === false) {
+            dbg("cache is disabled, skipping cache read")
+            return undefined
+        }
         try {
             const res = JSON.parse(
                 await readFile(resFilename, {
                     encoding: "utf-8",
                 })
             )
-            logVerbose(`pdf: cache hit at ${folder}`)
+            dbg(`cache hit at ${folder}`)
             return res
         } catch {
             return undefined
@@ -202,7 +220,10 @@ async function PDFTryParse(
     {
         // try cache hit
         const cached = await readCache()
-        if (cached) return cached
+        if (cached) {
+            dbg("cache hit for pdf parsing, returning cached result")
+            return cached
+        }
     }
 
     logVerbose(`pdf: decoding ${fileOrUrl || ""} in ${folder}`)
@@ -248,8 +269,10 @@ async function PDFTryParse(
             let { lines } = parsePageItems(items)
 
             // Optionally clean up trailing spaces
-            if (!disableCleanup)
+            if (!disableCleanup) {
+                dbg("trailing whitespace cleanup enabled for page lines")
                 lines = lines.map((line) => line.replace(/[\t ]+$/g, ""))
+            }
 
             // Collapse trailing spaces
             const p: PDFPage = {
@@ -261,6 +284,7 @@ async function PDFTryParse(
             pages.push(p)
 
             if (createCanvas && renderAsImage) {
+                dbg("rendering page %d as PNG image", i + 1)
                 const viewport = page.getViewport({ scale })
                 const canvas = await createCanvas(
                     viewport.width,
@@ -283,21 +307,26 @@ async function PDFTryParse(
                 const fn = opList.fnArray[j]
                 const args = opList.argsArray[j]
                 if (fn === pdfjs.OPS.paintImageXObject && args) {
+                    dbg("found image XObject in operator list at index %d", j)
                     const imageObj = args[0]
                     if (imageObj) {
                         checkCancelled(cancellationToken)
                         const img = await new Promise<any>(
                             (resolve, reject) => {
-                                if (page.commonObjs.has(imageObj))
+                                if (page.commonObjs.has(imageObj)) {
                                     resolve(page.commonObjs.get(imageObj))
-                                else if (page.objs.has(imageObj)) {
+                                } else if (page.objs.has(imageObj)) {
                                     page.objs.get(imageObj, (r: any) => {
                                         resolve(r)
                                     })
-                                } else resolve(undefined)
+                                } else {
+                                    resolve(undefined)
+                                }
                             }
                         )
-                        if (!img) continue
+                        if (!img) {
+                            continue
+                        }
                         const fig = await decodeImage(
                             p.index,
                             img,
@@ -305,7 +334,9 @@ async function PDFTryParse(
                             imageObj,
                             folder
                         )
-                        if (fig) figures.push(fig)
+                        if (fig) {
+                            figures.push(fig)
+                        }
                     }
                 }
             }
@@ -329,7 +360,9 @@ async function PDFTryParse(
         {
             // try cache hit
             const cached = await readCache()
-            if (cached) return cached
+            if (cached) {
+                return cached
+            }
         }
         trace?.error(`reading pdf`, error) // Log error if tracing is enabled
         await ensureDir(folder)
@@ -354,8 +387,12 @@ async function PDFTryParse(
         imageObj: any,
         folder: string
     ) {
-        if (!isUint8ClampedArray(img?.data) && !isUint8Array(img?.data))
+        if (!isUint8ClampedArray(img?.data) && !isUint8Array(img?.data)) {
+            dbg(
+                "cannot decode—image data is not of type Uint8Array or Uint8ClampedArray"
+            )
             return undefined
+        }
 
         const { width, height, data: _data, kind } = img
         const imageData = new ImageData(width, height)
@@ -364,11 +401,17 @@ async function PDFTryParse(
                 const dstIdx = (y * width + x) * 4
                 imageData.data[dstIdx + 3] = 255 // A
                 if (kind === ImageKind.GRAYSCALE_1BPP) {
+                    dbg("decoding GRAYSCALE_1BPP image for page %d", pageIndex)
                     const srcIdx = y * width + x
                     imageData.data[dstIdx + 0] = _data[srcIdx] // B
                     imageData.data[dstIdx + 1] = _data[srcIdx] // G
                     imageData.data[dstIdx + 2] = _data[srcIdx] // R
                 } else {
+                    dbg(
+                        "decoding RGB or RGBA image, kind=%d, page=%d",
+                        kind,
+                        pageIndex
+                    )
                     const srcIdx =
                         (y * width + x) *
                         (kind === ImageKind.RGBA_32BPP ? 4 : 3)
@@ -435,7 +478,10 @@ export async function parsePdf(
         bytes,
         options
     )
-    if (error) return { pages: [], content: "" }
+    if (error) {
+        dbg("pdf parsing returned error: %O", error)
+        return { pages: [], content: "" }
+    }
     return { pages, content, metadata }
 }
 
@@ -452,11 +498,13 @@ function parsePageItems(pdfItems: TextItem[]) {
         const item = pdfItems[i]
         const y = item?.transform[5]
         if (!lineData.hasOwnProperty(y)) {
+            dbg("grouping text item at y=%d into new line", y)
             lineData[y] = []
         }
         // Ensure the item is valid before adding
         /* istanbul ignore next */
         if (item) {
+            dbg("adding item to lineData at y=%d: %o", y, item)
             lineData[y]?.push(item)
         }
     }

@@ -192,7 +192,7 @@ The following npm packages may be included in this product:
  - @aws-crypto/supports-web-crypto@5.2.0
  - @huggingface/transformers@3.4.0
  - flatbuffers@25.2.10
- - long@5.3.1
+ - long@5.3.2
 
 These packages each contain the following license:
 
@@ -1161,10 +1161,10 @@ Apache License
 The following npm packages may be included in this product:
 
  - @grpc/grpc-js@1.13.3
- - @grpc/proto-loader@0.7.13
- - detect-libc@2.0.3
+ - @grpc/proto-loader@0.7.15
+ - detect-libc@2.0.4
  - docker-modem@5.0.6
- - dockerode@4.0.5
+ - dockerode@4.0.6
 
 These packages each contain the following license:
 
@@ -1584,8 +1584,8 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.51.1
- - playwright@1.51.1
+ - playwright-core@1.52.0
+ - playwright@1.52.0
 
 These packages each contain the following license:
 
@@ -2018,12 +2018,12 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.787.0
- - @aws-sdk/client-sso@3.787.0
- - @aws-sdk/credential-provider-cognito-identity@3.787.0
+ - @aws-sdk/client-cognito-identity@3.796.0
+ - @aws-sdk/client-sso@3.796.0
+ - @aws-sdk/credential-provider-cognito-identity@3.796.0
  - @aws-sdk/middleware-eventstream@3.775.0
  - @aws-sdk/util-user-agent-browser@3.775.0
- - @aws-sdk/util-user-agent-node@3.787.0
+ - @aws-sdk/util-user-agent-node@3.796.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.2
  - @smithy/middleware-retry@4.1.0
@@ -2245,7 +2245,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.787.0
+ - @aws-sdk/client-bedrock-runtime@3.796.0
 
 This package contains the following license:
 
@@ -2458,7 +2458,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/eventstream-handler-node@3.775.0
  - @aws-sdk/middleware-host-header@3.775.0
  - @aws-sdk/middleware-recursion-detection@3.775.0
- - @aws-sdk/middleware-user-agent@3.787.0
+ - @aws-sdk/middleware-user-agent@3.796.0
  - @smithy/core@3.2.0
  - @smithy/eventstream-serde-browser@4.0.2
  - @smithy/eventstream-serde-config-resolver@4.1.0
@@ -2892,8 +2892,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.86
- - @types/node@22.14.1
+ - @types/node@18.19.87
+ - @types/node@22.15.2
  - @types/sarif@2.1.7
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
@@ -2927,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.129.1
+ - genaiscript-vscode@1.131.0
 
 This package contains the following license:
 
@@ -4191,7 +4191,7 @@ software or this license, under any kind of legal claim._**
 
 The following npm package may be included in this product:
 
- - axios@1.8.4
+ - axios@1.9.0
 
 This package contains the following license:
 
@@ -4854,12 +4854,12 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.775.0
- - @aws-sdk/credential-provider-ini@3.787.0
- - @aws-sdk/credential-provider-node@3.787.0
- - @aws-sdk/credential-providers@3.787.0
+ - @aws-sdk/credential-provider-env@3.796.0
+ - @aws-sdk/credential-provider-ini@3.796.0
+ - @aws-sdk/credential-provider-node@3.796.0
+ - @aws-sdk/credential-providers@3.796.0
  - @aws-sdk/region-config-resolver@3.775.0
- - @aws-sdk/token-providers@3.787.0
+ - @aws-sdk/token-providers@3.796.0
  - @aws-sdk/types@3.775.0
  - @aws-sdk/util-endpoints@3.787.0
  - @aws-sdk/util-locate-window@3.723.0
@@ -4886,7 +4886,7 @@ The following npm packages may be included in this product:
  - @smithy/shared-ini-file-loader@2.4.0
  - @smithy/shared-ini-file-loader@4.0.2
  - @smithy/signature-v4@3.1.2
- - @smithy/signature-v4@5.0.2
+ - @smithy/signature-v4@5.1.0
  - @smithy/util-base64@2.3.0
  - @smithy/util-base64@4.0.0
  - @smithy/util-body-length-browser@4.0.0
@@ -5114,9 +5114,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.775.0
- - @aws-sdk/credential-provider-sso@3.787.0
- - @aws-sdk/credential-provider-web-identity@3.787.0
+ - @aws-sdk/credential-provider-process@3.796.0
+ - @aws-sdk/credential-provider-sso@3.796.0
+ - @aws-sdk/credential-provider-web-identity@3.796.0
 
 These packages each contain the following license:
 
@@ -6017,9 +6017,9 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.775.0
- - @aws-sdk/credential-provider-http@3.775.0
- - @aws-sdk/nested-clients@3.787.0
+ - @aws-sdk/core@3.796.0
+ - @aws-sdk/credential-provider-http@3.796.0
+ - @aws-sdk/nested-clients@3.796.0
  - pyodide@0.27.5
 
 These packages each contain the following license:
@@ -6584,9 +6584,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - jwa@1.4.1
- - jwa@2.0.0
  - jws@3.2.2
- - jws@4.0.0
 
 These packages each contain the following license:
 
@@ -6673,7 +6671,7 @@ The following npm packages may be included in this product:
 
  - parse5-htmlparser2-tree-adapter@7.1.0
  - parse5-parser-stream@7.1.2
- - parse5@7.2.1
+ - parse5@7.3.0
 
 These packages each contain the following license:
 
@@ -7307,10 +7305,10 @@ The following npm packages may be included in this product:
  - @inquirer/input@4.1.9
  - @inquirer/number@3.0.12
  - @inquirer/password@4.0.12
- - @inquirer/prompts@7.4.1
- - @inquirer/rawlist@4.0.12
+ - @inquirer/prompts@7.5.0
+ - @inquirer/rawlist@4.1.0
  - @inquirer/search@3.0.12
- - @inquirer/select@4.1.1
+ - @inquirer/select@4.2.0
  - @inquirer/type@3.0.6
 
 These packages each contain the following license:
@@ -7349,6 +7347,7 @@ The following npm packages may be included in this product:
  - domhandler@5.0.3
  - domutils@3.2.2
  - entities@4.5.0
+ - entities@6.0.0
  - nth-check@2.1.1
 
 These packages each contain the following license:
@@ -7388,7 +7387,7 @@ The following npm packages may be included in this product:
  - @azure/core-client@1.9.3
  - @azure/core-http-compat@2.2.0
  - @azure/core-rest-pipeline@1.19.1
- - @azure/identity@4.8.0
+ - @azure/identity@4.9.1
 
 These packages each contain the following license:
 
@@ -7835,8 +7834,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm packages may be included in this product:
 
- - @anthropic-ai/bedrock-sdk@0.12.4
- - @anthropic-ai/sdk@0.39.0
+ - @anthropic-ai/bedrock-sdk@0.12.5
+ - @anthropic-ai/sdk@0.40.0
 
 These packages each contain the following license:
 
@@ -8893,16 +8892,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.25.2
+ - @esbuild/linux-x64@0.25.3
  - @napi-rs/canvas-linux-x64-gnu@0.1.69
  - @napi-rs/canvas-linux-x64-musl@0.1.69
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.129.1
- - genaiscript-sample@1.129.1
- - genaiscript-web@1.129.1
- - genaiscript@1.129.1
+ - genaiscript-core-internal@1.131.0
+ - genaiscript-sample@1.131.0
+ - genaiscript-web@1.131.0
+ - genaiscript@1.131.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -9651,7 +9650,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - zod@3.24.2
+ - zod@3.24.3
 
 This package contains the following license:
 
@@ -9681,7 +9680,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - esbuild@0.25.2
+ - esbuild@0.25.3
 
 This package contains the following license:
 
@@ -9771,7 +9770,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@3.5.0
+ - @azure/msal-node@3.5.1
 
 This package contains the following license:
 
@@ -10314,7 +10313,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.9.0
+ - @modelcontextprotocol/sdk@1.10.2
 
 This package contains the following license:
 
@@ -10445,6 +10444,7 @@ The following npm packages may be included in this product:
  - @ast-grep/lang-cpp@0.0.1
  - @ast-grep/lang-csharp@0.0.1
  - @ast-grep/lang-python@0.0.1
+ - @ast-grep/lang-yaml@0.0.1
  - @ast-grep/setup-lang@0.0.3
 
 These packages each contain the following license:
@@ -10743,8 +10743,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@4.10.0
- - @azure/msal-common@15.5.0
+ - @azure/msal-browser@4.11.0
+ - @azure/msal-common@15.5.1
 
 These packages each contain the following license:
 
@@ -11437,7 +11437,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - glob@11.0.1
+ - glob@11.0.2
 
 This package contains the following license:
 
@@ -12964,36 +12964,6 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - stoppable@1.1.0
-
-This package contains the following license:
-
-The MIT License (MIT)
-
-Copyright (c) 2017 Hunter Loftis <hunter@hunterloftis.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
  - node-gyp-build@4.8.4
 
 This package contains the following license:
@@ -13795,7 +13765,7 @@ For more information, please refer to <https://unlicense.org>
 
 The following npm package may be included in this product:
 
- - protobufjs@7.4.0
+ - protobufjs@7.5.0
 
 This package contains the following license:
 

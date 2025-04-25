@@ -5,6 +5,7 @@ import { host } from "./host"
 import { NotSupportedError } from "./error"
 import { CancellationOptions } from "./cancellation"
 import debug from "debug"
+import { sanitizeFilename } from "./sanitize"
 const dbg = debug("genaiscript:cache")
 
 /**
@@ -24,7 +25,9 @@ export interface CacheOptions {
 }
 
 function cacheNormalizeName(name: string) {
-    return name.replace(/[^a-z0-9_]/gi, "_") // Sanitize name
+    return name
+        ? sanitizeFilename(name.replace(/[^a-z0-9_]/gi, "_"))
+        : undefined // Sanitize name
 }
 
 export function createCache<K, V>(
@@ -34,7 +37,7 @@ export function createCache<K, V>(
     name = cacheNormalizeName(name) // Sanitize name
     if (!name) {
         dbg(`empty cache name`)
-        throw new NotSupportedError("missing cache name")
+        return undefined
     }
 
     const type = options?.type || "fs"

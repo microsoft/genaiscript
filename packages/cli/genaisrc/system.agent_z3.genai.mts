@@ -7,7 +7,7 @@ export default function (ctx: ChatGenerationContext) {
 
     defAgent(
         "z3",
-        "can formalize and solve problems using the Z3 constraint solver. If you need to run Z3, use this tool.",
+        "can formalize and solve problems using the Z3 constraint solver. If you need to run Z3 or solve constraint systems, use this tool.",
         async (_) => {
             _.$`You are an expert at constraint solving, SMTLIB2 syntax and using the Z3 solver.
         You are an incredibly smart mathematician that can formalize any problem into a set of constraints

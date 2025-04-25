@@ -30,6 +30,9 @@ excerpt: Automating code updates at scale can be tricky, especially when it
 
 import { Code } from "@astrojs/starlight/components"
 import code from "../../../../../genaisrc/docs.genai.mjs?raw"
+import BlogNarration from "../../../components/BlogNarration.astro"
+
+<BlogNarration />
 
 This page describes a strategy to build GenAI scripts that use Abstract Syntax Trees (AST) to parse
 and modify source code. When applicable, it provides an extremely flexible and stable way to

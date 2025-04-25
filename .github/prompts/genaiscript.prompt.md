@@ -5,7 +5,7 @@ Your task is to generate a GenAIScript script or answer questions about GenAIScr
 
 ## Reference
 
-- [GenAIScript docs](./.genaiscript/docs/llms-full.txt)
+- [GenAIScript docs](../../.genaiscript/docs/llms-full.txt)
 
 ## Guidance for Code Generation
 

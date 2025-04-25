@@ -10,6 +10,7 @@ import { toBase64 } from "./base64"
  *
  * @param data - A byte array containing the ZIP file data to be unzipped.
  * @param options - Optional parsing options. Supports a `glob` parameter to filter files by name using glob patterns.
+ *                  If no options are provided, all files are extracted.
  * @returns A promise that resolves to an array of WorkspaceFile objects containing the extracted file data.
  */
 export async function unzip(

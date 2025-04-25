@@ -1,6 +1,9 @@
 ---
 import Default from "@astrojs/starlight/components/Head.astro"
+import type { ImageMetadata } from "astro"
+import { getImage } from "astro:assets"
 
+const url = Astro.url
 const canonical = Astro.site
     ? new URL(Astro.url.pathname, Astro.site)
     : undefined
@@ -8,6 +11,15 @@ const llms = Astro.site
     ? new URL("/genaiscript/llms.txt", Astro.site)
     : undefined
 const slug = canonical?.href.replace(/\/$/, "") + ".md"
+const { data } = Astro.locals.starlightRoute.entry
+const image: ImageMetadata | undefined = (
+    data.hero?.image as { file?: ImageMetadata }
+)?.file
+const ogImage = image
+    ? await getImage({
+          src: image,
+      })
+    : undefined
 ---
 
 <Default>
@@ -15,3 +27,4 @@ const slug = canonical?.href.replace(/\/$/, "") + ".md"
 </Default>
 <link href={llms} rel="llms-txt" type="text/markdown" />
 <link href={slug} rel="alternate" type="text/markdown" />
+{ogImage ? <meta property="og:image" content={ogImage?.src} /> : null}

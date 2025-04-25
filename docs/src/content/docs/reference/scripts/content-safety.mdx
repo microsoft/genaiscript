@@ -1,7 +1,27 @@
 ---
 title: Content Safety
 sidebar:
-    order: 20
+  order: 20
+description: Learn about the built-in safety features, system prompts, and Azure
+  AI Content Safety services to protect language model applications from harmful
+  content, prompt injections, and prompt leaks.
+keywords:
+  - content safety
+  - AI safety
+  - harmful content detection
+  - prompt injection
+  - azure ai
+hero:
+  image:
+    alt: This image shows a minimalistic 8-bit-style digital shield in the middle,
+      with five bold colored geometric icons arranged around it on a plain white
+      background. The icons are a padlock (symbolizing content protection), a
+      key (security), a warning triangle (security alerts), a file with a
+      checkmark (file validation), and a cloud (cloud authentication). There are
+      no people, text, shadows, or gradient effects. The design is flat, using
+      only five strong corporate colors, sized at 128 by 128 pixels.
+    file: ./content-safety.png
+
 ---
 
 import { Steps } from "@astrojs/starlight/components"
@@ -99,7 +119,7 @@ AZURE_CONTENT_SAFETY_CREDENTIALS_TYPE=cli
 Copy the value of one of the keys into a `AZURE_CONTENT_SAFETY_KEY` in your `.env` file.
 
 ```txt title=".env"
-AZURE_CONTENT_SAFETY_KEY=<your-key>
+AZURE_CONTENT_SAFETY_KEY=<your-azure-ai-content-key>
 ```
 
 ### Detect Prompt Injection

@@ -1,0 +1,3 @@
+Make sure the code is well-commented and easy to understand. Use comments to explain complex logic, provide context, and clarify the purpose of functions and classes. Avoid redundant comments that restate the code. Use docstrings for public methods and classes to describe their purpose, parameters, and return values.
+Use inline comments sparingly and only when necessary. Comments should be in English and follow proper grammar and punctuation rules. Use consistent formatting for comments throughout the codebase.
+Avoid using comments to disable code or leave TODOs. Instead, use version control systems to track changes and create issues for tasks that need to be addressed later. If you need to leave a comment, make sure it is clear and actionable.

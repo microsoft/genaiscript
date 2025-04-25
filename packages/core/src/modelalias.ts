@@ -1,9 +1,7 @@
 import debug from "debug"
 const dbg = debug("genaiscript:modelalias")
-import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { parseKeyValuePair } from "../../core/src/fence"
 import { runtimeHost } from "../../core/src/host"
-import { logVerbose } from "../../core/src/util"
 import { PromptScriptRunOptions } from "./server/messages"
 import { providerFeatures } from "./features"
 

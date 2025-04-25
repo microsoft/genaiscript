@@ -3,6 +3,18 @@ title: ast-grep
 description: Search for patterns in the AST of a script
 sidebar:
   order: 20
+hero:
+  image:
+    alt: An abstract, 8-bit style image featuring several bold, geometric code block
+      shapes overlapping within a 128x128 pixel space, each shape in one of five
+      distinct colors. Select blocks contain minimal, branching line patterns
+      evoking nodes of an abstract syntax tree. Thin connectors link some
+      blocks, suggesting searching and transformation between nodes. Small,
+      crisp programming icons—such as a curly bracket, a 'py' for Python, and a
+      diamond for SQL—are embedded within some shapes. The scene is entirely
+      flat, 2D, with sharp, clean edges, no background, and no human figures.
+    file: ./ast-grep.png
+
 ---
 
 [ast-grep](https://ast-grep.github.io/) is a fast and polyglot tool for code structural search, lint, rewriting at large scale.
@@ -105,7 +117,7 @@ for(const match of matches) {
   edits.replace(
     match.node,
     `console.log
-  ('${updated.text}')`
+  ('${updated.text}')`)
 }
 ```
 
@@ -142,7 +154,7 @@ This version of `ast-grep` [supports the following built-in languages](https://a
 - Python
 - C#
 
-The following languages require installing an additional package:
+The following languages require installing an additional package ([full list](https://www.npmjs.com/search?q=keywords:ast-grep-lang)):
 
 - SQL, `@ast-grep/lang-sql`
 - Angular, `@ast-grep/lang-angular`
@@ -165,7 +177,7 @@ The following file extensions are mapped to the corresponding languages:
 - JavaScript: `cjs`, `mjs`, `js`
 - TypeScript: `cts`, `mts`, `ts`
 - TSX: `tsx`
-- CSS: `css`    
+- CSS: `css`
 - c: `c`
 - cpp: `cpp`, `cxx`, `h`, `hpp`, `hxx`
 - python: `py`

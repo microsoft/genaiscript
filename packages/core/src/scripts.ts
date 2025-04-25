@@ -9,10 +9,11 @@ import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
 import { logVerbose } from "./util"
 import { Project } from "./server/messages"
-import { fetchText } from "./fetchtext"
 import { collapseNewlines } from "./cleaners"
 import { gitIgnoreEnsure } from "./gitignore"
 import { dotGenaiscriptPath } from "./workdir"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("scripts")
 
 /**
  * Creates a new script object based on the provided name and optional template.
@@ -128,6 +129,8 @@ let _fullDocsText: string
  * Writes the TypeScript definition file (`genaiscript.d.ts`) and manages files within the
  * `.genaiscript` directory. Optionally, creates GitHub Copilot prompt and documentation files
  * based on the provided options. Fetches external content for documentation updates if applicable.
+ * Ensures `.gitignore` is updated to ignore all files in the `.genaiscript` directory.
+ * Fetches and processes external documentation content if required.
  */
 export async function fixCustomPrompts(options?: {
     githubCopilotPrompt?: boolean
@@ -153,10 +156,11 @@ export async function fixCustomPrompts(options?: {
         const dn = host.path.join(ddir, route)
         let text = _fullDocsText
         if (!text) {
-            const content = await fetchText(url)
+            const content = await fetch(url)
             if (!content.ok) logVerbose(`failed to fetch ${url}`)
+            text = await content.text()
             text = _fullDocsText = collapseNewlines(
-                content.text.replace(
+                text.replace(
                     /^\!\[\]\(<data:image\/svg\+xml,.*$/gm,
                     "<!-- mermaid diagram -->"
                 )

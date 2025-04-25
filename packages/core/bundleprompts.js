@@ -97,7 +97,7 @@ async function main() {
                     resolveJsonModule: true,
                     erasableSyntaxOnly: true,
                 },
-                include: ["*.mjs", "*.mts", "src/*.mts", "./genaiscript.d.ts"],
+                include: ["**/*.mjs", "**/*.mts", "./genaiscript.d.ts"],
             },
             null,
             4
@@ -218,8 +218,7 @@ system({ ...,
     parameters: {
         model: {
             type: "string",
-            description: "LLM model to use",
-            default: "gpt-35-turbo",
+            description: "LLM model to use"
         },
     },
 })

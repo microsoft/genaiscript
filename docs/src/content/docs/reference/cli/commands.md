@@ -35,6 +35,7 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
+  -a, --accept <string>                      comma separated list of accepted file extensions
   -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_ai_inference", "azure_serverless", "azure_serverless_models", "github", "ollama", "windows_ai", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "sglang", "vllm", "litellm", "whisperasr", "echo")
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
@@ -248,6 +249,8 @@ Options:
   -c, --cache                        enable LLM result cache
   -cn, --cache-name <name>           custom cache file name
   -cc, --concurrency <number>        number of concurrent conversions
+  --no-run-trace                     disable automatic trace generation
+  --no-output-trace                  disable automatic output generation
   -h, --help                         display help for command
 ```
 
@@ -585,6 +588,8 @@ Commands:
   code <file> [query]           Parse code using tree sitter and executes a
                                 query
   tokens [options] <files...>   Count tokens in a set of files
+  tokenize [options] <file>     Tokenizes a piece of text and display the
+                                tokens (in hex format)
   jsonl2json                    Converts JSONL files to a JSON file
   prompty [options] <file...>   Converts .prompty files to genaiscript
   jinja2 [options] <file>       Renders Jinja2 or prompty template
@@ -679,6 +684,21 @@ Count tokens in a set of files
 Options:
   -ef, --excluded-files <string...>  excluded files
   -h, --help                         display help for command
+```
+
+### `parse tokenize`
+
+```
+Usage: genaiscript parse tokenize [options] <file>
+
+Tokenizes a piece of text and display the tokens (in hex format)
+
+Arguments:
+  file                  file to tokenize
+
+Options:
+  -m, --model <string>  encoding model
+  -h, --help            display help for command
 ```
 
 ### `parse jsonl2json`

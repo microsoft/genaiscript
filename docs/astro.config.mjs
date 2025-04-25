@@ -109,6 +109,11 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
             },
             social: [
                 {
+                    icon: "discord",
+                    label: "Discord",
+                    href: "https://discord.gg/y7HpumjHeB",
+                },
+                {
                     icon: "github",
                     label: "GitHub",
                     href: "https://github.com/microsoft/genaiscript",

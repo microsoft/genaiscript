@@ -4,13 +4,19 @@ import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import { listFiles, saveAllTextDocuments } from "./fs"
+import { saveAllTextDocuments } from "./fs"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { fixCustomPrompts, fixPromptDefinitions } from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
-import { TOOL_NAME, CHANGE, TOOL_ID } from "../../core/src/constants"
+import {
+    TOOL_NAME,
+    CHANGE,
+    TOOL_ID,
+    GENAI_ANYTS_REGEX,
+    MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+} from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
 import { MarkdownTrace } from "../../core/src/trace"
 import { logInfo, groupBy, logVerbose } from "../../core/src/util"
@@ -113,13 +119,15 @@ export class ExtensionState extends EventTarget {
 
         // clear errors when file edited (remove me?)
         subscriptions.push(
-            vscode.workspace.onDidChangeTextDocument(
-                (ev) => {
-                    this._diagColl.set(ev.document.uri, [])
-                },
-                undefined,
-                subscriptions
-            )
+            vscode.workspace.onDidChangeTextDocument((ev) => {
+                this._diagColl.set(ev.document.uri, [])
+            }),
+            vscode.workspace.onDidOpenTextDocument(async (ev) => {
+                const uri = ev.uri
+                if (GENAI_ANYTS_REGEX.test(uri.toString())) {
+                    await this.parseWorkspace()
+                }
+            })
         )
     }
 
@@ -253,7 +261,9 @@ export class ExtensionState extends EventTarget {
             reqChange()
         }
 
-        // todo: send js source
+        const provider = config.get("languageChatModelsProvider")
+            ? MODEL_PROVIDER_GITHUB_COPILOT_CHAT
+            : undefined
         const client = await this.host.server.client()
         const { runId, request } = await client.runScript(scriptId, files, {
             ...(runOptions || {}),
@@ -263,6 +273,7 @@ export class ExtensionState extends EventTarget {
             infoCb,
             partialCb,
             cache,
+            provider,
             vars: structuredClone(options.parameters),
         })
         r.runId = runId
@@ -367,18 +378,30 @@ export class ExtensionState extends EventTarget {
         if (githubCopilotPrompt) fixCustomPrompts({ githubCopilotPrompt: true }) // finish async
     }
 
-    async parseWorkspace() {
-        logVerbose(`parse workspace`)
-        this.dispatchChange()
-        performance.mark(`save-docs`)
-        await saveAllTextDocuments()
-        performance.mark(`project-start`)
-        performance.mark(`scan-tools`)
-        const client = await this.host.server.client()
-        const newProject = await client.listScripts()
-        await this.setProject(newProject)
-        this.setDiagnostics()
-        logMeasure(`project`, `project-start`, `project-end`)
+    private _parseWorkspacePromise: Promise<void> = undefined
+    parseWorkspace(): Promise<void> {
+        const p =
+            this._parseWorkspacePromise ||
+            (this._parseWorkspacePromise = this.uncachedParseWorkspace())
+        return p
+    }
+
+    private async uncachedParseWorkspace() {
+        try {
+            logVerbose(`parse workspace`)
+            this.dispatchChange()
+            performance.mark(`save-docs`)
+            await saveAllTextDocuments()
+            performance.mark(`project-start`)
+            performance.mark(`scan-tools`)
+            const client = await this.host.server.client()
+            const newProject = await client.listScripts()
+            await this.setProject(newProject)
+            this.setDiagnostics()
+            logMeasure(`project`, `project-start`, `project-end`)
+        } finally {
+            this._parseWorkspacePromise = undefined
+        }
     }
 
     private setDiagnostics() {

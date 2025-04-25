@@ -1,9 +1,23 @@
 ---
 title: Configuration
-description: Set up your LLM connection and authorization with environment variables for seamless integration.
-keywords: LLM setup, API configuration, environment variables, secure authorization, LLM integration
+description: Set up your LLM connection and authorization with environment
+    variables for seamless integration.
+keywords: LLM setup, API configuration, environment variables, secure
+    authorization, LLM integration
 sidebar:
     order: 2
+hero:
+    image:
+        alt:
+            A small, flat, 8-bit style illustration features simple colored blocks
+            linked by straight lines to depict API and cloud connections. Each block
+            displays a basic symbol, including representations of artificial
+            intelligence, a cloud, code, an environment file, and a lock for security.
+            Iconic, abstract shapes indicate major tech providers like OpenAI, Azure,
+            Google, Hugging Face, GitHub, and Anthropic. The arrangement is clear and
+            geometric, with each block in a unique color from a five-color palette,
+            all on a transparent background with no text, people, or visual effects.
+        file: ./configuration.png
 ---
 
 import { FileTree } from "@astrojs/starlight/components"
@@ -22,7 +36,10 @@ import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?r
 import oaiModelsSrc from "../../../assets/openai-model-names.png"
 import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
 
-import { AZURE_OPENAI_API_VERSION } from "../../../../../packages/core/src/constants"
+import {
+    AZURE_OPENAI_API_VERSION,
+    AZURE_AI_INFERENCE_VERSION,
+} from "../../../../../packages/core/src/constants"
 
 You will need to configure the LLM connection and authorization secrets. You can use remote (like OpenAI, Azure, etc.) and local models (like Ollama, Jan, LMStudio, etc.) with GenAIScript.
 
@@ -297,13 +314,52 @@ depending on your subscription.
 script({ model: "github:gpt-4o" })
 ```
 
-:::tip
+### Codespace configuration
 
-If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.
+If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you...
+It just works.
 
-:::
+### GitHub Actions configuration
 
-<YouTube id="Wya3MQRIbmE" posterQuality="high" />
+As of [April 2025](https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/),
+you can use the GitHub Actions token (`GITHUB_TOKEN`) to call AI models directly inside your workflows.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Ensure that the `models` permission is enabled in your workflow configuration.
+
+```yaml title="genai.yml" "models: read"
+permissions:
+    models: read
+```
+
+</li>
+
+<li>
+
+Pass the `GITHUB_TOKEN` when running `genaiscript`
+
+```yaml title="genai.yml" "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
+run: npx -y genaiscript run ...
+env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+Read more in the [GitHub Documentation](https://docs.github.com/en/github-models/integrating-ai-models-into-your-development-workflow#using-ai-models-with-github-actions)
+
+### Configuring with your own token
+
+If you are not using GitHub Actions or Codespaces, you can use your own token to access the models.
 
 <Steps>
 
@@ -619,7 +675,7 @@ that are supported in GenAIScript:
 - with deployments for non-OpenAI models, use the [Azure AI Serverless Models](#azure_serverless_models) provider.
 
 You can deploy "serverless" models through [Azure AI Foundry](https://ai.azure.com/) and pay as you go per token.
-You can browse the [Azure AI Foundary model catalog](https://ai.azure.com/explore/models)
+You can browse the [Azure AI Foundry model catalog](https://ai.azure.com/explore/models)
 and use the [serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) filter to see the available models.
 
 There are two types of serverless deployments that require different configurations: OpenAI models and all other models.
@@ -725,6 +781,18 @@ script({ model: "azure_ai_inference:model-id" })
 </ol>
 
 </Steps>
+
+#### API Version
+
+The default API version for Azure AI Inference is {AZURE_AI_INFERENCE_VERSION}.
+You can change it by setting the `AZURE_AI_INFERENCE_API_VERSION` environment variable
+(see [Azure AI Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation))
+
+```txt title=".env"
+AZURE_AI_INFERENCE_API_VERSION=2025-01-01-preview
+```
+
+<LLMProviderFeatures provider="azure_ai_inference" />
 
 ### Azure AI OpenAI Serverless <a href="" id="azure_serverless" />
 
@@ -1110,7 +1178,10 @@ This mode is useful to run your scripts without having a separate LLM provider o
 and have additional limitations and rate limiting defined by the GitHub Copilot platform.
 
 There is no configuration needed as long as you have GitHub Copilot installed and configured in Visual Studio Code.
-You can force using this model by using `github_copilot_chat:*` as a model name.
+
+You can force using this model by using `github_copilot_chat:*` as a model name
+or set the **GenAIScript > Language Chat Models Provider** setting to true.
+This will default GenAIScript to use this provider for model aliases.
 
 <YouTube id="LRrVMiZgWJg" posterQuality="high" />
 

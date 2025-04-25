@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.129.4",
+    "version": "1.132.0",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.98.0"
@@ -336,6 +336,10 @@
                         "type": "object",
                         "description": "Mapping from GenAIScript model (openai:gpt-4) to Visual Studio Code Language Chat Model (github...)"
                     },
+                    "genaiscript.languageChatModelsProvider": {
+                        "type": "boolean",
+                        "description": "Use GitHub Copilot Chat Models (or other models provided in Visual Studio Code) as the preferred LLM provider when a model is not specified."
+                    },
                     "genaiscript.diagnostics": {
                         "type": "boolean",
                         "default": false,
@@ -493,13 +497,13 @@
         "@types/vscode": "^1.98.0",
         "@vscode/vsce": "^3.3.2",
         "assert": "^2.1.0",
-        "es-toolkit": "^1.34.1",
+        "es-toolkit": "^1.36.0",
         "markdown-it-github-alerts": "0.2.0",
         "process": "^0.11.10",
         "typescript": "5.8.3",
         "vscode-uri": "^3.1.0",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.5.2"
+        "zx": "^8.5.3"
     }
 }

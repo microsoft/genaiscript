@@ -3,7 +3,16 @@ title: Choices
 description: Specify a list of preferred token choices for a script.
 keywords: choices, preferred words, logit bias
 sidebar:
-    order: 20
+  order: 20
+hero:
+  image:
+    alt: 'An image in 8-bit minimalist style shows two flat-colored square tokens:
+      one with a checkmark symbolizing "OK", and one with an "X" for "ERR". The
+      squares are joined by lines indicating adjustment or transition between
+      states. The design uses five distinct colors, features bold, basic shapes,
+      and has no text, people, or background details.'
+    file: ./choices.png
+
 ---
 
 You can specify a list of preferred words (choices) in the script metadata. It will increase the probability of the model generating the specified words.

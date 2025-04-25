@@ -47,14 +47,14 @@ const dbg = debug("genaiscript:${path.basename(file.filename).replace(/\..*$/, "
 
     const res = await runPrompt(
         (ctx) => {
-            const filen = ctx.def("FILE", file, { lineNumbers: true })
-            ctx.$`Your task is to instrument the TypeScript code in file ${filen} with debug logging. Be concise, no explanations.
+            const fileVar = ctx.def("FILE", file, { lineNumbers: true })
+            ctx.$`Your task is to instrument the TypeScript code in file ${fileVar} with debug logging. Be concise, no explanations.
 
 ## Add debug logs
 
 You are using the 'debug' npm package for logging (https://www.npmjs.com/package/debug).
 Add debug log **statement** in the code to allow the developer to understand a program execution from looking at the logs.
-You can inject the comment before or after the targetted line of code.
+You can inject the comment before or after the targeted line of code.
 
 \`\`\`ts
 dbg('message')
@@ -119,7 +119,7 @@ const arr = [ // DO NOT ADD LOG HERE
 ### Good logs
 
 - inject the log statement in valid code locations for TypeScript
-- use the line number in ${filen} ([line] ...) to correctly identify the location of the log but do not include the line number in the log message
+- use the line number in ${fileVar} ([line] ...) to correctly identify the location of the log but do not include the line number in the log message
 - use short informative messages, always lower cased
 - before doing any kind of file operation, log the file path.
 - In a catch handler, log the error.
@@ -130,7 +130,7 @@ const arr = [ // DO NOT ADD LOG HERE
 - do NOT add debug logs in unreachable code!
 - do NOT add debug log when entering a function.
 - do NOT add debug logs in object structures or arrays.
-- do NOT add debug logs for logging statemnts like console.log, console.error, logVerbose, ...
+- do NOT add debug logs for logging statements like console.log, console.error, logVerbose, ...
 - do NOT add debug logs before a function declaration
 - if there are already enough debug logs, you don't need to add more. Just respond <NOP>.
 - generate indentations as in the code.
@@ -141,7 +141,7 @@ Generate a list of 'line number, debug statement' entries.
 For example, if you added debug statements at line 1, line 7 and line 13, the output should be:
 
 [1]dbg(\`insert log message before line 1\`)
-[7]    dbg(\`insert log message before line 7 \${somevariable}\`)
+[7]    dbg(\`insert log message before line 7 \${someVariable}\`)
 [13]dbg(\`insert log message line 13\`)
 `
         },

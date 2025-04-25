@@ -8,8 +8,8 @@ import { select, input, confirm } from "@inquirer/prompts"
 /**
  * Asks the user to select between options.
  * @param message - The question to present to the user.
- * @param choices - An array of options for the user to choose from.
- * @param options - Optional configuration for the select prompt.
+ * @param choices - An array of options for the user to choose from. Each option is mapped to ensure it is in the correct format.
+ * @param options - Optional configuration for the select prompt, spread into the prompt configuration.
  * @returns A promise that resolves to the selected option as a string.
  */
 export async function shellSelect(

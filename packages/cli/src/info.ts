@@ -32,7 +32,7 @@ export async function systemInfo() {
 /**
  * Outputs environment information for model providers.
  * @param provider - The specific provider to filter by (optional).
- * @param options - Configuration options, including whether to show tokens, errors, or models.
+ * @param options - Configuration options, including whether to show tokens, errors, or models. The output hides sensitive information by default.
  */
 export async function envInfo(
     provider: string,
@@ -83,6 +83,7 @@ async function resolveScriptsConnectionInfo(
 
 /**
  * Outputs model connection information for a given script by resolving its templates.
+ * Filters the scripts based on the provided script ID or filename. If no script is provided, all scripts are included.
  * @param script - The specific script ID or filename to filter by. If not provided, all scripts are included.
  * @param options - Configuration options, including whether to show tokens.
  */
@@ -105,8 +106,9 @@ export async function scriptModelInfo(
  * Outputs detailed information about model aliases and their resolved configurations.
  * Each alias is expanded with its resolved counterpart.
  *
- * @description This function iterates over the `modelAliases` in the runtime host,
- * retrieves configuration details for each alias, resolves them, and outputs the data in YAML format.
+ * This function iterates over the `modelAliases` in the runtime host,
+ * retrieves configuration details for each alias, resolves them using `resolveModelAlias`,
+ * and outputs the data in YAML format.
  *
  * @param none This function does not require any parameters.
  */
@@ -126,7 +128,7 @@ export async function modelAliasesInfo() {
 /**
  * Outputs a list of models and their information for the specified provider.
  * @param provider - The specific provider to filter by (optional).
- * @param options - Configuration options, including whether to include errors and the output format (JSON or YAML).
+ * @param options - Configuration options, including whether to include errors, tokens, models, and the output format (JSON or YAML).
  */
 export async function modelList(
     provider: string,

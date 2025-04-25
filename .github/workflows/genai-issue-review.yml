@@ -5,18 +5,13 @@ on:
 concurrency:
     group: issues-${{ github.event.issue.number }}
     cancel-in-progress: true
-env:
-    GENAISCRIPT_DEFAULT_REASONING_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_MODEL }}
-    GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_MODEL }}
-    GENAISCRIPT_DEFAULT_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_VISION_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_VISION_MODEL }}
 jobs:
     build:
         runs-on: ubuntu-latest
         permissions:
             contents: read
             issues: write
+            models: read
         steps:
             - uses: actions/checkout@v4
               with:
@@ -29,10 +24,8 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
-            - name: start ollama
-              run: yarn ollama:start
             - name: genaiscript issue-review
-              run: node packages/cli/built/genaiscript.cjs run issue-reviewer -prc --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run issue-reviewer -p github -prc --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

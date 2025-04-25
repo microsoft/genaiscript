@@ -34,7 +34,10 @@ export function activateStatusBar(state: ExtensionState) {
             toMarkdownString(
                 authority && status === "running"
                     ? `server: [${server.authority}](${server.browserUrl})`
-                    : `server: ${status}`,
+                    : `GenAIScript: ${status}...`,
+                status === "starting"
+                    ? `On the first run, it may take a while to start the server while npx install 'genaiscript'.`
+                    : "",
                 fragment?.files?.[0],
                 ...Object.entries(languageChatModels).map(
                     ([m, c]) => `-  language chat model: ${m} -> ${c}`

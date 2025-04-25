@@ -1,9 +1,21 @@
 ---
 title: HTML
-description: Learn how to use HTML parsing functions in GenAIScript for effective content manipulation and data extraction.
-keywords: HTML parsing, content manipulation, data extraction, HTML to text, HTML to markdown
+description: Learn how to use HTML parsing functions in GenAIScript for
+  effective content manipulation and data extraction.
+keywords: HTML parsing, content manipulation, data extraction, HTML to text,
+  HTML to markdown
 sidebar:
-    order: 18
+  order: 18
+hero:
+  image:
+    alt: "A small, flat 8-bit style icon divided into three vertical parts: the left
+      shows a plain paper with HTML angle brackets, the middle depicts a
+      document with horizontal text lines transitioning into lines and a hashtag
+      for Markdown, and the right displays a table grid blending into curly
+      brackets for JSON; all elements use geometric shapes and five bold
+      corporate colors on a plain background."
+    file: ./html.png
+
 ---
 
 HTML processing enables you to parse HTML content effectively. Below you can find guidelines on using the HTML-related APIs available in GenAIScript.

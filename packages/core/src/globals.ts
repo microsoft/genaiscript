@@ -1,7 +1,7 @@
 import debug from "debug"
 const dbg = debug("globals")
 // Import various parsing and stringifying utilities
-import { createYAML, YAMLParse, YAMLStringify } from "./yaml"
+import { createYAML } from "./yaml"
 import { CSVParse, dataToMarkdownTable, CSVStringify, CSVChunk } from "./csv"
 import { INIParse, INIStringify } from "./ini"
 import { XMLParse } from "./xml"
@@ -14,7 +14,7 @@ import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { CancelError } from "./error"
 import { fetchText } from "./fetchtext"
-import { GitHubClient } from "./github"
+import { GitHubClient } from "./githubclient"
 import { GitClient } from "./git"
 import { estimateTokens, truncateTextToTokens } from "./tokens"
 import { chunk, resolveTokenEncoder } from "./encoders"

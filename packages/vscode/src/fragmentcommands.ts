@@ -13,6 +13,7 @@ import {
     showPromptParametersQuickPicks,
 } from "./parameterquickpick"
 import { scriptsToQuickPickItems } from "./scriptquickpick"
+import { getSelectedText } from "./selection"
 
 export function activateFragmentCommands(state: ExtensionState) {
     const { context, host } = state
@@ -57,6 +58,9 @@ export function activateFragmentCommands(state: ExtensionState) {
         fileOrFolder: vscode.Uri | undefined,
         extraArgs: vscode.Uri[] | { groupId: unknown } | undefined
     ) => {
+        // grab this early before any UI interactions
+        const selectedText = getSelectedText()
+
         // fileOrFolder is undefined from the command palette
         const fileOrFolders = Array.isArray(extraArgs)
             ? (extraArgs as vscode.Uri[])
@@ -72,16 +76,23 @@ export function activateFragmentCommands(state: ExtensionState) {
         let files: string[]
         let parameters: PromptParameters
 
+        const defaultValues = { selectedText }
         if (GENAI_ANY_REGEX.test(fileOrFolder?.path)) {
             const script = findScript(fileOrFolder)
-            parameters = await showPromptParametersQuickPicks(script)
+            parameters = await showPromptParametersQuickPicks(
+                script,
+                defaultValues
+            )
             if (parameters === undefined) return
             scriptId = script?.id || fileOrFolder.toString()
             files = []
         } else {
             const script = await pickTemplate()
             if (!script) return
-            parameters = await showPromptParametersQuickPicks(script)
+            parameters = await showPromptParametersQuickPicks(
+                script,
+                defaultValues
+            )
             if (parameters === undefined) return
             scriptId = script.id
             files = fileOrFolders?.map((f) => f.fsPath) || [
@@ -98,6 +109,10 @@ export function activateFragmentCommands(state: ExtensionState) {
 
     const scriptDebug = async (file: vscode.Uri) => {
         if (!file) return
+
+        // grab this early before any UI interactions
+        const selectedText = getSelectedText()
+
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
@@ -114,7 +129,11 @@ export function activateFragmentCommands(state: ExtensionState) {
             if (!script) return
             files = [file]
         }
-        const parameters = await showPromptParametersQuickPicks(script)
+        const defaultValues = { selectedText }
+        const parameters = await showPromptParametersQuickPicks(
+            script,
+            defaultValues
+        )
         if (parameters === undefined) return
 
         const { cliPath, cliVersion } = await resolveCli(state)
