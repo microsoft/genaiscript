@@ -497,7 +497,7 @@
         "@types/vscode": "^1.98.0",
         "@vscode/vsce": "^3.3.2",
         "assert": "^2.1.0",
-        "es-toolkit": "^1.35.0",
+        "es-toolkit": "^1.36.0",
         "markdown-it-github-alerts": "0.2.0",
         "process": "^0.11.10",
         "typescript": "5.8.3",
