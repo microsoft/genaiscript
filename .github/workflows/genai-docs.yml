@@ -38,11 +38,12 @@ jobs:
                   GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha}}
             - name: typecheck
               run: yarn typecheck
+            - name: git status
+              run: git status
             - name: commit
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
                   commit_message: "genai: /docs [skip ci]"
-                  branch: ${{ github.head_ref || github.ref_name }}
                   file_pattern: packages/**/*.ts
             - name: archive
               if: always()
