@@ -25,6 +25,7 @@ import {
     prettyTokens,
 } from "./pretty"
 import { genaiscriptDebug } from "./debug"
+import { ImageGenerationUsage } from "./chat"
 const dbg = genaiscriptDebug("usage")
 
 /**
@@ -334,6 +335,15 @@ export class GenerationStats {
         if (this.children.length > children.length) logVerbose(`${indent}  ...`)
         if (unknowns.size)
             logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
+    }
+
+    addImageGenerationUsage(usage: ImageGenerationUsage, duration?: number) {
+        this.usage.duration += duration ?? 0
+        if (usage) {
+            this.usage.completion_tokens += usage.output_tokens ?? 0
+            this.usage.prompt_tokens += usage.input_tokens ?? 0
+            this.usage.total_tokens += usage.total_tokens ?? 0
+        }
     }
 
     addUsage(usage: ChatCompletionUsage, duration?: number) {

@@ -107,6 +107,7 @@ import { stderr, stdout } from "./stdio"
 import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
 import { createCache } from "./cache"
+import { measure } from "./performance"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -1158,6 +1159,10 @@ export function createChatGenerationContext(
                 throw new Error(
                     `model configuration not found for ${conn.model}`
                 )
+            const stats = options.stats.createChild(
+                info.model,
+                "generate image"
+            )
             checkCancelled(cancellationToken)
             const { ok } = await runtimeHost.pullModel(configuration, {
                 trace: imgTrace,
@@ -1178,14 +1183,18 @@ export function createChatGenerationContext(
                 quality,
                 style,
             }) satisfies CreateImageRequest
+            const m = measure("img.generate", `${req.model} -> image`)
             const res = await imageGenerator(req, configuration, {
                 trace: imgTrace,
                 cancellationToken,
             })
+            const duration = m()
             if (res.error) {
                 imgTrace.error(errorMessage(res.error))
                 return undefined
             }
+            dbg(`usage: %o`, res.usage)
+            stats.addImageGenerationUsage(res.usage, duration)
 
             const h = await hash(res.image, { length: 20 })
             const buf = await imageTransform(res.image, {
@@ -1203,6 +1212,7 @@ export function createChatGenerationContext(
                     await renderImageToTerminal(buf, {
                         ...size,
                         label: filename,
+                        usage: res.usage,
                     })
                 )
             } else logVerbose(`image: ${filename}`)

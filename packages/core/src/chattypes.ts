@@ -28,6 +28,8 @@ export type ChatCompletionUsageCompletionTokensDetails =
 export type ChatCompletionUsagePromptTokensDetails =
     OpenAI.Completions.CompletionUsage.PromptTokensDetails
 
+export type ImageGenerationResponse = OpenAI.Images.ImagesResponse
+
 // Text content part of a chat completion
 export type ChatCompletionContentPartText =
     OpenAI.Chat.Completions.ChatCompletionContentPartText
