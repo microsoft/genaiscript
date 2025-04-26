@@ -2,6 +2,7 @@ import type { Octokit } from "@octokit/rest"
 import type { PaginateInterface } from "@octokit/plugin-paginate-rest"
 import {
     GITHUB_API_VERSION,
+    GITHUB_ASSET_BRANCH,
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_REST_API_CONCURRENCY_LIMIT,
     GITHUB_REST_PAGE_DEFAULT,
@@ -24,6 +25,11 @@ import { diffCreatePatch } from "./diff"
 import { GitClient } from "./git"
 import { genaiscriptDebug } from "./debug"
 import { fetch } from "./fetch"
+import { resolveBufferLike } from "./bufferlike"
+import { hash } from "./crypto"
+import { fileTypeFromBuffer } from "./filetype"
+import { createHash } from "node:crypto"
+import { lookupMime } from "./mime"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -588,7 +594,6 @@ async function paginatorToArray<T, R>(
 ): Promise<R[]> {
     const result: R[] = []
     for await (const item of await iterator) {
-        dbg(`processing item in paginator`)
         let r = iteratorItem(item)
         if (elementFilter) {
             r = r.filter(elementFilter)
@@ -729,12 +734,18 @@ export class GitHubClient implements GitHub {
 
     async getRef(branchName: string): Promise<GitHubRef> {
         const { client, owner, repo } = await this.api()
-        const existing = await client.git.getRef({
-            owner,
-            repo,
-            ref: `heads/${branchName}`,
-        })
-        return existing.data
+        try {
+            dbg(`get ref %s`, branchName)
+            const existing = await client.git.getRef({
+                owner,
+                repo,
+                ref: `heads/${branchName}`,
+            })
+            return existing.data
+        } catch (e) {
+            dbg(`ref not found`)
+            return undefined
+        }
     }
 
     async getOrCreateRef(
@@ -746,14 +757,10 @@ export class GitHubClient implements GitHub {
         if (!branchName) throw new Error("branchName is required")
 
         dbg(`checking if branch %s exists`, branchName)
-        const existing = await client.git.getRef({
-            owner,
-            repo,
-            ref: `heads/${branchName}`,
-        })
-        if (existing.status === 200) {
+        const existing = await this.getRef(branchName)
+        if (existing) {
             dbg(`branch %s already exists`, branchName)
-            return existing.data satisfies GitHubRef
+            return existing
         }
 
         let sha: string
@@ -813,6 +820,104 @@ export class GitHubClient implements GitHub {
             sha,
         })
         return res.data
+    }
+
+    async uploadAsset(
+        file: BufferLike,
+        options?: { branchName?: string; mime?: string }
+    ) {
+        const { branchName = GITHUB_ASSET_BRANCH } = options ?? {}
+        const { client, owner, repo } = await this.api()
+        if (!file) {
+            dbg(`no buffer provided, nothing to upload`)
+            return undefined
+        }
+        const buffer = await resolveBufferLike(file)
+        if (!buffer) {
+            dbg(`failed to resolve buffer, nothing to upload`)
+            return undefined
+        }
+        const base64Content = buffer.toString("base64")
+        const fileType = await fileTypeFromBuffer(buffer)
+        const hash = createHash("sha256")
+        hash.write(base64Content)
+        const hashId = hash.digest().toString("hex")
+        const uploadPath = hashId + (fileType ? `.${fileType.ext}` : ".txt")
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branchName}/${uploadPath}`
+
+        // try to get file
+        dbg(`checking %s`, rawUrl)
+        const cached = await fetch(rawUrl, { method: "HEAD" })
+        if (cached.status === 200) {
+            dbg(`asset already exists, skip upload`)
+            return rawUrl
+        }
+
+        dbg(`uploading asset %s to branch %s`, uploadPath, branchName)
+        await this.getOrCreateRef(branchName, { orphaned: true })
+        const { data: blob } = await client.git.createBlob({
+            owner,
+            repo,
+            content: base64Content,
+            encoding: "base64",
+        })
+        dbg(`created blob %s`, blob.sha)
+
+        // 3. Get the latest commit (HEAD) of the branch
+        const { data: refData } = await client.git.getRef({
+            owner,
+            repo,
+            ref: `heads/${branchName}`,
+        })
+        const latestCommitSha = refData.object.sha
+        dbg(`head ref %s: %s`, refData.ref, latestCommitSha)
+
+        // 4. Get the tree of the latest commit
+        const { data: commitData } = await client.git.getCommit({
+            owner,
+            repo,
+            commit_sha: latestCommitSha,
+        })
+        const baseTreeSha = commitData.tree.sha
+        dbg(`base tree sha %s`, baseTreeSha)
+
+        // 5. Create a new tree adding the image
+        const { data: newTree } = await client.git.createTree({
+            owner,
+            repo,
+            base_tree: baseTreeSha,
+            tree: [
+                {
+                    path: uploadPath,
+                    mode: "100644",
+                    type: "blob",
+                    sha: blob.sha,
+                },
+            ],
+        })
+
+        dbg("tree created %s", newTree.sha)
+
+        // 6. Create a new commit with the new tree
+        const { data: newCommit } = await client.git.createCommit({
+            owner,
+            repo,
+            message: `Upload asset ${uploadPath}`,
+            tree: newTree.sha,
+            parents: [latestCommitSha],
+        })
+        dbg("commit created %s", newCommit.sha)
+
+        // 7. Update the branch to point to the new commit
+        await client.git.updateRef({
+            owner,
+            repo,
+            ref: `heads/${branchName}`,
+            sha: newCommit.sha,
+            force: false, // do not force push
+        })
+
+        return rawUrl
     }
 
     async listIssues(

@@ -1,6 +1,8 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { GitHubClient } from "./githubclient"
+import { readFile } from "node:fs/promises"
+import { fileURLToPath } from "node:url"
 
 describe("GitHubClient", async () => {
     const client = GitHubClient.default()
@@ -82,5 +84,16 @@ describe("GitHubClient", async () => {
         })
         assert(existingRef)
         assert(existingRef.ref === "refs/heads/test-ignore")
+    })
+    await test("uploadAsset()", async () => {
+        const buffer = await readFile(fileURLToPath(import.meta.url))
+        const client = GitHubClient.default()
+        const url = await client.uploadAsset(buffer)
+        assert(url)
+        assert(url.startsWith("https://raw.githubusercontent.com"))
+
+        // Test with undefined buffer
+        const un = await client.uploadAsset(undefined)
+        assert(un === undefined)
     })
 })
