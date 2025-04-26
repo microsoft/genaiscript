@@ -14,7 +14,6 @@ import { prettifyMarkdown } from "./markdown"
 import { arrayify, assert, ellipse, logError, logVerbose } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
-import { fetchText } from "./fetchtext"
 import { concurrentLimit } from "./concurrency"
 import { llmifyDiff } from "./llmdiff"
 import { JSON5TryParse } from "./json5"
@@ -24,6 +23,7 @@ import { deleteUndefinedValues, normalizeInt } from "./cleaners"
 import { diffCreatePatch } from "./diff"
 import { GitClient } from "./git"
 import { genaiscriptDebug } from "./debug"
+import { fetch } from "./fetch"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -717,6 +717,54 @@ export class GitHubClient implements GitHub {
         })
     }
 
+    async getOrCreateRef(branchName: string, base: string): Promise<GitHubRef> {
+        const { client, owner, repo } = await this.api()
+        if (!branchName) throw new Error("branchName is required")
+
+        const ref = `refs/heads/${branchName}`
+        const existing = await client.git.getRef({
+            owner,
+            repo,
+            ref,
+        })
+        if (existing.status === 200) {
+            dbg(`ref %s already exists`, ref)
+            return existing.data satisfies GitHubRef
+        }
+
+        dbg(`creating ref %s`, ref)
+        if (!base) {
+            dbg(`creating orphaned`)
+            // Step 1: Create an empty tree
+            const { data: tree } = await client.git.createTree({
+                owner,
+                repo,
+                tree: [],
+            })
+            dbg(`created empty tree %s`, tree.sha)
+            // Step 2: Create a commit with NO parents
+            const { data: commit } = await client.git.createCommit({
+                owner,
+                repo,
+                message: "Initial commit on orphan branch",
+                tree: tree.sha,
+                parents: [], // <--- empty parent list = no history
+            })
+            base = commit.sha
+            dbg(`created commit %s`, commit.sha)
+        }
+
+        // Step 3: Create a reference (branch) pointing to the commit
+        dbg(`creating reference %s <- %s`, branchName, base)
+        const res = await client.git.createRef({
+            owner,
+            repo,
+            ref,
+            sha: base,
+        })
+        return res.data
+    }
+
     async listIssues(
         options?: {
             state?: "open" | "closed" | "all"
@@ -1036,7 +1084,8 @@ export class GitHubClient implements GitHub {
                     repo,
                     job_id: job.id,
                 })
-            const { text } = await fetchText(logs_url)
+            const logsRes = await fetch(logs_url)
+            const text = await logsRes.text()
             res.push({
                 ...job,
                 logs_url,
@@ -1062,7 +1111,8 @@ export class GitHubClient implements GitHub {
                 repo,
                 job_id,
             })
-        let { text } = await fetchText(logs_url)
+        const logsRes = await fetch(logs_url)
+        let text = await logsRes.text()
         if (options?.llmify) {
             text = parseJobLog(text)
         }
@@ -1080,7 +1130,8 @@ export class GitHubClient implements GitHub {
                 job_id,
             }
         )
-        const { text: content } = await fetchText(url)
+        const res = await fetch(url)
+        const content = await res.text()
         return { filename, url, content }
     }
 

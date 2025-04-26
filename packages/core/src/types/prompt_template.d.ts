@@ -3399,6 +3399,11 @@ interface GitHubIssue {
     assignee?: GitHubUser
 }
 
+interface GitHubRef {
+    ref: string
+    url: string
+}
+
 interface GitHubReactions {
     url: string
     total_count: number
