@@ -293,13 +293,14 @@ export async function imageTileEncodeForLLM(
 }
 
 /**
- * Renders an image to the terminal within specified dimensions, adding an optional label.
+ * Renders an image to the terminal within specified dimensions, adding an optional label and usage information.
  *
  * @param url - The source of the image, which can be a URL, Buffer, or similar.
  * @param options - Configuration object containing:
  *   - columns: The total number of terminal columns available.
  *   - rows: The total number of terminal rows available.
  *   - label: An optional string to display as the image's label.
+ *   - usage: Optional usage statistics to display below the image.
  *   - cancellationToken: Optional token to handle cancellation.
  * @returns A string representation of the image formatted for terminal output.
  */

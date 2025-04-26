@@ -739,8 +739,8 @@ export async function OpenAISpeech(
  * @param req - An object containing the image generation request, including:
  *              - model: The name of the model to use for image generation.
  *              - prompt: The text prompt to generate the image.
- *              - size: Optional; dimensions of the image in "widthxheight" format, defaults to "1024x1024".
- *              - quality: Optional; image quality setting.
+ *              - size: Optional; dimensions of the image in "widthxheight" format or keywords like "portrait", "landscape", "square", or "auto". Defaults to "1024x1024".
+ *              - quality: Optional; image quality setting ("auto", "high", "hd").
  *              - style: Optional; style attributes for image generation.
  *              - Additional parameters required for the request.
  * @param cfg - The configuration for the language model, including:
@@ -752,7 +752,7 @@ export async function OpenAISpeech(
  * @param options - Additional options including:
  *                  - trace: Optional; tracing information for debugging/logging.
  *                  - cancellationToken: Optional; token to handle request cancellation.
- * @returns - A result containing either the generated image as a Uint8Array or an error message.
+ * @returns - A result containing either the generated image as a Uint8Array, the revised prompt, usage information, or an error message.
  */
 export async function OpenAIImageGeneration(
     req: CreateImageRequest,
