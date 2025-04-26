@@ -824,8 +824,8 @@ export class GitHubClient implements GitHub {
 
     async uploadAsset(
         file: BufferLike,
-        options?: { branchName?: string; mime?: string }
-    ) {
+        options?: { branchName?: string }
+    ): Promise<string> {
         const { branchName = GITHUB_ASSET_BRANCH } = options ?? {}
         const { client, owner, repo } = await this.api()
         if (!file) {

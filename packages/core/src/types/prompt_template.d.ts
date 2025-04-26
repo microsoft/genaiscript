@@ -3667,6 +3667,19 @@ interface GitHub {
     ): Promise<GitHubFile[]>
 
     /**
+     * Uploads a file to an orphaned branch in the repository and returns the raw url
+     * Uploads a single copy of the file using hash as the name.
+     * @param file file or data to upload
+     * @param options
+     */
+    uploadAsset(
+        file: BufferLike,
+        options?: {
+            branchName?: string
+        }
+    ): Promise<string>
+
+    /**
      * Gets the underlying Octokit client
      */
     api(): Promise<any>

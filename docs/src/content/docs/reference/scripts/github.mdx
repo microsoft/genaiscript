@@ -2,19 +2,19 @@
 title: GitHub
 description: Support for querying GitHub
 sidebar:
-  order: 50
+    order: 50
 hero:
-  image:
-    alt: "A geometric 8-bit style image shows the GitHub Octocat logo in the center,
-      with basic icons arranged around it: a speech bubble for issues and
-      comments, a pull request symbol, a gear for workflow, a magnifying glass
-      for code search, a file icon for file content, a branch for branching, a
-      tag for releases, and colored squares representing different repository
-      languages. All elements are flat, use five GitHub corporate colors, are
-      minimally detailed, and set in a 128x128 pixel layout without background,
-      shadows, gradients, text, or human figures."
-    file: ./github.png
-
+    image:
+        alt:
+            "A geometric 8-bit style image shows the GitHub Octocat logo in the center,
+            with basic icons arranged around it: a speech bubble for issues and
+            comments, a pull request symbol, a gear for workflow, a magnifying glass
+            for code search, a file icon for file content, a branch for branching, a
+            tag for releases, and colored squares representing different repository
+            languages. All elements are flat, use five GitHub corporate colors, are
+            minimally detailed, and set in a 128x128 pixel layout without background,
+            shadows, gradients, text, or human figures."
+        file: ./github.png
 ---
 
 import { PackageManagers } from "starlight-package-managers"
@@ -33,15 +33,15 @@ In a GitHub CodeSpace, the `GITHUB_TOKEN` is automatically provisioned.
 
 ### GitHub Actions
 
-In GitHub Actions, you might need to add permissions to the workspace to access workflow logs and pull requests. 
+In GitHub Actions, you might need to add permissions to the workspace to access workflow logs, pull requests and or Marketplace Models.
 Additionally, you need to pass the `secret.GITHUB_TOKEN` to the GenAIScript script run.
 
 ```yml title="genai.yml" 'actions: read' 'GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}'
 permissions:
-    models: read # access to github models
     contents: read
     actions: read
     pull-requests: read # or write if you plan to create comments
+    models: read # access to GitHub Marketplace Models
 ...
     - run: npx --yes genaiscript ...
       env:
@@ -133,6 +133,19 @@ const files = await github.getRepositoryContent("", {
     maxDownloadSize: 2_000,
 })
 ```
+
+### Upload asset
+
+This API requires `contents: write` permission in GitHub Actions.
+It uploads data into an orphaned branch in the Repository
+and returns the URL to the uploaded asset.
+
+```js
+const url = await github.uploadAsset(file)
+console.log(url)
+```
+
+The URL can be used in markdown in comments or issues.
 
 ### Languages
 
