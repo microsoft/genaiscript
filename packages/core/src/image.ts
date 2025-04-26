@@ -1,6 +1,9 @@
 // Import necessary functions and types from other modules
 import { resolveBufferLike } from "./bufferlike"
 import {
+    CHAR_DOWN_ARROW,
+    CHAR_UP_ARROW,
+    CHAR_UP_DOWN_ARROWS,
     CONSOLE_COLOR_DEBUG,
     IMAGE_DETAIL_HIGH_HEIGHT,
     IMAGE_DETAIL_HIGH_WIDTH,
@@ -14,6 +17,7 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { wrapColor, wrapRgbColor } from "./consolecolor"
 import { assert } from "console"
 import { genaiscriptDebug } from "./debug"
+import { ImageGenerationUsage } from "./chat"
 const dbg = genaiscriptDebug("image")
 
 async function prepare(
@@ -305,10 +309,11 @@ export async function renderImageToTerminal(
         columns: number
         rows: number
         label?: string
+        usage?: ImageGenerationUsage
     } & CancellationOptions
 ) {
     assert(!!url, "image buffer")
-    const { columns, rows, label } = options
+    const { columns, rows, label, usage } = options
     const image = await prepare(url, {
         maxWidth: Math.max(16, Math.min(126, (columns >> 1) - 2)),
         maxHeight: Math.max(16, Math.min(126, rows - 4)),
@@ -331,8 +336,14 @@ export async function renderImageToTerminal(
         }
         res.push(wall, "\n")
     }
+    const usageStr = usage
+        ? `${CHAR_UP_DOWN_ARROWS}${usage.total_tokens} ${CHAR_UP_ARROW}${usage.input_tokens} ${CHAR_DOWN_ARROW}${usage.output_tokens}`
+        : ""
     res.push(
-        wrapColor(CONSOLE_COLOR_DEBUG, "└" + "─".repeat(width * 2) + "┘\n")
+        wrapColor(
+            CONSOLE_COLOR_DEBUG,
+            "└" + usageStr + "─".repeat(width * 2 - usageStr.length) + "┘\n"
+        )
     )
     return res.join("")
 }

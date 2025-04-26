@@ -1212,6 +1212,7 @@ export function createChatGenerationContext(
                     await renderImageToTerminal(buf, {
                         ...size,
                         label: filename,
+                        usage: res.usage,
                     })
                 )
             } else logVerbose(`image: ${filename}`)
