@@ -172,10 +172,21 @@ export type CreateImageRequest = {
     style?: string
 }
 
+export interface ImageGenerationUsage {
+    total_tokens: number
+    input_tokens: number
+    output_tokens: number
+    input_tokens_details?: {
+        text_tokens: number
+        image_tokens: number
+    }
+}
+
 export interface CreateImageResult {
     image: Uint8Array
     error?: SerializedError
     revisedPrompt?: string
+    usage?: ImageGenerationUsage
 }
 
 export type ImageGenerationFunction = (

@@ -49,6 +49,7 @@ import {
     EmbeddingCreateResponse,
     EmbeddingCreateParams,
     EmbeddingResult,
+    ImageGenerationResponse,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { CancellationOptions, checkCancelled } from "./cancellation"
@@ -847,15 +848,17 @@ export async function OpenAIImageGeneration(
                 image: undefined,
                 error: (await res.json())?.error || res.statusText,
             }
-        const j = await res.json()
+        const j: ImageGenerationResponse = await res.json()
         dbg(`%O`, j)
         const revisedPrompt = j.data[0]?.revised_prompt
         if (revisedPrompt)
             trace?.details(`📷 revised prompt`, j.data[0].revised_prompt)
+        const usage = j.usage
         const buffer = fromBase64(j.data[0].b64_json)
         return {
             image: new Uint8Array(buffer),
             revisedPrompt,
+            usage,
         } satisfies CreateImageResult
     } catch (e) {
         logError(e)
