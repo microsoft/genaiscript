@@ -339,9 +339,11 @@ export class GenerationStats {
 
     addImageGenerationUsage(usage: ImageGenerationUsage, duration?: number) {
         this.usage.duration += duration ?? 0
-        this.usage.completion_tokens += usage.output_tokens ?? 0
-        this.usage.prompt_tokens += usage.input_tokens ?? 0
-        this.usage.total_tokens += usage.total_tokens ?? 0
+        if (usage) {
+            this.usage.completion_tokens += usage.output_tokens ?? 0
+            this.usage.prompt_tokens += usage.input_tokens ?? 0
+            this.usage.total_tokens += usage.total_tokens ?? 0
+        }
     }
 
     addUsage(usage: ChatCompletionUsage, duration?: number) {
