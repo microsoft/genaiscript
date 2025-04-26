@@ -75,4 +75,12 @@ describe("GitHubClient", async () => {
         const files = await client.getRepositoryContent("packages/core/src")
         assert(Array.isArray(files))
     })
+    await test("getOrCreateRef()", async () => {
+        const client = GitHubClient.default()
+        const existingRef = await client.getOrCreateRef("test-ignore", {
+            orphaned: true,
+        })
+        assert(existingRef)
+        assert(existingRef.ref === "refs/heads/test-ignore")
+    })
 })

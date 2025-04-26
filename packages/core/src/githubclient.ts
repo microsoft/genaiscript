@@ -717,31 +717,75 @@ export class GitHubClient implements GitHub {
         })
     }
 
-    async getOrCreateRef(branchName: string, base: string): Promise<GitHubRef> {
+    async repo(): Promise<{
+        name: string
+        full_name: string
+        default_branch: string
+    }> {
         const { client, owner, repo } = await this.api()
-        if (!branchName) throw new Error("branchName is required")
+        const res = await client.rest.repos.get({ owner, repo })
+        return res.data
+    }
 
-        const ref = `refs/heads/${branchName}`
+    async getRef(branchName: string): Promise<GitHubRef> {
+        const { client, owner, repo } = await this.api()
         const existing = await client.git.getRef({
             owner,
             repo,
-            ref,
+            ref: `heads/${branchName}`,
+        })
+        return existing.data
+    }
+
+    async getOrCreateRef(
+        branchName: string,
+        options?: { base?: string; orphaned?: boolean | string }
+    ): Promise<GitHubRef> {
+        const { client, owner, repo } = await this.api()
+        const { base, orphaned } = options ?? {}
+        if (!branchName) throw new Error("branchName is required")
+
+        dbg(`checking if branch %s exists`, branchName)
+        const existing = await client.git.getRef({
+            owner,
+            repo,
+            ref: `heads/${branchName}`,
         })
         if (existing.status === 200) {
-            dbg(`ref %s already exists`, ref)
+            dbg(`branch %s already exists`, branchName)
             return existing.data satisfies GitHubRef
         }
 
-        dbg(`creating ref %s`, ref)
-        if (!base) {
+        let sha: string
+        dbg(`creating branch %s`, branchName)
+        if (orphaned) {
             dbg(`creating orphaned`)
+            // Step 0: Create a blob for the file content
+            const { data: blob } = await client.git.createBlob({
+                owner,
+                repo,
+                content: Buffer.from(
+                    typeof orphaned === orphaned
+                        ? orphaned
+                        : `Orphaned branch created by GenAIScript.`
+                ).toString("base64"),
+                encoding: "base64",
+            })
+
             // Step 1: Create an empty tree
             const { data: tree } = await client.git.createTree({
                 owner,
                 repo,
-                tree: [],
+                tree: [
+                    {
+                        path: "README.md",
+                        mode: "100644",
+                        type: "blob",
+                        sha: blob.sha,
+                    },
+                ],
             })
-            dbg(`created empty tree %s`, tree.sha)
+            dbg(`created tree %s`, tree.sha)
             // Step 2: Create a commit with NO parents
             const { data: commit } = await client.git.createCommit({
                 owner,
@@ -750,17 +794,23 @@ export class GitHubClient implements GitHub {
                 tree: tree.sha,
                 parents: [], // <--- empty parent list = no history
             })
-            base = commit.sha
+            sha = commit.sha
             dbg(`created commit %s`, commit.sha)
+        } else {
+            if (!base) {
+                dbg(`base is required for non-orphaned branch`)
+                const repo = await this.repo()
+                sha = repo.default_branch
+            } else sha = base
         }
 
         // Step 3: Create a reference (branch) pointing to the commit
-        dbg(`creating reference %s <- %s`, branchName, base)
+        dbg(`creating reference %s <- %s`, branchName, sha)
         const res = await client.git.createRef({
             owner,
             repo,
-            ref,
-            sha: base,
+            ref: `refs/heads/${branchName}`,
+            sha,
         })
         return res.data
     }
