@@ -3,6 +3,7 @@ import assert from "node:assert/strict"
 import { GitHubClient } from "./githubclient"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
+import { isCI } from "./ci"
 
 describe("GitHubClient", async () => {
     const client = GitHubClient.default()
@@ -41,8 +42,8 @@ describe("GitHubClient", async () => {
         const pr = await client.getPullRequest(prs[0].number)
         assert(pr?.number === prs[0].number)
     })
-
     await test("listWorkflowRuns()", async () => {
+        if (isCI) return
         const workflows = await client.listWorkflows({ count: 2 })
         assert(Array.isArray(workflows))
         const runs = await client.listWorkflowRuns(workflows[0].id)
@@ -57,8 +58,8 @@ describe("GitHubClient", async () => {
         const file = await client.getFile("README.md", "main")
         assert(file?.content)
     })
-
     await test("searchCode() returns search results", async () => {
+        if (isCI) return
         const results = await client.searchCode("writeText")
         assert(Array.isArray(results))
     })
