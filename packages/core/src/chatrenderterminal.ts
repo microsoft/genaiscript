@@ -49,6 +49,7 @@ function renderTrimmed(s: string, rows: number, width: number) {
 }
 
 async function renderMessageContent(
+    modelId: string,
     msg:
         | string
         | ChatCompletionAssistantMessageParam
@@ -82,7 +83,7 @@ async function renderMessageContent(
                     res.push(
                         await renderImageToTerminal(
                             dataUriToBuffer(c.image_url.url),
-                            { columns, rows, cancellationToken }
+                            { columns, rows, cancellationToken, modelId }
                         )
                     )
                     break
@@ -212,7 +213,7 @@ export async function renderMessagesToTerminal(
             case "system":
                 res.push(
                     wrapColor(CONSOLE_COLOR_DEBUG, "┌─📙 system\n"),
-                    ...(await renderMessageContent(msg, {
+                    ...(await renderMessageContent(model, msg, {
                         columns,
                         rows: msgRows(msg, system),
                     }))
@@ -221,7 +222,7 @@ export async function renderMessagesToTerminal(
             case "user":
                 res.push(wrapColor(CONSOLE_COLOR_DEBUG, "┌─👤 user\n"))
                 res.push(
-                    ...(await renderMessageContent(msg, {
+                    ...(await renderMessageContent(model, msg, {
                         columns,
                         rows: msgRows(msg, user),
                     }))
@@ -241,7 +242,7 @@ export async function renderMessagesToTerminal(
                         "\n"
                     )
                 res.push(
-                    ...(await renderMessageContent(msg, {
+                    ...(await renderMessageContent(model, msg, {
                         columns,
                         rows: msgRows(msg, assistant),
                     }))
@@ -259,7 +260,7 @@ export async function renderMessagesToTerminal(
                         CONSOLE_COLOR_DEBUG,
                         `┌─🔧 tool ${msg.tool_call_id || ""}\n`
                     ),
-                    ...(await renderMessageContent(msg, {
+                    ...(await renderMessageContent(model, msg, {
                         columns,
                         rows: msgRows(msg, undefined),
                     }))
@@ -268,7 +269,7 @@ export async function renderMessagesToTerminal(
             default:
                 res.push(
                     wrapColor(CONSOLE_COLOR_DEBUG, "┌─" + role + "\n"),
-                    ...(await renderMessageContent(YAMLStringify(msg), {
+                    ...(await renderMessageContent(model, YAMLStringify(msg), {
                         columns,
                         rows: msgRows(msg, undefined),
                     }))
