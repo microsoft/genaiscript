@@ -749,6 +749,10 @@
             "price_per_million_output_tokens": 4.4,
             "input_cache_token_rebate": 0.5
         },
+        "openai:gpt-image-1": {
+            "price_per_million_input_tokens": 10,
+            "price_per_million_output_tokens": 40
+        },
         "openai:o4-mini": {
             "price_per_million_input_tokens": 1.1,
             "price_per_million_output_tokens": 4.4,
