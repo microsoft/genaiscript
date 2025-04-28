@@ -92,7 +92,8 @@ describe("GitHubClient", async () => {
         const client = GitHubClient.default()
         const url = await client.uploadAsset(buffer)
         assert(url)
-        assert(url.startsWith("https://raw.githubusercontent.com"))
+        const parsedUrl = new URL(url);
+        assert(parsedUrl.host === "raw.githubusercontent.com");
 
         // Test with undefined buffer
         const un = await client.uploadAsset(undefined)
