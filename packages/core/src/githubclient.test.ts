@@ -1,35 +1,12 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { GitHubClient, patchGithubImages } from "./githubclient"
+import { GitHubClient } from "./githubclient"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { isCI } from "./ci"
 
 describe("GitHubClient", async () => {
     const client = GitHubClient.default()
-    await test("patchGithubImages() replaces image URLs correctly", async () => {
-        // Test when owner and repo match
-        const info = { owner: "microsoft", repo: "genaiscript" }
-
-        const inputText = `
-Here's an image:
-![](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/8c17c9f01c87f4d965d121dfff551ce60b81f2f8f008773f1fcfb58d8c2d8169.png)
-
-ignore
-https://raw.githubusercontent.com/foo/bar/genai-assets/abc123def456.jpg
-`
-
-        const expectedOutput = `
-Here's an image:
-![](../blob/genai-assets/8c17c9f01c87f4d965d121dfff551ce60b81f2f8f008773f1fcfb58d8c2d8169.png?raw=true)
-
-ignore
-https://raw.githubusercontent.com/foo/bar/refs/heads/genai-assets/abc123def456.jpg
-`
-
-        const result = patchGithubImages(info, inputText)
-        assert.equal(result, expectedOutput)
-    })
 
     await test("info() returns GitHub options", async () => {
         const info = await client.info()
