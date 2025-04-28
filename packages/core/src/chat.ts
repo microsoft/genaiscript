@@ -166,6 +166,7 @@ export type CreateImageRequest = {
     quality?: string
     size?: string
     style?: string
+    outputFormat?: "png" | "jpeg" | "webp"
 }
 
 export interface ImageGenerationUsage {

@@ -26,10 +26,8 @@ import { GitClient } from "./git"
 import { genaiscriptDebug } from "./debug"
 import { fetch } from "./fetch"
 import { resolveBufferLike } from "./bufferlike"
-import { hash } from "./crypto"
 import { fileTypeFromBuffer } from "./filetype"
 import { createHash } from "node:crypto"
-import { lookupMime } from "./mime"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -202,7 +200,7 @@ export async function githubUpdatePullRequestDescription(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl"
+        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
     >,
     text: string,
     commentTag: string
@@ -221,7 +219,6 @@ export async function githubUpdatePullRequestDescription(
     }
 
     text = prettifyMarkdown(text)
-    dbg(`prettified markdown text`)
     text += generatedByFooter(script, info)
 
     const fetch = await createFetch({ retryOn: [] })
@@ -336,15 +333,14 @@ export function generatedByFooter(
  */
 export function appendGeneratedComment(
     script: PromptScript,
-    info: { runUrl?: string },
+    info: { runUrl?: string; owner: string; repo: string },
     annotation: Diagnostic
 ) {
     const { message, code, severity } = annotation
-    return prettifyMarkdown(
-        `<!-- genaiscript ${severity} ${code || ""} -->
-${message}
+    const text = prettifyMarkdown(message)
+    return `<!-- genaiscript ${severity} ${code || ""} -->
+${text}
 ${generatedByFooter(script, info, code)}`
-    )
 }
 
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
@@ -352,7 +348,7 @@ export async function githubCreateIssueComment(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl"
+        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
     >,
     body: string,
     commentTag: string
@@ -372,6 +368,7 @@ export async function githubCreateIssueComment(
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
     dbg(`creating issue comment at %s`, url)
 
+    body = prettifyMarkdown(body)
     body += generatedByFooter(script, info)
 
     if (commentTag) {
@@ -444,7 +441,13 @@ async function githubCreatePullRequestReview(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+        | "apiUrl"
+        | "repository"
+        | "issue"
+        | "runUrl"
+        | "commitSha"
+        | "owner"
+        | "repo"
     >,
     token: string,
     annotation: Diagnostic,
@@ -527,7 +530,13 @@ export async function githubCreatePullRequestReviews(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+        | "apiUrl"
+        | "repository"
+        | "issue"
+        | "runUrl"
+        | "commitSha"
+        | "owner"
+        | "repo"
     >,
     annotations: Diagnostic[]
 ): Promise<boolean> {
@@ -843,7 +852,7 @@ export class GitHubClient implements GitHub {
         hash.write(base64Content)
         const hashId = hash.digest().toString("hex")
         const uploadPath = hashId + (fileType ? `.${fileType.ext}` : ".txt")
-        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branchName}/${uploadPath}`
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branchName}/${uploadPath}`
 
         // try to get file
         dbg(`checking %s`, rawUrl)
@@ -1510,7 +1519,7 @@ function parseJobLog(text: string) {
         .join("\n")
 }
 
-function cleanLog(text: string) {
+export function cleanLog(text: string) {
     return shellRemoveAsciiColors(
         text.replace(
             // timestamps

@@ -919,7 +919,7 @@ interface OutputTrace extends ToolCallTrace {
      * @param url - The URL of the image.
      * @param caption - The optional caption for the image.
      */
-    image(url: string, caption?: string): void
+    image(url: BufferLike, caption?: string): Promise<void>
 
     /**
      * Logs a markdown table
@@ -4429,6 +4429,11 @@ interface ImageGenerationOptions extends ImageTransformOptions {
      * Only used for DALL-E 3
      */
     style?: OptionsOrString<"vivid" | "natural">
+
+    /**
+     * For gpt-image-1 only, the type of image format to generate.
+     */
+    outputFormat?: "png" | "jpeg" | "webp"
 }
 
 interface TranscriptionOptions {

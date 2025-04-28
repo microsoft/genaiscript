@@ -61,7 +61,9 @@ export function filenameOrFileToFilename(
 ): string {
     return typeof fileOrContent === "string"
         ? fileOrContent
-        : fileOrContent?.filename
+        : typeof fileOrContent === "object"
+          ? fileOrContent?.filename
+          : undefined
 }
 
 /**
