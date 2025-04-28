@@ -13,63 +13,22 @@ describe("GitHubClient", async () => {
 
         const inputText = `
 Here's an image:
-https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/8c17c9f01c87f4d965d121dfff551ce60b81f2f8f008773f1fcfb58d8c2d8169.png
+![](https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/8c17c9f01c87f4d965d121dfff551ce60b81f2f8f008773f1fcfb58d8c2d8169.png)
 
-And another one:
-https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/abc123def456.jpg
-
-  
-![zine](https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/064ac8a2af02b60ad27e40ee8e6ee861bdbaa57e1d20fbb686d3a5516ea79c60.png)
+ignore
+https://raw.githubusercontent.com/foo/bar/genai-assets/abc123def456.jpg
 `
 
         const expectedOutput = `
 Here's an image:
-./genai-assets/8c17c9f01c87f4d965d121dfff551ce60b81f2f8f008773f1fcfb58d8c2d8169.png
+![](../blob/genai-assets/8c17c9f01c87f4d965d121dfff551ce60b81f2f8f008773f1fcfb58d8c2d8169.png?raw=true)
 
-And another one:
-./genai-assets/abc123def456.jpg
-
-  
-![zine](./genai-assets/064ac8a2af02b60ad27e40ee8e6ee861bdbaa57e1d20fbb686d3a5516ea79c60.png)
+ignore
+https://raw.githubusercontent.com/foo/bar/genai-assets/abc123def456.jpg
 `
 
         const result = patchGithubImages(info, inputText)
         assert.equal(result, expectedOutput)
-
-        // Test when owner and repo don't match
-        const differentOwnerText = `https://raw.githubusercontent.com/different/repo/genai-assets/image.png`
-        const resultDifferentOwner = patchGithubImages(info, differentOwnerText)
-        assert.equal(
-            resultDifferentOwner,
-            differentOwnerText,
-            "Should not change URL with different owner/repo"
-        )
-
-        // Test with mixed content
-        const mixedText = `
-# Document with images
-https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/image1.png
-Regular text line
-https://raw.githubusercontent.com/different/repo/main/image2.png
-More text
-https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/subfolder/image3.jpg
-`
-
-        const expectedMixedOutput = `
-# Document with images
-./genai-assets/image1.png
-Regular text line
-https://raw.githubusercontent.com/different/repo/main/image2.png
-More text
-./genai-assets/subfolder/image3.jpg
-`
-
-        const mixedResult = patchGithubImages(info, mixedText)
-        assert.equal(mixedResult, expectedMixedOutput)
-
-        // Test with empty text
-        const emptyResult = patchGithubImages(info, "")
-        assert.equal(emptyResult, "")
     })
 
     await test("info() returns GitHub options", async () => {

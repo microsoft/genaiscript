@@ -1535,12 +1535,14 @@ export function patchGithubImages(
     info: { owner: string; repo: string },
     text: string
 ): string {
+    // https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#images
     // replace raw githubusercontent links with relative paths
     // if in the same repo
     const rx =
-        /https:\/\/raw\.githubusercontent\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/(?<filepath>[a-z0-9\-_\.\/]+)/gi
+        /\]\(https:\/\/raw\.githubusercontent\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/(?<filepath>[a-z0-9\-_\.\/]+\.(png|jpg|webp))\)/gi
     return text.replace(rx, (_, owner, repo, filepath) => {
-        if (owner === info.owner && repo === info.repo) return `./${filepath}`
+        if (owner === info.owner && repo === info.repo)
+            return `](../blob/${filepath}?raw=true)`
         return _
     })
 }

@@ -60,7 +60,7 @@ const { image } = await generateImage(
     ${zine}`,
     {
         model: "openai:gpt-image-1",
-        quality: "low",
+        quality: "high",
         size: "portrait",
         outputFormat: "jpeg",
     }
