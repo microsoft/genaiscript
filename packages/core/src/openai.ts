@@ -756,7 +756,15 @@ export async function OpenAIImageGeneration(
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
 ): Promise<CreateImageResult> {
-    const { model, prompt, size = "1024x1024", quality, style, ...rest } = req
+    const {
+        model,
+        prompt,
+        size = "1024x1024",
+        quality,
+        style,
+        outputFormat,
+        ...rest
+    } = req
     const { trace } = options || {}
     let url = `${cfg.base}/images/generations`
 
@@ -799,6 +807,7 @@ export async function OpenAIImageGeneration(
         if (body.size === "portrait") body.size = "1024x1536"
         else if (body.size === "landscape") body.size = "1536x1024"
         else if (body.size === "square") body.size = "1024x1024"
+        if (outputFormat) body.output_format = outputFormat
     }
 
     if (body.size === "auto") delete body.size

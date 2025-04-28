@@ -4429,6 +4429,11 @@ interface ImageGenerationOptions extends ImageTransformOptions {
      * Only used for DALL-E 3
      */
     style?: OptionsOrString<"vivid" | "natural">
+
+    /**
+     * For gpt-image-1 only, the type of image format to generate.
+     */
+    outputFormat?: "png" | "jpeg" | "webp"
 }
 
 interface TranscriptionOptions {

@@ -17,6 +17,9 @@ https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/8c17c9f01c8
 
 And another one:
 https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/abc123def456.jpg
+
+  
+![zine](https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/064ac8a2af02b60ad27e40ee8e6ee861bdbaa57e1d20fbb686d3a5516ea79c60.png)
 `
 
         const expectedOutput = `
@@ -25,6 +28,9 @@ Here's an image:
 
 And another one:
 ./genai-assets/abc123def456.jpg
+
+  
+![zine](./genai-assets/064ac8a2af02b60ad27e40ee8e6ee861bdbaa57e1d20fbb686d3a5516ea79c60.png)
 `
 
         const result = patchGithubImages(info, inputText)

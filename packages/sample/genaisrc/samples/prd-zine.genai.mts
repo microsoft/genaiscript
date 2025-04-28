@@ -62,7 +62,7 @@ const { image } = await generateImage(
         model: "openai:gpt-image-1",
         quality: "low",
         size: "portrait",
-        mime: "image/jpeg",
+        outputFormat: "jpeg",
     }
 )
 if (!image) cancel("no image found")
