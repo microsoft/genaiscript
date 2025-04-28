@@ -791,7 +791,7 @@ export async function runScriptInternal(
             await githubCreateIssueComment(
                 script,
                 ghInfo,
-                prettifyMarkdown(result.text),
+                result.text,
                 typeof pullRequestComment === "string"
                     ? pullRequestComment
                     : script.id

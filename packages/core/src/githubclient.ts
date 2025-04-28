@@ -218,9 +218,7 @@ export async function githubUpdatePullRequestDescription(
         return { updated: false, statusText: "missing github token" }
     }
 
-    text = shellRemoveAsciiColors(text)
-    text = prettifyMarkdown(text)
-    text = patchGithubImages(info, text)
+    text = prettifyMarkdown(patchGithubImages(info, text))
     text += generatedByFooter(script, info)
 
     const fetch = await createFetch({ retryOn: [] })
@@ -335,15 +333,14 @@ export function generatedByFooter(
  */
 export function appendGeneratedComment(
     script: PromptScript,
-    info: { runUrl?: string },
+    info: { runUrl?: string; owner: string; repo: string },
     annotation: Diagnostic
 ) {
     const { message, code, severity } = annotation
-    return prettifyMarkdown(
-        `<!-- genaiscript ${severity} ${code || ""} -->
-${message}
+    const text = prettifyMarkdown(patchGithubImages(info, message))
+    return `<!-- genaiscript ${severity} ${code || ""} -->
+${text}
 ${generatedByFooter(script, info, code)}`
-    )
 }
 
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
@@ -351,7 +348,7 @@ export async function githubCreateIssueComment(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl"
+        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
     >,
     body: string,
     commentTag: string
@@ -371,6 +368,7 @@ export async function githubCreateIssueComment(
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
     dbg(`creating issue comment at %s`, url)
 
+    body = prettifyMarkdown(patchGithubImages(info, body))
     body += generatedByFooter(script, info)
 
     if (commentTag) {
@@ -443,7 +441,13 @@ async function githubCreatePullRequestReview(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+        | "apiUrl"
+        | "repository"
+        | "issue"
+        | "runUrl"
+        | "commitSha"
+        | "owner"
+        | "repo"
     >,
     token: string,
     annotation: Diagnostic,
@@ -453,7 +457,9 @@ async function githubCreatePullRequestReview(
     const { apiUrl, repository, issue, commitSha } = info
     dbg(`creating pull request review comment`)
 
-    const prettyMessage = prettifyMarkdown(annotation.message)
+    const prettyMessage = prettifyMarkdown(
+        patchGithubImages(info, annotation.message)
+    )
     const line = annotation.range?.[1]?.[0] + 1
     const body = {
         body: appendGeneratedComment(script, info, annotation),
@@ -526,7 +532,13 @@ export async function githubCreatePullRequestReviews(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+        | "apiUrl"
+        | "repository"
+        | "issue"
+        | "runUrl"
+        | "commitSha"
+        | "owner"
+        | "repo"
     >,
     annotations: Diagnostic[]
 ): Promise<boolean> {

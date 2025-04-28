@@ -324,7 +324,7 @@ ${this.toResultIcon(success, "")}${title}
         this.appendContent(`\n\n${"#".repeat(level)} ${message}\n\n`)
     }
 
-    async image(urlOrImage: BufferLike, caption: string) {
+    async image(urlOrImage: BufferLike, caption: string): Promise<void> {
         const imageUrl = await fileCacheImage(urlOrImage, {
             trace: this,
             ...this.options,

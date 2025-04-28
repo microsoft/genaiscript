@@ -60,10 +60,9 @@ const { image } = await generateImage(
     ${zine}`,
     {
         model: "openai:gpt-image-1",
-        quality: "medium",
-        size: "landscape",
+        quality: "low",
+        size: "portrait",
         mime: "image/jpeg",
-        maxWidth: 1024,
     }
 )
 if (!image) cancel("no image found")
