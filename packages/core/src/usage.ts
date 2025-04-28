@@ -71,6 +71,27 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
     return (input + output) / 1000000
 }
 
+export function estimateImageCost(
+    modelId: string,
+    usage: ImageGenerationUsage
+) {
+    if (!modelId || !usage.total_tokens) return undefined
+
+    const { provider, model } = parseModelIdentifier(modelId)
+    const mid = `${provider}:${model}`.toLowerCase()
+    const cost = MODEL_PRICINGS[mid]
+    if (!cost) {
+        return undefined
+    }
+
+    const { price_per_million_input_tokens, price_per_million_output_tokens } =
+        cost
+    const output =
+        (usage.input_tokens ?? 0) * price_per_million_input_tokens +
+        (usage.output_tokens ?? 0) * price_per_million_output_tokens
+    return output / 1000000
+}
+
 /**
  * Determines if the specified model has associated pricing data by checking
  * if any pricing entries start with the provider's prefix.

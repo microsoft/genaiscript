@@ -11,9 +11,9 @@ const { text: map } = await runPrompt(
     The description will be used by a LLM to generate an image of the zine.
     The zine will be used to tell "tell the story" of the code and its structure.
     Be descriptive about the visual features of the zine as you would for a zine.
-    The model has a context window of 4096 tokens.
-    Use names from the code symbols.
+    Use names from the code symbols. MINIMIZE THE USE OF TEXT, FAVOR GRAPHICS.
     Avoid studio ghibli style.
+    The model has a context window of 4096 tokens.
     Separate each page with ---
 
     ---

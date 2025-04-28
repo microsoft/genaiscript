@@ -18,6 +18,8 @@ import { wrapColor, wrapRgbColor } from "./consolecolor"
 import { assert } from "console"
 import { genaiscriptDebug } from "./debug"
 import { ImageGenerationUsage } from "./chat"
+import { estimateImageCost } from "./usage"
+import { prettyCost } from "./pretty"
 const dbg = genaiscriptDebug("image")
 
 async function prepare(
@@ -310,11 +312,12 @@ export async function renderImageToTerminal(
         columns: number
         rows: number
         label?: string
+        modelId?: string
         usage?: ImageGenerationUsage
     } & CancellationOptions
 ) {
     assert(!!url, "image buffer")
-    const { columns, rows, label, usage } = options
+    const { columns, rows, label, usage, modelId } = options
     const image = await prepare(url, {
         maxWidth: Math.max(16, Math.min(126, (columns >> 1) - 2)),
         maxHeight: Math.max(16, Math.min(126, rows - 4)),
@@ -337,8 +340,14 @@ export async function renderImageToTerminal(
         }
         res.push(wall, "\n")
     }
+    const cost = estimateImageCost(modelId, usage)
     const usageStr = usage
-        ? `${CHAR_UP_DOWN_ARROWS}${usage.total_tokens} ${CHAR_UP_ARROW}${usage.input_tokens} ${CHAR_DOWN_ARROW}${usage.output_tokens}`
+        ? [
+              `${CHAR_UP_DOWN_ARROWS}${usage.total_tokens}`,
+              `${CHAR_UP_ARROW}${usage.input_tokens}`,
+              `${CHAR_DOWN_ARROW}${usage.output_tokens}`,
+              prettyCost(cost),
+          ].join(" ")
         : ""
     res.push(
         wrapColor(

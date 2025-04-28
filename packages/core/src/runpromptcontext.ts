@@ -1213,6 +1213,7 @@ export function createChatGenerationContext(
                         ...size,
                         label: filename,
                         usage: res.usage,
+                        modelId: info.model,
                     })
                 )
             } else logVerbose(`image: ${filename}`)
