@@ -174,6 +174,7 @@ type ModelType = OptionsOrString<
     | "github:o1-preview"
     | "github:o3-mini"
     | "github:o3-mini:low"
+    | "github:mai-ds-r1"
     | "github:AI21-Jamba-1.5-Large"
     | "github:AI21-Jamba-1-5-Mini"
     | "github:deepseek-v3"
