@@ -5,7 +5,6 @@ import { serializeError } from "./error"
 import { createFetch, iterateBody } from "./fetch"
 import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { logError, logVerbose } from "./util"
-import { LanguageModelInfo } from "./server/messages"
 import { JSONLTryParse } from "./jsonl"
 import { stderr } from "./stdio"
 

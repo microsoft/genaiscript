@@ -14,7 +14,6 @@ import { HostConfiguration } from "./hostconfiguration"
 import { structuralMerge } from "./merge"
 import {
     LanguageModelConfiguration,
-    LanguageModelInfo,
     ResolvedLanguageModelConfiguration,
 } from "./server/messages"
 import { resolveLanguageModel } from "./lm"
