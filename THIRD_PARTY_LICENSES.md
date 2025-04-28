@@ -2018,9 +2018,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.796.0
- - @aws-sdk/client-sso@3.796.0
- - @aws-sdk/credential-provider-cognito-identity@3.796.0
+ - @aws-sdk/client-cognito-identity@3.797.0
+ - @aws-sdk/client-sso@3.797.0
+ - @aws-sdk/credential-provider-cognito-identity@3.797.0
  - @aws-sdk/middleware-eventstream@3.775.0
  - @aws-sdk/util-user-agent-browser@3.775.0
  - @aws-sdk/util-user-agent-node@3.796.0
@@ -2245,7 +2245,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.796.0
+ - @aws-sdk/client-bedrock-runtime@3.797.0
 
 This package contains the following license:
 
@@ -2927,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.131.0
+ - genaiscript-vscode@1.132.0
 
 This package contains the following license:
 
@@ -4855,11 +4855,11 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-env@3.796.0
- - @aws-sdk/credential-provider-ini@3.796.0
- - @aws-sdk/credential-provider-node@3.796.0
- - @aws-sdk/credential-providers@3.796.0
+ - @aws-sdk/credential-provider-ini@3.797.0
+ - @aws-sdk/credential-provider-node@3.797.0
+ - @aws-sdk/credential-providers@3.797.0
  - @aws-sdk/region-config-resolver@3.775.0
- - @aws-sdk/token-providers@3.796.0
+ - @aws-sdk/token-providers@3.797.0
  - @aws-sdk/types@3.775.0
  - @aws-sdk/util-endpoints@3.787.0
  - @aws-sdk/util-locate-window@3.723.0
@@ -5115,8 +5115,8 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-process@3.796.0
- - @aws-sdk/credential-provider-sso@3.796.0
- - @aws-sdk/credential-provider-web-identity@3.796.0
+ - @aws-sdk/credential-provider-sso@3.797.0
+ - @aws-sdk/credential-provider-web-identity@3.797.0
 
 These packages each contain the following license:
 
@@ -6019,7 +6019,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/core@3.796.0
  - @aws-sdk/credential-provider-http@3.796.0
- - @aws-sdk/nested-clients@3.796.0
+ - @aws-sdk/nested-clients@3.797.0
  - pyodide@0.27.5
 
 These packages each contain the following license:
@@ -8898,10 +8898,10 @@ The following npm packages may be included in this product:
  - @tokenizer/token@0.3.0
  - agent-base@6.0.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.131.0
- - genaiscript-sample@1.131.0
- - genaiscript-web@1.131.0
- - genaiscript@1.131.0
+ - genaiscript-core-internal@1.132.0
+ - genaiscript-sample@1.132.0
+ - genaiscript-web@1.132.0
+ - genaiscript@1.132.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -10788,7 +10788,7 @@ The following npm packages may be included in this product:
  - execa@9.5.2
  - figures@6.1.0
  - file-type@16.5.4
- - file-type@20.4.1
+ - file-type@20.5.0
  - get-stream@5.2.0
  - get-stream@9.0.1
  - got@14.4.7
@@ -10818,7 +10818,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.40.0
+ - type-fest@4.40.1
  - uint8array-extras@1.4.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0
