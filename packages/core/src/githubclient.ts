@@ -218,7 +218,7 @@ export async function githubUpdatePullRequestDescription(
         return { updated: false, statusText: "missing github token" }
     }
 
-    text = prettifyMarkdown(patchGithubImages(info, text))
+    text = prettifyMarkdown(text)
     text += generatedByFooter(script, info)
 
     const fetch = await createFetch({ retryOn: [] })
@@ -337,7 +337,7 @@ export function appendGeneratedComment(
     annotation: Diagnostic
 ) {
     const { message, code, severity } = annotation
-    const text = prettifyMarkdown(patchGithubImages(info, message))
+    const text = prettifyMarkdown(message)
     return `<!-- genaiscript ${severity} ${code || ""} -->
 ${text}
 ${generatedByFooter(script, info, code)}`
@@ -368,7 +368,7 @@ export async function githubCreateIssueComment(
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
     dbg(`creating issue comment at %s`, url)
 
-    body = prettifyMarkdown(patchGithubImages(info, body))
+    body = prettifyMarkdown(body)
     body += generatedByFooter(script, info)
 
     if (commentTag) {
@@ -457,9 +457,7 @@ async function githubCreatePullRequestReview(
     const { apiUrl, repository, issue, commitSha } = info
     dbg(`creating pull request review comment`)
 
-    const prettyMessage = prettifyMarkdown(
-        patchGithubImages(info, annotation.message)
-    )
+    const prettyMessage = prettifyMarkdown(annotation.message)
     const line = annotation.range?.[1]?.[0] + 1
     const body = {
         body: appendGeneratedComment(script, info, annotation),
@@ -1529,20 +1527,4 @@ export function cleanLog(text: string) {
             ""
         )
     )
-}
-
-export function patchGithubImages(
-    info: { owner: string; repo: string },
-    text: string
-): string {
-    // https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#images
-    // replace raw githubusercontent links with relative paths
-    // if in the same repo
-    const rx =
-        /\]\(https:\/\/raw\.githubusercontent\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/refs\/heads\/(?<filepath>[a-z0-9\-_\.\/]+\.(png|jpg|webp))\)/gi
-    return text.replace(rx, (_, owner, repo, filepath) => {
-        if (owner === info.owner && repo === info.repo)
-            return `](../blob/${filepath}?raw=true)`
-        return _
-    })
 }

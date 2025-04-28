@@ -1141,7 +1141,8 @@ export function createChatGenerationContext(
 
         const imgTrace = trace.startTraceDetails("🖼️ generate image")
         try {
-            const { style, quality, size } = imageOptions || {}
+            const { style, quality, size, outputFormat, mime } =
+                imageOptions || {}
             const conn: ModelConnectionOptions = {
                 model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
             }
@@ -1182,6 +1183,7 @@ export function createChatGenerationContext(
                 size,
                 quality,
                 style,
+                outputFormat,
             }) satisfies CreateImageRequest
             const m = measure("img.generate", `${req.model} -> image`)
             const res = await imageGenerator(req, configuration, {
@@ -1199,6 +1201,13 @@ export function createChatGenerationContext(
             const h = await hash(res.image, { length: 20 })
             const buf = await imageTransform(res.image, {
                 ...(imageOptions || {}),
+                mime:
+                    mime ??
+                    (outputFormat === "jpeg" || outputFormat === "webp"
+                        ? `image/jpeg`
+                        : outputFormat === "png"
+                          ? `image/png`
+                          : undefined),
                 cancellationToken,
                 trace: imgTrace,
             })
