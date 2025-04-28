@@ -38,17 +38,6 @@ export interface LanguageModelConfiguration extends LanguageModelReference {
     azureCredentialsType?: AzureCredentialsType
 }
 
-export interface LanguageModelInfo {
-    id: string
-    details?: string
-    url?: string
-    version?: string
-    /**
-     * Base model name
-     */
-    family?: string
-}
-
 export type ResolvedLanguageModelConfiguration =
     Partial<LanguageModelConfiguration> & {
         models?: LanguageModelInfo[]

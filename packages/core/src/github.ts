@@ -1,6 +1,5 @@
 import { MODEL_PROVIDER_GITHUB } from "./constants"
 import { createFetch } from "./fetch"
-import { LanguageModelInfo } from "./server/messages"
 import { LanguageModel, ListModelsFunction } from "./chat"
 import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { serializeError } from "./error"

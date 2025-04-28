@@ -5792,8 +5792,25 @@ interface PromiseQueue {
 }
 
 interface LanguageModelReference {
-    provider: string
-    model: string
+    provider: ModelProviderType
+    model: ModelType
+}
+
+interface LanguageModelInfo {
+    id: ModelType
+    details?: string
+    url?: string
+    version?: string
+    /**
+     * Base model name
+     */
+    family?: string
+}
+
+interface LanguageModelProviderInfo {
+    id: ModelProviderType
+    error?: string
+    models: LanguageModelInfo[]
 }
 
 interface LanguageModelHost {
@@ -5801,7 +5818,14 @@ interface LanguageModelHost {
      * Resolve a language model alias to a provider and model based on the current configuration
      * @param modelId
      */
-    resolveLanguageModel(modelId?: string): Promise<LanguageModelReference>
+    resolveLanguageModel(modelId?: ModelType): Promise<LanguageModelReference>
+
+    /**
+     * Returns the status of the model provider and list of models if available
+     */
+    resolveLanguageModelProvider(
+        provider: ModelProviderType
+    ): Promise<LanguageModelProviderInfo>
 }
 
 type ContentSafetyProvider = "azure"

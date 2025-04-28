@@ -78,7 +78,6 @@ import { uniq } from "es-toolkit"
 import { renderWithPrecision } from "./precision"
 import {
     LanguageModelConfiguration,
-    LanguageModelInfo,
     ResponseStatus,
 } from "./server/messages"
 import { unfence } from "./unwrappers"

@@ -56,10 +56,7 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
 import { TraceOptions } from "./trace"
-import {
-    LanguageModelConfiguration,
-    LanguageModelInfo,
-} from "./server/messages"
+import { LanguageModelConfiguration } from "./server/messages"
 import prettyBytes from "pretty-bytes"
 import {
     deleteUndefinedValues,
