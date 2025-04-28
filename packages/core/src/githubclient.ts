@@ -26,10 +26,8 @@ import { GitClient } from "./git"
 import { genaiscriptDebug } from "./debug"
 import { fetch } from "./fetch"
 import { resolveBufferLike } from "./bufferlike"
-import { hash } from "./crypto"
 import { fileTypeFromBuffer } from "./filetype"
 import { createHash } from "node:crypto"
-import { lookupMime } from "./mime"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -202,7 +200,7 @@ export async function githubUpdatePullRequestDescription(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl"
+        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
     >,
     text: string,
     commentTag: string
@@ -220,8 +218,9 @@ export async function githubUpdatePullRequestDescription(
         return { updated: false, statusText: "missing github token" }
     }
 
+    text = shellRemoveAsciiColors(text)
     text = prettifyMarkdown(text)
-    dbg(`prettified markdown text`)
+    text = patchGithubImages(info, text)
     text += generatedByFooter(script, info)
 
     const fetch = await createFetch({ retryOn: [] })
@@ -1510,7 +1509,7 @@ function parseJobLog(text: string) {
         .join("\n")
 }
 
-function cleanLog(text: string) {
+export function cleanLog(text: string) {
     return shellRemoveAsciiColors(
         text.replace(
             // timestamps
@@ -1518,4 +1517,18 @@ function cleanLog(text: string) {
             ""
         )
     )
+}
+
+export function patchGithubImages(
+    info: { owner: string; repo: string },
+    text: string
+): string {
+    // replace raw githubusercontent links with relative paths
+    // if in the same repo
+    const rx =
+        /https:\/\/raw\.githubusercontent\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/(?<filepath>[a-z0-9\-_\.\/]+)/gi
+    return text.replace(rx, (_, owner, repo, filepath) => {
+        if (owner === info.owner && repo === info.repo) return `./${filepath}`
+        return _
+    })
 }

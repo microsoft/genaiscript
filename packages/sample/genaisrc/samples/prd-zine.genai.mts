@@ -16,7 +16,7 @@ script({
         },
     },
 })
-const { vars, output } = env
+const { vars, output, dbg } = env
 const maxTokens = vars.maxTokens
 const defaultBranch = vars.base || (await git.defaultBranch())
 const branch = await git.branch()
@@ -46,7 +46,7 @@ const { text: zine } = await runPrompt(
     try to extract the intent of the changes, don't focus on the details
     Avoid studio ghibli style.
     The model has a context window of 4096 tokens.
-    Generate a single page zine.
+    Generate a single page zine for all panels/pages.
     `.role("system")
     },
     {
@@ -60,10 +60,12 @@ const { image } = await generateImage(
     ${zine}`,
     {
         model: "openai:gpt-image-1",
-        quality: "high",
-        size: "portrait",
+        quality: "medium",
+        size: "landscape",
+        mime: "image/jpeg",
+        maxWidth: 1024,
     }
 )
 if (!image) cancel("no image found")
 const ghFile = await github.uploadAsset(image)
-await output.image(image, 'zine')
+await output.image(ghFile, "zine")

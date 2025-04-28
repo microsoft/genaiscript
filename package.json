@@ -86,6 +86,7 @@
         "commit": "yarn pretty && yarn compile && yarn test:core && yarn gcm",
         "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model gcm",
         "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4.1 --vars base=dev",
+        "prd:zine": "node packages/cli/built/genaiscript.cjs run prd-zine -prd --model github:gpt-4.1 --vars base=dev",
         "prd:dev": "node packages/cli/built/genaiscript.cjs run prd -prd --model azure:gpt-4.1_2025-04-14 --vars maxTokens=500000",
         "prr": "node packages/cli/built/genaiscript.cjs run prr -prr --model github:gpt-4.1 --vars base=dev",
         "genai": "node packages/cli/built/genaiscript.cjs run",
