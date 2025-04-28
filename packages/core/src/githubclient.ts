@@ -854,7 +854,7 @@ export class GitHubClient implements GitHub {
         hash.write(base64Content)
         const hashId = hash.digest().toString("hex")
         const uploadPath = hashId + (fileType ? `.${fileType.ext}` : ".txt")
-        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branchName}/${uploadPath}`
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branchName}/${uploadPath}`
 
         // try to get file
         dbg(`checking %s`, rawUrl)
@@ -1539,7 +1539,7 @@ export function patchGithubImages(
     // replace raw githubusercontent links with relative paths
     // if in the same repo
     const rx =
-        /\]\(https:\/\/raw\.githubusercontent\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/(?<filepath>[a-z0-9\-_\.\/]+\.(png|jpg|webp))\)/gi
+        /\]\(https:\/\/raw\.githubusercontent\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/refs\/heads\/(?<filepath>[a-z0-9\-_\.\/]+\.(png|jpg|webp))\)/gi
     return text.replace(rx, (_, owner, repo, filepath) => {
         if (owner === info.owner && repo === info.repo)
             return `](../blob/${filepath}?raw=true)`

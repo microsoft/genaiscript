@@ -13,7 +13,7 @@ describe("GitHubClient", async () => {
 
         const inputText = `
 Here's an image:
-![](https://raw.githubusercontent.com/microsoft/genaiscript/genai-assets/8c17c9f01c87f4d965d121dfff551ce60b81f2f8f008773f1fcfb58d8c2d8169.png)
+![](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/8c17c9f01c87f4d965d121dfff551ce60b81f2f8f008773f1fcfb58d8c2d8169.png)
 
 ignore
 https://raw.githubusercontent.com/foo/bar/genai-assets/abc123def456.jpg
@@ -24,7 +24,7 @@ Here's an image:
 ![](../blob/genai-assets/8c17c9f01c87f4d965d121dfff551ce60b81f2f8f008773f1fcfb58d8c2d8169.png?raw=true)
 
 ignore
-https://raw.githubusercontent.com/foo/bar/genai-assets/abc123def456.jpg
+https://raw.githubusercontent.com/foo/bar/refs/heads/genai-assets/abc123def456.jpg
 `
 
         const result = patchGithubImages(info, inputText)

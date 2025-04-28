@@ -63,6 +63,7 @@ const { image } = await generateImage(
         quality: "high",
         size: "portrait",
         outputFormat: "jpeg",
+        maxWidth: 800,
     }
 )
 if (!image) cancel("no image found")
