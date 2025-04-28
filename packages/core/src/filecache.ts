@@ -9,8 +9,9 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
 import debug from "debug"
-import { FILE_HASH_LENGTH } from "./constants"
+import { FILE_HASH_LENGTH, HTTPS_REGEX } from "./constants"
 import { tryStat } from "./fs"
+import { filenameOrFileToFilename } from "./unwrappers"
 const dbg = debug("genaiscript:filecache")
 
 /**
@@ -75,11 +76,15 @@ export async function fileWriteCachedJSON(dir: string, data: any) {
  * @returns The relative path to the cached file or the original URL if it is a remote target.
  */
 export async function fileCacheImage(
-    url: string,
+    url: BufferLike,
     options?: TraceOptions & CancellationOptions & { dir?: string }
 ): Promise<string> {
     if (!url) return ""
-    if (/^https?:\/\//.test(url)) return url
+
+    const filename = filenameOrFileToFilename(url as any)
+    if (typeof filename === "string" && HTTPS_REGEX.test(filename))
+        return filename
+
     const {
         dir = dotGenaiscriptPath("images"),
         trace,

@@ -919,7 +919,7 @@ interface OutputTrace extends ToolCallTrace {
      * @param url - The URL of the image.
      * @param caption - The optional caption for the image.
      */
-    image(url: string, caption?: string): void
+    image(url: BufferLike, caption?: string): void
 
     /**
      * Logs a markdown table
