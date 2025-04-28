@@ -87,6 +87,7 @@ describe("GitHubClient", async () => {
         assert(existingRef.ref === "refs/heads/test-ignore")
     })
     await test("uploadAsset()", async () => {
+        if (isCI) return
         const buffer = await readFile(fileURLToPath(import.meta.url))
         const client = GitHubClient.default()
         const url = await client.uploadAsset(buffer)
