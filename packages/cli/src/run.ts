@@ -380,7 +380,16 @@ export async function runScriptInternal(
     for (let arg of files) {
         checkCancelled(cancellationToken)
         dbg(`resolving ${arg}`)
-        if (uriTryParse(arg)) {
+        const stat = await host.statFile(arg)
+        if (stat?.type === "file") {
+            dbg(`file found %s`, arg)
+            resolvedFiles.add(filePathOrUrlToWorkspaceFile(arg))
+            continue
+        }
+
+        const uriArg = uriTryParse(arg)
+        if (uriArg) {
+            dbg(`parsed uri %o`, uriArg)
             const resource = await tryResolveResource(arg, {
                 trace,
                 cancellationToken,
@@ -394,29 +403,24 @@ export async function runScriptInternal(
             workspaceFiles.push(...resource.files)
             continue
         }
-        const stat = await host.statFile(arg)
-        if (stat?.type === "file") {
-            dbg(`add %s`, arg)
-            resolvedFiles.add(filePathOrUrlToWorkspaceFile(arg))
-        } else {
-            if (stat?.type === "directory") {
-                dbg(`path is directory, expanding children`)
-                arg = host.path.join(arg, "**", "*")
-            }
-            dbg(`expand ${arg} (apply .gitignore: ${applyGitIgnore})`)
-            const ffs = await host.findFiles(arg, {
-                applyGitIgnore,
-            })
-            if (!ffs?.length && arg.includes("*")) {
-                // edge case when gitignore dumps 1 file
-                return fail(
-                    `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
-                    FILES_NOT_FOUND_ERROR_CODE
-                )
-            }
-            for (const file of ffs) {
-                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
-            }
+
+        if (stat?.type === "directory") {
+            arg = host.path.join(arg, "**", "*")
+            dbg(`directory, updating to %s`, arg)
+        }
+        dbg(`expand ${arg} (apply .gitignore: ${applyGitIgnore})`)
+        const ffs = await host.findFiles(arg, {
+            applyGitIgnore,
+        })
+        if (!ffs?.length && arg.includes("*")) {
+            // edge case when gitignore dumps 1 file
+            return fail(
+                `no files matching ${arg} under ${process.cwd()} (all files might have been ignored)`,
+                FILES_NOT_FOUND_ERROR_CODE
+            )
+        }
+        for (const file of ffs) {
+            resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
         }
     }
 
