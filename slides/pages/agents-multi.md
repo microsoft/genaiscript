@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: ./pages/agents-multi.jpg
+
+---
 # Multiple Agents
 
 ```mermaid

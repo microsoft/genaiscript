@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: ./pages/poem2.jpg
+
+---
 # Poet-moji to file script
 Poem generator to a file.
 

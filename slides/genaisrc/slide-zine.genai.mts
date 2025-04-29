@@ -5,10 +5,14 @@ script({
     accept: ".md",
 })
 const { output } = env
+const file = env.files[0]
+const frontmatter = MD.frontmatter(file)
+if (frontmatter.layout) cancel("layout already set")
+
 // generate map
 const { text: zine } = await runPrompt(
     (ctx) => {
-        const slides = ctx.def("SLIDE", env.files)
+        const slides = ctx.def("SLIDE", file)
         ctx.$`You are an expert zine cartoon artist, prompt genius, visionary slide deck designer and omniscient code developer.
     You will summarize the slides in ${slides} and generate a description of the changes as a zine.
     The slides using the sli.dev markdown format.
@@ -17,13 +21,16 @@ const { text: zine } = await runPrompt(
     Be descriptive about the visual features of the zine as you would for a zine.
     Use names from the code symbols. MINIMIZE THE USE OF TEXT, FAVOR GRAPHICS.
     Avoid studio ghibli style.
-    The model has a context window of 4096 tokens. The output image is square.
+    The model has a context window of 4096 tokens. The output image is portrait, 1 page, 6 tiles.
     Generate all the pages of the zine in a single tiled image.
+    Use black-and-white pen and ink style.
+    NO RELIGIOUS REFERENCES.
     `.role("system")
     },
     {
         label: "summarize slide to zine",
         model: "openai:gpt-4o",
+        temperature: 1,
     }
 )
 const { image } = await generateImage(
@@ -33,9 +40,19 @@ const { image } = await generateImage(
     {
         model: "openai:gpt-image-1",
         quality: "high",
-        size: "landscape",
+        size: "portrait",
         outputFormat: "jpeg",
     }
 )
 if (!image) cancel("no image found")
 await output.image(image, "zine")
+
+const imageFilename = path.changeext(
+    file.filename,
+    path.extname(image.filename)
+)
+await workspace.copyFile(image.filename, imageFilename)
+frontmatter.layout = "image-left"
+frontmatter.image = `./pages/${path.basename(imageFilename)}`
+file.content = MD.updateFrontmatter(file.content, frontmatter)
+await workspace.writeFiles(file)

@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: ./pages/aisw-intro.jpg
+
+---
 # AI Requires Us to Rethink Software
 &nbsp;
 ### **Plain Old Software (POSW)** = all pre-LLM SW 

@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: ./pages/makecode-translations.jpg
+
+---
 # Example: Translating MakeCode
 
 Markdown + various custom macros and DSLs

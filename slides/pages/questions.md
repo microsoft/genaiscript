@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: ./pages/questions.jpg
+
+---
 # Questions?
 ##
 

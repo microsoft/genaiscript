@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: ./pages/research-topics.jpg
+
+---
 # Research Challenges for GenAIScript
 &nbsp;
 - Giving the LLM appropriate context

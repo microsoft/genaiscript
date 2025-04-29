@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: ./pages/js-runtime.jpg
+
+---
 # JavaScript Runtime for GenAI
 
 -   **esm** + JavaScript/TypeScript
