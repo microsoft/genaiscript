@@ -1,0 +1,69 @@
+---
+title: Zine Meets Pull Requests
+description: A reflection about the influence of new image generator and their
+  impacts on the software development assets like pull requests.
+date: 2025-04-29
+cover:
+  alt: A retro 8-bit style illustration features a computer monitor displaying a
+    code comparison screen with bright, contrasting code blocks, positioned
+    beside an open, abstractly illustrated booklet resembling a zine. The
+    backdrop consists of geometric shapes in five corporate colors, creating a
+    clean, symbolic scene without any people or written text.
+  image: ./zine-prs.png
+tags:
+  - image generators
+  - pull request visualization
+  - zines
+  - gpt-image-1
+  - software annotation
+excerpt: Recent progress in AI image generation offers new possibilities for
+  documenting and reviewing code changes. By using a two-step process—first
+  converting a pull request diff into a visual prompt through a language model
+  and then generating images from that prompt—developers can enhance their PRs
+  with engaging visual summaries. This approach borrows from the "zine" format,
+  blending technical detail with illustration. The workflow can streamline the
+  review process by making changes easier to grasp at a glance, potentially
+  increasing participation and understanding across teams. With continued
+  improvements in generative models, expect even richer ways to present and
+  discuss code in the near future.
+
+---
+
+import { Code } from "@astrojs/starlight/components"
+import code from "../../../../../packages/sample/genaisrc/samples/prd-zine.genai.mts?raw"
+import BlogNarration from "../../../components/BlogNarration.astro"
+
+<BlogNarration />
+
+The availability of new image generators like OpenAI `gpt-image-1` opens
+the door to endless new ways to visualize and annotate software artifacts.
+
+![A pull request with a zine](./zine-prs-gh.png)
+
+## Zines
+
+["Zine"](https://en.wikipedia.org/wiki/Zine) is a popular graphic art form that combines text and images to tell a story.
+Can we prompt the LLM to generate a zine from a pull request diff? _offline robotic voice: Yes we can_.
+
+The script below is a 2 step LLM transformation of the pull request into a zine:
+
+- use `gpt-4.1-mini` to transform the diff into a image generation prompt
+- use `gpt-image-1` to generate the image from the prompt
+-   - a bit of plumbing to upload the generated image into a branch and add it to the pull request description
+
+<Code code={code} lang="ts" wrap title="prd-zine.genai.mts" />
+
+- https://github.com/microsoft/genaiscript/pull/1505
+
+![](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/522d1313a72276c6e257e8515aef10cefca29020918382165d523bed3ac84744.jpg)
+
+- https://github.com/microsoft/genaiscript/pull/1503
+
+![](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/ac75c0e82897b9bc80b7bdbab503dacdee16da762f1048ae20d163c4d1b5e7ac.jpg)
+
+## More to come
+
+The zine is a fun way to visualize the pull request diff. It is not perfect but it is inviting
+and maybe this is all you need to get someone to review your PR!
+
+There will be more ways to visualize software in the future, thanks to these amazing image generators.
