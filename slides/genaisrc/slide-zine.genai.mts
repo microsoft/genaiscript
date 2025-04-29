@@ -53,6 +53,6 @@ const imageFilename = path.changeext(
 )
 await workspace.copyFile(image.filename, imageFilename)
 frontmatter.layout = "image-left"
-frontmatter.image = `./pages/${path.basename(imageFilename)}`
+frontmatter.image = `/${path.basename(imageFilename)}`
 file.content = MD.updateFrontmatter(file.content, frontmatter)
 await workspace.writeFiles(file)

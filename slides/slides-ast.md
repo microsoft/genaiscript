@@ -78,7 +78,7 @@ layout: center
 
 - pattern matching over tree-sitter ASTs
 
-![AST-GREP playground](./pages/ast-grep.png){
+![AST-GREP playground](/ast-grep.png){
 
 - https://ast-grep.github.io/
 
@@ -152,7 +152,7 @@ find functions with docs
 - [applied to TypeScript ](https://github.com/pelikhan/TypeScript/commit/0c90af56cd533a545257f332b883597e2c07f1b8)
 - [github action](https://github.com/microsoft/genaiscript/blob/dev/.github/workflows/genai-docs.yml)
 
-![alt text](./pages/docs-diff.png)
+![alt text](/docs-diff.png)
 
 ---
 layout: two-cols-header
