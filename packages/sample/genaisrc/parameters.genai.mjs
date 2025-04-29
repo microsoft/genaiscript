@@ -99,6 +99,7 @@ graph TD
             uiType: "runOption",
         },
         notRequired: {
+            uiGroup: "secondary",
             type: "integer",
             required: false,
             description: `

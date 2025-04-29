@@ -44,6 +44,7 @@ function renderJSONSchemaToFunctionParameters(
     else if (schema === "null") return "null"
     else if ((schema as JSONSchemaAnyOf).anyOf) {
         const anyof = schema as JSONSchemaAnyOf
+        delete anyof.uiGroup
         return (anyof.anyOf || [])
             .map((x) => renderJSONSchemaToFunctionParameters(x, depth))
             .join(" | ")
@@ -58,9 +59,7 @@ function renderJSONSchemaToFunctionParameters(
             return `{ ${renderJSONSchemaToFunctionParameters(single.items, depth)} }[]`
         } else if (single.type === "object") {
             const required = single.required || []
-            return `${depth > 1 ? `{ ` : ""}${Object.entries(
-                single.properties
-            )
+            return `${depth > 1 ? `{ ` : ""}${Object.entries(single.properties)
                 .sort(
                     (l, r) =>
                         (required.includes(l[0]) ? -1 : 1) -
@@ -381,6 +380,7 @@ export function toStrictJSONSchema(
     // Recursive function to make the schema strict
     function visit(node: JSONSchemaType): void {
         const n = node as JSONSchemaSimpleType
+        delete n.uiGroup
         switch (n.type) {
             case "boolean": {
                 delete n.uiType

@@ -1958,6 +1958,7 @@ type JSONSchemaType = JSONSchemaSimpleType | JSONSchemaAnyOf | null
 
 interface JSONSchemaAnyOf {
     anyOf: JSONSchemaType[]
+    uiGroup?: string
 }
 
 interface JSONSchemaDescribed {
@@ -1969,6 +1970,11 @@ interface JSONSchemaDescribed {
      * A clear description of the property.
      */
     description?: string
+
+    /**
+     * Moves the field to a sub-group in the form, potentially collapsed
+     */
+    uiGroup?: string
 }
 
 interface JSONSchemaString extends JSONSchemaDescribed {
