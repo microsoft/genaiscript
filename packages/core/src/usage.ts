@@ -75,7 +75,7 @@ export function estimateImageCost(
     modelId: string,
     usage: ImageGenerationUsage
 ) {
-    if (!modelId || !usage.total_tokens) return undefined
+    if (!modelId || !usage?.total_tokens) return undefined
 
     const { provider, model } = parseModelIdentifier(modelId)
     const mid = `${provider}:${model}`.toLowerCase()
