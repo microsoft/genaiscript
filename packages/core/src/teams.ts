@@ -17,7 +17,7 @@ import { frontmatterTryParse, splitMarkdown } from "./frontmatter"
  * Converts a Markdown string into HTML formatted for Microsoft Teams.
  *
  * @param markdown - The Markdown content to be converted.
- * Supports headers, lists, links, bold, italic, underlined, code, strikethrough, and blockquotes.
+ * Supports headers, lists, links, bold, italic, underlined, code, strikethrough, and blockquote.
  *
  * @returns An object containing:
  * - `content`: The converted HTML string suitable for Microsoft Teams.
@@ -263,7 +263,10 @@ export async function microsoftTeamsChannelPostMessage(
 }
 
 class MicrosoftTeamsChannelClient implements MessageChannelClient {
-    constructor(public readonly channelUrl: string) {}
+    constructor(
+        public readonly channelUrl: string,
+        public readonly options: CancellationOptions
+    ) {}
 
     get teamId() {
         const { teamId } = parseTeamsChannelUrl(this.channelUrl)
@@ -294,15 +297,32 @@ class MicrosoftTeamsChannelClient implements MessageChannelClient {
         }
     ): Promise<string> {
         const { files, disclaimer } = options || {}
+        const { cancellationToken } = this.options || {}
         const res = await microsoftTeamsChannelPostMessage(
             this.channelUrl,
             dedent(message),
             {
                 files,
                 disclaimer,
+                cancellationToken,
             }
         )
         return res.webUrl
+    }
+
+    async readMessages() {
+        const { teamId, channelId } = this
+        const url = `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${channelId}/messages`
+        const fetch = await createFetch({ ...(this.options || {}), retries: 1 })
+        const authToken = await runtimeHost.microsoftGraphToken.token("default")
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${authToken.token.token}`,
+                "Content-Type": "application/json",
+            },
+        })
+        console.log(response)
     }
 
     toString() {
@@ -324,12 +344,13 @@ class MicrosoftTeamsChannelClient implements MessageChannelClient {
  * @returns An instance of a MicrosoftTeamsChannelClient for interacting with the specified channel.
  */
 export function createMicrosoftTeamsChannelClient(
-    url: string
+    url: string,
+    options?: CancellationOptions
 ): MessageChannelClient {
     if (!url)
         url =
             process.env.GENAISCRIPT_TEAMS_CHANNEL_URL ||
             process.env.GENAISCRIPT_TEAMS_URL
     if (!parseTeamsChannelUrl(url)) throw new Error("Invalid Teams channel URL")
-    return new MicrosoftTeamsChannelClient(url)
+    return new MicrosoftTeamsChannelClient(url, options)
 }

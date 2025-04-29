@@ -363,7 +363,7 @@ export async function createPromptContext(
                 cancellationToken,
                 ...(pyOptions || {}),
             }),
-        teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
+        teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url, { cancellationToken}),
         astGrep: async () =>
             Object.freeze<Sg>({
                 changeset: astGrepCreateChangeSet,

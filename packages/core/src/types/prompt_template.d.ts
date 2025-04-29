@@ -5986,6 +5986,8 @@ interface MessageChannelClient {
             disclaimer?: boolean | string
         }
     ): Promise<string>
+
+    readMessages(): Promise<void>
 }
 
 interface ContainerHost extends ShellHost {
