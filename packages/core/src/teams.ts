@@ -322,7 +322,9 @@ class MicrosoftTeamsChannelClient implements MessageChannelClient {
                 "Content-Type": "application/json",
             },
         })
-        console.log(response)
+        console.log(response.status)
+        const text = await response.text()
+        console.log(text)
     }
 
     toString() {

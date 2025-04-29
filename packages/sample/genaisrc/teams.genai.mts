@@ -4,7 +4,7 @@ const teams = await host.teamsChannel(
 )
 
 const msgs = await teams.readMessages()
-
+cancel('done')
 await teams.postMessage(
     `# Hello world
 This **message** _was_ sent from __genaiscript__.

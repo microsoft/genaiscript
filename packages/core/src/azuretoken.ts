@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:azuretoken")
-
 import { AZURE_TOKEN_EXPIRATION } from "../../core/src/constants"
 import {
     AuthenticationToken,
@@ -17,6 +14,8 @@ import {
     toSignal,
 } from "../../core/src/cancellation"
 import { AzureCredentialsType } from "../../core/src/server/messages"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("azuretoken")
 
 /**
  * This module provides functions to handle Azure authentication tokens,
@@ -39,6 +38,7 @@ async function createAzureToken(
 ): Promise<AuthenticationToken> {
     // Dynamically import DefaultAzureCredential from the Azure SDK
     dbg("dynamically importing Azure SDK credentials")
+    dbg(`scopes: %O`, scopes)
     const {
         DefaultAzureCredential,
         EnvironmentCredential,
