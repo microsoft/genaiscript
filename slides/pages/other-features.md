@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/other-features.jpg
+image: /other-features.jpg
 
 ---
 #  Other Features of GenAIScript

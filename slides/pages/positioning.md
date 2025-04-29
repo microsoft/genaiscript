@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/positioning.jpg
+image: /positioning.jpg
 
 ---
 # Where/when do you need AI Scripting?

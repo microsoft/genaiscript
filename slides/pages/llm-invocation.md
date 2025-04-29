@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/llm-invocation.jpg
+image: /llm-invocation.jpg
 
 ---
 # Prompt + LLM = Response

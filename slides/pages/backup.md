@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/backup.jpg
+image: /backup.jpg
 
 ---
 # Backup Slides

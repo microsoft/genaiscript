@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/poem.jpg
+image: /poem.jpg
 
 ---
 # Poet-moji script

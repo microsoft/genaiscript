@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/js-runtime.jpg
+image: /js-runtime.jpg
 
 ---
 # JavaScript Runtime for GenAI

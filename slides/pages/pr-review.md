@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/pr-review.jpg
+image: /pr-review.jpg
 
 ---
 # Pull Request Review

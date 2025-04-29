@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/plse-match.jpg
+image: /plse-match.jpg
 
 ---
 

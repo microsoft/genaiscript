@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/aisw-intro.jpg
+image: /aisw-intro.jpg
 
 ---
 # AI Requires Us to Rethink Software

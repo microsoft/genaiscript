@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/agents-multi.jpg
+image: /agents-multi.jpg
 
 ---
 # Multiple Agents

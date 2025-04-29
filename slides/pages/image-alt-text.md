@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/image-alt-text.jpg
+image: /image-alt-text.jpg
 
 ---
 # Image Alt Text

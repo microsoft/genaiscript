@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/research-topics.jpg
+image: /research-topics.jpg
 
 ---
 # Research Challenges for GenAIScript

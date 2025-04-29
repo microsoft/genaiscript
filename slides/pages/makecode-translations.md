@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/makecode-translations.jpg
+image: /makecode-translations.jpg
 
 ---
 # Example: Translating MakeCode

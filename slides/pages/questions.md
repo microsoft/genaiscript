@@ -1,6 +1,6 @@
 ---
 layout: image-left
-image: ./pages/questions.jpg
+image: /questions.jpg
 
 ---
 # Questions?
