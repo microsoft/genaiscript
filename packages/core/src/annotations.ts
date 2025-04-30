@@ -6,9 +6,6 @@
 
 import { deleteUndefinedValues } from "./cleaners"
 import { EMOJI_FAIL, EMOJI_WARNING } from "./constants"
-import { genaiscriptDebug } from "./debug"
-import { GithubConnectionInfo } from "./githubclient"
-const dbg = genaiscriptDebug("annotations")
 
 // Regular expression for matching GitHub Actions annotations.
 // Example: ::error file=foo.js,line=10,endLine=11::Something went wrong.
@@ -238,7 +235,7 @@ const severities: Record<string, string> = {
 }
 
 export function diagnosticToGitHubMarkdown(
-    info: Pick<GithubConnectionInfo, "owner" | "repo" | "commitSha">,
+    info: { owner: string; repo: string; commitSha?: string },
     d: Diagnostic
 ) {
     const { owner, repo, commitSha } = info

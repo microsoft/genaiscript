@@ -1,7 +1,6 @@
 import type {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
-    ChatCompletionUsage,
 } from "../chattypes"
 
 export interface ResponseStatus {
