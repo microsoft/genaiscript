@@ -1,5 +1,4 @@
-script({ system: ["system.annotations"] })
+script({ system: ["system.annotations"], responseType: "text" })
 def("FILE", env.files, { ignoreEmpty: true })
 
-$`Review FILE and report errors and warnings using annotation format.
-Answer in plain text.`
+$`Review FILE and report errors and warnings using annotation format. Suggest fixes.`

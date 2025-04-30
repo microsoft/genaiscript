@@ -331,6 +331,29 @@ export class GitClient implements Git {
     }
 
     /**
+     * Runs git blame in a file, line.
+     * @param filename
+     * @param line
+     * @returns
+     */
+    async blame(filename: string, line: number): Promise<string> {
+        const args = [
+            "blame",
+            filename,
+            "-p",
+            "-L",
+            "-w",
+            "--minimal",
+            `${line},${line}`,
+        ]
+        const res = await this.exec(args)
+        // part git blame porcelain format
+        // The porcelain format includes the sha, line numbers, and original line
+        const match = /^(?<sha>[a-f0-9]{40})\s+.*$/m.exec(res)
+        return match?.groups?.sha || ""
+    }
+
+    /**
      * Generates a diff of changes based on provided options.
      * @param options Options such as staged flag, base, head, paths, and exclusions.
      * @returns {Promise<string>} The diff output.

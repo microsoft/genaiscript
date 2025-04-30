@@ -21,6 +21,10 @@ interface Diagnostic {
     severity: DiagnosticSeverity
     message: string
     /**
+     * suggested fix
+     */
+    suggestion?: string
+    /**
      * error or warning code
      */
     code?: string
@@ -3145,6 +3149,14 @@ interface Git {
         excludedPaths?: ElementOrArray<string>
     }): Promise<GitCommit[]>
 
+
+    /**
+     * Run git blame on a file, line
+     * @param filename 
+     * @param line 
+     */
+    async blame(filename: string, line: number): Promise<string>
+
     /**
      * Create a shallow git clone
      * @param repository URL of the remote repository
@@ -3175,7 +3187,7 @@ interface Git {
             depth?: number
         }
     ): Promise<Git>
-
+    
     /**
      * Open a git client on a different directory
      * @param cwd working directory

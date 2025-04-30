@@ -28,6 +28,8 @@ import { fetch } from "./fetch"
 import { resolveBufferLike } from "./bufferlike"
 import { fileTypeFromBuffer } from "./filetype"
 import { createHash } from "node:crypto"
+import { CancellationOptions, checkCancelled } from "./cancellation"
+import { diagnosticToGitHubMarkdown } from "./annotations"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -203,8 +205,10 @@ export async function githubUpdatePullRequestDescription(
         "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
     >,
     text: string,
-    commentTag: string
+    commentTag: string,
+    options?: CancellationOptions
 ) {
+    const { cancellationToken } = options ?? {}
     const { apiUrl, repository, issue } = info
     assert(!!commentTag)
 
@@ -221,7 +225,7 @@ export async function githubUpdatePullRequestDescription(
     text = prettifyMarkdown(text)
     text += generatedByFooter(script, info)
 
-    const fetch = await createFetch({ retryOn: [] })
+    const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}`
     dbg(`fetching pull request details from URL: ${url}`)
     // get current body
@@ -336,10 +340,10 @@ export function appendGeneratedComment(
     info: { runUrl?: string; owner: string; repo: string },
     annotation: Diagnostic
 ) {
-    const { message, code, severity } = annotation
+    const { message, code, severity, suggestion } = annotation
     const text = prettifyMarkdown(message)
     return `<!-- genaiscript ${severity} ${code || ""} -->
-${text}
+${text}${suggestion ? `\n\n\`\`\`suggestion\n${suggestion}\n\`\`\`\n` : ""}
 ${generatedByFooter(script, info, code)}`
 }
 
@@ -351,8 +355,10 @@ export async function githubCreateIssueComment(
         "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
     >,
     body: string,
-    commentTag: string
+    commentTag: string,
+    options?: CancellationOptions
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
+    const { cancellationToken } = options ?? {}
     const { apiUrl, repository, issue } = info
 
     if (!issue) {
@@ -364,12 +370,14 @@ export async function githubCreateIssueComment(
         return { created: false, statusText: "missing github token" }
     }
 
-    const fetch = await createFetch({ retryOn: [] })
+    const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
     dbg(`creating issue comment at %s`, url)
 
     body = prettifyMarkdown(body)
     body += generatedByFooter(script, info)
+
+    dbg(`body:\n%s`, body)
 
     if (commentTag) {
         const tag = `<!-- genaiscript ${commentTag} -->`
@@ -393,6 +401,7 @@ export async function githubCreateIssueComment(
             id: string
             body: string
         }[]
+        dbg(`comments: %O`, comments)
         const comment = comments.find((c) => c.body.includes(tag))
         if (comment) {
             dbg(`found existing comment %s with tag, deleting it`, comment.id)
@@ -451,9 +460,16 @@ async function githubCreatePullRequestReview(
     >,
     token: string,
     annotation: Diagnostic,
-    existingComments: { id: string; path: string; line: number; body: string }[]
+    existingComments: {
+        id: string
+        path: string
+        line: number
+        body: string
+    }[],
+    options?: CancellationOptions
 ) {
     assert(!!token)
+    const { cancellationToken } = options ?? {}
     const { apiUrl, repository, issue, commitSha } = info
     dbg(`creating pull request review comment`)
 
@@ -482,7 +498,7 @@ async function githubCreatePullRequestReview(
         )
         return { created: false, statusText: "comment already exists" }
     }
-    const fetch = await createFetch({ retryOn: [] })
+    const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     dbg(`posting new pull request review comment at URL: ${url}`)
     dbg(`%O`, body)
@@ -505,7 +521,7 @@ async function githubCreatePullRequestReview(
         logVerbose(
             `pull request ${commitSha} comment creation failed, ${r.statusText} (${res.status})`
         )
-        dbg(JSON.stringify(resp, null, 2))
+        dbg("prr comment creation failed %O", resp)
     } else {
         logVerbose(`pull request ${commitSha} comment created at ${r.html_url}`)
     }
@@ -538,8 +554,10 @@ export async function githubCreatePullRequestReviews(
         | "owner"
         | "repo"
     >,
-    annotations: Diagnostic[]
+    annotations: Diagnostic[],
+    options?: CancellationOptions
 ): Promise<boolean> {
+    const { cancellationToken } = options ?? {}
     const { repository, issue, commitSha, apiUrl } = info
 
     if (!annotations?.length) {
@@ -561,7 +579,7 @@ export async function githubCreatePullRequestReviews(
     }
 
     // query existing reviews
-    const fetch = await createFetch({ retryOn: [] })
+    const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     dbg(`fetching existing pull request comments from URL: ${url}`)
     const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
@@ -571,6 +589,7 @@ export async function githubCreatePullRequestReviews(
             "X-GitHub-Api-Version": GITHUB_API_VERSION,
         },
     })
+    checkCancelled(cancellationToken)
     if (resListComments.status !== 200) {
         dbg(`failed to fetch existing pull request comments`)
         return false
@@ -581,17 +600,32 @@ export async function githubCreatePullRequestReviews(
         line: number
         body: string
     }[]
+    dbg(`existing pull request comments: %O`, comments)
     // code annotations
+    const failed: Diagnostic[] = []
     for (const annotation of annotations) {
         dbg(`iterating over annotations to create pull request reviews`)
-        await githubCreatePullRequestReview(
+        checkCancelled(cancellationToken)
+        const res = await githubCreatePullRequestReview(
             script,
             info,
             token,
             annotation,
             comments
         )
+        if (!res.created) failed.push(annotation)
     }
+
+    if (failed.length) {
+        await githubCreateIssueComment(
+            script,
+            info,
+            failed.map(d => diagnosticToGitHubMarkdown(info, d)).join("\n\n"),
+            script.id + "-prr",
+            options
+        )
+    }
+
     return true
 }
 
