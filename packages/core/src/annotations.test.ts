@@ -36,6 +36,18 @@ describe("annotations", () => {
         )
     })
 
+    test("github:suggestions", () => {
+        const output = `
+::warning file=packages/sample/src/fib.ts,line=1,endLine=4,code=unimplemented_function::The fibonacci function is unimplemented and currently always returns 0.::function fibonacci(n: number): number { if (n <= 1) return n; return fibonacci(n - 1) + fibonacci(n - 2); }
+`
+        const diags = parseAnnotations(output)
+        assert.strictEqual(diags.length, 1)
+        assert.strictEqual(
+            diags[0].suggestion,
+            "function fibonacci(n: number): number { if (n <= 1) return n; return fibonacci(n - 1) + fibonacci(n - 2); }"
+        )
+    })
+
     test("tsc", () => {
         const output = `
 $ /workspaces/genaiscript/node_modules/.bin/tsc --noEmit --pretty false -p src
@@ -170,7 +182,6 @@ Some normal text here.
         assert.strictEqual(result, expected)
     })
 
-    
     test("convertGithubMarkdownAnnotationsToItems2", () => {
         const input = `
 > [!WARNING]

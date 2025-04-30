@@ -21,6 +21,10 @@ interface Diagnostic {
     severity: DiagnosticSeverity
     message: string
     /**
+     * suggested fix
+     */
+    suggestion?: string
+    /**
      * error or warning code
      */
     code?: string
