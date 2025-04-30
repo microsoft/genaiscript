@@ -824,7 +824,7 @@ Use the following format to report **file annotations** (same as GitHub Actions 
 - <end line> is the ending line number starting at 1, 
 - <error_id> is a unique identifier for the error (use snake_case)
 - <message> is the message to be displayed
-- <suggestion> is optional: it is a full text replacement of the original line in the file that fixes the error. The suggestion is a single line, not new lines.
+- <suggestion> is optional: it is a full text replacement of the <line> line in the file that fixes the error. The suggestion is a single line, not new lines. If the suggestion does not match <line>, do not generate.
 
 For example, an warning in main.py on line 2 with message "There seems to be a typo here." would be:
 
