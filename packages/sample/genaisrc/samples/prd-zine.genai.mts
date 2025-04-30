@@ -45,13 +45,13 @@ const { text: zine } = await runPrompt(
     do NOT explain that GIT_DIFF displays changes in the codebase
     try to extract the intent of the changes, don't focus on the details
     Avoid studio ghibli style.
-    The model has a context window of 4096 tokens. The output image is square.
+    The model has a context window of 4096 tokens. The output image is portrait.
     Generate a single page zine for all panels/pages.
     `.role("system")
     },
     {
         label: "summarize code to zine",
-        model: "openai:gpt-4.1-mini",
+        model: "openai:gpt-4.1",
     }
 )
 const { image } = await generateImage(
