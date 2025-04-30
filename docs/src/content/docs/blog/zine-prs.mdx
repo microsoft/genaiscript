@@ -1,5 +1,5 @@
 ---
-title: Zine Meets Pull Requests
+title: Zine Meets Pull Requests (and more)
 description: A reflection about the influence of new image generator and their
     impacts on the software development assets like pull requests.
 date: 2025-04-29
@@ -12,6 +12,7 @@ tags:
     - zines
     - gpt-image-1
     - software annotation
+    - sketchnotes
 excerpt: Recent progress in AI image generation offers new possibilities for
     documenting and reviewing code changes. By using a two-step process—first
     converting a pull request diff into a visual prompt through a language model
@@ -26,12 +27,19 @@ excerpt: Recent progress in AI image generation offers new possibilities for
 
 import { Code } from "@astrojs/starlight/components"
 import code from "../../../../../packages/sample/genaisrc/samples/prd-zine.genai.mts?raw"
+import sketchCode from "../../../../../packages/sample/genaisrc/samples/prd-sketch.genai.mts?raw"
 import BlogNarration from "../../../components/BlogNarration.astro"
 
 <BlogNarration />
 
 The availability of new image generators like OpenAI `gpt-image-1` opens
 the door to endless new ways to visualize and annotate software artifacts.
+
+:::tip
+
+It also works for **sketchnotes!**
+
+:::
 
 ## Zines
 
@@ -61,6 +69,21 @@ The script below is a 2 step LLM transformation of the pull request into a zine:
 - https://github.com/microsoft/genaiscript/pull/1506
 
 ![](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/1b560d071efb015942678ffc705eac01e0d1dad8fd1e88ab521c0283a535a278.jpg)
+
+## Sketchnotes (updated)
+
+["Sketchnotes"](https://sketchyideas.co/sketchnotes/) is another style of visual note-taking that combines hand-drawn elements with text to convey information.
+It is a great way to summarize a pull request and make it more engaging.
+
+<Code code={sketchCode} lang="ts" wrap title="prd-sketch.genai.mts" />
+
+- https://github.com/microsoft/genaiscript/pull/1510
+
+![](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/034e747af0809c2ed0ed02f5e980cce1f48a6f80e0a3c63818694d3afa34647a.jpg)
+
+- https://github.com/microsoft/genaiscript/pull/1511
+
+![](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/d9461598f48703dceb7e4dd381292b713c993dbbde2dec3f2b2b18858d774dfb.jpg)
 
 ## More to come
 
