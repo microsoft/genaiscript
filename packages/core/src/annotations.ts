@@ -246,7 +246,8 @@ export function diagnosticToGitHubMarkdown(
     const file = filename
     const line = range?.[0]?.[0]
     return `> [!${severities[severity] || severity}]
-> ${message} ([${file}#L${line}](/${owner}/${repo}/blob/${commitSha}/${file}#L${line})${code ? ` ${code}` : ""})
+> ${message} 
+> [${file}#L${line}](/${owner}/${repo}/blob/${commitSha}/${file}#L${line})${code ? ` \`${code}\`` : ""}
 ${suggestion ? `\`\`\`suggestion\n${suggestion}\n\`\`\`\n` : ""}
 `
 }
