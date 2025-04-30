@@ -774,7 +774,8 @@ export async function runScriptInternal(
                 await githubCreatePullRequestReviews(
                     script,
                     ghInfo,
-                    result.annotations
+                    result.annotations,
+                    { cancellationToken }
                 )
         }
     }
@@ -798,7 +799,8 @@ export async function runScriptInternal(
                 result.text,
                 typeof pullRequestComment === "string"
                     ? pullRequestComment
-                    : script.id
+                    : script.id,
+                { cancellationToken }
             )
         } else {
             adoInfo = adoInfo ?? (await azureDevOpsParseEnv(process.env))
@@ -845,7 +847,8 @@ export async function runScriptInternal(
                 prettifyMarkdown(result.text),
                 typeof pullRequestDescription === "string"
                     ? pullRequestDescription
-                    : script.id
+                    : script.id,
+                { cancellationToken }
             )
         } else {
             // azure devops pipeline

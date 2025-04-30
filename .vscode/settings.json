@@ -28,6 +28,7 @@
         "cancellers",
         "cctx",
         "changeext",
+        "changelogf",
         "chatencoder",
         "chatrender",
         "chattypes",
