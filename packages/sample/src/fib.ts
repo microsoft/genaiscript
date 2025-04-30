@@ -2,5 +2,5 @@
  * Fibonacci function
  */
 function fibonacci(n: number): number {
-    return 0
+    if (n <= 1) return n; return fibonacci(n - 1) + fibonacci(n - 2);
 }
