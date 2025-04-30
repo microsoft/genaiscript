@@ -1,8 +1,8 @@
 script({
-    title: "Pull Request Ziner",
+    title: "Pull Request Visual Renderer",
     description:
-        "Generate a zine from a pull request description from the git diff",
-    temperature: 0.5,
+        "Generate various visual representations of a pull request description from the git diff",
+    temperature: 0.9,
     systemSafety: true,
     parameters: {
         base: {
@@ -29,7 +29,7 @@ const changes = await git.diff({
 console.log(changes)
 if (!changes) cancel("no changes found")
 
-const nGenres = 3
+const nGenres = 7
 const { text: genres } = await prompt`## Task
     Think of 10 graphical/visual/artistic genres that can be used to tell stories or convey information.
     Pick ${nGenres} of them randomly
@@ -44,8 +44,8 @@ const { text: genres } = await prompt`## Task
 
 output.fence(`genres`, genres)
 
-for (const genre of genres.split("\n")) {
-    const [genreName, description] = genre.split(",")
+for (const genre of genres.split("\n").filter((s) => !!s)) {
+    const [genreName, description = ""] = genre.split(",", 2)
     output.heading(2, genreName)
     output.item(description)
     // generate map
