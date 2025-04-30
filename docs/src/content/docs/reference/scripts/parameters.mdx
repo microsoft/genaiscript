@@ -2,20 +2,20 @@
 title: Parameters Schema
 description: Parameters schema are used to define signatures of scripts, tools.
 sidebar:
-  order: 50
+    order: 50
 hero:
-  image:
-    alt: 'A flat 8-bit geometric illustration displays a simple form panel with
-      three outlined fields: one for city (outlined in one color with a blue "A"
-      icon for text), one for year (differently colored outline with a yellow
-      "123" icon for numbers), and one checkbox field (another unique color
-      outline with a green square for boolean input). Above the panel sits a
-      blue gear, signifying schema transformation. To the side, a dropdown icon
-      suggests options and a small folder shows ".md .txt" file support. The
-      image uses no more than five colors, features no text, shadow, or depth,
-      and appears strictly flat against a white background.'
-    file: ./parameters.png
-
+    image:
+        alt:
+            'A flat 8-bit geometric illustration displays a simple form panel with
+            three outlined fields: one for city (outlined in one color with a blue "A"
+            icon for text), one for year (differently colored outline with a yellow
+            "123" icon for numbers), and one checkbox field (another unique color
+            outline with a green square for boolean input). Above the panel sits a
+            blue gear, signifying schema transformation. To the side, a dropdown icon
+            suggests options and a small folder shows ".md .txt" file support. The
+            image uses no more than five colors, features no text, shadow, or depth,
+            and appears strictly flat against a white background.'
+        file: ./parameters.png
 ---
 
 import { YouTube } from "astro-embed"
@@ -103,6 +103,15 @@ true => { type: "boolean", default: true }
 ## UI cues
 
 Some additional, non-standard properties are used to provide additional information to the UI:
+
+- `uiGroup` on any object property groups it into a collapsed section in the UI.
+
+```json
+{
+    "type": "string",
+    "uiGroup": "secondary"
+}
+```
 
 - `uiType` `textarea` to indicate that the field should be rendered as a textarea.
 

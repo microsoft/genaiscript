@@ -295,7 +295,37 @@ export function JSONSchemaObjectForm(props: {
     const { schema, value, onChange, fieldPrefix } = props
     const properties: Record<string, JSONSchemaSimpleType> =
         schema.properties ?? ({} as any)
+    const groupedProperties = Object.groupBy(
+        Object.entries(properties),
+        ([, field]) => field.uiGroup || ""
+    )
 
+    return (
+        <>
+            {Object.entries(groupedProperties).map(([group, fields]) => (
+                <JSONSchemaObjectPropertiesForm
+                    key={group || ""}
+                    schema={schema}
+                    group={group}
+                    properties={fields}
+                    value={value}
+                    onChange={onChange}
+                    fieldPrefix={fieldPrefix}
+                />
+            ))}
+        </>
+    )
+}
+
+function JSONSchemaObjectPropertiesForm(props: {
+    schema: JSONSchemaObject
+    group: string
+    properties: [string, JSONSchemaSimpleType][]
+    value: any
+    onChange: Dispatch<SetStateAction<any>>
+    fieldPrefix: string
+}) {
+    const { group, schema, properties, value, onChange, fieldPrefix } = props
     const handleFieldChange = (fieldName: string, value: any) => {
         onChange((prev: any) => ({
             ...prev,
@@ -303,32 +333,35 @@ export function JSONSchemaObjectForm(props: {
         }))
     }
 
-    return (
-        <>
-            {Object.entries(properties).map(([fieldName, field]) => (
-                <vscode-form-group key={fieldPrefix + fieldName}>
-                    <vscode-label>
-                        {fieldDisplayName(fieldPrefix, fieldName, field)}
-                    </vscode-label>
-                    <JSONSchemaSimpleTypeFormField
-                        field={field}
-                        value={value[fieldPrefix + fieldName]}
-                        required={schema.required?.includes(fieldName)}
-                        onChange={(value) =>
-                            handleFieldChange(fieldPrefix + fieldName, value)
-                        }
-                    />
-                    {field?.description && (
-                        <vscode-form-helper>
-                            {/^(```|#{1,6}\s)/m.test(field.description) ? (
-                                <Markdown>{field.description}</Markdown>
-                            ) : (
-                                field.description
-                            )}
-                        </vscode-form-helper>
+    const fieldElements = properties.map(([fieldName, field]) => (
+        <vscode-form-group key={fieldPrefix + fieldName}>
+            <vscode-label>
+                {fieldDisplayName(fieldPrefix, fieldName, field)}
+            </vscode-label>
+            <JSONSchemaSimpleTypeFormField
+                field={field}
+                value={value[fieldPrefix + fieldName]}
+                required={schema.required?.includes(fieldName)}
+                onChange={(value) =>
+                    handleFieldChange(fieldPrefix + fieldName, value)
+                }
+            />
+            {field?.description && (
+                <vscode-form-helper>
+                    {/^(```|#{1,6}\s)/m.test(field.description) ? (
+                        <Markdown>{field.description}</Markdown>
+                    ) : (
+                        field.description
                     )}
-                </vscode-form-group>
-            ))}
-        </>
+                </vscode-form-helper>
+            )}
+        </vscode-form-group>
+    ))
+    if (!group) return fieldElements
+
+    return (
+        <vscode-collapsible title={group} open={false}>
+            {fieldElements}
+        </vscode-collapsible>
     )
 }
