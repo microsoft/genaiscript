@@ -7,6 +7,7 @@
 import { deleteUndefinedValues } from "./cleaners"
 import { EMOJI_FAIL, EMOJI_WARNING } from "./constants"
 import { genaiscriptDebug } from "./debug"
+import { GithubConnectionInfo } from "./githubclient"
 const dbg = genaiscriptDebug("annotations")
 
 // Regular expression for matching GitHub Actions annotations.
@@ -229,6 +230,25 @@ export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
     // Construct Azure DevOps command string with necessary details.
     else
         return `##vso[task.logissue type=${d.severity};sourcepath=${d.filename};linenumber=${d.range[0][0]}]${d.message}`
+}
+const severities: Record<string, string> = {
+    error: "CAUTION",
+    warning: "WARNING",
+    notice: "NOTE",
+}
+
+export function diagnosticToGitHubMarkdown(
+    info: Pick<GithubConnectionInfo, "owner" | "repo" | "commitSha">,
+    d: Diagnostic
+) {
+    const { owner, repo, commitSha } = info
+    const { severity, message, filename, suggestion, code, range } = d
+    const file = filename
+    const line = range?.[0]?.[0]
+    return `> [!${severities[severity] || severity}]
+> ${message} ([${file}#L${line}](/${owner}/${repo}/blob/${commitSha}/${file}#L${line})${code ? ` ${code}` : ""})
+${suggestion ? `\`\`\`suggestion\n${suggestion}\n\`\`\`\n` : ""}
+`
 }
 
 /**

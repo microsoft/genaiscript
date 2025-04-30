@@ -29,6 +29,7 @@ import { resolveBufferLike } from "./bufferlike"
 import { fileTypeFromBuffer } from "./filetype"
 import { createHash } from "node:crypto"
 import { CancellationOptions, checkCancelled } from "./cancellation"
+import { diagnosticToGitHubMarkdown } from "./annotations"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -459,9 +460,16 @@ async function githubCreatePullRequestReview(
     >,
     token: string,
     annotation: Diagnostic,
-    existingComments: { id: string; path: string; line: number; body: string }[]
+    existingComments: {
+        id: string
+        path: string
+        line: number
+        body: string
+    }[],
+    options?: CancellationOptions
 ) {
     assert(!!token)
+    const { cancellationToken } = options ?? {}
     const { apiUrl, repository, issue, commitSha } = info
     dbg(`creating pull request review comment`)
 
@@ -490,7 +498,7 @@ async function githubCreatePullRequestReview(
         )
         return { created: false, statusText: "comment already exists" }
     }
-    const fetch = await createFetch({ retryOn: [] })
+    const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     dbg(`posting new pull request review comment at URL: ${url}`)
     dbg(`%O`, body)
@@ -513,7 +521,7 @@ async function githubCreatePullRequestReview(
         logVerbose(
             `pull request ${commitSha} comment creation failed, ${r.statusText} (${res.status})`
         )
-        dbg(JSON.stringify(resp, null, 2))
+        dbg("prr comment creation failed %O", resp)
     } else {
         logVerbose(`pull request ${commitSha} comment created at ${r.html_url}`)
     }
@@ -594,17 +602,30 @@ export async function githubCreatePullRequestReviews(
     }[]
     dbg(`existing pull request comments: %O`, comments)
     // code annotations
+    const failed: Diagnostic[] = []
     for (const annotation of annotations) {
         dbg(`iterating over annotations to create pull request reviews`)
         checkCancelled(cancellationToken)
-        await githubCreatePullRequestReview(
+        const res = await githubCreatePullRequestReview(
             script,
             info,
             token,
             annotation,
             comments
         )
+        if (!res.created) failed.push(annotation)
     }
+
+    if (failed.length) {
+        await githubCreateIssueComment(
+            script,
+            info,
+            failed.map(d => diagnosticToGitHubMarkdown(info, d)).join("\n\n"),
+            script.id + "-prr",
+            options
+        )
+    }
+
     return true
 }
 
