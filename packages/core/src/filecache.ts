@@ -1,5 +1,4 @@
-import { fileTypeFromBuffer } from "./filetype"
-import { resolveBufferLike } from "./bufferlike"
+import { resolveBufferLikeAndExt } from "./bufferlike"
 import { hash } from "./crypto"
 import { TraceOptions } from "./trace"
 import { basename, dirname, join, relative } from "node:path"
@@ -27,23 +26,31 @@ const dbg = debug("genaiscript:filecache")
 export async function fileWriteCached(
     dir: string,
     bufferLike: BufferLike,
-    options?: TraceOptions & CancellationOptions
+    options?: TraceOptions &
+        CancellationOptions & {
+            /**
+             * Generate file name extension
+             */
+            ext?: string
+        }
 ): Promise<string> {
-    const { cancellationToken } = options || {}
-    const bytes = await resolveBufferLike(bufferLike, options)
-    checkCancelled(cancellationToken)
-    const { ext } = (await fileTypeFromBuffer(bytes)) || { ext: "bin" }
+    const { bytes, ext: sourceExt } = await resolveBufferLikeAndExt(
+        bufferLike,
+        options
+    )
+    const { cancellationToken, ext = sourceExt } = options || {}
     checkCancelled(cancellationToken)
     const filename = await hash(bytes, { length: FILE_HASH_LENGTH })
     checkCancelled(cancellationToken)
-    const f = filename + "." + ext
+    const f = filename + "." + ext.replace(/^\./, "")
     const fn = join(dir, f)
-    try {
-        const r = await stat(fn)
-        if (r.isFile()) return fn
-    } catch {}
+    const r = await tryStat(fn)
+    if (r?.isFile()) {
+        dbg(`hit %s`, fn)
+        return fn
+    }
 
-    dbg(`image cache: ${fn} (${prettyBytes(bytes.length)})`)
+    dbg(`miss %s`, fn)
     await ensureDir(dirname(fn))
     await writeFile(fn, bytes)
 
