@@ -1348,7 +1348,11 @@ interface WorkspaceFileSystem {
      */
     writeCached(
         bytes: BufferLike,
-        options?: { scope?: "workspace" | "run" }
+        options?: { scope?: "workspace" | "run", 
+            /**
+             * Filename extension
+             */
+            ext?: string }
     ): Promise<string>
 
     /**

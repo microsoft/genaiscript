@@ -93,7 +93,11 @@ export async function createPromptContext(
                 scope === "run"
                     ? join(runDir, "files")
                     : dotGenaiscriptPath("cache", "files")
-            return await fileWriteCached(dir, f)
+            return await fileWriteCached(dir, f, {
+                ...(options || {}),
+                cancellationToken,
+                trace,
+            })
         },
         copyFile: (src, dest) => runtimeHost.workspace.copyFile(src, dest),
         cache: (n) => runtimeHost.workspace.cache(n),
