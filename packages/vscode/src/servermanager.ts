@@ -197,60 +197,78 @@ export class TerminalServerManager
             }),
             hideFromUser,
         })
+        if (cliPath)
+            this._terminal.sendText(
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
+            )
+        else
+            this._terminal.sendText(
+                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
+            )
+        if (!hideFromUser) this._terminal.show(true)
 
+        // check node asynchronously
+        this.checkNode()
+    }
+
+    private nodeVersionValidated = false
+    async checkNode() {
+        if (this.nodeVersionValidated) return
+        this.nodeVersionValidated = true
         return new Promise<void>((resolve) => {
+            logVerbose("checking node version")
+            const cwd = host.projectFolder()
+            const terminal = vscode.window.createTerminal({
+                cwd,
+                isTransient: true,
+                hideFromUser: true,
+            })
+            // TODO: never triggers on windows+powershell
             const cleanup = vscode.window.onDidChangeTerminalShellIntegration(
                 async (e) => {
                     if (e.terminal === this._terminal) {
+                        logVerbose(`node terminal started`)
                         cleanup.dispose()
-                        const nodeInstalled = await this.checkNode()
+                        const nodeInstalled = await checkNodeCommand(terminal)
                         if (!nodeInstalled) {
                             await this.close()
                             resolve()
                             return
                         }
-
-                        if (cliPath)
-                            this._terminal.sendText(
-                                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
-                            )
-                        else
-                            this._terminal.sendText(
-                                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
-                            )
-                        if (!hideFromUser) this._terminal.show(true)
                         resolve()
                     }
-                }
+                },
+                this.state.context.subscriptions
             )
         })
-    }
 
-    async checkNode(): Promise<boolean> {
-        assert(!!this._terminal, "terminal not started")
-        // Log all data written to the terminal for a command
-        const command =
-            this._terminal.shellIntegration.executeCommand("node -v")
-        let output = ""
-        for await (const chunk of command.read()) output += chunk
+        async function checkNodeCommand(
+            terminal: vscode.Terminal
+        ): Promise<boolean> {
+            assert(!!terminal, "terminal not started")
+            // Log all data written to the terminal for a command
+            const command = terminal.shellIntegration.executeCommand("node -v")
+            let output = ""
+            for await (const chunk of command.read()) output += chunk
 
-        if (!output) {
-            vscode.window.showErrorMessage(
-                "Node.js is not installed or not in PATH. Please install Node.js to use the server."
+            logVerbose(`node version: ${output}`)
+            if (!output) {
+                vscode.window.showErrorMessage(
+                    "Node.js is not installed or not in PATH. Please install Node.js to use the server."
+                )
+                return false
+            }
+            const major = parseInt(
+                /v(?<major>\d+)\.\d+\.\d+/.exec(output)?.groups.major
             )
-            return false
+            if (!(major >= MIN_NODE_VERSION_MAJOR)) {
+                vscode.window.showErrorMessage(
+                    `Node.js version ${output} is not supported or not recognized. Please update to version ${MIN_NODE_VERSION_MAJOR} or higher.`
+                )
+                return false
+            }
+            return true
         }
-        const major = parseInt(
-            /v(?<major>\d+)\.\d+\.\d+/.exec(output)?.groups.major
-        )
-        if (!(major >= MIN_NODE_VERSION_MAJOR)) {
-            vscode.window.showErrorMessage(
-                `Node.js version ${output} is not supported or not recognized. Please update to version ${MIN_NODE_VERSION_MAJOR} or higher.`
-            )
-            return false
-        }
-
-        return true
     }
 
     async close() {
