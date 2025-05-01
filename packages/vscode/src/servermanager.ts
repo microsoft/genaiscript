@@ -229,12 +229,7 @@ export class TerminalServerManager
                     if (e.terminal === this._terminal) {
                         logVerbose(`node terminal started`)
                         cleanup.dispose()
-                        const nodeInstalled = await checkNodeCommand(terminal)
-                        if (!nodeInstalled) {
-                            await this.close()
-                            resolve()
-                            return
-                        }
+                        await checkNodeCommand(terminal)
                         resolve()
                     }
                 },
