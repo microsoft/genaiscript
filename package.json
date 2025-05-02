@@ -89,6 +89,7 @@
         "prd:visuals": "node packages/cli/built/genaiscript.cjs run prd-visuals -prd --model github:gpt-4.1 --vars base=dev",
         "prd:zine": "node packages/cli/built/genaiscript.cjs run prd-zine -prd --model github:gpt-4.1 --vars base=dev",
         "prd:sketch": "node packages/cli/built/genaiscript.cjs run prd-sketch -prd --model github:gpt-4.1 --vars base=dev",
+        "prd:narration": "node packages/cli/built/genaiscript.cjs run prd-narration -prd --model github:gpt-4.1 --vars base=dev",
         "prd:dev": "node packages/cli/built/genaiscript.cjs run prd -prd --model azure:gpt-4.1_2025-04-14 --vars maxTokens=500000",
         "prr": "node packages/cli/built/genaiscript.cjs run prr -prr --model github:gpt-4.1 --vars base=dev",
         "genai": "node packages/cli/built/genaiscript.cjs run",

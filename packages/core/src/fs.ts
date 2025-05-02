@@ -1,4 +1,4 @@
-import { lstat, mkdir, writeFile, readFile, rm } from "fs/promises"
+import { lstat, mkdir, writeFile, readFile, appendFile } from "fs/promises"
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
 import { dirname } from "path"
@@ -81,6 +81,13 @@ export async function writeText(fn: string, content: string) {
     await ensureDir(dirname(fn))
     dbg(`writing text to file ${fn}`)
     await writeFile(fn, content, { encoding: "utf8" })
+}
+
+export async function appendText(fn: string, content: string) {
+    if (!fn) throw new Error("filename is required")
+    await ensureDir(dirname(fn))
+    dbg(`append text to file ${fn}`)
+    await appendFile(fn, content, { encoding: "utf8" })
 }
 
 /**
