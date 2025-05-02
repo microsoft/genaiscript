@@ -152,6 +152,10 @@ const { image: poster } = await generateImage(
     }
 )
 
+const gitAudio = await github.uploadAsset(filename)
+output.item(`[🎙️ Listen to Narration](${gitAudio})`)
+
+/*
 const videoFilename = path.changeext(filename, ".mp4")
 console.debug(videoFilename)
 await host.exec(
@@ -159,3 +163,4 @@ await host.exec(
 )
 const gitVideo = await github.uploadAsset(videoFilename)
 output.appendContent("\n\n" + gitVideo + "\n\n")
+*/
