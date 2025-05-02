@@ -144,13 +144,3 @@ if (!filename) cancel("failed to generate speech")
 
 const gitAudio = await github.uploadAsset(filename)
 output.item(`[🎙️ Listen to Narration](${gitAudio})`)
-
-/*
-const videoFilename = path.changeext(filename, ".mp4")
-console.debug(videoFilename)
-await host.exec(
-    `ffmpeg -loop 1 -i ${poster.filename} -i "${filename}" -c:v libx264 -c:a copy -shortest "${videoFilename}"`
-)
-const gitVideo = await github.uploadAsset(videoFilename)
-output.appendContent("\n\n" + gitVideo + "\n\n")
-*/
