@@ -142,9 +142,20 @@ const { filename } = await speak(summary, {
 })
 if (!filename) cancel("failed to generate speech")
 
-await host.exec(
-    `ffmpeg -loop 1 -i docs/public/images/logo.png -i "${filename}" -c:v libx264 -c:a copy -shortest "${path.changeext(filename, ".mp4")}"`
+const { image: poster } = await generateImage(
+    `generate a sketchnote style movie poster from this story: 
+    ${summary}`,
+    {
+        model: "openai:gpt-image-1",
+        quality: "low",
+        size: "square",
+    }
 )
 
-const gitVideo = await github.uploadAsset(filename)
+const videoFilename = path.changeext(filename, ".mp4")
+console.debug(videoFilename)
+await host.exec(
+    `ffmpeg -loop 1 -i ${poster.filename} -i "${filename}" -c:v libx264 -c:a copy -shortest "${videoFilename}"`
+)
+const gitVideo = await github.uploadAsset(videoFilename)
 output.appendContent("\n\n" + gitVideo + "\n\n")
