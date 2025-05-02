@@ -289,5 +289,11 @@
             "parser": "markdown"
         }
     },
-    "peacock.color": "#f9e64f"
+    "peacock.color": "#f9e64f",
+    "github.copilot.enable": {
+        "markdown": true,
+        "mdx": true,
+        "text": true,
+        "plaintext": true
+    }
 }

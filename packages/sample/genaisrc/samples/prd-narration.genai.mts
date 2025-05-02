@@ -67,6 +67,44 @@ Tone: Exciting, high-energy, and persuasive, creating urgency and anticipation.
 Delivery: Rapid-fire yet clear, with dynamic inflections to keep engagement high and momentum strong.
 
 Pronunciation: Crisp and precise, with emphasis on key action words like bid, buy, checkout, and sold to drive urgency.`,
+    sympathetic: `Voice: Warm, empathetic, and professional, reassuring the customer that their issue is understood and will be resolved.
+
+Punctuation: Well-structured with natural pauses, allowing for clarity and a steady, calming flow.
+
+Delivery: Calm and patient, with a supportive and understanding tone that reassures the listener.
+
+Phrasing: Clear and concise, using customer-friendly language that avoids jargon while maintaining professionalism.
+
+Tone: Empathetic and solution-focused, emphasizing both understanding and proactive assistance.`,
+    "true crime buff": `Voice: Deep, hushed, and enigmatic, with a slow, deliberate cadence that draws the listener in.
+
+Phrasing: Sentences are short and rhythmic, building tension with pauses and carefully placed suspense.
+
+Punctuation: Dramatic pauses, ellipses, and abrupt stops enhance the feeling of unease and anticipation.
+
+Tone: Dark, ominous, and foreboding, evoking a sense of mystery and the unknown.`,
+    "medieval knight": `Affect: Deep, commanding, and slightly dramatic, with an archaic and reverent quality that reflects the grandeur of Olde English storytelling.
+
+Tone: Noble, heroic, and formal, capturing the essence of medieval knights and epic quests, while reflecting the antiquated charm of Olde English.
+
+Emotion: Excitement, anticipation, and a sense of mystery, combined with the seriousness of fate and duty.
+
+Pronunciation: Clear, deliberate, and with a slightly formal cadence. Specific words like "hast," "thou," and "doth" should be pronounced slowly and with emphasis to reflect Olde English speech patterns.
+
+Pause: Pauses after important Olde English phrases such as "Lo!" or "Hark!" and between clauses like "Choose thy path" to add weight to the decision-making process and allow the listener to reflect on the seriousness of the quest.`,
+    "sports coach": `Voice Affect: Energetic and animated; dynamic with variations in pitch and tone.
+
+Tone: Excited and enthusiastic, conveying an upbeat and thrilling atmosphere. 
+
+Pacing: Rapid delivery when describing the game or the key moments (e.g., "an overtime thriller," "pull off an unbelievable win") to convey the intensity and build excitement.
+
+Slightly slower during dramatic pauses to let key points sink in.
+
+Emotion: Intensely focused, and excited. Giving off positive energy.
+
+Personality: Relatable and engaging. 
+
+Pauses: Short, purposeful pauses after key moments in the game.`,
 }
 
 const {
@@ -85,6 +123,8 @@ const {
     - Keep it between 2-3 paragraphs
     - You can use Technical Jargon, but explain it in simple terms
     - Do not start with Excited
+    - keep it short, avoid general statements.
+    - Focus on the code changes, not documentation updates.
     
     ## Voice Instructions
     - In your thinking, generate 5 descriptions of the voice suitable for a text-to-speech model. These voice personalities should be wildly different and esoteric.
@@ -144,3 +184,11 @@ if (!filename) cancel("failed to generate speech")
 
 const gitAudio = await github.uploadAsset(filename)
 output.item(`[🎙️ Listen to Narration](${gitAudio})`)
+
+// create mp4 for linkedin
+// convert to video
+const videofile = path.changeext(filename, ".mp4")
+await host.exec(
+    `ffmpeg -loop 1 -i docs/public/images/logo.png -i "${filename}" -c:v libx264 -c:a copy -shortest "${videofile}"`
+)
+console.debug(`mp4: ${videofile}`)
