@@ -123,7 +123,7 @@ const {
     - Keep it between 2-3 paragraphs
     - You can use Technical Jargon, but explain it in simple terms
     - Do not start with Excited
-    - keep it short
+    - keep it short, avoid general statements.
     - Focus on the code changes, not documentation updates.
     
     ## Voice Instructions

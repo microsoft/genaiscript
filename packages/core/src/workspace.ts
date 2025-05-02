@@ -29,13 +29,14 @@ import { tryValidateJSONWithSchema } from "./schema"
  *   - `ignore`: Patterns to ignore during the search.
  *   - `applyGitIgnore`: Whether to apply gitignore rules (default: true).
  * - `writeText(filename, c)`: Writes `c` (content) to the specified `filename`. Throws error if writing to `.env` files.
- * - `readText(f)`: Reads the content of a file or a WorkspaceFile object. Throws if the file name is missing or `.env` files are accessed.
- * - `readJSON(f)`: Reads and parses JSON content from the given file or WorkspaceFile.
- * - `readYAML(f)`: Reads and parses YAML content from the given file or WorkspaceFile.
- * - `readXML(f, options)`: Reads and parses XML content from the given file or WorkspaceFile. The `options` parameter supports parsing configuration.
- * - `readCSV(f, options)`: Reads and parses CSV content into an array of objects. Accepts `options` for CSV parsing customization.
- * - `readINI(f, options)`: Reads and parses INI content into an object. Accepts `options` for default value configuration and parsing.
- * - `readData(f)`: Reads a generic data file and applies parsing logic.
+ * - `appendText(filename, c)`: Appends `c` (content) to the specified `filename`. Throws error if writing to `.env` files.
+ * - `readText(f)`: Reads the content of a file or a WorkspaceFile object. Throws if the file name is missing.
+ * - `readJSON(f, options)`: Reads and parses JSON content from the given file or WorkspaceFile. Optionally validates with a schema.
+ * - `readYAML(f, options)`: Reads and parses YAML content from the given file or WorkspaceFile. Optionally validates with a schema.
+ * - `readXML(f, options)`: Reads and parses XML content from the given file or WorkspaceFile. The `options` parameter supports parsing configuration and schema validation.
+ * - `readCSV(f, options)`: Reads and parses CSV content into an array of objects. Accepts `options` for CSV parsing customization and schema validation.
+ * - `readINI(f, options)`: Reads and parses INI content into an object. Accepts `options` for default value configuration and parsing, and schema validation.
+ * - `readData(f, options)`: Reads a generic data file and applies parsing logic. Optionally validates with a schema.
  * - `cache(name)`: Retrieves a JSON line-based cache by `name`. Throws error if `name` is missing.
  * - `stat(filename)`: Retrieves the size and mode (permissions) of the specified file. Returns `undefined` if the file does not exist.
  * - `copyFile(src, dest)`: Copies a file from `src` to `dest`. Throws error if `.env` files are involved.

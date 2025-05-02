@@ -83,6 +83,13 @@ export async function writeText(fn: string, content: string) {
     await writeFile(fn, content, { encoding: "utf8" })
 }
 
+/**
+ * Appends text content to the end of the specified file, creating directories as needed.
+ *
+ * @param fn - Path to the file where content will be appended. Must be provided.
+ * @param content - Text content to append to the file.
+ * @throws Throws an error if the filename is not provided.
+ */
 export async function appendText(fn: string, content: string) {
     if (!fn) throw new Error("filename is required")
     await ensureDir(dirname(fn))
