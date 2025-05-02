@@ -7,7 +7,7 @@ import { CSVTryParse } from "./csv"
 import { dataTryParse } from "./data"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent, toWorkspaceFile } from "./file"
-import { readText, tryStat, writeText } from "./fs"
+import { appendText, readText, tryStat, writeText } from "./fs"
 import { host } from "./host"
 import { INITryParse } from "./ini"
 import { JSON5TryParse } from "./json5"
@@ -76,6 +76,10 @@ export function createWorkspaceFileSystem(): Omit<
         writeText: async (filename: string, c: string) => {
             checkWrite(filename)
             await writeText(filename, c)
+        },
+        appendText: async (filename: string, c: string) => {
+            checkWrite(filename)
+            await appendText(filename, c)
         },
         readText: async (f: string | Awaitable<WorkspaceFile>) => {
             if (f === undefined) {

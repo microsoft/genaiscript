@@ -87,6 +87,7 @@ export async function createPromptContext(
         readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
         readData: (f, o) => runtimeHost.workspace.readData(f, o),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
+        appendText: (f, c) => runtimeHost.workspace.appendText(f, c),
         writeCached: async (f, options) => {
             const { scope } = options || {}
             const dir =

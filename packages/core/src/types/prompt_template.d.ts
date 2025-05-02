@@ -1336,6 +1336,13 @@ interface WorkspaceFileSystem {
     ): Promise<any>
 
     /**
+     * Appends text to a file as text to the file system. Creates the file if needed.
+     * @param path
+     * @param content
+     */
+    appendText(path: string, content: string): Promise<void>
+
+    /**
      * Writes a file as text to the file system
      * @param path
      * @param content
@@ -1348,11 +1355,13 @@ interface WorkspaceFileSystem {
      */
     writeCached(
         bytes: BufferLike,
-        options?: { scope?: "workspace" | "run", 
+        options?: {
+            scope?: "workspace" | "run"
             /**
              * Filename extension
              */
-            ext?: string }
+            ext?: string
+        }
     ): Promise<string>
 
     /**
@@ -3153,13 +3162,12 @@ interface Git {
         excludedPaths?: ElementOrArray<string>
     }): Promise<GitCommit[]>
 
-
     /**
      * Run git blame on a file, line
-     * @param filename 
-     * @param line 
+     * @param filename
+     * @param line
      */
-    async blame(filename: string, line: number): Promise<string>
+    blame(filename: string, line: number): Promise<string>
 
     /**
      * Create a shallow git clone
@@ -3191,7 +3199,7 @@ interface Git {
             depth?: number
         }
     ): Promise<Git>
-    
+
     /**
      * Open a git client on a different directory
      * @param cwd working directory
