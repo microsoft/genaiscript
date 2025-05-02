@@ -142,16 +142,6 @@ const { filename } = await speak(summary, {
 })
 if (!filename) cancel("failed to generate speech")
 
-const { image: poster } = await generateImage(
-    `generate a sketchnote style movie poster from this story: 
-    ${summary}`,
-    {
-        model: "openai:gpt-image-1",
-        quality: "low",
-        size: "square",
-    }
-)
-
 const gitAudio = await github.uploadAsset(filename)
 output.item(`[🎙️ Listen to Narration](${gitAudio})`)
 
