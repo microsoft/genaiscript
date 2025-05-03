@@ -269,10 +269,8 @@ function renderToolArguments(args: string) {
  *                   Each message contains properties such as role, content, and cacheControl.
  *                   Messages can include system, user, assistant, or tool roles.
  *
- * - Combines consecutive "system" messages at the start into a single "system" message by
- *   concatenating their content. The combined message is added back to the array, replacing the original messages.
- * - Removes empty text content from "user" messages. For array-based content, filters out
- *   "text" types with no content.
+ * - Concatenates the content of consecutive "system" messages at the start of the array into a single "system" message, replacing the originals.
+ * - Removes empty text content from "user" messages. For array-based content, filters out "text" types with no content.
  */
 export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
     // concat the content of system messages at the start of the messages into a single message
@@ -305,6 +303,16 @@ export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
         })
 }
 
+/**
+ * Extracts and concatenates the output text from consecutive assistant messages in a chat history, applying post-processing based on the specified response type or schema.
+ *
+ * @param messages Array of chat messages to process.
+ * @param options Optional configuration object:
+ *   - responseType: Desired output format (e.g., "markdown", "yaml", "json", "text").
+ *   - responseSchema: Schema for formatting/parsing the response, supporting custom prompt templates.
+ *
+ * @returns The concatenated and post-processed output text from the most recent assistant messages.
+ */
 export function assistantText(
     messages: ChatCompletionMessageParam[],
     options?: {
