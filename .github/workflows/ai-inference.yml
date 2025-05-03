@@ -3,6 +3,9 @@ on:
     workflow_dispatch:
     issue_comment:
         types: [created, edited]
+permissions:
+    models: read
+    issues: write
 concurrency:
     group: ai-inference-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
