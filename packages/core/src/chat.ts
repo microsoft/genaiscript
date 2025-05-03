@@ -565,7 +565,7 @@ async function applyRepairs(
         return false
     }
 
-    const content = assistantText(messages, responseType, responseSchema)
+    const content = assistantText(messages, { responseType, responseSchema })
     const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
     dbg(`validating fences with schema`)
@@ -684,7 +684,7 @@ async function structurifyChatSession(
 ): Promise<RunPromptResult> {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
-    const text = assistantText(messages, responseType, responseSchema)
+    const text = assistantText(messages, { responseType, responseSchema })
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
@@ -941,7 +941,8 @@ async function processChatMessage(
                 const { messages: newMessages } =
                     (await generator(
                         ctx,
-                        structuredClone(messages) satisfies ChatMessage[]
+                        structuredClone(messages) satisfies ChatMessage[],
+                        assistantContent
                     )) || {}
                 const node = ctx.node
                 checkCancelled(cancellationToken)

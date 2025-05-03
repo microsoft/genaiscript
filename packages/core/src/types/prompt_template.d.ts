@@ -1630,8 +1630,19 @@ type ChatMessage =
     | ChatFunctionMessage
 
 type ChatParticipantHandler = (
+    /**
+     * Prompt generation context to create a new message in the conversation
+     */
     context: ChatTurnGenerationContext,
-    messages: ChatMessage[]
+    /**
+     * Chat conversation messages
+     */
+    messages: ChatMessage[],
+    /**
+     * The last assistant text, without
+     * reasoning sections.
+     */
+    assistantText: string
 ) => Awaitable<{ messages?: ChatMessage[] } | undefined | void>
 
 interface ChatParticipantOptions {
