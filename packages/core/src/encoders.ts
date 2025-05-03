@@ -23,12 +23,14 @@ export async function resolveTokenEncoder(
     options?: { disableFallback?: boolean }
 ): Promise<Tokenizer> {
     const { disableFallback } = options || {}
+
     // Parse the model identifier to extract the model information
     if (!modelId) {
         dbg(`modelId is empty, using default model alias`)
         modelId = runtimeHost.modelAliases.large.model
     }
-    const { model } = parseModelIdentifier(modelId)
+    let { model } = parseModelIdentifier(modelId)
+    if (/^gpt-4.1/i.test(model)) model = "gpt-4o" // same encoding
     const module = model.toLowerCase() // Assign model to module for dynamic import path
 
     const { modelEncodings } = runtimeHost?.config || {}
