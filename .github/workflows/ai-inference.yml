@@ -2,7 +2,7 @@ name: issue ai inference
 on:
     workflow_dispatch:
     issue_comment:
-        types: [created]
+        types: [created, edited]
 concurrency:
     group: ai-inference-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
