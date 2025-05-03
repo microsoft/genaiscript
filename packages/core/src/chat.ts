@@ -53,6 +53,7 @@ import {
     EmbeddingResult,
 } from "./chattypes"
 import {
+    assistantText,
     collapseChatMessages,
     lastAssistantReasoning,
     renderMessagesToMarkdown,
@@ -665,44 +666,6 @@ ${repair}
     trace.endDetails()
     stats.repairs++
     return true
-}
-
-function assistantText(
-    messages: ChatCompletionMessageParam[],
-    responseType?: PromptTemplateResponseType,
-    responseSchema?: PromptParametersSchema | JSONSchema
-) {
-    let text = ""
-    for (let i = messages.length - 1; i >= 0; i--) {
-        const msg = messages[i]
-        if (msg.role !== "assistant") {
-            break
-        }
-        if (typeof msg.content === "string") {
-            text = msg.content + text
-        } else if (Array.isArray(msg.content)) {
-            for (const part of msg.content) {
-                if (part.type === "text") {
-                    text = part.text + text
-                } else if (part.type === "refusal") {
-                    text = `refusal: ${part.refusal}\n` + text
-                }
-            }
-        }
-    }
-
-    text = unthink(text)
-    if ((!responseType && !responseSchema) || responseType === "markdown") {
-        text = unfence(text, "(markdown|md)")
-    } else if (responseType === "yaml") {
-        text = unfence(text, "(yaml|yml)")
-    } else if (/^json/.test(responseType)) {
-        text = unfence(text, "(json|json5)")
-    } else if (responseType === "text") {
-        text = unfence(text, "(text|txt)")
-    }
-
-    return text
 }
 
 async function structurifyChatSession(

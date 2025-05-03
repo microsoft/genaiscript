@@ -14,6 +14,8 @@ import { JSONLLMTryParse } from "./json5"
 import { details, fenceMD } from "./mkmd"
 import { stringify as YAMLStringify } from "yaml"
 import { CancellationOptions, checkCancelled } from "./cancellation"
+import { unthink } from "./think"
+import { unfence } from "./unwrappers"
 
 export interface ChatRenderOptions extends CancellationOptions {
     textLang?: "markdown" | "text" | "json" | "raw"
@@ -294,11 +296,55 @@ export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
         }
     }
 
-    // remove emty text contents
+    // remove empty text contents
     messages
         .filter((m) => m.role === "user")
         .forEach((m) => {
             if (typeof m.content !== "string")
                 m.content = m.content.filter((c) => c.type !== "text" || c.text)
         })
+}
+
+export function assistantText(
+    messages: ChatCompletionMessageParam[],
+    options?: {
+        responseType?: PromptTemplateResponseType
+        responseSchema?: PromptParametersSchema | JSONSchema
+    }
+) {
+    const { responseType, responseSchema } = options || {}
+    let text = ""
+    for (let i = messages.length - 1; i >= 0; i--) {
+        const msg = messages[i]
+        if (msg.role !== "assistant") {
+            break
+        }
+        let content: string = ""
+        if (typeof msg.content === "string") {
+            content = msg.content
+        } else if (Array.isArray(msg.content)) {
+            for (const part of msg.content) {
+                if (part.type === "text") {
+                    content = content + part.text
+                } else if (part.type === "refusal") {
+                    content = `refusal: ${part.refusal}\n` + content
+                    break
+                }
+            }
+        }
+        text = content + text
+    }
+
+    text = unthink(text)
+    if ((!responseType && !responseSchema) || responseType === "markdown") {
+        text = unfence(text, ["markdown", "md"])
+    } else if (responseType === "yaml") {
+        text = unfence(text, ["yaml", "yml"])
+    } else if (/^json/.test(responseType)) {
+        text = unfence(text, ["json", "json5"])
+    } else if (responseType === "text") {
+        text = unfence(text, ["text", "txt"])
+    }
+
+    return text
 }

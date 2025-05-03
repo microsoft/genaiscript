@@ -6,6 +6,7 @@ import {
     lastAssistantReasoning,
     renderMessagesToMarkdown,
     collapseChatMessages,
+    assistantText,
 } from "./chatrender"
 import {
     ChatCompletionAssistantMessageParam,
@@ -122,5 +123,97 @@ describe("collapseChatMessages", () => {
         ]
         collapseChatMessages(messages)
         assert.deepEqual(messages[0].content, [{ type: "text", text: "hello" }])
+    })
+    describe("assistantText", () => {
+        test("should concatenate string contents from consecutive assistant messages", () => {
+            const messages = [
+                { role: "user", content: "hi" },
+                { role: "assistant", content: "first" },
+                { role: "assistant", content: "second" },
+            ]
+            const result = assistantText(messages as any)
+            assert.equal(result, "firstsecond")
+        })
+
+        test("should concatenate text parts from array content in assistant messages", () => {
+            const messages = [
+                {
+                    role: "assistant",
+                    content: [
+                        { type: "text", text: "foo" },
+                        { type: "text", text: "bar" },
+                    ],
+                },
+            ]
+            const result = assistantText(messages as any)
+            assert.strictEqual(result, "foobar")
+        })
+
+        test("should prepend refusal text if present in content array", () => {
+            const messages = [
+                {
+                    role: "assistant",
+                    content: [
+                        { type: "refusal", refusal: "not allowed" },
+                        { type: "text", text: "text" },
+                    ],
+                },
+            ]
+            const result = assistantText(messages as any)
+            assert.strictEqual(result, "refusal: not allowed\n")
+        })
+
+        test("should stop at last non-assistant message", () => {
+            const messages = [
+                { role: "assistant", content: "ignore" },
+                { role: "user", content: "stop" },
+                { role: "assistant", content: "keep" },
+            ]
+            const result = assistantText(messages as any)
+            assert.equal(result, "keep")
+        })
+
+        test("should unfence markdown by default", () => {
+            const messages = [
+                { role: "assistant", content: "```markdown\nfoo\n```" },
+            ]
+            const result = assistantText(messages as any)
+            assert.equal(result.trim(), "foo")
+        })
+
+        test("should unfence yaml if responseType is 'yaml'", () => {
+            const messages = [
+                { role: "assistant", content: "```yaml\nfoo: bar\n```" },
+            ]
+            const result = assistantText(messages as any, {
+                responseType: "yaml",
+            })
+            assert.equal(result.trim(), "foo: bar")
+        })
+
+        test("should unfence json if responseType starts with 'json'", () => {
+            const messages = [
+                { role: "assistant", content: '```json\n{"a":1}\n```' },
+            ]
+            const result = assistantText(messages as any, {
+                responseType: "json",
+            })
+            assert.equal(result.trim(), '{"a":1}')
+        })
+
+        test("should unfence text if responseType is 'text'", () => {
+            const messages = [
+                { role: "assistant", content: "```text\nplain\n```" },
+            ]
+            const result = assistantText(messages as any, {
+                responseType: "text",
+            })
+            assert.equal(result.trim(), "plain")
+        })
+
+        test("should handle empty messages gracefully", () => {
+            const result = assistantText([])
+            assert.equal(result, "")
+        })
     })
 })
