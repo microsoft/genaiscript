@@ -15,7 +15,7 @@ Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, t
 - 💬 Join the [Discord server](https://discord.gg/y7HpumjHeB)
 - 📝 Read the [blog](https://microsoft.github.io/genaiscript/blog/) for the latest news
 - 📺 Watch [Mr. Maeda's Cozy AI Kitchen](https://youtu.be/ajEbAm6kjI4)
-- 📺 Watch an [interview on YouTube with nickyt](https://www.youtube.com/watch?v=aeXQ2MJ0Ye0)
+- 🤖 Agents - read the [llms-full.txt](https://microsoft.github.io/genaiscript/llms-full.txt)
 
 ---
 
