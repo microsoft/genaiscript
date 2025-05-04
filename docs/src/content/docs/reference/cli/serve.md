@@ -59,7 +59,7 @@ npx genaiscript serve --cors contoso.com
 
 ## Network
 
-You can bind the server to `0.0.0.0` and make it accessible from the network by setting the `--network` flag.
+You can bind the server to `0.0.0.0` and make it accessible from the network by setting the `--network` flag. You need this flag to make the server accessible from a container.
 
 ```bash
 npx genaiscript serve --network
