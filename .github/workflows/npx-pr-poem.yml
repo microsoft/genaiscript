@@ -17,6 +17,6 @@ jobs:
                   node-version: "20"
                   cache: "yarn"
             - name: Generate poem
-              run: npx --yes genaiscript run npx-poem -prd
+              run: npx genaiscript run npx-poem -prd
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
