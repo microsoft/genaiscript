@@ -3,20 +3,22 @@ on:
     workflow_dispatch:
     pull_request:
         types: [opened, synchronize, reopened]
+permissions:
+    pull-requests: write
+    contents: read
+    models: read
 jobs:
     generate-poem:
         runs-on: ubuntu-latest
-        permissions:
-            pull-requests: write
-            contents: read
-            models: read
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
                   cache: "yarn"
+            - name: Cowsay
+              run: npx --yes cowsay genaiscript
             - name: Generate poem
-              run: npx --package=genaiscript -- genaiscript run poem -prd
+              run: npx --yes genaiscript run poem -prd
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
