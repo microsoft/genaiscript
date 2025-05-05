@@ -30,6 +30,7 @@ export class TerminalServerManager
     private _port: number
     private _startClientPromise: Promise<VsCodeClient>
     private _client: VsCodeClient
+    private _version: string
 
     private _status: "stopped" | "stopping" | "starting" | "running" = "stopped"
     get status() {
@@ -113,6 +114,10 @@ export class TerminalServerManager
         return this._port
     }
 
+    get version() {
+        return this._version
+    }
+
     private async startClient(): Promise<VsCodeClient> {
         assert(!this._client)
         await this.allocatePort()
@@ -135,16 +140,17 @@ export class TerminalServerManager
         client.chatRequest = createChatModelRunner(this.state)
         client.addEventListener(OPEN, async () => {
             if (client !== this._client) return
-            this.status = "running"
             this._terminalStartAttempts = 0
             // check version
             const v = await this._client.version()
+            this._version = v.version
             const gv = semverParse(CORE_VERSION)
             if (!semverSatisfies(v.version, ">=" + gv.major + "." + gv.minor))
                 vscode.window.showWarningMessage(
                     TOOL_ID +
                         ` - genaiscript cli version (${v.version}) outdated, please update to ${CORE_VERSION}`
                 )
+            this.status = "running"
         })
         client.addEventListener(RECONNECT, () => {
             // server process died somehow

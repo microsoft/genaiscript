@@ -3,6 +3,7 @@ import { ExtensionState } from "./state"
 import { toMarkdownString } from "./markdown"
 import { ICON_LOGO_NAME, CHANGE } from "../../core/src/constants"
 import { toStringList } from "../../core/src/util"
+import { CORE_VERSION } from "../../core/src/version"
 
 export function activateStatusBar(state: ExtensionState) {
     const { context } = state
@@ -33,7 +34,7 @@ export function activateStatusBar(state: ExtensionState) {
         const md = new vscode.MarkdownString(
             toMarkdownString(
                 authority && status === "running"
-                    ? `server: [${server.authority}](${server.browserUrl})`
+                    ? `server${server.version ? ` v${server.version}` : ""}: [${server.authority}](${server.browserUrl})`
                     : `GenAIScript: ${status}...`,
                 status === "starting"
                     ? `On the first run, it may take a while to start the server while npx install 'genaiscript'.`
