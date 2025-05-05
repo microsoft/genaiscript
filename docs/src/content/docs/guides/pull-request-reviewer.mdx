@@ -110,14 +110,17 @@ Add this step to your Github Actions workflow to automate the pull request revie
 The `-prc` flag stands for [--pull-request-comment](/genaiscript/reference/cli/run#pull-requests)
 and takes care of upserting a comment in the pull request conversation.
 
+The `GITHUB_STEP_SUMMARY` environment variable is used to display the output of the LLM in the Actions UI.
+
 ```yaml "-prc"
 permissions:
     content: read # permission to read the repository
     pull-requests: write # permission to write a comment
+    models: read # permission to use github models
 
 ...
 
-    - run: npx --yes genaiscript run ... --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY
+    - run: npx --yes genaiscript run ... -prc --out-trace $GITHUB_STEP_SUMMARY
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ... # LLM secrets
