@@ -16,6 +16,5 @@ jobs:
                   node-version: "20"
             - name: Generate poem
               run: npx --yes genaiscript run poem -prd
-              working-directory: ./packages/sample
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
