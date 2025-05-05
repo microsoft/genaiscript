@@ -1,19 +1,19 @@
 ---
 title: Automating scripts
 sidebar:
-  order: 5
+    order: 5
 description: Learn how to automate your scripts using the GenAIScript CLI for
-  efficient batch processing and integration into CI/CD pipelines.
+    efficient batch processing and integration into CI/CD pipelines.
 keywords: automation, CLI, batch processing, CI/CD integration, script execution
 hero:
-  image:
-    alt: A simple, flat 8-bit icon displays a geometric laptop alongside a cogwheel
-      and checkmark, a stylized file tree linked by lines, a small cloud with an
-      upload arrow, and a basic shield representing security. All elements use a
-      five-color corporate palette, arranged on a transparent background in a
-      128x128 pixel square, with no people, text, shadows, or 3D effects.
-    file: ./automating-scripts.png
-
+    image:
+        alt:
+            A simple, flat 8-bit icon displays a geometric laptop alongside a cogwheel
+            and checkmark, a stylized file tree linked by lines, a small cloud with an
+            upload arrow, and a basic shield representing security. All elements use a
+            five-color corporate palette, arranged on a transparent background in a
+            128x128 pixel square, with no people, text, shadows, or 3D effects.
+        file: ./automating-scripts.png
 ---
 
 import { Steps } from "@astrojs/starlight/components"
@@ -107,21 +107,10 @@ Use the `out-trace` flag to output the trace to the summary file, `$GITHUB_STEP_
 
 ### Diff
 
-You can use `host.exec` to execute [git](https://git-scm.com/) command to retrieve changes in the current branch.
+You can use `git.diff` to execute a [git](https://git-scm.com/) `diff` command to retrieve changes in the current branch.
 
 ```js
-const { stdout: changes } = await host.exec("git", [
-    "diff",
-    "main",
-    "--",
-    ":!**/genaiscript.d.ts",
-    ":!**/jsconfig.json",
-    ":!genaisrc/*",
-    ":!.github/*",
-    ":!.vscode/*",
-    ":!*yarn.lock",
-])
-
+const changes = await git.diff({ base: "main" })
 def("GIT_DIFF", changes, {
     language: "diff",
     maxTokens: 20000,

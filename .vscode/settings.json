@@ -89,6 +89,7 @@
         "fuzzsearch",
         "gdir",
         "genai",
+        "genairesults",
         "Genaiscript",
         "genaiscriptdts",
         "GENAISCRIPTIGNORE",
