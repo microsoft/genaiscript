@@ -16,9 +16,8 @@ jobs:
               with:
                   node-version: "20"
                   cache: "yarn"
-            - name: Cowsay
-              run: npx --yes cowsay genaiscript
             - name: Generate poem
               run: npx --yes genaiscript run poem -prd
+              working-directory: ./packages/sample
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
