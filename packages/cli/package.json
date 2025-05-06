@@ -54,10 +54,10 @@
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
   "resolutions": {
-    "axios": "1.9.0"
-  },
-  "overrides": {
-    "axios": "1.9.0"
+    "axios": "1.9.0",
+    "glob": "^11.0.2",
+    "@mapbox/node-pre-gyp": "^2.0.0",
+    "json-colorizer": "^3.0.1"
   },
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.12.5",

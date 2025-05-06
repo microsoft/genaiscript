@@ -10,6 +10,12 @@
             "packages/*"
         ]
     },
+    "resolutions": {
+        "axios": "1.9.0",
+        "glob": "^11.0.2",
+        "@mapbox/node-pre-gyp": "^2.0.0",
+        "json-colorizer": "^3.0.1"
+    },
     "scripts": {
         "localai": "docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu",
         "setup": "git submodule update --init --recursive",
@@ -92,7 +98,7 @@
         "prd:narration": "node packages/cli/built/genaiscript.cjs run prd-narration -prd --model github:gpt-4.1 --vars base=dev",
         "prd:dev": "node packages/cli/built/genaiscript.cjs run prd -prd --model azure:gpt-4.1_2025-04-14 --vars maxTokens=500000",
         "prr": "node packages/cli/built/genaiscript.cjs run prr -prr --model github:gpt-4.1 --vars base=dev",
-        "genai": "node packages/cli/built/genaiscript.cjs run",
+        "genai": "node --trace-deprecation packages/cli/built/genaiscript.cjs run",
         "genai:convert": "node packages/cli/built/genaiscript.cjs convert",
         "genai:debug": "yarn compile-debug && node packages/cli/built/genaiscript.cjs run",
         "genai:docs": "yarn genai docs \"packages/cli/src/**.ts\" \"packages/core/src/**.ts\" --vars diff=true --vars applyEdits=true",
