@@ -112,6 +112,31 @@ genaiscript: success
   output: ...
 ```
 
+### Make it Agentic
+
+GenAIScript provides various builtin agents, including a file system and git agent.
+This can be useful for the LLM to read the files in the pull request and analyze them.
+
+There are basically two level of agenticness you can achieve with GenAIScript:
+
+- add the [fs_read_file](/genaiscript/reference/scripts/system/#systemfs_read_file)  to read files to the script.
+
+```ts title="genaisrc/prr.genai.mts" wrap 'tools: ["fs_read"]'
+script({
+    ...,
+    tools: ["fs_read_file"],
+})
+```
+
+- add the [file system agent](/genaiscript/reference/scripts/system/#systemagent_fs) that can respond to more complex queries at the cost of additional tokens.
+
+```ts title="genaisrc/prr.genai.mts" wrap 'tools: ["agent_fs"]'
+script({
+    ...,
+    tools: ["agent_fs"],
+})
+```
+
 ## Automate in GitHub Actions
 
 Using [GitHub Actions](https://docs.github.com/en/actions) and [GitHub Models](https://docs.github.com/en/github-models),
