@@ -10947,6 +10947,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/plugin-paginate-rest@11.6.0
+ - @octokit/plugin-paginate-rest@12.0.0
  - @octokit/plugin-rest-endpoint-methods@13.5.0
  - @octokit/types@13.10.0
  - @octokit/types@14.0.0
@@ -11653,7 +11654,7 @@ The following npm packages may be included in this product:
 
  - @octokit/endpoint@10.1.4
  - @octokit/graphql@8.2.2
- - @octokit/plugin-throttling@9.6.1
+ - @octokit/plugin-throttling@10.0.0
  - @octokit/request@9.2.3
 
 These packages each contain the following license:
