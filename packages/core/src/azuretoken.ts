@@ -47,6 +47,7 @@ async function createAzureToken(
         AzurePowerShellCredential,
         AzureDeveloperCliCredential,
         WorkloadIdentityCredential,
+        ChainedTokenCredential,
     } = await import("@azure/identity")
 
     let credential: TokenCredential
@@ -75,13 +76,33 @@ async function createAzureToken(
             dbg("credentialsType is workloadidentity")
             credential = new WorkloadIdentityCredential()
             break
-        default:
-            credential = new DefaultAzureCredential()
+        case "default":
             dbg("credentialsType is default")
+            credential = new DefaultAzureCredential() // CodeQL [SM05139] Okay use of DefaultAzureCredential, user explicitely requested it
+            break
+        default:
+            // Check if the environment is local/development
+            // also: https://nodejs.org/en/learn/getting-started/nodejs-the-difference-between-development-and-production
+            if (process.env.NODE_ENV === "development") {
+                dbg("node_env development: credentialsType is default")
+                credential = new DefaultAzureCredential() // CodeQL [SM05139] Okay use of DefaultAzureCredential as it is only used in development
+            } else {
+                dbg(
+                    `credentialsType is env, workload, managedidentity, cli, devcli, powershell`
+                )
+                credential = new ChainedTokenCredential(
+                    new EnvironmentCredential(),
+                    new WorkloadIdentityCredential(),
+                    new ManagedIdentityCredential(),
+                    new AzureCliCredential(),
+                    new AzureDeveloperCliCredential(),
+                    new AzurePowerShellCredential()
+                )
+            }
             break
     }
 
-    // Obtain the Azure token using the DefaultAzureCredential
+    // Obtain the Azure token
     const abortSignal = toSignal(cancellationToken)
     dbg("obtaining Azure token with provided scopes and abort signal")
     const azureToken = await credential.getToken(scopes.slice(), {
