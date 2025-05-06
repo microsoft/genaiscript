@@ -48,7 +48,7 @@ $`Report errors in ${gitDiff} using the annotation format.
 
 ```
 
-- run the [GenAIScript cli](/genaiscript/cli/) to add the type definition files and fix the syntax errors in the editor (optional).
+- run the [GenAIScript cli](/genaiscript/reference/cli/) to add the type definition files and fix the syntax errors in the editor (optional).
 
 ```bash
 npx --yes genaiscript script fix
