@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:azureaisearch")
-
 import {
     CancellationOptions,
     checkCancelled,
@@ -19,6 +16,8 @@ import { resolveFileContent } from "./file"
 import { hash } from "./crypto"
 import { LanguageModelConfiguration } from "./server/messages"
 import { chunk } from "./encoders"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("azureaisearch")
 
 const HASH_LENGTH = 64
 export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
