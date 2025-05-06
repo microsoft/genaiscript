@@ -523,6 +523,9 @@ script({
 
 </Steps>
 
+Set the `NODE_ENV` environment variable to `development` to enable the `DefaultAzureCredential` to work with the Azure CLI.
+Otherwise, it will use a chained token credential with `env`, `workload`, `managed identity`, `azure cli`, `azure dev cli`, `azure powershell` credentials.
+
 ### Listing models
 
 There are two ways to list the models in your Azure OpenAI resource: use the Azure Management APIs

@@ -1,5 +1,6 @@
 name: cli test
-
+permissions:
+    contents: read
 on:
     workflow_dispatch:
 jobs:

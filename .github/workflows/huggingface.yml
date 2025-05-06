@@ -1,4 +1,6 @@
 name: huggingface tests
+permissions:
+    contents: read
 on:
     workflow_dispatch:
     release:

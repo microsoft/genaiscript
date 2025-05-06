@@ -43,7 +43,8 @@
         "publish": false
     },
     "activationEvents": [
-        "workspaceContains:**/*.genai.{js,mjs,mts,prompty}",
+        "workspaceContains:*.genai.{js,mjs,mts}",
+        "workspaceContains:**/*.genai.{js,mjs,mts}",
         "onNotebook:genaiscript"
     ],
     "main": "./built/extension.js",

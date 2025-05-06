@@ -1,5 +1,8 @@
 name: refresh 3rd party licenses
-
+permissions:
+    actions: read
+    contents: write
+    pull-requests: write
 on:
     workflow_dispatch:
     push:
@@ -12,10 +15,6 @@ concurrency:
 jobs:
     build:
         runs-on: ubuntu-latest
-        permissions:
-            actions: read
-            contents: write
-            pull-requests: write
         steps:
             - uses: actions/checkout@v4
               with:

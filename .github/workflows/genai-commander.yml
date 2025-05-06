@@ -1,4 +1,8 @@
 name: genai commander
+permissions:
+    contents: read
+    pull-requests: write
+    models: read
 on:
     issue_comment:
         types: [created]
@@ -7,10 +11,6 @@ jobs:
         # must be PR and have a comment starting with /genai
         if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/genai ') }}
         runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            pull-requests: write
-            models: read
         steps:
             # only allow PRs from the same repository
             - name: Check if PR is from the same repository
