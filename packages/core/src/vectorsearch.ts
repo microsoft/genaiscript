@@ -13,9 +13,35 @@ import { resolveModelConnectionInfo } from "./models"
 import { EMBEDDINGS_MODEL_ID } from "./constants"
 import { runtimeHost } from "./host"
 import { resolveLanguageModel } from "./lm"
-import { EmbeddingsResponse } from "vectra"
 import { assert } from "./util"
 import { createCache } from "./cache"
+
+interface EmbeddingsResponse {
+    /**
+     * Status of the embeddings response.
+     */
+    status: "success" | "error" | "rate_limited" | "cancelled"
+
+    /**
+     * Optional. Embeddings for the given inputs.
+     */
+    output?: number[][]
+
+    /**
+     * Optional. Message when status is not equal to `success`.
+     */
+    message?: string
+
+    /**
+     * Optional. Model used to create the embeddings.
+     */
+    model?: string
+
+    /**
+     * Optional. Usage statistics for the request.
+     */
+    usage?: Record<string, any>
+}
 
 /**
  * Represents the cache key for embeddings.

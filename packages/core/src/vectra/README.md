@@ -1,0 +1,1 @@
+Slimmed down version of vectra.
