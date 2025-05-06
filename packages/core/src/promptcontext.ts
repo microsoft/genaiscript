@@ -37,8 +37,10 @@ import {
 } from "./astgrep"
 import { createCache } from "./cache"
 import { loadZ3Client } from "./z3"
-
-const dbg = debug("genaiscript:promptcontext")
+import { genaiscriptDebug } from "./debug"
+import { resolveLanguageModelConfigurations } from "./config"
+import { deleteUndefinedValues } from "./cleaners"
+const dbg = genaiscriptDebug("promptcontext")
 
 /**
  * Creates a prompt context for the specified project, variables, trace, options, and model.
@@ -85,13 +87,18 @@ export async function createPromptContext(
         readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
         readData: (f, o) => runtimeHost.workspace.readData(f, o),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
+        appendText: (f, c) => runtimeHost.workspace.appendText(f, c),
         writeCached: async (f, options) => {
             const { scope } = options || {}
             const dir =
                 scope === "run"
                     ? join(runDir, "files")
                     : dotGenaiscriptPath("cache", "files")
-            return await fileWriteCached(dir, f)
+            return await fileWriteCached(dir, f, {
+                ...(options || {}),
+                cancellationToken,
+                trace,
+            })
         },
         copyFile: (src, dest) => runtimeHost.workspace.copyFile(src, dest),
         cache: (n) => runtimeHost.workspace.cache(n),
@@ -278,9 +285,25 @@ export async function createPromptContext(
                 }
             )
             return {
-                provider: configuration.provider,
-                model: configuration.model,
+                provider: configuration?.provider,
+                model: configuration?.model,
             } satisfies LanguageModelReference
+        },
+        resolveLanguageModelProvider: async (id) => {
+            if (!id) throw new Error("provider id is required")
+            const [provider] = await resolveLanguageModelConfigurations(id, {
+                ...(options || {}),
+                models: true,
+                error: false,
+                hide: false,
+                token: true,
+            })
+            if (provider.error) return undefined
+            return deleteUndefinedValues({
+                id: provider.provider,
+                error: provider.error,
+                models: provider.models || [],
+            }) satisfies LanguageModelProviderInfo
         },
         cache: async (name: string) => {
             const res = createCache<any, any>(name, { type: "memory" })

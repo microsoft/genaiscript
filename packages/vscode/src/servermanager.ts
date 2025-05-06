@@ -9,6 +9,7 @@ import {
     VSCODE_SERVER_MAX_RETRIES,
     CHANGE,
     SERVER_LOCALHOST,
+    MIN_NODE_VERSION_MAJOR,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
 import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
@@ -29,6 +30,7 @@ export class TerminalServerManager
     private _port: number
     private _startClientPromise: Promise<VsCodeClient>
     private _client: VsCodeClient
+    private _version: string
 
     private _status: "stopped" | "stopping" | "starting" | "running" = "stopped"
     get status() {
@@ -112,6 +114,10 @@ export class TerminalServerManager
         return this._port
     }
 
+    get version() {
+        return this._version
+    }
+
     private async startClient(): Promise<VsCodeClient> {
         assert(!this._client)
         await this.allocatePort()
@@ -134,16 +140,17 @@ export class TerminalServerManager
         client.chatRequest = createChatModelRunner(this.state)
         client.addEventListener(OPEN, async () => {
             if (client !== this._client) return
-            this.status = "running"
             this._terminalStartAttempts = 0
             // check version
             const v = await this._client.version()
+            this._version = v.version
             const gv = semverParse(CORE_VERSION)
             if (!semverSatisfies(v.version, ">=" + gv.major + "." + gv.minor))
                 vscode.window.showWarningMessage(
                     TOOL_ID +
                         ` - genaiscript cli version (${v.version}) outdated, please update to ${CORE_VERSION}`
                 )
+            this.status = "running"
         })
         client.addEventListener(RECONNECT, () => {
             // server process died somehow
@@ -177,6 +184,11 @@ export class TerminalServerManager
         logVerbose(
             `starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`
         )
+        const { cliPath, cliVersion } = await resolveCli(this.state)
+        const githubCopilotChatClient = isLanguageModelsAvailable()
+            ? " --github-copilot-chat-client"
+            : ""
+
         if (this._client) this._client.reconnectAttempts = 0
         this._terminalStartAttempts++
         this._terminal = vscode.window.createTerminal({
@@ -191,10 +203,6 @@ export class TerminalServerManager
             }),
             hideFromUser,
         })
-        const { cliPath, cliVersion } = await resolveCli(this.state)
-        const githubCopilotChatClient = isLanguageModelsAvailable()
-            ? " --github-copilot-chat-client"
-            : ""
         if (cliPath)
             this._terminal.sendText(
                 `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
@@ -204,6 +212,64 @@ export class TerminalServerManager
                 `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
             )
         if (!hideFromUser) this._terminal.show(true)
+
+        // check node asynchronously
+        this.checkNode()
+    }
+
+    private nodeVersionValidated = false
+    async checkNode() {
+        if (this.nodeVersionValidated) return
+        this.nodeVersionValidated = true
+        return new Promise<void>((resolve) => {
+            logVerbose("checking node version")
+            const cwd = host.projectFolder()
+            const terminal = vscode.window.createTerminal({
+                cwd,
+                isTransient: true,
+                hideFromUser: true,
+            })
+            // TODO: never triggers on windows+powershell
+            const cleanup = vscode.window.onDidChangeTerminalShellIntegration(
+                async (e) => {
+                    if (e.terminal === this._terminal) {
+                        logVerbose(`node terminal started`)
+                        cleanup.dispose()
+                        await checkNodeCommand(terminal)
+                        resolve()
+                    }
+                },
+                this.state.context.subscriptions
+            )
+        })
+
+        async function checkNodeCommand(
+            terminal: vscode.Terminal
+        ): Promise<boolean> {
+            assert(!!terminal, "terminal not started")
+            // Log all data written to the terminal for a command
+            const command = terminal.shellIntegration.executeCommand("node -v")
+            let output = ""
+            for await (const chunk of command.read()) output += chunk
+
+            logVerbose(`node version: ${output}`)
+            if (!output) {
+                vscode.window.showErrorMessage(
+                    "Node.js is not installed or not in PATH. Please install Node.js to use the server."
+                )
+                return false
+            }
+            const major = parseInt(
+                /v(?<major>\d+)\.\d+\.\d+/.exec(output)?.groups.major
+            )
+            if (!(major >= MIN_NODE_VERSION_MAJOR)) {
+                vscode.window.showErrorMessage(
+                    `Node.js version ${output} is not supported or not recognized. Please update to version ${MIN_NODE_VERSION_MAJOR} or higher.`
+                )
+                return false
+            }
+            return true
+        }
     }
 
     async close() {

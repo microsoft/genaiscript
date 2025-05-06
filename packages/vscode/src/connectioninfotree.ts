@@ -2,7 +2,6 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { YAMLStringify } from "../../core/src/yaml"
 import {
-    LanguageModelInfo,
     ResolvedLanguageModelConfiguration,
     ServerEnvResponse,
 } from "../../core/src/server/messages"

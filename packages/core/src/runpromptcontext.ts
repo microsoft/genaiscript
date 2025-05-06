@@ -107,6 +107,7 @@ import { stderr, stdout } from "./stdio"
 import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
 import { createCache } from "./cache"
+import { measure } from "./performance"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -1140,7 +1141,8 @@ export function createChatGenerationContext(
 
         const imgTrace = trace.startTraceDetails("🖼️ generate image")
         try {
-            const { style, quality, size } = imageOptions || {}
+            const { style, quality, size, outputFormat, mime } =
+                imageOptions || {}
             const conn: ModelConnectionOptions = {
                 model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
             }
@@ -1158,6 +1160,10 @@ export function createChatGenerationContext(
                 throw new Error(
                     `model configuration not found for ${conn.model}`
                 )
+            const stats = options.stats.createChild(
+                info.model,
+                "generate image"
+            )
             checkCancelled(cancellationToken)
             const { ok } = await runtimeHost.pullModel(configuration, {
                 trace: imgTrace,
@@ -1177,19 +1183,31 @@ export function createChatGenerationContext(
                 size,
                 quality,
                 style,
+                outputFormat,
             }) satisfies CreateImageRequest
+            const m = measure("img.generate", `${req.model} -> image`)
             const res = await imageGenerator(req, configuration, {
                 trace: imgTrace,
                 cancellationToken,
             })
+            const duration = m()
             if (res.error) {
                 imgTrace.error(errorMessage(res.error))
                 return undefined
             }
+            dbg(`usage: %o`, res.usage)
+            stats.addImageGenerationUsage(res.usage, duration)
 
             const h = await hash(res.image, { length: 20 })
             const buf = await imageTransform(res.image, {
                 ...(imageOptions || {}),
+                mime:
+                    mime ??
+                    (outputFormat === "jpeg" || outputFormat === "webp"
+                        ? `image/jpeg`
+                        : outputFormat === "png"
+                          ? `image/png`
+                          : undefined),
                 cancellationToken,
                 trace: imgTrace,
             })
@@ -1203,6 +1221,8 @@ export function createChatGenerationContext(
                     await renderImageToTerminal(buf, {
                         ...size,
                         label: filename,
+                        usage: res.usage,
+                        modelId: info.model,
                     })
                 )
             } else logVerbose(`image: ${filename}`)

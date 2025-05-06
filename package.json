@@ -2,13 +2,19 @@
     "name": "genaiscript-workspace",
     "displayName": "GenAIScript",
     "description": "Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.",
-    "version": "1.132.0",
+    "version": "1.134.2",
     "license": "MIT",
     "private": true,
     "workspaces": {
         "packages": [
             "packages/*"
         ]
+    },
+    "resolutions": {
+        "axios": "1.9.0",
+        "glob": "^11.0.2",
+        "@mapbox/node-pre-gyp": "^2.0.0",
+        "json-colorizer": "^3.0.1"
     },
     "scripts": {
         "localai": "docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu",
@@ -86,9 +92,13 @@
         "commit": "yarn pretty && yarn compile && yarn test:core && yarn gcm",
         "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model gcm",
         "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4.1 --vars base=dev",
+        "prd:visuals": "node packages/cli/built/genaiscript.cjs run prd-visuals -prd --model github:gpt-4.1 --vars base=dev",
+        "prd:zine": "node packages/cli/built/genaiscript.cjs run prd-zine -prd --model github:gpt-4.1 --vars base=dev",
+        "prd:sketch": "node packages/cli/built/genaiscript.cjs run prd-sketch -prd --model github:gpt-4.1 --vars base=dev",
+        "prd:narration": "node packages/cli/built/genaiscript.cjs run prd-narration -prd --model github:gpt-4.1 --vars base=dev",
         "prd:dev": "node packages/cli/built/genaiscript.cjs run prd -prd --model azure:gpt-4.1_2025-04-14 --vars maxTokens=500000",
         "prr": "node packages/cli/built/genaiscript.cjs run prr -prr --model github:gpt-4.1 --vars base=dev",
-        "genai": "node packages/cli/built/genaiscript.cjs run",
+        "genai": "node --trace-deprecation packages/cli/built/genaiscript.cjs run",
         "genai:convert": "node packages/cli/built/genaiscript.cjs convert",
         "genai:debug": "yarn compile-debug && node packages/cli/built/genaiscript.cjs run",
         "genai:docs": "yarn genai docs \"packages/cli/src/**.ts\" \"packages/core/src/**.ts\" --vars diff=true --vars applyEdits=true",
@@ -112,8 +122,8 @@
     },
     "devDependencies": {
         "@inquirer/prompts": "^7.5.0",
-        "glob": "^11.0.1",
-        "npm-check-updates": "^18.0.0",
+        "glob": "^11.0.2",
+        "npm-check-updates": "^18.0.1",
         "npm-run-all": "^4.1.5",
         "prettier": "^3.5.3",
         "prettier-plugin-curly": "^0.3.2",

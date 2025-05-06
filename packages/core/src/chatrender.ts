@@ -14,6 +14,8 @@ import { JSONLLMTryParse } from "./json5"
 import { details, fenceMD } from "./mkmd"
 import { stringify as YAMLStringify } from "yaml"
 import { CancellationOptions, checkCancelled } from "./cancellation"
+import { unthink } from "./think"
+import { unfence } from "./unwrappers"
 
 export interface ChatRenderOptions extends CancellationOptions {
     textLang?: "markdown" | "text" | "json" | "raw"
@@ -267,10 +269,8 @@ function renderToolArguments(args: string) {
  *                   Each message contains properties such as role, content, and cacheControl.
  *                   Messages can include system, user, assistant, or tool roles.
  *
- * - Combines consecutive "system" messages at the start into a single "system" message by
- *   concatenating their content. The combined message is added back to the array, replacing the original messages.
- * - Removes empty text content from "user" messages. For array-based content, filters out
- *   "text" types with no content.
+ * - Concatenates the content of consecutive "system" messages at the start of the array into a single "system" message, replacing the originals.
+ * - Removes empty text content from "user" messages. For array-based content, filters out "text" types with no content.
  */
 export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
     // concat the content of system messages at the start of the messages into a single message
@@ -294,11 +294,65 @@ export function collapseChatMessages(messages: ChatCompletionMessageParam[]) {
         }
     }
 
-    // remove emty text contents
+    // remove empty text contents
     messages
         .filter((m) => m.role === "user")
         .forEach((m) => {
             if (typeof m.content !== "string")
                 m.content = m.content.filter((c) => c.type !== "text" || c.text)
         })
+}
+
+/**
+ * Extracts and concatenates the output text from consecutive assistant messages in a chat history, applying post-processing based on the specified response type or schema.
+ *
+ * @param messages Array of chat messages to process.
+ * @param options Optional configuration object:
+ *   - responseType: Desired output format (e.g., "markdown", "yaml", "json", "text").
+ *   - responseSchema: Schema for formatting/parsing the response, supporting custom prompt templates.
+ *
+ * @returns The concatenated and post-processed output text from the most recent assistant messages.
+ */
+export function assistantText(
+    messages: ChatCompletionMessageParam[],
+    options?: {
+        responseType?: PromptTemplateResponseType
+        responseSchema?: PromptParametersSchema | JSONSchema
+    }
+) {
+    const { responseType, responseSchema } = options || {}
+    let text = ""
+    for (let i = messages.length - 1; i >= 0; i--) {
+        const msg = messages[i]
+        if (msg.role !== "assistant") {
+            break
+        }
+        let content: string = ""
+        if (typeof msg.content === "string") {
+            content = msg.content
+        } else if (Array.isArray(msg.content)) {
+            for (const part of msg.content) {
+                if (part.type === "text") {
+                    content = content + part.text
+                } else if (part.type === "refusal") {
+                    content = `refusal: ${part.refusal}\n` + content
+                    break
+                }
+            }
+        }
+        text = content + text
+    }
+
+    text = unthink(text)
+    if ((!responseType && !responseSchema) || responseType === "markdown") {
+        text = unfence(text, ["markdown", "md"])
+    } else if (responseType === "yaml") {
+        text = unfence(text, ["yaml", "yml"])
+    } else if (/^json/.test(responseType)) {
+        text = unfence(text, ["json", "json5"])
+    } else if (responseType === "text") {
+        text = unfence(text, ["text", "txt"])
+    }
+
+    return text
 }

@@ -4,12 +4,13 @@
  * of annotations into different formats for integration with CI/CD tools.
  */
 
+import { deleteUndefinedValues } from "./cleaners"
 import { EMOJI_FAIL, EMOJI_WARNING } from "./constants"
 
 // Regular expression for matching GitHub Actions annotations.
 // Example: ::error file=foo.js,line=10,endLine=11::Something went wrong.
 const GITHUB_ANNOTATIONS_RX =
-    /^\s*::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)?\s*)?::(?<message>.*)$/gim
+    /^\s*::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)?\s*)?::(?<message>.*?)(?:::(?<suggestion>.*?))?$/gim
 
 // Regular expression for matching Azure DevOps annotations.
 // Example: ##vso[task.logissue type=warning;sourcepath=foo.cs;linenumber=1;]Found something.
@@ -71,7 +72,8 @@ export function parseAnnotations(text: string): Diagnostic[] {
     // Helper function to add an annotation to the set.
     // Extracts groups from the regex match and constructs a `Diagnostic` object.
     const addAnnotation = (m: RegExpMatchArray) => {
-        const { file, line, endLine, severity, code, message } = m.groups
+        const { file, line, endLine, severity, code, message, suggestion } =
+            m.groups
         const annotation: Diagnostic = {
             severity: SEV_MAP[severity?.toLowerCase()] ?? "info", // Default to "info" if severity is missing
             filename: file,
@@ -81,6 +83,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
             ],
             message,
             code,
+            suggestion,
         }
         annotations.add(annotation) // Add the constructed annotation to the set
     }
@@ -128,9 +131,16 @@ export function convertAnnotationsToItems(text: string) {
             (t, rx) =>
                 t.replace(rx, (s, ...args) => {
                     const groups = args.at(-1)
-                    const { file, line, endLine, severity, code, message } =
-                        groups
-                    const d: Diagnostic = {
+                    const {
+                        file,
+                        line,
+                        endLine,
+                        severity,
+                        code,
+                        message,
+                        suggestion,
+                    } = groups
+                    const d = deleteUndefinedValues({
                         severity: SEV_MAP[severity?.toLowerCase()] ?? "info",
                         filename: file,
                         range: [
@@ -139,7 +149,8 @@ export function convertAnnotationsToItems(text: string) {
                         ],
                         code,
                         message,
-                    }
+                        suggestion,
+                    }) satisfies Diagnostic
                     return convertAnnotationToItem(d)
                 }),
             text
@@ -150,9 +161,9 @@ export function convertAnnotationsToItems(text: string) {
 export function convertGithubMarkdownAnnotationsToItems(text: string) {
     return text?.replace(GITHUB_MARKDOWN_WARNINGS_RX, (s, ...args) => {
         const groups = args.at(-1)
-        const { severity, message } = groups
+        const { severity, message, suggestion } = groups
         const sev = SEV_MAP[severity?.toLowerCase()] ?? "info"
-        const d: Diagnostic = {
+        const d = deleteUndefinedValues({
             severity: sev,
             filename: "",
             range: [
@@ -161,7 +172,8 @@ export function convertGithubMarkdownAnnotationsToItems(text: string) {
             ],
             code: "",
             message,
-        }
+            suggestion,
+        }) satisfies Diagnostic
         return convertAnnotationToItem(d)
     })
 }
@@ -216,6 +228,26 @@ export function convertDiagnosticToAzureDevOpsCommand(d: Diagnostic) {
     else
         return `##vso[task.logissue type=${d.severity};sourcepath=${d.filename};linenumber=${d.range[0][0]}]${d.message}`
 }
+const severities: Record<string, string> = {
+    error: "CAUTION",
+    warning: "WARNING",
+    notice: "NOTE",
+}
+
+export function diagnosticToGitHubMarkdown(
+    info: { owner: string; repo: string; commitSha?: string },
+    d: Diagnostic
+) {
+    const { owner, repo, commitSha } = info
+    const { severity, message, filename, suggestion, code, range } = d
+    const file = filename
+    const line = range?.[0]?.[0]
+    return `> [!${severities[severity] || severity}]
+> ${message} 
+> [${file}#L${line}](/${owner}/${repo}/blob/${commitSha}/${file}#L${line})${code ? ` \`${code}\`` : ""}
+${suggestion ? `\`\`\`suggestion\n${suggestion}\n\`\`\`\n` : ""}
+`
+}
 
 /**
  * Converts annotations in text to a Markdown representation with severity-based admonitions.
@@ -236,10 +268,19 @@ export function convertAnnotationsToMarkdown(text: string): string {
     return text
         ?.replace(
             GITHUB_ANNOTATIONS_RX,
-            (_, severity, file, line, endLine, __, code, message) => `> [!${
-                severities[severity] || severity
-            }]
+            (
+                _,
+                severity,
+                file,
+                line,
+                endLine,
+                __,
+                code,
+                message,
+                suggestion
+            ) => `> [!${severities[severity] || severity}]
 > ${message} (${file}#L${line} ${code || ""})
+${suggestion ? `\`\`\`suggestion\n${suggestion}\n\`\`\`\n` : ""}
 `
         )
         ?.replace(

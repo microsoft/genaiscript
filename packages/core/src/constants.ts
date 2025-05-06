@@ -311,6 +311,7 @@ export const AI_REQUESTS_CACHE = "airequests"
 export const CHAT_CACHE = "chat"
 export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
 export const GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
+export const GITHUB_ASSET_BRANCH = "genai-assets"
 
 export const PLACEHOLDER_API_BASE = "<custom api base>"
 export const PLACEHOLDER_API_KEY = "<your token>"
@@ -440,3 +441,4 @@ export const CACHE_SHA_LENGTH = 32
 export const MCP_RESOURCE_PROTOCOL = TOOL_ID
 
 export const RESOURCE_MAX_SIZE = 1024 * 1024 * 10 // 10MB
+export const MIN_NODE_VERSION_MAJOR = 20

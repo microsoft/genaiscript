@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: /other-features.jpg
+
+---
 #  Other Features of GenAIScript
 
 - Extensive support/integration with VS Code 

@@ -49,16 +49,14 @@ import {
     EmbeddingCreateResponse,
     EmbeddingCreateParams,
     EmbeddingResult,
+    ImageGenerationResponse,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { INITryParse } from "./ini"
 import { serializeChunkChoiceToLogProbs } from "./logprob"
 import { TraceOptions } from "./trace"
-import {
-    LanguageModelConfiguration,
-    LanguageModelInfo,
-} from "./server/messages"
+import { LanguageModelConfiguration } from "./server/messages"
 import prettyBytes from "pretty-bytes"
 import {
     deleteUndefinedValues,
@@ -738,8 +736,8 @@ export async function OpenAISpeech(
  * @param req - An object containing the image generation request, including:
  *              - model: The name of the model to use for image generation.
  *              - prompt: The text prompt to generate the image.
- *              - size: Optional; dimensions of the image in "widthxheight" format, defaults to "1024x1024".
- *              - quality: Optional; image quality setting.
+ *              - size: Optional; dimensions of the image in "widthxheight" format or keywords like "portrait", "landscape", "square", or "auto". Defaults to "1024x1024".
+ *              - quality: Optional; image quality setting ("auto", "high", "hd").
  *              - style: Optional; style attributes for image generation.
  *              - Additional parameters required for the request.
  * @param cfg - The configuration for the language model, including:
@@ -751,14 +749,22 @@ export async function OpenAISpeech(
  * @param options - Additional options including:
  *                  - trace: Optional; tracing information for debugging/logging.
  *                  - cancellationToken: Optional; token to handle request cancellation.
- * @returns - A result containing either the generated image as a Uint8Array or an error message.
+ * @returns - A result containing either the generated image as a Uint8Array, the revised prompt, usage information, or an error message.
  */
 export async function OpenAIImageGeneration(
     req: CreateImageRequest,
     cfg: LanguageModelConfiguration,
     options: TraceOptions & CancellationOptions
 ): Promise<CreateImageResult> {
-    const { model, prompt, size = "1024x1024", quality, style, ...rest } = req
+    const {
+        model,
+        prompt,
+        size = "1024x1024",
+        quality,
+        style,
+        outputFormat,
+        ...rest
+    } = req
     const { trace } = options || {}
     let url = `${cfg.base}/images/generations`
 
@@ -801,6 +807,7 @@ export async function OpenAIImageGeneration(
         if (body.size === "portrait") body.size = "1024x1536"
         else if (body.size === "landscape") body.size = "1536x1024"
         else if (body.size === "square") body.size = "1024x1024"
+        if (outputFormat) body.output_format = outputFormat
     }
 
     if (body.size === "auto") delete body.size
@@ -847,15 +854,17 @@ export async function OpenAIImageGeneration(
                 image: undefined,
                 error: (await res.json())?.error || res.statusText,
             }
-        const j = await res.json()
+        const j: ImageGenerationResponse = await res.json()
         dbg(`%O`, j)
         const revisedPrompt = j.data[0]?.revised_prompt
         if (revisedPrompt)
             trace?.details(`📷 revised prompt`, j.data[0].revised_prompt)
+        const usage = j.usage
         const buffer = fromBase64(j.data[0].b64_json)
         return {
             image: new Uint8Array(buffer),
             revisedPrompt,
+            usage,
         } satisfies CreateImageResult
     } catch (e) {
         logError(e)

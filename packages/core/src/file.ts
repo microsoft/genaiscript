@@ -261,7 +261,7 @@ export function dataUriToBuffer(filename: string) {
  */
 export async function resolveFileBytes(
     filename: string | WorkspaceFile,
-    options?: TraceOptions
+    options?: TraceOptions & CancellationOptions
 ): Promise<Uint8Array> {
     if (typeof filename === "object") {
         if (filename.encoding && filename.content) {

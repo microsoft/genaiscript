@@ -1,4 +1,8 @@
 name: genai docs
+permissions:
+    pull-requests: write
+    contents: write
+    models: read
 on:
     workflow_dispatch:
     pull_request:
@@ -11,10 +15,6 @@ concurrency:
 jobs:
     gen-docs:
         runs-on: ubuntu-latest
-        permissions:
-            pull-requests: write
-            contents: write
-            models: read
         steps:
             - uses: actions/checkout@v4
               with:

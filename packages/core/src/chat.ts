@@ -53,6 +53,7 @@ import {
     EmbeddingResult,
 } from "./chattypes"
 import {
+    assistantText,
     collapseChatMessages,
     lastAssistantReasoning,
     renderMessagesToMarkdown,
@@ -76,11 +77,7 @@ import {
 } from "./logprob"
 import { uniq } from "es-toolkit"
 import { renderWithPrecision } from "./precision"
-import {
-    LanguageModelConfiguration,
-    LanguageModelInfo,
-    ResponseStatus,
-} from "./server/messages"
+import { LanguageModelConfiguration, ResponseStatus } from "./server/messages"
 import { unfence } from "./unwrappers"
 import { fenceMD } from "./mkmd"
 import {
@@ -170,12 +167,24 @@ export type CreateImageRequest = {
     quality?: string
     size?: string
     style?: string
+    outputFormat?: "png" | "jpeg" | "webp"
+}
+
+export interface ImageGenerationUsage {
+    total_tokens: number
+    input_tokens: number
+    output_tokens: number
+    input_tokens_details?: {
+        text_tokens: number
+        image_tokens: number
+    }
 }
 
 export interface CreateImageResult {
     image: Uint8Array
     error?: SerializedError
     revisedPrompt?: string
+    usage?: ImageGenerationUsage
 }
 
 export type ImageGenerationFunction = (
@@ -556,7 +565,7 @@ async function applyRepairs(
         return false
     }
 
-    const content = assistantText(messages, responseType, responseSchema)
+    const content = assistantText(messages, { responseType, responseSchema })
     const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
     dbg(`validating fences with schema`)
@@ -659,44 +668,6 @@ ${repair}
     return true
 }
 
-function assistantText(
-    messages: ChatCompletionMessageParam[],
-    responseType?: PromptTemplateResponseType,
-    responseSchema?: PromptParametersSchema | JSONSchema
-) {
-    let text = ""
-    for (let i = messages.length - 1; i >= 0; i--) {
-        const msg = messages[i]
-        if (msg.role !== "assistant") {
-            break
-        }
-        if (typeof msg.content === "string") {
-            text = msg.content + text
-        } else if (Array.isArray(msg.content)) {
-            for (const part of msg.content) {
-                if (part.type === "text") {
-                    text = part.text + text
-                } else if (part.type === "refusal") {
-                    text = `refusal: ${part.refusal}\n` + text
-                }
-            }
-        }
-    }
-
-    text = unthink(text)
-    if ((!responseType && !responseSchema) || responseType === "markdown") {
-        text = unfence(text, "(markdown|md)")
-    } else if (responseType === "yaml") {
-        text = unfence(text, "(yaml|yml)")
-    } else if (/^json/.test(responseType)) {
-        text = unfence(text, "(json|json5)")
-    } else if (responseType === "text") {
-        text = unfence(text, "(text|txt)")
-    }
-
-    return text
-}
-
 async function structurifyChatSession(
     timer: () => number,
     messages: ChatCompletionMessageParam[],
@@ -713,7 +684,7 @@ async function structurifyChatSession(
 ): Promise<RunPromptResult> {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
-    const text = assistantText(messages, responseType, responseSchema)
+    const text = assistantText(messages, { responseType, responseSchema })
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
@@ -970,7 +941,8 @@ async function processChatMessage(
                 const { messages: newMessages } =
                     (await generator(
                         ctx,
-                        structuredClone(messages) satisfies ChatMessage[]
+                        structuredClone(messages) satisfies ChatMessage[],
+                        assistantContent
                     )) || {}
                 const node = ctx.node
                 checkCancelled(cancellationToken)

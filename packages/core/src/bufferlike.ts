@@ -1,8 +1,9 @@
 import { resolveFileBytes } from "./file"
 import { TraceOptions } from "./trace"
 import { fileTypeFromBuffer } from "./filetype"
-import debug from "debug"
-const dbg = debug("genaiscript:buffer")
+import { extname } from "node:path"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("buffer")
 
 /**
  * Resolves a buffer-like object into a Buffer.
@@ -28,7 +29,7 @@ export async function resolveBufferLike(
     else if (bufferLike instanceof Uint8Array) return Buffer.from(bufferLike)
     else if (
         typeof bufferLike === "object" &&
-        (bufferLike as WorkspaceFile).filename
+        typeof (bufferLike as WorkspaceFile).filename === "string"
     ) {
         return Buffer.from(
             await resolveFileBytes(bufferLike as WorkspaceFile, options)
@@ -36,6 +37,26 @@ export async function resolveBufferLike(
     }
     dbg(`unsupported: ${typeof bufferLike}`)
     throw new Error(`Unsupported buffer-like object ${typeof bufferLike}`)
+}
+
+export async function resolveBufferLikeAndExt(
+    bufferLike: BufferLike,
+    options?: TraceOptions
+): Promise<{ bytes: Buffer; ext: string }> {
+    const bytes = await resolveBufferLike(bufferLike, options)
+    const ext = await fileTypeFromBuffer(bytes)
+    if (ext) return { bytes, ext: ext.ext }
+    else if (
+        typeof bufferLike === "object" &&
+        typeof (bufferLike as WorkspaceFile).filename === "string" &&
+        (bufferLike as WorkspaceFile).filename
+    ) {
+        return {
+            bytes,
+            ext: extname((bufferLike as WorkspaceFile).filename),
+        }
+    } else if (typeof bufferLike === "string") return { bytes, ext: ".txt" }
+    return { bytes, ext: ".bin" }
 }
 
 /**

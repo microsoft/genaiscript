@@ -821,17 +821,18 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
         } else socket.destroy()
     })
     // Start the HTTP server on the specified port.
-    const serverhash = apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""
+    const serverHash = apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""
     httpServer.listen(port, serverHost, () => {
         console.log(`GenAIScript server v${CORE_VERSION}`)
-        console.log(`┃ Local http://${serverHost}:${port}/${serverhash}`)
+        console.log(`│ Local http://${serverHost}:${port}/${serverHash}`)
         if (options.network) {
+            console.log(`│ Host http://localhost:${port}/${serverHash}`)
             const interfaces = networkInterfaces()
             for (const ifaces of Object.values(interfaces)) {
                 for (const iface of ifaces) {
                     if (iface.family === "IPv4" && !iface.internal) {
                         console.log(
-                            `┃ Network http://${iface.address}:${port}/${serverhash}`
+                            `│ Network http://${iface.address}:${port}/${serverHash}`
                         )
                     }
                 }

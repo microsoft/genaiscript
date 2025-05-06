@@ -2,17 +2,17 @@
 title: Serve
 description: Launch local web server.
 sidebar:
-  order: 2
+    order: 2
 hero:
-  image:
-    alt: A simple 2D server icon in 8-bit style features a computer tower and a
-      globe representing network connectivity. Color-coded buttons indicate API
-      functions, accompanied by a shield symbol for API key security, a gear
-      icon for settings, and an abstract chain to represent CORS. The icon uses
-      a five-color flat corporate palette, fits within a 128x128 frame, has a
-      transparent background, and includes no text, people, or shadows.
-    file: ./serve.png
-
+    image:
+        alt:
+            A simple 2D server icon in 8-bit style features a computer tower and a
+            globe representing network connectivity. Color-coded buttons indicate API
+            functions, accompanied by a shield symbol for API key security, a gear
+            icon for settings, and an abstract chain to represent CORS. The icon uses
+            a five-color flat corporate palette, fits within a 128x128 frame, has a
+            transparent background, and includes no text, people, or shadows.
+        file: ./serve.png
 ---
 
 Launch a local web server that is used to run the playground
@@ -59,13 +59,23 @@ npx genaiscript serve --cors contoso.com
 
 ## Network
 
-You can bind the server to `0.0.0.0` and make it accessible from the network by setting the `--network` flag.
+You can bind the server to `0.0.0.0` and make it accessible from the network by setting the `--network` flag. You need this flag to make the server accessible from a container.
 
 ```bash
 npx genaiscript serve --network
 ```
 
 We highly recommend setting the API key when running the server on the network.
+
+## Dockerized
+
+To run a minimal docker image with the server, you can use the following command:
+
+```sh
+docker run --name genaiscript --rm -it --expose 8003 -p 8003:8003 -v ${PWD}:/workspace -w /workspace node:alpine npx --yes genaiscript serve --network
+```
+
+then open `http://localhost:8003` in your browser.
 
 ## OpenAI API endpoints
 

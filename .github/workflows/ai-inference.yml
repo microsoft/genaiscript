@@ -1,0 +1,25 @@
+name: issue ai inference
+on:
+    workflow_dispatch:
+    issue_comment:
+        types: [created, edited]
+permissions:
+    models: read
+    issues: write
+concurrency:
+    group: ai-inference-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+jobs:
+    ai:
+        runs-on: ubuntu-latest
+        steps:
+            - id: inference
+              uses: actions/ai-inference@v1
+              with:
+                  prompt: |
+                      You are a genius software engineer. Read the issue comment and respond:
+                      ${{ github.event.issue.body }}
+            - name: use response file
+              run: |
+                  echo "Response saved to: ${{ steps.inference.outputs.response-file }}"
+                  gh issue comment ${{ github.event.issue.number }} -F "${{ steps.inference.outputs.response-file }}"

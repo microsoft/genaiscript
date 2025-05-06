@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: /poem.jpg
+
+---
 # Poet-moji script
 Poem generator
 

@@ -25,6 +25,7 @@ import {
     prettyTokens,
 } from "./pretty"
 import { genaiscriptDebug } from "./debug"
+import { ImageGenerationUsage } from "./chat"
 const dbg = genaiscriptDebug("usage")
 
 /**
@@ -68,6 +69,27 @@ export function estimateCost(modelId: string, usage: ChatCompletionUsage) {
         cached * cost.price_per_million_input_tokens * input_cache_token_rebate
     const output = completion_tokens * price_per_million_output_tokens
     return (input + output) / 1000000
+}
+
+export function estimateImageCost(
+    modelId: string,
+    usage: ImageGenerationUsage
+) {
+    if (!modelId || !usage?.total_tokens) return undefined
+
+    const { provider, model } = parseModelIdentifier(modelId)
+    const mid = `${provider}:${model}`.toLowerCase()
+    const cost = MODEL_PRICINGS[mid]
+    if (!cost) {
+        return undefined
+    }
+
+    const { price_per_million_input_tokens, price_per_million_output_tokens } =
+        cost
+    const output =
+        (usage.input_tokens ?? 0) * price_per_million_input_tokens +
+        (usage.output_tokens ?? 0) * price_per_million_output_tokens
+    return output / 1000000
 }
 
 /**
@@ -334,6 +356,15 @@ export class GenerationStats {
         if (this.children.length > children.length) logVerbose(`${indent}  ...`)
         if (unknowns.size)
             logVerbose(`missing pricing for ${[...unknowns].join(", ")}`)
+    }
+
+    addImageGenerationUsage(usage: ImageGenerationUsage, duration?: number) {
+        this.usage.duration += duration ?? 0
+        if (usage) {
+            this.usage.completion_tokens += usage.output_tokens ?? 0
+            this.usage.prompt_tokens += usage.input_tokens ?? 0
+            this.usage.total_tokens += usage.total_tokens ?? 0
+        }
     }
 
     addUsage(usage: ChatCompletionUsage, duration?: number) {

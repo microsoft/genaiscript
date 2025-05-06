@@ -2,6 +2,7 @@ import type { Octokit } from "@octokit/rest"
 import type { PaginateInterface } from "@octokit/plugin-paginate-rest"
 import {
     GITHUB_API_VERSION,
+    GITHUB_ASSET_BRANCH,
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_REST_API_CONCURRENCY_LIMIT,
     GITHUB_REST_PAGE_DEFAULT,
@@ -14,7 +15,6 @@ import { prettifyMarkdown } from "./markdown"
 import { arrayify, assert, ellipse, logError, logVerbose } from "./util"
 import { shellRemoveAsciiColors } from "./shell"
 import { isGlobMatch } from "./glob"
-import { fetchText } from "./fetchtext"
 import { concurrentLimit } from "./concurrency"
 import { llmifyDiff } from "./llmdiff"
 import { JSON5TryParse } from "./json5"
@@ -24,6 +24,12 @@ import { deleteUndefinedValues, normalizeInt } from "./cleaners"
 import { diffCreatePatch } from "./diff"
 import { GitClient } from "./git"
 import { genaiscriptDebug } from "./debug"
+import { fetch } from "./fetch"
+import { resolveBufferLike } from "./bufferlike"
+import { fileTypeFromBuffer } from "./filetype"
+import { createHash } from "node:crypto"
+import { CancellationOptions, checkCancelled } from "./cancellation"
+import { diagnosticToGitHubMarkdown } from "./annotations"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -196,11 +202,13 @@ export async function githubUpdatePullRequestDescription(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl"
+        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
     >,
     text: string,
-    commentTag: string
+    commentTag: string,
+    options?: CancellationOptions
 ) {
+    const { cancellationToken } = options ?? {}
     const { apiUrl, repository, issue } = info
     assert(!!commentTag)
 
@@ -215,10 +223,9 @@ export async function githubUpdatePullRequestDescription(
     }
 
     text = prettifyMarkdown(text)
-    dbg(`prettified markdown text`)
     text += generatedByFooter(script, info)
 
-    const fetch = await createFetch({ retryOn: [] })
+    const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}`
     dbg(`fetching pull request details from URL: ${url}`)
     // get current body
@@ -330,15 +337,14 @@ export function generatedByFooter(
  */
 export function appendGeneratedComment(
     script: PromptScript,
-    info: { runUrl?: string },
+    info: { runUrl?: string; owner: string; repo: string },
     annotation: Diagnostic
 ) {
-    const { message, code, severity } = annotation
-    return prettifyMarkdown(
-        `<!-- genaiscript ${severity} ${code || ""} -->
-${message}
+    const { message, code, severity, suggestion } = annotation
+    const text = prettifyMarkdown(message)
+    return `<!-- genaiscript ${severity} ${code || ""} -->
+${text}${suggestion ? `\n\n\`\`\`suggestion\n${suggestion}\n\`\`\`\n` : ""}
 ${generatedByFooter(script, info, code)}`
-    )
 }
 
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
@@ -346,11 +352,13 @@ export async function githubCreateIssueComment(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl"
+        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
     >,
     body: string,
-    commentTag: string
+    commentTag: string,
+    options?: CancellationOptions
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
+    const { cancellationToken } = options ?? {}
     const { apiUrl, repository, issue } = info
 
     if (!issue) {
@@ -362,11 +370,14 @@ export async function githubCreateIssueComment(
         return { created: false, statusText: "missing github token" }
     }
 
-    const fetch = await createFetch({ retryOn: [] })
+    const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
     dbg(`creating issue comment at %s`, url)
 
+    body = prettifyMarkdown(body)
     body += generatedByFooter(script, info)
+
+    dbg(`body:\n%s`, body)
 
     if (commentTag) {
         const tag = `<!-- genaiscript ${commentTag} -->`
@@ -390,6 +401,7 @@ export async function githubCreateIssueComment(
             id: string
             body: string
         }[]
+        dbg(`comments: %O`, comments)
         const comment = comments.find((c) => c.body.includes(tag))
         if (comment) {
             dbg(`found existing comment %s with tag, deleting it`, comment.id)
@@ -438,13 +450,26 @@ async function githubCreatePullRequestReview(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+        | "apiUrl"
+        | "repository"
+        | "issue"
+        | "runUrl"
+        | "commitSha"
+        | "owner"
+        | "repo"
     >,
     token: string,
     annotation: Diagnostic,
-    existingComments: { id: string; path: string; line: number; body: string }[]
+    existingComments: {
+        id: string
+        path: string
+        line: number
+        body: string
+    }[],
+    options?: CancellationOptions
 ) {
     assert(!!token)
+    const { cancellationToken } = options ?? {}
     const { apiUrl, repository, issue, commitSha } = info
     dbg(`creating pull request review comment`)
 
@@ -473,7 +498,7 @@ async function githubCreatePullRequestReview(
         )
         return { created: false, statusText: "comment already exists" }
     }
-    const fetch = await createFetch({ retryOn: [] })
+    const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     dbg(`posting new pull request review comment at URL: ${url}`)
     dbg(`%O`, body)
@@ -496,7 +521,7 @@ async function githubCreatePullRequestReview(
         logVerbose(
             `pull request ${commitSha} comment creation failed, ${r.statusText} (${res.status})`
         )
-        dbg(JSON.stringify(resp, null, 2))
+        dbg("prr comment creation failed %O", resp)
     } else {
         logVerbose(`pull request ${commitSha} comment created at ${r.html_url}`)
     }
@@ -521,10 +546,18 @@ export async function githubCreatePullRequestReviews(
     script: PromptScript,
     info: Pick<
         GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "commitSha"
+        | "apiUrl"
+        | "repository"
+        | "issue"
+        | "runUrl"
+        | "commitSha"
+        | "owner"
+        | "repo"
     >,
-    annotations: Diagnostic[]
+    annotations: Diagnostic[],
+    options?: CancellationOptions
 ): Promise<boolean> {
+    const { cancellationToken } = options ?? {}
     const { repository, issue, commitSha, apiUrl } = info
 
     if (!annotations?.length) {
@@ -546,7 +579,7 @@ export async function githubCreatePullRequestReviews(
     }
 
     // query existing reviews
-    const fetch = await createFetch({ retryOn: [] })
+    const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     dbg(`fetching existing pull request comments from URL: ${url}`)
     const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
@@ -556,6 +589,7 @@ export async function githubCreatePullRequestReviews(
             "X-GitHub-Api-Version": GITHUB_API_VERSION,
         },
     })
+    checkCancelled(cancellationToken)
     if (resListComments.status !== 200) {
         dbg(`failed to fetch existing pull request comments`)
         return false
@@ -566,17 +600,32 @@ export async function githubCreatePullRequestReviews(
         line: number
         body: string
     }[]
+    dbg(`existing pull request comments: %O`, comments)
     // code annotations
+    const failed: Diagnostic[] = []
     for (const annotation of annotations) {
         dbg(`iterating over annotations to create pull request reviews`)
-        await githubCreatePullRequestReview(
+        checkCancelled(cancellationToken)
+        const res = await githubCreatePullRequestReview(
             script,
             info,
             token,
             annotation,
             comments
         )
+        if (!res.created) failed.push(annotation)
     }
+
+    if (failed.length) {
+        await githubCreateIssueComment(
+            script,
+            info,
+            failed.map(d => diagnosticToGitHubMarkdown(info, d)).join("\n\n"),
+            script.id + "-prr",
+            options
+        )
+    }
+
     return true
 }
 
@@ -588,7 +637,6 @@ async function paginatorToArray<T, R>(
 ): Promise<R[]> {
     const result: R[] = []
     for await (const item of await iterator) {
-        dbg(`processing item in paginator`)
         let r = iteratorItem(item)
         if (elementFilter) {
             r = r.filter(elementFilter)
@@ -715,6 +763,204 @@ export class GitHubClient implements GitHub {
             refName,
             issueNumber: issue,
         })
+    }
+
+    async repo(): Promise<{
+        name: string
+        full_name: string
+        default_branch: string
+    }> {
+        const { client, owner, repo } = await this.api()
+        const res = await client.rest.repos.get({ owner, repo })
+        return res.data
+    }
+
+    async getRef(branchName: string): Promise<GitHubRef> {
+        const { client, owner, repo } = await this.api()
+        try {
+            dbg(`get ref %s`, branchName)
+            const existing = await client.git.getRef({
+                owner,
+                repo,
+                ref: `heads/${branchName}`,
+            })
+            return existing.data
+        } catch (e) {
+            dbg(`ref not found`)
+            return undefined
+        }
+    }
+
+    async getOrCreateRef(
+        branchName: string,
+        options?: { base?: string; orphaned?: boolean | string }
+    ): Promise<GitHubRef> {
+        const { client, owner, repo } = await this.api()
+        const { base, orphaned } = options ?? {}
+        if (!branchName) throw new Error("branchName is required")
+
+        dbg(`checking if branch %s exists`, branchName)
+        const existing = await this.getRef(branchName)
+        if (existing) {
+            dbg(`branch %s already exists`, branchName)
+            return existing
+        }
+
+        let sha: string
+        dbg(`creating branch %s`, branchName)
+        if (orphaned) {
+            dbg(`creating orphaned`)
+            // Step 0: Create a blob for the file content
+            const { data: blob } = await client.git.createBlob({
+                owner,
+                repo,
+                content: Buffer.from(
+                    typeof orphaned === orphaned
+                        ? orphaned
+                        : `Orphaned branch created by GenAIScript.`
+                ).toString("base64"),
+                encoding: "base64",
+            })
+
+            // Step 1: Create an empty tree
+            const { data: tree } = await client.git.createTree({
+                owner,
+                repo,
+                tree: [
+                    {
+                        path: "README.md",
+                        mode: "100644",
+                        type: "blob",
+                        sha: blob.sha,
+                    },
+                ],
+            })
+            dbg(`created tree %s`, tree.sha)
+            // Step 2: Create a commit with NO parents
+            const { data: commit } = await client.git.createCommit({
+                owner,
+                repo,
+                message: "Initial commit on orphan branch",
+                tree: tree.sha,
+                parents: [], // <--- empty parent list = no history
+            })
+            sha = commit.sha
+            dbg(`created commit %s`, commit.sha)
+        } else {
+            if (!base) {
+                dbg(`base is required for non-orphaned branch`)
+                const repo = await this.repo()
+                sha = repo.default_branch
+            } else sha = base
+        }
+
+        // Step 3: Create a reference (branch) pointing to the commit
+        dbg(`creating reference %s <- %s`, branchName, sha)
+        const res = await client.git.createRef({
+            owner,
+            repo,
+            ref: `refs/heads/${branchName}`,
+            sha,
+        })
+        return res.data
+    }
+
+    async uploadAsset(
+        file: BufferLike,
+        options?: { branchName?: string }
+    ): Promise<string> {
+        const { branchName = GITHUB_ASSET_BRANCH } = options ?? {}
+        const { client, owner, repo } = await this.api()
+        if (!file) {
+            dbg(`no buffer provided, nothing to upload`)
+            return undefined
+        }
+        const buffer = await resolveBufferLike(file)
+        if (!buffer) {
+            dbg(`failed to resolve buffer, nothing to upload`)
+            return undefined
+        }
+        const base64Content = buffer.toString("base64")
+        const fileType = await fileTypeFromBuffer(buffer)
+        const hash = createHash("sha256")
+        hash.write(base64Content)
+        const hashId = hash.digest().toString("hex")
+        const uploadPath = hashId + (fileType ? `.${fileType.ext}` : ".txt")
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branchName}/${uploadPath}`
+
+        // try to get file
+        dbg(`checking %s`, rawUrl)
+        const cached = await fetch(rawUrl, { method: "HEAD" })
+        if (cached.status === 200) {
+            dbg(`asset already exists, skip upload`)
+            return rawUrl
+        }
+
+        dbg(`uploading asset %s to branch %s`, uploadPath, branchName)
+        await this.getOrCreateRef(branchName, { orphaned: true })
+        const { data: blob } = await client.git.createBlob({
+            owner,
+            repo,
+            content: base64Content,
+            encoding: "base64",
+        })
+        dbg(`created blob %s`, blob.sha)
+
+        // 3. Get the latest commit (HEAD) of the branch
+        const { data: refData } = await client.git.getRef({
+            owner,
+            repo,
+            ref: `heads/${branchName}`,
+        })
+        const latestCommitSha = refData.object.sha
+        dbg(`head ref %s: %s`, refData.ref, latestCommitSha)
+
+        // 4. Get the tree of the latest commit
+        const { data: commitData } = await client.git.getCommit({
+            owner,
+            repo,
+            commit_sha: latestCommitSha,
+        })
+        const baseTreeSha = commitData.tree.sha
+        dbg(`base tree sha %s`, baseTreeSha)
+
+        // 5. Create a new tree adding the image
+        const { data: newTree } = await client.git.createTree({
+            owner,
+            repo,
+            base_tree: baseTreeSha,
+            tree: [
+                {
+                    path: uploadPath,
+                    mode: "100644",
+                    type: "blob",
+                    sha: blob.sha,
+                },
+            ],
+        })
+
+        dbg("tree created %s", newTree.sha)
+
+        // 6. Create a new commit with the new tree
+        const { data: newCommit } = await client.git.createCommit({
+            owner,
+            repo,
+            message: `Upload asset ${uploadPath}`,
+            tree: newTree.sha,
+            parents: [latestCommitSha],
+        })
+        dbg("commit created %s", newCommit.sha)
+
+        // 7. Update the branch to point to the new commit
+        await client.git.updateRef({
+            owner,
+            repo,
+            ref: `heads/${branchName}`,
+            sha: newCommit.sha,
+            force: false, // do not force push
+        })
+
+        return rawUrl
     }
 
     async listIssues(
@@ -1036,7 +1282,8 @@ export class GitHubClient implements GitHub {
                     repo,
                     job_id: job.id,
                 })
-            const { text } = await fetchText(logs_url)
+            const logsRes = await fetch(logs_url)
+            const text = await logsRes.text()
             res.push({
                 ...job,
                 logs_url,
@@ -1062,7 +1309,8 @@ export class GitHubClient implements GitHub {
                 repo,
                 job_id,
             })
-        let { text } = await fetchText(logs_url)
+        const logsRes = await fetch(logs_url)
+        let text = await logsRes.text()
         if (options?.llmify) {
             text = parseJobLog(text)
         }
@@ -1080,7 +1328,8 @@ export class GitHubClient implements GitHub {
                 job_id,
             }
         )
-        const { text: content } = await fetchText(url)
+        const res = await fetch(url)
+        const content = await res.text()
         return { filename, url, content }
     }
 
@@ -1304,7 +1553,7 @@ function parseJobLog(text: string) {
         .join("\n")
 }
 
-function cleanLog(text: string) {
+export function cleanLog(text: string) {
     return shellRemoveAsciiColors(
         text.replace(
             // timestamps

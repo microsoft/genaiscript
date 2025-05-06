@@ -523,6 +523,9 @@ script({
 
 </Steps>
 
+Set the `NODE_ENV` environment variable to `development` to enable the `DefaultAzureCredential` to work with the Azure CLI.
+Otherwise, it will use a chained token credential with `env`, `workload`, `managed identity`, `azure cli`, `azure dev cli`, `azure powershell`, `devicecode` credentials.
+
 ### Listing models
 
 There are two ways to list the models in your Azure OpenAI resource: use the Azure Management APIs
@@ -667,7 +670,7 @@ The rest of the steps are the same: Find the deployment name and use it in your 
 
 ## Azure AI Foundry <a id="azure_serverless" href=""></a>
 
-Azure AI Foundry provdies access to serverless and deployed models, both for OpenAI and other providers. There are multiple ways to access those servers
+Azure AI Foundry provides access to serverless and deployed models, both for OpenAI and other providers. There are multiple ways to access those servers
 that are supported in GenAIScript:
 
 - without any deployment, using the [Azure AI Model Inference](#azure_ai_inference) provider,
@@ -1035,7 +1038,7 @@ Find the deployment name and use it in your script, `model: "azure_serverless_mo
 
 </Steps>
 
-#### Support for multiple inference deployements
+#### Support for multiple inference deployments
 
 You can update the `AZURE_SERVERLESS_MODELS_API_KEY` with a list of `deploymentid=key` pairs to support multiple deployments (each deployment has a different key).
 

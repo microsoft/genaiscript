@@ -1,4 +1,6 @@
 name: az login with service principal
+permissions:
+    contents: read
 on:
     workflow_dispatch:
 

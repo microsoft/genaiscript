@@ -21,6 +21,10 @@ interface Diagnostic {
     severity: DiagnosticSeverity
     message: string
     /**
+     * suggested fix
+     */
+    suggestion?: string
+    /**
      * error or warning code
      */
     code?: string
@@ -174,6 +178,7 @@ type ModelType = OptionsOrString<
     | "github:o1-preview"
     | "github:o3-mini"
     | "github:o3-mini:low"
+    | "github:mai-ds-r1"
     | "github:AI21-Jamba-1.5-Large"
     | "github:AI21-Jamba-1-5-Mini"
     | "github:deepseek-v3"
@@ -918,7 +923,7 @@ interface OutputTrace extends ToolCallTrace {
      * @param url - The URL of the image.
      * @param caption - The optional caption for the image.
      */
-    image(url: string, caption?: string): void
+    image(url: BufferLike, caption?: string): Promise<void>
 
     /**
      * Logs a markdown table
@@ -1331,6 +1336,13 @@ interface WorkspaceFileSystem {
     ): Promise<any>
 
     /**
+     * Appends text to a file as text to the file system. Creates the file if needed.
+     * @param path
+     * @param content
+     */
+    appendText(path: string, content: string): Promise<void>
+
+    /**
      * Writes a file as text to the file system
      * @param path
      * @param content
@@ -1343,7 +1355,13 @@ interface WorkspaceFileSystem {
      */
     writeCached(
         bytes: BufferLike,
-        options?: { scope?: "workspace" | "run" }
+        options?: {
+            scope?: "workspace" | "run"
+            /**
+             * Filename extension
+             */
+            ext?: string
+        }
     ): Promise<string>
 
     /**
@@ -1612,8 +1630,19 @@ type ChatMessage =
     | ChatFunctionMessage
 
 type ChatParticipantHandler = (
+    /**
+     * Prompt generation context to create a new message in the conversation
+     */
     context: ChatTurnGenerationContext,
-    messages: ChatMessage[]
+    /**
+     * Chat conversation messages
+     */
+    messages: ChatMessage[],
+    /**
+     * The last assistant text, without
+     * reasoning sections.
+     */
+    assistantText: string
 ) => Awaitable<{ messages?: ChatMessage[] } | undefined | void>
 
 interface ChatParticipantOptions {
@@ -1957,6 +1986,7 @@ type JSONSchemaType = JSONSchemaSimpleType | JSONSchemaAnyOf | null
 
 interface JSONSchemaAnyOf {
     anyOf: JSONSchemaType[]
+    uiGroup?: string
 }
 
 interface JSONSchemaDescribed {
@@ -1968,6 +1998,11 @@ interface JSONSchemaDescribed {
      * A clear description of the property.
      */
     description?: string
+
+    /**
+     * Moves the field to a sub-group in the form, potentially collapsed
+     */
+    uiGroup?: string
 }
 
 interface JSONSchemaString extends JSONSchemaDescribed {
@@ -3139,6 +3174,13 @@ interface Git {
     }): Promise<GitCommit[]>
 
     /**
+     * Run git blame on a file, line
+     * @param filename
+     * @param line
+     */
+    blame(filename: string, line: number): Promise<string>
+
+    /**
      * Create a shallow git clone
      * @param repository URL of the remote repository
      * @param options various clone options
@@ -3397,6 +3439,11 @@ interface GitHubIssue {
     reactions?: GitHubReactions
     user: GitHubUser
     assignee?: GitHubUser
+}
+
+interface GitHubRef {
+    ref: string
+    url: string
 }
 
 interface GitHubReactions {
@@ -3660,6 +3707,19 @@ interface GitHub {
             type?: GitHubFile["type"]
         }
     ): Promise<GitHubFile[]>
+
+    /**
+     * Uploads a file to an orphaned branch in the repository and returns the raw url
+     * Uploads a single copy of the file using hash as the name.
+     * @param file file or data to upload
+     * @param options
+     */
+    uploadAsset(
+        file: BufferLike,
+        options?: {
+            branchName?: string
+        }
+    ): Promise<string>
 
     /**
      * Gets the underlying Octokit client
@@ -4410,6 +4470,11 @@ interface ImageGenerationOptions extends ImageTransformOptions {
      * Only used for DALL-E 3
      */
     style?: OptionsOrString<"vivid" | "natural">
+
+    /**
+     * For gpt-image-1 only, the type of image format to generate.
+     */
+    outputFormat?: "png" | "jpeg" | "webp"
 }
 
 interface TranscriptionOptions {
@@ -5773,8 +5838,25 @@ interface PromiseQueue {
 }
 
 interface LanguageModelReference {
-    provider: string
-    model: string
+    provider: ModelProviderType
+    model: ModelType
+}
+
+interface LanguageModelInfo {
+    id: ModelType
+    details?: string
+    url?: string
+    version?: string
+    /**
+     * Base model name
+     */
+    family?: string
+}
+
+interface LanguageModelProviderInfo {
+    id: ModelProviderType
+    error?: string
+    models: LanguageModelInfo[]
 }
 
 interface LanguageModelHost {
@@ -5782,7 +5864,14 @@ interface LanguageModelHost {
      * Resolve a language model alias to a provider and model based on the current configuration
      * @param modelId
      */
-    resolveLanguageModel(modelId?: string): Promise<LanguageModelReference>
+    resolveLanguageModel(modelId?: ModelType): Promise<LanguageModelReference>
+
+    /**
+     * Returns the status of the model provider and list of models if available
+     */
+    resolveLanguageModelProvider(
+        provider: ModelProviderType
+    ): Promise<LanguageModelProviderInfo>
 }
 
 type ContentSafetyProvider = "azure"

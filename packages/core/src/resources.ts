@@ -36,7 +36,7 @@ const urlAdapters: {
                     url
                 )
             return m
-                ? `https://raw.githubusercontent.com/${m.groups.owner}/${m.groups.repo}/${m.groups.path}`
+                ? `https://raw.githubusercontent.com/${m.groups.owner}/${m.groups.repo}/refs/heads/${m.groups.path}`
                 : undefined
         },
     },

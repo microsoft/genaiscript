@@ -1,4 +1,6 @@
 name: ollama smoke tests
+permissions:
+    contents: read
 on:
     workflow_dispatch:
     release:

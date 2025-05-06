@@ -1,7 +1,6 @@
 import type {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
-    ChatCompletionUsage,
 } from "../chattypes"
 
 export interface ResponseStatus {
@@ -36,17 +35,6 @@ export interface LanguageModelConfiguration extends LanguageModelReference {
     type?: OpenAIAPIType
     version?: string
     azureCredentialsType?: AzureCredentialsType
-}
-
-export interface LanguageModelInfo {
-    id: string
-    details?: string
-    url?: string
-    version?: string
-    /**
-     * Base model name
-     */
-    family?: string
 }
 
 export type ResolvedLanguageModelConfiguration =

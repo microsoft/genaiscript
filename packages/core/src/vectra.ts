@@ -3,8 +3,8 @@
  * and performing vector search on documents.
  */
 
-import { encode, decode } from "gpt-tokenizer"
-import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
+import type { EmbeddingsModel, EmbeddingsResponse } from "./vectra/types"
+import { LocalDocumentIndex } from "./vectra/LocalDocumentIndex"
 import { LanguageModelConfiguration } from "./server/messages"
 import { logVerbose } from "./util"
 import { TraceOptions } from "./trace"
@@ -13,6 +13,7 @@ import { arrayify } from "./cleaners"
 import { resolveFileContent } from "./file"
 import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat"
 import { dotGenaiscriptPath } from "./workdir"
+import { resolveTokenEncoder } from "./encoders"
 
 /**
  * Class for creating embeddings using the OpenAI API.
@@ -82,9 +83,7 @@ export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
     )
 
     // Import the local document index
-    const { LocalDocumentIndex } = await import("vectra")
-    const tokenizer = { encode, decode }
-
+    const tokenizer = await resolveTokenEncoder(cfg.model)
     const embeddings = new OpenAIEmbeddings(cfg, embedder, {
         trace,
         cancellationToken,

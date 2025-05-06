@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: /positioning.jpg
+
+---
 # Where/when do you need AI Scripting?
 
 <v-click>

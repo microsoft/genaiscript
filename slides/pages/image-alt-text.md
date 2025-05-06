@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: /image-alt-text.jpg
+
+---
 # Image Alt Text
 
 Poor alt text descriptions...

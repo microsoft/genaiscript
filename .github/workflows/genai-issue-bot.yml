@@ -1,4 +1,8 @@
 name: genai issue bot
+permissions:
+    contents: read
+    issues: write
+    models: read
 on:
     issues:
         types: [closed]
@@ -8,10 +12,6 @@ concurrency:
 jobs:
     reason:
         runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            issues: write
-            models: read
         steps:
             - uses: actions/checkout@v4
               with:

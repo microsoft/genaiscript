@@ -1,4 +1,6 @@
 name: google tests
+permissions:
+    contents: read
 on:
     workflow_dispatch:
     release:

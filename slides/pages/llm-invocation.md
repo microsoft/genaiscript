@@ -1,3 +1,8 @@
+---
+layout: image-left
+image: /llm-invocation.jpg
+
+---
 # Prompt + LLM = Response
 
 -   authentication: `.env`, environment variables, Azure Entra
