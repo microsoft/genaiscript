@@ -5,6 +5,9 @@ import assert from "node:assert/strict"
 const external = [
     ...Object.keys(pkg.dependencies),
     ...Object.keys(pkg.optionalDependencies),
+    "whatwg-url",
+    "tr46",
+    "node-fetch",
 ]
 assert(
     external.length > 0,

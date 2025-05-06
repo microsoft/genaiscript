@@ -173,7 +173,7 @@
             "genaiscript-logo": {
                 "description": "GenAIScript logo",
                 "default": {
-                    "fontPath": "./built/genaiscript.woff",
+                    "fontPath": "./media/genaiscript.woff",
                     "fontCharacter": "\\E000"
                 }
             }
@@ -481,7 +481,7 @@
         "vscode:prepublish": "yarn run compile",
         "compile:icons": "node updatefonts.mjs",
         "compile:extension": "node build.mjs",
-        "compile": "yarn compile:icons && yarn compile:extension",
+        "compile": "yarn compile:extension",
         "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
         "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
         "vis:sunburst": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.sunburst.html --template sunburst",

@@ -30,7 +30,6 @@
     "@modelcontextprotocol/sdk": "^1.11.0",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
-    "vectorstore": "^0.0.4",
     "zod": "^3.24.4",
     "zod-to-json-schema": "^3.24.5"
   }
