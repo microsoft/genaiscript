@@ -87,7 +87,7 @@
     "package-manager-detector": "^0.2.11",
     "parse-diff": "^0.11.1",
     "prettier": "^3.5.3",
-    "pretty-bytes": "^6.1.1",
+    "pretty-bytes": "^7.0.0",
     "sanitize-filename": "^1.6.3",
     "sanitize-html": "^2.16.0",
     "semver": "^7.7.1",
@@ -100,7 +100,7 @@
     "ts-dedent": "^2.2.0",
     "tsx": "^4.19.4",
     "typescript": "5.8.3",
-    "vectra": "^0.10.0",
+    "vectra": "^0.9.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
     "yaml": "^2.7.1"
   },
