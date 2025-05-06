@@ -49,6 +49,7 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
             "default",
             options
         )
+        if (!token) throw new Error("Azure management token is missing")
         if (token.error) {
             dbg(
                 "error occurred while fetching Azure management token: %s",
