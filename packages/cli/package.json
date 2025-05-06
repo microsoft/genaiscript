@@ -53,6 +53,12 @@
   ],
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
+  "resolutions": {
+    "axios": "1.9.0"
+  },
+  "overrides": {
+    "axios": "1.9.0"
+  },
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.12.5",
     "@anthropic-ai/sdk": "^0.40.0",
@@ -60,6 +66,7 @@
     "@azure/search-documents": "^12.1.0",
     "@inquirer/prompts": "^7.5.0",
     "@modelcontextprotocol/sdk": "^1.10.2",
+    "@octokit/core": "^6.1.5",
     "@octokit/plugin-paginate-rest": "^11.6.0",
     "@octokit/plugin-retry": "^7.2.0",
     "@octokit/plugin-throttling": "^9.6.0",
