@@ -14,8 +14,8 @@ async function generateFont() {
             normalize: true,
             sort: false,
         })
-        fs.ensureDirSync("./built")
-        const dest = path.join("./built", "genaiscript.woff")
+        fs.ensureDirSync("./media")
+        const dest = path.join("./media", "genaiscript.woff")
         fs.writeFileSync(dest, result.woff, "binary")
         console.log(`Font created at ${dest}`)
         process.exit(0)

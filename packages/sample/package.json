@@ -10,7 +10,7 @@
     "test": "node --import tsx --test src/**.test.ts",
     "test:watch": "node --import tsx --watch --test-name-pattern=run --test src/**.test.ts",
     "cache:clear": "node ../cli/built/genaiscript.cjs cache clear",
-    "run:script": "node ../cli/built/genaiscript.cjs run",
+    "run:script": "node --trace-deprecation ../cli/built/genaiscript.cjs run",
     "test:scripts": "node ../cli/built/genaiscript.cjs test -rmo",
     "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
   },
@@ -27,11 +27,10 @@
     "@huggingface/transformers": "3.4.0",
     "@langchain/core": "^0.3.42",
     "@langchain/langgraph": "^0.2.57",
-    "@modelcontextprotocol/sdk": "^1.10.2",
+    "@modelcontextprotocol/sdk": "^1.11.0",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
-    "vectorstore": "^0.0.4",
-    "zod": "^3.24.3",
+    "zod": "^3.24.4",
     "zod-to-json-schema": "^3.24.5"
   }
 }
