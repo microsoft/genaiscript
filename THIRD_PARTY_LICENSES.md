@@ -2892,8 +2892,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.95
- - @types/node@22.15.11
+ - @types/node@18.19.96
+ - @types/node@22.15.12
  - @types/sarif@2.1.7
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
@@ -2927,7 +2927,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.133.5
+ - genaiscript-vscode@1.134.0
 
 This package contains the following license:
 
@@ -8712,10 +8712,10 @@ The following npm packages may be included in this product:
  - @napi-rs/canvas-linux-x64-musl@0.1.70
  - @tokenizer/token@0.3.0
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.133.5
- - genaiscript-sample@1.133.5
- - genaiscript-web@1.133.5
- - genaiscript@1.133.5
+ - genaiscript-core-internal@1.134.0
+ - genaiscript-sample@1.134.0
+ - genaiscript-web@1.134.0
+ - genaiscript@1.134.0
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
@@ -10657,7 +10657,7 @@ The following npm packages may be included in this product:
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
- - type-fest@4.40.1
+ - type-fest@4.41.0
  - uint8array-extras@1.4.0
  - unicorn-magic@0.3.0
  - unique-string@3.0.0

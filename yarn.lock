@@ -33,12 +33,12 @@
     ky "^1.7.5"
 
 "@antfu/install-pkg@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@antfu/install-pkg/-/install-pkg-1.0.0.tgz#2912a150fc8b35ec912f583f90074ee98f64d66a"
-  integrity sha512-xvX6P/lo1B3ej0OsaErAjqgFYzYVcJpamjLAFLYh9vRJngBrMoUG7aVnrGTeqM7yxbyTD5p3F2+0/QUEh8Vzhw==
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@antfu/install-pkg/-/install-pkg-1.1.0.tgz#78fa036be1a6081b5a77a5cf59f50c7752b6ba26"
+  integrity sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==
   dependencies:
-    package-manager-detector "^0.2.8"
-    tinyexec "^0.3.2"
+    package-manager-detector "^1.3.0"
+    tinyexec "^1.0.1"
 
 "@antfu/utils@^8.1.0":
   version "8.1.1"
@@ -3462,9 +3462,9 @@
     form-data "^4.0.0"
 
 "@types/node@*", "@types/node@>=13.7.0", "@types/node@^22.15.2":
-  version "22.15.11"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.11.tgz#6714a9b3c67c6f87d63606f15f014146ec17f97e"
-  integrity sha512-rlyK0vuU7VLEYQfXuC7QTFxDvkb6tKhDI7wR4r6ZzM0k8BJd44W0jxo6xmUjqSs4AlYmiYfLJU2f0pAG/FtCRw==
+  version "22.15.12"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.12.tgz#9ce54e51e09536faa94e4ec300c4728ee83bfa85"
+  integrity sha512-K0fpC/ZVeb8G9rm7bH7vI0KAec4XHEhBam616nVJCV51bKzJ6oA3luG4WdKoaztxe70QaNjS/xBmcDLmr4PiGw==
   dependencies:
     undici-types "~6.21.0"
 
@@ -3474,9 +3474,9 @@
   integrity sha512-QpLcX9ZSsq3YYUUnD3nFDY8H7wctAhQj/TFKL8Ya8v5fMm3CFXxo8zStsLAl780ltoYoo1WvKUVGBQK+1ifr7g==
 
 "@types/node@^18.11.18":
-  version "18.19.95"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.95.tgz#9319b07d3595ff2cf0c34637f5c793082cb1d3c3"
-  integrity sha512-VJysWMtwHh2aQ0BlfhwxZsdJrUQgrid+a53aIKeDLxYQrYqqIk3qFrGK/y/2Uk8FNvzGqwxeiosKNOmHI5HpYQ==
+  version "18.19.96"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.96.tgz#34b4ecfe4fe864f4e59994d2108cd1659ba37683"
+  integrity sha512-PzBvgsZ7YdFs/Kng1BSW8IGv68/SPcOxYYhT7luxD7QyzIhFS1xPTpfK3K9eHBa7hVwlW+z8nN0mOd515yaduQ==
   dependencies:
     undici-types "~5.26.4"
 
@@ -8078,13 +8078,6 @@ package-json-from-dist@^1.0.0:
   resolved "https://registry.yarnpkg.com/package-json-from-dist/-/package-json-from-dist-1.0.1.tgz#4f1471a010827a86f94cfd9b0727e36d267de505"
   integrity sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==
 
-package-manager-detector@^0.2.8:
-  version "0.2.11"
-  resolved "https://registry.yarnpkg.com/package-manager-detector/-/package-manager-detector-0.2.11.tgz#3af0b34f99d86d24af0a0620603d2e1180d05c9c"
-  integrity sha512-BEnLolu+yuz22S56CU1SUKq3XC3PkwD5wv4ikR4MfGvnRVcmzXR9DwSlW2fEamyTPyXHomBJRzgapeuBvRNzJQ==
-  dependencies:
-    quansync "^0.2.7"
-
 package-manager-detector@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/package-manager-detector/-/package-manager-detector-1.3.0.tgz#b42d641c448826e03c2b354272456a771ce453c0"
@@ -8520,7 +8513,7 @@ qs@^6.14.0, qs@^6.9.1:
   dependencies:
     side-channel "^1.1.0"
 
-quansync@^0.2.7, quansync@^0.2.8:
+quansync@^0.2.8:
   version "0.2.10"
   resolved "https://registry.yarnpkg.com/quansync/-/quansync-0.2.10.tgz#32053cf166fa36511aae95fc49796116f2dc20e1"
   integrity sha512-t41VRkMYbkHyCYmOvx/6URnN80H7k4X0lLdBMGsz+maAwrJQYB1djpV6vHrQIBE0WBSGqhtEHrK9U3DWWH8v7A==
@@ -9545,10 +9538,10 @@ tinycolor2@^1.6.0:
   resolved "https://registry.yarnpkg.com/tinycolor2/-/tinycolor2-1.6.0.tgz#f98007460169b0263b97072c5ae92484ce02d09e"
   integrity sha512-XPaBkWQJdsf3pLKJV9p4qN/S+fm2Oj8AIPo1BTUhg5oxkvm9+SVEGFdhyOz7tTdUTfvxMiAs4sp6/eZO2Ew+pw==
 
-tinyexec@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/tinyexec/-/tinyexec-0.3.2.tgz#941794e657a85e496577995c6eef66f53f42b3d2"
-  integrity sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==
+tinyexec@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/tinyexec/-/tinyexec-1.0.1.tgz#70c31ab7abbb4aea0a24f55d120e5990bfa1e0b1"
+  integrity sha512-5uC6DDlmeqiOwCPmK9jMSdOuZTh8bU39Ys6yidB+UTt5hfZUPGAypSgFRiEp+jbi9qH40BLDvy85jIU88wKSqw==
 
 tmp@^0.0.33:
   version "0.0.33"
@@ -9702,9 +9695,9 @@ type-fest@^2.12.2:
   integrity sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==
 
 type-fest@^4.26.1, type-fest@^4.31.0, type-fest@^4.37.0:
-  version "4.40.1"
-  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-4.40.1.tgz#d78a09f08dd1081a434dd377967650cfd565401d"
-  integrity sha512-9YvLNnORDpI+vghLU/Nf+zSv0kL47KbVJ1o3sKgoTefl6i+zebxbiDQWoe/oWWqPhIgQdRZRT1KA9sCPL810SA==
+  version "4.41.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-4.41.0.tgz#6ae1c8e5731273c2bf1f58ad39cbae2c91a46c58"
+  integrity sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==
 
 type-is@^2.0.0, type-is@^2.0.1:
   version "2.0.1"
@@ -10703,9 +10696,9 @@ zod-to-json-schema@^3.22.3, zod-to-json-schema@^3.24.1, zod-to-json-schema@^3.24
   integrity sha512-/AuWwMP+YqiPbsJx5D6TfgRTc4kTLjsh5SOcd4bLsfUg2RcEXrFMJl1DGgdHy2aCfsIA/cr/1JM0xcB2GZji8g==
 
 zod-validation-error@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/zod-validation-error/-/zod-validation-error-3.4.0.tgz#3a8a1f55c65579822d7faa190b51336c61bee2a6"
-  integrity sha512-ZOPR9SVY6Pb2qqO5XHt+MkkTRxGXb4EVtnjc9JpXUOtUB1T9Ru7mZOT361AN3MsetVe7R0a1KZshJDZdgp9miQ==
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/zod-validation-error/-/zod-validation-error-3.4.1.tgz#fb0a64f15d90f4aafe9ccc804331853609aad408"
+  integrity sha512-1KP64yqDPQ3rupxNv7oXhf7KdhHHgaqbKuspVoiN93TT0xrBjql+Svjkdjq/Qh/7GSMmgQs3AfvBT0heE35thw==
 
 zod@^3.22.4, zod@^3.23.8, zod@^3.24.4:
   version "3.24.4"
