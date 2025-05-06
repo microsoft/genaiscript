@@ -1,18 +1,19 @@
 name: genai blog post generator
+permissions:
+    actions: read
+    contents: write
+    pull-requests: write
+    models: read
 on:
     workflow_dispatch:
     schedule:
-      - cron: '0 0 * * *'
+        - cron: "0 0 * * *"
 concurrency:
     group: blog-post-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 jobs:
     build:
         runs-on: ubuntu-latest
-        permissions:
-            actions: read
-            contents: write
-            pull-requests: write
         steps:
             - uses: actions/checkout@v4
               with:
@@ -28,6 +29,8 @@ jobs:
               run: yarn compile
             - name: generate blog post
               run: yarn genai:blog-post -p github --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - uses: stefanzweifel/git-auto-commit-action@v5
               with:
                   file_pattern: "docs/src/content/docs/blog/drafts/*.md"
