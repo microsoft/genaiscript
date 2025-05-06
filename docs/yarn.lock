@@ -193,7 +193,7 @@
     stream-replace-string "^2.0.0"
     zod "^3.24.2"
 
-"@astrojs/starlight@^0.34.1":
+"@astrojs/starlight@^0.34.2":
   version "0.34.2"
   resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.34.2.tgz#2d2771856929ac77c7bc1b5924bcaaf6d57d52d1"
   integrity sha512-/XwBXQ4ZyQBEETZIPw2pa+UsKawkpRVO7CF6QVpOmteGfUxCrsD3n26G0OsnWHh0Gfo67QkAqM0FsGmDuNUVHw==
@@ -1525,7 +1525,7 @@ astro-remote@^0.3.3:
     marked-smartypants "^1.1.6"
     ultrahtml "^1.5.3"
 
-astro@^5.7.5:
+astro@^5.7.10:
   version "5.7.10"
   resolved "https://registry.yarnpkg.com/astro/-/astro-5.7.10.tgz#c144d3401dc1377272a5b98832e8ea5a63c6e906"
   integrity sha512-9TQcFZqP2w6//JXXUHfw8/5PX7KUx9EkG5O3m+hISuyeUztvjY1q5+p7+C5HiXyg24Zs3KkpieoL5BGRXGCAGA==
