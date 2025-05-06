@@ -1,4 +1,6 @@
 name: playwright smoke tests
+permissions:
+    contents: read
 on:
     workflow_dispatch:
     pull_request:

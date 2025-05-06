@@ -1,4 +1,6 @@
 name: openai smoke tests
+permissions:
+    contents: read
 on:
     workflow_dispatch:
 concurrency:
