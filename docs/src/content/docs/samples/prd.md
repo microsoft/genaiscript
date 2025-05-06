@@ -1,6 +1,6 @@
 ---
-title: Pull Request Reviewer
-description: Review the current files or changes
+title: Pull Request Descriptor
+description: Generate a pull request description
 sidebar:
     order: 5
 ---
@@ -11,12 +11,12 @@ We will develop the script locally and then create a GitHub Action to run it aut
 ## Add the script
 
 - Open your GitHub repository and start a new pull request.
-- Add the following script to your repository as `prr.genai.mts` in the `.genaisrc` folder.
+- Add the following script to your repository as `prd.genai.mts` in the `.genaisrc` folder.
 
-```ts title="genaisrc/prr.genai.mts" wrap
+```ts title="genaisrc/prd.genai.mts" wrap
 script({
-    title: "Pull Request Reviewer",
-    description: "Review the current pull request",
+    title: "Pull Request Descriptor",
+    description: "Generate a description for the current pull request",
     systemSafety: true,
     tools: ["agent_fs", "agent_git"],
     parameters: {
@@ -36,14 +36,22 @@ const gitDiff = def("GIT_DIFF", changes, {
     maxTokens: 14000,
     detectPromptInjection: "available",
 })
-$`Report errors in ${gitDiff} using the annotation format.
+$`## Task
 
-- Use best practices of the programming language of each file.
-- If available, provide a URL to the official documentation for the best practice. do NOT invent URLs.
-- Analyze ALL the code. Do not be lazy. This is IMPORTANT.
-- Use tools to read the entire file content to get more context
-- Do not report warnings, only errors.
-- Add suggestions if possible, skip if you are not sure about a fix.
+You are an expert code reviewer with great English technical writing skills.
+
+Your task is to generate a high level summary of the changes in ${gitDiff} for a pull request in a way that a software engineer will understand.
+This description will be used as the pull request description.
+
+## Instructions
+
+- do NOT explain that GIT_DIFF displays changes in the codebase
+- try to extract the intent of the changes, don't focus on the details
+- use bullet points to list the changes
+- use gitmojis to make the description more engaging
+- focus on the most important changes
+- do not try to fix issues, only describe the changes
+- ignore comments about imports (like added, remove, changed, etc.)
 `
 ```
 
@@ -65,7 +73,7 @@ Since you are already in a pull request, you can run with the script and tune th
 You can use the GenAIScript Visual Studio Code extension or use the cli.
 
 ```sh
-npx --yes genaiscript run prr
+npx --yes genaiscript run prd
 ```
 
 You will see an output similar to the following. In the output, you will find links to the run reports (markdown files),
@@ -73,39 +81,6 @@ information about the model, preview of the messages and the token usage.
 
 Open the `trace` or `output` reports in your favorite Markdown viewer to inspect the results. This part of the development
 is fully local so it's your opportunity to refine the prompting.
-
-```text wrap
-┌─💬 github:gpt-4.1 ✉ 2 ~↑1.4kt
-┌─📙 system
-│## Safety: Jailbreak
-│... (85 lines)
-│- **Do NOT use function names starting with 'functions.'.
-│- **Do NOT respond with multi_tool_use**.
-┌─👤 user
-│<GIT_DIFF lang="diff">
-│--- /dev/null
-│+++ .github/workflows/genai-pr-review.yml
-│@@ -0,0 +1,22 @@
-│--- /dev/null
-│[1] +++ genaisrc/.gitignore
-│... (3 lines)
-│Report errors in <GIT_DIFF> using the annotation format.
-│- Use best practices of the programming language of each file.
-│- If available, provide a URL to the official documentation for the best practice. do NOT invent URLs.
-│- Analyze ALL the code. Do not be lazy. This is IMPORTANT.
-│- Use tools to read the entire file content to get more context
-│- Do not report warnings, only errors.
-
-
-::error file=.github/workflows/genai-pr-review.yml,line=1,endLine=22,code=missing_workflow_content::The workflow file is empty or missing mandatory workflow keys like `name`, `on`, and `jobs`. Every GitHub Actions workflow file must specify at least these top-level keys to define triggers and jobs. See official docs: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
-
-└─🏁  github:gpt-4.1 ✉ 2 3446ms ⇅ 1.9kt ↑1.6kt ↓223t 0.505¢
-genaiscript: success
-> 3446ms ↑1.6kt ↓223t 538.62t/s 0.505¢
-  github:gpt-4.1-2025-04-14> 3446ms ↑1.6kt ↓223t 538.62t/s 0.505¢
-   trace: ...
-  output: ...
-```
 
 ### Make it Agentic
 
@@ -116,7 +91,7 @@ There are basically two level of agentic-ness you can achieve with GenAIScript:
 
 - add the [fs_read_file](/genaiscript/reference/scripts/system/#systemfs_read_file) to read files to the script.
 
-```ts title="genaisrc/prr.genai.mts" wrap 'tools: ["fs_read"]'
+```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["fs_read"]'
 script({
     ...,
     tools: ["fs_read_file"],
@@ -125,7 +100,7 @@ script({
 
 - add the [file system agent](/genaiscript/reference/scripts/system/#systemagent_fs) that can respond to more complex queries at the cost of additional tokens.
 
-```ts title="genaisrc/prr.genai.mts" wrap 'tools: ["agent_fs"]'
+```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["agent_fs"]'
 script({
     ...,
     tools: ["agent_fs"],
@@ -140,7 +115,7 @@ you can automate the execution of the script and creation of the comments.
 - Add the following workflow in your GitHub repository.
 
 ```yaml title=".github/workflows/genai-pr-review.yml" wrap
-name: genai pull request review
+name: genai pull request description
 on:
     pull_request:
         types: [ready_for_review, review_requested]
@@ -161,16 +136,15 @@ jobs:
                   node-version: "22"
             - name: fetch base branch
               run: git fetch origin ${{ github.event.pull_request.base.ref }}
-            - name: genaiscript prr
-              run: npx --yes genaiscript run prr --vars base=origin/${{ github.event.pull_request.base.ref }} --pull-request-reviews --pull-request-comment --out-trace $GITHUB_STEP_SUMMARY
+            - name: genaiscript prd
+              run: npx --yes genaiscript run prd --vars base=origin/${{ github.event.pull_request.base.ref }} --pull-request-description --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The command line uses two special flags to generate pull request comments and reviews:
+The command line uses a special flag to update the generate pull request description:
 
-- `--pull-request-reviews` to generate a pull request review comments from each annotation,
-- `--pull-request-comment` to generate a comment for the pull request from the output.
+- `--pull-request-description` to update the description of the pull request
 
 - Commit the changes, and create a new pull request and start testing the workflow by requesting a review or toggling the `ready_for_review` event.
 
