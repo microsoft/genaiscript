@@ -35,6 +35,7 @@ class GenAIScriptApiProvider {
             let { cli, ...options } = structuredClone(this.config)
             options.runTries = 2
             options.runTrace = false
+            options.outputTrace = false
             options.lobprobs = !!callOptions?.includeLogProbs
 
             const testVars = context.vars.vars // {}
