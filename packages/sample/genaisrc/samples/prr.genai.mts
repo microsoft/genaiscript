@@ -1,13 +1,7 @@
 script({
     title: "Pull Request Reviewer",
     description: "Review the current pull request",
-    system: [
-        "system.assistant",
-        "system.annotations",
-        "system.safety_jailbreak",
-        "system.safety_harmful_content",
-        "system.safety_validate_harmful_content",
-    ],
+    systemSafety: true,
     tools: ["agent_fs", "agent_git"],
     parameters: {
         base: {
@@ -17,12 +11,14 @@ script({
     },
 })
 
-const base = env.vars.base || (await git.defaultBranch())
+const base =
+    process.env.GITHUB_BASE_REF || env.vars.base || (await git.defaultBranch())
 const changes = await git.diff({
     base,
+    llmify: true,
 })
-console.log(changes)
 def("GIT_DIFF", changes, {
+    language: "diff",
     maxTokens: 14000,
     detectPromptInjection: "available",
 })
