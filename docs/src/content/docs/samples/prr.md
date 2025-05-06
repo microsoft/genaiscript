@@ -5,7 +5,7 @@ sidebar:
     order: 5
 ---
 
-The following sample shows a script that analysis the changes in a pull request and posts the comments in GitHub.
+The following sample shows a script that analyzes the changes in a pull request and posts the comments in GitHub.
 We will develop the script locally and then create a GitHub Action to run it automatically.
 
 ## Add the script
