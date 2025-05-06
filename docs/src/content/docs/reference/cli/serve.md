@@ -75,7 +75,7 @@ To run a minimal docker image with the server, you can use the following command
 docker run --name genaiscript --rm -it --expose 8003 -p 8003:8003 -v ${PWD}:/workspace -w /workspace node:alpine npx --yes genaiscript serve --network
 ```
 
-then open http://localhost:8003 in your browser.
+then open `http://localhost:8003` in your browser.
 
 ## OpenAI API endpoints
 
