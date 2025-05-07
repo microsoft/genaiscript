@@ -23,7 +23,7 @@ const { text: map } = await runPrompt(
 output.fence(map)
 // generate image
 const { image } = await generateImage(map, {
-    model: "openai:gpt-image-1",
+    model: "image",
     quality: "high",
     size: "portrait",
 })

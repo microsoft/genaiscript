@@ -78,7 +78,7 @@ for (const genre of genres.split("\n").filter((s) => !!s)) {
         Minimize the use of text, favor graphics.
     ${imagePrompt}`,
         {
-            model: "openai:gpt-image-1",
+            model: "image",
             quality: "high",
             size: "square",
             outputFormat: "jpeg",

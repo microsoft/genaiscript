@@ -44,7 +44,7 @@ for (let i = 0; i < pages.length; i++) {
     description:
     ${map}`,
         {
-            model: "openai:gpt-image-1",
+            model: "image",
             quality: "high",
             size: "portrait",
         }

@@ -38,7 +38,7 @@ const { image } = await generateImage(
     Generate all the pages of the zine in a single tiled image.
     ${zine}`,
     {
-        model: "openai:gpt-image-1",
+        model: "image",
         quality: "high",
         size: "portrait",
         outputFormat: "jpeg",
