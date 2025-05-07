@@ -3419,6 +3419,7 @@ interface GitHubWorkflowRun {
     head_branch: string
     head_sha: string
     workflow_id: number
+    run_started_at: string
 }
 
 interface GitHubWorkflowJob {
