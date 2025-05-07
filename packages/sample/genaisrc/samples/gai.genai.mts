@@ -25,6 +25,8 @@ const { dbg, output, vars } = env
 const { runUrl } = vars
 
 output.heading(2, "Investigator report")
+
+output.heading(3, "Context collection")
 output.itemLink(`run url`, runUrl)
 
 // Retrieve repository information
@@ -183,9 +185,11 @@ $`Your are an expert software engineer and you are able to analyze the logs and 
 ${gitDiffRef ? `- ${gitDiffRef} contains a diff of 2 run commits` : ""}
 ${logDiffRef ? `- ${logDiffRef} contains a diff of 2 runs in GitHub Action` : ""}
 ${logRef ? `- ${logRef} contains the log of the failed run` : ""}
+
 - The first run is the last successful run and the second run is the first failed run
 
-Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. Show the code that is responsible for the failure.
+Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. 
+Show the code that is responsible for the failure.
 
 If you cannot find the root cause, stop.
 
