@@ -11,7 +11,7 @@ We will develop the script locally and then create a GitHub Action to run it aut
 ## Add the script
 
 - Open your GitHub repository and start a new pull request.
-- Add the following script to your repository as `prr.genai.mts` in the `.genaisrc` folder.
+- Add the following script to your repository as `genaisrc/prr.genai.mts`.
 
 ```ts title="genaisrc/prr.genai.mts" wrap
 script({

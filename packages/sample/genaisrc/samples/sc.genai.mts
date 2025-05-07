@@ -20,7 +20,7 @@ files = files.filter((f) => /\.mdx?$/.test(f.filename))
 console.debug(`files: ${files.map((f) => f.filename).join("\n")}`)
 
 for (const file of files) {
-    const { text, error } = await runPrompt(
+    const { text, error, finishReason } = await runPrompt(
         (ctx) => {
             const fileRef = ctx.def("FILES", file)
             ctx.$`Fix the spelling and grammar of the content of ${fileRef}. Return the full file with corrections
@@ -40,6 +40,7 @@ If you do not find any mistakes, respond <NO> and nothing else.
         },
         { label: file.filename }
     )
-    if (!text || error || /<NO>/i.test(text)) continue
+    if (!text || error || finishReason !== "stop" || /<NO>/i.test(text))
+        continue
     await workspace.writeText(file.filename, text)
 }
