@@ -200,13 +200,19 @@ if (!lastSuccessRun) {
 // Instruction for generating a report based on the analysis
 $`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
 
+You are analyzing a FAILED_RUN and a SUCCESSFUL_RUN.
+
 ${gitDiffRef ? `- ${gitDiffRef} contains a diff of 2 run commits` : ""}
-${logDiffRef ? `- ${logDiffRef} contains a diff of 2 runs in GitHub Action` : ""}
+${logDiffRef ? `- ${logDiffRef} contains a diff of 2 workflow runs in GitHub Action` : ""}
 ${logRef ? `- ${logRef} contains the log of the failed run` : ""}
 
 - The first run is the last successful run and the second run is the first failed run
+- The commit of the first run is ${firstFailedRun.head_sha}.
+${lastSuccessRun ? `- The commit of the second run is ${lastSuccessRun.head_sha}.` : ""}
 
-Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. 
+Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. Use 'agent_git' and 'agent_github' if you need more information.
+Do not invent git or github information.
+
 Show the code that is responsible for the failure.
 
 If you cannot find the root cause, stop.
