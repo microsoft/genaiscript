@@ -111,6 +111,9 @@ if (lastSuccessRun)
     output.itemLink(`last successful run`, lastSuccessRun.html_url)
 else output.item(`last successful run not found`)
 
+let gitDiffRef: string
+let logRef: string
+let logDiffRef: string
 if (lastSuccessRun) {
     if (lastSuccessRun.head_sha === firstFailedRun.head_sha) {
         console.debug("No previous successful run found")
@@ -130,7 +133,7 @@ if (lastSuccessRun) {
         })
 
         if (gitDiff) {
-            def("GIT_DIFF", gitDiff, {
+            gitDiffRef = def("GIT_DIFF", gitDiff, {
                 language: "diff",
                 lineNumbers: true,
                 flex: 1,
@@ -141,7 +144,10 @@ if (lastSuccessRun) {
 
 if (!lastSuccessRun) {
     // Define log content if no last successful run is available
-    def("LOG", firstFailureLog, { maxTokens: 20000, lineNumbers: false })
+    logRef = def("LOG", firstFailureLog, {
+        maxTokens: 20000,
+        lineNumbers: false,
+    })
 } else {
     const lastSuccessJobs = await github.listWorkflowJobs(lastSuccessRun.id)
     const lastSuccessJob = lastSuccessJobs.find(
@@ -152,11 +158,15 @@ if (!lastSuccessRun) {
             `could not find job ${firstFailedJob.name} in last success run`
         )
     else {
-        const lastSuccessLog = lastSuccessJob.content
+        output.itemLink(`last successful job`, lastSuccessJob.html_url)
+        const jobDiff = await github.diffWorkflowJobLogs(
+            firstFailedJob.id,
+            lastSuccessJob.id
+        )
         // Generate a diff of logs between the last success and failed runs
-        defDiff("LOG_DIFF", lastSuccessLog, firstFailureLog, {
+        logDiffRef = def("LOG_DIFF", jobDiff, {
+            language: "diff",
             lineNumbers: false,
-            flex: 4,
         })
     }
 }
@@ -164,8 +174,9 @@ if (!lastSuccessRun) {
 // Instruction for generating a report based on the analysis
 $`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
 
-${lastSuccessRun ? "- GIT_DIFF contains a diff of 2 run commits" : ""}
-${lastSuccessRun ? "- LOG_DIFF contains a diff of 2 runs in GitHub Action" : "- LOG contains the log of the failed run"}
+${gitDiffRef ? `- ${gitDiffRef} contains a diff of 2 run commits` : ""}
+${logDiffRef ? `- ${logDiffRef} contains a diff of 2 runs in GitHub Action` : ""}
+${logRef ? `- ${logRef} contains the log of the failed run` : ""}
 - The first run is the last successful run and the second run is the first failed run
 
 Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. Show the code that is responsible for the failure.
