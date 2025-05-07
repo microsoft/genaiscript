@@ -3418,6 +3418,7 @@ interface GitHubWorkflowRun {
     created_at: string
     head_branch: string
     head_sha: string
+    workflow_id: number
 }
 
 interface GitHubWorkflowJob {
@@ -3541,6 +3542,12 @@ interface GitHub {
     info(): Promise<GitHubOptions | undefined>
 
     /**
+     * Gets the details of a GitHub workflow
+     * @param workflowId
+     */
+    workflow(workflowId: number | string): Promise<GitHubWorkflow>
+
+    /**
      * Lists workflows in a GitHub repository
      */
     listWorkflows(options?: GitHubPaginationOptions): Promise<GitHubWorkflow[]>
@@ -3558,6 +3565,12 @@ interface GitHub {
             status?: GitHubWorkflowRunStatus
         } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowRun[]>
+
+    /**
+     * Gets the details of a GitHub Action workflow run
+     * @param runId
+     */
+    workflowRun(runId: number | string): Promise<GitHubWorkflowRun>
 
     /**
      * Downloads a GitHub Action workflow run log
