@@ -88,15 +88,12 @@ dbg(
     )
 )
 
-// Find the index of the failed run using the provided or default criteria
+// resolve the first failed workflow run and job
 const firstFailedRun = reversedRuns.find(
     ({ conclusion }) => conclusion === "failure"
 )
-if (!firstFailedRun) 
-    cancel(`first failed run not found`)
+if (!firstFailedRun) cancel(`first failed run not found`)
 output.itemLink(`first failed run`, firstFailedRun.html_url)
-
-// Download logs of the failed job
 const firstFailedJobs = await github.listWorkflowJobs(firstFailedRun.id)
 const firstFailedJob =
     firstFailedJobs.find(({ conclusion }) => conclusion === "failure") ??
@@ -105,7 +102,7 @@ const firstFailureLog = firstFailedJob.content
 if (!firstFailureLog) cancel("No logs found")
 output.itemLink(`first failed job`, firstFailedJob.html_url)
 
-// Find the index of the last successful run before the failure
+// resolve the latest successful workflow run
 const lastSuccessRun = reversedRuns.find(
     ({ conclusion }) => conclusion === "success"
 )
@@ -118,8 +115,8 @@ if (lastSuccessRun) {
         console.debug("No previous successful run found")
     } else {
         output.itemLink(
-            `diff ${lastSuccessRun.head_sha.slice(0, 7)}...${firstFailedRun.head_sha.slice(0, 7)}`,
-            `https://github.com/${owner}/${repo}/compare/${lastSuccessRun.head_sha}...${firstFailedRun.head_sha})`
+            `diff (${lastSuccessRun.head_sha.slice(0, 7)}...${firstFailedRun.head_sha.slice(0, 7)})`,
+            `https://github.com/${owner}/${repo}/compare/${lastSuccessRun.head_sha}...${firstFailedRun.head_sha}`
         )
 
         // Execute git diff between the last success and failed run commits
@@ -140,7 +137,6 @@ if (lastSuccessRun) {
         }
     }
 }
-
 
 if (!lastSuccessRun) {
     // Define log content if no last successful run is available
