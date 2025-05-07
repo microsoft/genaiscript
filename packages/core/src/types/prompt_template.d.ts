@@ -1030,6 +1030,13 @@ interface OutputTrace extends ToolCallTrace {
     itemValue(name: string, value: any, unit?: string): void
 
     /**
+     * Adds a url link item
+     * @param name name url
+     * @param url url. If missing, name is treated as the url.
+     */
+    itemLink(name: string, url?: string | URL, title?: string): void
+
+    /**
      * Logs a warning message.
      * @param msg - The warning message to log.
      */

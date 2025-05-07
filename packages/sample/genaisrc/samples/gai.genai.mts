@@ -1,6 +1,3 @@
-/* spellchecker: disable */
-
-// Script for analyzing GitHub Action runs to determine the cause of a failure.
 script({
     title: "GitHub Action Investigator",
     description:
@@ -39,8 +36,8 @@ if (!workflow) {
 }
 
 // Assign failure and success run IDs from environment variables
-const ffid = env.vars.failure_run_id
-const lsid = env.vars.success_run_id
+const failureRunId = env.vars.failure_run_id
+const lastSuccessRunId = env.vars.success_run_id
 
 // Retrieve repository information
 const { owner, repo, refName } = await github.info()
@@ -60,41 +57,44 @@ const runs = await github.listWorkflowRuns(workflow, { branch })
 if (!runs.length) cancel("No runs found")
 
 // Find the index of the failed run using the provided or default criteria
-let ffi = ffid
-    ? runs.findIndex(({ id }) => id === ffid)
+let firstFailureIndex = failureRunId
+    ? runs.findIndex(({ id }) => id === failureRunId)
     : runs.findIndex(({ conclusion }) => conclusion === "failure")
 
 // Default to the first run if no failed run is found
-if (ffi < 0) ffi = 0
-const ff = runs[ffi]
-output.item(`[run failure](${ff.html_url})`)
-
-// Log details of the failed run
-console.log(`  run: ${ff.display_title}, ${ff.html_url}`)
+if (firstFailureIndex < 0) firstFailureIndex = 0
+const firstFailureRun = runs[firstFailureIndex]
+output.heading(3, "First failed run")
+output.item(firstFailureRun.display_title)
+output.itemLink(`run report`, firstFailureRun.html_url)
 
 // Find the index of the last successful run before the failure
-const runsAfterFailure = runs.slice(ffi)
-const lsi = lsid
-    ? runs.findIndex(({ id }) => id === lsid)
+const runsAfterFailure = runs.slice(firstFailureIndex)
+const lastSuccessRunIndex = lastSuccessRunId
+    ? runs.findIndex(({ id }) => id === lastSuccessRunId)
     : runsAfterFailure.findIndex(({ conclusion }) => conclusion === "success")
 
-const ls = runsAfterFailure[lsi]
-if (ls) {
-    if (ls.head_sha === ff.head_sha) {
+const lastSuccessRun = runsAfterFailure[lastSuccessRunIndex]
+if (lastSuccessRun) {
+    if (lastSuccessRun.head_sha === firstFailureRun.head_sha) {
         console.debug("No previous successful run found")
     } else {
         output.heading(3, "Last successful run")
-        output.item(ls.display_title)
-        output.item(`[run](${ls.html_url})`)
-        output.item(`[${ff.head_sha.slice(0, 7)}](${ff.html_url})`)
-        output.item(
-            `[diff ${ls.head_sha.slice(0, 7)}...${ff.head_sha.slice(0, 7)}](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})`
+        output.item(lastSuccessRun.display_title)
+        output.itemLink(`run report`, lastSuccessRun.html_url)
+        output.itemLink(
+            `head ${firstFailureRun.head_sha.slice(0, 7)}`,
+            firstFailureRun.html_url
+        )
+        output.itemLink(
+            `diff ${lastSuccessRun.head_sha.slice(0, 7)}...${firstFailureRun.head_sha.slice(0, 7)}`,
+            `https://github.com/${owner}/${repo}/compare/${lastSuccessRun.head_sha}...${firstFailureRun.head_sha})`
         )
 
         // Execute git diff between the last success and failed run commits
         const gitDiff = await git.diff({
-            base: ls.head_sha,
-            head: ff.head_sha,
+            base: lastSuccessRun.head_sha,
+            head: firstFailureRun.head_sha,
             excludedPaths: "**/genaiscript.d.ts",
         })
         if (gitDiff)
@@ -107,24 +107,29 @@ if (ls) {
 }
 
 // Download logs of the failed job
-const ffjobs = await github.listWorkflowJobs(ff.id)
-const ffjob =
-    ffjobs.find(({ conclusion }) => conclusion === "failure") ?? ffjobs[0]
-const fflog = ffjob.content
-if (!fflog) cancel("No logs found")
+const firstFailureJobs = await github.listWorkflowJobs(firstFailureRun.id)
+const firstFailureJob =
+    firstFailureJobs.find(({ conclusion }) => conclusion === "failure") ??
+    firstFailureJobs[0]
+const firstFailureLog = firstFailureJob.content
+if (!firstFailureLog) cancel("No logs found")
 
-if (!ls) {
+if (!lastSuccessRun) {
     // Define log content if no last successful run is available
-    def("LOG", fflog, { maxTokens: 20000, lineNumbers: false })
+    def("LOG", firstFailureLog, { maxTokens: 20000, lineNumbers: false })
 } else {
-    const lsjobs = await github.listWorkflowJobs(ls.id)
-    const lsjob = lsjobs.find(({ name }) => ffjob.name === name)
-    if (!lsjob)
-        console.debug(`could not find job ${ffjob.name} in last success run`)
+    const lastSuccessJobs = await github.listWorkflowJobs(lastSuccessRun.id)
+    const lastSuccessJob = lastSuccessJobs.find(
+        ({ name }) => firstFailureJob.name === name
+    )
+    if (!lastSuccessJob)
+        console.debug(
+            `could not find job ${firstFailureJob.name} in last success run`
+        )
     else {
-        const lslog = lsjob.content
+        const lastSuccessLog = lastSuccessJob.content
         // Generate a diff of logs between the last success and failed runs
-        defDiff("LOG_DIFF", lslog, fflog, {
+        defDiff("LOG_DIFF", lastSuccessLog, firstFailureLog, {
             lineNumbers: false,
             flex: 4,
         })
@@ -134,8 +139,8 @@ if (!ls) {
 // Instruction for generating a report based on the analysis
 $`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
 
-${ls ? "- GIT_DIFF contains a diff of 2 run commits" : ""}
-${ls ? "- LOG_DIFF contains a diff of 2 runs in GitHub Action" : "- LOG contains the log of the failed run"}
+${lastSuccessRun ? "- GIT_DIFF contains a diff of 2 run commits" : ""}
+${lastSuccessRun ? "- LOG_DIFF contains a diff of 2 runs in GitHub Action" : "- LOG contains the log of the failed run"}
 - The first run is the last successful run and the second run is the first failed run
 
 Add links to run logs.

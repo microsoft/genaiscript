@@ -254,6 +254,14 @@ ${this.toResultIcon(success, "")}${title}
         this.appendContent(`-   ${message}\n`)
     }
 
+    itemLink(name: string, url?: string | URL, title?: string) {
+        if (!name) return
+
+        const urlStr = typeof url === "string" ? url : url?.toString()
+        if (!urlStr) this.item(`<${name}>`)
+        else this.item(`[${name}${title ? ` "${title}"` : ""}](${urlStr})`)
+    }
+
     itemValue(name: string, value: any, unit?: string) {
         if (value === undefined || (typeof value === "number" && isNaN(value)))
             return
