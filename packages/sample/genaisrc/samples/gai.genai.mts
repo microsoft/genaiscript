@@ -43,9 +43,13 @@ if (isNaN(runId)) {
 
     // Retrieve repository information
     const { runRepo, runOwner, runIdUrl, jobIdUrl } =
-        /^https:\/\/github\.com\/(?<runOwner>\w+)\/(?<runRepo>\w+)\/actions\/runs\/(?<runIdUrl>\d+)?(\/job\/(?<jobIdRun>\d+))/i.exec(
+        /^https:\/\/github\.com\/(?<runOwner>\w+)\/(?<runRepo>\w+)\/actions\/runs\/(?<runIdUrl>\d+)?(\/job\/(?<jobIdRun>\d+))?/i.exec(
             runUrl
         )?.groups || {}
+    if (!runRepo)
+        throw new Error(
+            "Url not recognized. Please provide a valid URL https://github.com/<owner>/<repo>/actions/runs/<runId>/..."
+        )
     runId = parseInt(runIdUrl)
     dbg(`runId: ${runId}`)
 
