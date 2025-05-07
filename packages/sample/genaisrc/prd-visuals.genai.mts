@@ -70,7 +70,7 @@ for (const genre of genres.split("\n").filter((s) => !!s)) {
         },
         {
             label: `summarize code to ${genreName}`,
-            model: "openai:gpt-4.1",
+            model: "large",
         }
     )
     const { image } = await generateImage(

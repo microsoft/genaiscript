@@ -17,7 +17,7 @@ const { text: map } = await runPrompt(
     },
     {
         label: "summarize code to map",
-        model: "openai:gpt-4.1-mini",
+        model: "large",
     }
 )
 output.fence(map)

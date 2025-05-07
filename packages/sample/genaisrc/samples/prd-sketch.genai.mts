@@ -49,7 +49,7 @@ const { text: zine } = await runPrompt(
     },
     {
         label: "summarize code to sketch",
-        model: "openai:gpt-4.1-mini",
+        model: "large",
     }
 )
 const { image } = await generateImage(
