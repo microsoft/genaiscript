@@ -49,14 +49,14 @@ const { text: zine } = await runPrompt(
     },
     {
         label: "summarize code to sketch",
-        model: "openai:gpt-4.1-mini",
+        model: "large",
     }
 )
 const { image } = await generateImage(
     `Your task is to generate a SketchNote (visual note) with the following instruction. Minimize the use of text, favor graphics.
     ${zine}`,
     {
-        model: "openai:gpt-image-1",
+        model: "image",
         quality: "high",
         size: "square",
         outputFormat: "jpeg",

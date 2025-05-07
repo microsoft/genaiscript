@@ -1222,6 +1222,18 @@ export class GitHubClient implements GitHub {
         return res
     }
 
+    async workflowRun(runId: number | string): Promise<GitHubWorkflowRun> {
+        const { client, owner, repo } = await this.api()
+        dbg(`retrieving workflow run details for run ID: ${runId}`)
+        const { data } = await client.rest.actions.getWorkflowRun({
+            owner,
+            repo,
+            run_id: typeof runId === "number" ? runId : parseInt(runId),
+        })
+        dbg(`workflow run: %O`, data)
+        return data
+    }
+
     async listWorkflowRuns(
         workflowIdOrFilename: string | number,
         options?: {
@@ -1252,6 +1264,7 @@ export class GitHubClient implements GitHub {
             (i) => i.data,
             ({ conclusion }) => conclusion !== "skipped"
         )
+        dbg(`workflow runs: %O`, res)
         return res
     }
 
@@ -1302,6 +1315,7 @@ export class GitHubClient implements GitHub {
                 content: parseJobLog(text),
             })
         }
+        dbg(`workflow jobs: %O`, res)
         return res
     }
 
@@ -1350,11 +1364,14 @@ export class GitHubClient implements GitHub {
             `diffing workflow job logs for job IDs: ${job_id} and ${other_job_id}`
         )
         const other = await this.downloadJob(other_job_id)
+        const justDiff = diffCreatePatch(job, other)
 
+        // try compressing
         job.content = parseJobLog(job.content)
         other.content = parseJobLog(other.content)
+        const parsedDiff = diffCreatePatch(job, other)
+        const diff = justDiff.length < parsedDiff.length ? justDiff : parsedDiff
 
-        const diff = diffCreatePatch(job, other)
         return llmifyDiff(diff)
     }
 
@@ -1404,6 +1421,18 @@ export class GitHubClient implements GitHub {
         )
     }
 
+    async workflow(workflowId: number | string): Promise<GitHubWorkflow> {
+        const { client, owner, repo } = await this.api()
+        dbg(`retrieving workflow details for workflow ID: ${workflowId}`)
+        const { data } = await client.rest.actions.getWorkflow({
+            owner,
+            repo,
+            workflow_id: workflowId,
+        })
+        dbg(`workflow: %O`, data)
+        return data
+    }
+
     async listWorkflows(
         options?: GitHubPaginationOptions
     ): Promise<GitHubWorkflow[]> {
@@ -1419,6 +1448,7 @@ export class GitHubClient implements GitHub {
             }
         )
         const workflows = await paginatorToArray(ite, count, (i) => i.data)
+        dbg(`workflows: %O`, workflows)
         return workflows.map(({ id, name, path }) => ({
             id,
             name,

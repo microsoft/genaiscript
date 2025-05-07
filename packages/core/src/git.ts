@@ -83,6 +83,25 @@ export class GitClient implements Git {
         return this._defaultBranch
     }
 
+    async fetch(
+        remote: OptionsOrString<"origin">,
+        branchOrSha: string,
+        options?: {
+            prune?: boolean
+            all?: boolean
+        }
+    ): Promise<void> {
+        const { prune, all } = options || {}
+        if (branchOrSha && !remote)
+            throw new Error("remote is required when specifying branch or sha")
+        const args = []
+        if (remote) args.push(remote)
+        if (branchOrSha) args.push(branchOrSha)
+        if (prune) args.push("--prune")
+        if (all) args.push("--all")
+        await this.exec(["fetch", ...args])
+    }
+
     /**
      * Gets the current branch
      * @returns

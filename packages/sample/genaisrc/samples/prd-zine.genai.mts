@@ -51,14 +51,14 @@ const { text: zine } = await runPrompt(
     },
     {
         label: "summarize code to zine",
-        model: "openai:gpt-4.1",
+        model: "large",
     }
 )
 const { image } = await generateImage(
     `Your task is to generate a Zine with the following instruction. Minimize the use of text, favor graphics.
     ${zine}`,
     {
-        model: "openai:gpt-image-1",
+        model: "image",
         quality: "high",
         size: "portrait",
         outputFormat: "jpeg",

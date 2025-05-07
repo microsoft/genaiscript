@@ -1030,6 +1030,13 @@ interface OutputTrace extends ToolCallTrace {
     itemValue(name: string, value: any, unit?: string): void
 
     /**
+     * Adds a url link item
+     * @param name name url
+     * @param url url. If missing, name is treated as the url.
+     */
+    itemLink(name: string, url?: string | URL, title?: string): void
+
+    /**
      * Logs a warning message.
      * @param msg - The warning message to log.
      */
@@ -3106,6 +3113,19 @@ interface Git {
     ): Promise<string>
 
     /**
+     * Git fetches the remote repository
+     * @param options
+     */
+    fetch(
+        remote: OptionsOrString<"origin">,
+        branchOrSha: string,
+        options?: {
+            prune?: boolean
+            all?: boolean
+        }
+    ): Promise<void>
+
+    /**
      * Lists the branches in the git repository
      */
     listBranches(): Promise<string[]>
@@ -3403,6 +3423,7 @@ type GitHubWorkflowRunStatus =
 
 interface GitHubWorkflowRun {
     id: number
+    run_number: number
     name?: string
     display_title: string
     status: string
@@ -3411,6 +3432,8 @@ interface GitHubWorkflowRun {
     created_at: string
     head_branch: string
     head_sha: string
+    workflow_id: number
+    run_started_at?: string
 }
 
 interface GitHubWorkflowJob {
@@ -3534,6 +3557,12 @@ interface GitHub {
     info(): Promise<GitHubOptions | undefined>
 
     /**
+     * Gets the details of a GitHub workflow
+     * @param workflowId
+     */
+    workflow(workflowId: number | string): Promise<GitHubWorkflow>
+
+    /**
      * Lists workflows in a GitHub repository
      */
     listWorkflows(options?: GitHubPaginationOptions): Promise<GitHubWorkflow[]>
@@ -3551,6 +3580,12 @@ interface GitHub {
             status?: GitHubWorkflowRunStatus
         } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowRun[]>
+
+    /**
+     * Gets the details of a GitHub Action workflow run
+     * @param runId
+     */
+    workflowRun(runId: number | string): Promise<GitHubWorkflowRun>
 
     /**
      * Downloads a GitHub Action workflow run log
