@@ -1,11 +1,6 @@
 script({
     title: "Spell checker",
-    system: [
-        "system.output_plaintext",
-        "system.assistant",
-        "system.files",
-        "system.changelog",
-    ],
+    system: ["system.output_plaintext", "system.assistant", "system.files"],
     responseType: "text",
     systemSafety: false,
     temperature: 0.2,
@@ -27,3 +22,7 @@ If you do not find any mistakes, respond <NO> and nothing else.
 - do NOT fix \`code\` and \`\`\`code\`\`\` sections
 - in .mdx files, do NOT fix inline typescript code
 `
+
+defOutputProcessor(({ text }) => {
+    if (/<NO>/i.test(text)) cancel("nothing to do")
+})
