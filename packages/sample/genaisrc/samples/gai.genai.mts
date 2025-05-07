@@ -59,6 +59,7 @@ const runs = await github.listWorkflowRuns(workflow.id, {
     branch,
     count: 100,
 })
+runs.reverse() // from newest to oldest
 
 dbg(
     `runs: %O`,
