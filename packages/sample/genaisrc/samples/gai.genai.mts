@@ -10,6 +10,10 @@ script({
             type: "number",
             description: "Run identifier",
         },
+        jobId: {
+            type: "number",
+            description: "Job identifier",
+        },
         runUrl: {
             type: "string",
             description: "Run identifier or URL",
@@ -29,18 +33,24 @@ const { dbg, output, vars } = env
 
 output.heading(2, "Investigator report")
 output.heading(3, "Context collection")
+const { owner, repo } = await github.info()
+
 let runId: number = vars.runId
+let jobId: number = vars.jobId
 if (isNaN(runId)) {
     const runUrl = vars.runUrl
     output.itemLink(`run url`, runUrl)
 
     // Retrieve repository information
-    const { owner, repo } = await github.info()
-    const { runRepo, runOwner, runId } =
-        /^https:\/\/github\.com\/(?<runOwner>\w+)\/(?<runRepo>\w+)\/actions\/runs\/(?<runId>\d+)/i.exec(
+    const { runRepo, runOwner, runIdUrl, jobIdUrl } =
+        /^https:\/\/github\.com\/(?<runOwner>\w+)\/(?<runRepo>\w+)\/actions\/runs\/(?<runIdUrl>\d+)?(\/job\/(?<jobIdRun>\d+))/i.exec(
             runUrl
         )?.groups || {}
+    runId = parseInt(runIdUrl)
     dbg(`runId: ${runId}`)
+
+    jobId = parseInt(jobIdUrl)
+    dbg(`jobId: ${jobId}`)
 
     if (runOwner !== owner)
         cancel(
