@@ -43,7 +43,7 @@ script({
 ```
 
 Here we declare the script with a title and description, specifying it uses OpenAI's GPT-4 model.
-We also set parameters for the file paths, choice to regenerate all descriptions, and the assets path.
+We also set parameters for the file paths, the choice to regenerate all descriptions, and the assets path.
 
 Next, we extract environmental variables:
 
@@ -157,7 +157,7 @@ The following measures are taken to ensure the safety of the generated content.
 - This script includes system prompts to prevent prompt injection and harmful content generation.
     - [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak)
     - [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content)
-- The generated description is saved to a file at a specific path, which allows for a manual review before committing the changes.
+- The generated description is saved to a file at a specific path, which allows for manual review before committing the changes.
 
 Additional measures to further enhance safety would be to run [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
 or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).

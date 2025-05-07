@@ -24,7 +24,7 @@ loop
 
 ## Configuration
 
-First off, we define the `script` function, which sets up our GenAI script by providing a title and a description, and specifying the model we'll be using:
+First, we define the `script` function, which sets up our GenAI script by providing a title and a description, and specifying the model we'll be using:
 
 ```ts
 script({
@@ -36,8 +36,8 @@ script({
 
 ## Look for changes
 
-Next up, we check for any staged changes in your Git repository using `git diff`.
-If there's nothing staged, GenAI kindly offers to stage all changes for you:
+Next, we check for any staged changes in your Git repository using `git diff`.
+If there is nothing staged, GenAI kindly offers to stage all changes for you:
 
 ```ts
 // Check for staged changes and stage all changes if none are staged
