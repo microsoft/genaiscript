@@ -6,7 +6,7 @@ import {
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_REST_API_CONCURRENCY_LIMIT,
     GITHUB_REST_PAGE_DEFAULT,
-    GITHUB_TOKEN,
+    GITHUB_TOKENS,
     TOOL_ID,
 } from "./constants"
 import { createFetch } from "./fetch"
@@ -185,6 +185,18 @@ export async function githubParseEnv(
     return Object.freeze(res)
 }
 
+async function readGitHubToken() {
+    let token: string
+    for (const envName of GITHUB_TOKENS) {
+        token = await runtimeHost.readSecret(envName)
+        if (token) {
+            dbg(`found %s`, envName)
+            break
+        }
+    }
+    return token
+}
+
 /**
  * Updates the description of a pull request on GitHub.
  * Parameters:
@@ -216,9 +228,8 @@ export async function githubUpdatePullRequestDescription(
         dbg(`missing issue number, cannot update pull request description`)
         return { updated: false, statusText: "missing issue number" }
     }
-    const token = await runtimeHost.readSecret(GITHUB_TOKEN)
+    const token = await readGitHubToken()
     if (!token) {
-        dbg(`retrieved GitHub token`)
         return { updated: false, statusText: "missing github token" }
     }
 
@@ -365,7 +376,7 @@ export async function githubCreateIssueComment(
         dbg(`missing issue number, cannot create issue comment`)
         return { created: false, statusText: "missing issue number" }
     }
-    const token = await runtimeHost.readSecret(GITHUB_TOKEN)
+    const token = await readGitHubToken()
     if (!token) {
         return { created: false, statusText: "missing github token" }
     }
@@ -572,7 +583,7 @@ export async function githubCreatePullRequestReviews(
         logError("github: missing commit sha")
         return false
     }
-    const token = await runtimeHost.readSecret(GITHUB_TOKEN)
+    const token = await readGitHubToken()
     if (!token) {
         logError("github: missing token")
         return false
@@ -620,7 +631,7 @@ export async function githubCreatePullRequestReviews(
         await githubCreateIssueComment(
             script,
             info,
-            failed.map(d => diagnosticToGitHubMarkdown(info, d)).join("\n\n"),
+            failed.map((d) => diagnosticToGitHubMarkdown(info, d)).join("\n\n"),
             script.id + "-prr",
             options
         )
