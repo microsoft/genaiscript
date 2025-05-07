@@ -2,7 +2,29 @@
 title: Pull Request Reviewer
 description: Review the current files or changes
 sidebar:
-    order: 5
+  order: 5
+cover:
+  alt: A minimalist 2D pixel-art illustration showing a GitHub pull request review
+    automation process. It includes a file comparison icon linked by an arrow to
+    a gear icon, symbolizing the script's execution. Nearby is a notification
+    bubble icon, indicating feedback. The sequence ends with a cloud icon,
+    representing GitHub Actions. The design uses geometric shapes, five
+    corporate colors, and an 8-bit style for clarity without text or people.
+  image: ./prr.png
+tags:
+  - GenAIScript
+  - Pull Request Review Script
+  - GitHub Actions Automation
+  - Content Safety Measures
+  - Script with File System Integration
+excerpt: Take your pull request reviews to the next level with automation. This
+  guide walks you through creating a script that analyzes code changes,
+  identifies errors (not warnings), and provides actionable suggestions directly
+  in GitHub. Learn how to integrate this process locally for refinement,
+  leverage built-in agents for deeper file analysis, and ultimately automate it
+  using GitHub Actions. From metadata configurations to safety measures, you'll
+  implement a workflow that's comprehensive, efficient, and secure.
+
 ---
 
 The following sample shows a script that analyzes the changes in a pull request and posts the comments in GitHub.
