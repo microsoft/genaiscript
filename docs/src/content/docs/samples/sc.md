@@ -2,7 +2,36 @@
 title: Spell Checker
 description: Review documentation for spelling and grammar
 sidebar:
-    order: 5
+  order: 5
+cover:
+  alt: A retro 8-bit-style illustration visualizes a GitHub Actions workflow
+    pipeline. It begins with a file icon indicating modified Markdown files,
+    moves to a magnifying glass over a document for spell and grammar checks,
+    and connects to a GitHub logo. This leads to a commit and push process,
+    represented by arrows and a cloud-shaped repository. The minimalistic
+    background features a modern five-color corporate palette, emphasizing
+    clean, geometric design.
+  image: ./sc.png
+tags:
+  - 1. GitHub Actions automation
+  - 2. Markdown file spellcheck
+  - 3. GenAIScript usage
+  - 4. GitHub Models integration
+  - 5. Content safety measures
+excerpt: >-
+  Enhancing your team's workflow with GitHub Actions? Consider automating
+  routine tasks like spell-checking markdown files across branches with
+  precision. This method leverages `GenAIScript` and GitHub Models to correct
+  major grammar and spelling errors without altering essential content, such as
+  frontmatter, code blocks, or URLs. 
+
+
+  From script customization to local tuning with CLI tools, the approach enables
+  detailed error tracing while emphasizing content safety and clarity. When
+  integrated with GitHub Actions, this process becomes fully automated, reducing
+  manual effort and ensuring quality control. Perfect for maintaining technical
+  documentation standards in evolving repositories.
+
 ---
 
 This example showcases updating files and pushing a commit with the changes
