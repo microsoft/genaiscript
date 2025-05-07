@@ -8,7 +8,7 @@ sidebar:
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/sample/genaisrc/samples/st.genai.mts?raw"
 
-Search and Replace is a powerful tool in the developer's toolbelt that can save you time and effort...
+Search and Replace is a powerful tool in the developer’s tool-belt that can save you time and effort...
 if you can formulate the right regular expression.
 
 **Search and Transform** is a twist on the same concept,
@@ -77,7 +77,7 @@ for (const file of files) {
         if (patches[match[0]]) continue
 ```
 
-We initialize an object called `patches` to store the transformations. Then, we loop through each file, read its content, and skip binary files. For each match found in the file's content, we check if we've already computed a transformation for this match to avoid redundant work.
+We initialize an object called `patches` to store the transformations. Then, we loop through each file, read its content, and skip binary files. For each match found in the file’s content, we check if we’ve already computed a transformation for this match to avoid redundant work.
 
 ### Generating Prompts for Transformations
 
@@ -149,7 +149,7 @@ The following measures are taken to ensure the safety of the generated content.
     - [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content)
 -   The generated description is saved to a file at a specific path, which allows for manual review before committing the changes.
 
-Additional measures to further enhance safety would be to run [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
-or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).
+Additional measures to further enhance safety include running [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
+or validating the message with a [content safety service](/genaiscript/reference/scripts/content-safety).
 
 Refer to the [Transparency Note](/genaiscript/reference/transparency-note/) for more information on content safety.

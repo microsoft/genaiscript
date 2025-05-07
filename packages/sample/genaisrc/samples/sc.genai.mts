@@ -7,9 +7,18 @@ script({
     cache: "sc",
     group: "mcp",
 })
-const files = def("FILES", env.files)
+const { dbg } = env
 
-$`Fix the spelling and grammar of the content of ${files}. Return the full file with corrections
+let files = env.files.length
+    ? env.files
+    : await git.listFiles("modified-base", { base: "dev" })
+files = files.filter((f) => /\.mdx?$/.test(f.filename))
+
+for (const file of files) {
+    const { text } = await runPrompt(
+        (ctx) => {
+            const fileRef = ctx.def("FILES", file)
+            ctx.$`Fix the spelling and grammar of the content of ${fileRef}. Return the full file with corrections
 If you find a spelling or grammar mistake, fix it. 
 If you do not find any mistakes, respond <NO> and nothing else.
 
@@ -19,10 +28,13 @@ If you do not find any mistakes, respond <NO> and nothing else.
 - if the grammar is good enough, do NOT change it
 - do NOT modify the frontmatter. THIS IS IMPORTANT.
 - do NOT modify code regions. THIS IS IMPORTANT.
+- do NOT modify URLs
 - do NOT fix \`code\` and \`\`\`code\`\`\` sections
 - in .mdx files, do NOT fix inline typescript code
 `
-
-defOutputProcessor(({ text }) => {
-    if (/<NO>/i.test(text)) cancel("nothing to do")
-})
+        },
+        { label: file.filename, throwOnError: true }
+    )
+    if (!text || /<NO>/i.test(text)) continue
+    await workspace.writeText(file.filename, text)
+}

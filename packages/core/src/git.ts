@@ -137,12 +137,12 @@ export class GitClient implements Git {
 
     /**
      * Finds modified files in the Git repository based on the specified scope.
-     * @param scope The scope of modifications to find: "modified-base", "staged", or "modified".
+     * @param scope The scope of modifications to find: "modified-base", "staged", or "modified". Default is "modified".
      * @param options Optional settings such as base branch, paths, and exclusions.
      * @returns {Promise<WorkspaceFile[]>} List of modified files.
      */
     async listFiles(
-        scope: "modified-base" | "staged" | "modified",
+        scope?: "modified-base" | "staged" | "modified",
         options?: {
             base?: string
             paths?: ElementOrArray<string>
@@ -151,6 +151,7 @@ export class GitClient implements Git {
         }
     ): Promise<WorkspaceFile[]> {
         dbg(`listing files with scope: ${scope}`)
+        scope = scope || "modified"
         const { askStageOnEmpty } = options || {}
         const paths = arrayify(options?.paths, { filterEmpty: true })
         const excludedPaths = await this.resolveExcludedPaths(options)
