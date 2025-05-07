@@ -11,7 +11,7 @@ script({
         success_run_id: { type: "number" }, // ID of the successful run
         branch: { type: "string" }, // Branch name
     },
-    system: ["system", "system.assistant", "system.files"],
+    system: ["system", "system.assistant", "system.annotations", "system.files"],
     flexTokens: 30000,
     cache: "gai",
     tools: ["fs_read_file", "agent_github", "agent_git"],
@@ -131,7 +131,10 @@ Analyze the diff in LOG_DIFF and provide a summary of the root cause of the fail
 If you cannot find the root cause, stop.
 
 Generate a diff with suggested fixes. Use a diff format.
-- If you cannot locate the error, do not generate a diff.`
+- If you cannot locate the error, do not generate a diff.
+
+Report suggested fixes in the annotation format.
+`
 
 // Write the investigator report
 writeText(
