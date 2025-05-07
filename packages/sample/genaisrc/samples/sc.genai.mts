@@ -1,5 +1,5 @@
 script({
-    title: "Grammar checker",
+    title: "Spell checker",
     system: [
         "system.output_plaintext",
         "system.assistant",
