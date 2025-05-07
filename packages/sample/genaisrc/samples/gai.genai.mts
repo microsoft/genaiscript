@@ -3,7 +3,6 @@
 // Script for analyzing GitHub Action runs to determine the cause of a failure.
 script({
     title: "GitHub Action Investigator",
-    model: "reasoning",
     description:
         "Analyze GitHub Action runs to find the root cause of a failure",
     parameters: {
@@ -15,7 +14,7 @@ script({
     system: ["system", "system.assistant", "system.files"],
     flexTokens: 30000,
     cache: "gai",
-    tools: ["fs_read_file"],
+    tools: ["fs_read_file", "agent_github", "agent_git"],
 })
 
 // Assign the 'workflow' parameter from environment variables
