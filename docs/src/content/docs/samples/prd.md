@@ -18,7 +18,6 @@ script({
     title: "Pull Request Descriptor",
     description: "Generate a description for the current pull request",
     systemSafety: true,
-    tools: ["agent_fs", "agent_git"],
     parameters: {
         base: "",
     },
@@ -82,6 +81,34 @@ information about the model, preview of the messages and the token usage.
 Open the `trace` or `output` reports in your favorite Markdown viewer to inspect the results. This part of the development
 is fully local so it's your opportunity to refine the prompting.
 
+```text
+┌─💬 github:gpt-4.1 ✉ 2 ~↑729t 
+┌─📙 system
+│## Safety: Jailbreak
+│... (18 lines)
+│- **Do NOT use function names starting with 'functions.'.
+│- **Do NOT respond with multi_tool_use**.
+┌─👤 user
+│<GIT_DIFF lang="diff">
+│--- genaisrc/prd.genai.mts
+│+++ genaisrc/prd.genai.mts
+│@@ -2,7 +2,7 @@ script({
+│[2]      title: "Pull Request Descriptor",
+│[3]      description: "Generate a description for the current pull request",
+│... (24 lines)
+│- try to extract the intent of the changes, don't focus on the details
+│- use bullet points to list the changes
+│- use gitmojis to make the description more engaging
+│- focus on the most important changes
+│- do not try to fix issues, only describe the changes
+│- ignore comments about imports (like added, remove, changed, etc.)
+
+- 🔒 Removed agent_git tool from both "Pull Request Descriptor" and "Pull Request Reviewer" scripts, leaving only the agent_fs tool enabled
+- 🛡️ Maintained systemSafety and general parameter structure unchanged in both scripts
+
+└─🏁  github:gpt-4.1 ✉ 2 1165ms ⇅ 909t ↑844t ↓65t 0.221¢
+```
+
 ### Make it Agentic
 
 GenAIScript provides various builtin agents, including a file system and git agent.
@@ -114,7 +141,7 @@ you can automate the execution of the script and creation of the comments.
 
 - Add the following workflow in your GitHub repository.
 
-```yaml title=".github/workflows/genai-pr-review.yml" wrap
+```yaml title=".github/workflows/genai-pr-description.yml" wrap
 name: genai pull request description
 on:
     pull_request:
@@ -127,7 +154,7 @@ permissions:
     pull-requests: write # permission to write a comment
     models: read # permission to use github models
 jobs:
-    review:
+    describe:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
