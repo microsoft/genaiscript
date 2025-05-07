@@ -11,11 +11,19 @@ script({
         success_run_id: { type: "number" }, // ID of the successful run
         branch: { type: "string" }, // Branch name
     },
-    system: ["system", "system.assistant", "system.annotations", "system.files"],
+    system: [
+        "system",
+        "system.assistant",
+        "system.annotations",
+        "system.files",
+    ],
     flexTokens: 30000,
     cache: "gai",
     tools: ["fs_read_file", "agent_github", "agent_git"],
 })
+const { output } = env
+
+output.heading(2, "Investigator report")
 
 // Assign the 'workflow' parameter from environment variables
 let workflow = env.vars.workflow
@@ -59,6 +67,7 @@ let ffi = ffid
 // Default to the first run if no failed run is found
 if (ffi < 0) ffi = 0
 const ff = runs[ffi]
+output.item(`[run failure](${ff.html_url})`)
 
 // Log details of the failed run
 console.log(`  run: ${ff.display_title}, ${ff.html_url}`)
@@ -74,8 +83,13 @@ if (ls) {
     if (ls.head_sha === ff.head_sha) {
         console.debug("No previous successful run found")
     } else {
-        // Log details of the last successful run
-        console.debug(`  last success: ${ls.display_title}, ${ls.html_url}`)
+        output.heading(3, "Last successful run")
+        output.item(ls.display_title)
+        output.item(`[run](${ls.html_url})`)
+        output.item(`[${ff.head_sha.slice(0, 7)}](${ff.html_url})`)
+        output.item(
+            `[diff ${ls.head_sha.slice(0, 7)}...${ff.head_sha.slice(0, 7)}](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})`
+        )
 
         // Execute git diff between the last success and failed run commits
         const gitDiff = await git.diff({
@@ -135,15 +149,3 @@ Generate a diff with suggested fixes. Use a diff format.
 
 Report suggested fixes in the annotation format.
 `
-
-// Write the investigator report
-writeText(
-    `## Investigator report
-- [run failure](${ff.html_url})
-${ls ? `, [run last success](${ls.html_url})` : ""}
-, [${ff.head_sha.slice(0, 7)}](${ff.html_url})
-${ls ? `, [diff ${ls.head_sha.slice(0, 7)}...${ff.head_sha.slice(0, 7)}](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})` : ""}
-
-`,
-    { assistant: true }
-)
