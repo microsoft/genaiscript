@@ -30,6 +30,8 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
+            - name: git stuff
+              run: git fetch origin
             - name: genaiscript gai
               run: node packages/cli/built/genaiscript.cjs run gai -p github -pr ${{ github.event.workflow_run.pull_requests[0].number }} -prc --vars "workflow=${{ github.event.workflow_run.workflow_id }}" --vars "failure_run_id=${{ github.event.workflow_run.id }}" --out-trace $GITHUB_STEP_SUMMARY
               env:
