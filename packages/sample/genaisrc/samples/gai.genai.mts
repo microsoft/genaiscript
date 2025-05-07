@@ -6,6 +6,10 @@ script({
         /** the user can get the url from the github web
          *  like 14890513008 or https://github.com/microsoft/genaiscript/actions/runs/14890513008
          */
+        runId: {
+            type: "number",
+            description: "Run identifier",
+        },
         runUrl: {
             type: "string",
             description: "Run identifier or URL",
@@ -22,30 +26,35 @@ script({
     tools: ["fs_read_file", "agent_github", "agent_git"],
 })
 const { dbg, output, vars } = env
-const { runUrl } = vars
 
 output.heading(2, "Investigator report")
 
 output.heading(3, "Context collection")
-output.itemLink(`run url`, runUrl)
+let runId: number = vars.runId
+if (isNaN(runId)) {
+    const runUrl = vars.runUrl
+    output.itemLink(`run url`, runUrl)
 
-// Retrieve repository information
-const { owner, repo } = await github.info()
-const { runRepo, runOwner, runId } =
-    /^https:\/\/github\.com\/(?<runOwner>\w+)\/(?<runRepo>\w+)\/actions\/runs\/(?<runId>\d+)/i.exec(
-        runUrl
-    )?.groups || {}
-dbg(`runId: ${runId}`)
+    // Retrieve repository information
+    const { owner, repo } = await github.info()
+    const { runRepo, runOwner, runId } =
+        /^https:\/\/github\.com\/(?<runOwner>\w+)\/(?<runRepo>\w+)\/actions\/runs\/(?<runId>\d+)/i.exec(
+            runUrl
+        )?.groups || {}
+    dbg(`runId: ${runId}`)
 
-if (runOwner !== owner)
-    cancel(
-        `Run owner ${runOwner} does not match the current repository owner ${owner}`
-    )
-if (runRepo !== repo)
-    cancel(
-        `Run repository ${runRepo} does not match the current repository ${repo}`
-    )
+    if (runOwner !== owner)
+        cancel(
+            `Run owner ${runOwner} does not match the current repository owner ${owner}`
+        )
+    if (runRepo !== repo)
+        cancel(
+            `Run repository ${runRepo} does not match the current repository ${repo}`
+        )
+}
 
+if (isNaN(runId)) throw new Error("You must provide a runId or runUrl")
+dbg(`runId: %d`, runId)
 // fetch run
 const run = await github.workflowRun(runId)
 dbg(`run: %O`, run)
