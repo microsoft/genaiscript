@@ -228,8 +228,8 @@
                 "small": "gpt-4o-mini",
                 "vision": "gpt-4.1",
                 "embeddings": "text-embedding-3-small",
-                "reasoning": "o1-preview",
-                "reasoning_small": "o1-mini"
+                "reasoning": "o3",
+                "reasoning_small": "o3-mini"
             },
             "models": {
                 "o1-preview": {

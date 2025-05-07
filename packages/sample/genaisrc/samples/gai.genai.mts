@@ -3,7 +3,6 @@
 // Script for analyzing GitHub Action runs to determine the cause of a failure.
 script({
     title: "GitHub Action Investigator",
-    model: "reasoning",
     description:
         "Analyze GitHub Action runs to find the root cause of a failure",
     parameters: {
@@ -12,11 +11,19 @@ script({
         success_run_id: { type: "number" }, // ID of the successful run
         branch: { type: "string" }, // Branch name
     },
-    system: ["system", "system.assistant", "system.files"],
+    system: [
+        "system",
+        "system.assistant",
+        "system.annotations",
+        "system.files",
+    ],
     flexTokens: 30000,
     cache: "gai",
-    tools: ["fs_read_file"],
+    tools: ["fs_read_file", "agent_github", "agent_git"],
 })
+const { output } = env
+
+output.heading(2, "Investigator report")
 
 // Assign the 'workflow' parameter from environment variables
 let workflow = env.vars.workflow
@@ -60,6 +67,7 @@ let ffi = ffid
 // Default to the first run if no failed run is found
 if (ffi < 0) ffi = 0
 const ff = runs[ffi]
+output.item(`[run failure](${ff.html_url})`)
 
 // Log details of the failed run
 console.log(`  run: ${ff.display_title}, ${ff.html_url}`)
@@ -72,23 +80,30 @@ const lsi = lsid
 
 const ls = runsAfterFailure[lsi]
 if (ls) {
-    if (ls.head_sha === ff.head_sha) cancel("No previous successful run found")
+    if (ls.head_sha === ff.head_sha) {
+        console.debug("No previous successful run found")
+    } else {
+        output.heading(3, "Last successful run")
+        output.item(ls.display_title)
+        output.item(`[run](${ls.html_url})`)
+        output.item(`[${ff.head_sha.slice(0, 7)}](${ff.html_url})`)
+        output.item(
+            `[diff ${ls.head_sha.slice(0, 7)}...${ff.head_sha.slice(0, 7)}](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})`
+        )
 
-    // Log details of the last successful run
-    console.log(`  last success: ${ls.display_title}, ${ls.html_url}`)
-
-    // Execute git diff between the last success and failed run commits
-    const gitDiff = await git.diff({
-        base: ls.head_sha,
-        head: ff.head_sha,
-        excludedPaths: "**/genaiscript.d.ts",
-    })
-    if (gitDiff)
-        def("GIT_DIFF", gitDiff, {
-            language: "diff",
-            lineNumbers: true,
-            flex: 1,
+        // Execute git diff between the last success and failed run commits
+        const gitDiff = await git.diff({
+            base: ls.head_sha,
+            head: ff.head_sha,
+            excludedPaths: "**/genaiscript.d.ts",
         })
+        if (gitDiff)
+            def("GIT_DIFF", gitDiff, {
+                language: "diff",
+                lineNumbers: true,
+                flex: 1,
+            })
+    }
 }
 
 // Download logs of the failed job
@@ -105,7 +120,7 @@ if (!ls) {
     const lsjobs = await github.listWorkflowJobs(ls.id)
     const lsjob = lsjobs.find(({ name }) => ffjob.name === name)
     if (!lsjob)
-        console.log(`could not find job ${ffjob.name} in last success run`)
+        console.debug(`could not find job ${ffjob.name} in last success run`)
     else {
         const lslog = lsjob.content
         // Generate a diff of logs between the last success and failed runs
@@ -130,16 +145,7 @@ Analyze the diff in LOG_DIFF and provide a summary of the root cause of the fail
 If you cannot find the root cause, stop.
 
 Generate a diff with suggested fixes. Use a diff format.
-- If you cannot locate the error, do not generate a diff.`
+- If you cannot locate the error, do not generate a diff.
 
-// Write the investigator report
-writeText(
-    `## Investigator report
-- [run failure](${ff.html_url})
-${ls ? `, [run last success](${ls.html_url})` : ""}
-, [${ff.head_sha.slice(0, 7)}](${ff.html_url})
-${ls ? `, [diff ${ls.head_sha.slice(0, 7)}...${ff.head_sha.slice(0, 7)}](https://github.com/${owner}/${repo}/compare/${ls.head_sha}...${ff.head_sha})` : ""}
-
-`,
-    { assistant: true }
-)
+Report suggested fixes in the annotation format.
+`

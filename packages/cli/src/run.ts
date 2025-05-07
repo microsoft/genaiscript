@@ -764,22 +764,6 @@ export async function runScriptInternal(
         }
     }
 
-    if (pullRequestReviews && result.annotations?.length) {
-        dbg(`adding pull request reviews`)
-        const ghInfo = await resolveGitHubInfo()
-        if (ghInfo.repository && ghInfo.issue) {
-            if (!ghInfo.commitSha)
-                dbg(`no commit sha found, skipping pull request reviews`)
-            else
-                await githubCreatePullRequestReviews(
-                    script,
-                    ghInfo,
-                    result.annotations,
-                    { cancellationToken }
-                )
-        }
-    }
-
     if (pullRequestComment && result.text) {
         dbg(`upsert pull request comment`)
         const ghInfo = await resolveGitHubInfo()
@@ -875,6 +859,22 @@ export async function runScriptInternal(
                     "pull request description: no pull request information found"
                 )
             }
+        }
+    }
+
+    if (pullRequestReviews && result.annotations?.length) {
+        dbg(`adding pull request reviews`)
+        const ghInfo = await resolveGitHubInfo()
+        if (ghInfo.repository && ghInfo.issue) {
+            if (!ghInfo.commitSha)
+                dbg(`no commit sha found, skipping pull request reviews`)
+            else
+                await githubCreatePullRequestReviews(
+                    script,
+                    ghInfo,
+                    result.annotations,
+                    { cancellationToken }
+                )
         }
     }
 
