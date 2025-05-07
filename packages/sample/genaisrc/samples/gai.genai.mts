@@ -28,7 +28,6 @@ script({
 const { dbg, output, vars } = env
 
 output.heading(2, "Investigator report")
-
 output.heading(3, "Context collection")
 let runId: number = vars.runId
 if (isNaN(runId)) {
@@ -54,7 +53,7 @@ if (isNaN(runId)) {
 }
 
 if (isNaN(runId)) throw new Error("You must provide a runId or runUrl")
-dbg(`runId: %d`, runId)
+output.itemValue(`run id`, runId)
 // fetch run
 const run = await github.workflowRun(runId)
 dbg(`run: %O`, run)
