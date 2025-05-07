@@ -109,7 +109,7 @@ is fully local so it's your opportunity to refine the prompting.
 └─🏁  github:gpt-4.1 ✉ 2 1165ms ⇅ 909t ↑844t ↓65t 0.221¢
 ```
 
-### Make it Agentic
+## Make it Agentic
 
 GenAIScript provides various builtin agents, including a file system and git agent.
 This can be useful for the LLM to read the files in the pull request and analyze them.
@@ -134,7 +134,7 @@ script({
 })
 ```
 
-## Automate in GitHub Actions
+## Automate with GitHub Actions
 
 Using [GitHub Actions](https://docs.github.com/en/actions) and [GitHub Models](https://docs.github.com/en/github-models),
 you can automate the execution of the script and creation of the comments.
@@ -174,11 +174,6 @@ The command line uses a special flag to update the generate pull request descrip
 - `--pull-request-description` to update the description of the pull request
 
 - Commit the changes, and create a new pull request and start testing the workflow by requesting a review or toggling the `ready_for_review` event.
-
-### Iterate!
-
-A prompt is a living thing, models changes and they will evolve. As you start using the prompt, treat as an unfinished - every improving product.
-You can always improve the prompt by adding more examples, changing the wording, or even using different models.
 
 ## Content Safety
 

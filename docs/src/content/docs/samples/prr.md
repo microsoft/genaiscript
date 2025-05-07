@@ -18,7 +18,6 @@ script({
     title: "Pull Request Reviewer",
     description: "Review the current pull request",
     systemSafety: true,
-    tools: ["agent_fs", "agent_git"],
     parameters: {
         base: "",
     },
@@ -107,7 +106,7 @@ genaiscript: success
   output: ...
 ```
 
-### Make it Agentic
+## Make it Agentic
 
 GenAIScript provides various builtin agents, including a file system and git agent.
 This can be useful for the LLM to read the files in the pull request and analyze them.
@@ -132,7 +131,7 @@ script({
 })
 ```
 
-## Automate in GitHub Actions
+## Automate with GitHub Actions
 
 Using [GitHub Actions](https://docs.github.com/en/actions) and [GitHub Models](https://docs.github.com/en/github-models),
 you can automate the execution of the script and creation of the comments.
@@ -173,11 +172,6 @@ The command line uses two special flags to generate pull request comments and re
 - `--pull-request-comment` to generate a comment for the pull request from the output.
 
 - Commit the changes, and create a new pull request and start testing the workflow by requesting a review or toggling the `ready_for_review` event.
-
-### Iterate!
-
-A prompt is a living thing, models changes and they will evolve. As you start using the prompt, treat as an unfinished - every improving product.
-You can always improve the prompt by adding more examples, changing the wording, or even using different models.
 
 ## Content Safety
 
