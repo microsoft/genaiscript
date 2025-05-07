@@ -1,13 +1,13 @@
 script({
-    title: "Spell checker",
+    title: "Grammar checker",
     system: [
         "system.output_plaintext",
         "system.assistant",
         "system.files",
         "system.changelog",
-        "system.safety_jailbreak",
-        "system.safety_harmful_content",
     ],
+    responseType: "text",
+    systemSafety: false,
     temperature: 0.2,
     cache: "sc",
     group: "mcp",
