@@ -3423,6 +3423,7 @@ type GitHubWorkflowRunStatus =
 
 interface GitHubWorkflowRun {
     id: number
+    run_number: number
     name?: string
     display_title: string
     status: string
@@ -3432,7 +3433,7 @@ interface GitHubWorkflowRun {
     head_branch: string
     head_sha: string
     workflow_id: number
-    run_started_at: string
+    run_started_at?: string
 }
 
 interface GitHubWorkflowJob {

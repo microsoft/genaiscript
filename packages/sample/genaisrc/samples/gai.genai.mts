@@ -46,7 +46,7 @@ if (runRepo !== repo)
 
 // fetch run
 const run = await github.workflowRun(runId)
-dbg(`run: %s`)
+dbg(`run: %O`, run)
 const branch = run.head_branch
 dbg(`branch: ${branch}`)
 
@@ -94,7 +94,10 @@ const firstFailedRun = reversedRuns.find(
     ({ conclusion }) => conclusion === "failure"
 )
 if (!firstFailedRun) cancel(`first failed run not found`)
-output.itemLink(`first failed run`, firstFailedRun.html_url)
+output.itemLink(
+    `first failed run #${firstFailedRun.run_number}`,
+    firstFailedRun.html_url
+)
 const firstFailedJobs = await github.listWorkflowJobs(firstFailedRun.id)
 const firstFailedJob =
     firstFailedJobs.find(({ conclusion }) => conclusion === "failure") ??
@@ -108,7 +111,10 @@ const lastSuccessRun = reversedRuns.find(
     ({ conclusion }) => conclusion === "success"
 )
 if (lastSuccessRun)
-    output.itemLink(`last successful run`, lastSuccessRun.html_url)
+    output.itemLink(
+        `last successful run #${lastSuccessRun.run_number}`,
+        lastSuccessRun.html_url
+    )
 else output.item(`last successful run not found`)
 
 let gitDiffRef: string

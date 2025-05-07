@@ -1364,11 +1364,14 @@ export class GitHubClient implements GitHub {
             `diffing workflow job logs for job IDs: ${job_id} and ${other_job_id}`
         )
         const other = await this.downloadJob(other_job_id)
+        const justDiff = diffCreatePatch(job, other)
 
+        // try compressing
         job.content = parseJobLog(job.content)
         other.content = parseJobLog(other.content)
+        const parsedDiff = diffCreatePatch(job, other)
+        const diff = justDiff.length < parsedDiff.length ? justDiff : parsedDiff
 
-        const diff = diffCreatePatch(job, other)
         return llmifyDiff(diff)
     }
 
