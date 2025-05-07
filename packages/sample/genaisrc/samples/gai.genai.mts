@@ -28,7 +28,7 @@ output.heading(2, "Investigator report")
 output.itemLink(`run url`, runUrl)
 
 // Retrieve repository information
-const { owner, repo, refName } = await github.info()
+const { owner, repo } = await github.info()
 const { runRepo, runOwner, runId } =
     /^https:\/\/github\.com\/(?<runOwner>\w+)\/(?<runRepo>\w+)\/actions\/runs\/(?<runId>\d+)/i.exec(
         runUrl
@@ -49,6 +49,7 @@ const run = await github.workflowRun(runId)
 dbg(`run: %s`)
 const branch = run.head_branch
 dbg(`branch: ${branch}`)
+
 const workflow = await github.workflow(run.workflow_id)
 dbg(`workflow: ${workflow.name}`)
 
@@ -91,8 +92,18 @@ dbg(
 const firstFailedRun = reversedRuns.find(
     ({ conclusion }) => conclusion === "failure"
 )
-if (firstFailedRun) output.itemLink(`first failed run`, firstFailedRun.html_url)
-else output.item(`first failed run not found`)
+if (!firstFailedRun) 
+    cancel(`first failed run not found`)
+output.itemLink(`first failed run`, firstFailedRun.html_url)
+
+// Download logs of the failed job
+const firstFailedJobs = await github.listWorkflowJobs(firstFailedRun.id)
+const firstFailedJob =
+    firstFailedJobs.find(({ conclusion }) => conclusion === "failure") ??
+    firstFailedJobs[0]
+const firstFailureLog = firstFailedJob.content
+if (!firstFailureLog) cancel("No logs found")
+output.itemLink(`first failed job`, firstFailedJob.html_url)
 
 // Find the index of the last successful run before the failure
 const lastSuccessRun = reversedRuns.find(
@@ -112,6 +123,8 @@ if (lastSuccessRun) {
         )
 
         // Execute git diff between the last success and failed run commits
+        await git.fetch("origin", lastSuccessRun.head_sha)
+        await git.fetch("origin", firstFailedRun.head_sha)
         const gitDiff = await git.diff({
             base: lastSuccessRun.head_sha,
             head: firstFailedRun.head_sha,
@@ -128,13 +141,6 @@ if (lastSuccessRun) {
     }
 }
 
-// Download logs of the failed job
-const firstFailureJobs = await github.listWorkflowJobs(firstFailedRun.id)
-const firstFailureJob =
-    firstFailureJobs.find(({ conclusion }) => conclusion === "failure") ??
-    firstFailureJobs[0]
-const firstFailureLog = firstFailureJob.content
-if (!firstFailureLog) cancel("No logs found")
 
 if (!lastSuccessRun) {
     // Define log content if no last successful run is available
@@ -142,11 +148,11 @@ if (!lastSuccessRun) {
 } else {
     const lastSuccessJobs = await github.listWorkflowJobs(lastSuccessRun.id)
     const lastSuccessJob = lastSuccessJobs.find(
-        ({ name }) => firstFailureJob.name === name
+        ({ name }) => firstFailedJob.name === name
     )
     if (!lastSuccessJob)
         console.debug(
-            `could not find job ${firstFailureJob.name} in last success run`
+            `could not find job ${firstFailedJob.name} in last success run`
         )
     else {
         const lastSuccessLog = lastSuccessJob.content

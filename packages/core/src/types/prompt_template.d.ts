@@ -3113,6 +3113,19 @@ interface Git {
     ): Promise<string>
 
     /**
+     * Git fetches the remote repository
+     * @param options
+     */
+    fetch(
+        remote: OptionsOrString<"origin">,
+        branchOrSha: string,
+        options?: {
+            prune?: boolean
+            all?: boolean
+        }
+    ): Promise<void>
+
+    /**
      * Lists the branches in the git repository
      */
     listBranches(): Promise<string[]>
