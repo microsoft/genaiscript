@@ -72,23 +72,25 @@ const lsi = lsid
 
 const ls = runsAfterFailure[lsi]
 if (ls) {
-    if (ls.head_sha === ff.head_sha) cancel("No previous successful run found")
+    if (ls.head_sha === ff.head_sha) {
+        console.debug("No previous successful run found")
+    } else {
+        // Log details of the last successful run
+        console.debug(`  last success: ${ls.display_title}, ${ls.html_url}`)
 
-    // Log details of the last successful run
-    console.log(`  last success: ${ls.display_title}, ${ls.html_url}`)
-
-    // Execute git diff between the last success and failed run commits
-    const gitDiff = await git.diff({
-        base: ls.head_sha,
-        head: ff.head_sha,
-        excludedPaths: "**/genaiscript.d.ts",
-    })
-    if (gitDiff)
-        def("GIT_DIFF", gitDiff, {
-            language: "diff",
-            lineNumbers: true,
-            flex: 1,
+        // Execute git diff between the last success and failed run commits
+        const gitDiff = await git.diff({
+            base: ls.head_sha,
+            head: ff.head_sha,
+            excludedPaths: "**/genaiscript.d.ts",
         })
+        if (gitDiff)
+            def("GIT_DIFF", gitDiff, {
+                language: "diff",
+                lineNumbers: true,
+                flex: 1,
+            })
+    }
 }
 
 // Download logs of the failed job
@@ -105,7 +107,7 @@ if (!ls) {
     const lsjobs = await github.listWorkflowJobs(ls.id)
     const lsjob = lsjobs.find(({ name }) => ffjob.name === name)
     if (!lsjob)
-        console.log(`could not find job ${ffjob.name} in last success run`)
+        console.debug(`could not find job ${ffjob.name} in last success run`)
     else {
         const lslog = lsjob.content
         // Generate a diff of logs between the last success and failed runs
