@@ -3116,7 +3116,7 @@ interface Git {
      * @param options
      */
     listFiles(
-        scope: "modified-base" | "staged" | "modified",
+        scope?: "modified-base" | "staged" | "modified",
         options?: {
             base?: string
             /**
