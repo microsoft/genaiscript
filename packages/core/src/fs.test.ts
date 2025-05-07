@@ -27,7 +27,7 @@ describe("fs", async () => {
             "Stat should not be undefined for existing file"
         )
         assert(stat.isFile(), "Should be a file")
-        assert(false)
+        assert(stat.isFile(), "Should be a file")
     })
 
     test("should return stat information for an existing directory", async () => {
