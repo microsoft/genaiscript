@@ -42,5 +42,6 @@ If you do not find any mistakes, respond <NO> and nothing else.
     )
     if (!text || error || finishReason !== "stop" || /<NO>/i.test(text))
         continue
+    
     await workspace.writeText(file.filename, text)
 }
