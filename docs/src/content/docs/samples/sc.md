@@ -5,6 +5,9 @@ sidebar:
     order: 5
 ---
 
+This example showcases updating files and pushing a commit with the changes
+in a GitHub Action using GitHub Models.
+
 ## Add the script
 
 - Open your GitHub repository and start a new pull request.
@@ -168,6 +171,7 @@ jobs:
                     echo "No changes to commit."
                   else
                     git commit -m "fix: spellcheck markdown files [genai]"
+                    git pull origin $(git rev-parse --abbrev-ref HEAD) --ff-only
                     git push
                   fi
 ```
