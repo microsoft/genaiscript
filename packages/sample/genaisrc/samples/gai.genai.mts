@@ -27,7 +27,7 @@ script({
     ],
     flexTokens: 30000,
     cache: "gai",
-    tools: ["fs_read_file", "agent_github", "agent_git"],
+    tools: ["agent_fs", "agent_github", "agent_git"],
 })
 const { dbg, output, vars } = env
 
@@ -210,17 +210,15 @@ Analyze the diff in LOG_DIFF and provide a summary of the root cause of the fail
 Show the code that is responsible for the failure.
 If you cannot find the root cause, stop.
 
-Generate a diff with suggested fixes. Use a diff format.
-- If you cannot locate the error, do not generate a diff.
-
-Report suggested fixes in the annotation format.
-
-Provide a summary of your investigation
+Investigate potential fixes for the failure. 
+If you find a solution, generate a diff with suggested fixes. Use a diff format.
+If you cannot locate the error, do not generate a diff.
 
 ## Instructions
 
-Use 'agent_git' and 'agent_github' if you need more information.
+Use 'agent_fs', 'agent_git' and 'agent_github' if you need more information.
 Do not invent git or github information.
+You have access to the entire source code through the agent_fs tool.
 `
 
 output.heading(2, `AI Analysis`)
