@@ -113,22 +113,13 @@ dbg(
     )
 )
 
-// resolve the first failed workflow run and job
-const firstFailedRun = reversedRuns.find(
-    ({ conclusion }) => conclusion === "failure"
-)
-if (!firstFailedRun) cancel(`first failed run not found`)
-output.itemLink(
-    `first failed run #${firstFailedRun.run_number}`,
-    firstFailedRun.html_url
-)
-const firstFailedJobs = await github.listWorkflowJobs(firstFailedRun.id)
+const firstFailedJobs = await github.listWorkflowJobs(run.id)
 const firstFailedJob =
     firstFailedJobs.find(({ conclusion }) => conclusion === "failure") ??
     firstFailedJobs[0]
 const firstFailureLog = firstFailedJob.content
 if (!firstFailureLog) cancel("No logs found")
-output.itemLink(`first failed job`, firstFailedJob.html_url)
+output.itemLink(`failed job`, firstFailedJob.html_url)
 
 // resolve the latest successful workflow run
 const lastSuccessRun = reversedRuns.find(
@@ -145,20 +136,20 @@ let gitDiffRef: string
 let logRef: string
 let logDiffRef: string
 if (lastSuccessRun) {
-    if (lastSuccessRun.head_sha === firstFailedRun.head_sha) {
+    if (lastSuccessRun.head_sha === run.head_sha) {
         console.debug("No previous successful run found")
     } else {
         output.itemLink(
-            `diff (${lastSuccessRun.head_sha.slice(0, 7)}...${firstFailedRun.head_sha.slice(0, 7)})`,
-            `https://github.com/${owner}/${repo}/compare/${lastSuccessRun.head_sha}...${firstFailedRun.head_sha}`
+            `diff (${lastSuccessRun.head_sha.slice(0, 7)}...${run.head_sha.slice(0, 7)})`,
+            `https://github.com/${owner}/${repo}/compare/${lastSuccessRun.head_sha}...${run.head_sha}`
         )
 
         // Execute git diff between the last success and failed run commits
         await git.fetch("origin", lastSuccessRun.head_sha)
-        await git.fetch("origin", firstFailedRun.head_sha)
+        await git.fetch("origin", run.head_sha)
         const gitDiff = await git.diff({
             base: lastSuccessRun.head_sha,
-            head: firstFailedRun.head_sha,
+            head: run.head_sha,
             excludedPaths: "**/genaiscript.d.ts",
         })
 
@@ -211,7 +202,7 @@ ${logDiffRef ? `- ${logDiffRef} contains a diff of 2 workflow runs in GitHub Act
 ${logRef ? `- ${logRef} contains the log of the failed run` : ""}
 
 - The first run is the last successful run and the second run is the first failed run
-- The commit of the first run is ${firstFailedRun.head_sha}.
+- The commit of the first run is ${run.head_sha}.
 ${lastSuccessRun ? `- The commit of the second run is ${lastSuccessRun.head_sha}.` : ""}
 
 Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. Use 'agent_git' and 'agent_github' if you need more information.
