@@ -121,6 +121,7 @@ for (const file of files) {
             judgeCost: 0,
             edits: 0,
             updated: 0,
+            nits: 0,
         })
         await generateDocs(file, stats.at(-1))
     }
@@ -213,6 +214,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
         const updated = `${docs}\n${missingDoc.text()}`
         edits.replace(missingDoc, updated)
         fileStats.edits++
+        fileStats.nits++
     }
 
     // apply all edits and write to the file
