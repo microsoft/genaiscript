@@ -1037,6 +1037,12 @@ interface OutputTrace extends ToolCallTrace {
     itemLink(name: string, url?: string | URL, title?: string): void
 
     /**
+     * Writes a paragraph of text with empty lines before and after.
+     * @param text paragraph to write
+     */
+    p(text: string): void
+
+    /**
      * Logs a warning message.
      * @param msg - The warning message to log.
      */

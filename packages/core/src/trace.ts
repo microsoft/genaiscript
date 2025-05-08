@@ -251,7 +251,13 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     item(message: string) {
+        if (!message) return
         this.appendContent(`-   ${message}\n`)
+    }
+
+    p(text: string) {
+        if (!text) return
+        this.appendContent(`\n\n${text}\n\n`)
     }
 
     itemLink(name: string, url?: string | URL, title?: string) {

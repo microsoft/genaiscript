@@ -53,6 +53,10 @@
   ],
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
+  "overrides": {
+    "glob": "^11.0.2",
+    "@mapbox/node-pre-gyp": "^2.0.0"   
+  },
   "resolutions": {
     "glob": "^11.0.2",
     "@mapbox/node-pre-gyp": "^2.0.0"
