@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "1.134.3",
+  "version": "1.134.4",
   "main": "built/genaiscript.cjs",
   "type": "commonjs",
   "bin": {
@@ -55,7 +55,7 @@
   "license": "MIT",
   "overrides": {
     "glob": "^11.0.2",
-    "@mapbox/node-pre-gyp": "^2.0.0"   
+    "@mapbox/node-pre-gyp": "^2.0.0"
   },
   "resolutions": {
     "glob": "^11.0.2",
