@@ -311,7 +311,7 @@ rule:
             },
             {
                 APPLY: "The <NEW_DOCS> is a significant improvement to <ORIGINAL_DOCS>.",
-                NIT: "The <NEW_DOCS> contains nits (minor adjustments) to <ORIGINAL_DOCS>.",
+                NIT: "The <NEW_DOCS> contains nitpicks (minor adjustments) to <ORIGINAL_DOCS>.",
             },
             {
                 model: "large",
