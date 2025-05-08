@@ -69,7 +69,7 @@ if (!applyEdits)
 
 // filter by diff
 const gitDiff = diff ? await git.diff({ base: "dev" }) : undefined
-output.fence(gitDiff)
+dbg(`diff: %s`, gitDiff)
 const diffFiles = gitDiff ? DIFF.parse(gitDiff) : undefined
 if (diff && !diffFiles?.length) cancel(`no diff files found, exiting...`)
 if (diffFiles?.length) {
