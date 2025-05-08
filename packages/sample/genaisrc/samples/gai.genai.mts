@@ -195,27 +195,32 @@ if (!lastSuccessRun) {
 // Instruction for generating a report based on the analysis
 $`Your are an expert software engineer and you are able to analyze the logs and find the root cause of the failure.
 
-You are analyzing a FAILED_RUN and a SUCCESSFUL_RUN.
+${lastSuccessRun ? `You are analyzing 2 GitHub Action Workflow Runs: a SUCCESS_RUN and a FAILED_RUN.` : ""}
 
-${gitDiffRef ? `- ${gitDiffRef} contains a diff of 2 run commits` : ""}
-${logDiffRef ? `- ${logDiffRef} contains a diff of 2 workflow runs in GitHub Action` : ""}
-${logRef ? `- ${logRef} contains the log of the failed run` : ""}
+${gitDiffRef ? `- ${gitDiffRef} contains a git diff of the commits of SUCCESS_RUN and FAILED_RUN` : ""}
+${logDiffRef ? `- ${logDiffRef} contains a workflow job diff of SUCCESS_RUN and FAILED_RUN` : ""}
+${logRef ? `- ${logRef} contains the log of the FAILED_RUN` : ""}
 
-- The first run is the last successful run and the second run is the first failed run
-- The commit of the first run is ${run.head_sha}.
-${lastSuccessRun ? `- The commit of the second run is ${lastSuccessRun.head_sha}.` : ""}
+${lastSuccessRun ? `- The SUCCESS_RUN is the last successful workflow run (head_sha: ${lastSuccessRun})` : ""}
+- The FAILED_RUN is the workflow run that failed (head_sha: ${run.head_sha})
 
-Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. Use 'agent_git' and 'agent_github' if you need more information.
-Do not invent git or github information.
+## Task
+Analyze the diff in LOG_DIFF and provide a summary of the root cause of the failure. 
 
 Show the code that is responsible for the failure.
-
 If you cannot find the root cause, stop.
 
 Generate a diff with suggested fixes. Use a diff format.
 - If you cannot locate the error, do not generate a diff.
 
 Report suggested fixes in the annotation format.
+
+Provide a summary of your investigation
+
+## Instructions
+
+Use 'agent_git' and 'agent_github' if you need more information.
+Do not invent git or github information.
 `
 
 output.heading(2, `AI Analysis`)
