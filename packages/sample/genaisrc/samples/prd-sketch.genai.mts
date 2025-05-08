@@ -44,7 +44,7 @@ const { text: zine } = await runPrompt(
     try to extract the intent of the changes, don't focus on the details
     Avoid studio ghibli style.
     Ignore the low-level programming language details, focus on the high-level concepts.
-    The model has a context window of 4096 tokens. The output image is square.
+    The model has a context window of 4096 tokens. The output image is landscape.
     `.role("system")
     },
     {
@@ -58,7 +58,7 @@ const { image } = await generateImage(
     {
         model: "image",
         quality: "high",
-        size: "square",
+        size: "landscape",
         outputFormat: "jpeg",
         maxWidth: 800,
     }

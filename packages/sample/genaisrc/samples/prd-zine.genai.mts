@@ -45,7 +45,7 @@ const { text: zine } = await runPrompt(
     do NOT explain that GIT_DIFF displays changes in the codebase
     try to extract the intent of the changes, don't focus on the details
     Avoid studio ghibli style.
-    The model has a context window of 4096 tokens. The output image is portrait.
+    The model has a context window of 4096 tokens. The output image is landscape.
     Generate a single page zine for all panels/pages.
     `.role("system")
     },
@@ -60,7 +60,7 @@ const { image } = await generateImage(
     {
         model: "image",
         quality: "high",
-        size: "portrait",
+        size: "landscape",
         outputFormat: "jpeg",
         maxWidth: 800,
     }

@@ -44,7 +44,7 @@ const { text: zine } = await runPrompt(
     Use names from the code symbols.
     do NOT explain that GIT_DIFF displays changes in the codebase
     try to extract the intent of the changes, don't focus on the details
-    The model has a context window of 4096 tokens. The output image is portrait.
+    The model has a context window of 4096 tokens. The output image is landscape.
     Generate a single page meme for all panels/pages.
     - avoid distracted boyfriend meme
     - avoid doge meme
@@ -66,7 +66,7 @@ const { image } = await generateImage(
     {
         model: "image",
         quality: "high",
-        size: "portrait",
+        size: "landscape",
         outputFormat: "jpeg",
         maxWidth: 800,
     }
