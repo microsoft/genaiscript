@@ -18,8 +18,8 @@
     "web-tree-sitter": "0.22.2"
   },
   "devDependencies": {
-    "@anthropic-ai/bedrock-sdk": "^0.12.6",
-    "@anthropic-ai/sdk": "^0.40.1",
+    "@anthropic-ai/bedrock-sdk": "0.12.6",
+    "@anthropic-ai/sdk": "0.40.1",
     "@ast-grep/napi": "^0.37.0",
     "@azure/identity": "^4.9.1",
     "@azure/search-documents": "^12.1.0",

@@ -7653,7 +7653,7 @@ The following npm packages may be included in this product:
 
  - @anthropic-ai/bedrock-sdk@0.12.6
  - @anthropic-ai/sdk@0.40.1
- - @anthropic-ai/sdk@0.50.1
+ - @anthropic-ai/sdk@0.50.2
 
 These packages each contain the following license:
 

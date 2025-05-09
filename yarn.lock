@@ -45,7 +45,7 @@
   resolved "https://registry.yarnpkg.com/@antfu/utils/-/utils-8.1.1.tgz#95b1947d292a9a2efffba2081796dcaa05ecedfb"
   integrity sha512-Mex9nXf9vR6AhcXmMrlz/HVgYYZpVGJ6YlPgwl7UnaFpnshXs6EK/oa5Gpf3CzENMjkvEx2tQtntGnb7UtSTOQ==
 
-"@anthropic-ai/bedrock-sdk@^0.12.6":
+"@anthropic-ai/bedrock-sdk@0.12.6":
   version "0.12.6"
   resolved "https://registry.yarnpkg.com/@anthropic-ai/bedrock-sdk/-/bedrock-sdk-0.12.6.tgz#3729dc6e6d42537a9f9be63a02ea7b7bd5eeb491"
   integrity sha512-g9tmm6zXf3+2P5Se+c2zi7jmZ6+t+qtfu8NhoNYxetPxn6ez1aeNQ+YfqzSMm/ZWye8hy3hcDhbRhWaHC2Wbwg==
@@ -62,12 +62,7 @@
     "@smithy/types" "^2.3.4"
     "@smithy/util-base64" "^2.0.0"
 
-"@anthropic-ai/sdk@>=0.36 <1":
-  version "0.50.1"
-  resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.50.1.tgz#9891f7a76af6a692259fdc30a65fcf93eb8c68ad"
-  integrity sha512-e54b/ccQE6Ds31Qku/7RLWhPHmJh2/WVKDYX0bjNZbWEu6XG5KuVHmq1qbKWwsomsZlinv3YMHg1wHFpLZPMwg==
-
-"@anthropic-ai/sdk@^0.40.1":
+"@anthropic-ai/sdk@0.40.1":
   version "0.40.1"
   resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.40.1.tgz#be93d7530b3e6fd2b2d157bfb28b8cb2ef329afb"
   integrity sha512-DJMWm8lTEM9Lk/MSFL+V+ugF7jKOn0M2Ujvb5fN8r2nY14aHbGPZ1k6sgjL+tpJ3VuOGJNG+4R83jEpOuYPv8w==
@@ -79,6 +74,11 @@
     form-data-encoder "1.7.2"
     formdata-node "^4.3.2"
     node-fetch "^2.6.7"
+
+"@anthropic-ai/sdk@>=0.36 <1":
+  version "0.50.2"
+  resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.50.2.tgz#1e4ebb4e8f72a1eb529e43c4c600c587189e8a54"
+  integrity sha512-Iox0h9YqBs1XYD/K5zqIog0kEcBxzJjHTeZPxLNSImuZmB2u4WAGFCRe3ehUJORHG4UJGlazONJmFMk7assr+A==
 
 "@ast-grep/lang-c@^0.0.1":
   version "0.0.1"
@@ -10682,7 +10682,7 @@ zwitch@^2.0.0:
   resolved "https://registry.yarnpkg.com/zwitch/-/zwitch-2.0.4.tgz#c827d4b0acb76fc3e685a4c6ec2902d51070e9d7"
   integrity sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==
 
-zx@^8.5.3:
+zx@^8.5.3, zx@^8.5.4:
   version "8.5.4"
   resolved "https://registry.yarnpkg.com/zx/-/zx-8.5.4.tgz#1f5cc658ad69cf093aca1c5cfa943393e8db85f3"
   integrity sha512-44oKea9Sa8ZnOkTnS6fRJpg3quzgnbB43nLrVfYnqE86J4sxgZMUDLezzKET/FdOAVkF4X+Alm9Bume+W+RW9Q==
