@@ -1,6 +1,6 @@
 script({
     title: "grep search",
-    model: "small",
+    model: "echo",
     tests: {},
 })
 
@@ -16,7 +16,7 @@ res = await workspace.grep(/deftool/i, {
 if (!res.files.length) throw new Error("No files found.")
 
 res = await workspace.grep(/deftool/i, {
-    glob: "*.genai.*",
+    glob: "**/*.genai.*",
 })
 if (!res.files.length) throw new Error("No files found.")
 

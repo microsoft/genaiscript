@@ -11,6 +11,24 @@ import { tryStat } from "./fs"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 const dbg = genaiscriptDebug("grep")
 
+async function importRipGrep(options?: TraceOptions) {
+    const { trace } = options || {}
+    try {
+        const { rgPath } = await import("@lvce-editor/ripgrep")
+        dbg(`rg: %s`, rgPath)
+        const rgStat = await tryStat(rgPath)
+        if (!rgStat?.isFile())
+            throw new Error(
+                `ripgrep not found at ${rgPath}. Please reinstall genaiscript.`
+            )
+        return rgPath
+    } catch (e) {
+        dbg(`%O`, e)
+        trace?.error(`failed to ripgrep`, e)
+        throw e
+    }
+}
+
 /**
  * Executes a grep-like search across the workspace using ripgrep.
  *
@@ -30,13 +48,7 @@ export async function grepSearch(
     options?: TraceOptions & CancellationOptions & WorkspaceGrepOptions
 ): Promise<{ files: WorkspaceFile[]; matches: WorkspaceFile[] }> {
     const { cancellationToken, trace } = options || {}
-    const { rgPath } = await import("@lvce-editor/ripgrep")
-    dbg(`rg: %s`, rgPath)
-    const rgStat = await tryStat(rgPath)
-    if (!rgStat?.isFile())
-        throw new Error(
-            `ripgrep not found at ${rgPath}. Please reinstall genaiscript.`
-        )
+    const rgPath = await importRipGrep()
     let { path: paths, glob: globs, readText, applyGitIgnore } = options || {}
     globs = arrayify(globs)
     const args: string[] = ["--json", "--multiline", "--context", "3"]
