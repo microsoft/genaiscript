@@ -5,8 +5,8 @@ export async function mermaidParse(
 ): Promise<{ diagramType?: string; error?: string }> {
     const mermaid = (await import("mermaid")).default
     try {
-        const res = await mermaid.parse(text, { suppressErrors: true })
-        if (!res) return { error: "No result" }
+        const res = await mermaid.parse(text, { suppressErrors: false })
+        if (!res) return { error: "no result" }
         return { diagramType: res.diagramType }
     } catch (e) {
         return { error: errorMessage(e) }
