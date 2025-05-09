@@ -31,6 +31,8 @@ import { McpClientManager } from "./mcpclient"
 import { ResourceManager } from "./mcpresource"
 import { execSync } from "node:child_process"
 import { shellQuote } from "./shell"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("host:test")
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
@@ -187,9 +189,11 @@ export class TestHost implements RuntimeHost {
     ): Promise<ShellOutput> {
         if (containerId) throw new Error("Container not started")
         try {
-            const stdout = await execSync(shellQuote([command, ...args]))
+            const cmd = command + " " + shellQuote(args)
+            dbg(`%s> %s`, process.cwd(), cmd)
+            const stdout = await execSync(cmd, { encoding: "utf-8" })
             return {
-                stdout: stdout.toString(),
+                stdout,
                 exitCode: 0,
                 failed: false,
             }

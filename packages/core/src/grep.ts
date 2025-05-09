@@ -37,7 +37,8 @@ export async function grepSearch(
         throw new Error(
             `ripgrep not found at ${rgPath}. Please reinstall genaiscript.`
         )
-    const { path: paths, glob: globs, readText, applyGitIgnore } = options || {}
+    let { path: paths, glob: globs, readText, applyGitIgnore } = options || {}
+    globs = arrayify(globs)
     const args: string[] = ["--json", "--multiline", "--context", "3"]
     if (typeof pattern === "string") {
         args.push("--smart-case", pattern)
@@ -54,7 +55,8 @@ export async function grepSearch(
     dbg(`rg %o`, args)
     const res = await runtimeHost.exec(undefined, rgPath, args, options)
     dbg(`rg res: %O`, res)
-    const resl = JSONLTryParse(res.stdout) as {
+    if (!res.stdout) return { files: [], matches: [] }
+    const resl = JSONLTryParse(res.stdout || "") as {
         type: "match" | "context" | "begin" | "end"
         data: {
             path: {
@@ -89,6 +91,7 @@ export async function grepSearch(
                     }),
                 }
         )
+    dbg(`read text: `, readText)
     if (readText !== false)
         await resolveFileContents(files, { trace, cancellationToken })
     return { files, matches }
