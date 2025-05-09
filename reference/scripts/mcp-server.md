@@ -1,0 +1,241 @@
+import { Image } from "astro:assets"
+import logoPng from "../../../../assets/mcp.png"
+import logoPngTxt from "../../../../assets/mcp.png.txt?raw"
+
+<Image src={logoPng} alt={logoPngTxt} />
+
+The [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) defines a protocol that allows to share [tools](https://modelcontextprotocol.io/docs/concepts/tools)
+and consume them regardless of the underlying framework/runtime.
+
+**GenAIScript implements a server that turns scripts into MCP tools**.
+
+:::tip
+
+GenAIScript also implements a client for MCP tools which allows you to consume MCP tools in script.
+See [MCP tools](/genaiscript/reference/scripts/mcp-tools) for more details.
+
+:::
+
+## Scripts as MCP Tools
+
+GenAIScript launches a MCP server that exposes each GenAIScript script as a MCP tool (not to be confused with `defTool`).
+
+The MCP tool description is the script description.
+**Make sure to carefully craft the description** as it is how the LLM decides
+which tool to use when running a script. If your tool does not get picked up by the LLM, it's probably a description issue.
+
+The MCP tool parameters is inferred from the [script parameters](/genaiscript/reference/scripts/parameters) and files automatically.
+The MCP parameters will then populate the `env.vars` object in the script
+as usual.
+
+The MCP tool output is the script output. That is, typically, the last assistant message for a script that uses the top-level context.
+Or any content that was passed in [env.output](/genaiscript/reference/scripts/output-builder).
+
+Let's see an example. Here is a script `task.genai.mjs` that takes a `task` parameter input, builds a prompt
+and the LLM output is sent back.
+
+```js title="task.genai.mjs"
+script({
+    description: "You MUST provide a description!",
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic
+$`... prompt ... ${task}` // output the result
+```
+
+A more advanced script might not use the top-level context and instead use the `env.output` to pass the result.
+
+```js title="task.genai.mjs"
+script({
+    description: "You MUST provide a description!",
+    accept: "none", // this script does not use 'env.files'
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { output } = env // store the output builder
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic with inline prompts
+const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the prompt
+...
+
+// build the output
+output.fence(`The result is ${res.text}`)
+```
+
+### Annotations
+
+[Tool annotations](https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations) provide additional metadata about a tool’s behavior,
+helping clients understand how to present and manage tools.
+These annotations are hints that describe the nature and impact of a tool, but should not be relied upon for security decisions.
+
+```js "annotations"
+script({
+    ...,
+    annotations: {
+        readOnlyHint: true,
+        openWorldHint: true,
+    },
+})
+```
+
+- `title` is populated from the script title.
+- `readOnlyHint`: `boolean`, default: `false`  
+   If true, indicates the tool does not modify its environment.
+- `destructiveHint`: `boolean`, default: `true`  
+   If true, the tool may perform destructive updates (only meaningful when `readOnlyHint` is false).
+- `idempotentHint`: `boolean`, default: `false`  
+   If true, calling the tool repeatedly with the same arguments has no additional effect (only meaningful when `readOnlyHint` is false).
+- `openWorldHint`: `boolean`, default: `true`  
+   If true, the tool may interact with an “open world” of external entities.
+
+## Resources
+
+[Resources](https://modelcontextprotocol.io/docs/concepts/resources)
+are a core primitive in the Model Context Protocol (MCP) that allow servers to expose data
+and content that can be read by clients and used as context for LLM interactions.
+
+In GenAScript, you can create a resource using `host.publishResource` and
+it will automatically be exposed as a MCP resource.
+
+```js title="task.genai.mjs"
+const id = await host.publishResource("important data", file)
+```
+
+The return value is the resource uri which can be used in the prompt output.
+`publishResource` supports files, buffers and strings.
+
+The resource will be available for the lifetime of the MCP server.
+
+### Secret scanning
+
+GenAIScript has a built-in [secret scanning feature](/genaiscript/reference/scripts/secret-scanning)
+that will scan your resources for secrets. To turn off the secret scanning feature,
+you can set the `secretScanning` option to `false` in `publishResource`.
+
+```js
+const id = await host.publishResource("important data", file, {
+    secretScanning: false,
+})
+```
+
+## Startup script
+
+You can specify a startup script id in the command line using the `--startup` option.
+It will run after the server is started.
+
+```sh
+genaiscript mcp --startup load-resources
+```
+
+You can use this script to load resources or do any other setup you need.
+
+## IDE configuration
+
+The `mcp` command launches the MCP server using the stdio transport.
+
+- [@modelcontextprotocol/inspector](https://www.npmjs.com/package/@modelcontextprotocol/inspector)
+  is a MCP client that can be used to inspect the server and list the available tools.
+
+```sh
+npx --yes @modelcontextprotocol/inspector npx --yes genaiscript mcp
+```
+
+### Visual Studio Code Insiders with GitHub Copilot Chat
+
+You will need Visual Studio Code v1.99 or higher and the [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extension installed.
+
+```json title=".vscode/mcp.json"
+{
+    "servers": {
+        "genaiscript": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "genaiscript", "mcp", "--cwd", "${workspaceFolder}"],
+            "envFile": "${workspaceFolder}/.env"
+        }
+    }
+}
+```
+
+### Claude Desktop
+
+```json
+{
+    "mcpServers": {
+        "genaiscript": {
+            "command": "npx",
+            "args": ["-y", "genaiscript", "mcp"]
+        }
+    }
+}
+```
+
+### Filtering scripts
+
+If you need to filter out which scripts are exposed as MCP tools, you can use the `--groups` flag and
+set the `mcp` group in your scripts.
+
+```js 'group: "mcp"'
+script({
+    group: "mcp",
+})
+```
+
+```json title=".vscode/mcp.json" ', "--groups", "mcp"'
+{
+    "servers": {
+        "genaiscript": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "genaiscript",
+                "mcp",
+                "--cwd",
+                "${workspaceFolder}",
+                "--groups",
+                "mcp"
+            ],
+            "envFile": "${workspaceFolder}/.env"
+        }
+    }
+}
+```
+
+## Running scripts from a remote repository
+
+You can use the `--remote` option to load scripts from a remote repository.
+GenAIScript will do a shallow clone of the repository and run the script from the clone folder.
+
+```sh
+npx --yes genaiscript mcp --remote https://github.com/...
+```
+
+There are additional flags to how the repository is cloned:
+
+- `--remote-branch <branch>`: The branch to clone from the remote repository.
+- `--remote-force`: Force the clone even if the cloned folder already exists.
+- `--remote-install`: Install dependencies after cloning the repository.
+
+:::caution
+
+As usual, be careful when running scripts from a remote repository.
+Make sure you trust the source before running the script and consider locking to a specific commit.
+
+:::

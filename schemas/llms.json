@@ -1,0 +1,282 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "GenAIScript LLM Provider Configuration",
+    "type": "object",
+    "description": "Schema for LLMS configuration file",
+    "properties": {
+        "providers": {
+            "type": "array",
+            "description": "List of LLM providers",
+            "items": {
+                "type": "object",
+                "description": "Details of a single LLM provider",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Identifier for the LLM provider"
+                    },
+                    "url": {
+                        "type": "string",
+                        "description": "Home page for the provider"
+                    },
+                    "detail": {
+                        "type": "string",
+                        "description": "Description of the LLM provider"
+                    },
+                    "hidden": {
+                        "type": "boolean",
+                        "description": "Indicates if the provider is hidden"
+                    },
+                    "limitations": {
+                        "type": "string",
+                        "description": "General note about limitations"
+                    },
+                    "logitBias": {
+                        "type": "boolean",
+                        "description": "Indicates if logit_bias is supported"
+                    },
+                    "logprobs": {
+                        "type": "boolean",
+                        "description": "Indicates if log probabilities are supported"
+                    },
+                    "topLogprobs": {
+                        "type": "boolean",
+                        "description": "Indicates if top log probabilities are supported"
+                    },
+                    "topP": {
+                        "type": "boolean",
+                        "description": "Indicates if top_p is supported"
+                    },
+                    "toolChoice": {
+                        "type": "boolean",
+                        "description": "Indicates if tool_choice is supported"
+                    },
+                    "seed": {
+                        "type": "boolean",
+                        "description": "Indicates if seeding is supported"
+                    },
+                    "tools": {
+                        "type": "boolean",
+                        "description": "Indicates if tools are supported"
+                    },
+                    "listModels": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Indicates if listing models is supported"
+                    },
+                    "pullModel": {
+                        "type": "boolean",
+                        "description": "Indicates if pulling models is supported"
+                    },
+                    "transcribe": {
+                        "type": "boolean",
+                        "description": "Indicates if speech transcription is supported"
+                    },
+                    "speech": {
+                        "type": "boolean",
+                        "description": "Indicates if speech synthesis is supported"
+                    },
+                    "openaiCompatibility": {
+                        "type": "string",
+                        "description": "Uses OpenAI API compatibility layer documentation URL"
+                    },
+                    "prediction": {
+                        "type": "boolean",
+                        "description": "Indicates if 'prediction' message are supported"
+                    },
+                    "bearerToken": {
+                        "type": "boolean",
+                        "description": "Indicates if bearer token is supported"
+                    },
+                    "tokenless": {
+                        "type": "boolean",
+                        "description": "Indicates if connection without token is allowed"
+                    },
+                    "imageGeneration": {
+                        "type": "boolean",
+                        "description": "Indicates if image generation is supported"
+                    },
+                    "responseFormat": {
+                        "type": "string",
+                        "description": "Preferred response format",
+                        "enum": ["json_object", "json_schema"]
+                    },
+                    "reasoningEfforts": {
+                        "type": "object",
+                        "description": "Reasoning effort configuration",
+                        "properties": {
+                            "low": {
+                                "type": "number",
+                                "description": "Low reasoning effort"
+                            },
+                            "medium": {
+                                "type": "number",
+                                "description": "Medium reasoning effort"
+                            },
+                            "high": {
+                                "type": "number",
+                                "description": "High reasoning effort"
+                            }
+                        },
+                        "required": ["low", "medium", "high"]
+                    },
+                    "singleModel": {
+                        "type": "boolean",
+                        "description": "Indicates if the provider uses a single model"
+                    },
+                    "aliases": {
+                        "type": "object",
+                        "description": "List of model aliases for the provider",
+                        "properties": {
+                            "large": {
+                                "type": "string",
+                                "description": "Alias for large model"
+                            },
+                            "small": {
+                                "type": "string",
+                                "description": "Alias for small model"
+                            },
+                            "vision": {
+                                "type": "string",
+                                "description": "Alias for vision model"
+                            },
+                            "reasoning": {
+                                "type": "string",
+                                "description": "Alias for reasoning model"
+                            },
+                            "reasoning_small": {
+                                "type": "string",
+                                "description": "Alias for reasoning small model"
+                            },
+                            "long": {
+                                "type": "string",
+                                "description": "Alias for long model"
+                            },
+                            "agent": {
+                                "type": "string",
+                                "description": "Alias for agent model"
+                            },
+                            "memory": {
+                                "type": "string",
+                                "description": "Alias for memory model"
+                            },
+                            "embeddings": {
+                                "type": "string",
+                                "description": "Alias for embeddings model"
+                            },
+                            "transcription": {
+                                "type": "string",
+                                "description": "Alias for transcription model"
+                            }
+                        }
+                    },
+                    "models": {
+                        "type": "object",
+                        "description": "Additional configuration flags of models",
+                        "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                                "tools": {
+                                    "type": "boolean",
+                                    "description": "Indicates if tools are supported"
+                                }
+                            }
+                        }
+                    },
+                    "env": {
+                        "type": "object",
+                        "description": "Environment variables for the provider",
+                        "additionalProperties": {
+                            "^[a-zA-Z0-9:_-]+$": {
+                                "type": "object",
+                                "properties": {
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "required": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the variable is required"
+                                    },
+                                    "secret": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the variable is a secret"
+                                    },
+                                    "format": {
+                                        "type": "string",
+                                        "description": "Format of the variable",
+                                        "enum": ["url"]
+                                    },
+                                    "enum": {
+                                        "type": "array",
+                                        "description": "List of allowed values",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "additionalProperties": false,
+                "required": ["id", "detail"]
+            }
+        }
+    },
+    "aliases": {
+        "type": "object",
+        "additionalProperties": true,
+        "patternProperties": {
+            "^[a-zA-Z0-9:_-]+$": {
+                "type": "string"
+            }
+        }
+    },
+    "pricings": {
+        "type": "object",
+        "additionalProperties": false,
+        "patternProperties": {
+            "^[a-zA-Z0-9:_-]+$": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "price_per_million_input_tokens": {
+                        "type": "number"
+                    },
+                    "price_per_million_output_tokens": {
+                        "type": "number"
+                    },
+                    "input_cache_token_rebate": {
+                        "type": "number"
+                    },
+                    "tiers": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "context_size": {
+                                    "type": "integer"
+                                },
+                                "price_per_million_input_tokens": {
+                                    "type": "number"
+                                },
+                                "price_per_million_output_tokens": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "price_per_million_input_tokens",
+                                "price_per_million_output_tokens"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "price_per_million_input_tokens",
+                    "price_per_million_output_tokens"
+                ]
+            }
+        }
+    },
+    "required": ["providers", "pricings"]
+}
