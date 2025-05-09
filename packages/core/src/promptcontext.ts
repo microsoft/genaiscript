@@ -134,6 +134,7 @@ export async function createPromptContext(
                     glob: arrayify(glob),
                     ...rest,
                     trace: grepTrace,
+                    cancellationToken,
                 })
                 grepTrace.files(matches, {
                     model,

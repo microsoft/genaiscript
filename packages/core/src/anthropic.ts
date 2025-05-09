@@ -33,7 +33,7 @@ import {
 
 import { logError } from "./util"
 import { resolveHttpProxyAgent } from "./proxy"
-import { HttpsProxyAgent } from "https-proxy-agent"
+import { ProxyAgent } from "undici"
 import { MarkdownTrace } from "./trace"
 import { createFetch, FetchType } from "./fetch"
 import { JSONLLMTryParse } from "./json5"
@@ -285,7 +285,7 @@ const completerFactory = (
     resolver: (
         trace: MarkdownTrace,
         cfg: LanguageModelConfiguration,
-        httpAgent: HttpsProxyAgent<string>,
+        httpAgent: ProxyAgent,
         fetch: FetchType
     ) => Promise<Omit<Anthropic.Beta.Messages, "batches" | "countTokens">>
 ) => {
@@ -536,7 +536,9 @@ export const AnthropicModel = Object.freeze<LanguageModel>({
             baseURL: cfg.base,
             apiKey: cfg.token,
             fetch,
-            httpAgent,
+            fetchOptions: {
+                dispatcher: httpAgent,
+            } as RequestInit as any,
         })
         if (anthropic.baseURL)
             trace.itemValue(
@@ -557,7 +559,9 @@ export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
         const anthropic = new AnthropicBedrock({
             baseURL: cfg.base,
             fetch,
-            httpAgent,
+            fetchOptions: {
+                dispatcher: httpAgent,
+            } as RequestInit as any,
         })
         if (anthropic.baseURL)
             trace.itemValue(

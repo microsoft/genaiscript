@@ -62,7 +62,7 @@ export async function createFetch(
     // We enrich crossFetch with the proxy.
     const crossFetchWithProxy: typeof fetch = agent
         ? (url, options) =>
-              crossFetch(url, { ...(options || {}), agent } as any)
+              crossFetch(url, { ...(options || {}), dispatcher: agent } as any)
         : crossFetch
 
     // Return the default fetch if no retry status codes are specified

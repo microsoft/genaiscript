@@ -1,11 +1,15 @@
 import { TraceOptions } from "./trace"
 import { runtimeHost } from "./host"
 import { JSONLTryParse } from "./jsonl"
-import { resolveFileContent } from "./file"
+import { resolveFileContent, resolveFileContents } from "./file"
 import { uniq } from "es-toolkit"
 import { addLineNumbers } from "./liner"
 import { arrayify } from "./util"
 import { filterGitIgnore } from "./gitignore"
+import { genaiscriptDebug } from "./debug"
+import { tryStat } from "./fs"
+import { CancellationOptions, checkCancelled } from "./cancellation"
+const dbg = genaiscriptDebug("grep")
 
 /**
  * Executes a grep-like search across the workspace using ripgrep.
@@ -23,10 +27,18 @@ import { filterGitIgnore } from "./gitignore"
  */
 export async function grepSearch(
     pattern: string | RegExp,
-    options?: TraceOptions & WorkspaceGrepOptions
+    options?: TraceOptions & CancellationOptions & WorkspaceGrepOptions
 ): Promise<{ files: WorkspaceFile[]; matches: WorkspaceFile[] }> {
+    const { cancellationToken, trace } = options || {}
     const { rgPath } = await import("@lvce-editor/ripgrep")
-    const { path: paths, glob: globs, readText, applyGitIgnore } = options || {}
+    dbg(`rg: %s`, rgPath)
+    const rgStat = await tryStat(rgPath)
+    if (!rgStat?.isFile())
+        throw new Error(
+            `ripgrep not found at ${rgPath}. Please reinstall genaiscript.`
+        )
+    let { path: paths, glob: globs, readText, applyGitIgnore } = options || {}
+    globs = arrayify(globs)
     const args: string[] = ["--json", "--multiline", "--context", "3"]
     if (typeof pattern === "string") {
         args.push("--smart-case", pattern)
@@ -40,8 +52,11 @@ export async function grepSearch(
             args.push(glob.replace(/^\*\*\//, ""))
         }
     if (paths) args.push(...arrayify(paths))
+    dbg(`rg %o`, args)
     const res = await runtimeHost.exec(undefined, rgPath, args, options)
-    const resl = JSONLTryParse(res.stdout) as {
+    dbg(`rg res: %O`, res)
+    if (!res.stdout) return { files: [], matches: [] }
+    const resl = JSONLTryParse(res.stdout || "") as {
         type: "match" | "context" | "begin" | "end"
         data: {
             path: {
@@ -51,12 +66,16 @@ export async function grepSearch(
             line_number: number
         }
     }[]
+    checkCancelled(cancellationToken)
     let filenames = uniq(
         resl
             .filter(({ type }) => type === "match")
             .map(({ data }) => data.path.text)
     )
-    if (applyGitIgnore !== false) filenames = await filterGitIgnore(filenames)
+    if (applyGitIgnore !== false) {
+        dbg(`apply git ignore`)
+        filenames = await filterGitIgnore(filenames)
+    }
 
     const files = filenames.map((filename) => ({ filename }))
     const filesSet = new Set(filenames)
@@ -72,7 +91,8 @@ export async function grepSearch(
                     }),
                 }
         )
+    dbg(`read text: `, readText)
     if (readText !== false)
-        for (const file of files) await resolveFileContent(file)
+        await resolveFileContents(files, { trace, cancellationToken })
     return { files, matches }
 }
