@@ -51,6 +51,7 @@ export async function grepSearch(
     const rgPath = await importRipGrep()
     let { path: paths, glob: globs, readText, applyGitIgnore } = options || {}
     globs = arrayify(globs)
+    paths = arrayify(paths)
     const args: string[] = ["--json", "--multiline", "--context", "3"]
     if (typeof pattern === "string") {
         args.push("--smart-case", pattern)
@@ -63,7 +64,7 @@ export async function grepSearch(
             args.push("--glob")
             args.push(glob.replace(/^\*\*\//, ""))
         }
-    if (paths) args.push(...arrayify(paths))
+    if (paths) args.push(...paths)
     dbg(`rg %o`, args)
     const res = await runtimeHost.exec(undefined, rgPath, args, options)
     dbg(`rg res: %O`, res)

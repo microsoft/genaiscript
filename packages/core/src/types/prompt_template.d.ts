@@ -1266,9 +1266,9 @@ interface WorkspaceFileSystem {
     ): Promise<WorkspaceFile[]>
 
     /**
-     * Performs a grep search over the files in the workspace
-     * @param pattern
-     * @param globs
+     * Performs a grep search over the files in the workspace using ripgrep.
+     * @param pattern A string to match or a regex pattern.
+     * @param options Options for the grep search.
      */
     grep(
         pattern: string | RegExp,
