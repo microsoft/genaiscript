@@ -135,7 +135,7 @@ let _fullDocsText: string
  * Ensures `.gitignore` is updated to ignore all files in the `.genaiscript` directory.
  * Fetches and processes external documentation content if required.
  */
-export async function fixCustomPrompts(options?: {
+export async function fixGitHubCopilotInstructions(options?: {
     githubCopilotInstructions?: boolean
     docs?: boolean
 }) {
@@ -153,7 +153,7 @@ export async function fixCustomPrompts(options?: {
         await writeText(pn, ghInstructions) // Write the GitHub Copilot instructions file
     }
     if (githubCopilotInstructions || docs) {
-        const ddir = dotGenaiscriptPath("docs")
+        const ddir = dotGenaiscriptPath("instructions")
         const route = "llms-full.txt"
         const url = `${DOCS_URL}/${route}`
         const dn = host.path.join(ddir, route)
