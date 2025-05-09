@@ -1,26 +1,26 @@
 ---
 title: GitHub Copilot Chat
 sidebar:
-  order: 3
+    order: 3
 description: Integrate with GitHub Copilot Chat to run scripts through a chat
-  participant and custom prompts in Visual Studio Code. Learn how to execute
-  scripts, select models, leverage context, and enable more efficient
-  AI-assisted coding workflows using chat-based interfaces.
+    participant and custom prompts in Visual Studio Code. Learn how to execute
+    scripts, select models, leverage context, and enable more efficient
+    AI-assisted coding workflows using chat-based interfaces.
 keywords:
-  - Copilot Chat
-  - VS Code extensions
-  - AI scripting
-  - code automation
-  - chat participants
+    - Copilot Chat
+    - VS Code extensions
+    - AI scripting
+    - code automation
+    - chat participants
 hero:
-  image:
-    alt: A small, flat, abstract image uses five solid colors and geometric 8-bit
-      shapes to depict a chat bubble, a sheet of code with bracket symbols, an
-      AI chip, and a diagram block connected by thin lines. The icons are
-      arranged without backgrounds or text, all in a simple corporate style,
-      illustrating AI-driven chat and code integration.
-    file: ./github-copilot-chat.png
-
+    image:
+        alt:
+            A small, flat, abstract image uses five solid colors and geometric 8-bit
+            shapes to depict a chat bubble, a sheet of code with bracket symbols, an
+            AI chip, and a diagram block connected by thin lines. The icons are
+            arranged without backgrounds or text, all in a simple corporate style,
+            illustrating AI-driven chat and code integration.
+        file: ./github-copilot-chat.png
 ---
 
 import { Image } from "astro:assets"
@@ -30,7 +30,6 @@ import scriptSource from "../../../../../../packages/sample/genaisrc/samples/cop
 import src from "../../../../assets/chat-participant.png"
 import alt from "../../../../assets/chat-participant.png.txt?raw"
 import { Steps } from "@astrojs/starlight/components"
-import prompt from "../../../../../../.github/prompts/genaiscript.prompt.md?raw"
 
 GenAIScript integrates with [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat)
 by providing a **chat participant** that allows you to run scripts in the context of a chat conversation,
@@ -69,7 +68,7 @@ You can specify which model to choose in the script configuration as well using 
 
 ```js "github_copilot_chat:current"
 script({
-    model: "github_copilot_chat:current"
+    model: "github_copilot_chat:current",
 })
 ```
 
@@ -77,12 +76,12 @@ script({
 
 ```js "github_copilot_chat:gpt-4o-mini"
 script({
-    model: "github_copilot_chat:gpt-4o-mini"
+    model: "github_copilot_chat:gpt-4o-mini",
 })
 ```
 
 When GenAIScript prompts you to choose a model, it will store your choices in the workspace settings
-under the 
+under the
 
 ```json file=".vscode/settings.json"
 {
@@ -102,7 +101,7 @@ the [cli](/genaiscript/reference/cli) or [playground](/genaiscript/reference/pla
 #### Model availability
 
 Not all models listed in the GitHub Copilot Chat user interface are available for 3rd party extensions.
-When GenAIScript tries to access a model that is not available, it will notify you but it does not have 
+When GenAIScript tries to access a model that is not available, it will notify you but it does not have
 over your model access configuration.
 
 ### Context
@@ -199,60 +198,10 @@ The following features are currently not supported in the chat participant:
 - Tools (`#tool`)
 - `Workspace` reference
 
+## `genaiscript` custom instructions
 
-## `genaiscript` custom prompt
-
-GenAIScript will automatically save a prompt file
-and additional files in `.genaiscript/docs`
-to provide a better context for using Copilot Chat to generate GenAIScript scripts.
-
-<YouTube id="https://youtu.be/0GkbxnW0J34" posterQuality="high" />
-
-The `genaiscript.prompt.md` file is
-a [reusable prompt file](https://code.visualstudio.com/docs/copilot/copilot-customization#_reusable-prompt-files-experimental)
-that provides additional context to help GitHub Copilot Chat answering GenAIScript code generation queries.
-
-<Code
-    code={prompt}
-    wrap={true}
-    lang="text"
-    title=".genaiscript/prompts/genaiscript.prompt.md"
-/>
-
-To use this prompt in your chat,
-
-### Enable reusable prompts
-
-At this time, the reusable prompt feature is experimental and needs to be enabled in the settings.
-
-<Steps>
-
-<ol>
-
-<li>
-
-Open the settings (Ctrl+,) and search for **GitHub Copilot Chat**.
-Set the [chat.promptFiles](vscode://settings/chat.promptFiles) setting to true.
-
-</li>
-
-<li>
-
-Add `.genaiscript/prompts` to the list of folders to search for prompt files.
-
-</li>
-
-<li>
-
-Open the command palette (Ctrl+Shift+P) and select **GitHub Copilot: Build Local Workspace Index**
-to create a [local index](https://code.visualstudio.com/docs/copilot/workspace-context#_local-index)
-to help with queries with large files (like the GenAIScript documentation!).
-
-</li>
-
-</ol>
-
-</Steps>
+GenAIScript will automatically save an instructions.md file in the `.genaiscript/instructions` folder
+when you run a script. This file contains the instructions used to generate the script.
 
 ### Augmented chat sessions
 
@@ -264,8 +213,8 @@ This is how you start chat sessions using the `genaiscript` prompt.
 
 <li>
 
-Select the **Attach Context** 📎icon (`Ctrl+/`), then select **Prompt...**,
-then select the **genaiscript** prompt.
+Select the **Attach Context** 📎icon (`Ctrl+/`), then select **Instructions...**,
+then select the **genaiscript.instructions.md** prompt.
 
 </li>
 
@@ -284,4 +233,4 @@ Since the prompt injects the entire documentation of GenAIScript (700+kb at this
 you'll want to use a model with a large context like Sonnet or Gemini.
 
 Also remember that the entire conversation is sent back on each iteration, so this technique
-works best as a one-shot detailled request.
+works best as a one-shot detailed request.
