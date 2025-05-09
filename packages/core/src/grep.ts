@@ -29,6 +29,17 @@ async function importRipGrep(options?: TraceOptions) {
     }
 }
 
+export type GrepResult = {
+    type: "match" | "context" | "begin" | "end"
+    data: {
+        path: {
+            text: string
+        }
+        lines: { text: string }
+        line_number: number
+    }
+}[]
+
 /**
  * Executes a grep-like search across the workspace using ripgrep.
  *
@@ -46,13 +57,24 @@ async function importRipGrep(options?: TraceOptions) {
 export async function grepSearch(
     pattern: string | RegExp,
     options?: TraceOptions & CancellationOptions & WorkspaceGrepOptions
-): Promise<{ files: WorkspaceFile[]; matches: WorkspaceFile[] }> {
+): Promise<{
+    data: GrepResult
+    files: WorkspaceFile[]
+    matches: WorkspaceFile[]
+}> {
     const { cancellationToken, trace } = options || {}
     const rgPath = await importRipGrep()
-    let { path: paths, glob: globs, readText, applyGitIgnore } = options || {}
+    let {
+        path: paths,
+        glob: globs,
+        readText,
+        applyGitIgnore,
+        debug,
+    } = options || {}
     globs = arrayify(globs)
     paths = arrayify(paths)
     const args: string[] = ["--json", "--multiline", "--context", "3"]
+    if (debug) args.push("--debug")
     if (typeof pattern === "string") {
         args.push("--smart-case", pattern)
     } else {
@@ -62,23 +84,17 @@ export async function grepSearch(
     if (globs)
         for (const glob of globs) {
             args.push("--glob")
-            args.push(glob.replace(/^\*\*\//, ""))
+            args.push(glob)
         }
-    if (paths) args.push(...paths)
-    dbg(`rg %o`, args)
+    if (paths.length) args.push(...paths)
+    else if (globs?.length) args.push(".")
+    dbg(`args: %o`, args)
     const res = await runtimeHost.exec(undefined, rgPath, args, options)
-    dbg(`rg res: %O`, res)
-    if (!res.stdout) return { files: [], matches: [] }
-    const resl = JSONLTryParse(res.stdout || "") as {
-        type: "match" | "context" | "begin" | "end"
-        data: {
-            path: {
-                text: string
-            }
-            lines: { text: string }
-            line_number: number
-        }
-    }[]
+    if (!res.stdout) {
+        dbg(`no output: %s`, res.stderr)
+        return { data: [], files: [], matches: [] }
+    }
+    const resl = JSONLTryParse(res.stdout || "") as GrepResult
     checkCancelled(cancellationToken)
     let filenames = uniq(
         resl
@@ -107,5 +123,5 @@ export async function grepSearch(
     dbg(`read text: `, readText)
     if (readText !== false)
         await resolveFileContents(files, { trace, cancellationToken })
-    return { files, matches }
+    return { data: resl, files, matches }
 }

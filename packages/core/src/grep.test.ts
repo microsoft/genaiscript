@@ -10,6 +10,16 @@ describe("grepSearch (integration)", async () => {
         TestHost.install()
     })
 
+    test("** glob", async () => {
+        const result = await grepSearch("draft-07", {
+            glob: "**/*.json",
+            debug: true,
+        })
+        console.log(result)
+        assert.strict(result.files.length > 0, "found files")
+        assert(result.matches.some((m) => typeof m.filename === "string"))
+    })
+
     test("should support RegExp pattern and ignoreCase", async () => {
         const result = await grepSearch(/grep/i, {
             glob: ["*.ts"],
@@ -40,10 +50,13 @@ describe("grepSearch (integration)", async () => {
     })
 
     test("should return files and matches for string pattern", async () => {
-        const result = await grepSearch("aojkhsdfvfaweiojhfwqepiouiasdojhvfadshjoasdf", {
-            glob: "*.ts",
-            path: "src",
-        })
+        const result = await grepSearch(
+            "aojkhsdfvfaweiojhfwqepiouiasdojhvfadshjoasdf",
+            {
+                glob: "*.ts",
+                path: "src",
+            }
+        )
         assert(Array.isArray(result.files), "found files")
         assert(Array.isArray(result.matches), "found matches")
         assert(

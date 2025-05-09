@@ -1213,6 +1213,11 @@ interface WorkspaceGrepOptions extends FilterGitFilesOptions {
      * Read file content. default is true.
      */
     readText?: boolean
+
+    /**
+     * Enable grep logging to discover what files are searched.
+     */
+    debug?: boolean
 }
 
 interface WorkspaceGrepResult {
