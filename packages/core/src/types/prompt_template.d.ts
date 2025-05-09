@@ -2698,6 +2698,12 @@ interface Parsers {
     ): Promise<string>
 
     /**
+     * Parsers a mermaid diagram and returns the parse error if any
+     * @param content 
+     */
+    mermaid(content: string | WorkspaceFile): Promise<string>
+
+    /**
      * Extracts the contents of a zip archive file
      * @param file
      * @param options

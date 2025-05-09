@@ -55,11 +55,8 @@
   "license": "MIT",
   "overrides": {
     "glob": "^11.0.2",
-    "@mapbox/node-pre-gyp": "^2.0.0"
-  },
-  "resolutions": {
-    "glob": "^11.0.2",
-    "@mapbox/node-pre-gyp": "^2.0.0"
+    "@mapbox/node-pre-gyp": "^2.0.0",
+    "mermaid": "@11.6.0"
   },
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.12.6",
@@ -85,6 +82,7 @@
     "magic-string": "^0.30.17",
     "mammoth": "^1.9.0",
     "mathjs": "^14.4.0",
+    "mermaid": "^11.6.0",
     "pyodide": "^0.27.5",
     "supports-color": "^10.0.0",
     "tabletojson": "^4.1.5",
