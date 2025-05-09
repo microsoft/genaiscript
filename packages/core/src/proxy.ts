@@ -1,4 +1,6 @@
-import { HttpsProxyAgent } from "https-proxy-agent"
+import { ProxyAgent } from "undici"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("proxy")
 
 /**
  * Resolves an HTTP proxy agent based on environment variables.
@@ -28,6 +30,7 @@ export function resolveHttpProxyAgent() {
         process.env.HTTP_PROXY ||
         process.env.https_proxy ||
         process.env.http_proxy
-    const agent = proxy ? new HttpsProxyAgent(proxy) : null
+    if (proxy) dbg(`proxy: %s`, proxy)
+    const agent = proxy ? new ProxyAgent(proxy) : null
     return agent
 }

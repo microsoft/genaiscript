@@ -45,12 +45,12 @@
   resolved "https://registry.yarnpkg.com/@antfu/utils/-/utils-8.1.1.tgz#95b1947d292a9a2efffba2081796dcaa05ecedfb"
   integrity sha512-Mex9nXf9vR6AhcXmMrlz/HVgYYZpVGJ6YlPgwl7UnaFpnshXs6EK/oa5Gpf3CzENMjkvEx2tQtntGnb7UtSTOQ==
 
-"@anthropic-ai/bedrock-sdk@0.12.6":
-  version "0.12.6"
-  resolved "https://registry.yarnpkg.com/@anthropic-ai/bedrock-sdk/-/bedrock-sdk-0.12.6.tgz#3729dc6e6d42537a9f9be63a02ea7b7bd5eeb491"
-  integrity sha512-g9tmm6zXf3+2P5Se+c2zi7jmZ6+t+qtfu8NhoNYxetPxn6ez1aeNQ+YfqzSMm/ZWye8hy3hcDhbRhWaHC2Wbwg==
+"@anthropic-ai/bedrock-sdk@0.21.1":
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/@anthropic-ai/bedrock-sdk/-/bedrock-sdk-0.21.1.tgz#96123c6afaab1b194ee6d7035589da979622ac81"
+  integrity sha512-fHkGRZxIqth+/cQn13uVEJqvGKwDUH63AHpfvyxQkFEUXLSacLQ22d2lY7Xx91jVV448BN/ZrA1EWGdzHB9UvQ==
   dependencies:
-    "@anthropic-ai/sdk" ">=0.36 <1"
+    "@anthropic-ai/sdk" ">=0.50 <1"
     "@aws-crypto/sha256-js" "^4.0.0"
     "@aws-sdk/client-bedrock-runtime" "^3.797.0"
     "@aws-sdk/credential-providers" "^3.796.0"
@@ -62,20 +62,7 @@
     "@smithy/types" "^2.3.4"
     "@smithy/util-base64" "^2.0.0"
 
-"@anthropic-ai/sdk@0.40.1":
-  version "0.40.1"
-  resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.40.1.tgz#be93d7530b3e6fd2b2d157bfb28b8cb2ef329afb"
-  integrity sha512-DJMWm8lTEM9Lk/MSFL+V+ugF7jKOn0M2Ujvb5fN8r2nY14aHbGPZ1k6sgjL+tpJ3VuOGJNG+4R83jEpOuYPv8w==
-  dependencies:
-    "@types/node" "^18.11.18"
-    "@types/node-fetch" "^2.6.4"
-    abort-controller "^3.0.0"
-    agentkeepalive "^4.2.1"
-    form-data-encoder "1.7.2"
-    formdata-node "^4.3.2"
-    node-fetch "^2.6.7"
-
-"@anthropic-ai/sdk@>=0.36 <1":
+"@anthropic-ai/sdk@0.50.2", "@anthropic-ai/sdk@>=0.50 <1":
   version "0.50.2"
   resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.50.2.tgz#1e4ebb4e8f72a1eb529e43c4c600c587189e8a54"
   integrity sha512-Iox0h9YqBs1XYD/K5zqIog0kEcBxzJjHTeZPxLNSImuZmB2u4WAGFCRe3ehUJORHG4UJGlazONJmFMk7assr+A==
@@ -3619,10 +3606,10 @@
   dependencies:
     lit "^3.2.1"
 
-"@vscode-elements/webview-playground@^1.6.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@vscode-elements/webview-playground/-/webview-playground-1.7.0.tgz#821deed56749f41e6442d34bf04b17fa89f4fe1a"
-  integrity sha512-me+JCk3FsneHN33a+E2mCcnuMlbJ09QrWfaRppnOvPnq5GEyFMqs5JbeJKWbKZ4lBxsQhpWSy7zT85374C9TxQ==
+"@vscode-elements/webview-playground@1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@vscode-elements/webview-playground/-/webview-playground-1.6.0.tgz#12cebc4b0e78eccc1c371ec9fde7b475e7e9a0ac"
+  integrity sha512-PGOecKbzEI+ZU1UEhS5RwdbPMxKljB6w4+fs1+8oGBGaVVOxVBB9hLaRtuIHIzGBiqV99uM0veJ4cQtQ3//4IA==
 
 "@vscode/codicons@^0.0.36":
   version "0.0.36"
@@ -6151,7 +6138,7 @@ http2-wrapper@^2.2.1:
     quick-lru "^5.1.1"
     resolve-alpn "^1.2.0"
 
-https-proxy-agent@^7.0.0, https-proxy-agent@^7.0.5, https-proxy-agent@^7.0.6:
+https-proxy-agent@^7.0.0, https-proxy-agent@^7.0.5:
   version "7.0.6"
   resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-7.0.6.tgz#da8dfeac7da130b05c2ba4b59c9b6cd66611a6b9"
   integrity sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==
