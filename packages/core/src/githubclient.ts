@@ -6,7 +6,7 @@ import {
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_REST_API_CONCURRENCY_LIMIT,
     GITHUB_REST_PAGE_DEFAULT,
-    GITHUB_TOKEN,
+    GITHUB_TOKENS,
     TOOL_ID,
 } from "./constants"
 import { createFetch } from "./fetch"
@@ -185,6 +185,18 @@ export async function githubParseEnv(
     return Object.freeze(res)
 }
 
+async function readGitHubToken() {
+    let token: string
+    for (const envName of GITHUB_TOKENS) {
+        token = await runtimeHost.readSecret(envName)
+        if (token) {
+            dbg(`found %s`, envName)
+            break
+        }
+    }
+    return token
+}
+
 /**
  * Updates the description of a pull request on GitHub.
  * Parameters:
@@ -216,9 +228,8 @@ export async function githubUpdatePullRequestDescription(
         dbg(`missing issue number, cannot update pull request description`)
         return { updated: false, statusText: "missing issue number" }
     }
-    const token = await runtimeHost.readSecret(GITHUB_TOKEN)
+    const token = await readGitHubToken()
     if (!token) {
-        dbg(`retrieved GitHub token`)
         return { updated: false, statusText: "missing github token" }
     }
 
@@ -365,7 +376,7 @@ export async function githubCreateIssueComment(
         dbg(`missing issue number, cannot create issue comment`)
         return { created: false, statusText: "missing issue number" }
     }
-    const token = await runtimeHost.readSecret(GITHUB_TOKEN)
+    const token = await readGitHubToken()
     if (!token) {
         return { created: false, statusText: "missing github token" }
     }
@@ -572,7 +583,7 @@ export async function githubCreatePullRequestReviews(
         logError("github: missing commit sha")
         return false
     }
-    const token = await runtimeHost.readSecret(GITHUB_TOKEN)
+    const token = await readGitHubToken()
     if (!token) {
         logError("github: missing token")
         return false
@@ -620,7 +631,7 @@ export async function githubCreatePullRequestReviews(
         await githubCreateIssueComment(
             script,
             info,
-            failed.map(d => diagnosticToGitHubMarkdown(info, d)).join("\n\n"),
+            failed.map((d) => diagnosticToGitHubMarkdown(info, d)).join("\n\n"),
             script.id + "-prr",
             options
         )
@@ -1211,6 +1222,18 @@ export class GitHubClient implements GitHub {
         return res
     }
 
+    async workflowRun(runId: number | string): Promise<GitHubWorkflowRun> {
+        const { client, owner, repo } = await this.api()
+        dbg(`retrieving workflow run details for run ID: ${runId}`)
+        const { data } = await client.rest.actions.getWorkflowRun({
+            owner,
+            repo,
+            run_id: typeof runId === "number" ? runId : parseInt(runId),
+        })
+        dbg(`workflow run: %O`, data)
+        return data
+    }
+
     async listWorkflowRuns(
         workflowIdOrFilename: string | number,
         options?: {
@@ -1241,6 +1264,7 @@ export class GitHubClient implements GitHub {
             (i) => i.data,
             ({ conclusion }) => conclusion !== "skipped"
         )
+        dbg(`workflow runs: %O`, res)
         return res
     }
 
@@ -1291,6 +1315,7 @@ export class GitHubClient implements GitHub {
                 content: parseJobLog(text),
             })
         }
+        dbg(`workflow jobs: %O`, res)
         return res
     }
 
@@ -1339,11 +1364,14 @@ export class GitHubClient implements GitHub {
             `diffing workflow job logs for job IDs: ${job_id} and ${other_job_id}`
         )
         const other = await this.downloadJob(other_job_id)
+        const justDiff = diffCreatePatch(job, other)
 
+        // try compressing
         job.content = parseJobLog(job.content)
         other.content = parseJobLog(other.content)
+        const parsedDiff = diffCreatePatch(job, other)
+        const diff = justDiff.length < parsedDiff.length ? justDiff : parsedDiff
 
-        const diff = diffCreatePatch(job, other)
         return llmifyDiff(diff)
     }
 
@@ -1393,6 +1421,18 @@ export class GitHubClient implements GitHub {
         )
     }
 
+    async workflow(workflowId: number | string): Promise<GitHubWorkflow> {
+        const { client, owner, repo } = await this.api()
+        dbg(`retrieving workflow details for workflow ID: ${workflowId}`)
+        const { data } = await client.rest.actions.getWorkflow({
+            owner,
+            repo,
+            workflow_id: workflowId,
+        })
+        dbg(`workflow: %O`, data)
+        return data
+    }
+
     async listWorkflows(
         options?: GitHubPaginationOptions
     ): Promise<GitHubWorkflow[]> {
@@ -1408,6 +1448,7 @@ export class GitHubClient implements GitHub {
             }
         )
         const workflows = await paginatorToArray(ite, count, (i) => i.data)
+        dbg(`workflows: %O`, workflows)
         return workflows.map(({ id, name, path }) => ({
             id,
             name,

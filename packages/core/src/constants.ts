@@ -305,9 +305,9 @@ export const DOCKER_CONTAINER_VOLUME = "app"
 export const CLI_RUN_FILES_FOLDER = "files"
 
 export const GITHUB_API_VERSION = "2022-11-28"
-export const GITHUB_TOKEN = "GITHUB_TOKEN"
+export const GITHUB_TOKENS = ["GITHUB_TOKEN", "GH_TOKEN"]
 
-export const AI_REQUESTS_CACHE = "airequests"
+export const AI_REQUESTS_CACHE = "airaireequests"
 export const CHAT_CACHE = "chat"
 export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
 export const GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5

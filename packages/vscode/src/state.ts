@@ -8,7 +8,10 @@ import { saveAllTextDocuments } from "./fs"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
-import { fixCustomPrompts, fixPromptDefinitions } from "../../core/src/scripts"
+import {
+    fixGitHubCopilotInstructions,
+    fixPromptDefinitions,
+} from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
 import {
     TOOL_NAME,
@@ -374,8 +377,11 @@ export class ExtensionState extends EventTarget {
         const localTypeDefinitions = !!config.get("localTypeDefinitions")
         if (localTypeDefinitions) await fixPromptDefinitions(project)
 
-        const githubCopilotPrompt = !!config.get("githubCopilotPrompt")
-        if (githubCopilotPrompt) fixCustomPrompts({ githubCopilotPrompt: true }) // finish async
+        const githubCopilotInstructions = !!config.get(
+            "githubCopilotInstructions"
+        )
+        if (githubCopilotInstructions)
+            fixGitHubCopilotInstructions({ githubCopilotInstructions: true }) // finish async
     }
 
     private _parseWorkspacePromise: Promise<void> = undefined

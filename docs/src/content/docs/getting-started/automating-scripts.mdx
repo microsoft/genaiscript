@@ -29,8 +29,10 @@ Once you have a script that you are happy with, you can automate it using the [c
 The basic usage of the CLI is to [run](/genaiscript/reference/cli/run/) a script with a tool name and a list of files.
 
 ```sh wrap
-npx --yes genaiscript run <script> <...files>
+npx --yes genaiscript run <script_id> <...files>
 ```
+
+where `<script_id>` is the name of the script (e.g. filename without `.genai.mjs`) and `<...files>` is a list of files to run the script on.
 
 The CLI will use the secrets in the `.env` file, populate `env.files` with `<...files>`, run the script
 and emit the output to the standard output.
@@ -70,6 +72,22 @@ Refer to [Security and Trust](/genaiscript/reference/security-and-trust) for mor
 [GitHub Actions](https://docs.github.com/en/actions) is a continuous integration and continuous delivery (CI/CD)
 platform that allows you to automate your build, test, and deployment pipeline.
 This section explains how to integrate your GenAIScript in GitHub Actions workflows and pull requests.
+
+[GitHub Models](https://github.com/marketplace/models) provide a integrated way to run LLM inference from a GitHub Action.
+
+### Configure GitHub Models
+
+To use GitHub Models, you must add the `models: read` permission to your workflow, pass the `GITHUB_TOKEN` secret to the cli,
+and configure the cli to use GitHub Models. This can be done by setting the LLM provider to `github` in cli.
+
+```yaml "models: read" "--provider github"
+permissions:
+    models: read
+...
+- run: npx --yes genaiscript run <script> <...files> --provider github
+  env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
 
 ### Configure secrets and variables
 

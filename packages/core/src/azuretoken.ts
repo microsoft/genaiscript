@@ -80,26 +80,23 @@ async function createAzureToken(
             break
         case "default":
             dbg("credentialsType is default")
-            credential = new DefaultAzureCredential() // CodeQL [SM05139] Okay use of DefaultAzureCredential, user explicitely requested it
+            credential = new DefaultAzureCredential() // CodeQL [SM05139] The user explicitly requested this credential type so the user has a good reason to use it.
             break
         default:
             // Check if the environment is local/development
             // also: https://nodejs.org/en/learn/getting-started/nodejs-the-difference-between-development-and-production
             if (process.env.NODE_ENV === "development") {
                 dbg("node_env development: credentialsType is default")
-                credential = new DefaultAzureCredential() // CodeQL [SM05139] Okay use of DefaultAzureCredential as it is only used in development
+                credential = new DefaultAzureCredential() // CodeQL [SM05139] Okay use of DefaultAzureCredential as it is only used in development........................................
             } else {
                 dbg(
-                    `credentialsType is env, workload, managedidentity, cli, devcli, powershell, device code`
+                    `node_env prod: credentialsType is env, cli, devcli, powershell`
                 )
                 credential = new ChainedTokenCredential(
                     new EnvironmentCredential(),
-                    new WorkloadIdentityCredential(),
-                    new ManagedIdentityCredential(),
                     new AzureCliCredential(),
                     new AzureDeveloperCliCredential(),
-                    new AzurePowerShellCredential(),
-                    new DeviceCodeCredential()
+                    new AzurePowerShellCredential()
                 )
             }
             break

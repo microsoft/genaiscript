@@ -251,7 +251,21 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     item(message: string) {
+        if (!message) return
         this.appendContent(`-   ${message}\n`)
+    }
+
+    p(text: string) {
+        if (!text) return
+        this.appendContent(`\n\n${text}\n\n`)
+    }
+
+    itemLink(name: string, url?: string | URL, title?: string) {
+        if (!name) return
+
+        const urlStr = typeof url === "string" ? url : url?.toString()
+        if (!urlStr) this.item(`<${name}>`)
+        else this.item(`[${name}${title ? ` "${title}"` : ""}](${urlStr})`)
     }
 
     itemValue(name: string, value: any, unit?: string) {

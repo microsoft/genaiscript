@@ -83,6 +83,25 @@ export class GitClient implements Git {
         return this._defaultBranch
     }
 
+    async fetch(
+        remote: OptionsOrString<"origin">,
+        branchOrSha: string,
+        options?: {
+            prune?: boolean
+            all?: boolean
+        }
+    ): Promise<void> {
+        const { prune, all } = options || {}
+        if (branchOrSha && !remote)
+            throw new Error("remote is required when specifying branch or sha")
+        const args = []
+        if (remote) args.push(remote)
+        if (branchOrSha) args.push(branchOrSha)
+        if (prune) args.push("--prune")
+        if (all) args.push("--all")
+        await this.exec(["fetch", ...args])
+    }
+
     /**
      * Gets the current branch
      * @returns
@@ -137,12 +156,12 @@ export class GitClient implements Git {
 
     /**
      * Finds modified files in the Git repository based on the specified scope.
-     * @param scope The scope of modifications to find: "modified-base", "staged", or "modified".
+     * @param scope The scope of modifications to find: "modified-base", "staged", or "modified". Default is "modified".
      * @param options Optional settings such as base branch, paths, and exclusions.
      * @returns {Promise<WorkspaceFile[]>} List of modified files.
      */
     async listFiles(
-        scope: "modified-base" | "staged" | "modified",
+        scope?: "modified-base" | "staged" | "modified",
         options?: {
             base?: string
             paths?: ElementOrArray<string>
@@ -151,6 +170,7 @@ export class GitClient implements Git {
         }
     ): Promise<WorkspaceFile[]> {
         dbg(`listing files with scope: ${scope}`)
+        scope = scope || "modified"
         const { askStageOnEmpty } = options || {}
         const paths = arrayify(options?.paths, { filterEmpty: true })
         const excludedPaths = await this.resolveExcludedPaths(options)

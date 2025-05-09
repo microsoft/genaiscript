@@ -59,8 +59,8 @@ async function main() {
         )
         .join("")
         .replace("@version 0.0.0", `@version ${pkg.version}`)
-    const githubCopilotCustomPrompt = readFileSync(
-        "../../.github/prompts/genaiscript.prompt.md",
+    const githubCopilotInstructions = readFileSync(
+        "../../.genaiscript/instructions/genaiscript.instructions.md",
         "utf-8"
     )
     const promptDefs = {
@@ -149,7 +149,7 @@ export const promptDefinitions = Object.freeze<Record<string, string>>(${JSON.st
 
 export const treeSitterWasms: string[] = ${JSON.stringify(wasms)};
 
-export const githubCopilotCustomPrompt = ${JSON.stringify(githubCopilotCustomPrompt)}
+export const githubCopilotInstructions = ${JSON.stringify(githubCopilotInstructions)}
 
 export const promptFooDriver = ${JSON.stringify(promptFooDriver)}
 \n`

@@ -1,0 +1,13 @@
+{
+    "servers": {
+        "genaiscript": {
+            "type": "stdio",
+            "command": "node",
+            "args": ["${workspaceFolder}/../packages/cli/built/genaiscript.cjs", "mcp", "--cwd", "${workspaceFolder}"],
+            "envFile": "${workspaceFolder}/../.env",
+            "env": {
+                "DEBUG": "*"
+            }
+        }
+    }
+}

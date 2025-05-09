@@ -13,7 +13,7 @@ import alt from "../../../assets/lint-copilot.png.txt?raw"
 import code from "../../../../../packages/sample/genaisrc/lint.genai.mjs?raw"
 
 The motivation behind this script is to provide developers with an automated tool that can review and report on the correctness and style of both code and natural language files.
-It leverages the power of LLM to inspect code or documents in new ways.
+It leverages the power of LLMs to inspect code or documents in new ways.
 
 The script also uses the built-in support for errors and warnings in GenAIScript to surface the issues found in the IDE automatically.
 
@@ -49,7 +49,7 @@ The script also contains a prompt block:
 ```ts wrap
 $`## Task
 
-You are Linty, an linter for all known programming languages and natural languages.
+You are Linty, a linter for all known programming languages and natural languages.
 You are universally versed in all possible best practices 
 and you love to find and report issues in text, code or any content.
 
@@ -68,7 +68,7 @@ Your task is to review the content in FILE and report warnings and errors.
 - **`$``Task`**: Begins a prompt section where the AI's task is defined.
 - **`You are Linty...`**: Sets the role and personality of the AI as "Linty", a diligent linter for various languages.
 - **`Your task...`**: Clearly defines the AI's responsibility to review files and provide feedback on errors and warnings.
-- **`Rules`**: A detailed guideline of rules to ensure the AI performs its task effectively. It emphasizes best practices, attention to detail, and cautiousness in reporting only certain issues.
+- **`Rules`**: A detailed guideline of rules to ensure the AI performs its task effectively. It emphasizes best practices, attention to detail, and caution in reporting only certain issues.
 
 Finally, the script specifies files to be processed:
 

@@ -1,8 +1,8 @@
 script({
-    title: "Pull Request Visual Sketch",
+    title: "Pull Request Meme",
     description:
-        "Generate a visual note from a pull request description from the git diff",
-    temperature: 0.5,
+        "Generate a meme from a pull request description from the git diff",
+    temperature: 0.8,
     systemSafety: true,
     parameters: {
         base: {
@@ -36,24 +36,32 @@ const { text: zine } = await runPrompt(
             maxTokens,
             detectPromptInjection: "available",
         })
-        ctx.$`You are an expert at sketchnotes (visual note taking), prompt genius and omniscient code developer.
-    You will summarize the code in the git diff ${gd} and generate a sketchnote (visual note) for the changes.
-    The description will be used by a LLM to generate an image of the zine.
-    Use names from the code symbols. MINIMIZE THE USE OF TEXT, FAVOR GRAPHICS.
+        ctx.$`You are an expert at meme (funny images), prompt genius and omniscient code developer.
+    You will summarize the code in the git diff ${gd} and generate a description of the changes as a meme.
+    The description will be used by a LLM to generate an image of the meme.
+    The meme will be used to tell "tell the story" of the changes.
+    Be descriptive about the visual features of the meme as you would for a meme.
+    Use names from the code symbols.
     do NOT explain that GIT_DIFF displays changes in the codebase
     try to extract the intent of the changes, don't focus on the details
-    Avoid studio ghibli style.
-    Ignore the low-level programming language details, focus on the high-level concepts.
     The model has a context window of 4096 tokens. The output image is landscape.
+    Generate a single page meme for all panels/pages.
+    - avoid distracted boyfriend meme
+    - avoid doge meme
+    - avoid grumpy cat meme
+    - avoid success kid meme
+    - avoid bad luck brian meme
+    - avoid troll face meme
+    - avoid scumbag steve meme
     `.role("system")
     },
     {
-        label: "summarize code to sketch",
+        label: "summarize code to meme",
         model: "large",
     }
 )
 const { image } = await generateImage(
-    `Your task is to generate a SketchNote (visual note) with the following instruction. Minimize the use of text, favor graphics.
+    `Your task is to generate a meme with the following instruction.
     ${zine}`,
     {
         model: "image",
@@ -65,4 +73,4 @@ const { image } = await generateImage(
 )
 if (!image) cancel("no image found")
 const ghFile = await github.uploadAsset(image)
-await output.image(ghFile, "sketch")
+await output.image(ghFile, "meme")

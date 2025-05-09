@@ -26,7 +26,7 @@ Include specific description related to the content of <BLOG_POST>.
             mime: "image/png",
             size: "landscape",
             maxHeight: 762,
-            model: "openai:gpt-image-1",
+            model: "image",
         }
     )
 

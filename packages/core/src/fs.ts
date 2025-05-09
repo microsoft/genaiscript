@@ -78,6 +78,7 @@ export function expandHomeDir(dir: string) {
  */
 export async function writeText(fn: string, content: string) {
     if (!fn) throw new Error("filename is required")
+    if (typeof content !== "string") throw new Error("content must be a string")
     await ensureDir(dirname(fn))
     dbg(`writing text to file ${fn}`)
     await writeFile(fn, content, { encoding: "utf8" })

@@ -10,8 +10,8 @@ import source from "../../../../../packages/sample/genaisrc/samples/gcm.genai.mt
 
 The `gcm` script provides a guided flow to create commits with generated messages.
 It starts by generating a commit message based on the staged changes in your Git repository
-using an [inline prompt](/genaiscript/reference/scripts/inline-prompts)
-and then asks the user to commit the changes or to regenerate the message.
+using an [inline prompt](/genaiscript/reference/scripts/inline-prompts),
+and then asks the user to commit the changes or regenerate the message.
 
 ```text
 compute diff
@@ -24,7 +24,7 @@ loop
 
 ## Configuration
 
-First off, we define the `script` function, which sets up our GenAI script by providing a title and a description, and specifying the model we'll be using:
+First, we define the `script` function, which sets up our GenAI script by providing a title and a description, and specifying the model we'll be using:
 
 ```ts
 script({
@@ -36,8 +36,8 @@ script({
 
 ## Look for changes
 
-Next up, we check for any staged changes in your Git repository using `git diff`.
-If there's nothing staged, GenAI kindly offers to stage all changes for you:
+Next, we check for any staged changes in your Git repository using `git diff`.
+If there is nothing staged, GenAI kindly offers to stage all changes for you:
 
 ```ts
 // Check for staged changes and stage all changes if none are staged
@@ -109,7 +109,7 @@ The following measures are taken to ensure the safety of the generated content.
     - [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content)
 -   The commit message is reviewed and approved by the user before committing the changes.
 
-Additional measures to further enhance safety would be to run [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
-or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).
+Additional measures to further enhance safety include running [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
+or validating the message with a [content safety service](/genaiscript/reference/scripts/content-safety).
 
 Refer to the [Transparency Note](/genaiscript/reference/transparency-note/) for more information on content safety.

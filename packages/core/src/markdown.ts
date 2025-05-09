@@ -97,3 +97,34 @@ export function MarkdownStringify(
 
     return render(obj, 0) + "\n"
 }
+
+/**
+ * Splits a markdown string into an array of parts, where each part is either a text block or an image block.
+ * Image blocks are objects of the form { type: "image", alt: string, url: string }.
+ * Text blocks are objects of the form { type: "text", text: string }.
+ * @param markdown The markdown string to split.
+ */
+export function splitMarkdownTextImageParts(markdown: string) {
+    const regex = /!\[([^\]]*)\]\(([^)]+)\)/g
+    const parts: (
+        | { type: "text"; text: string }
+        | { type: "image"; alt?: string; url?: string }
+    )[] = []
+    let lastIndex = 0
+    let match: RegExpExecArray | null
+
+    while ((match = regex.exec(markdown)) !== null) {
+        if (match.index > lastIndex) {
+            const text = markdown.slice(lastIndex, match.index)
+            if (text) parts.push({ type: "text", text })
+        }
+
+        parts.push({ type: "image", alt: match[1], url: match[2] })
+        lastIndex = regex.lastIndex
+    }
+    if (lastIndex < markdown.length) {
+        const text = markdown.slice(lastIndex)
+        if (text) parts.push({ type: "text", text })
+    }
+    return parts
+}

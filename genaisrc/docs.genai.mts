@@ -69,7 +69,7 @@ if (!applyEdits)
 
 // filter by diff
 const gitDiff = diff ? await git.diff({ base: "dev" }) : undefined
-output.fence(gitDiff)
+dbg(`diff: %s`, gitDiff)
 const diffFiles = gitDiff ? DIFF.parse(gitDiff) : undefined
 if (diff && !diffFiles?.length) cancel(`no diff files found, exiting...`)
 if (diffFiles?.length) {
@@ -121,6 +121,7 @@ for (const file of files) {
             judgeCost: 0,
             edits: 0,
             updated: 0,
+            nits: 0,
         })
         await generateDocs(file, stats.at(-1))
     }
@@ -213,6 +214,7 @@ async function generateDocs(file: WorkspaceFile, fileStats: any) {
         const updated = `${docs}\n${missingDoc.text()}`
         edits.replace(missingDoc, updated)
         fileStats.edits++
+        fileStats.nits++
     }
 
     // apply all edits and write to the file
@@ -311,7 +313,7 @@ rule:
             },
             {
                 APPLY: "The <NEW_DOCS> is a significant improvement to <ORIGINAL_DOCS>.",
-                NIT: "The <NEW_DOCS> contains nits (minor adjustments) to <ORIGINAL_DOCS>.",
+                NIT: "The <NEW_DOCS> contains nitpicks (minor adjustments) to <ORIGINAL_DOCS>.",
             },
             {
                 model: "large",

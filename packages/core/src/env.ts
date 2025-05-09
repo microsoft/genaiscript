@@ -51,6 +51,7 @@ import {
     SGLANG_API_BASE,
     MODEL_PROVIDER_VLLM,
     VLLM_API_BASE,
+    GITHUB_TOKENS,
 } from "./constants"
 import { runtimeHost } from "./host"
 import { parseModelIdentifier } from "./models"
@@ -244,12 +245,12 @@ export async function parseTokenFromEnv(
 
     if (provider === MODEL_PROVIDER_GITHUB) {
         dbg(`processing ${MODEL_PROVIDER_GITHUB}`)
-        const tokenVar = env.GITHUB_MODELS_TOKEN
-            ? "GITHUB_MODELS_TOKEN"
-            : "GITHUB_TOKEN"
-        const token = env[tokenVar]
-        if (!token) {
-            throw new Error("GITHUB_MODELS_TOKEN or GITHUB_TOKEN must be set")
+        const res = findEnvVar(env, "", [
+            "GITHUB_MODELS_TOKEN",
+            ...GITHUB_TOKENS,
+        ])
+        if (!res?.value) {
+            throw new Error("GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set")
         }
         const type = "openai"
         const base = GITHUB_MODELS_BASE
@@ -258,8 +259,8 @@ export async function parseTokenFromEnv(
             model,
             base,
             type,
-            token,
-            source: `env: ${tokenVar}`,
+            token: res.value,
+            source: `env: ${res.name}`,
         } satisfies LanguageModelConfiguration
     }
 

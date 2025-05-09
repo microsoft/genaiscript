@@ -231,9 +231,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
 
         dbg(`pulling model: ${model} from provider: ${provider}`)
         const res = await pullModel(cfg, options)
-        if (res.ok) {
+        if (res?.ok) {
             this.pulledModels.push(modelId)
-        } else if (res.error) {
+        } else if (res?.error) {
             logError(`${provider}: ${errorMessage(res.error)}`)
             trace?.error(`${provider}: ${errorMessage(error)}`, error)
         }
@@ -297,7 +297,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                             `${providerName} token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`
                         )
                         logVerbose(azureTokenError.message)
-                        trace.error(
+                        trace?.error(
                             `${providerName} token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`,
                             azureTokenError
                         )
@@ -319,7 +319,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                             `Azure AI Inference token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`
                         )
                         logVerbose(azureTokenError.message)
-                        trace.error(
+                        trace?.error(
                             `Azure AI Inference token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`,
                             azureTokenError
                         )
@@ -343,7 +343,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                             `Azure AI Serverless token not available for ${modelId}`
                         )
                         logVerbose(azureTokenError.message)
-                        trace.error(
+                        trace?.error(
                             `Azure AI Serverless token not available for ${modelId}`,
                             azureTokenError
                         )

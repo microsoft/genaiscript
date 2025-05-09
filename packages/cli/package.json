@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "1.134.2",
+  "version": "1.135.0",
   "main": "built/genaiscript.cjs",
   "type": "commonjs",
   "bin": {
@@ -53,13 +53,17 @@
   ],
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
+  "overrides": {
+    "glob": "^11.0.2",
+    "@mapbox/node-pre-gyp": "^2.0.0"
+  },
   "resolutions": {
     "glob": "^11.0.2",
     "@mapbox/node-pre-gyp": "^2.0.0"
   },
   "dependencies": {
-    "@anthropic-ai/bedrock-sdk": "^0.12.6",
-    "@anthropic-ai/sdk": "^0.40.1",
+    "@anthropic-ai/bedrock-sdk": "0.21.1",
+    "@anthropic-ai/sdk": "0.50.2",
     "@azure/identity": "^4.9.1",
     "@azure/search-documents": "^12.1.0",
     "@huggingface/jinja": "^0.5.0",

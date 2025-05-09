@@ -2,7 +2,7 @@
     "name": "genaiscript-workspace",
     "displayName": "GenAIScript",
     "description": "Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.",
-    "version": "1.134.2",
+    "version": "1.135.0",
     "license": "MIT",
     "private": true,
     "workspaces": {
@@ -90,10 +90,11 @@
         "genai:blog-images": "node packages/cli/built/genaiscript.cjs convert blog-image \"docs/src/content/docs/blog/*.md*\" --no-run-trace --no-output-trace",
         "genai:docs-images": "node packages/cli/built/genaiscript.cjs convert docs-image \"docs/src/content/docs/getting-started/**/*.md*\" \"docs/src/content/docs/reference/**/*.md*\" --no-run-trace --no-output-trace",
         "commit": "yarn pretty && yarn compile && yarn test:core && yarn gcm",
-        "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model gcm",
-        "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4.1 --vars base=dev",
+        "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model gcm --no-run-trace --no-output-trace",
+        "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4.1 --vars base=dev --no-run-trace --no-output-trace",
         "prd:visuals": "node packages/cli/built/genaiscript.cjs run prd-visuals -prd --model github:gpt-4.1 --vars base=dev",
         "prd:zine": "node packages/cli/built/genaiscript.cjs run prd-zine -prd --model github:gpt-4.1 --vars base=dev",
+        "prd:meme": "node packages/cli/built/genaiscript.cjs run prd-meme -prd --model github:gpt-4.1 --vars base=dev",
         "prd:sketch": "node packages/cli/built/genaiscript.cjs run prd-sketch -prd --model github:gpt-4.1 --vars base=dev",
         "prd:narration": "node packages/cli/built/genaiscript.cjs run prd-narration -prd --model github:gpt-4.1 --vars base=dev",
         "prd:dev": "node packages/cli/built/genaiscript.cjs run prd -prd --model azure:gpt-4.1_2025-04-14 --vars maxTokens=500000",
@@ -127,6 +128,6 @@
         "npm-run-all": "^4.1.5",
         "prettier": "^3.5.3",
         "prettier-plugin-curly": "^0.3.2",
-        "zx": "^8.5.3"
+        "zx": "^8.5.4"
     }
 }

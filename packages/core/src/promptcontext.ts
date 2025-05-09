@@ -130,10 +130,11 @@ export async function createPromptContext(
             )
             try {
                 const { files, matches } = await grepSearch(query, {
-                    path: arrayify(path),
-                    glob: arrayify(glob),
+                    path,
+                    glob,
                     ...rest,
                     trace: grepTrace,
+                    cancellationToken,
                 })
                 grepTrace.files(matches, {
                     model,

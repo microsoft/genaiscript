@@ -1,7 +1,7 @@
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { dataToMarkdownTable } from "./csv"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./llmdiff"
-import { errorMessage } from "./error"
+import { errorMessage, isCancelError } from "./error"
 import { unquote } from "./unwrappers"
 import { fileExists, readText } from "./fs"
 import { isGlobMatch } from "./glob"
@@ -181,6 +181,7 @@ export async function computeFileEdits(
                 if (oannotations) annotations = oannotations.slice(0)
             }
         } catch (e) {
+            if (isCancelError(e)) throw e
             logError(e)
             opTrace.error(`output processor failed`, e)
         } finally {

@@ -8,8 +8,8 @@ sidebar:
 import { Code } from "@astrojs/starlight/components"
 import source from "../../../../../packages/sample/genaisrc/samples/iat.genai.mts?raw"
 
-Alt text is essential for making images accessible to everyone, including those with visual impairments. It provides a textual description of the image, allowing screen readers to convey the content to users who can't see the image.
-However, writing alt text for images can be time-consuming, especially when dealing with a large number of images. This is where AI can help. By using a language model like OpenAI's GPT-4, you can generate alt text for images automatically, thus saving you time and effort.
+Alt text is essential for making images accessible to everyone, including those with visual impairments. It provides a textual description of the image, allowing screen readers to convey the content to users who cannot see the image.
+However, writing alt text for images can be time-consuming, especially when dealing with a large number of images. This is where AI can help. By using a language model like OpenAI's GPT-4, you can generate alt text for images automatically, thus saving time and effort.
 
 In this sample, we will build a tool that generates alt text for images in Markdown files.
 
@@ -43,7 +43,7 @@ script({
 ```
 
 Here we declare the script with a title and description, specifying it uses OpenAI's GPT-4 model.
-We also set parameters for the file paths, choice to regenerate all descriptions, and the assets path.
+We also set parameters for the file paths, the option to regenerate all descriptions, and the assets path.
 
 Next, we extract environmental variables:
 
@@ -157,7 +157,7 @@ The following measures are taken to ensure the safety of the generated content.
 - This script includes system prompts to prevent prompt injection and harmful content generation.
     - [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak)
     - [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content)
-- The generated description is saved to a file at a specific path, which allows for a manual review before committing the changes.
+- The generated description is saved to a file at a specific path, which allows for manual review before committing the changes.
 
 Additional measures to further enhance safety would be to run [a model with a safety filter](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
 or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).

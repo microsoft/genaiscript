@@ -1030,6 +1030,19 @@ interface OutputTrace extends ToolCallTrace {
     itemValue(name: string, value: any, unit?: string): void
 
     /**
+     * Adds a url link item
+     * @param name name url
+     * @param url url. If missing, name is treated as the url.
+     */
+    itemLink(name: string, url?: string | URL, title?: string): void
+
+    /**
+     * Writes a paragraph of text with empty lines before and after.
+     * @param text paragraph to write
+     */
+    p(text: string): void
+
+    /**
      * Logs a warning message.
      * @param msg - The warning message to log.
      */
@@ -1200,6 +1213,11 @@ interface WorkspaceGrepOptions extends FilterGitFilesOptions {
      * Read file content. default is true.
      */
     readText?: boolean
+
+    /**
+     * Enable grep logging to discover what files are searched.
+     */
+    debug?: boolean
 }
 
 interface WorkspaceGrepResult {
@@ -1253,9 +1271,9 @@ interface WorkspaceFileSystem {
     ): Promise<WorkspaceFile[]>
 
     /**
-     * Performs a grep search over the files in the workspace
-     * @param pattern
-     * @param globs
+     * Performs a grep search over the files in the workspace using ripgrep.
+     * @param pattern A string to match or a regex pattern.
+     * @param options Options for the grep search.
      */
     grep(
         pattern: string | RegExp,
@@ -2152,6 +2170,29 @@ interface RunPromptResult {
  * Path manipulation functions.
  */
 interface Path {
+    parse(path: string): {
+        /**
+         * The root of the path such as '/' or 'c:\'
+         */
+        root: string
+        /**
+         * The full directory path such as '/home/user/dir' or 'c:\path\dir'
+         */
+        dir: string
+        /**
+         * The file name including extension (if any) such as 'index.html'
+         */
+        base: string
+        /**
+         * The file extension (if any) such as '.html'
+         */
+        ext: string
+        /**
+         * The file name without extension (if any) such as 'index'
+         */
+        name: string
+    }
+
     /**
      * Returns the last portion of a path. Similar to the Unix basename command.
      * @param path
@@ -3106,6 +3147,19 @@ interface Git {
     ): Promise<string>
 
     /**
+     * Git fetches the remote repository
+     * @param options
+     */
+    fetch(
+        remote: OptionsOrString<"origin">,
+        branchOrSha: string,
+        options?: {
+            prune?: boolean
+            all?: boolean
+        }
+    ): Promise<void>
+
+    /**
      * Lists the branches in the git repository
      */
     listBranches(): Promise<string[]>
@@ -3116,7 +3170,7 @@ interface Git {
      * @param options
      */
     listFiles(
-        scope: "modified-base" | "staged" | "modified",
+        scope?: "modified-base" | "staged" | "modified",
         options?: {
             base?: string
             /**
@@ -3403,6 +3457,7 @@ type GitHubWorkflowRunStatus =
 
 interface GitHubWorkflowRun {
     id: number
+    run_number: number
     name?: string
     display_title: string
     status: string
@@ -3411,6 +3466,8 @@ interface GitHubWorkflowRun {
     created_at: string
     head_branch: string
     head_sha: string
+    workflow_id: number
+    run_started_at?: string
 }
 
 interface GitHubWorkflowJob {
@@ -3534,6 +3591,12 @@ interface GitHub {
     info(): Promise<GitHubOptions | undefined>
 
     /**
+     * Gets the details of a GitHub workflow
+     * @param workflowId
+     */
+    workflow(workflowId: number | string): Promise<GitHubWorkflow>
+
+    /**
      * Lists workflows in a GitHub repository
      */
     listWorkflows(options?: GitHubPaginationOptions): Promise<GitHubWorkflow[]>
@@ -3551,6 +3614,12 @@ interface GitHub {
             status?: GitHubWorkflowRunStatus
         } & GitHubPaginationOptions
     ): Promise<GitHubWorkflowRun[]>
+
+    /**
+     * Gets the details of a GitHub Action workflow run
+     * @param runId
+     */
+    workflowRun(runId: number | string): Promise<GitHubWorkflowRun>
 
     /**
      * Downloads a GitHub Action workflow run log

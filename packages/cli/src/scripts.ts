@@ -7,7 +7,7 @@ import { copyPrompt } from "../../core/src/copy"
 import {
     fixPromptDefinitions,
     createScript as coreCreateScript,
-    fixCustomPrompts,
+    fixGitHubCopilotInstructions,
 } from "../../core/src/scripts"
 import { logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
@@ -143,12 +143,12 @@ export async function createScript(
  * @param options - Optional settings to fix specific types of prompts, such as GitHub Copilot prompts or custom prompts.
  */
 export async function fixScripts(options?: {
-    githubCopilotPrompt?: boolean
+    githubCopilotInstructions?: boolean
     docs?: boolean
 }) {
     const project = await buildProject() // Build the project to access information
     await fixPromptDefinitions(project) // Fix any issues in prompt definitions
-    await fixCustomPrompts(options)
+    await fixGitHubCopilotInstructions(options)
 }
 
 /**
