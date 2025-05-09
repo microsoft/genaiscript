@@ -111,7 +111,8 @@
         "ollama:stop": "docker stop ollama && docker rm ollama",
         "whisper": "yarn whisper:stop && yarn whisper:start",
         "whisper:start": "docker run -d -p 9000:9000 -e ASR_MODEL=base -e ASR_ENGINE=openai_whisper onerahmet/openai-whisper-asr-webservice:latest",
-        "whisper:stop": "docker stop whisper && docker rm ollama"
+        "whisper:stop": "docker stop whisper && docker rm ollama",
+        "disk:check": "du -h --max-depth=1 | sort -hr"
     },
     "release-it": {
         "github": {
