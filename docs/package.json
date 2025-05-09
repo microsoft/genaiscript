@@ -10,7 +10,7 @@
     "start": "astro dev --host",
     "check": "astro check",
     "build": "astro build",
-    "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
+    "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript && node fixllms.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "genai:test": "node ../packages/cli/built/genaiscript.cjs test src/**/*.md",
