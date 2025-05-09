@@ -17,7 +17,7 @@ import {
 import { TraceOptions } from "./trace"
 import { resolve } from "node:path"
 import { LanguageModel } from "./chat"
-import { NotSupportedError } from "./error"
+import { errorMessage, NotSupportedError } from "./error"
 import {
     LanguageModelConfiguration,
     LogLevel,
@@ -29,6 +29,8 @@ import { CancellationToken } from "./cancellation"
 import { createNodePath } from "./path"
 import { McpClientManager } from "./mcpclient"
 import { ResourceManager } from "./mcpresource"
+import { execSync } from "node:child_process"
+import { shellQuote } from "./shell"
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
 export class TestHost implements RuntimeHost {
@@ -177,15 +179,28 @@ export class TestHost implements RuntimeHost {
     }
 
     // Placeholder for executing a shell command in a container
-    exec(
+    async exec(
         containerId: string,
         command: string,
         args: string[],
         options: ShellOptions
     ): Promise<ShellOutput> {
-        throw new Error("Method not implemented.")
+        if (containerId) throw new Error("Container not started")
+        try {
+            const stdout = await execSync(shellQuote([command, ...args]))
+            return {
+                stdout: stdout.toString(),
+                exitCode: 0,
+                failed: false,
+            }
+        } catch (error) {
+            return {
+                stderr: errorMessage(error),
+                failed: true,
+                exitCode: -1,
+            }
+        }
     }
-
     // Placeholder for creating a container host
     container(
         options: ContainerOptions & TraceOptions
