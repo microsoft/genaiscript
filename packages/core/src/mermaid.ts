@@ -1,9 +1,19 @@
 import { errorMessage } from "./error"
+import type { Mermaid } from "mermaid"
+
+let _mermaid: Promise<Mermaid>
+async function importMermaid() {
+    if (_mermaid) return _mermaid
+    // Optional: Configure Mermaid if needed
+    const mermaid = (await import("mermaid")).default
+    mermaid.initialize({ startOnLoad: false })
+    return mermaid
+}
 
 export async function mermaidParse(
     text: string
 ): Promise<{ diagramType?: string; error?: string }> {
-    const mermaid = (await import("mermaid")).default
+    const mermaid = await importMermaid()
     try {
         const res = await mermaid.parse(text, { suppressErrors: false })
         if (!res) return { error: "no result" }
