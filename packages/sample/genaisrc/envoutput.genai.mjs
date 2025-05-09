@@ -1,4 +1,4 @@
-script({ model: "echo" })
+script({ model: "echo", group: "mcp" })
 const { output } = env
 
 for (let i = 1; i <= 6; i++) output.heading(i, "heading " + i)
