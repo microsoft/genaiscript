@@ -128,13 +128,17 @@ export async function startMcpServer(
             const res = await run(name, files as string[], {
                 vars: vars as Record<string, any>,
             })
-            dbg(`tool execution result: ${JSON.stringify(res)}`)
+            const isError = res.status !== "success" || !!res.error
+            const text = res?.error?.message || res.text || ""
+            // const parts = await splitMarkdownTextImageParts(text)
+            // dbg(`tool content:\n%O`, parts)
             return {
-                isError: res.status !== "success" || !!res.error,
+                isError,
                 content: [
                     {
                         type: "text",
-                        text: res?.error?.message || res.text,
+                        text,
+                        // parts,
                     },
                 ],
             } satisfies CallToolResult

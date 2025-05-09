@@ -323,10 +323,10 @@
                         "default": true,
                         "description": "Use local type definitions for GenAIScript (.genaiscript.d.ts and tsconfig.json in any project containing *.genai.* files)."
                     },
-                    "genaiscript.githubCopilotPrompt": {
+                    "genaiscript.githubCopilotInstructions": {
                         "type": "boolean",
                         "default": true,
-                        "description": "Add custom prompt in .github/prompts folder to support GenAIScript script generation."
+                        "description": "Add custom instructions.md in .genaiscript/instructions folder to support GenAIScript script generation."
                     },
                     "genaiscript.hideServerTerminal": {
                         "type": "boolean",

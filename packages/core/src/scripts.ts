@@ -4,7 +4,10 @@ import {
     NEW_SCRIPT_TEMPLATE,
     TYPE_DEFINITION_BASENAME,
 } from "./constants"
-import { githubCopilotCustomPrompt, promptDefinitions } from "./default_prompts"
+import {
+    githubCopilotInstructions as ghInstructions,
+    promptDefinitions,
+} from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
 import { logVerbose } from "./util"
@@ -132,11 +135,11 @@ let _fullDocsText: string
  * Ensures `.gitignore` is updated to ignore all files in the `.genaiscript` directory.
  * Fetches and processes external documentation content if required.
  */
-export async function fixCustomPrompts(options?: {
-    githubCopilotPrompt?: boolean
+export async function fixGitHubCopilotInstructions(options?: {
+    githubCopilotInstructions?: boolean
     docs?: boolean
 }) {
-    const { githubCopilotPrompt, docs } = options || {}
+    const { githubCopilotInstructions, docs } = options || {}
     // write genaiscript.d.ts
     const gdir = dotGenaiscriptPath()
     await writeText(host.path.join(gdir, ".gitignore"), "*")
@@ -144,13 +147,13 @@ export async function fixCustomPrompts(options?: {
         host.path.join(gdir, TYPE_DEFINITION_BASENAME),
         promptDefinitions[TYPE_DEFINITION_BASENAME]
     ) // Write the TypeScript definition file
-    if (githubCopilotPrompt) {
-        const pdir = dotGenaiscriptPath("prompts")
-        const pn = host.path.join(pdir, "genaiscript.prompt.md")
-        await writeText(pn, githubCopilotCustomPrompt) // Write the GitHub Copilot prompt file
+    if (githubCopilotInstructions) {
+        const pdir = dotGenaiscriptPath("instructions")
+        const pn = host.path.join(pdir, "genaiscript.instructions.md")
+        await writeText(pn, ghInstructions) // Write the GitHub Copilot instructions file
     }
-    if (githubCopilotPrompt || docs) {
-        const ddir = dotGenaiscriptPath("docs")
+    if (githubCopilotInstructions || docs) {
+        const ddir = dotGenaiscriptPath("instructions")
         const route = "llms-full.txt"
         const url = `${DOCS_URL}/${route}`
         const dn = host.path.join(ddir, route)

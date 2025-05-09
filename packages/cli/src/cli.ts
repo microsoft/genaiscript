@@ -443,8 +443,8 @@ export async function cli() {
             "Write TypeScript definition files in the script folder to enable type checking."
         )
         .option(
-            "-gcp, --github-copilot-prompt",
-            "Write GitHub Copilot custom prompt for better GenAIScript code generation"
+            "-gci, --github-copilot-instructions",
+            "Write GitHub Copilot custom instructions for better GenAIScript code generation"
         )
         .option("--docs", "Download documentation")
         .action(fixScripts) // Action to fix scripts

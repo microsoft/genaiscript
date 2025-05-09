@@ -4,34 +4,41 @@ description: Super charge your Copilot chat with these tips and tricks.
 date: 2025-03-11
 authors: pelikhan
 tags:
-  - GitHub Copilot
-  - GitHub Copilot Chat
-  - Tips and Tricks
-  - Productivity
+    - GitHub Copilot
+    - GitHub Copilot Chat
+    - Tips and Tricks
+    - Productivity
 cover:
-  alt: The image depicts a stylized, 8-bit graphic of a computer screen showcasing
-    GitHub Copilot Chat. Abstract visual elements represent API documentation
-    using small code snippets and blocks, illustrating their integration within
-    the chat interface. The scene conveys a sense of technology and software
-    development, designed with corporate aesthetics using a simple five-color
-    palette, without any people or text.
-  image: ./super-charge-copilot-chat.png
+    alt:
+        The image depicts a stylized, 8-bit graphic of a computer screen showcasing
+        GitHub Copilot Chat. Abstract visual elements represent API documentation
+        using small code snippets and blocks, illustrating their integration within
+        the chat interface. The scene conveys a sense of technology and software
+        development, designed with corporate aesthetics using a simple five-color
+        palette, without any people or text.
+    image: ./super-charge-copilot-chat.png
 excerpt: "Here’s a game-changer for boosting GitHub Copilot Chat’s performance
-  with GenAIScript: integrate your entire documentation into the chat session.
-  By compressing the GenAIScript docs to fit into the context window, you enable
-  Copilot Chat to deliver sharper, more context-aware results. This approach
-  takes advantage of the latest support for reusable prompts and local workspace
-  indexing, seamlessly embedding documentation to refine interactions. Curious
-  about setting it up? Dive into the linked guide and unlock its potential."
-
+    with GenAIScript: integrate your entire documentation into the chat session.
+    By compressing the GenAIScript docs to fit into the context window, you enable
+    Copilot Chat to deliver sharper, more context-aware results. This approach
+    takes advantage of the latest support for reusable prompts and local workspace
+    indexing, seamlessly embedding documentation to refine interactions. Curious
+    about setting it up? Dive into the linked guide and unlock its potential."
 ---
 
-import prompt from "../../../../../.github/prompts/genaiscript.prompt.md?raw"
 import { Code } from "@astrojs/starlight/components"
 import { YouTube } from "astro-embed"
 import BlogNarration from "../../../components/BlogNarration.astro"
 
 <BlogNarration />
+
+:::note
+
+Visual Studio Code v100 changed slightly the way to add the `genaiscript` prompt is added to the chat session.
+
+- [Follow this guide](/genaiscript/reference/vscode/github-copilot-chat/#genaiscript-custom-prompt)
+
+:::
 
 Do you know to know an awesome trick to make GitHub Copilot Chat an expert in GenAIScript?
 Here's how you can supercharge your Copilot chat with simple technique.
@@ -54,17 +61,10 @@ into the context to help the LLM provider better answers.
 ## How it works?
 
 The release of the latest GitHub Copilot Chat is adding support for [reusable prompts](https://code.visualstudio.com/docs/copilot/copilot-customization#_reusable-prompt-files-experimental).
-GiHub Copilot Chat also added support for local workspace indexing, which helps with handling large amount of context.
+GitHub Copilot Chat also added support for local workspace indexing, which helps with handling large amount of context.
 
 GenAIScript leverages these features by adding a custom prompt that includes the GenAIScript documentation.
 
-<Code
-    code={prompt}
-    wrap={true}
-    lang="text"
-    title=".genaiscript/prompts/genaiscript.prompt.md"
-/>
-
 ## To be continued
 
-This technique is really new and there's probably lots of improvment to be done.
+This technique is really new and there's probably lots of improvement to be done.
