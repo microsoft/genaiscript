@@ -6,7 +6,7 @@ permissions:
 on:
     workflow_dispatch:
     push:
-        branches: [main, dev]
+        branches: [dev]
         paths:
             - "yarn.lock"
 concurrency:

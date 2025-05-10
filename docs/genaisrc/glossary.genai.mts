@@ -13,7 +13,7 @@ script({
 })
 const { output } = env
 const files = env.files.slice(0, env.vars.n)
-const glossaryFilename = "docs/src/docs/glossary.json"
+const glossaryFilename = "docs/src/content/docs/glossary.json"
 const originalGlossary = (await workspace.readJSON(glossaryFilename)) || {}
 const entries = {}
 for (const file of files.filter(
@@ -27,7 +27,9 @@ for (const file of files.filter(
             const fileRef = ctx.def("FILE", file)
             ctx.$`## Task
       Extract all glossary terms and their definitions from ${fileRef}.
-      **Preserve any Markdown-formatted links** (e.g., [text](url)) in definitions exactly as they appear.
+      - **Preserve any Markdown-formatted links** (e.g., [text](url)) in definitions exactly as they appear.
+      - Ensure proper spelling and grammar.
+      - Ignore code identifiers, variable names, function names or API names.
 
       ## Existing glossary
 
@@ -73,11 +75,13 @@ const res = await runPrompt(
         ctx.$`
     You may have at most ${MAX} glossary entries.
     From ${termsRef}, consolidate and cap at ${MAX} entries.
-    **Preserve any Markdown-formatted links** (e.g., [text](url)) in definitions exactly as they appear.
+    
+    - **Preserve any Markdown-formatted links** (e.g., [text](url)) in definitions exactly as they appear.
+    - Ensure proper spelling and grammar.
 
     ## Task:
       1. Merge synonymous or highly related terms. If possible, reuse terms from the existing glossary ${oldTermsRef}.
-      2. Refine definitions for clarity and brevity.
+      2. Refine definitions for clarity and brevity. Fix spelling and grammar.
       3. **Keep all Markdown links** (e.g., [text](url)) intact.
       4. Return at most ${MAX} items.
 
