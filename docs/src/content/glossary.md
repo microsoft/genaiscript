@@ -13,96 +13,127 @@ Each term is linked to its corresponding section in the documentation for easy r
 
 ## Terms
 
-- **agent**: GenAIScript's indirection layer to interact with LLMs and tools for file system queries.
-- **agents-oct2024**: Presentation on agents from October 2024: [agents-oct2024](https://microsoft.github.io/genaiscript/slides/agents-oct2024/)
-- **ast**: Presentation on Abstract Syntax Trees: [ast](https://microsoft.github.io/genaiscript/slides/ast/)
-- **best practices**: See [Best Practices](/genaiscript/getting-started/best-practices).
-- **build**: Builds the production site to `./dist/`.
-- **builtin_tools**: Set of tools referenced in system prompts for data fetching, file operations, and command execution.
-- **CLI**: [CLI](/genaiscript/reference/cli) documents the command-line interface for automating GenAIScript execution.
+- **.md**: Markdown file format for authoring content with easy formatting and structure.
+- **.mdx**: MDX is Markdown extended with embedded React components.
+- **agent data**: Agent that queries data from files.
+- **agent docs**: Agent that queries the documentation.
+- **agent fs**: Agent for file system queries using LLM and tools for file operations.
+- **agent git**: Agent for repository queries using Git with full context.
+- **agent github**: Agent for GitHub queries and operations.
+- **agent interpreter**: Agent for running code interpreters (Python, Math).
+- **agent planner**: Agent for generating plans to complete tasks.
+- **agent user_input**: Agent for asking user input (confirm, select, answer).
+- **agent video**: Agent to analyze and process video files or URLs.
+- **agent web**: Agent for web search tasks.
+- **agent z3**: Agent for formalizing and solving problems with the Z3 constraint solver.
+- **agent_fs**: File system agent that combines LLM with tools for querying and modifying files.
+- **agents**: GenAIScript's abstraction layer that combines LLMs with tools for tasks like file system and repository queries.
+- **agents-oct2024**: [agents-oct2024](https://microsoft.github.io/genaiscript/slides/agents-oct2024/)
+- **ast**: [ast](https://microsoft.github.io/genaiscript/slides/ast/)
+- **Astro**: Astro is a modern static site generator focused on performance and ease of use for building fast websites and apps.
+- **Awesome Scripts**: Community-contributed scripts, accessible in the Awesome Scripts documentation section.
+- **best practices**: See [Best Practices](/genaiscript/getting-started/best-practices) for advice on script writing and usage.
+- **Builtin tools**: Built-in GenAIScript tools for data fetching, file operations, and repository management.
+- **builtin_tools**: Set of built-in tools used in system prompts for fetching data, file ops, and command execution.
+- **case studies**: Real-world usage examples of GenAIScript.
+- **CLI**: Command-line interface for automating GenAIScript executions. See [CLI](/genaiscript/reference/cli).
+- **command palette**: Interface in Visual Studio Code for quickly executing commands via search.
 - **content**: Text or data read from a file, subject to transformation.
-- **Create Script snippet**: Guidance on creating scripts with Visual Studio Code or editors using GenAIScript commands.
-- **default**: Default presentation covering various topics: [default](https://microsoft.github.io/genaiscript/slides/default/)
-- **dev**: Starts the local development server at `localhost:4321`.
-- **development environment**: Tools and settings used to build and test software.
-- **eng-july2024**: Engineering presentation from July 2024: [eng-july2024](https://microsoft.github.io/genaiscript/slides/eng-july2024/)
-- **env.files**: When running a script in Visual Studio Code on files or a folder, these are passed as `env.files` for script reuse.
-- **feb2025**: Presentation for February 2025: [feb2025](https://microsoft.github.io/genaiscript/slides/feb2025/)
-- **fetch**: Fetches data from a URL (restricted to allowed domains).
-- **foundation models and LLMs**: Large AI models GenAIScript works with, used for generating text or processing information.
-- **fs_ask_file**: Runs an LLM query on file contents
-- **fs_data_query**: Queries a file using GROQ syntax.
-- **fs_diff_files**: Computes a diff between two files. Use git diff for file version comparisons.
-- **fs_find_files**: Finds files matching a glob pattern or content regex. Use cautiously if searching many files.
-- **fs_read_file**: Reads a file as text from the file system. Returns undefined if not found.
-- **garage-august2024**: Garage presentation from August 2024: [garage-august2024](https://microsoft.github.io/genaiscript/slides/garage-august2024/)
-- **GenAIScript**: GenAIScript is a scripting language integrating LLMs into scripts using simplified JavaScript syntax.
+- **Contributing**: Project welcomes contributions
+- **Create Script snippet**: Guidance for creating scripts in editors using GenAIScript commands.
+- **Debugging local scripts**: Open a JavaScript Debug Terminal and run the script with specific yarn commands.
+- **default**: [default](https://microsoft.github.io/genaiscript/slides/default/)
+- **Dependencies**: Run `yarn install:force` to refresh the lock file.
+- **development environment**: Tools and settings for building and testing software.
+- **Docs**: Run `docs` to launch the documentation site and check for broken links.
+- **eng-july2024**: [eng-july2024](https://microsoft.github.io/genaiscript/slides/eng-july2024/)
+- **features**: Core functionalities that enable effective prompt tooling in GenAIScript.
+- **feb2025**: [feb2025](https://microsoft.github.io/genaiscript/slides/feb2025/)
+- **fetch**: Fetches data from allowed domains.
+- **files parameters**: Allow scripts to target one or multiple files, enhancing reusability.
+- **foundation models**: Foundation models and LLMs are large AI models used for text generation and information processing in GenAIScript.
+- **fs_ask_file**: Runs an LLM query over file contents to extract information.
+- **fs_data_query**: Queries data in a file using GROQ syntax.
+- **fs_diff_files**: Computes a diff between two files. Use git diff for file version comparison.
+- **fs_find_files**: Finds files by glob pattern and optionally regex in content. Use cautiously with many files.
+- **fs_read_file**: Reads a file as text
+- **garage-august2024**: [garage-august2024](https://microsoft.github.io/genaiscript/slides/garage-august2024/)
 - **git_branch_current**: Gets the current branch.
-- **git_branch_default**: Gets the default branch using the client.
-- **git_branch_list**: Lists all branches in the repository.
-- **git_diff**: Computes file diffs using git. Large diffs return only the list of changed files.
-- **git_last_tag**: Gets the latest tag in the repository.
-- **git_list_commits**: Lists commit history using git log.
+- **git_branch_default**: Gets the default branch from the client.
+- **git_branch_list**: Lists all repository branches.
+- **git_diff**: Computes file diffs via git diff
+- **git_last_tag**: Gets the latest tag from the repository.
+- **git_list_commits**: Displays repository commit history via git log.
 - **git_status**: Shows repository status.
 - **github_actions_job_logs_diff**: Diffs two GitHub workflow job logs.
-- **github_actions_job_logs_get**: Downloads a GitHub workflow job log. For large logs, use log diff.
+- **github_actions_job_logs_get**: Downloads a GitHub workflow job log
 - **github_actions_jobs_list**: Lists all jobs for a workflow run.
 - **github_actions_workflows_list**: Lists all GitHub Actions workflows.
 - **github_files_get**: Gets a file from a GitHub repository.
 - **github_files_list**: Lists all files in a GitHub repository.
-- **github_issues_comments_list**: Lists comments for an issue.
+- **github_issues_comments_list**: Lists all comments for an issue.
 - **github_issues_get**: Gets a single issue by number.
 - **github_issues_list**: Lists all issues in a repository.
 - **github_pulls_get**: Gets a single pull request by number.
 - **github_pulls_list**: Lists all pull requests in a repository.
 - **github_pulls_review_comments_list**: Lists review comments for a pull request.
-- **grep**: Function to search workspace files by glob pattern and content regex.
-- **Markdown**: Lightweight markup language for formatting plaintext. Created by John Gruber in 2004, it's popular for documentation.
-- **math_eval**: Evaluates a math expression. Use this tool instead of manual calculations.
-- **md_find_files**: Gets file structure of Markdown/MDX documentation. Returns filename, title, and description. Can search content with regex pattern.
-- **md_read_frontmatter**: Reads the frontmatter of a Markdown or MDX file.
-- **meta_prompt**: Applies OpenAI’s meta prompt guidelines to a user prompt. Based on OpenAI docs.
-- **meta_schema**: Generates a valid JSON schema for described JSON. Based on OpenAI docs.
-- **msr-eng-may2024**: Microsoft Research Engineering presentation from May 2024: [msr-eng-may2024](https://microsoft.github.io/genaiscript/slides/msr-eng-may2024/)
-- **networking-apr2024**: Networking presentation from April 2024: [networking-apr2024](https://microsoft.github.io/genaiscript/slides/networking-apr2024/)
+- **grep**: Function to search workspace files by glob or regex pattern.
+- **guides**: Instructional materials to improve scripting skills.
+- **latest news**: Recent updates or blog posts on GenAIScript.
+- **llm friendly docs**: Documentation formatted for optimal LLM crawler accessibility.
+- **Markdown**: Lightweight markup language for formatting plaintext, popular for documentation. Created by John Gruber in 2004.
+- **math_eval**: Evaluates mathematical expressions. Always use this tool for calculations.
+- **md_find_files**: Gets the file structure and metadata of Markdown/MDX docs. Can search content by regex.
+- **md_read_frontmatter**: Reads frontmatter of Markdown or MDX files.
+- **meta_prompt**: Applies OpenAI meta prompt guidelines to a user prompt. Based on [OpenAI docs](https://platform.openai.com/docs/guides/prompt-generation?context=text-out).
+- **meta_schema**: Generates a valid JSON schema for described JSON. See [OpenAI docs](https://platform.openai.com/docs/guides/prompt-generation?context=structured-output-schema).
+- **msr-eng-may2024**: [msr-eng-may2024](https://microsoft.github.io/genaiscript/slides/msr-eng-may2024/)
+- **networking-apr2024**: [networking-apr2024](https://microsoft.github.io/genaiscript/slides/networking-apr2024/)
 - **newContent**: Modified file content after applying transformations.
-- **node_test**: Builds and tests the project using `npm test`.
-- **overview-june2024**: Overview presentation from June 2024: [overview-june2024](https://microsoft.github.io/genaiscript/slides/overview-june2024/)
-- **overview-may2024**: Overview presentation from May 2024: [overview-may2024](https://microsoft.github.io/genaiscript/slides/overview-may2024/)
-- **patches**: Object in a script storing computed transformations for unique content matches.
-- **pnw-plse-may2024**: Pacific Northwest PLSE presentation from May 2024: [pnw-plse-may2024](https://microsoft.github.io/genaiscript/slides/pnw-plse-may2024/)
-- **presentation_2024**: Series of GenAIScript presentations on topics like engineering, networking, and system prompts, available online.
-- **preview**: Previews your build locally before deploying.
-- **prompt variable**: A way to include content in the prompt and refer to it later in the GenAIScript script.
-- **python_code_interpreter_copy_files_to_container**: Copies files from workspace to container. Only relative paths. Returns copied file paths in the container.
-- **python_code_interpreter_read_file**: Reads a file from the container file system. No absolute paths.
-- **python_code_interpreter_run**: Executes Python 3.12 code for data analysis in a sandbox. Only core scientific packages available. No network access.
+- **next steps**: Instructions for installing the extension or CLI, configuring LLMs, writing scripts, and reading documentation.
+- **node_test**: Builds and tests the project with `npm test`.
+- **overview-june2024**: [overview-june2024](https://microsoft.github.io/genaiscript/slides/overview-june2024/)
+- **overview-may2024**: [overview-may2024](https://microsoft.github.io/genaiscript/slides/overview-may2024/)
+- **patches**: Object in a script holding computed edits for unique content matches.
+- **pnw-plse-may2024**: [pnw-plse-may2024](https://microsoft.github.io/genaiscript/slides/pnw-plse-may2024/)
+- **presentation_2024**: Series of GenAIScript presentations on topics like engineering, networking, and system prompts.
+- **prompt variable**: Allows inclusion of content into a prompt for later reference in GenAIScript.
+- **prompting is coding**: Programmatically assemble prompts for LLMs using JavaScript, orchestrate LLMs, tools, and data.
+- **Pull Requests**: Create pull requests against the `dev` branch
+- **python_code_interpreter_copy_files_to_container**: Copies files from workspace to container (relative paths only).
+- **python_code_interpreter_read_file**: Reads a file from the Python container (no absolute paths).
+- **python_code_interpreter_run**: Executes Python 3.12 code for analysis in a docker container. No network. Only core scientific packages available.
 - **React 19**: Current version of React used, providing minimal dependencies.
-- **retrieval_fuzz_search**: Fuzzy keyword search over file contents.
-- **retrieval_vector_search**: Embeddings-based similarity search over files.
-- **retrieval_web_search**: Searches the web using Tavily or Bing Search.
-- **runPrompt**: Function to generate LLM prompts, defining context and task for required transformations.
-- **samples**: Sample scripts for GenAIScript, ready to use and modifiable. Community contributions are in the [Awesome Scripts](/genaiscript/samples/awesome) section.
-- **schemas**: GenAIScript supports output formats like file edits, JSON, and user-defined schemas: [Schemas](/genaiscript/reference/scripts/schemas).
-- **script**: Defines a sequence of commands within GenAIScript, including title, description, and parameters.
-- **Scripts**: [Scripts](/genaiscript/reference/scripts) provide a domain-specific JavaScript framework to build LLM requests.
-- **search and transform**: Uses LLMs for transformations based on text patterns, beyond simple search and replace.
-- **seattlejs-jan2025**: SeattleJS presentation from January 2025: [seattlejs-jan2025](https://microsoft.github.io/genaiscript/slides/seattlejs-jan2025/)
-- **system prompts**: Prompts for guarding against harmful content and jailbreaking. See [Content Safety](/genaiscript/reference/scripts/content-safety).
-- **think**: Appends a reasoning step to the log. Use for complex thought or memory caching—doesn't alter data.
-- **tools**: JavaScript callbacks registered with the LLM that execute code, search the web, read files, and more.
-- **transcribe**: Generates a transcript from audio/video using speech-to-text.
-- **translation**: Case study of GenAIScript translating document fragments: [Translation Case Study](/genaiscript/case-studies/documentation-translations).
+- **retrieval_fuzz_search**: Fuzzy keyword search within files.
+- **retrieval_vector_search**: Embeddings-based similarity search across files.
+- **retrieval_web_search**: Searches the web for queries using Tavily or Bing Search.
+- **runPrompt**: Function to create LLM prompts, defining context and the desired transformation.
+- **samples**: Sample GenAIScripts, ready to use and modify, including community [Awesome Scripts](/genaiscript/samples/awesome).
+- **schemas**: GenAIScript supports output formats like file edits, JSON, and user-defined schemas. See [Schemas](/genaiscript/reference/scripts/schemas).
+- **script**: Defines a sequence of commands in GenAIScript, including title, description, and parameters.
+- **script generation**: Creating scripts to automate tasks using GenAIScript commands.
+- **Scripts**: Scripts provide a domain-specific JavaScript framework to build LLM requests.
+- **search and transform**: Uses LLMs for text transformations based on patterns, beyond search and replace.
+- **seattlejs-jan2025**: [seattlejs-jan2025](https://microsoft.github.io/genaiscript/slides/seattlejs-jan2025/)
+- **slides**: https://microsoft.github.io/genaiscript/slides/
+- **Slides**: All `slides/*slides.md` files are compiled and deployed on build
+- **Starlight**: Starlight is a documentation framework built on Astro, optimized for technical documentation.
+- **system prompts**: Prompts to guard against harmful content and jailbreaking. See [Content Safety](/genaiscript/reference/scripts/content-safety).
+- **term**: GenAIScript: GenAIScript is a scripting language integrating LLMs into scripts using simplified JavaScript syntax.
+- **think**: Appends a reasoning step to the log for complex thoughts or memory caching.
+- **tools**: JavaScript callbacks registered with the LLM to execute code, search the web, or read files.
+- **transcribe**: Transcribes audio or video files using speech-to-text.
+- **translation**: Document translation case study: [Translation Case Study](/genaiscript/case-studies/documentation-translations).
 - **user_input_confirm**: Requests user confirmation for a message.
 - **user_input_select**: Prompts user to select an option.
 - **user_input_text**: Prompts user to input text.
-- **video_extract_audio**: Extracts audio from video to create an audio file. Returns filename.
-- **video_extract_clip**: Extracts a video clip from a file. Returns filename.
+- **video_extract_audio**: Extracts audio from video and returns audio filename.
+- **video_extract_clip**: Extracts a video clip and returns filename.
 - **video_extract_frames**: Extracts frames from a video file.
-- **video_probe**: Returns video file metadata.
-- **vision_ask_images**: Runs vision models to query images.
-- **Visual Studio Code Extension**: [Visual Studio Code Extension](/genaiscript/reference/vscode) offers features to author, debug, and deploy GenAIScripts.
-- **vs-aua**: Presentation on Visual Studio and AUA: [vs-aua](https://microsoft.github.io/genaiscript/slides/vs-aua/)
-- **vscode-elements**: Design system that mimics Visual Studio Code's look and feel.
-- **workspace**: GenAIScript environment for manipulating files, including searching, reading, and writing.
-- **z3**: Solves SMTLIB2 problems with the Z3 constraint solver.
+- **video_probe**: Returns metadata for a video file.
+- **vision_ask_images**: Uses vision models to query images.
+- **Visual Studio Code Extension**: Offers features to author, debug, and deploy GenAIScripts within Visual Studio Code. See [Visual Studio Code Extension](/genaiscript/reference/vscode).
+- **vs-aua**: [vs-aua](https://microsoft.github.io/genaiscript/slides/vs-aua/)
+- **vscode-elements**: Design system that mimics Visual Studio Code’s look and feel.
+- **workspace**: GenAIScript environment for file operations, searching, reading, and writing.
+- **z3**: Solves SMTLIB2 problems using the Z3 constraint solver.

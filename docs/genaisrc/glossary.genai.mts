@@ -23,34 +23,42 @@ for (const file of files.filter(
 
     const res = await runPrompt(
         (ctx) => {
-            const glossaryRef = ctx.defData("GLOSSARY", entries)
             const fileRef = ctx.def("FILE", file)
-            ctx.$`## Task
-      Extract all glossary terms and their definitions from ${fileRef}.
-      - **Preserve any Markdown-formatted links** (e.g., [text](url)) in definitions exactly as they appear.
-      - Ensure proper spelling and grammar.
-      - Ignore code identifiers, variable names, function names or API names.
+            ctx.$`
+## Role
 
-      ## Existing glossary
+You are a documentation specialist, specializing in indexing and understanding documentation.
 
-      You may skip terms already defined in the glossary ${glossaryRef}.
+## Task
+Extract all glossary terms and their definitions from ${fileRef}.
+- **Preserve any Markdown-formatted links** (e.g., [text](url)) in definitions exactly as they appear.
 
-      ## Output
+## Existing glossary
 
-      Respond with new or update existing terms in the INI format:
-      \`\`\`ini   
-      term=definition
-      term2=definition2
-      ...
-      \`\`\`
+${YAML.stringify(entries)}.
 
-      DO NOT repeat existing terms that are already in the glossary.
-      DO NOT modify existing terms unless absolutely necessary.
+## Instructions 
+
+DO NOT repeat existing terms that are already in the glossary.
+ONLY respond with new terms.
+If there are no new terms, respond with an empty INI block.
+
+## Output
+
+Respond with name=definition pairs, one per line.
+
+term=definition
+term2=definition2
+term3=definition3
+...
+
+
     `
         },
         {
             cache: "glossary",
             model: "small",
+            label: `glossarify ${file.filename}`,
             system: ["system.assistant"],
         }
     )
