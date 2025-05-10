@@ -2925,7 +2925,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.134.4
+ - genaiscript-vscode@1.135.0
 
 This package contains the following license:
 
@@ -7590,8 +7590,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm packages may be included in this product:
 
- - @anthropic-ai/bedrock-sdk@0.21.1
- - @anthropic-ai/sdk@0.50.2
+ - @anthropic-ai/bedrock-sdk@0.21.2
+ - @anthropic-ai/sdk@0.50.3
 
 These packages each contain the following license:
 
@@ -8560,10 +8560,10 @@ The following npm packages may be included in this product:
  - @napi-rs/canvas-linux-x64-musl@0.1.70
  - @tokenizer/token@0.3.0
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.134.4
- - genaiscript-sample@1.134.4
- - genaiscript-web@1.134.4
- - genaiscript@1.134.4
+ - genaiscript-core-internal@1.135.0
+ - genaiscript-sample@1.135.0
+ - genaiscript-web@1.135.0
+ - genaiscript@1.135.0
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
@@ -13061,7 +13061,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - z3-solver@4.14.1
+ - z3-solver@4.15.0
 
 This package contains the following license:
 
