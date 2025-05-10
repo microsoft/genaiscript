@@ -2,28 +2,24 @@
 // preserving any Markdown links in definitions.
 script({
     title: "build-glossary",
-    files: ["docs/**/*.md*"],
-    accept: ".md,.mdx",
-    parameters: {
-        n: {
-            type: "integer",
-            description: "Max number of glossary entries",
-        },
-    },
+    accept: "none",
 })
 const { output } = env
-const files = env.files.slice(0, env.vars.n)
+const docs = await workspace.readText("docs/dist/llms-full.txt")
+const chunks = await tokenizers.chunk(docs, {
+    model: "openai:gpt-4o-mini",
+    chunkSize: 12000,
+    chunkOverlap: 1000,
+})
 const glossaryFilename = "docs/src/content/docs/glossary.json"
 const originalGlossary = (await workspace.readJSON(glossaryFilename)) || {}
 const entries = {}
-for (const file of files.filter(
-    ({ filename }) => !/glossary\.md/.test(filename)
-)) {
-    output.heading(3, file.filename)
+for (const chunk of chunks) {
+    output.heading(3, `line ${chunk.lineStart}`)
 
     const res = await runPrompt(
         (ctx) => {
-            const fileRef = ctx.def("FILE", file)
+            const fileRef = ctx.def("CHUNK", chunk)
             ctx.$`
 ## Role
 
@@ -41,6 +37,7 @@ ${YAML.stringify(entries)}.
 
 DO NOT repeat existing terms that are already in the glossary.
 ONLY respond with new terms.
+Term names are case sensitive and should be unique.
 If there are no new terms, respond with an empty INI block.
 
 ## Output
@@ -52,13 +49,13 @@ term2=definition2
 term3=definition3
 ...
 
-
+Remember DO NOT repeat existing terms that are already in the glossary.
     `
         },
         {
             cache: "glossary",
             model: "small",
-            label: `glossarify ${file.filename}`,
+            label: `glossarify ${chunk.lineStart}`,
             system: ["system.assistant"],
         }
     )

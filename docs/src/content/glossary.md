@@ -13,127 +13,177 @@ Each term is linked to its corresponding section in the documentation for easy r
 
 ## Terms
 
-- **.md**: Markdown file format for authoring content with easy formatting and structure.
-- **.mdx**: MDX is Markdown extended with embedded React components.
-- **agent data**: Agent that queries data from files.
-- **agent docs**: Agent that queries the documentation.
-- **agent fs**: Agent for file system queries using LLM and tools for file operations.
-- **agent git**: Agent for repository queries using Git with full context.
-- **agent github**: Agent for GitHub queries and operations.
-- **agent interpreter**: Agent for running code interpreters (Python, Math).
-- **agent planner**: Agent for generating plans to complete tasks.
-- **agent user_input**: Agent for asking user input (confirm, select, answer).
-- **agent video**: Agent to analyze and process video files or URLs.
-- **agent web**: Agent for web search tasks.
-- **agent z3**: Agent for formalizing and solving problems with the Z3 constraint solver.
-- **agent_fs**: File system agent that combines LLM with tools for querying and modifying files.
-- **agents**: GenAIScript's abstraction layer that combines LLMs with tools for tasks like file system and repository queries.
-- **agents-oct2024**: [agents-oct2024](https://microsoft.github.io/genaiscript/slides/agents-oct2024/)
-- **ast**: [ast](https://microsoft.github.io/genaiscript/slides/ast/)
-- **Astro**: Astro is a modern static site generator focused on performance and ease of use for building fast websites and apps.
-- **Awesome Scripts**: Community-contributed scripts, accessible in the Awesome Scripts documentation section.
-- **best practices**: See [Best Practices](/genaiscript/getting-started/best-practices) for advice on script writing and usage.
-- **Builtin tools**: Built-in GenAIScript tools for data fetching, file operations, and repository management.
-- **builtin_tools**: Set of built-in tools used in system prompts for fetching data, file ops, and command execution.
-- **case studies**: Real-world usage examples of GenAIScript.
-- **CLI**: Command-line interface for automating GenAIScript executions. See [CLI](/genaiscript/reference/cli).
-- **command palette**: Interface in Visual Studio Code for quickly executing commands via search.
-- **content**: Text or data read from a file, subject to transformation.
-- **Contributing**: Project welcomes contributions
-- **Create Script snippet**: Guidance for creating scripts in editors using GenAIScript commands.
-- **Debugging local scripts**: Open a JavaScript Debug Terminal and run the script with specific yarn commands.
-- **default**: [default](https://microsoft.github.io/genaiscript/slides/default/)
-- **Dependencies**: Run `yarn install:force` to refresh the lock file.
-- **development environment**: Tools and settings for building and testing software.
-- **Docs**: Run `docs` to launch the documentation site and check for broken links.
-- **eng-july2024**: [eng-july2024](https://microsoft.github.io/genaiscript/slides/eng-july2024/)
-- **features**: Core functionalities that enable effective prompt tooling in GenAIScript.
-- **feb2025**: [feb2025](https://microsoft.github.io/genaiscript/slides/feb2025/)
-- **fetch**: Fetches data from allowed domains.
-- **files parameters**: Allow scripts to target one or multiple files, enhancing reusability.
-- **foundation models**: Foundation models and LLMs are large AI models used for text generation and information processing in GenAIScript.
-- **fs_ask_file**: Runs an LLM query over file contents to extract information.
-- **fs_data_query**: Queries data in a file using GROQ syntax.
-- **fs_diff_files**: Computes a diff between two files. Use git diff for file version comparison.
-- **fs_find_files**: Finds files by glob pattern and optionally regex in content. Use cautiously with many files.
-- **fs_read_file**: Reads a file as text
-- **garage-august2024**: [garage-august2024](https://microsoft.github.io/genaiscript/slides/garage-august2024/)
-- **git_branch_current**: Gets the current branch.
-- **git_branch_default**: Gets the default branch from the client.
-- **git_branch_list**: Lists all repository branches.
-- **git_diff**: Computes file diffs via git diff
-- **git_last_tag**: Gets the latest tag from the repository.
-- **git_list_commits**: Displays repository commit history via git log.
-- **git_status**: Shows repository status.
-- **github_actions_job_logs_diff**: Diffs two GitHub workflow job logs.
-- **github_actions_job_logs_get**: Downloads a GitHub workflow job log
-- **github_actions_jobs_list**: Lists all jobs for a workflow run.
-- **github_actions_workflows_list**: Lists all GitHub Actions workflows.
-- **github_files_get**: Gets a file from a GitHub repository.
-- **github_files_list**: Lists all files in a GitHub repository.
-- **github_issues_comments_list**: Lists all comments for an issue.
-- **github_issues_get**: Gets a single issue by number.
-- **github_issues_list**: Lists all issues in a repository.
-- **github_pulls_get**: Gets a single pull request by number.
-- **github_pulls_list**: Lists all pull requests in a repository.
-- **github_pulls_review_comments_list**: Lists review comments for a pull request.
-- **grep**: Function to search workspace files by glob or regex pattern.
-- **guides**: Instructional materials to improve scripting skills.
-- **latest news**: Recent updates or blog posts on GenAIScript.
-- **llm friendly docs**: Documentation formatted for optimal LLM crawler accessibility.
-- **Markdown**: Lightweight markup language for formatting plaintext, popular for documentation. Created by John Gruber in 2004.
-- **math_eval**: Evaluates mathematical expressions. Always use this tool for calculations.
-- **md_find_files**: Gets the file structure and metadata of Markdown/MDX docs. Can search content by regex.
-- **md_read_frontmatter**: Reads frontmatter of Markdown or MDX files.
-- **meta_prompt**: Applies OpenAI meta prompt guidelines to a user prompt. Based on [OpenAI docs](https://platform.openai.com/docs/guides/prompt-generation?context=text-out).
-- **meta_schema**: Generates a valid JSON schema for described JSON. See [OpenAI docs](https://platform.openai.com/docs/guides/prompt-generation?context=structured-output-schema).
-- **msr-eng-may2024**: [msr-eng-may2024](https://microsoft.github.io/genaiscript/slides/msr-eng-may2024/)
-- **networking-apr2024**: [networking-apr2024](https://microsoft.github.io/genaiscript/slides/networking-apr2024/)
-- **newContent**: Modified file content after applying transformations.
-- **next steps**: Instructions for installing the extension or CLI, configuring LLMs, writing scripts, and reading documentation.
-- **node_test**: Builds and tests the project with `npm test`.
-- **overview-june2024**: [overview-june2024](https://microsoft.github.io/genaiscript/slides/overview-june2024/)
-- **overview-may2024**: [overview-may2024](https://microsoft.github.io/genaiscript/slides/overview-may2024/)
-- **patches**: Object in a script holding computed edits for unique content matches.
+- **About mixing files and —vars**: Order of CLI arguments for specifying files and variables.
+- **Additional flags**: Repo clone flags: `--remote-branch <branch>` specifies branch, `--remote-force` forces overwrite, `--remote-nstall` installs dependencies after cloning.
+- **agent**: An agent is a tool that uses LLM(s) and other tools to accomplish tasks. Higher-level abstraction, may group multiple tools and compress chat context by summarizing tool calls.
+- **agent_fs**: Built-in GenAIScript agent for file system tasks, combining LLMs and file access tools.
+- **agent_git**: Built-in agent accessing Git repositories and git commands for context-aware tasks.
+- **agent_github**: Built-in agent accessing GitHub repositories, workflows, jobs, and logs.
+- **agent_interpreter**: Agent that runs code interpreters (e.g., Python, math), giving LLMs computational reasoning.
+- **agent_planner**: Agent that builds and executes multi-step plans in GenAIScript workflows.
+- **agent_user_input**: Agent for obtaining user input via confirmation, selection, or data entry prompts.
+- **agent_video**: Agent for analyzing and processing video files or URLs.
+- **agent_web**: Agent for searching and retrieving web content.
+- **agent_z3**: Agent leveraging the Z3 constraint solver to solve formal constraint systems.
+- **annotation**: Errors, warnings, or notes added to LLM output, convertible to VS Code problems or CI feedback.
+- **annotations**: Structured feedback, such as errors or warnings, added to LLM output for integration with tools like VS Code or CI.
+- **API Key**: Authentication via environment variable (e.g., `AZURE_CONTENT_SAFETY_KEY`) for Azure Content Safety integration.
+- **ast-grep**: Tool for fast structural code search, linting, and rewriting with AST queries, used by GenAIScript for code analysis and transformation.
+- **Astro**: Modern static site generator for building optimized websites using any framework.
+- **async function**: JavaScript function that executes asynchronously, enabling non-blocking LLM calls in GenAIScript.
+- **Awesome Scripts**: Community GenAIScript samples—see [Awesome Scripts](/genaiscript/samples/awesome).
+- **Azure AI Content Safety**: Service for detecting and filtering harmful or unsafe content in GenAIScript (see [Azure Content Safety](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/quickstart-text)).
+- **Azure AI Foundry**: Platform for building and deploying AI models
+- **Azure AI Inference**: [Azure AI Inference](/genaiscript/getting-started/configuration/), platform for running AI model inference.
+- **Azure AI Search**: Hybrid vector and keyword search engine for semantic content retrieval.
+- **Azure AI Serverless Models**: [Azure AI Serverless Models](/genaiscript/getting-started/configuration/)
+- **Azure OpenAI and AI services**: Allows GenAIScript to run LLM inference on Azure AI Foundry.
+- **Azure OpenAI Serverless**: [Azure OpenAI Serverless](/genaiscript/getting-started/configuration/)
+- **AZURE_CONTENT_SAFETY_CREDENTIAL_DEFAULT**: GenAIScript uses the default Azure token resolver for Azure Content Safety, override via `AZURE_CONTENT_SAFETY_CREDENTIAL` env variable.
+- **best practices**: See [Best Practices](/genaiscript/getting-started/best-practices) for scripting and usage tips.
+- **builtin agents**: Predefined GenAIScript agents providing specialized functions—examples include agent_data, agent_docs, agent_fs, agent_git, agent_github, agent_interpreter, agent_planner, agent_user_input, agent_video, agent_web, agent_z3.
+- **builtin_tools**: Set of built-in GenAIScript tools for fetching data, file operations, and command execution.
+- **cache**: runPrompt feature that stores and reuses LLM results for efficiency and consistent responses.
+- **Capabilities**: Allows both developers and non-developers to create and debug AI-enhanced JavaScript scripts using LLMs and foundation models.
+- **cast**: Function to convert unstructured text or images into structured data using LLMs and JSON schemas, with model selection options.
+- **changeset**: Collection of AST-based code edits created by ast-grep that can be committed in memory and optionally written to files.
+- **classify**: Function categorizing input text into predefined labels using LLMs, with optional explanations.
+- **CLI**: Command-line interface to automate and execute GenAIScript scripts.
+- **collective agents**: Term generalized under "builtin agents."
+- **compile scripts**: Runs the TypeScript compiler to check GenAIScript scripts for errors.
+- **concurrency**: Technique for running multiple LLM prompts in parallel to improve speed—leverages async/await, Promise.all, and promise queues.
+- **config file resolution**: Process by which GenAIScript scans and merges settings from configuration files.
+- **Configuration**: CLI loads secrets from environment variables or a `./.env` file for secure access.
+- **container**: Isolated and secure runtime (usually Docker) to safely execute untrusted LLM-generated code, network-isolated and controllable.
+- **CSV**: Class for parsing and stringifying CSV data, mapping headers, supporting markdown conversion, and repairing CSV.
+- **def**: Function for creating fenced prompt variables from file content, supporting file arrays, filtering, language hints, token limits, caching, and safety features.
+- **defAgent**: Defines an agent callable by an LLM, specifying schema, description, and exposed tools.
+- **defChatParticipant**: Registers a handler to add or modify chat messages during multi-turn LLM conversations or to simulate multiple participants.
+- **defData**: Declares data variables with formatting options for YAML, JSON, or CSV, supporting slicing, deduplication, and `jq` filters.
+- **defDiff**: Function to highlight and analyze differences between files, strings, or objects for LLM reasoning—emphasizing only the changes.
+- **defFileMerge**: Registers custom callbacks for merging files during LLM-driven transformations.
+- **defFileOutput**: Declares output file paths and descriptions for files generated by scripts, with optional JSON schema validation.
+- **defImages**: Declares image files for inclusion in prompts sent to vision-capable models, supporting local and remote images, formats, and transforms.
+- **defOutputProcessor**: Registers a callback for custom processing of LLM outputs after generation, enabling file creation/modification before saving.
+- **detectHarmfulContent**: Uses [Azure Content Safety](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/quickstart-text) to detect and filter for harmful content.
+- **detectPromptInjection**: Uses [Azure Prompt Shield](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/quickstart-jailbreak) to detect prompt injection in text.
+- **detectPromptLeaksUsingCanaryWords**: Technique where "canary words" are injected into system prompts to detect leaks in generated responses.
+- **development environment**: Tools and settings for authoring and testing software with GenAIScript.
+- **Diff**: Utility for generating concise diffs—minimal context, focusing on only changed lines, using `-` (deletions) and `+` (additions) and original line numbers.
+- **docs**: Run `docs` to start the site and validate documentation links.
+- **DOCX Parser**: Function to extract and clean text from DOCX files for LLM prompts or variables.
+- **embedding**: Vector representation of text for semantic similarity search (see vector search).
+- **env**: Global object automatically populated in GenAIScript, containing execution context data such as files and variables.
+- **env.files**: Array of files in the execution context—selected or specified by user, filterable for script use.
+- **env.vars**: Object containing execution-specific variables, readable and settable during GenAIScript execution.
+- **envFile**: Specifies the environment file for loading secrets into environment variables.
+- **Fence Formats**: Supported formats for fencing output text in GenAIScript (XML, Markdown, none), adjusting block rendering for LLMs.
+- **fences**: Delimited output blocks in LLM responses
+- **file filters**: Options for `def` to filter input files by extension or pattern when defining variables for prompts.
+- **file output post processing**: Custom callbacks (via `defOutputProcessor`) for processing LLM-generated files before saving.
+- **files parameters**: Script parameters specifying target files for processing, improving reusability.
+- **Foundation models and LLMs**: GenAIScript supports multiple LLMs with plans to include additional foundation models beyond language models.
+- **GenAIScript**: GenAIScript is a scripting language to make LLMs first-class in scripts, enabling users to automate, orchestrate, debug, and deploy AI-powered scripts.
+- **genaiscript CLI**: The `genaiscript` command-line tool for running, testing, and automating scripts outside VS Code.
+- **generateImage**: API for OpenAI-compatible image generation services (e.g., DALL-E, Stable Diffusion), returns URLs and images for LLM prompts.
+- **git**: Helper object for interacting with git repositories—branch info, diffs, logs, file listings, shallow clones, and more.
+- **github**: Module providing helpers to query GitHub (issues, PRs, workflow runs, files, releases, Octokit).
+- **GitHub Action Commands**: Syntax in GenAIScript annotations for emitting error, warning, or note messages directly to GitHub Actions workflows.
+- **GitHub Copilot**: GitHub’s AI coding assistant.
+- **GitHub Models**: LLMs provided via GitHub, usable in GenAIScript workflows.
+- **GPVM**: Runtime for executing GenAIScript code, integrating prompt context, invoking LLMs, and extracting results.
+- **grep**: workspace API to search for files matching globs and/or regex patterns, returning matching results.
+- **Guides**: Instructional content for improving GenAIScript scripting skills.
+- **helper scripts**: `package.json` entries that ensure TypeScript types are generated for GenAIScript code.
+- **host.fetch**: Enhanced fetch supporting proxies and auto-retries for HTTP requests.
+- **host.fetchText**: Helper function to fetch, download, and convert text or HTML to normalized formats (plain text/markdown) for LLM prompts.
+- **HTML Processing**: Functions to convert HTML to text or markdown, and to extract tables as JSON from HTML content.
+- **Image Generation**: Via `generateImage`, supporting APIs compatible with OpenAI standards, returning URLs and images for use in prompts.
+- **include**: Glob pattern for including and sharing script files across projects.
+- **inline prompt**: Embedded prompt block or function in GenAIScript scripts, often templated, for composing LLM queries.
+- **Label**: Identifier assigned to a prompt/transformation step in GenAIScript for tracking or caching.
+- **latest news**: Recent updates and blog posts about GenAIScript.
+- **List of script configuration**: Lists available GenAIScript scripts and model configurations for troubleshooting.
+- **listing model configuration**: Lists available script and model configurations for CI/CD troubleshooting.
+- **Local installation**: Install CLI locally with `npm install -g genaiscript` to avoid `npx` slowness.
+- **logging**: Debug logging in GenAIScript for emitting trace/debug info from agents, tools, and components when enabled.
+- **logit bias**: Adjusts LLM token generation probabilities to favor or disfavor specific tokens—enables label boosting and controlled output.
+- **Markdown**: Lightweight markup language for formatting plaintext, popular for documentation and web content.
+- **Markdown file format**: A file with `.md` extension for authoring readable Markdown content.
+- **MCP Client**: Model Context Provider Client for managing model context.
+- **MCP Server**: Model Context Provider Server for model context management from server side.
+- **memory**: Agent memory log that tracks `agent/query/answer` interactions, enabling context and horizontal knowledge sharing across conversations.
+- **Mermaid**: Markdown extension for generating diagrams and charts, supported in GenAIScript for visual representations in output.
+- **model alias**: Aliases for model names, configured to simplify model specification in scripts.
+- **modelAliases**: Aliases set for model names in GenAIScript configuration.
+- **modelEncodings**: Model-specific encodings for LLM execution.
+- **Module Imports**: GenAIScript scripts (`.mjs`) support standard JavaScript imports with top-level await.
+- **network flag**: CLI/server flag to bind to `0.0.0.0` for remote/container access
+- **newContent**: File content after all LLM-driven transformations in a GenAIScript script.
+- **next steps**: Action instructions: install GenAIScript, configure LLMs, write scripts, read docs.
+- **No Installation (npx)**: Run GenAIScript CLI with `npx` without prior installation.
+- **OpenAI**: Provider of models like GPT-4, used as LLMs in GenAIScript.
+- **openai-compatible endpoints**: API endpoints offered by GenAIScript (`--openai`), compatible with OpenAI `/v1/chat/completions`.
+- **parsers.CSV**: Parser for processing CSV files or text, supporting direct file parsing and returning undefined for invalid input.
+- **parsers.DOCX**: Automatically extracts and cleans text from DOCX files for prompts.
+- **patches**: Object to cache computed transformations during search-and-transform, mapping matches to outputs to avoid duplicates.
+- **patternRx**: RegExp built from a pattern for searching in file or prompt content.
+- **Phi-3**: Open-source 3.8B parameter LLM by Microsoft.
+- **playwright**: Browser automation and scraping tool integrated with GenAIScript for programmatic content extraction.
 - **pnw-plse-may2024**: [pnw-plse-may2024](https://microsoft.github.io/genaiscript/slides/pnw-plse-may2024/)
-- **presentation_2024**: Series of GenAIScript presentations on topics like engineering, networking, and system prompts.
-- **prompt variable**: Allows inclusion of content into a prompt for later reference in GenAIScript.
-- **prompting is coding**: Programmatically assemble prompts for LLMs using JavaScript, orchestrate LLMs, tools, and data.
-- **Pull Requests**: Create pull requests against the `dev` branch
-- **python_code_interpreter_copy_files_to_container**: Copies files from workspace to container (relative paths only).
-- **python_code_interpreter_read_file**: Reads a file from the Python container (no absolute paths).
-- **python_code_interpreter_run**: Executes Python 3.12 code for analysis in a docker container. No network. Only core scientific packages available.
-- **React 19**: Current version of React used, providing minimal dependencies.
-- **retrieval_fuzz_search**: Fuzzy keyword search within files.
-- **retrieval_vector_search**: Embeddings-based similarity search across files.
-- **retrieval_web_search**: Searches the web for queries using Tavily or Bing Search.
-- **runPrompt**: Function to create LLM prompts, defining context and the desired transformation.
-- **samples**: Sample GenAIScripts, ready to use and modify, including community [Awesome Scripts](/genaiscript/samples/awesome).
-- **schemas**: GenAIScript supports output formats like file edits, JSON, and user-defined schemas. See [Schemas](/genaiscript/reference/scripts/schemas).
-- **script**: Defines a sequence of commands in GenAIScript, including title, description, and parameters.
-- **script generation**: Creating scripts to automate tasks using GenAIScript commands.
-- **Scripts**: Scripts provide a domain-specific JavaScript framework to build LLM requests.
-- **search and transform**: Uses LLMs for text transformations based on patterns, beyond search and replace.
-- **seattlejs-jan2025**: [seattlejs-jan2025](https://microsoft.github.io/genaiscript/slides/seattlejs-jan2025/)
+- **prerequisites**: Requirements for using GenAIScript CLI (e.g., Node.js installation).
+- **presentation_2024**: Series of GenAIScript presentations on engineering, networking, and prompts.
+- **promise queue**: Concurrency control utility to limit simultaneous async operations (e.g., LLM calls), avoiding rate limits.
+- **prompty**: Templating format for LLM prompts in GenAIScript.
+- **Pull Requests**: Open PRs against the `dev` branch in GenAIScript repositories.
+- **RAG**: Retrieval-Augmented Generation
+- **refactoring preview**: VS Code/GenAIScript integration that previews file changes before applying edits.
+- **Refactoring UI**: VS Code UI to preview and edit files generated by GenAIScript.
+- **Remote repository**: Playground can run scripts from a remote repository using secrets from `.env`.
+- **result viewer**: Tool to visually browse and analyze GenAIScript CLI test run results via `npx genaiscript test view`.
+- **run**: Function wrapping the [CLI run](/genaiscript/reference/cli/run) command to execute scripts.
+- **run command**: CLI command `run` to execute GenAIScript scripts with file globs, env vars, streaming, and model/output controls.
+- **runPrompt**: Function to execute LLM prompts inline, with caching, system prompts, and content safety.
+- **samples**: See "samples."
+- **script**: File with `.genai.mjs`, `.genai.js`, or `.genai.mts` containing GenAIScript code that defines prompts, agents, or workflows.
+- **script files**: GenAIScript scripts: any `*.genai.mjs`, `*.genai.js`, or `*.genai.mts` file in your workspace.
+- **script metadata**: Configuration block in GenAIScript for cache, system prompts, and behavioral settings.
+- **scripts**: JavaScript-based GenAIScript programs for LLM requests and workflows.
+- **search and transform**: Text transformation leveraging LLMs based on search patterns, beyond traditional find-replace.
+- **search-and-transform**: Cache label in runPrompt to store transformation results
+- **Secret Scanning**: Feature to scan for secrets (e.g., API keys) in chats or files using regex patterns.
+- **secretPatterns**: Regular expression patterns for scanning secrets like API keys in GenAIScript.
 - **slides**: https://microsoft.github.io/genaiscript/slides/
-- **Slides**: All `slides/*slides.md` files are compiled and deployed on build
-- **Starlight**: Starlight is a documentation framework built on Astro, optimized for technical documentation.
-- **system prompts**: Prompts to guard against harmful content and jailbreaking. See [Content Safety](/genaiscript/reference/scripts/content-safety).
-- **term**: GenAIScript: GenAIScript is a scripting language integrating LLMs into scripts using simplified JavaScript syntax.
-- **think**: Appends a reasoning step to the log for complex thoughts or memory caching.
-- **tools**: JavaScript callbacks registered with the LLM to execute code, search the web, or read files.
-- **transcribe**: Transcribes audio or video files using speech-to-text.
-- **translation**: Document translation case study: [Translation Case Study](/genaiscript/case-studies/documentation-translations).
-- **user_input_confirm**: Requests user confirmation for a message.
-- **user_input_select**: Prompts user to select an option.
-- **user_input_text**: Prompts user to input text.
-- **video_extract_audio**: Extracts audio from video and returns audio filename.
-- **video_extract_clip**: Extracts a video clip and returns filename.
-- **video_extract_frames**: Extracts frames from a video file.
-- **video_probe**: Returns metadata for a video file.
-- **vision_ask_images**: Uses vision models to query images.
-- **Visual Studio Code Extension**: Offers features to author, debug, and deploy GenAIScripts within Visual Studio Code. See [Visual Studio Code Extension](/genaiscript/reference/vscode).
-- **vs-aua**: [vs-aua](https://microsoft.github.io/genaiscript/slides/vs-aua/)
-- **vscode-elements**: Design system that mimics Visual Studio Code’s look and feel.
-- **workspace**: GenAIScript environment for file operations, searching, reading, and writing.
-- **z3**: Solves SMTLIB2 problems using the Z3 constraint solver.
+- **Starlight**: Project for building documentation websites using Astro and specific design principles.
+- **suffix option**: CLI `convert` command option to set a suffix for output files, for handling markdown fences.
+- **System behavior**: Framework for integrating code execution and LLM calls, allowing users to define LLM context, invoke models, and parse results.
+- **system prompt template**: Files matching `system.*.genai.mjs` providing system-level prompt templates (e.g., safety, tool descriptions) for LLM context.
+- **system prompts**: Prompts guiding LLM behavior, tool access, and enforcing content safety
+- **system.*.genai.mjs**: [system.*.genai.mjs](/genaiscript/reference/scripts/system) are unlisted system prompt templates.
+- **system.assistant**: System prompt role for providing assistant-like LLM behavior.
+- **system.safety_harmful_content**: System prompt to mitigate generation of harmful or unsafe LLM content.
+- **system.safety_jailbreak**: System prompt to prevent prompt injection and jailbreak attempts in LLMs.
+- **test command**: CLI command `test` for running prompt tests in scripts
+- **tests and evals**: Testing and evaluation in GenAIScript, using [promptfoo.dev](https://promptfoo.dev/) for prompt validation.
+- **transcript**: Output from LLM audio/video transcription using GenAIScript.
+- **transformed**: Text output generated by LLM after applying transformations to source text
+- **translation**: Document translation via GenAIScript—see [Translation Case Study](/genaiscript/case-studies/documentation-translations).
+- **Transparency Note**: Information outlining GenAIScript features, capabilities, and limitations.
+- **vector search**: Semantic document retrieval method using vector embeddings, supporting local or cloud sources
+- **video extract-audio**: CLI/subcommand for extracting audio from video, optimized for transcription.
+- **video extract-frames**: Command/subcommand to extract frames or screenshots at intervals from video files.
+- **Video probe**: Command/subcommand running `ffprobe` to display media info from video/audio files.
+- **Visual Studio Code diagnostics**: Annotations translated to VS Code problems and squiggly lines for review.
+- **Visual Studio Code extension**: Add-in for authoring, debugging, and running GenAIScript scripts in VS Code.
+- **Visual Studio Code Markdown Preview**: Renders output and traces in Markdown using VS Code’s built-in previewer.
+- **Visual Studio Code Marketplace**: [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=genaiscript.genaiscript-vscode) hosts the GenAIScript extension.
+- **Visual Studio Code Workspace Trust**: Disables GenAIScript extension in [Restricted Mode](https://code.visualstudio.com/docs/editor/workspace-trust).
+- **VS Code Extension**: GenAIScript extension for VS Code, enabling scripting, debugging, and execution.
+- **VS Code GenAIScript extension**: VS Code extension for authoring, editing, running, and debugging GenAIScript scripts.
+- **WarningCode**: Component for displaying security warnings and mitigations in documentation.
+- **Working behind a Proxy**: Instructions for using CLI in HTTP proxy environments.
+- **workspace**: API object providing file system operations (read, write, search) for interacting with the project environment in GenAIScript.
+- **workspace environment**: GenAIScript execution context enabling file operations, searching, and script integration.
+- **workspace.grep**: API function to find files matching globs or regex patterns, returning matching results.
+- **workspace.readText**: Async function that reads the content of a text file relative to the workspace root.
+- **writeText**: API for writing updated text content to files in the workspace.
