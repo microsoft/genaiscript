@@ -1,5 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:mcp:server")
 
 import { logVerbose, logWarn } from "../../core/src/util"
 import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "../../core/src/constants"
@@ -22,6 +20,8 @@ import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { runtimeHost } from "../../core/src/host"
 import { Resource, ResourceContents } from "../../core/src/mcpresource"
+import debug from "debug"
+const dbg = debug("genaiscript:mcp:server")
 
 /**
  * Starts the MCP server.
