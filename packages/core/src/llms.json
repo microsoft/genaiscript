@@ -225,7 +225,8 @@
             "bearerToken": true,
             "aliases": {
                 "large": "gpt-4.1",
-                "small": "gpt-4o-mini",
+                "small": "gpt-4.1-mini",
+                "tiny": "gpt-4.1-nano",
                 "vision": "gpt-4.1",
                 "embeddings": "text-embedding-3-small",
                 "reasoning": "o3",

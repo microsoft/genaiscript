@@ -152,6 +152,7 @@ type PromptTemplateResponseType =
 type ModelType = OptionsOrString<
     | "large"
     | "small"
+    | "tiny"
     | "long"
     | "vision"
     | "vision_small"

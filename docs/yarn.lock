@@ -193,7 +193,7 @@
     stream-replace-string "^2.0.0"
     zod "^3.24.2"
 
-"@astrojs/starlight@^0.34.2":
+"@astrojs/starlight@^0.34.3":
   version "0.34.3"
   resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.34.3.tgz#7bc0d8461296e741820fa1ef10a50a914db696bd"
   integrity sha512-MAuD3NF+E+QXJJuVKofoR6xcPTP4BJmYWeOBd03udVdubNGVnPnSWVZAi+ZtnTofES4+mJdp8BNGf+ubUxkiiA==
@@ -1532,7 +1532,7 @@ astro-remote@^0.3.3:
     marked-smartypants "^1.1.6"
     ultrahtml "^1.5.3"
 
-astro@^5.7.10:
+astro@^5.7.12:
   version "5.7.12"
   resolved "https://registry.yarnpkg.com/astro/-/astro-5.7.12.tgz#7e47d7330d7521e8318319b7cd439aca7bb2924f"
   integrity sha512-UQOItiZz2hcv9PlHTQ6dNqFDIVNPnmwk6eyAjJqPE9O8EDHZK2JKtTRD0CBFN2Uqr0RE0TWP2gqDpLfsa5dJEA==
@@ -3369,7 +3369,7 @@ mdast-util-gfm@^3.0.0:
     mdast-util-gfm-task-list-item "^2.0.0"
     mdast-util-to-markdown "^2.0.0"
 
-mdast-util-mdx-expression@^2.0.0:
+mdast-util-mdx-expression@^2.0.0, mdast-util-mdx-expression@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/mdast-util-mdx-expression/-/mdast-util-mdx-expression-2.0.1.tgz#43f0abac9adc756e2086f63822a38c8d3c3a5096"
   integrity sha512-J6f+9hUp+ldTZqKRSg7Vw5V6MqjATc+3E4gf3CFNcuZNWD8XdyI6zQ8GqH7f8169MM6P7hMBRDVGnn7oHB9kXQ==
@@ -4666,18 +4666,21 @@ space-separated-tokens@^2.0.0:
   resolved "https://registry.yarnpkg.com/space-separated-tokens/-/space-separated-tokens-2.0.2.tgz#1ecd9d2350a3844572c3f4a312bceb018348859f"
   integrity sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==
 
-starlight-blog@^0.21.0:
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.21.0.tgz#7288f3411d9d51ad44baf87ad66feaa30b003ff4"
-  integrity sha512-ZA6y+LTbEr2aH8IOsQ3yIFRcqDNEDJjFG/OVTYbWgDuWuO3DWPGYjovsG4oSarbpxkP1k5OLPtL8Zmhy6DxiNQ==
+starlight-blog@^0.23.0:
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.23.0.tgz#41a6cfb2286bf58bf4e3ebf32b39e005d54bfb59"
+  integrity sha512-OLwmd1PSmT6iqn4o4M4nGSA3VumQ6mCPsVZmRaySQlNKizNjNh/TX+37QArOZCN4b3B1VdmTnlTNfdqGCy5e0A==
   dependencies:
+    "@astrojs/markdown-remark" "^6.3.1"
     "@astrojs/mdx" "^4.0.8"
     "@astrojs/rss" "^4.0.11"
     astro-remote "^0.3.3"
     github-slugger "^2.0.0"
     marked "^15.0.4"
     marked-plaintify "^1.1.1"
+    mdast-util-mdx-expression "^2.0.1"
     ultrahtml "^1.5.3"
+    unist-util-visit "^5.0.0"
 
 starlight-links-validator@^0.16.0:
   version "0.16.0"
@@ -5419,7 +5422,7 @@ zwitch@^2.0.0, zwitch@^2.0.4:
   resolved "https://registry.yarnpkg.com/zwitch/-/zwitch-2.0.4.tgz#c827d4b0acb76fc3e685a4c6ec2902d51070e9d7"
   integrity sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==
 
-zx@^8.5.3:
+zx@^8.5.4:
   version "8.5.4"
   resolved "https://registry.yarnpkg.com/zx/-/zx-8.5.4.tgz#1f5cc658ad69cf093aca1c5cfa943393e8db85f3"
   integrity sha512-44oKea9Sa8ZnOkTnS6fRJpg3quzgnbB43nLrVfYnqE86J4sxgZMUDLezzKET/FdOAVkF4X+Alm9Bume+W+RW9Q==
