@@ -288,7 +288,9 @@ export async function resolveFileBytes(
     }
     // Read file from local storage
     else {
-        dbg(`reading file ${filename}`)
+        dbg(`reading file %s`, filename)
+        const stat = await host.statFile(filename)
+        if (stat?.type !== "file") return undefined
         const buf = await host.readFile(filename)
         return new Uint8Array(buf)
     }
@@ -314,5 +316,9 @@ export async function resolveFileDataUri(
         return undefined
     }
     const b64 = toBase64(bytes)
-    return `data:${uriMime};base64,${b64}`
+    return {
+        uri: `data:${uriMime};base64,${b64}`,
+        mimeType: uriMime,
+        data: b64,
+    }
 }

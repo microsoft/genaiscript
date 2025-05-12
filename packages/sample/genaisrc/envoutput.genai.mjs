@@ -98,4 +98,4 @@ output.appendContent("<XML>hello</XML>\n")
 
 //output.appendContent("☺️".repeat(50000))
 
-await output.image("src/robots.jpg")
+await output.image("packages/sample/src/robots.jpg")

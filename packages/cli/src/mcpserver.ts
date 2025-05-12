@@ -137,7 +137,7 @@ export async function startMcpServer(
                 dir: res.env.runDir,
                 convertToDataUri: true,
             })
-            dbg(`res: %d`, parts.length)
+            dbg(`parts: %O`, parts)
             return {
                 isError,
                 content: parts,

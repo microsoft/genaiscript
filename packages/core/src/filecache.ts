@@ -39,6 +39,10 @@ export async function fileWriteCached(
         bufferLike,
         options
     )
+    if (!bytes) {
+        // file empty
+        return undefined
+    }
     const { cancellationToken, ext = sourceExt } = options || {}
     checkCancelled(cancellationToken)
     const filename = await hash(bytes, { length: FILE_HASH_LENGTH })
@@ -104,6 +108,10 @@ export async function fileCacheImage(
         url,
         { trace, cancellationToken } // TODO: add trace
     )
+    if (!fn) {
+        dbg(`no file cached`)
+        return undefined
+    }
     const res = options?.dir ? `./${basename(fn)}` : relative(process.cwd(), fn)
     dbg(`image: ${res}`)
     return res

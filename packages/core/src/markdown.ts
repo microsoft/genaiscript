@@ -127,7 +127,7 @@ export async function splitMarkdownTextImageParts(
     const regex = /^!\[(?<alt>[^\]]*)\]\((?<imageUrl>[^)]+)\)$/gm
     const parts: (
         | { type: "text"; text: string }
-        | { type: "image"; alt?: string; url?: string }
+        | { type: "image"; data: string; mimeType: string }
     )[] = []
     let lastIndex = 0
     let match: RegExpExecArray | null
@@ -141,26 +141,28 @@ export async function splitMarkdownTextImageParts(
 
         const { alt, imageUrl } = match.groups
 
-        let url: string
-        const isDataUri = /^datauri:\/\//.test(url)
-        if (isDataUri) url = imageUrl
-        else if (HTTP_OR_S_REGEX.test(imageUrl)) {
-            const uri = new URL(imageUrl)
-            if (allowedDomains?.includes(uri.hostname)) url = imageUrl
+        let data: string
+        let mimeType: string
+        const isDataUri = /^datauri:\/\//.test(imageUrl)
+        if (isDataUri) {
+            // TODO
+        } else if (HTTP_OR_S_REGEX.test(imageUrl)) {
+            // TODO
         } else if (/^\./.test(imageUrl)) {
             dbg(`local image: %s`, imageUrl)
             if (convertToDataUri) {
                 const filename = resolve(join(dir, imageUrl))
                 dbg(`local file: %s`, filename)
                 try {
-                    url = await resolveFileDataUri(filename, options)
+                    const res = await resolveFileDataUri(filename, options)
+                    data = res.data
+                    mimeType = res.mimeType
                 } catch (err) {
                     dbg(`%O`, err)
-                    url = undefined
                 }
-            } else url = imageUrl
+            }
         }
-        if (url) parts.push({ type: "image", alt: alt, url: url })
+        if (data && mimeType) parts.push({ type: "image", data, mimeType })
         else parts.push({ type: "text", text: match[0] })
         lastIndex = regex.lastIndex
     }
