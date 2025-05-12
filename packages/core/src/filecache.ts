@@ -11,7 +11,8 @@ import debug from "debug"
 import { FILE_HASH_LENGTH, HTTPS_REGEX } from "./constants"
 import { tryStat } from "./fs"
 import { filenameOrFileToFilename } from "./unwrappers"
-const dbg = debug("genaiscript:filecache")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("cache")
 
 /**
  * Caches a file by writing it to a specified directory. If the file exists, it simply returns the path.
@@ -38,11 +39,16 @@ export async function fileWriteCached(
         bufferLike,
         options
     )
+    if (!bytes) {
+        // file empty
+        return undefined
+    }
     const { cancellationToken, ext = sourceExt } = options || {}
     checkCancelled(cancellationToken)
     const filename = await hash(bytes, { length: FILE_HASH_LENGTH })
     checkCancelled(cancellationToken)
     const f = filename + "." + ext.replace(/^\./, "")
+    dbg(`cache: %s`, f)
     const fn = join(dir, f)
     const r = await tryStat(fn)
     if (r?.isFile()) {
@@ -102,6 +108,10 @@ export async function fileCacheImage(
         url,
         { trace, cancellationToken } // TODO: add trace
     )
+    if (!fn) {
+        dbg(`no file cached`)
+        return undefined
+    }
     const res = options?.dir ? `./${basename(fn)}` : relative(process.cwd(), fn)
     dbg(`image: ${res}`)
     return res

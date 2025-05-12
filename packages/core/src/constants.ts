@@ -49,6 +49,7 @@ export const NEGATIVE_GLOB_REGEX = /^!/
 export const GENAI_ANY_REGEX = /\.(genai\.(ts|mts|mjs|js)|prompty)$/i
 export const GENAI_ANYJS_REGEX = /\.genai\.js$/i
 export const GENAI_ANYTS_REGEX = /\.genai\.(ts|mts|mjs)$/i
+export const HTTP_OR_S_REGEX = /^https?:\/\//i
 export const HTTPS_REGEX = /^https:\/\//i
 export const CSV_REGEX = /\.(t|c)sv$/i
 export const YAML_REGEX = /\.yaml$/i
