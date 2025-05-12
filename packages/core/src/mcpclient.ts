@@ -260,10 +260,30 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 }
             }
 
+            const callTool: McpClient["callTool"] = async (toolId, args) => {
+                const responseSchema: JSONSchema = undefined
+                const { isError, content } = await client.callTool(
+                    {
+                        name: toolId,
+                        arguments: args,
+                    },
+                    responseSchema as any,
+                    {
+                        signal,
+                        onprogress: progress(`tool call ${toolId} `),
+                    }
+                )
+                return {
+                    isError: isError as boolean,
+                    content: content as McpServerToolResultPart[],
+                }
+            }
+
             const res = Object.freeze({
                 config: Object.freeze({ ...serverConfig }),
                 ping,
                 listTools,
+                callTool,
                 listResources,
                 readResource,
                 dispose,

@@ -5752,12 +5752,8 @@ type McpServerToolResultPart =
     | McpServerToolResultImagePart
 
 interface McpServerToolResult {
-    isError: boolean
+    isError?: boolean
     content: McpServerToolResultPart[]
-    /**
-     * If the content only contains a text part, return the text of the part
-     */
-    text?: string
 }
 
 interface McpClient extends AsyncDisposable {
