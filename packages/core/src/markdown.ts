@@ -152,7 +152,12 @@ export async function splitMarkdownTextImageParts(
             if (convertToDataUri) {
                 const filename = resolve(join(dir, imageUrl))
                 dbg(`local file: %s`, filename)
-                url = await resolveFileDataUri(filename, options)
+                try {
+                    url = await resolveFileDataUri(filename, options)
+                } catch (err) {
+                    dbg(`%O`, err)
+                    url = undefined
+                }
             } else url = imageUrl
         }
         if (url) parts.push({ type: "image", alt: alt, url: url })

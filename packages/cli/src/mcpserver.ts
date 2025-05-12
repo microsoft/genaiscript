@@ -128,17 +128,22 @@ export async function startMcpServer(
             const res = await run(name, files as string[], {
                 vars: vars as Record<string, any>,
             })
+            dbg(`res: %s`, res.status)
+            if (res.error) dbg(`error: %O`, res.error)
             const isError = res.status !== "success" || !!res.error
             const text = res?.error?.message || res.text || ""
+            dbg(`inlining images`)
             const parts = await splitMarkdownTextImageParts(text, {
-                dir: env.runDir,
+                dir: res.env.runDir,
                 convertToDataUri: true,
             })
+            dbg(`res: %d`, parts.length)
             return {
                 isError,
                 content: parts,
             } satisfies CallToolResult
         } catch (err) {
+            dbg("%O", err)
             return {
                 isError: true,
                 content: [

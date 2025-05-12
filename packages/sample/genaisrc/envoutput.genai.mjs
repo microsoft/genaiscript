@@ -1,4 +1,10 @@
-script({ model: "echo", group: "mcp" })
+script({
+    model: "echo",
+    title: "Output tester",
+    description: "Generation various outputs",
+    group: "mcp",
+    accept: "none"
+})
 const { output } = env
 
 for (let i = 1; i <= 6; i++) output.heading(i, "heading " + i)
