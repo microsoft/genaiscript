@@ -319,6 +319,7 @@ export const PLACEHOLDER_API_KEY = "<your token>"
 
 export const VSCODE_CONFIG_CLI_VERSION = "cli.version"
 export const VSCODE_CONFIG_CLI_PATH = "cli.path"
+export const VSCODE_CONFIG_CLI_PACKAGE_MANAGER = "cli.packageManager"
 
 export const CONSOLE_COLOR_INFO = 32
 export const CONSOLE_COLOR_DEBUG = 90
