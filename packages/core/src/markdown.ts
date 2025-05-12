@@ -10,7 +10,7 @@ import { fenceMD } from "./mkmd"
 import { convertThinkToMarkdown } from "./think"
 import { resolveFileDataUri } from "./file"
 import { CancellationOptions, checkCancelled } from "./cancellation"
-import { HTTPS_REGEX } from "./constants"
+import { HTTP_OR_S_REGEX } from "./constants"
 import { genaiscriptDebug } from "./debug"
 const dbg = genaiscriptDebug("markdown")
 
@@ -138,7 +138,7 @@ export async function splitMarkdownTextImageParts(
         let url: string
         const isDataUri = /^datauri:\/\//.test(url)
         if (isDataUri) url = imageUrl
-        else if (HTTPS_REGEX.test(imageUrl)) {
+        else if (HTTP_OR_S_REGEX.test(imageUrl)) {
             const uri = new URL(imageUrl)
             if (allowedDomains?.includes(uri.hostname)) url = imageUrl
         } else if (/^\./.test(imageUrl)) {

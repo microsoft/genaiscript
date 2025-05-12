@@ -1,4 +1,3 @@
-
 import { logVerbose, logWarn } from "../../core/src/util"
 import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
@@ -21,6 +20,7 @@ import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { runtimeHost } from "../../core/src/host"
 import { Resource, ResourceContents } from "../../core/src/mcpresource"
 import debug from "debug"
+import { splitMarkdownTextImageParts } from "../../core/src/markdown"
 const dbg = debug("genaiscript:mcp:server")
 
 /**
@@ -130,17 +130,12 @@ export async function startMcpServer(
             })
             const isError = res.status !== "success" || !!res.error
             const text = res?.error?.message || res.text || ""
-            // const parts = await splitMarkdownTextImageParts(text)
-            // dbg(`tool content:\n%O`, parts)
+            const parts = await splitMarkdownTextImageParts(text, {
+                convertToDataUri: true,
+            })
             return {
                 isError,
-                content: [
-                    {
-                        type: "text",
-                        text,
-                        // parts,
-                    },
-                ],
+                content: parts,
             } satisfies CallToolResult
         } catch (err) {
             return {
