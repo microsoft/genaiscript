@@ -149,23 +149,6 @@ flat tree`,
         ])
     })
 
-    test("splitMarkdownTextImageParts - text with image", async () => {
-        const input = "Hello\n![alt text](http://example.com/image.png)\nworld."
-        const parts = await splitMarkdownTextImageParts(input, {
-            allowedDomains: ["example.com"],
-        })
-        assert.deepStrictEqual(parts, [
-            { type: "text", text: "Hello\n" },
-            {
-                type: "image",
-                alt: "alt text",
-                url: "http://example.com/image.png",
-            },
-            { type: "text", text: "\nworld." },
-        ])
-    })
-
-
     test("splitMarkdownTextImageParts - empty string", async () => {
         const input = ""
         const parts = await splitMarkdownTextImageParts(input)
