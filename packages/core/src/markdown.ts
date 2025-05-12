@@ -12,6 +12,7 @@ import { resolveFileDataUri } from "./file"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { HTTP_OR_S_REGEX } from "./constants"
 import { genaiscriptDebug } from "./debug"
+import { join, resolve } from "node:path"
 const dbg = genaiscriptDebug("markdown")
 
 /**
@@ -112,12 +113,17 @@ export function MarkdownStringify(
 export async function splitMarkdownTextImageParts(
     markdown: string,
     options?: CancellationOptions & {
+        dir?: string
         allowedDomains?: string[]
         convertToDataUri?: boolean
     }
 ) {
-    const { cancellationToken, allowedDomains, convertToDataUri } =
-        options || {}
+    const {
+        dir = "",
+        cancellationToken,
+        allowedDomains,
+        convertToDataUri,
+    } = options || {}
     const regex = /^!\[(?<alt>[^\]]*)\]\((?<imageUrl>[^)]+)\)$/gm
     const parts: (
         | { type: "text"; text: string }
@@ -143,9 +149,11 @@ export async function splitMarkdownTextImageParts(
             if (allowedDomains?.includes(uri.hostname)) url = imageUrl
         } else if (/^\./.test(imageUrl)) {
             dbg(`local image: %s`, imageUrl)
-            if (convertToDataUri)
-                url = await resolveFileDataUri(imageUrl, options)
-            else url = imageUrl
+            if (convertToDataUri) {
+                const filename = resolve(join(dir, imageUrl))
+                dbg(`local file: %s`, filename)
+                url = await resolveFileDataUri(filename, options)
+            } else url = imageUrl
         }
         if (url) parts.push({ type: "image", alt: alt, url: url })
         else parts.push({ type: "text", text: match[0] })

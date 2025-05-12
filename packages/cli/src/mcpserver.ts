@@ -131,6 +131,7 @@ export async function startMcpServer(
             const isError = res.status !== "success" || !!res.error
             const text = res?.error?.message || res.text || ""
             const parts = await splitMarkdownTextImageParts(text, {
+                dir: env.runDir,
                 convertToDataUri: true,
             })
             return {
