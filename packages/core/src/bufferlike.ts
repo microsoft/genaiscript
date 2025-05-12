@@ -63,7 +63,7 @@ export async function resolveBufferLikeAndExt(
             ext: extname((bufferLike as WorkspaceFile).filename),
         }
     } else if (typeof bufferLike === "string")
-        return { bytes, ext: path.extname(bufferLike) }
+        return { bytes, ext: extname(bufferLike) }
     return { bytes, ext: ".bin" }
 }
 

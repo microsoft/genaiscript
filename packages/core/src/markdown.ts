@@ -124,7 +124,8 @@ export async function splitMarkdownTextImageParts(
         allowedDomains,
         convertToDataUri,
     } = options || {}
-    const regex = /^!\[(?<alt>[^\]]*)\]\((?<imageUrl>[^)]+)\)$/gm
+    // remove \. for all images
+    const regex = /^!\[(?<alt>[^\]]*)\]\((?<imageUrl>\.[^)]+)\)$/gm
     const parts: (
         | { type: "text"; text: string }
         | { type: "image"; data: string; mimeType: string }
@@ -163,7 +164,11 @@ export async function splitMarkdownTextImageParts(
             }
         }
         if (data && mimeType) parts.push({ type: "image", data, mimeType })
-        else parts.push({ type: "text", text: match[0] })
+        else {
+            const lastPart = parts.at(-1)
+            if (lastPart?.type === "text") lastPart.text += match[0]
+            else parts.push({ type: "text", text: match[0] })
+        }
         lastIndex = regex.lastIndex
     }
     if (lastIndex < markdown.length) {
