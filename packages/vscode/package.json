@@ -356,6 +356,16 @@
                         "default": true,
                         "description": "Enable or disables LLM request cache support."
                     },
+                    "genaiscript.cli.packageManager": {
+                        "type": "string",
+                        "default": "auto",
+                        "enum": [
+                            "auto",
+                            "npm",
+                            "pnpm"
+                        ],
+                        "description": "Package manager to use for GenAIScript CLI. Default is npm."
+                    },
                     "genaiscript.cli.version": {
                         "type": "string",
                         "description": "GenAIScript CLI version to use. Default matches the extension version."

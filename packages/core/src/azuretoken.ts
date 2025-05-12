@@ -47,8 +47,6 @@ async function createAzureToken(
         AzurePowerShellCredential,
         AzureDeveloperCliCredential,
         WorkloadIdentityCredential,
-        DeviceCodeCredential,
-        AzurePipelinesCredential,
         ChainedTokenCredential,
     } = await import("@azure/identity")
 
@@ -90,7 +88,7 @@ async function createAzureToken(
                 credential = new DefaultAzureCredential() // CodeQL [SM05139] Okay use of DefaultAzureCredential as it is only used in development........................................
             } else {
                 dbg(
-                    `node_env prod: credentialsType is env, cli, devcli, powershell`
+                    `node_env unspecified: credentialsType is env, cli, devcli, powershell`
                 )
                 credential = new ChainedTokenCredential(
                     new EnvironmentCredential(),
