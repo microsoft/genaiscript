@@ -344,9 +344,7 @@ ${this.toResultIcon(success, "")}${title}
             ...this.options,
         })
         if (!imageUrl) return
-        return this.appendContent(
-            `\n\n![${caption || "image"}](${imageUrl})\n\n`
-        )
+        return this.appendContent(`\n\n![${caption || ""}](${imageUrl})\n\n`)
     }
 
     private toResultIcon(value: boolean, missing: string) {

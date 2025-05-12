@@ -90,4 +90,6 @@ output.table([
 ])
 output.appendContent("<XML>hello</XML>\n")
 
-output.appendContent("☺️".repeat(50000))
+//output.appendContent("☺️".repeat(50000))
+
+await output.image("src/robots.jpg")

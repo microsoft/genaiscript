@@ -1,3 +1,4 @@
+// cSpell: disable
 import { describe, test } from "node:test"
 import { MarkdownStringify, splitMarkdownTextImageParts } from "./markdown"
 import assert from "node:assert/strict"
@@ -140,17 +141,19 @@ flat tree`,
             ],
         })
     })
-    test("splitMarkdownTextImageParts - only text", () => {
+    test("splitMarkdownTextImageParts - only text", async () => {
         const input = "This is a simple text block."
-        const parts = splitMarkdownTextImageParts(input)
+        const parts = await splitMarkdownTextImageParts(input)
         assert.deepStrictEqual(parts, [
             { type: "text", text: "This is a simple text block." },
         ])
     })
 
-    test("splitMarkdownTextImageParts - text with image", () => {
+    test("splitMarkdownTextImageParts - text with image", async () => {
         const input = "Hello ![alt text](http://example.com/image.png) world."
-        const parts = splitMarkdownTextImageParts(input)
+        const parts = await splitMarkdownTextImageParts(input, {
+            allowedDomains: ["example.com"],
+        })
         assert.deepStrictEqual(parts, [
             { type: "text", text: "Hello " },
             {
@@ -162,9 +165,9 @@ flat tree`,
         ])
     })
 
-    test("splitMarkdownTextImageParts - multiple images", () => {
+    test("splitMarkdownTextImageParts - multiple images", async () => {
         const input = "A ![img1](url1) and ![img2](url2) here."
-        const parts = splitMarkdownTextImageParts(input)
+        const parts = await splitMarkdownTextImageParts(input)
         assert.deepStrictEqual(parts, [
             { type: "text", text: "A " },
             { type: "image", alt: "img1", url: "url1" },
@@ -174,9 +177,9 @@ flat tree`,
         ])
     })
 
-    test("splitMarkdownTextImageParts - image at start and end", () => {
+    test("splitMarkdownTextImageParts - image at start and end", async () => {
         const input = "![start](urlstart) middle ![end](urlend)"
-        const parts = splitMarkdownTextImageParts(input)
+        const parts = await splitMarkdownTextImageParts(input)
         assert.deepStrictEqual(parts, [
             { type: "image", alt: "start", url: "urlstart" },
             { type: "text", text: " middle " },
@@ -184,9 +187,9 @@ flat tree`,
         ])
     })
 
-    test("splitMarkdownTextImageParts - only image", () => {
+    test("splitMarkdownTextImageParts - only image", async () => {
         const input = "![only](urlonly)"
-        const parts = splitMarkdownTextImageParts(input)
+        const parts = await splitMarkdownTextImageParts(input)
         assert.deepStrictEqual(parts, [
             { type: "image", alt: "only", url: "urlonly" },
         ])

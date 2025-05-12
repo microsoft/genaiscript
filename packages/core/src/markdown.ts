@@ -8,6 +8,11 @@ import { convertAnnotationsToMarkdown } from "./annotations"
 import { collapseNewlines } from "./cleaners"
 import { fenceMD } from "./mkmd"
 import { convertThinkToMarkdown } from "./think"
+import { resolveFileDataUri } from "./file"
+import { CancellationOptions, checkCancelled } from "./cancellation"
+import { HTTPS_REGEX } from "./constants"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("markdown")
 
 /**
  * Prettifies markdown content by converting annotations to markdown, processing "think" blocks, and collapsing excessive newlines.
@@ -100,12 +105,20 @@ export function MarkdownStringify(
 
 /**
  * Splits a markdown string into an array of parts, where each part is either a text block or an image block.
- * Image blocks are objects of the form { type: "image", alt: string, url: string }.
+ * Image blocks are objects of the form { type: "image", alt: string, url: string }. Only local images are supported.
  * Text blocks are objects of the form { type: "text", text: string }.
  * @param markdown The markdown string to split.
  */
-export function splitMarkdownTextImageParts(markdown: string) {
-    const regex = /!\[([^\]]*)\]\(([^)]+)\)/g
+export async function splitMarkdownTextImageParts(
+    markdown: string,
+    options?: CancellationOptions & {
+        allowedDomains?: string[]
+        convertToDataUri?: boolean
+    }
+) {
+    const { cancellationToken, allowedDomains, convertToDataUri } =
+        options || {}
+    const regex = /^!\[(?<alt>[^\]]*)\]\((?<imageUrl>[^)]+)\)$/gm
     const parts: (
         | { type: "text"; text: string }
         | { type: "image"; alt?: string; url?: string }
@@ -114,12 +127,28 @@ export function splitMarkdownTextImageParts(markdown: string) {
     let match: RegExpExecArray | null
 
     while ((match = regex.exec(markdown)) !== null) {
+        checkCancelled(cancellationToken)
         if (match.index > lastIndex) {
             const text = markdown.slice(lastIndex, match.index)
             if (text) parts.push({ type: "text", text })
         }
 
-        parts.push({ type: "image", alt: match[1], url: match[2] })
+        const { alt, imageUrl } = match.groups
+
+        let url: string
+        const isDataUri = /^datauri:\/\//.test(url)
+        if (isDataUri) url = imageUrl
+        else if (HTTPS_REGEX.test(imageUrl)) {
+            const uri = new URL(imageUrl)
+            if (allowedDomains?.includes(uri.hostname)) url = imageUrl
+        } else if (/^\./.test(imageUrl)) {
+            dbg(`local image: %s`, imageUrl)
+            if (convertToDataUri)
+                url = await resolveFileDataUri(imageUrl, options)
+            else url = imageUrl
+        }
+        if (url) parts.push({ type: "image", alt: alt, url: url })
+        else parts.push({ type: "text", text: match[0] })
         lastIndex = regex.lastIndex
     }
     if (lastIndex < markdown.length) {

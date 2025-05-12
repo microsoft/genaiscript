@@ -302,17 +302,17 @@ export async function resolveFileBytes(
  */
 export async function resolveFileDataUri(
     filename: string,
-    options?: TraceOptions & CancellationOptions
+    options?: TraceOptions & CancellationOptions & { mime?: string }
 ) {
-    const { cancellationToken } = options || {}
+    const { cancellationToken, mime } = options || {}
     const bytes = await resolveFileBytes(filename, options)
     checkCancelled(cancellationToken)
-
-    const mime = (await fileTypeFromBuffer(bytes))?.mime
-    if (!mime) {
+    const uriMime =
+        mime || (await fileTypeFromBuffer(bytes))?.mime || lookupMime(filename)
+    if (!uriMime) {
+        dbg(`no mime type found for ${filename}`)
         return undefined
     }
-
     const b64 = toBase64(bytes)
-    return `data:${mime};base64,${b64}`
+    return `data:${uriMime};base64,${b64}`
 }
