@@ -163,8 +163,9 @@ export async function splitMarkdownTextImageParts(
                 }
             }
         }
-        if (data && mimeType) parts.push({ type: "image", data, mimeType })
-        else {
+        if (data && mimeType) {
+            parts.push({ type: "image", data, mimeType })
+        } else {
             const lastPart = parts.at(-1)
             if (lastPart?.type === "text") lastPart.text += match[0]
             else parts.push({ type: "text", text: match[0] })

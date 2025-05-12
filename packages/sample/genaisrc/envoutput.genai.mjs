@@ -1,5 +1,5 @@
 script({
-    model: "echo",
+    model: "small",
     title: "Output tester",
     description: "Generation various outputs",
     group: "mcp",

@@ -127,6 +127,8 @@ export async function startMcpServer(
             )
             const res = await run(name, files as string[], {
                 vars: vars as Record<string, any>,
+                runTrace: false,
+                outputTrace: false,
             })
             dbg(`res: %s`, res.status)
             if (res.error) dbg(`error: %O`, res.error)
