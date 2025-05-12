@@ -5736,6 +5736,30 @@ interface McpResourceReference {
     mimeType?: string
 }
 
+interface McpServerToolResultTextPart {
+    type: "text"
+    text: string
+}
+
+interface McpServerToolResultImagePart {
+    type: "image"
+    data: string
+    mimeType: string
+}
+
+type McpServerToolResultPart =
+    | McpServerToolResultTextPart
+    | McpServerToolResultImagePart
+
+interface McpServerToolResult {
+    isError: boolean
+    content: McpServerToolResultPart[]
+    /**
+     * If the content only contains a text part, return the text of the part
+     */
+    text?: string
+}
+
 interface McpClient extends AsyncDisposable {
     /**
      * Configuration of the server
@@ -5760,6 +5784,16 @@ interface McpClient extends AsyncDisposable {
      * Reads the resource content
      */
     readResource(uri: string): Promise<WorkspaceFile[]>
+
+    /**
+     *
+     * @param toolId Call the MCP tool
+     * @param args
+     */
+    callTool(
+        toolId: string,
+        args: Record<string, any>
+    ): Promise<McpServerToolResult>
 
     /**
      * Closes clients and server.
