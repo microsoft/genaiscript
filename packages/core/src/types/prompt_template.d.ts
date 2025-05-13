@@ -1698,6 +1698,11 @@ interface ExpansionVariables {
     runDir: string
 
     /**
+     * Unique identifier for the run
+     */
+    runId: string
+
+    /**
      * List of linked files parsed in context
      */
     files: WorkspaceFile[]

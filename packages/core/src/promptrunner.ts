@@ -44,11 +44,12 @@ async function resolveExpansionVars(
     output: OutputTrace,
     options: GenerationOptions
 ): Promise<ExpansionVariables> {
-    const { vars, runDir } = options
+    const { vars, runDir, runId } = options
     const root = runtimeHost.projectFolder()
 
     assert(!!vars)
     assert(!!runDir)
+    assert(!!runId)
 
     const files: WorkspaceFile[] = []
     const templateFiles = arrayify(template.files)
@@ -111,6 +112,7 @@ async function resolveExpansionVars(
         output,
         generator: undefined as ChatGenerationContext,
         runDir,
+        runId,
         dbg: debug(DEBUG_SCRIPT_CATEGORY),
     } satisfies ExpansionVariables
     return res
