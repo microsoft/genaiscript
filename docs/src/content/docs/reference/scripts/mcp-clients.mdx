@@ -1,0 +1,56 @@
+---
+title: Model Context Protocol Clients
+description: MCP Clients
+sidebar:
+    order: 5.10
+---
+
+GenAIScript provides that ability to start and interact programmatically with a MCP server.
+Typically, this is reserved for the LLM orchestration, but it can be useful to use JavaScript to do a few calls to Servers
+before making a request.
+
+This is a thin layer above the MCP TypeScript SDK.
+
+## Starting a server
+
+You start a server with the same syntax as mcp configuration files, but you need to provide an identifier for the server.
+This identifier is used to identify the server in the mcpClient.
+
+```js
+const fs = await host.mcpServer({
+    id: "filesystem",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-filesystem", path.resolve(".")],
+})
+```
+
+The server is automatically stopped when the prompt is finished.
+
+## Tools
+
+You can do operations on tools. The queries are not cached and always communicate with the server.
+
+- list tools
+
+```js
+const tools = await fs.listTools()
+```
+
+- call a tool
+
+```js
+const res = await fs.callTool("get_file_info", { path: "README.md" })
+```
+
+- use result
+
+```js
+const info = res.content[0].text
+```
+
+The structure of the output depends on the tool but it was meant to be consumed by an LLM so probably you
+will want to use `def` to store it in your prompt.
+
+```js
+def("INFO", info)
+```
