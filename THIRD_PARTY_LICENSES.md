@@ -2018,15 +2018,15 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.806.0
- - @aws-sdk/client-sso@3.806.0
- - @aws-sdk/credential-provider-cognito-identity@3.806.0
+ - @aws-sdk/client-cognito-identity@3.808.0
+ - @aws-sdk/client-sso@3.808.0
+ - @aws-sdk/credential-provider-cognito-identity@3.808.0
  - @aws-sdk/middleware-eventstream@3.804.0
  - @aws-sdk/util-user-agent-browser@3.804.0
- - @aws-sdk/util-user-agent-node@3.806.0
+ - @aws-sdk/util-user-agent-node@3.808.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.2
- - @smithy/middleware-retry@4.1.5
+ - @smithy/middleware-retry@4.1.6
  - @smithy/querystring-builder@2.2.0
  - @smithy/querystring-builder@4.0.2
  - @smithy/querystring-parser@2.2.0
@@ -2034,8 +2034,8 @@ The following npm packages may be included in this product:
  - @smithy/service-error-classification@4.0.3
  - @smithy/url-parser@2.2.0
  - @smithy/url-parser@4.0.2
- - @smithy/util-defaults-mode-browser@4.0.12
- - @smithy/util-defaults-mode-node@4.0.12
+ - @smithy/util-defaults-mode-browser@4.0.13
+ - @smithy/util-defaults-mode-node@4.0.13
 
 These packages each contain the following license:
 
@@ -2245,7 +2245,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.806.0
+ - @aws-sdk/client-bedrock-runtime@3.808.0
 
 This package contains the following license:
 
@@ -2458,8 +2458,8 @@ The following npm packages may be included in this product:
  - @aws-sdk/eventstream-handler-node@3.804.0
  - @aws-sdk/middleware-host-header@3.804.0
  - @aws-sdk/middleware-recursion-detection@3.804.0
- - @aws-sdk/middleware-user-agent@3.806.0
- - @smithy/core@3.3.1
+ - @aws-sdk/middleware-user-agent@3.808.0
+ - @smithy/core@3.3.2
  - @smithy/eventstream-serde-browser@4.0.2
  - @smithy/eventstream-serde-config-resolver@4.1.0
  - @smithy/eventstream-serde-node@2.2.0
@@ -2468,11 +2468,11 @@ The following npm packages may be included in this product:
  - @smithy/eventstream-serde-universal@4.0.2
  - @smithy/invalid-dependency@4.0.2
  - @smithy/middleware-serde@2.3.0
- - @smithy/middleware-serde@4.0.3
+ - @smithy/middleware-serde@4.0.4
  - @smithy/protocol-http@3.3.0
  - @smithy/protocol-http@5.1.0
  - @smithy/smithy-client@2.5.1
- - @smithy/smithy-client@4.2.4
+ - @smithy/smithy-client@4.2.5
  - @smithy/types@2.12.0
  - @smithy/types@3.7.2
  - @smithy/types@4.2.0
@@ -4043,7 +4043,7 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - universal-user-agent@7.0.2
+ - universal-user-agent@7.0.3
 
 This package contains the following license:
 
@@ -4834,14 +4834,14 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.806.0
- - @aws-sdk/credential-provider-ini@3.806.0
- - @aws-sdk/credential-provider-node@3.806.0
- - @aws-sdk/credential-providers@3.806.0
- - @aws-sdk/region-config-resolver@3.806.0
- - @aws-sdk/token-providers@3.806.0
+ - @aws-sdk/credential-provider-env@3.808.0
+ - @aws-sdk/credential-provider-ini@3.808.0
+ - @aws-sdk/credential-provider-node@3.808.0
+ - @aws-sdk/credential-providers@3.808.0
+ - @aws-sdk/region-config-resolver@3.808.0
+ - @aws-sdk/token-providers@3.808.0
  - @aws-sdk/types@3.804.0
- - @aws-sdk/util-endpoints@3.806.0
+ - @aws-sdk/util-endpoints@3.808.0
  - @aws-sdk/util-locate-window@3.804.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@2.2.0
@@ -4856,7 +4856,7 @@ The following npm packages may be included in this product:
  - @smithy/is-array-buffer@4.0.0
  - @smithy/middleware-content-length@4.0.2
  - @smithy/middleware-endpoint@2.5.1
- - @smithy/middleware-endpoint@4.1.4
+ - @smithy/middleware-endpoint@4.1.5
  - @smithy/middleware-stack@2.2.0
  - @smithy/middleware-stack@4.0.2
  - @smithy/node-http-handler@2.5.0
@@ -5094,9 +5094,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.806.0
- - @aws-sdk/credential-provider-sso@3.806.0
- - @aws-sdk/credential-provider-web-identity@3.806.0
+ - @aws-sdk/credential-provider-process@3.808.0
+ - @aws-sdk/credential-provider-sso@3.808.0
+ - @aws-sdk/credential-provider-web-identity@3.808.0
 
 These packages each contain the following license:
 
@@ -5997,9 +5997,9 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.806.0
- - @aws-sdk/credential-provider-http@3.806.0
- - @aws-sdk/nested-clients@3.806.0
+ - @aws-sdk/core@3.808.0
+ - @aws-sdk/credential-provider-http@3.808.0
+ - @aws-sdk/nested-clients@3.808.0
  - pyodide@0.27.5
 
 These packages each contain the following license:
@@ -7060,19 +7060,19 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@4.1.5
- - @inquirer/confirm@5.1.9
- - @inquirer/core@10.1.10
- - @inquirer/editor@4.2.10
- - @inquirer/expand@4.0.12
+ - @inquirer/checkbox@4.1.6
+ - @inquirer/confirm@5.1.10
+ - @inquirer/core@10.1.11
+ - @inquirer/editor@4.2.11
+ - @inquirer/expand@4.0.13
  - @inquirer/figures@1.0.11
- - @inquirer/input@4.1.9
- - @inquirer/number@3.0.12
- - @inquirer/password@4.0.12
- - @inquirer/prompts@7.5.0
- - @inquirer/rawlist@4.1.0
- - @inquirer/search@3.0.12
- - @inquirer/select@4.2.0
+ - @inquirer/input@4.1.10
+ - @inquirer/number@3.0.13
+ - @inquirer/password@4.0.13
+ - @inquirer/prompts@7.5.1
+ - @inquirer/rawlist@4.1.1
+ - @inquirer/search@3.0.13
+ - @inquirer/select@4.2.1
  - @inquirer/type@3.0.6
 
 These packages each contain the following license:
@@ -7591,7 +7591,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - @anthropic-ai/bedrock-sdk@0.21.2
- - @anthropic-ai/sdk@0.50.3
+ - @anthropic-ai/sdk@0.50.4
 
 These packages each contain the following license:
 
@@ -9793,7 +9793,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.11.1
+ - @modelcontextprotocol/sdk@1.11.2
 
 This package contains the following license:
 
@@ -10193,7 +10193,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 The following npm packages may be included in this product:
 
  - undici-types@6.21.0
- - undici@6.21.2
+ - undici@6.21.3
 
 These packages each contain the following license:
 
@@ -11162,7 +11162,7 @@ The following npm packages may be included in this product:
  - mute-stream@2.0.0
  - nopt@8.1.0
  - once@1.4.0
- - semver@7.7.1
+ - semver@7.7.2
  - tar@7.4.3
  - which@1.3.1
  - which@2.0.2

@@ -1,5 +1,5 @@
 ---
-title: Metadata
+title: Stored Completions
 description: Metadata for the script
 keywords: [metadata, script]
 sidebar:
