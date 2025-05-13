@@ -27,7 +27,7 @@
     "@huggingface/transformers": "3.4.0",
     "@langchain/core": "^0.3.42",
     "@langchain/langgraph": "^0.2.57",
-    "@modelcontextprotocol/sdk": "^1.11.1",
+    "@modelcontextprotocol/sdk": "^1.11.2",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "zod": "^3.24.4",

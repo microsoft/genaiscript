@@ -5740,11 +5740,47 @@ interface ShellHost {
     ): Promise<ShellOutput>
 }
 
+interface McpToolReference {
+    name: string
+    description?: string
+    inputSchema?: JSONSchema
+}
+
 interface McpResourceReference {
     name?: string
     description?: string
     uri: string
     mimeType?: string
+}
+
+interface McpServerToolResultTextPart {
+    type: "text"
+    text: string
+}
+
+interface McpServerToolResultImagePart {
+    type: "image"
+    data: string
+    mimeType: string
+}
+
+interface McpServerToolResourcePart {
+    type: "resource"
+    text?: string
+    uri?: string
+    mimeType?: string
+    blob?: string
+}
+
+type McpServerToolResultPart =
+    | McpServerToolResultTextPart
+    | McpServerToolResultImagePart
+    | McpServerToolResourcePart
+
+interface McpServerToolResult {
+    isError?: boolean
+    content: McpServerToolResultPart[]
+    text?: string
 }
 
 interface McpClient extends AsyncDisposable {
@@ -5760,7 +5796,7 @@ interface McpClient extends AsyncDisposable {
     /**
      * List all available MCP tools
      */
-    listTools(): Promise<ToolCallback[]>
+    listTools(): Promise<McpToolReference[]>
 
     /**
      * List resources available in the server
@@ -5771,6 +5807,16 @@ interface McpClient extends AsyncDisposable {
      * Reads the resource content
      */
     readResource(uri: string): Promise<WorkspaceFile[]>
+
+    /**
+     *
+     * @param name Call the MCP tool
+     * @param args
+     */
+    callTool(
+        name: string,
+        args: Record<string, any>
+    ): Promise<McpServerToolResult>
 
     /**
      * Closes clients and server.

@@ -185,9 +185,9 @@
     kleur "^4.1.5"
 
 "@astrojs/sitemap@^3.3.0":
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/@astrojs/sitemap/-/sitemap-3.3.1.tgz#dfeb912482eebd9d50860a80e344b240ba091b93"
-  integrity sha512-GRnDUCTviBSNfXJ0Jmur+1/C+z3g36jy79VyYggfe1uNyEYSTcmAfTTCmbytrRvJRNyJJnSfB/77Gnm9PiXRRg==
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@astrojs/sitemap/-/sitemap-3.4.0.tgz#3eaad704eb4ed2e0420e8b81546420dffabb159b"
+  integrity sha512-C5m/xsKvRSILKM3hy47n5wKtTQtJXn8epoYuUmCCstaE9XBt20yInym3Bz2uNbEiNfv11bokoW0MqeXPIvjFIQ==
   dependencies:
     sitemap "^8.0.0"
     stream-replace-string "^2.0.0"
@@ -4572,9 +4572,9 @@ sax@^1.2.4:
   integrity sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==
 
 semver@^7.3.8, semver@^7.6.2, semver@^7.6.3, semver@^7.7.1:
-  version "7.7.1"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.7.1.tgz#abd5098d82b18c6c81f6074ff2647fd3e7220c9f"
-  integrity sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==
+  version "7.7.2"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.7.2.tgz#67d99fdcd35cec21e6f8b87a7fd515a33f982b58"
+  integrity sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==
 
 sharp@^0.33.3:
   version "0.33.5"
@@ -4666,10 +4666,10 @@ space-separated-tokens@^2.0.0:
   resolved "https://registry.yarnpkg.com/space-separated-tokens/-/space-separated-tokens-2.0.2.tgz#1ecd9d2350a3844572c3f4a312bceb018348859f"
   integrity sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==
 
-starlight-blog@^0.23.0:
-  version "0.23.0"
-  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.23.0.tgz#41a6cfb2286bf58bf4e3ebf32b39e005d54bfb59"
-  integrity sha512-OLwmd1PSmT6iqn4o4M4nGSA3VumQ6mCPsVZmRaySQlNKizNjNh/TX+37QArOZCN4b3B1VdmTnlTNfdqGCy5e0A==
+starlight-blog@^0.23.2:
+  version "0.23.2"
+  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.23.2.tgz#5715fb415eaa4055c2c37a56b1a348c43e4dd405"
+  integrity sha512-ymyCOsohNb7xomYEL0+S6kV+RWE8uN3FJs6IqgKu2+930nt31zem+NYTCu81BO1wIXx3aF/qPK04RWLZ3wXhIg==
   dependencies:
     "@astrojs/markdown-remark" "^6.3.1"
     "@astrojs/mdx" "^4.0.8"
