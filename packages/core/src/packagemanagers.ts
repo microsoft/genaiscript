@@ -27,6 +27,7 @@ export async function packageResolveExecute(
     args: string[]
 }> {
     dbg(`resolving`)
+    args = args.filter((a) => a !== undefined)
     let agent: Agent = options?.agent === "auto" ? undefined : options?.agent
     if (!agent) {
         const pm = await detect({ cwd })
@@ -42,6 +43,7 @@ export async function packageResolveExecute(
     }
     agent = agent || "npm"
     dbg(`agent: %s`, agent)
+    if (agent === "npm") args.unshift("--yes")
     const resolved = resolveCommand(
         agent,
         "execute",
