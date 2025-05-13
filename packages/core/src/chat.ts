@@ -1229,7 +1229,7 @@ export async function executeChatSession(
         ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
     const chatTrace = trace.startTraceDetails(`💬 chat`, { expanded: true })
-    const store = !!metadata
+    const store = !!metadata ? true : undefined
     const timer = measure("chat")
     const cacheImage = async (url: string) =>
         await fileCacheImage(url, {
