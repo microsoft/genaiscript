@@ -1,3 +1,8 @@
+import { deleteUndefinedValues } from "./cleaners"
+import { genaiscriptDebug } from "./debug"
+import { ellipse } from "./util"
+const dbg = genaiscriptDebug("metadata")
+
 export function metadataValidate(
     metadata: Record<string, string>
 ): Record<string, string> | undefined {
@@ -11,18 +16,32 @@ export function metadataValidate(
         if (typeof value !== "string" || value.length > 512)
             throw new Error("Invalid metadata value")
     }
+    dbg(`%O`, metadata)
     return metadata
 }
 
 export function metadataMerge(
-    source: Record<string, string> | undefined,
-    update: Record<string, string> | undefined
+    script: PromptScript,
+    options: Record<string, string>
 ): Record<string, string> | undefined {
-    if (!source) return update
-    if (!update) return source
+    const update = script.metadata
+    const source = options
+    if (!source && !update) return undefined
+
     const res = {
         ...(source || {}),
         ...(update || {}),
+    }
+    deleteUndefinedValues(res)
+    const extras = deleteUndefinedValues({
+        script: script.id,
+        group: script.group,
+        title: script.title,
+        description: script.description,
+    })
+    for (const [key, value] of Object.entries(extras)) {
+        if (Object.keys(res).length >= 16) break
+        if (res[key] === undefined) res[key] = ellipse(value, 512)
     }
     return metadataValidate(res)
 }

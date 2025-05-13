@@ -6,7 +6,9 @@ sidebar:
     order: 110
 ---
 
-Metadata is a map of key-value pairs used to enable stored completions—a feature in OpenAI and Azure OpenAI that allows you to store and retrieve completions for a given prompt. This is useful for distillation and evaluation purposes.
+Metadata is a map of key-value pairs used to enable stored completions — a feature in OpenAI and [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/stored-completions) that allows you to store and retrieve completions for a given prompt. This is useful for distillation and evaluation purposes.
+
+![A recorded completion](./stored-completion.png)
 
 ```js
 script({

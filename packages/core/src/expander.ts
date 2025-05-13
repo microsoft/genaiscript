@@ -254,7 +254,7 @@ export async function expandTemplate(
         template.flexTokens
     const fenceFormat = options.fenceFormat ?? template.fenceFormat
     const cache = options.cache ?? template.cache
-    const metadata = metadataMerge(template.metadata, options.metadata)
+    const metadata = metadataMerge(template, options.metadata)
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
     let logprobs = options.logprobs || template.logprobs
