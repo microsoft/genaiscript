@@ -5729,6 +5729,12 @@ interface ShellHost {
     ): Promise<ShellOutput>
 }
 
+interface McpToolReference {
+    name: string
+    description?: string
+    inputSchema?: JSONSchema
+}
+
 interface McpResourceReference {
     name?: string
     description?: string
@@ -5769,7 +5775,7 @@ interface McpClient extends AsyncDisposable {
     /**
      * List all available MCP tools
      */
-    listTools(): Promise<ToolCallback[]>
+    listTools(): Promise<McpToolReference[]>
 
     /**
      * List resources available in the server
@@ -5783,11 +5789,11 @@ interface McpClient extends AsyncDisposable {
 
     /**
      *
-     * @param toolId Call the MCP tool
+     * @param name Call the MCP tool
      * @param args
      */
     callTool(
-        toolId: string,
+        name: string,
         args: Record<string, any>
     ): Promise<McpServerToolResult>
 

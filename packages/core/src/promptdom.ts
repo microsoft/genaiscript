@@ -1503,7 +1503,7 @@ ${trimNewlines(schemaText)}
                 trace,
             })
             disposables.push(res)
-            const mcpTools = await res.listTools()
+            const mcpTools = await res.listToolCallbacks()
             dbgMcp(
                 `tools %O`,
                 mcpTools?.map((t) => t.spec.name)
