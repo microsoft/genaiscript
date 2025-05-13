@@ -124,6 +124,10 @@
                         "type": "boolean",
                         "description": "Indicates if the provider uses a single model"
                     },
+                    "metadata": {
+                        "type": "boolean",
+                        "description": "Indicates if metadata is supported along with 'store' field"
+                    },
                     "aliases": {
                         "type": "object",
                         "description": "List of model aliases for the provider",

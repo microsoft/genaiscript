@@ -248,6 +248,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         hidden?: boolean
         imageGeneration?: boolean
         singleModel?: boolean
+        metadata?: boolean
         responseType?: "json" | "json_object" | "json_schema"
         reasoningEfforts?: Record<string, number>
         aliases?: Record<string, string>

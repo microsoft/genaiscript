@@ -783,6 +783,15 @@ interface McpToolAnnotations {
     }
 }
 
+interface MetadataOptions {
+    /**
+     * Set of 16 key-value pairs that can be attached to an object.
+     * This can be useful for storing additional information about the object in a structured format, and querying for objects via API or the dashboard.
+     * Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters.
+     */
+    metadata?: Record<string, string>
+}
+
 interface PromptScript
     extends PromptLike,
         ModelOptions,
@@ -793,7 +802,8 @@ interface PromptScript
         SecretDetectionOptions,
         GitIgnoreFilterOptions,
         ScriptRuntimeOptions,
-        McpToolAnnotations {
+        McpToolAnnotations,
+        MetadataOptions {
     /**
      * Which provider to prefer when picking a model.
      */
@@ -1774,6 +1784,7 @@ type PromptSystemArgs = Omit<
     | "files"
     | "modelConcurrency"
     | "redteam"
+    | "metadata"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
