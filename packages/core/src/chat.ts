@@ -1190,6 +1190,7 @@ export async function executeChatSession(
         topLogprobs,
         cache,
         inner,
+        metadata,
         partialCb,
     } = genOptions
     assert(!!model, "model is required")
@@ -1287,6 +1288,8 @@ export async function executeChatSession(
                     req = {
                         model,
                         temperature,
+                        store: !!metadata,
+                        metadata,
                         reasoning_effort: reasoningEffort,
                         top_p: topP,
                         tool_choice:
@@ -1498,6 +1501,11 @@ function updateChatFeatures(
         dbg(`max_tokens: renamed to max_completion_tokens`)
         req.max_completion_tokens = req.max_tokens
         delete req.max_tokens
+    }
+    if (req.metadata && !features?.metadata) {
+        dbg(`metadata: disabled, not supported by ${provider}`)
+        delete req.metadata
+        delete req.store
     }
 
     deleteUndefinedValues(req)

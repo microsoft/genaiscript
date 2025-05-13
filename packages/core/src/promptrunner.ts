@@ -188,6 +188,7 @@ export async function runTemplate(
             topLogprobs,
             disposables,
             cache,
+            metadata
         } = await expandTemplate(prj, template, options, env)
         const { output, generator, secrets, dbg: envDbg, ...restEnv } = env
 
@@ -279,6 +280,7 @@ export async function runTemplate(
             logprobs,
             topLogprobs,
             fallbackTools,
+            metadata,
             stats: runStats,
         }
         const chatResult = await executeChatSession(

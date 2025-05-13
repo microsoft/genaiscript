@@ -11,6 +11,7 @@
             "listModels": true,
             "imageGeneration": true,
             "responseFormat": "json_schema",
+            "metadata": true,
             "aliases": {
                 "large": "gpt-4.1",
                 "small": "gpt-4.1-mini",
@@ -58,6 +59,7 @@
             "speech": true,
             "imageGeneration": true,
             "aliases": {},
+            "metadata": true,
             "models": {
                 "o1-preview": {
                     "tools": false
