@@ -10,11 +10,13 @@ export function metadataValidate(
     const entries = Object.entries(metadata)
     if (entries.length > 16)
         throw new Error("Metadata can only have 16 entries")
-    for (const [key, value] of entries) {
-        if (typeof key !== "string" || key.length > 64)
-            throw new Error("Invalid metadata key")
-        if (typeof value !== "string" || value.length > 512)
-            throw new Error("Invalid metadata value")
+    // keep the first 16 entries
+    for (let [key, value] of entries) {
+        if (key.length > 64)
+            throw new Error("Invalid metadata key, key too long")
+        if (value === undefined) delete metadata[key]
+        if (typeof value !== "string") value = String(value)
+        if (value.length > 512) value = ellipse(value, 512)
     }
     dbg(`%O`, metadata)
     return metadata
