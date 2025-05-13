@@ -5764,13 +5764,23 @@ interface McpServerToolResultImagePart {
     mimeType: string
 }
 
+interface McpServerToolResourcePart {
+    type: "resource"
+    text?: string
+    uri?: string
+    mimeType?: string
+    blob?: string
+}
+
 type McpServerToolResultPart =
     | McpServerToolResultTextPart
     | McpServerToolResultImagePart
+    | McpServerToolResourcePart
 
 interface McpServerToolResult {
     isError?: boolean
     content: McpServerToolResultPart[]
+    text?: string
 }
 
 interface McpClient extends AsyncDisposable {

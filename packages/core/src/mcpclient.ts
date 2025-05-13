@@ -21,6 +21,33 @@ export interface McpClientProxy extends McpClient {
     listToolCallbacks(): Promise<ToolCallback[]>
 }
 
+function toolResultContentToText(res: any) {
+    const content = res.content as (
+        | TextContent
+        | ImageContent
+        | EmbeddedResource
+    )[]
+    let text = arrayify(content)
+        ?.map((c) => {
+            switch (c.type) {
+                case "text":
+                    return c.text || ""
+                case "image":
+                    return c.data
+                case "resource":
+                    return c.resource?.uri || ""
+                default:
+                    return c
+            }
+        })
+        .join("\n")
+    if (res.isError) {
+        dbg(`tool error: ${text}`)
+        text = `Tool Error:\n${text}`
+    }
+    return text
+}
+
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClientProxy[] = []
     constructor() {
@@ -32,6 +59,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         options: Required<TraceOptions> & CancellationOptions
     ): Promise<McpClientProxy> {
         const { cancellationToken } = options || {}
+        logVerbose(`mcp: starting ` + serverConfig.id)
         const signal = toSignal(cancellationToken)
         const {
             id,
@@ -195,29 +223,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                                             ),
                                         }
                                     )
-                                    const content = res.content as (
-                                        | TextContent
-                                        | ImageContent
-                                        | EmbeddedResource
-                                    )[]
-                                    let text = arrayify(content)
-                                        ?.map((c) => {
-                                            switch (c.type) {
-                                                case "text":
-                                                    return c.text || ""
-                                                case "image":
-                                                    return c.data
-                                                case "resource":
-                                                    return c.resource?.uri || ""
-                                                default:
-                                                    return c
-                                            }
-                                        })
-                                        .join("\n")
-                                    if (res.isError) {
-                                        dbg(`tool error: ${text}`)
-                                        text = `Tool Error\n${text}`
-                                    }
+                                    const text = res?.text
                                     return text
                                 },
                             } satisfies ToolCallback
@@ -284,7 +290,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
 
             const callTool: McpClient["callTool"] = async (toolId, args) => {
                 const responseSchema: JSONSchema = undefined
-                const { isError, content } = await client.callTool(
+                const callRes = await client.callTool(
                     {
                         name: toolId,
                         arguments: args,
@@ -296,9 +302,10 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                     }
                 )
                 return deleteUndefinedValues({
-                    isError: isError as boolean,
-                    content: content as McpServerToolResultPart[],
-                })
+                    isError: callRes.isError as boolean,
+                    content: callRes.content as McpServerToolResultPart[],
+                    text: toolResultContentToText(callRes),
+                } satisfies McpServerToolResult)
             }
 
             const res = Object.freeze({
