@@ -4,3 +4,7 @@ script({
 })
 
 $`Write a joke in emojis.`
+
+await prompt`Write a joke in emojis.`.options({
+    metadata: { inlined: "true" },
+})

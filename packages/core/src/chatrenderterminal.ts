@@ -120,6 +120,17 @@ function renderToolCall(
     )
 }
 
+function renderMetadata(call: CreateChatCompletionRequest) {
+    const { metadata } = call
+    if (!metadata) return ""
+    return wrapColor(
+        CONSOLE_COLOR_DEBUG,
+        `┌─📊 ${Object.entries(metadata)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(", ")}\n`
+    )
+}
+
 /**
  * Renders a list of chat messages to an interactive terminal output.
  *
@@ -141,7 +152,7 @@ export async function renderMessagesToTerminal(
         tools?: ChatCompletionTool[]
     }
 ) {
-    const { model, temperature, response_format } = request
+    const { model, temperature, metadata, response_format } = request
     let messages = request.messages.slice(0)
     const {
         system = undefined, // Include system messages unless explicitly set to false.
@@ -206,6 +217,8 @@ export async function renderMessagesToTerminal(
             "\n"
         )
     }
+
+    if (metadata) res.push(renderMetadata(request))
 
     for (const msg of messages) {
         const { role } = msg

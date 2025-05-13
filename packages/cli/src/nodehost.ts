@@ -492,7 +492,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         if (applyGitIgnore !== false) {
             files = await filterGitIgnore(files)
         }
-        return uniq(files)
+        const res = uniq(files)
+        dbg(`found files: %d\n%O`, res.length, res)
+        return res
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await ensureDir(dirname(name))

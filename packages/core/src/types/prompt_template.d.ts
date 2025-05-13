@@ -4234,7 +4234,8 @@ interface PromptGeneratorOptions
     extends ModelOptions,
         PromptSystemOptions,
         ContentSafetyOptions,
-        SecretDetectionOptions {
+        SecretDetectionOptions,
+        MetadataOptions {
     /**
      * Label for trace
      */
