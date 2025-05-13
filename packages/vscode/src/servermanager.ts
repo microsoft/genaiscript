@@ -190,7 +190,7 @@ export class TerminalServerManager
             this.state
         )
         const githubCopilotChatClient = isLanguageModelsAvailable()
-            ? " --github-copilot-chat-client"
+            ? "--github-copilot-chat-client"
             : ""
 
         if (this._client) this._client.reconnectAttempts = 0
@@ -209,7 +209,7 @@ export class TerminalServerManager
         })
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" ${githubCopilotChatClient}`
             )
         else {
             const pkg = await packageResolveExecute(
