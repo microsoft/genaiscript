@@ -258,11 +258,11 @@ export async function parseTokenFromEnv(
                 const { failed, stdout } = await runtimeHost.exec(
                     undefined,
                     "gh",
-                    ["auth", "login"],
+                    ["auth", "token"],
                     options
                 )
                 if (failed) throw new Error("Failed to resolve GitHub token")
-                res.name = "gh auth login"
+                res.name = "gh auth token"
                 res.value = stdout.trim()
             }
             throw new Error(
