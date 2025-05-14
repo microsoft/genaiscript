@@ -25,7 +25,7 @@ import {
     MODEL_PROVIDER_HUGGINGFACE,
     HUGGINGFACE_API_BASE,
     OLLAMA_API_BASE,
-    OLLAMA_DEFAUT_PORT,
+    OLLAMA_DEFAULT_PORT,
     MODEL_PROVIDER_GOOGLE,
     GOOGLE_API_BASE,
     MODEL_PROVIDER_TRANSFORMERS,
@@ -89,7 +89,7 @@ export function ollamaParseHostVariable(env: Record<string, string>) {
     const ipm =
         /^(?<address>(localhost|\d+\.\d+\.\d+\.\d+))(:(?<port>\d+))?$/i.exec(s)
     if (ipm) {
-        return `http://${ipm.groups.address}:${ipm.groups.port || OLLAMA_DEFAUT_PORT}`
+        return `http://${ipm.groups.address}:${ipm.groups.port || OLLAMA_DEFAULT_PORT}`
     }
     const url = new URL(s)
     return url.href
@@ -250,7 +250,9 @@ export async function parseTokenFromEnv(
             ...GITHUB_TOKENS,
         ])
         if (!res?.value) {
-            throw new Error("GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set")
+            throw new Error(
+                "GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set"
+            )
         }
         const type = "openai"
         const base = GITHUB_MODELS_BASE

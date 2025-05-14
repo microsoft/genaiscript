@@ -127,8 +127,8 @@ export const PROMPT_FENCE = "```"
 export const MARKDOWN_PROMPT_FENCE = "`````"
 
 export const OPENAI_API_BASE = "https://api.openai.com/v1"
-export const OLLAMA_DEFAUT_PORT = 11434
-export const OLLAMA_API_BASE = `http://127.0.0.1:${OLLAMA_DEFAUT_PORT}/v1`
+export const OLLAMA_DEFAULT_PORT = 11434
+export const OLLAMA_API_BASE = `http://127.0.0.1:${OLLAMA_DEFAULT_PORT}/v1`
 export const SGLANG_API_BASE = "http://127.0.0.1:30000/v1"
 export const VLLM_API_BASE = "http://127.0.0.1:8000/v1"
 export const LLAMAFILE_API_BASE = "http://127.0.0.1:8080/v1"
