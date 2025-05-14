@@ -5,8 +5,7 @@ on:
         branches:
             - dev
         paths:
-            - "docs/**.md"
-            - "docs/**.mdx"
+            - "docs/src/content/docs/**.md*"
 concurrency:
     group: iat-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -30,9 +29,8 @@ jobs:
               run: npx --yes genaiscript run iat -m github:gpt-4.1 --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            - name: Archive genai results
-              if: always()
-              uses: actions/upload-artifact@v4
+            - uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  name: genai-results
-                  path: ./temp/genai/**
+                  file_pattern: "docs/src/content/docs/**.md*"
+                  commit_message: "[genai] image alt text"
+                  commit_user_name: "genaiscript"
