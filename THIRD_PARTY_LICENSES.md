@@ -2018,15 +2018,15 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.808.0
- - @aws-sdk/client-sso@3.808.0
- - @aws-sdk/credential-provider-cognito-identity@3.808.0
+ - @aws-sdk/client-cognito-identity@3.810.0
+ - @aws-sdk/client-sso@3.810.0
+ - @aws-sdk/credential-provider-cognito-identity@3.810.0
  - @aws-sdk/middleware-eventstream@3.804.0
  - @aws-sdk/util-user-agent-browser@3.804.0
- - @aws-sdk/util-user-agent-node@3.808.0
+ - @aws-sdk/util-user-agent-node@3.810.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.2
- - @smithy/middleware-retry@4.1.6
+ - @smithy/middleware-retry@4.1.7
  - @smithy/querystring-builder@2.2.0
  - @smithy/querystring-builder@4.0.2
  - @smithy/querystring-parser@2.2.0
@@ -2034,8 +2034,8 @@ The following npm packages may be included in this product:
  - @smithy/service-error-classification@4.0.3
  - @smithy/url-parser@2.2.0
  - @smithy/url-parser@4.0.2
- - @smithy/util-defaults-mode-browser@4.0.13
- - @smithy/util-defaults-mode-node@4.0.13
+ - @smithy/util-defaults-mode-browser@4.0.14
+ - @smithy/util-defaults-mode-node@4.0.14
 
 These packages each contain the following license:
 
@@ -2245,7 +2245,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.808.0
+ - @aws-sdk/client-bedrock-runtime@3.810.0
 
 This package contains the following license:
 
@@ -2458,8 +2458,8 @@ The following npm packages may be included in this product:
  - @aws-sdk/eventstream-handler-node@3.804.0
  - @aws-sdk/middleware-host-header@3.804.0
  - @aws-sdk/middleware-recursion-detection@3.804.0
- - @aws-sdk/middleware-user-agent@3.808.0
- - @smithy/core@3.3.2
+ - @aws-sdk/middleware-user-agent@3.810.0
+ - @smithy/core@3.3.3
  - @smithy/eventstream-serde-browser@4.0.2
  - @smithy/eventstream-serde-config-resolver@4.1.0
  - @smithy/eventstream-serde-node@2.2.0
@@ -2468,11 +2468,11 @@ The following npm packages may be included in this product:
  - @smithy/eventstream-serde-universal@4.0.2
  - @smithy/invalid-dependency@4.0.2
  - @smithy/middleware-serde@2.3.0
- - @smithy/middleware-serde@4.0.4
+ - @smithy/middleware-serde@4.0.5
  - @smithy/protocol-http@3.3.0
  - @smithy/protocol-http@5.1.0
  - @smithy/smithy-client@2.5.1
- - @smithy/smithy-client@4.2.5
+ - @smithy/smithy-client@4.2.6
  - @smithy/types@2.12.0
  - @smithy/types@3.7.2
  - @smithy/types@4.2.0
@@ -2891,7 +2891,7 @@ The following npm packages may be included in this product:
 
  - @types/http-cache-semantics@4.0.4
  - @types/node@16.9.1
- - @types/node@22.15.17
+ - @types/node@22.15.18
  - @types/sarif@2.1.7
  - @types/turndown@5.0.5
  - @types/uuid@9.0.8
@@ -2925,7 +2925,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.135.0
+ - genaiscript-vscode@1.136.3
 
 This package contains the following license:
 
@@ -3813,7 +3813,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - debug@4.4.0
+ - debug@4.4.1
 
 This package contains the following license:
 
@@ -4834,12 +4834,12 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.808.0
- - @aws-sdk/credential-provider-ini@3.808.0
- - @aws-sdk/credential-provider-node@3.808.0
- - @aws-sdk/credential-providers@3.808.0
+ - @aws-sdk/credential-provider-env@3.810.0
+ - @aws-sdk/credential-provider-ini@3.810.0
+ - @aws-sdk/credential-provider-node@3.810.0
+ - @aws-sdk/credential-providers@3.810.0
  - @aws-sdk/region-config-resolver@3.808.0
- - @aws-sdk/token-providers@3.808.0
+ - @aws-sdk/token-providers@3.810.0
  - @aws-sdk/types@3.804.0
  - @aws-sdk/util-endpoints@3.808.0
  - @aws-sdk/util-locate-window@3.804.0
@@ -4856,7 +4856,7 @@ The following npm packages may be included in this product:
  - @smithy/is-array-buffer@4.0.0
  - @smithy/middleware-content-length@4.0.2
  - @smithy/middleware-endpoint@2.5.1
- - @smithy/middleware-endpoint@4.1.5
+ - @smithy/middleware-endpoint@4.1.6
  - @smithy/middleware-stack@2.2.0
  - @smithy/middleware-stack@4.0.2
  - @smithy/node-http-handler@2.5.0
@@ -5094,9 +5094,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.808.0
- - @aws-sdk/credential-provider-sso@3.808.0
- - @aws-sdk/credential-provider-web-identity@3.808.0
+ - @aws-sdk/credential-provider-process@3.810.0
+ - @aws-sdk/credential-provider-sso@3.810.0
+ - @aws-sdk/credential-provider-web-identity@3.810.0
 
 These packages each contain the following license:
 
@@ -5997,9 +5997,9 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.808.0
- - @aws-sdk/credential-provider-http@3.808.0
- - @aws-sdk/nested-clients@3.808.0
+ - @aws-sdk/core@3.810.0
+ - @aws-sdk/credential-provider-http@3.810.0
+ - @aws-sdk/nested-clients@3.810.0
  - pyodide@0.27.5
 
 These packages each contain the following license:
@@ -7725,16 +7725,6 @@ IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - buildcheck@0.0.6
-
-This package contains the following license:
-
-http://github.com/mscdex/buildcheck/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
  - ssh2@1.16.0
 
 This package contains the following license:
@@ -7750,16 +7740,6 @@ The following npm package may be included in this product:
 This package contains the following license:
 
 https://github.com/caolan/async/raw/master/LICENSE
-
------------
-
-The following npm package may be included in this product:
-
- - cpu-features@0.0.10
-
-This package contains the following license:
-
-https://github.com/mscdex/cpu-features/raw/master/LICENSE
 
 -----------
 
@@ -8555,15 +8535,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.25.4
- - @napi-rs/canvas-linux-x64-gnu@0.1.70
- - @napi-rs/canvas-linux-x64-musl@0.1.70
+ - @esbuild/win32-x64@0.25.4
+ - @napi-rs/canvas-win32-x64-msvc@0.1.70
  - @tokenizer/token@0.3.0
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.135.0
- - genaiscript-sample@1.135.0
- - genaiscript-web@1.135.0
- - genaiscript@1.135.0
+ - genaiscript-core-internal@1.136.3
+ - genaiscript-sample@1.136.3
+ - genaiscript-web@1.136.3
+ - genaiscript@1.136.3
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
@@ -9955,7 +9934,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - eventsource-parser@3.0.1
+ - eventsource-parser@3.0.2
 
 This package contains the following license:
 
@@ -12919,7 +12898,7 @@ For more information, please refer to <https://unlicense.org>
 
 The following npm package may be included in this product:
 
- - protobufjs@7.5.1
+ - protobufjs@7.5.2
 
 This package contains the following license:
 

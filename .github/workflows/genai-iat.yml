@@ -1,0 +1,38 @@
+name: genai iat
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - dev
+        paths:
+            - "docs/**.md"
+            - "docs/**.mdx"
+concurrency:
+    group: iat-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+permissions:
+    pull-requests: write
+    models: read
+    contents: write
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - name: genaiscript
+              run: npx --yes genaiscript run iat -m github:gpt-4.1 --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Archive genai results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: genai-results
+                  path: ./temp/genai/**

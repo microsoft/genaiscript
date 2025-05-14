@@ -255,19 +255,22 @@ export async function parseTokenFromEnv(
         ]) || { name: undefined, value: undefined }
         if (!res?.value) {
             if (resolveToken) {
-                const { failed, stdout } = await runtimeHost.exec(
+                const { exitCode, stdout } = await runtimeHost.exec(
                     undefined,
                     "gh",
                     ["auth", "token"],
                     options
                 )
-                if (failed) throw new Error("Failed to resolve GitHub token")
+                dbg(`gh auth token: %d %s`, exitCode, ellipse(stdout, 8))
+                if (exitCode !== 0)
+                    throw new Error("Failed to resolve GitHub token")
                 res.name = "gh auth token"
                 res.value = stdout.trim()
             }
-            throw new Error(
-                "GITHUB_MODELS_TOKEN, GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set"
-            )
+            if (!res?.value)
+                throw new Error(
+                    "GITHUB_MODELS_TOKEN, GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set"
+                )
         }
         const type = "openai"
         const base = GITHUB_MODELS_BASE
