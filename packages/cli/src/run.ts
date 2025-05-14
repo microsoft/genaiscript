@@ -733,6 +733,7 @@ export async function runScriptInternal(
         if (!_ghInfo)
             _ghInfo = await githubParseEnv(process.env, {
                 issue: pullRequest,
+                resolveToken: true,
                 resolveIssue: true,
                 resolveCommit: true,
             })

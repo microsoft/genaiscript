@@ -30,6 +30,7 @@ import { fileTypeFromBuffer } from "./filetype"
 import { createHash } from "node:crypto"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { diagnosticToGitHubMarkdown } from "./annotations"
+import { TraceOptions } from "./trace"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -47,8 +48,20 @@ export interface GithubConnectionInfo {
     commitSha?: string
 }
 
+function readGitHubToken(env: Record<string, string>) {
+    let token: string
+    for (const envName of GITHUB_TOKENS) {
+        token = env[envName]
+        if (token) {
+            dbg(`found %s`, envName)
+            break
+        }
+    }
+    return token
+}
+
 function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
-    const token = env.GITHUB_TOKEN
+    const token = readGitHubToken(env)
     const apiUrl = env.GITHUB_API_URL || "https://api.github.com"
     const repository = env.GITHUB_REPOSITORY
     const [owner, repo] = repository?.split("/", 2) || [undefined, undefined]
@@ -122,9 +135,12 @@ export async function githubParseEnv(
     env: Record<string, string>,
     options?: {
         issue?: number
+        resolveToken?: boolean
         resolveIssue?: boolean
         resolveCommit?: boolean
-    } & Partial<Pick<GithubConnectionInfo, "owner" | "repo">>
+    } & Partial<Pick<GithubConnectionInfo, "owner" | "repo">> &
+        TraceOptions &
+        CancellationOptions
 ): Promise<GithubConnectionInfo> {
     dbg(`resolving connection info`)
     const res = githubFromEnv(env)
@@ -149,7 +165,7 @@ export async function githubParseEnv(
                 undefined,
                 "gh",
                 ["repo", "view", "--json", "url,name,owner"],
-                {}
+                options
             )
             if (repoInfo.failed) {
                 logVerbose(repoInfo.stderr)
@@ -168,6 +184,21 @@ export async function githubParseEnv(
         if (!res.commitSha && options?.resolveCommit) {
             res.commitSha = await GitClient.default().lastCommitSha()
         }
+        if (!res.token && options?.resolveToken) {
+            const auth = await runtimeHost.exec(
+                undefined,
+                "gh",
+                ["auth", "token"],
+                options
+            )
+            if (!auth.failed) {
+                dbg(
+                    `retrieved token via gh CLI: %s...`,
+                    auth.stdout.slice(0, 3)
+                )
+                res.token = auth.stdout.trim()
+            }
+        }
     } catch (e) {
         logVerbose(errorMessage(e))
     }
@@ -185,18 +216,6 @@ export async function githubParseEnv(
     return Object.freeze(res)
 }
 
-async function readGitHubToken() {
-    let token: string
-    for (const envName of GITHUB_TOKENS) {
-        token = await runtimeHost.readSecret(envName)
-        if (token) {
-            dbg(`found %s`, envName)
-            break
-        }
-    }
-    return token
-}
-
 /**
  * Updates the description of a pull request on GitHub.
  * Parameters:
@@ -212,24 +231,21 @@ async function readGitHubToken() {
  */
 export async function githubUpdatePullRequestDescription(
     script: PromptScript,
-    info: Pick<
-        GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
-    >,
+    info: GithubConnectionInfo,
     text: string,
     commentTag: string,
     options?: CancellationOptions
 ) {
     const { cancellationToken } = options ?? {}
-    const { apiUrl, repository, issue } = info
+    const { apiUrl, repository, issue, token } = info
     assert(!!commentTag)
 
     if (!issue) {
         dbg(`missing issue number, cannot update pull request description`)
         return { updated: false, statusText: "missing issue number" }
     }
-    const token = await readGitHubToken()
     if (!token) {
+        dbg(`missing github token, cannot update pull request description`)
         return { updated: false, statusText: "missing github token" }
     }
 
@@ -361,23 +377,20 @@ ${generatedByFooter(script, info, code)}`
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
 export async function githubCreateIssueComment(
     script: PromptScript,
-    info: Pick<
-        GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
-    >,
+    info: GithubConnectionInfo,
     body: string,
     commentTag: string,
     options?: CancellationOptions
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
     const { cancellationToken } = options ?? {}
-    const { apiUrl, repository, issue } = info
+    const { apiUrl, repository, issue, token } = info
 
     if (!issue) {
         dbg(`missing issue number, cannot create issue comment`)
         return { created: false, statusText: "missing issue number" }
     }
-    const token = await readGitHubToken()
     if (!token) {
+        dbg(`missing github token, cannot create issue comment`)
         return { created: false, statusText: "missing github token" }
     }
 
@@ -555,37 +568,27 @@ async function githubCreatePullRequestReview(
  */
 export async function githubCreatePullRequestReviews(
     script: PromptScript,
-    info: Pick<
-        GithubConnectionInfo,
-        | "apiUrl"
-        | "repository"
-        | "issue"
-        | "runUrl"
-        | "commitSha"
-        | "owner"
-        | "repo"
-    >,
+    info: GithubConnectionInfo,
     annotations: Diagnostic[],
     options?: CancellationOptions
 ): Promise<boolean> {
     const { cancellationToken } = options ?? {}
-    const { repository, issue, commitSha, apiUrl } = info
+    const { repository, issue, commitSha, apiUrl, token } = info
 
     if (!annotations?.length) {
         dbg(`no annotations provided, skipping pull request reviews`)
         return true
     }
     if (!issue) {
-        logError("github: missing pull request number")
+        dbg(`missing issue number, cannot create pull request reviews`)
         return false
     }
     if (!commitSha) {
-        logError("github: missing commit sha")
+        dbg(`missing commit sha, cannot create pull request reviews`)
         return false
     }
-    const token = await readGitHubToken()
     if (!token) {
-        logError("github: missing token")
+        dbg(`missing github token, cannot create pull request reviews`)
         return false
     }
 
@@ -686,6 +689,7 @@ export class GitHubClient implements GitHub {
         if (!this._connection) {
             this._connection = githubParseEnv(process.env, {
                 ...this._info,
+                resolveToken: true,
             })
         }
         return this._connection

@@ -63,6 +63,8 @@ import {
 import { arrayify, ellipse } from "./util"
 import { URL } from "node:url"
 import { uriTryParse } from "./url"
+import { TraceOptions } from "./trace"
+import { CancellationOptions } from "./cancellation"
 
 /**
  * Parses the OLLAMA host environment variable and returns a standardized URL.
@@ -179,8 +181,10 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
  */
 export async function parseTokenFromEnv(
     env: Record<string, string>,
-    modelId: string
+    modelId: string,
+    options: TraceOptions & CancellationOptions & { resolveToken?: boolean }
 ): Promise<LanguageModelConfiguration> {
+    const { resolveToken } = options || {}
     const { provider, model, tag } = parseModelIdentifier(
         modelId ?? runtimeHost.modelAliases.large.model
     )
@@ -248,10 +252,21 @@ export async function parseTokenFromEnv(
         const res = findEnvVar(env, "", [
             "GITHUB_MODELS_TOKEN",
             ...GITHUB_TOKENS,
-        ])
+        ]) || { name: undefined, value: undefined }
         if (!res?.value) {
+            if (resolveToken) {
+                const { failed, stdout } = await runtimeHost.exec(
+                    undefined,
+                    "gh",
+                    ["auth", "login"],
+                    options
+                )
+                if (failed) throw new Error("Failed to resolve GitHub token")
+                res.name = "gh auth login"
+                res.value = stdout.trim()
+            }
             throw new Error(
-                "GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set"
+                "GITHUB_MODELS_TOKEN, GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set"
             )
         }
         const type = "openai"
