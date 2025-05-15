@@ -1,12 +1,17 @@
-import { describe, test } from "node:test"
+import { beforeEach, describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { GitHubClient } from "./githubclient"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { isCI } from "./ci"
+import { TestHost } from "./testhost"
 
 describe("GitHubClient", async () => {
     const client = GitHubClient.default()
+
+    beforeEach(() => {
+        TestHost.install()
+    })
 
     await test("info() returns GitHub options", async () => {
         const info = await client.info()
