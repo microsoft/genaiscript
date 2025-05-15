@@ -5,8 +5,13 @@ import { extname } from "node:path"
 import { genaiscriptDebug } from "./debug"
 const dbg = genaiscriptDebug("buffer")
 
-async function bufferTryFrom(data: Uint8Array | Buffer | ArrayBuffer) {
+async function bufferTryFrom(
+    data: Uint8Array | Buffer | ArrayBuffer | SharedArrayBuffer
+) {
     if (data === undefined) return undefined
+    if (data instanceof Buffer) return data
+    if (data instanceof ArrayBuffer) return Buffer.from(data)
+    if (data instanceof SharedArrayBuffer) return Buffer.from(data)
     return Buffer.from(data)
 }
 
@@ -31,6 +36,8 @@ export async function resolveBufferLike(
         const stream: ReadableStream = bufferLike
         return bufferTryFrom(await new Response(stream).arrayBuffer())
     } else if (bufferLike instanceof ArrayBuffer)
+        return bufferTryFrom(bufferLike)
+    else if (bufferLike instanceof SharedArrayBuffer)
         return bufferTryFrom(bufferLike)
     else if (bufferLike instanceof Uint8Array) return bufferTryFrom(bufferLike)
     else if (

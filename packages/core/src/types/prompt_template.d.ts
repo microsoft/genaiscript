@@ -4520,6 +4520,7 @@ type BufferLike =
     | ArrayBuffer
     | Uint8Array
     | ReadableStream
+    | SharedArrayBuffer
 
 type TranscriptionModelType = OptionsOrString<
     "openai:whisper-1" | "openai:gpt-4o-transcribe" | "whisperasr:default"

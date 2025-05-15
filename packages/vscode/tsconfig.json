@@ -3,8 +3,8 @@
     "compilerOptions": {
         "declarationDir": "built/types",
         "outDir": "built",
-        "target": "es2022",
-        "lib": ["ES2022"]
+        "target": "es2024",
+        "lib": ["ES2024"]
     },
     "include": ["src"],
     "exclude": ["node_modules", ".vscode-test"]

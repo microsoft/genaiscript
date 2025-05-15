@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:git")
-
 // This file contains the GitClient class, which provides methods to interact with Git repositories.
 // It includes functionality to find modified files, execute Git commands, and manage branches.
 
@@ -23,6 +20,8 @@ import { packageResolveInstall } from "./packagemanagers"
 import { normalizeInt } from "./cleaners"
 import { dotGenaiscriptPath } from "./workdir"
 import { join } from "node:path"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("git")
 
 async function checkDirectoryExists(directory: string): Promise<boolean> {
     const stat = await tryStat(directory)
@@ -528,7 +527,7 @@ ${await this.diff({ ...options, nameOnly: true })}
         if (branch) directory = join(directory, branch)
         logVerbose(`git: shallow cloning ${repository} to ${directory}`)
         if (await checkDirectoryExists(directory)) {
-            if (!force) {
+            if (!force && !install) {
                 dbg(`directory already exists`)
                 return new GitClient(directory)
             }
