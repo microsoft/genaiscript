@@ -112,7 +112,7 @@ for (const file of files) {
                 maxTokens: 4000,
                 temperature: 0.5,
                 cache: "alt-text",
-                label: `altextify ${resolvedUrl}`,
+                label: `alt-textify ${resolvedUrl}`,
             }
         )
         if (error) throw error

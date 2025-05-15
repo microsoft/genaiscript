@@ -17,6 +17,8 @@ import {
     IMAGE_DETAIL_SHORT_SIDE_LIMIT,
 } from "./constants"
 import { measure } from "./performance"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("chat:encoder")
 
 /**
  * Estimates the number of tokens in chat messages for a given model.
@@ -52,8 +54,11 @@ export async function estimateChatTokens(
             imageTokens += 85
             if (image.image_url?.detail !== "low") {
                 // compute size
+                dbg(`preview %O`, image.image_url)
                 const bytes = await resolveFileBytes(image.image_url.url)
-                const { width, height } = imageSize(bytes)
+                const { width, height } = bytes
+                    ? imageSize(bytes)
+                    : { width: 0, height: 0 }
                 const longSide = Math.max(width, height)
                 const scaleFactor1 =
                     longSide > IMAGE_DETAIL_LONG_SIDE_LIMIT

@@ -175,7 +175,7 @@ async function encode(
     const { detail, mime } = options || {}
     const outputMime = mime || img.mime || ("image/jpeg" as any)
     const buf = await img.getBuffer(outputMime)
-    const imageDataUri = buf.toString("base64url")
+    const imageDataUri = `data:${outputMime};base64,${buf.toString("base64")}`
     // Return the encoded image data URI
     return {
         width: img.width,
