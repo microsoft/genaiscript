@@ -130,7 +130,7 @@ export async function estimateChatTokens(
         return imageTokens + chatTokens // Bitwise OR with 0 ensures integer return
     } catch (e) {
         // Log any errors encountered during processing
-        logVerbose(e)
+        dbg(e)
         // Fallback: Estimate token count based on JSON string length
         return (JSON.stringify(messages).length / 3) | 0
     } finally {
