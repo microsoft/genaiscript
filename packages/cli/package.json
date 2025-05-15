@@ -117,9 +117,6 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "peerDependencies": {
-    "promptfoo": "0.112.3"
-  },
   "devDependencies": {
     "@types/diff": "^6.0.0",
     "@types/dockerode": "^3.3.38",

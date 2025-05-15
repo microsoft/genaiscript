@@ -2925,7 +2925,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.136.3
+ - genaiscript-vscode@1.136.6
 
 This package contains the following license:
 
@@ -7152,7 +7152,7 @@ The following npm packages may be included in this product:
  - @azure/core-http-compat@2.3.0
  - @azure/core-rest-pipeline@1.20.0
  - @azure/core-util@1.12.0
- - @azure/identity@4.9.1
+ - @azure/identity@4.10.0
  - @azure/logger@1.2.0
  - @typespec/ts-http-runtime@0.2.2
 
@@ -8560,10 +8560,10 @@ The following npm packages may be included in this product:
  - @napi-rs/canvas-linux-x64-musl@0.1.70
  - @tokenizer/token@0.3.0
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.136.3
- - genaiscript-sample@1.136.3
- - genaiscript-web@1.136.3
- - genaiscript@1.136.3
+ - genaiscript-core-internal@1.136.6
+ - genaiscript-sample@1.136.6
+ - genaiscript-web@1.136.6
+ - genaiscript@1.136.6
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
@@ -9793,7 +9793,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @modelcontextprotocol/sdk@1.11.2
+ - @modelcontextprotocol/sdk@1.11.3
 
 This package contains the following license:
 
@@ -10350,7 +10350,6 @@ The following npm packages may be included in this product:
  - string-width@5.1.2
  - strip-ansi@7.1.0
  - strip-final-newline@4.0.0
- - supports-color@10.0.0
  - temp-dir@3.0.0
  - tempy@3.1.0
  - type-fest@1.4.0
