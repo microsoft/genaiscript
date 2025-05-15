@@ -169,7 +169,6 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  file_pattern: "**.md*"
                   commit_message: "[genai] image alt text"
                   commit_user_name: "genaiscript"
 ```
