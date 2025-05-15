@@ -4,6 +4,8 @@
 script({
     title: "Image Alt Textify",
     description: "Generate alt text for images in markdown files",
+    accept: "none",
+    unlisted: true,
     parameters: {
         docs: {
             type: "string",
