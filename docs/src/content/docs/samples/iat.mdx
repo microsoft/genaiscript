@@ -127,7 +127,8 @@ We replace the placeholder in the original content with the alt text and save th
 
 ## 💻 How to Run the Script
 
-To run this script, you'll need the GenAIScript CLI. If you haven't installed it yet, check out the [installation guide](https://microsoft.github.io/genaiscript/getting-started/installation).
+To run this script, you'll need the GenAIScript CLI.
+If you haven't installed it yet, check out the [installation guide](https://microsoft.github.io/genaiscript/getting-started/installation).
 
 Once you have the CLI, you can run the script with the following command:
 
@@ -148,7 +149,7 @@ on:
         branches:
             - dev
         paths:
-            - "docs/src/content/docs/**.md*"
+            - "**.md*"
 concurrency:
     group: iat-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -161,20 +162,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-                  fetch-depth: 10
             - uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-                  cache: yarn
             - name: genaiscript
               run: npx --yes genaiscript run iat -m github:gpt-4.1 --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  file_pattern: "docs/src/content/docs/**.md*"
+                  file_pattern: "**.md*"
                   commit_message: "[genai] image alt text"
                   commit_user_name: "genaiscript"
 ```
