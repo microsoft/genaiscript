@@ -32,14 +32,10 @@ jobs:
             - name: select llm tests to run
               run: node packages/cli/built/genaiscript.cjs run test-commit --out-trace $GITHUB_STEP_SUMMARY -p github
               env:
-                  AZURE_OPENAI_API_ENDPOINT: ${{ secrets.AZURE_OPENAI_API_ENDPOINT }}
-                  AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: run llm tests
               working-directory: packages/sample
               run: xargs -r -a temp/commit-tests.txt node ../cli/built/genaiscript.cjs test --out-summary $GITHUB_STEP_SUMMARY --test-delay 10 -p github
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  AZURE_OPENAI_API_ENDPOINT: ${{ secrets.AZURE_OPENAI_API_ENDPOINT }}
-                  AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
                   WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
-      
