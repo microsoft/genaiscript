@@ -42,6 +42,9 @@ const { docs, force, assets, dryRun } = env.vars
  *  Return the resolved url for the image
  */
 const resolveUrl = (filename: string, url: string) => {
+    // github assets ok
+    if (/^https:\/\/github.com\/user-attachments\/assets\//i.test(url))
+        return url
     // ignore external urls
     if (/^http?s:\/\//i.test(url)) return undefined
     // map / to assets
@@ -56,12 +59,13 @@ const resolveUrl = (filename: string, url: string) => {
 // search for ![](...) in markdown files and generate alt text for images
 const rx = force // upgrade all urls
     ? // match ![alt](url) with any alt
-      /!\[[^\]]*\]\(([^\)]+\.(png|jpg))\)/g
+      /!\[[^\]]*\]\(([^\)]+)\)/g
     : // match ![alt](url) where alt is empty
-      /!\[\s*\]\(([^\)]+\.(png|jpg))\)/g
+      /!\[\s*\]\(([^\)]+)\)/g
+console.log(`Searching for ${rx} in ${docs}`)
 const { files } = await workspace.grep(rx, {
     path: docs,
-    glob: "*.{md,mdx}",
+    glob: "**/*.md*",
     readText: true,
 })
 
@@ -77,14 +81,19 @@ const imgs: Record<string, string> = {}
 for (const file of files) {
     const { filename, content } = file
     console.log(filename)
-    const matches = content.matchAll(rx)
+    const matches = Array.from(content.matchAll(rx))
+    console.log(`.. found ${matches.length} matches`)
     // pre-compute matches
     for (const match of matches) {
         const url = match[1]
         if (imgs[url]) continue // already processed
+        console.log(`.. processing ${url}`)
 
         const resolvedUrl = resolveUrl(filename, url)
-        if (!resolvedUrl) continue // can't process url
+        if (!resolvedUrl) {
+            console.log(`... unknown image url`)
+            continue // can't process url
+        }
         console.log(`└─ ${resolvedUrl}`)
 
         if (dryRun) continue
