@@ -73,9 +73,9 @@ To run a minimal docker image with the server, first create a docker image with 
 
 ```sh
 docker build -t genaiscript -<<EOF
-> FROM node:alpine
-> RUN apk add --no-cache git && npm install -g genaiscript
-> EOF
+FROM node:alpine
+RUN apk add --no-cache git && npm install -g genaiscript
+EOF
 ```
 
 This creates a `genaiscript` image locally that you can use to launch the server.
