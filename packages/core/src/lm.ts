@@ -7,17 +7,16 @@ import {
     MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LMSTUDIO,
     MODEL_PROVIDER_OLLAMA,
-    MODEL_PROVIDER_TRANSFORMERS,
     MODEL_PROVIDER_WHISPERASR,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_ECHO,
     MODEL_PROVIDER_NONE,
     MODEL_PROVIDER_AZURE_AI_INFERENCE,
+    MODEL_PROVIDER_TRANSFORMERS,
 } from "./constants"
 import { runtimeHost } from "./host"
 import { OllamaModel } from "./ollama"
 import { LocalOpenAICompatibleModel } from "./openai"
-import { TransformersModel } from "./transformers"
 import { GitHubModel } from "./github"
 import { LMStudioModel } from "./lmstudio"
 import { WhisperAsrModel } from "./whisperasr"
@@ -26,6 +25,7 @@ import { EchoModel } from "./echomodel"
 import { NoneModel } from "./nonemodel"
 import { AzureAIInferenceModel } from "./azureaiinference"
 import { providerFeatures } from "./features"
+import { NotSupportedError } from "./error"
 
 /**
  * Resolves and returns a language model based on the provided model provider identifier.
@@ -53,7 +53,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_ANTHROPIC) return AnthropicModel
     if (provider === MODEL_PROVIDER_ANTHROPIC_BEDROCK)
         return AnthropicBedrockModel
-    if (provider === MODEL_PROVIDER_TRANSFORMERS) return TransformersModel
+    if (provider === MODEL_PROVIDER_TRANSFORMERS) throw new Error("Transformers not supported")
     if (provider === MODEL_PROVIDER_LMSTUDIO) return LMStudioModel
     if (provider === MODEL_PROVIDER_WHISPERASR) return WhisperAsrModel
     if (provider === MODEL_PROVIDER_ECHO) return EchoModel

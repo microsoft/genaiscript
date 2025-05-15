@@ -104,7 +104,6 @@
     "@ast-grep/lang-python": "^0.0.1",
     "@ast-grep/lang-yaml": "^0.0.1",
     "@ast-grep/napi": "^0.37.0",
-    "@huggingface/transformers": "3.4.0",
     "@lvce-editor/ripgrep": "^1.6.0",
     "node-sarif-builder": "^3.2.0",
     "pdfjs-dist": "4.10.38",

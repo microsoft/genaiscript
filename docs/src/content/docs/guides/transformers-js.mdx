@@ -1,16 +1,18 @@
 ---
 title: Transformer.js
 sidebar:
-  order: 20
+    order: 20
 description: Implement summarization with Transformers.js and leverage local
-  hardware acceleration
+    hardware acceleration
 keywords: Transformers.js, summarization, onnxruntime, CPU/GPU acceleration,
-  pretrained models
-
+    pretrained models
 ---
-import { Code } from "@astrojs/starlight/components"
-import sampleSrc from "../../../../../packages/sample/genaisrc/summary-with-transformers.genai?raw"
 
+:::caution
+
+We have temporarily removed support for the `transformers` to reduce the installation footprint.
+
+:::
 
 HuggingFace [Transformers.js](https://huggingface.co/docs/transformers.js/index) is a JavaScript library
 that lets you run pretrained models locally on your machine. The library uses [onnxruntime](https://onnxruntime.ai/)
@@ -35,7 +37,7 @@ import { pipeline } from "genaiscript/runtime"
 const summarizer = await pipeline("summarization")
 ```
 
-Allocating and loading the model can take some time, 
+Allocating and loading the model can take some time,
 so it's best to do this at the beginning of your script
 and only once.
 
@@ -56,15 +58,3 @@ const [summary] = await summarizer(content)
 // @ts-ignore
 const { summary_text } = summary
 ```
-
-## Final code
-
-The example below generates a summary of each input file
-before letting the model generate a full summary.
-
-<Code
-    title="transformers.genai.mjs"
-    code={sampleSrc}
-    wrap={true}
-    lang="js"
-/>
