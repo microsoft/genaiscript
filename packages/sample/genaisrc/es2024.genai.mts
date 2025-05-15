@@ -42,4 +42,4 @@ async function promiseExample() {
 }
 
 // Run the example
-promiseExample().catch(console.error)
+await promiseExample().catch(console.error)
