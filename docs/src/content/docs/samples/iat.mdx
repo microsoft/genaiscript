@@ -174,18 +174,6 @@ jobs:
                   commit_user_name: "genaiscript"
 ```
 
-## Safety
-
-The script imports a default safety system message to prevent generating harmful text.
-
-```js
-    // safety system message to prevent generating harmful text
-    system: ["system.safety_harmful_content"],
-```
-
-In Azure OpenAI deployments, you can also turn on [content filters](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter)
-to prevent accidentally generating harmful content.
-
 ## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/samples/iat.genai.mts))
 
 <Code code={source} wrap={true} lang="ts" title="iat.genai.mts" />
