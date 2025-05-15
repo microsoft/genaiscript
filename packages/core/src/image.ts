@@ -49,6 +49,12 @@ async function prepare(
     const buffer = await resolveBufferLike(url)
     checkCancelled(cancellationToken)
 
+    // failed to resolve buffer
+    if (!buffer) {
+        dbg(`failed to resolve image`)
+        return undefined
+    }
+
     // Read the image using Jimp
     const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
     const img = await Jimp.read(buffer)
@@ -228,6 +234,7 @@ export async function imageEncodeForLLM(
     options: DefImagesOptions & TraceOptions & CancellationOptions
 ) {
     const img = await prepare(url, options)
+    if (!img) return undefined
     return await encode(img, options)
 }
 

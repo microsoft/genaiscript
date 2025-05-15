@@ -45,6 +45,7 @@ const resolveUrl = (filename: string, url: string) => {
     // github assets ok
     if (/^https:\/\/github.com\/user-attachments\/assets\//i.test(url))
         return url
+    if (url?.startsWith("https://raw.githubusercontent.com/")) return url
     // ignore external urls
     if (/^http?s:\/\//i.test(url)) return undefined
     // map / to assets
