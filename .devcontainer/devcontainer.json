@@ -16,7 +16,8 @@
                 "GitHub.vscode-pull-request-github",
                 "usernamehw.errorlens",
                 "goessner.mdmath",
-                "vsls-contrib.gistfs"
+                "vsls-contrib.gistfs",
+                "ms-azuretools.vscode-containers"
             ]
         }
     },
