@@ -72,7 +72,7 @@ We highly recommend setting the API key when running the server on the network.
 To run a minimal docker image with the server, you can use the following command:
 
 ```sh
-docker run --name genaiscript --rm -it --expose 8003 -p 8003:8003 -v ${PWD}:/workspace -w /workspace node:alpine npx --yes genaiscript serve --network
+docker run --env GITHUB_TOKEN --env-file .env --name genaiscript --rm -it --expose 8003 -p 8003:8003 -v ${PWD}:/workspace -w /workspace node:alpine npx --yes genaiscript serve --network
 ```
 
 then open `http://localhost:8003` in your browser.
