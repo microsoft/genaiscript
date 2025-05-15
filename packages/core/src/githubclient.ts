@@ -168,7 +168,7 @@ export async function githubParseEnv(
                 options
             )
             if (repoInfo.failed) {
-                logVerbose(repoInfo.stderr)
+                dbg(repoInfo.stderr)
             } else if (!repoInfo.failed) {
                 const { name: repo, owner } = JSON.parse(repoInfo.stdout)
                 dbg(`retrieved repository info via gh CLI: ${repoInfo.stdout}`)
@@ -200,7 +200,7 @@ export async function githubParseEnv(
             }
         }
     } catch (e) {
-        logVerbose(errorMessage(e))
+        dbg(errorMessage(e))
     }
 
     deleteUndefinedValues(res)
