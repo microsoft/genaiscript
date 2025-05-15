@@ -8,7 +8,7 @@ import {
     isAzureTokenExpired,
     runtimeHost,
 } from "../../core/src/host"
-import { logError } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import type { TokenCredential } from "@azure/identity"
 import { serializeError } from "../../core/src/error"
 import {
@@ -103,6 +103,7 @@ async function createAzureToken(
     // Obtain the Azure token
     const abortSignal = toSignal(cancellationToken)
     dbg("obtaining Azure token with provided scopes and abort signal")
+    logVerbose(`azure: get token for ${scopes.join(",")}`)
     const azureToken = await credential.getToken(scopes.slice(), {
         abortSignal,
     })
