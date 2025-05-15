@@ -67,8 +67,8 @@ async function main() {
         "jsconfig.json": JSON.stringify(
             {
                 compilerOptions: {
-                    lib: ["ES2022"],
-                    target: "ES2022",
+                    lib: ["ES2024"],
+                    target: "ES2024",
                     module: "ES2022",
                     moduleDetection: "force",
                     checkJs: true,
@@ -83,8 +83,8 @@ async function main() {
         "tsconfig.json": JSON.stringify(
             {
                 compilerOptions: {
-                    lib: ["ES2022"],
-                    target: "ES2023",
+                    lib: ["ES2024"],
+                    target: "ES2024",
                     module: "NodeNext",
                     moduleDetection: "force",
                     moduleResolution: "nodenext",
