@@ -11,6 +11,10 @@ on:
 concurrency:
     group: -genai-test-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
+permissions:
+    models: read
+    contents: read
+    pull-requests: write
 jobs:
     build:
         runs-on: ubuntu-latest
