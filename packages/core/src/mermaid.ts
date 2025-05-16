@@ -1,3 +1,4 @@
+import { installWindow } from "./dom"
 import { errorMessage } from "./error"
 import type { Mermaid } from "mermaid"
 
@@ -5,6 +6,7 @@ let _mermaid: Promise<Mermaid>
 async function importMermaid() {
     if (_mermaid) return _mermaid
     // Optional: Configure Mermaid if needed
+    await installWindow()
     const mermaid = (await import("mermaid")).default
     mermaid.initialize({ startOnLoad: false })
     return mermaid
