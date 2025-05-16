@@ -22,6 +22,7 @@ import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { findRandomOpenPort } from "../../core/src/net"
 import { packageResolveExecute } from "../../core/src/packagemanagers"
 import { shellQuote } from "../../core/src/shell"
+import { log } from "node:console"
 
 export class TerminalServerManager
     extends EventTarget
@@ -226,7 +227,9 @@ export class TerminalServerManager
                 ],
                 { agent: packageManager }
             )
-            this._terminal.sendText(shellQuote([pkg.command, ...pkg.args]))
+            const cmd = [shellQuote([pkg.command]), ...pkg.args].join(" ")
+            logVerbose(cmd)
+            this._terminal.sendText(cmd, true)
         }
         if (!hideFromUser) this._terminal.show(true)
 
