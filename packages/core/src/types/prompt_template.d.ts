@@ -4574,7 +4574,7 @@ type TranscriptionModelType = OptionsOrString<
     "openai:whisper-1" | "openai:gpt-4o-transcribe" | "whisperasr:default"
 >
 
-interface ImageGenerationOptions extends ImageTransformOptions {
+interface ImageGenerationOptions extends ImageTransformOptions, RetryOptions {
     model?: OptionsOrString<ModelImageGenerationType>
     /**
      * The quality of the image that will be generated.
@@ -6066,12 +6066,14 @@ interface ContentSafetyHost {
     contentSafety(id?: ContentSafetyProvider): Promise<ContentSafety>
 }
 
-type FetchOptions = RequestInit & {
+interface RetryOptions {
     retryOn?: number[] // HTTP status codes to retry on
     retries?: number // Number of retry attempts
     retryDelay?: number // Initial delay between retries
     maxDelay?: number // Maximum delay between retries
 }
+
+type FetchOptions = RequestInit & RetryOptions
 
 type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window"> & {
     convert?: "markdown" | "text" | "tables"

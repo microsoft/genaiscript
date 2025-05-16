@@ -755,7 +755,7 @@ export async function OpenAISpeech(
 export async function OpenAIImageGeneration(
     req: CreateImageRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<CreateImageResult> {
     const {
         model,

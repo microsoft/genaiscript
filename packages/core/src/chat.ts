@@ -190,7 +190,7 @@ export interface CreateImageResult {
 export type ImageGenerationFunction = (
     req: CreateImageRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<CreateImageResult>
 
 export type EmbeddingFunction = (
