@@ -6,6 +6,7 @@ const external = [
     ...Object.keys(pkg.dependencies),
     ...Object.keys(pkg.optionalDependencies),
 ]
+console.log(`external: ${external.join(",\n")}`)
 assert(
     external.length > 0,
     "No external dependencies found in package.json. Please add them to the 'external' field."
