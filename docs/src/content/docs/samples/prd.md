@@ -178,14 +178,24 @@ jobs:
             - name: fetch base branch
               run: git fetch origin ${{ github.event.pull_request.base.ref }}
             - name: genaiscript prd
+              continue-on-error: true
               run: npx --yes genaiscript run prd --vars base=origin/${{ github.event.pull_request.base.ref }} --pull-request-description --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+The action triggers when the pull request is marked as `ready_for_review` or when a review is requested.
+
+```yaml
+    pull_request:
+        types: [ready_for_review, review_requested]
+```
+
 The command line uses a special flag to update the generate pull request description:
 
 - `--pull-request-description` to update the description of the pull request
+
+We've also added `continue-on-error: true` so that the workflow does not fail if the script fails.
 
 - Commit the changes, and create a new pull request and start testing the workflow by requesting a review or toggling the `ready_for_review` event.
 
