@@ -148,31 +148,6 @@ is fully local so it's your opportunity to refine the prompting.
 └─🏁  github:gpt-4.1 ✉ 2 1165ms ⇅ 909t ↑844t ↓65t 0.221¢
 ```
 
-## Make it Agentic
-
-GenAIScript provides various builtin agents, including a file system and git agent.
-This can be useful for the LLM to read the files in the pull request and analyze them.
-
-There are basically two level of agentic-ness you can achieve with GenAIScript:
-
-- add the [fs_read_file](/genaiscript/reference/scripts/system/#systemfs_read_file) to read files to the script.
-
-```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["fs_read"]'
-script({
-    ...,
-    tools: ["fs_read_file"],
-})
-```
-
-- add the [file system agent](/genaiscript/reference/scripts/system/#systemagent_fs) that can respond to more complex queries at the cost of additional tokens.
-
-```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["agent_fs"]'
-script({
-    ...,
-    tools: ["agent_fs"],
-})
-```
-
 ## Automate with GitHub Actions
 
 Using [GitHub Actions](https://docs.github.com/en/actions) and [GitHub Models](https://docs.github.com/en/github-models),
@@ -226,3 +201,32 @@ Additional measures to further enhance safety would be to run [a model with a sa
 or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).
 
 Refer to the [Transparency Note](/genaiscript/reference/transparency-note/) for more information on content safety.
+
+## Make it Agentic
+
+GenAIScript provides various builtin agents, including a file system and git agent.
+This can be useful for the LLM to read the files in the pull request and analyze them.
+
+There are basically two level of agentic-ness you can achieve with GenAIScript:
+
+### Tools
+
+- add the [fs_read_file](/genaiscript/reference/scripts/system/#systemfs_read_file) to read files to the script.
+
+```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["fs_read"]'
+script({
+    ...,
+    tools: ["fs_read_file"],
+})
+```
+
+### Agents
+
+- add the [file system agent](/genaiscript/reference/scripts/system/#systemagent_fs) that can respond to more complex queries at the cost of additional tokens.
+
+```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["agent_fs"]'
+script({
+    ...,
+    tools: ["agent_fs"],
+})
+```
