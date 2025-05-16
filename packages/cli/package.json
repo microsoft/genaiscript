@@ -56,7 +56,7 @@
   "overrides": {
     "glob": "^11.0.2",
     "@mapbox/node-pre-gyp": "^2.0.0",
-    "mermaid": "@11.6.0"
+    "mermaid": "^11.6.0"
   },
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "0.22.0",

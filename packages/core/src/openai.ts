@@ -68,8 +68,9 @@ import { fromBase64 } from "./base64"
 import debug from "debug"
 import { traceFetchPost } from "./fetchtext"
 import { providerFeatures } from "./features"
-const dbg = debug("genaiscript:openai")
-const dbgMessages = debug("genaiscript:openai:msg")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("openai")
+const dbgMessages = dbg.extend("msg")
 dbgMessages.enabled = false
 
 /**

@@ -102,8 +102,7 @@ async function createAzureToken(
 
     // Obtain the Azure token
     const abortSignal = toSignal(cancellationToken)
-    dbg("obtaining Azure token with provided scopes and abort signal")
-    logVerbose(`azure: get token for ${scopes.join(",")}`)
+    dbg(`get token for %o`, scopes)
     const azureToken = await credential.getToken(scopes.slice(), {
         abortSignal,
     })

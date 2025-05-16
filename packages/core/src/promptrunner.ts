@@ -190,7 +190,7 @@ export async function runTemplate(
             topLogprobs,
             disposables,
             cache,
-            metadata
+            metadata,
         } = await expandTemplate(prj, template, options, env)
         const { output, generator, secrets, dbg: envDbg, ...restEnv } = env
 

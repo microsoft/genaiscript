@@ -53,7 +53,8 @@ export function resolveLanguageModel(provider: string): LanguageModel {
     if (provider === MODEL_PROVIDER_ANTHROPIC) return AnthropicModel
     if (provider === MODEL_PROVIDER_ANTHROPIC_BEDROCK)
         return AnthropicBedrockModel
-    if (provider === MODEL_PROVIDER_TRANSFORMERS) throw new Error("Transformers not supported")
+    if (provider === MODEL_PROVIDER_TRANSFORMERS)
+        throw new Error("Transformers not supported")
     if (provider === MODEL_PROVIDER_LMSTUDIO) return LMStudioModel
     if (provider === MODEL_PROVIDER_WHISPERASR) return WhisperAsrModel
     if (provider === MODEL_PROVIDER_ECHO) return EchoModel
