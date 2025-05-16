@@ -379,7 +379,10 @@ type ChatToolChoice =
           name: string
       }
 
-interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
+interface ModelOptions
+    extends ModelConnectionOptions,
+        ModelTemplateOptions,
+        CacheOptions {
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
      * Range 0.0-2.0.
@@ -464,11 +467,6 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
      * A deterministic integer seed to use for the model.
      */
     seed?: number
-
-    /**
-     * By default, LLM queries are not cached. If true, the LLM request will be cached. Use a string to override the default cache name
-     */
-    cache?: boolean | string
 
     /**
      * A list of model ids and their maximum number of concurrent requests.
@@ -2565,16 +2563,11 @@ interface PDFPage {
     figures?: PDFPageImage[]
 }
 
-interface DocxParseOptions {
+interface DocxParseOptions extends CacheOptions {
     /**
      * Desired output format
      */
     format?: "markdown" | "text" | "html"
-
-    /**
-     * If true, the transcription will be cached.
-     */
-    cache?: boolean | string
 }
 
 interface EncodeIDsOptions {
@@ -3332,10 +3325,9 @@ interface FfmpegCommandBuilder {
     outputOptions(...options: string[]): FfmpegCommandBuilder
 }
 
-interface FFmpegCommandOptions {
+interface FFmpegCommandOptions extends CacheOptions {
     inputOptions?: ElementOrArray<string>
     outputOptions?: ElementOrArray<string>
-    cache?: boolean | string
     /**
      * For video conversion, output size as `wxh`
      */
@@ -4613,7 +4605,7 @@ interface ImageGenerationOptions extends ImageTransformOptions, RetryOptions {
     outputFormat?: "png" | "jpeg" | "webp"
 }
 
-interface TranscriptionOptions {
+interface TranscriptionOptions extends CacheOptions, RetryOptions {
     /**
      * Model to use for transcription. By default uses the `transcribe` alias.
      */
@@ -4635,11 +4627,6 @@ interface TranscriptionOptions {
      * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
      */
     temperature?: number
-
-    /**
-     * If true, the transcription will be cached.
-     */
-    cache?: boolean | string
 }
 
 interface TranscriptionResult {
@@ -4695,19 +4682,16 @@ type SpeechVoiceType = OptionsOrString<
     | "ballad"
 >
 
-interface SpeechOptions {
+interface SpeechOptions extends CacheOptions, RetryOptions {
     /**
      * Speech to text model
      */
     model?: SpeechModelType
+
     /**
      * Voice to use (model-specific)
      */
     voice?: SpeechVoiceType
-    /**
-     * If true, the transcription will be cached.
-     */
-    cache?: boolean | string
 
     /**
      * Control the voice of your generated audio with additional instructions. Does not work with tts-1 or tts-1-hd.
@@ -6071,6 +6055,14 @@ interface RetryOptions {
     retries?: number // Number of retry attempts
     retryDelay?: number // Initial delay between retries
     maxDelay?: number // Maximum delay between retries
+}
+
+interface CacheOptions {
+    /**
+     * By default, LLM queries are not cached.
+     * If true, the LLM request will be cached. Use a string to override the default cache name
+     */
+    cache?: boolean | string
 }
 
 type FetchOptions = RequestInit & RetryOptions

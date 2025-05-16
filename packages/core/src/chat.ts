@@ -114,13 +114,13 @@ function toChatCompletionImage(
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
     connection: LanguageModelConfiguration,
-    options: ChatCompletionsOptions & CancellationOptions,
+    options: ChatCompletionsOptions & CancellationOptions & RetryOptions,
     trace: MarkdownTrace
 ) => Promise<ChatCompletionResponse>
 
 export type ListModelsFunction = (
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<
     ResponseStatus & {
         models?: LanguageModelInfo[]
@@ -129,7 +129,7 @@ export type ListModelsFunction = (
 
 export type PullModelFunction = (
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<ResponseStatus>
 
 export type CreateTranscriptionRequest = {
@@ -140,7 +140,7 @@ export type CreateTranscriptionRequest = {
 export type TranscribeFunction = (
     req: CreateTranscriptionRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<TranscriptionResult>
 
 export type CreateSpeechRequest = {
@@ -158,7 +158,7 @@ export type CreateSpeechResult = {
 export type SpeechFunction = (
     req: CreateSpeechRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<CreateSpeechResult>
 
 export type CreateImageRequest = {
@@ -196,7 +196,7 @@ export type ImageGenerationFunction = (
 export type EmbeddingFunction = (
     input: string,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<EmbeddingResult>
 
 export type WorkspaceFileIndexCreator = (
