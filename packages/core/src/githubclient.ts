@@ -1086,9 +1086,7 @@ export class GitHubClient implements GitHub {
     }
 
     async getIssue(issue_number?: number | string): Promise<GitHubIssue> {
-        if (typeof issue_number === "string") {
-            issue_number = parseInt(issue_number)
-        }
+        issue_number = normalizeInt(issue_number)
         const { client, owner, repo } = await this.api()
         dbg(`retrieving issue details for issue number: ${issue_number}`)
         if (isNaN(issue_number)) {
@@ -1109,9 +1107,7 @@ export class GitHubClient implements GitHub {
         issue_number: number | string,
         body: string
     ): Promise<GitHubComment> {
-        if (typeof issue_number === "string") {
-            issue_number = parseInt(issue_number)
-        }
+        issue_number = normalizeInt(issue_number)
         const { client, owner, repo } = await this.api()
         dbg(`creating comment for issue number: ${issue_number}`)
         if (isNaN(issue_number)) {
@@ -1126,6 +1122,20 @@ export class GitHubClient implements GitHub {
             issue_number,
             body,
         })
+        dbg(`created comment %s`, data.id)
+        return data
+    }
+
+    async updateIssueComment(comment_id: number | string, body: string) {
+        const { client, owner, repo } = await this.api()
+        dbg(`updating comment %s`, comment_id)
+        const { data } = await client.rest.issues.updateComment({
+            owner,
+            repo,
+            comment_id: normalizeInt(comment_id),
+            body,
+        })
+        dbg(`updated comment %s`, data.id)
         return data
     }
 
@@ -1151,9 +1161,7 @@ export class GitHubClient implements GitHub {
     async getPullRequest(
         pull_number?: number | string
     ): Promise<GitHubPullRequest> {
-        if (typeof pull_number === "string") {
-            pull_number = parseInt(pull_number)
-        }
+        pull_number = normalizeInt(pull_number)
         const { client, owner, repo } = await this.api()
         dbg(`retrieving pull request details for pull number: ${pull_number}`)
         if (isNaN(pull_number)) {
@@ -1233,7 +1241,7 @@ export class GitHubClient implements GitHub {
         const { data } = await client.rest.actions.getWorkflowRun({
             owner,
             repo,
-            run_id: typeof runId === "number" ? runId : parseInt(runId),
+            run_id: normalizeInt(runId),
         })
         dbg(`workflow run: %O`, data)
         return data
@@ -1289,7 +1297,7 @@ export class GitHubClient implements GitHub {
             {
                 owner,
                 repo,
-                run_id: typeof runId === "number" ? runId : parseInt(runId),
+                run_id: normalizeInt(runId),
                 per_page: 100,
                 ...rest,
             }
@@ -1309,10 +1317,7 @@ export class GitHubClient implements GitHub {
         const { data } = await client.rest.actions.getArtifact({
             owner,
             repo,
-            artifact_id:
-                typeof artifactId === "number"
-                    ? artifactId
-                    : parseInt(artifactId),
+            artifact_id: normalizeInt(artifactId),
         })
 
         return data
@@ -1326,10 +1331,7 @@ export class GitHubClient implements GitHub {
         const { url } = await client.rest.actions.downloadArtifact({
             owner,
             repo,
-            artifact_id:
-                typeof artifactId === "number"
-                    ? artifactId
-                    : parseInt(artifactId),
+            artifact_id: normalizeInt(artifactId),
             archive_format: "zip",
         })
         dbg(`received url, downloading...`)
