@@ -2922,7 +2922,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.137.0
+ - genaiscript-vscode@1.137.1
 
 This package contains the following license:
 
@@ -7911,10 +7911,10 @@ The following npm packages may be included in this product:
  - @napi-rs/canvas-linux-x64-gnu@0.1.70
  - @napi-rs/canvas-linux-x64-musl@0.1.70
  - @tokenizer/token@0.3.0
- - genaiscript-core-internal@1.137.0
- - genaiscript-sample@1.137.0
- - genaiscript-web@1.137.0
- - genaiscript@1.137.0
+ - genaiscript-core-internal@1.137.1
+ - genaiscript-sample@1.137.1
+ - genaiscript-web@1.137.1
+ - genaiscript@1.137.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
