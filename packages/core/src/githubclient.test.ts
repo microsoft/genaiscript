@@ -57,6 +57,12 @@ describe("GitHubClient", async () => {
         assert(Array.isArray(jobs))
         const log = await client.downloadWorkflowJobLog(jobs[0].id)
         assert(typeof log === "string")
+        const artifacts = await client.listWorkflowRunArtifacts(runs[0].id)
+        assert(Array.isArray(artifacts))
+        if (artifacts.length) {
+            const files = await client.downloadArtifactFiles(artifacts[0].id)
+            assert(files.length)
+        }
     })
 
     await test("getFile() returns file content", async () => {

@@ -31,6 +31,7 @@ import { createHash } from "node:crypto"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { diagnosticToGitHubMarkdown } from "./annotations"
 import { TraceOptions } from "./trace"
+import { unzip } from "./zip"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -1270,6 +1271,74 @@ export class GitHubClient implements GitHub {
         )
         dbg(`workflow runs: %O`, res)
         return res
+    }
+
+    /**
+     * List artifacts for a given workflow run
+     * @param runId
+     */
+    async listWorkflowRunArtifacts(
+        runId: number | string,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubArtifact[]> {
+        const { client, owner, repo } = await this.api()
+        dbg(`listing artifacts for workflow run ID: ${runId}`)
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(
+            client.rest.actions.listWorkflowRunArtifacts,
+            {
+                owner,
+                repo,
+                run_id: typeof runId === "number" ? runId : parseInt(runId),
+                per_page: 100,
+                ...rest,
+            }
+        )
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        dbg(`workflow run artifacts: %O`, res)
+        return res
+    }
+
+    /**
+     * Gets the files of a GitHub Action workflow run artifact
+     * @param artifactId
+     */
+    async artifact(artifactId: number | string): Promise<GitHubArtifact> {
+        const { client, owner, repo } = await this.api()
+        dbg(`retrieving artifact details for artifact ID: ${artifactId}`)
+        const { data } = await client.rest.actions.getArtifact({
+            owner,
+            repo,
+            artifact_id:
+                typeof artifactId === "number"
+                    ? artifactId
+                    : parseInt(artifactId),
+        })
+
+        return data
+    }
+
+    async downloadArtifactFiles(
+        artifactId: number | string
+    ): Promise<WorkspaceFile[]> {
+        const { client, owner, repo } = await this.api()
+        dbg(`downloading artifact files for artifact ID: ${artifactId}`)
+        const { url } = await client.rest.actions.downloadArtifact({
+            owner,
+            repo,
+            artifact_id:
+                typeof artifactId === "number"
+                    ? artifactId
+                    : parseInt(artifactId),
+            archive_format: "zip",
+        })
+        dbg(`received url, downloading...`)
+        const fetch = await createFetch()
+        const res = await fetch(url)
+        if (!res.ok) throw new Error(res.statusText)
+        const buffer = await res.arrayBuffer()
+        const files = await unzip(new Uint8Array(buffer))
+        return files
     }
 
     async listWorkflowJobs(
