@@ -623,7 +623,7 @@ export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
 export async function OpenAITranscribe(
     req: CreateTranscriptionRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<TranscriptionResult> {
     const { trace } = options || {}
     try {
@@ -690,7 +690,7 @@ export async function OpenAITranscribe(
 export async function OpenAISpeech(
     req: CreateSpeechRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<CreateSpeechResult> {
     const { model, input, voice = "alloy", ...rest } = req
     const { trace } = options || {}
@@ -755,7 +755,7 @@ export async function OpenAISpeech(
 export async function OpenAIImageGeneration(
     req: CreateImageRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<CreateImageResult> {
     const {
         model,
@@ -891,7 +891,7 @@ export async function OpenAIImageGeneration(
 export async function OpenAIEmbedder(
     input: string,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<EmbeddingResult> {
     const { trace, cancellationToken } = options || {}
     const { base, provider, type, model } = cfg
@@ -931,10 +931,7 @@ export async function OpenAIEmbedder(
         logVerbose(
             `${type}: embedding ${ellipse(input, 44)} with ${provider}:${model}`
         )
-        const fetch = await createFetch({
-            trace,
-            cancellationToken,
-        })
+        const fetch = await createFetch(options)
         checkCancelled(cancellationToken)
         const res = await fetch(url, freq)
         trace?.itemValue(`response`, `${res.status} ${res.statusText}`)

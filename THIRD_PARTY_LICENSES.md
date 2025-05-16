@@ -2234,12 +2234,12 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.810.0
- - @aws-sdk/client-sso@3.810.0
- - @aws-sdk/credential-provider-cognito-identity@3.810.0
+ - @aws-sdk/client-cognito-identity@3.812.0
+ - @aws-sdk/client-sso@3.812.0
+ - @aws-sdk/credential-provider-cognito-identity@3.812.0
  - @aws-sdk/middleware-eventstream@3.804.0
  - @aws-sdk/util-user-agent-browser@3.804.0
- - @aws-sdk/util-user-agent-node@3.810.0
+ - @aws-sdk/util-user-agent-node@3.812.0
  - @smithy/eventstream-codec@2.2.0
  - @smithy/eventstream-codec@4.0.2
  - @smithy/middleware-retry@4.1.7
@@ -2461,7 +2461,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @aws-sdk/client-bedrock-runtime@3.810.0
+ - @aws-sdk/client-bedrock-runtime@3.812.0
 
 This package contains the following license:
 
@@ -2674,7 +2674,7 @@ The following npm packages may be included in this product:
  - @aws-sdk/eventstream-handler-node@3.804.0
  - @aws-sdk/middleware-host-header@3.804.0
  - @aws-sdk/middleware-recursion-detection@3.804.0
- - @aws-sdk/middleware-user-agent@3.810.0
+ - @aws-sdk/middleware-user-agent@3.812.0
  - @smithy/core@3.3.3
  - @smithy/eventstream-serde-browser@4.0.2
  - @smithy/eventstream-serde-config-resolver@4.1.0
@@ -3174,7 +3174,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.137.1
+ - genaiscript-vscode@1.137.4
 
 This package contains the following license:
 
@@ -4936,12 +4936,12 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.810.0
- - @aws-sdk/credential-provider-ini@3.810.0
- - @aws-sdk/credential-provider-node@3.810.0
- - @aws-sdk/credential-providers@3.810.0
+ - @aws-sdk/credential-provider-env@3.812.0
+ - @aws-sdk/credential-provider-ini@3.812.0
+ - @aws-sdk/credential-provider-node@3.812.0
+ - @aws-sdk/credential-providers@3.812.0
  - @aws-sdk/region-config-resolver@3.808.0
- - @aws-sdk/token-providers@3.810.0
+ - @aws-sdk/token-providers@3.812.0
  - @aws-sdk/types@3.804.0
  - @aws-sdk/util-endpoints@3.808.0
  - @aws-sdk/util-locate-window@3.804.0
@@ -5196,9 +5196,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.810.0
- - @aws-sdk/credential-provider-sso@3.810.0
- - @aws-sdk/credential-provider-web-identity@3.810.0
+ - @aws-sdk/credential-provider-process@3.812.0
+ - @aws-sdk/credential-provider-sso@3.812.0
+ - @aws-sdk/credential-provider-web-identity@3.812.0
 
 These packages each contain the following license:
 
@@ -5899,10 +5899,10 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.810.0
- - @aws-sdk/credential-provider-http@3.810.0
- - @aws-sdk/nested-clients@3.810.0
- - pyodide@0.27.5
+ - @aws-sdk/core@3.812.0
+ - @aws-sdk/credential-provider-http@3.812.0
+ - @aws-sdk/nested-clients@3.812.0
+ - pyodide@0.27.6
 
 These packages each contain the following license:
 
@@ -9780,10 +9780,11 @@ The following npm packages may be included in this product:
  - @napi-rs/canvas-linux-x64-gnu@0.1.70
  - @napi-rs/canvas-linux-x64-musl@0.1.70
  - @tokenizer/token@0.3.0
- - genaiscript-core-internal@1.137.1
- - genaiscript-sample@1.137.1
- - genaiscript-web@1.137.1
- - genaiscript@1.137.1
+ - data-uri-to-buffer@4.0.1
+ - genaiscript-core-internal@1.137.4
+ - genaiscript-sample@1.137.4
+ - genaiscript-web@1.137.4
+ - genaiscript@1.137.4
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
@@ -9929,6 +9930,36 @@ This package contains the following license:
 MIT License
 
 Copyright (c) 2016 Douglas Christopher Wilson <doug@somethingdoug.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - formdata-polyfill@4.0.10
+
+This package contains the following license:
+
+MIT License
+
+Copyright (c) 2016 Jimmy Karl Roland Wärting
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -10462,6 +10493,36 @@ SOFTWARE.
 
 -----------
 
+The following npm package may be included in this product:
+
+ - fetch-blob@3.2.0
+
+This package contains the following license:
+
+MIT License
+
+Copyright (c) 2019 David Frank
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
 The following npm packages may be included in this product:
 
  - layout-base@1.0.2
@@ -10896,6 +10957,36 @@ These packages each contain the following license:
 MIT License
 
 Copyright (c) 2021 Anthony Fu <https://github.com/antfu>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - node-domexception@1.0.0
+
+This package contains the following license:
+
+MIT License
+
+Copyright (c) 2021 Jimmy Wärting
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -14688,6 +14779,37 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - web-streams-polyfill@3.3.3
+
+This package contains the following license:
+
+The MIT License (MIT)
+
+Copyright (c) 2024 Mattias Buelens
+Copyright (c) 2016 Diwank Singh Tomer
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 -----------
 

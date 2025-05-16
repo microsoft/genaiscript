@@ -5,6 +5,7 @@ import {
     FETCH_RETRY_DEFAULT_DEFAULT,
     FETCH_RETRY_GROWTH_FACTOR,
     FETCH_RETRY_MAX_DELAY_DEFAULT,
+    FETCH_RETRY_ON_DEFAULT,
 } from "./constants"
 import { errorMessage } from "./error"
 import { logVerbose } from "./util"
@@ -39,17 +40,11 @@ export type FetchType = (
  * @returns A fetch function with retry and cancellation support.
  */
 export async function createFetch(
-    options?: {
-        retryOn?: number[] // HTTP status codes to retry on
-        retries?: number // Number of retry attempts
-        retryDelay?: number // Initial delay between retries
-        maxDelay?: number // Maximum delay between retries
-        cancellationToken?: CancellationToken // Token to cancel the fetch
-    } & TraceOptions
+    options?: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<FetchType> {
     const {
         retries = FETCH_RETRY_DEFAULT,
-        retryOn = [408, 429, 500, 504],
+        retryOn = FETCH_RETRY_ON_DEFAULT,
         trace,
         retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
         maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,

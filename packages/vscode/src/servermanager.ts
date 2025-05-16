@@ -222,7 +222,7 @@ export class TerminalServerManager
                     `${this._port}`,
                     `--dispatch-progress`,
                     `--cors`,
-                    `*`,
+                    `"*"`,
                     githubCopilotChatClient,
                 ],
                 { agent: packageManager }
