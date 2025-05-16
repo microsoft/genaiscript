@@ -164,7 +164,31 @@ classDiagram
 
     %% Primitives and helpers not detailed for brevity`
         const res = await mermaidParse(input)
+        assert(res.error)
+    })
+
+    test("parses a valid state diagram with labels", async () => {
+        const input = `stateDiagram-v2
+            [*] --> Still: Start
+            Still --> Moving: Start Moving
+            Moving --> Still: Stop Moving
+            Moving --> Crash: Crash
+            Crash --> [*]: Reset`
+        const res = await mermaidParse(input)
         assert.strictEqual(res.error, undefined)
-        assert.strictEqual(res.diagramType, "class")
+        assert.strictEqual(res.diagramType, "stateDiagram")
+    })
+
+    test("parses a valid c4 diagram with labels", async () => {
+        const input = `C4Context
+            title System Context diagram for Internet Banking System
+            Enterprise_Boundary(b0, "BankingSystem") {
+                Person(customer, "Personal Banking Customer", "A customer of the bank")
+                System(banking_system, "Internet Banking System", "Allows customers to check their accounts")
+                System_Ext(mail_system, "E-mail system", "Delivers e-mails")
+            }`
+        const res = await mermaidParse(input)
+        assert.strictEqual(res.error, undefined)
+        assert.strictEqual(res.diagramType, "c4")
     })
 })

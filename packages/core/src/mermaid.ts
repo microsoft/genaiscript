@@ -11,7 +11,7 @@ async function importMermaid() {
     await installWindow()
     dbg(`importing`)
     const mermaid = (await import("mermaid")).default
-    mermaid.initialize({ startOnLoad: false,  })
+    mermaid.initialize({ startOnLoad: false })
     return mermaid
 }
 
