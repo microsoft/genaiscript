@@ -5,6 +5,16 @@ import { extname } from "node:path"
 import { genaiscriptDebug } from "./debug"
 const dbg = genaiscriptDebug("buffer")
 
+async function bufferTryFrom(
+    data: Uint8Array | Buffer | ArrayBuffer | SharedArrayBuffer
+) {
+    if (data === undefined) return undefined
+    if (data instanceof Buffer) return data
+    if (data instanceof ArrayBuffer) return Buffer.from(data)
+    if (data instanceof SharedArrayBuffer) return Buffer.from(data)
+    return Buffer.from(data)
+}
+
 /**
  * Resolves a buffer-like object into a Buffer.
  *
@@ -17,16 +27,19 @@ export async function resolveBufferLike(
     bufferLike: BufferLike,
     options?: TraceOptions
 ): Promise<Buffer> {
-    // If the URL is a string, resolve it to a data URI
+    if (bufferLike === undefined) return undefined
     if (typeof bufferLike === "string")
-        return Buffer.from(await resolveFileBytes(bufferLike, options))
+        return bufferTryFrom(await resolveFileBytes(bufferLike, options))
     else if (bufferLike instanceof Blob)
-        return Buffer.from(await bufferLike.arrayBuffer())
+        return bufferTryFrom(await bufferLike.arrayBuffer())
     else if (bufferLike instanceof ReadableStream) {
         const stream: ReadableStream = bufferLike
-        return Buffer.from(await new Response(stream).arrayBuffer())
-    } else if (bufferLike instanceof ArrayBuffer) return Buffer.from(bufferLike)
-    else if (bufferLike instanceof Uint8Array) return Buffer.from(bufferLike)
+        return bufferTryFrom(await new Response(stream).arrayBuffer())
+    } else if (bufferLike instanceof ArrayBuffer)
+        return bufferTryFrom(bufferLike)
+    else if (bufferLike instanceof SharedArrayBuffer)
+        return bufferTryFrom(bufferLike)
+    else if (bufferLike instanceof Uint8Array) return bufferTryFrom(bufferLike)
     else if (
         typeof bufferLike === "object" &&
         typeof (bufferLike as WorkspaceFile).filename === "string"
@@ -44,6 +57,7 @@ export async function resolveBufferLikeAndExt(
     options?: TraceOptions
 ): Promise<{ bytes: Buffer; ext: string }> {
     const bytes = await resolveBufferLike(bufferLike, options)
+    if (!bytes) return { bytes, ext: undefined }
     const ext = await fileTypeFromBuffer(bytes)
     if (ext) return { bytes, ext: ext.ext }
     else if (
@@ -55,7 +69,8 @@ export async function resolveBufferLikeAndExt(
             bytes,
             ext: extname((bufferLike as WorkspaceFile).filename),
         }
-    } else if (typeof bufferLike === "string") return { bytes, ext: ".txt" }
+    } else if (typeof bufferLike === "string")
+        return { bytes, ext: extname(bufferLike) }
     return { bytes, ext: ".bin" }
 }
 

@@ -130,10 +130,11 @@ export async function createPromptContext(
             )
             try {
                 const { files, matches } = await grepSearch(query, {
-                    path: arrayify(path),
-                    glob: arrayify(glob),
+                    path,
+                    glob,
                     ...rest,
                     trace: grepTrace,
+                    cancellationToken,
                 })
                 grepTrace.files(matches, {
                     model,
@@ -269,7 +270,7 @@ export async function createPromptContext(
     const promptHost: PromptHost = Object.freeze<PromptHost>({
         logger: (category) => debug(category),
         mcpServer: async (options) =>
-            await runtimeHost.mcp.startMcpServer(options, { trace }),
+            await runtimeHost.mcp.startMcpServer(options, { trace, cancellationToken }),
         publishResource: async (name, content, options) =>
             await runtimeHost.resources.publishResource(name, content, options),
         resources: async () => await runtimeHost.resources.resources(),

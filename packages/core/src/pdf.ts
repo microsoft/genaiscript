@@ -18,6 +18,8 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { measure } from "./performance"
 import { dotGenaiscriptPath } from "./workdir"
 import { genaiscriptDebug } from "./debug"
+import type { Canvas } from "@napi-rs/canvas"
+import { pathToFileURL } from "url"
 const dbg = genaiscriptDebug("pdf")
 
 let standardFontDataUrl: string
@@ -40,18 +42,16 @@ async function tryImportPdfjs(options?: TraceOptions) {
         workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
     }
 
-    standardFontDataUrl = workerSrc.replace(
-        "build/pdf.worker.min.mjs",
-        "standard_fonts"
-    )
-
+    standardFontDataUrl = pathToFileURL(
+        workerSrc.replace("build/pdf.worker.min.mjs", "standard_fonts/")
+    ).toString()
+    dbg(`standardFontDataUrl: %s`, standardFontDataUrl)
     pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
     return pdfjs
 }
 
 class CanvasFactory {
-    #enableHWA = false
-    static createCanvas: (w: number, h: number) => any
+    static createCanvas: (w: number, h: number) => Canvas
 
     constructor() {}
 
@@ -63,9 +63,7 @@ class CanvasFactory {
         const canvas = this._createCanvas(width, height)
         return {
             canvas,
-            context: canvas.getContext("2d", {
-                willReadFrequently: !this.#enableHWA,
-            }),
+            context: canvas.getContext("2d"),
         }
     }
 
@@ -113,13 +111,14 @@ async function tryImportCanvas() {
     }
 
     try {
-        const skia = await import("skia-canvas")
-        const createCanvas = (w: number, h: number) => new skia.Canvas(w, h)
+        dbg(`initializing pdf canvas`)
+        const canvas = await import("@napi-rs/canvas")
+        const createCanvas = (w: number, h: number) => canvas.createCanvas(w, h)
         const glob = resolveGlobal()
-        glob.ImageData ??= skia.ImageData
-        glob.Path2D ??= skia.Path2D
-        glob.Canvas ??= skia.Canvas
-        glob.DOMMatrix ??= skia.DOMMatrix
+        glob.ImageData ??= canvas.ImageData
+        glob.Path2D ??= canvas.Path2D
+        glob.Canvas ??= canvas.Canvas
+        glob.DOMMatrix ??= canvas.DOMMatrix
         CanvasFactory.createCanvas = createCanvas
         dbg(`pdf canvas initialized`)
         return createCanvas
@@ -231,8 +230,8 @@ async function PDFTryParse(
     await ensureDir(folder)
     const m = measure("parsers.pdf")
     try {
-        const pdfjs = await tryImportPdfjs(options)
         const createCanvas = await tryImportCanvas()
+        const pdfjs = await tryImportPdfjs(options)
         checkCancelled(cancellationToken)
         const { getDocument } = pdfjs
         const data = content || (await host.readFile(fileOrUrl))
@@ -296,8 +295,9 @@ async function PDFTryParse(
                     viewport,
                 })
                 await render.promise
-                const buffer = canvas.toBufferSync("png")
+                const buffer = canvas.toBuffer("image/png")
                 p.image = join(folder, `page_${i + 1}.png`)
+                dbg(`writing page image %d to %s`, i + 1, p.image)
                 await writeFile(p.image, buffer)
             }
 
@@ -401,17 +401,11 @@ async function PDFTryParse(
                 const dstIdx = (y * width + x) * 4
                 imageData.data[dstIdx + 3] = 255 // A
                 if (kind === ImageKind.GRAYSCALE_1BPP) {
-                    dbg("decoding GRAYSCALE_1BPP image for page %d", pageIndex)
                     const srcIdx = y * width + x
                     imageData.data[dstIdx + 0] = _data[srcIdx] // B
                     imageData.data[dstIdx + 1] = _data[srcIdx] // G
                     imageData.data[dstIdx + 2] = _data[srcIdx] // R
                 } else {
-                    dbg(
-                        "decoding RGB or RGBA image, kind=%d, page=%d",
-                        kind,
-                        pageIndex
-                    )
                     const srcIdx =
                         (y * width + x) *
                         (kind === ImageKind.RGBA_32BPP ? 4 : 3)
@@ -424,11 +418,12 @@ async function PDFTryParse(
         const canvas = await createCanvas(width, height)
         const ctx = canvas.getContext("2d")
         ctx.putImageData(imageData, 0, 0)
-        const buffer = canvas.toBufferSync("png")
+        const buffer = canvas.toBuffer("image/png")
         const fn = join(
             folder,
             `page-${pageIndex}-${imageObj.replace(INVALID_FILENAME_REGEX, "")}.png`
         )
+        dbg(`writing image to %s`, fn)
         await writeFile(fn, buffer)
 
         return {
@@ -498,13 +493,13 @@ function parsePageItems(pdfItems: TextItem[]) {
         const item = pdfItems[i]
         const y = item?.transform[5]
         if (!lineData.hasOwnProperty(y)) {
-            dbg("grouping text item at y=%d into new line", y)
+            //dbg("grouping text item at y=%d into new line", y)
             lineData[y] = []
         }
         // Ensure the item is valid before adding
         /* istanbul ignore next */
         if (item) {
-            dbg("adding item to lineData at y=%d: %o", y, item)
+            //dbg("adding item to lineData at y=%d: %o", y, item)
             lineData[y]?.push(item)
         }
     }

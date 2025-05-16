@@ -49,6 +49,7 @@ export const NEGATIVE_GLOB_REGEX = /^!/
 export const GENAI_ANY_REGEX = /\.(genai\.(ts|mts|mjs|js)|prompty)$/i
 export const GENAI_ANYJS_REGEX = /\.genai\.js$/i
 export const GENAI_ANYTS_REGEX = /\.genai\.(ts|mts|mjs)$/i
+export const HTTP_OR_S_REGEX = /^https?:\/\//i
 export const HTTPS_REGEX = /^https:\/\//i
 export const CSV_REGEX = /\.(t|c)sv$/i
 export const YAML_REGEX = /\.yaml$/i
@@ -126,8 +127,8 @@ export const PROMPT_FENCE = "```"
 export const MARKDOWN_PROMPT_FENCE = "`````"
 
 export const OPENAI_API_BASE = "https://api.openai.com/v1"
-export const OLLAMA_DEFAUT_PORT = 11434
-export const OLLAMA_API_BASE = `http://127.0.0.1:${OLLAMA_DEFAUT_PORT}/v1`
+export const OLLAMA_DEFAULT_PORT = 11434
+export const OLLAMA_API_BASE = `http://127.0.0.1:${OLLAMA_DEFAULT_PORT}/v1`
 export const SGLANG_API_BASE = "http://127.0.0.1:30000/v1"
 export const VLLM_API_BASE = "http://127.0.0.1:8000/v1"
 export const LLAMAFILE_API_BASE = "http://127.0.0.1:8080/v1"
@@ -247,6 +248,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         hidden?: boolean
         imageGeneration?: boolean
         singleModel?: boolean
+        metadata?: boolean
         responseType?: "json" | "json_object" | "json_schema"
         reasoningEfforts?: Record<string, number>
         aliases?: Record<string, string>
@@ -318,6 +320,7 @@ export const PLACEHOLDER_API_KEY = "<your token>"
 
 export const VSCODE_CONFIG_CLI_VERSION = "cli.version"
 export const VSCODE_CONFIG_CLI_PATH = "cli.path"
+export const VSCODE_CONFIG_CLI_PACKAGE_MANAGER = "cli.packageManager"
 
 export const CONSOLE_COLOR_INFO = 32
 export const CONSOLE_COLOR_DEBUG = 90

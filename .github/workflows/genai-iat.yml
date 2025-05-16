@@ -1,0 +1,39 @@
+name: genai iat
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - dev
+        paths:
+            - "docs/src/content/docs/**.md*"
+concurrency:
+    group: iat-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+permissions:
+    pull-requests: write
+    models: read
+    contents: write
+jobs:
+    generate-alt-text:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: compile
+              run: yarn compile
+            - name: genaiscript
+              run: node packages/cli/built/genaiscript.cjs run iat -m github:gpt-4.1 --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  file_pattern: "docs/src/content/docs/**.md*"
+                  commit_message: "[genai] image alt text"
+                  commit_user_name: "genaiscript"

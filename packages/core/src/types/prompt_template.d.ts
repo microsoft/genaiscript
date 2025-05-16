@@ -152,6 +152,7 @@ type PromptTemplateResponseType =
 type ModelType = OptionsOrString<
     | "large"
     | "small"
+    | "tiny"
     | "long"
     | "vision"
     | "vision_small"
@@ -274,8 +275,8 @@ type ModelType = OptionsOrString<
     | "alibaba:qwen2-72b-instruct"
     | "alibaba:qwen2-57b-a14b-instruct"
     | "deepseek:deepseek-chat"
-    | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
-    | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
+//    | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
+//    | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
     | "llamafile"
     | "sglang"
     | "vllm"
@@ -782,6 +783,15 @@ interface McpToolAnnotations {
     }
 }
 
+interface MetadataOptions {
+    /**
+     * Set of 16 key-value pairs that can be attached to an object.
+     * This can be useful for storing additional information about the object in a structured format, and querying for objects via API or the dashboard.
+     * Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters.
+     */
+    metadata?: Record<string, string>
+}
+
 interface PromptScript
     extends PromptLike,
         ModelOptions,
@@ -792,7 +802,8 @@ interface PromptScript
         SecretDetectionOptions,
         GitIgnoreFilterOptions,
         ScriptRuntimeOptions,
-        McpToolAnnotations {
+        McpToolAnnotations,
+        MetadataOptions {
     /**
      * Which provider to prefer when picking a model.
      */
@@ -1213,6 +1224,11 @@ interface WorkspaceGrepOptions extends FilterGitFilesOptions {
      * Read file content. default is true.
      */
     readText?: boolean
+
+    /**
+     * Enable grep logging to discover what files are searched.
+     */
+    debug?: boolean
 }
 
 interface WorkspaceGrepResult {
@@ -1266,9 +1282,9 @@ interface WorkspaceFileSystem {
     ): Promise<WorkspaceFile[]>
 
     /**
-     * Performs a grep search over the files in the workspace
-     * @param pattern
-     * @param globs
+     * Performs a grep search over the files in the workspace using ripgrep.
+     * @param pattern A string to match or a regex pattern.
+     * @param options Options for the grep search.
      */
     grep(
         pattern: string | RegExp,
@@ -1682,6 +1698,11 @@ interface ExpansionVariables {
     runDir: string
 
     /**
+     * Unique identifier for the run
+     */
+    runId: string
+
+    /**
      * List of linked files parsed in context
      */
     files: WorkspaceFile[]
@@ -1768,6 +1789,7 @@ type PromptSystemArgs = Omit<
     | "files"
     | "modelConcurrency"
     | "redteam"
+    | "metadata"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
@@ -2165,6 +2187,29 @@ interface RunPromptResult {
  * Path manipulation functions.
  */
 interface Path {
+    parse(path: string): {
+        /**
+         * The root of the path such as '/' or 'c:\'
+         */
+        root: string
+        /**
+         * The full directory path such as '/home/user/dir' or 'c:\path\dir'
+         */
+        dir: string
+        /**
+         * The file name including extension (if any) such as 'index.html'
+         */
+        base: string
+        /**
+         * The file extension (if any) such as '.html'
+         */
+        ext: string
+        /**
+         * The file name without extension (if any) such as 'index'
+         */
+        name: string
+    }
+
     /**
      * Returns the last portion of a path. Similar to the Unix basename command.
      * @param path
@@ -4200,7 +4245,8 @@ interface PromptGeneratorOptions
     extends ModelOptions,
         PromptSystemOptions,
         ContentSafetyOptions,
-        SecretDetectionOptions {
+        SecretDetectionOptions,
+        MetadataOptions {
     /**
      * Label for trace
      */
@@ -4480,6 +4526,7 @@ type BufferLike =
     | ArrayBuffer
     | Uint8Array
     | ReadableStream
+    | SharedArrayBuffer
 
 type TranscriptionModelType = OptionsOrString<
     "openai:whisper-1" | "openai:gpt-4o-transcribe" | "whisperasr:default"
@@ -5706,11 +5753,47 @@ interface ShellHost {
     ): Promise<ShellOutput>
 }
 
+interface McpToolReference {
+    name: string
+    description?: string
+    inputSchema?: JSONSchema
+}
+
 interface McpResourceReference {
     name?: string
     description?: string
     uri: string
     mimeType?: string
+}
+
+interface McpServerToolResultTextPart {
+    type: "text"
+    text: string
+}
+
+interface McpServerToolResultImagePart {
+    type: "image"
+    data: string
+    mimeType: string
+}
+
+interface McpServerToolResourcePart {
+    type: "resource"
+    text?: string
+    uri?: string
+    mimeType?: string
+    blob?: string
+}
+
+type McpServerToolResultPart =
+    | McpServerToolResultTextPart
+    | McpServerToolResultImagePart
+    | McpServerToolResourcePart
+
+interface McpServerToolResult {
+    isError?: boolean
+    content: McpServerToolResultPart[]
+    text?: string
 }
 
 interface McpClient extends AsyncDisposable {
@@ -5726,7 +5809,7 @@ interface McpClient extends AsyncDisposable {
     /**
      * List all available MCP tools
      */
-    listTools(): Promise<ToolCallback[]>
+    listTools(): Promise<McpToolReference[]>
 
     /**
      * List resources available in the server
@@ -5737,6 +5820,16 @@ interface McpClient extends AsyncDisposable {
      * Reads the resource content
      */
     readResource(uri: string): Promise<WorkspaceFile[]>
+
+    /**
+     *
+     * @param name Call the MCP tool
+     * @param args
+     */
+    callTool(
+        name: string,
+        args: Record<string, any>
+    ): Promise<McpServerToolResult>
 
     /**
      * Closes clients and server.

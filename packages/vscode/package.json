@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.134.4",
+    "version": "1.137.1",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.98.0"
@@ -356,6 +356,16 @@
                         "default": true,
                         "description": "Enable or disables LLM request cache support."
                     },
+                    "genaiscript.cli.packageManager": {
+                        "type": "string",
+                        "default": "auto",
+                        "enum": [
+                            "auto",
+                            "npm",
+                            "pnpm"
+                        ],
+                        "description": "Package manager to use for GenAIScript CLI. Default is npm."
+                    },
                     "genaiscript.cli.version": {
                         "type": "string",
                         "description": "GenAIScript CLI version to use. Default matches the extension version."
@@ -496,7 +506,7 @@
     "devDependencies": {
         "@types/markdown-it": "^14.1.2",
         "@types/vscode": "^1.98.0",
-        "@vscode/vsce": "^3.3.2",
+        "@vscode/vsce": "^3.4.0",
         "assert": "^2.1.0",
         "es-toolkit": "^1.37.2",
         "markdown-it": "^14.1.0",
@@ -505,6 +515,6 @@
         "typescript": "5.8.3",
         "vscode-uri": "^3.1.0",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.5.3"
+        "zx": "^8.5.4"
     }
 }

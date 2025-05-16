@@ -8,6 +8,14 @@ body {
     white-space: pre-wrap;
 }
 
+vscode-form-helper .markdown-body {
+    margin: 0;
+}
+
+vscode-form-helper .markdown-body p {
+    margin-bottom: 0;
+}
+
 div.readme {
     margin: 0.5rem;
 }

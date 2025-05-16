@@ -1,6 +1,7 @@
 script({
     system: ["system"],
     temperature: 0.5,
+    model: "github:gpt-4.1"
 })
 
 const product = env.vars.product || "GenAIScript"

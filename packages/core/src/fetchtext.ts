@@ -168,23 +168,40 @@ export function traceFetchPost(
                         : "***") // Mask other authorization headers
             )
     }
-    let cmd = `curl ${url} \\
---no-buffer \\
-${Object.entries(headers)
-    .map(([k, v]) => `-H "${k}: ${v}"`)
-    .join(" \\\n")} \\
-`
+
+    // Start building the HTTP request
+    let httpRequest = `POST ${url} HTTP/1.1\n`
+
+    // Add headers
+    Object.entries(headers).forEach(([key, value]) => {
+        httpRequest += `${key}: ${value}\n`
+    })
+
+    // Add body
     if (body instanceof FormData) {
+        const boundary = "------------------------" + Date.now().toString(16)
+        httpRequest += `Content-Type: multipart/form-data; boundary=${boundary}\n\n`
+
         body.forEach((value, key) => {
-            cmd += `-F ${key}=${value instanceof File ? `... (${prettyBytes(value.size)})` : "" + value}\n`
+            httpRequest += `--${boundary}\n`
+            httpRequest += `Content-Disposition: form-data; name="${key}"`
+            if (value instanceof File) {
+                httpRequest += `; filename="${value.name}"\n`
+                httpRequest += `Content-Type: ${value.type || "application/octet-stream"}\n\n`
+                httpRequest += `... (${prettyBytes(value.size)})\n`
+            } else {
+                httpRequest += "\n\n" + value + "\n"
+            }
         })
+        httpRequest += `--${boundary}--\n`
     } else {
-        cmd += `-d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
-`
+        httpRequest += "Content-Type: application/json\n\n"
+        httpRequest += JSON.stringify(body, null, 2)
     }
+
     if (trace) {
-        trace.detailsFenced(`🌐 fetch`, cmd, "bash")
+        trace.detailsFenced(`🌐 fetch`, httpRequest, "http")
     } else {
-        logVerbose(cmd)
+        logVerbose(httpRequest)
     }
 }

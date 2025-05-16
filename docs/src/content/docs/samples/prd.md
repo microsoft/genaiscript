@@ -2,45 +2,44 @@
 title: Pull Request Descriptor
 description: Generate a pull request description
 sidebar:
-  order: 5
+    order: 5
 cover:
-  alt: 'A retro 8-bit-inspired geometric illustration depicting a folder named
-    ".genaisrc" with a file titled "prd.genai.mts" inside. Surrounding the
-    folder are symbolic icons: arrows and file comparison lines representing git
-    diffs, a GitHub logo, a cloud icon symbolizing GitHub Actions, a gear for
-    automation, and a shield for content safety. The artwork integrates five
-    corporate colors and maintains simplicity without text or human figures.'
-  image: ./prd.png
+    alt: 'A retro 8-bit-inspired geometric illustration depicting a folder named
+        ".genaisrc" with a file titled "prd.genai.mts" inside. Surrounding the
+        folder are symbolic icons: arrows and file comparison lines representing git
+        diffs, a GitHub logo, a cloud icon symbolizing GitHub Actions, a gear for
+        automation, and a shield for content safety. The artwork integrates five
+        corporate colors and maintains simplicity without text or human figures.'
+    image: ./prd.png
 tags:
-  - 1. GitHub Actions Automation
-  - 2. Pull Request Description Generator
-  - 3. Code Review Script
-  - 4. GenAIScript Integration
-  - 5. Content Safety Measures
+    - 1. GitHub Actions Automation
+    - 2. Pull Request Description Generator
+    - 3. Code Review Script
+    - 4. GenAIScript Integration
+    - 5. Content Safety Measures
 excerpt: >-
-  Streamline your pull request process with automated descriptions. In this
-  guide, you'll learn how to build a script that generates high-level summaries
-  of code changes in pull requests. The script can be run locally for testing
-  and refinement, then integrated with GitHub Actions for seamless automation. 
+    Streamline your pull request process with automated descriptions. In this
+    guide, you'll learn how to build a script that generates high-level summaries
+    of code changes in pull requests. The script can be run locally for testing
+    and refinement, then integrated with GitHub Actions for seamless automation. 
 
 
-  Key highlights include:
+    Key highlights include:
 
-  - Utilizing `git.diff` to extract changes and summarize their intent.
+    - Utilizing `git.diff` to extract changes and summarize their intent.
 
-  - Adding safety mechanisms to prevent harmful content generation.
+    - Adding safety mechanisms to prevent harmful content generation.
 
-  - Leveraging agents like `fs_read_file` or `agent_fs` for deeper context
-  analysis.
+    - Leveraging agents like `fs_read_file` or `agent_fs` for deeper context
+    analysis.
 
-  - Automating the process with a GitHub workflow to update pull request
-  descriptions dynamically.
+    - Automating the process with a GitHub workflow to update pull request
+    descriptions dynamically.
 
 
-  This approach not only improves developer efficiency but also enhances code
-  review clarity. Adapt it to fit your workflow and enjoy more streamlined
-  collaboration.
-
+    This approach not only improves developer efficiency but also enhances code
+    review clarity. Adapt it to fit your workflow and enjoy more streamlined
+    collaboration.
 ---
 
 The following sample shows a script that generate a description of the changes in a pull request.
@@ -48,7 +47,7 @@ We will develop the script locally and then create a GitHub Action to run it aut
 
 ## Add the script
 
-- Open your GitHub repository and start a new pull request.
+- **Create a new branch** in your repository.
 - Add the following script to your repository as `prd.genai.mts` in the `.genaisrc` folder.
 
 ```ts title="genaisrc/prd.genai.mts" wrap
@@ -106,6 +105,8 @@ The script also includes a note to use tools to read the entire file content to 
 
 ## Run the script locally
 
+Make sure to commit your changes to the branch and push it to GitHub. Then **create a new pull request**.
+
 Since you are already in a pull request, you can run with the script and tune the prompting to your needs.
 You can use the GenAIScript Visual Studio Code extension or use the cli.
 
@@ -120,7 +121,7 @@ Open the `trace` or `output` reports in your favorite Markdown viewer to inspect
 is fully local so it's your opportunity to refine the prompting.
 
 ```text
-┌─💬 github:gpt-4.1 ✉ 2 ~↑729t 
+┌─💬 github:gpt-4.1 ✉ 2 ~↑729t
 ┌─📙 system
 │## Safety: Jailbreak
 │... (18 lines)
