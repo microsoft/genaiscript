@@ -300,6 +300,7 @@ async function PDFTryParse(
                 const toBuffer = promisify<Buffer>(canvas.toBuffer.bind(canvas))
                 const buffer = await toBuffer()
                 p.image = join(folder, `page_${i + 1}.png`)
+                dbg(`writing page image %d to %s`, i + 1, p.image)
                 await writeFile(p.image, buffer)
             }
 
@@ -403,17 +404,11 @@ async function PDFTryParse(
                 const dstIdx = (y * width + x) * 4
                 imageData.data[dstIdx + 3] = 255 // A
                 if (kind === ImageKind.GRAYSCALE_1BPP) {
-                    dbg("decoding GRAYSCALE_1BPP image for page %d", pageIndex)
                     const srcIdx = y * width + x
                     imageData.data[dstIdx + 0] = _data[srcIdx] // B
                     imageData.data[dstIdx + 1] = _data[srcIdx] // G
                     imageData.data[dstIdx + 2] = _data[srcIdx] // R
                 } else {
-                    dbg(
-                        "decoding RGB or RGBA image, kind=%d, page=%d",
-                        kind,
-                        pageIndex
-                    )
                     const srcIdx =
                         (y * width + x) *
                         (kind === ImageKind.RGBA_32BPP ? 4 : 3)
@@ -432,6 +427,7 @@ async function PDFTryParse(
             folder,
             `page-${pageIndex}-${imageObj.replace(INVALID_FILENAME_REGEX, "")}.png`
         )
+        dbg(`writing image to %s`, fn)
         await writeFile(fn, buffer)
 
         return {
@@ -501,13 +497,13 @@ function parsePageItems(pdfItems: TextItem[]) {
         const item = pdfItems[i]
         const y = item?.transform[5]
         if (!lineData.hasOwnProperty(y)) {
-            dbg("grouping text item at y=%d into new line", y)
+            //dbg("grouping text item at y=%d into new line", y)
             lineData[y] = []
         }
         // Ensure the item is valid before adding
         /* istanbul ignore next */
         if (item) {
-            dbg("adding item to lineData at y=%d: %o", y, item)
+            //dbg("adding item to lineData at y=%d: %o", y, item)
             lineData[y]?.push(item)
         }
     }
