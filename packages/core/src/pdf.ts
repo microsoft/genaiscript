@@ -19,7 +19,6 @@ import { measure } from "./performance"
 import { dotGenaiscriptPath } from "./workdir"
 import { genaiscriptDebug } from "./debug"
 import type { Canvas } from "@napi-rs/canvas"
-import { promisify } from "util"
 import { pathToFileURL } from "url"
 const dbg = genaiscriptDebug("pdf")
 
@@ -296,8 +295,7 @@ async function PDFTryParse(
                     viewport,
                 })
                 await render.promise
-                const toBuffer = promisify<Buffer>(canvas.toBuffer.bind(canvas))
-                const buffer = await toBuffer()
+                const buffer = canvas.toBuffer("image/png")
                 p.image = join(folder, `page_${i + 1}.png`)
                 dbg(`writing page image %d to %s`, i + 1, p.image)
                 await writeFile(p.image, buffer)
@@ -420,8 +418,7 @@ async function PDFTryParse(
         const canvas = await createCanvas(width, height)
         const ctx = canvas.getContext("2d")
         ctx.putImageData(imageData, 0, 0)
-        const toBuffer = promisify<Buffer>(canvas.toBuffer.bind(canvas))
-        const buffer = await toBuffer()
+        const buffer = canvas.toBuffer("image/png")
         const fn = join(
             folder,
             `page-${pageIndex}-${imageObj.replace(INVALID_FILENAME_REGEX, "")}.png`
