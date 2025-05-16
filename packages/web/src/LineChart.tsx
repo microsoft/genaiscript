@@ -1,5 +1,11 @@
 import React from "react"
-import { VictoryChart, VictoryGroup, VictoryLine, VictoryTheme } from "victory"
+import {
+    VictoryAxis,
+    VictoryChart,
+    VictoryGroup,
+    VictoryLine,
+    VictoryTheme,
+} from "victory"
 
 export default function LineChart(props: { rows: any[]; headers: string[] }) {
     const { rows, headers } = props
@@ -8,6 +14,15 @@ export default function LineChart(props: { rows: any[]; headers: string[] }) {
 
     return (
         <VictoryChart theme={VictoryTheme.clean}>
+            <VictoryAxis
+                style={{
+                    tickLabels: {
+                        angle: 45,
+                        textAnchor: "start",
+                        padding: 5,
+                    },
+                }}
+            />
             <VictoryGroup>
                 {ys.map((y) => (
                     <VictoryLine
