@@ -3609,6 +3609,15 @@ interface GitHubGist {
     files: WorkspaceFile[]
 }
 
+interface GitHubArtifact {
+    id: number
+    name: string
+    size_in_bytes: number
+    url: string
+    archive_download_url: string
+    expires_at: string
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -3645,6 +3654,27 @@ interface GitHub {
      * @param runId
      */
     workflowRun(runId: number | string): Promise<GitHubWorkflowRun>
+
+    /**
+     * List artifacts for a given workflow run
+     * @param runId
+     */
+    listWorkflowRunArtifacts(
+        runId: number | string,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubArtifact[]>
+
+    /**
+     * Gets the details of a GitHub Action workflow run artifact
+     * @param artifactId
+     */
+    artifact(artifactId: number | string): Promise<GitHubArtifact>
+
+    /**
+     * Downloads and unzips archive files from a GitHub Action Artifact
+     * @param artifactId
+     */
+    downloadArtifactFiles(artifactId: number | string): Promise<WorkspaceFile[]>
 
     /**
      * Downloads a GitHub Action workflow run log
