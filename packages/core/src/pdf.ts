@@ -18,8 +18,9 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { measure } from "./performance"
 import { dotGenaiscriptPath } from "./workdir"
 import { genaiscriptDebug } from "./debug"
-import type { Canvas } from "canvas"
+import type { Canvas } from "@napi-rs/canvas"
 import { promisify } from "util"
+import { pathToFileURL } from "url"
 const dbg = genaiscriptDebug("pdf")
 
 let standardFontDataUrl: string
@@ -42,11 +43,10 @@ async function tryImportPdfjs(options?: TraceOptions) {
         workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
     }
 
-    standardFontDataUrl = workerSrc.replace(
-        "build/pdf.worker.min.mjs",
-        "standard_fonts/"
-    )
-
+    standardFontDataUrl = pathToFileURL(
+        workerSrc.replace("build/pdf.worker.min.mjs", "standard_fonts/")
+    ).toString()
+    dbg(`standardFontDataUrl: %s`, standardFontDataUrl)
     pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
     return pdfjs
 }
@@ -113,12 +113,11 @@ async function tryImportCanvas() {
 
     try {
         dbg(`initializing pdf canvas`)
-        const canvas = await import("canvas")
-        const path2d = await import("path2d")
+        const canvas = await import("@napi-rs/canvas")
         const createCanvas = (w: number, h: number) => canvas.createCanvas(w, h)
         const glob = resolveGlobal()
         glob.ImageData ??= canvas.ImageData
-        glob.Path2D ??= path2d.Path2D
+        glob.Path2D ??= canvas.Path2D
         glob.Canvas ??= canvas.Canvas
         glob.DOMMatrix ??= canvas.DOMMatrix
         CanvasFactory.createCanvas = createCanvas
