@@ -192,7 +192,7 @@ export async function createParsers(
         mermaid: async (file) => {
             const f = filenameOrFileToContent(file)
             const res = await mermaidParse(f)
-            return res?.error
+            return res
         },
         code: async (file, query) => {
             await resolveFileContent(file, { trace })

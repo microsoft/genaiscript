@@ -1034,7 +1034,7 @@ system({
     parameters: {
         repair: {
             type: "integer",
-            default: 1,
+            default: 3,
             description: "Repair mermaid diagrams",
         },
     },
@@ -1064,16 +1064,17 @@ Pick the most appropriate diagram type for your needs. Be very precise with the 
         for (const diagram of diagrams) {
             if (!repaired.has(diagram.content)) {
                 repaired.add(diagram.content)
-                dbg(`validating ${diagram.content}`)
+                dbg(`validating %s`, diagram.content)
                 const res = await parsers.mermaid(diagram.content)
-                if (res) {
+                if (res?.error) {
                     dbg(`error: %s`, res)
-                    errors.push(res)
+                    errors.push(res.error)
                 }
+                dbg(`parsed %s`, res.diagramType)
             }
         }
         if (errors.length > 0) {
-            ctx.$`I found syntax errors in the mermaid diagrams. Please repair the syntax:
+            ctx.$`I found syntax errors in the mermaid diagram. Please repair the parse error:
             ${errors.join("\n")}`
         }
     })

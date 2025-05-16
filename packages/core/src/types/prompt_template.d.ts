@@ -275,8 +275,8 @@ type ModelType = OptionsOrString<
     | "alibaba:qwen2-72b-instruct"
     | "alibaba:qwen2-57b-a14b-instruct"
     | "deepseek:deepseek-chat"
-//    | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
-//    | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
+    //    | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
+    //    | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
     | "llamafile"
     | "sglang"
     | "vllm"
@@ -2744,9 +2744,11 @@ interface Parsers {
 
     /**
      * Parsers a mermaid diagram and returns the parse error if any
-     * @param content 
+     * @param content
      */
-    mermaid(content: string | WorkspaceFile): Promise<string>
+    mermaid(
+        content: string | WorkspaceFile
+    ): Promise<{ error?: string; diagramType?: string }>
 
     /**
      * Extracts the contents of a zip archive file
