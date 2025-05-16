@@ -3754,6 +3754,16 @@ interface GitHub {
     ): Promise<GitHubComment[]>
 
     /**
+     * Updates a comment on a GitHub issue
+     * @param comment_id
+     * @param body the updated comment body
+     */
+    updateIssueComment(
+        comment_id: number | string,
+        body: string
+    ): Promise<GitHubComment>
+
+    /**
      * Lists pull requests for a given repository
      * @param options
      */
