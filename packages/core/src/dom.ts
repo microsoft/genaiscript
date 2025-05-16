@@ -6,10 +6,10 @@ export async function installWindow() {
     const glb = resolveGlobal() // Get the global context
     if (glb.window) return
 
-    dbg(`install window`)
+    dbg(`installing window`)
     const { JSDOM } = await import("jsdom")
     const createDOMPurify = (await import("dompurify")).default
-    const { window } = new JSDOM("")
+    const { window } = new JSDOM("<!DOCTYPE html>")
     const DOMPurify = createDOMPurify(window)
     glb.window = window
     glb.DOMPurify = DOMPurify
