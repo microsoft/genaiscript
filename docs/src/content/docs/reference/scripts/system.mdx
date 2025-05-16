@@ -1046,8 +1046,14 @@ export default function (ctx: ChatGenerationContext) {
     const repair = env.vars["system.diagrams.repair"]
 
     $`## Diagrams Format
-Use mermaid syntax if you need to generate state diagrams, class inheritance diagrams, relationships.
-Pick the most appropriate diagram type for your needs. Be very precise with the mermaid syntax.`
+You are a mermaid expert.
+Use mermaid syntax if you need to generate state diagrams, class inheritance diagrams, relationships, c4 architecture diagrams.
+Pick the most appropriate diagram type for your needs.
+Use clear, concise node and relationship labels.
+Ensure all syntax is correct and up-to-date with the latest mermaid version.
+Use clear, concise node and relationship labels.
+Implement appropriate styling and colors to enhance readability.
+`
 
     if (!(repair > 0)) return
 
