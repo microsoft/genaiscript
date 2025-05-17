@@ -169,12 +169,13 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
  *
  * @param env - A record of environment variables, serving as the source for token and API configuration.
  * @param modelId - The identifier of the model for which the token and configuration details are to be parsed.
+ * @param options - Additional options for tracing, cancellation, and token resolution.
  *
  * @returns A promise that resolves to a configuration object containing the provider, model, token, base URL,
  *          type, version, and source, or undefined if no matching configuration is found.
  *
  * Notes:
- * - Handles several model providers, including OpenAI, Azure OpenAI, Anthropic, Google, HuggingFace, and more.
+ * - Handles several model providers, including OpenAI, Azure OpenAI, Azure Serverless OpenAI, Azure AI Inference, Azure Serverless Models, Anthropic, Google, HuggingFace, and more.
  * - Throws errors if mandatory variables like API keys or bases are not configured.
  * - Includes validation checks for URL formats and supported provider types.
  */

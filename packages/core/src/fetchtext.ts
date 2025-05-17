@@ -135,8 +135,8 @@ export async function fetchText(
 /**
  * Logs a POST request for tracing.
  *
- * Constructs a curl command to represent the POST request, including headers
- * and body. Authorization headers can be optionally masked.
+ * Constructs an HTTP POST request representation, including headers and body, for tracing purposes.
+ * Authorization headers can be optionally masked.
  *
  * @param trace - Trace object for logging details. If not provided, logs the command verbosely.
  * @param url - Target URL for the request.
