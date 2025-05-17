@@ -211,9 +211,9 @@ A possible trace looks like as follows.
 <summary>Trace</summary>
 
 ````markdown
-- prompting github:gpt-4o
+- prompting github:openai/gpt-4o
 - cat src/rag/markdown.md
-- prompting github:gpt-4o
+- prompting github:openai/gpt-4o
 
 FILE ./markdown.md.txt:
 
@@ -246,18 +246,18 @@ $`
 <summary>Trace</summary>
 
 ````markdown
-- prompting github:gpt-4o (~1569 tokens)
+- prompting github:openai/gpt-4o (~1569 tokens)
 - agent fs: read and summarize file src/rag/markdown.md in one sentence
-    - prompt agent memory query with github:gpt-4o-mini: "NO_ANSWER"
-    - prompt agent fs with github:gpt-4o (~422 tokens)
+    - prompt agent memory query with github:openai/gpt-4o-mini: "NO_ANSWER"
+    - prompt agent fs with github:openai/gpt-4o (~422 tokens)
     - cat src/rag/markdown.md
-    - prompting github:gpt-4o (~635 tokens)
+    - prompting github:openai/gpt-4o (~635 tokens)
 
 ```md
 The file "src/rag/markdown.md" explains that Markdown...
 ```
 
-- prompting github:gpt-4o (~1625 tokens)
+- prompting github:openai/gpt-4o (~1625 tokens)
 
 I'll save the summary to the file `markdown.md.txt`.
 

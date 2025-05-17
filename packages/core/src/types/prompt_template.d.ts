@@ -171,20 +171,17 @@ type ModelType = OptionsOrString<
     | "openai:o1"
     | "openai:o1-mini"
     | "openai:o1-preview"
-    | "github:gpt-4.1"
-    | "github:gpt-4o"
-    | "github:gpt-4o-mini"
-    | "github:o1"
-    | "github:o1-mini"
-    | "github:o1-preview"
-    | "github:o3-mini"
-    | "github:o3-mini:low"
-    | "github:mai-ds-r1"
-    | "github:AI21-Jamba-1.5-Large"
-    | "github:AI21-Jamba-1-5-Mini"
-    | "github:deepseek-v3"
-    | "github:deepseek-r1"
-    | "github:Phi-4"
+    | "github:openai/gpt-4.1"
+    | "github:openai/gpt-4o"
+    | "github:openai/gpt-4o-mini"
+    | "github:openai/o1"
+    | "github:openai/o1-mini"
+    | "github:openai/o3-mini"
+    | "github:openai/o3-mini:low"
+    | "github:microsoft/mai-ds-r1"
+    | "github:deepseek/deepseek-v3"
+    | "github:deepseek/deepseek-r1"
+    | "github:microsoft/phi-4"
     | "github_copilot_chat:current"
     | "github_copilot_chat:gpt-3.5-turbo"
     | "github_copilot_chat:gpt-4o-mini"
@@ -301,15 +298,16 @@ type EmbeddingsModelType = OptionsOrString<
 
 type ModelSmallType = OptionsOrString<
     | "openai:gpt-4o-mini"
-    | "github:gpt-4o-mini"
+    | "github:openai/gpt-4o-mini"
     | "azure:gpt-4o-mini"
-    | "openai:gpt-3.5-turbo"
-    | "github:Phi-3-5-mini-instruct"
-    | "github:AI21-Jamba-1-5-Mini"
+    | "github:microsoft/phi-4"
 >
 
 type ModelVisionType = OptionsOrString<
-    "openai:gpt-4o" | "github:gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
+    | "openai:gpt-4o"
+    | "github:openai/gpt-4o"
+    | "azure:gpt-4o"
+    | "azure:gpt-4o-mini"
 >
 
 type ModelImageGenerationType = OptionsOrString<

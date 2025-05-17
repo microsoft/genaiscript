@@ -31,8 +31,6 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
-            - name: start ollama
-              run: yarn ollama:start
             - name: git stuff
               run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-describe

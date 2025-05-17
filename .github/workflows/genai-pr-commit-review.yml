@@ -7,12 +7,6 @@ on:
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
-env:
-    GENAISCRIPT_DEFAULT_REASONING_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_MODEL }}
-    GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_MODEL }}
-    GENAISCRIPT_DEFAULT_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_VISION_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_VISION_MODEL }}
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -31,12 +25,10 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile:action
-            - name: start ollama
-              run: yarn ollama:start
             - name: git stuff
               run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-review-commit
-              run: node packages/cli/built/genaiscript.cjs run pr-review-commit --out ./temp/genai/pr-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
+              run: node packages/cli/built/genaiscript.cjs run pr-review-commit -p github --out ./temp/genai/pr-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

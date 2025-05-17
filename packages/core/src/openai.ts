@@ -246,6 +246,24 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "pass-through"
         delete postReq.model
+    } else if (cfg.type === "github") {
+        url = cfg.base
+        const { prefix } =
+            /^(?<prefix>[^-]+)-([^\/]+)$/.exec(postReq.model)?.groups || {}
+        const patch = {
+            gpt: "openai",
+            o: "openai",
+            "text-embedding": "openai",
+            phi: "microsoft",
+            meta: "meta",
+            llama: "meta",
+            mistral: "mistral-ai",
+            deepseek: "deepseek",
+        }[prefix?.toLowerCase() || ""]
+        if (patch) {
+            postReq.model = `${patch}/${postReq.model}`
+            dbg(`updated model to ${postReq.model}`)
+        }
     } else if (cfg.type === "huggingface") {
         // https://github.com/huggingface/text-generation-inference/issues/2946
         delete postReq.model
