@@ -174,6 +174,7 @@ Options:
   -os, --out-summary <file>           append output summary in file
   -g, --groups <groups...>            groups to include or exclude. Use :!
                                       prefix to exclude
+  --test-timeout <number>             test timeout in seconds
   -h, --help                          display help for command
 ```
 

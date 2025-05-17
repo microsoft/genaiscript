@@ -351,6 +351,7 @@ export async function cli() {
             "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
         )
+        .option("--test-timeout <number>", "test timeout in seconds")
         .action(scriptsTest) // Action to run the tests
 
     // List available tests

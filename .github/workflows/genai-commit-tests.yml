@@ -27,6 +27,6 @@ jobs:
             - name: compile
               run: yarn compile:action
             - name: echo tests
-              run: yarn test:scripts -g commit -p github
+              run: yarn test:scripts -g commit -p github --test-timeout 60
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
