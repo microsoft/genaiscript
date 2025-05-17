@@ -7,11 +7,11 @@ import { isBinaryMimeType } from "./binary"
 import { toBase64 } from "./base64"
 import { deleteUndefinedValues } from "./cleaners"
 import { prettyBytes } from "./pretty"
-import debug from "debug"
 import { uriRedact } from "./url"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { createFetch } from "./fetch"
-const dbg = debug("genaiscript:fetch:text")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("fetch:text")
 
 /**
  * Fetches text content from a URL or file.
@@ -199,9 +199,6 @@ export function traceFetchPost(
         httpRequest += JSON.stringify(body, null, 2)
     }
 
-    if (trace) {
-        trace.detailsFenced(`🌐 fetch`, httpRequest, "http")
-    } else {
-        logVerbose(httpRequest)
-    }
+    dbg(httpRequest)
+    if (trace) trace.detailsFenced(`🌐 fetch`, httpRequest, "http")
 }

@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:config:env")
-
 import { normalizeFloat, trimTrailingSlash } from "./cleaners"
 import {
     ANTHROPIC_API_BASE,
@@ -65,6 +62,8 @@ import { URL } from "node:url"
 import { uriTryParse } from "./url"
 import { TraceOptions } from "./trace"
 import { CancellationOptions } from "./cancellation"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("config:env")
 
 /**
  * Parses the OLLAMA host environment variable and returns a standardized URL.
