@@ -121,7 +121,7 @@ export function truncateTextToTokens(
         result = last
             ? MAX_TOKENS_ELLIPSE + content.slice(-mid)
             : content.slice(0, mid) + MAX_TOKENS_ELLIPSE
-        const truncatedTokens = approximateTokens(result)
+        const truncatedTokens = approximateTokens(result, { encoder })
 
         if (truncatedTokens > maxTokens) {
             right = mid
