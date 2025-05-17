@@ -1,0 +1,32 @@
+name: genai commit tests
+permissions:
+    contents: read
+    models: read
+on:
+    push:
+        branches: [main, dev]
+    pull_request:
+    workflow_dispatch:
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [22]
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "${{ matrix.node-version }}"
+                  cache: yarn
+            - run: sudo apt-get update && sudo apt-get install ffmpeg
+            - run: yarn install --frozen-lockfile --prefer-offline
+            - name: compile
+              run: yarn compile:action
+            - name: echo tests
+              run: yarn test:scripts -g commit -p github --test-timeout 60
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

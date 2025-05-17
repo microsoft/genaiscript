@@ -1,4 +1,4 @@
-script({ model: "echo", tests: {} })
+script({ model: "echo", tests: {}, group: "commit" })
 const json = await workspace.readJSON("src/sample.json", {
     schema: {
         type: "object",

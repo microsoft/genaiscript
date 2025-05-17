@@ -1,4 +1,4 @@
-script({ model: "echo" })
+script({ model: "echo", group: "commit", tests: {} })
 
 const gh = await host.resolveLanguageModelProvider("github_copilot_chat")
 console.log({ gh })
