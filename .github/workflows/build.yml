@@ -42,3 +42,5 @@ jobs:
               run: yarn test:modulesamples
             - name: github models
               run: yarn genai poem -p github
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
