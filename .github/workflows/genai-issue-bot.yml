@@ -24,8 +24,6 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
-            - name: start ollama
-              run: yarn ollama:start
             - name: genaiscript issue-review
               run: node packages/cli/built/genaiscript.cjs run issue-bot -p github -prc bot --out-output $GITHUB_STEP_SUMMARY
               env:
