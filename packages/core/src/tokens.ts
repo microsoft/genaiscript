@@ -26,6 +26,7 @@ export function approximateTokens(
     if (!text) return 0
 
     const { overcount = 0, encoder } = options || {}
+    dbg(`approximate %d chars, encoder: %o`, text.length, !!encoder)
     if (
         encoder &&
         text.length < MAX_STRING_LENGTH_USE_TOKENIZER_FOR_APPROXIMATION
@@ -60,6 +61,7 @@ export function approximateTokens(
 export function estimateTokens(text: string, encoder: TokenEncoder): number {
     // If the text is empty or undefined, return 0
     if (!text?.length) return 0
+    dbg(`estimate %d chars`, text.length)
     const m = measure("tokens.estimate", `${text.length} chars`)
     try {
         // Return the length of the encoded text plus a constant overhead
