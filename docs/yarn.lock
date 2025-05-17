@@ -4814,9 +4814,9 @@ tinyglobby@^0.2.12, tinyglobby@^0.2.13:
     picomatch "^4.0.2"
 
 tlds@^1.234.0:
-  version "1.258.0"
-  resolved "https://registry.yarnpkg.com/tlds/-/tlds-1.258.0.tgz#214b9bdfc4d1ba83dd59f11458ec067c2bd18567"
-  integrity sha512-XGhStWuOlBA5D8QnyN2xtgB2cUOdJ3ztisne1DYVWMcVH29qh8eQIpRmP3HnuJLdgyzG0HpdGzRMu1lm/Oictw==
+  version "1.259.0"
+  resolved "https://registry.yarnpkg.com/tlds/-/tlds-1.259.0.tgz#f7e536e1fab65d7282443399417d317c309da3a3"
+  integrity sha512-AldGGlDP0PNgwppe2quAvuBl18UcjuNtOnDuUkqhd6ipPqrYYBt3aTxK1QTsBVknk97lS2JcafWMghjGWFtunw==
 
 to-regex-range@^5.0.1:
   version "5.0.1"
