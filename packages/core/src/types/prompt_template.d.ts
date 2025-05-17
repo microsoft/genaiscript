@@ -306,7 +306,10 @@ type ModelSmallType = OptionsOrString<
 >
 
 type ModelVisionType = OptionsOrString<
-    "openai:gpt-4o" | "github:openai/gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
+    | "openai:gpt-4o"
+    | "github:openai/gpt-4o"
+    | "azure:gpt-4o"
+    | "azure:gpt-4o-mini"
 >
 
 type ModelImageGenerationType = OptionsOrString<
