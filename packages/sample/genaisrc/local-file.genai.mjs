@@ -1,4 +1,4 @@
-script({ model: "echo" })
+script({ model: "echo", group: "commit" })
 
 const __filename = path.resolveFileURL(import.meta.url)
 const __dirname = path.dirname(__filename)
