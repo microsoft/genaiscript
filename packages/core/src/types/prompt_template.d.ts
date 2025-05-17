@@ -300,13 +300,14 @@ type ModelSmallType = OptionsOrString<
     | "openai:gpt-4o-mini"
     | "github:openai/gpt-4o-mini"
     | "azure:gpt-4o-mini"
-    | "openai:gpt-3.5-turbo"
-    | "github:Phi-3-5-mini-instruct"
-    | "github:AI21-Jamba-1-5-Mini"
+    | "github:microsoft/phi-4"
 >
 
 type ModelVisionType = OptionsOrString<
-    "openai:gpt-4o" | "github:openai/gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
+    | "openai:gpt-4o"
+    | "github:openai/gpt-4o"
+    | "azure:gpt-4o"
+    | "azure:gpt-4o-mini"
 >
 
 type ModelImageGenerationType = OptionsOrString<
