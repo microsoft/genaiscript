@@ -27,6 +27,6 @@ jobs:
             - name: compile
               run: yarn compile:action
             - name: echo tests
-              run: yarn genai test:scripts -p commit -p github
+              run: yarn test:scripts -g commit -p github
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
