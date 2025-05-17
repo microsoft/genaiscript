@@ -101,7 +101,7 @@ function createEnv() {
 /**
  * Runs prompt script tests based on provided IDs and options, returns the test results.
  * @param ids - Array of script IDs to run tests on.
- * @param options - Options to configure the test run, including output paths, CLI settings, caching, verbosity, concurrency, redteam mode, promptfoo version, output summary, test delay, and cancellation options.
+ * @param options - Options to configure the test run, including output paths, CLI settings, caching, verbosity, concurrency, redteam mode, promptfoo version, output summary, test delay, test timeout, max concurrency, and cancellation options.
  * @returns A Promise resolving to the test run response, including results, status, and error details if applicable.
  */
 export async function runPromptScriptTests(

@@ -14,9 +14,13 @@ const dbg = genaiscriptDebug("tokens")
  * Estimates the token count of a given text by dividing its length
  * by an approximate token length and adding a constant overhead.
  *
+ * If an encoder is provided and the text length is below a threshold,
+ * uses the encoder for a more accurate estimate.
+ *
  * @param text The input text to estimate tokens for. If empty, returns 0.
  * @param options Optional parameters:
  *   - overcount: Adjusts the token length by subtracting this value from 4. Defaults to 0.
+ *   - encoder: Optional encoder function for more accurate estimation on short texts.
  * @returns The estimated token count, including overhead.
  */
 export function approximateTokens(
@@ -77,17 +81,7 @@ export function estimateTokens(text: string, encoder: TokenEncoder): number {
 }
 
 /**
- * Truncates a string to fit within a specified token limit.
- * Utilizes a binary search approach for efficiency.
- *
- * @param content - The text content to truncate.
- * @param maxTokens - The token limit to enforce.
- * @param encoder - The function to encode text into tokens.
- * @param options - Additional options:
- *   - tokens: Precomputed token count of the content. Defaults to an estimated value if not provided.
- *   - last: Truncate from the end of the content if true. Defaults to false.
- *   - threshold: Minimum token adjustment threshold for binary search. Defaults to a constant value.
- * @returns Truncated content adjusted to fit within the token limit.
+ * /NO P/
  */
 export function truncateTextToTokens(
     content: string,
