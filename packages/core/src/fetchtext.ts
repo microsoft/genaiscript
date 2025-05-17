@@ -195,7 +195,6 @@ export function traceFetchPost(
         })
         httpRequest += `--${boundary}--\n`
     } else {
-        httpRequest += "Content-Type: application/json\n\n"
         httpRequest += JSON.stringify(body, null, 2)
     }
 
