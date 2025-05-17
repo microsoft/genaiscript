@@ -257,7 +257,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             phi: "microsoft",
             meta: "meta",
             llama: "meta",
-            mistral: " mistral-ai",
+            mistral: "mistral-ai",
             deepseek: "deepseek",
         }[prefix?.toLowerCase() || ""]
         if (patch) {
