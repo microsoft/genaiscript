@@ -1,16 +1,15 @@
-import debug from "debug"
-const dbg = debug("genaiscript:tokens")
-
 // Importing constants and utility functions
 import {
     ESTIMATE_TOKEN_OVERHEAD,
+    MAX_STRING_LENGTH_USE_TOKENIZER_FOR_APPROXIMATION,
     MAX_TOKENS_ELLIPSE,
     PROMPT_DOM_TRUNCATE_ATTEMPTS,
     TOKEN_TRUNCATION_THRESHOLD,
 } from "./constants"
 import { measure } from "./performance"
 import { logVerbose } from "./util"
-
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("tokens")
 /**
  * Estimates the token count of a given text by dividing its length
  * by an approximate token length and adding a constant overhead.
@@ -22,13 +21,32 @@ import { logVerbose } from "./util"
  */
 export function approximateTokens(
     text: string,
-    options?: { overcount?: 1 | 2 }
-) {
+    options?: { overcount?: number; encoder?: TokenEncoder }
+): number {
     if (!text) return 0
-    const tokenLength = 4 - (options?.overcount || 0)
-    // Fallback: Estimate token count as one-fourth of text length plus overhead
-    // This provides a rough estimate in case of encoding errors
-    return Math.ceil(text.length / tokenLength) + ESTIMATE_TOKEN_OVERHEAD
+
+    const { overcount = 0, encoder } = options || {}
+    if (
+        encoder &&
+        text.length < MAX_STRING_LENGTH_USE_TOKENIZER_FOR_APPROXIMATION
+    )
+        return estimateTokens(text, encoder)
+
+    // Normalize whitespace
+    const normalized = text.trim().replace(/\s+/g, " ")
+
+    // Estimate base on character count
+    const charCount = normalized.length
+
+    // Heuristic adjustment: count punctuation and words
+    const punctuationCount = (normalized.match(/[.,!?;:]/g) || []).length
+    const wordCount = (normalized.match(/\b\w+\b/g) || []).length
+
+    // Weight punctuation and word boundaries slightly higher
+    const estimatedTokens =
+        charCount / (4 - overcount) + punctuationCount * 0.2 + wordCount * 0.1
+
+    return Math.ceil(estimatedTokens) + ESTIMATE_TOKEN_OVERHEAD
 }
 
 /**
@@ -39,7 +57,7 @@ export function approximateTokens(
  * @param encoder - A function that encodes the text into tokens.
  * @returns The estimated token count, including overhead. If an error occurs during encoding, falls back to an approximate token count.
  */
-export function estimateTokens(text: string, encoder: TokenEncoder) {
+export function estimateTokens(text: string, encoder: TokenEncoder): number {
     // If the text is empty or undefined, return 0
     if (!text?.length) return 0
     const m = measure("tokens.estimate", `${text.length} chars`)
@@ -81,7 +99,7 @@ export function truncateTextToTokens(
     }
 ): string {
     const tokens =
-        options?.tokens || approximateTokens(content, { overcount: 1 })
+        options?.tokens || approximateTokens(content, { overcount: 0.5 })
     if (tokens <= maxTokens) return content
     const { last, threshold = TOKEN_TRUNCATION_THRESHOLD } = options || {}
 
@@ -107,7 +125,7 @@ export function truncateTextToTokens(
         result = last
             ? MAX_TOKENS_ELLIPSE + content.slice(-mid)
             : content.slice(0, mid) + MAX_TOKENS_ELLIPSE
-        const truncatedTokens = estimateTokens(result, encoder)
+        const truncatedTokens = approximateTokens(result)
 
         if (truncatedTokens > maxTokens) {
             right = mid
