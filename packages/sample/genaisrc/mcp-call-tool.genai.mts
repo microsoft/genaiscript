@@ -1,4 +1,4 @@
-script({ model: "echo", tests: {}, group: "commit" })
+script({ model: "echo", tests: {}  })
 const fs = await host.mcpServer({
     id: "filesystem",
     command: "npx",

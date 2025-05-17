@@ -1,4 +1,4 @@
-script({ model: "small", tests: {} })
+script({ model: "echo", group: "commit", tests: {} })
 writeText("You an assistant.", { role: "system" })
 writeText("You are helpful.", { role: "system" })
 writeText("Write a poem.", { role: "user" })

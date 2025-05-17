@@ -1,6 +1,7 @@
 script({
     tests: {},
-    model: "small",
+    model: "echo",
+    group: "commit",
 })
 
 const data = {

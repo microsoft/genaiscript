@@ -11,7 +11,7 @@ export const NODE_MIN_VERSION = packageJson.engines.node
 /**
  * The version of the 'promptfoo' peer dependency.
  */
-export const PROMPTFOO_VERSION = "0.112.3"
+export const PROMPTFOO_VERSION = "0.112.7"
 
 /**
  * The version of the 'typescript' dependency.
