@@ -213,7 +213,7 @@ export const OPENROUTER_API_CHAT_URL =
 export const OPENROUTER_SITE_URL_HEADER = "HTTP-Referer"
 export const OPENROUTER_SITE_NAME_HEADER = "X-Title"
 
-export const GITHUB_MODELS_BASE = "https://models.inference.ai.azure.com"
+export const GITHUB_MODELS_BASE = "https://models.github.ai/inference/chat/completions"
 
 export const DOCS_CONFIGURATION_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/"

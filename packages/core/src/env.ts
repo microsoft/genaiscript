@@ -271,14 +271,14 @@ export async function parseTokenFromEnv(
                     "GITHUB_MODELS_TOKEN, GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set"
                 )
         }
-        const type = "openai"
+        const type = "github"
         const base = GITHUB_MODELS_BASE
         return {
             provider,
             model,
             base,
-            type,
             token: res.value,
+            type,
             source: `env: ${res.name}`,
         } satisfies LanguageModelConfiguration
     }

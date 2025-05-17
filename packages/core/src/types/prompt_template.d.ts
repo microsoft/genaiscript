@@ -171,9 +171,9 @@ type ModelType = OptionsOrString<
     | "openai:o1"
     | "openai:o1-mini"
     | "openai:o1-preview"
-    | "github:gpt-4.1"
-    | "github:gpt-4o"
-    | "github:gpt-4o-mini"
+    | "github:openai/gpt-4.1"
+    | "github:openai/gpt-4o"
+    | "github:openai/gpt-4o-mini"
     | "github:o1"
     | "github:o1-mini"
     | "github:o1-preview"
@@ -301,7 +301,7 @@ type EmbeddingsModelType = OptionsOrString<
 
 type ModelSmallType = OptionsOrString<
     | "openai:gpt-4o-mini"
-    | "github:gpt-4o-mini"
+    | "github:openai/gpt-4o-mini"
     | "azure:gpt-4o-mini"
     | "openai:gpt-3.5-turbo"
     | "github:Phi-3-5-mini-instruct"
@@ -309,7 +309,7 @@ type ModelSmallType = OptionsOrString<
 >
 
 type ModelVisionType = OptionsOrString<
-    "openai:gpt-4o" | "github:gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
+    "openai:gpt-4o" | "github:openai/gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
 >
 
 type ModelImageGenerationType = OptionsOrString<
