@@ -50,7 +50,7 @@ const listModels: ListModelsFunction = async (cfg, options) => {
                 (m) =>
                     ({
                         id: m.id,
-                        details: `${m.name}\n${m.summary}`,
+                        details: `${m.name} - ${m.summary}`,
                         //    url: `https://github.com/marketplace/models/${m.registryName}/${m.name}`,
                     }) satisfies LanguageModelInfo
             ),
