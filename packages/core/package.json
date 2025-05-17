@@ -4,9 +4,7 @@
   "main": "src/index.ts",
   "license": "MIT",
   "private": true,
-  "npm": {
-    "publish": false
-  },
+  "publish": false,
   "repository": {
     "directory": "packages/core",
     "url": "https://github.com/microsoft/genaiscript"
@@ -105,7 +103,7 @@
   "scripts": {
     "typecheck": "tsc -p src",
     "prompts:bundle": "node bundleprompts.js",
-    "pretypecheck": "yarn prompts:bundle",
+    "pretypecheck": "pnpm prompts:bundle",
     "pretty": "prettier **.ts --write",
     "test": "node --import tsx --test src/**.test.*ts"
   },

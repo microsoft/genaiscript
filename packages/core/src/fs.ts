@@ -1,4 +1,11 @@
-import { lstat, mkdir, writeFile, readFile, appendFile } from "fs/promises"
+import {
+    lstat,
+    mkdir,
+    writeFile,
+    readFile,
+    appendFile,
+    rmdir,
+} from "fs/promises"
 import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
 import { dirname } from "path"
@@ -57,6 +64,15 @@ export async function tryReadText(fn: string) {
 export async function ensureDir(dir: string) {
     dbg(`ensuring directory exists ${dir}`)
     await mkdir(dir, { recursive: true })
+}
+
+export async function emptyDir(dir: string) {
+    try {
+        await rmdir(dir, { recursive: true })
+    } catch {
+        // Ignore errors
+    }
+    await ensureDir(dir)
 }
 
 /**
