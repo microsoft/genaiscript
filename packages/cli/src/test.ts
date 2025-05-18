@@ -101,7 +101,7 @@ function createEnv() {
 /**
  * Runs prompt script tests based on provided IDs and options, returns the test results.
  * @param ids - Array of script IDs to run tests on.
- * @param options - Options to configure the test run, including output paths, CLI settings, caching, verbosity, concurrency, redteam mode, promptfoo version, output summary, test delay, and cancellation options.
+ * @param options - Options to configure the test run, including output paths, CLI settings, caching, verbosity, concurrency, redteam mode, promptfoo version, output summary, test delay, test timeout, max concurrency, and cancellation options.
  * @returns A Promise resolving to the test run response, including results, status, and error details if applicable.
  */
 export async function runPromptScriptTests(
@@ -118,6 +118,7 @@ export async function runPromptScriptTests(
         outSummary?: string
         testDelay?: string
         maxConcurrency?: string
+        testTimeout?: string
     } & CancellationOptions
 ): Promise<PromptScriptTestRunResponse> {
     applyModelOptions(options, "cli")
@@ -140,6 +141,7 @@ export async function runPromptScriptTests(
     const serverUrl = `http://127.0.0.1:${port}`
     const testDelay = normalizeInt(options?.testDelay)
     const maxConcurrency = normalizeInt(options?.maxConcurrency)
+    const timeout = normalizeInt(options?.testTimeout) * 1000 || undefined
     const runStart = new Date()
     logInfo(`writing tests to ${out}`)
 
@@ -262,6 +264,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
             buffer: false,
             env: createEnv(),
             stdio: "inherit",
+            timeout,
         })
         let status: number
         let error: SerializedError

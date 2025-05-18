@@ -3,6 +3,7 @@ import { RootSchema } from "@modelcontextprotocol/sdk/types.js"
 script({
     model: "echo",
     tests: {},
+    group: "commit",
 })
 const sg = await host.astGrep()
 const { matches } = await sg.search("ts", "src/*.ts", "console.log($META)")
