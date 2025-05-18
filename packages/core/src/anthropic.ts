@@ -390,7 +390,7 @@ const completerFactory = (
             mreq.betas = ["output-128k-2025-02-19"]
         }
 
-        dbgMessages(mreq)
+        dbgMessages(`messages: %O`, messages)
         trace.detailsFenced("✉️ body", mreq, "json")
         trace.appendContent("\n")
 
