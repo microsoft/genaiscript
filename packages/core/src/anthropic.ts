@@ -120,7 +120,7 @@ const convertMessages = (
     }
 
     // filter out empty text messages
-    return res.filter((msg) => msg.content !== "")
+    return res.filter((msg) => Array.isArray(msg.content) ? msg.content.length > 0 : msg.content !== "")
 }
 
 const convertSingleMessage = (
