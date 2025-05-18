@@ -102,6 +102,13 @@ export class GitClient implements Git {
     }
 
     /**
+     * Pull changes from the remote repository.
+     */
+    async pull() {
+        await this.exec(["pull"])
+    }
+
+    /**
      * Gets the current branch
      * @returns
      */
