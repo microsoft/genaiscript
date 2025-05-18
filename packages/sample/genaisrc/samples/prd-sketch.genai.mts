@@ -62,7 +62,7 @@ const { image } = await generateImage(
         outputFormat: "jpeg",
         maxWidth: 800,
     }
-)
+) || {}
 if (!image) cancel("no image found")
 const ghFile = await github.uploadAsset(image)
 await output.image(ghFile, "sketch")

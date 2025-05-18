@@ -1,7 +1,7 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { ollamaParseHostVariable } from "./env"
-import { OLLAMA_API_BASE, OLLAMA_DEFAUT_PORT } from "./constants"
+import { OLLAMA_API_BASE, OLLAMA_DEFAULT_PORT } from "./constants"
 
 describe("parseHostVariable", () => {
     test("parses OLLAMA_HOST environment variable correctly", () => {
@@ -31,7 +31,7 @@ describe("parseHostVariable", () => {
     test("parses IP address without port correctly", () => {
         const env = { OLLAMA_HOST: "192.168.1.1" }
         const result = ollamaParseHostVariable(env)
-        assert.strictEqual(result, `http://192.168.1.1:${OLLAMA_DEFAUT_PORT}`)
+        assert.strictEqual(result, `http://192.168.1.1:${OLLAMA_DEFAULT_PORT}`)
     })
 
     test("parses 0.0.0.0 with port correctly", () => {
@@ -49,6 +49,6 @@ describe("parseHostVariable", () => {
     test("parses 0.0.0.0 without port correctly", () => {
         const env = { OLLAMA_HOST: "0.0.0.0" }
         const result = ollamaParseHostVariable(env)
-        assert.strictEqual(result, `http://0.0.0.0:${OLLAMA_DEFAUT_PORT}`)
+        assert.strictEqual(result, `http://0.0.0.0:${OLLAMA_DEFAULT_PORT}`)
     })
 })

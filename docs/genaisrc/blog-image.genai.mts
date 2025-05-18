@@ -29,6 +29,7 @@ Include specific description related to the content of <BLOG_POST>.
             model: "image",
         }
     )
+    if (!image) cancel("image generation failed")
 
     // phase 3: generate alt text
     const { text: alt } = await prompt`

@@ -275,8 +275,12 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         modelId: string,
         options?: { token?: boolean } & CancellationOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
-        const { token: askToken, trace } = options || {}
-        const tok = await parseTokenFromEnv(process.env, modelId)
+        const { token: askToken, trace, cancellationToken } = options || {}
+        const tok = await parseTokenFromEnv(process.env, modelId, {
+            resolveToken: askToken,
+            trace,
+            cancellationToken,
+        })
         if (!askToken && tok?.token) {
             tok.token = "***"
         }
@@ -492,7 +496,9 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         if (applyGitIgnore !== false) {
             files = await filterGitIgnore(files)
         }
-        return uniq(files)
+        const res = uniq(files)
+        dbg(`found files: %d\n%O`, res.length, res)
+        return res
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await ensureDir(dirname(name))

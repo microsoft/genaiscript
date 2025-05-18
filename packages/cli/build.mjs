@@ -5,10 +5,8 @@ import assert from "node:assert/strict"
 const external = [
     ...Object.keys(pkg.dependencies),
     ...Object.keys(pkg.optionalDependencies),
-    "whatwg-url",
-    "tr46",
-    "node-fetch",
 ]
+console.log(`external: ${external.join(",\n")}`)
 assert(
     external.length > 0,
     "No external dependencies found in package.json. Please add them to the 'external' field."

@@ -16,7 +16,7 @@ import {
     TOOL_NAME,
     TOOL_URL,
 } from "./constants"
-import { estimateTokens } from "./tokens"
+import { approximateTokens } from "./tokens"
 import {
     ChatCompletionHandler,
     CreateImageRequest,
@@ -68,8 +68,9 @@ import { fromBase64 } from "./base64"
 import debug from "debug"
 import { traceFetchPost } from "./fetchtext"
 import { providerFeatures } from "./features"
-const dbg = debug("genaiscript:openai")
-const dbgMessages = debug("genaiscript:openai:msg")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("openai")
+const dbgMessages = dbg.extend("msg")
 dbgMessages.enabled = false
 
 /**
@@ -245,6 +246,24 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
         ;(headers as any)["extra-parameters"] = "pass-through"
         delete postReq.model
+    } else if (cfg.type === "github") {
+        url = cfg.base
+        const { prefix } =
+            /^(?<prefix>[^-]+)-([^\/]+)$/.exec(postReq.model)?.groups || {}
+        const patch = {
+            gpt: "openai",
+            o: "openai",
+            "text-embedding": "openai",
+            phi: "microsoft",
+            meta: "meta",
+            llama: "meta",
+            mistral: "mistral-ai",
+            deepseek: "deepseek",
+        }[prefix?.toLowerCase() || ""]
+        if (patch) {
+            postReq.model = `${patch}/${postReq.model}`
+            dbg(`updated model to ${postReq.model}`)
+        }
     } else if (cfg.type === "huggingface") {
         // https://github.com/huggingface/text-generation-inference/issues/2946
         delete postReq.model
@@ -368,7 +387,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
                 if (!isEmptyString(content)) {
                     if (reasoning) {
-                        numReasoningTokens += estimateTokens(content, encoder)
+                        numReasoningTokens += approximateTokens(content, {
+                            encoder,
+                        })
                         reasoningChatResp += content
                         reasoningTokens.push(
                             ...serializeChunkChoiceToLogProbs(
@@ -376,7 +397,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                             )
                         )
                     } else {
-                        numTokens += estimateTokens(content, encoder)
+                        numTokens += approximateTokens(content, { encoder })
                         chatResp += content
                         tokens.push(
                             ...serializeChunkChoiceToLogProbs(
@@ -391,7 +412,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 typeof delta?.reasoning_content === "string" &&
                 delta.reasoning_content !== ""
             ) {
-                numTokens += estimateTokens(delta.reasoning_content, encoder)
+                numTokens += approximateTokens(delta.reasoning_content, {
+                    encoder,
+                })
                 reasoningChatResp += delta.reasoning_content
                 reasoningTokens.push(
                     ...serializeChunkChoiceToLogProbs(
@@ -419,7 +442,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             const { message } = choice as ChatCompletionChoice
             chatResp = message.content
             reasoningChatResp = message.reasoning_content
-            numTokens = usage?.total_tokens ?? estimateTokens(chatResp, encoder)
+            numTokens =
+                usage?.total_tokens ?? approximateTokens(chatResp, { encoder })
             if (Array.isArray(message?.tool_calls)) {
                 const { tool_calls } = message
                 for (let calli = 0; calli < tool_calls.length; calli++) {
@@ -622,7 +646,7 @@ export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
 export async function OpenAITranscribe(
     req: CreateTranscriptionRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<TranscriptionResult> {
     const { trace } = options || {}
     try {
@@ -689,7 +713,7 @@ export async function OpenAITranscribe(
 export async function OpenAISpeech(
     req: CreateSpeechRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<CreateSpeechResult> {
     const { model, input, voice = "alloy", ...rest } = req
     const { trace } = options || {}
@@ -754,7 +778,7 @@ export async function OpenAISpeech(
 export async function OpenAIImageGeneration(
     req: CreateImageRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<CreateImageResult> {
     const {
         model,
@@ -890,7 +914,7 @@ export async function OpenAIImageGeneration(
 export async function OpenAIEmbedder(
     input: string,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<EmbeddingResult> {
     const { trace, cancellationToken } = options || {}
     const { base, provider, type, model } = cfg
@@ -930,10 +954,7 @@ export async function OpenAIEmbedder(
         logVerbose(
             `${type}: embedding ${ellipse(input, 44)} with ${provider}:${model}`
         )
-        const fetch = await createFetch({
-            trace,
-            cancellationToken,
-        })
+        const fetch = await createFetch(options)
         checkCancelled(cancellationToken)
         const res = await fetch(url, freq)
         trace?.itemValue(`response`, `${res.status} ${res.statusText}`)

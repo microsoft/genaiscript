@@ -3,6 +3,7 @@ script({
     files: ".genaiscript/.gitignore",
     tests: {},
     model: "echo",
+    group: "commit",
 })
 
 console.log(env.files)

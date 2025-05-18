@@ -311,7 +311,7 @@ This provider is useful for prototyping and subject to [rate limits](https://doc
 depending on your subscription.
 
 ```js "github:"
-script({ model: "github:gpt-4o" })
+script({ model: "github:openai/gpt-4o" })
 ```
 
 ### Codespace configuration
@@ -403,14 +403,14 @@ Open the [GitHub Marketplace](https://github.com/marketplace/models) and find th
 Copy the model name from the Javascript/Python samples
 
 ```js "Phi-3-mini-4k-instruct"
-const modelName = "Phi-3-mini-4k-instruct"
+const modelName = "microsoft/Phi-3-mini-4k-instruct"
 ```
 
 to configure your script.
 
-```js "Phi-3-mini-4k-instruct"
+```js "microsoft/Phi-3-mini-4k-instruct"
 script({
-    model: "github:Phi-3-mini-4k-instruct",
+    model: "github:microsoft/Phi-3-mini-4k-instruct",
 })
 ```
 
@@ -428,9 +428,9 @@ for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 Currently these models do not support streaming and
 system prompts. GenAIScript handles this internally.
 
-```js "github:o1-mini"
+```js "github:openai/o1-mini"
 script({
-    model: "github:o1-mini",
+    model: "github:openai/o1-mini",
 })
 ```
 
@@ -1897,6 +1897,12 @@ LITELLM_API_KEY="..."
 ```
 
 ## Hugging Face Transformer.js <a href="" id="transformers" />
+
+:::caution
+
+Temporarily disabled to reduce the installation footprint.
+
+:::
 
 This `transformers` provider runs models on device using [Hugging Face Transformers.js](https://huggingface.co/docs/transformers.js/index).
 

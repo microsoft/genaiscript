@@ -69,10 +69,19 @@ We highly recommend setting the API key when running the server on the network.
 
 ## Dockerized
 
-To run a minimal docker image with the server, you can use the following command:
+To run a minimal docker image with the server, first create a docker image with genaiscript and any required tool.
 
 ```sh
-docker run --name genaiscript --rm -it --expose 8003 -p 8003:8003 -v ${PWD}:/workspace -w /workspace node:alpine npx --yes genaiscript serve --network
+docker build -t genaiscript -<<EOF
+FROM node:alpine
+RUN apk add --no-cache git && npm install -g genaiscript
+EOF
+```
+
+This creates a `genaiscript` image locally that you can use to launch the server.
+
+```sh
+docker run --env GITHUB_TOKEN --env-file .env --name genaiscript --rm -it --expose 8003 -p 8003:8003 -v ${PWD}:/workspace -w /workspace genaiscript genaiscript serve --network
 ```
 
 then open `http://localhost:8003` in your browser.

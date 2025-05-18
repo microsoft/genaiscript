@@ -1,12 +1,17 @@
-import { describe, test } from "node:test"
+import { beforeEach, describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { GitHubClient } from "./githubclient"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { isCI } from "./ci"
+import { TestHost } from "./testhost"
 
 describe("GitHubClient", async () => {
     const client = GitHubClient.default()
+
+    beforeEach(() => {
+        TestHost.install()
+    })
 
     await test("info() returns GitHub options", async () => {
         const info = await client.info()
@@ -52,6 +57,12 @@ describe("GitHubClient", async () => {
         assert(Array.isArray(jobs))
         const log = await client.downloadWorkflowJobLog(jobs[0].id)
         assert(typeof log === "string")
+        const artifacts = await client.listWorkflowRunArtifacts(runs[0].id)
+        assert(Array.isArray(artifacts))
+        if (artifacts.length) {
+            const files = await client.downloadArtifactFiles(artifacts[0].id)
+            assert(files.length)
+        }
     })
 
     await test("getFile() returns file content", async () => {

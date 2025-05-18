@@ -5,14 +5,13 @@
  * This module provides core functionality for text classification, data transformation,
  * PDF processing, and file system operations in the GenAIScript environment.
  */
-import { delay, uniq, uniqBy, chunk, groupBy } from "es-toolkit"
+import { delay, uniq, uniqBy, chunk } from "es-toolkit"
 import { z } from "zod"
 
 /**
  * Utility functions exported for general use
  */
-export { delay, uniq, uniqBy, z, chunk, groupBy }
-
+export { delay, uniq, uniqBy, z, chunk }
 /**
  * Options for classifying data using AI models.
  *

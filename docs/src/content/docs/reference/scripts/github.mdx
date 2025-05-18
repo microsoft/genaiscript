@@ -102,6 +102,21 @@ console.log(jobs[0].content)
 
 In GitHub Actions, grant the `actions: read` permission.
 
+### Artifacts
+
+Workflows can create and attach artifacts to the workflow run.
+You can list and download these artifacts using `listWorkflowArtifacts` and `downloadArtifact`.
+
+```js
+const artifacts = await github.listWorkflowArtifacts(runs[0].id)
+console.log(artifacts)
+
+const artifact = artifacts[0]
+// genaiscript automatically unzips the artifact
+const files = await github.downloadArtifact(artifact.id)
+console.log(files)
+```
+
 ### Search Code
 
 Use `searchCode` for a code search on the default branch in the same repository.
@@ -145,7 +160,7 @@ const url = await github.uploadAsset(file)
 console.log(url)
 ```
 
-The URL can be used in markdown in comments or issues. 
+The URL can be used in markdown in comments or issues.
 
 :::note
 

@@ -1,4 +1,4 @@
-script({ model: "echo", tests: {} })
+script({ model: "echo", group: "commit", tests: {} })
 const { dbg } = env
 
 dbg("This is a debug message")

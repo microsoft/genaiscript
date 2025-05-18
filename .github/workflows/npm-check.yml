@@ -2,7 +2,7 @@ name: npm cli check
 on:
     workflow_dispatch:
     schedule:
-        - cron: "0 4 * * *"
+        - cron: "0 0 * * *"
 jobs:
     ubuntu:
         runs-on: ubuntu-latest

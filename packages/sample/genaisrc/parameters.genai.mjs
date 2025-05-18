@@ -76,13 +76,14 @@ graph TD
             type: "string",
             default: "efg",
             title: "a string bound by a schema",
-            description: "A string parameter with a description",
+            description: "A `string` parameter with a description",
             uiType: "textarea",
         },
         numberSchema: {
             type: "number",
             default: 456,
-            description: "A number parameter with a description",
+            description: `A \`number\` parameter with a description
+- and a bullet point`,
         },
         integerSchema: {
             type: "integer",
@@ -103,7 +104,7 @@ graph TD
             type: "integer",
             required: false,
             description: `
-## A Markdown description
+#### A Markdown description
 
 \`\`\`
 code

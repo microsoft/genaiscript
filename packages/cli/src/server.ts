@@ -824,6 +824,10 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
     const serverHash = apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""
     httpServer.listen(port, serverHost, () => {
         console.log(`GenAIScript server v${CORE_VERSION}`)
+        if (remote)
+            console.log(
+                `│ Remote: ${remote}${options.remoteBranch ? `#${options.remoteBranch}` : ""}`
+            )
         console.log(`│ Local http://${serverHost}:${port}/${serverHash}`)
         if (options.network) {
             console.log(`│ Host http://localhost:${port}/${serverHash}`)

@@ -1,22 +1,21 @@
 ---
 title: Metadata
 sidebar:
-  order: 2
+    order: 2
 description: Learn how to configure script metadata to enhance functionality and
-  user experience in GenAIScript.
+    user experience in GenAIScript.
 keywords: script metadata, configuration, LLM parameters, customization, script
-  management
+    management
 hero:
-  image:
-    alt: A small, square digital illustration in 8-bit flat style showing a
-      simplified computer window. Inside are separated areas formed by
-      rectangles and circles, each sectioned with bold, bright colors to
-      represent different configuration settings—model, tokens, temperature, and
-      group options—depicted with shapes like sliders, toggles, and labeled
-      blocks. The design is clean with no text, people, backgrounds, or visual
-      effects, emphasizing a clear, easy-to-distinguish layout.
-    file: ./metadata.png
-
+    image:
+        alt: A small, square digital illustration in 8-bit flat style showing a
+            simplified computer window. Inside are separated areas formed by
+            rectangles and circles, each sectioned with bold, bright colors to
+            represent different configuration settings—model, tokens, temperature, and
+            group options—depicted with shapes like sliders, toggles, and labeled
+            blocks. The design is clean with no text, people, backgrounds, or visual
+            effects, emphasizing a clear, easy-to-distinguish layout.
+        file: ./metadata.png
 ---
 
 Prompts use `script({ ... })` function call
@@ -122,9 +121,22 @@ script({
 })
 ```
 
+### metadata
+
+You can specify a set of metadata key-value pairs in the script. This will enable [stored completions](/genaiscript/reference/scripts/stored-completions) in OpenAI and Azure OpenAI. This is used for distillation and evaluation purposes.
+
+```js
+script({
+    ...,
+    metadata: {
+        name: "my_script",
+    }
+})
+```
+
 ### Other parameters
 
--   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
+- `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
 
 See `genaiscript.d.ts` in the sources for details.
 
@@ -144,6 +156,7 @@ Use the `host.resolveModel` function to resolve a model name or alias to its pro
 const info = await host.resolveModel("large")
 console.log(info)
 ```
+
 ```json
 {
     "provider": "openai",

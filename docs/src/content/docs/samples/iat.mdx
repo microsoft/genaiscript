@@ -21,6 +21,7 @@ This script is composed of TypeScript code, designed to run with the GenAIScript
 script({
     title: "Image Alt Textify",
     description: "Generate alt text for images in markdown files",
+    accept: "none",
     parameters: {
         docs: {
             type: "string",
@@ -126,7 +127,8 @@ We replace the placeholder in the original content with the alt text and save th
 
 ## 💻 How to Run the Script
 
-To run this script, you'll need the GenAIScript CLI. If you haven't installed it yet, check out the [installation guide](https://microsoft.github.io/genaiscript/getting-started/installation).
+To run this script, you'll need the GenAIScript CLI.
+If you haven't installed it yet, check out the [installation guide](https://microsoft.github.io/genaiscript/getting-started/installation).
 
 Once you have the CLI, you can run the script with the following command:
 
@@ -134,17 +136,42 @@ Once you have the CLI, you can run the script with the following command:
 npx genaiscript run iat
 ```
 
-## Safety
+## Automate with GitHub Actions and GitHub Models
 
-The script imports a default safety system message to prevent generating harmful text.
+The following GitHub Action automates the process of generating alt text for images in Markdown files. It runs on every push to the `dev` branch and uses the `genaiscript` CLI to execute the script.
+It uses the OpenAI `gpt-4.1` model through GitHub Models for inference.
 
-```js
-    // safety system message to prevent generating harmful text
-    system: ["system.safety_harmful_content"],
+```yml title=".github/workflows/genai-iat.yml"
+name: genai iat
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - dev
+        paths:
+            - "**.md*"
+concurrency:
+    group: iat-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+permissions:
+    pull-requests: write
+    models: read
+    contents: write
+jobs:
+    generate-alt-text:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+            - name: genaiscript
+              run: npx --yes genaiscript run iat -m github:openai/gpt-4.1 --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  commit_message: "[genai] image alt text"
+                  commit_user_name: "genaiscript"
 ```
-
-In Azure OpenAI deployments, you can also turn on [content filters](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter)
-to prevent accidentally generating harmful content.
 
 ## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/samples/iat.genai.mts))
 

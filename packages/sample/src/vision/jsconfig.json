@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
         "lib": [
-            "ES2022"
+            "ES2024"
         ],
-        "target": "ES2022",
+        "target": "ES2024",
         "module": "ES2022",
         "moduleDetection": "force",
         "checkJs": true,

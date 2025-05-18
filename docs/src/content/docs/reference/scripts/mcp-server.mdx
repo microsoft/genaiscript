@@ -1,19 +1,19 @@
 ---
 title: Model Context Protocol Server
 sidebar:
-  order: 5.1
+    order: 5.1
 description: Turns scripts into Model Context Protocol Tools
 hero:
-  image:
-    alt: An 8-bit style icon shows two interlocking shapes—a script file with
-      brackets and prompt arrow on one side and a server block on the other,
-      connected by lines signifying protocols. Five vivid colored circles and
-      squares represent resource blocks and parameters between the shapes. A
-      cloud and gear icon suggest remote access and configurable tools. All
-      elements are geometric, with no background, text, or people, and use only
-      five bold corporate colors.
-    file: ./mcp-server.png
-
+    image:
+        alt:
+            An 8-bit style icon shows two interlocking shapes—a script file with
+            brackets and prompt arrow on one side and a server block on the other,
+            connected by lines signifying protocols. Five vivid colored circles and
+            squares represent resource blocks and parameters between the shapes. A
+            cloud and gear icon suggest remote access and configurable tools. All
+            elements are geometric, with no background, text, or people, and use only
+            five bold corporate colors.
+        file: ./mcp-server.png
 ---
 
 import { Image } from "astro:assets"
@@ -128,7 +128,7 @@ script({
 are a core primitive in the Model Context Protocol (MCP) that allow servers to expose data
 and content that can be read by clients and used as context for LLM interactions.
 
-In GenAScript, you can create a resource using `host.publishResource` and
+In GenAIScript, you can create a resource using `host.publishResource` and
 it will automatically be exposed as a MCP resource.
 
 ```js title="task.genai.mjs"
@@ -139,6 +139,14 @@ The return value is the resource uri which can be used in the prompt output.
 `publishResource` supports files, buffers and strings.
 
 The resource will be available for the lifetime of the MCP server.
+
+### Images
+
+Using `env.output.image`, script can output images that will be part of the tool response.
+
+```js
+await env.output.image("...filename.png")
+```
 
 ### Secret scanning
 

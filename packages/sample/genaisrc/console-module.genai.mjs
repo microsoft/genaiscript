@@ -1,4 +1,6 @@
 script({
+    model:"echo",
+    group: "commit",
     tests: {},
 })
 

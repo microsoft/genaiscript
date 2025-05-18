@@ -1,4 +1,4 @@
-script({ model: "echo", tests: {} })
+script({ model: "echo", group: "commit", tests: {} })
 const large = await host.resolveLanguageModel("large")
 console.log({ large })
 const small = await host.resolveLanguageModel("small")

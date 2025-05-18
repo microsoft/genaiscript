@@ -4,40 +4,33 @@ import { LanguageModel, ListModelsFunction } from "./chat"
 import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai"
 import { serializeError } from "./error"
 import { genaiscriptDebug } from "./debug"
+import { deleteUndefinedValues } from "./cleaners"
 const dbg = genaiscriptDebug("github")
 
 interface GitHubMarketplaceModel {
+    id: string
     name: string
-    displayName: string
-    version: string
     publisher: string
-    registryName: string
-    license: string
-    inferenceTasks: string[]
-    description?: string
     summary: string
+    rate_limit_tier: string
+    supported_input_modalities: ("text" | "image" | "audio")[]
+    supported_output_modalities: ("text" | "image" | "audio")[]
+    tags: string[]
 }
 
 const listModels: ListModelsFunction = async (cfg, options) => {
     const fetch = await createFetch({ retries: 0, ...options })
     try {
         const modelsRes = await fetch(
-            "https://api.catalog.azureml.ms/asset-gallery/v1.0/models",
+            "https://models.github.ai/catalog/models",
             {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    filters: [
-                        {
-                            field: "freePlayground",
-                            values: ["true"],
-                            operator: "eq",
-                        },
-                        { field: "labels", values: ["latest"], operator: "eq" },
-                    ],
-                    order: [{ field: "displayName", direction: "Asc" }],
+                method: "GET",
+                headers: deleteUndefinedValues({
+                    Accept: "application/vnd.github+json",
+                    Authorization: cfg.token
+                        ? `Bearer ${cfg.token}`
+                        : undefined,
+                    "X-GitHub-Api-Version": "2022-11-28",
                 }),
             }
         )
@@ -50,16 +43,15 @@ const listModels: ListModelsFunction = async (cfg, options) => {
             }
         }
 
-        const models = (await modelsRes.json())
-            .summaries as GitHubMarketplaceModel[]
+        const models = (await modelsRes.json()) as GitHubMarketplaceModel[]
         return {
             ok: true,
             models: models.map(
                 (m) =>
                     ({
-                        id: m.name,
-                        details: m.summary,
-                        url: `https://github.com/marketplace/models/${m.registryName}/${m.name}`,
+                        id: m.id,
+                        details: `${m.name} - ${m.summary}`,
+                        //    url: `https://github.com/marketplace/models/${m.registryName}/${m.name}`,
                     }) satisfies LanguageModelInfo
             ),
         }

@@ -16,7 +16,8 @@ export interface GenerationOptions
         ModelOptions,
         EmbeddingsModelOptions,
         ContentSafetyOptions,
-        ScriptRuntimeOptions {
+        ScriptRuntimeOptions,
+        MetadataOptions {
     inner: boolean // Indicates if the process is an inner operation
     runId?: string
     runDir?: string
@@ -26,7 +27,6 @@ export interface GenerationOptions
     outputTrace?: MarkdownTrace
     maxCachedTemperature?: number // Maximum temperature for caching purposes
     maxCachedTopP?: number // Maximum top-p value for caching
-    fallbackTools?: boolean // Disables model tools
     label?: string // Optional label for the operation
     cliInfo?: {
         files: string[] // Information about files in the CLI context

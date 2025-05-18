@@ -1,5 +1,11 @@
 import React from "react"
-import { VictoryBar, VictoryChart, VictoryGroup, VictoryTheme } from "victory"
+import {
+    VictoryAxis,
+    VictoryBar,
+    VictoryChart,
+    VictoryGroup,
+    VictoryTheme,
+} from "victory"
 
 export default function BarChart(props: { rows: any[]; headers: string[] }) {
     const { rows, headers } = props
@@ -8,7 +14,17 @@ export default function BarChart(props: { rows: any[]; headers: string[] }) {
 
     return (
         <VictoryChart theme={VictoryTheme.clean}>
+            <VictoryAxis
+                style={{
+                    tickLabels: {
+                        angle: 45,
+                        textAnchor: "start",
+                        padding: 5,
+                    },
+                }}
+            />
             <VictoryGroup offset={20} style={{ data: { width: 15 } }}>
+                <VictoryAxis dependentAxis />
                 {ys.map((y) => (
                     <VictoryBar
                         key={y}

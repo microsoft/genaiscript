@@ -1,5 +1,6 @@
 script({
     model: "echo",
+    group: "commit",
     tests: {},
 })
 const log = host.logger("sample")

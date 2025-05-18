@@ -49,6 +49,12 @@ async function prepare(
     const buffer = await resolveBufferLike(url)
     checkCancelled(cancellationToken)
 
+    // failed to resolve buffer
+    if (!buffer) {
+        dbg(`failed to resolve image`)
+        return undefined
+    }
+
     // Read the image using Jimp
     const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
     const img = await Jimp.read(buffer)
@@ -175,9 +181,7 @@ async function encode(
     const { detail, mime } = options || {}
     const outputMime = mime || img.mime || ("image/jpeg" as any)
     const buf = await img.getBuffer(outputMime)
-    const b64 = buf.toString("base64")
-    const imageDataUri = `data:${outputMime};base64,${b64}`
-
+    const imageDataUri = `data:${outputMime};base64,${buf.toString("base64")}`
     // Return the encoded image data URI
     return {
         width: img.width,
@@ -230,6 +234,7 @@ export async function imageEncodeForLLM(
     options: DefImagesOptions & TraceOptions & CancellationOptions
 ) {
     const img = await prepare(url, options)
+    if (!img) return undefined
     return await encode(img, options)
 }
 

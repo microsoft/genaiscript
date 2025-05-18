@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
         "moduleResolution": "bundler",
-        "target": "ES2022",
+        "target": "ES2024",
         "module": "ES2022",
         "lib": [
-            "ES2022",
+            "ES2024",
             "dom"
         ],
         "skipLibCheck": true,

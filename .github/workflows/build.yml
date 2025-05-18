@@ -1,6 +1,7 @@
 name: build
 permissions:
     contents: read
+    models: read
 on:
     push:
         branches: [main, dev]
@@ -37,5 +38,9 @@ jobs:
               run: yarn test:core
             - name: unit tests
               run: yarn test:samples
-            - name: unit tests (2)
+            - name: unit test:modulesamples
               run: yarn test:modulesamples
+            - name: github models
+              run: yarn genai poem -p github
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

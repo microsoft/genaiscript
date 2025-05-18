@@ -1141,7 +1141,7 @@ export function createChatGenerationContext(
 
         const imgTrace = trace.startTraceDetails("🖼️ generate image")
         try {
-            const { style, quality, size, outputFormat, mime } =
+            const { style, quality, size, outputFormat, mime, ...rest } =
                 imageOptions || {}
             const conn: ModelConnectionOptions = {
                 model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
@@ -1189,6 +1189,7 @@ export function createChatGenerationContext(
             const res = await imageGenerator(req, configuration, {
                 trace: imgTrace,
                 cancellationToken,
+                ...rest,
             })
             const duration = m()
             if (res.error) {

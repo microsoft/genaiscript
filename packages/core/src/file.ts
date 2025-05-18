@@ -288,7 +288,9 @@ export async function resolveFileBytes(
     }
     // Read file from local storage
     else {
-        dbg(`reading file ${filename}`)
+        dbg(`reading file %s`, filename)
+        const stat = await host.statFile(filename)
+        if (stat?.type !== "file") return undefined
         const buf = await host.readFile(filename)
         return new Uint8Array(buf)
     }
@@ -302,17 +304,21 @@ export async function resolveFileBytes(
  */
 export async function resolveFileDataUri(
     filename: string,
-    options?: TraceOptions & CancellationOptions
+    options?: TraceOptions & CancellationOptions & { mime?: string }
 ) {
-    const { cancellationToken } = options || {}
+    const { cancellationToken, mime } = options || {}
     const bytes = await resolveFileBytes(filename, options)
     checkCancelled(cancellationToken)
-
-    const mime = (await fileTypeFromBuffer(bytes))?.mime
-    if (!mime) {
+    const uriMime =
+        mime || (await fileTypeFromBuffer(bytes))?.mime || lookupMime(filename)
+    if (!uriMime) {
+        dbg(`no mime type found for ${filename}`)
         return undefined
     }
-
     const b64 = toBase64(bytes)
-    return `data:${mime};base64,${b64}`
+    return {
+        uri: `data:${uriMime};base64,${b64}`,
+        mimeType: uriMime,
+        data: b64,
+    }
 }

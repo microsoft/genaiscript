@@ -1,17 +1,15 @@
-import { filenameOrFileToFilename } from "./unwrappers"
-
 /**
  * Chunks markdown into sections based on headings while maintaining subtrees.
  * Handles WorkspaceFile objects and plain markdown strings.
  * Does not reliably handle code sections containing markdown.
- * @param markdown - The markdown content or a WorkspaceFile object. If a WorkspaceFile, its content is used.
- * @param estimateTokens - Function to estimate token count of text. Used to calculate chunk sizes.
+ * @param markdown - The markdown content as a string or a WorkspaceFile object. If a WorkspaceFile, its content is used. Throws if encoding is base64.
+ * @param approximateTokens - Function to estimate token count of text. Used to calculate chunk sizes.
  * @param options - Optional configuration including maxTokens (default 4096) and pageSeparator (default "======").
  * @returns Array of TextChunk objects representing the chunks, including metadata such as filename and line range.
  */
 export async function chunkMarkdown(
     markdown: string | WorkspaceFile,
-    estimateTokens: (text: string) => number,
+    approximateTokens: (text: string) => number,
     options?: {
         maxTokens?: number
         pageSeparator?: string
@@ -61,7 +59,7 @@ export async function chunkMarkdown(
     let tokenCount = 0
 
     for (let i = 0; i < sections.length; i++) {
-        const sectionTokens = sectionTokenCount(sections[i], estimateTokens)
+        const sectionTokens = sectionTokenCount(sections[i], approximateTokens)
 
         if (sectionTokens > maxTokens) {
             if (tempChunk.length) {
@@ -89,7 +87,7 @@ export async function chunkMarkdown(
                 const removed = tempChunk.pop()
                 if (removed) {
                     removedSections.unshift(removed)
-                    tokenCount -= sectionTokenCount(removed, estimateTokens)
+                    tokenCount -= sectionTokenCount(removed, approximateTokens)
                 }
                 j--
             }
@@ -100,7 +98,7 @@ export async function chunkMarkdown(
             // Start the new chunk with removed and current
             tempChunk = [...removedSections, sections[i]]
             tokenCount = tempChunk.reduce(
-                (acc, sec) => acc + sectionTokenCount(sec, estimateTokens),
+                (acc, sec) => acc + sectionTokenCount(sec, approximateTokens),
                 0
             )
         }
@@ -121,12 +119,9 @@ export async function chunkMarkdown(
 
     function sectionTokenCount(
         section: { lines: string[] },
-        estimateTokens: (txt: string) => number
+        tokenCount: (txt: string) => number
     ) {
-        return section.lines.reduce(
-            (acc, line) => acc + estimateTokens(line),
-            0
-        )
+        return section.lines.reduce((acc, line) => acc + tokenCount(line), 0)
     }
 
     function buildChunk(sections: { lines: string[] }[]) {

@@ -9,6 +9,8 @@ import { host } from "./host"
 import { JSON5TryParse } from "./json5"
 import { humanize } from "./inflection"
 import { promptyParse, promptyToGenAIScript } from "./prompty"
+import { metadataValidate } from "./metadata"
+import { deleteUndefinedValues } from "./cleaners"
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions
@@ -45,7 +47,8 @@ export function parsePromptScriptMeta(
         meta.group = meta.group || "system"
     }
     meta.defTools = parsePromptScriptTools(jsSource)
-    return meta
+    meta.metadata = metadataValidate(meta.metadata)
+    return deleteUndefinedValues(meta)
 }
 
 function parsePromptScriptTools(jsSource: string) {

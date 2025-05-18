@@ -17,8 +17,39 @@ import { resolvePromptInjectionDetector } from "./contentsafety"
 import { genaiscriptDebug } from "./debug"
 const dbg = genaiscriptDebug("mcp:client")
 
+export interface McpClientProxy extends McpClient {
+    listToolCallbacks(): Promise<ToolCallback[]>
+}
+
+function toolResultContentToText(res: any) {
+    const content = res.content as (
+        | TextContent
+        | ImageContent
+        | EmbeddedResource
+    )[]
+    let text = arrayify(content)
+        ?.map((c) => {
+            switch (c.type) {
+                case "text":
+                    return c.text || ""
+                case "image":
+                    return c.data
+                case "resource":
+                    return c.resource?.uri || ""
+                default:
+                    return c
+            }
+        })
+        .join("\n")
+    if (res.isError) {
+        dbg(`tool error: ${text}`)
+        text = `Tool Error:\n${text}`
+    }
+    return text
+}
+
 export class McpClientManager extends EventTarget implements AsyncDisposable {
-    private _clients: McpClient[] = []
+    private _clients: McpClientProxy[] = []
     constructor() {
         super()
     }
@@ -26,8 +57,9 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
     async startMcpServer(
         serverConfig: McpServerConfig,
         options: Required<TraceOptions> & CancellationOptions
-    ): Promise<McpClient> {
+    ): Promise<McpClientProxy> {
         const { cancellationToken } = options || {}
+        logVerbose(`mcp: starting ` + serverConfig.id)
         const signal = toSignal(cancellationToken)
         const {
             id,
@@ -74,140 +106,136 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 await client.ping({ signal })
             }
             const listTools: McpClient["listTools"] = async () => {
-                // list tools
                 dbgc(`listing tools`)
-                let { tools: toolDefinitions } = await client.listTools(
+                const { tools } = await client.listTools(
                     {},
                     { signal, onprogress: progress("list tools") }
                 )
-                trace.fence(
-                    toolDefinitions.map(({ name, description }) => ({
-                        name,
-                        description,
-                    })),
-                    "json"
+                return tools.map(
+                    (t) =>
+                        ({
+                            name: t.name,
+                            description: t.description,
+                            inputSchema: t.inputSchema as any,
+                        }) satisfies McpToolReference
                 )
-                const toolsFile = await fileWriteCachedJSON(
-                    dotGenaiscriptPath("mcp", id, "tools"),
-                    toolDefinitions
-                )
-
-                logVerbose(`mcp ${id}: tools: ${toolsFile}`)
-
-                // apply filter
-                if (toolSpecs.length > 0) {
-                    dbg(`filtering tools`)
-                    trace.fence(toolSpecs, "json")
-                    toolDefinitions = toolDefinitions.filter((tool) =>
-                        toolSpecs.some((s) => s.id === tool.name)
+            }
+            const listToolCallbacks: McpClientProxy["listToolCallbacks"] =
+                async () => {
+                    // list tools
+                    dbgc(`listing tools`)
+                    let { tools: toolDefinitions } = await client.listTools(
+                        {},
+                        { signal, onprogress: progress("list tools") }
                     )
-                    dbg(
-                        `filtered tools: %d`,
-                        toolDefinitions.map((t) => t.name).join(", ")
+                    trace.fence(
+                        toolDefinitions.map(({ name, description }) => ({
+                            name,
+                            description,
+                        })),
+                        "json"
                     )
-                }
+                    const toolsFile = await fileWriteCachedJSON(
+                        dotGenaiscriptPath("mcp", id, "tools"),
+                        toolDefinitions
+                    )
 
-                const sha = await hash(JSON.stringify(toolDefinitions))
-                trace.itemValue("tools sha", sha)
-                logVerbose(`mcp ${id}: tools sha: ${sha}`)
-                if (toolsSha !== undefined) {
-                    if (sha === toolsSha)
-                        logVerbose(
-                            `mcp ${id}: tools signature validated successfully`
+                    logVerbose(`mcp ${id}: tools: ${toolsFile}`)
+
+                    // apply filter
+                    if (toolSpecs.length > 0) {
+                        dbg(`filtering tools`)
+                        trace.fence(toolSpecs, "json")
+                        toolDefinitions = toolDefinitions.filter((tool) =>
+                            toolSpecs.some((s) => s.id === tool.name)
                         )
-                    else {
-                        logError(
-                            `mcp ${id}: tools signature changed, please review the tools and update 'toolsSha' in the mcp server configuration.`
+                        dbg(
+                            `filtered tools: %d`,
+                            toolDefinitions.map((t) => t.name).join(", ")
                         )
-                        throw new Error(`mcp ${id} tools signature changed`)
                     }
-                }
 
-                if (detectPromptInjection) {
-                    const detector = await resolvePromptInjectionDetector(
-                        serverConfig,
-                        {
-                            trace,
-                            cancellationToken,
+                    const sha = await hash(JSON.stringify(toolDefinitions))
+                    trace.itemValue("tools sha", sha)
+                    logVerbose(`mcp ${id}: tools sha: ${sha}`)
+                    if (toolsSha !== undefined) {
+                        if (sha === toolsSha)
+                            logVerbose(
+                                `mcp ${id}: tools signature validated successfully`
+                            )
+                        else {
+                            logError(
+                                `mcp ${id}: tools signature changed, please review the tools and update 'toolsSha' in the mcp server configuration.`
+                            )
+                            throw new Error(`mcp ${id} tools signature changed`)
+                        }
+                    }
+
+                    if (detectPromptInjection) {
+                        const detector = await resolvePromptInjectionDetector(
+                            serverConfig,
+                            {
+                                trace,
+                                cancellationToken,
+                            }
+                        )
+                        const result = await detector(
+                            YAMLStringify(toolDefinitions)
+                        )
+                        if (result.attackDetected) {
+                            dbgc("%O", result)
+                            throw new Error(
+                                `mcp ${id}: prompt injection detected in tools`
+                            )
+                        }
+                    }
+
+                    const tools = toolDefinitions.map(
+                        ({ name, description, inputSchema }) => {
+                            const toolSpec = toolSpecs.find(
+                                ({ id }) => id === name
+                            )
+                            const toolOptions = {
+                                ...commonToolOptions,
+                                ...(toolSpec || {}),
+                            } satisfies DefToolOptions
+                            dbgc(`tool options %O`, toolOptions)
+                            return {
+                                spec: {
+                                    name: `${id}_${name}`,
+                                    description,
+                                    parameters: inputSchema as any,
+                                },
+                                options: toolOptions,
+                                generator,
+                                impl: async (args: any) => {
+                                    const { context, ...rest } = args
+                                    const res = await client.callTool(
+                                        {
+                                            name: name,
+                                            arguments: rest,
+                                        },
+                                        undefined,
+                                        {
+                                            signal,
+                                            onprogress: progress(
+                                                `tool call ${name} `
+                                            ),
+                                        }
+                                    )
+                                    const text = res?.text
+                                    return text
+                                },
+                            } satisfies ToolCallback
                         }
                     )
-                    const result = await detector(
-                        YAMLStringify(toolDefinitions)
+                    dbgc(
+                        `tools (imported): %O`,
+                        tools.map((t) => t.spec)
                     )
-                    if (result.attackDetected) {
-                        dbgc("%O", result)
-                        throw new Error(
-                            `mcp ${id}: prompt injection detected in tools`
-                        )
-                    }
+
+                    return tools
                 }
-
-                const tools = toolDefinitions.map(
-                    ({ name, description, inputSchema }) => {
-                        const toolSpec = toolSpecs.find(({ id }) => id === name)
-                        const toolOptions = {
-                            ...commonToolOptions,
-                            ...(toolSpec || {}),
-                        } satisfies DefToolOptions
-                        dbgc(`tool options %O`, toolOptions)
-                        return {
-                            spec: {
-                                name: `${id}_${name}`,
-                                description,
-                                parameters: inputSchema as any,
-                            },
-                            options: toolOptions,
-                            generator,
-                            impl: async (args: any) => {
-                                const { context, ...rest } = args
-                                const res = await client.callTool(
-                                    {
-                                        name: name,
-                                        arguments: rest,
-                                    },
-                                    undefined,
-                                    {
-                                        signal,
-                                        onprogress: progress(
-                                            `tool call ${name} `
-                                        ),
-                                    }
-                                )
-                                const content = res.content as (
-                                    | TextContent
-                                    | ImageContent
-                                    | EmbeddedResource
-                                )[]
-                                let text = arrayify(content)
-                                    ?.map((c) => {
-                                        switch (c.type) {
-                                            case "text":
-                                                return c.text || ""
-                                            case "image":
-                                                return c.data
-                                            case "resource":
-                                                return c.resource?.uri || ""
-                                            default:
-                                                return c
-                                        }
-                                    })
-                                    .join("\n")
-                                if (res.isError) {
-                                    dbg(`tool error: ${text}`)
-                                    text = `Tool Error\n${text}`
-                                }
-                                return text
-                            },
-                        } satisfies ToolCallback
-                    }
-                )
-                dbgc(
-                    `tools (imported): %O`,
-                    tools.map((t) => t.spec)
-                )
-
-                return tools
-            }
             const readResource: McpClient["readResource"] = async (
                 uri: string
             ) => {
@@ -260,15 +288,37 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                 }
             }
 
+            const callTool: McpClient["callTool"] = async (toolId, args) => {
+                const responseSchema: JSONSchema = undefined
+                const callRes = await client.callTool(
+                    {
+                        name: toolId,
+                        arguments: args,
+                    },
+                    responseSchema as any,
+                    {
+                        signal,
+                        onprogress: progress(`tool call ${toolId} `),
+                    }
+                )
+                return deleteUndefinedValues({
+                    isError: callRes.isError as boolean,
+                    content: callRes.content as McpServerToolResultPart[],
+                    text: toolResultContentToText(callRes),
+                } satisfies McpServerToolResult)
+            }
+
             const res = Object.freeze({
                 config: Object.freeze({ ...serverConfig }),
                 ping,
                 listTools,
+                listToolCallbacks,
+                callTool,
                 listResources,
                 readResource,
                 dispose,
                 [Symbol.asyncDispose]: dispose,
-            } satisfies McpClient)
+            } satisfies McpClientProxy)
             this._clients.push(res)
             return res
         } finally {
@@ -276,7 +326,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         }
     }
 
-    get clients(): McpClient[] {
+    get clients(): McpClientProxy[] {
         return this._clients.slice(0)
     }
 
