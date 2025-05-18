@@ -10,7 +10,7 @@ import {
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 import { NotSupportedError, serializeError } from "./error"
-import { estimateTokens } from "./tokens"
+import { approximateTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 import type { Anthropic } from "@anthropic-ai/sdk"
 
@@ -438,9 +438,9 @@ const completerFactory = (
                                     dbg(`empty text_delta`, chunk)
                                 else {
                                     chunkContent = chunk.delta.text
-                                    numTokens += estimateTokens(
+                                    numTokens += approximateTokens(
                                         chunkContent,
-                                        encoder
+                                        { encoder }
                                     )
                                     chatResp += chunkContent
                                     trace.appendToken(chunkContent)

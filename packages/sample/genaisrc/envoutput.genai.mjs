@@ -3,7 +3,7 @@ script({
     title: "Output tester",
     description: "Generation various outputs",
     group: "mcp",
-    accept: "none"
+    accept: "none",
 })
 const { output } = env
 
@@ -96,6 +96,6 @@ output.table([
 ])
 output.appendContent("<XML>hello</XML>\n")
 
-//output.appendContent("☺️".repeat(50000))
+output.appendContent("☺️".repeat(50000))
 
 await output.image("packages/sample/src/robots.jpg")

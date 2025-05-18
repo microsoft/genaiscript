@@ -16,7 +16,7 @@ import {
     TOOL_NAME,
     TOOL_URL,
 } from "./constants"
-import { estimateTokens } from "./tokens"
+import { approximateTokens } from "./tokens"
 import {
     ChatCompletionHandler,
     CreateImageRequest,
@@ -387,7 +387,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
                 if (!isEmptyString(content)) {
                     if (reasoning) {
-                        numReasoningTokens += estimateTokens(content, encoder)
+                        numReasoningTokens += approximateTokens(content, {
+                            encoder,
+                        })
                         reasoningChatResp += content
                         reasoningTokens.push(
                             ...serializeChunkChoiceToLogProbs(
@@ -395,7 +397,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                             )
                         )
                     } else {
-                        numTokens += estimateTokens(content, encoder)
+                        numTokens += approximateTokens(content, { encoder })
                         chatResp += content
                         tokens.push(
                             ...serializeChunkChoiceToLogProbs(
@@ -410,7 +412,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 typeof delta?.reasoning_content === "string" &&
                 delta.reasoning_content !== ""
             ) {
-                numTokens += estimateTokens(delta.reasoning_content, encoder)
+                numTokens += approximateTokens(delta.reasoning_content, {
+                    encoder,
+                })
                 reasoningChatResp += delta.reasoning_content
                 reasoningTokens.push(
                     ...serializeChunkChoiceToLogProbs(
@@ -438,7 +442,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             const { message } = choice as ChatCompletionChoice
             chatResp = message.content
             reasoningChatResp = message.reasoning_content
-            numTokens = usage?.total_tokens ?? estimateTokens(chatResp, encoder)
+            numTokens =
+                usage?.total_tokens ?? approximateTokens(chatResp, { encoder })
             if (Array.isArray(message?.tool_calls)) {
                 const { tool_calls } = message
                 for (let calli = 0; calli < tool_calls.length; calli++) {

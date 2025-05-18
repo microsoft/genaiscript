@@ -1,5 +1,5 @@
 // ES2024 Features Demo
-script({ model: "echo" })
+script({ model: "echo",  group: "commit", tests: {} })
 
 // 1. Array.prototype.toSorted() - Returns a new sorted array without modifying the original
 const numbers = [3, 1, 4, 1, 5, 9]
