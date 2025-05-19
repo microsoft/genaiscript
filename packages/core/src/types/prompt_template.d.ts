@@ -3167,19 +3167,19 @@ interface Git {
      * @param options
      */
     fetch(
-        remote: OptionsOrString<"origin">,
-        branchOrSha: string,
+        remote?: OptionsOrString<"origin">,
+        branchOrSha?: string,
         options?: {
             prune?: boolean
             all?: boolean
         }
-    ): Promise<void>
+    ): Promise<string>
 
     /**
      * Git pull the remote repository
      * @param options
      */
-    pull(): Promise<void>
+    pull(options?: { ff?: boolean }): Promise<string>
 
     /**
      * Lists the branches in the git repository
