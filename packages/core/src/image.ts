@@ -1,6 +1,12 @@
 // Import necessary functions and types from other modules
 import { resolveBufferLike } from "./bufferlike"
 import {
+    BOX_DOWN_AND_RIGHT,
+    BOX_LEFT_AND_DOWN,
+    BOX_LEFT_AND_UP,
+    BOX_RIGHT,
+    BOX_UP_AND_DOWN,
+    BOX_UP_AND_RIGHT,
     CHAR_DOWN_ARROW,
     CHAR_UP_ARROW,
     CHAR_UP_DOWN_ARROWS,
@@ -332,10 +338,13 @@ export async function renderImageToTerminal(
     const res: string[] = [
         wrapColor(
             CONSOLE_COLOR_DEBUG,
-            "┌─" + title + "─".repeat(width * 2 - title.length - 1) + "┐\n"
+            `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT}` +
+                title +
+                BOX_RIGHT.repeat(width * 2 - title.length - 1) +
+                `${BOX_LEFT_AND_DOWN}\n`
         ),
     ]
-    const wall = wrapColor(CONSOLE_COLOR_DEBUG, "│")
+    const wall = wrapColor(CONSOLE_COLOR_DEBUG, BOX_UP_AND_DOWN)
     for (let y = 0; y < height; ++y) {
         res.push(wall)
         for (let x = 0; x < width; ++x) {
@@ -357,7 +366,10 @@ export async function renderImageToTerminal(
     res.push(
         wrapColor(
             CONSOLE_COLOR_DEBUG,
-            "└" + usageStr + "─".repeat(width * 2 - usageStr.length) + "┘\n"
+            BOX_UP_AND_RIGHT +
+                usageStr +
+                BOX_RIGHT.repeat(width * 2 - usageStr.length) +
+                `${BOX_LEFT_AND_UP}\n`
         )
     )
     return res.join("")

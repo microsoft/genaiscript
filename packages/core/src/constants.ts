@@ -449,3 +449,11 @@ export const RESOURCE_MAX_SIZE = 1024 * 1024 * 10 // 10MB
 export const MIN_NODE_VERSION_MAJOR = 20
 
 export const MAX_STRING_LENGTH_USE_TOKENIZER_FOR_APPROXIMATION = 10000
+
+export const BOX_DOWN_AND_RIGHT = "╭"
+export const BOX_RIGHT = "─"
+export const BOX_UP_AND_RIGHT = "╰"
+export const BOX_UP_AND_DOWN = "│"
+export const BOX_DOWN_UP_AND_RIGHT = "├"
+export const BOX_LEFT_AND_DOWN = "╮"
+export const BOX_LEFT_AND_UP = "╯"
