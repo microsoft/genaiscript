@@ -3176,6 +3176,12 @@ interface Git {
     ): Promise<void>
 
     /**
+     * Git pull the remote repository
+     * @param options
+     */
+    pull(): Promise<void>
+
+    /**
      * Lists the branches in the git repository
      */
     listBranches(): Promise<string[]>

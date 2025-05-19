@@ -303,6 +303,7 @@ export async function runScriptInternal(
     }
 
     logInfo(`genaiscript: ${scriptId} (run: ${runId})`)
+    dbg(`ci: %s`, isCI)
 
     // manage out folder
     if (removeOut) await emptyDir(runDir)
