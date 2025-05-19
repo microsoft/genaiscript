@@ -209,10 +209,9 @@ export class GitClient implements Git {
             dbg(`listing modified or staged files`)
             const args = ["diff", "--name-only", "--diff-filter=AM"]
             if (scope === "modified-base") {
-                dbg(
-                    `using base branch: ${options?.base || (await this.defaultBranch())}`
-                )
-                const base = options?.base || (await this.defaultBranch())
+                const base =
+                    options?.base || `origin/${await this.defaultBranch()}`
+                dbg(`using base branch: %s`, base)
                 args.push(base)
             } else {
                 dbg(`listing staged files`)
