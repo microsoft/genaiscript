@@ -1,8 +1,12 @@
+script({ model: "echo" })
 const defaultBranch = await git.defaultBranch()
 const branch = await git.branch()
 const tag = await git.lastTag()
 const branches = await git.listBranches()
 console.log({ defaultBranch, branch, branches, tag })
+
+await git.fetch()
+await git.pull()
 
 const mods = await git.listFiles("modified", {
     paths: ["**/*.ts"],
@@ -36,4 +40,4 @@ console.log({ log: await client.log() })
 const clone = await git.shallowClone("microsoft/genaiscript")
 const cachedClone = await git.shallowClone("microsoft/genaiscript")
 console.log({ clone, cachedClone })
-if (clone.cwd !== cachedClone.cwd ) throw new Error("Clones should be cached")
+if (clone.cwd !== cachedClone.cwd) throw new Error("Clones should be cached")
