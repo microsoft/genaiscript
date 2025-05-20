@@ -1103,6 +1103,28 @@ export class GitHubClient implements GitHub {
         return data
     }
 
+    async updateIssue(
+        issueNumber: number | string,
+        options?: GitHubIssueUpdateOptions
+    ): Promise<GitHubIssue> {
+        issueNumber = normalizeInt(issueNumber)
+        const { client, owner, repo } = await this.api()
+        dbg(`updating issue number: ${issueNumber}`)
+        if (isNaN(issueNumber)) {
+            issueNumber = (await this._connection).issue
+        }
+        if (isNaN(issueNumber)) {
+            return undefined
+        }
+        const { data } = await client.rest.issues.update({
+            owner,
+            repo,
+            issue_number: issueNumber,
+            ...options,
+        })
+        return data
+    }
+
     async createIssueComment(
         issue_number: number | string,
         body: string

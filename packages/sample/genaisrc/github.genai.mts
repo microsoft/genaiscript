@@ -69,5 +69,11 @@ console.log(branches)
 const releases = await github.listReleases()
 console.log(releases)
 
-if (info.issueNumber)
+if (info.issueNumber) {
+    const issue = await github.getIssue(info.issueNumber)
+    console.log(issue)
     await github.createIssueComment(info.issueNumber, "Hello from GenAIClient")
+    await github.updateIssue(info.issueNumber, {
+        body: issue.body + `]\n${new Date()}`,
+    })
+}

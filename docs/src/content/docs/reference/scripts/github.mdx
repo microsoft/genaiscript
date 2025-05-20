@@ -64,7 +64,16 @@ const issueComments = await github.listIssueComments(issues[0].number)
 console.log(issueComments)
 ```
 
-You can also create issue comments:
+- update issue:
+
+```js
+await github.updateIssue(issues[0].number, {
+    title: "New title",
+    body: "New body",
+})
+```
+
+- create issue comments:
 
 ```js
 // Use issue number!

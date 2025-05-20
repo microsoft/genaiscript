@@ -3614,6 +3614,15 @@ interface GitHubArtifact {
     expires_at: string
 }
 
+interface GitHubIssueUpdateOptions {
+    title?: string
+    body?: string
+    assignee?: string
+    state?: "open" | "closed"
+    assignees?: string[]
+    labels?: string[]
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -3728,6 +3737,16 @@ interface GitHub {
      * @param issueNumber issue number (not the issue id!). If undefined, reads value from GITHUB_ISSUE environment variable.
      */
     getIssue(issueNumber?: number | string): Promise<GitHubIssue>
+
+    /**
+     * Updates an issue or pull request on GitHub
+     * @param issueNumber
+     * @param options
+     */
+    updateIssue(
+        issueNumber: number | string,
+        options: GitHubIssueUpdateOptions
+    ): Promise<GitHubIssue>
 
     /**
      * Create a GitHub issue comment
