@@ -230,7 +230,7 @@
                 "small": "openai/gpt-4.1-mini",
                 "tiny": "openai/gpt-4.1-nano",
                 "vision": "openai/gpt-4.1",
-                "embeddings": "openai/text-embedding-3-small",
+                "embeddings": "text-embedding-3-small",
                 "reasoning": "openai/o3",
                 "reasoning_small": "openai/o3-mini"
             },
