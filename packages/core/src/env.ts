@@ -195,7 +195,6 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_OPENAI) {
         dbg(`processing ${MODEL_PROVIDER_OPENAI}`)
         const token = env.OPENAI_API_KEY ?? ""
-        dbg(`retrieved OPENAI_API_KEY: %s`, ellipse(token, 12))
         let base = env.OPENAI_API_BASE
         let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai"
         const version = env.OPENAI_API_VERSION || parseAzureVersionFromUrl(base)
