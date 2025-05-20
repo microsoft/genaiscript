@@ -15,6 +15,7 @@ import { runtimeHost } from "./host"
 import { resolveLanguageModel } from "./lm"
 import { assert } from "./util"
 import { createCache } from "./cache"
+import { postgresVectorIndex } from "./pgvector"
 
 interface EmbeddingsResponse {
     /**
@@ -126,6 +127,7 @@ export async function vectorCreateIndex(
 
     let factory: WorkspaceFileIndexCreator
     if (type === "azure_ai_search") factory = azureAISearchIndex
+    else if (type === "pgvector") factory = postgresVectorIndex
     else factory = vectraWorkspaceFileIndex
 
     // Resolve connection info for the embeddings model

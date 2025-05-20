@@ -4069,7 +4069,7 @@ interface VectorIndexOptions extends EmbeddingsModelOptions {
      * - `local` uses a local database using embeddingsModel
      * - `azure_ai_search` uses Azure AI Search
      */
-    type?: "local" | "azure_ai_search"
+    type?: "local" | "azure_ai_search" | "pgvector"
     version?: number
     deleteIfExists?: boolean
     chunkSize?: number
