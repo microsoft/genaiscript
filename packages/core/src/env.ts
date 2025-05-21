@@ -195,7 +195,6 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_OPENAI) {
         dbg(`processing ${MODEL_PROVIDER_OPENAI}`)
         const token = env.OPENAI_API_KEY ?? ""
-        dbg(`retrieved OPENAI_API_KEY: %s`, ellipse(token, 12))
         let base = env.OPENAI_API_BASE
         let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai"
         const version = env.OPENAI_API_VERSION || parseAzureVersionFromUrl(base)
@@ -261,7 +260,6 @@ export async function parseTokenFromEnv(
                     ["auth", "token"],
                     options
                 )
-                dbg(`gh auth token: %d %s`, exitCode, ellipse(stdout, 8))
                 if (exitCode !== 0)
                     throw new Error("Failed to resolve GitHub token")
                 res.name = "gh auth token"

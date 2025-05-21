@@ -208,10 +208,7 @@ export async function githubParseEnv(
     dbg(
         `resolved connection info: %O`,
         Object.fromEntries(
-            Object.entries(res).map(([k, v]) => [
-                k,
-                k === "token" ? ellipse(v, 4) : v,
-            ])
+            Object.entries(res).map(([k, v]) => [k, k === "token" ? "***" : v])
         )
     )
     return Object.freeze(res)
