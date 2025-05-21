@@ -56,13 +56,18 @@ export function createScript(
  *   - `project.scripts`: An array of scripts from the project, where system scripts determine tool usage.
  *   - `project.folders`: A set of folder data collected with relevant directory and file details.
  */
-export async function fixPromptDefinitions(project: Project) {
-    const folders = collectFolders(project)
+export async function fixPromptDefinitions(
+    project: Project,
+    options?: { force?: boolean }
+) {
+    const folders = collectFolders(project, options)
     const systems = project.scripts.filter((t) => t.isSystem)
     const tools = systems.map(({ defTools }) => defTools || []).flat()
 
+    logVerbose(`fixing type definitions`)
     for (const folder of folders) {
         const { dirname, ts, js } = folder
+        logVerbose(`  ${dirname}`)
         await gitIgnoreEnsure(dirname, [
             "genaiscript.d.ts",
             "tsconfig.json",

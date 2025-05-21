@@ -26,6 +26,7 @@ import { shellInput } from "./input"
 import { wrapColor } from "../../core/src/consolecolor"
 import { dedent } from "../../core/src/indent"
 import { JSONSchemaToFunctionParameters } from "../../core/src/schema"
+import { packageResolveExecute } from "../../core/src/packagemanagers"
 
 /**
  * Lists all the scripts in the project.
@@ -144,10 +145,11 @@ export async function createScript(
  */
 export async function fixScripts(options?: {
     githubCopilotInstructions?: boolean
-    docs?: boolean
+    docs?: boolean,
+    force?: boolean
 }) {
     const project = await buildProject() // Build the project to access information
-    await fixPromptDefinitions(project) // Fix any issues in prompt definitions
+    await fixPromptDefinitions(project, options) // Fix any issues in prompt definitions
     await fixGitHubCopilotInstructions(options)
 }
 
