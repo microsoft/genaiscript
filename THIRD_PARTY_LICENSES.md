@@ -2451,17 +2451,17 @@ The following npm packages may be included in this product:
  - @aws-sdk/util-user-agent-browser@3.804.0
  - @aws-sdk/util-user-agent-node@3.812.0
  - @smithy/eventstream-codec@2.2.0
- - @smithy/eventstream-codec@4.0.2
- - @smithy/middleware-retry@4.1.7
+ - @smithy/eventstream-codec@4.0.3
+ - @smithy/middleware-retry@4.1.8
  - @smithy/querystring-builder@2.2.0
- - @smithy/querystring-builder@4.0.2
+ - @smithy/querystring-builder@4.0.3
  - @smithy/querystring-parser@2.2.0
- - @smithy/querystring-parser@4.0.2
- - @smithy/service-error-classification@4.0.3
+ - @smithy/querystring-parser@4.0.3
+ - @smithy/service-error-classification@4.0.4
  - @smithy/url-parser@2.2.0
- - @smithy/url-parser@4.0.2
- - @smithy/util-defaults-mode-browser@4.0.14
- - @smithy/util-defaults-mode-node@4.0.14
+ - @smithy/url-parser@4.0.3
+ - @smithy/util-defaults-mode-browser@4.0.15
+ - @smithy/util-defaults-mode-node@4.0.15
 
 These packages each contain the following license:
 
@@ -2885,23 +2885,23 @@ The following npm packages may be included in this product:
  - @aws-sdk/middleware-host-header@3.804.0
  - @aws-sdk/middleware-recursion-detection@3.804.0
  - @aws-sdk/middleware-user-agent@3.812.0
- - @smithy/core@3.3.3
- - @smithy/eventstream-serde-browser@4.0.2
- - @smithy/eventstream-serde-config-resolver@4.1.0
+ - @smithy/core@3.4.0
+ - @smithy/eventstream-serde-browser@4.0.3
+ - @smithy/eventstream-serde-config-resolver@4.1.1
  - @smithy/eventstream-serde-node@2.2.0
- - @smithy/eventstream-serde-node@4.0.2
+ - @smithy/eventstream-serde-node@4.0.3
  - @smithy/eventstream-serde-universal@2.2.0
- - @smithy/eventstream-serde-universal@4.0.2
- - @smithy/invalid-dependency@4.0.2
+ - @smithy/eventstream-serde-universal@4.0.3
+ - @smithy/invalid-dependency@4.0.3
  - @smithy/middleware-serde@2.3.0
- - @smithy/middleware-serde@4.0.5
+ - @smithy/middleware-serde@4.0.6
  - @smithy/protocol-http@3.3.0
- - @smithy/protocol-http@5.1.0
+ - @smithy/protocol-http@5.1.1
  - @smithy/smithy-client@2.5.1
- - @smithy/smithy-client@4.2.6
+ - @smithy/smithy-client@4.3.0
  - @smithy/types@2.12.0
  - @smithy/types@3.7.2
- - @smithy/types@4.2.0
+ - @smithy/types@4.3.0
 
 These packages each contain the following license:
 
@@ -3111,7 +3111,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - mathjs@14.4.0
+ - mathjs@14.5.0
 
 This package contains the following license:
 
@@ -3350,8 +3350,8 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/node-fetch@2.6.12
  - @types/node@16.9.1
- - @types/node@18.19.100
- - @types/node@22.15.18
+ - @types/node@18.19.103
+ - @types/node@22.15.21
  - @types/sarif@2.1.7
  - @types/trusted-types@2.0.7
  - @types/turndown@5.0.5
@@ -3386,7 +3386,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.137.7
+ - genaiscript-vscode@1.138.3
 
 This package contains the following license:
 
@@ -4610,7 +4610,7 @@ All rights reserved. (MIT Licensed)
 
 The following npm package may be included in this product:
 
- - marked@15.0.11
+ - marked@15.0.12
 
 This package contains the following license:
 
@@ -5162,28 +5162,28 @@ The following npm packages may be included in this product:
  - @aws-sdk/util-locate-window@3.804.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@2.2.0
- - @smithy/abort-controller@4.0.2
- - @smithy/config-resolver@4.1.2
- - @smithy/credential-provider-imds@4.0.4
+ - @smithy/abort-controller@4.0.3
+ - @smithy/config-resolver@4.1.3
+ - @smithy/credential-provider-imds@4.0.5
  - @smithy/fetch-http-handler@2.5.0
- - @smithy/fetch-http-handler@5.0.2
- - @smithy/hash-node@4.0.2
+ - @smithy/fetch-http-handler@5.0.3
+ - @smithy/hash-node@4.0.3
  - @smithy/is-array-buffer@2.2.0
  - @smithy/is-array-buffer@3.0.0
  - @smithy/is-array-buffer@4.0.0
- - @smithy/middleware-content-length@4.0.2
+ - @smithy/middleware-content-length@4.0.3
  - @smithy/middleware-endpoint@2.5.1
- - @smithy/middleware-endpoint@4.1.6
+ - @smithy/middleware-endpoint@4.1.7
  - @smithy/middleware-stack@2.2.0
- - @smithy/middleware-stack@4.0.2
+ - @smithy/middleware-stack@4.0.3
  - @smithy/node-http-handler@2.5.0
- - @smithy/node-http-handler@4.0.4
+ - @smithy/node-http-handler@4.0.5
  - @smithy/property-provider@2.2.0
- - @smithy/property-provider@4.0.2
+ - @smithy/property-provider@4.0.3
  - @smithy/shared-ini-file-loader@2.4.0
- - @smithy/shared-ini-file-loader@4.0.2
+ - @smithy/shared-ini-file-loader@4.0.3
  - @smithy/signature-v4@3.1.2
- - @smithy/signature-v4@5.1.0
+ - @smithy/signature-v4@5.1.1
  - @smithy/util-base64@2.3.0
  - @smithy/util-base64@4.0.0
  - @smithy/util-body-length-browser@4.0.0
@@ -5195,7 +5195,7 @@ The following npm packages may be included in this product:
  - @smithy/util-hex-encoding@3.0.0
  - @smithy/util-hex-encoding@4.0.0
  - @smithy/util-stream@2.2.0
- - @smithy/util-stream@4.2.0
+ - @smithy/util-stream@4.2.1
  - @smithy/util-uri-escape@2.2.0
  - @smithy/util-uri-escape@3.0.0
  - @smithy/util-uri-escape@4.0.0
@@ -5625,7 +5625,7 @@ The following npm packages may be included in this product:
 
  - @aws-sdk/middleware-logger@3.804.0
  - @smithy/node-config-provider@2.3.0
- - @smithy/node-config-provider@4.1.1
+ - @smithy/node-config-provider@4.1.2
  - @smithy/util-config-provider@4.0.0
 
 These packages each contain the following license:
@@ -5836,11 +5836,11 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @smithy/util-endpoints@3.0.4
+ - @smithy/util-endpoints@3.0.5
  - @smithy/util-middleware@2.2.0
  - @smithy/util-middleware@3.0.11
- - @smithy/util-middleware@4.0.2
- - @smithy/util-retry@4.0.3
+ - @smithy/util-middleware@4.0.3
+ - @smithy/util-retry@4.0.4
 
 These packages each contain the following license:
 
@@ -8651,7 +8651,7 @@ terms above.
 
 The following npm package may be included in this product:
 
- - dompurify@3.2.5
+ - dompurify@3.2.6
 
 This package contains the following license:
 
@@ -10092,10 +10092,10 @@ The following npm packages may be included in this product:
  - @napi-rs/canvas-linux-x64-musl@0.1.70
  - @tokenizer/token@0.3.0
  - data-uri-to-buffer@4.0.1
- - genaiscript-core-internal@1.137.7
- - genaiscript-sample@1.137.7
- - genaiscript-web@1.137.7
- - genaiscript@1.137.7
+ - genaiscript-core-internal@1.138.3
+ - genaiscript-sample@1.138.3
+ - genaiscript-web@1.138.3
+ - genaiscript@1.138.3
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
@@ -10568,7 +10568,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @octokit/plugin-retry@7.2.1
+ - @octokit/plugin-retry@8.0.1
 
 This package contains the following license:
 
@@ -10968,36 +10968,6 @@ This package contains the following license:
 MIT License
 
 Copyright (c) 2019 Szymon Marczak
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
- - zod@3.24.4
-
-This package contains the following license:
-
-MIT License
-
-Copyright (c) 2020 Colin McDonnell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -12029,6 +11999,36 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
+ - zod@3.25.17
+
+This package contains the following license:
+
+MIT License
+
+Copyright (c) 2025 Colin McDonnell
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
  - eventsource-parser@3.0.2
 
 This package contains the following license:
@@ -12179,7 +12179,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - get-tsconfig@4.10.0
+ - get-tsconfig@4.10.1
  - resolve-pkg-maps@1.0.0
 
 These packages each contain the following license:
@@ -13200,7 +13200,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @asamuzakjp/css-color@3.1.7
+ - @asamuzakjp/css-color@3.2.0
 
 This package contains the following license:
 
@@ -13261,7 +13261,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/plugin-paginate-rest@11.6.0
- - @octokit/plugin-paginate-rest@12.0.0
+ - @octokit/plugin-paginate-rest@13.0.0
  - @octokit/plugin-rest-endpoint-methods@13.5.0
  - @octokit/types@13.10.0
  - @octokit/types@14.0.0
@@ -13929,7 +13929,7 @@ The following npm packages may be included in this product:
 
  - @octokit/endpoint@10.1.4
  - @octokit/graphql@8.2.2
- - @octokit/plugin-throttling@10.0.0
+ - @octokit/plugin-throttling@11.0.1
  - @octokit/request@9.2.3
 
 These packages each contain the following license:
@@ -13963,6 +13963,7 @@ The following npm packages may be included in this product:
  - @octokit/auth-token@5.1.2
  - @octokit/core@6.1.5
  - @octokit/request-error@6.1.8
+ - @octokit/request-error@7.0.0
 
 These packages each contain the following license:
 
@@ -14624,7 +14625,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - tabletojson@4.1.5
+ - tabletojson@4.1.6
 
 This package contains the following license:
 
@@ -16000,7 +16001,7 @@ For more information, please refer to <https://unlicense.org>
 
 The following npm package may be included in this product:
 
- - protobufjs@7.5.2
+ - protobufjs@7.4.0
 
 This package contains the following license:
 
