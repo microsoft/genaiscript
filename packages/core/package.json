@@ -52,7 +52,7 @@
     "debug": "^4.4.1",
     "diff": "^7.0.0",
     "dotenv": "^16.5.0",
-    "es-toolkit": "^1.37.2",
+    "es-toolkit": "^1.38.0",
     "esbuild": "^0.25.4",
     "fast-xml-parser": "^5.2.3",
     "fetch-retry": "^6.0.0",

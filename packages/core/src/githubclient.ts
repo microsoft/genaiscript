@@ -720,10 +720,10 @@ export class GitHubClient implements GitHub {
                     request: { retries: 3 },
                     throttle: {
                         onRateLimit: (
-                            retryAfter,
-                            options,
-                            octokit,
-                            retryCount
+                            retryAfter: number,
+                            options: any,
+                            octokit: Octokit,
+                            retryCount: number
                         ) => {
                             octokit.log.warn(
                                 `Request quota exhausted for request ${options.method} ${options.url}`
@@ -738,9 +738,9 @@ export class GitHubClient implements GitHub {
                             return false
                         },
                         onSecondaryRateLimit: (
-                            retryAfter,
-                            options,
-                            octokit
+                            retryAfter: number,
+                            options: any,
+                            octokit: Octokit
                         ) => {
                             octokit.log.warn(
                                 `SecondaryRateLimit detected for request ${options.method} ${options.url}`

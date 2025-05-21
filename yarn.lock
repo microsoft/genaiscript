@@ -2005,7 +2005,7 @@
     "@octokit/request-error" "^7.0.0"
     "@octokit/types" "^14.0.0"
 
-"@octokit/core@^6.1.4", "@octokit/core@^6.1.5":
+"@octokit/core@^6.1.4":
   version "6.1.5"
   resolved "https://registry.yarnpkg.com/@octokit/core/-/core-6.1.5.tgz#c2842aae87c2c2130b7dd33e8caa0f642dde2c67"
   integrity sha512-vvmsN0r7rguA+FySiCsbaTTobSftpIDIpPW81trAmsv9TGxg3YCujAxRYp/Uy8xmDgYCzzgulG62H7KYUFmeIg==
@@ -5421,7 +5421,7 @@ es-to-primitive@^1.3.0:
     is-date-object "^1.0.5"
     is-symbol "^1.0.4"
 
-es-toolkit@^1.37.2:
+es-toolkit@^1.38.0:
   version "1.38.0"
   resolved "https://registry.yarnpkg.com/es-toolkit/-/es-toolkit-1.38.0.tgz#f2c7351fec545dde5545500f1c64c805b7f5e7ff"
   integrity sha512-OT3AxczYYd3W50bCj4V0hKoOAfqIy9tof0leNQYekEDxVKir3RTVTJOLij7VAe6fsCNsGhC0JqIkURpMXTCSEA==

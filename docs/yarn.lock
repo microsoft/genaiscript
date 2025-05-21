@@ -5391,9 +5391,9 @@ yocto-queue@^1.1.1:
   integrity sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==
 
 yocto-spinner@^0.2.1:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/yocto-spinner/-/yocto-spinner-0.2.2.tgz#230b898adf30597853b335fa5b6d3f881a77cea6"
-  integrity sha512-21rPcM3e4vCpOXThiFRByX8amU5By1R0wNS8Oex+DP3YgC8xdU0vEJ/K8cbPLiIJVosSSysgcFof6s6MSD5/Vw==
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/yocto-spinner/-/yocto-spinner-0.2.3.tgz#e803d2f267c7f0c3188645878522066764263a13"
+  integrity sha512-sqBChb33loEnkoXte1bLg45bEBsOP9N1kzQh5JZNKj/0rik4zAPTNSAVPj3uQAdc6slYJ0Ksc403G2XgxsJQFQ==
   dependencies:
     yoctocolors "^2.1.1"
 

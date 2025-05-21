@@ -1798,11 +1798,12 @@ Apache License
 
 -----------
 
-The following npm package may be included in this product:
+The following npm packages may be included in this product:
 
  - before-after-hook@3.0.2
+ - before-after-hook@4.0.0
 
-This package contains the following license:
+These packages each contain the following license:
 
 Apache License
                            Version 2.0, January 2004
@@ -3386,7 +3387,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.138.3
+ - genaiscript-vscode@1.138.4
 
 This package contains the following license:
 
@@ -10092,10 +10093,10 @@ The following npm packages may be included in this product:
  - @napi-rs/canvas-linux-x64-musl@0.1.70
  - @tokenizer/token@0.3.0
  - data-uri-to-buffer@4.0.1
- - genaiscript-core-internal@1.138.3
- - genaiscript-sample@1.138.3
- - genaiscript-web@1.138.3
- - genaiscript@1.138.3
+ - genaiscript-core-internal@1.138.4
+ - genaiscript-sample@1.138.4
+ - genaiscript-web@1.138.4
+ - genaiscript@1.138.4
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
  - keyv@4.5.4
@@ -11742,11 +11743,12 @@ SOFTWARE.
 
 -----------
 
-The following npm package may be included in this product:
+The following npm packages may be included in this product:
 
  - fast-content-type-parse@2.0.1
+ - fast-content-type-parse@3.0.0
 
-This package contains the following license:
+These packages each contain the following license:
 
 MIT License
 
@@ -13928,8 +13930,11 @@ THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/endpoint@10.1.4
+ - @octokit/endpoint@11.0.0
  - @octokit/graphql@8.2.2
+ - @octokit/graphql@9.0.1
  - @octokit/plugin-throttling@11.0.1
+ - @octokit/request@10.0.2
  - @octokit/request@9.2.3
 
 These packages each contain the following license:
@@ -13961,7 +13966,9 @@ THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @octokit/auth-token@5.1.2
+ - @octokit/auth-token@6.0.0
  - @octokit/core@6.1.5
+ - @octokit/core@7.0.2
  - @octokit/request-error@6.1.8
  - @octokit/request-error@7.0.0
 
