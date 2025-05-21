@@ -208,10 +208,7 @@ export async function githubParseEnv(
     dbg(
         `resolved connection info: %O`,
         Object.fromEntries(
-            Object.entries(res).map(([k, v]) => [
-                k,
-                k === "token" ? ellipse(v, 4) : v,
-            ])
+            Object.entries(res).map(([k, v]) => [k, k === "token" ? "***" : v])
         )
     )
     return Object.freeze(res)
@@ -723,10 +720,10 @@ export class GitHubClient implements GitHub {
                     request: { retries: 3 },
                     throttle: {
                         onRateLimit: (
-                            retryAfter,
-                            options,
-                            octokit,
-                            retryCount
+                            retryAfter: number,
+                            options: any,
+                            octokit: Octokit,
+                            retryCount: number
                         ) => {
                             octokit.log.warn(
                                 `Request quota exhausted for request ${options.method} ${options.url}`
@@ -741,9 +738,9 @@ export class GitHubClient implements GitHub {
                             return false
                         },
                         onSecondaryRateLimit: (
-                            retryAfter,
-                            options,
-                            octokit
+                            retryAfter: number,
+                            options: any,
+                            octokit: Octokit
                         ) => {
                             octokit.log.warn(
                                 `SecondaryRateLimit detected for request ${options.method} ${options.url}`

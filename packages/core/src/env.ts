@@ -260,7 +260,6 @@ export async function parseTokenFromEnv(
                     ["auth", "token"],
                     options
                 )
-                dbg(`gh auth token: %d %s`, exitCode, ellipse(stdout, 8))
                 if (exitCode !== 0)
                     throw new Error("Failed to resolve GitHub token")
                 res.name = "gh auth token"

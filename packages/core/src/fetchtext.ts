@@ -195,7 +195,7 @@ export function traceFetchPost(
         })
         httpRequest += `--${boundary}--\n`
     } else {
-        httpRequest += JSON.stringify(body, null, 2)
+        httpRequest += "\n" + JSON.stringify(body, null, 2)
     }
 
     dbg(httpRequest)
