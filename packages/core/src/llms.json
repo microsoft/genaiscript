@@ -695,59 +695,59 @@
             "price_per_million_output_tokens": 4.4,
             "input_cache_token_rebate": 0.25
         },
-        "github:openai/gpt-4.1": {
+        "github:gpt-4.1": {
             "price_per_million_input_tokens": 2,
             "price_per_million_output_tokens": 8,
             "input_cache_token_rebate": 0.25
         },
-        "github:openai/gpt-4.1-2025-04-14": {
+        "github:gpt-4.1-2025-04-14": {
             "price_per_million_input_tokens": 2,
             "price_per_million_output_tokens": 8,
             "input_cache_token_rebate": 0.25
         },
-        "github:openai/gpt-4.1-mini": {
+        "github:gpt-4.1-mini": {
             "price_per_million_input_tokens": 0.4,
             "price_per_million_output_tokens": 1.6,
             "input_cache_token_rebate": 0.25
         },
-        "github:openai/gpt-4.1-mini-2025-04-14": {
+        "github:gpt-4.1-mini-2025-04-14": {
             "price_per_million_input_tokens": 0.4,
             "price_per_million_output_tokens": 1.6,
             "input_cache_token_rebate": 0.25
         },
-        "github:openai/gpt-4.1-nano": {
+        "github:gpt-4.1-nano": {
             "price_per_million_input_tokens": 0.1,
             "price_per_million_output_tokens": 0.4,
             "input_cache_token_rebate": 0.25
         },
-        "github:openai/gpt-4.1-nano-2025-04-14": {
+        "github:gpt-4.1-nano-2025-04-14": {
             "price_per_million_input_tokens": 0.1,
             "price_per_million_output_tokens": 0.4,
             "input_cache_token_rebate": 0.25
         },
-        "github:openai/gpt-4o": {
+        "github:gpt-4o": {
             "price_per_million_input_tokens": 2.5,
             "price_per_million_output_tokens": 10
         },
-        "github:openai/gpt-4o-mini": {
+        "github:gpt-4o-mini": {
             "price_per_million_input_tokens": 0.15,
             "price_per_million_output_tokens": 0.6
         },
-        "github:openai/gpt-4o-2024-11-20": {
+        "github:gpt-4o-2024-11-20": {
             "price_per_million_input_tokens": 2.5,
             "price_per_million_output_tokens": 10
         },
-        "github:openai/o1": {
+        "github:o1": {
             "price_per_million_input_tokens": 15,
             "price_per_million_output_tokens": 60,
             "input_cache_token_rebate": 0.5
         },
-        "github:openai/o1-mini": {
+        "github:o1-mini": {
             "price_per_million_input_tokens": 1.1,
             "price_per_million_output_tokens": 4.4,
             "input_cache_token_rebate": 0.5
         },
-        "github:openai/o3-mini": {
+        "github:o3-mini": {
             "price_per_million_input_tokens": 1.1,
             "price_per_million_output_tokens": 4.4,
             "input_cache_token_rebate": 0.5
