@@ -145,9 +145,10 @@ export async function createScript(
 export async function fixScripts(options?: {
     githubCopilotInstructions?: boolean
     docs?: boolean
+    force?: boolean
 }) {
     const project = await buildProject() // Build the project to access information
-    await fixPromptDefinitions(project) // Fix any issues in prompt definitions
+    await fixPromptDefinitions(project, options) // Fix any issues in prompt definitions
     await fixGitHubCopilotInstructions(options)
 }
 

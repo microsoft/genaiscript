@@ -49,6 +49,7 @@ export type ResolvedLanguageModelConfiguration =
  * Provides utility methods to manage templates and diagnose issues.
  */
 export interface Project {
+    systemDir?: string
     scripts: PromptScript[] // Array of templates within the project
     diagnostics: Diagnostic[] // Array of diagnostic records
 }

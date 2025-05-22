@@ -398,6 +398,7 @@ export async function cli() {
             "Write GitHub Copilot custom instructions for better GenAIScript code generation"
         )
         .option("--docs", "Download documentation")
+        .option("--force", "Fix all folders, including built-in system scripts")
         .action(fixScripts) // Action to fix scripts
     scripts
         .command("compile")

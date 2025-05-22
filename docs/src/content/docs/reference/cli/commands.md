@@ -319,6 +319,8 @@ Options:
   -gci, --github-copilot-instructions  Write GitHub Copilot custom instructions
                                        for better GenAIScript code generation
   --docs                               Download documentation
+  --force                              Fix all folders, including built-in
+                                       system scripts
   -h, --help                           display help for command
 ```
 
