@@ -62,7 +62,9 @@ export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position
  * @param prj - The project containing the scripts to analyze.
  * @returns An array of directory objects with their names and flags indicating JavaScript and TypeScript file presence.
  */
-export function collectFolders(prj: Project) {
+export function collectFolders(
+    prj: Project
+): { dirname: string; js?: boolean; ts?: boolean }[] {
     const folders: Record<
         string,
         { dirname: string; js?: boolean; ts?: boolean }
