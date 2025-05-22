@@ -35,6 +35,7 @@ export async function startOpenAPIServer(
 
     const createFastify = (await import("fastify")).default
     const swagger = (await import("@fastify/swagger")).default
+    const swaggerUi = (await import("@fastify/swagger-ui")).default
 
     const STRING_SCHEMA = toStrictJSONSchema({
         type: "string",
@@ -114,7 +115,7 @@ export async function startOpenAPIServer(
                     },
                 },
             }
-            const url = `/api/${tool.id}`
+            const url = `/api/scripts/${tool.id}`
             dbg(`route %s\n%O`, url, routeSchema)
 
             fastify.post(url, routeSchema, async (request, reply) => {
@@ -122,10 +123,8 @@ export async function startOpenAPIServer(
             })
         }
 
-        // Route to serve the OpenAPI spec as JSON (for documentation)
-        fastify.get("/api/docs/json", async (request, reply) => {
-            const openapiSpec = fastify.swagger() // Generate the OpenAPI specification object
-            return reply.type("application/json").send(openapiSpec)
+        await fastify.register(swaggerUi, {
+            routePrefix: "/api/docs",
         })
 
         // Global error handler for uncaught errors and validation issues
@@ -144,9 +143,16 @@ export async function startOpenAPIServer(
             }
         })
 
-        const serverHost = "0.0.0.0"
+        const serverHost = "localhost"
         console.log(`GenAIScript OpenAPI v${CORE_VERSION}`)
         console.log(`│ Local http://${serverHost}:${port}/api/docs/json`)
+        console.log(`| Console UI: http://${serverHost}:${port}/api/docs`)
+        console.log(
+            `| OpenAPI Spec (JSON): http://${serverHost}:${port}/api/docs/json`
+        )
+        console.log(
+            `| OpenAPI Spec (YAML): http://${serverHost}:${port}/api/docs/yaml`
+        )
         await fastify.listen({
             port,
             host: serverHost,
