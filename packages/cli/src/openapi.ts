@@ -39,6 +39,7 @@ export async function startOpenAPIServer(
     const swagger = (await import("@fastify/swagger")).default
     const swaggerUi = (await import("@fastify/swagger-ui")).default
 
+    const serverHost = "localhost"
     const STRING_SCHEMA = toStrictJSONSchema({
         type: "string",
     })
@@ -161,7 +162,6 @@ export async function startOpenAPIServer(
             }
         })
 
-        const serverHost = "localhost"
         console.log(`GenAIScript OpenAPI v${CORE_VERSION}`)
         console.log(`│ Local http://${serverHost}:${port}/api/docs/json`)
         console.log(`| Console UI: http://${serverHost}:${port}/api/docs`)
