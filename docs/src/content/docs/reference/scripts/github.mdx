@@ -126,6 +126,19 @@ const files = await github.downloadArtifact(artifact.id)
 console.log(files)
 ```
 
+### Assets
+
+Image or video assets urls uploaded through the GitHub UI can be resolved using `resolveAssetUrl`.
+They are typically of the form `https://github.com/.../assets/<uuid>`. The function returns a short lived URL with an embedded
+access token to download the asset.
+
+```js
+const url = await github.resolveAssetUrl(
+    "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
+)
+console.log(url)
+```
+
 ### Search Code
 
 Use `searchCode` for a code search on the default branch in the same repository.

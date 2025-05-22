@@ -457,3 +457,5 @@ export const BOX_UP_AND_DOWN = "│"
 export const BOX_DOWN_UP_AND_RIGHT = "├"
 export const BOX_LEFT_AND_DOWN = "╮"
 export const BOX_LEFT_AND_UP = "╯"
+
+export const GITHUB_ASSET_URL_RX = /^https:\/\/github\.com\/.*\/assets\/.*$/i

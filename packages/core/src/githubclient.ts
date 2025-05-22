@@ -3,6 +3,7 @@ import type { PaginateInterface } from "@octokit/plugin-paginate-rest"
 import {
     GITHUB_API_VERSION,
     GITHUB_ASSET_BRANCH,
+    GITHUB_ASSET_URL_RX,
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_REST_API_CONCURRENCY_LIMIT,
     GITHUB_REST_PAGE_DEFAULT,
@@ -32,6 +33,7 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { diagnosticToGitHubMarkdown } from "./annotations"
 import { TraceOptions } from "./trace"
 import { unzip } from "./zip"
+import { uriRedact, uriTryParse } from "./url"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -1340,6 +1342,26 @@ export class GitHubClient implements GitHub {
         })
 
         return data
+    }
+
+    async resolveAssetUrl(url: string) {
+        if (!uriTryParse(url)) return undefined // unknown format
+        if (!GITHUB_ASSET_URL_RX.test(url)) return undefined // not a github asset
+        const { client, owner, repo } = await this.api()
+        dbg(`asset: resolving url for %s`, uriRedact(url))
+        const { data, status } = await client.rest.markdown.render({
+            owner,
+            repo,
+            context: `${owner}/${repo}`, // force html with token
+            text: `![](${url})`,
+            mode: "gfm",
+        })
+        dbg(`asset: resolution %s`, status)
+        const { resolved } =
+            /<img src="(?<resolved>[^"]+)"/i.exec(data)?.groups || {}
+        if (!resolved) dbg(`markdown:\n%s`, data)
+
+        return resolved
     }
 
     async downloadArtifactFiles(
