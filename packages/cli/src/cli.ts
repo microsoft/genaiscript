@@ -74,6 +74,7 @@ import { listRuns } from "./runs"
 import { startMcpServer } from "./mcpserver"
 import { error } from "./log"
 import { DEBUG_CATEGORIES } from "../../core/src/dbg"
+import { startOpenAPIServer } from "./openapi"
 
 /**
  * /NOП/
@@ -536,6 +537,25 @@ export async function cli() {
         )
         .action(startMcpServer)
     addRemoteOptions(mcp) // Add remote options to the command
+
+    const openapi = program
+        .command("openapi")
+        .option(
+            "-p, --port <number>",
+            `Specify the port number, default: ${SERVER_PORT}`
+        )
+        .option("--groups <string...>", "Filter script by groups")
+        .option("--ids <string...>", "Filter script by ids")
+        .option(
+            "--startup <string>",
+            "Startup script id, executed after the server is started"
+        )
+        .alias("api")
+        .description(
+            "Starts an OpenAPI 3.1.1 server that exposes scripts as /api/tools/<id> endpoints"
+        )
+        .action(startOpenAPIServer)
+    addRemoteOptions(openapi) // Add remote options to the command
 
     // Define 'parse' command group for parsing tasks
     const parser = program

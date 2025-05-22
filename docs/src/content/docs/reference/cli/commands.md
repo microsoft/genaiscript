@@ -566,6 +566,27 @@ Options:
   -h, --help                display help for command
 ```
 
+## `openapi`
+
+```
+Usage: genaiscript openapi|api [options]
+
+Starts an OpenAPI 3.1.1 server that exposes scripts as /api/tools/<id>
+endpoints
+
+Options:
+  -p, --port <number>       Specify the port number, default: 8003
+  --groups <string...>      Filter script by groups
+  --ids <string...>         Filter script by ids
+  --startup <string>        Startup script id, executed after the server is
+                            started
+  --remote <string>         Remote repository URL to serve
+  --remote-branch <string>  Branch to serve from the remote
+  --remote-force            Force pull from remote repository
+  --remote-install          Install dependencies from remote repository
+  -h, --help                display help for command
+```
+
 ## `parse`
 
 ```

@@ -69,6 +69,7 @@ export const JSONL_REGEX = /\.jsonl$/i
 export const PROMPTY_REGEX = /\.prompty$/i
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
+export const OPENAPI_SERVER_PORT = 8004
 export const CLIENT_RECONNECT_DELAY = 3000
 export const CLIENT_RECONNECT_MAX_ATTEMPTS = 20
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
