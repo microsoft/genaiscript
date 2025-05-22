@@ -3871,7 +3871,7 @@ interface GitHub {
     ): Promise<string>
 
     /**
-     * Resolves user uploaded assets to a short lived URL with access token.
+     * Resolves user uploaded assets to a short lived URL with access token. Returns undefined if the asset is not found.
      */
     resolveAssetUrl(url: string): Promise<string | undefined>
 

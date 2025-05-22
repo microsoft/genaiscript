@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url"
 import { isCI } from "./ci"
 import { TestHost } from "./testhost"
 import { resolveBufferLike } from "./bufferlike"
+import { tryResolveResource } from "./resources"
 
 describe("GitHubClient", async () => {
     const client = GitHubClient.default()
@@ -111,13 +112,17 @@ describe("GitHubClient", async () => {
         const un = await client.uploadAsset(undefined)
         assert(un === undefined)
     })
-    await test("resolveAssetUrl", async () => {
-        const resolved = await client.resolveAssetUrl(
+    await test("resolveAssetUrl - indirect", async () => {
+        const bytes = await resolveBufferLike(
             "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
         )
-        assert(resolved)
-        console.log(resolved)
-        const bytes = await resolveBufferLike(resolved)
         assert(bytes.length)
+    })
+
+    await test("resolveAssetUrl", async () => {
+        const resolved = await tryResolveResource(
+            "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
+        )
+        assert(resolved.files[0].content)
     })
 })
