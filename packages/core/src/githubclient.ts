@@ -1352,12 +1352,15 @@ export class GitHubClient implements GitHub {
         const { data, status } = await client.rest.markdown.render({
             owner,
             repo,
+            context: `${owner}/${repo}`, // force html with token
             text: `![](${url})`,
             mode: "gfm",
         })
         dbg(`asset: resolution %s`, status)
         const { resolved } =
-            /href="(?<resolved>[^"]+)"/i.exec(data)?.groups || {}
+            /<img src="(?<resolved>[^"]+)"/i.exec(data)?.groups || {}
+        if (!resolved) dbg(`markdown:\n%s`, data)
+
         return resolved
     }
 

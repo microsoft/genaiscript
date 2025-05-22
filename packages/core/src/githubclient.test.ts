@@ -112,17 +112,26 @@ describe("GitHubClient", async () => {
         const un = await client.uploadAsset(undefined)
         assert(un === undefined)
     })
-    await test("resolveAssetUrl - indirect", async () => {
-        const bytes = await resolveBufferLike(
+    await test("resolveAssetUrl -image", async () => {
+        const resolved = await client.resolveAssetUrl(
             "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
         )
-        assert(bytes.length)
+        assert(resolved)
+        assert(resolved.includes("githubusercontent.com"))
+    })
+    await test("resolveAssetUrl - mp4", async () => {
+        const resolved = await client.resolveAssetUrl(
+            "https://github.com/user-attachments/assets/f7881bef-931d-4f76-8f63-b4d12b1f021e"
+        )
+        console.log(resolved)
+        assert(resolved.includes("githubusercontent.com"))
     })
 
-    await test("resolveAssetUrl", async () => {
+    await test("resolveAssetUrl - image - indirect", async () => {
         const resolved = await tryResolveResource(
             "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
         )
         assert(resolved.files[0].content)
+        assert.strictEqual(resolved.files[0].type, "image/jpeg")
     })
 })
