@@ -12,6 +12,8 @@ import type { FastifyInstance } from "fastify"
 import { findOpenPort } from "./port"
 import { OPENAPI_SERVER_PORT } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
+import { run } from "./api"
+import { errorMessage } from "../../core/src/error"
 const dbg = genaiscriptDebug("openapi")
 const dbgError = dbg.extend("error")
 const dbgHandlers = dbg.extend("handlers")
@@ -91,7 +93,7 @@ export async function startOpenAPIServer(
                 }),
                 servers: [
                     {
-                        url: "http://localhost:3000",
+                        url: `http://${serverHost}:${port}`,
                         description: "GenAIScript server",
                     },
                 ],
@@ -115,11 +117,27 @@ export async function startOpenAPIServer(
                     },
                 },
             }
+            // todo files
             const url = `/api/scripts/${tool.id}`
             dbg(`route %s\n%O`, url, routeSchema)
 
             fastify.post(url, routeSchema, async (request, reply) => {
-                return ""
+                const { files, ...vars } = request.body as any
+                const res = await run(tool.id, [], {
+                    vars: vars,
+                    runTrace: false,
+                    outputTrace: false,
+                })
+                dbg(`res: %s`, res.status)
+                if (res.error) dbg(`error: %O`, res.error)
+                const isError = res.status !== "success" || !!res.error
+                const text = res?.error?.message || res.text || ""
+                const data = res?.json
+                return {
+                    error: errorMessage(res.error),
+                    text: res.text,
+                    data,
+                }
             })
         }
 
