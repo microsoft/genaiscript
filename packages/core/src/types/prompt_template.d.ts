@@ -3871,6 +3871,11 @@ interface GitHub {
     ): Promise<string>
 
     /**
+     * Resolves user uploaded assets to a short lived URL with access token.
+     */
+    resolveAssetUrl(url: string): Promise<string | undefined>
+
+    /**
      * Gets the underlying Octokit client
      */
     api(): Promise<any>

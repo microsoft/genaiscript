@@ -32,6 +32,7 @@ import { CancellationOptions, checkCancelled } from "./cancellation"
 import { diagnosticToGitHubMarkdown } from "./annotations"
 import { TraceOptions } from "./trace"
 import { unzip } from "./zip"
+import { uriRedact, uriTryParse } from "./url"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -1340,6 +1341,26 @@ export class GitHubClient implements GitHub {
         })
 
         return data
+    }
+
+    async resolveAssetUrl(url: string) {
+        if (!uriTryParse(url)) return url // unknown format
+        if (/^https:\/\/github\.com\/.*\/assets\/.*$/i.test(url)) {
+            const { client, owner, repo } = await this.api()
+            dbg(`asset: resolving url for %s`, uriRedact(url))
+            const { data, status } = await client.rest.markdown.render({
+                owner,
+                repo,
+                text: `![](${url})`,
+                mode: "gfm",
+            })
+            dbg(`asset: resolution %s`, status)
+            const { resolved } =
+                /href="(?<resolved>[^"]+)"/i.exec(data)?.groups || {}
+            if (resolved) return resolved
+            dbg(`asset: failed to parse resolved url\s`, data)
+        }
+        return url
     }
 
     async downloadArtifactFiles(

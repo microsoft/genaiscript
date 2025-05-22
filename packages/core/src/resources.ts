@@ -83,7 +83,6 @@ const uriResolvers: Record<
         // https://.../.../....git
         if (/\.git($|\/)/.test(url.pathname))
             return await uriResolvers.git(dbg, url, options)
-
         // regular fetch
         const fetch = await createFetch(options)
         dbg(`fetch %s`, uriRedact(url.href))
