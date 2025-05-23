@@ -254,7 +254,7 @@ export async function startOpenAPIServer(
                     text,
                     data,
                 })
-            })
+                if (res.error) return reply.status(500).send(deleteUndefinedValues({ error: errorMessage(res.error), text, data })); return deleteUndefinedValues({ error: errorMessage(res.error), text, data });
         }
 
         await fastify.register(swaggerUi, {
