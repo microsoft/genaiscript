@@ -74,6 +74,7 @@ import { listRuns } from "./runs"
 import { startMcpServer } from "./mcpserver"
 import { error } from "./log"
 import { DEBUG_CATEGORIES } from "../../core/src/dbg"
+import { startOpenAPIServer } from "./openapi"
 
 /**
  * /NOП/
@@ -499,7 +500,7 @@ export async function cli() {
         .command("serve")
         .description("Start a GenAIScript local web server")
         .option(
-            "-p, --port <number>",
+            "--port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
         )
         .option("-k, --api-key <string>", "API key to authenticate requests")
@@ -521,6 +522,7 @@ export async function cli() {
         )
         .action(startServer) // Action to start the server
     addRemoteOptions(serve) // Add remote options to the command
+    addModelOptions(serve)
 
     const mcp = program
         .command("mcp")
@@ -535,7 +537,37 @@ export async function cli() {
             "Starts a Model Context Protocol server that exposes scripts as tools"
         )
         .action(startMcpServer)
-    addRemoteOptions(mcp) // Add remote options to the command
+    addRemoteOptions(mcp)
+    addModelOptions(mcp)
+
+    const openapi = program
+        .command("openapi")
+        .option(
+            "-n, --network",
+            "Opens server on 0.0.0.0 to make it accessible on the network"
+        )
+        .option(
+            "--port <number>",
+            `Specify the port number, default: ${SERVER_PORT}`
+        )
+        .option(
+            "-c, --cors <string>",
+            "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
+        )
+
+        .option("--groups <string...>", "Filter script by groups")
+        .option("--ids <string...>", "Filter script by ids")
+        .option(
+            "--startup <string>",
+            "Startup script id, executed after the server is started"
+        )
+        .alias("api")
+        .description(
+            "Starts an OpenAPI 3.1.1 server that exposes scripts as /api/tools/<id> endpoints"
+        )
+        .action(startOpenAPIServer)
+    addRemoteOptions(openapi)
+    addModelOptions(openapi)
 
     // Define 'parse' command group for parsing tasks
     const parser = program
