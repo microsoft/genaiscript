@@ -541,9 +541,18 @@ export async function cli() {
     const openapi = program
         .command("openapi")
         .option(
+            "-n, --network",
+            "Opens server on 0.0.0.0 to make it accessible on the network"
+        )
+        .option(
             "-p, --port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
         )
+        .option(
+            "-c, --cors <string>",
+            "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
+        )
+
         .option("--groups <string...>", "Filter script by groups")
         .option("--ids <string...>", "Filter script by ids")
         .option(

@@ -575,7 +575,11 @@ Starts an OpenAPI 3.1.1 server that exposes scripts as /api/tools/<id>
 endpoints
 
 Options:
+  -n, --network             Opens server on 0.0.0.0 to make it accessible on
+                            the network
   -p, --port <number>       Specify the port number, default: 8003
+  -c, --cors <string>       Enable CORS and sets the allowed origin. Use '*' to
+                            allow any origin.
   --groups <string...>      Filter script by groups
   --ids <string...>         Filter script by ids
   --startup <string>        Startup script id, executed after the server is

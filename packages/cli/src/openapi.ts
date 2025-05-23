@@ -22,6 +22,8 @@ export async function startOpenAPIServer(
     options?: ScriptFilterOptions &
         RemoteOptions & {
             port?: string
+            cors?: string
+            network?: boolean
             startup?: string
         }
 ) {
@@ -29,7 +31,8 @@ export async function startOpenAPIServer(
     logVerbose(`openapi server: starting...`)
 
     await applyRemoteOptions(options)
-    const { startup } = options || {}
+    const { startup, cors } = options || {}
+    const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
 
     const port = await findOpenPort(OPENAPI_SERVER_PORT, options)
     const watcher = await startProjectWatcher(options)
@@ -38,11 +41,6 @@ export async function startOpenAPIServer(
     const createFastify = (await import("fastify")).default
     const swagger = (await import("@fastify/swagger")).default
     const swaggerUi = (await import("@fastify/swagger-ui")).default
-
-    const serverHost = "localhost"
-    const STRING_SCHEMA = toStrictJSONSchema({
-        type: "string",
-    })
 
     let fastifyController: AbortController | undefined
     let fastify: FastifyInstance | undefined
@@ -72,9 +70,18 @@ export async function startOpenAPIServer(
     const startServer = async () => {
         await stopServer()
         logVerbose(`starting server...`)
-        const tools = await watcher.scripts()
+        const tools = (await watcher.scripts()).sort((l, r) =>
+            l.id.localeCompare(r.id)
+        )
         fastifyController = new AbortController()
         fastify = createFastify({ logger: false })
+
+        if (cors)
+            fastify.register((await import("@fastify/cors")).default, {
+                origin: cors,
+                methods: ["GET", "POST"],
+                allowedHeaders: ["Content-Type"],
+            })
 
         // infer server metadata from package.json
         const {
@@ -94,6 +101,14 @@ export async function startOpenAPIServer(
                 }),
                 servers: [
                     {
+                        url: `http://127.0.0.1:${port}`,
+                        description: "GenAIScript server",
+                    },
+                    {
+                        url: `http://localhost:${port}`,
+                        description: "GenAIScript server",
+                    },
+                    {
                         url: `http://${serverHost}:${port}`,
                         description: "GenAIScript server",
                     },
@@ -103,18 +118,43 @@ export async function startOpenAPIServer(
 
         // Dynamically create a POST route for each tool in the tools list
         for (const tool of tools) {
+            const { accept, inputSchema } = tool
+            const scriptSchema = (inputSchema?.properties
+                .script as JSONSchemaObject) || {
+                type: "object",
+                properties: {},
+            }
+            if (accept !== "none")
+                scriptSchema.properties.files = {
+                    type: "array",
+                    items: {
+                        type: "string",
+                        description: `Filename or globs relative to the workspace used by the script.${accept ? ` Accepts: ${accept}` : ""}`,
+                    },
+                }
             const routeSchema = {
                 schema: {
                     summary: tool.title,
                     description: tool.description,
                     tags: [tool.group].filter(Boolean),
-                    body: tool.inputSchema
-                        ? toStrictJSONSchema(tool.inputSchema)
-                        : STRING_SCHEMA,
+                    body: toStrictJSONSchema(scriptSchema),
                     response: {
-                        200: tool.responseSchema
-                            ? toStrictJSONSchema(tool.responseSchema)
-                            : STRING_SCHEMA,
+                        200: toStrictJSONSchema({
+                            type: "object",
+                            properties: deleteUndefinedValues({
+                                error: {
+                                    type: "string",
+                                    description: "Error message",
+                                },
+                                text: {
+                                    type: "string",
+                                    description: "Output text",
+                                },
+                                data: tool.responseSchema
+                                    ? toStrictJSONSchema(tool.responseSchema)
+                                    : undefined,
+                            }),
+                        }),
                     },
                 },
             }
@@ -123,22 +163,22 @@ export async function startOpenAPIServer(
             dbg(`route %s\n%O`, url, routeSchema)
 
             fastify.post(url, routeSchema, async (request, reply) => {
+                dbgHandlers(`%s %O`, tool.id, request.body)
                 const { files, ...vars } = request.body as any
                 const res = await run(tool.id, [], {
                     vars: vars,
                     runTrace: false,
                     outputTrace: false,
                 })
-                dbg(`res: %s`, res.status)
-                if (res.error) dbg(`error: %O`, res.error)
-                const isError = res.status !== "success" || !!res.error
-                const text = res?.error?.message || res.text || ""
+                dbgHandlers(`res: %s`, res.status)
+                if (res.error) dbgHandlers(`error: %O`, res.error)
+                const text = res.text
                 const data = res?.json
-                return {
+                return deleteUndefinedValues({
                     error: errorMessage(res.error),
-                    text: res.text,
+                    text,
                     data,
-                }
+                })
             })
         }
 
@@ -151,31 +191,29 @@ export async function startOpenAPIServer(
             dbgError(`%s %s %O`, request.method, request.url, error)
             if (error.validation) {
                 reply.status(400).send({
-                    error: "Bad Request",
-                    message: error.message,
+                    error: "Bad Request - error.message",
                 })
             } else {
                 reply.status(error.statusCode ?? 500).send({
-                    error: "Internal Server Error",
-                    message: error.message ?? "An unexpected error occurred",
+                    error: `Internal Server Error - ${error.message ?? "An unexpected error occurred"}`,
                 })
             }
         })
 
         console.log(`GenAIScript OpenAPI v${CORE_VERSION}`)
-        console.log(`│ Local http://${serverHost}:${port}/api/docs/json`)
-        console.log(`| Console UI: http://${serverHost}:${port}/api/docs`)
-        console.log(
-            `| OpenAPI Spec (JSON): http://${serverHost}:${port}/api/docs/json`
-        )
-        console.log(
-            `| OpenAPI Spec (YAML): http://${serverHost}:${port}/api/docs/yaml`
-        )
+        console.log(`│ API http://localhost:${port}/api/`)
+        console.log(`| Console UI: http://localhost:${port}/api/docs`)
+        console.log(`| OpenAPI Spec: http://localhost:${port}/api/docs/json`)
         await fastify.listen({
             port,
             host: serverHost,
             signal: fastifyController.signal,
         })
+    }
+
+    if (startup) {
+        logVerbose(`startup script: ${startup}`)
+        await run(startup, [], {})
     }
 
     // start watcher
