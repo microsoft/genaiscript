@@ -119,7 +119,7 @@ export async function startOpenAPIServer(
                     version,
                 }),
                 externalDocs: {
-                    url: "http://microsoft.github.io/genaiscript/reference/scripts/openapi",
+                    url: "http://microsoft.github.io/genaiscript/reference/openapi",
                     description: "GenAIScript OpenAPI documentation",
                 },
                 servers: [
