@@ -1,4 +1,4 @@
- 
+import { ScriptFilterOptions } from "../../core/src/ast"
 import { ScriptFilterOptions } from "../../core/src/ast"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { setConsoleColors } from "../../core/src/consolecolor"
