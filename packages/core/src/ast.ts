@@ -125,6 +125,6 @@ export function filterScripts(
         .filter((t) => !test || arrayify(t.tests)?.length)
         .filter((t) => !redteam || t.redteam)
         .filter((t) => !ids?.length || ids.includes(t.id))
-        .filter((t) => !unlisted || !t.unlisted)
+        .filter((t) => unlisted || !t.unlisted)
         .filter((t) => tagFilter(groups, t.group))
 }
