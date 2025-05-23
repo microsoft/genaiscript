@@ -21,7 +21,7 @@ The OpenAPI parameters will then populate the `env.vars` object in the script
 as usual.
 
 The OpenAPI endpoint output is the script output. That is, typically, the last assistant message for a script that uses the top-level context.
-Or any content that was passed in [env.output](/genaiscript/reference/scripts/output-builder).
+The OpenAPI endpoint output corresponds to the script's output, typically the last assistant message or any content passed to [env.output](/genaiscript/reference/scripts/output-builder).
 
 Let's see an example. Here is a script `task.genai.mjs` that takes a `task` parameter input, builds a prompt
 and the LLM output is sent back.
