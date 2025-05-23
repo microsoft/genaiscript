@@ -118,6 +118,10 @@ export async function startOpenAPIServer(
                     description,
                     version,
                 }),
+                externalDocs: {
+                    url: "http://microsoft.github.io/genaiscript/reference/scripts/openapi",
+                    description: "GenAIScript OpenAPI documentation",
+                },
                 servers: [
                     {
                         url: `http://127.0.0.1:${port}`,
@@ -152,6 +156,27 @@ export async function startOpenAPIServer(
                     },
                 }
             const routeSchema = {
+                params: {
+                    type: "object",
+                    properties: {
+                        model: {
+                            type: "string",
+                            description: "Model identifier",
+                        },
+                        smallModel: {
+                            type: "string",
+                            description: "Small model identifier",
+                        },
+                        visionModel: {
+                            type: "string",
+                            description: "Vision model identifier",
+                        },
+                        provider: {
+                            type: "string",
+                            description: "LLM Provider identifier",
+                        },
+                    },
+                },
                 schema: {
                     summary: tool.title,
                     description: tool.description,
@@ -212,8 +237,10 @@ export async function startOpenAPIServer(
             fastify.post(url, routeSchema, async (request, reply) => {
                 dbgHandlers(`%s %O`, tool.id, request.body)
                 const { files, ...vars } = request.body as any
+                const params = (request.params || {}) as PromptScriptRunOptions
                 const res = await run(tool.id, [], {
                     ...runOptions,
+                    ...params,
                     vars: vars,
                     runTrace: false,
                     outputTrace: false,
