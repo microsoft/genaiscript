@@ -266,7 +266,7 @@ export async function startOpenAPIServer(
             dbgError(`%s %s %O`, request.method, request.url, error)
             if (error.validation) {
                 reply.status(400).send({
-                    error: "Bad Request - error.message",
+                    error: error.message,
                 })
             } else {
                 reply.status(error.statusCode ?? 500).send({
