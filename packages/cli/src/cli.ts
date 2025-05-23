@@ -500,7 +500,7 @@ export async function cli() {
         .command("serve")
         .description("Start a GenAIScript local web server")
         .option(
-            "-p, --port <number>",
+            "--port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
         )
         .option("-k, --api-key <string>", "API key to authenticate requests")
@@ -522,6 +522,7 @@ export async function cli() {
         )
         .action(startServer) // Action to start the server
     addRemoteOptions(serve) // Add remote options to the command
+    addModelOptions(serve)
 
     const mcp = program
         .command("mcp")
@@ -536,7 +537,8 @@ export async function cli() {
             "Starts a Model Context Protocol server that exposes scripts as tools"
         )
         .action(startMcpServer)
-    addRemoteOptions(mcp) // Add remote options to the command
+    addRemoteOptions(mcp)
+    addModelOptions(mcp)
 
     const openapi = program
         .command("openapi")
@@ -545,7 +547,7 @@ export async function cli() {
             "Opens server on 0.0.0.0 to make it accessible on the network"
         )
         .option(
-            "-p, --port <number>",
+            "--port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
         )
         .option(
@@ -564,7 +566,8 @@ export async function cli() {
             "Starts an OpenAPI 3.1.1 server that exposes scripts as /api/tools/<id> endpoints"
         )
         .action(startOpenAPIServer)
-    addRemoteOptions(openapi) // Add remote options to the command
+    addRemoteOptions(openapi)
+    addModelOptions(openapi)
 
     // Define 'parse' command group for parsing tasks
     const parser = program

@@ -14,12 +14,14 @@ import { OPENAPI_SERVER_PORT } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
 import { run } from "./api"
 import { errorMessage } from "../../core/src/error"
+import { PromptScriptRunOptions } from "./main"
 const dbg = genaiscriptDebug("openapi")
 const dbgError = dbg.extend("error")
 const dbgHandlers = dbg.extend("handlers")
 
 export async function startOpenAPIServer(
-    options?: ScriptFilterOptions &
+    options?: PromptScriptRunOptions &
+        ScriptFilterOptions &
         RemoteOptions & {
             port?: string
             cors?: string
@@ -31,8 +33,22 @@ export async function startOpenAPIServer(
     logVerbose(`openapi server: starting...`)
 
     await applyRemoteOptions(options)
-    const { startup, cors } = options || {}
-    const serverHost = options.network ? "0.0.0.0" : "127.0.0.1"
+    const {
+        startup,
+        cors,
+        network,
+        remote,
+        remoteBranch,
+        remoteForce,
+        remoteInstall,
+        groups,
+        ids,
+        ...runOptions
+    } = options || {}
+    const serverHost = network ? "0.0.0.0" : "127.0.0.1"
+
+    dbg(`server host: %s`, serverHost)
+    dbg(`run options: %O`, runOptions)
 
     const port = await findOpenPort(OPENAPI_SERVER_PORT, options)
     const watcher = await startProjectWatcher(options)
@@ -41,6 +57,9 @@ export async function startOpenAPIServer(
     const createFastify = (await import("fastify")).default
     const swagger = (await import("@fastify/swagger")).default
     const swaggerUi = (await import("@fastify/swagger-ui")).default
+    const swaggerCors = cors
+        ? (await import("@fastify/cors")).default
+        : undefined
 
     let fastifyController: AbortController | undefined
     let fastify: FastifyInstance | undefined
@@ -77,7 +96,7 @@ export async function startOpenAPIServer(
         fastify = createFastify({ logger: false })
 
         if (cors)
-            fastify.register((await import("@fastify/cors")).default, {
+            fastify.register(swaggerCors, {
                 origin: cors,
                 methods: ["GET", "POST"],
                 allowedHeaders: ["Content-Type"],
@@ -137,24 +156,52 @@ export async function startOpenAPIServer(
                     summary: tool.title,
                     description: tool.description,
                     tags: [tool.group].filter(Boolean),
-                    body: toStrictJSONSchema(scriptSchema),
+                    body: toStrictJSONSchema(scriptSchema, {
+                        defaultOptional: true,
+                    }),
                     response: {
-                        200: toStrictJSONSchema({
-                            type: "object",
-                            properties: deleteUndefinedValues({
-                                error: {
-                                    type: "string",
-                                    description: "Error message",
-                                },
-                                text: {
-                                    type: "string",
-                                    description: "Output text",
-                                },
-                                data: tool.responseSchema
-                                    ? toStrictJSONSchema(tool.responseSchema)
-                                    : undefined,
-                            }),
-                        }),
+                        200: toStrictJSONSchema(
+                            {
+                                type: "object",
+                                properties: deleteUndefinedValues({
+                                    error: {
+                                        type: "string",
+                                        description: "Error message",
+                                    },
+                                    text: {
+                                        type: "string",
+                                        description: "Output text",
+                                    },
+                                    data: tool.responseSchema
+                                        ? toStrictJSONSchema(
+                                              tool.responseSchema,
+                                              {
+                                                  defaultOptional: true,
+                                              }
+                                          )
+                                        : undefined,
+                                }),
+                            },
+                            { defaultOptional: true }
+                        ),
+                    },
+                    400: {
+                        type: "object",
+                        properties: {
+                            error: {
+                                type: "string",
+                                description: "Error message",
+                            },
+                        },
+                    },
+                    500: {
+                        type: "object",
+                        properties: {
+                            error: {
+                                type: "string",
+                                description: "Error message",
+                            },
+                        },
                     },
                 },
             }
@@ -166,6 +213,7 @@ export async function startOpenAPIServer(
                 dbgHandlers(`%s %O`, tool.id, request.body)
                 const { files, ...vars } = request.body as any
                 const res = await run(tool.id, [], {
+                    ...runOptions,
                     vars: vars,
                     runTrace: false,
                     outputTrace: false,
