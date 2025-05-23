@@ -218,7 +218,7 @@ export async function startOpenAPIServer(
                 const { files, ...vars } = request.body as any
                 const params = request.query || {}
                 // TODO: parse query params?
-                const res = await run(tool.id, [], {
+                const res = await run(tool.id, files, {
                     ...runOptions,
                     //...params,
                     vars: vars,
