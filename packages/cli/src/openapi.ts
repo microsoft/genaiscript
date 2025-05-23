@@ -156,27 +156,6 @@ export async function startOpenAPIServer(
                     },
                 }
             const routeSchema = {
-                params: {
-                    type: "object",
-                    properties: {
-                        model: {
-                            type: "string",
-                            description: "Model identifier",
-                        },
-                        smallModel: {
-                            type: "string",
-                            description: "Small model identifier",
-                        },
-                        visionModel: {
-                            type: "string",
-                            description: "Vision model identifier",
-                        },
-                        provider: {
-                            type: "string",
-                            description: "LLM Provider identifier",
-                        },
-                    },
-                },
                 schema: {
                     summary: tool.title,
                     description: tool.description,
@@ -237,24 +216,27 @@ export async function startOpenAPIServer(
             fastify.post(url, routeSchema, async (request, reply) => {
                 dbgHandlers(`%s %O`, tool.id, request.body)
                 const { files, ...vars } = request.body as any
-                const params = (request.params || {}) as PromptScriptRunOptions
+                const params = request.query || {}
+                // TODO: parse query params?
                 const res = await run(tool.id, [], {
                     ...runOptions,
-                    ...params,
+                    //...params,
                     vars: vars,
                     runTrace: false,
                     outputTrace: false,
                 })
                 dbgHandlers(`res: %s`, res.status)
-                if (res.error) dbgHandlers(`error: %O`, res.error)
+                if (res.error) {
+                    dbgHandlers(`error: %O`, res.error)
+                    throw new Error(errorMessage(res.error))
+                }
                 const text = res.text
                 const data = res?.json
                 return deleteUndefinedValues({
-                    error: errorMessage(res.error),
                     text,
                     data,
                 })
-                if (res.error) return reply.status(500).send(deleteUndefinedValues({ error: errorMessage(res.error), text, data })); return deleteUndefinedValues({ error: errorMessage(res.error), text, data });
+            })
         }
 
         await fastify.register(swaggerUi, {
