@@ -541,7 +541,7 @@ export async function cli() {
     addModelOptions(mcp)
 
     const openapi = program
-        .command("openapi")
+        .command("webapi")
         .option(
             "-n, --network",
             "Opens server on 0.0.0.0 to make it accessible on the network"
@@ -554,16 +554,15 @@ export async function cli() {
             "-c, --cors <string>",
             "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
         )
-
+        .option("--route <string>", "Route prefix, like /api")
         .option("--groups <string...>", "Filter script by groups")
         .option("--ids <string...>", "Filter script by ids")
         .option(
             "--startup <string>",
             "Startup script id, executed after the server is started"
         )
-        .alias("api")
         .description(
-            "Starts an OpenAPI 3.1.1 server that exposes scripts as /api/tools/<id> endpoints"
+            "Starts an Web API server that exposes scripts as REST endpoints (OpenAPI 3.1 compatible)"
         )
         .action(startOpenAPIServer)
     addRemoteOptions(openapi)

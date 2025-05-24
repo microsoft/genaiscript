@@ -151,6 +151,11 @@ export function trimTrailingSlash(s: string) {
     return s?.replace(/\/{1,10}$/, "")
 }
 
+export function ensureHeadSlash(s: string) {
+    if (s?.startsWith("/")) return s
+    return "/" + s
+}
+
 /**
  * Converts a variable name to a normalized format by converting it to lowercase
  * and removing all characters except alphanumeric characters and periods.

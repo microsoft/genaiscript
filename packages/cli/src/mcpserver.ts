@@ -21,6 +21,7 @@ import { runtimeHost } from "../../core/src/host"
 import { Resource, ResourceContents } from "../../core/src/mcpresource"
 import debug from "debug"
 import { splitMarkdownTextImageParts } from "../../core/src/markdown"
+import { ensureDotGenaiscriptPath } from "../../core/src/workdir"
 const dbg = debug("genaiscript:mcp:server")
 
 /**
@@ -42,6 +43,7 @@ export async function startMcpServer(
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
 
+    await ensureDotGenaiscriptPath()
     await applyRemoteOptions(options)
     const { startup } = options || {}
 

@@ -1,20 +1,19 @@
 ---
-title: OpenAPI Server
-description: The OpenAPI Server exposes scripts as OpenAPI endpoints.
+title: Web API Server
+description: The Web API server exposes a REST API, OpenAPI compatible, to run scripts.
 ---
 
-You can launch the [cli](/genaiscript/reference/cli) as a [OpenAPI server](https://swagger.io/specification/)
-to serve scripts as OpenAPI endpoints.
+You can launch the [cli](/genaiscript/reference/cli) as a **Web API server** to serve scripts as REST endpoints.
+The server is OpenAPI 3.1 compatible and uses [fastify](https://www.fastify.io/) under the hood.
 
 ```bash
-genaiscript openapi
+genaiscript webapi
 ```
 
-## Scripts as OpenAPI endpoints
+## Scripts as REST endpoints
 
-The OpenAPI endpoint description is the script description.
-**Make sure to carefully craft the description** as it is how the LLM decides
-which tool to use when running a script. If your tool does not get picked up by the LLM, it's probably a description issue.
+The Web API server exposes scripts as REST endpoints. It uses the title, description, groups and tags
+to generate a OpenAPI 3.1 specification and server using fastify.
 
 The OpenAPI endpoint parameters is inferred from the [script parameters](/genaiscript/reference/scripts/parameters) and files automatically.
 The OpenAPI parameters will then populate the `env.vars` object in the script
@@ -70,6 +69,24 @@ const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the promp
 output.fence(`The result is ${res.text}`)
 ```
 
+## Route
+
+The default route is `/api` and the OpenAPI specification is available at `/api/docs/json`.
+You can change the route using the `--route` option.
+
+```bash
+genaiscript webapi --route /genai
+```
+
+The OpenAPI specification will be available at `/myapi/docs/json`.
+You can also change the port using the `--port` option.
+
+```bash
+genaiscript webapi --route /genai --port 4000
+```
+
+The server will be available at `http://localhost:4000/myapi`.
+
 ## Startup script
 
 You can specify a startup script id in the command line using the `--startup` option.
@@ -117,3 +134,20 @@ As usual, be careful when running scripts from a remote repository.
 Make sure you trust the source before running the script and consider locking to a specific commit.
 
 :::
+
+## Linting
+
+You can run [spectral](https://github.com/stoplightio/spectral) to lint your OpenAPI specifications.
+
+- save this `.spectral.yaml` file in the root of your project:
+
+```yaml
+extends: "spectral:oas"
+```
+
+- launch the api server
+- run the spectral linter
+
+```bash
+npx --yes -p @stoplight/spectral-cli spectral lint http://localhost:3000/api/docs/json
+```
