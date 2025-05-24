@@ -248,7 +248,9 @@ export async function startOpenAPIServer(
             dbg(`script %s: %s\n%O`, id, url, postSchema)
 
             const handler = async (request: FastifyRequest) => {
-                const { files, ...vars } = (request.body || {}) as any
+                const { files, ...vars } = (request.body || {
+                    files: [],
+                }) as any
                 // TODO: parse query params?
                 const res = await run(tool.id, files, {
                     ...runOptions,
@@ -256,6 +258,7 @@ export async function startOpenAPIServer(
                     runTrace: false,
                     outputTrace: false,
                 })
+                if (!res) throw new Error("Internal Server Error")
                 dbgHandlers(`res: %s`, res.status)
                 if (res.error) {
                     dbgHandlers(`error: %O`, res.error)
@@ -279,7 +282,7 @@ export async function startOpenAPIServer(
             }
             fastify.post(url, { schema: postSchema }, async (request) => {
                 dbgHandlers(`post %s %O`, tool.id, request.body)
-                await handler(request)
+                return await handler(request)
             })
         }
 
