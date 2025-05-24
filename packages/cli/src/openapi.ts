@@ -271,10 +271,7 @@ export async function startOpenAPIServer(
                     data,
                 })
             }
-            if (
-                accept === "none" &&
-                !Object.keys(scriptSchema.properties).length
-            ) {
+            if (!scriptSchema.required?.length) {
                 fastify.get(url, { schema: getSchema }, async (request) => {
                     dbgHandlers(`get %s %O`, tool.id, request.body)
                     return await handler(request)
