@@ -128,6 +128,11 @@ export async function startOpenAPIServer(
                     description,
                     version,
                     contact: author ? { name: author } : undefined,
+                    license: license
+                        ? {
+                              name: license,
+                          }
+                        : undefined,
                 }),
                 externalDocs: homepage
                     ? {
