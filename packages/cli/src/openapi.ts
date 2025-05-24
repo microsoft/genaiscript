@@ -277,7 +277,7 @@ export async function startOpenAPIServer(
             ) {
                 fastify.get(url, { schema: getSchema }, async (request) => {
                     dbgHandlers(`get %s %O`, tool.id, request.body)
-                    await handler(request)
+                    return await handler(request)
                 })
             }
             fastify.post(url, { schema: postSchema }, async (request) => {
