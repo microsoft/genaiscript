@@ -10,7 +10,7 @@ import { toStrictJSONSchema } from "../../core/src/schema"
 import { logVerbose, logWarn } from "../../core/src/util"
 import { RemoteOptions, applyRemoteOptions } from "./remote"
 import { startProjectWatcher } from "./watch"
-import type { FastifyInstance } from "fastify"
+import type { FastifyInstance, FastifyRequest } from "fastify"
 import { findOpenPort } from "./port"
 import { OPENAPI_SERVER_PORT } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
@@ -189,73 +189,69 @@ export async function startOpenAPIServer(
                 logWarn(`${id}: operation must have a description`)
             if (!group) logWarn(`${id}: operation must have a group`)
 
-            const routeSchema = {
-                schema: {
-                    operationId: `genai_${id}`,
-                    summary,
-                    description,
-                    tags: [tool.group || "default"].filter(Boolean),
-                    body: toStrictJSONSchema(scriptSchema, {
-                        defaultOptional: true,
-                    }),
-                    response: {
-                        200: toStrictJSONSchema(
-                            {
-                                type: "object",
-                                properties: deleteUndefinedValues({
-                                    error: {
-                                        type: "string",
-                                        description: "Error message",
-                                    },
-                                    text: {
-                                        type: "string",
-                                        description: "Output text",
-                                    },
-                                    data: tool.responseSchema
-                                        ? toStrictJSONSchema(
-                                              tool.responseSchema,
-                                              {
-                                                  defaultOptional: true,
-                                              }
-                                          )
-                                        : undefined,
-                                }),
-                            },
-                            { defaultOptional: true }
-                        ),
-                    },
-                    400: {
-                        type: "object",
-                        properties: {
-                            error: {
-                                type: "string",
-                                description: "Error message",
-                            },
+            const getSchema = {
+                operationId: `genai_${id}`,
+                summary,
+                description,
+                tags: [tool.group || "default"].filter(Boolean),
+                response: {
+                    200: toStrictJSONSchema(
+                        {
+                            type: "object",
+                            properties: deleteUndefinedValues({
+                                error: {
+                                    type: "string",
+                                    description: "Error message",
+                                },
+                                text: {
+                                    type: "string",
+                                    description: "Output text",
+                                },
+                                data: tool.responseSchema
+                                    ? toStrictJSONSchema(tool.responseSchema, {
+                                          defaultOptional: true,
+                                      })
+                                    : undefined,
+                            }),
+                        },
+                        { defaultOptional: true }
+                    ),
+                },
+                400: {
+                    type: "object",
+                    properties: {
+                        error: {
+                            type: "string",
+                            description: "Error message",
                         },
                     },
-                    500: {
-                        type: "object",
-                        properties: {
-                            error: {
-                                type: "string",
-                                description: "Error message",
-                            },
+                },
+                500: {
+                    type: "object",
+                    properties: {
+                        error: {
+                            type: "string",
+                            description: "Error message",
                         },
                     },
                 },
             }
+            const postSchema = {
+                ...getSchema,
+                body: toStrictJSONSchema(scriptSchema, {
+                    defaultOptional: true,
+                }),
+            }
+
             // todo files
             const url = `${route}/${id.replace(/[^a-z0-9]/g, "_").replace(/_{2,}/g, "_")}`
-            dbg(`script %s: %s\n%O`, id, url, routeSchema)
+            dbg(`script %s: %s\n%O`, id, url, postSchema)
 
-            fastify.post(url, routeSchema, async (request, reply) => {
-                dbgHandlers(`%s %O`, tool.id, request.body)
-                const { files, ...vars } = request.body as any
-                const params = request.query || {}
+            const handler = async (request: FastifyRequest) => {
+                const { files, ...vars } = (request.body || {}) as any
                 // TODO: parse query params?
                 const res = await run(tool.id, files, {
                     ...runOptions,
-                    //...params,
                     vars: vars,
                     runTrace: false,
                     outputTrace: false,
@@ -271,6 +267,19 @@ export async function startOpenAPIServer(
                     text,
                     data,
                 })
+            }
+            if (
+                accept === "none" &&
+                !Object.keys(scriptSchema.properties).length
+            ) {
+                fastify.get(url, { schema: getSchema }, async (request) => {
+                    dbgHandlers(`get %s %O`, tool.id, request.body)
+                    await handler(request)
+                })
+            }
+            fastify.post(url, { schema: postSchema }, async (request) => {
+                dbgHandlers(`post %s %O`, tool.id, request.body)
+                await handler(request)
             })
         }
 
