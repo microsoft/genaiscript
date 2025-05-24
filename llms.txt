@@ -1,0 +1,34 @@
+# GenAIScript
+
+> GenAIScript is a JavaScript/TypeScript library and environment to build productive script using LLMs.
+
+## Markdown Documentation
+All pages of the documentation have a markdown route by adding '.md' to the URL.
+For example, the markdown for https://microsoft.github.io/genaiscript/reference/scripts 
+is at https://microsoft.github.io/genaiscript/reference/scripts.md
+
+## Guidance for Code Generation
+- GenAIScript programs are meant to be executed through the genaiscript cli (https://www.npmjs.com/package/genaiscript).
+- When generating code for GenAIScript, always target TypeScript, Node.JS, ESM. Prefer await/async, keep it simple.
+- ambient types and definitions defined in "genaiscript.d.ts" are preloaded at runtime. you do not need to import them.
+- you keep the code simple, avoid exception handlers or error checking.
+- you add TODOs where you are unsure so that the user can review them
+- you use the global types in genaiscript.d.ts are already loaded in the global context, no need to import them.
+- save generated code in the "./genaisrc" folder with ".genai.mts" extension
+
+
+## Documentation Sets
+
+- [Abridged documentation](https://microsoft.github.io/genaiscript/llms-small.txt): a compact version of the documentation for GenAIScript, with non-essential content removed
+- [Complete documentation](https://microsoft.github.io/genaiscript/llms-full.txt): the full documentation for GenAIScript
+- [Getting Started](https://microsoft.github.io/genaiscript/_llms-txt/getting-started.txt): Sequence of short tutorials on how to get started with GenAIScript
+- [Reference](https://microsoft.github.io/genaiscript/_llms-txt/reference.txt): full reference documentation (runtime and cli)
+- [Reference Scripts](https://microsoft.github.io/genaiscript/_llms-txt/reference-scripts.txt): full reference documentation for the runtime
+- [Reference CLI](https://microsoft.github.io/genaiscript/_llms-txt/reference-cli.txt): full reference documentation for the command line interface and Node.JS runtime
+- [Guides](https://microsoft.github.io/genaiscript/_llms-txt/guides.txt): Guides on various LLM programming topics
+- [Samples](https://microsoft.github.io/genaiscript/_llms-txt/samples.txt): Advanced samples used for specific common scenarios
+
+## Notes
+
+- The complete documentation includes all content from the official documentation
+- The content is automatically generated from the same source as the official documentation

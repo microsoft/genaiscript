@@ -1,0 +1,229 @@
+Runs a script on files and streams the LLM output to stdout or a folder from the workspace root.
+
+```bash
+npx genaiscript run <script> "<files...>"
+```
+
+where `<script>` is the id or file path of the tool to run, and `<files...>` is the name of the spec file to run it on.
+
+Files can also include [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) pattern.
+
+```sh
+npx genaiscript run code-annotator "src/*.ts"
+```
+
+If multiple files are specified, all files are included in `env.files`.
+
+```sh
+npx genaiscript run <script> "src/*.bicep" "src/*.ts"
+```
+
+## Files
+
+`run` takes one or more [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) patterns to match files in the workspace.
+
+```bash
+npx genaiscript run <script> "**/*.md" "**/*.ts"
+```
+
+### Resource resolutions
+
+GenAIScript will automatically handle and resolve specific URI patterns.
+
+- `file://` - local file
+- `https://github.com/<owner>/<repo>/blob/<branch>/<path>` - GitHub file
+- `https://github.com/<owner>/<repo>.git/<file glob>` - GitHub repository and file glob
+- `gist://id/<file glob>` - GitHub Gist and file glob
+- `https://gist.github.com/<owner>/<id>/<file glob>` - GitHub Gist and file glob
+- `git://<owner>/<repo>.git/<file glob>` - Git repository and file glob
+
+### Piping
+
+`run` takes the stdin content and converts it into the `stdin` file.
+The LLM output is sent to `stdout`, while the rest of the logging is sent to `stderr`.
+
+```bash
+cat README.md | genaiscript run summarize > summary.md
+```
+
+### --excluded-files &lt;files...&gt;
+
+Excludes the specified files from the file set.
+
+```sh "--excluded-files <excluded-files...>"
+npx genaiscript run <script> <files> --excluded-files <excluded-files...>
+```
+
+### --exclude-git-ignore
+
+Exclude files ignored by the `.gitignore` file at the workspace root.
+
+```sh "--exclude-git-ignore"
+npx genaiscript run <script> <files> --exclude-git-ignore
+```
+
+## Configuration
+
+### --model ...
+
+Configure the default or `large` model alias. Use `echo` to do a dry run and return the messages instead of calling a LLM provider.
+
+## --provider ...
+
+Loads a set of model aliases for the given LLM provider.
+
+### --vars name=value name2=value2 ...
+
+Populate values in the `env.vars` map that can be used when running the prompt.
+
+## Output
+
+### --out &lt;file|directory&gt;
+
+Saves the results in a JSON file, along with markdown files of the output and the trace.
+
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out out/res.json
+```
+
+If `file` does not end with `.json`, the path is treated as a directory path.
+
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out tmp
+```
+
+### --json
+
+Output the entire response as JSON to the stdout.
+
+### --yaml
+
+Output the entire response as YAML to the stdout.
+
+### --out-trace &lt;file&gt;
+
+Save the markdown trace to the specified file.
+
+```sh wrap
+npx genaiscript run <script> <files> --out-trace &lt;file&gt;
+```
+
+In a GitHub Actions workflow, you can use this feature to save the trace as a step summary (`GITHUB_STEP_SUMMARY`):
+
+```yaml title=".github/workflows/genaiscript.yml" wrap
+- name: Run GenAIScript tool on spec
+  run: |
+      genaiscript run <script> <files> --out-trace $GITHUB_STEP_SUMMARY
+```
+
+In Azure Dev Ops, you can use the [task.uploadSummary](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#uploadsummary-add-some-markdown-content-to-the-build-summary)
+in your pipeline to upload the trace as a summary.
+
+```yaml title="genaiscript.pipeline.yml" "##vso[task.uploadsummary]" wrap
+- script: npx --yes genaiscript run poem --out-trace $(System.DefaultWorkingDirectory)/trace.md
+  displayName: "Run GenAIScript tool"
+  continueOnError: true
+- script: echo "##vso[task.uploadsummary]$(System.DefaultWorkingDirectory)/trace.md"
+  displayName: "append readme to pipeline report"
+```
+
+### --out-annotations &lt;file&gt;
+
+Emit annotations in the specified file as a JSON array, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) or a CSV file if the file ends with `.csv`.
+
+```sh wrap
+npx genaiscript run <script> <files> --out-annotations diags.csv
+```
+
+Use JSON lines (`.jsonl`) to aggregate annotations from multiple runs in a single file.
+
+```sh wrap
+npx genaiscript run <script> <files> --out-annotations diags.jsonl
+```
+
+### --out-data &lt;file&gt;
+
+Emits parsed data as JSON, YAML or JSONL. If a JSON schema is specified
+and availabe, the JSON validation result is also stored.
+
+```sh
+npx genaiscript run <script> <files> --out-data data.jsonl
+```
+
+### --out-changelogs &lt;file&gt;
+
+Emit changelogs in the specified file as text.
+
+```sh
+npx genaiscript run <script> <files> --out-changelogs changelogs.txt
+```
+
+## Pull Requests and Issues <a href="" id="pull-requests" />
+
+The CLI can update a pull request/issue description and comments when running in a GitHub Action or Azure DevOps pipeline.
+
+### GitHub Action workflow configuration
+
+Update your workflow configuration to include the following:
+
+- add the `pull-requests: write` permission to the workflow/step
+
+```yaml
+permissions:
+    pull-requests: write
+```
+
+- set the `GITHUB_TOKEN` secret in the `env` when running the cli
+
+```yaml
+    - run: npx --yes genaiscript run ... -prc --out-trace $GITHUB_STEP_SUMMARY
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ... # LLM secrets
+```
+
+### Azure DevOps configuration
+
+- add `<your projectname> Build Service` in the **Collaborator** role to the repository
+- pass secrets to scripts, including `System.AccessToken`
+
+```yaml
+- script: npx genaiscript run ... -prd
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    ... # LLM secrets
+```
+
+### --pull-request-description \[tag\]
+
+When running within a GitHub Action or Azure DevOps pipeline on a pull request,
+the CLI inserts the LLM output in the description of the pull request ([example](https://github.com/microsoft/genaiscript/pull/564))
+
+```sh
+npx genaiscript run ... -prd
+```
+
+The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
+
+### --pull-request-comment \[tag\];
+
+Upserts a comment on the pull request/issue with the LLM output ([example](https://github.com/microsoft/genaiscript/pull/564#issuecomment-2200474305))
+
+```sh
+npx genaiscript run ... -prc
+```
+
+The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
+
+### --pull-request-reviews
+
+Create pull request review comments from each [annotations](/genaiscript/reference/scripts/annotations)
+([example](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).
+
+```sh
+npx genaiscript run ... -prr
+```
+
+## Read more
+
+The full list of options is available in the [CLI reference](/genaiscript/reference/cli/commands#run).

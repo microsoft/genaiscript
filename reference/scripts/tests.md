@@ -1,0 +1,222 @@
+It is possible to define tests/tests for the LLM scripts, to evaluate the output quality of the LLM
+over time and model types.
+
+The tests are executed by [promptfoo](https://promptfoo.dev/), a tool for evaluating LLM output quality.
+
+You can also find AI vulnerabilities, such as bias, toxicity, and factuality issues, using the [redteam](/genaiscript/reference/scripts/redteam) feature.
+
+## Defining tests
+
+The tests are declared in the `script` function in your test.
+You may define one or many tests (array).
+
+```js title="proofreader.genai.js" wrap "tests"
+script({
+  ...,
+  tests: [{
+    files: "src/rag/testcode.ts",
+    rubrics: "is a report with a list of issues",
+    facts: `The report says that the input string
+      should be validated before use.`,
+  }, { ... }],
+})
+```
+
+### Test models
+
+You can specify a list of models (or model aliases) to test against.
+
+```js title="proofreader.genai.js" wrap "tests"
+script({
+  ...,
+  testModels: ["ollama:phi3", "ollama:gpt-4o"],
+})
+```
+
+The eval engine (PromptFoo) will run each test against each model in the list.
+This setting can be overriden by the command line `--models` option.
+
+### External test files
+
+You can also specify the filename of external test files, in JSON, YAML, CSV formats
+as well as `.mjs`, `.mts` JavaScript files will be executed to generate the tests.
+
+```js title="proofreader.genai.js" wrap "tests"
+script({
+  ...,
+  tests: ["tests.json", "more-tests.csv", "tests.mjs"],
+})
+```
+
+The JSON and YAML files assume that files to be a list of `PromptTest` objects and you can validate these files
+using the JSON schema at [https://microsoft.github.io/genaiscript/schemas/tests.json](https://microsoft.github.io/genaiscript/schemas/tests.json).
+
+The CSV files assume that the first row is the header and the columns are mostly the properties of the `PromptTest` object.
+The `file` column should be a filename, the `fileContent` column is the content of a virutal file.
+
+```csv title="tests.csv"
+content,rubrics,facts
+"const x = 1;",is a report with a list of issues,The report says that the input string should be validated before use.
+```
+
+The JavaScript files should export a list of `PromptTest` objects or a function that generates the list of `PromptTest` objects.
+
+```js title="tests.mjs"
+export default [
+    {
+        content: "const x = 1;",
+        rubrics: "is a report with a list of issues",
+        facts: "The report says that the input string should be validated before use.",
+    },
+]
+```
+
+### `files`
+
+`files` takes a list of file path (relative to the workspace) and populate the `env.files`
+variable while running the test. You can provide multiple files by passing an array of strings.
+
+```js title="proofreader.genai.js" wrap "files"
+script({
+  tests: {
+    files: "src/rag/testcode.ts",
+    ...
+  }
+})
+```
+
+### `rubrics`
+
+`rubrics` checks if the LLM output matches given requirements,
+using a language model to grade the output based on the rubric (see [llm-rubric](https://promptfoo.dev/docs/configuration/expected-outputs/model-graded/#examples-output-based)).
+You can specify multiple rubrics by passing an array of strings.
+
+```js title="proofreader.genai.js" wrap "rubrics"
+script({
+  tests: {
+    rubrics: "is a report with a list of issues",
+    ...,
+  }
+})
+```
+
+:::note[GPT-4 required]
+
+The `rubrics` tests require to have
+a OpenAI or Azure OpenAI configuration with a `gpt-4` model in the `.env` file.
+
+:::
+
+### `facts`
+
+`facts` checks a factual consistency (see [factuality](https://promptfoo.dev/docs/guides/factuality-eval/)).
+You can specify multiple facts by passing an array of strings.
+
+> given a completion A and reference answer B evaluates
+> whether A is a subset of B, A is a superset of B, A and B are equivalent,
+> A and B disagree, or A and B differ,
+> but difference don't matter from the perspective of factuality.
+
+```js title="proofreader.genai.js" wrap "facts"
+script({
+  tests: {
+    facts: `The report says that the input string should be validated before use.`,
+    ...,
+  }
+})
+```
+
+:::note[gpt-4o required]
+
+The `facts` tests require to have
+a OpenAI or Azure OpenAI configuration with a `gpt-4o` model in the `.env` file.
+
+:::
+
+### `asserts`
+
+Other assertions on
+[promptfoo assertions and metrics](https://promptfoo.dev/docs/configuration/expected-outputs/).
+
+- `icontains` (`not-icontains"`) output contains substring case insensitive
+- `equals` (`not-equals`) output equals string
+- `starts-with` (`not-starts-with`) output starts with string
+
+```js title="proofreader.genai.js" wrap "asserts"
+script({
+    tests: {
+        facts: `The report says that the input string should be validated before use.`,
+        asserts: [
+            {
+                type: "icontains",
+                value: "issue",
+            },
+        ],
+    },
+})
+```
+
+- `contains-all` (`not-contains-all`) output contains all substrings
+- `contains-any` (`not-contains-any`) output contains any substring
+- `icontains-all` (`not-icontains-all`) output contains all substring case insensitive
+
+```js title="proofreader.genai.js" wrap "asserts"
+script({
+    tests: {
+        ...,
+        asserts: [
+            {
+                type: "icontains-all",
+                value: ["issue", "fix"],
+            },
+        ],
+    },
+})
+```
+
+#### transform
+
+By default, GenAIScript extracts the `text` field from the output before sending it to PromptFoo.
+You can disable this mode by setting `format: "json"`; then the the `asserts` are executed on the raw LLM output.
+You can use a javascript expression to select a part of the output to test.
+
+```js title="proofreader.genai.js" wrap "transform"
+script({
+    tests: {
+        files: "src/will-trigger.cancel.txt",
+        format: "json",
+        asserts: {
+            type: "equals",
+            value: "cancelled",
+            transform: "output.status",
+        },
+    },
+})
+```
+
+## Running tests
+
+You can run tests from Visual Studio Code or using the [command line](/genaiscript/reference/cli).
+In both cases, genaiscript generates a [promptfoo configuration file](https://promptfoo.dev/docs/configuration/guide)
+and execute promptfoo on it.
+
+### Visual Studio Code
+
+- Open the script to test
+- Right click in the editor and select **Run GenAIScript Tests** in the context menu
+- The [promptfoo web view](https://promptfoo.dev/docs/usage/web-ui/) will automatically
+  open and refresh with the test results.
+
+### Command line
+
+Run the `test` command with the script file as argument.
+
+```sh "test"
+npx genaiscript test <scriptid>
+```
+
+You can specify additional models to test against by passing the `--models` option.
+
+```sh '--models "ollama:phi3"'
+npx genaiscript test <scriptid> --models "ollama:phi3"
+```
