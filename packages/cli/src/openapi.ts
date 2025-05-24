@@ -1,19 +1,24 @@
 import { ScriptFilterOptions } from "../../core/src/ast"
-import { deleteUndefinedValues } from "../../core/src/cleaners"
-import { setConsoleColors } from "../../core/src/consolecolor"
+import {
+    deleteUndefinedValues,
+    ensureHeadSlash,
+    trimTrailingSlash,
+} from "../../core/src/cleaners"
 import { genaiscriptDebug } from "../../core/src/debug"
 import { nodeTryReadPackage } from "../../core/src/nodepackage"
 import { toStrictJSONSchema } from "../../core/src/schema"
-import { logVerbose } from "../../core/src/util"
+import { logVerbose, logWarn } from "../../core/src/util"
 import { RemoteOptions, applyRemoteOptions } from "./remote"
 import { startProjectWatcher } from "./watch"
-import type { FastifyInstance } from "fastify"
+import type { FastifyInstance, FastifyRequest } from "fastify"
 import { findOpenPort } from "./port"
 import { OPENAPI_SERVER_PORT } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
 import { run } from "./api"
 import { errorMessage } from "../../core/src/error"
 import { PromptScriptRunOptions } from "./main"
+import { ensureDotGenaiscriptPath } from "../../core/src/workdir"
+import { uniq } from "es-toolkit"
 const dbg = genaiscriptDebug("openapi")
 const dbgError = dbg.extend("error")
 const dbgHandlers = dbg.extend("handlers")
@@ -26,11 +31,12 @@ export async function startOpenAPIServer(
             cors?: string
             network?: boolean
             startup?: string
+            route?: string
         }
 ) {
-    setConsoleColors(false)
-    logVerbose(`openapi server: starting...`)
+    logVerbose(`web api server: starting...`)
 
+    await ensureDotGenaiscriptPath()
     await applyRemoteOptions(options)
     const {
         startup,
@@ -45,7 +51,8 @@ export async function startOpenAPIServer(
         ...runOptions
     } = options || {}
     const serverHost = network ? "0.0.0.0" : "127.0.0.1"
-
+    const route = ensureHeadSlash(trimTrailingSlash(options?.route || "/api"))
+    dbg(`route: %s`, route)
     dbg(`server host: %s`, serverHost)
     dbg(`run options: %O`, runOptions)
 
@@ -103,9 +110,13 @@ export async function startOpenAPIServer(
 
         // infer server metadata from package.json
         const {
-            name: title,
-            description,
-            version,
+            name,
+            description = "GenAIScript OpenAPI Server",
+            version = "0.0.0",
+            author,
+            license,
+            homepage,
+            displayName,
         } = (await nodeTryReadPackage()) || {}
 
         // Register the OpenAPI documentation plugin (Swagger for OpenAPI 3.x)
@@ -113,14 +124,22 @@ export async function startOpenAPIServer(
             openapi: {
                 openapi: "3.1.1",
                 info: deleteUndefinedValues({
-                    title,
+                    title: displayName || name,
                     description,
                     version,
+                    contact: author ? { name: author } : undefined,
+                    license: license
+                        ? {
+                              name: license,
+                          }
+                        : undefined,
                 }),
-                externalDocs: {
-                    url: "http://microsoft.github.io/genaiscript/reference/openapi",
-                    description: "GenAIScript OpenAPI documentation",
-                },
+                externalDocs: homepage
+                    ? {
+                          url: homepage,
+                          description: "Homepage",
+                      }
+                    : undefined,
                 servers: [
                     {
                         url: `http://127.0.0.1:${port}`,
@@ -135,12 +154,23 @@ export async function startOpenAPIServer(
                         description: "GenAIScript server",
                     },
                 ],
+                tags: uniq([
+                    "default",
+                    ...tools.map(({ group }) => group).filter(Boolean),
+                ]).map((name) => ({ name })),
             },
         })
 
         // Dynamically create a POST route for each tool in the tools list
         for (const tool of tools) {
-            const { accept, inputSchema } = tool
+            const {
+                id,
+                accept,
+                inputSchema,
+                title: summary,
+                description,
+                group,
+            } = tool
             const scriptSchema = (inputSchema?.properties
                 .script as JSONSchemaObject) || {
                 type: "object",
@@ -154,76 +184,81 @@ export async function startOpenAPIServer(
                         description: `Filename or globs relative to the workspace used by the script.${accept ? ` Accepts: ${accept}` : ""}`,
                     },
                 }
-            const routeSchema = {
-                schema: {
-                    summary: tool.title,
-                    description: tool.description,
-                    tags: [tool.group].filter(Boolean),
-                    body: toStrictJSONSchema(scriptSchema, {
-                        defaultOptional: true,
-                    }),
-                    response: {
-                        200: toStrictJSONSchema(
-                            {
-                                type: "object",
-                                properties: deleteUndefinedValues({
-                                    error: {
-                                        type: "string",
-                                        description: "Error message",
-                                    },
-                                    text: {
-                                        type: "string",
-                                        description: "Output text",
-                                    },
-                                    data: tool.responseSchema
-                                        ? toStrictJSONSchema(
-                                              tool.responseSchema,
-                                              {
-                                                  defaultOptional: true,
-                                              }
-                                          )
-                                        : undefined,
-                                }),
-                            },
-                            { defaultOptional: true }
-                        ),
-                    },
-                    400: {
-                        type: "object",
-                        properties: {
-                            error: {
-                                type: "string",
-                                description: "Error message",
-                            },
+
+            if (!description)
+                logWarn(`${id}: operation must have a description`)
+            if (!group) logWarn(`${id}: operation must have a group`)
+
+            const getSchema = {
+                operationId: `genai_${id}`,
+                summary,
+                description,
+                tags: [tool.group || "default"].filter(Boolean),
+                response: {
+                    200: toStrictJSONSchema(
+                        {
+                            type: "object",
+                            properties: deleteUndefinedValues({
+                                error: {
+                                    type: "string",
+                                    description: "Error message",
+                                },
+                                text: {
+                                    type: "string",
+                                    description: "Output text",
+                                },
+                                data: tool.responseSchema
+                                    ? toStrictJSONSchema(tool.responseSchema, {
+                                          defaultOptional: true,
+                                      })
+                                    : undefined,
+                            }),
+                        },
+                        { defaultOptional: true }
+                    ),
+                },
+                400: {
+                    type: "object",
+                    properties: {
+                        error: {
+                            type: "string",
+                            description: "Error message",
                         },
                     },
-                    500: {
-                        type: "object",
-                        properties: {
-                            error: {
-                                type: "string",
-                                description: "Error message",
-                            },
+                },
+                500: {
+                    type: "object",
+                    properties: {
+                        error: {
+                            type: "string",
+                            description: "Error message",
                         },
                     },
                 },
             }
-            // todo files
-            const url = `/api/scripts/${tool.id}`
-            dbg(`route %s\n%O`, url, routeSchema)
+            const postSchema = {
+                ...getSchema,
+                body: toStrictJSONSchema(scriptSchema, {
+                    defaultOptional: true,
+                }),
+            }
 
-            fastify.post(url, routeSchema, async (request, reply) => {
-                dbgHandlers(`%s %O`, tool.id, request.body)
-                const { files, ...vars } = request.body as any
-                const params = request.query || {}
+            // todo files
+            const url = `${route}/${id.replace(/[^a-z0-9]/g, "_").replace(/_{2,}/g, "_")}`
+            dbg(`script %s: %s\n%O`, id, url, postSchema)
+
+            const handler = async (request: FastifyRequest) => {
+                const { files, ...vars } = (request.body || {
+                    files: [],
+                }) as any
                 // TODO: parse query params?
                 const res = await run(tool.id, files, {
                     ...runOptions,
-                    //...params,
                     vars: vars,
                     runTrace: false,
                     outputTrace: false,
                 })
+                if (!res) throw new Error("Internal Server Error")
                 dbgHandlers(`res: %s`, res.status)
                 if (res.error) {
                     dbgHandlers(`error: %O`, res.error)
@@ -235,11 +270,24 @@ export async function startOpenAPIServer(
                     text,
                     data,
                 })
+            }
+            if (
+                accept === "none" &&
+                !Object.keys(scriptSchema.properties).length
+            ) {
+                fastify.get(url, { schema: getSchema }, async (request) => {
+                    dbgHandlers(`get %s %O`, tool.id, request.body)
+                    return await handler(request)
+                })
+            }
+            fastify.post(url, { schema: postSchema }, async (request) => {
+                dbgHandlers(`post %s %O`, tool.id, request.body)
+                return await handler(request)
             })
         }
 
         await fastify.register(swaggerUi, {
-            routePrefix: "/api/docs",
+            routePrefix: `${route}/docs`,
         })
 
         // Global error handler for uncaught errors and validation issues
@@ -257,9 +305,11 @@ export async function startOpenAPIServer(
         })
 
         console.log(`GenAIScript OpenAPI v${CORE_VERSION}`)
-        console.log(`│ API http://localhost:${port}/api/`)
-        console.log(`| Console UI: http://localhost:${port}/api/docs`)
-        console.log(`| OpenAPI Spec: http://localhost:${port}/api/docs/json`)
+        console.log(`│ API http://localhost:${port}${route}/`)
+        console.log(`| Console UI: http://localhost:${port}${route}/docs`)
+        console.log(
+            `| OpenAPI Spec: http://localhost:${port}${route}/docs/json`
+        )
         await fastify.listen({
             port,
             host: serverHost,

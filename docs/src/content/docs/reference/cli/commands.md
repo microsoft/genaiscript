@@ -600,13 +600,13 @@ Options:
   -h, --help                        display help for command
 ```
 
-## `openapi`
+## `webapi`
 
 ```
-Usage: genaiscript openapi|api [options]
+Usage: genaiscript webapi [options]
 
-Starts an OpenAPI 3.1.1 server that exposes scripts as /api/tools/<id>
-endpoints
+Starts an Web API server that exposes scripts as REST endpoints (OpenAPI 3.1
+compatible)
 
 Options:
   -n, --network                     Opens server on 0.0.0.0 to make it
@@ -614,6 +614,7 @@ Options:
   --port <number>                   Specify the port number, default: 8003
   -c, --cors <string>               Enable CORS and sets the allowed origin.
                                     Use '*' to allow any origin.
+  --route <string>                  Route prefix, like /api
   --groups <string...>              Filter script by groups
   --ids <string...>                 Filter script by ids
   --startup <string>                Startup script id, executed after the
