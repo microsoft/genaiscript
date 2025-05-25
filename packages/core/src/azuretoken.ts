@@ -8,7 +8,7 @@ import {
     isAzureTokenExpired,
     runtimeHost,
 } from "../../core/src/host"
-import { logError } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import type { TokenCredential } from "@azure/identity"
 import { serializeError } from "../../core/src/error"
 import {
@@ -47,8 +47,6 @@ async function createAzureToken(
         AzurePowerShellCredential,
         AzureDeveloperCliCredential,
         WorkloadIdentityCredential,
-        DeviceCodeCredential,
-        AzurePipelinesCredential,
         ChainedTokenCredential,
     } = await import("@azure/identity")
 
@@ -90,7 +88,7 @@ async function createAzureToken(
                 credential = new DefaultAzureCredential() // CodeQL [SM05139] Okay use of DefaultAzureCredential as it is only used in development........................................
             } else {
                 dbg(
-                    `node_env prod: credentialsType is env, cli, devcli, powershell`
+                    `node_env unspecified: credentialsType is env, cli, devcli, powershell`
                 )
                 credential = new ChainedTokenCredential(
                     new EnvironmentCredential(),
@@ -104,7 +102,7 @@ async function createAzureToken(
 
     // Obtain the Azure token
     const abortSignal = toSignal(cancellationToken)
-    dbg("obtaining Azure token with provided scopes and abort signal")
+    dbg(`get token for %o`, scopes)
     const azureToken = await credential.getToken(scopes.slice(), {
         abortSignal,
     })

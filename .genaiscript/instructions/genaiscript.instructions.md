@@ -1,6 +1,9 @@
+---
+applyTo: '**/*.genai.js,**/*.genai.ts,**/*.genai.mjs,**/*.genai.mts'
+---
 ## GenAIScript Code Generation Instructions
 
-GenAIScript is a custom runtime for node.js. It provides a set of unique APIs and support the TypeScript syntax.
+GenAIScript is a custom runtime for node.js. It provides a set of unique APIs and support the TypeScript syntax, ESM, await/async.
 
 - GenAIScript documentation: https://microsoft.github.io/genaiscript/llms-full.txt
 

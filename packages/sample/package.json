@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-sample",
-  "version": "1.135.0",
+  "version": "1.139.0",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -22,15 +22,14 @@
     "@ast-grep/lang-cpp": "^0.0.1",
     "@ast-grep/lang-csharp": "^0.0.1",
     "@ast-grep/lang-python": "^0.0.1",
-    "@azure/identity": "^4.9.1",
+    "@azure/identity": "^4.10.0",
     "@azure/storage-blob": "^12.27.0",
-    "@huggingface/transformers": "3.4.0",
     "@langchain/core": "^0.3.42",
     "@langchain/langgraph": "^0.2.57",
-    "@modelcontextprotocol/sdk": "^1.11.0",
+    "@modelcontextprotocol/sdk": "^1.11.4",
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
-    "zod": "^3.24.4",
+    "zod": "^3.25.17",
     "zod-to-json-schema": "^3.24.5"
   }
 }

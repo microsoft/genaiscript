@@ -260,7 +260,7 @@ rule:
                 _.def("FUNCTION", match.text(), { flex: 10 })
                 // this needs more eval-ing
                 _.$`Update the TypeScript docstring <DOCSTRING> to match the code in function <FUNCTION>.
-                - If the docstring is up to date, return /NOP/. It's ok to leave it as is.
+                - If the docstring is up to date, return /NO/. It's ok to leave it as is.
                 - do not rephrase an existing sentence if it is correct.
                 - Make sure parameters are documented.
                 - do NOT include types, this is for TypeScript.
@@ -299,7 +299,7 @@ rule:
             continue
         }
 
-        if (res.text.includes("/NOP/")) continue
+        if (res.text.includes("/NO/")) continue
 
         const docs = docify(res.text.trim())
 

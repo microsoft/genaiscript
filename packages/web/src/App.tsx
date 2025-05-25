@@ -99,8 +99,18 @@ function acceptToAccept(accept: string | undefined) {
 function FilesFormInput() {
     const script = useScript()
     const { accept } = script || {}
-    if (!script || accept === "none") return null
-
+    if (!script)
+        return (
+            <vscode-form-group>
+                <vscode-label>Select a script to run.</vscode-label>
+            </vscode-form-group>
+        )
+    if (accept === "none")
+        return (
+            <vscode-form-group>
+                <vscode-label>No files accepted.</vscode-label>
+            </vscode-form-group>
+        )
     return <FilesDropZone script={script} />
 }
 

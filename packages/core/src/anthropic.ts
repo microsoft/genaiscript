@@ -10,7 +10,7 @@ import {
 } from "./constants"
 import { parseModelIdentifier } from "./models"
 import { NotSupportedError, serializeError } from "./error"
-import { estimateTokens } from "./tokens"
+import { approximateTokens } from "./tokens"
 import { resolveTokenEncoder } from "./encoders"
 import type { Anthropic } from "@anthropic-ai/sdk"
 
@@ -95,9 +95,14 @@ const convertMessages = (
     emitThinking: boolean
 ): Anthropic.MessageParam[] => {
     const res: Anthropic.MessageParam[] = []
+    dbgMessages(`converting %d messages`, messages.length)
     for (let i = 0; i < messages.length; ++i) {
         const message = messages[i]
         const msg = convertSingleMessage(message, emitThinking)
+        if (msg.content === "") {
+            dbgMessages(`empty message`, msg)
+            continue // no message
+        }
         const last = res.at(-1)
         if (last?.role !== msg.role) res.push(msg)
         else {
@@ -113,7 +118,11 @@ const convertMessages = (
             else last.content.push(...msg.content)
         }
     }
-    return res
+
+    // filter out empty text messages
+    return res.filter((msg) =>
+        Array.isArray(msg.content) ? msg.content.length > 0 : msg.content !== ""
+    )
 }
 
 const convertSingleMessage = (
@@ -383,6 +392,7 @@ const completerFactory = (
             mreq.betas = ["output-128k-2025-02-19"]
         }
 
+        dbgMessages(`messages: %O`, messages)
         trace.detailsFenced("✉️ body", mreq, "json")
         trace.appendContent("\n")
 
@@ -430,9 +440,9 @@ const completerFactory = (
                                     dbg(`empty text_delta`, chunk)
                                 else {
                                     chunkContent = chunk.delta.text
-                                    numTokens += estimateTokens(
+                                    numTokens += approximateTokens(
                                         chunkContent,
-                                        encoder
+                                        { encoder }
                                     )
                                     chatResp += chunkContent
                                     trace.appendToken(chunkContent)

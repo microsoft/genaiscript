@@ -454,7 +454,6 @@ of the city.`,
         )
     })
 
-
     test("JSONSchemaToFunctionParameters - unsupported schema", () => {
         const schema: any = { type: "unsupported" }
         assert.strictEqual(JSONSchemaToFunctionParameters(schema), "?")

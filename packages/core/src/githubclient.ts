@@ -3,6 +3,7 @@ import type { PaginateInterface } from "@octokit/plugin-paginate-rest"
 import {
     GITHUB_API_VERSION,
     GITHUB_ASSET_BRANCH,
+    GITHUB_ASSET_URL_RX,
     GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE,
     GITHUB_REST_API_CONCURRENCY_LIMIT,
     GITHUB_REST_PAGE_DEFAULT,
@@ -30,6 +31,9 @@ import { fileTypeFromBuffer } from "./filetype"
 import { createHash } from "node:crypto"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { diagnosticToGitHubMarkdown } from "./annotations"
+import { TraceOptions } from "./trace"
+import { unzip } from "./zip"
+import { uriRedact, uriTryParse } from "./url"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -47,8 +51,20 @@ export interface GithubConnectionInfo {
     commitSha?: string
 }
 
+function readGitHubToken(env: Record<string, string>) {
+    let token: string
+    for (const envName of GITHUB_TOKENS) {
+        token = env[envName]
+        if (token) {
+            dbg(`found %s`, envName)
+            break
+        }
+    }
+    return token
+}
+
 function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
-    const token = env.GITHUB_TOKEN
+    const token = readGitHubToken(env)
     const apiUrl = env.GITHUB_API_URL || "https://api.github.com"
     const repository = env.GITHUB_REPOSITORY
     const [owner, repo] = repository?.split("/", 2) || [undefined, undefined]
@@ -122,9 +138,12 @@ export async function githubParseEnv(
     env: Record<string, string>,
     options?: {
         issue?: number
+        resolveToken?: boolean
         resolveIssue?: boolean
         resolveCommit?: boolean
-    } & Partial<Pick<GithubConnectionInfo, "owner" | "repo">>
+    } & Partial<Pick<GithubConnectionInfo, "owner" | "repo">> &
+        TraceOptions &
+        CancellationOptions
 ): Promise<GithubConnectionInfo> {
     dbg(`resolving connection info`)
     const res = githubFromEnv(env)
@@ -149,10 +168,10 @@ export async function githubParseEnv(
                 undefined,
                 "gh",
                 ["repo", "view", "--json", "url,name,owner"],
-                {}
+                options
             )
             if (repoInfo.failed) {
-                logVerbose(repoInfo.stderr)
+                dbg(repoInfo.stderr)
             } else if (!repoInfo.failed) {
                 const { name: repo, owner } = JSON.parse(repoInfo.stdout)
                 dbg(`retrieved repository info via gh CLI: ${repoInfo.stdout}`)
@@ -168,33 +187,33 @@ export async function githubParseEnv(
         if (!res.commitSha && options?.resolveCommit) {
             res.commitSha = await GitClient.default().lastCommitSha()
         }
+        if (!res.token && options?.resolveToken) {
+            const auth = await runtimeHost.exec(
+                undefined,
+                "gh",
+                ["auth", "token"],
+                options
+            )
+            if (!auth.failed) {
+                dbg(
+                    `retrieved token via gh CLI: %s...`,
+                    auth.stdout.slice(0, 3)
+                )
+                res.token = auth.stdout.trim()
+            }
+        }
     } catch (e) {
-        logVerbose(errorMessage(e))
+        dbg(errorMessage(e))
     }
 
     deleteUndefinedValues(res)
     dbg(
         `resolved connection info: %O`,
         Object.fromEntries(
-            Object.entries(res).map(([k, v]) => [
-                k,
-                k === "token" ? ellipse(v, 4) : v,
-            ])
+            Object.entries(res).map(([k, v]) => [k, k === "token" ? "***" : v])
         )
     )
     return Object.freeze(res)
-}
-
-async function readGitHubToken() {
-    let token: string
-    for (const envName of GITHUB_TOKENS) {
-        token = await runtimeHost.readSecret(envName)
-        if (token) {
-            dbg(`found %s`, envName)
-            break
-        }
-    }
-    return token
 }
 
 /**
@@ -212,24 +231,21 @@ async function readGitHubToken() {
  */
 export async function githubUpdatePullRequestDescription(
     script: PromptScript,
-    info: Pick<
-        GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
-    >,
+    info: GithubConnectionInfo,
     text: string,
     commentTag: string,
     options?: CancellationOptions
 ) {
     const { cancellationToken } = options ?? {}
-    const { apiUrl, repository, issue } = info
+    const { apiUrl, repository, issue, token } = info
     assert(!!commentTag)
 
     if (!issue) {
         dbg(`missing issue number, cannot update pull request description`)
         return { updated: false, statusText: "missing issue number" }
     }
-    const token = await readGitHubToken()
     if (!token) {
+        dbg(`missing github token, cannot update pull request description`)
         return { updated: false, statusText: "missing github token" }
     }
 
@@ -361,23 +377,20 @@ ${generatedByFooter(script, info, code)}`
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
 export async function githubCreateIssueComment(
     script: PromptScript,
-    info: Pick<
-        GithubConnectionInfo,
-        "apiUrl" | "repository" | "issue" | "runUrl" | "owner" | "repo"
-    >,
+    info: GithubConnectionInfo,
     body: string,
     commentTag: string,
     options?: CancellationOptions
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
     const { cancellationToken } = options ?? {}
-    const { apiUrl, repository, issue } = info
+    const { apiUrl, repository, issue, token } = info
 
     if (!issue) {
         dbg(`missing issue number, cannot create issue comment`)
         return { created: false, statusText: "missing issue number" }
     }
-    const token = await readGitHubToken()
     if (!token) {
+        dbg(`missing github token, cannot create issue comment`)
         return { created: false, statusText: "missing github token" }
     }
 
@@ -555,37 +568,27 @@ async function githubCreatePullRequestReview(
  */
 export async function githubCreatePullRequestReviews(
     script: PromptScript,
-    info: Pick<
-        GithubConnectionInfo,
-        | "apiUrl"
-        | "repository"
-        | "issue"
-        | "runUrl"
-        | "commitSha"
-        | "owner"
-        | "repo"
-    >,
+    info: GithubConnectionInfo,
     annotations: Diagnostic[],
     options?: CancellationOptions
 ): Promise<boolean> {
     const { cancellationToken } = options ?? {}
-    const { repository, issue, commitSha, apiUrl } = info
+    const { repository, issue, commitSha, apiUrl, token } = info
 
     if (!annotations?.length) {
         dbg(`no annotations provided, skipping pull request reviews`)
         return true
     }
     if (!issue) {
-        logError("github: missing pull request number")
+        dbg(`missing issue number, cannot create pull request reviews`)
         return false
     }
     if (!commitSha) {
-        logError("github: missing commit sha")
+        dbg(`missing commit sha, cannot create pull request reviews`)
         return false
     }
-    const token = await readGitHubToken()
     if (!token) {
-        logError("github: missing token")
+        dbg(`missing github token, cannot create pull request reviews`)
         return false
     }
 
@@ -686,6 +689,7 @@ export class GitHubClient implements GitHub {
         if (!this._connection) {
             this._connection = githubParseEnv(process.env, {
                 ...this._info,
+                resolveToken: true,
             })
         }
         return this._connection
@@ -718,10 +722,10 @@ export class GitHubClient implements GitHub {
                     request: { retries: 3 },
                     throttle: {
                         onRateLimit: (
-                            retryAfter,
-                            options,
-                            octokit,
-                            retryCount
+                            retryAfter: number,
+                            options: any,
+                            octokit: Octokit,
+                            retryCount: number
                         ) => {
                             octokit.log.warn(
                                 `Request quota exhausted for request ${options.method} ${options.url}`
@@ -736,9 +740,9 @@ export class GitHubClient implements GitHub {
                             return false
                         },
                         onSecondaryRateLimit: (
-                            retryAfter,
-                            options,
-                            octokit
+                            retryAfter: number,
+                            options: any,
+                            octokit: Octokit
                         ) => {
                             octokit.log.warn(
                                 `SecondaryRateLimit detected for request ${options.method} ${options.url}`
@@ -1081,9 +1085,7 @@ export class GitHubClient implements GitHub {
     }
 
     async getIssue(issue_number?: number | string): Promise<GitHubIssue> {
-        if (typeof issue_number === "string") {
-            issue_number = parseInt(issue_number)
-        }
+        issue_number = normalizeInt(issue_number)
         const { client, owner, repo } = await this.api()
         dbg(`retrieving issue details for issue number: ${issue_number}`)
         if (isNaN(issue_number)) {
@@ -1100,13 +1102,33 @@ export class GitHubClient implements GitHub {
         return data
     }
 
+    async updateIssue(
+        issueNumber: number | string,
+        options?: GitHubIssueUpdateOptions
+    ): Promise<GitHubIssue> {
+        issueNumber = normalizeInt(issueNumber)
+        const { client, owner, repo } = await this.api()
+        dbg(`updating issue number: ${issueNumber}`)
+        if (isNaN(issueNumber)) {
+            issueNumber = (await this._connection).issue
+        }
+        if (isNaN(issueNumber)) {
+            return undefined
+        }
+        const { data } = await client.rest.issues.update({
+            owner,
+            repo,
+            issue_number: issueNumber,
+            ...options,
+        })
+        return data
+    }
+
     async createIssueComment(
         issue_number: number | string,
         body: string
     ): Promise<GitHubComment> {
-        if (typeof issue_number === "string") {
-            issue_number = parseInt(issue_number)
-        }
+        issue_number = normalizeInt(issue_number)
         const { client, owner, repo } = await this.api()
         dbg(`creating comment for issue number: ${issue_number}`)
         if (isNaN(issue_number)) {
@@ -1121,6 +1143,20 @@ export class GitHubClient implements GitHub {
             issue_number,
             body,
         })
+        dbg(`created comment %s`, data.id)
+        return data
+    }
+
+    async updateIssueComment(comment_id: number | string, body: string) {
+        const { client, owner, repo } = await this.api()
+        dbg(`updating comment %s`, comment_id)
+        const { data } = await client.rest.issues.updateComment({
+            owner,
+            repo,
+            comment_id: normalizeInt(comment_id),
+            body,
+        })
+        dbg(`updated comment %s`, data.id)
         return data
     }
 
@@ -1146,9 +1182,7 @@ export class GitHubClient implements GitHub {
     async getPullRequest(
         pull_number?: number | string
     ): Promise<GitHubPullRequest> {
-        if (typeof pull_number === "string") {
-            pull_number = parseInt(pull_number)
-        }
+        pull_number = normalizeInt(pull_number)
         const { client, owner, repo } = await this.api()
         dbg(`retrieving pull request details for pull number: ${pull_number}`)
         if (isNaN(pull_number)) {
@@ -1228,7 +1262,7 @@ export class GitHubClient implements GitHub {
         const { data } = await client.rest.actions.getWorkflowRun({
             owner,
             repo,
-            run_id: typeof runId === "number" ? runId : parseInt(runId),
+            run_id: normalizeInt(runId),
         })
         dbg(`workflow run: %O`, data)
         return data
@@ -1266,6 +1300,88 @@ export class GitHubClient implements GitHub {
         )
         dbg(`workflow runs: %O`, res)
         return res
+    }
+
+    /**
+     * List artifacts for a given workflow run
+     * @param runId
+     */
+    async listWorkflowRunArtifacts(
+        runId: number | string,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubArtifact[]> {
+        const { client, owner, repo } = await this.api()
+        dbg(`listing artifacts for workflow run ID: ${runId}`)
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(
+            client.rest.actions.listWorkflowRunArtifacts,
+            {
+                owner,
+                repo,
+                run_id: normalizeInt(runId),
+                per_page: 100,
+                ...rest,
+            }
+        )
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        dbg(`workflow run artifacts: %O`, res)
+        return res
+    }
+
+    /**
+     * Gets the files of a GitHub Action workflow run artifact
+     * @param artifactId
+     */
+    async artifact(artifactId: number | string): Promise<GitHubArtifact> {
+        const { client, owner, repo } = await this.api()
+        dbg(`retrieving artifact details for artifact ID: ${artifactId}`)
+        const { data } = await client.rest.actions.getArtifact({
+            owner,
+            repo,
+            artifact_id: normalizeInt(artifactId),
+        })
+
+        return data
+    }
+
+    async resolveAssetUrl(url: string) {
+        if (!uriTryParse(url)) return undefined // unknown format
+        if (!GITHUB_ASSET_URL_RX.test(url)) return undefined // not a github asset
+        const { client, owner, repo } = await this.api()
+        dbg(`asset: resolving url for %s`, uriRedact(url))
+        const { data, status } = await client.rest.markdown.render({
+            owner,
+            repo,
+            context: `${owner}/${repo}`, // force html with token
+            text: `![](${url})`,
+            mode: "gfm",
+        })
+        dbg(`asset: resolution %s`, status)
+        const { resolved } =
+            /<img src="(?<resolved>[^"]+)"/i.exec(data)?.groups || {}
+        if (!resolved) dbg(`markdown:\n%s`, data)
+
+        return resolved
+    }
+
+    async downloadArtifactFiles(
+        artifactId: number | string
+    ): Promise<WorkspaceFile[]> {
+        const { client, owner, repo } = await this.api()
+        dbg(`downloading artifact files for artifact ID: ${artifactId}`)
+        const { url } = await client.rest.actions.downloadArtifact({
+            owner,
+            repo,
+            artifact_id: normalizeInt(artifactId),
+            archive_format: "zip",
+        })
+        dbg(`received url, downloading...`)
+        const fetch = await createFetch()
+        const res = await fetch(url)
+        if (!res.ok) throw new Error(res.statusText)
+        const buffer = await res.arrayBuffer()
+        const files = await unzip(new Uint8Array(buffer))
+        return files
     }
 
     async listWorkflowJobs(

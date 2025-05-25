@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:git")
-
 // This file contains the GitClient class, which provides methods to interact with Git repositories.
 // It includes functionality to find modified files, execute Git commands, and manage branches.
 
@@ -23,11 +20,26 @@ import { packageResolveInstall } from "./packagemanagers"
 import { normalizeInt } from "./cleaners"
 import { dotGenaiscriptPath } from "./workdir"
 import { join } from "node:path"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("git")
 
 async function checkDirectoryExists(directory: string): Promise<boolean> {
     const stat = await tryStat(directory)
     dbg(`directory exists: ${!!stat?.isDirectory()}`)
     return !!stat?.isDirectory()
+}
+
+function appendExtras(
+    rest: Record<string, string | number | boolean>,
+    args: string[]
+) {
+    Object.entries(rest)
+        .filter(([, v]) => v !== undefined && typeof v !== "object")
+        .forEach(([k, v]) =>
+            args.push(
+                v === true ? `--${underscore(k)}` : `--${underscore(k)}=${v}`
+            )
+        )
 }
 
 /**
@@ -84,22 +96,39 @@ export class GitClient implements Git {
     }
 
     async fetch(
-        remote: OptionsOrString<"origin">,
-        branchOrSha: string,
+        remote?: OptionsOrString<"origin">,
+        branchOrSha?: string,
         options?: {
             prune?: boolean
             all?: boolean
         }
-    ): Promise<void> {
-        const { prune, all } = options || {}
+    ): Promise<string> {
+        const { prune, all, ...rest } = options || {}
         if (branchOrSha && !remote)
             throw new Error("remote is required when specifying branch or sha")
-        const args = []
+        const args = ["fetch", "--porcelain"]
         if (remote) args.push(remote)
         if (branchOrSha) args.push(branchOrSha)
         if (prune) args.push("--prune")
         if (all) args.push("--all")
-        await this.exec(["fetch", ...args])
+        appendExtras(rest, args)
+        return await this.exec(args)
+    }
+
+    /**
+     * Pull changes from the remote repository.
+     */
+    async pull(options?: {
+        /**
+         * Whether to fast-forward the merge (`--ff`)
+         */
+        ff?: boolean
+    }): Promise<string> {
+        const { ff, ...rest } = options || {}
+        const args = ["pull"]
+        if (ff) args.push("--ff")
+        appendExtras(rest, args)
+        return await this.exec(args)
     }
 
     /**
@@ -180,10 +209,9 @@ export class GitClient implements Git {
             dbg(`listing modified or staged files`)
             const args = ["diff", "--name-only", "--diff-filter=AM"]
             if (scope === "modified-base") {
-                dbg(
-                    `using base branch: ${options?.base || (await this.defaultBranch())}`
-                )
-                const base = options?.base || (await this.defaultBranch())
+                const base =
+                    options?.base || `origin/${await this.defaultBranch()}`
+                dbg(`using base branch: %s`, base)
                 args.push(base)
             } else {
                 dbg(`listing staged files`)
@@ -503,10 +531,15 @@ ${await this.diff({ ...options, nameOnly: true })}
              * Number of commits to fetch
              */
             depth?: number
+            /**
+             * Path to the directory to clone into
+             */
+            directory?: string
         }
     ): Promise<GitClient> {
         dbg(`cloning repository: ${repository}`)
-        let { branch, force, install, depth, ...rest } = options || {}
+        let { branch, force, install, depth, directory, ...rest } =
+            options || {}
         depth = normalizeInt(depth)
         if (isNaN(depth)) depth = 1
 
@@ -516,19 +549,20 @@ ${await this.diff({ ...options, nameOnly: true })}
             repository = `https://github.com/${repository}`
         }
         const url = new URL(repository)
-        const sha = (
-            await this.exec(["ls-remote", repository, branch || "HEAD"])
-        ).split(/\s+/)[0]
-        let directory = dotGenaiscriptPath(
-            "git",
-            ...url.pathname.split(/\//g).filter((s) => !!s),
-            branch || `HEAD`,
-            sha
-        )
-        if (branch) directory = join(directory, branch)
+        if (!directory) {
+            const sha = (
+                await this.exec(["ls-remote", repository, branch || "HEAD"])
+            ).split(/\s+/)[0]
+            directory = dotGenaiscriptPath(
+                "git",
+                ...url.pathname.split(/\//g).filter((s) => !!s),
+                branch || `HEAD`,
+                sha
+            )
+        }
         logVerbose(`git: shallow cloning ${repository} to ${directory}`)
         if (await checkDirectoryExists(directory)) {
-            if (!force) {
+            if (!force && !install) {
                 dbg(`directory already exists`)
                 return new GitClient(directory)
             }
@@ -536,14 +570,8 @@ ${await this.diff({ ...options, nameOnly: true })}
             await rm(directory, { recursive: true, force: true })
         }
         const args = ["clone", "--depth", String(Math.max(1, depth))]
-        if (branch) {
-            args.push("--branch", branch)
-        }
-        Object.entries(rest).forEach(([k, v]) =>
-            args.push(
-                v === true ? `--${underscore(k)}` : `--${underscore(k)}=${v}`
-            )
-        )
+        if (branch) args.push("--branch", branch)
+        appendExtras(rest, args)
         args.push(repository, directory)
         await this.exec(args)
 

@@ -20,6 +20,9 @@ import { semverParse, semverSatisfies } from "../../core/src/semver"
 import { resolveCli } from "./config"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { findRandomOpenPort } from "../../core/src/net"
+import { packageResolveExecute } from "../../core/src/packagemanagers"
+import { shellQuote } from "../../core/src/shell"
+import { log } from "node:console"
 
 export class TerminalServerManager
     extends EventTarget
@@ -184,9 +187,11 @@ export class TerminalServerManager
         logVerbose(
             `starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`
         )
-        const { cliPath, cliVersion } = await resolveCli(this.state)
+        const { cliPath, cliVersion, packageManager } = await resolveCli(
+            this.state
+        )
         const githubCopilotChatClient = isLanguageModelsAvailable()
-            ? " --github-copilot-chat-client"
+            ? "--github-copilot-chat-client"
             : ""
 
         if (this._client) this._client.reconnectAttempts = 0
@@ -205,12 +210,27 @@ export class TerminalServerManager
         })
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" ${githubCopilotChatClient}`
             )
-        else
-            this._terminal.sendText(
-                `npx --yes ${TOOL_ID}@${cliVersion} serve --port ${this._port} --dispatch-progress --cors "*"${githubCopilotChatClient}`
+        else {
+            const pkg = await packageResolveExecute(
+                cwd,
+                [
+                    `${TOOL_ID}@${cliVersion}`,
+                    `serve`,
+                    `--port`,
+                    `${this._port}`,
+                    `--dispatch-progress`,
+                    `--cors`,
+                    `"*"`,
+                    githubCopilotChatClient,
+                ],
+                { agent: packageManager }
             )
+            const cmd = [shellQuote([pkg.command]), ...pkg.args].join(" ")
+            logVerbose(cmd)
+            this._terminal.sendText(cmd, true)
+        }
         if (!hideFromUser) this._terminal.show(true)
 
         // check node asynchronously

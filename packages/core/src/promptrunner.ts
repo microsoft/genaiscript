@@ -44,11 +44,12 @@ async function resolveExpansionVars(
     output: OutputTrace,
     options: GenerationOptions
 ): Promise<ExpansionVariables> {
-    const { vars, runDir } = options
+    const { vars, runDir, runId } = options
     const root = runtimeHost.projectFolder()
 
     assert(!!vars)
     assert(!!runDir)
+    assert(!!runId)
 
     const files: WorkspaceFile[] = []
     const templateFiles = arrayify(template.files)
@@ -111,6 +112,7 @@ async function resolveExpansionVars(
         output,
         generator: undefined as ChatGenerationContext,
         runDir,
+        runId,
         dbg: debug(DEBUG_SCRIPT_CATEGORY),
     } satisfies ExpansionVariables
     return res
@@ -188,6 +190,7 @@ export async function runTemplate(
             topLogprobs,
             disposables,
             cache,
+            metadata,
         } = await expandTemplate(prj, template, options, env)
         const { output, generator, secrets, dbg: envDbg, ...restEnv } = env
 
@@ -279,6 +282,7 @@ export async function runTemplate(
             logprobs,
             topLogprobs,
             fallbackTools,
+            metadata,
             stats: runStats,
         }
         const chatResult = await executeChatSession(

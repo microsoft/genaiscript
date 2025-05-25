@@ -348,11 +348,7 @@ function JSONSchemaObjectPropertiesForm(props: {
             />
             {field?.description && (
                 <vscode-form-helper>
-                    {/^(```|#{1,6}\s)/m.test(field.description) ? (
-                        <Markdown>{field.description}</Markdown>
-                    ) : (
-                        field.description
-                    )}
+                    <Markdown>{field.description}</Markdown>
                 </vscode-form-helper>
             )}
         </vscode-form-group>

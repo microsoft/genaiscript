@@ -2,45 +2,44 @@
 title: Pull Request Descriptor
 description: Generate a pull request description
 sidebar:
-  order: 5
+    order: 5
 cover:
-  alt: 'A retro 8-bit-inspired geometric illustration depicting a folder named
-    ".genaisrc" with a file titled "prd.genai.mts" inside. Surrounding the
-    folder are symbolic icons: arrows and file comparison lines representing git
-    diffs, a GitHub logo, a cloud icon symbolizing GitHub Actions, a gear for
-    automation, and a shield for content safety. The artwork integrates five
-    corporate colors and maintains simplicity without text or human figures.'
-  image: ./prd.png
+    alt: 'A retro 8-bit-inspired geometric illustration depicting a folder named
+        ".genaisrc" with a file titled "prd.genai.mts" inside. Surrounding the
+        folder are symbolic icons: arrows and file comparison lines representing git
+        diffs, a GitHub logo, a cloud icon symbolizing GitHub Actions, a gear for
+        automation, and a shield for content safety. The artwork integrates five
+        corporate colors and maintains simplicity without text or human figures.'
+    image: ./prd.png
 tags:
-  - 1. GitHub Actions Automation
-  - 2. Pull Request Description Generator
-  - 3. Code Review Script
-  - 4. GenAIScript Integration
-  - 5. Content Safety Measures
+    - 1. GitHub Actions Automation
+    - 2. Pull Request Description Generator
+    - 3. Code Review Script
+    - 4. GenAIScript Integration
+    - 5. Content Safety Measures
 excerpt: >-
-  Streamline your pull request process with automated descriptions. In this
-  guide, you'll learn how to build a script that generates high-level summaries
-  of code changes in pull requests. The script can be run locally for testing
-  and refinement, then integrated with GitHub Actions for seamless automation. 
+    Streamline your pull request process with automated descriptions. In this
+    guide, you'll learn how to build a script that generates high-level summaries
+    of code changes in pull requests. The script can be run locally for testing
+    and refinement, then integrated with GitHub Actions for seamless automation. 
 
 
-  Key highlights include:
+    Key highlights include:
 
-  - Utilizing `git.diff` to extract changes and summarize their intent.
+    - Utilizing `git.diff` to extract changes and summarize their intent.
 
-  - Adding safety mechanisms to prevent harmful content generation.
+    - Adding safety mechanisms to prevent harmful content generation.
 
-  - Leveraging agents like `fs_read_file` or `agent_fs` for deeper context
-  analysis.
+    - Leveraging agents like `fs_read_file` or `agent_fs` for deeper context
+    analysis.
 
-  - Automating the process with a GitHub workflow to update pull request
-  descriptions dynamically.
+    - Automating the process with a GitHub workflow to update pull request
+    descriptions dynamically.
 
 
-  This approach not only improves developer efficiency but also enhances code
-  review clarity. Adapt it to fit your workflow and enjoy more streamlined
-  collaboration.
-
+    This approach not only improves developer efficiency but also enhances code
+    review clarity. Adapt it to fit your workflow and enjoy more streamlined
+    collaboration.
 ---
 
 The following sample shows a script that generate a description of the changes in a pull request.
@@ -48,7 +47,7 @@ We will develop the script locally and then create a GitHub Action to run it aut
 
 ## Add the script
 
-- Open your GitHub repository and start a new pull request.
+- **Create a new branch** in your repository.
 - Add the following script to your repository as `prd.genai.mts` in the `.genaisrc` folder.
 
 ```ts title="genaisrc/prd.genai.mts" wrap
@@ -106,6 +105,8 @@ The script also includes a note to use tools to read the entire file content to 
 
 ## Run the script locally
 
+Make sure to commit your changes to the branch and push it to GitHub. Then **create a new pull request**.
+
 Since you are already in a pull request, you can run with the script and tune the prompting to your needs.
 You can use the GenAIScript Visual Studio Code extension or use the cli.
 
@@ -120,7 +121,7 @@ Open the `trace` or `output` reports in your favorite Markdown viewer to inspect
 is fully local so it's your opportunity to refine the prompting.
 
 ```text
-┌─💬 github:gpt-4.1 ✉ 2 ~↑729t 
+┌─💬 github:gpt-4.1 ✉ 2 ~↑729t
 ┌─📙 system
 │## Safety: Jailbreak
 │... (18 lines)
@@ -147,31 +148,6 @@ is fully local so it's your opportunity to refine the prompting.
 └─🏁  github:gpt-4.1 ✉ 2 1165ms ⇅ 909t ↑844t ↓65t 0.221¢
 ```
 
-## Make it Agentic
-
-GenAIScript provides various builtin agents, including a file system and git agent.
-This can be useful for the LLM to read the files in the pull request and analyze them.
-
-There are basically two level of agentic-ness you can achieve with GenAIScript:
-
-- add the [fs_read_file](/genaiscript/reference/scripts/system/#systemfs_read_file) to read files to the script.
-
-```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["fs_read"]'
-script({
-    ...,
-    tools: ["fs_read_file"],
-})
-```
-
-- add the [file system agent](/genaiscript/reference/scripts/system/#systemagent_fs) that can respond to more complex queries at the cost of additional tokens.
-
-```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["agent_fs"]'
-script({
-    ...,
-    tools: ["agent_fs"],
-})
-```
-
 ## Automate with GitHub Actions
 
 Using [GitHub Actions](https://docs.github.com/en/actions) and [GitHub Models](https://docs.github.com/en/github-models),
@@ -179,7 +155,7 @@ you can automate the execution of the script and creation of the comments.
 
 - Add the following workflow in your GitHub repository.
 
-```yaml title=".github/workflows/genai-pr-description.yml" wrap
+```yaml title=".github/workflows/genai-prd.yml" wrap
 name: genai pull request description
 on:
     pull_request:
@@ -202,14 +178,24 @@ jobs:
             - name: fetch base branch
               run: git fetch origin ${{ github.event.pull_request.base.ref }}
             - name: genaiscript prd
+              continue-on-error: true
               run: npx --yes genaiscript run prd --vars base=origin/${{ github.event.pull_request.base.ref }} --pull-request-description --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+The action triggers when the pull request is marked as `ready_for_review` or when a review is requested.
+
+```yaml
+    pull_request:
+        types: [ready_for_review, review_requested]
+```
+
 The command line uses a special flag to update the generate pull request description:
 
 - `--pull-request-description` to update the description of the pull request
+
+We've also added `continue-on-error: true` so that the workflow does not fail if the script fails.
 
 - Commit the changes, and create a new pull request and start testing the workflow by requesting a review or toggling the `ready_for_review` event.
 
@@ -225,3 +211,32 @@ Additional measures to further enhance safety would be to run [a model with a sa
 or validate the message with a [content safety service](/genaiscript/reference/scripts/content-safety).
 
 Refer to the [Transparency Note](/genaiscript/reference/transparency-note/) for more information on content safety.
+
+## Make it Agentic
+
+GenAIScript provides various builtin agents, including a file system and git agent.
+This can be useful for the LLM to read the files in the pull request and analyze them.
+
+There are basically two level of agentic-ness you can achieve with GenAIScript:
+
+### Tools
+
+- add the [fs_read_file](/genaiscript/reference/scripts/system/#systemfs_read_file) to read files to the script.
+
+```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["fs_read"]'
+script({
+    ...,
+    tools: ["fs_read_file"],
+})
+```
+
+### Agents
+
+- add the [file system agent](/genaiscript/reference/scripts/system/#systemagent_fs) that can respond to more complex queries at the cost of additional tokens.
+
+```ts title="genaisrc/prd.genai.mts" wrap 'tools: ["agent_fs"]'
+script({
+    ...,
+    tools: ["agent_fs"],
+})
+```

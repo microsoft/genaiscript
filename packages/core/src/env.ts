@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:config:env")
-
 import { normalizeFloat, trimTrailingSlash } from "./cleaners"
 import {
     ANTHROPIC_API_BASE,
@@ -25,7 +22,7 @@ import {
     MODEL_PROVIDER_HUGGINGFACE,
     HUGGINGFACE_API_BASE,
     OLLAMA_API_BASE,
-    OLLAMA_DEFAUT_PORT,
+    OLLAMA_DEFAULT_PORT,
     MODEL_PROVIDER_GOOGLE,
     GOOGLE_API_BASE,
     MODEL_PROVIDER_TRANSFORMERS,
@@ -63,6 +60,10 @@ import {
 import { arrayify, ellipse } from "./util"
 import { URL } from "node:url"
 import { uriTryParse } from "./url"
+import { TraceOptions } from "./trace"
+import { CancellationOptions } from "./cancellation"
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("config:env")
 
 /**
  * Parses the OLLAMA host environment variable and returns a standardized URL.
@@ -89,7 +90,7 @@ export function ollamaParseHostVariable(env: Record<string, string>) {
     const ipm =
         /^(?<address>(localhost|\d+\.\d+\.\d+\.\d+))(:(?<port>\d+))?$/i.exec(s)
     if (ipm) {
-        return `http://${ipm.groups.address}:${ipm.groups.port || OLLAMA_DEFAUT_PORT}`
+        return `http://${ipm.groups.address}:${ipm.groups.port || OLLAMA_DEFAULT_PORT}`
     }
     const url = new URL(s)
     return url.href
@@ -168,19 +169,22 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
  *
  * @param env - A record of environment variables, serving as the source for token and API configuration.
  * @param modelId - The identifier of the model for which the token and configuration details are to be parsed.
+ * @param options - Additional options for tracing, cancellation, and token resolution.
  *
  * @returns A promise that resolves to a configuration object containing the provider, model, token, base URL,
  *          type, version, and source, or undefined if no matching configuration is found.
  *
  * Notes:
- * - Handles several model providers, including OpenAI, Azure OpenAI, Anthropic, Google, HuggingFace, and more.
+ * - Handles several model providers, including OpenAI, Azure OpenAI, Azure Serverless OpenAI, Azure AI Inference, Azure Serverless Models, Anthropic, Google, HuggingFace, and more.
  * - Throws errors if mandatory variables like API keys or bases are not configured.
  * - Includes validation checks for URL formats and supported provider types.
  */
 export async function parseTokenFromEnv(
     env: Record<string, string>,
-    modelId: string
+    modelId: string,
+    options: TraceOptions & CancellationOptions & { resolveToken?: boolean }
 ): Promise<LanguageModelConfiguration> {
+    const { resolveToken } = options || {}
     const { provider, model, tag } = parseModelIdentifier(
         modelId ?? runtimeHost.modelAliases.large.model
     )
@@ -191,7 +195,6 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_OPENAI) {
         dbg(`processing ${MODEL_PROVIDER_OPENAI}`)
         const token = env.OPENAI_API_KEY ?? ""
-        dbg(`retrieved OPENAI_API_KEY: %s`, ellipse(token, 12))
         let base = env.OPENAI_API_BASE
         let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai"
         const version = env.OPENAI_API_VERSION || parseAzureVersionFromUrl(base)
@@ -248,18 +251,33 @@ export async function parseTokenFromEnv(
         const res = findEnvVar(env, "", [
             "GITHUB_MODELS_TOKEN",
             ...GITHUB_TOKENS,
-        ])
+        ]) || { name: undefined, value: undefined }
         if (!res?.value) {
-            throw new Error("GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set")
+            if (resolveToken) {
+                const { exitCode, stdout } = await runtimeHost.exec(
+                    undefined,
+                    "gh",
+                    ["auth", "token"],
+                    options
+                )
+                if (exitCode !== 0)
+                    throw new Error("Failed to resolve GitHub token")
+                res.name = "gh auth token"
+                res.value = stdout.trim()
+            }
+            if (!res?.value)
+                throw new Error(
+                    "GITHUB_MODELS_TOKEN, GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set"
+                )
         }
-        const type = "openai"
+        const type = "github"
         const base = GITHUB_MODELS_BASE
         return {
             provider,
             model,
             base,
-            type,
             token: res.value,
+            type,
             source: `env: ${res.name}`,
         } satisfies LanguageModelConfiguration
     }

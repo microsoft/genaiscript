@@ -12,6 +12,7 @@ import { GitClient } from "./git"
 import { expandFiles } from "./fs"
 import { join } from "node:path"
 import { isCancelError } from "./error"
+import { GITHUB_ASSET_URL_RX } from "./constants"
 const dbg = genaiscriptDebug("res")
 const dbgAdaptors = dbg.extend("adaptors")
 const dbgFiles = dbg.extend("files")
@@ -19,7 +20,7 @@ dbgFiles.enabled = false
 
 const urlAdapters: {
     id: string
-    matcher: (url: string) => string
+    matcher: (url: string) => Awaitable<string>
 }[] = [
     {
         id: "github blob",
@@ -41,6 +42,17 @@ const urlAdapters: {
         },
     },
     {
+        id: "github assets",
+        matcher: async (url) => {
+            if (GITHUB_ASSET_URL_RX.test(url)) {
+                const client = GitHubClient.default()
+                const resolved = await client.resolveAssetUrl(url)
+                return resolved
+            }
+            return undefined
+        },
+    },
+    {
         id: "gist",
         matcher: (url) => {
             const m =
@@ -54,10 +66,10 @@ const urlAdapters: {
     },
 ]
 
-function applyUrlAdapters(url: string) {
+async function applyUrlAdapters(url: string) {
     // Use URL adapters to modify the URL if needed
     for (const a of urlAdapters) {
-        const newUrl = a.matcher(url)
+        const newUrl = await a.matcher(url)
         if (newUrl) {
             dbgAdaptors(`%s: %s`, a.id, uriRedact(url))
             return newUrl
@@ -83,7 +95,6 @@ const uriResolvers: Record<
         // https://.../.../....git
         if (/\.git($|\/)/.test(url.pathname))
             return await uriResolvers.git(dbg, url, options)
-
         // regular fetch
         const fetch = await createFetch(options)
         dbg(`fetch %s`, uriRedact(url.href))
@@ -211,7 +222,7 @@ export async function tryResolveResource(
     options?: TraceOptions & CancellationOptions
 ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
     if (!url) return undefined
-    url = applyUrlAdapters(url)
+    url = await applyUrlAdapters(url)
     const uri = uriTryParse(url)
     if (!uri) return undefined
     const { cancellationToken } = options || {}

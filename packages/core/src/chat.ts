@@ -114,13 +114,13 @@ function toChatCompletionImage(
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
     connection: LanguageModelConfiguration,
-    options: ChatCompletionsOptions & CancellationOptions,
+    options: ChatCompletionsOptions & CancellationOptions & RetryOptions,
     trace: MarkdownTrace
 ) => Promise<ChatCompletionResponse>
 
 export type ListModelsFunction = (
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<
     ResponseStatus & {
         models?: LanguageModelInfo[]
@@ -129,7 +129,7 @@ export type ListModelsFunction = (
 
 export type PullModelFunction = (
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<ResponseStatus>
 
 export type CreateTranscriptionRequest = {
@@ -140,7 +140,7 @@ export type CreateTranscriptionRequest = {
 export type TranscribeFunction = (
     req: CreateTranscriptionRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<TranscriptionResult>
 
 export type CreateSpeechRequest = {
@@ -158,7 +158,7 @@ export type CreateSpeechResult = {
 export type SpeechFunction = (
     req: CreateSpeechRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<CreateSpeechResult>
 
 export type CreateImageRequest = {
@@ -190,13 +190,13 @@ export interface CreateImageResult {
 export type ImageGenerationFunction = (
     req: CreateImageRequest,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<CreateImageResult>
 
 export type EmbeddingFunction = (
     input: string,
     cfg: LanguageModelConfiguration,
-    options: TraceOptions & CancellationOptions
+    options: TraceOptions & CancellationOptions & RetryOptions
 ) => Promise<EmbeddingResult>
 
 export type WorkspaceFileIndexCreator = (
@@ -1190,6 +1190,7 @@ export async function executeChatSession(
         topLogprobs,
         cache,
         inner,
+        metadata,
         partialCb,
     } = genOptions
     assert(!!model, "model is required")
@@ -1228,6 +1229,7 @@ export async function executeChatSession(
         ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
         : undefined
     const chatTrace = trace.startTraceDetails(`💬 chat`, { expanded: true })
+    const store = !!metadata ? true : undefined
     const timer = measure("chat")
     const cacheImage = async (url: string) =>
         await fileCacheImage(url, {
@@ -1287,6 +1289,8 @@ export async function executeChatSession(
                     req = {
                         model,
                         temperature,
+                        store,
+                        metadata: store ? metadata : undefined,
                         reasoning_effort: reasoningEffort,
                         top_p: topP,
                         tool_choice:
@@ -1498,6 +1502,11 @@ function updateChatFeatures(
         dbg(`max_tokens: renamed to max_completion_tokens`)
         req.max_completion_tokens = req.max_tokens
         delete req.max_tokens
+    }
+    if (req.store && !features?.metadata) {
+        dbg(`metadata: disabled, not supported by ${provider}`)
+        delete req.metadata
+        delete req.store
     }
 
     deleteUndefinedValues(req)

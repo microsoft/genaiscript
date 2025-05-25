@@ -152,6 +152,7 @@ type PromptTemplateResponseType =
 type ModelType = OptionsOrString<
     | "large"
     | "small"
+    | "tiny"
     | "long"
     | "vision"
     | "vision_small"
@@ -170,20 +171,17 @@ type ModelType = OptionsOrString<
     | "openai:o1"
     | "openai:o1-mini"
     | "openai:o1-preview"
-    | "github:gpt-4.1"
-    | "github:gpt-4o"
-    | "github:gpt-4o-mini"
-    | "github:o1"
-    | "github:o1-mini"
-    | "github:o1-preview"
-    | "github:o3-mini"
-    | "github:o3-mini:low"
-    | "github:mai-ds-r1"
-    | "github:AI21-Jamba-1.5-Large"
-    | "github:AI21-Jamba-1-5-Mini"
-    | "github:deepseek-v3"
-    | "github:deepseek-r1"
-    | "github:Phi-4"
+    | "github:openai/gpt-4.1"
+    | "github:openai/gpt-4o"
+    | "github:openai/gpt-4o-mini"
+    | "github:openai/o1"
+    | "github:openai/o1-mini"
+    | "github:openai/o3-mini"
+    | "github:openai/o3-mini:low"
+    | "github:microsoft/mai-ds-r1"
+    | "github:deepseek/deepseek-v3"
+    | "github:deepseek/deepseek-r1"
+    | "github:microsoft/phi-4"
     | "github_copilot_chat:current"
     | "github_copilot_chat:gpt-3.5-turbo"
     | "github_copilot_chat:gpt-4o-mini"
@@ -274,8 +272,8 @@ type ModelType = OptionsOrString<
     | "alibaba:qwen2-72b-instruct"
     | "alibaba:qwen2-57b-a14b-instruct"
     | "deepseek:deepseek-chat"
-    | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
-    | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
+    //    | "transformers:onnx-community/Qwen2.5-0.5B-Instruct:q4"
+    //    | "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"
     | "llamafile"
     | "sglang"
     | "vllm"
@@ -300,15 +298,16 @@ type EmbeddingsModelType = OptionsOrString<
 
 type ModelSmallType = OptionsOrString<
     | "openai:gpt-4o-mini"
-    | "github:gpt-4o-mini"
+    | "github:openai/gpt-4o-mini"
     | "azure:gpt-4o-mini"
-    | "openai:gpt-3.5-turbo"
-    | "github:Phi-3-5-mini-instruct"
-    | "github:AI21-Jamba-1-5-Mini"
+    | "github:microsoft/phi-4"
 >
 
 type ModelVisionType = OptionsOrString<
-    "openai:gpt-4o" | "github:gpt-4o" | "azure:gpt-4o" | "azure:gpt-4o-mini"
+    | "openai:gpt-4o"
+    | "github:openai/gpt-4o"
+    | "azure:gpt-4o"
+    | "azure:gpt-4o-mini"
 >
 
 type ModelImageGenerationType = OptionsOrString<
@@ -378,7 +377,10 @@ type ChatToolChoice =
           name: string
       }
 
-interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
+interface ModelOptions
+    extends ModelConnectionOptions,
+        ModelTemplateOptions,
+        CacheOptions {
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
      * Range 0.0-2.0.
@@ -463,11 +465,6 @@ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions {
      * A deterministic integer seed to use for the model.
      */
     seed?: number
-
-    /**
-     * By default, LLM queries are not cached. If true, the LLM request will be cached. Use a string to override the default cache name
-     */
-    cache?: boolean | string
 
     /**
      * A list of model ids and their maximum number of concurrent requests.
@@ -782,6 +779,15 @@ interface McpToolAnnotations {
     }
 }
 
+interface MetadataOptions {
+    /**
+     * Set of 16 key-value pairs that can be attached to an object.
+     * This can be useful for storing additional information about the object in a structured format, and querying for objects via API or the dashboard.
+     * Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters.
+     */
+    metadata?: Record<string, string>
+}
+
 interface PromptScript
     extends PromptLike,
         ModelOptions,
@@ -792,7 +798,8 @@ interface PromptScript
         SecretDetectionOptions,
         GitIgnoreFilterOptions,
         ScriptRuntimeOptions,
-        McpToolAnnotations {
+        McpToolAnnotations,
+        MetadataOptions {
     /**
      * Which provider to prefer when picking a model.
      */
@@ -1687,6 +1694,11 @@ interface ExpansionVariables {
     runDir: string
 
     /**
+     * Unique identifier for the run
+     */
+    runId: string
+
+    /**
      * List of linked files parsed in context
      */
     files: WorkspaceFile[]
@@ -1773,6 +1785,7 @@ type PromptSystemArgs = Omit<
     | "files"
     | "modelConcurrency"
     | "redteam"
+    | "metadata"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
@@ -2548,16 +2561,11 @@ interface PDFPage {
     figures?: PDFPageImage[]
 }
 
-interface DocxParseOptions {
+interface DocxParseOptions extends CacheOptions {
     /**
      * Desired output format
      */
     format?: "markdown" | "text" | "html"
-
-    /**
-     * If true, the transcription will be cached.
-     */
-    cache?: boolean | string
 }
 
 interface EncodeIDsOptions {
@@ -2724,6 +2732,14 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: HTMLToMarkdownOptions
     ): Promise<string>
+
+    /**
+     * Parsers a mermaid diagram and returns the parse error if any
+     * @param content
+     */
+    mermaid(
+        content: string | WorkspaceFile
+    ): Promise<{ error?: string; diagramType?: string }>
 
     /**
      * Extracts the contents of a zip archive file
@@ -3151,13 +3167,19 @@ interface Git {
      * @param options
      */
     fetch(
-        remote: OptionsOrString<"origin">,
-        branchOrSha: string,
+        remote?: OptionsOrString<"origin">,
+        branchOrSha?: string,
         options?: {
             prune?: boolean
             all?: boolean
         }
-    ): Promise<void>
+    ): Promise<string>
+
+    /**
+     * Git pull the remote repository
+     * @param options
+     */
+    pull(options?: { ff?: boolean }): Promise<string>
 
     /**
      * Lists the branches in the git repository
@@ -3307,10 +3329,9 @@ interface FfmpegCommandBuilder {
     outputOptions(...options: string[]): FfmpegCommandBuilder
 }
 
-interface FFmpegCommandOptions {
+interface FFmpegCommandOptions extends CacheOptions {
     inputOptions?: ElementOrArray<string>
     outputOptions?: ElementOrArray<string>
-    cache?: boolean | string
     /**
      * For video conversion, output size as `wxh`
      */
@@ -3584,6 +3605,24 @@ interface GitHubGist {
     files: WorkspaceFile[]
 }
 
+interface GitHubArtifact {
+    id: number
+    name: string
+    size_in_bytes: number
+    url: string
+    archive_download_url: string
+    expires_at: string
+}
+
+interface GitHubIssueUpdateOptions {
+    title?: string
+    body?: string
+    assignee?: string
+    state?: "open" | "closed"
+    assignees?: string[]
+    labels?: string[]
+}
+
 interface GitHub {
     /**
      * Gets connection information for octokit
@@ -3620,6 +3659,27 @@ interface GitHub {
      * @param runId
      */
     workflowRun(runId: number | string): Promise<GitHubWorkflowRun>
+
+    /**
+     * List artifacts for a given workflow run
+     * @param runId
+     */
+    listWorkflowRunArtifacts(
+        runId: number | string,
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubArtifact[]>
+
+    /**
+     * Gets the details of a GitHub Action workflow run artifact
+     * @param artifactId
+     */
+    artifact(artifactId: number | string): Promise<GitHubArtifact>
+
+    /**
+     * Downloads and unzips archive files from a GitHub Action Artifact
+     * @param artifactId
+     */
+    downloadArtifactFiles(artifactId: number | string): Promise<WorkspaceFile[]>
 
     /**
      * Downloads a GitHub Action workflow run log
@@ -3679,6 +3739,16 @@ interface GitHub {
     getIssue(issueNumber?: number | string): Promise<GitHubIssue>
 
     /**
+     * Updates an issue or pull request on GitHub
+     * @param issueNumber
+     * @param options
+     */
+    updateIssue(
+        issueNumber: number | string,
+        options: GitHubIssueUpdateOptions
+    ): Promise<GitHubIssue>
+
+    /**
      * Create a GitHub issue comment
      * @param issueNumber issue number (not the issue id!). If undefined, reads value from GITHUB_ISSUE environment variable.
      * @param body the body of the comment as Github Flavored markdown
@@ -3697,6 +3767,16 @@ interface GitHub {
         issue_number: number | string,
         options?: GitHubPaginationOptions
     ): Promise<GitHubComment[]>
+
+    /**
+     * Updates a comment on a GitHub issue
+     * @param comment_id
+     * @param body the updated comment body
+     */
+    updateIssueComment(
+        comment_id: number | string,
+        body: string
+    ): Promise<GitHubComment>
 
     /**
      * Lists pull requests for a given repository
@@ -3789,6 +3869,11 @@ interface GitHub {
             branchName?: string
         }
     ): Promise<string>
+
+    /**
+     * Resolves user uploaded assets to a short lived URL with access token. Returns undefined if the asset is not found.
+     */
+    resolveAssetUrl(url: string): Promise<string | undefined>
 
     /**
      * Gets the underlying Octokit client
@@ -4222,7 +4307,8 @@ interface PromptGeneratorOptions
     extends ModelOptions,
         PromptSystemOptions,
         ContentSafetyOptions,
-        SecretDetectionOptions {
+        SecretDetectionOptions,
+        MetadataOptions {
     /**
      * Label for trace
      */
@@ -4502,12 +4588,13 @@ type BufferLike =
     | ArrayBuffer
     | Uint8Array
     | ReadableStream
+    | SharedArrayBuffer
 
 type TranscriptionModelType = OptionsOrString<
     "openai:whisper-1" | "openai:gpt-4o-transcribe" | "whisperasr:default"
 >
 
-interface ImageGenerationOptions extends ImageTransformOptions {
+interface ImageGenerationOptions extends ImageTransformOptions, RetryOptions {
     model?: OptionsOrString<ModelImageGenerationType>
     /**
      * The quality of the image that will be generated.
@@ -4546,7 +4633,7 @@ interface ImageGenerationOptions extends ImageTransformOptions {
     outputFormat?: "png" | "jpeg" | "webp"
 }
 
-interface TranscriptionOptions {
+interface TranscriptionOptions extends CacheOptions, RetryOptions {
     /**
      * Model to use for transcription. By default uses the `transcribe` alias.
      */
@@ -4568,11 +4655,6 @@ interface TranscriptionOptions {
      * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
      */
     temperature?: number
-
-    /**
-     * If true, the transcription will be cached.
-     */
-    cache?: boolean | string
 }
 
 interface TranscriptionResult {
@@ -4628,19 +4710,16 @@ type SpeechVoiceType = OptionsOrString<
     | "ballad"
 >
 
-interface SpeechOptions {
+interface SpeechOptions extends CacheOptions, RetryOptions {
     /**
      * Speech to text model
      */
     model?: SpeechModelType
+
     /**
      * Voice to use (model-specific)
      */
     voice?: SpeechVoiceType
-    /**
-     * If true, the transcription will be cached.
-     */
-    cache?: boolean | string
 
     /**
      * Control the voice of your generated audio with additional instructions. Does not work with tts-1 or tts-1-hd.
@@ -5728,11 +5807,47 @@ interface ShellHost {
     ): Promise<ShellOutput>
 }
 
+interface McpToolReference {
+    name: string
+    description?: string
+    inputSchema?: JSONSchema
+}
+
 interface McpResourceReference {
     name?: string
     description?: string
     uri: string
     mimeType?: string
+}
+
+interface McpServerToolResultTextPart {
+    type: "text"
+    text: string
+}
+
+interface McpServerToolResultImagePart {
+    type: "image"
+    data: string
+    mimeType: string
+}
+
+interface McpServerToolResourcePart {
+    type: "resource"
+    text?: string
+    uri?: string
+    mimeType?: string
+    blob?: string
+}
+
+type McpServerToolResultPart =
+    | McpServerToolResultTextPart
+    | McpServerToolResultImagePart
+    | McpServerToolResourcePart
+
+interface McpServerToolResult {
+    isError?: boolean
+    content: McpServerToolResultPart[]
+    text?: string
 }
 
 interface McpClient extends AsyncDisposable {
@@ -5748,7 +5863,7 @@ interface McpClient extends AsyncDisposable {
     /**
      * List all available MCP tools
      */
-    listTools(): Promise<ToolCallback[]>
+    listTools(): Promise<McpToolReference[]>
 
     /**
      * List resources available in the server
@@ -5759,6 +5874,16 @@ interface McpClient extends AsyncDisposable {
      * Reads the resource content
      */
     readResource(uri: string): Promise<WorkspaceFile[]>
+
+    /**
+     *
+     * @param name Call the MCP tool
+     * @param args
+     */
+    callTool(
+        name: string,
+        args: Record<string, any>
+    ): Promise<McpServerToolResult>
 
     /**
      * Closes clients and server.
@@ -5953,12 +6078,22 @@ interface ContentSafetyHost {
     contentSafety(id?: ContentSafetyProvider): Promise<ContentSafety>
 }
 
-type FetchOptions = RequestInit & {
+interface RetryOptions {
     retryOn?: number[] // HTTP status codes to retry on
     retries?: number // Number of retry attempts
     retryDelay?: number // Initial delay between retries
     maxDelay?: number // Maximum delay between retries
 }
+
+interface CacheOptions {
+    /**
+     * By default, LLM queries are not cached.
+     * If true, the LLM request will be cached. Use a string to override the default cache name
+     */
+    cache?: boolean | string
+}
+
+type FetchOptions = RequestInit & RetryOptions
 
 type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window"> & {
     convert?: "markdown" | "text" | "tables"

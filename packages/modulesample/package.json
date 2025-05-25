@@ -1,9 +1,10 @@
 {
   "name": "genaiscript-modulesample",
   "type": "module",
+  "private": true,
   "scripts": {
     "genai": "node ../cli/built/genaiscript.cjs run",
     "test": "yarn genai poem-js-module"
   },
-  "version": "1.135.0"
+  "version": "1.139.0"
 }

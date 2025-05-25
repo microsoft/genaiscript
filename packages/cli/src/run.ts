@@ -112,6 +112,7 @@ import { tryResolveResource } from "../../core/src/resources"
 import { genaiscriptDebug } from "../../core/src/debug"
 import { uriTryParse } from "../../core/src/url"
 import { tryResolveScript } from "../../core/src/scriptresolver"
+import { isCI } from "../../core/src/ci"
 const dbg = genaiscriptDebug("run")
 
 /**
@@ -302,13 +303,14 @@ export async function runScriptInternal(
     }
 
     logInfo(`genaiscript: ${scriptId} (run: ${runId})`)
+    dbg(`ci: %s`, isCI)
 
     // manage out folder
     if (removeOut) await emptyDir(runDir)
     await ensureDir(runDir)
 
     const outTraceFilename =
-        options.runTrace === false
+        options.runTrace === false || (isCI && !options.runTrace)
             ? undefined
             : await setupTraceWriting(
                   trace,
@@ -316,7 +318,7 @@ export async function runScriptInternal(
                   join(runDir, TRACE_FILENAME)
               )
     const outputFilename =
-        options.outputTrace === false
+        options.outputTrace === false || (isCI && !options.outputTrace)
             ? undefined
             : await setupTraceWriting(
                   runOutputTrace,
@@ -733,6 +735,7 @@ export async function runScriptInternal(
         if (!_ghInfo)
             _ghInfo = await githubParseEnv(process.env, {
                 issue: pullRequest,
+                resolveToken: true,
                 resolveIssue: true,
                 resolveCommit: true,
             })

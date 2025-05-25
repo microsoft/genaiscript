@@ -1,6 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:mcp:server")
-
 import { logVerbose, logWarn } from "../../core/src/util"
 import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "../../core/src/constants"
 import { CORE_VERSION } from "../../core/src/version"
@@ -22,6 +19,10 @@ import { startProjectWatcher } from "./watch"
 import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { runtimeHost } from "../../core/src/host"
 import { Resource, ResourceContents } from "../../core/src/mcpresource"
+import debug from "debug"
+import { splitMarkdownTextImageParts } from "../../core/src/markdown"
+import { ensureDotGenaiscriptPath } from "../../core/src/workdir"
+const dbg = debug("genaiscript:mcp:server")
 
 /**
  * Starts the MCP server.
@@ -42,6 +43,7 @@ export async function startMcpServer(
     setConsoleColors(false)
     logVerbose(`mcp server: starting...`)
 
+    await ensureDotGenaiscriptPath()
     await applyRemoteOptions(options)
     const { startup } = options || {}
 
@@ -127,22 +129,25 @@ export async function startMcpServer(
             )
             const res = await run(name, files as string[], {
                 vars: vars as Record<string, any>,
+                runTrace: false,
+                outputTrace: false,
             })
+            dbg(`res: %s`, res.status)
+            if (res.error) dbg(`error: %O`, res.error)
             const isError = res.status !== "success" || !!res.error
             const text = res?.error?.message || res.text || ""
-            // const parts = await splitMarkdownTextImageParts(text)
-            // dbg(`tool content:\n%O`, parts)
+            dbg(`inlining images`)
+            const parts = await splitMarkdownTextImageParts(text, {
+                dir: res.env.runDir,
+                convertToDataUri: true,
+            })
+            dbg(`parts: %O`, parts)
             return {
                 isError,
-                content: [
-                    {
-                        type: "text",
-                        text,
-                        // parts,
-                    },
-                ],
+                content: parts,
             } satisfies CallToolResult
         } catch (err) {
+            dbg("%O", err)
             return {
                 isError: true,
                 content: [

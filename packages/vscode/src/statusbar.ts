@@ -37,7 +37,7 @@ export function activateStatusBar(state: ExtensionState) {
                     ? `server${server.version ? ` v${server.version}` : ""}: [${server.authority}](${server.browserUrl})`
                     : `GenAIScript: ${status}...`,
                 status === "starting"
-                    ? `On the first run, it may take a while to start the server while npx install 'genaiscript'.`
+                    ? `Please be patient, the server might need to install dependencies.\n[Show Server Terminal](command:genaiscript.server.show)`
                     : "",
                 fragment?.files?.[0],
                 ...Object.entries(languageChatModels).map(
@@ -46,7 +46,9 @@ export function activateStatusBar(state: ExtensionState) {
             ),
             true
         )
-        md.isTrusted = true
+        md.isTrusted = {
+            enabledCommands: ["genaiscript.server.show"],
+        }
         statusBarItem.tooltip = md
     }
 

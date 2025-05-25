@@ -40,6 +40,7 @@ import { vttSrtParse } from "./transcription"
 import { encodeIDs } from "./cleaners"
 import { diffCreatePatch } from "./diff"
 import { promptyParse } from "./prompty"
+import { mermaidParse } from "./mermaid"
 
 /**
  * Asynchronously creates a set of parsers for handling various file formats, data operations,
@@ -187,6 +188,11 @@ export async function createParsers(
                 images: pages?.map((p) => p.image),
                 data: pages,
             }
+        },
+        mermaid: async (file) => {
+            const f = filenameOrFileToContent(file)
+            const res = await mermaidParse(f)
+            return res
         },
         code: async (file, query) => {
             await resolveFileContent(file, { trace })

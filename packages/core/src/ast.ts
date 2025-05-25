@@ -5,10 +5,10 @@ import {
     GENAI_ANYTS_REGEX,
     PROMPTY_REGEX,
 } from "./constants"
-import { host } from "./host"
 import { Project } from "./server/messages"
 import { arrayify } from "./cleaners"
 import { tagFilter } from "./tags"
+import { dirname, resolve } from "node:path"
 
 // Interface representing a file reference, with a name and filename property
 export interface FileReference {
@@ -62,17 +62,23 @@ export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position
  * @param prj - The project containing the scripts to analyze.
  * @returns An array of directory objects with their names and flags indicating JavaScript and TypeScript file presence.
  */
-export function collectFolders(prj: Project) {
+export function collectFolders(
+    prj: Project,
+    options?: { force?: boolean }
+): { dirname: string; js?: boolean; ts?: boolean }[] {
+    const { force } = options || {}
+    const { systemDir } = prj
     const folders: Record<
         string,
         { dirname: string; js?: boolean; ts?: boolean }
     > = {}
     for (const t of Object.values(prj.scripts).filter(
-        // must have a filename and not propmty
+        // must have a filename and not prompty
         (t) => t.filename && !PROMPTY_REGEX.test(t.filename)
     )) {
-        const dirname = host.path.dirname(t.filename) // Get directory name from the filename
-        const folder = folders[dirname] || (folders[dirname] = { dirname })
+        const dir = dirname(t.filename) // Get directory name from the filename
+        if (!force && resolve(dir) === systemDir) continue
+        const folder = folders[dir] || (folders[dir] = { dirname: dir })
         folder.js = folder.js || GENAI_ANYJS_REGEX.test(t.filename) // Check for presence of JS files
         folder.ts = folder.ts || GENAI_ANYTS_REGEX.test(t.filename) // Check for presence of TS files
     }

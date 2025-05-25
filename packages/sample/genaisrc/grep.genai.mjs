@@ -1,6 +1,7 @@
 script({
     title: "grep search",
     model: "echo",
+    group: "commit",
     tests: {},
 })
 

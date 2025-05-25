@@ -15,6 +15,11 @@ import { YAMLStringify } from "./yaml"
 import { dataUriToBuffer } from "./file"
 import { wrapColor } from "./consolecolor"
 import {
+    BOX_DOWN_AND_RIGHT,
+    BOX_DOWN_UP_AND_RIGHT,
+    BOX_RIGHT,
+    BOX_UP_AND_DOWN,
+    BOX_UP_AND_RIGHT,
     CHAR_ENVELOPE,
     CONSOLE_COLOR_DEBUG,
     CONTROL_CHAT_COLLAPSED,
@@ -23,7 +28,6 @@ import {
 } from "./constants"
 import { CancellationOptions, checkCancelled } from "./cancellation"
 import { prettyTemperature, prettyTokens } from "./pretty"
-import { estimateChatTokens } from "./chatencoder"
 import { genaiscriptDebug } from "./debug"
 import { JSONSchemaToFunctionParameters } from "./schema"
 const dbg = genaiscriptDebug("chat:render")
@@ -42,8 +46,11 @@ function renderTrimmed(s: string, rows: number, width: number) {
             trimmed.push(...lines.slice(-tail))
         }
     }
-    const res = trimmed.map((l) =>
-        wrapColor(CONSOLE_COLOR_DEBUG, "│" + ellipse(l, width) + "\n")
+    const res = trimmed.map((l, i) =>
+        wrapColor(
+            CONSOLE_COLOR_DEBUG,
+            BOX_UP_AND_DOWN + ellipse(l, width) + "\n"
+        )
     )
     return res
 }
@@ -109,14 +116,28 @@ function renderToolCall(
     const width = columns - 2
     return wrapColor(
         CONSOLE_COLOR_DEBUG,
-        ellipse(`├──📠 tool ${call.function.name} (${call.id})`, columns - 2) +
+        ellipse(
+            `${BOX_DOWN_UP_AND_RIGHT}${BOX_RIGHT}${BOX_RIGHT}📠 tool ${call.function.name} (${call.id})`,
+            columns - 2
+        ) +
             `\n` +
             (call.function.arguments
                 ? wrapColor(
                       CONSOLE_COLOR_DEBUG,
-                      "│" + ellipse(call.function.arguments, width) + "\n"
+                      `${BOX_UP_AND_DOWN} ${ellipse(call.function.arguments, width)}\n`
                   )
                 : "")
+    )
+}
+
+function renderMetadata(call: CreateChatCompletionRequest) {
+    const { metadata } = call
+    if (!metadata) return ""
+    return wrapColor(
+        CONSOLE_COLOR_DEBUG,
+        `${BOX_DOWN_UP_AND_RIGHT}${BOX_RIGHT}📊 ${Object.entries(metadata)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(", ")}\n`
     )
 }
 
@@ -141,7 +162,7 @@ export async function renderMessagesToTerminal(
         tools?: ChatCompletionTool[]
     }
 ) {
-    const { model, temperature, response_format } = request
+    const { model, temperature, metadata, response_format } = request
     let messages = request.messages.slice(0)
     const {
         system = undefined, // Include system messages unless explicitly set to false.
@@ -175,44 +196,56 @@ export async function renderMessagesToTerminal(
     })
     const res: string[] = []
     if (model) {
-        const tokens = await estimateChatTokens(model, messages)
         res.push(
             wrapColor(
                 CONSOLE_COLOR_DEBUG,
-                `┌─💬 ${model} ${CHAR_ENVELOPE} ${messages.length} ~${prettyTokens(tokens, "prompt")} ${prettyTemperature(temperature)}\n`
+                `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT}💬 ${model} ${CHAR_ENVELOPE} ${messages.length} ${prettyTemperature(temperature)}\n`
             )
         )
     }
     if (response_format) {
         const { type } = response_format
-        res.push(wrapColor(CONSOLE_COLOR_DEBUG, `├─📦 ${type}\n`))
+        res.push(
+            wrapColor(
+                CONSOLE_COLOR_DEBUG,
+                `${BOX_DOWN_UP_AND_RIGHT}${BOX_RIGHT}📦 ${type}\n`
+            )
+        )
         if (type === "json_schema") {
             const { json_schema } = response_format
             res.push(
                 wrapColor(
                     CONSOLE_COLOR_DEBUG,
-                    `│ ${JSONSchemaToFunctionParameters(json_schema.schema as any)}\n`
+                    `${BOX_UP_AND_DOWN} ${JSONSchemaToFunctionParameters(json_schema.schema as any)}\n`
                 )
             )
         }
     }
     if (tools?.length) {
         res.push(
-            wrapColor(CONSOLE_COLOR_DEBUG, `├─🔧 tools (${tools.length})\n`),
             wrapColor(
                 CONSOLE_COLOR_DEBUG,
-                `│ ${tools.map((tool) => tool.function.name).join(", ")}`
+                `${BOX_DOWN_UP_AND_RIGHT}${BOX_RIGHT}🔧 tools (${tools.length})\n`
+            ),
+            wrapColor(
+                CONSOLE_COLOR_DEBUG,
+                `${BOX_UP_AND_DOWN} ${tools.map((tool) => tool.function.name).join(", ")}`
             ),
             "\n"
         )
     }
+
+    if (metadata) res.push(renderMetadata(request))
 
     for (const msg of messages) {
         const { role } = msg
         switch (role) {
             case "system":
                 res.push(
-                    wrapColor(CONSOLE_COLOR_DEBUG, "┌─📙 system\n"),
+                    wrapColor(
+                        CONSOLE_COLOR_DEBUG,
+                        `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT}📙 system\n`
+                    ),
                     ...(await renderMessageContent(model, msg, {
                         columns,
                         rows: msgRows(msg, system),
@@ -220,7 +253,12 @@ export async function renderMessagesToTerminal(
                 )
                 break
             case "user":
-                res.push(wrapColor(CONSOLE_COLOR_DEBUG, "┌─👤 user\n"))
+                res.push(
+                    wrapColor(
+                        CONSOLE_COLOR_DEBUG,
+                        `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT}👤 user\n`
+                    )
+                )
                 res.push(
                     ...(await renderMessageContent(model, msg, {
                         columns,
@@ -232,12 +270,15 @@ export async function renderMessagesToTerminal(
                 res.push(
                     wrapColor(
                         CONSOLE_COLOR_DEBUG,
-                        `┌─🤖 assistant ${msg.name ? msg.name : ""}\n`
+                        `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT}🤖 assistant ${msg.name ? msg.name : ""}\n`
                     )
                 )
                 if (msg.reasoning_content)
                     res.push(
-                        wrapColor(CONSOLE_COLOR_DEBUG, "├──🤔 reasoning\n"),
+                        wrapColor(
+                            CONSOLE_COLOR_DEBUG,
+                            `${BOX_UP_AND_DOWN}${BOX_RIGHT}🤔 reasoning\n`
+                        ),
                         msg.reasoning_content,
                         "\n"
                     )
@@ -258,7 +299,7 @@ export async function renderMessagesToTerminal(
                 res.push(
                     wrapColor(
                         CONSOLE_COLOR_DEBUG,
-                        `┌─🔧 tool ${msg.tool_call_id || ""}\n`
+                        `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT}🔧 tool ${msg.tool_call_id || ""}\n`
                     ),
                     ...(await renderMessageContent(model, msg, {
                         columns,
@@ -268,7 +309,10 @@ export async function renderMessagesToTerminal(
                 break
             default:
                 res.push(
-                    wrapColor(CONSOLE_COLOR_DEBUG, "┌─" + role + "\n"),
+                    wrapColor(
+                        CONSOLE_COLOR_DEBUG,
+                        `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT}${role}\n`
+                    ),
                     ...(await renderMessageContent(model, YAMLStringify(msg), {
                         columns,
                         rows: msgRows(msg, undefined),

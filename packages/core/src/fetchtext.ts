@@ -7,11 +7,11 @@ import { isBinaryMimeType } from "./binary"
 import { toBase64 } from "./base64"
 import { deleteUndefinedValues } from "./cleaners"
 import { prettyBytes } from "./pretty"
-import debug from "debug"
 import { uriRedact } from "./url"
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
 import { createFetch } from "./fetch"
-const dbg = debug("genaiscript:fetch:text")
+import { genaiscriptDebug } from "./debug"
+const dbg = genaiscriptDebug("fetch:text")
 
 /**
  * Fetches text content from a URL or file.
@@ -135,8 +135,8 @@ export async function fetchText(
 /**
  * Logs a POST request for tracing.
  *
- * Constructs a curl command to represent the POST request, including headers
- * and body. Authorization headers can be optionally masked.
+ * Constructs an HTTP POST request representation, including headers and body, for tracing purposes.
+ * Authorization headers can be optionally masked.
  *
  * @param trace - Trace object for logging details. If not provided, logs the command verbosely.
  * @param url - Target URL for the request.
@@ -168,23 +168,36 @@ export function traceFetchPost(
                         : "***") // Mask other authorization headers
             )
     }
-    let cmd = `curl ${url} \\
---no-buffer \\
-${Object.entries(headers)
-    .map(([k, v]) => `-H "${k}: ${v}"`)
-    .join(" \\\n")} \\
-`
+
+    // Start building the HTTP request
+    let httpRequest = `POST ${url} HTTP/1.1\n`
+
+    // Add headers
+    Object.entries(headers).forEach(([key, value]) => {
+        httpRequest += `${key}: ${value}\n`
+    })
+
+    // Add body
     if (body instanceof FormData) {
+        const boundary = "------------------------" + Date.now().toString(16)
+        httpRequest += `Content-Type: multipart/form-data; boundary=${boundary}\n\n`
+
         body.forEach((value, key) => {
-            cmd += `-F ${key}=${value instanceof File ? `... (${prettyBytes(value.size)})` : "" + value}\n`
+            httpRequest += `--${boundary}\n`
+            httpRequest += `Content-Disposition: form-data; name="${key}"`
+            if (value instanceof File) {
+                httpRequest += `; filename="${value.name}"\n`
+                httpRequest += `Content-Type: ${value.type || "application/octet-stream"}\n\n`
+                httpRequest += `... (${prettyBytes(value.size)})\n`
+            } else {
+                httpRequest += "\n\n" + value + "\n"
+            }
         })
+        httpRequest += `--${boundary}--\n`
     } else {
-        cmd += `-d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}'
-`
+        httpRequest += "\n" + JSON.stringify(body, null, 2)
     }
-    if (trace) {
-        trace.detailsFenced(`🌐 fetch`, cmd, "bash")
-    } else {
-        logVerbose(cmd)
-    }
+
+    dbg(httpRequest)
+    if (trace) trace.detailsFenced(`🌐 fetch`, httpRequest, "http")
 }

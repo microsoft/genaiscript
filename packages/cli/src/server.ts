@@ -62,6 +62,7 @@ import { applyRemoteOptions, RemoteOptions } from "./remote"
 import { nodeTryReadPackage } from "../../core/src/nodepackage"
 import { genaiscriptDebug } from "../../core/src/debug"
 import { startProjectWatcher } from "./watch"
+import { findOpenPort } from "./port"
 const dbg = genaiscriptDebug("server")
 
 /**
@@ -96,13 +97,7 @@ export async function startServer(
     const remote = options.remote
     const dispatchProgress = !!options.dispatchProgress
 
-    let port = parseInt(options.port) || SERVER_PORT
-    if (await isPortInUse(port)) {
-        if (options.port) throw new Error(`port ${port} in use`)
-        const oldPort = port
-        port = await findRandomOpenPort()
-        logWarn(`port ${oldPort} in use, using port ${port}`)
-    }
+    const port = await findOpenPort(SERVER_PORT, options)
     // store original working directory
     const cwd = process.cwd()
 
@@ -824,6 +819,10 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
     const serverHash = apiKey ? `#api-key:${encodeURIComponent(apiKey)}` : ""
     httpServer.listen(port, serverHost, () => {
         console.log(`GenAIScript server v${CORE_VERSION}`)
+        if (remote)
+            console.log(
+                `│ Remote: ${remote}${options.remoteBranch ? `#${options.remoteBranch}` : ""}`
+            )
         console.log(`│ Local http://${serverHost}:${port}/${serverHash}`)
         if (options.network) {
             console.log(`│ Host http://localhost:${port}/${serverHash}`)

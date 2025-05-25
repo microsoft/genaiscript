@@ -64,7 +64,16 @@ const issueComments = await github.listIssueComments(issues[0].number)
 console.log(issueComments)
 ```
 
-You can also create issue comments:
+- update issue:
+
+```js
+await github.updateIssue(issues[0].number, {
+    title: "New title",
+    body: "New body",
+})
+```
+
+- create issue comments:
 
 ```js
 // Use issue number!
@@ -101,6 +110,34 @@ console.log(jobs[0].content)
 ```
 
 In GitHub Actions, grant the `actions: read` permission.
+
+### Artifacts
+
+Workflows can create and attach artifacts to the workflow run.
+You can list and download these artifacts using `listWorkflowArtifacts` and `downloadArtifact`.
+
+```js
+const artifacts = await github.listWorkflowArtifacts(runs[0].id)
+console.log(artifacts)
+
+const artifact = artifacts[0]
+// genaiscript automatically unzips the artifact
+const files = await github.downloadArtifact(artifact.id)
+console.log(files)
+```
+
+### Assets
+
+Image or video assets urls uploaded through the GitHub UI can be resolved using `resolveAssetUrl`.
+They are typically of the form `https://github.com/.../assets/<uuid>`. The function returns a short lived URL with an embedded
+access token to download the asset.
+
+```js
+const url = await github.resolveAssetUrl(
+    "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
+)
+console.log(url)
+```
 
 ### Search Code
 
@@ -145,7 +182,7 @@ const url = await github.uploadAsset(file)
 console.log(url)
 ```
 
-The URL can be used in markdown in comments or issues. 
+The URL can be used in markdown in comments or issues.
 
 :::note
 

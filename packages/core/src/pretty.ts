@@ -114,15 +114,15 @@ export function prettyStrings(...token: string[]) {
 
 export function prettyValue(
     value: number | undefined,
-    options?: { emoji?: string; precision?: number }
+    options?: { emoji?: string; afterEmoji?: string; precision?: number }
 ) {
     if (isNaN(value)) return ""
-    const { emoji, precision = 2 } = options || {}
+    const { emoji = "", afterEmoji = "", precision = 2 } = options || {}
     const v = roundWithPrecision(value, precision)
-    const s = emoji ? `${emoji}${v}` : v.toString()
+    const s = `${emoji}${v}${afterEmoji}`
     return s
 }
 
 export function prettyTemperature(value: number) {
-    return prettyValue(value, { emoji: CHAR_TEMPERATURE, precision: 1 })
+    return prettyValue(value, { afterEmoji: CHAR_TEMPERATURE, precision: 1 })
 }

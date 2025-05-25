@@ -1,0 +1,153 @@
+---
+title: Web API Server
+description: The Web API server exposes a REST API, OpenAPI compatible, to run scripts.
+---
+
+You can launch the [cli](/genaiscript/reference/cli) as a **Web API server** to serve scripts as REST endpoints.
+The server is OpenAPI 3.1 compatible and uses [fastify](https://www.fastify.io/) under the hood.
+
+```bash
+genaiscript webapi
+```
+
+## Scripts as REST endpoints
+
+The Web API server exposes scripts as REST endpoints. It uses the title, description, groups and tags
+to generate a OpenAPI 3.1 specification and server using fastify.
+
+The OpenAPI endpoint parameters is inferred from the [script parameters](/genaiscript/reference/scripts/parameters) and files automatically.
+The OpenAPI parameters will then populate the `env.vars` object in the script
+as usual.
+
+The OpenAPI endpoint output is the script output. That is, typically, the last assistant message for a script that uses the top-level context.
+The OpenAPI endpoint output corresponds to the script's output, typically the last assistant message or any content passed to [env.output](/genaiscript/reference/scripts/output-builder).
+
+Let's see an example. Here is a script `task.genai.mjs` that takes a `task` parameter input, builds a prompt
+and the LLM output is sent back.
+
+```js title="task.genai.mjs"
+script({
+    description: "You MUST provide a description!",
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic
+$`... prompt ... ${task}` // output the result
+```
+
+A more advanced script might not use the top-level context and instead use the `env.output` to pass the result.
+
+```js title="task.genai.mjs"
+script({
+    description: "You should provide a description!",
+    accept: "none", // this script does not use 'env.files'
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { output } = env // store the output builder
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic with inline prompts
+const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the prompt
+...
+
+// build the output
+output.fence(`The result is ${res.text}`)
+```
+
+## Route
+
+The default route is `/api` and the OpenAPI specification is available at `/api/docs/json`.
+You can change the route using the `--route` option.
+
+```bash
+genaiscript webapi --route /genai
+```
+
+The OpenAPI specification will be available at `/genai/docs/json`.
+You can also change the port using the `--port` option.
+
+```bash
+genaiscript webapi --route /genai --port 4000
+```
+
+The server will be available at `http://localhost:4000/genai`.
+
+## Startup script
+
+You can specify a startup script id in the command line using the `--startup` option.
+It will run after the server is started.
+
+```sh
+genaiscript openapi --startup load-resources
+```
+
+You can use this script to load resources or do any other setup you need.
+
+### Filtering scripts
+
+If you need to filter out which scripts are exposed as OpenAPI endpoints, you can use the `--groups` flag and
+set the `openapi` group in your scripts.
+
+```js 'group: "openapi"' title="task.genai.mjs"
+script({
+    group: "openapi",
+})
+```
+
+```bash
+genaiscript openapi --groups openapi
+```
+
+## Running scripts from a remote repository
+
+You can use the `--remote` option to load scripts from a remote repository.
+GenAIScript will do a shallow clone of the repository and run the script from the clone folder.
+
+```sh
+npx --yes genaiscript openapi --remote https://github.com/...
+```
+
+There are additional flags to how the repository is cloned:
+
+- `--remote-branch <branch>`: The branch to clone from the remote repository.
+- `--remote-force`: Force the clone even if the cloned folder already exists.
+- `--remote-install`: Install dependencies after cloning the repository.
+
+:::caution
+
+As usual, be careful when running scripts from a remote repository.
+Make sure you trust the source before running the script and consider locking to a specific commit.
+
+:::
+
+## Linting
+
+You can run [spectral](https://github.com/stoplightio/spectral) to lint your OpenAPI specifications.
+
+- save this `.spectral.yaml` file in the root of your project:
+
+```yaml
+extends: "spectral:oas"
+```
+
+- launch the api server
+- run the spectral linter
+
+```bash
+npx --yes -p @stoplight/spectral-cli spectral lint http://localhost:3000/api/docs/json
+```

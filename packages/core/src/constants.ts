@@ -49,6 +49,7 @@ export const NEGATIVE_GLOB_REGEX = /^!/
 export const GENAI_ANY_REGEX = /\.(genai\.(ts|mts|mjs|js)|prompty)$/i
 export const GENAI_ANYJS_REGEX = /\.genai\.js$/i
 export const GENAI_ANYTS_REGEX = /\.genai\.(ts|mts|mjs)$/i
+export const HTTP_OR_S_REGEX = /^https?:\/\//i
 export const HTTPS_REGEX = /^https:\/\//i
 export const CSV_REGEX = /\.(t|c)sv$/i
 export const YAML_REGEX = /\.yaml$/i
@@ -68,6 +69,7 @@ export const JSONL_REGEX = /\.jsonl$/i
 export const PROMPTY_REGEX = /\.prompty$/i
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
+export const OPENAPI_SERVER_PORT = 3000
 export const CLIENT_RECONNECT_DELAY = 3000
 export const CLIENT_RECONNECT_MAX_ATTEMPTS = 20
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
@@ -96,10 +98,11 @@ export const ICON_LOGO_NAME = "genaiscript-logo"
 export const SARIFF_RULEID_PREFIX = "genaiscript/"
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/"
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID
-export const FETCH_RETRY_DEFAULT = 5
+export const FETCH_RETRY_DEFAULT = 6
 export const FETCH_RETRY_DEFAULT_DEFAULT = 2000
 export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000
 export const FETCH_RETRY_GROWTH_FACTOR = 1.5
+export const FETCH_RETRY_ON_DEFAULT = [408, 429, 500, 504]
 export const EXEC_MAX_BUFFER = 64
 export const DOT_ENV_FILENAME = ".env"
 export const DOT_ENV_GENAISCRIPT_FILENAME = ".env.genaiscript"
@@ -126,8 +129,8 @@ export const PROMPT_FENCE = "```"
 export const MARKDOWN_PROMPT_FENCE = "`````"
 
 export const OPENAI_API_BASE = "https://api.openai.com/v1"
-export const OLLAMA_DEFAUT_PORT = 11434
-export const OLLAMA_API_BASE = `http://127.0.0.1:${OLLAMA_DEFAUT_PORT}/v1`
+export const OLLAMA_DEFAULT_PORT = 11434
+export const OLLAMA_API_BASE = `http://127.0.0.1:${OLLAMA_DEFAULT_PORT}/v1`
 export const SGLANG_API_BASE = "http://127.0.0.1:30000/v1"
 export const VLLM_API_BASE = "http://127.0.0.1:8000/v1"
 export const LLAMAFILE_API_BASE = "http://127.0.0.1:8080/v1"
@@ -211,7 +214,8 @@ export const OPENROUTER_API_CHAT_URL =
 export const OPENROUTER_SITE_URL_HEADER = "HTTP-Referer"
 export const OPENROUTER_SITE_NAME_HEADER = "X-Title"
 
-export const GITHUB_MODELS_BASE = "https://models.inference.ai.azure.com"
+export const GITHUB_MODELS_BASE =
+    "https://models.github.ai/inference/chat/completions"
 
 export const DOCS_CONFIGURATION_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/"
@@ -247,6 +251,7 @@ export const MODEL_PROVIDERS = Object.freeze<
         hidden?: boolean
         imageGeneration?: boolean
         singleModel?: boolean
+        metadata?: boolean
         responseType?: "json" | "json_object" | "json_schema"
         reasoningEfforts?: Record<string, number>
         aliases?: Record<string, string>
@@ -318,6 +323,7 @@ export const PLACEHOLDER_API_KEY = "<your token>"
 
 export const VSCODE_CONFIG_CLI_VERSION = "cli.version"
 export const VSCODE_CONFIG_CLI_PATH = "cli.path"
+export const VSCODE_CONFIG_CLI_PACKAGE_MANAGER = "cli.packageManager"
 
 export const CONSOLE_COLOR_INFO = 32
 export const CONSOLE_COLOR_DEBUG = 90
@@ -442,3 +448,15 @@ export const MCP_RESOURCE_PROTOCOL = TOOL_ID
 
 export const RESOURCE_MAX_SIZE = 1024 * 1024 * 10 // 10MB
 export const MIN_NODE_VERSION_MAJOR = 20
+
+export const MAX_STRING_LENGTH_USE_TOKENIZER_FOR_APPROXIMATION = 10000
+
+export const BOX_DOWN_AND_RIGHT = "╭"
+export const BOX_RIGHT = "─"
+export const BOX_UP_AND_RIGHT = "╰"
+export const BOX_UP_AND_DOWN = "│"
+export const BOX_DOWN_UP_AND_RIGHT = "├"
+export const BOX_LEFT_AND_DOWN = "╮"
+export const BOX_LEFT_AND_UP = "╯"
+
+export const GITHUB_ASSET_URL_RX = /^https:\/\/github\.com\/.*\/assets\/.*$/i

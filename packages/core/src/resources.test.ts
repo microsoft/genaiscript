@@ -6,12 +6,14 @@ import { join } from "node:path"
 import { mkdtempSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { rmdir } from "node:fs/promises"
+import { TestHost } from "./testhost"
 
 describe("resources", async () => {
     let tempDir: string
 
     beforeEach(() => {
         tempDir = mkdtempSync(join(tmpdir(), "resources-test-"))
+        TestHost.install()
     })
 
     afterEach(async () => {

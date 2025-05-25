@@ -1,12 +1,19 @@
-import { describe, test } from "node:test"
+import { beforeEach, describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { GitHubClient } from "./githubclient"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { isCI } from "./ci"
+import { TestHost } from "./testhost"
+import { resolveBufferLike } from "./bufferlike"
+import { tryResolveResource } from "./resources"
 
 describe("GitHubClient", async () => {
     const client = GitHubClient.default()
+
+    beforeEach(() => {
+        TestHost.install()
+    })
 
     await test("info() returns GitHub options", async () => {
         const info = await client.info()
@@ -52,6 +59,12 @@ describe("GitHubClient", async () => {
         assert(Array.isArray(jobs))
         const log = await client.downloadWorkflowJobLog(jobs[0].id)
         assert(typeof log === "string")
+        const artifacts = await client.listWorkflowRunArtifacts(runs[0].id)
+        assert(Array.isArray(artifacts))
+        if (artifacts.length) {
+            const files = await client.downloadArtifactFiles(artifacts[0].id)
+            assert(files.length)
+        }
     })
 
     await test("getFile() returns file content", async () => {
@@ -98,5 +111,27 @@ describe("GitHubClient", async () => {
         // Test with undefined buffer
         const un = await client.uploadAsset(undefined)
         assert(un === undefined)
+    })
+    await test("resolveAssetUrl -image", async () => {
+        const resolved = await client.resolveAssetUrl(
+            "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
+        )
+        assert(resolved)
+        assert(resolved.includes("githubusercontent.com"))
+    })
+    await test("resolveAssetUrl - mp4", async () => {
+        const resolved = await client.resolveAssetUrl(
+            "https://github.com/user-attachments/assets/f7881bef-931d-4f76-8f63-b4d12b1f021e"
+        )
+        console.log(resolved)
+        assert(resolved.includes("githubusercontent.com"))
+    })
+
+    await test("resolveAssetUrl - image - indirect", async () => {
+        const resolved = await tryResolveResource(
+            "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
+        )
+        assert(resolved.files[0].content)
+        assert.strictEqual(resolved.files[0].type, "image/jpeg")
     })
 })

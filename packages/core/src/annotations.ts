@@ -6,6 +6,7 @@
 
 import { deleteUndefinedValues } from "./cleaners"
 import { EMOJI_FAIL, EMOJI_WARNING } from "./constants"
+import { unfence } from "./unwrappers"
 
 // Regular expression for matching GitHub Actions annotations.
 // Example: ::error file=foo.js,line=10,endLine=11::Something went wrong.
@@ -81,7 +82,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
                 [parseInt(line) - 1, 0], // Start of range, 0-based index
                 [parseInt(endLine) - 1, Number.MAX_VALUE], // End of range, max value for columns
             ],
-            message,
+            message: unfence(message, ["markdown", "md", "text"]),
             code,
             suggestion,
         }

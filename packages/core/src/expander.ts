@@ -31,6 +31,7 @@ import { installGlobalPromptContext } from "./globals"
 import { mark } from "./performance"
 import { nodeIsPackageTypeModule } from "./nodepackage"
 import { parseModelIdentifier } from "./models"
+import { metadataMerge } from "./metadata"
 
 /**
  * Executes a prompt expansion process based on the provided prompt script, variables, and options.
@@ -253,6 +254,7 @@ export async function expandTemplate(
         template.flexTokens
     const fenceFormat = options.fenceFormat ?? template.fenceFormat
     const cache = options.cache ?? template.cache
+    const metadata = metadataMerge(template, options.metadata)
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
     let logprobs = options.logprobs || template.logprobs
@@ -445,6 +447,7 @@ export async function expandTemplate(
         logprobs,
         topLogprobs,
         disposables,
+        metadata,
         fallbackTools: options.fallbackTools,
     }
 }

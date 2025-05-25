@@ -13,6 +13,8 @@ import { MarkdownTrace } from "./trace"
 import { logVerbose, toStringList } from "./util"
 import { parseModelIdentifier } from "./models"
 import {
+    BOX_RIGHT,
+    BOX_UP_AND_RIGHT,
     CHAR_ENVELOPE,
     CHAR_FLOPPY_DISK,
     CHAR_UP_DOWN_ARROWS,
@@ -406,7 +408,7 @@ export class GenerationStats {
 
         const cost = estimateCost(modelId, usage)
         logVerbose(
-            `└─🏁 ${cached ? CHAR_FLOPPY_DISK : ""} ${modelId} ${CHAR_ENVELOPE} ${messages.length} ${[
+            `${BOX_UP_AND_RIGHT}${BOX_RIGHT}🏁 ${cached ? CHAR_FLOPPY_DISK : ""} ${modelId} ${CHAR_ENVELOPE} ${messages.length} ${[
                 prettyDuration(duration),
                 prettyTokens(usage.total_tokens, "both"),
                 prettyTokens(usage.prompt_tokens, "prompt"),

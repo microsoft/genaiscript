@@ -1,6 +1,12 @@
 // Import necessary functions and types from other modules
 import { resolveBufferLike } from "./bufferlike"
 import {
+    BOX_DOWN_AND_RIGHT,
+    BOX_LEFT_AND_DOWN,
+    BOX_LEFT_AND_UP,
+    BOX_RIGHT,
+    BOX_UP_AND_DOWN,
+    BOX_UP_AND_RIGHT,
     CHAR_DOWN_ARROW,
     CHAR_UP_ARROW,
     CHAR_UP_DOWN_ARROWS,
@@ -48,6 +54,12 @@ async function prepare(
     // If the URL is a string, resolve it to a data URI
     const buffer = await resolveBufferLike(url)
     checkCancelled(cancellationToken)
+
+    // failed to resolve buffer
+    if (!buffer) {
+        dbg(`failed to resolve image`)
+        return undefined
+    }
 
     // Read the image using Jimp
     const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp")
@@ -175,9 +187,7 @@ async function encode(
     const { detail, mime } = options || {}
     const outputMime = mime || img.mime || ("image/jpeg" as any)
     const buf = await img.getBuffer(outputMime)
-    const b64 = buf.toString("base64")
-    const imageDataUri = `data:${outputMime};base64,${b64}`
-
+    const imageDataUri = `data:${outputMime};base64,${buf.toString("base64")}`
     // Return the encoded image data URI
     return {
         width: img.width,
@@ -230,6 +240,7 @@ export async function imageEncodeForLLM(
     options: DefImagesOptions & TraceOptions & CancellationOptions
 ) {
     const img = await prepare(url, options)
+    if (!img) return undefined
     return await encode(img, options)
 }
 
@@ -327,10 +338,13 @@ export async function renderImageToTerminal(
     const res: string[] = [
         wrapColor(
             CONSOLE_COLOR_DEBUG,
-            "┌─" + title + "─".repeat(width * 2 - title.length - 1) + "┐\n"
+            `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT}` +
+                title +
+                BOX_RIGHT.repeat(width * 2 - title.length - 1) +
+                `${BOX_LEFT_AND_DOWN}\n`
         ),
     ]
-    const wall = wrapColor(CONSOLE_COLOR_DEBUG, "│")
+    const wall = wrapColor(CONSOLE_COLOR_DEBUG, BOX_UP_AND_DOWN)
     for (let y = 0; y < height; ++y) {
         res.push(wall)
         for (let x = 0; x < width; ++x) {
@@ -352,7 +366,10 @@ export async function renderImageToTerminal(
     res.push(
         wrapColor(
             CONSOLE_COLOR_DEBUG,
-            "└" + usageStr + "─".repeat(width * 2 - usageStr.length) + "┘\n"
+            BOX_UP_AND_RIGHT +
+                usageStr +
+                BOX_RIGHT.repeat(width * 2 - usageStr.length) +
+                `${BOX_LEFT_AND_UP}\n`
         )
     )
     return res.join("")

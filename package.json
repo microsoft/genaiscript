@@ -2,9 +2,10 @@
     "name": "genaiscript-workspace",
     "displayName": "GenAIScript",
     "description": "Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.",
-    "version": "1.135.0",
+    "version": "1.139.0",
     "license": "MIT",
     "private": true,
+    "author": "microsoft",
     "workspaces": {
         "packages": [
             "packages/*"
@@ -60,7 +61,7 @@
         "test:tokens": "node packages/cli/built/genaiscript.cjs retrieval tokens packages/sample/src/rag/*",
         "test:system": "cd packages/cli && node ./built/genaiscript.cjs scripts compile",
         "test:compile": "node packages/cli/built/genaiscript.cjs scripts compile",
-        "test:fix": "node packages/cli/built/genaiscript.cjs scripts fix",
+        "test:fix": "node packages/cli/built/genaiscript.cjs scripts fix --force",
         "test:infomodel": "node packages/cli/built/genaiscript.cjs scripts model",
         "test:phi3": "node packages/cli/built/genaiscript.cjs run summarize-ollama-phi3 packages/sample/src/rag/markdown.md",
         "genai:module": "cd packages/modulesample && node ../cli/built/genaiscript.cjs run",
@@ -71,6 +72,7 @@
         "test:scripts:view": "cd packages/sample/ && yarn test:scripts:view",
         "serve:cli": "node --watch --watch-path=packages/cli/built packages/cli/built/genaiscript.cjs serve --dispatch-progress",
         "serve:web": "yarn --cwd packages/web watch",
+        "serve:webapi": "node --watch --watch-path=packages/cli/built packages/cli/built/genaiscript.cjs webapi --network --cors \"*\"",
         "serve": "yarn compile:cli && run-p serve:*",
         "docs": "cd docs && ./node_modules/.bin/astro telemetry disable && ./node_modules/.bin/astro dev --host",
         "slides": "cd slides && yarn run dev",
@@ -91,7 +93,8 @@
         "genai:docs-images": "node packages/cli/built/genaiscript.cjs convert docs-image \"docs/src/content/docs/getting-started/**/*.md*\" \"docs/src/content/docs/reference/**/*.md*\" --no-run-trace --no-output-trace",
         "commit": "yarn pretty && yarn compile && yarn test:core && yarn gcm",
         "gcm": "node packages/cli/built/genaiscript.cjs run gcm --model gcm --no-run-trace --no-output-trace",
-        "prd": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4.1 --vars base=dev --no-run-trace --no-output-trace",
+        "prd": "yarn prd:text && yarn prd:sketch",
+        "prd:text": "node packages/cli/built/genaiscript.cjs run prd -prd --model github:gpt-4.1 --vars base=dev --no-run-trace --no-output-trace",
         "prd:visuals": "node packages/cli/built/genaiscript.cjs run prd-visuals -prd --model github:gpt-4.1 --vars base=dev",
         "prd:zine": "node packages/cli/built/genaiscript.cjs run prd-zine -prd --model github:gpt-4.1 --vars base=dev",
         "prd:meme": "node packages/cli/built/genaiscript.cjs run prd-meme -prd --model github:gpt-4.1 --vars base=dev",
@@ -111,18 +114,20 @@
         "ollama:stop": "docker stop ollama && docker rm ollama",
         "whisper": "yarn whisper:stop && yarn whisper:start",
         "whisper:start": "docker run -d -p 9000:9000 -e ASR_MODEL=base -e ASR_ENGINE=openai_whisper onerahmet/openai-whisper-asr-webservice:latest",
-        "whisper:stop": "docker stop whisper && docker rm ollama"
+        "whisper:stop": "docker stop whisper && docker rm ollama",
+        "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
+        "clean": "git prune && git gc && rm -Rf slides/node_modules && rm -Rf docs/dist && rm -Rf docs/distasw && rm -Rf docs/node_modules && rm -Rf .genaiscript && rm -Rf packages/sample/.genaiscript && git checkout -- ."
     },
     "release-it": {
         "github": {
             "release": true,
             "releaseName": "v${version}",
             "draft": true,
-            "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes --cache --cache-name releases --model release"
+            "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes --cache --cache-name releases"
         }
     },
     "devDependencies": {
-        "@inquirer/prompts": "^7.5.0",
+        "@inquirer/prompts": "^7.5.1",
         "glob": "^11.0.2",
         "npm-check-updates": "^18.0.1",
         "npm-run-all": "^4.1.5",

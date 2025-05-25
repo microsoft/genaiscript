@@ -74,59 +74,10 @@ import { listRuns } from "./runs"
 import { startMcpServer } from "./mcpserver"
 import { error } from "./log"
 import { DEBUG_CATEGORIES } from "../../core/src/dbg"
+import { startOpenAPIServer } from "./openapi"
 
 /**
- * Main function to initialize and run the CLI.
- *
- * @param script - The script to execute.
- * @param files - Optional list of files to process.
- * @param cwd - Working directory for the CLI.
- * @param env - Paths to environment files.
- * @param noColors - Disable color output.
- * @param quiet - Disable verbose output.
- * @param debug - Debug categories to enable.
- * @param perf - Enable performance logging.
- * @param provider - Preferred LLM provider aliases.
- * @param accept - Comma-separated list of accepted file extensions.
- * @param excludedFiles - List of files to exclude.
- * @param ignoreGitIgnore - Disable exclusion of files ignored by .gitignore.
- * @param fallbackTools - Enable prompt-based tools instead of built-in LLM tool calls.
- * @param out - Output folder for results.
- * @param removeOut - Remove output folder if it exists.
- * @param outTrace - Output file for trace.
- * @param outOutput - Output file for output.
- * @param outData - Output file for data, including JSON schema validation.
- * @param outAnnotations - Output file for annotations.
- * @param outChangelog - Output file for changelogs.
- * @param pullRequest - Pull request identifier.
- * @param pullRequestComment - Create a comment on a pull request with a unique ID.
- * @param pullRequestDescription - Create a comment on a pull request description with a unique ID.
- * @param pullRequestReviews - Create pull request reviews from annotations.
- * @param teamsMessage - Post a message to the Teams channel.
- * @param json - Emit full JSON response to output.
- * @param yaml - Emit full YAML response to output.
- * @param failOnErrors - Fail on detected annotation errors.
- * @param retry - Number of retries for the run.
- * @param retryDelay - Minimum delay between retries.
- * @param maxDelay - Maximum delay between retries.
- * @param label - Label for the run.
- * @param temperature - Temperature for the run.
- * @param topP - Top-p for the run.
- * @param maxTokens - Maximum completion tokens for the run.
- * @param maxDataRepairs - Maximum data repairs.
- * @param maxToolCalls - Maximum tool calls for the run.
- * @param toolChoice - Tool choice for the run.
- * @param seed - Seed for the run.
- * @param cache - Enable LLM result cache.
- * @param cacheName - Custom cache file name.
- * @param csvSeparator - CSV separator.
- * @param fenceFormat - Fence format for output.
- * @param applyEdits - Apply file edits.
- * @param vars - Variables as name=value pairs.
- * @param runRetry - Number of retries for the entire run.
- * @param noRunTrace - Disable automatic trace generation.
- * @param noOutputTrace - Disable automatic output generation.
- * @returns Exit code indicating success or failure.
+ * /NOП/
  */
 export async function cli() {
     let nodeHost: NodeHost // Variable to hold NodeHost instance
@@ -351,6 +302,7 @@ export async function cli() {
             "-g, --groups <groups...>",
             "groups to include or exclude. Use :! prefix to exclude"
         )
+        .option("--test-timeout <number>", "test timeout in seconds")
         .action(scriptsTest) // Action to run the tests
 
     // List available tests
@@ -447,6 +399,7 @@ export async function cli() {
             "Write GitHub Copilot custom instructions for better GenAIScript code generation"
         )
         .option("--docs", "Download documentation")
+        .option("--force", "Fix all folders, including built-in system scripts")
         .action(fixScripts) // Action to fix scripts
     scripts
         .command("compile")
@@ -547,7 +500,7 @@ export async function cli() {
         .command("serve")
         .description("Start a GenAIScript local web server")
         .option(
-            "-p, --port <number>",
+            "--port <number>",
             `Specify the port number, default: ${SERVER_PORT}`
         )
         .option("-k, --api-key <string>", "API key to authenticate requests")
@@ -569,6 +522,7 @@ export async function cli() {
         )
         .action(startServer) // Action to start the server
     addRemoteOptions(serve) // Add remote options to the command
+    addModelOptions(serve)
 
     const mcp = program
         .command("mcp")
@@ -583,7 +537,36 @@ export async function cli() {
             "Starts a Model Context Protocol server that exposes scripts as tools"
         )
         .action(startMcpServer)
-    addRemoteOptions(mcp) // Add remote options to the command
+    addRemoteOptions(mcp)
+    addModelOptions(mcp)
+
+    const openapi = program
+        .command("webapi")
+        .option(
+            "-n, --network",
+            "Opens server on 0.0.0.0 to make it accessible on the network"
+        )
+        .option(
+            "--port <number>",
+            `Specify the port number, default: ${SERVER_PORT}`
+        )
+        .option(
+            "-c, --cors <string>",
+            "Enable CORS and sets the allowed origin. Use '*' to allow any origin."
+        )
+        .option("--route <string>", "Route prefix, like /api")
+        .option("--groups <string...>", "Filter script by groups")
+        .option("--ids <string...>", "Filter script by ids")
+        .option(
+            "--startup <string>",
+            "Startup script id, executed after the server is started"
+        )
+        .description(
+            "Starts an Web API server that exposes scripts as REST endpoints (OpenAPI 3.1 compatible)"
+        )
+        .action(startOpenAPIServer)
+    addRemoteOptions(openapi)
+    addModelOptions(openapi)
 
     // Define 'parse' command group for parsing tasks
     const parser = program

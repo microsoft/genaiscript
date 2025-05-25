@@ -170,10 +170,11 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --cache                             enable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is 0.112.3
+  -pv, --promptfoo-version [version]  promptfoo version, default is 0.112.7
   -os, --out-summary <file>           append output summary in file
   -g, --groups <groups...>            groups to include or exclude. Use :!
                                       prefix to exclude
+  --test-timeout <number>             test timeout in seconds
   -h, --help                          display help for command
 ```
 
@@ -318,6 +319,8 @@ Options:
   -gci, --github-copilot-instructions  Write GitHub Copilot custom instructions
                                        for better GenAIScript code generation
   --docs                               Download documentation
+  --force                              Fix all folders, including built-in
+                                       system scripts
   -h, --help                           display help for command
 ```
 
@@ -528,20 +531,37 @@ Usage: genaiscript serve [options]
 Start a GenAIScript local web server
 
 Options:
-  -p, --port <number>           Specify the port number, default: 8003
-  -k, --api-key <string>        API key to authenticate requests
-  -n, --network                 Opens server on 0.0.0.0 to make it accessible
-                                on the network
-  -c, --cors <string>           Enable CORS and sets the allowed origin. Use
-                                '*' to allow any origin.
-  --dispatch-progress           Dispatch progress events to all clients
-  --github-copilot-chat-client  Allow github_copilot_chat provider to connect
-                                to connected Visual Studio Code
-  --remote <string>             Remote repository URL to serve
-  --remote-branch <string>      Branch to serve from the remote
-  --remote-force                Force pull from remote repository
-  --remote-install              Install dependencies from remote repository
-  -h, --help                    display help for command
+  --port <number>                   Specify the port number, default: 8003
+  -k, --api-key <string>            API key to authenticate requests
+  -n, --network                     Opens server on 0.0.0.0 to make it
+                                    accessible on the network
+  -c, --cors <string>               Enable CORS and sets the allowed origin.
+                                    Use '*' to allow any origin.
+  --dispatch-progress               Dispatch progress events to all clients
+  --github-copilot-chat-client      Allow github_copilot_chat provider to
+                                    connect to connected Visual Studio Code
+  --remote <string>                 Remote repository URL to serve
+  --remote-branch <string>          Branch to serve from the remote
+  --remote-force                    Force pull from remote repository
+  --remote-install                  Install dependencies from remote repository
+  -p, --provider <string>           Preferred LLM provider aliases (choices:
+                                    "openai", "azure", "azure_ai_inference",
+                                    "azure_serverless",
+                                    "azure_serverless_models", "github",
+                                    "ollama", "windows_ai", "anthropic",
+                                    "anthropic_bedrock", "google",
+                                    "huggingface", "mistral", "alibaba",
+                                    "deepseek", "transformers", "lmstudio",
+                                    "jan", "llamafile", "sglang", "vllm",
+                                    "litellm", "whisperasr", "echo")
+  -m, --model <string>              'large' model alias (default)
+  -sm, --small-model <string>       'small' alias model
+  -vm, --vision-model <string>      'vision' alias model
+  -em, --embeddings-model <string>  'embeddings' alias model
+  -ma, --model-alias <nameid...>    model alias as name=modelid
+  -re, --reasoning-effort <string>  Reasoning effort for o* models (choices:
+                                    "high", "medium", "low")
+  -h, --help                        display help for command
 ```
 
 ## `mcp`
@@ -552,15 +572,75 @@ Usage: genaiscript mcp|mcps [options]
 Starts a Model Context Protocol server that exposes scripts as tools
 
 Options:
-  --groups <string...>      Filter script by groups
-  --ids <string...>         Filter script by ids
-  --startup <string>        Startup script id, executed after the server is
-                            started
-  --remote <string>         Remote repository URL to serve
-  --remote-branch <string>  Branch to serve from the remote
-  --remote-force            Force pull from remote repository
-  --remote-install          Install dependencies from remote repository
-  -h, --help                display help for command
+  --groups <string...>              Filter script by groups
+  --ids <string...>                 Filter script by ids
+  --startup <string>                Startup script id, executed after the
+                                    server is started
+  --remote <string>                 Remote repository URL to serve
+  --remote-branch <string>          Branch to serve from the remote
+  --remote-force                    Force pull from remote repository
+  --remote-install                  Install dependencies from remote repository
+  -p, --provider <string>           Preferred LLM provider aliases (choices:
+                                    "openai", "azure", "azure_ai_inference",
+                                    "azure_serverless",
+                                    "azure_serverless_models", "github",
+                                    "ollama", "windows_ai", "anthropic",
+                                    "anthropic_bedrock", "google",
+                                    "huggingface", "mistral", "alibaba",
+                                    "deepseek", "transformers", "lmstudio",
+                                    "jan", "llamafile", "sglang", "vllm",
+                                    "litellm", "whisperasr", "echo")
+  -m, --model <string>              'large' model alias (default)
+  -sm, --small-model <string>       'small' alias model
+  -vm, --vision-model <string>      'vision' alias model
+  -em, --embeddings-model <string>  'embeddings' alias model
+  -ma, --model-alias <nameid...>    model alias as name=modelid
+  -re, --reasoning-effort <string>  Reasoning effort for o* models (choices:
+                                    "high", "medium", "low")
+  -h, --help                        display help for command
+```
+
+## `webapi`
+
+```
+Usage: genaiscript webapi [options]
+
+Starts an Web API server that exposes scripts as REST endpoints (OpenAPI 3.1
+compatible)
+
+Options:
+  -n, --network                     Opens server on 0.0.0.0 to make it
+                                    accessible on the network
+  --port <number>                   Specify the port number, default: 8003
+  -c, --cors <string>               Enable CORS and sets the allowed origin.
+                                    Use '*' to allow any origin.
+  --route <string>                  Route prefix, like /api
+  --groups <string...>              Filter script by groups
+  --ids <string...>                 Filter script by ids
+  --startup <string>                Startup script id, executed after the
+                                    server is started
+  --remote <string>                 Remote repository URL to serve
+  --remote-branch <string>          Branch to serve from the remote
+  --remote-force                    Force pull from remote repository
+  --remote-install                  Install dependencies from remote repository
+  -p, --provider <string>           Preferred LLM provider aliases (choices:
+                                    "openai", "azure", "azure_ai_inference",
+                                    "azure_serverless",
+                                    "azure_serverless_models", "github",
+                                    "ollama", "windows_ai", "anthropic",
+                                    "anthropic_bedrock", "google",
+                                    "huggingface", "mistral", "alibaba",
+                                    "deepseek", "transformers", "lmstudio",
+                                    "jan", "llamafile", "sglang", "vllm",
+                                    "litellm", "whisperasr", "echo")
+  -m, --model <string>              'large' model alias (default)
+  -sm, --small-model <string>       'small' alias model
+  -vm, --vision-model <string>      'vision' alias model
+  -em, --embeddings-model <string>  'embeddings' alias model
+  -ma, --model-alias <nameid...>    model alias as name=modelid
+  -re, --reasoning-effort <string>  Reasoning effort for o* models (choices:
+                                    "high", "medium", "low")
+  -h, --help                        display help for command
 ```
 
 ## `parse`

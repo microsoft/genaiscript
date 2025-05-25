@@ -35,10 +35,6 @@ export function stringToPos(str: string): CharPosition {
  */
 export async function parseProject(options: { scriptFiles: string[] }) {
     const { scriptFiles } = options
-    const prj: Project = {
-        scripts: [],
-        diagnostics: [],
-    }
     const genaisrcDir = resolve(
         join(
             dirname(dirname(__filename ?? fileURLToPath(import.meta.url))),
@@ -46,6 +42,11 @@ export async function parseProject(options: { scriptFiles: string[] }) {
         )
     ) // ignore esbuild warning
     dbg(`genaisrc: %s`, genaisrcDir)
+    const prj: Project = {
+        systemDir: genaisrcDir,
+        scripts: [],
+        diagnostics: [],
+    }
     const systemPrompts = await (
         await readdir(genaisrcDir)
     ).filter((f) => GENAI_ANYTS_REGEX.test(f))

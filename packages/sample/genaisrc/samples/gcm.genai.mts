@@ -41,6 +41,8 @@ if (!diff) cancel("no staged changes")
 // Display the diff of staged changes in the console
 console.debug(diff)
 
+await git.pull()
+
 // chunk if case of massive diff
 const chunks = await tokenizers.chunk(diff, { chunkSize })
 if (chunks.length > 1) {

@@ -366,9 +366,10 @@ export function toStrictJSONSchema(
     schema: PromptParametersSchema | JSONSchema,
     options?: {
         noDefaults?: boolean
+        defaultOptional?: boolean
     }
 ): any {
-    const { noDefaults } = options || {}
+    const { noDefaults, defaultOptional } = options || {}
     const clone: JSONSchema = structuredClone(
         promptParametersSchemaToJSONSchema(schema, { noDefaults })
     )
@@ -400,7 +401,7 @@ export function toStrictJSONSchema(
                     // https://platform.openai.com/docs/guides/structured-outputs/all-fields-must-be-required
                     const child = n.properties[key] as JSONSchemaSimpleType
                     visit(child)
-                    if (!n.required.includes(key)) {
+                    if (!defaultOptional && !n.required.includes(key)) {
                         n.required.push(key)
                         if (
                             ["string", "number", "boolean", "integer"].includes(
