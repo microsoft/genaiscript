@@ -7,6 +7,12 @@ import {
 } from "../../core/src/server/messages"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { registerCommand } from "./commands"
+import {
+    MODEL_PROVIDER_AZURE_AI_INFERENCE,
+    MODEL_PROVIDER_AZURE_OPENAI,
+    MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+    MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+} from "../../core/src/constants"
 
 interface ConnectionInfoTreeData {
     provider?: ResolvedLanguageModelConfiguration
@@ -57,9 +63,20 @@ ${url ? `[${url}](${url})` : ""}
                 ? vscode.TreeItemCollapsibleState.Collapsed
                 : vscode.TreeItemCollapsibleState.None
             item.description = base || ""
+            const providerRoute =
+                (
+                    {
+                        [MODEL_PROVIDER_AZURE_OPENAI]: "azure-openai",
+                        [MODEL_PROVIDER_AZURE_AI_INFERENCE]: "azure-ai-foundry",
+                        [MODEL_PROVIDER_AZURE_SERVERLESS_MODELS]:
+                            "azure-ai-foundry",
+                        [MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI]:
+                            "azure-ai-foundry",
+                    } as Record<string, string>
+                )[provider] || provider
             const docsUrl =
-                "https://microsoft.github.io/genaiscript/getting-started/configuration/#" +
-                provider
+                "https://microsoft.github.io/genaiscript/configuration/" +
+                providerRoute
             if (error) item.iconPath = new vscode.ThemeIcon("error")
             item.tooltip = YAMLStringify(
                 deleteUndefinedValues({ error, ...rest })
