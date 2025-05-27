@@ -506,7 +506,7 @@
     "devDependencies": {
         "@types/markdown-it": "^14.1.2",
         "@types/vscode": "^1.98.0",
-        "@vscode/vsce": "^3.4.0",
+        "@vscode/vsce": "^3.4.2",
         "assert": "^2.1.0",
         "es-toolkit": "^1.38.0",
         "markdown-it": "^14.1.0",

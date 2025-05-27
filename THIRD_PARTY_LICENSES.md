@@ -8920,8 +8920,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The following npm packages may be included in this product:
 
- - @anthropic-ai/bedrock-sdk@0.22.0
- - @anthropic-ai/sdk@0.51.0
+ - @anthropic-ai/bedrock-sdk@0.22.1
  - @anthropic-ai/sdk@0.52.0
 
 These packages each contain the following license:

@@ -59,8 +59,8 @@
     "mermaid": "^11.6.0"
   },
   "dependencies": {
-    "@anthropic-ai/bedrock-sdk": "0.22.0",
-    "@anthropic-ai/sdk": "0.51.0",
+    "@anthropic-ai/bedrock-sdk": "0.22.1",
+    "@anthropic-ai/sdk": "0.52.0",
     "@azure/identity": "^4.10.0",
     "@azure/search-documents": "^12.1.0",
     "@fastify/cors": "^11.0.1",
@@ -68,7 +68,7 @@
     "@fastify/swagger-ui": "^5.2.2",
     "@huggingface/jinja": "^0.5.0",
     "@inquirer/prompts": "^7.5.1",
-    "@modelcontextprotocol/sdk": "^1.11.4",
+    "@modelcontextprotocol/sdk": "^1.12.0",
     "@octokit/core": "^7.0.2",
     "@octokit/plugin-paginate-rest": "^13.0.0",
     "@octokit/plugin-retry": "^8.0.1",
@@ -101,7 +101,7 @@
     "turndown-plugin-gfm": "^1.0.2",
     "typescript": "5.8.3",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
-    "zod": "^3.25.17",
+    "zod": "^3.25.30",
     "zod-to-json-schema": "^3.24.5"
   },
   "optionalDependencies": {
@@ -139,7 +139,7 @@
     "diff": "^7.0.0",
     "dotenv": "^16.5.0",
     "es-toolkit": "^1.38.0",
-    "esbuild": "^0.25.4",
+    "esbuild": "^0.25.5",
     "execa": "^9.5.3",
     "fs-extra": "^11.3.0",
     "glob": "^11.0.2",
