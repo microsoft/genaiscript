@@ -36,7 +36,7 @@ export async function configure(options: { provider?: string }) {
                       (provider) => ({
                           name: provider.detail,
                           value: provider,
-                          description: `'${provider.id}': https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`,
+                          description: `'${provider.id}': https://microsoft.github.io/genaiscript/configuration/${provider.id}`,
                       })
                   ),
               })
@@ -44,7 +44,7 @@ export async function configure(options: { provider?: string }) {
 
         logInfo(`configuring ${provider.id} (${provider.detail})`)
         logVerbose(
-            `- docs: https://microsoft.github.io/genaiscript/getting-started/configuration#${provider.id}`
+            `- docs: https://microsoft.github.io/genaiscript/configuration/${provider.id}`
         )
         while (true) {
             const config = await runtimeHost.readConfig()
