@@ -19,7 +19,7 @@ Options:
   -p, --provider <string>  Preferred LLM provider aliases (choices: "openai",
                            "azure", "azure_ai_inference", "azure_serverless",
                            "azure_serverless_models", "github", "ollama",
-                           "windows_ai", "anthropic", "anthropic_bedrock",
+                           "windows", "anthropic", "anthropic_bedrock",
                            "google", "huggingface", "mistral", "alibaba",
                            "deepseek", "transformers", "lmstudio", "jan",
                            "llamafile", "sglang", "vllm", "litellm",
@@ -36,7 +36,7 @@ Runs a GenAIScript against files.
 
 Options:
   -a, --accept <string>                      comma separated list of accepted file extensions
-  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_ai_inference", "azure_serverless", "azure_serverless_models", "github", "ollama", "windows_ai", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "sglang", "vllm", "litellm", "whisperasr", "echo")
+  -p, --provider <string>                    Preferred LLM provider aliases (choices: "openai", "azure", "azure_ai_inference", "azure_serverless", "azure_serverless_models", "github", "ollama", "windows", "anthropic", "anthropic_bedrock", "google", "huggingface", "mistral", "alibaba", "deepseek", "transformers", "lmstudio", "jan", "llamafile", "sglang", "vllm", "litellm", "whisperasr", "echo")
   -m, --model <string>                       'large' model alias (default)
   -sm, --small-model <string>                'small' alias model
   -vm, --vision-model <string>               'vision' alias model
@@ -147,7 +147,7 @@ Options:
                                       "openai", "azure", "azure_ai_inference",
                                       "azure_serverless",
                                       "azure_serverless_models", "github",
-                                      "ollama", "windows_ai", "anthropic",
+                                      "ollama", "windows", "anthropic",
                                       "anthropic_bedrock", "google",
                                       "huggingface", "mistral", "alibaba",
                                       "deepseek", "transformers", "lmstudio",
@@ -225,7 +225,7 @@ Options:
                                      "openai", "azure", "azure_ai_inference",
                                      "azure_serverless",
                                      "azure_serverless_models", "github",
-                                     "ollama", "windows_ai", "anthropic",
+                                     "ollama", "windows", "anthropic",
                                      "anthropic_bedrock", "google",
                                      "huggingface", "mistral", "alibaba",
                                      "deepseek", "transformers", "lmstudio",
@@ -548,7 +548,7 @@ Options:
                                     "openai", "azure", "azure_ai_inference",
                                     "azure_serverless",
                                     "azure_serverless_models", "github",
-                                    "ollama", "windows_ai", "anthropic",
+                                    "ollama", "windows", "anthropic",
                                     "anthropic_bedrock", "google",
                                     "huggingface", "mistral", "alibaba",
                                     "deepseek", "transformers", "lmstudio",
@@ -584,7 +584,7 @@ Options:
                                     "openai", "azure", "azure_ai_inference",
                                     "azure_serverless",
                                     "azure_serverless_models", "github",
-                                    "ollama", "windows_ai", "anthropic",
+                                    "ollama", "windows", "anthropic",
                                     "anthropic_bedrock", "google",
                                     "huggingface", "mistral", "alibaba",
                                     "deepseek", "transformers", "lmstudio",
@@ -627,7 +627,7 @@ Options:
                                     "openai", "azure", "azure_ai_inference",
                                     "azure_serverless",
                                     "azure_serverless_models", "github",
-                                    "ollama", "windows_ai", "anthropic",
+                                    "ollama", "windows", "anthropic",
                                     "anthropic_bedrock", "google",
                                     "huggingface", "mistral", "alibaba",
                                     "deepseek", "transformers", "lmstudio",

@@ -1,0 +1,58 @@
+---
+title: Mistral AI
+sidebar:
+    order: 10
+---
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+
+The `mistral` provider allows you to use [Mistral AI Models](https://mistral.ai/technology/#models)
+using the [Mistral API](https://docs.mistral.ai/).
+
+```js "mistral:"
+script({ model: "mistral:mistral-large-latest" })
+```
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for a [Mistral AI account](https://mistral.ai/)
+and obtain an API key from their [console](https://console.mistral.ai/).
+
+</li>
+
+<li>
+
+Add your Mistral AI API key to the `.env` file:
+
+```txt title=".env"
+MISTRAL_API_KEY=...
+```
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "mistral:mistral-large-latest",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+<LLMProviderFeatures provider="mistral" />

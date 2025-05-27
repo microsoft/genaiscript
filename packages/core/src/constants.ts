@@ -193,7 +193,7 @@ export const MODEL_PROVIDER_SGLANG = "sglang"
 export const MODEL_PROVIDER_VLLM = "vllm"
 export const MODEL_PROVIDER_DEEPSEEK = "deepseek"
 export const MODEL_PROVIDER_WHISPERASR = "whisperasr"
-export const MODEL_PROVIDER_WINDOWS_AI = "windows_ai"
+export const MODEL_PROVIDER_WINDOWS_AI = "windows"
 export const MODEL_PROVIDER_ECHO = "echo"
 export const MODEL_PROVIDER_NONE = "none"
 

@@ -70,6 +70,11 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                             paths: ["getting-started/**"],
                         },
                         {
+                            label: "Configuration",
+                            description: "Configure access to LLMs and other services",
+                            paths: ["configuration/**"],
+                        },
+                        {
                             label: "Reference",
                             description:
                                 "full reference documentation (runtime and cli)",
@@ -132,6 +137,10 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                 {
                     label: "Start Here",
                     autogenerate: { directory: "getting-started" },
+                },
+                {
+                    label: "Configuration",
+                    autogenerate: { directory: "configuration" },
                 },
                 {
                     label: "Case Studies",

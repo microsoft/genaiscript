@@ -1,0 +1,251 @@
+---
+title: Azure OpenAI
+sidebar:
+    order: 3
+---
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+
+import {
+    AZURE_OPENAI_API_VERSION,
+    AZURE_AI_INFERENCE_VERSION,
+} from "../../../../../packages/core/src/constants"
+
+
+The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
+You can use a managed identity (recommended) or an API key to authenticate with the Azure OpenAI service.
+You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
+
+```js "azure:"
+script({ model: "azure:deployment-id" })
+```
+
+:::tip
+
+If you are a Visual Studio Subscriber, you can [get free Azure credits](https://azure.microsoft.com/en-us/pricing/member-offers/credit-for-visual-studio-subscribers/)
+to try the Azure OpenAI service.
+
+:::
+
+### Managed Identity (Entra ID)
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your Azure OpenAI resource in the [Azure Portal](https://portal.azure.com)
+
+</li>
+<li>
+
+Navigate to **Access Control (IAM)**, then **View My Access**. Make sure your
+user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
+If you get a `401` error, click on **Add**, **Add role assignment** and add the **Cognitive Services OpenAI User** role to your user.
+
+</li>
+<li>
+Navigate to **Resource Management**, then **Keys and Endpoint**.
+</li>
+<li>
+
+Update the `.env` file with the endpoint.
+
+```txt title=".env"
+AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com
+```
+
+:::note
+
+Make sure to remove any `AZURE_API_KEY`, `AZURE_OPENAI_API_KEY` entries from `.env` file.
+
+:::
+
+</li>
+
+<li>
+
+Navigate to **deployments** and make sure that you have your LLM deployed and copy the `deployment-id`, you will need it in the script.
+
+</li>
+
+<li>
+
+Open a terminal and **login** with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+
+```sh
+az login
+```
+
+</li>
+
+<li>
+
+Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
+
+```js 'model: "azure:deployment-id"'
+script({
+    model: "azure:deployment-id",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+Set the `NODE_ENV` environment variable to `development` to enable the `DefaultAzureCredential` to work with the Azure CLI.
+Otherwise, it will use a chained token credential with `env`, `workload`, `managed identity`, `azure cli`, `azure dev cli`, `azure powershell`, `devicecode` credentials.
+
+### Listing models
+
+There are two ways to list the models in your Azure OpenAI resource: use the Azure Management APIs
+or by calling into a custom `/models` endpoint.
+
+### Using the management APIs (this is the common way)
+
+In order to allow GenAIScript to list deployments in your Azure OpenAI service,
+you need to provide the Subscription ID **and you need to use Microsoft Entra!**.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open the Azure OpenAI resource in the [Azure Portal](https://portal.azure.com), open the **Overview** tab and copy the **Subscription ID**.
+
+</li>
+
+<li>
+
+Update the `.env` file with the subscription id.
+
+```txt title=".env"
+AZURE_OPENAI_SUBSCRIPTION_ID="..."
+```
+
+</li>
+
+<li>
+
+Test your configuration by running
+
+```sh
+npx genaiscript models azure
+```
+
+:::note
+
+This feature will probably not work with `AZURE_OPENAI_API_KEY`
+as the token does not have the proper scope to query the list of deployments.
+
+:::
+
+</li>
+
+</ol>
+
+</Steps>
+
+#### Using the `/models` endpoint
+
+This approach assumes you have set a OpenAI comptaible `/models` enpoint in your subscription
+that returns the list of deployments in a format compatible with the OpenAI API.
+
+You can set the `AZURE_OPENAI_API_MODELS_TYPE` environment variable to point to `openai`.
+
+```txt title=".env"
+AZURE_OPENAI_API_MODELS_TYPE="openai"
+```
+
+### Custom credentials
+
+In some situations, the default credentials chain lookup may not work.
+In that case, you can specify an additional environment variable `AZURE_OPENAI_API_CREDENTIALS`
+with the type of credential that should be used.
+
+```txt title=".env"
+AZURE_OPENAI_API_CREDENTIALS=cli
+```
+
+The types are mapped directly to their [@azure/identity](https://www.npmjs.com/package/@azure/identity) credential types:
+
+- `cli` - `AzureCliCredential`
+- `env` - `EnvironmentCredential`
+- `powershell` - `AzurePowerShellCredential`
+- `devcli` - `AzureDeveloperCliCredential`
+- `workloadidentity` - `WorkloadIdentityCredential`
+- `managedidentity` - `ManagedIdentityCredential`
+
+Set `NODE_ENV` to `development` to use the `DefaultAzureCredential` with the GenAIScript.
+
+### Custom token scopes
+
+The default token scope for Azure OpenAI access is `https://cognitiveservices.azure.com/.default`.
+You can override this value using the `AZURE_OPENAI_TOKEN_SCOPES` environment variable.
+
+```txt title=".env"
+AZURE_OPENAI_TOKEN_SCOPES=...
+```
+
+### API Version
+
+GenAIScript maintains a [default API version](https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation) to access Azure OpenAI.
+
+- current version: {AZURE_OPENAI_API_VERSION}
+
+You can override this value using the `AZURE_OPENAI_API_VERSION` environment variable.
+
+```txt title=".env"
+AZURE_OPENAI_API_VERSION=2025-01-01-preview
+```
+
+You can also override the API version on a per-deployment basis by settings the `AZURE_OPENAI_API_VERSION_<deployment-id>` environment variable (where deployment-id is capitalized).
+
+```txt title=".env"
+AZURE_OPENAI_API_VERSION_GPT-4O=2025-01-01-preview
+```
+
+### API Key
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to **Resource Management**, then **Keys and Endpoint**.
+
+</li>
+
+<li>
+
+Update the `.env` file with the secret key (**Key 1** or **Key 2**) and the endpoint.
+
+```txt title=".env"
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com
+```
+
+</li>
+
+<li>
+
+The rest of the steps are the same: Find the deployment name and use it in your script, `model: "azure:deployment-id"`.
+
+</li>
+
+</ol>
+
+</Steps>
+
+<LLMProviderFeatures provider="azure" />
+

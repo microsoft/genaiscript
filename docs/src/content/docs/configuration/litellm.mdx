@@ -1,0 +1,21 @@
+---
+title: LiteLLM
+sidebar:
+    order: 50
+---
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+
+The [LiteLLM](https://docs.litellm.ai/) proxy gateway provides a OpenAI compatible API for running models locally.
+Configure the `LITELLM_...` keys to set the key and optionally the base url.
+
+Use the `litellm` provider.
+
+```txt title=".env"
+LITELLM_API_KEY="..."
+#LITELLM_API_BASE="..."
+```

@@ -1749,7 +1749,7 @@ JAN_API_BASE=http://localhost:1234/v1
 
 ## Windows AI
 
-The `window_ai` provider support [AI for Windows Apps](https://learn.microsoft.com/en-us/windows/ai/) which provides state-of-the-art local models, with NPU hardware support.
+The `window` provider support [AI for Windows Apps](https://learn.microsoft.com/en-us/windows/ai/) which provides state-of-the-art local models, with NPU hardware support.
 
 <Steps>
 
@@ -1777,9 +1777,9 @@ Right click on the model in the Explorer view and select **Copy model name**
 
 Set the model name in your script to the model name you copied.
 
-```js "windows_ai:"
+```js "windows:"
 script({
-    model: "windows_ai:Phi-4-mini-gpu-int4-rtn-block-32",
+    model: "windows:Phi-4-mini-gpu-int4-rtn-block-32",
 })
 ```
 

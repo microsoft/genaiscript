@@ -329,7 +329,7 @@
             }
         },
         {
-            "id": "windows_ai",
+            "id": "windows",
             "detail": "Windows AI",
             "url": "https://learn.microsoft.com/en-us/windows/ai/",
             "prediction": false,

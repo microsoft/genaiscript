@@ -1,0 +1,141 @@
+---
+title: GitHub Models
+sidebar:
+    order: 2
+---
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+
+The [GitHub Models](https://github.com/marketplace/models) provider, `github`, allows running models through the GitHub Marketplace.
+This provider is useful for prototyping and subject to [rate limits](https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits)
+depending on your subscription.
+
+```js "github:"
+script({ model: "github:openai/gpt-4o" })
+```
+
+### Codespace configuration
+
+If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you...
+It just works.
+
+### GitHub Actions configuration
+
+As of [April 2025](https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/),
+you can use the GitHub Actions token (`GITHUB_TOKEN`) to call AI models directly inside your workflows.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Ensure that the `models` permission is enabled in your workflow configuration.
+
+```yaml title="genai.yml" "models: read"
+permissions:
+    models: read
+```
+
+</li>
+
+<li>
+
+Pass the `GITHUB_TOKEN` when running `genaiscript`
+
+```yaml title="genai.yml" "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
+run: npx -y genaiscript run ...
+env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+Read more in the [GitHub Documentation](https://docs.github.com/en/github-models/integrating-ai-models-into-your-development-workflow#using-ai-models-with-github-actions)
+
+### Configuring with your own token
+
+If you are not using GitHub Actions or Codespaces, you can use your own token to access the models.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Create a [GitHub personal access token](https://github.com/settings/tokens/new).
+The token should not have any scopes or permissions.
+
+</li>
+
+<li>
+
+Update the `.env` file with the token.
+
+```txt title=".env"
+GITHUB_TOKEN=...
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+To configure a specific model,
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open the [GitHub Marketplace](https://github.com/marketplace/models) and find the model you want to use.
+
+</li>
+
+<li>
+
+Copy the model name from the Javascript/Python samples
+
+```js "Phi-3-mini-4k-instruct"
+const modelName = "microsoft/Phi-3-mini-4k-instruct"
+```
+
+to configure your script.
+
+```js "microsoft/Phi-3-mini-4k-instruct"
+script({
+    model: "github:microsoft/Phi-3-mini-4k-instruct",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+If you are already using `GITHUB_TOKEN` variable in your script and need a different one
+for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
+
+### `o1-preview` and `o1-mini` models
+
+Currently these models do not support streaming and
+system prompts. GenAIScript handles this internally.
+
+```js "github:openai/o1-mini"
+script({
+    model: "github:openai/o1-mini",
+})
+```
+
+<LLMProviderFeatures provider="github" />

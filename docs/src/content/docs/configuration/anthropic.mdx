@@ -1,0 +1,64 @@
+---
+title: Anthropic
+sidebar:
+    order: 6
+---
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+
+The `anthropic` provider access [Anthropic](https://www.anthropic.com/) models. Anthropic is an AI research company that offers powerful language models, including the Claude series.
+
+```js "anthropic:"
+script({ model: "anthropic:claude-2.1" })
+```
+
+To use Anthropic models with GenAIScript, follow these steps:
+
+<Steps>
+
+<ol>
+
+<li>
+
+Sign up for an Anthropic account and obtain an API key from their [console](https://console.anthropic.com/).
+
+</li>
+
+<li>
+
+Add your Anthropic API key to the `.env` file:
+
+```txt title=".env"
+ANTHROPIC_API_KEY=sk-ant-api...
+```
+
+</li>
+
+<li>
+
+Find the model that best suits your needs by visiting the [Anthropic model documentation](https://docs.anthropic.com/en/docs/about-claude/models#model-names).
+
+</li>
+
+<li>
+
+Update your script to use the `model` you choose.
+
+```js
+script({
+    ...
+    model: "anthropic:claude-3-5-sonnet-20240620",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+<LLMProviderFeatures provider="anthropic" />

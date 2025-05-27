@@ -1,0 +1,20 @@
+---
+title: Anthropic Bedrock
+sidebar:
+    order: 6.1
+---
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+
+The `anthropic_bedrock` provider accesses Anthropic models on Amazon Bedrock. You can find the model names in the [Anthropic model documentation](https://docs.anthropic.com/en/docs/about-claude/models#model-names).
+
+GenAIScript assumes that you have configured Amazon Web Services (AWS) credentials
+in a way that the [AWS Node SDK will recognize](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html).
+
+```js "anthropic_bedrock:"
+script({ model: "anthropic_bedrock:anthropic.claude-3-sonnet-20240229-v1:0" })
+```
