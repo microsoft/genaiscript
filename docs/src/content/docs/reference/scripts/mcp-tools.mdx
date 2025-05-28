@@ -1,28 +1,28 @@
 ---
 title: Model Context Protocol Tools
 sidebar:
-  order: 5.09
+    order: 5.09
 description: Learn how to configure and securely use Model Context Protocol
-  (MCP) tools and servers, including tool output validation, secret detection,
-  and security best practices for AI scripting.
+    (MCP) tools and servers, including tool output validation, secret detection,
+    and security best practices for AI scripting.
 keywords:
-  - Model Context Protocol
-  - MCP server configuration
-  - tool output validation
-  - AI tool security
-  - prompt injection detection
+    - Model Context Protocol
+    - MCP server configuration
+    - tool output validation
+    - AI tool security
+    - prompt injection detection
 hero:
-  image:
-    alt: A small, flat 8-bit style image displays two rectangular server blocks
-      joined by a straight line. Around each server, small colored rectangles
-      symbolize different tools. A shield, padlock, and magnifying glass icon
-      appear next to the servers, representing security, secret detection, and
-      validation respectively. A circular checkmark stands for signature
-      validation, and a tiny folder icon denotes files. The scene uses five
-      distinct, corporate-looking solid colors, with a simple, geometric,
-      minimalistic design and no background or text.
-    file: ./mcp-tools.png
-
+    image:
+        alt:
+            A small, flat 8-bit style image displays two rectangular server blocks
+            joined by a straight line. Around each server, small colored rectangles
+            symbolize different tools. A shield, padlock, and magnifying glass icon
+            appear next to the servers, representing security, secret detection, and
+            validation respectively. A circular checkmark stands for signature
+            validation, and a tiny folder icon denotes files. The scene uses five
+            distinct, corporate-looking solid colors, with a simple, geometric,
+            minimalistic design and no background or text.
+        file: ./mcp-tools.png
 ---
 
 import { Image } from "astro:assets"
@@ -118,6 +118,26 @@ script({
                 "@modelcontextprotocol/server-filesystem",
                 path.resolve("."),
             ],
+        },
+    },
+})
+```
+
+### Environment variables
+
+Setting the `env` field in the `mcpServers` or `mcpAgentServers` configuration
+allows you to pass environment variables to the MCP server. Leave the value empty
+and GenAIScript will automatically inject the environment variables from the current process.
+
+```js 'MY_ENV_VAR: ""'
+script({
+    mcpServers: {
+        memory: {
+            command: "npx",
+            args: ["-y", "@modelcontextprotocol/server-memory"],
+            env: {
+                MY_ENV_VAR: "",
+            },
         },
     },
 })
