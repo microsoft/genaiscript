@@ -48,6 +48,18 @@ function toolResultContentToText(res: any) {
     return text
 }
 
+function resolveMcpEnv(_env: Record<string, string>) {
+    if (!_env) return _env
+    const res = structuredClone(_env)
+    Object.entries(res)
+        .filter(([k, v]) => v === "")
+        .forEach(([key, value]) => {
+            dbg(`filling env var: %s`, key)
+            res[key] = process.env[key] || ""
+        })
+    return res
+}
+
 export class McpClientManager extends EventTarget implements AsyncDisposable {
     private _clients: McpClientProxy[] = []
     constructor() {
@@ -70,8 +82,10 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             tools: _toolsConfig,
             generator,
             intent,
+            env: unresolvedEnv,
             ...rest
         } = serverConfig
+        const mcpEnv = resolveMcpEnv(unresolvedEnv)
         const toolSpecs = arrayify(_toolsConfig).map(toMcpToolSpecification)
         const commonToolOptions = deleteUndefinedValues({
             contentSafety,
@@ -81,7 +95,6 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         // genaiscript:mcp:id
         const dbgc = dbg.extend(id)
         dbgc(`starting`)
-        dbgc(`intent: %O`, intent)
         const trace = options.trace.startTraceDetails(`🪚 mcp ${id}`)
         try {
             const { Client } = await import(
@@ -93,12 +106,22 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             const progress: (msg: string) => ProgressCallback = (msg) => (ev) =>
                 dbgc(msg + " ", `${ev.progress || ""}/${ev.total || ""}`)
             const capabilities = { tools: {} }
-            let transport = new StdioClientTransport({
-                ...rest,
-                stderr: "inherit",
-            })
+            dbgc(
+                `creating transport %O`,
+                deleteUndefinedValues({
+                    ...rest,
+                    env: mcpEnv ? Object.keys(mcpEnv) : undefined,
+                })
+            )
+            let transport = new StdioClientTransport(
+                deleteUndefinedValues({
+                    ...rest,
+                    env: mcpEnv,
+                    stderr: "inherit",
+                })
+            )
             let client = new Client({ name: id, version }, { capabilities })
-            dbg(`connecting client to transport`)
+            dbgc(`connecting stdio transport`)
             await client.connect(transport)
 
             const ping: McpClient["ping"] = async () => {
@@ -199,7 +222,6 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                                 ...commonToolOptions,
                                 ...(toolSpec || {}),
                             } satisfies DefToolOptions
-                            dbgc(`tool options %O`, toolOptions)
                             return {
                                 spec: {
                                     name: `${id}_${name}`,
@@ -209,11 +231,11 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                                 options: toolOptions,
                                 generator,
                                 impl: async (args: any) => {
-                                    const { context, ...rest } = args
+                                    const { context, ...restArgs } = args
                                     const res = await client.callTool(
                                         {
                                             name: name,
-                                            arguments: rest,
+                                            arguments: restArgs,
                                         },
                                         undefined,
                                         {

@@ -70,7 +70,7 @@ export default function (ctx: ChatGenerationContext) {
         "system.mcp.detectPromptInjection"
     ] as ContentSafetyOptions["detectPromptInjection"]
     const intent = vars["system.mcp.intent"]
-
+    const _env = vars["system.mcp.env"] as Record<string, string> | undefined
     if (!id) throw new Error("Missing required parameter: id")
     if (!command) throw new Error("Missing required parameter: command")
 
@@ -82,13 +82,13 @@ export default function (ctx: ChatGenerationContext) {
         contentSafety,
         detectPromptInjection,
         intent,
+        env: _env,
     } satisfies Omit<McpServerConfig, "id">
     const toolOptions = {
         maxTokens,
         contentSafety,
         detectPromptInjection,
     } satisfies DefToolOptions
-    dbg(`loading %s %O %O`, id, config, toolOptions)
     const configs = {
         [id]: config,
     } satisfies McpServersConfig

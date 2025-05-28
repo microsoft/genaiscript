@@ -1,5 +1,3 @@
-import debug from "debug"
-const dbg = debug("genaiscript:prompt:context")
 // cspell: disable
 import {
     PromptNode,
@@ -108,6 +106,9 @@ import { dotGenaiscriptPath } from "./workdir"
 import { prettyBytes } from "./pretty"
 import { createCache } from "./cache"
 import { measure } from "./performance"
+import { genaiscriptDebug } from "./debug"
+import debug from "debug"
+const dbg = genaiscriptDebug("prompt:context")
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -474,7 +475,7 @@ export function createChatGenerationContext(
                 )
             )
         } else if (typeof name === "object") {
-            dbg(`mcp %O`, name)
+            dbg(`mcp: %o`, Object.keys(name))
             for (const kv of Object.entries(name)) {
                 const [id, def] = kv
                 if ((def as McpServerConfig).command) {

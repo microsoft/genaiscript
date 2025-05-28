@@ -1,10 +1,21 @@
+import { genaiscriptDebug } from "./debug"
 import { runtimeHost } from "./host"
 import { TraceOptions } from "./trace"
 import { logWarn } from "./util"
-import debug from "debug"
-const dbg = debug("genaiscript:secrets")
+const dbg = genaiscriptDebug("secrets")
 
 const cachedSecretScanners: Record<string, RegExp> = {}
+
+export function redactSecretValues(o: Record<string, string>) {
+    if (!o || typeof o !== "object") return o
+    return Object.fromEntries(
+        Object.entries(o).map(([k, v]) => {
+            if (typeof v !== "string") return [k, v] // skip non-string values
+            const { text, found } = redactSecrets(v)
+            return [k, text]
+        })
+    )
+}
 
 /**
  * Redacts secrets from the provided text by replacing matches of configured secret patterns with `<secret/>`.

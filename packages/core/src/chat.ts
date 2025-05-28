@@ -230,6 +230,7 @@ async function runToolCalls(
     let edits: Edits[] = []
 
     if (!options.fallbackTools) {
+        dbgt(`fallback: appending tool calls to assistant message`)
         messages.push({
             role: "assistant",
             tool_calls: resp.toolCalls.map((c) => ({
@@ -249,6 +250,7 @@ async function runToolCalls(
     // call tool and run again
     for (const call of resp.toolCalls) {
         checkCancelled(cancellationToken)
+        dbgt(`running tool call %s`, call.name)
         const toolTrace = trace.startTraceDetails(`📠 tool call ${call.name}`)
         try {
             await runToolCall(
@@ -291,6 +293,7 @@ async function runToolCall(
 
     let todos: { tool: ToolCallback; args: any }[]
     if (call.name === "multi_tool_use.parallel") {
+        dbgt(`multi tool call`)
         // special undocumented openai hallucination, argument contains multiple tool calls
         // {
         //  "id": "call_D48fudXi4oBxQ2rNeHhpwIKh",
@@ -341,9 +344,14 @@ async function runToolCall(
     for (const todo of todos) {
         const { tool, args } = todo
         const dbgtt = dbgt.extend(tool.spec.name)
-        dbgtt(`running %O`, args)
         const { maxTokens: maxToolContentTokens = MAX_TOOL_CONTENT_TOKENS } =
             tool.options || {}
+        dbgtt(
+            `running %s maxt %d\n%O`,
+            tool.spec.name,
+            maxToolContentTokens,
+            args
+        )
         const context: ToolCallContext = {
             log: (message: string) => {
                 logInfo(message)
@@ -359,6 +367,7 @@ async function runToolCall(
         let output: ToolCallOutput
         try {
             output = await tool.impl({ context, ...args })
+            dbgtt(`output: %O`, output)
         } catch (e) {
             dbgtt(e)
             logWarn(`tool: ${tool.spec.name} error`)
@@ -367,7 +376,7 @@ async function runToolCall(
             output = errorMessage(e)
         }
         if (output === undefined || output === null)
-            throw new Error(`error: tool ${tool.spec.name} raised an error`)
+            output = "no output from tool"
         let toolContent: string = undefined
         let toolEdits: Edits[] = undefined
         if (typeof output === "string") {
