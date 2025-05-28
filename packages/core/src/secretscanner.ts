@@ -7,26 +7,6 @@ const dbg = genaiscriptDebug("secrets")
 const cachedSecretScanners: Record<string, RegExp> = {}
 
 /**
- * Redacts secrets in all string properties of the provided object.
- *
- * Iterates through each entry in the object and replaces detected secrets in string values with "<secret/>".
- * Non-string values are left unchanged.
- *
- * @param o The input object whose string properties may contain secrets to redact.
- * @returns A new object with string values redacted according to configured secret patterns; non-string values are preserved.
- */
-export function redactSecretValues(o: Record<string, string>) {
-    if (!o || typeof o !== "object") return o
-    return Object.fromEntries(
-        Object.entries(o).map(([k, v]) => {
-            if (typeof v !== "string") return [k, v] // skip non-string values
-            const { text, found } = redactSecrets(v)
-            return [k, text]
-        })
-    )
-}
-
-/**
  * Redacts secrets from the provided text by replacing matches of configured secret patterns with `<secret/>`.
  *
  * @param text - The input text to be scanned for secrets.

@@ -1,4 +1,3 @@
-const token = process.env.GITHUB_TOKEN
 script({
     title: "Issue Report (MCP Force)",
     description: "Force MCP GitHub tool calls for issue reporting",
