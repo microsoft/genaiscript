@@ -71,7 +71,6 @@ import { mermaidParse } from "./mermaid"
  *   - HTMLToMarkdown: Converts HTML content to Markdown with optional configurations.
  *   - DOCX: Parses DOCX files asynchronously.
  *   - PDF: Parses PDF files asynchronously, extracting pages, images, and file content.
- *   - code: Queries code syntax trees with Tree-sitter using a query string.
  *   - math: Evaluates mathematical expressions with a given scope.
  *   - validateJSON: Validates JSON content against a schema.
  *   - mustache: Renders Mustache templates with provided arguments.
