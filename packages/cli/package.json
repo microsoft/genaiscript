@@ -117,8 +117,6 @@
     "node-sarif-builder": "^3.2.0",
     "pdfjs-dist": "5.2.133",
     "playwright": "^1.52.0",
-    "tree-sitter-wasms": "^0.1.11",
-    "web-tree-sitter": "0.22.2",
     "z3-solver": "^4.15.0"
   },
   "engines": {

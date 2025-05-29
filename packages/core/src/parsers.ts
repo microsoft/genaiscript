@@ -16,7 +16,6 @@ import { parseAnnotations } from "./annotations"
 import { dotEnvTryParse } from "./dotenv"
 import { INITryParse } from "./ini"
 import { XMLTryParse } from "./xml"
-import { treeSitterQuery } from "./treesitter"
 import { parsePdf } from "./pdf"
 import { HTMLToMarkdown, HTMLToText } from "./html"
 import { MathTryEvaluate } from "./math"
@@ -193,10 +192,6 @@ export async function createParsers(
             const f = filenameOrFileToContent(file)
             const res = await mermaidParse(f)
             return res
-        },
-        code: async (file, query) => {
-            await resolveFileContent(file, { trace })
-            return await treeSitterQuery(file, query, { trace })
         },
         math: async (expression, scope) =>
             await MathTryEvaluate(expression, { scope, trace }),

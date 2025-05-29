@@ -105,13 +105,6 @@ async function main() {
         "genaiscript.d.ts": genaiscriptdts,
     }
 
-    // listing list of supported wasm languages
-    const wasms = await readdirSync("../../node_modules/tree-sitter-wasms/out/")
-        .map((file) => /^tree-sitter-(\w*)\.wasm$/.exec(file))
-        .map((m) => m?.[1])
-        .filter((f) => !!f)
-    console.log(`found ${wasms.length} wasms`)
-
     const functions = Object.keys(promptMap)
         .sort()
         .map((k) => {
@@ -146,8 +139,6 @@ export const promptDefinitions = Object.freeze<Record<string, string>>(${JSON.st
         null,
         4
     )});
-
-export const treeSitterWasms: string[] = ${JSON.stringify(wasms)};
 
 export const githubCopilotInstructions = ${JSON.stringify(githubCopilotInstructions)}
 

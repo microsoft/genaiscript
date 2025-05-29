@@ -3057,16 +3057,6 @@ interface Parsers {
     annotations(content: string | WorkspaceFile): Diagnostic[]
 
     /**
-     * Executes a tree-sitter query on a code file
-     * @param file
-     * @param query tree sitter query; if missing, returns the entire tree. `tags` return tags
-     */
-    code(
-        file: WorkspaceFile,
-        query?: OptionsOrString<"tags">
-    ): Promise<{ captures: QueryCapture[] }>
-
-    /**
      * Parses and evaluates a math expression
      * @param expression math expression compatible with mathjs
      * @param scope object to read/write variables
@@ -5135,110 +5125,6 @@ interface GenerationOutput {
 type Point = {
     row: number
     column: number
-}
-
-interface SyntaxNode {
-    id: number
-    typeId: number
-    grammarId: number
-    type: string
-    grammarType: string
-    isNamed: boolean
-    isMissing: boolean
-    isExtra: boolean
-    hasChanges: boolean
-    hasError: boolean
-    isError: boolean
-    text: string
-    parseState: number
-    nextParseState: number
-    startPosition: Point
-    endPosition: Point
-    startIndex: number
-    endIndex: number
-    parent: SyntaxNode | null
-    children: Array<SyntaxNode>
-    namedChildren: Array<SyntaxNode>
-    childCount: number
-    namedChildCount: number
-    firstChild: SyntaxNode | null
-    firstNamedChild: SyntaxNode | null
-    lastChild: SyntaxNode | null
-    lastNamedChild: SyntaxNode | null
-    nextSibling: SyntaxNode | null
-    nextNamedSibling: SyntaxNode | null
-    previousSibling: SyntaxNode | null
-    previousNamedSibling: SyntaxNode | null
-    descendantCount: number
-
-    equals(other: SyntaxNode): boolean
-    toString(): string
-    child(index: number): SyntaxNode | null
-    namedChild(index: number): SyntaxNode | null
-    childForFieldName(fieldName: string): SyntaxNode | null
-    childForFieldId(fieldId: number): SyntaxNode | null
-    fieldNameForChild(childIndex: number): string | null
-    childrenForFieldName(
-        fieldName: string,
-        cursor: TreeCursor
-    ): Array<SyntaxNode>
-    childrenForFieldId(fieldId: number, cursor: TreeCursor): Array<SyntaxNode>
-    firstChildForIndex(index: number): SyntaxNode | null
-    firstNamedChildForIndex(index: number): SyntaxNode | null
-
-    descendantForIndex(index: number): SyntaxNode
-    descendantForIndex(startIndex: number, endIndex: number): SyntaxNode
-    namedDescendantForIndex(index: number): SyntaxNode
-    namedDescendantForIndex(startIndex: number, endIndex: number): SyntaxNode
-    descendantForPosition(position: Point): SyntaxNode
-    descendantForPosition(startPosition: Point, endPosition: Point): SyntaxNode
-    namedDescendantForPosition(position: Point): SyntaxNode
-    namedDescendantForPosition(
-        startPosition: Point,
-        endPosition: Point
-    ): SyntaxNode
-    descendantsOfType(
-        types: String | Array<String>,
-        startPosition?: Point,
-        endPosition?: Point
-    ): Array<SyntaxNode>
-
-    walk(): TreeCursor
-}
-
-interface TreeCursor {
-    nodeType: string
-    nodeTypeId: number
-    nodeStateId: number
-    nodeText: string
-    nodeId: number
-    nodeIsNamed: boolean
-    nodeIsMissing: boolean
-    startPosition: Point
-    endPosition: Point
-    startIndex: number
-    endIndex: number
-    readonly currentNode: SyntaxNode
-    readonly currentFieldName: string
-    readonly currentFieldId: number
-    readonly currentDepth: number
-    readonly currentDescendantIndex: number
-
-    reset(node: SyntaxNode): void
-    resetTo(cursor: TreeCursor): void
-    gotoParent(): boolean
-    gotoFirstChild(): boolean
-    gotoLastChild(): boolean
-    gotoFirstChildForIndex(goalIndex: number): boolean
-    gotoFirstChildForPosition(goalPosition: Point): boolean
-    gotoNextSibling(): boolean
-    gotoPreviousSibling(): boolean
-    gotoDescendant(goalDescendantIndex: number): void
-}
-
-interface QueryCapture {
-    name: string
-    node: SyntaxNode
 }
 
 interface SgEdit {

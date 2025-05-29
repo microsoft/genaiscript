@@ -1,6 +1,7 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { CLI_JS } from "../../core/src/constants"
+import { $ } from "zx"
 
 const cli = `../cli/built/${CLI_JS}`
 
@@ -80,33 +81,6 @@ describe("parse", async () => {
     await test("prompty", async () => {
         const res = await $`node ${cli} ${cmd} "src/*.prompty"`.nothrow()
         assert(!res.exitCode)
-    })
-    describe("code", async () => {
-        const action = "code"
-        test("greeter.ts query", async () => {
-            const res =
-                await $`node ${cli} ${cmd} ${action} src/greeter.ts "(interface_declaration) @i"`
-            assert(res.stdout.includes("interface_declaration"))
-        })
-        test("greeter.ts tree", async () => {
-            const res = await $`node ${cli} ${cmd} ${action} src/greeter.ts`
-            assert(res.stdout.includes("interface_declaration"))
-        })
-        test("counting.py", async () => {
-            const res =
-                await $`node ${cli} ${cmd} ${action} src/counting.py "(class_definition) @i"`
-            assert(res.stdout.includes("class_definition"))
-        })
-        test("ewd.tla", async () => {
-            const res =
-                await $`node ${cli} ${cmd} ${action} src/tla/EWD998PCal.tla "(block_comment) @i"`
-            assert(res.stdout.includes("block_comment"))
-        })
-        test("README.md not supported", async () => {
-            const res =
-                await $`node ${cli} ${cmd} ${action} README.md`.nothrow()
-            assert(res.exitCode)
-        })
     })
 })
 

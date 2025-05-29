@@ -31,6 +31,7 @@
     "@tidyjs/tidy": "^2.5.2",
     "p-all": "^5.0.0",
     "zod": "^3.25.36",
-    "zod-to-json-schema": "^3.24.5"
+    "zod-to-json-schema": "^3.24.5",
+    "zx": "^8.5.4"
   }
 }

@@ -13,8 +13,7 @@
   },
   "optionalDependencies": {
     "@lvce-editor/ripgrep": "^1.6.0",
-    "pdfjs-dist": "5.2.133",
-    "web-tree-sitter": "0.22.2"
+    "pdfjs-dist": "5.2.133"
   },
   "devDependencies": {
     "@anthropic-ai/bedrock-sdk": "0.22.1",
@@ -95,7 +94,6 @@
     "tabletojson": "^4.1.6",
     "terminal-size": "^4.0.0",
     "toml": "^3.0.0",
-    "tree-sitter-wasms": "^0.1.11",
     "ts-dedent": "^2.2.0",
     "tsx": "^4.19.4",
     "typescript": "5.8.3",
