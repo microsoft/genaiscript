@@ -13,6 +13,6 @@
     "lint": "npx --yes prettier --write genaisrc/",
     "typecheck": "genaiscript scripts compile",
     "configure": "genaiscript action configure action-poem --out .",
-    "start": "genaiscript run action-poem --github-action"
+    "start": "genaiscript run action-poem --github-action --provider echo"
   }
 }

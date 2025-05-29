@@ -31,6 +31,7 @@ export async function actionConfigure(
         packageLock?: boolean
         image?: string
         apks?: string[]
+        provider?: string
     }
 ) {
     const prj = await buildProject() // Build the project to get script templates
@@ -49,6 +50,7 @@ export async function actionConfigure(
         playwright,
         packageLock,
         python,
+        provider,
     } = options || {}
     const image =
         options.image ||
@@ -302,7 +304,16 @@ npm run docker:start
                     lint: `npx --yes prettier --write genaisrc/`,
                     typecheck: `genaiscript scripts compile`,
                     configure: `genaiscript action configure ${scriptId} --out .`,
-                    start: `genaiscript run ${scriptId} --github-action`,
+                    start: [
+                        `genaiscript`,
+                        `run`,
+                        scriptId,
+                        `--github-action`,
+                        provider ? `--provider` : undefined,
+                        provider,
+                    ]
+                        .filter(Boolean)
+                        .join(" "),
                 },
             }),
             null,

@@ -1,5 +1,6 @@
 script({
     title: "This is the title",
+    model: "echo",
     description: "This is the description",
     unlisted: true,
     branding: {

@@ -62,6 +62,7 @@ Options:
   --python                  Install Python 3.x support
   --image <string>          Docker image identifier
   --apks <string...>        Linux packages to install
+  --provider <string>       LLM provider to use
   -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
                             exclude
   -h, --help                display help for command

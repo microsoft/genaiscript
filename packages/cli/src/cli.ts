@@ -575,6 +575,7 @@ export async function cli() {
         .option("--python", "Install Python 3.x support")
         .option("--image <string>", "Docker image identifier")
         .option("--apks <string...>", "Linux packages to install")
+        .option("--provider <string>", "LLM provider to use")
         .action(actionConfigure)
     addGroupsOptions(actionConfigureCmd)
 

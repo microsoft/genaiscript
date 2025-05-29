@@ -61,7 +61,7 @@
         "test:tokens": "node packages/cli/built/genaiscript.cjs retrieval tokens packages/sample/src/rag/*",
         "test:system": "cd packages/cli && node ./built/genaiscript.cjs scripts compile",
         "test:compile": "node packages/cli/built/genaiscript.cjs scripts compile",
-        "test:fix": "node packages/cli/built/genaiscript.cjs scripts fix --force && node packages/cli/built/genaiscript.cjs configure action action-poem --force --python --ffmpeg --out examples/action",
+        "test:fix": "node packages/cli/built/genaiscript.cjs scripts fix --force && node packages/cli/built/genaiscript.cjs configure action action-poem --force --python --ffmpeg --out examples/action --provider echo",
         "test:infomodel": "node packages/cli/built/genaiscript.cjs scripts model",
         "test:phi3": "node packages/cli/built/genaiscript.cjs run summarize-ollama-phi3 packages/sample/src/rag/markdown.md",
         "genai:module": "cd packages/modulesample && node ../cli/built/genaiscript.cjs run",
