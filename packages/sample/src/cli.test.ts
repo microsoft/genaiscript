@@ -122,7 +122,7 @@ describe("video", () => {
 })
 
 describe("action", () => {
-    const cmd = "action"
+    const cmd = "configure"
     test("configure", async () => {
         const action = "action"
         const res =
