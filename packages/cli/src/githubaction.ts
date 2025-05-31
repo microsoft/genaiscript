@@ -26,6 +26,9 @@ export function githubActionConfigure() {
     if (!isGitHubAction()) return {}
     const d = process.env.INPUT_DEBUG
     if (d) debug.enable(d)
+    // https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/troubleshooting-workflows/enabling-debug-logging#enabling-step-debug-logging
+    const actionDebug = process.env.ACTIONS_STEP_DEBUG === "true"
+    if (actionDebug) debug.enable("*")
     const actionId = process.env.GITHUB_ACTION
     dbg(`action: %s`, actionId)
     const workflow = process.env.GITHUB_WORKFLOW
