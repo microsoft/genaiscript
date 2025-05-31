@@ -80,6 +80,7 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
             : undefined
     const issue = normalizeInt(
         env.GITHUB_ISSUE ??
+            env.INPUT_GITHUB_ISSUE ??
             /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue
     )
 

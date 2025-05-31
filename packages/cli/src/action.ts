@@ -86,6 +86,9 @@ export async function actionConfigure(
                 "GitHub token with `models: read` permission at least.",
             required: true,
         },
+        github_issue: {
+            description: "GitHub issue number to use when generating comments.",
+        },
         debug: {
             description: "Enable debug logging.",
             required: false,
@@ -100,6 +103,8 @@ export async function actionConfigure(
                 "The generated JSON data output, parsed and stringified.",
         },
     }
+
+    const { owner = "<owner>", repo = "<repo>" } = (await github.info()) || {}
     const pkg = (await nodeTryReadPackage()) || {}
 
     const apks = [
@@ -215,21 +220,19 @@ ${Object.keys(inputs || {})
 name: Run ${script.id} Action
 on:
     workflow_dispatch:
-    push:
+    push: # TODO: update event type
 permissions:
     contents: read
     models: read
 concurrency:
-    group: ${script.id}-\${{ github.workflow }}-\${{ github.ref }}
+    group: \${{ github.workflow }}-\${{ github.ref }}
     cancel-in-progress: true
 jobs:
   run-script:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run ${script.id} Action
-        uses: ${script.id}-action@main
+      - uses: actions/checkout@v4
+      - uses: ${owner}/${repo}@main
         with:
 ${Object.entries(inputs || {})
     .map(([key, value]) => `          ${key}: \${{ ... }}`)
