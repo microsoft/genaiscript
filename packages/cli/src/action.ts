@@ -187,6 +187,7 @@ ${Object.entries(inputs || {})
             }${value.default ? ` (default: \`${value.default}\`)` : ""}`
     )
     .join("\n")}
+
 ## Outputs
 
 ${Object.entries(outputs || {})
