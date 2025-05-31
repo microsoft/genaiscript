@@ -22,6 +22,19 @@ export function isGitHubAction() {
     )
 }
 
+/**
+ * Configures GitHub Actions environment settings for the current process.
+ *
+ * Checks if the current environment is running in a GitHub Action.
+ * Enables debug logging if the INPUT_DEBUG or ACTIONS_STEP_DEBUG environment variables are set.
+ * Logs action, workflow, and workspace environment variables via debug.
+ *
+ * @returns An object containing:
+ *   - actionId: The current GitHub Action identifier.
+ *   - workflow: The name of the current workflow.
+ *   - workspaceDir: The GitHub Actions workspace directory.
+ *   Returns an empty object if not running in a GitHub Action.
+ */
 export function githubActionConfigure() {
     if (!isGitHubAction()) return {}
     const d = process.env.INPUT_DEBUG
