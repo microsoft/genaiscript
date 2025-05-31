@@ -14,6 +14,13 @@ export async function githubActionSetOutputs(res: GenerationOutput) {
     if (res.json) setOutput("data", JSON.stringify(res.json))
 }
 
+/**
+ * Determines if the current process is executing within a GitHub Actions environment.
+ *
+ * Verifies the presence and value of relevant environment variables to confirm execution under GitHub Actions.
+ *
+ * @returns True if running as a GitHub Action; otherwise, false.
+ */
 export function isGitHubAction() {
     return (
         !!process.env.CI &&
