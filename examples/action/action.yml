@@ -8,7 +8,6 @@ inputs:
   debug:
     description: Enable debug logging.
     required: false
-    default: "*"
 outputs:
   text:
     description: The generated text output.

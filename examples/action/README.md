@@ -7,7 +7,7 @@ This is the description
 ## Inputs
 
 - `github_token`: GitHub token with `models: read` permission at least. (required)
-- `debug`: Enable debug logging. (default: `*`)
+- `debug`: Enable debug logging.
 ## Outputs
 
 - `text`: The generated text output.
