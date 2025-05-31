@@ -617,7 +617,6 @@ export async function cli() {
         .option("--apks <string...>", "Linux packages to install")
         .option("--provider <string>", "LLM provider to use")
         .action(actionConfigure)
-    addGroupsOptions(actionConfigureCmd)
 
     // Define 'parse' command group for parsing tasks
     const parser = program
