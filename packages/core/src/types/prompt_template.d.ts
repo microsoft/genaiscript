@@ -3991,7 +3991,7 @@ interface GitHub {
     /**
      * List labels in repository
      */
-    listLabels(): Promise<GitHubLabel[]>
+    listIssueLabels(issueNumber?: string | number): Promise<GitHubLabel[]>
 
     /**
      * Lists issues for a given repository

@@ -79,10 +79,17 @@ await github.updateIssue(issues[0].number, {
 
 ```js
 // Use issue number!
-await github.createIssueComment(issues[0].number, "Hello, world!")
+await github.createIssueComment(issueNumber, "Hello, world!")
 ```
 
-- list issue labels for the repository:
+- list issue labels
+
+```js
+const labels = await github.listIssueLabels(issueNumber)
+console.log(labels.map((i) => i.name))
+```
+
+- list issue labels for the repository
 
 ```js
 const labels = await github.listIssueLabels()

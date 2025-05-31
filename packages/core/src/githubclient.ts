@@ -1596,13 +1596,22 @@ export class GitHubClient implements GitHub {
         return languages
     }
 
-    async listLabels(): Promise<GitHubLabel[]> {
+    async listIssueLabels(
+        issueNumber?: string | number
+    ): Promise<GitHubLabel[]> {
         const { client, owner, repo } = await this.api()
-        dbg(`listing labels for repository`)
-        const { data: labels } = await client.rest.issues.listLabelsForRepo({
-            owner,
-            repo,
-        })
+        dbg(`listing labels for %o`, issueNumber)
+        const { data: labels } =
+            issueNumber === undefined
+                ? await client.rest.issues.listLabelsForRepo({
+                      owner,
+                      repo,
+                  })
+                : await client.rest.issues.listLabelsOnIssue({
+                      owner,
+                      repo,
+                      issue_number: normalizeInt(issueNumber),
+                  })
         dbg(`labels: %O`, labels)
         return labels satisfies GitHubLabel[]
     }
