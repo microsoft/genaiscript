@@ -134,4 +134,12 @@ describe("GitHubClient", async () => {
         assert(resolved.files[0].content)
         assert.strictEqual(resolved.files[0].type, "image/jpeg")
     })
+    await test("listLabels() returns array of labels", async () => {
+        const labels = await client.listLabels()
+        assert(Array.isArray(labels))
+        assert(labels.length > 0)
+        assert(labels[0].name)
+        assert(labels[0].color)
+        assert(labels[0].description !== undefined)
+    })
 })

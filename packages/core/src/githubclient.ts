@@ -1592,7 +1592,19 @@ export class GitHubClient implements GitHub {
             owner,
             repo,
         })
+        dbg(`languages: %O`, languages)
         return languages
+    }
+
+    async listLabels(): Promise<GitHubLabel[]> {
+        const { client, owner, repo } = await this.api()
+        dbg(`listing labels for repository`)
+        const { data: labels } = await client.rest.issues.listLabelsForRepo({
+            owner,
+            repo,
+        })
+        dbg(`labels: %O`, labels)
+        return labels satisfies GitHubLabel[]
     }
 
     async getRepositoryContent(
