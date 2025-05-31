@@ -20,7 +20,7 @@ Options:
 
 Commands:
   llm [options]                            Configure LLM providers
-  action|github-action [options] <script>  Configure the current project for GitHub Actions
+  action|github-action [options] [script]  Configure the current project for GitHub Actions
   help [command]                           display help for command
 ```
 
@@ -46,26 +46,25 @@ Options:
 ### `configure action`
 
 ```
-Usage: genaiscript configure action|github-action [options] <script>
+Usage: genaiscript configure action|github-action [options] [script]
 
 Configure the current project for GitHub Actions
 
 Arguments:
-  script                    Script to use for the action
+  script               Script to use for the action; if not found, a script
+                       will be created.
 
 Options:
-  -f, --force               force override existing action files
-  -o, --out <string>        output folder for action files
-  --package-lock            generate package-lock.json file and use `npm ci`
-  --ffmpeg                  use ffmpeg for video/audio processing
-  --playwright              Enable Playwright for browser testing
-  --python                  Install Python 3.x support
-  --image <string>          Docker image identifier
-  --apks <string...>        Linux packages to install
-  --provider <string>       LLM provider to use
-  -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
-                            exclude
-  -h, --help                display help for command
+  -f, --force          force override existing action files
+  -o, --out <string>   output folder for action files
+  --package-lock       generate package-lock.json file and use `npm ci`
+  --ffmpeg             use ffmpeg for video/audio processing
+  --playwright         Enable Playwright for browser testing
+  --python             Install Python 3.x support
+  --image <string>     Docker image identifier
+  --apks <string...>   Linux packages to install
+  --provider <string>  LLM provider to use
+  -h, --help           display help for command
 ```
 
 ## `run`

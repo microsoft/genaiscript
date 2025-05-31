@@ -599,11 +599,14 @@ export async function cli() {
     addModelOptions(openapi)
     addGroupsOptions(openapi)
 
-    const actionConfigureCmd = configureCmd
+    configureCmd
         .command("action")
         .alias("github-action")
         .description("Configure the current project for GitHub Actions")
-        .argument("<script>", "Script to use for the action")
+        .argument(
+            "[script]",
+            "Script to use for the action; if not found, a script will be created."
+        )
         .option("-f, --force", "force override existing action files")
         .option("-o, --out <string>", "output folder for action files")
         .option(
