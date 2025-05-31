@@ -89,7 +89,6 @@ export async function actionConfigure(
         debug: {
             description: "Enable debug logging.",
             required: false,
-            default: "*",
         },
     }
     const outputs: Record<string, GitHubActionFieldType> = {
