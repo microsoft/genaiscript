@@ -125,6 +125,6 @@ if (probPercent < 80) { // 80%
 
 You can disable `logprobs` by setting `logprobs: false` in the options. You can disable `topLogprobs` by setting `topLogprobs: false` in the options.
 
-## Acknowlegments
+## Acknowledgments
 
 This function is inspired from the classification in [Marvin](https://www.askmarvin.ai/docs/text/classification/).
