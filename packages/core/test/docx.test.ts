@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { beforeEach, describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert, beforeEach } from "vitest";
 import { DOCXTryParse } from "../src/docx.js";
 import { TestHost } from "./testhost.js";
 

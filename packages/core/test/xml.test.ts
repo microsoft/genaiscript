@@ -1,7 +1,6 @@
-import { XMLParse } from "./xml";
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
-import { dedent } from "./indent";
+import { XMLParse } from "../src/xml.js";
+import { describe, test, assert } from "vitest";
+import { dedent } from "../src/indent.js";
 
 describe("xml", () => {
   test("parse elements", () => {

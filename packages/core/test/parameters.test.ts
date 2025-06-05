@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test } from "node:test";
-import assert from "node:assert";
-import { promptParameterTypeToJSONSchema, promptParametersSchemaToJSONSchema } from "../src/parameters.js";
+import { describe, test, assert } from "vitest";
+import {
+  promptParameterTypeToJSONSchema,
+  promptParametersSchemaToJSONSchema,
+} from "../src/parameters.js";
 import { parametersToVars, proxifyEnvVars } from "../src/vars.js";
 
 describe("promptParameterTypeToJSONSchema", () => {

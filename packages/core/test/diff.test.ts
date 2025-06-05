@@ -1,9 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
-import { diffParse, tryDiffParse, diffCreatePatch, diffFindChunk, diffResolve } from "../src/diff.js";
+import { describe, test, assert } from "vitest";
+import {
+  diffParse,
+  tryDiffParse,
+  diffCreatePatch,
+  diffFindChunk,
+  diffResolve,
+} from "../src/diff.js";
 
 describe("diff", () => {
   test("diffParse - valid input", () => {
@@ -134,7 +139,7 @@ index 83db48f..bf269f4 100644
       },
     ];
     const result = diffResolve(input as DiffFile[]);
-    assert.deepEqual(result, input, "Should return the same array when array is provided");
+    assert.deepEqual(result, input as any, "Should return the same array when array is provided");
   });
 
   test("diffResolve - single object input", () => {
@@ -150,6 +155,6 @@ index 83db48f..bf269f4 100644
       ],
     };
     const result = diffResolve(input as DiffFile);
-    assert.deepEqual(result, [input], "Should wrap single object in an array");
+    assert.deepEqual(result, [input] as any, "Should wrap single object in an array");
   });
 });

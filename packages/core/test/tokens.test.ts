@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { approximateTokens } from "../src/tokens.js";
-import { describe, it } from "node:test";
-import assert from "assert";
+import { describe, it, assert } from "vitest";
 
 describe("approximateTokens", () => {
   it("should return 0 for empty text", () => {

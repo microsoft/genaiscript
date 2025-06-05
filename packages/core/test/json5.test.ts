@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { isJSONObjectOrArray, JSONrepair, JSON5parse, JSON5TryParse } from "../src/json5.js";
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 
 describe("json5.ts", () => {
   test("isJSONObjectOrArray should identify JSON objects or arrays", () => {

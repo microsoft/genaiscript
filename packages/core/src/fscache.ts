@@ -7,7 +7,11 @@ import { join } from "node:path";
 import debug, { Debugger } from "debug";
 import { errorMessage } from "./error.js";
 import { rm, readdir } from "fs/promises";
-import { CACHE_FORMAT_VERSION, CACHE_SHA_LENGTH, FILE_READ_CONCURRENCY_DEFAULT } from "./constants.js";
+import {
+  CACHE_FORMAT_VERSION,
+  CACHE_SHA_LENGTH,
+  FILE_READ_CONCURRENCY_DEFAULT,
+} from "./constants.js";
 import { hash } from "./crypto.js";
 import pLimit from "p-limit";
 

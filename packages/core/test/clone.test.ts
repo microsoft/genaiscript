@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { cleanedClone } from "../src/clone.js";
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 
 describe("cleanedClone", () => {
   test("clones and cleans simple object", () => {

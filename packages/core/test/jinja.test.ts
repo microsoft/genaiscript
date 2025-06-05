@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { jinjaRender } from "../src/jinja.js";
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 
 describe("jinjaRender", () => {
   test("should correctly render template with values", () => {

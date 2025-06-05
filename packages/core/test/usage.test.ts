@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 import { estimateCost, isCosteable, GenerationStats } from "../src/usage.js";
 import type { ChatCompletionUsage } from "../src/chattypes.js";
 

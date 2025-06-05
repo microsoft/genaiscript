@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import CONFIGURATION_DATA from "./llms.json" with { type: "json" };
+import CONFIGURATION_DATA from "./llmsdata.js";
 
 export const CHANGE = "change";
 export const RESOURCE_CHANGE = "resourceChange";

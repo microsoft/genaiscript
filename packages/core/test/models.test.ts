@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import test, { describe } from "node:test";
+import { describe, test, assert } from "vitest";
 import { parseModelIdentifier } from "../src/models.js";
-import assert from "node:assert";
 import {
   MODEL_PROVIDER_GITHUB,
   MODEL_PROVIDER_LLAMAFILE,

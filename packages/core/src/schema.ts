@@ -3,7 +3,7 @@
 
 import { JSON5parse } from "./json5.js";
 import { MarkdownTrace, TraceOptions } from "./trace.js";
-import { Ajv }  from "ajv";
+import { Ajv } from "ajv";
 import { YAMLParse } from "./yaml.js";
 import { errorMessage } from "./error.js";
 import { promptParametersSchemaToJSONSchema } from "./parameters.js";

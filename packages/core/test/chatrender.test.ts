@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import assert from "node:assert/strict";
-import test, { describe } from "node:test";
+import { describe, test, assert } from "vitest";
 import {
   renderShellOutput,
   renderMessageContent,
@@ -11,7 +10,10 @@ import {
   collapseChatMessages,
   assistantText,
 } from "../src/chatrender.js";
-import { ChatCompletionAssistantMessageParam, ChatCompletionUserMessageParam } from "../src/chattypes.js";
+import {
+  ChatCompletionAssistantMessageParam,
+  ChatCompletionUserMessageParam,
+} from "../src/chattypes.js";
 import { ChatCompletionSystemMessageParam } from "openai/resources/index.mjs";
 
 describe("renderShellOutput", () => {

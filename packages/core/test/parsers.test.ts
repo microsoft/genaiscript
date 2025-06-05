@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, beforeEach, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert, beforeEach } from "vitest";
 import { createParsers } from "../src/parsers.js";
 import { MarkdownTrace } from "../src/trace.js";
 import { XLSXParse } from "../src/xlsx.js";
@@ -49,14 +48,14 @@ describe("parsers", async () => {
     assert.equal(result.key, "value");
   });
 
-  await test("PDF", async () => {
+  test("PDF", async () => {
     const result = await parsers.PDF({
       filename: "../sample/src/rag/loremipsum.pdf",
     });
     assert(result.file.content.includes("Lorem"));
   });
 
-  await test("prompty", async () => {
+  test("prompty", async () => {
     const result = await parsers.prompty({
       filename: "../sample/src/chat.prompty",
     });
@@ -64,7 +63,7 @@ describe("parsers", async () => {
     assert(result.messages.length === 2);
   });
 
-  await test("PDF-image", async () => {
+  test("PDF-image", async () => {
     const result = await parsers.PDF(
       { filename: "../sample/src/rag/loremipsum.pdf" },
       { renderAsImage: true },
@@ -76,7 +75,7 @@ describe("parsers", async () => {
     assert(result.file.content.includes("Lorem"));
   });
 
-  await test("DOCX - markdown", async () => {
+  test("DOCX - markdown", async () => {
     const result = await parsers.DOCX(
       {
         filename: "../sample/src/rag/Document.docx",
@@ -85,7 +84,7 @@ describe("parsers", async () => {
     );
     assert(result.file.content.includes("Microsoft"));
   });
-  await test("DOCX - html", async () => {
+  test("DOCX - html", async () => {
     const result = await parsers.DOCX(
       {
         filename: "../sample/src/rag/Document.docx",
@@ -94,7 +93,7 @@ describe("parsers", async () => {
     );
     assert(result.file.content.includes("Microsoft"));
   });
-  await test("DOCX - text", async () => {
+  test("DOCX - text", async () => {
     const result = await parsers.DOCX(
       {
         filename: "../sample/src/rag/Document.docx",
@@ -110,7 +109,7 @@ describe("parsers", async () => {
   });
 
   test("XLSX", async () => {
-    const result = await XLSXParse(await readFile(resolve("./src/parsers.test.xlsx")));
+    const result = await XLSXParse(await readFile(resolve("./test/parsers.test.xlsx")));
     assert.deepStrictEqual(result, [{ name: "Sheet1", rows: [{ key: 1, value: 2 }] }]);
   });
 
@@ -122,7 +121,7 @@ describe("parsers", async () => {
   test("zip", async () => {
     const result = await parsers.unzip(
       {
-        filename: "./src/parsers.test.zip",
+        filename: "./test/parsers.test.zip",
         content: undefined,
       },
       { glob: "*.md" },

@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { roundWithPrecision, renderWithPrecision } from "../src/precision.js";
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 
 describe("roundWithPrecision", () => {
   test("returns NaN for undefined input", () => {

@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import test, { describe } from "node:test";
+import { describe, test, assert } from "vitest";
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "../src/html.js";
-import assert from "node:assert/strict";
 
 describe("html", () => {
   test("convert HTML table to JSON", async () => {

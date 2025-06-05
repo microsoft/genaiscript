@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { YAMLTryParse, YAMLParse, YAMLStringify, createYAML } from "../src/yaml.js";
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 
 describe("YAML utilities", () => {
   describe("YAMLTryParse", () => {

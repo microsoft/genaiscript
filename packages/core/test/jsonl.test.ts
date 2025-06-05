@@ -1,5 +1,7 @@
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { describe, test, assert } from "vitest";
 import { isJSONLFilename, JSONLTryParse, JSONLStringify } from "../src/jsonl.js";
 
 describe("JSONL utils", async () => {

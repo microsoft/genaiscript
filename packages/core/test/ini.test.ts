@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 import { INIParse, INIStringify } from "../src/ini.js";
 import { dedent } from "../src/indent.js";
 

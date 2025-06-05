@@ -1,5 +1,5 @@
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
+
 import { convertThinkToMarkdown, unthink } from "../src/think.js";
 
 describe("convertThinkToMarkdown", () => {

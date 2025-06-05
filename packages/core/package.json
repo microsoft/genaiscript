@@ -82,6 +82,7 @@
     "parse-diff": "^0.11.1",
     "prettier": "^3.5.3",
     "pretty-bytes": "^7.0.0",
+    "rimraf": "^6.0.1",
     "sanitize-filename": "^1.6.3",
     "sanitize-html": "^2.17.0",
     "semver": "^7.7.2",
@@ -99,12 +100,12 @@
     "yaml": "^2.8.0"
   },
   "scripts": {
-    "build": "tshy",
-    "prompts:bundle": "node bundleprompts.js",
-    "pretypecheck": "yarn prompts:bundle",
-    "format:check": "prettier --check **.ts",
-    "format:fix": "prettier **.ts --write",
-    "test": "node --import tsx --test src/**.test.*ts"
+    "build": "npm run clean && npm run build:prompts && tshy",
+    "build:prompts": "node bundleprompts.mjs",
+    "clean": "rimraf dist",
+    "format:check": "prettier --check **.ts **.cts **.mjs **.json",
+    "format:fix": "prettier **.ts **.cts **.mjs **.json --write",
+    "test": "vitest"
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.70",
@@ -117,11 +118,31 @@
     "turndown-plugin-gfm": "^1.0.2"
   },
   "tshy": {
-    "dialects": ["esm", "commonjs"],
+    "dialects": [
+      "esm",
+      "commonjs"
+    ],
+    "project": "./tsconfig.src.json",
     "exports": {
       ".": "./src/index.ts",
       "./package.json": "./package.json"
     },
     "selfLink": false
-  }
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/index.d.ts",
+        "default": "./dist/commonjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/commonjs/index.js",
+  "types": "./dist/commonjs/index.d.ts",
+  "module": "./dist/esm/index.js"
 }

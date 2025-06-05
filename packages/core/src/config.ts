@@ -15,12 +15,15 @@ import { join, resolve } from "node:path";
 import { validateJSONWithSchema } from "./schema.js";
 import { HostConfiguration } from "./hostconfiguration.js";
 import { structuralMerge } from "./merge.js";
-import { LanguageModelConfiguration, ResolvedLanguageModelConfiguration } from "./server/messages.js";
+import {
+  LanguageModelConfiguration,
+  ResolvedLanguageModelConfiguration,
+} from "./server/messages.js";
 import { resolveLanguageModel } from "./lm.js";
 import { arrayify, deleteEmptyValues } from "./cleaners.js";
 import { errorMessage } from "./error.js";
-import schema from "../../../docs/public/schemas/config.json" with { type: "json" };
-import defaultConfig from "./config.json" with { type: "json" };
+import schema from "./configschema.js";
+import defaultConfig from "./configjson.js";
 import { CancellationOptions } from "./cancellation.js";
 import { host } from "./host.js";
 import { uniq } from "es-toolkit";

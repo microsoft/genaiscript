@@ -11,8 +11,8 @@ import { parseModelIdentifier } from "./models.js";
 import { NotSupportedError, serializeError } from "./error.js";
 import { approximateTokens } from "./tokens.js";
 import { resolveTokenEncoder } from "./encoders.js";
-import type { Anthropic } from "@anthropic-ai/sdk";
-
+import Anthropic from "@anthropic-ai/sdk";
+import AnthropicBedrock from "@anthropic-ai/bedrock-sdk";
 import {
   ChatCompletionResponse,
   ChatCompletionToolCall,
@@ -474,7 +474,6 @@ const completerFactory = (
 
 const listModels: ListModelsFunction = async (cfg, options) => {
   try {
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
     const anthropic = new Anthropic({
       baseURL: cfg.base,
       apiKey: cfg.token,
@@ -502,7 +501,6 @@ const listModels: ListModelsFunction = async (cfg, options) => {
 
 export const AnthropicModel = Object.freeze<LanguageModel>({
   completer: completerFactory(async (trace, cfg, httpAgent, fetch) => {
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
     const anthropic = new Anthropic({
       baseURL: cfg.base,
       apiKey: cfg.token,
@@ -521,7 +519,6 @@ export const AnthropicModel = Object.freeze<LanguageModel>({
 
 export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
   completer: completerFactory(async (trace, cfg, httpAgent, fetch) => {
-    const AnthropicBedrock = (await import("@anthropic-ai/bedrock-sdk")).AnthropicBedrock;
     const anthropic = new AnthropicBedrock({
       baseURL: cfg.base,
       fetch,

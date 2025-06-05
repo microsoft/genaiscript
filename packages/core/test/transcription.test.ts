@@ -1,5 +1,4 @@
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 import { srtVttRender, parseTimestamps, vttSrtParse } from "../src/transcription.js";
 
 describe("srtVttRender", () => {

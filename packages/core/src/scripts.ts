@@ -3,7 +3,10 @@
 
 import { collectFolders } from "./ast.js";
 import { DOCS_URL, NEW_SCRIPT_TEMPLATE, TYPE_DEFINITION_BASENAME } from "./constants.js";
-import { githubCopilotInstructions as ghInstructions, promptDefinitions } from "./default_prompts.js";
+import {
+  githubCopilotInstructions as ghInstructions,
+  promptDefinitions,
+} from "./default_prompts.js";
 import { tryReadText, writeText } from "./fs.js";
 import { host } from "./host.js";
 import { logVerbose } from "./util.js";

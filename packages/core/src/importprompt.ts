@@ -9,6 +9,7 @@ import { logError } from "./util.js";
 import { TraceOptions } from "./trace.js";
 import { pathToFileURL } from "node:url";
 import { mark } from "./performance.js";
+import { __filename } from "./utils/pathUtils.js";
 
 /**
  * Dynamically imports a JavaScript module from a specified file.
@@ -40,11 +41,10 @@ export async function importFile<T = void>(
     const modulePath = pathToFileURL(
       host.path.isAbsolute(filename) ? filename : host.path.join(host.projectFolder(), filename),
     ).toString();
-    const parentURL =
-      import.meta.url ?? pathToFileURL(__filename ?? host.projectFolder()).toString();
+    const parentURL = pathToFileURL(__filename).toString();
 
     dbg(`importing module from path: ${modulePath}`);
-    const onImport = (file: string) => {
+    const onImport = (_file: string) => {
       // trace?.itemValue("📦 import", fileURLToPath(file))
     };
     onImport(modulePath);

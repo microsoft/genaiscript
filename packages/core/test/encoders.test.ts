@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import test, { describe } from "node:test";
-import assert from "node:assert";
+import { describe, test, assert } from "vitest";
 import { chunk, resolveTokenEncoder } from "../src/encoders.js";
 import { dedent } from "../src/indent.js";
 

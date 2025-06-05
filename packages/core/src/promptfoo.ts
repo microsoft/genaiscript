@@ -20,7 +20,7 @@ import { arrayify, logWarn } from "./util.js";
 import { runtimeHost } from "./host.js";
 import { ModelConnectionInfo, parseModelIdentifier } from "./models.js";
 import { deleteEmptyValues, deleteUndefinedValues } from "./cleaners.js";
-import testSchema from "../../../docs/public/schemas/tests.json" with { type: "json" };
+import testSchema from "./testschema.js";
 import { validateJSONWithSchema } from "./schema.js";
 import { MarkdownTrace, TraceOptions } from "./trace.js";
 import { CancellationOptions } from "./cancellation.js";

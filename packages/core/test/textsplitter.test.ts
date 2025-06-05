@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { TextSplitter, TextSplitterConfig, unchunk } from "../src/textsplitter.js";
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
+
 import { resolveTokenEncoder } from "../src/encoders.js";
 import { glob } from "glob";
 import { readFile } from "fs/promises";
@@ -59,9 +59,7 @@ describe("TextSplitter", async () => {
   });
 
   test("TextSplitter should throw an error if tokenizer is not provided", () => {
-    assert.throws(() => new TextSplitter({} as TextSplitterConfig), {
-      message: "Tokenizer is required",
-    });
+    assert.throws(() => new TextSplitter({} as TextSplitterConfig), "Tokenizer is required");
   });
 
   test("TextSplitter should throw an error if chunkSize is less than 1", () => {
@@ -70,10 +68,8 @@ describe("TextSplitter", async () => {
         new TextSplitter({
           ...defaultConfig,
           chunkSize: 0,
-        } as TextSplitterConfig),
-      {
-        message: "chunkSize must be >= 1",
-      },
+        } as TextSplitterConfig), 
+        "chunkSize must be >= 1"
     );
   });
 
@@ -84,9 +80,7 @@ describe("TextSplitter", async () => {
           ...defaultConfig,
           chunkOverlap: -1,
         } as TextSplitterConfig),
-      {
-        message: "chunkOverlap must be >= 0",
-      },
+        "chunkOverlap must be >= 0",
     );
   });
 
@@ -97,9 +91,7 @@ describe("TextSplitter", async () => {
           ...defaultConfig,
           chunkOverlap: 11,
         } as TextSplitterConfig),
-      {
-        message: "chunkOverlap must be <= chunkSize",
-      },
+        "chunkOverlap must be <= chunkSize"
     );
   });
 
@@ -134,7 +126,7 @@ describe("TextSplitter", async () => {
 
   const docs = await glob("../../docs/src/**/*.mdx?");
   for (const doc of docs) {
-    await test(doc, async () => {
+    test(doc, async () => {
       const text = await readFile(doc, { encoding: "utf-8" });
       for (let i = 0; i < 10; i++) {
         const chunkSize = Math.floor(Math.random() * 20) + 10;

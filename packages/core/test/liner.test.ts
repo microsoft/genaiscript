@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import test, { describe } from "node:test";
-import assert from "node:assert";
-import { llmifyDiff } from "../src/llmdiff.js";;
+import { describe, test, assert } from "vitest";
+import { llmifyDiff } from "../src/llmdiff.js";
 
 describe("liner", function () {
   test("diff test 1", function () {

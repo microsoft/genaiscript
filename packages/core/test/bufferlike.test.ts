@@ -1,5 +1,7 @@
-import assert from "node:assert/strict";
-import test, { describe } from "node:test";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { describe, test, assert } from "vitest";
 import { resolveBufferLike, BufferToBlob } from "../src/bufferlike.js";
 import { ReadableStream } from "node:stream/web";
 

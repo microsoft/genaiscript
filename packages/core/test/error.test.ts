@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { strict as assert } from "node:assert";
-import { describe, it as test } from "node:test";
+import { describe, it as test } from "vitest";
 import {
   serializeError,
   errorMessage,

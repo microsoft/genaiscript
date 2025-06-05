@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { convertMarkdownToTeamsHTML } from "../src/teams.js";
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 
 describe("convertMarkdownToTeamsHTML", () => {
   test("converts headers correctly", () => {

@@ -3,7 +3,7 @@
 
 import { host } from "./host.js";
 import { JSON5TryParse } from "./json5.js";
-import { concatBuffers, } from "./util.js";
+import { concatBuffers } from "./util.js";
 
 function tryReadFile(fn: string) {
   return host.readFile(fn).then<Uint8Array>(

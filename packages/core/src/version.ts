@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// @ts-ignore
 import packageJson from "../package.json" with { type: "json" };
 
 /**

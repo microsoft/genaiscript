@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import assert from "node:assert/strict";
-import test, { beforeEach, describe } from "node:test";
+import { describe, test, assert, beforeEach } from "vitest";
 import { hash, randomHex } from "../src/crypto.js";
 import { TestHost } from "./testhost.js";
 

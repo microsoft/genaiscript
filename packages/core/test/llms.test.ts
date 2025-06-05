@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test, beforeEach } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert, beforeEach } from "vitest";
 import { defaultModelConfigurations } from "../src/llms.js";
 import { TestHost } from "./testhost.js";
 import { LARGE_MODEL_ID, SMALL_MODEL_ID, VISION_MODEL_ID } from "../src/constants.js";

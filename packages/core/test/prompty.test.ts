@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { promptyParse } from "../src/prompty.js";
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 
 describe("promptyParse", () => {
   test("correctly parses an empty markdown string", () => {

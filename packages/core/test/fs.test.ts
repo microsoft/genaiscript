@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test, before, after } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert, beforeAll, afterAll } from "vitest";
 import { tryReadText, tryStat } from "../src/fs.js";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -12,13 +11,13 @@ describe("fs", async () => {
   const testFile = path.join(testDir, "testfile.txt");
   const content = "test content";
 
-  before(async () => {
+  beforeAll(async () => {
     // Setup test directory and file
     await fs.mkdir(testDir, { recursive: true });
     await fs.writeFile(testFile, content);
   });
 
-  after(async () => {
+  afterAll(async () => {
     // Cleanup
     await fs.rm(testDir, { recursive: true, force: true });
   });

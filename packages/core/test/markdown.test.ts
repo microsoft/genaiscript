@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 // cSpell: disable
-import { describe, test } from "node:test";
+import { describe, test, assert } from "vitest";
 import { MarkdownStringify, splitMarkdownTextImageParts } from "../src/markdown.js";
-import assert from "node:assert/strict";
 import { parseTraceTree } from "../src/traceparser.js";
 
 describe("trace tree", () => {

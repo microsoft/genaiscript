@@ -4,6 +4,13 @@
 import { parse } from "@plussub/srt-vtt-parser";
 import { deleteEmptyValues } from "./cleaners.js";
 
+interface Entry {
+  id: string;
+  from: number;
+  to: number;
+  text: string;
+}
+
 /**
  * Renders SRT and VTT formats from a transcription result.
  *
@@ -102,7 +109,7 @@ export function parseTimestamps(transcription: string) {
 export function vttSrtParse(transcription: string): TranscriptionSegment[] {
   if (!transcription) return [];
   const p = parse(transcription);
-  return p.entries.map((e) =>
+  return p.entries.map((e: Entry) =>
     deleteEmptyValues({
       id: e.id,
       start: e.from,

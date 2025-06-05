@@ -56,7 +56,12 @@ import { serializeChunkChoiceToLogProbs } from "./logprob.js";
 import { TraceOptions } from "./trace.js";
 import { LanguageModelConfiguration } from "./server/messages.js";
 import prettyBytes from "pretty-bytes";
-import { deleteUndefinedValues, isEmptyString, normalizeInt, trimTrailingSlash } from "./cleaners.js";
+import {
+  deleteUndefinedValues,
+  isEmptyString,
+  normalizeInt,
+  trimTrailingSlash,
+} from "./cleaners.js";
 import { fromBase64 } from "./base64.js";
 import { traceFetchPost } from "./fetchtext.js";
 import { providerFeatures } from "./features.js";

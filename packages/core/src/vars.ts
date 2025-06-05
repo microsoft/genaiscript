@@ -6,7 +6,10 @@ import { resolveSystems } from "./systems.js";
 import { logError } from "./util.js";
 import { YAMLStringify } from "./yaml.js";
 import { Project } from "./server/messages.js";
-import { promptParametersSchemaToJSONSchema, promptParameterTypeToJSONSchema } from "./parameters.js";
+import {
+  promptParametersSchemaToJSONSchema,
+  promptParameterTypeToJSONSchema,
+} from "./parameters.js";
 import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners.js";
 import { genaiscriptDebug } from "./debug.js";
 const dbg = genaiscriptDebug("vars");

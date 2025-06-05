@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import test, { beforeEach, describe } from "node:test";
+import { describe, test, assert, beforeEach } from "vitest";
 import {
   convertAnnotationsToItems,
   convertDiagnosticToGitHubActionCommand,
   convertGithubMarkdownAnnotationsToItems,
   parseAnnotations,
 } from "../src/annotations.js";
-import assert from "assert/strict";
 import { TestHost } from "./testhost.js";
 import { EMOJI_WARNING, EMOJI_FAIL } from "../src/constants.js";
 

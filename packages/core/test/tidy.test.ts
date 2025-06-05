@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import assert from "assert";
 import { tidyData } from "../src/tidy.js";
-import { describe, it } from "node:test";
+import { describe, it, assert } from "vitest";
 
 describe("tidyData", function () {
   it("should handle distinct option", function () {

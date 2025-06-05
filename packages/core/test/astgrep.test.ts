@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { beforeEach, describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert, beforeEach } from "vitest";
 import { astGrepFindFiles, astGrepParse } from "../src/astgrep.js";
 import { TestHost } from "./testhost.js";
 import { dedent } from "../src/indent.js";
@@ -14,7 +13,7 @@ describe("astgrep", () => {
 
   test("finds matches in files", async () => {
     console.log("Hello, world!");
-    const result = await astGrepFindFiles("ts", "src/astgrep.test.ts", "console.log($GREETING)");
+    const result = await astGrepFindFiles("ts", "test/astgrep.test.ts", "console.log($GREETING)");
     assert.equal(result.files, 1);
     assert(result.matches.length > 0);
   });

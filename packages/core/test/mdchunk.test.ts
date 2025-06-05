@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { chunkMarkdown } from "../src/mdchunk.js";
-import { beforeEach, describe, test } from "node:test";
-import assert from "node:assert";
+import { describe, test, assert, beforeEach } from "vitest";
 import { glob } from "glob";
 import { readFile } from "node:fs/promises";
 import { DOCXTryParse } from "../src/docx.js";
@@ -164,7 +163,7 @@ There are many variations of passages of Lorem Ipsum available, but the majority
 
   const docs = await glob("../../docs/src/content/**/*.md*");
   for (const doc of docs) {
-    await test(`docs: chunks markdown from ${doc}`, async () => {
+    test(`docs: chunks markdown from ${doc}`, async () => {
       const markdown = await readFile(doc, { encoding: "utf-8" });
       assert(markdown);
       for (let i = 0; i < 12; ++i) {
@@ -178,7 +177,7 @@ There are many variations of passages of Lorem Ipsum available, but the majority
     });
   }
 
-  await test(`word: chunks markdown from docx`, async () => {
+  test(`word: chunks markdown from docx`, async () => {
     const { file } = await DOCXTryParse("../../packages/sample/src/rag/Document.docx", {
       format: "markdown",
     });
@@ -192,7 +191,7 @@ There are many variations of passages of Lorem Ipsum available, but the majority
     }
   });
 
-  await test(`chunk genaiscript/llms-full.txt`, async () => {
+  test(`chunk genaiscript/llms-full.txt`, async () => {
     const markdown = await (
       await fetch("https://microsoft.github.io/genaiscript/llms-full.txt")
     ).text();

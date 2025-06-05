@@ -1,156 +1,146 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { readdirSync, readFileSync, writeFileSync } from "fs"
-import { parse } from "json5"
-import { join } from "path"
-import { execSync } from "child_process"
-import { uniq } from "es-toolkit"
-import { dedent } from "ts-dedent"
+import { readdirSync, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
+import { execSync } from "child_process";
+import { uniq } from "es-toolkit";
+import { dedent } from "ts-dedent";
+
+import json5Pkg from "json5";
+const { parse } = json5Pkg;
 
 async function main() {
-    const pkg = JSON.parse(readFileSync("../../package.json", "utf-8"))
-    const dir = "../cli/genaisrc"
-    const fp = "./src/default_prompts.ts"
-    const fmp = "../../docs/src/content/docs/reference/scripts/system.mdx"
-    const fnp = "../../docs/src/components/BuiltinTools.mdx"
-    const fap = "../../docs/src/components/BuiltinAgents.mdx"
-    console.debug(`bundling ${dir}/*.genai.js into default_prompts.ts`)
-    const promptMap = {}
-    const prompts = readdirSync(dir)
-    for (const prompt of prompts) {
-      if (!/\.genai\.m?ts$/.test(prompt)) { continue; }
-      const text = readFileSync(`${dir}/${prompt}`, "utf-8")
-      if (/^system\./.test(prompt)) {
-        const id = prompt.replace(/\.genai\.m?ts$/i, "")
-        if (promptMap[id]) throw new Error(`duplicate prompt ${id}`)
-        promptMap[id] = text
-      }
+  const pkg = JSON.parse(readFileSync("../../package.json", "utf-8"));
+  const dir = "../cli/genaisrc";
+  const fp = "./src/default_prompts.ts";
+  const fmp = "../../docs/src/content/docs/reference/scripts/system.mdx";
+  const fnp = "../../docs/src/components/BuiltinTools.mdx";
+  const fap = "../../docs/src/components/BuiltinAgents.mdx";
+  console.debug(`bundling ${dir}/*.genai.js into default_prompts.ts`);
+  const promptMap = {};
+  const prompts = readdirSync(dir);
+  for (const prompt of prompts) {
+    if (!/\.genai\.m?ts$/.test(prompt)) {
+      continue;
     }
-    console.log(`found ${Object.keys(promptMap).length} prompts`)
-    console.debug(Object.keys(promptMap).join("\n"))
-    const promptFooDriver = readFileSync(
-      "./src/genaiscript-api-provider.mjs",
-      "utf-8"
-    )
-    const logCategories = uniq([
-      "script",
-      "agent*",
-      ...Array.from(
-        execSync(
-            `grep -r 'debug("genaiscript:.*")' --include \*.ts --exclude-dir='.genaiscript' .`
-        )
+    const text = readFileSync(`${dir}/${prompt}`, "utf-8");
+    if (/^system\./.test(prompt)) {
+      const id = prompt.replace(/\.genai\.m?ts$/i, "");
+      if (promptMap[id]) throw new Error(`duplicate prompt ${id}`);
+      promptMap[id] = text;
+    }
+  }
+  console.log(`found ${Object.keys(promptMap).length} prompts`);
+  console.debug(Object.keys(promptMap).join("\n"));
+  const promptFooDriver = readFileSync("./src/genaiscript-api-provider.mjs", "utf-8");
+  const logCategories = uniq([
+    "script",
+    "agent*",
+    ...Array.from(
+      execSync(`grep -r 'debug("genaiscript:.*")' --include \*.ts --exclude-dir='.genaiscript' .`)
         .toString("utf8")
-        .matchAll(/debug\("(?<category>genaiscript:[^"]+)"\)/g)
-      )
+        .matchAll(/debug\("(?<category>genaiscript:[^"]+)"\)/g),
+    )
       .sort()
       .map((m) => m.groups.category),
-    ])
-    writeFileSync(
-      "./src/dbg.ts",
-      dedent`// auto-generated: do not edit
+  ]);
+  writeFileSync(
+    "./src/dbg.ts",
+    dedent`// auto-generated: do not edit
       export const DEBUG_CATEGORIES = ${JSON.stringify(logCategories)};\n`,
-      "utf-8"
-    )
-    const genaiscriptdts = [
-      "./src/types/prompt_template.d.ts",
-      "./src/types/prompt_type.d.ts",
-    ]
-        .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
-        .map((src) =>
-            src.replace(/^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm, "")
-        )
-        .join("")
-        .replace("@version 0.0.0", `@version ${pkg.version}`)
-    const githubCopilotInstructions = readFileSync(
-        "../../.genaiscript/instructions/genaiscript.instructions.md",
-        "utf-8"
-    )
-    const promptDefs = {
-        "jsconfig.json": JSON.stringify(
-            {
-                compilerOptions: {
-                    lib: ["ES2024"],
-                    target: "ES2024",
-                    module: "ES2022",
-                    moduleDetection: "force",
-                    checkJs: true,
-                    allowJs: true,
-                    skipLibCheck: true,
-                },
-                include: ["*.js", "./genaiscript.d.ts"],
-            },
-            null,
-            4
-        ),
-        "tsconfig.json": JSON.stringify(
-            {
-                compilerOptions: {
-                    lib: ["ES2024"],
-                    target: "ES2024",
-                    module: "NodeNext",
-                    moduleDetection: "force",
-                    moduleResolution: "nodenext",
-                    checkJs: true,
-                    allowJs: true,
-                    skipLibCheck: true,
-                    noEmit: true,
-                    allowImportingTsExtensions: true,
-                    verbatimModuleSyntax: true,
-                    resolveJsonModule: true,
-                    erasableSyntaxOnly: true,
-                },
-                include: ["**/*.mjs", "**/*.mts", "./genaiscript.d.ts"],
-            },
-            null,
-            4
-        ),
-        "genaiscript.d.ts": genaiscriptdts,
-    }
+    "utf-8",
+  );
+  const genaiscriptdts = ["./src/types/prompt_template.d.ts", "./src/types/prompt_type.d.ts"]
+    .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
+    .map((src) => src.replace(/^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm, ""))
+    .join("")
+    .replace("@version 0.0.0", `@version ${pkg.version}`);
+  const githubCopilotInstructions = readFileSync(
+    "../../.genaiscript/instructions/genaiscript.instructions.md",
+    "utf-8",
+  );
+  const promptDefs = {
+    "jsconfig.json": JSON.stringify(
+      {
+        compilerOptions: {
+          lib: ["ES2024"],
+          target: "ES2024",
+          module: "ES2022",
+          moduleDetection: "force",
+          checkJs: true,
+          allowJs: true,
+          skipLibCheck: true,
+        },
+        include: ["*.js", "./genaiscript.d.ts"],
+      },
+      null,
+      4,
+    ),
+    "tsconfig.json": JSON.stringify(
+      {
+        compilerOptions: {
+          lib: ["ES2024"],
+          target: "ES2024",
+          module: "NodeNext",
+          moduleDetection: "force",
+          moduleResolution: "nodenext",
+          checkJs: true,
+          allowJs: true,
+          skipLibCheck: true,
+          noEmit: true,
+          allowImportingTsExtensions: true,
+          verbatimModuleSyntax: true,
+          resolveJsonModule: true,
+          erasableSyntaxOnly: true,
+        },
+        include: ["**/*.mjs", "**/*.mts", "./genaiscript.d.ts"],
+      },
+      null,
+      4,
+    ),
+    "genaiscript.d.ts": genaiscriptdts,
+  };
 
-    const functions = Object.keys(promptMap)
-        .sort()
-        .map((k) => {
-            const v = promptMap[k]
-            const tools = []
-            v.replace(
-                /def(Agent|Tool)\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
-                (m, kind, name, description) => {
-                    tools.push({
-                        id: k,
-                        kind: kind.toLowerCase(),
-                        name,
-                        description,
-                    })
-                    return ""
-                }
-            )
-            return tools
-        })
-        .flat()
-    console.log(`found ${functions.length} tools`)
+  const functions = Object.keys(promptMap)
+    .sort()
+    .map((k) => {
+      const v = promptMap[k];
+      const tools = [];
+      v.replace(
+        /def(Agent|Tool)\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
+        (m, kind, name, description) => {
+          tools.push({
+            id: k,
+            kind: kind.toLowerCase(),
+            name,
+            description,
+          });
+          return "";
+        },
+      );
+      return tools;
+    })
+    .flat();
+  console.log(`found ${functions.length} tools`);
 
-    writeFileSync(
-        join(dir, "genaiscript.d.ts"),
-        promptDefs["genaiscript.d.ts"],
-        "utf-8"
-    )
+  writeFileSync(join(dir, "genaiscript.d.ts"), promptDefs["genaiscript.d.ts"], "utf-8");
 
-    const text = `// autogenerated - node bundleprompts.mjs
+  const text = `// autogenerated - node bundleprompts.mjs
 export const promptDefinitions = Object.freeze<Record<string, string>>(${JSON.stringify(
-        promptDefs,
-        null,
-        4
-    )});
+    promptDefs,
+    null,
+    4,
+  )});
 
 export const githubCopilotInstructions = ${JSON.stringify(githubCopilotInstructions)}
 
 export const promptFooDriver = ${JSON.stringify(promptFooDriver)}
-\n`
+\n`;
 
-    writeFileSync(fp, text, "utf-8")
+  writeFileSync(fp, text, "utf-8");
 
-    const markdown = `---
+  const markdown = `---
 title: System Prompts
 sidebar:
     order: 10
@@ -269,20 +259,17 @@ GenAIScript comes with a number of system prompt that support features like crea
 generating annotations. If unspecified, GenAIScript looks for specific keywords to activate the various system prompts.
 
 ${Object.keys(promptMap)
-    .sort()
-    .map((k) => {
-        const v = promptMap[k]
-        const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(v)
-        const meta = parse(m.groups.meta)
-        const tools = []
-        v.replace(
-            /defTool\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
-            (m, name, description) => {
-                tools.push({ name, description })
-                return ""
-            }
-        )
-        return `### \`${k}\`
+  .sort()
+  .map((k) => {
+    const v = promptMap[k];
+    const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(v);
+    const meta = parse(m.groups.meta);
+    const tools = [];
+    v.replace(/defTool\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm, (m, name, description) => {
+      tools.push({ name, description });
+      return "";
+    });
+    return `### \`${k}\`
 
 ${meta.title || ""}
 
@@ -293,15 +280,15 @@ ${tools.map(({ name, description }) => `-  tool \`${name}\`: ${description}`).jo
 \`\`\`\`\`js wrap title="${k}"
 ${v}
 \`\`\`\`\`
-`
-    })
-    .join("\n\n")}
-`
-    writeFileSync(fmp, markdown, "utf-8")
+`;
+  })
+  .join("\n\n")}
+`;
+  writeFileSync(fmp, markdown, "utf-8");
 
-    writeFileSync(
-        fnp,
-        `---
+  writeFileSync(
+    fnp,
+    `---
 title: Builtin Tools
 description: List of tools in system prompts
 ---
@@ -310,19 +297,19 @@ import { LinkCard } from '@astrojs/starlight/components';
 ### Builtin tools
 
 ${functions
-    .filter(({ kind }) => kind === "tool")
-    .map(
-        ({ id, name, description }) =>
-            `<LinkCard title="${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`
-    )
-    .join("\n")}
+  .filter(({ kind }) => kind === "tool")
+  .map(
+    ({ id, name, description }) =>
+      `<LinkCard title="${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`,
+  )
+  .join("\n")}
 
 `,
-        "utf-8"
-    )
-    writeFileSync(
-        fap,
-        `---
+    "utf-8",
+  );
+  writeFileSync(
+    fap,
+    `---
 title: Builtin Agents
 description: List of agents in system prompts
 ---
@@ -331,14 +318,14 @@ import { LinkCard } from '@astrojs/starlight/components';
 ### Builtin Agents
 
 ${functions
-    .filter(({ kind }) => kind === "agent")
-    .map(
-        ({ id, name, description }) =>
-            `<LinkCard title="agent ${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`
-    )
-    .join("\n")}
+  .filter(({ kind }) => kind === "agent")
+  .map(
+    ({ id, name, description }) =>
+      `<LinkCard title="agent ${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`,
+  )
+  .join("\n")}
 `,
-        "utf-8"
-    )
+    "utf-8",
+  );
 }
-main()
+main();

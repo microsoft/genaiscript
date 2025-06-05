@@ -9,10 +9,10 @@ import { Project } from "./server/messages.js";
 import { resolveSystems } from "./systems.js";
 import { resolveScriptParametersSchema } from "./vars.js";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { readdir } from "node:fs/promises";
 import { uniq } from "es-toolkit";
 import { genaiscriptDebug } from "./debug.js";
+import { __filename } from "./utils/pathUtils.js";
 const dbg = genaiscriptDebug("parser");
 
 /**
@@ -37,9 +37,7 @@ export function stringToPos(str: string): CharPosition {
  */
 export async function parseProject(options: { scriptFiles: string[] }) {
   const { scriptFiles } = options;
-  const genaisrcDir = resolve(
-    join(dirname(dirname(__filename ?? fileURLToPath(import.meta.url))), "genaisrc"),
-  ); // ignore esbuild warning
+  const genaisrcDir = resolve(join(dirname(dirname(__filename)), "genaisrc")); // ignore esbuild warning
   dbg(`genaisrc: %s`, genaisrcDir);
   const prj: Project = {
     systemDir: genaisrcDir,

@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { beforeEach, describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert, beforeEach } from "vitest";
 import { grepSearch } from "../src/grep.js";
 import { TestHost } from "./testhost.js";
 
@@ -19,8 +18,8 @@ describe("grepSearch (integration)", async () => {
       debug: true,
     });
     console.log(result);
-    assert.strict(result.files.length > 0, "found files");
-    assert(result.matches.some((m) => typeof m.filename === "string"));
+    assert(result.files.length > 0, "found files");
+    assert.ok(result.matches.some((m) => typeof m.filename === "string"));
   });
 
   test("should support RegExp pattern and ignoreCase", async () => {

@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, it, assert } from "vitest";
 import { fenceMD, link, details } from "../src/mkmd.js";
 
 describe("mkmd", () => {

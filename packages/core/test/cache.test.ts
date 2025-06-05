@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test, beforeEach } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert, beforeEach } from "vitest";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { TestHost } from "./testhost.js";

@@ -3,7 +3,12 @@
 
 import type { ChatCompletionUsage } from "./chattypes.js";
 import _prettyBytes from "pretty-bytes";
-import { CHAR_DOWN_ARROW, CHAR_TEMPERATURE, CHAR_UP_ARROW, CHAR_UP_DOWN_ARROWS } from "./constants.js";
+import {
+  CHAR_DOWN_ARROW,
+  CHAR_TEMPERATURE,
+  CHAR_UP_ARROW,
+  CHAR_UP_DOWN_ARROWS,
+} from "./constants.js";
 import { roundWithPrecision } from "./precision.js";
 
 /**
