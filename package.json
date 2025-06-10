@@ -114,7 +114,7 @@
         "ollama:stop": "docker stop ollama && docker rm ollama",
         "whisper": "yarn whisper:stop && yarn whisper:start",
         "whisper:start": "docker run -d -p 9000:9000 -e ASR_MODEL=base -e ASR_ENGINE=openai_whisper onerahmet/openai-whisper-asr-webservice:latest",
-        "whisper:stop": "docker stop whisper && docker rm ollama",
+        "whisper:stop": "docker stop whisper && docker rm whisper",
         "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
         "clean": "git prune && git gc && rm -Rf slides/node_modules && rm -Rf docs/dist && rm -Rf docs/distasw && rm -Rf docs/node_modules && rm -Rf .genaiscript && rm -Rf packages/sample/.genaiscript && git checkout -- ."
     },
