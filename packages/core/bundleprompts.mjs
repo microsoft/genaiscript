@@ -38,7 +38,7 @@ async function main() {
     "script",
     "agent*",
     ...Array.from(
-      execSync(`grep -r 'debug("genaiscript:.*")' --include \*.ts --exclude-dir='.genaiscript' .`)
+      execSync(`grep -r 'debug("genaiscript:.*")' --include \\*.ts --exclude-dir='.genaiscript' .`)
         .toString("utf8")
         .matchAll(/debug\("(?<category>genaiscript:[^"]+)"\)/g),
     )
