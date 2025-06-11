@@ -1,1 +1,0 @@
-{"version":3,"file":"mdchunk.d.ts","sourceRoot":"","sources":["../../src/mdchunk.ts"],"names":[],"mappings":"AAGA;;;;;;;;GAQG;AACH,wBAAsB,aAAa,CACjC,QAAQ,EAAE,MAAM,GAAG,aAAa,EAChC,iBAAiB,EAAE,CAAC,IAAI,EAAE,MAAM,KAAK,MAAM,EAC3C,OAAO,CAAC,EAAE;IACR,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB,aAAa,CAAC,EAAE,MAAM,CAAC;CACxB,GACA,OAAO,CAAC,SAAS,EAAE,CAAC,CA6GtB"}

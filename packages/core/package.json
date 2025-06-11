@@ -8,7 +8,6 @@
     "url": "https://github.com/microsoft/genaiscript/issues"
   },
   "optionalDependencies": {
-    "@lvce-editor/ripgrep": "^1.6.0",
     "pdfjs-dist": "5.2.133"
   },
   "devDependencies": {
@@ -94,7 +93,7 @@
     "ts-dedent": "^2.2.0",
     "tsx": "^4.19.4",
     "tshy": "^3.0.2",
-    "typescript": "5.8.3",
+    "typescript": "~5.8.3",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
     "vitest": "^3.2.1",
     "yaml": "^2.8.0"
@@ -103,17 +102,18 @@
     "build": "npm run clean && npm run build:prompts && tshy",
     "build:prompts": "node bundleprompts.mjs",
     "clean": "rimraf dist",
-    "format:check": "prettier --check **.ts **.cts **.mjs **.json",
-    "format:fix": "prettier **.ts **.cts **.mjs **.json --write",
+    "format:check": "prettier --check src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
+    "format:fix": "prettier src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json --write",
     "test": "vitest"
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.70",
+    "@lvce-editor/ripgrep": "^1.6.0",
     "@types/diff": "^6.0.0",
     "@types/turndown": "^5.0.5",
     "dompurify": "^3.2.6",
     "jsdom": "^26.1.0",
-    "pyodide": "^0.27.6",
+    "pyodide": "^0.27.7",
     "turndown": "^7.2.0",
     "turndown-plugin-gfm": "^1.0.2"
   },

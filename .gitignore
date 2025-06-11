@@ -48,3 +48,6 @@ docs/public/blog/*.mp4
 .tshy
 .tshy-build-tmp
 .tshy-build
+
+# build output
+dist/

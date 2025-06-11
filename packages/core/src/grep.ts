@@ -12,12 +12,13 @@ import { filterGitIgnore } from "./gitignore.js";
 import { genaiscriptDebug } from "./debug.js";
 import { tryStat } from "./fs.js";
 import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import { rgPath } from "@lvce-editor/ripgrep";
+
 const dbg = genaiscriptDebug("grep");
 
 async function importRipGrep(options?: TraceOptions) {
   const { trace } = options || {};
   try {
-    const { rgPath } = await import("@lvce-editor/ripgrep");
     dbg(`rg: %s`, rgPath);
     const rgStat = await tryStat(rgPath);
     if (!rgStat?.isFile())
