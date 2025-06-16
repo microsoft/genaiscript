@@ -791,6 +791,8 @@ export class GitHubClient implements GitHub {
             issue,
             runId,
             runUrl,
+            event,
+            eventName,
         } = await this.connection()
         return Object.freeze(
             deleteUndefinedValues({
@@ -803,6 +805,8 @@ export class GitHubClient implements GitHub {
                 runId,
                 runUrl,
                 issueNumber: issue,
+                eventName,
+                event,
             })
         )
     }
