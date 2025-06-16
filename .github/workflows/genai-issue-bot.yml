@@ -27,5 +27,4 @@ jobs:
             - name: genaiscript issue-review
               run: node packages/cli/built/genaiscript.cjs run issue-bot -p github -prc bot --out-output $GITHUB_STEP_SUMMARY
               env:
-                  GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
