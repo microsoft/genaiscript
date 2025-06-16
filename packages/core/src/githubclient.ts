@@ -35,6 +35,7 @@ import { TraceOptions } from "./trace"
 import { unzip } from "./zip"
 import { uriRedact, uriTryParse } from "./url"
 import { dedent } from "./indent"
+import { tryReadJSON } from "./fs"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -50,6 +51,8 @@ export interface GithubConnectionInfo {
     runId?: string
     runUrl?: string
     commitSha?: string
+    eventName?: "push" | "pull_request" | "issue" | "issue_comment"
+    event?: unknown
 }
 
 function readGitHubToken(env: Record<string, string>) {
@@ -64,7 +67,9 @@ function readGitHubToken(env: Record<string, string>) {
     return token
 }
 
-function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
+async function githubFromEnv(
+    env: Record<string, string>
+): Promise<GithubConnectionInfo> {
     const token = readGitHubToken(env)
     const apiUrl = env.GITHUB_API_URL || "https://api.github.com"
     const repository = env.GITHUB_REPOSITORY
@@ -79,11 +84,23 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
         serverUrl && runId
             ? `${serverUrl}/${repository}/actions/runs/${runId}`
             : undefined
-    const issue = normalizeInt(
+    const eventName = env.GITHUB_EVENT_NAME as
+        | "push"
+        | "pull_request"
+        | "issue"
+        | "issue_comment"
+    const eventPath = env.GITHUB_EVENT_PATH
+    const event = eventPath ? await tryReadJSON(eventPath) : undefined
+    let issue = normalizeInt(
         env.GITHUB_ISSUE ??
             env.INPUT_GITHUB_ISSUE ??
             /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue
     )
+    if (isNaN(issue)) {
+        if (eventName === "issue" || eventName === "issue_comment") {
+            issue = event?.issue?.number
+        }
+    }
 
     return deleteUndefinedValues({
         token,
@@ -98,6 +115,8 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
         runId,
         runUrl,
         commitSha,
+        eventName,
+        event,
     }) satisfies GithubConnectionInfo
 }
 
@@ -148,7 +167,7 @@ export async function githubParseEnv(
         CancellationOptions
 ): Promise<GithubConnectionInfo> {
     dbg(`resolving connection info`)
-    const res = githubFromEnv(env)
+    const res = await githubFromEnv(env)
     dbg(`found %O`, Object.keys(res).join(","))
     try {
         if (options?.owner && options?.repo) {
