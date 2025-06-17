@@ -1,6 +1,7 @@
 name: genaiscript
 author: microsoft
-description: Action-poem
+description: Programmatically assemble prompts for LLMs using JavaScript.
+  Orchestrate LLMs, tools, and data in code.
 inputs:
   files:
     description: "Files to process, separated by semi columns (;). "

@@ -284,7 +284,7 @@ export class TerminalServerManager
             )
             if (!(major >= MIN_NODE_VERSION_MAJOR)) {
                 vscode.window.showErrorMessage(
-                    `Node.js version ${output} is not supported or not recognized. Please update to version ${MIN_NODE_VERSION_MAJOR} or higher.`
+                    `Node.js version ${major || output} is not supported or not recognized. Please update to version ${MIN_NODE_VERSION_MAJOR} or higher.`
                 )
                 return false
             }

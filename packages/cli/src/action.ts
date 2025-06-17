@@ -273,6 +273,7 @@ export async function actionConfigure(
     const pkg = await nodeTryReadPackage()
     const apks = [
         "git",
+        "github-cli",
         python ? "python3" : undefined,
         python ? "py3-pip" : undefined,
         ffmpeg ? "ffmpeg" : undefined,
@@ -282,7 +283,7 @@ export async function actionConfigure(
     const action = YAMLTryParse(await tryReadText(actionYmlFilename))
     if (action && !force) {
         logVerbose(`updating action.yml`)
-        action.description = script.title || pkg?.description
+        action.description = script.description || pkg?.description
         action.inputs = inputs
         action.outputs = outputs
         action.branding = branding
@@ -337,7 +338,9 @@ ENTRYPOINT ["npm", "--prefix", "/genaiscript/action", "start"]
     )
     await writeFile(
         "README.md",
-        dedent`${script.description || ""}
+        dedent`# ${script.title || titleize(repo)}
+        
+${script.description || ""}
 
 ## Inputs
 
@@ -415,7 +418,7 @@ We recommend updating the script metadata instead of editing the action files di
 
 - the action inputs are inferred from the script parameters
 - the action outputs are inferred from the script output schema
-- the action description is the script title
+- the action description is the script description
 - the readme description is the script description
 - the action branding is the script branding
 
@@ -477,18 +480,53 @@ npm run release
 `
     )
     await writeFile(
-        ".gitignore",
-        dedent`node_modules
-.genaiscript
-.env
-.*.env
-.env.*
+        ".devcontainer/devcontainer.json",
+        JSON.stringify(
+            {
+                name: "GenAIScript GitHub Action Dev Container",
+                build: {
+                    dockerfile: "Dockerfile",
+                },
+                features: {},
+                customizations: {
+                    vscode: {
+                        settings: {
+                            "terminal.integrated.defaultProfile.linux": "ash",
+                            "terminal.integrated.profiles.linux": {
+                                ash: {
+                                    path: "/bin/ash",
+                                    args: ["-l"],
+                                },
+                            },
+                        },
+                        extensions: [
+                            "GitHub.vscode-github-actions",
+                            "esbenp.prettier-vscode",
+                            "GitHub.copilot-chat",
+                            "genaiscript.genaiscript-vscode",
+                        ],
+                    },
+                },
+                postCreateCommand:
+                    'git config --global --add safe.directory "$(pwd)" && npm ci',
+            },
+            null,
+            2
+        )
+    )
+    await writeFile(
+        ".devcontainer/Dockerfile",
+        dedent`# Keep this Dockerfile in sync with the main Dockerfile
+FROM ${image}
+
+# Install packages
+${alpine ? `RUN apk add --no-cache ${apks.join(" ")}` : `RUN apt-get update && apt-get install -y ${apks.join(" ")}`}
 `
     )
-
+    await writeFile(".nvmrc", "lts/*")
     await writeFile(
         "release.sh",
-        `#!/bin/bash
+        dedent`#!/bin/bash
 set -e  # exit immediately if a command exits with a non-zero status
 
 # make sure there's no other changes
