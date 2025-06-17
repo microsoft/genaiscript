@@ -25,6 +25,8 @@ The script will use AST grep functions to search the code, and then use a large 
 
 AST grep is an advanced feature of GenAIScript that allows us to search for specific patterns in the code's abstract syntax tree (AST). It's much more effective than using LLMs to analyze the code, as it allows us to quickly find code segments that match specific criteria.
 
+Pelli explored this feature in his [AST Grep and Transform](https://microsoft.github.io/genaiscript/blog/ast-grep-and-transform/) post, and we will build on that to create our script.
+
 Here is an example of what we want to achieve:
 
 ```typescript
