@@ -39,6 +39,13 @@ export default defineConfig({
                                 "https://avatars.githubusercontent.com/u/4175913?s=400&u=2aca7b068fa646da550c534145764d50f533561d&v=4",
                             url: "https://github.com/pelikhan",
                         },
+                        volkanunsal: {
+                            name: "Volkan Unsal",
+                            title: "GenAIScript enthusiast",
+                            picture:
+                                "https://avatars.githubusercontent.com/u/151600?v=4",
+                            url: "https://github.com/volkanunsal",
+                        },
                     },
                 }),
                 starlightLlmsTxt({

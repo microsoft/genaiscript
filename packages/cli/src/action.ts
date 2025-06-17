@@ -18,6 +18,7 @@ import { runtimeHost } from "../../core/src/host"
 import { createScript as coreCreateScript } from "../../core/src/scripts"
 import { templateIdFromFileName } from "../../core/src/template"
 import { shellConfirm, shellSelect } from "./input"
+import { isCI } from "../../core/src/ci"
 
 const dbg = genaiscriptDebug("cli:action")
 
@@ -102,8 +103,7 @@ export async function actionConfigure(
         }
     }
 
-    const actionYmlFilename = resolve(out, "action.yml")
-    if (interactive || !(await tryStat(actionYmlFilename))) {
+    if (!isCI && interactive) {
         options.event =
             options.event ||
             (await shellSelect("What event will trigger the action?", [
@@ -280,6 +280,7 @@ export async function actionConfigure(
         ...(options.apks || []),
     ].filter(Boolean)
 
+    const actionYmlFilename = resolve(out, "action.yml")
     const action = YAMLTryParse(await tryReadText(actionYmlFilename))
     if (action && !force) {
         logVerbose(`updating action.yml`)
@@ -641,7 +642,11 @@ jobs:
                         lint: `npx --yes prettier --write genaisrc/`,
                         fix: "genaiscript scripts fix",
                         typecheck: `genaiscript scripts compile`,
-                        configure: [`genaiscript configure action`, scriptId]
+                        configure: [
+                            `genaiscript configure action`,
+                            scriptId,
+                            `--interactive`,
+                        ]
                             .filter(Boolean)
                             .join(" "),
                         test: "echo 'No tests defined.'",

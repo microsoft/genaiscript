@@ -43,3 +43,4 @@ TypeScript/
 react/
 docs/public/blog/*.mp4
 *.http
+pnpm-lock.yaml
