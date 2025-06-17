@@ -7,6 +7,7 @@ import type { ChatCompletionChunkChoice, ChatCompletionTokenLogprob } from "./ch
 import { escape } from "html-escaper";
 import { roundWithPrecision } from "./precision.js";
 import { deleteUndefinedValues } from "./cleaners.js";
+import type { Logprob } from "./types.js";
 
 /**
  * Serializes a log probability object into a standardized format.

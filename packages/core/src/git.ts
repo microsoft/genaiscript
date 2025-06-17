@@ -11,7 +11,8 @@ import { resolveFileContents } from "./file.js";
 import { tryReadText, tryStat } from "./fs.js";
 import { runtimeHost } from "./host.js";
 import { shellParse, shellQuote } from "./shell.js";
-import { arrayify, ellipse, logVerbose } from "./util.js";
+import { arrayify } from "./cleaners.js";
+import { ellipse, logVerbose } from "./util.js";
 import { approximateTokens } from "./tokens.js";
 import { underscore } from "inflection";
 import { rm } from "node:fs/promises";
@@ -19,6 +20,15 @@ import { packageResolveInstall } from "./packagemanagers.js";
 import { normalizeInt } from "./cleaners.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { 
+  ElementOrArray, 
+  Git,
+  GitCommit,
+  OptionsOrString, 
+  ShellOptions,
+  WorkspaceFile,
+} from "./types.js";
+
 const dbg = genaiscriptDebug("git");
 
 async function checkDirectoryExists(directory: string): Promise<boolean> {

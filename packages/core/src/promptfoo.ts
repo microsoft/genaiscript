@@ -16,7 +16,8 @@ import {
   XML_REGEX,
   YAML_REGEX,
 } from "./constants.js";
-import { arrayify, logWarn } from "./util.js";
+import { logWarn } from "./util.js";
+import { arrayify } from "./cleaners.js";
 import { runtimeHost } from "./host.js";
 import { ModelConnectionInfo, parseModelIdentifier } from "./models.js";
 import { deleteEmptyValues, deleteUndefinedValues } from "./cleaners.js";
@@ -27,6 +28,14 @@ import { CancellationOptions } from "./cancellation.js";
 import { uniq } from "es-toolkit";
 import { dedent } from "./indent.js";
 import { importFile } from "./importprompt.js";
+import type {
+  ModelAliasesOptions,
+  ModelOptions,
+  PromptRedteam,
+  PromptScript,
+  PromptTest,
+  WorkspaceFile,
+} from "./types.js";
 
 /**
  * Convert GenAIScript connection info into prompt foo configuration

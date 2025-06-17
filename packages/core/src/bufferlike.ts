@@ -6,6 +6,8 @@ import { TraceOptions } from "./trace.js";
 import { fileTypeFromBuffer } from "./filetype.js";
 import { extname } from "node:path";
 import { genaiscriptDebug } from "./debug.js";
+import type { BufferLike, WorkspaceFile } from "./types.js";
+
 const dbg = genaiscriptDebug("buffer");
 
 async function bufferTryFrom(data: Uint8Array | Buffer | ArrayBuffer | SharedArrayBuffer) {

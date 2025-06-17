@@ -5,7 +5,7 @@ import debug from "debug";
 const dbg = debug("genaiscript:expander");
 
 import { resolveScript } from "./ast.js";
-import { assert } from "./util.js";
+import { assert } from "./assert.js";
 import { MarkdownTrace } from "./trace.js";
 import { errorMessage, isCancelError, NotSupportedError } from "./error.js";
 import { JS_REGEX, MAX_TOOL_CALLS, PROMPTY_REGEX } from "./constants.js";
@@ -27,6 +27,16 @@ import { mark } from "./performance.js";
 import { nodeIsPackageTypeModule } from "./nodepackage.js";
 import { parseModelIdentifier } from "./models.js";
 import { metadataMerge } from "./metadata.js";
+import type { 
+  ChatParticipant, 
+  ExpansionVariables,
+  FileMergeHandler,
+  FileOutput,
+  JSONSchema, 
+  PromptOutputProcessorHandler,
+  PromptScript,
+  ToolCallback 
+} from "./types.js";
 
 /**
  * Executes a prompt expansion process based on the provided prompt script, variables, and options.

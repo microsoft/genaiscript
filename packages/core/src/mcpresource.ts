@@ -10,13 +10,7 @@ import { hash } from "./crypto.js";
 import { resolveFileContent } from "./file.js";
 import { redactSecrets } from "./secretscanner.js";
 const dbg = debug("genaiscript:resource");
-
-export interface ResourceReference {
-  uri: string; // Unique identifier for the resource
-  name: string; // Human-readable name
-  description?: string; // Optional description
-  mimeType?: string; // Optional MIME type
-}
+import type { BufferLike, ResourceReference, SecretDetectionOptions, WorkspaceFile } from "./types.js";
 
 export interface ResourceContent {
   uri: string; // The URI of the resource

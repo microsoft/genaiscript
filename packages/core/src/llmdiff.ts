@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { assert } from "./util.js";
+import { assert } from "./assert.js";
 import { tryDiffParse } from "./diff.js";
 
 /**

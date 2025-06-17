@@ -34,7 +34,9 @@ import { GenerationOptions } from "./generation.js";
 import { promptParametersSchemaToJSONSchema } from "./parameters.js";
 import { consoleLogFormat } from "./logging.js";
 import { isGlobMatch } from "./glob.js";
-import { arrayify, assert, ellipse, logError, logVerbose, logWarn } from "./util.js";
+import { assert } from "./assert.js";
+import { arrayify } from "./cleaners.js";
+import { ellipse, logError, logVerbose, logWarn } from "./util.js";
 import { lastAssistantReasoning, renderShellOutput } from "./chatrender.js";
 import { jinjaRender } from "./jinja.js";
 import { mustacheRender } from "./mustache.js";
@@ -99,6 +101,12 @@ import { createCache } from "./cache.js";
 import { measure } from "./performance.js";
 import { genaiscriptDebug } from "./debug.js";
 import debug from "debug";
+import type { 
+  ChatGenerationContext,
+  ChatTurnGenerationContext,
+  ExpansionVariables,
+} from "./types.js"
+
 const dbg = genaiscriptDebug("prompt:context");
 
 /**

@@ -16,6 +16,8 @@ import { expandFiles } from "./fs.js";
 import { join } from "node:path";
 import { isCancelError } from "./error.js";
 import { GITHUB_ASSET_URL_RX } from "./constants.js";
+import type { Awaitable, ElementOrArray, WorkspaceFile } from "./types.js";
+
 const dbg = genaiscriptDebug("res");
 const dbgAdaptors = dbg.extend("adaptors");
 const dbgFiles = dbg.extend("files");

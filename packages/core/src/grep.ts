@@ -7,12 +7,13 @@ import { JSONLTryParse } from "./jsonl.js";
 import { resolveFileContents } from "./file.js";
 import { uniq } from "es-toolkit";
 import { addLineNumbers } from "./liner.js";
-import { arrayify } from "./util.js";
+import { arrayify } from "./cleaners.js";
 import { filterGitIgnore } from "./gitignore.js";
 import { genaiscriptDebug } from "./debug.js";
 import { tryStat } from "./fs.js";
 import { CancellationOptions, checkCancelled } from "./cancellation.js";
 import { rgPath } from "@lvce-editor/ripgrep";
+import type { WorkspaceFile, WorkspaceGrepOptions } from "./types.js";
 
 const dbg = genaiscriptDebug("grep");
 

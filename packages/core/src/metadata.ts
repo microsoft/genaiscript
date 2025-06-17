@@ -4,6 +4,8 @@
 import { deleteUndefinedValues } from "./cleaners.js";
 import { genaiscriptDebug } from "./debug.js";
 import { ellipse } from "./util.js";
+import type { PromptScript } from "./types.js";
+
 const dbg = genaiscriptDebug("metadata");
 
 export function metadataValidate(

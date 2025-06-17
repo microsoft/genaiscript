@@ -8,6 +8,22 @@ import { YAMLParse } from "./yaml.js";
 import { errorMessage } from "./error.js";
 import { promptParametersSchemaToJSONSchema } from "./parameters.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { 
+  DataFrame,
+  Fenced,
+  FileEditValidation,
+  JSONSchema,
+  JSONSchemaType,
+  JSONSchemaTypeName,
+  JSONSchemaSimpleType,
+  JSONSchemaAnyOf,
+  JSONSchemaObject,
+  JSONSchemaArray,
+  JSONSchemaDescribed,
+  JSONSchemaValidationOptions,
+  PromptParametersSchema
+} from "./types.js";
+
 const dbg = genaiscriptDebug("schema");
 
 /**

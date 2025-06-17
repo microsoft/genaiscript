@@ -12,6 +12,8 @@ import {
 import { measure } from "./performance.js";
 import { logVerbose } from "./util.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { TokenEncoder } from "./types.js";
+
 const dbg = genaiscriptDebug("tokens");
 /**
  * Estimates the token count of a given text by dividing its length

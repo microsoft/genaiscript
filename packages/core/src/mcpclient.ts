@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import { TraceOptions } from "./trace.js";
-import { arrayify, logError, logVerbose } from "./util.js";
+import { arrayify } from "./cleaners.js";
+import { logError, logVerbose } from "./util.js";
 import type {
   TextContent,
   ImageContent,
@@ -18,6 +19,8 @@ import { dotGenaiscriptPath } from "./workdir.js";
 import { YAMLStringify } from "./yaml.js";
 import { resolvePromptInjectionDetector } from "./contentsafety.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { McpClient, McpServerConfig, ToolCallback } from "./types.js";
+
 const dbg = genaiscriptDebug("mcp:client");
 
 export interface McpClientProxy extends McpClient {

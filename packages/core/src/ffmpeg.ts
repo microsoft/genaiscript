@@ -26,6 +26,18 @@ import { mark } from "./performance.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { arrayify } from "./cleaners.js";
 import { tryStat } from "./fs.js";
+import type {
+  Awaitable,
+  Ffmpeg,
+  FfmpegCommandBuilder,
+  FFmpegCommandOptions,
+  VideoExtractAudioOptions,
+  VideoExtractClipOptions,
+  VideoExtractFramesOptions,
+  VideoProbeResult,
+  WorkspaceFile,
+} from "./types.js";
+
 
 const ffmpegLimit = pLimit(1);
 const WILD_CARD = "%06d";

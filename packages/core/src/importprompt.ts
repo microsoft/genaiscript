@@ -10,6 +10,7 @@ import { TraceOptions } from "./trace.js";
 import { pathToFileURL } from "node:url";
 import { mark } from "./performance.js";
 import { __filename } from "./utils/pathUtils.js";
+import type { Awaitable, PromptContext, PromptScript } from "./types.js";
 
 /**
  * Dynamically imports a JavaScript module from a specified file.

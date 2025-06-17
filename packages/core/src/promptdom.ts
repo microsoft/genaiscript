@@ -8,7 +8,9 @@ import { addLineNumbers, extractRange } from "./liner.js";
 import { JSONSchemaStringifyToTypeScript } from "./schema.js";
 import { approximateTokens, truncateTextToTokens } from "./tokens.js";
 import { MarkdownTrace, TraceOptions } from "./trace.js";
-import { arrayify, assert, ellipse, logError, logWarn, toStringList } from "./util.js";
+import { assert } from "./assert.js";
+import { arrayify } from "./cleaners.js";
+import { ellipse, logError, toStringList } from "./util.js";
 import { YAMLStringify } from "./yaml.js";
 import {
   DEFAULT_FENCE_FORMAT,
@@ -46,6 +48,40 @@ import debug from "debug";
 import { imageEncodeForLLM } from "./image.js";
 import { providerFeatures } from "./features.js";
 import { parseModelIdentifier } from "./models.js";
+import type {
+  Awaitable,
+  ChatFunctionHandler,
+  ChatGenerationContext,
+  ChatMessageRole,
+  ChatParticipant,
+  ChatParticipantOptions,
+  ContextExpansionOptions,
+  ContentSafetyOptions,
+  DefDataOptions,
+  DefDiffOptions,
+  DefImagesOptions,
+  DefOptions,
+  DefSchemaOptions,
+  DefToolOptions,
+  ElementOrArray,
+  FenceFormat,
+  FenceFormatOptions,
+  FileMergeHandler,
+  FileOutput,
+  ImportTemplateArgumentType,
+  ImportTemplateOptions,
+  JSONSchema,
+  JSONSchemaObject,
+  McpServerConfig,
+  ModelOptions,
+  ModelTemplateOptions,
+  PromptOutputProcessorHandler,
+  ToolCallback,
+  SecretDetectionOptions,
+  WorkspaceFile,
+  ZodTypeLike
+} from "./types.js";
+
 const dbg = debug("genaiscript:prompt:dom");
 const dbgMcp = debug("genaiscript:prompt:dom:mcp");
 

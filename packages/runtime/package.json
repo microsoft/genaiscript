@@ -1,9 +1,9 @@
 {
   "name": "@genaiscript/runtime",
   "version": "1.0.0",
-  "main": "dist/commonjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/commonjs/index.d.ts",
+  "main": "./dist/commonjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/commonjs/index.d.ts",
   "type": "module",
   "files": [
     "dist/",
@@ -11,14 +11,30 @@
     "LICENSE"
   ],
   "dependencies": {
-    "tslib": "^2.8.1"
+    "@genaiscript/core": "workspace:*",
+    "@inquirer/prompts": "^7.5.3",
+    "dockerode": "^4.0.7",
+    "es-toolkit": "^1.39.3",
+    "memorystream": "^0.3.1",
+    "playwright": "^1.53.0",
+    "tslib": "^2.8.1",
+    "zod": "^3.25.64"
   },
   "devDependencies": {
+    "@types/debug": "^4.1.12",
     "@types/node": "^22.0.0",
     "@vitest/coverage-istanbul": "^3.2.3",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "tshy": "^3.0.2",
+    "typescript": "~5.8.3",
     "vitest": "^3.2.3"
   },
   "scripts": {
+    "build": "npm run clean && tshy",
+    "clean": "rimraf dist",
+    "format:check": "prettier --check src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
+    "format:fix": "prettier src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json --write",
     "test": "vitest"
   },
   "keywords": [],
@@ -29,12 +45,32 @@
   "bugs": {
     "url": "https://github.com/microsoft/genaiscript/issues"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "tshy": {
-    "dialects": ["esm", "commonjs"],
+    "dialects": [
+      "esm",
+      "commonjs"
+    ],
+    "project": "./tsconfig.src.json",
     "exports": {
       ".": "./src/index.ts",
       "./package.json": "./package.json"
     },
     "selfLink": false
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/index.d.ts",
+        "default": "./dist/commonjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
   }
 }

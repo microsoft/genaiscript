@@ -14,12 +14,13 @@ import { appendText, readText, tryStat, writeText } from "./fs.js";
 import { host } from "./host.js";
 import { INITryParse } from "./ini.js";
 import { JSON5TryParse } from "./json5.js";
-import { arrayify } from "./util.js";
+import { arrayify } from "./cleaners.js";
 import { XMLTryParse } from "./xml.js";
 import { YAMLTryParse } from "./yaml.js";
 import { dirname } from "node:path";
 import { createCache } from "./cache.js";
 import { tryValidateJSONWithSchema } from "./schema.js";
+import type { WorkspaceFileSystem } from "./types.js";
 
 /**
  * Creates a file system interface for interacting with workspace files.

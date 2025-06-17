@@ -10,6 +10,7 @@
 import { parse, stringify } from "yaml";
 import { filenameOrFileToContent } from "./unwrappers.js";
 import { dedent } from "./indent.js";
+import type { WorkspaceFile, YAML } from "./types.js";
 
 /**
  * Safely attempts to parse a YAML string into a JavaScript object.

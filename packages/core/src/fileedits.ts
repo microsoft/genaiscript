@@ -17,6 +17,16 @@ import { logError, logVerbose, relativePath } from "./util.js";
 import { YAMLParse } from "./yaml.js";
 import { writeText } from "./fs.js";
 import { diffCreatePatch } from "./diff.js";
+import type { 
+  Edits,
+  FileMergeHandler,
+  FileOutput,
+  FileUpdate,
+  JSONSchema,
+  PromptOutputProcessorHandler,
+  ReplaceEdit,
+  RunPromptResult,
+} from "./types.js";
 
 /**
  * Computes file edits based on the specified runtime prompt result and processing options.

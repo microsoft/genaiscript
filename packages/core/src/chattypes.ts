@@ -9,6 +9,7 @@
  */
 
 import OpenAI from "openai";
+import type { Logprob, PromptCacheControlType, SerializedError } from "./types.js";
 
 export type ChatModel = OpenAI.Models.Model;
 

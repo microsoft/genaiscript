@@ -19,6 +19,8 @@ import { renderWithPrecision } from "./precision.js";
 import crossFetch from "cross-fetch";
 import debug from "debug";
 import { prettyStrings } from "./pretty.js";
+import type { FetchOptions, RetryOptions } from "./types.js";
+
 const dbg = debug("genaiscript:fetch");
 
 export type FetchType = (

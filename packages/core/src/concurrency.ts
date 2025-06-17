@@ -5,6 +5,7 @@ import pLimit, { LimitFunction } from "p-limit";
 import { runtimeHost } from "./host.js";
 import { normalizeInt } from "./cleaners.js";
 import { PROMISE_QUEUE_CONCURRENCY_DEFAULT } from "./constants.js";
+import type { Awaitable, PromiseQueue } from "./types.js";
 
 export type ConcurrentLimitFunction = LimitFunction;
 

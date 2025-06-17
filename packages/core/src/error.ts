@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 import { serializeError as rawSerializeError } from "serialize-error";
+import type { SerializedError } from "./types.js";
+
 import debug from "debug";
 const dbg = debug("genaiscript:error");
 

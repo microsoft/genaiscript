@@ -319,7 +319,7 @@ importers:
         version: 5.2.133
       playwright:
         specifier: ^1.52.0
-        version: 1.52.0
+        version: 1.53.0
       z3-solver:
         specifier: ^4.15.0
         version: 4.15.0
@@ -545,7 +545,7 @@ importers:
         version: 1.13.4
       openai:
         specifier: ^4.103.0
-        version: 4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.42)
+        version: 4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)
       p-limit:
         specifier: ^6.2.0
         version: 6.2.0
@@ -618,16 +618,49 @@ importers:
 
   packages/runtime:
     dependencies:
+      '@genaiscript/core':
+        specifier: workspace:*
+        version: link:../core
+      '@inquirer/prompts':
+        specifier: ^7.5.3
+        version: 7.5.3(@types/node@22.15.28)
+      dockerode:
+        specifier: ^4.0.7
+        version: 4.0.7
+      es-toolkit:
+        specifier: ^1.39.3
+        version: 1.39.3
+      playwright:
+        specifier: ^1.53.0
+        version: 1.53.0
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
+      zod:
+        specifier: ^3.25.64
+        version: 3.25.64
     devDependencies:
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.12
       '@types/node':
         specifier: ^22.0.0
         version: 22.15.28
       '@vitest/coverage-istanbul':
         specifier: ^3.2.3
         version: 3.2.3(vitest@3.2.3(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0))
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      tshy:
+        specifier: ^3.0.2
+        version: 3.0.2
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
       vitest:
         specifier: ^3.2.3
         version: 3.2.3(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0)
@@ -789,7 +822,7 @@ importers:
         version: 7.0.2
       rehype-mermaid:
         specifier: ^3.0.0
-        version: 3.0.0(playwright@1.52.0)
+        version: 3.0.0(playwright@1.53.0)
       rehype-raw:
         specifier: ^7.0.0
         version: 7.0.0
@@ -3827,6 +3860,10 @@ packages:
     resolution: {integrity: sha512-FbVf3Z8fY/kALB9s+P9epCpWhfi/r0N2DgYYcYpsAUlaTxPjdsitsFobnltb+lyCgAIvf9C+4PSWlTnHlJMf1w==}
     engines: {node: '>= 8.0'}
 
+  dockerode@4.0.7:
+    resolution: {integrity: sha512-R+rgrSRTRdU5mH14PZTCPZtW/zw3HDWNTS/1ZAQpL/5Upe/ye5K9WQkIysu4wBoiMwKynsz0a8qWuGsHgEvSAA==}
+    engines: {node: '>= 8.0'}
+
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
 
@@ -3922,6 +3959,9 @@ packages:
 
   es-toolkit@1.38.0:
     resolution: {integrity: sha512-OT3AxczYYd3W50bCj4V0hKoOAfqIy9tof0leNQYekEDxVKir3RTVTJOLij7VAe6fsCNsGhC0JqIkURpMXTCSEA==}
+
+  es-toolkit@1.39.3:
+    resolution: {integrity: sha512-Qb/TCFCldgOy8lZ5uC7nLGdqJwSabkQiYQShmw4jyiPk1pZzaYWTwaYKYP7EgLccWYgZocMrtItrwh683voaww==}
 
   es5-ext@0.10.64:
     resolution: {integrity: sha512-p2snDhiLaXe6dahss1LddxqEm+SkuDvV8dnIQG0MWjyHpcMNfXKPE+/Cc0y+PhxJX3A4xGNeFCj5oc0BUh6deg==}
@@ -5696,13 +5736,13 @@ packages:
   pkg-types@2.1.0:
     resolution: {integrity: sha512-wmJwA+8ihJixSoHKxZJRBQG1oY8Yr9pGLzRmSsNms0iNWyHHAlZCa7mmKiFR10YPZuz/2k169JiS/inOjBCZ2A==}
 
-  playwright-core@1.52.0:
-    resolution: {integrity: sha512-l2osTgLXSMeuLZOML9qYODUQoPPnUsKsb5/P6LJ2e6uPKXUdPK5WYhN4z03G+YNbWmGDY4YENauNu4ZKczreHg==}
+  playwright-core@1.53.0:
+    resolution: {integrity: sha512-mGLg8m0pm4+mmtB7M89Xw/GSqoNC+twivl8ITteqvAndachozYe2ZA7srU6uleV1vEdAHYqjq+SV8SNxRRFYBw==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.52.0:
-    resolution: {integrity: sha512-JAwMNMBlxJ2oD1kce4KPtMkDeKGHQstdpFPcPH3maElAXon/QZeTvtsfXmTMRyO9TslfoYOXkSsvao2nE1ilTw==}
+  playwright@1.53.0:
+    resolution: {integrity: sha512-ghGNnIEYZC4E+YtclRn4/p6oYbdPiASELBIYkBXfaTVKreQUYbMUYQDwS12a8F0/HtIjr/CkGjtwABeFPGcS4Q==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -7291,6 +7331,9 @@ packages:
   zod@3.25.42:
     resolution: {integrity: sha512-PcALTLskaucbeHc41tU/xfjfhcz8z0GdhhDcSgrCTmSazUuqnYqiXO63M0QUBVwpBlsLsNVn5qHSC5Dw3KZvaQ==}
 
+  zod@3.25.64:
+    resolution: {integrity: sha512-hbP9FpSZf7pkS7hRVUrOjhwKJNyampPgtXKc3AN6DsWtoHsg2Sb4SQaS4Tcay380zSwd2VPo9G9180emBACp5g==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -8579,7 +8622,7 @@ snapshots:
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-blur@1.6.0':
     dependencies:
@@ -8589,7 +8632,7 @@ snapshots:
   '@jimp/plugin-circle@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-color@1.6.0':
     dependencies:
@@ -8597,7 +8640,7 @@ snapshots:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
       tinycolor2: 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-contain@1.6.0':
     dependencies:
@@ -8606,7 +8649,7 @@ snapshots:
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-cover@1.6.0':
     dependencies:
@@ -8614,20 +8657,20 @@ snapshots:
       '@jimp/plugin-crop': 1.6.0
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-crop@1.6.0':
     dependencies:
       '@jimp/core': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-displace@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-dither@1.6.0':
     dependencies:
@@ -8637,12 +8680,12 @@ snapshots:
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-flip@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-hash@1.6.0':
     dependencies:
@@ -8660,7 +8703,7 @@ snapshots:
   '@jimp/plugin-mask@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-print@1.6.0':
     dependencies:
@@ -8673,18 +8716,18 @@ snapshots:
       parse-bmfont-binary: 1.0.6
       parse-bmfont-xml: 1.1.6
       simple-xml-to-json: 1.2.3
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-quantize@1.6.0':
     dependencies:
       image-q: 4.0.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-resize@1.6.0':
     dependencies:
       '@jimp/core': 1.6.0
       '@jimp/types': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-rotate@1.6.0':
     dependencies:
@@ -8693,7 +8736,7 @@ snapshots:
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/plugin-threshold@1.6.0':
     dependencies:
@@ -8702,11 +8745,11 @@ snapshots:
       '@jimp/plugin-hash': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/types@1.6.0':
     dependencies:
-      zod: 3.25.42
+      zod: 3.25.64
 
   '@jimp/utils@1.6.0':
     dependencies:
@@ -8744,8 +8787,8 @@ snapshots:
       p-queue: 6.6.2
       p-retry: 4.6.2
       uuid: 10.0.0
-      zod: 3.25.42
-      zod-to-json-schema: 3.24.5(zod@3.25.42)
+      zod: 3.25.64
+      zod-to-json-schema: 3.24.5(zod@3.25.64)
     transitivePeerDependencies:
       - openai
 
@@ -8770,7 +8813,7 @@ snapshots:
       '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.42)))
       '@langchain/langgraph-sdk': 0.0.78(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.42)))(react@19.1.0)
       uuid: 10.0.0
-      zod: 3.25.42
+      zod: 3.25.64
     optionalDependencies:
       zod-to-json-schema: 3.24.5(zod@3.25.42)
     transitivePeerDependencies:
@@ -11122,6 +11165,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  dockerode@4.0.7:
+    dependencies:
+      '@balena/dockerignore': 1.0.2
+      '@grpc/grpc-js': 1.13.4
+      '@grpc/proto-loader': 0.7.15
+      docker-modem: 5.0.6(supports-color@10.0.0)
+      protobufjs: 7.5.3
+      tar-fs: 2.1.3
+      uuid: 10.0.0
+    transitivePeerDependencies:
+      - supports-color
+
   dom-serializer@2.0.0:
     dependencies:
       domelementtype: 2.3.0
@@ -11270,6 +11325,8 @@ snapshots:
       is-symbol: 1.1.1
 
   es-toolkit@1.38.0: {}
+
+  es-toolkit@1.39.3: {}
 
   es5-ext@0.10.64:
     dependencies:
@@ -12805,12 +12862,12 @@ snapshots:
 
   merge2@1.4.1: {}
 
-  mermaid-isomorphic@3.0.4(playwright@1.52.0):
+  mermaid-isomorphic@3.0.4(playwright@1.53.0):
     dependencies:
       '@fortawesome/fontawesome-free': 6.7.2
       mermaid: 11.6.0(supports-color@10.0.0)
     optionalDependencies:
-      playwright: 1.52.0
+      playwright: 1.53.0
     transitivePeerDependencies:
       - supports-color
 
@@ -13299,6 +13356,21 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
+  openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64):
+    dependencies:
+      '@types/node': 18.19.109
+      '@types/node-fetch': 2.6.12
+      abort-controller: 3.0.0
+      agentkeepalive: 4.6.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+    optionalDependencies:
+      ws: 8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      zod: 3.25.64
+    transitivePeerDependencies:
+      - encoding
+
   openapi-types@12.1.3: {}
 
   option@0.2.4: {}
@@ -13505,15 +13577,13 @@ snapshots:
       exsolve: 1.0.5
       pathe: 2.0.3
 
-  playwright-core@1.52.0:
-    optional: true
+  playwright-core@1.53.0: {}
 
-  playwright@1.52.0:
+  playwright@1.53.0:
     dependencies:
-      playwright-core: 1.52.0
+      playwright-core: 1.53.0
     optionalDependencies:
       fsevents: 2.3.2
-    optional: true
 
   pluralize@2.0.0: {}
 
@@ -13813,19 +13883,19 @@ snapshots:
       unist-util-visit: 5.0.0
       vfile: 6.0.3
 
-  rehype-mermaid@3.0.0(playwright@1.52.0):
+  rehype-mermaid@3.0.0(playwright@1.53.0):
     dependencies:
       '@types/hast': 3.0.4
       hast-util-from-html-isomorphic: 2.0.0
       hast-util-to-text: 4.0.2
-      mermaid-isomorphic: 3.0.4(playwright@1.52.0)
+      mermaid-isomorphic: 3.0.4(playwright@1.53.0)
       mini-svg-data-uri: 1.4.4
       space-separated-tokens: 2.0.2
       unified: 11.0.5
       unist-util-visit-parents: 6.0.1
       vfile: 6.0.3
     optionalDependencies:
-      playwright: 1.52.0
+      playwright: 1.53.0
     transitivePeerDependencies:
       - supports-color
 
@@ -15372,11 +15442,17 @@ snapshots:
     dependencies:
       zod: 3.25.42
 
+  zod-to-json-schema@3.24.5(zod@3.25.64):
+    dependencies:
+      zod: 3.25.64
+
   zod-validation-error@3.4.1(zod@3.25.42):
     dependencies:
       zod: 3.25.42
 
   zod@3.25.42: {}
+
+  zod@3.25.64: {}
 
   zwitch@2.0.4: {}
 

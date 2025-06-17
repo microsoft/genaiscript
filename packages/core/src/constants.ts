@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import CONFIGURATION_DATA from "./llmsdata.js";
+import type { FenceFormat } from "./types.js";
 
 export const CHANGE = "change";
 export const RESOURCE_CHANGE = "resourceChange";

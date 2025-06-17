@@ -14,6 +14,7 @@ import { humanize } from "./inflection.js";
 import { promptyParse, promptyToGenAIScript } from "./prompty.js";
 import { metadataValidate } from "./metadata.js";
 import { deleteUndefinedValues } from "./cleaners.js";
+import type { PromptArgs, PromptScript } from "./types.js";
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions

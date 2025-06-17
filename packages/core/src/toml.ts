@@ -4,6 +4,7 @@
 import { parse } from "toml";
 import { unfence } from "./unwrappers.js";
 import { filenameOrFileToContent } from "./unwrappers.js";
+import type { WorkspaceFile } from "./types.js";
 
 /**
  * Parses a TOML-formatted input into a structured JavaScript object.

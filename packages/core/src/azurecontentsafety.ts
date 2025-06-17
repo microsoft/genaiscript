@@ -3,7 +3,7 @@
 
 import { createFetch, statusToMessage } from "./fetch.js";
 import { TraceOptions } from "./trace.js";
-import { arrayify } from "./util.js";
+import { arrayify } from "./cleaners.js";
 import {
   AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
   DOCS_CONFIGURATION_CONTENT_SAFETY_URL,
@@ -17,6 +17,8 @@ import { chunkString } from "./chunkers.js";
 import { createCache } from "./cache.js";
 import { traceFetchPost } from "./fetchtext.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { ContentSafety, ElementOrArray, WorkspaceFile } from "./types.js";
+
 const dbg = genaiscriptDebug("contentsafety:azure");
 
 interface AzureContentSafetyRequest {

@@ -27,6 +27,12 @@ import { host } from "./host.js";
 import { fromBase64 } from "./base64.js";
 import { JSONLTryParse } from "./jsonl.js";
 import { tryValidateJSONWithSchema } from "./schema.js";
+import type { 
+  CSVParseOptions, 
+  INIParseOptions, 
+  WorkspaceFile, 
+  XMLParseOptions 
+} from "./types.js";
 
 /**
  * Attempts to parse the provided file's content based on its detected format.

@@ -21,7 +21,9 @@ import { measure } from "./performance.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { Canvas } from "@napi-rs/canvas";
-import { pathToFileURL } from "url";
+import { pathToFileURL } from "node:url";
+import { ParsePDFOptions, PDFPage, PDFPageImage } from "./types.js";
+
 const dbg = genaiscriptDebug("pdf");
 
 let standardFontDataUrl: string;

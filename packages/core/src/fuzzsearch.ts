@@ -6,6 +6,11 @@ import { resolveFileContent } from "./file.js";
 import { TraceOptions } from "./trace.js";
 import { randomHex } from "./crypto.js";
 import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import type { 
+  FuzzSearchOptions,
+  WorkspaceFile, 
+  WorkspaceFileWithScore 
+} from "./types.js";
 
 /**
  * Performs a fuzzy search on a set of workspace files using a query.

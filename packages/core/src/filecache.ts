@@ -14,6 +14,8 @@ import { FILE_HASH_LENGTH, HTTPS_REGEX } from "./constants.js";
 import { tryStat } from "./fs.js";
 import { filenameOrFileToFilename } from "./unwrappers.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { BufferLike } from "./types.js";
+
 const dbg = genaiscriptDebug("cache");
 
 /**

@@ -16,7 +16,9 @@ import {
 import { createFetch } from "./fetch.js";
 import { runtimeHost } from "./host.js";
 import { prettifyMarkdown } from "./markdown.js";
-import { arrayify, assert, logError, logVerbose } from "./util.js";
+import { arrayify } from "./cleaners.js";
+import { assert } from "./assert.js";
+import { logError, logVerbose } from "./util.js";
 import { shellRemoveAsciiColors } from "./shell.js";
 import { isGlobMatch } from "./glob.js";
 import { concurrentLimit } from "./concurrency.js";

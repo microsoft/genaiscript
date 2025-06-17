@@ -4,10 +4,12 @@
 import { NPM_CLI_PACKAGE } from "./constants.js";
 import { GenerationOptions } from "./generation.js";
 import { MarkdownTrace } from "./trace.js";
-import { arrayify, relativePath } from "./util.js";
+import { arrayify } from "./cleaners.js";
+import { relativePath } from "./util.js";
 import { CORE_VERSION } from "./version.js";
 import { host } from "./host.js";
 import { isCI } from "./ci.js";
+import type { PromptScript } from "./types.js";
 
 /**
  * Generates command-line arguments for executing or batching a CLI prompt template.

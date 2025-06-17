@@ -11,8 +11,15 @@ import path from "node:path";
 import { addLineNumbers, indexToLineNumber } from "./liner.js";
 import { resolveFileContent } from "./file.js";
 import type { EncodeOptions } from "gpt-tokenizer/GptEncoding";
-import { assert } from "./util.js";
+import { assert } from "./assert.js";
 import { TextSplitter } from "./textsplitter.js";
+import type { 
+  Awaitable,
+  TextChunk,
+  TextChunkerConfig,
+  Tokenizer,
+  WorkspaceFile,
+} from "./types.js";
 
 /**
  * Resolves the token encoder for a specified model identifier.

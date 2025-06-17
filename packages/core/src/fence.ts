@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// Import necessary constants and functions from other modules
 import { EMOJI_FAIL, EMOJI_SUCCESS, EMOJI_UNDEFINED } from "./constants.js";
 import { JSON5TryParse } from "./json5.js";
 import { removeLineNumbers } from "./liner.js";
 import { unquote } from "./unwrappers.js";
-import { arrayify } from "./util.js";
+import { arrayify } from "./cleaners.js";
 import { YAMLTryParse } from "./yaml.js";
+import type { Fenced } from "./types.js";
 
 // Regular expression for detecting the start of a code fence
 const promptFenceStartRx = /^(?<fence>`{3,})(?<language>[^=:]+)?(\s+(?<args>.*))?$/m;

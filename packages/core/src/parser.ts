@@ -13,6 +13,8 @@ import { readdir } from "node:fs/promises";
 import { uniq } from "es-toolkit";
 import { genaiscriptDebug } from "./debug.js";
 import { __filename } from "./utils/pathUtils.js";
+import type { CharPosition, PromptScript } from "./types.js";
+
 const dbg = genaiscriptDebug("parser");
 
 /**

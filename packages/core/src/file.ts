@@ -33,6 +33,8 @@ import { CancellationOptions, checkCancelled } from "./cancellation.js";
 import { prettyBytes } from "./pretty.js";
 import { tryResolveResource } from "./resources.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { DataFilter, WorkspaceFile, WorkbookSheet } from "./types.js";
+
 const dbg = genaiscriptDebug("file");
 
 /**

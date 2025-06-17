@@ -7,6 +7,7 @@ import { parseKeyValuePair } from "./fence.js";
 import { runtimeHost } from "./host.js";
 import { PromptScriptRunOptions } from "./server/messages.js";
 import { providerFeatures } from "./features.js";
+import type { PromptScript } from "./types.js";
 
 /**
  * Configures model provider aliases based on the given provider ID and source type.

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+export type * from "./types.js"
+
 export * from "./agent.js";
 export * from "./annotations.js";
 export * from "./anthropic.js";
@@ -159,7 +161,7 @@ export * from "./traceparser.js";
 export * from "./transcription.js";
 export * from "./unwrappers.js";
 export * from "./url.js";
-// export * from "./util.js";
+export * from "./util.js";
 export * from "./vars.js";
 export * from "./vectorsearch.js";
 export * from "./vectra.js";
@@ -179,3 +181,6 @@ export * from "./zod.js";
 export * from "./server/client.js";
 export * from "./server/messages.js";
 export * from "./server/wsclient.js";
+
+// Default prompts
+export * from "./default_prompts.js";

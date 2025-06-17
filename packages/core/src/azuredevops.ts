@@ -6,6 +6,8 @@ import { generatedByFooter, mergeDescription } from "./githubclient.js";
 import { prettifyMarkdown } from "./markdown.js";
 import { logError, logVerbose } from "./util.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { PromptScript } from "./types.js";
+
 const dbg = genaiscriptDebug("azuredevops");
 
 // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-7.1

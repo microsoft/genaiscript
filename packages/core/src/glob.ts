@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// Import the 'minimatch' library for matching file paths against glob patterns
 import { minimatch } from "minimatch";
-
-// Import the 'arrayify' utility function from the local 'util' module
-import { arrayify } from "./util.js";
+import { arrayify } from "./cleaners.js";
+import type { ElementOrArray } from "./types.js";
 
 /**
  * Checks if a given filename matches any of the provided glob patterns.

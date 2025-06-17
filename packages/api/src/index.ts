@@ -1,10 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { GenerationResult, PromptScriptRunOptions, Resource } from "@genaiscript/core";
+import type { 
+  Awaitable, 
+  GenerationResult, 
+  PromptScriptRunOptions, 
+  Resource
+} from "@genaiscript/core";
 import { Worker } from "node:worker_threads";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { __filename } from "./utils/pathUtils.js";
+
 import debug from "debug";
 const dbg = debug("genaiscript:api");
 
@@ -56,12 +61,8 @@ export async function run(
     files: files || [],
     options: rest,
   };
-  const filename =
-    typeof __filename === "undefined"
-      ? join(dirname(fileURLToPath(import.meta.url)), "genaiscript.cjs") // ignore esbuild warning
-      : __filename;
-  dbg(`start ${filename}`);
-  let worker = new Worker(filename, { workerData, name: options?.label });
+  dbg(`start ${__filename}`);
+  let worker = new Worker(__filename, { workerData, name: options?.label });
   return new Promise((resolve, reject) => {
     const abort = () => {
       if (worker) {

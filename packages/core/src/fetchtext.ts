@@ -14,6 +14,8 @@ import { uriRedact } from "./url.js";
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html.js";
 import { createFetch } from "./fetch.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { FetchTextOptions, WorkspaceFile } from "./types.js";
+
 const dbg = genaiscriptDebug("fetch:text");
 
 /**

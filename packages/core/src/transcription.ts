@@ -3,6 +3,7 @@
 
 import { parse } from "@plussub/srt-vtt-parser";
 import { deleteEmptyValues } from "./cleaners.js";
+import type { TranscriptionResult, TranscriptionSegment } from "./types.js";
 
 interface Entry {
   id: string;

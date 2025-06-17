@@ -8,6 +8,8 @@ import { host } from "./host.js";
 import { CancellationOptions } from "./cancellation.js";
 import debug from "debug";
 import { sanitizeFilename } from "./sanitize.js";
+import type { WorkspaceFileCache } from "./types.js";
+
 const dbg = debug("genaiscript:cache");
 
 /**
@@ -20,7 +22,7 @@ export interface CacheEntry<V> {
   val: V;
 }
 
-export interface CacheOptions {
+export interface CreateCacheOptions {
   type: "memory" | "jsonl" | "fs";
   userState?: Record<string, any>;
   lookupOnly?: boolean;
@@ -32,7 +34,7 @@ function cacheNormalizeName(name: string) {
 
 export function createCache<K, V>(
   name: string,
-  options: CacheOptions & CancellationOptions,
+  options: CreateCacheOptions & CancellationOptions,
 ): WorkspaceFileCache<K, V> {
   name = cacheNormalizeName(name); // Sanitize name
   if (!name) {

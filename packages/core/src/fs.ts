@@ -8,6 +8,8 @@ import { dirname } from "node:path";
 import { JSON5TryParse } from "./json5.js";
 import { homedir } from "node:os";
 import { genaiscriptDebug } from "./debug.js";
+import type { WorkspaceFile } from "./types.js";
+
 const dbg = genaiscriptDebug("fs");
 
 /**

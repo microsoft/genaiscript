@@ -2,7 +2,6 @@ import { installGlobals } from "../../core/src/globals";
 import { cli } from "./cli";
 import { workerData } from "node:worker_threads";
 import { worker } from "./worker";
-import { run } from "./api";
 import { PromptScriptRunOptions } from "../../core/src/server/messages";
 import { GenerationResult } from "../../core/src/server/messages";
 

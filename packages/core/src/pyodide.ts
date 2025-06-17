@@ -9,6 +9,7 @@ import { deleteUndefinedValues } from "./cleaners.js";
 import { dedent } from "./indent.js";
 import { PLimitPromiseQueue } from "./concurrency.js";
 import { stderr } from "./stdio.js";
+import type { PythonRuntime, PythonRuntimeOptions } from "./types.js";
 
 class PyProxy implements PythonProxy {
   constructor(

@@ -8,6 +8,7 @@ import { Project } from "./server/messages.js";
 import { arrayify } from "./cleaners.js";
 import { tagFilter } from "./tags.js";
 import { dirname, resolve } from "node:path";
+import type { CharPosition, Diagnostic, PromptScript, SystemPromptInstance } from "./types.js";
 
 // Interface representing a file reference, with a name and filename property
 export interface FileReference {

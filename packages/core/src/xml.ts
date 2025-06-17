@@ -4,6 +4,7 @@
 import { XMLParser } from "fast-xml-parser";
 import { unfence } from "./unwrappers.js";
 import { filenameOrFileToContent } from "./unwrappers.js";
+import type { WorkspaceFile, XMLParseOptions } from "./types.js";
 
 /**
  * Attempts to parse an XML string or WorkspaceFile, returning a default value on failure.

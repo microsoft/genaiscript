@@ -28,6 +28,8 @@ import { genaiscriptDebug } from "./debug.js";
 import { ImageGenerationUsage } from "./chat.js";
 import { estimateImageCost } from "./usage.js";
 import { prettyCost } from "./pretty.js";
+import type { BufferLike, DefImagesOptions, ImageGenerationOptions, ImageTransformOptions } from "./types.js";
+
 const dbg = genaiscriptDebug("image");
 
 async function prepare(

@@ -4,6 +4,7 @@
 import { createCache } from "./cache.js";
 import type { ChatCompletionResponse, CreateChatCompletionRequest } from "./chattypes.js";
 import { CHAT_CACHE } from "./constants.js";
+import type { WorkspaceFileCache } from "./types.js";
 import type { LanguageModelConfiguration } from "./server/messages.js";
 
 // Define the type for a cache key, which combines chat completion request

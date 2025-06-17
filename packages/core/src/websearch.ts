@@ -15,6 +15,7 @@ import { createFetch } from "./fetch.js";
 import { runtimeHost } from "./host.js";
 import { TraceOptions } from "./trace.js";
 import { logVerbose } from "./util.js";
+import type { WorkspaceFile } from "./types.js";
 
 /**
  * Converts an object into a URL search parameters string.

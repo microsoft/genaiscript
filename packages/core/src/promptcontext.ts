@@ -5,7 +5,8 @@
 // like file operations, web search, fuzzy search, vector search, and more.
 // The context is essential for executing prompts within a project environment.
 import debug from "debug";
-import { arrayify, assert } from "./util.js";
+import { assert } from "./assert.js";
+import { arrayify } from "./cleaners.js";
 import { runtimeHost } from "./host.js";
 import { MarkdownTrace } from "./trace.js";
 import { createParsers } from "./parsers.js";
@@ -36,6 +37,8 @@ import { loadZ3Client } from "./z3.js";
 import { genaiscriptDebug } from "./debug.js";
 import { resolveLanguageModelConfigurations } from "./config.js";
 import { deleteUndefinedValues } from "./cleaners.js";
+import type { ExpansionVariables, PromptContext } from "./types.js";
+
 const dbg = genaiscriptDebug("promptcontext");
 
 /**

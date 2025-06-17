@@ -20,6 +20,7 @@ import type {
   GenerationResult,
 } from "./messages.js";
 import { WebSocketClient } from "./wsclient.js";
+import type { PromptScript } from "../types.js";
 
 export type LanguageModelChatRequest = (
   request: ChatStart,

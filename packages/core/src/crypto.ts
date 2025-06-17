@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import { createHash, getRandomValues as cryptoGetRandomValues } from "node:crypto";
+import type { HashOptions } from "./types.js";
 // crypto.ts - Provides cryptographic functions for secure operations
 
 // Importing the toHex function from the util module to convert byte arrays to hexadecimal strings

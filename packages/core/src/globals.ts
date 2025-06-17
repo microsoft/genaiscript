@@ -25,6 +25,7 @@ import { chunkMarkdown } from "./mdchunk.js";
 import { resolveGlobal } from "./global.js";
 import { MarkdownStringify } from "./markdown.js";
 import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff.js";
+import type { PromptContext } from "./types.js";
 
 /**
  * Installs global utilities for various data formats and operations.
@@ -129,12 +130,12 @@ export function installGlobals() {
     resolve: resolveTokenEncoder,
     count: async (text, options) => {
       const { encode: encoder } = await resolveTokenEncoder(options?.model);
-      const c = await estimateTokens(text, encoder);
+      const c = estimateTokens(text, encoder);
       return c;
     },
     truncate: async (text, maxTokens, options) => {
       const { encode: encoder } = await resolveTokenEncoder(options?.model);
-      return await truncateTextToTokens(text, maxTokens, encoder, options);
+      return truncateTextToTokens(text, maxTokens, encoder, options);
     },
     chunk: chunk,
   });

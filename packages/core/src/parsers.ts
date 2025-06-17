@@ -39,6 +39,7 @@ import { encodeIDs } from "./cleaners.js";
 import { diffCreatePatch } from "./diff.js";
 import { promptyParse } from "./prompty.js";
 import { mermaidParse } from "./mermaid.js";
+import type { Parsers, WorkspaceFile } from "./types.js";
 
 /**
  * Asynchronously creates a set of parsers for handling various file formats, data operations,

@@ -15,6 +15,7 @@ import { filenameOrFileToFilename } from "./unwrappers.js";
 import { resolveFileBytes } from "./file.js";
 import { basename } from "node:path";
 import { frontmatterTryParse, splitMarkdown } from "./frontmatter.js";
+import type { MessageChannelClient, PromptScript, WorkspaceFileWithDescription } from "./types.js";
 
 /**
  * Converts a Markdown string into HTML formatted for Microsoft Teams.

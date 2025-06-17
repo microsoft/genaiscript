@@ -10,6 +10,8 @@ import { readText, writeText } from "./fs.js";
 import { extname } from "node:path";
 import { diffFindChunk, diffResolve } from "./diff.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { ElementOrArray, Sg, SgLang, SgMatcher, SgNode, SgRoot, SgEdit, SgChangeSet, SgSearchOptions, WorkspaceFile } from "./types.js";
+
 const dbg = genaiscriptDebug("astgrep");
 const dbgLang = dbg.extend("lang");
 

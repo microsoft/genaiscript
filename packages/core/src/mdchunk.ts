@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { TextChunk, WorkspaceFile } from "./types.js";
+
 /**
  * Chunks markdown into sections based on headings while maintaining subtrees.
  * Handles WorkspaceFile objects and plain markdown strings.

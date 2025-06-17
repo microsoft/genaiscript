@@ -60,7 +60,7 @@ import {
   LanguageModelConfiguration,
   OpenAIAPIType,
 } from "./server/messages.js";
-import { arrayify, ellipse } from "./util.js";
+import { arrayify } from "./cleaners.js";
 import { URL } from "node:url";
 import { uriTryParse } from "./url.js";
 import { TraceOptions } from "./trace.js";

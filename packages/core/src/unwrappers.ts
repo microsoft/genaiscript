@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import { arrayify } from "./cleaners.js";
+import type { ElementOrArray, WorkspaceFile } from "./types.js";
 
 /**
  * Remove code fences from a fenced block for the specified language.

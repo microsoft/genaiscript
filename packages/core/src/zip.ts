@@ -7,6 +7,7 @@ import { isBinaryMimeType } from "./binary.js";
 import { host } from "./host.js";
 import { isGlobMatch } from "./glob.js";
 import { toBase64 } from "./base64.js";
+import type { ParseZipOptions, WorkspaceFile } from "./types.js";
 
 /**
  * Unzips a given byte array representing a ZIP file and extracts its contents into WorkspaceFile objects.

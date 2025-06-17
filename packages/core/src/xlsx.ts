@@ -3,6 +3,7 @@
 
 // Import the logInfo function for logging purposes
 import { logInfo } from "./util.js";
+import type { ParseXLSXOptions, WorkbookSheet } from "./types.js";
 
 /**
  * Parses XLSX data into an array of workbook sheets.

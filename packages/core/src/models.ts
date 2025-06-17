@@ -8,11 +8,13 @@ import { uniq } from "es-toolkit";
 import { errorMessage } from "./error.js";
 import { host, ModelConfiguration, runtimeHost } from "./host.js";
 import { MarkdownTrace, TraceOptions } from "./trace.js";
-import { arrayify, toStringList } from "./util.js";
+import { arrayify } from "./cleaners.js";
+import { toStringList } from "./util.js";
 import { CancellationOptions } from "./cancellation.js";
 import { LanguageModelConfiguration } from "./server/messages.js";
 import { roundWithPrecision } from "./precision.js";
 import { ChatCompletionReasoningEffort } from "./chattypes.js";
+import type { ModelConnectionOptions, ModelOptions } from "./types.js";
 
 export interface ParsedModelType {
   provider: string;

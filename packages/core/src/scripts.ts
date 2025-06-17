@@ -15,6 +15,8 @@ import { collapseNewlines } from "./cleaners.js";
 import { gitIgnoreEnsure } from "./gitignore.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { genaiscriptDebug } from "./debug.js";
+import type { PromptScript } from "./types.js";
+
 const dbg = genaiscriptDebug("scripts");
 
 /**

@@ -7,7 +7,9 @@ const runnerDbg = debug("genaiscript:promptrunner");
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat.js";
 import { GenerationStatus, Project } from "./server/messages.js";
-import { arrayify, assert, relativePath } from "./util.js";
+import { arrayify } from "./cleaners.js";
+import { relativePath } from "./util.js";
+import { assert } from "./assert.js";
 import { runtimeHost } from "./host.js";
 import { MarkdownTrace } from "./trace.js";
 import { CORE_VERSION } from "./version.js";
@@ -28,6 +30,7 @@ import { lastAssistantReasoning } from "./chatrender.js";
 import { unthink } from "./think.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { DEBUG_SCRIPT_CATEGORY } from "./constants.js";
+import type { PromptScript } from "./types.js";
 
 // Asynchronously resolve expansion variables needed for a template
 /**

@@ -5,6 +5,7 @@ import { CancellationOptions, checkCancelled } from "./cancellation.js";
 import { genaiscriptDebug } from "./debug.js";
 import { TraceOptions } from "./trace.js";
 import { logWarn } from "./util.js";
+import type { Z3Solver } from "./types.js";
 
 const dbg = genaiscriptDebug("z3");
 

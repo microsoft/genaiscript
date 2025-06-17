@@ -7,6 +7,8 @@ import debug from "debug";
 import { errorMessage } from "./error.js";
 import { createTwoFilesPatch } from "diff";
 import { resolve } from "node:path";
+import type { DiffChunk, DiffFile, ElementOrArray, WorkspaceFile } from "./types.js";
+
 const dbg = debug("genaiscript:diff");
 
 /**

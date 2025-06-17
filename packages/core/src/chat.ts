@@ -9,9 +9,8 @@ import { GenerationOptions } from "./generation.js";
 import { dispose } from "./dispose.js";
 import { JSON5TryParse, JSONLLMTryParse, isJSONObjectOrArray } from "./json5.js";
 import { CancellationOptions, CancellationToken, checkCancelled } from "./cancellation.js";
+import { arrayify } from "./cleaners.js";
 import {
-  arrayify,
-  assert,
   ellipse,
   logError,
   logInfo,
@@ -19,6 +18,7 @@ import {
   logWarn,
   toStringList,
 } from "./util.js";
+import { assert } from "./assert.js";
 import { extractFenced, findFirstDataFence } from "./fence.js";
 import { toStrictJSONSchema, validateFencesWithSchema, validateJSONWithSchema } from "./schema.js";
 import {
@@ -86,6 +86,26 @@ import { resolvePromptInjectionDetector } from "./contentsafety.js";
 import { genaiscriptDebug } from "./debug.js";
 import { providerFeatures } from "./features.js";
 import { redactSecrets } from "./secretscanner.js";
+import type { 
+  ContextExpansionOptions,
+  ChatParticipant,
+  EmbeddingsModelOptions,
+  FileMergeHandler,
+  FileOutput,
+  JSONSchema,
+  LanguageModelInfo, 
+  ModelOptions,
+  PromptOutputProcessorHandler, 
+  RetryOptions, 
+  RunPromptResult,
+  SerializedError, 
+  ToolCallback,
+  TranscriptionOptions, 
+  TranscriptionResult, 
+  VectorIndexOptions, 
+  WorkspaceFileIndex 
+} from "./types.js";
+
 const dbg = genaiscriptDebug("chat");
 const dbgt = dbg.extend("tool");
 

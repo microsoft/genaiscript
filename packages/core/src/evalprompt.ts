@@ -5,6 +5,7 @@ import debug from "debug";
 const dbg = debug("genaiscript:evalprompt");
 
 import { host } from "./host.js";
+import type { PromptContext, PromptScript } from "./types.js";
 
 /**
  * Evaluates a JavaScript prompt script with the provided context.

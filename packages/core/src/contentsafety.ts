@@ -5,6 +5,8 @@ import { CancellationOptions } from "./cancellation.js";
 import { genaiscriptDebug } from "./debug.js";
 import { runtimeHost } from "./host.js";
 import { TraceOptions } from "./trace.js";
+import type { ContentSafety, ContentSafetyOptions } from "./types.js";
+
 const dbg = genaiscriptDebug("contentsafety");
 
 export async function resolvePromptInjectionDetector(

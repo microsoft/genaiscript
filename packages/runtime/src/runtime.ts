@@ -1,11 +1,47 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 /**
  * GenAIScript supporting runtime
  * This module provides core functionality for text classification, data transformation,
  * PDF processing, and file system operations in the GenAIScript environment.
  */
-import type { ChatGenerationContext } from "genaiscript-core-internal";
+import type { 
+  Awaitable,
+  BrowserPage,
+  ChatGenerationContext, 
+  ElementOrArray, 
+  FileStats, 
+  JSONSchema, 
+  JSONSchemaArray, 
+  Logprob, 
+  OptionsOrString, 
+  ParsePDFOptions, 
+  PromptContext, 
+  PromptGenerator, 
+  PromptGeneratorOptions,
+  RunPromptUsage,
+  StringLike,
+  WorkspaceFile,
+  WorkspaceGrepOptions
+} from "@genaiscript/core";
 import { delay, uniq, uniqBy, chunk } from "es-toolkit";
 import { z } from "zod";
+import { check } from "zod/v4";
+
+let globalPromptContext: PromptContext | undefined;
+
+/**
+ * Initialize the global prompt context.
+ * @param ctx The prompt context to initialize.
+ */
+export function initialize(ctx: PromptContext) {
+  globalPromptContext = ctx;
+}
+
+function checkInitialized() {
+  if (!globalPromptContext) throw new Error("GenAIScript runtime not initialized");
+}
 
 /**
  * Utility functions exported for general use
@@ -56,6 +92,7 @@ export async function classify<L extends Record<string, string>>(
   logprobs?: Record<keyof typeof labels | "other", Logprob>;
   usage?: RunPromptUsage;
 }> {
+  checkInitialized();
   const { other, explanations, ...rest } = options || {};
 
   const entries = Object.entries({
@@ -71,7 +108,7 @@ export async function classify<L extends Record<string, string>>(
 
   const choices = entries.map(([k]) => k);
   const allChoices = uniq<keyof typeof labels | "other">(choices);
-  const ctx = options?.ctx || env.generator;
+  const ctx = options?.ctx || globalPromptContext.env.generator;
 
   const res = await ctx.runPrompt(
     async (_) => {
@@ -127,7 +164,7 @@ no
   // find the last label
   const answer = res.text.toLowerCase();
   const indexes = choices.map((l) => answer.lastIndexOf(l));
-  const labeli = indexes.reduce((previ, label, i) => {
+  const labeli = indexes.reduce((previ, _label, i) => {
     if (indexes[i] > indexes[previ]) return i;
     else return previ;
   }, 0);
@@ -166,7 +203,7 @@ export function makeItBetter(options?: {
   instructions?: string;
 }) {
   const { repeat = 1, instructions = "Make it better!" } = options || {};
-  const ctx = options?.ctx || env.generator;
+  const ctx = options?.ctx || globalPromptContext.env.generator;
 
   let round = 0;
   ctx.defChatParticipant((cctx) => {
@@ -195,8 +232,9 @@ export async function cast(
     ctx?: ChatGenerationContext;
   },
 ): Promise<{ data?: unknown; error?: string; text: string }> {
+  checkInitialized();
   const {
-    ctx = env.generator,
+    ctx = globalPromptContext.env.generator,
     multiple,
     instructions,
     label = `cast text to schema`,
@@ -226,7 +264,7 @@ export async function cast(
       label,
     },
   );
-  const text = parsers.unfence(res.text, "json");
+  const text = globalPromptContext.parsers.unfence(res.text, "json");
   return res.json ? { text, data: res.json } : { text, error: res.error?.message };
 }
 
@@ -245,8 +283,9 @@ export async function markdownifyPdf(
       ctx?: ChatGenerationContext;
     },
 ) {
+  checkInitialized();
   const {
-    ctx = env.generator,
+    ctx = globalPromptContext.env.generator,
     label = `markdownify PDF`,
     model = "ocr",
     responseType = "markdown",
@@ -256,7 +295,7 @@ export async function markdownifyPdf(
   } = options || {};
 
   // extract text and render pages as images
-  const { pages, images = [] } = await parsers.PDF(file, {
+  const { pages, images = [] } = await globalPromptContext.parsers.PDF(file, {
     ...rest,
     renderAsImage: true,
   });
@@ -290,7 +329,7 @@ export async function markdownifyPdf(
                 - Do not repeat the <PREVIOUS_PAGES> content.
                 - Do not include any additional explanations or comments in the markdown formatted extracted text.
                 `;
-        if (image) $`- For images, generate a short alt-text description.`;
+        if (image) globalPromptContext.$`- For images, generate a short alt-text description.`;
         if (typeof instructions === "string") _.$`${instructions}`;
         else if (typeof instructions === "function") await instructions(_);
       },
@@ -331,12 +370,13 @@ export async function fileTree(
     preview?: (file: WorkspaceFile, stats: FileStats) => Awaitable<unknown>;
   },
 ): Promise<string> {
+  checkInitialized();
   const { frontmatter, preview, query, size, ignore, ...rest } = options || {};
   const readText = !!(frontmatter || preview);
   // TODO
   const files = query
-    ? (await workspace.grep(query, glob, { ...rest, readText })).files
-    : await workspace.findFiles(glob, {
+    ? (await globalPromptContext.workspace.grep(query, glob, { ...rest, readText })).files
+    : await globalPromptContext.workspace.findFiles(glob, {
         ignore,
         readText,
       });
@@ -360,10 +400,10 @@ export async function fileTree(
         const part = parts[index];
         let node = currentLevel.find((n) => n.filename === part);
         if (!node) {
-          const stats = await workspace.stat(filename);
+          const stats = await globalPromptContext.workspace.stat(filename);
           let metadata: unknown[] = [];
           if (frontmatter && /\.mdx?$/i.test(filename)) {
-            const fm = parsers.frontmatter(file) || {};
+            const fm = globalPromptContext.parsers.frontmatter(file) || {};
             if (fm)
               metadata.push(
                 ...frontmatter

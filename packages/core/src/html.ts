@@ -7,6 +7,7 @@
 
 import { CancellationOptions, checkCancelled } from "./cancellation.js";
 import { TraceOptions } from "./trace.js"; // Import TraceOptions for optional logging features
+import type { HTMLToMarkdownOptions, HTMLToTextOptions } from "./types.js"; // Import HTMLToTextOptions for configuring HTML to text conversion
 
 /**
  * Converts HTML tables to JSON objects.

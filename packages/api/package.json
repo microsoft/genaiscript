@@ -1,9 +1,9 @@
 {
   "name": "@genaiscript/api",
   "version": "1.0.0",
-  "main": "dist/commonjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/commonjs/index.d.ts",
+  "main": "./dist/commonjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/commonjs/index.d.ts",
   "type": "module",
   "files": [
     "dist/",
@@ -41,11 +41,27 @@
     "url": "https://github.com/microsoft/genaiscript/issues"
   },
   "tshy": {
-    "dialects": ["esm", "commonjs"],
+    "dialects": [
+      "esm",
+      "commonjs"
+    ],
     "exports": {
       ".": "./src/index.ts",
       "./package.json": "./package.json"
     },
     "selfLink": false
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/index.d.ts",
+        "default": "./dist/commonjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
   }
 }

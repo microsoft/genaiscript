@@ -15,6 +15,7 @@ import {
 import { changeext } from "./fs.js";
 import { fileURLToPath } from "node:url";
 import { sanitizeFilename } from "./sanitize.js";
+import type { Path } from "./types.js";
 
 /**
  * Creates a frozen object that provides various path manipulation functions.

@@ -10,6 +10,7 @@
 import { deleteUndefinedValues } from "./cleaners.js";
 import { EMOJI_FAIL, EMOJI_WARNING } from "./constants.js";
 import { unfence } from "./unwrappers.js";
+import type { Diagnostic } from "./types.js";
 
 // Regular expression for matching GitHub Actions annotations.
 // Example: ::error file=foo.js,line=10,endLine=11::Something went wrong.

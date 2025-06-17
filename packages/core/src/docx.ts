@@ -16,6 +16,7 @@ import { filenameOrFileToFilename } from "./unwrappers.js";
 import { ensureDir } from "fs-extra";
 import { measure } from "./performance.js";
 import { dotGenaiscriptPath } from "./workdir.js";
+import type { DocxParseOptions, WorkspaceFile } from "./types.js";
 
 async function computeHashFolder(
   filename: string,
