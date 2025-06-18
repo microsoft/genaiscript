@@ -121,13 +121,6 @@ export async function cli() {
         const includes: string[] = [] // Array to hold include paths
         let ignoreCurrentWorkspace = false
         if (include) includes.push(resolve(include))
-        const INPUT_FILES = process.env.INPUT_FILES
-        if (INPUT_FILES)
-            includes.push(
-                ...INPUT_FILES.split(";")
-                    .filter(Boolean)
-                    .map((f) => resolve(f))
-            ) // Add input files to include paths
         if (githubWorkspace) {
             const { workspaceDir } = githubActionConfigure()
             if (

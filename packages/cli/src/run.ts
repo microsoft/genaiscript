@@ -146,6 +146,20 @@ export async function runScriptWithExitCode(
     const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
     let exitCode = -1
     let result: GenerationResult
+
+    // process environment variables from github actions
+    const inputFiles = process.env.INPUT_FILES
+    if (inputFiles) {
+        dbg(`input files from env: %s`, inputFiles)
+        files = [
+            ...(files || []),
+            ...inputFiles
+                .split(/\n|;/g)
+                .map((f) => f.trim())
+                .filter(Boolean),
+        ]
+    }
+
     for (let r = 0; r < runRetry; ++r) {
         if (cancellationToken.isCancellationRequested) break
 
