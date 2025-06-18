@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT L
+// Licensed under the MIT License.
 
 import MemoryStream from "memorystream";
 import { finished } from "node:stream/promises";

@@ -1,4 +1,7 @@
-import { FFmepgClient } from "../../core/src/ffmpeg";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { FFmepgClient } from "@genaiscript/core";
 
 /**
  * Extracts audio from a given media file.
@@ -13,7 +16,7 @@ import { FFmepgClient } from "../../core/src/ffmpeg";
 export async function extractAudio(
   file: string,
   options: { force: boolean; transcription: boolean },
-) {
+): Promise<void> {
   const { force, transcription } = options || {};
   const ffmpeg = new FFmepgClient();
   const fn = await ffmpeg.extractAudio(file, {
@@ -45,7 +48,7 @@ export async function extractVideoFrames(
     keyframes?: boolean;
     sceneThreshold?: number;
   },
-) {
+): Promise<void> {
   const { ...rest } = options || {};
   const ffmpeg = new FFmepgClient();
   const frames = await ffmpeg.extractFrames(file, {
@@ -63,7 +66,7 @@ export async function extractVideoFrames(
  * @param file - Path to the video file to be analyzed.
  * Logs the metadata of the video file in JSON format.
  */
-export async function probeVideo(file: string) {
+export async function probeVideo(file: string): Promise<void> {
   const ffmpeg = new FFmepgClient();
   const res = await ffmpeg.probe(file);
   console.log(JSON.stringify(res, null, 2));

@@ -1,8 +1,11 @@
-import { logVerbose, logWarn } from "../../core/src/util";
-import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "../../core/src/constants";
-import { CORE_VERSION } from "../../core/src/version";
-import { ScriptFilterOptions } from "../../core/src/ast";
-import { run } from "./api";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { JSONSchemaObject, logVerbose, logWarn } from "@genaiscript/core";
+import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "@genaiscript/core";
+import { CORE_VERSION } from "@genaiscript/core";
+import { ScriptFilterOptions } from "@genaiscript/core";
+import { run } from "@genaiscript/api";
 import {
   ListResourcesRequestSchema,
   ListResourceTemplatesRequestSchema,
@@ -13,15 +16,15 @@ import {
   type ListResourceTemplatesResult,
   type ReadResourceResult,
 } from "@modelcontextprotocol/sdk/types.js";
-import { errorMessage } from "../../core/src/error";
-import { setConsoleColors } from "../../core/src/consolecolor";
-import { startProjectWatcher } from "./watch";
-import { applyRemoteOptions, RemoteOptions } from "./remote";
-import { runtimeHost } from "../../core/src/host";
-import { Resource, ResourceContents } from "../../core/src/mcpresource";
+import { errorMessage } from "@genaiscript/core";
+import { setConsoleColors } from "@genaiscript/core";
+import { startProjectWatcher } from "./watch.js";
+import { applyRemoteOptions, RemoteOptions } from "./remote.js";
+import { runtimeHost } from "@genaiscript/core";
+import { Resource, ResourceContents } from "@genaiscript/core";
 import debug from "debug";
-import { splitMarkdownTextImageParts } from "../../core/src/markdown";
-import { ensureDotGenaiscriptPath } from "../../core/src/workdir";
+import { splitMarkdownTextImageParts } from "@genaiscript/core";
+import { ensureDotGenaiscriptPath } from "@genaiscript/core";
 const dbg = debug("genaiscript:mcp:server");
 
 /**

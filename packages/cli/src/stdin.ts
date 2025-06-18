@@ -1,10 +1,13 @@
-import { toBase64 } from "../../core/src/base64";
-import { isBinaryMimeType } from "../../core/src/binary";
-import { deleteUndefinedValues, isEmptyString } from "../../core/src/cleaners";
-import { fileTypeFromBuffer } from "../../core/src/filetype";
-import { logVerbose } from "../../core/src/util";
-import { STDIN_READ_TIMEOUT } from "../../core/src/constants";
-import { prettyBytes } from "../../core/src/pretty";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { toBase64, WorkspaceFile } from "@genaiscript/core";
+import { isBinaryMimeType } from "@genaiscript/core";
+import { deleteUndefinedValues } from "@genaiscript/core";
+import { fileTypeFromBuffer } from "@genaiscript/core";
+import { logVerbose } from "@genaiscript/core";
+import { STDIN_READ_TIMEOUT } from "@genaiscript/core";
+import { prettyBytes } from "@genaiscript/core";
 
 function readStdinOrTimeout(): Promise<Buffer | undefined> {
   return new Promise<Buffer | undefined>((resolve, reject) => {

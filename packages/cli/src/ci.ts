@@ -1,7 +1,10 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { confirm } from "@inquirer/prompts";
-import { logVerbose } from "../../core/src/util";
-import { indent } from "../../core/src/indent";
-import { isCI } from "../../core/src/ci";
+import { logVerbose } from "@genaiscript/core";
+import { indent } from "@genaiscript/core";
+import { isCI } from "@genaiscript/core";
 
 const confirmed: string[] = [];
 

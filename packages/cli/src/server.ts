@@ -1,8 +1,11 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { WebSocketServer } from "ws";
-import { runPromptScriptTests } from "./test";
-import { PROMPTFOO_VERSION } from "./version";
-import { runScriptInternal } from "./run";
-import { AbortSignalCancellationController } from "../../core/src/cancellation";
+import { runPromptScriptTests } from "./test.js";
+import { PROMPTFOO_VERSION } from "@genaiscript/runtime";
+import { runScriptInternal } from "./run.js";
+import { AbortSignalCancellationController } from "@genaiscript/core";
 import {
   SERVER_PORT,
   TRACE_CHUNK,
@@ -13,13 +16,13 @@ import {
   LOG,
   TRACE_FILENAME,
   WS_MAX_FRAME_CHUNK_LENGTH,
-} from "../../core/src/constants";
-import { isCancelError, serializeError } from "../../core/src/error";
-import { host, LogEvent, runtimeHost } from "../../core/src/host";
-import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace";
-import { chunkLines, chunkString } from "../../core/src/chunkers";
-import { logVerbose, logError, assert, logWarn } from "../../core/src/util";
-import { CORE_VERSION } from "../../core/src/version";
+} from "@genaiscript/core";
+import { isCancelError, serializeError } from "@genaiscript/core";
+import { host, LogEvent, runtimeHost } from "@genaiscript/core";
+import { MarkdownTrace, TraceChunkEvent } from "@genaiscript/core";
+import { chunkLines, chunkString } from "@genaiscript/core";
+import { logVerbose, logError, assert, logWarn } from "@genaiscript/core";
+import { CORE_VERSION } from "@genaiscript/core";
 import {
   RequestMessages,
   PromptScriptProgressResponseEvent,
@@ -34,35 +37,34 @@ import {
   ServerEnvResponse,
   ServerResponse,
   RunResultListResponse,
-} from "../../core/src/server/messages";
-import { LanguageModel } from "../../core/src/chat";
+} from "@genaiscript/core";
+import { LanguageModel } from "@genaiscript/core";
 import {
   ChatCompletionResponse,
   ChatCompletionsOptions,
   CreateChatCompletionRequest,
-} from "../../core/src/chattypes";
-import { randomHex } from "../../core/src/crypto";
+} from "@genaiscript/core";
+import { randomHex } from "@genaiscript/core";
 import * as http from "http";
 import { extname, join } from "path";
 import { createReadStream } from "fs";
 import { URL } from "node:url";
-import { resolveLanguageModelConfigurations } from "../../core/src/config";
+import { resolveLanguageModelConfigurations } from "@genaiscript/core";
 import { networkInterfaces } from "os";
 import { exists } from "fs-extra";
-import { deleteUndefinedValues } from "../../core/src/cleaners";
+import { deleteUndefinedValues } from "@genaiscript/core";
 import { readFile } from "fs/promises";
-import { unthink } from "../../core/src/think";
-import { NodeHost } from "./nodehost";
-import { findRandomOpenPort, isPortInUse } from "../../core/src/net";
-import { tryReadJSON, tryReadText } from "../../core/src/fs";
-import { collectRuns } from "./runs";
-import { generateId } from "../../core/src/id";
-import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi";
-import { applyRemoteOptions, RemoteOptions } from "./remote";
-import { nodeTryReadPackage } from "../../core/src/nodepackage";
-import { genaiscriptDebug } from "../../core/src/debug";
-import { startProjectWatcher } from "./watch";
-import { findOpenPort } from "./port";
+import { unthink } from "@genaiscript/core";
+import { NodeHost } from "@genaiscript/runtime";
+import { tryReadJSON, tryReadText } from "@genaiscript/core";
+import { collectRuns } from "./runs.js";
+import { generateId } from "@genaiscript/core";
+import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi.js";
+import { applyRemoteOptions, RemoteOptions } from "./remote.js";
+import { nodeTryReadPackage } from "@genaiscript/core";
+import { genaiscriptDebug } from "@genaiscript/core";
+import { startProjectWatcher } from "./watch.js";
+import { findOpenPort } from "./port.js";
 const dbg = genaiscriptDebug("server");
 
 /**

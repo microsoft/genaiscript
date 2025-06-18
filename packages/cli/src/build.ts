@@ -1,8 +1,11 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { uniq } from "es-toolkit";
-import { GENAI_ANY_REGEX, GENAI_ANYJS_GLOB, GENAISCRIPT_FOLDER } from "../../core/src/constants";
-import { host, runtimeHost } from "../../core/src/host";
-import { parseProject } from "../../core/src/parser";
-import { arrayify } from "../../core/src/util";
+import { GENAI_ANY_REGEX, GENAI_ANYJS_GLOB, GENAISCRIPT_FOLDER } from "@genaiscript/core";
+import { host, runtimeHost } from "@genaiscript/core";
+import { parseProject } from "@genaiscript/core";
+import { arrayify } from "@genaiscript/core";
 
 /**
  * Asynchronously builds a project by parsing tool files.

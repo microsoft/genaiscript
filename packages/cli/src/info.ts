@@ -1,22 +1,24 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 /**
  * This module provides functions to display system, environment, and model information.
  * It includes functions for retrieving system specs, environment variables related to model providers,
  * and resolving model connection info for specific scripts.
  */
 
-import { resolveLanguageModelConfigurations } from "../../core/src/config";
-import { host, runtimeHost } from "../../core/src/host";
+import { ModelConnectionOptions, resolveLanguageModelConfigurations } from "@genaiscript/core";
+import { host, runtimeHost } from "@genaiscript/core";
 import {
   ModelConnectionInfo,
   resolveModelAlias,
   resolveModelConnectionInfo,
-} from "../../core/src/models";
-import { CORE_VERSION } from "../../core/src/version";
-import { YAMLStringify } from "../../core/src/yaml";
-import { buildProject } from "./build";
-import { deleteUndefinedValues } from "../../core/src/cleaners";
-import { LARGE_MODEL_ID } from "../../core/src/constants";
-import { CSVStringify } from "../../core/src/csv";
+} from "@genaiscript/core";
+import { CORE_VERSION } from "@genaiscript/core";
+import { YAMLStringify } from "@genaiscript/core";
+import { buildProject } from "./build.js";
+import { deleteUndefinedValues } from "@genaiscript/core";
+import { LARGE_MODEL_ID } from "@genaiscript/core";
 
 /**
  * Outputs basic system information including node version, platform, architecture, and process ID.

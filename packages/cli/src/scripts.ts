@@ -1,24 +1,27 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 // This file contains functions to manage and compile project scripts,
 // including listing, creating, fixing, and compiling scripts.
 
-import { buildProject } from "./build";
-import { TYPESCRIPT_VERSION } from "./version";
-import { copyPrompt } from "../../core/src/copy";
+import { buildProject } from "./build.js";
+import { TYPESCRIPT_VERSION } from "@genaiscript/runtime";
+import { copyPrompt } from "@genaiscript/core";
 import {
   fixPromptDefinitions,
   createScript as coreCreateScript,
   fixGitHubCopilotInstructions,
-} from "../../core/src/scripts";
-import { logInfo, logVerbose } from "../../core/src/util";
-import { runtimeHost } from "../../core/src/host";
-import { CONSOLE_COLOR_DEBUG, RUNTIME_ERROR_CODE } from "../../core/src/constants";
-import { collectFolders, filterScripts, ScriptFilterOptions } from "../../core/src/ast";
-import { deleteEmptyValues } from "../../core/src/cleaners";
+} from "@genaiscript/core";
+import { logInfo, logVerbose } from "@genaiscript/core";
+import { runtimeHost } from "@genaiscript/core";
+import { CONSOLE_COLOR_DEBUG, RUNTIME_ERROR_CODE } from "@genaiscript/core";
+import { collectFolders, filterScripts, ScriptFilterOptions } from "@genaiscript/core";
+import { deleteEmptyValues } from "@genaiscript/core";
 import { dirname } from "node:path";
-import { shellInput } from "./input";
-import { wrapColor } from "../../core/src/consolecolor";
-import { dedent } from "../../core/src/indent";
-import { JSONSchemaToFunctionParameters } from "../../core/src/schema";
+import { shellInput } from "@genaiscript/runtime";
+import { wrapColor } from "@genaiscript/core";
+import { dedent } from "@genaiscript/core";
+import { JSONSchemaToFunctionParameters } from "@genaiscript/core";
 
 /**
  * Lists all the scripts in the project.

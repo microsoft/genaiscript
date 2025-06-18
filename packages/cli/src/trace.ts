@@ -1,11 +1,14 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { ensureDir } from "fs-extra";
-import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace";
-import { logVerbose } from "../../core/src/util";
+import { MarkdownTrace, TraceChunkEvent } from "@genaiscript/core";
+import { logVerbose } from "@genaiscript/core";
 import { dirname } from "node:path";
 import { writeFileSync, WriteStream } from "node:fs";
-import { TRACE_CHUNK, TRACE_DETAILS } from "../../core/src/constants";
+import { TRACE_CHUNK, TRACE_DETAILS } from"@genaiscript/core";
 import { writeFile } from "node:fs/promises";
-import { measure } from "../../core/src/performance";
+import { measure } from "@genaiscript/core";
 import { createWriteStream } from "node:fs";
 
 /**

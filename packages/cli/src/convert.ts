@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import {
   FILES_NOT_FOUND_ERROR_CODE,
   GENAI_ANY_REGEX,
@@ -6,31 +9,31 @@ import {
   TRACE_FILENAME,
   YAML_REGEX,
   OUTPUT_FILENAME,
-} from "../../core/src/constants";
-import { filePathOrUrlToWorkspaceFile, tryReadText } from "../../core/src/fs";
-import { host } from "../../core/src/host";
-import { MarkdownTrace } from "../../core/src/trace";
-import { logError, logInfo, logVerbose } from "../../core/src/util";
-import { buildProject } from "./build";
-import { run } from "./api";
-import { writeText } from "../../core/src/fs";
-import { PromptScriptRunOptions } from "./main";
-import { PLimitPromiseQueue } from "../../core/src/concurrency";
+} from "@genaiscript/core";
+import { filePathOrUrlToWorkspaceFile, tryReadText } from "@genaiscript/core";
+import { host } from "@genaiscript/core";
+import { MarkdownTrace } from "@genaiscript/core";
+import { logError, logInfo, logVerbose } from "@genaiscript/core";
+import { buildProject } from "./build.js";
+import { run } from "@genaiscript/api";
+import { writeText } from "@genaiscript/core";;
+import type { PromptScriptRunOptions, WorkspaceFile } from "@genaiscript/core";
+import { PLimitPromiseQueue } from "@genaiscript/core";
 import { createPatch } from "diff";
-import { unfence } from "../../core/src/unwrappers";
-import { applyModelOptions } from "../../core/src/modelalias";
-import { setupTraceWriting } from "./trace";
-import { tracePromptResult } from "../../core/src/chat";
+import { unfence } from "@genaiscript/core";
+import { applyModelOptions } from "@genaiscript/core";
+import { setupTraceWriting } from "./trace.js";
+import { tracePromptResult } from "@genaiscript/core";
 import { dirname, join } from "node:path";
-import { link } from "../../core/src/mkmd";
-import { hash } from "../../core/src/crypto";
-import { createCancellationController } from "./cancel";
-import { toSignal } from "../../core/src/cancellation";
-import { normalizeInt } from "../../core/src/cleaners";
-import { YAMLStringify } from "../../core/src/yaml";
-import { ensureDotGenaiscriptPath, getConvertDir } from "../../core/src/workdir";
-import { GenerationStats } from "../../core/src/usage";
-import { measure } from "../../core/src/performance";
+import { link } from "@genaiscript/core";
+import { hash } from "@genaiscript/core";
+import { createCancellationController } from "./cancel.js";
+import { toSignal } from "@genaiscript/core";
+import { normalizeInt } from "@genaiscript/core";
+import { YAMLStringify } from "@genaiscript/core";
+import { ensureDotGenaiscriptPath, getConvertDir } from"@genaiscript/core";
+import { GenerationStats } from "@genaiscript/core";
+import { measure } from "@genaiscript/core";
 
 /**
  * Converts a set of files based on a specified script, applying transformations and generating output files.

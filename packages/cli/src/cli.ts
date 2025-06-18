@@ -1,15 +1,18 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 /**
  * CLI entry point for the GenAIScript tool, providing various commands and options
  * for interacting with scripts, parsing files, testing, and managing cache.
  */
-import { NodeHost } from "./nodehost"; // Handles node environment setup
+import { NodeHost } from "@genaiscript/runtime"; // Handles node environment setup
 import { Command, Option, program } from "commander"; // Command-line argument parsing library
-import { isQuiet, setQuiet } from "../../core/src/quiet"; // Logging utilities
-import { startServer } from "./server"; // Function to start server
-import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version"; // Version constants
-import { runScriptWithExitCode } from "./run"; // Execute scripts with exit code
-import { retrievalFuzz, retrievalIndex, retrievalSearch } from "./retrieval"; // Retrieval functions
-import { helpAll } from "./help"; // Display help for all commands
+import { isQuiet, setQuiet } from "@genaiscript/core"; // Logging utilities
+import { startServer } from "./server.js"; // Function to start server
+import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "@genaiscript/runtime"; // Version constants
+import { runScriptWithExitCode } from "./run.js"; // Execute scripts with exit code
+import { retrievalFuzz, retrievalIndex, retrievalSearch } from "./retrieval.js"; // Retrieval functions
+import { helpAll } from "./help.js"; // Display help for all commands
 import {
   jsonl2json,
   parseAnyToJSON,
@@ -23,11 +26,11 @@ import {
   parseTokenize,
   parseTokens,
   prompty2genaiscript,
-} from "./parse"; // Parsing functions
-import { compileScript, createScript, fixScripts, listScripts, scriptInfo } from "./scripts"; // Script utilities
-import { envInfo, modelAliasesInfo, modelList, scriptModelInfo, systemInfo } from "./info"; // Information utilities
-import { scriptTestList, scriptTestsView, scriptsTest } from "./test"; // Test functions
-import { cacheClear } from "./cache"; // Cache management
+} from "./parse.js"; // Parsing functions
+import { compileScript, createScript, fixScripts, listScripts, scriptInfo } from "./scripts.js"; // Script utilities
+import { envInfo, modelAliasesInfo, modelList, scriptModelInfo, systemInfo } from "./info.js"; // Information utilities
+import { scriptTestList, scriptTestsView, scriptsTest } from "./test.js"; // Test functions
+import { cacheClear } from "./cache.js"; // Cache management
 import "node:console"; // Importing console for side effects
 import {
   UNHANDLED_ERROR_CODE,
@@ -40,26 +43,26 @@ import {
   OPENAI_MAX_RETRY_COUNT,
   MODEL_PROVIDERS,
   DEBUG_SCRIPT_CATEGORY,
-} from "../../core/src/constants"; // Core constants
-import { errorMessage, isRequestError, RequestError, serializeError } from "../../core/src/error"; // Error handling utilities
-import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version"; // Core version and repository info
-import { logVerbose } from "../../core/src/util"; // Utility logging
-import { semverSatisfies } from "../../core/src/semver"; // Semantic version checking
-import { convertFiles } from "./convert";
-import { extractAudio, extractVideoFrames, probeVideo } from "./video";
-import { configure } from "./configure";
-import { logPerformance } from "../../core/src/performance";
-import { setConsoleColors } from "../../core/src/consolecolor";
-import { listRuns } from "./runs";
-import { startMcpServer } from "./mcpserver";
-import { error } from "./log";
-import { DEBUG_CATEGORIES } from "../../core/src/dbg";
-import { startOpenAPIServer } from "./openapi";
-import { actionConfigure } from "./action";
+} from "@genaiscript/core"; // Core constants
+import { errorMessage, isRequestError, RequestError, serializeError } from "@genaiscript/core"; // Error handling utilities
+import { CORE_VERSION, GITHUB_REPO } from "@genaiscript/core"; // Core version and repository info
+import { logVerbose } from "@genaiscript/core"; // Utility logging
+import { semverSatisfies } from "@genaiscript/core"; // Semantic version checking
+import { convertFiles } from "./convert.js";
+import { extractAudio, extractVideoFrames, probeVideo } from "./video.js";
+import { configure } from "./configure.js";
+import { logPerformance } from "@genaiscript/core";;
+import { setConsoleColors } from "@genaiscript/core";;
+import { listRuns } from "./runs.js";
+import { startMcpServer } from "./mcpserver.js";
+import { error } from "./log.js";
+import { DEBUG_CATEGORIES } from "@genaiscript/core";;
+import { startOpenAPIServer } from "./openapi.js";
+import { actionConfigure } from "./action.js";
 import { resolve } from "node:path";
 import debug from "debug";
-import { genaiscriptDebug } from "../../core/src/debug";
-import { githubActionConfigure } from "./githubaction";
+import { genaiscriptDebug } from "@genaiscript/core";
+import { githubActionConfigure } from "./githubaction.js";
 import { uniq } from "es-toolkit";
 const dbg = genaiscriptDebug("cli");
 

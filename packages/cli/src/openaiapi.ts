@@ -1,20 +1,22 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { IncomingMessage, ServerResponse } from "http";
 import {
   ChatCompletion,
-  ChatCompletionTokenLogprob,
   ChatModel,
   ChatModels,
   CreateChatCompletionRequest,
-} from "../../core/src/chattypes";
-import { parseModelIdentifier, resolveModelConnectionInfo } from "../../core/src/models";
-import { LARGE_MODEL_ID } from "../../core/src/constants";
-import { resolveLanguageModel } from "../../core/src/lm";
-import { errorMessage } from "../../core/src/error";
-import { TraceOptions } from "../../core/src/trace";
-import { CancellationOptions } from "../../core/src/cancellation";
-import { logError, logVerbose } from "../../core/src/util";
-import { resolveLanguageModelConfigurations } from "../../core/src/config";
-import { generateId } from "../../core/src/id";
+} from "@genaiscript/core";
+import { resolveModelConnectionInfo } from "@genaiscript/core";
+import { LARGE_MODEL_ID } from "@genaiscript/core";
+import { resolveLanguageModel } from "@genaiscript/core";
+import { errorMessage } from "@genaiscript/core";
+import { TraceOptions } from "@genaiscript/core";
+import { CancellationOptions } from "@genaiscript/core";
+import { logError, logVerbose } from "@genaiscript/core";
+import { resolveLanguageModelConfigurations } from "@genaiscript/core";
+import { generateId } from "@genaiscript/core";
 
 async function readRequestBody<T>(req: IncomingMessage): Promise<T> {
   return new Promise((resolve, reject) => {

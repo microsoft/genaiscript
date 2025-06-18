@@ -1,5 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import debug from "debug";
-import { genaiscriptDebug } from "../../core/src/debug";
+import { genaiscriptDebug } from "@genaiscript/core";
+import type { GenerationOutput } from "@genaiscript/core";
 
 const dbg = genaiscriptDebug("github:action");
 

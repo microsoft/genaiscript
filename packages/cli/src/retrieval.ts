@@ -1,8 +1,11 @@
-import { normalizeFloat, normalizeInt } from "../../core/src/cleaners";
-import { expandFiles } from "../../core/src/fs";
-import { fuzzSearch } from "../../core/src/fuzzsearch";
-import { vectorIndex, vectorSearch } from "../../core/src/vectorsearch";
-import { YAMLStringify } from "../../core/src/yaml";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { normalizeFloat, normalizeInt, WorkspaceFile } from "@genaiscript/core";
+import { expandFiles } from "@genaiscript/core";
+import { fuzzSearch } from "@genaiscript/core";
+import { vectorIndex, vectorSearch } from "@genaiscript/core";
+import { YAMLStringify } from "@genaiscript/core";
 
 /**
  * Generates a vector index for retrieval tasks by processing specified files.

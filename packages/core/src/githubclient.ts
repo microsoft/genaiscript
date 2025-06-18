@@ -40,6 +40,31 @@ import { TraceOptions } from "./trace.js";
 import { unzip } from "./zip.js";
 import { uriRedact, uriTryParse } from "./url.js";
 import { dedent } from "./indent.js";
+import type {
+  BufferLike,
+  Diagnostic,
+  GitHub,
+  GitHubArtifact,
+  GitHubCodeSearchResult,
+  GitHubComment,
+  GitHubFile,
+  GitHubGist,
+  GitHubIssue,
+  GitHubIssueUpdateOptions,
+  GitHubLabel,
+  GitHubOptions,
+  GitHubPaginationOptions,
+  GitHubPullRequest,
+  GitHubRef,
+  GitHubRelease,
+  GitHubWorkflow,
+  GitHubWorkflowJob,
+  GitHubWorkflowRun,
+  GitHubWorkflowRunStatus,
+  PromptScript,
+  WorkspaceFile
+} from "./types.js"
+
 const dbg = genaiscriptDebug("github");
 
 export interface GithubConnectionInfo {

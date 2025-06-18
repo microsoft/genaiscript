@@ -1,6 +1,7 @@
-import { SERVER_PORT } from "../../core/src/constants";
-import { findRandomOpenPort, isPortInUse } from "../../core/src/net";
-import { logWarn } from "../../core/src/util";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { findRandomOpenPort, isPortInUse, logWarn } from "@genaiscript/core";
 
 export async function findOpenPort(defaultPort: number, options?: { port?: string }) {
   let port = parseInt(options.port) || defaultPort;

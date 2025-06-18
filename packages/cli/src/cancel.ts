@@ -1,5 +1,8 @@
-import { AbortSignalCancellationController } from "../../core/src/cancellation";
-import { logWarn } from "../../core/src/util";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { AbortSignalCancellationController } from "@genaiscript/core";
+import { logWarn } from "@genaiscript/core";
 
 /**
  * Creates and returns an instance of AbortSignalCancellationController for handling cancellations.

@@ -1,22 +1,24 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { capitalize } from "inflection";
 import { resolve, join, relative } from "node:path";
-import { isQuiet } from "../../core/src/quiet";
+import { isQuiet } from "@genaiscript/core";
 import { emptyDir, ensureDir, exists } from "fs-extra";
-import { convertDiagnosticsToSARIF } from "./sarif";
-import { buildProject } from "./build";
-import { diagnosticsToCSV } from "../../core/src/ast";
-import { CancellationOptions, checkCancelled } from "../../core/src/cancellation";
-import { ChatCompletionsProgressReport } from "../../core/src/chattypes";
-import { runTemplate } from "../../core/src/promptrunner";
+import { convertDiagnosticsToSARIF } from "./sarif.js";
+import { buildProject } from "./build.js";
+import { diagnosticsToCSV } from "@genaiscript/core";
+import { CancellationOptions, checkCancelled } from "@genaiscript/core";
+import { ChatCompletionsProgressReport } from "@genaiscript/core";
+import { runTemplate } from "@genaiscript/core";
 import {
   githubCreateIssueComment,
   githubCreatePullRequestReviews,
   githubUpdatePullRequestDescription,
   githubParseEnv,
   GithubConnectionInfo,
-} from "../../core/src/githubclient";
+} from "@genaiscript/core";
 import {
-  HTTPS_REGEX,
   FILES_NOT_FOUND_ERROR_CODE,
   CONFIGURATION_ERROR_CODE,
   USER_CANCELLED_ERROR_CODE,
@@ -39,56 +41,56 @@ import {
   REASONING_START_MARKER,
   LARGE_MODEL_ID,
   NEGATIVE_GLOB_REGEX,
-} from "../../core/src/constants";
-import { isCancelError, errorMessage } from "../../core/src/error";
-import { GenerationResult } from "../../core/src/server/messages";
-import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs";
-import { host, runtimeHost } from "../../core/src/host";
-import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl";
-import { resolveModelConnectionInfo } from "../../core/src/models";
-import { JSONSchemaStringifyToTypeScript, JSONSchemaStringify } from "../../core/src/schema";
-import { TraceOptions, MarkdownTrace, TraceChunkEvent } from "../../core/src/trace";
-import { logVerbose, logError, logInfo, logWarn, assert, ellipse } from "../../core/src/util";
-import { YAMLStringify } from "../../core/src/yaml";
-import { PromptScriptRunOptions } from "../../core/src/server/messages";
-import { writeFileEdits } from "../../core/src/fileedits";
+} from "@genaiscript/core";
+import { isCancelError, errorMessage } from "@genaiscript/core";
+import { GenerationResult } from "@genaiscript/core";
+import { filePathOrUrlToWorkspaceFile, writeText } from "@genaiscript/core";
+import { host, runtimeHost } from "@genaiscript/core";
+import { isJSONLFilename, appendJSONL } from "@genaiscript/core";
+import { resolveModelConnectionInfo } from "@genaiscript/core";
+import { JSONSchemaStringifyToTypeScript, JSONSchemaStringify } from"@genaiscript/core";
+import { TraceOptions, MarkdownTrace, TraceChunkEvent } from "@genaiscript/core";
+import { logVerbose, logError, logInfo, logWarn, assert, ellipse } from "@genaiscript/core";
+import { YAMLStringify } from "@genaiscript/core";
+import { PromptScriptRunOptions } from "@genaiscript/core";
+import { writeFileEdits } from "@genaiscript/core";
 import {
   azureDevOpsCreateIssueComment,
   AzureDevOpsEnv,
   azureDevOpsParseEnv,
   azureDevOpsUpdatePullRequestDescription,
-} from "../../core/src/azuredevops";
+} from "@genaiscript/core";
 import { writeFile } from "fs/promises";
-import { prettifyMarkdown } from "../../core/src/markdown";
+import { prettifyMarkdown } from "@genaiscript/core";
 import { delay } from "es-toolkit";
-import { GenerationStats } from "../../core/src/usage";
-import { traceAgentMemory } from "../../core/src/agent";
+import { GenerationStats } from "@genaiscript/core";
+import { traceAgentMemory } from "@genaiscript/core"; 
 import { appendFile } from "node:fs/promises";
-import { parseOptionsVars } from "./vars";
-import { logprobColor } from "../../core/src/logprob";
-import { overrideStdoutWithStdErr, stderr, stdout } from "../../core/src/stdio";
-import { setupTraceWriting } from "./trace";
+import { parseOptionsVars } from "./vars.js";
+import { logprobColor } from  "@genaiscript/core";
+import { overrideStdoutWithStdErr, stderr, stdout } from "@genaiscript/core";
+import { setupTraceWriting } from "./trace.js";
 import {
   applyModelOptions,
   applyScriptModelAliases,
   logModelAliases,
-} from "../../core/src/modelalias";
-import { createCancellationController } from "./cancel";
-import { parsePromptScriptMeta } from "../../core/src/template";
-import { Fragment } from "../../core/src/generation";
-import { normalizeFloat, normalizeInt } from "../../core/src/cleaners";
-import { microsoftTeamsChannelPostMessage } from "../../core/src/teams";
-import { confirmOrSkipInCI } from "./ci";
-import { readStdIn } from "./stdin";
-import { consoleColors, wrapColor, wrapRgbColor } from "../../core/src/consolecolor";
-import { generateId } from "../../core/src/id";
-import { ensureDotGenaiscriptPath, getRunDir, createStatsDir } from "../../core/src/workdir";
-import { tryResolveResource } from "../../core/src/resources";
-import { genaiscriptDebug } from "../../core/src/debug";
-import { uriTryParse } from "../../core/src/url";
-import { tryResolveScript } from "../../core/src/scriptresolver";
-import { isCI } from "../../core/src/ci";
-import { githubActionSetOutputs } from "./githubaction";
+} from  "@genaiscript/core";
+import { createCancellationController } from "./cancel.js";
+import { parsePromptScriptMeta } from  "@genaiscript/core";
+import { Fragment } from  "@genaiscript/core";
+import { normalizeFloat, normalizeInt } from  "@genaiscript/core";
+import { microsoftTeamsChannelPostMessage } from  "@genaiscript/core";
+import { confirmOrSkipInCI } from "./ci.js";
+import { readStdIn } from "./stdin.js";
+import { consoleColors, wrapColor, wrapRgbColor } from "@genaiscript/core";
+import { generateId } from "@genaiscript/core";
+import { ensureDotGenaiscriptPath, getRunDir, createStatsDir } from "@genaiscript/core";
+import { tryResolveResource } from "@genaiscript/core";
+import { genaiscriptDebug } from "@genaiscript/core";
+import { uriTryParse } from "@genaiscript/core";
+import { tryResolveScript } from "@genaiscript/core";
+import { isCI } from "@genaiscript/core";
+import { githubActionSetOutputs } from "./githubaction.js";
 const dbg = genaiscriptDebug("run");
 
 /**

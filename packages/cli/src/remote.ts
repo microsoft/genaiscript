@@ -1,5 +1,7 @@
-import { GitClient } from "../../core/src/git";
-import { logInfo } from "../../core/src/util";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { GitClient, logInfo } from "@genaiscript/core";
 
 export interface RemoteOptions {
   remote?: string;

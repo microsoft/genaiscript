@@ -1,19 +1,22 @@
-import { ScriptFilterOptions } from "../../core/src/ast";
-import { deleteUndefinedValues, ensureHeadSlash, trimTrailingSlash } from "../../core/src/cleaners";
-import { genaiscriptDebug } from "../../core/src/debug";
-import { nodeTryReadPackage } from "../../core/src/nodepackage";
-import { toStrictJSONSchema } from "../../core/src/schema";
-import { logError, logVerbose, logWarn } from "../../core/src/util";
-import { RemoteOptions, applyRemoteOptions } from "./remote";
-import { startProjectWatcher } from "./watch";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { JSONSchemaObject, ScriptFilterOptions } from "@genaiscript/core";
+import { deleteUndefinedValues, ensureHeadSlash, trimTrailingSlash } from "@genaiscript/core";
+import { genaiscriptDebug } from "@genaiscript/core";
+import { nodeTryReadPackage } from "@genaiscript/core";
+import { toStrictJSONSchema } from "@genaiscript/core";
+import { logError, logVerbose, logWarn } from "@genaiscript/core";
+import { RemoteOptions, applyRemoteOptions } from "./remote.js";
+import { startProjectWatcher } from "./watch.js";
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { findOpenPort } from "./port";
-import { OPENAPI_SERVER_PORT } from "../../core/src/constants";
-import { CORE_VERSION } from "../../core/src/version";
-import { run } from "./api";
-import { errorMessage } from "../../core/src/error";
-import { PromptScriptRunOptions } from "./main";
-import { ensureDotGenaiscriptPath } from "../../core/src/workdir";
+import { findOpenPort } from "./port.js";
+import { OPENAPI_SERVER_PORT } from"@genaiscript/core";
+import { CORE_VERSION } from "@genaiscript/core";
+import { run } from "@genaiscript/api";
+import { errorMessage } from "@genaiscript/core";
+import { PromptScriptRunOptions } from "@genaiscript/core";
+import { ensureDotGenaiscriptPath } from "@genaiscript/core";
 import { uniq } from "es-toolkit";
 const dbg = genaiscriptDebug("openapi");
 const dbgError = dbg.extend("error");

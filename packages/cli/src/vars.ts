@@ -1,5 +1,7 @@
-import { CLI_ENV_VAR_RX } from "../../core/src/constants";
-import { parseKeyValuePair } from "../../core/src/fence";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { CLI_ENV_VAR_RX, parseKeyValuePair } from "@genaiscript/core";
 
 /**
  * Parses and combines variables from input and environment variables.

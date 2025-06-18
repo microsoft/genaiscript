@@ -1,7 +1,10 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { join } from "node:path";
-import { dotGenaiscriptPath } from "../../core/src/workdir";
+import { dotGenaiscriptPath } from "@genaiscript/core";
 import { emptyDir } from "fs-extra";
-import { sanitizeFilename } from "../../core/src/sanitize";
+import { sanitizeFilename } from "@genaiscript/core";
 
 /**
  * This module provides a function to clear a specified cache directory.

@@ -1,10 +1,15 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { relative } from "node:path";
 import {
+  Diagnostic,
+  PromptScript,
   SARIFF_BUILDER_TOOL_DRIVER_NAME,
   SARIFF_BUILDER_URL,
   SARIFF_RULEID_PREFIX,
-} from "../../core/src/constants";
-import { CORE_VERSION } from "../../core/src/version";
+} from "@genaiscript/core";
+import { CORE_VERSION } from "@genaiscript/core";
 
 /**
  * This module contains utility functions for working with SARIF (Static Analysis Results Interchange Format)

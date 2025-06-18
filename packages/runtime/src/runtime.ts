@@ -27,7 +27,6 @@ import type {
 } from "@genaiscript/core";
 import { delay, uniq, uniqBy, chunk } from "es-toolkit";
 import { z } from "zod";
-import { check } from "zod/v4";
 
 let globalPromptContext: PromptContext | undefined;
 

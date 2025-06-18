@@ -1,34 +1,37 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import replaceExt from "replace-ext";
 import { readFile, writeFile } from "node:fs/promises";
-import { DOCXTryParse } from "../../core/src/docx";
-import { extractFenced } from "../../core/src/fence";
-import { expandFiles, writeText, readText, tryReadText } from "../../core/src/fs";
-import { HTMLToMarkdown, HTMLToText } from "../../core/src/html";
-import { isJSONLFilename, JSONLTryParse } from "../../core/src/jsonl";
-import { parsePdf } from "../../core/src/pdf";
-import { estimateTokens } from "../../core/src/tokens";
-import { YAMLStringify } from "../../core/src/yaml";
-import { resolveTokenEncoder } from "../../core/src/encoders";
-import { CONSOLE_TOKEN_COLORS, MD_REGEX, PROMPTY_REGEX } from "../../core/src/constants";
-import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty";
+import { DocxParseOptions, DOCXTryParse, WorkspaceFile } from "@genaiscript/core";
+import { extractFenced } from "@genaiscript/core";
+import { expandFiles, writeText, readText, tryReadText } from "@genaiscript/core";
+import { HTMLToMarkdown, HTMLToText } from "@genaiscript/core";
+import { isJSONLFilename, JSONLTryParse } from "@genaiscript/core";
+import { parsePdf } from "@genaiscript/core";
+import { estimateTokens } from "@genaiscript/core";
+import { YAMLStringify } from "@genaiscript/core";
+import { resolveTokenEncoder } from "@genaiscript/core";
+import { CONSOLE_TOKEN_COLORS, MD_REGEX, PROMPTY_REGEX } from "@genaiscript/core";
+import { promptyParse, promptyToGenAIScript } from "@genaiscript/core";
 import { basename, join } from "node:path";
-import { CSVStringify, dataToMarkdownTable } from "../../core/src/csv";
-import { INIStringify } from "../../core/src/ini";
-import { JSON5Stringify } from "../../core/src/json5";
-import { jinjaRender } from "../../core/src/jinja";
-import { splitMarkdown } from "../../core/src/frontmatter";
-import { parseOptionsVars } from "./vars";
-import { dataTryParse } from "../../core/src/data";
-import { resolveFileContent } from "../../core/src/file";
-import { redactSecrets } from "../../core/src/secretscanner";
-import { ellipse, logVerbose } from "../../core/src/util";
-import { chunkMarkdown } from "../../core/src/mdchunk";
-import { normalizeInt } from "../../core/src/cleaners";
-import { prettyBytes } from "../../core/src/pretty";
-import { terminalSize } from "../../core/src/terminal";
-import { consoleColors, wrapColor } from "../../core/src/consolecolor";
-import { genaiscriptDebug } from "../../core/src/debug";
-import { stderr, stdout } from "../../core/src/stdio";
+import { CSVStringify, dataToMarkdownTable } from "@genaiscript/core";
+import { INIStringify } from "@genaiscript/core";
+import { JSON5Stringify } from "@genaiscript/core";
+import { jinjaRender } from "@genaiscript/core";
+import { splitMarkdown } from "@genaiscript/core";
+import { parseOptionsVars } from "./vars.js";
+import { dataTryParse } from "@genaiscript/core";
+import { resolveFileContent } from "@genaiscript/core";
+import { redactSecrets } from "@genaiscript/core";
+import { ellipse, logVerbose } from "@genaiscript/core";
+import { chunkMarkdown } from "@genaiscript/core";
+import { normalizeInt } from "@genaiscript/core";
+import { prettyBytes } from "@genaiscript/core";
+import { terminalSize } from "@genaiscript/core";
+import { wrapColor } from "@genaiscript/core";
+import { genaiscriptDebug } from "@genaiscript/core";
+import { stdout } from "@genaiscript/core";
 const dbg = genaiscriptDebug("cli:parse");
 
 /**

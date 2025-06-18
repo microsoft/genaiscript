@@ -45,6 +45,7 @@
       "esm",
       "commonjs"
     ],
+    "project": "./tsconfig.src.json",
     "exports": {
       ".": "./src/index.ts",
       "./package.json": "./package.json"

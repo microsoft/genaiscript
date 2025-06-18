@@ -1,13 +1,16 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { FSWatcher, watch } from "chokidar";
 import { basename, resolve } from "node:path";
-import { CHANGE, CLOSE, GENAI_ANY_REGEX, OPEN } from "../../core/src/constants";
-import { createGitIgnorer } from "../../core/src/gitignore";
-import { Project } from "../../core/src/server/messages";
-import { buildProject } from "./build";
-import { filterScripts, ScriptFilterOptions } from "../../core/src/ast";
-import { CancellationOptions, toSignal } from "../../core/src/cancellation";
-import { logError } from "../../core/src/util";
-import { genaiscriptDebug } from "../../core/src/debug";
+import { CHANGE, CLOSE, ElementOrArray, GENAI_ANY_REGEX, OPEN, PromptScript } from "@genaiscript/core";
+import { createGitIgnorer } from "@genaiscript/core";
+import { Project } from "@genaiscript/core";
+import { buildProject } from "./build.js";
+import { filterScripts, ScriptFilterOptions } from "@genaiscript/core";
+import { CancellationOptions, toSignal } from "@genaiscript/core";
+import { logError } from "@genaiscript/core";
+import { genaiscriptDebug } from "@genaiscript/core";
 const dbg = genaiscriptDebug("watch");
 
 interface ProjectWatcherOptions extends ScriptFilterOptions {

@@ -1,20 +1,25 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { resolve } from "node:path";
-import { deleteUndefinedValues } from "../../core/src/cleaners";
-import { GENAI_ANY_REGEX, GENAI_SRC } from "../../core/src/constants";
-import { genaiscriptDebug } from "../../core/src/debug";
-import { nodeTryReadPackage } from "../../core/src/nodepackage";
-import { CORE_VERSION } from "../../core/src/version";
-import { YAMLStringify, YAMLTryParse } from "../../core/src/yaml";
-import { buildProject } from "./build";
+import { deleteUndefinedValues, GitHubClient, JSONSchemaDescribed, JSONSchemaObject } from "@genaiscript/core";
+import { GENAI_ANY_REGEX, GENAI_SRC } from "@genaiscript/core";
+import { genaiscriptDebug } from "@genaiscript/core";
+import { nodeTryReadPackage } from "@genaiscript/core";
+import { CORE_VERSION } from "@genaiscript/core";
+import { YAMLStringify, YAMLTryParse } from "@genaiscript/core";
+import { buildProject } from "./build.js";
 import { snakeCase } from "es-toolkit";
-import { logInfo, logVerbose } from "../../core/src/util";
-import { tryStat, writeText } from "../../core/src/fs";
-import { dedent } from "../../core/src/indent";
-import { runtimeHost } from "../../core/src/host";
-import { createScript as coreCreateScript } from "../../core/src/scripts";
-import { templateIdFromFileName } from "../../core/src/template";
+import { logInfo, logVerbose } from "@genaiscript/core";
+import { tryStat, writeText } from "@genaiscript/core";
+import { dedent } from "@genaiscript/core";
+import { runtimeHost } from "@genaiscript/core";
+import { createScript as coreCreateScript } from "@genaiscript/core";
+import { templateIdFromFileName } from "@genaiscript/core";
 
 const dbg = genaiscriptDebug("cli:action");
+
+const github = GitHubClient.default();
 
 interface GitHubActionFieldType {
   description: string;

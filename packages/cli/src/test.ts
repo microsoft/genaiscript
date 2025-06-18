@@ -1,13 +1,16 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 // This module provides functionality to test prompt scripts, including running,
 // listing, and viewing results. It handles configuration setup, execution logic,
 // and result processing.
 
-import { buildProject } from "./build";
+import { buildProject } from "./build.js";
 import { readFile, writeFile, appendFile } from "node:fs/promises";
 import { execa } from "execa";
 import { dirname, join, resolve } from "node:path";
 import { emptyDir, exists } from "fs-extra";
-import { PROMPTFOO_VERSION } from "./version";
+import { PROMPTFOO_VERSION } from "@genaiscript/runtime";
 import {
   PROMPTFOO_CACHE_PATH,
   PROMPTFOO_CONFIG_DIR,
@@ -18,37 +21,43 @@ import {
   EMOJI_FAIL,
   TEST_RUNS_DIR_NAME,
   PROMPTFOO_REMOTE_API_PORT,
-} from "../../core/src/constants";
-import { promptFooDriver } from "../../core/src/default_prompts";
-import { serializeError } from "../../core/src/error";
-import { runtimeHost } from "../../core/src/host";
-import { JSON5TryParse } from "../../core/src/json5";
-import { MarkdownTrace } from "../../core/src/trace";
-import { logInfo, logVerbose, toStringList } from "../../core/src/util";
-import { YAMLStringify } from "../../core/src/yaml";
+} from "@genaiscript/core";
+import { promptFooDriver } from "@genaiscript/core";
+import { serializeError } from "@genaiscript/core";
+import { runtimeHost } from "@genaiscript/core";
+import { JSON5TryParse } from "@genaiscript/core";
+import { MarkdownTrace } from "@genaiscript/core";
+import { logInfo, logVerbose, toStringList } from "@genaiscript/core";
+import { YAMLStringify } from "@genaiscript/core";
 import {
   PromptScriptTestRunOptions,
   PromptScriptTestRunResponse,
   PromptScriptTestResult,
-} from "../../core/src/server/messages";
-import { generatePromptFooConfiguration } from "../../core/src/promptfoo";
+} from "@genaiscript/core";
+import { generatePromptFooConfiguration } from "@genaiscript/core";
 import { delay } from "es-toolkit";
-import { resolveModelConnectionInfo } from "../../core/src/models";
-import { filterScripts } from "../../core/src/ast";
-import { link } from "../../core/src/mkmd";
-import { applyModelOptions } from "../../core/src/modelalias";
-import { arrayify, normalizeFloat, normalizeInt } from "../../core/src/cleaners";
-import { ChatCompletionReasoningEffort } from "../../core/src/chattypes";
-import { CancellationOptions, checkCancelled } from "../../core/src/cancellation";
-import { CORE_VERSION } from "../../core/src/version";
+import { resolveModelConnectionInfo } from "@genaiscript/core";
+import { filterScripts } from "@genaiscript/core";
+import { link } from "@genaiscript/core";
+import { applyModelOptions } from "@genaiscript/core";
+import { arrayify, normalizeFloat, normalizeInt } from "@genaiscript/core";
+import { ChatCompletionReasoningEffort } from "@genaiscript/core";
+import { CancellationOptions, checkCancelled } from "@genaiscript/core";
+import { CORE_VERSION } from "@genaiscript/core";
 import {
   headersToMarkdownTableHead,
   headersToMarkdownTableSeperator,
   objectToMarkdownTableRow,
-} from "../../core/src/csv";
-import { roundWithPrecision } from "../../core/src/precision";
-import { ensureDir } from "../../core/src/fs";
-import { dotGenaiscriptPath } from "../../core/src/workdir";
+} from "@genaiscript/core";
+import { roundWithPrecision } from "@genaiscript/core";
+import { ensureDir } from "@genaiscript/core";
+import { dotGenaiscriptPath } from "@genaiscript/core";
+import type {
+  ModelAliasesOptions,
+  ModelOptions,
+  PromptScript,
+  SerializedError,
+} from "@genaiscript/core";
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
