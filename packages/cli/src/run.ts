@@ -136,8 +136,7 @@ const dbg = genaiscriptDebug("cli:run")
 export async function runScriptWithExitCode(
     scriptId: string,
     files: string[],
-    options: Partial<PromptScriptRunOptions> &
-        TraceOptions & { githubAction?: boolean }
+    options: Partial<PromptScriptRunOptions> & TraceOptions
 ) {
     dbg(`run %s`, scriptId)
     await ensureDotGenaiscriptPath()
@@ -187,7 +186,7 @@ export async function runScriptWithExitCode(
     if (cancellationToken.isCancellationRequested)
         exitCode = USER_CANCELLED_ERROR_CODE
 
-    if (options?.githubAction) await githubActionSetOutputs(result)
+    await githubActionSetOutputs(result)
     process.exit(exitCode)
 }
 

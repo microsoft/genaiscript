@@ -144,9 +144,14 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
         dbg(`found GENAISCRIPT_DEFAULT_MODEL: ${env.GENAISCRIPT_DEFAULT_MODEL}`)
         runtimeHost.setModelAlias("env", "large", env.GENAISCRIPT_DEFAULT_MODEL)
     }
+    // action
+    if (env.INPUT_MODEL) {
+        dbg(`found INPUT_MODEL = ${env.INPUT_MODEL}`)
+        runtimeHost.setModelAlias("env", "large", env.INPUT_MODEL)
+    }
 
     const rx =
-        /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9_\-]+)_MODEL|MODEL_(?<id2>[A-Z0-9_\-]+))$/i
+        /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9_\-]+)_MODEL|(INPUT_)?MODEL_(?<id2>[A-Z0-9_\-]+))$/i
     for (const kv of Object.entries(env)) {
         const [k, v] = kv
         const m = rx.exec(k)
@@ -159,7 +164,7 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
     }
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
     if (!isNaN(t)) {
-        dbg(`parsed GENAISCRIPT_DEFAULT_TEMPERATURE: ${t}`)
+        dbg(`parsed GENAISCRIPT_DEFAULT_TEMPERATURE = ${t}`)
         runtimeHost.setModelAlias("env", "large", { temperature: t })
     }
 }
