@@ -26,6 +26,7 @@ excerpt: Documenting code can be tedious but remains critical for maintaining
   powerful tool for scaling such tasks in development teams.
 
 ---
+---
 import BlogNarration from "../../../components/BlogNarration.astro"
 
 <BlogNarration />
@@ -48,7 +49,7 @@ Peli explored this feature in his [AST Grep and Transform](https://microsoft.git
 
 Here is an example of what we want to achieve:
 
-```typescript wrap
+```ts wrap
 // Before
 function calculateTotal(price: number, tax: number): number {
     return price + price * tax
@@ -98,7 +99,7 @@ Finally, we will write a prompt for Cline to generate the GenAIScript code. The 
 
 The following is the prompt I wrote for Cline to generate the GenAIScript code. It is designed to be clear and concise, while also providing enough detail for Cline to understand the task.
 
-```markdown wrap
+```md wrap
 You are an expert software engineer, familiar in all aspects of TypeScript and GenAIScript. You will find the documentation for GenAIScript at https://microsoft.github.io/genaiscript/llms.txt. Make sure to follow the links in all the Documentation Sets to understand the full capabilities of GenAIScript before writing the script.
 
 ## Task
@@ -134,290 +135,280 @@ After writing the prompt, we use Cline to generate the GenAIScript code. Cline w
 
 This is the script Cline generated for me (your script may vary slightly):
 
-```typescript wrap
+```ts wrap
 script({
-    title: "Add JSDoc Comments to TypeScript Code",
-    description:
-        "Automatically generates JSDoc comments for TypeScript functions, classes, and methods that are missing documentation",
-    parameters: {
-        glob: {
-            type: "string",
-            description: "Glob pattern for TypeScript files to process",
-            default: "**/*.{ts,tsx}",
-        },
-        updateExisting: {
-            type: "boolean",
-            description: "Update existing JSDoc comments",
-            default: false,
-        },
-        applyEdits: {
-            type: "boolean",
-            description: "Apply the edits automatically",
-            default: false,
-        },
+  title: "Add JSDoc Comments to TypeScript Code",
+  description:
+    "Automatically generates JSDoc comments for TypeScript functions, classes, methods, and interfaces that are missing documentation",
+  model: "large",
+  parameters: {
+    glob: {
+      type: "string",
+      description: "Glob pattern for TypeScript files to process",
+      default: "**/*.{ts,tsx}",
     },
-})
+    updateExisting: {
+      type: "boolean",
+      description: "Update existing JSDoc comments",
+      default: false,
+    },
+    applyEdits: {
+      type: "boolean",
+      description: "Apply the edits automatically",
+      default: false,
+    },
+  },
+});
 
 // Find TypeScript files to process
 const files = await workspace.findFiles(env.vars.glob || "**/*.{ts,tsx}", {
-    ignore: ["**/node_modules/**", "**/dist/**", "**/*.d.ts"],
-})
+  ignore: ["**/node_modules/**", "**/dist/**", "**/*.d.ts"],
+});
 
 if (files.length === 0) {
-    $`No TypeScript files found matching pattern: ${
-        env.vars.glob || "**/*.{ts,tsx}"
+  env.output.log(
+    `No TypeScript files found matching pattern: ${
+      env.vars.glob || "**/*.{ts,tsx}"
     }`
-    cancel("No files to process")
+  );
+  cancel("No files to process");
 }
 
-$`Found ${files.length} TypeScript files to analyze for missing JSDoc comments.`
+env.output.log(
+  `Found ${files.length} TypeScript files to analyze for missing JSDoc comments.`
+);
 
-// Define patterns to find declarations without JSDoc
-const patterns = [
-    // Function declarations
-    {
-        name: "function",
-        regex: /^(\s*)(export\s+)?(async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/gm,
-        description: "function declaration",
+// Define ast-grep patterns to find declarations without JSDoc
+const astPatterns = [
+  // Function declarations
+  {
+    name: "function_declaration",
+    pattern: {
+      rule: {
+        kind: "export_statement",
+        has: {
+          kind: "function_declaration",
+          has: {
+            kind: "identifier",
+            field: "name",
+          },
+        },
+        not: {
+          follows: {
+            kind: "comment",
+            stopBy: "neighbor",
+          },
+        },
+      } satisfies SgRule,
     },
-    // Arrow function assignments
-    {
-        name: "arrow_function",
-        regex: /^(\s*)(export\s+)?(const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>/gm,
-        description: "arrow function",
+    description: "function declaration",
+  },
+  // Interface declarations
+  {
+    name: "interface_declaration",
+    pattern: {
+      rule: {
+        kind: "export_statement",
+        has: {
+          kind: "interface_declaration",
+          has: {
+            kind: "type_identifier",
+            field: "name",
+          },
+        },
+        not: {
+          follows: {
+            kind: "comment",
+            stopBy: "neighbor",
+          },
+        },
+      } satisfies SgRule,
     },
-    // Class declarations
-    {
-        name: "class",
-        regex: /^(\s*)(export\s+)?(abstract\s+)?class\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm,
-        description: "class declaration",
+    description: "interface declaration",
+  },
+  // Method definitions in classes
+  {
+    name: "method_definition",
+    pattern: {
+      rule: {
+        kind: "method_definition",
+        not: {
+          follows: {
+            kind: "comment",
+            stopBy: "neighbor",
+          },
+        },
+      } satisfies SgRule,
     },
-    // Interface declarations
-    {
-        name: "interface",
-        regex: /^(\s*)(export\s+)?interface\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm,
-        description: "interface declaration",
+    description: "method declaration",
+  },
+  // Arrow functions assigned to variables
+  {
+    name: "arrow_function",
+    pattern: {
+      rule: {
+        kind: "export_statement",
+        has: {
+          kind: "lexical_declaration",
+          has: {
+            kind: "variable_declarator",
+            has: {
+              kind: "arrow_function",
+              field: "value",
+            },
+          },
+        },
+        not: {
+          follows: {
+            kind: "comment",
+            stopBy: "neighbor",
+          },
+        },
+      } satisfies SgRule,
     },
-    // Method declarations (inside classes)
-    {
-        name: "method",
-        regex: /^(\s+)(public\s+|private\s+|protected\s+)?(static\s+)?(async\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/gm,
-        description: "method declaration",
+    description: "arrow function",
+  },
+  // Type aliases
+  {
+    name: "type_alias",
+    pattern: {
+      rule: {
+        kind: "export_statement",
+        has: {
+          kind: "type_alias_declaration",
+          has: {
+            kind: "type_identifier",
+            field: "name",
+          },
+        },
+        not: {
+          follows: {
+            kind: "comment",
+            stopBy: "neighbor",
+          },
+        },
+      } satisfies SgRule,
     },
-]
+    description: "type alias declaration",
+  },
+];
 
-const allTargets = []
+type Target = {
+  match: SgNode; // The original match object for reference
+};
+const allTargets: Target[] = [];
 
-// Process each file
+// Get ast-grep instance
+const sg = await host.astGrep();
+
+// Process each file using ast-grep
 for (const file of files) {
-    const content = file.content
-    const lines = content.split("\n")
+  // Check each ast-grep pattern
+  for (const astPattern of astPatterns) {
+    try {
+      const targets: Target[] = [];
+      // Use ast-grep to find matches
+      const { matches } = await sg.search(
+        "ts",
+        file.filename,
+        astPattern.pattern
+      );
+      const edits = sg.changeset();
 
-    // Check each pattern
-    for (const pattern of patterns) {
-        let match
-        pattern.regex.lastIndex = 0 // Reset regex
+      for (const match of matches) {
+        targets.push({
+          match: match,
+        });
+      }
 
-        while ((match = pattern.regex.exec(content)) !== null) {
-            const matchIndex = match.index
-            const lineNumber =
-                content.substring(0, matchIndex).split("\n").length - 1
-            const lineContent = lines[lineNumber]?.trim()
-
-            // Skip if line is empty or looks like it already has JSDoc
-            if (
-                !lineContent ||
-                lineContent.startsWith("//") ||
-                lineContent.startsWith("*")
-            ) {
-                continue
-            }
-
-            // Check if previous line has JSDoc comment
-            let hasJSDoc = false
-            for (let i = lineNumber - 1; i >= 0; i--) {
-                const prevLine = lines[i]?.trim()
-                if (!prevLine) continue
-
-                if (prevLine.startsWith("/**") || prevLine.includes("/**")) {
-                    hasJSDoc = true
-                    break
-                }
-                if (
-                    prevLine &&
-                    !prevLine.startsWith("*") &&
-                    !prevLine.startsWith("//")
-                ) {
-                    break
-                }
-            }
-
-            if (!hasJSDoc) {
-                // Extract the full declaration (try to get multiple lines if needed)
-                let declarationLines = [lineContent]
-                let currentLine = lineNumber + 1
-
-                // For functions/methods, try to capture the full signature
-                if (pattern.name !== "interface" && pattern.name !== "class") {
-                    while (
-                        currentLine < lines.length &&
-                        !lines[currentLine]?.includes("{") &&
-                        !lines[currentLine]?.includes("=>")
-                    ) {
-                        const nextLine = lines[currentLine]?.trim()
-                        if (nextLine) {
-                            declarationLines.push(nextLine)
-                        }
-                        currentLine++
-                    }
-                }
-
-                allTargets.push({
-                    file: file.filename,
-                    line: lineNumber + 1,
-                    code: declarationLines.join("\n"),
-                    type: pattern.name,
-                    description: pattern.description,
-                    indent: match[1] || "",
-                })
-            }
-        }
+      await processTargets(edits, targets);
+    } catch (error) {
+      console.error(`Error processing pattern ${astPattern.name}:`, error);
+      // Continue with next pattern
     }
+  }
 }
 
 if (allTargets.length === 0) {
-    $`✅ All TypeScript declarations already have JSDoc comments or no declarations found.`
-    cancel("No work needed")
+  env.output.log(
+    "✅ All TypeScript declarations already have JSDoc comments or no declarations found."
+  );
+  cancel("No work needed");
 }
 
-$`Found ${allTargets.length} TypeScript declarations missing JSDoc comments.`
+env.output.log(
+  `Found ${allTargets.length} TypeScript declarations missing JSDoc comments.`
+);
 
-// Show preview of targets
-def("TARGETS", JSON.stringify(allTargets.slice(0, 10), null, 2)) // Show first 10 for brevity
+if (!env.vars.applyEdits) {
+  env.output.heading(2, "Preview Mode");
+  env.output.log(
+    "Set `applyEdits: true` to automatically apply the generated JSDoc comments to your source files."
+  );
+}
 
-$`## Task
+async function processTargets(edits: SgChangeSet, targets: Target[]) {
+  allTargets.push(...targets);
+  // Generate JSDoc for each target using inline prompts
+  for (const target of targets) {
+    const codeText = target.match.text();
 
-Generate appropriate JSDoc documentation for each TypeScript declaration listed above. Follow these guidelines:
+    // Generate JSDoc comment for this specific declaration
+    const jsdocComment = await runPrompt(
+      (ctx) => {
+        ctx.def("CODE", codeText);
+        ctx.$`Generate a JSDoc comment for <CODE>. 
 
-### JSDoc Format Requirements:
-1. Use proper JSDoc block comment syntax: \`/**\` to \`*/\`
-2. Include a concise description of what the function/class/interface does
-3. For functions and methods:
-   - Document all parameters with \`@param {type} paramName - description\`
-   - Document return type with \`@returns {type} description\` (if not void)
-   - Add \`@throws\` if the function can throw exceptions
-4. For classes:
-   - Provide a clear class description
-   - Document constructor parameters if applicable
-5. For interfaces:
-   - Describe the purpose and usage of the interface
-   - Document complex properties if needed
+Requirements:
+- Use proper JSDoc syntax with /** */
+- Include appropriate tags (@param, @returns, @throws, etc.)
+- Write clear, concise descriptions
+- Return ONLY the JSDoc comment block, no other text or code`;
+      },
+      { model: "large", temperature: 0.1 }
+    );
 
-### Code Analysis Guidelines:
-- Analyze the function/method signature to understand parameters and return types
-- Infer the purpose from the function name and implementation
-- Consider the context (class methods, utility functions, etc.)
-- Keep descriptions concise but informative
-- Use TypeScript-aware JSDoc annotations
+    // Extract the JSDoc comment from the response
+    const jsdoc =
+      parsers.unfence(jsdocComment.text, "typescript") || jsdocComment.text;
 
-### Output Format:
-For each target, provide the JSDoc comment that should be inserted immediately before the declaration. Format as:
+    // Prepend the JSDoc comment to the code
+    const newCode = jsdoc + "\n" + codeText;
 
-\`\`\`typescript
-/**
- * Your generated JSDoc comment here
- * @param {type} param - description
- * @returns {type} description
- */
-// The original code would follow here
-\`\`\`
-
-Generate JSDoc comments for all the targets listed above.`
-
-// If apply edits is enabled, create file edits
-if (env.vars.applyEdits) {
-    $`
-
-## Applying Edits
-
-Since applyEdits is enabled, I will now apply the generated JSDoc comments to the source files.`
-
-    const fileEdits = []
-
-    // Process each target and add JSDoc comment
-    for (const [index, target] of allTargets.entries()) {
-        console.log(
-            `Processing ${index + 1}/${allTargets.length}: ${target.file}:${
-                target.line
-            }`
-        )
-
-        // Generate JSDoc for this specific target
-        const jsdocPrompt = `Generate a JSDoc comment for this TypeScript ${target.description}:
-
-\`\`\`typescript
-${target.code}
-\`\`\`
-
-File: ${target.file}
-Line: ${target.line}
-
-Return only the JSDoc comment block (/**...*/) with proper indentation matching the code.
-The comment should be concise but informative.`
-
-        const jsdocResult = await runPrompt(jsdocPrompt, {
-            model: "gpt-4o",
-            temperature: 0.1,
-        })
-
-        if (jsdocResult.text?.trim()) {
-            // Read the current file content
-            const currentFile = await workspace.readText(target.file)
-            const lines = currentFile.content.split("\n")
-
-            // Insert the JSDoc comment before the target line
-            const insertLine = target.line - 1 // Convert to 0-based index
-            const jsDocComment = jsdocResult.text.trim()
-
-            // Ensure proper indentation
-            const indentedJSDoc = jsDocComment
-                .split("\n")
-                .map((line) => (line ? target.indent + line : line))
-                .join("\n")
-
-            lines.splice(insertLine, 0, indentedJSDoc)
-
-            // Create file edit
-            fileEdits.push({
-                filename: target.file,
-                content: lines.join("\n"),
-            })
-        }
-    }
-
-    // Write all updated files
-    if (fileEdits.length > 0) {
-        for (const edit of fileEdits) {
-            await workspace.writeText(edit.filename, edit.content)
-        }
-        $`✅ Applied JSDoc comments to ${fileEdits.length} files with ${allTargets.length} total declarations.`
+    if (env.vars.applyEdits) {
+      // Apply the edit to add JSDoc comment using changeset
+      edits.replace(target.match, newCode);
     } else {
-        $`❌ No JSDoc comments were generated successfully.`
+      // Preview mode - show what would be generated
+      env.output.heading(4, "JSDoc Comment with Code");
+      env.output.fence(newCode, "typescript");
     }
-} else {
-    $`
+  }
 
-## Preview Mode
-
-Set \`applyEdits: true\` to automatically apply the generated JSDoc comments to your source files.`
+  const modifiedFiles = edits.commit();
+  await workspace.writeFiles(modifiedFiles);
 }
+
+if (env.vars.applyEdits) {
+  env.output.log(
+    `✅ Successfully added JSDoc comments to ${allTargets.length} TypeScript declarations.`
+  );
+} else {
+  env.output.log(
+    `📋 Preview complete. Found ${allTargets.length} declarations that need JSDoc comments.`
+  );
+  env.output.log(
+    "To apply these changes, run the script with `applyEdits: true`."
+  );
+}
+
 ```
 
 ## Running the Script
 
 To run the script, we need to execute it in our terminal. Make sure you have GenAIScript installed and configured correctly.
 
-```bash wrap
+```sh wrap
 npx genaiscript run jsdoc-commentator.genai.mts
 ```
 
