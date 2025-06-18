@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 import { join } from "node:path";
-import { dotGenaiscriptPath } from "@genaiscript/core";
+import {
+  dotGenaiscriptPath,
+  sanitizeFilename
+} from "@genaiscript/core";
 import { emptyDir } from "fs-extra";
-import { sanitizeFilename } from "@genaiscript/core";
 
 /**
  * This module provides a function to clear a specified cache directory.

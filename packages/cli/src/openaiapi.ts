@@ -2,21 +2,24 @@
 // Licensed under the MIT License.
 
 import { IncomingMessage, ServerResponse } from "http";
-import {
+import type {
+  CancellationOptions,
   ChatCompletion,
   ChatModel,
   ChatModels,
   CreateChatCompletionRequest,
+  TraceOptions
 } from "@genaiscript/core";
-import { resolveModelConnectionInfo } from "@genaiscript/core";
-import { LARGE_MODEL_ID } from "@genaiscript/core";
-import { resolveLanguageModel } from "@genaiscript/core";
-import { errorMessage } from "@genaiscript/core";
-import { TraceOptions } from "@genaiscript/core";
-import { CancellationOptions } from "@genaiscript/core";
-import { logError, logVerbose } from "@genaiscript/core";
-import { resolveLanguageModelConfigurations } from "@genaiscript/core";
-import { generateId } from "@genaiscript/core";
+import {
+  LARGE_MODEL_ID,
+  errorMessage,
+  generateId,
+  logError,
+  logVerbose,
+  resolveLanguageModel,
+  resolveLanguageModelConfigurations,
+  resolveModelConnectionInfo
+} from "@genaiscript/core";
 
 async function readRequestBody<T>(req: IncomingMessage): Promise<T> {
   return new Promise((resolve, reject) => {

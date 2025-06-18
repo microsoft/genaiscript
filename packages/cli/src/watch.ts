@@ -3,14 +3,25 @@
 
 import { FSWatcher, watch } from "chokidar";
 import { basename, resolve } from "node:path";
-import { CHANGE, CLOSE, ElementOrArray, GENAI_ANY_REGEX, OPEN, PromptScript } from "@genaiscript/core";
-import { createGitIgnorer } from "@genaiscript/core";
-import { Project } from "@genaiscript/core";
-import { buildProject } from "./build.js";
-import { filterScripts, ScriptFilterOptions } from "@genaiscript/core";
-import { CancellationOptions, toSignal } from "@genaiscript/core";
-import { logError } from "@genaiscript/core";
+import {
+  CHANGE,
+  CLOSE,
+  GENAI_ANY_REGEX,
+  OPEN,
+  createGitIgnorer,
+  filterScripts,
+  logError,
+  toSignal
+} from "@genaiscript/core";
+import type {
+  CancellationOptions,
+  ElementOrArray,
+  Project,
+  PromptScript,
+  ScriptFilterOptions
+} from "@genaiscript/core";
 import { genaiscriptDebug } from "@genaiscript/core";
+import { buildProject } from "./build.js";
 const dbg = genaiscriptDebug("watch");
 
 interface ProjectWatcherOptions extends ScriptFilterOptions {

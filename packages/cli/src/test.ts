@@ -5,59 +5,60 @@
 // listing, and viewing results. It handles configuration setup, execution logic,
 // and result processing.
 
-import { buildProject } from "./build.js";
-import { readFile, writeFile, appendFile } from "node:fs/promises";
-import { execa } from "execa";
-import { dirname, join, resolve } from "node:path";
-import { emptyDir, exists } from "fs-extra";
 import { PROMPTFOO_VERSION } from "@genaiscript/runtime";
+import { delay } from "es-toolkit";
+import { emptyDir, exists } from "fs-extra";
+import { execa } from "execa";
+import { appendFile, readFile, writeFile } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
 import {
+  CORE_VERSION,
+  EMOJI_FAIL, 
+  EMOJI_SUCCESS,
+  FILES_NOT_FOUND_ERROR_CODE,
+  GENAI_ANY_REGEX,
+  GENAISCRIPT_FOLDER,
   PROMPTFOO_CACHE_PATH,
   PROMPTFOO_CONFIG_DIR,
-  FILES_NOT_FOUND_ERROR_CODE,
-  GENAISCRIPT_FOLDER,
-  GENAI_ANY_REGEX,
-  EMOJI_SUCCESS,
-  EMOJI_FAIL,
-  TEST_RUNS_DIR_NAME,
   PROMPTFOO_REMOTE_API_PORT,
-} from "@genaiscript/core";
-import { promptFooDriver } from "@genaiscript/core";
-import { serializeError } from "@genaiscript/core";
-import { runtimeHost } from "@genaiscript/core";
-import { JSON5TryParse } from "@genaiscript/core";
-import { MarkdownTrace } from "@genaiscript/core";
-import { logInfo, logVerbose, toStringList } from "@genaiscript/core";
-import { YAMLStringify } from "@genaiscript/core";
-import {
-  PromptScriptTestRunOptions,
-  PromptScriptTestRunResponse,
-  PromptScriptTestResult,
-} from "@genaiscript/core";
-import { generatePromptFooConfiguration } from "@genaiscript/core";
-import { delay } from "es-toolkit";
-import { resolveModelConnectionInfo } from "@genaiscript/core";
-import { filterScripts } from "@genaiscript/core";
-import { link } from "@genaiscript/core";
-import { applyModelOptions } from "@genaiscript/core";
-import { arrayify, normalizeFloat, normalizeInt } from "@genaiscript/core";
-import { ChatCompletionReasoningEffort } from "@genaiscript/core";
-import { CancellationOptions, checkCancelled } from "@genaiscript/core";
-import { CORE_VERSION } from "@genaiscript/core";
-import {
+  TEST_RUNS_DIR_NAME,
+  JSON5TryParse,
+  MarkdownTrace,
+  YAMLStringify,
+  applyModelOptions,
+  arrayify,
+  checkCancelled,
+  dotGenaiscriptPath,
+  ensureDir,
+  filterScripts,
+  generatePromptFooConfiguration,
   headersToMarkdownTableHead,
   headersToMarkdownTableSeperator,
+  link,
+  logInfo,
+  logVerbose,
+  normalizeFloat,
+  normalizeInt,
   objectToMarkdownTableRow,
+  promptFooDriver,
+  resolveModelConnectionInfo,
+  roundWithPrecision,
+  runtimeHost,
+  serializeError,
+  toStringList
 } from "@genaiscript/core";
-import { roundWithPrecision } from "@genaiscript/core";
-import { ensureDir } from "@genaiscript/core";
-import { dotGenaiscriptPath } from "@genaiscript/core";
 import type {
+  ChatCompletionReasoningEffort,
+  CancellationOptions,
   ModelAliasesOptions,
   ModelOptions,
   PromptScript,
-  SerializedError,
+  PromptScriptTestResult,
+  PromptScriptTestRunOptions,
+  PromptScriptTestRunResponse,
+  SerializedError
 } from "@genaiscript/core";
+import { buildProject } from "./build.js";
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.

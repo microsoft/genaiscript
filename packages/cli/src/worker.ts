@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { workerData, parentPort } from "node:worker_threads";
-import { runScriptInternal } from "./run.js";
-import { NodeHost } from "@genaiscript/runtime";
+import { parentPort, workerData } from "node:worker_threads";
 import { delay } from "es-toolkit";
-import { overrideStdoutWithStdErr } from "@genaiscript/core";
-import { runtimeHost } from "@genaiscript/core";
-import { Resource } from "@genaiscript/core";
-import { RESOURCE_CHANGE } from "@genaiscript/core";
+import { NodeHost } from "@genaiscript/runtime";
+import {
+  RESOURCE_CHANGE,
+  overrideStdoutWithStdErr,
+  runtimeHost
+} from "@genaiscript/core";
+import type { Resource } from "@genaiscript/core";
+import { runScriptInternal } from "./run.js";
 
 /**
  * Handles worker thread execution based on the provided data type.

@@ -1,22 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { JSONSchemaObject, ScriptFilterOptions } from "@genaiscript/core";
-import { deleteUndefinedValues, ensureHeadSlash, trimTrailingSlash } from "@genaiscript/core";
-import { genaiscriptDebug } from "@genaiscript/core";
-import { nodeTryReadPackage } from "@genaiscript/core";
-import { toStrictJSONSchema } from "@genaiscript/core";
-import { logError, logVerbose, logWarn } from "@genaiscript/core";
-import { RemoteOptions, applyRemoteOptions } from "./remote.js";
-import { startProjectWatcher } from "./watch.js";
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { findOpenPort } from "./port.js";
-import { OPENAPI_SERVER_PORT } from"@genaiscript/core";
-import { CORE_VERSION } from "@genaiscript/core";
+import type { PromptScriptRunOptions, ScriptFilterOptions } from "@genaiscript/core";
+import {
+  CORE_VERSION,
+  JSONSchemaObject,
+  OPENAPI_SERVER_PORT,
+  deleteUndefinedValues,
+  ensureDotGenaiscriptPath,
+  ensureHeadSlash,
+  errorMessage,
+  genaiscriptDebug,
+  logError,
+  logVerbose,
+  logWarn,
+  nodeTryReadPackage,
+  toStrictJSONSchema,
+  trimTrailingSlash,
+} from "@genaiscript/core";
 import { run } from "@genaiscript/api";
-import { errorMessage } from "@genaiscript/core";
-import { PromptScriptRunOptions } from "@genaiscript/core";
-import { ensureDotGenaiscriptPath } from "@genaiscript/core";
+import { RemoteOptions, applyRemoteOptions } from "./remote.js";
+import { findOpenPort } from "./port.js";
+import { startProjectWatcher } from "./watch.js";
 import { uniq } from "es-toolkit";
 const dbg = genaiscriptDebug("openapi");
 const dbgError = dbg.extend("error");

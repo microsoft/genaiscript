@@ -2,14 +2,17 @@
 // Licensed under the MIT License.
 
 import { ensureDir } from "fs-extra";
-import { MarkdownTrace, TraceChunkEvent } from "@genaiscript/core";
-import { logVerbose } from "@genaiscript/core";
 import { dirname } from "node:path";
-import { writeFileSync, WriteStream } from "node:fs";
-import { TRACE_CHUNK, TRACE_DETAILS } from"@genaiscript/core";
+import { WriteStream, createWriteStream, writeFileSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import { measure } from "@genaiscript/core";
-import { createWriteStream } from "node:fs";
+import {
+  TRACE_CHUNK,
+  TRACE_DETAILS,
+  MarkdownTrace,
+  TraceChunkEvent,
+  logVerbose,
+  measure
+} from "@genaiscript/core";
 
 /**
  * Sets up trace writing to a specified file by handling trace events.

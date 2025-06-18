@@ -3,12 +3,8 @@
 
 import type { Browser, BrowserContext, BrowserContextOptions, Page } from "playwright";
 import type { BrowserPage, BrowseSessionOptions, TraceOptions } from "@genaiscript/core";
-import { logError, logVerbose } from "@genaiscript/core";
-import { runtimeHost } from "@genaiscript/core";
+import { PLAYWRIGHT_DEFAULT_BROWSER, createVideoDir, logError, logVerbose, runtimeHost, uriRedact } from "@genaiscript/core";
 import { PLAYWRIGHT_VERSION } from "./version.js";
-import { uriRedact } from "@genaiscript/core";
-import { PLAYWRIGHT_DEFAULT_BROWSER } from "@genaiscript/core";
-import { createVideoDir } from "@genaiscript/core";
 
 /**
  * Manages browser instances using Playwright, including launching,

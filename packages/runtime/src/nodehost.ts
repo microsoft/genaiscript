@@ -9,66 +9,75 @@ import { glob } from "glob";
 import { debug as debug_, error, info, warn } from "./log.js";
 import { execa } from "execa";
 import { join } from "node:path";
-import { BrowserPage, BrowseSessionOptions, ContainerHost, ContainerOptions, ContentSafety, createNodePath, ElementOrArray, PythonRuntime, PythonRuntimeOptions, ShellOptions } from "@genaiscript/core";
-import { DockerManager } from "./docker.js";
-import { createWorkspaceFileSystem } from "@genaiscript/core";
-import { filterGitIgnore } from "@genaiscript/core";
-import { parseTokenFromEnv } from "@genaiscript/core";
 import {
-  MODEL_PROVIDER_AZURE_OPENAI,
-  SHELL_EXEC_TIMEOUT,
-  AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES,
-  MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
   AZURE_AI_INFERENCE_TOKEN_SCOPES,
-  MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+  AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES,
   AZURE_MANAGEMENT_TOKEN_SCOPES,
   MODEL_PROVIDER_AZURE_AI_INFERENCE,
+  MODEL_PROVIDER_AZURE_OPENAI,
+  MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+  MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
   NEGATIVE_GLOB_REGEX,
-} from "@genaiscript/core";
-import {
+  SHELL_EXEC_TIMEOUT,
+  LogEvent,
+  McpClientManager,
+  ResourceManager,
+  RuntimeHost,
   ServerManager,
   UTF8Decoder,
   UTF8Encoder,
-  RuntimeHost,
-  setRuntimeHost,
   AzureTokenResolver,
-  ModelConfigurations,
-  ModelConfiguration,
-  LogEvent,
+  LanguageModel,
+  NotSupportedError,
+  assert,
+  arrayify,
+  ci,
+  createAzureContentSafetyClient,
+  createAzureTokenResolver,
+  createNodePath,
+  createPythonRuntime,
+  createWorkspaceFileSystem,
+  defaultModelConfigurations,
+  errorMessage,
+  filterGitIgnore,
+  genaiscriptDebug,
+  logError,
+  logVerbose,
+  mergeHostConfigs,
+  parseModelIdentifier,
+  parseTokenFromEnv,
+  PLimitPromiseQueue,
+  providerFeatures,
+  readHostConfig,
+  resolveLanguageModel,
+  shellQuote,
+  setRuntimeHost,
+  isAzureContentSafetyClientConfigured
 } from "@genaiscript/core";
-import { TraceOptions } from "@genaiscript/core";
-import { assert, logError, logVerbose } from "@genaiscript/core";;
-import { parseModelIdentifier } from "@genaiscript/core";;
-import { LanguageModel } from "@genaiscript/core";;
-import { errorMessage, NotSupportedError } from "@genaiscript/core";;
-import { BrowserManager } from "./playwright.js";
-import { shellConfirm, shellInput, shellSelect } from "./input.js";
-import { shellQuote } from "@genaiscript/core";
-import { uniq } from "es-toolkit";
-import { PLimitPromiseQueue } from "@genaiscript/core";;
-import {
+import type {
+  BrowserPage,
+  BrowseSessionOptions,
+  CancellationOptions,
+  ContainerHost,
+  ContainerOptions,
+  ContentSafety,
+  ElementOrArray,
+  HostConfiguration,
   LanguageModelConfiguration,
   LogLevel,
+  ModelConfiguration,
+  ModelConfigurations,
   Project,
+  PythonRuntime,
+  PythonRuntimeOptions,
   ResponseStatus,
+  ShellOptions,
+  TraceOptions
 } from "@genaiscript/core";
-import { createAzureTokenResolver } from "@genaiscript/core";
-import {
-  createAzureContentSafetyClient,
-  isAzureContentSafetyClientConfigured,
-} from "@genaiscript/core";
-import { mergeHostConfigs, readHostConfig } from "@genaiscript/core";
-import { HostConfiguration } from "@genaiscript/core";
-import { resolveLanguageModel } from "@genaiscript/core";
-import { CancellationOptions } from "@genaiscript/core";
-import { defaultModelConfigurations } from "@genaiscript/core";
-import { createPythonRuntime } from "@genaiscript/core";
-import { ci } from "@genaiscript/core";
-import { arrayify } from "@genaiscript/core";
-import { McpClientManager } from "@genaiscript/core";
-import { ResourceManager } from "@genaiscript/core";
-import { providerFeatures } from "@genaiscript/core";
-import { genaiscriptDebug } from "@genaiscript/core";
+import { DockerManager } from "./docker.js";
+import { BrowserManager } from "./playwright.js";
+import { uniq } from "es-toolkit";
+import { shellConfirm, shellInput, shellSelect } from "./input.js";
 const dbg = genaiscriptDebug("nodehost");
 
 class NodeServerManager implements ServerManager {

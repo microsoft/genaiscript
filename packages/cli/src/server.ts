@@ -3,68 +3,73 @@
 
 import { WebSocketServer } from "ws";
 import { runPromptScriptTests } from "./test.js";
-import { PROMPTFOO_VERSION } from "@genaiscript/runtime";
+import { PROMPTFOO_VERSION, NodeHost } from "@genaiscript/runtime";
 import { runScriptInternal } from "./run.js";
-import { AbortSignalCancellationController } from "@genaiscript/core";
-import {
-  SERVER_PORT,
-  TRACE_CHUNK,
-  USER_CANCELLED_ERROR_CODE,
-  UNHANDLED_ERROR_CODE,
-  MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-  WS_MAX_FRAME_LENGTH,
-  LOG,
-  TRACE_FILENAME,
-  WS_MAX_FRAME_CHUNK_LENGTH,
-} from "@genaiscript/core";
-import { isCancelError, serializeError } from "@genaiscript/core";
-import { host, LogEvent, runtimeHost } from "@genaiscript/core";
-import { MarkdownTrace, TraceChunkEvent } from "@genaiscript/core";
-import { chunkLines, chunkString } from "@genaiscript/core";
-import { logVerbose, logError, assert, logWarn } from "@genaiscript/core";
-import { CORE_VERSION } from "@genaiscript/core";
-import {
-  RequestMessages,
-  PromptScriptProgressResponseEvent,
-  PromptScriptEndResponseEvent,
-  ChatStart,
-  ChatChunk,
+import type {
   ChatCancel,
-  LanguageModelConfigurationResponse,
-  PromptScriptListResponse,
-  ResponseStatus,
-  LanguageModelConfiguration,
-  ServerEnvResponse,
-  ServerResponse,
-  RunResultListResponse,
-} from "@genaiscript/core";
-import { LanguageModel } from "@genaiscript/core";
-import {
+  ChatChunk,
   ChatCompletionResponse,
   ChatCompletionsOptions,
+  ChatStart,
   CreateChatCompletionRequest,
+  LanguageModel,
+  LanguageModelConfiguration,
+  LanguageModelConfigurationResponse,
+  LogEvent,
+  PromptScriptEndResponseEvent,
+  PromptScriptListResponse,
+  PromptScriptProgressResponseEvent,
+  RequestMessages,
+  ResponseStatus,
+  RunResultListResponse,
+  ServerEnvResponse,
+  ServerResponse,
+  TraceChunkEvent
 } from "@genaiscript/core";
-import { randomHex } from "@genaiscript/core";
-import * as http from "http";
-import { extname, join } from "path";
-import { createReadStream } from "fs";
+import {
+  CORE_VERSION,
+  LOG,
+  MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+  SERVER_PORT,
+  TRACE_CHUNK,
+  TRACE_FILENAME,
+  UNHANDLED_ERROR_CODE,
+  USER_CANCELLED_ERROR_CODE,
+  WS_MAX_FRAME_CHUNK_LENGTH,
+  WS_MAX_FRAME_LENGTH,
+  AbortSignalCancellationController,
+  MarkdownTrace,
+  assert,
+  chunkLines,
+  chunkString,
+  deleteUndefinedValues,
+  generateId,
+  genaiscriptDebug,
+  host,
+  isCancelError,
+  logError,
+  logVerbose,
+  nodeTryReadPackage,
+  randomHex,
+  resolveLanguageModelConfigurations,
+  runtimeHost,
+  serializeError,
+  tryReadJSON,
+  tryReadText,
+  unthink
+} from "@genaiscript/core";
+import { createReadStream } from "node:fs";
 import { URL } from "node:url";
-import { resolveLanguageModelConfigurations } from "@genaiscript/core";
-import { networkInterfaces } from "os";
-import { exists } from "fs-extra";
-import { deleteUndefinedValues } from "@genaiscript/core";
-import { readFile } from "fs/promises";
-import { unthink } from "@genaiscript/core";
-import { NodeHost } from "@genaiscript/runtime";
-import { tryReadJSON, tryReadText } from "@genaiscript/core";
-import { collectRuns } from "./runs.js";
-import { generateId } from "@genaiscript/core";
-import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi.js";
-import { applyRemoteOptions, RemoteOptions } from "./remote.js";
-import { nodeTryReadPackage } from "@genaiscript/core";
-import { genaiscriptDebug } from "@genaiscript/core";
-import { startProjectWatcher } from "./watch.js";
 import { findOpenPort } from "./port.js";
+import { applyRemoteOptions, RemoteOptions } from "./remote.js";
+import * as http from "node:http";
+import { startProjectWatcher } from "./watch.js";
+import { extname, join } from "node:path";
+import { readFile } from "node:fs/promises";
+import { exists } from "fs-extra";
+import { collectRuns } from "./runs.js";
+import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi.js";
+import { networkInterfaces } from "node:os";
 const dbg = genaiscriptDebug("server");
 
 /**

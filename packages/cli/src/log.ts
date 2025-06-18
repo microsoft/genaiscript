@@ -4,12 +4,13 @@
 import console from "node:console";
 import {
   CONSOLE_COLOR_DEBUG,
-  CONSOLE_COLOR_WARNING,
   CONSOLE_COLOR_ERROR,
   CONSOLE_COLOR_INFO,
+  CONSOLE_COLOR_WARNING,
+  consoleColors,
+  isQuiet,
+  wrapColor
 } from "@genaiscript/core";
-import { consoleColors, wrapColor } from "@genaiscript/core";
-import { isQuiet } from "@genaiscript/core";
 
 // This module provides logging functions with optional console color support
 // Logging levels include info, debug, warn, and error

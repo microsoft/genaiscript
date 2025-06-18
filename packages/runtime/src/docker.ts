@@ -3,32 +3,37 @@
 
 import MemoryStream from "memorystream";
 import { finished } from "node:stream/promises";
-import { copyFile, readFile, writeFile, readdir, rm } from "fs/promises";
+import { copyFile, readFile, readdir, rm, writeFile } from "fs/promises";
+import Dockerode, { Container } from "dockerode";
+import { delay } from "es-toolkit";
 import {
+  CORE_VERSION,
+  DOCKER_CONTAINER_VOLUME,
   DOCKER_DEFAULT_IMAGE,
   DOCKER_VOLUMES_DIR,
-  DOCKER_CONTAINER_VOLUME,
+  PLimitPromiseQueue,
+  arrayify,
+  dotGenaiscriptPath,
+  ensureDir,
+  errorMessage,
+  genaiscriptDebug,
+  generateId,
+  hash,
+  host,
+  isQuiet,
+  logError,
+  logVerbose,
+  shellParse,
+  shellQuote
+} from "@genaiscript/core";
+import type {
   ContainerHost,
   ContainerOptions,
+  FindFilesOptions,
   ShellOptions,
   ShellOutput,
-  FindFilesOptions,
+  TraceOptions
 } from "@genaiscript/core";
-import { hash } from "@genaiscript/core";
-import { errorMessage } from "@genaiscript/core";
-import { host } from "@genaiscript/core";
-import { TraceOptions } from "@genaiscript/core";
-import { logError, logVerbose, arrayify } from "@genaiscript/core";
-import { CORE_VERSION } from "@genaiscript/core";
-import { isQuiet } from "@genaiscript/core";
-import Dockerode, { Container } from "dockerode";
-import { shellParse, shellQuote } from "@genaiscript/core";
-import { PLimitPromiseQueue } from "@genaiscript/core";
-import { delay } from "es-toolkit";
-import { generateId } from "@genaiscript/core";
-import { dotGenaiscriptPath } from "@genaiscript/core";
-import { ensureDir } from "@genaiscript/core";
-import { genaiscriptDebug } from "@genaiscript/core";
 const dbg = genaiscriptDebug("docker");
 
 type DockerodeType = import("dockerode");

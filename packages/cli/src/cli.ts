@@ -5,14 +5,38 @@
  * CLI entry point for the GenAIScript tool, providing various commands and options
  * for interacting with scripts, parsing files, testing, and managing cache.
  */
-import { NodeHost } from "@genaiscript/runtime"; // Handles node environment setup
-import { Command, Option, program } from "commander"; // Command-line argument parsing library
-import { isQuiet, setQuiet } from "@genaiscript/core"; // Logging utilities
-import { startServer } from "./server.js"; // Function to start server
-import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "@genaiscript/runtime"; // Version constants
-import { runScriptWithExitCode } from "./run.js"; // Execute scripts with exit code
-import { retrievalFuzz, retrievalIndex, retrievalSearch } from "./retrieval.js"; // Retrieval functions
-import { helpAll } from "./help.js"; // Display help for all commands
+import { NODE_MIN_VERSION, PROMPTFOO_VERSION, NodeHost } from "@genaiscript/runtime";
+import { Command, Option, program } from "commander";
+import {
+  CORE_VERSION,
+  DEBUG_CATEGORIES,
+  DEBUG_SCRIPT_CATEGORY,
+  GITHUB_REPO,
+  MODEL_PROVIDERS,
+  OPENAI_MAX_RETRY_COUNT,
+  OPENAI_MAX_RETRY_DELAY,
+  OPENAI_RETRY_DEFAULT_DEFAULT,
+  RUNTIME_ERROR_CODE,
+  SERVER_PORT,
+  TOOL_ID,
+  TOOL_NAME,
+  UNHANDLED_ERROR_CODE,
+  errorMessage,
+  genaiscriptDebug,
+  isQuiet,
+  isRequestError,
+  logPerformance,
+  logVerbose,
+  semverSatisfies,
+  serializeError,
+  setConsoleColors,
+  setQuiet
+} from "@genaiscript/core";
+import type { RequestError } from "@genaiscript/core";
+import { startServer } from "./server.js";
+import { runScriptWithExitCode } from "./run.js";
+import { retrievalFuzz, retrievalIndex, retrievalSearch } from "./retrieval.js";
+import { helpAll } from "./help.js";
 import {
   jsonl2json,
   parseAnyToJSON,
@@ -25,43 +49,23 @@ import {
   parseSecrets,
   parseTokenize,
   parseTokens,
-  prompty2genaiscript,
-} from "./parse.js"; // Parsing functions
-import { compileScript, createScript, fixScripts, listScripts, scriptInfo } from "./scripts.js"; // Script utilities
-import { envInfo, modelAliasesInfo, modelList, scriptModelInfo, systemInfo } from "./info.js"; // Information utilities
-import { scriptTestList, scriptTestsView, scriptsTest } from "./test.js"; // Test functions
-import { cacheClear } from "./cache.js"; // Cache management
-import "node:console"; // Importing console for side effects
-import {
-  UNHANDLED_ERROR_CODE,
-  RUNTIME_ERROR_CODE,
-  TOOL_ID,
-  TOOL_NAME,
-  SERVER_PORT,
-  OPENAI_MAX_RETRY_DELAY,
-  OPENAI_RETRY_DEFAULT_DEFAULT,
-  OPENAI_MAX_RETRY_COUNT,
-  MODEL_PROVIDERS,
-  DEBUG_SCRIPT_CATEGORY,
-} from "@genaiscript/core"; // Core constants
-import { errorMessage, isRequestError, RequestError, serializeError } from "@genaiscript/core"; // Error handling utilities
-import { CORE_VERSION, GITHUB_REPO } from "@genaiscript/core"; // Core version and repository info
-import { logVerbose } from "@genaiscript/core"; // Utility logging
-import { semverSatisfies } from "@genaiscript/core"; // Semantic version checking
+  prompty2genaiscript
+} from "./parse.js";
+import { compileScript, createScript, fixScripts, listScripts, scriptInfo } from "./scripts.js";
+import { envInfo, modelAliasesInfo, modelList, scriptModelInfo, systemInfo } from "./info.js";
+import { scriptTestList, scriptTestsView, scriptsTest } from "./test.js";
+import { cacheClear } from "./cache.js";
+import "node:console";
 import { convertFiles } from "./convert.js";
 import { extractAudio, extractVideoFrames, probeVideo } from "./video.js";
 import { configure } from "./configure.js";
-import { logPerformance } from "@genaiscript/core";;
-import { setConsoleColors } from "@genaiscript/core";;
 import { listRuns } from "./runs.js";
 import { startMcpServer } from "./mcpserver.js";
 import { error } from "./log.js";
-import { DEBUG_CATEGORIES } from "@genaiscript/core";;
 import { startOpenAPIServer } from "./openapi.js";
 import { actionConfigure } from "./action.js";
 import { resolve } from "node:path";
 import debug from "debug";
-import { genaiscriptDebug } from "@genaiscript/core";
 import { githubActionConfigure } from "./githubaction.js";
 import { uniq } from "es-toolkit";
 const dbg = genaiscriptDebug("cli");

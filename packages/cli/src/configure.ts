@@ -2,16 +2,21 @@
 // Licensed under the MIT License.
 
 import { select, input, confirm, password } from "@inquirer/prompts";
-import { createYAML, MODEL_PROVIDERS } from "@genaiscript/core";
-import { resolveLanguageModelConfigurations } from "@genaiscript/core";
+import { run } from "@genaiscript/api";
+import {
+  MODEL_PROVIDERS,
+  createYAML,
+  deleteUndefinedValues,
+  logInfo,
+  logVerbose,
+  logWarn,
+  resolveLanguageModelConfigurations,
+  runtimeHost,
+  stderr,
+  tryReadText
+} from "@genaiscript/core";
 import { parse } from "dotenv";
 import { writeFile } from "fs/promises";
-import { runtimeHost } from "@genaiscript/core";
-import { deleteUndefinedValues } from "@genaiscript/core";
-import { logInfo, logVerbose, logWarn } from "@genaiscript/core";
-import { run } from "@genaiscript/api";
-import { tryReadText } from "@genaiscript/core";
-import { stderr } from "@genaiscript/core";
 import { URL } from "node:url";
 
 const YAML = createYAML();

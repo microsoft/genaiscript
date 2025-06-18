@@ -1,11 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { normalizeFloat, normalizeInt, WorkspaceFile } from "@genaiscript/core";
-import { expandFiles } from "@genaiscript/core";
-import { fuzzSearch } from "@genaiscript/core";
-import { vectorIndex, vectorSearch } from "@genaiscript/core";
-import { YAMLStringify } from "@genaiscript/core";
+import type { WorkspaceFile } from "@genaiscript/core";
+import {
+  YAMLStringify,
+  expandFiles,
+  fuzzSearch,
+  normalizeFloat,
+  normalizeInt,
+  vectorIndex,
+  vectorSearch
+} from "@genaiscript/core";
 
 /**
  * Generates a vector index for retrieval tasks by processing specified files.

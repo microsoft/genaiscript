@@ -3,94 +3,110 @@
 
 import { capitalize } from "inflection";
 import { resolve, join, relative } from "node:path";
-import { isQuiet } from "@genaiscript/core";
 import { emptyDir, ensureDir, exists } from "fs-extra";
+import { writeFile, appendFile } from "node:fs/promises";
+import { delay } from "es-toolkit";
 import { convertDiagnosticsToSARIF } from "./sarif.js";
 import { buildProject } from "./build.js";
-import { diagnosticsToCSV } from "@genaiscript/core";
-import { CancellationOptions, checkCancelled } from "@genaiscript/core";
-import { ChatCompletionsProgressReport } from "@genaiscript/core";
-import { runTemplate } from "@genaiscript/core";
-import {
-  githubCreateIssueComment,
-  githubCreatePullRequestReviews,
-  githubUpdatePullRequestDescription,
-  githubParseEnv,
-  GithubConnectionInfo,
-} from "@genaiscript/core";
-import {
-  FILES_NOT_FOUND_ERROR_CODE,
-  CONFIGURATION_ERROR_CODE,
-  USER_CANCELLED_ERROR_CODE,
-  RUNTIME_ERROR_CODE,
-  CSV_REGEX,
-  CLI_RUN_FILES_FOLDER,
-  ANNOTATION_ERROR_CODE,
-  GENAI_ANY_REGEX,
-  UNRECOVERABLE_ERROR_CODES,
-  SUCCESS_ERROR_CODE,
-  CONSOLE_COLOR_DEBUG,
-  DOCS_CONFIGURATION_URL,
-  CONSOLE_TOKEN_COLORS,
-  CONSOLE_TOKEN_INNER_COLORS,
-  TRACE_CHUNK,
-  OUTPUT_FILENAME,
-  TRACE_FILENAME,
-  CONSOLE_COLOR_REASONING,
-  REASONING_END_MARKER,
-  REASONING_START_MARKER,
-  LARGE_MODEL_ID,
-  NEGATIVE_GLOB_REGEX,
-} from "@genaiscript/core";
-import { isCancelError, errorMessage } from "@genaiscript/core";
-import { GenerationResult } from "@genaiscript/core";
-import { filePathOrUrlToWorkspaceFile, writeText } from "@genaiscript/core";
-import { host, runtimeHost } from "@genaiscript/core";
-import { isJSONLFilename, appendJSONL } from "@genaiscript/core";
-import { resolveModelConnectionInfo } from "@genaiscript/core";
-import { JSONSchemaStringifyToTypeScript, JSONSchemaStringify } from"@genaiscript/core";
-import { TraceOptions, MarkdownTrace, TraceChunkEvent } from "@genaiscript/core";
-import { logVerbose, logError, logInfo, logWarn, assert, ellipse } from "@genaiscript/core";
-import { YAMLStringify } from "@genaiscript/core";
-import { PromptScriptRunOptions } from "@genaiscript/core";
-import { writeFileEdits } from "@genaiscript/core";
-import {
-  azureDevOpsCreateIssueComment,
-  AzureDevOpsEnv,
-  azureDevOpsParseEnv,
-  azureDevOpsUpdatePullRequestDescription,
-} from "@genaiscript/core";
-import { writeFile } from "fs/promises";
-import { prettifyMarkdown } from "@genaiscript/core";
-import { delay } from "es-toolkit";
-import { GenerationStats } from "@genaiscript/core";
-import { traceAgentMemory } from "@genaiscript/core"; 
-import { appendFile } from "node:fs/promises";
 import { parseOptionsVars } from "./vars.js";
-import { logprobColor } from  "@genaiscript/core";
-import { overrideStdoutWithStdErr, stderr, stdout } from "@genaiscript/core";
-import { setupTraceWriting } from "./trace.js";
-import {
-  applyModelOptions,
-  applyScriptModelAliases,
-  logModelAliases,
-} from  "@genaiscript/core";
-import { createCancellationController } from "./cancel.js";
-import { parsePromptScriptMeta } from  "@genaiscript/core";
-import { Fragment } from  "@genaiscript/core";
-import { normalizeFloat, normalizeInt } from  "@genaiscript/core";
-import { microsoftTeamsChannelPostMessage } from  "@genaiscript/core";
 import { confirmOrSkipInCI } from "./ci.js";
 import { readStdIn } from "./stdin.js";
-import { consoleColors, wrapColor, wrapRgbColor } from "@genaiscript/core";
-import { generateId } from "@genaiscript/core";
-import { ensureDotGenaiscriptPath, getRunDir, createStatsDir } from "@genaiscript/core";
-import { tryResolveResource } from "@genaiscript/core";
-import { genaiscriptDebug } from "@genaiscript/core";
-import { uriTryParse } from "@genaiscript/core";
-import { tryResolveScript } from "@genaiscript/core";
-import { isCI } from "@genaiscript/core";
+import { setupTraceWriting } from "./trace.js";
 import { githubActionSetOutputs } from "./githubaction.js";
+import { createCancellationController } from "./cancel.js";
+import type {
+  AzureDevOpsEnv,
+  CancellationOptions,
+  ChatCompletionsProgressReport,
+  Fragment,
+  GenerationResult,
+  GithubConnectionInfo,
+  PromptScriptRunOptions,
+  TraceChunkEvent,
+  TraceOptions
+} from "@genaiscript/core";
+import {
+  ANNOTATION_ERROR_CODE,
+  CLI_RUN_FILES_FOLDER,
+  CONFIGURATION_ERROR_CODE,
+  CONSOLE_COLOR_DEBUG,
+  CONSOLE_COLOR_REASONING,
+  CONSOLE_TOKEN_COLORS,
+  CONSOLE_TOKEN_INNER_COLORS,
+  CSV_REGEX,
+  DOCS_CONFIGURATION_URL,
+  FILES_NOT_FOUND_ERROR_CODE,
+  GENAI_ANY_REGEX,
+  LARGE_MODEL_ID,
+  NEGATIVE_GLOB_REGEX,
+  OUTPUT_FILENAME,
+  REASONING_END_MARKER,
+  REASONING_START_MARKER,
+  RUNTIME_ERROR_CODE,
+  SUCCESS_ERROR_CODE,
+  TRACE_CHUNK,
+  TRACE_FILENAME,
+  UNRECOVERABLE_ERROR_CODES,
+  USER_CANCELLED_ERROR_CODE,
+  GenerationStats,
+  JSONSchemaStringify,
+  JSONSchemaStringifyToTypeScript,
+  MarkdownTrace,
+  YAMLStringify,
+  appendJSONL,
+  applyModelOptions,
+  applyScriptModelAliases,
+  assert,
+  azureDevOpsCreateIssueComment,
+  azureDevOpsParseEnv,
+  azureDevOpsUpdatePullRequestDescription,
+  checkCancelled,
+  consoleColors,
+  createStatsDir,
+  diagnosticsToCSV,
+  ellipse,
+  ensureDotGenaiscriptPath,
+  errorMessage,
+  filePathOrUrlToWorkspaceFile,
+  genaiscriptDebug,
+  generateId,
+  getRunDir,
+  githubCreateIssueComment,
+  githubCreatePullRequestReviews,
+  githubParseEnv,
+  githubUpdatePullRequestDescription,
+  host,
+  isCI,
+  isCancelError,
+  isJSONLFilename,
+  isQuiet,
+  logError,
+  logInfo,
+  logModelAliases,
+  logVerbose,
+  logWarn,
+  logprobColor,
+  microsoftTeamsChannelPostMessage,
+  normalizeFloat,
+  normalizeInt,
+  overrideStdoutWithStdErr,
+  parsePromptScriptMeta,
+  prettifyMarkdown,
+  resolveModelConnectionInfo,
+  runTemplate,
+  runtimeHost,
+  stderr,
+  stdout,
+  traceAgentMemory,
+  tryResolveResource,
+  tryResolveScript,
+  uriTryParse,
+  writeFileEdits,
+  writeText,
+  wrapColor,
+  wrapRgbColor
+} from "@genaiscript/core";
+
 const dbg = genaiscriptDebug("run");
 
 /**

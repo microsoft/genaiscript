@@ -3,35 +3,48 @@
 
 import replaceExt from "replace-ext";
 import { readFile, writeFile } from "node:fs/promises";
-import { DocxParseOptions, DOCXTryParse, WorkspaceFile } from "@genaiscript/core";
-import { extractFenced } from "@genaiscript/core";
-import { expandFiles, writeText, readText, tryReadText } from "@genaiscript/core";
-import { HTMLToMarkdown, HTMLToText } from "@genaiscript/core";
-import { isJSONLFilename, JSONLTryParse } from "@genaiscript/core";
-import { parsePdf } from "@genaiscript/core";
-import { estimateTokens } from "@genaiscript/core";
-import { YAMLStringify } from "@genaiscript/core";
-import { resolveTokenEncoder } from "@genaiscript/core";
-import { CONSOLE_TOKEN_COLORS, MD_REGEX, PROMPTY_REGEX } from "@genaiscript/core";
-import { promptyParse, promptyToGenAIScript } from "@genaiscript/core";
+import {
+  CONSOLE_TOKEN_COLORS,
+  MD_REGEX,
+  PROMPTY_REGEX,
+  CSVStringify,
+  DOCXTryParse,
+  HTMLToMarkdown,
+  HTMLToText,
+  INIStringify,
+  JSON5Stringify,
+  JSONLTryParse,
+  YAMLStringify,
+  chunkMarkdown,
+  dataToMarkdownTable,
+  dataTryParse,
+  ellipse,
+  estimateTokens,
+  expandFiles,
+  extractFenced,
+  genaiscriptDebug,
+  isJSONLFilename,
+  jinjaRender,
+  logVerbose,
+  normalizeInt,
+  parsePdf,
+  prettyBytes,
+  promptyParse,
+  promptyToGenAIScript,
+  readText,
+  redactSecrets,
+  resolveFileContent,
+  resolveTokenEncoder,
+  splitMarkdown,
+  stdout,
+  terminalSize,
+  tryReadText,
+  wrapColor,
+  writeText
+} from "@genaiscript/core";
+import type { DocxParseOptions, WorkspaceFile } from "@genaiscript/core";
 import { basename, join } from "node:path";
-import { CSVStringify, dataToMarkdownTable } from "@genaiscript/core";
-import { INIStringify } from "@genaiscript/core";
-import { JSON5Stringify } from "@genaiscript/core";
-import { jinjaRender } from "@genaiscript/core";
-import { splitMarkdown } from "@genaiscript/core";
 import { parseOptionsVars } from "./vars.js";
-import { dataTryParse } from "@genaiscript/core";
-import { resolveFileContent } from "@genaiscript/core";
-import { redactSecrets } from "@genaiscript/core";
-import { ellipse, logVerbose } from "@genaiscript/core";
-import { chunkMarkdown } from "@genaiscript/core";
-import { normalizeInt } from "@genaiscript/core";
-import { prettyBytes } from "@genaiscript/core";
-import { terminalSize } from "@genaiscript/core";
-import { wrapColor } from "@genaiscript/core";
-import { genaiscriptDebug } from "@genaiscript/core";
-import { stdout } from "@genaiscript/core";
 const dbg = genaiscriptDebug("cli:parse");
 
 /**

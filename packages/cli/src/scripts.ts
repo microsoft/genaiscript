@@ -5,23 +5,26 @@
 // including listing, creating, fixing, and compiling scripts.
 
 import { buildProject } from "./build.js";
-import { TYPESCRIPT_VERSION } from "@genaiscript/runtime";
-import { copyPrompt } from "@genaiscript/core";
+import { TYPESCRIPT_VERSION, shellInput } from "@genaiscript/runtime";
+import type { ScriptFilterOptions } from "@genaiscript/core";
 import {
-  fixPromptDefinitions,
+  CONSOLE_COLOR_DEBUG,
+  RUNTIME_ERROR_CODE,
+  collectFolders,
+  copyPrompt,
   createScript as coreCreateScript,
+  dedent,
+  deleteEmptyValues,
+  filterScripts,
   fixGitHubCopilotInstructions,
+  fixPromptDefinitions,
+  JSONSchemaToFunctionParameters,
+  logInfo,
+  logVerbose,
+  runtimeHost,
+  wrapColor
 } from "@genaiscript/core";
-import { logInfo, logVerbose } from "@genaiscript/core";
-import { runtimeHost } from "@genaiscript/core";
-import { CONSOLE_COLOR_DEBUG, RUNTIME_ERROR_CODE } from "@genaiscript/core";
-import { collectFolders, filterScripts, ScriptFilterOptions } from "@genaiscript/core";
-import { deleteEmptyValues } from "@genaiscript/core";
 import { dirname } from "node:path";
-import { shellInput } from "@genaiscript/runtime";
-import { wrapColor } from "@genaiscript/core";
-import { dedent } from "@genaiscript/core";
-import { JSONSchemaToFunctionParameters } from "@genaiscript/core";
 
 /**
  * Lists all the scripts in the project.

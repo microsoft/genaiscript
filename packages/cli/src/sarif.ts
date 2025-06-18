@@ -3,13 +3,12 @@
 
 import { relative } from "node:path";
 import {
-  Diagnostic,
-  PromptScript,
+  CORE_VERSION,
   SARIFF_BUILDER_TOOL_DRIVER_NAME,
   SARIFF_BUILDER_URL,
-  SARIFF_RULEID_PREFIX,
+  SARIFF_RULEID_PREFIX
 } from "@genaiscript/core";
-import { CORE_VERSION } from "@genaiscript/core";
+import type { Diagnostic, PromptScript } from "@genaiscript/core";
 
 /**
  * This module contains utility functions for working with SARIF (Static Analysis Results Interchange Format)

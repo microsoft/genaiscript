@@ -1,12 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { readdir } from "fs/promises";
-import { join } from "path";
-import { RUNS_DIR_NAME, SERVER_PORT, TRACE_FILENAME } from "@genaiscript/core";
-import { groupBy } from "@genaiscript/core";
-import { runtimeHost } from "@genaiscript/core";
-import { dotGenaiscriptPath } from "@genaiscript/core";
+import { readdir } from "node:fs/promises";
+import { join } from "node:path";
+import {
+  RUNS_DIR_NAME,
+  SERVER_PORT,
+  TRACE_FILENAME,
+  dotGenaiscriptPath,
+  groupBy,
+  runtimeHost
+} from "@genaiscript/core";
 
 /**
  * Collects information about available runs based on the provided options.

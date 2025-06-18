@@ -1,30 +1,38 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { JSONSchemaObject, logVerbose, logWarn } from "@genaiscript/core";
-import { CHANGE, RESOURCE_CHANGE, TOOL_ID } from "@genaiscript/core";
-import { CORE_VERSION } from "@genaiscript/core";
-import { ScriptFilterOptions } from "@genaiscript/core";
-import { run } from "@genaiscript/api";
 import {
-  ListResourcesRequestSchema,
-  ListResourceTemplatesRequestSchema,
-  ReadResourceRequestSchema,
-  type CallToolResult,
-  type ListToolsResult,
-  type ListResourcesResult,
-  type ListResourceTemplatesResult,
-  type ReadResourceResult,
+  CHANGE,
+  CORE_VERSION,
+  RESOURCE_CHANGE,
+  TOOL_ID,
+  ensureDotGenaiscriptPath,
+  errorMessage,
+  logVerbose,
+  logWarn,
+  runtimeHost,
+  setConsoleColors,
+  splitMarkdownTextImageParts
+} from "@genaiscript/core";
+import type {
+  JSONSchemaObject,
+  Resource,
+  ResourceContents,
+  ScriptFilterOptions
+} from "@genaiscript/core";
+import { run } from "@genaiscript/api";
+import { ListResourcesRequestSchema, ListResourceTemplatesRequestSchema, ReadResourceRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import type {
+  CallToolResult,
+  ListResourceTemplatesResult,
+  ListResourcesResult,
+  ListToolsResult,
+  ReadResourceResult
 } from "@modelcontextprotocol/sdk/types.js";
-import { errorMessage } from "@genaiscript/core";
-import { setConsoleColors } from "@genaiscript/core";
+import { applyRemoteOptions } from "./remote.js";
+import type { RemoteOptions } from "./remote.js";
 import { startProjectWatcher } from "./watch.js";
-import { applyRemoteOptions, RemoteOptions } from "./remote.js";
-import { runtimeHost } from "@genaiscript/core";
-import { Resource, ResourceContents } from "@genaiscript/core";
 import debug from "debug";
-import { splitMarkdownTextImageParts } from "@genaiscript/core";
-import { ensureDotGenaiscriptPath } from "@genaiscript/core";
 const dbg = debug("genaiscript:mcp:server");
 
 /**
