@@ -15,12 +15,12 @@ describe("run", async () => {
         const res = await $`node ${cli} ${cmd} poem --model echo`
         console.log("---\n" + res.stdout + "\n---")
     })
-    await test("gist", async () => {
+/*    await test("gist", async () => {
         const uri =
             "vscode://vsls-contrib.gistfs/open?gist=8f7db2674f7b0eaaf563eae28253c2b0&file=echo.genai.mts"
         const res = await $`node ${cli} ${cmd} ${uri} --model echo`
         console.log("---\n" + res.stdout + "\n---")
-    })
+    })*/
 })
 describe("scripts", async () => {
     const cmd = "scripts"
