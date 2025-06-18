@@ -124,6 +124,9 @@ The action boilerplate generator will override the following files:
 - `README.md` Documentation for the action
 - `.gitignore` Files to ignore in the repository
 - `.github/workflows/ci.yml` CI workflow to test the action
+- `package.json` Package configuration for the action
+- `devcontainer/devcontainer.json` Devcontainer configuration for VS Code
+- `devcontainer/Dockerfile` Devcontainer Dockerfile for VS Code. Must be kept in sync with the action Dockerfile.
 
 </FileTree>
 
@@ -208,6 +211,9 @@ You can change this by specifying a different base image in the `cli`.
 ```dockerfile "--image <image>"
 npx -y genaiscript configure action ... --image <image>
 ```
+
+GenAIScript will also create a [devcontainer](https://code.visualstudio.com/docs/devcontainers/create-dev-container)
+so that you can develop the action in the (almost same) containerized environment as when it runs in the GitHub Action.
 
 ### ffmpeg, playwright and other packages
 
