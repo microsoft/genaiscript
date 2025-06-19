@@ -10,7 +10,7 @@
   "type": "module",
   "scripts": {
     "az:login": "az login --scope api://trapi/.default",
-    "build": "pnpm build",
+    "build": "turbo build",
     "bump": "pnpm release",
     "cache:clear": "cd packages/sample/ && yarn cache:clear",
     "clean": "git prune && git gc && rm -Rf slides/node_modules && rm -Rf docs/dist && rm -Rf docs/distasw && rm -Rf docs/node_modules && rm -Rf .genaiscript && rm -Rf packages/sample/.genaiscript && git checkout -- .",
@@ -27,6 +27,8 @@
     "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
     "docs": "cd docs && ./node_modules/.bin/astro telemetry disable && ./node_modules/.bin/astro dev --host",
     "ffmpeg:install": "sudo apt-get update && sudo apt-get install ffmpeg -y",
+    "format:check": "turbo format:check",
+    "format:fix": "turbo format:fix",
     "gcm": "node packages/cli/dist/src.index.js run gcm --model gcm --no-run-trace --no-output-trace",
     "gen:licenses": "npx --yes generate-license-file --input ./package.json --output ./THIRD_PARTY_LICENSES.md --overwrite",
     "genai": "node --trace-deprecation packages/cli/dist/src.index.js run",
@@ -48,7 +50,8 @@
     "go": "cd packages/cli && pnpm go",
     "install:force": "rm yarn.lock && yarn install && yarn --cwd docs install:force && yarn --cwd slides install:force && yarn gen:licenses",
     "install:playwright": "sudo yarn playwright install-deps",
-    "lint": "pnpm run lint:check",
+    "lint:check": "turbo lint:check",
+    "lint:fix": "turbo lint:fix",
     "localai": "docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu",
     "ollama": "yarn ollama:stop && yarn ollama:start",
     "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama -e OLLAMA_FLASH_ATTENTION=1 -e OLLAMA_KV_CACHE_TYPE=q8_0 ollama/ollama",
@@ -123,6 +126,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-curly": "^0.3.2",
     "tailwindcss": "^4.1.10",
+    "turbo": "^2.5.4",
     "zx": "^8.5.4"
   }
 }

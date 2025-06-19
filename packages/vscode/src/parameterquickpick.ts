@@ -1,7 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
-import { NotSupportedError } from "../../core/src/error";
-import { promptParameterTypeToJSONSchema } from "../../core/src/parameters";
+import { NotSupportedError, PromptParameters, PromptScript } from "@genaiscript/core";
+import { promptParameterTypeToJSONSchema } from "@genaiscript/core";
 
 export interface TemplateQuickPickItem extends vscode.QuickPickItem {
   template?: PromptScript;

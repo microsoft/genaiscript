@@ -1,6 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
-import { PROMPTFOO_VERSION } from "../../cli/src/version";
+import { ExtensionState } from "./state.js";
+import { PROMPTFOO_VERSION } from "@genaiscript/runtime";
 import {
   TOOL_ID,
   CHANGE,
@@ -10,10 +13,12 @@ import {
   PROMPTFOO_CACHE_PATH,
   PROMPTFOO_CONFIG_DIR,
   ICON_LOGO_NAME,
-} from "../../core/src/constants";
-import { errorMessage } from "../../core/src/error";
-import { arrayify } from "../../core/src/util";
-import { deleteUndefinedValues } from "../../core/src/cleaners";
+  PromptScript,
+} from "@genaiscript/core";
+
+import { errorMessage } from "@genaiscript/core";
+import { arrayify } from "@genaiscript/core";
+import { deleteUndefinedValues } from "@genaiscript/core";
 
 export async function activateTestController(state: ExtensionState) {
   const { context, host } = state;

@@ -1,6 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
-import { eolPosition } from "../../core/src/ast";
+import { ExtensionState } from "./state.js";
+import { CharPosition, CharRange, Edits, eolPosition, LineRange } from "@genaiscript/core";
 
 export function toPos(p: CharPosition | number) {
   if (typeof p === "number") return new vscode.Position(p, 0);

@@ -1,16 +1,22 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 // cspell: disable
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import { ExtensionState } from "./state.js";
 import {
   COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
   COPILOT_CHAT_PARTICIPANT_ID,
   ICON_LOGO_NAME,
   MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-} from "../../core/src/constants";
-import { Fragment } from "../../core/src/generation";
-import { convertAnnotationsToItems } from "../../core/src/annotations";
-import { deleteUndefinedValues } from "../../core/src/cleaners";
-import { patchCachedImages } from "../../core/src/filecache";
+  PromptScript,
+  HistoryMessageUser,
+  HistoryMessageAssistant,
+} from "@genaiscript/core";
+import { Fragment } from "@genaiscript/core";
+import { convertAnnotationsToItems } from "@genaiscript/core";
+import { deleteUndefinedValues } from "@genaiscript/core";
+import { patchCachedImages } from "@genaiscript/core";
 
 export async function activateChatParticipant(state: ExtensionState) {
   const { context } = state;

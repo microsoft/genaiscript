@@ -1,18 +1,21 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
-import { YAMLStringify } from "../../core/src/yaml";
+import { ExtensionState } from "./state.js";
+import { LanguageModelInfo, YAMLStringify } from "@genaiscript/core";
 import {
   ResolvedLanguageModelConfiguration,
   ServerEnvResponse,
-} from "../../core/src/server/messages";
-import { deleteUndefinedValues } from "../../core/src/cleaners";
-import { registerCommand } from "./commands";
+} from "@genaiscript/core";
+import { deleteUndefinedValues } from "@genaiscript/core";
+import { registerCommand } from "./commands.js";
 import {
   MODEL_PROVIDER_AZURE_AI_INFERENCE,
   MODEL_PROVIDER_AZURE_OPENAI,
   MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
   MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-} from "../../core/src/constants";
+} from "@genaiscript/core";
 
 interface ConnectionInfoTreeData {
   provider?: ResolvedLanguageModelConfiguration;

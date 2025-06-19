@@ -1,9 +1,12 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
-import { CHANGE } from "../../core/src/constants";
-import { groupBy } from "../../core/src/util";
-import { templateGroup } from "../../core/src/ast";
-import { MarkdownStringify } from "../../core/src/markdown";
+import { ExtensionState } from "./state.js";
+import { CHANGE, PromptScript } from "@genaiscript/core";
+import { groupBy } from "@genaiscript/core";
+import { templateGroup } from "@genaiscript/core";
+import { MarkdownStringify } from "@genaiscript/core";
 
 type PromptTreeNode = string | PromptScript;
 

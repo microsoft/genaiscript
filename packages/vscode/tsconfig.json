@@ -1,11 +1,12 @@
 {
-    "extends": "../tsconfig-base.json",
-    "compilerOptions": {
-        "declarationDir": "built/types",
-        "outDir": "built",
-        "target": "es2024",
-        "lib": ["ES2024"]
-    },
-    "include": ["src"],
-    "exclude": ["node_modules", ".vscode-test"]
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist",
+    "target": "es2024",
+    "lib": ["ES2024"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", ".vscode-test"]
 }
