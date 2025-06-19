@@ -8,6 +8,9 @@
 import { CancellationOptions, checkCancelled } from "./cancellation.js";
 import { TraceOptions } from "./trace.js"; // Import TraceOptions for optional logging features
 import type { HTMLToMarkdownOptions, HTMLToTextOptions } from "./types.js"; // Import HTMLToTextOptions for configuring HTML to text conversion
+import { tabletojson } from "tabletojson";
+import { convert as convertToText } from "html-to-text"; // Import the convert function from html-to-text library
+import Turndown from "turndown" // Import Turndown library for HTML to Markdown conversion
 
 /**
  * Converts HTML tables to JSON objects.
@@ -17,7 +20,6 @@ import type { HTMLToMarkdownOptions, HTMLToTextOptions } from "./types.js"; // I
  * @returns A 2D array of objects representing the table data.
  */
 export async function HTMLTablesToJSON(html: string, options?: {}): Promise<object[][]> {
-  const { tabletojson } = await import("tabletojson"); // Import tabletojson for converting HTML tables to JSON
   const res = tabletojson.convert(html, options); // Convert HTML tables to JSON using tabletojson library
   return res;
 }
@@ -38,7 +40,6 @@ export async function HTMLToText(
   const { trace, cancellationToken } = options || {}; // Extract trace for logging if available
 
   try {
-    const { convert: convertToText } = await import("html-to-text"); // Import the convert function from html-to-text library
     checkCancelled(cancellationToken); // Check for cancellation token
     const text = convertToText(html, options); // Perform conversion to plain text
     return text;
@@ -63,7 +64,6 @@ export async function HTMLToMarkdown(
   const { disableGfm, trace, cancellationToken } = options || {}; // Extract trace for logging if available
 
   try {
-    const Turndown = (await import("turndown")).default; // Import Turndown library for HTML to Markdown conversion
     checkCancelled(cancellationToken); // Check for cancellation token
     const turndown = new Turndown();
     turndown.remove("script");

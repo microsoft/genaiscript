@@ -23,6 +23,8 @@ import { genaiscriptDebug } from "./debug.js";
 import type { Canvas } from "@napi-rs/canvas";
 import { pathToFileURL } from "node:url";
 import { ParsePDFOptions, PDFPage, PDFPageImage } from "./types.js";
+import canvas from "@napi-rs/canvas";
+import pdfjs from "pdfjs-dist";
 
 const dbg = genaiscriptDebug("pdf");
 
@@ -37,7 +39,6 @@ let standardFontDataUrl: string;
 async function tryImportPdfjs(options?: TraceOptions) {
   const { trace } = options || {};
   installPromiseWithResolversShim(); // Ensure Promise.withResolvers is available
-  const pdfjs = await import("pdfjs-dist");
   let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs");
 
   // Adjust worker source path for Windows platform
@@ -112,7 +113,6 @@ async function tryImportCanvas() {
 
   try {
     dbg(`initializing pdf canvas`);
-    const canvas = await import("@napi-rs/canvas");
     const createCanvas = (w: number, h: number) => canvas.createCanvas(w, h);
     const glob = resolveGlobal();
     glob.ImageData ??= canvas.ImageData;

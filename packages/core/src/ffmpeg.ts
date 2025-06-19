@@ -37,7 +37,7 @@ import type {
   VideoProbeResult,
   WorkspaceFile,
 } from "./types.js";
-
+import cmd from "fluent-ffmpeg";
 
 const ffmpegLimit = pLimit(1);
 const WILD_CARD = "%06d";
@@ -53,8 +53,6 @@ interface FFmpegCommandResult {
 }
 
 async function ffmpegCommand(options?: { timeout?: number }) {
-  const m = await import("fluent-ffmpeg");
-  const cmd = m.default;
   return cmd(options);
 }
 

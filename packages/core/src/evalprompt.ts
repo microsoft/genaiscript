@@ -6,6 +6,7 @@ const dbg = debug("genaiscript:evalprompt");
 
 import { host } from "./host.js";
 import type { PromptContext, PromptScript } from "./types.js";
+import MagicString from "magic-string";
 
 /**
  * Evaluates a JavaScript prompt script with the provided context.
@@ -39,7 +40,6 @@ export async function evalPrompt(
   // source map
   if (r.filename && sourceMaps) {
     dbg("creating source map");
-    const MagicString = (await import("magic-string")).default;
     const s = new MagicString(jsSource);
     s.prepend(prefix);
     s.append(suffix);

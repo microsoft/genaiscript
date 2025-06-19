@@ -30,11 +30,6 @@
   ],
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
-  "overrides": {
-    "@mapbox/node-pre-gyp": "^2.0.0",
-    "glob": "^11.0.2",
-    "mermaid": "^11.6.0"
-  },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@fastify/cors": "^11.0.1",
@@ -47,24 +42,23 @@
     "@modelcontextprotocol/sdk": "^1.12.0",
     "chokidar": "^4.0.3",
     "commander": "^12.1.0",
-    "cross-fetch": "^4.1.0",
     "debug": "^4.4.1",
     "diff": "^7.0.0",
     "dotenv": "^16.5.0",
     "es-toolkit": "^1.38.0",
     "execa": "^9.6.0",
     "fastify": "^5.3.3",
-    "file-type": "^20.5.0",
     "fs-extra": "^11.3.0",
     "openai": "^4.103.0",
     "replace-ext": "^2.0.0",
-    "ws": "^8.18.2",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+    "tslib": "catalog:",
+    "ws": "^8.18.2"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "catalog:",
     "@types/diff": "^6.0.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.15.2",
@@ -72,20 +66,21 @@
     "@types/prompts": "^2.4.9",
     "@types/replace-ext": "^2.0.2",
     "@types/ws": "^8.5.14",
-    "@vitest/coverage-istanbul": "^3.2.4",
-    "es-toolkit": "^1.38.0",
-    "execa": "^9.6.0",
-    "glob": "^11.0.2",
-    "prettier": "^3.5.3",
-    "rimraf": "^6.0.1",
-    "typescript": "~5.8.3",
-    "vitest": "^3.2.4"
+    "@vitest/coverage-istanbul":"catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
+    "vitest": "catalog:"
   },
   "scripts": {
     "build": "npm run clean && tsc -p . && node ./scripts/fixup.mjs",
     "clean": "rimraf dist",
-    "format:check": "prettier --check src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
-    "format:fix": "prettier src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json --write",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore ../../.prettierignore --check src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore ../../.prettierignore  --write src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
+    "lint:check": "eslint src",
+    "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
     "test": "vitest"
   },
   "exports": {

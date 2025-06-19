@@ -6,6 +6,7 @@ import { genaiscriptDebug } from "./debug.js";
 import { TraceOptions } from "./trace.js";
 import { logWarn } from "./util.js";
 import type { Z3Solver } from "./types.js";
+import z3 from "z3-solver";
 
 const dbg = genaiscriptDebug("z3");
 
@@ -14,7 +15,6 @@ let _z3: Promise<ReturnType<(typeof import("z3-solver"))["init"]>> = undefined;
 async function importZ3(): Promise<ReturnType<(typeof import("z3-solver"))["init"]>> {
   try {
     dbg(`importing z3-solver`);
-    const z3 = await import("z3-solver");
     dbg(`initializing`);
     const res = await z3.init();
     dbg(`initialized`);

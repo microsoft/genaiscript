@@ -10,6 +10,7 @@ import { dedent } from "./indent.js";
 import { PLimitPromiseQueue } from "./concurrency.js";
 import { stderr } from "./stdio.js";
 import type { PythonRuntime, PythonRuntimeOptions } from "./types.js";
+import { loadPyodide, version } from "pyodide";
 
 class PyProxy implements PythonProxy {
   constructor(
@@ -80,7 +81,6 @@ export async function createPythonRuntime(
   options?: PythonRuntimeOptions & TraceOptions,
 ): Promise<PythonRuntime> {
   const { cache } = options ?? {};
-  const { loadPyodide, version } = await import("pyodide");
   const sha = await hash({ cache, version: true, pyodide: version });
   const pyodide = await loadPyodide(
     deleteUndefinedValues({

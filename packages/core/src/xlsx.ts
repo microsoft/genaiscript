@@ -4,6 +4,7 @@
 // Import the logInfo function for logging purposes
 import { logInfo } from "./util.js";
 import type { ParseXLSXOptions, WorkbookSheet } from "./types.js";
+import { read, utils } from "xlsx";
 
 /**
  * Parses XLSX data into an array of workbook sheets.
@@ -19,7 +20,7 @@ export async function XLSXParse(
   // Destructure options to separate sheet-specific option
   const { sheet, ...rest } = options || {};
   // Dynamically import 'xlsx' library's read and utils modules
-  const { read, utils } = await import("xlsx");
+
   // Read the workbook from the data with 'array' type
   const workbook = read(data, { type: "array" });
   // Filter and map the sheet names to WorkbookSheet objects

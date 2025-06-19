@@ -215,7 +215,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
     configurations.push({ script, configuration: fn });
   }
 
-  let stats = {
+  const stats = {
     prompt: 0,
     completion: 0,
     total: 0,

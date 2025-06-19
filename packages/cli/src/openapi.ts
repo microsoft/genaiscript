@@ -47,12 +47,6 @@ export async function startOpenAPIServer(
     startup,
     cors,
     network,
-    remote,
-    remoteBranch,
-    remoteForce,
-    remoteInstall,
-    groups,
-    ids,
     ...runOptions
   } = options || {};
   const serverHost = network ? "0.0.0.0" : "127.0.0.1";

@@ -131,7 +131,8 @@ export async function retrievalFuzz(
   },
 ) {
   // Destructure options with default values
-  let { excludedFiles, topK, minScore } = options || {};
+  const { topK, minScore } = options || {};
+  let { excludedFiles } = options || {};
 
   // Default to searching all files if no globs are provided
   if (!filesGlobs?.length) filesGlobs = ["**"];

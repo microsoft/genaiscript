@@ -11,6 +11,7 @@ import { pathToFileURL } from "node:url";
 import { mark } from "./performance.js";
 import { __filename } from "./utils/pathUtils.js";
 import type { Awaitable, PromptContext, PromptScript } from "./types.js";
+import { tsImport, register } from "tsx/esm/api";
 
 /**
  * Dynamically imports a JavaScript module from a specified file.
@@ -49,7 +50,6 @@ export async function importFile<T = void>(
       // trace?.itemValue("📦 import", fileURLToPath(file))
     };
     onImport(modulePath);
-    const { tsImport, register } = await import("tsx/esm/api");
     unregister = register({ onImport });
     const module = await tsImport(modulePath, {
       parentURL,

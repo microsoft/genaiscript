@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Project } from "@genaiscript/core";
 import {
   GENAI_ANYJS_GLOB,
   GENAI_ANY_REGEX,

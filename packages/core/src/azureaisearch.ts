@@ -13,6 +13,8 @@ import { hash } from "./crypto.js";
 import { LanguageModelConfiguration } from "./server/messages.js";
 import { chunk } from "./encoders.js";
 import { genaiscriptDebug } from "./debug.js";
+import { SearchClient, SearchIndexClient, AzureKeyCredential } from "@azure/search-documents";
+
 const dbg = genaiscriptDebug("azureaisearch");
 
 const HASH_LENGTH = 64;
@@ -32,9 +34,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
     vectorSize = 1536,
   } = options || {};
   const abortSignal = toSignal(cancellationToken);
-  const { SearchClient, SearchIndexClient, AzureKeyCredential } = await import(
-    "@azure/search-documents"
-  );
+
 
   const endPoint = process.env.AZURE_AI_SEARCH_ENDPOINT;
   if (!endPoint) {

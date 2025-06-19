@@ -20,6 +20,7 @@ import type {
   Tokenizer,
   WorkspaceFile,
 } from "./types.js";
+import api, { encode, decode } from "gpt-tokenizer/model/gpt-4o";
 
 /**
  * Resolves the token encoder for a specified model identifier.
@@ -68,7 +69,6 @@ export async function resolveTokenEncoder(
       return undefined;
     }
 
-    const { encode, decode, default: api } = await import("gpt-tokenizer/model/gpt-4o");
     assert(!!encode);
     const { modelName, vocabularySize } = api;
     dbg(`fallback ${encoding} to gpt-4o encoder`);

@@ -96,14 +96,13 @@ export async function cli() {
   }
 
   program.hook("preAction", async (cmd) => {
-    let {
+    let { cwd }: { cwd: string } = cmd.opts();
+    const {
       env,
-      cwd,
       include,
       githubWorkspace,
     }: {
       env: string[];
-      cwd: string;
       include: string;
       githubWorkspace: boolean;
     } = cmd.opts(); // Get environment options from command
@@ -409,7 +408,7 @@ export async function cli() {
 
   // Define 'retrieval' command group for RAG support
   const retrieval = program.command("retrieval").description("RAG support");
-  const index = retrieval
+  retrieval
     .command("index")
     .arguments("<name> <files...>")
     .description("Index files for vector search")

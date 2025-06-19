@@ -43,7 +43,7 @@ export async function envInfo(
   options: { token?: boolean; error?: boolean; models?: boolean },
 ) {
   const config = await runtimeHost.readConfig();
-  const res: any = {};
+  const res: Record<string, unknown> = {};
   res[".env"] = config.envFile ?? "";
   res.providers = await resolveLanguageModelConfigurations(provider, {
     ...(options || {}),

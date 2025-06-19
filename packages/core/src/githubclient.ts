@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Octokit } from "@octokit/rest";
 import type { PaginateInterface } from "@octokit/plugin-paginate-rest";
 import {
   GITHUB_API_VERSION,
@@ -64,6 +63,9 @@ import type {
   PromptScript,
   WorkspaceFile
 } from "./types.js"
+import { Octokit } from "@octokit/rest";
+import { throttling } from "@octokit/plugin-throttling";
+import { paginateRest } from "@octokit/plugin-paginate-rest";
 
 const dbg = genaiscriptDebug("github");
 
@@ -679,10 +681,6 @@ export class GitHubClient implements GitHub {
       this._client = new Promise(async (resolve) => {
         const conn = await this.connection();
         const { token, apiUrl } = conn;
-        const { Octokit } = await import("@octokit/rest");
-        const { throttling } = await import("@octokit/plugin-throttling");
-        const { paginateRest } = await import("@octokit/plugin-paginate-rest");
-        //const { retry } = await import("@octokit/plugin-retry")
         const OctokitWithPlugins = Octokit.plugin(paginateRest).plugin(throttling);
         //                    .plugin(retry)
         const res = new OctokitWithPlugins({

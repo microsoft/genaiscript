@@ -60,7 +60,7 @@ export async function setupTraceWriting(
     false,
   );
 
-  trace.addEventListener(TRACE_DETAILS, (ev) => {
+  trace.addEventListener(TRACE_DETAILS, () => {
     const m = measure("trace.details");
     const content = trace.content;
 

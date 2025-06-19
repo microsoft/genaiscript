@@ -86,7 +86,7 @@ export async function startMcpServer(
     logVerbose(`mcp server: tools changed`);
     await server.sendToolListChanged();
   });
-  server.setRequestHandler(ListToolsRequestSchema, async (req) => {
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
     dbg(`fetching scripts from watcher`);
     const scripts = await watcher.scripts();
     const tools = scripts
@@ -126,7 +126,7 @@ export async function startMcpServer(
       const { files, ...vars } = args || {};
       dbg(`executing tool: ${name} with files: ${files} and vars: ${JSON.stringify(vars)}`);
       const res = await run(name, files as string[], {
-        vars: vars as Record<string, any>,
+        vars: vars as Record<string, string | number | boolean | object>,
         runTrace: false,
         outputTrace: false,
       });
@@ -157,7 +157,7 @@ export async function startMcpServer(
       } satisfies CallToolResult;
     }
   });
-  server.setRequestHandler(ListResourcesRequestSchema, async (req) => {
+  server.setRequestHandler(ListResourcesRequestSchema, async () => {
     dbg(`list resources`);
     const resources = await runtimeHost.resources.resources();
     dbg(`found ${resources.length} resources`);

@@ -91,7 +91,7 @@ export async function convertFiles(
   );
   const outTraceDir = dirname(outTraceFilename);
 
-  const fail = (msg: string, exitCode: number, url?: string) => {
+  const fail = (msg: string, _exitCode: number, _url?: string) => {
     throw new Error(msg);
   };
   const { resolve } = host.path;

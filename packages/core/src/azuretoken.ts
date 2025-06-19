@@ -16,6 +16,16 @@ import type { TokenCredential } from "@azure/identity";
 import { serializeError } from "./error.js";
 import { CancellationOptions, CancellationToken, toSignal } from "./cancellation.js";
 import { AzureCredentialsType } from "./server/messages.js";
+import {
+  AzureCliCredential,
+  AzureDeveloperCliCredential,
+  AzurePowerShellCredential,
+  ChainedTokenCredential,
+  DefaultAzureCredential,
+  EnvironmentCredential,
+  ManagedIdentityCredential,
+  WorkloadIdentityCredential,
+} from "@azure/identity";
 
 /**
  * This module provides functions to handle Azure authentication tokens,
@@ -38,17 +48,6 @@ async function createAzureToken(
 ): Promise<AuthenticationToken> {
   // Dynamically import DefaultAzureCredential from the Azure SDK
   dbg("dynamically importing Azure SDK credentials");
-  const {
-    DefaultAzureCredential,
-    EnvironmentCredential,
-    AzureCliCredential,
-    ManagedIdentityCredential,
-    AzurePowerShellCredential,
-    AzureDeveloperCliCredential,
-    WorkloadIdentityCredential,
-    ChainedTokenCredential,
-  } = await import("@azure/identity");
-
   let credential: TokenCredential;
   switch (credentialsType) {
     case "cli":
@@ -119,7 +118,7 @@ async function createAzureToken(
 
 class AzureTokenResolverImpl implements AzureTokenResolver {
   _token: AuthenticationToken;
-  _error: any;
+  _error: SerializedError;
   _resolver: Promise<{ token?: AuthenticationToken; error?: SerializedError }>;
 
   constructor(

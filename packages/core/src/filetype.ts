@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { fileTypeFromBuffer as _fileTypeFromBuffer } from "file-type";
+
 /**
  * Determines the file type of a given buffer.
  *
@@ -10,7 +12,5 @@
  */
 export async function fileTypeFromBuffer(buffer: Uint8Array | ArrayBuffer) {
   if (buffer === undefined) return undefined;
-
-  const { fileTypeFromBuffer } = await import("file-type");
-  return fileTypeFromBuffer(buffer);
+  return _fileTypeFromBuffer(buffer);
 }

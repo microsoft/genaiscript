@@ -7,7 +7,7 @@ import type { WorkspaceFile } from "@genaiscript/core";
 
 function readStdinOrTimeout(): Promise<Buffer | undefined> {
   return new Promise<Buffer | undefined>((resolve, reject) => {
-    let res: Buffer[] = [];
+    const res: Buffer[] = [];
     const { stdin } = process;
     if (!stdin || stdin.isTTY) {
       resolve(undefined);
@@ -56,7 +56,7 @@ export async function readStdIn(): Promise<WorkspaceFile> {
   const data = await readStdinOrTimeout();
   if (!data?.length) return undefined;
 
-  let mime = await fileTypeFromBuffer(data);
+  const mime = await fileTypeFromBuffer(data);
   const res = isBinaryMimeType(mime?.mime)
     ? ({
         filename: `stdin.${mime?.ext || "bin"}`,

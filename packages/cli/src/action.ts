@@ -83,7 +83,7 @@ export async function actionConfigure(options: {
     pullRequestReviews,
   } = options || {};
   const event: "push" | "pull_request" | "issue_comment" | "issue" =
-    (options?.event as any) ??
+    (options?.event as "push" | "pull_request" | "issue_comment" | "issue") ??
     (pullRequestComment || pullRequestDescription || pullRequestReviews ? "pull_request" : "push");
   const issue =
     event === "issue" ||
@@ -279,7 +279,7 @@ with:
 ${Object.entries(inputs || {})
   .filter(([, value]) => value.required)
   .map(
-    ([key, value]) =>
+    ([key,]) =>
       `  ${key}: \${{ ${key === "github_token" ? "secrets.GITHUB_TOKEN" : "..."} }}`,
   )
   .join("\n")}
@@ -309,7 +309,7 @@ jobs:
 ${Object.entries(inputs || {})
   .filter(([, value]) => value.required)
   .map(
-    ([key, value]) =>
+    ([key,]) =>
       `          ${key}: \${{ ${key === "github_token" ? "secrets.GITHUB_TOKEN" : "..."} }}`,
   )
   .join("\n")}
