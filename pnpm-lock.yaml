@@ -556,6 +556,9 @@ importers:
       es-toolkit:
         specifier: ^1.39.3
         version: 1.39.3
+      execa:
+        specifier: ^9.6.0
+        version: 9.6.0
       glob:
         specifier: ^11.0.3
         version: 11.0.3
@@ -581,6 +584,9 @@ importers:
       '@types/dockerode':
         specifier: ^3.3.41
         version: 3.3.41
+      '@types/memorystream':
+        specifier: ^0.3.4
+        version: 0.3.4
       '@types/node':
         specifier: 'catalog:'
         version: 22.15.28
@@ -3268,6 +3274,9 @@ packages:
 
   '@types/mdurl@2.0.0':
     resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
+
+  '@types/memorystream@0.3.4':
+    resolution: {integrity: sha512-AVVe8unTnhTecg9GmRVddQFvi5K7+QcvLTfUstT+5dhQ633+JX4bK/sKaHTj8Z5RUOoVNS6u1gfby29ArDj4Gw==}
 
   '@types/mime-types@2.1.4':
     resolution: {integrity: sha512-lfU4b34HOri+kAY5UheuFMWPDOI+OPceBSHZKp69gEyTL/mmJ4cnU6Y/rlme3UL3GyOn6Y42hyIEw0/q8sWx5w==}
@@ -11417,6 +11426,10 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/mdurl@2.0.0': {}
+
+  '@types/memorystream@0.3.4':
+    dependencies:
+      '@types/node': 22.15.28
 
   '@types/mime-types@2.1.4': {}
 

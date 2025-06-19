@@ -2,8 +2,8 @@
 // Licensed under the MIT Lice
 
 import { TextDecoder, TextEncoder } from "util";
-import { lstat, mkdir, readFile, unlink, writeFile } from "node:fs/promises";
-import { ensureDir, exists, remove } from "fs-extra";
+import { lstat, mkdir, readFile, rmdir, unlink, writeFile } from "node:fs/promises";
+import { ensureDir, fileExists } from "@genaiscript/core";
 import { dirname } from "node:path";
 import { glob } from "glob";
 import { debug as debug_, error, info, warn } from "./log.js";
@@ -52,7 +52,7 @@ import {
   resolveLanguageModel,
   shellQuote,
   setRuntimeHost,
-  isAzureContentSafetyClientConfigured
+  isAzureContentSafetyClientConfigured,
 } from "@genaiscript/core";
 import type {
   BrowserPage,
@@ -72,7 +72,7 @@ import type {
   PythonRuntimeOptions,
   ResponseStatus,
   ShellOptions,
-  TraceOptions
+  TraceOptions,
 } from "@genaiscript/core";
 import { DockerManager } from "./docker.js";
 import { BrowserManager } from "./playwright.js";
@@ -453,7 +453,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       filepath = join(this.projectFolder(), filepath.replace(wksrx, ""));
     }
     // check if file exists
-    if (!(await exists(filepath))) {
+    if (!(await fileExists(filepath))) {
       dbg(`file does not exist: ${filepath}`);
       return undefined;
     }
@@ -499,7 +499,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     await mkdir(name, { recursive: true });
   }
   async deleteDirectory(name: string): Promise<void> {
-    await remove(name);
+    await rmdir(name, { recursive: true });
   }
 
   async contentSafety(
