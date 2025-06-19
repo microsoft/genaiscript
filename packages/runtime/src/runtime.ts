@@ -400,7 +400,7 @@ export async function fileTree(
         let node = currentLevel.find((n) => n.filename === part);
         if (!node) {
           const stats = await globalPromptContext.workspace.stat(filename);
-          let metadata: unknown[] = [];
+          const metadata: unknown[] = [];
           if (frontmatter && /\.mdx?$/i.test(filename)) {
             const fm = globalPromptContext.parsers.frontmatter(file) || {};
             if (fm)
