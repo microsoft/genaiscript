@@ -3,9 +3,9 @@
 
 import { CancellationOptions, checkCancelled, toSignal } from "./cancellation.js";
 import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
-import { arrayify } from "../../core/src/cleaners.js";
-import { runtimeHost } from "../../core/src/host.js";
-import { TraceOptions } from "../../core/src/trace.js";
+import { arrayify } from "./cleaners.js";
+import { runtimeHost } from "./host.js";
+import { TraceOptions } from "./trace.js";
 import { logVerbose } from "./util.js";
 import type { TokenCredential, KeyCredential } from "@azure/core-auth";
 import { resolveFileContent } from "./file.js";

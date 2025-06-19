@@ -4,14 +4,14 @@
 import debug from "debug";
 const dbg = debug("genaiscript:azuretoken");
 
-import { AZURE_TOKEN_EXPIRATION } from "../../core/src/constants.js";
+import { AZURE_TOKEN_EXPIRATION } from "./constants.js";
 import {
   AuthenticationToken,
   AzureTokenResolver,
   isAzureTokenExpired,
   runtimeHost,
 } from "./host.js";
-import { logError } from "../../core/src/util.js";
+import { logError } from "./util.js";
 import type { TokenCredential } from "@azure/identity";
 import { serializeError } from "./error.js";
 import { CancellationOptions, CancellationToken, toSignal } from "./cancellation.js";
@@ -46,17 +46,6 @@ async function createAzureToken(
   credentialsType: AzureCredentialsType,
   cancellationToken?: CancellationToken,
 ): Promise<AuthenticationToken> {
-  const {
-    DefaultAzureCredential,
-    EnvironmentCredential,
-    AzureCliCredential,
-    ManagedIdentityCredential,
-    AzurePowerShellCredential,
-    AzureDeveloperCliCredential,
-    WorkloadIdentityCredential,
-    ChainedTokenCredential,
-  } = await import("@azure/identity");
-
   let credential: TokenCredential;
   switch (credentialsType) {
     case "cli":

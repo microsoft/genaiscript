@@ -24,7 +24,7 @@ import type { Canvas } from "@napi-rs/canvas";
 import { pathToFileURL } from "node:url";
 import { ParsePDFOptions, PDFPage, PDFPageImage } from "./types.js";
 import canvas from "@napi-rs/canvas";
-import pdfjs from "pdfjs-dist";
+import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 
 const dbg = genaiscriptDebug("pdf");
 

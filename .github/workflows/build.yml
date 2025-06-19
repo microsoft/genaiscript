@@ -27,10 +27,10 @@ jobs:
                   version: '10.11.0'
             - run: sudo apt-get update && sudo apt-get install ffmpeg
             - run: pnpm install --frozen-lockfile
-            - name: compile
-              run: pnpm run compile:action
-            - name: lint
-              run: pnpm run lint
+            - name: build
+              run: pnpm run build
+            - name: lint:check
+              run: pnpm run lint:check
             - name: package vscode
               run: pnpm run package
             - name: compile system scripts
@@ -38,7 +38,7 @@ jobs:
             - name: compile tests
               run: pnpm run test:compile
             - name: core tests
-              run: pnpm run test:core
+              run: pnpm run --filter=@genaiscript/core test
             - name: unit tests
               run: pnpm run test:samples
               env:

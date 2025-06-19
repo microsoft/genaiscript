@@ -24,7 +24,6 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "emitDeclarationOnly": true,
     "pretty": true,
     "newLine": "LF",
     "types": [],
