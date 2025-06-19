@@ -25,9 +25,7 @@ jobs:
                   cache: 'pnpm'
             - run: sudo apt-get update && sudo apt-get install ffmpeg
             - run: pnpm install --frozen-lockfile
-            - run: pnpm -r build
-            - name: compile
-              run: pnpm run compile:action
+            - run: pnpm run build
             - name: lint
               run: pnpm run lint
             - name: package vscode
