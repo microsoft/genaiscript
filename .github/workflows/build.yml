@@ -21,26 +21,29 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: "${{ matrix.node-version }}"
-                  cache: yarn
+                  cache: 'pnpm'
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: '10.11.0'
             - run: sudo apt-get update && sudo apt-get install ffmpeg
-            - run: yarn install --frozen-lockfile --prefer-offline
+            - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile:action
+              run: pnpm run compile:action
             - name: lint
-              run: yarn lint
+              run: pnpm run lint
             - name: package vscode
-              run: yarn package
+              run: pnpm run package
             - name: compile system scripts
-              run: yarn test:system
+              run: pnpm run test:system
             - name: compile tests
-              run: yarn test:compile
+              run: pnpm run test:compile
             - name: core tests
-              run: yarn test:core
+              run: pnpm run test:core
             - name: unit tests
-              run: yarn test:samples
+              run: pnpm run test:samples
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: unit test:modulesamples
-              run: yarn test:modulesamples
+              run: pnpm run test:modulesamples
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
