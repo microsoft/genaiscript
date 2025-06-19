@@ -9,7 +9,7 @@ import { TraceOptions } from "./trace.js";
 import { lookupMime } from "./mime.js";
 import pLimit from "p-limit";
 import { join, basename } from "node:path";
-import { ensureDir } from "fs-extra";
+import { ensureDir } from "./fs.js";
 import type { FfmpegCommand } from "fluent-ffmpeg";
 import { hash } from "./crypto.js";
 import { VIDEO_HASH_LENGTH } from "./constants.js";

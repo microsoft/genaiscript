@@ -6,7 +6,7 @@ import { hash } from "./crypto.js";
 import { TraceOptions } from "./trace.js";
 import { basename, dirname, join, relative } from "node:path";
 import { writeFile } from "node:fs/promises";
-import { ensureDir } from "fs-extra";
+import { ensureDir } from "./fs.js";
 import { CancellationOptions, checkCancelled } from "./cancellation.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { prettyBytes } from "./pretty.js";

@@ -13,7 +13,7 @@ import { YAMLStringify } from "./yaml.js";
 import { errorMessage, serializeError } from "./error.js";
 import { resolveFileBytes } from "./file.js";
 import { filenameOrFileToFilename } from "./unwrappers.js";
-import { ensureDir } from "fs-extra";
+import { ensureDir } from "./fs.js";
 import { measure } from "./performance.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import type { DocxParseOptions, WorkspaceFile } from "./types.js";
