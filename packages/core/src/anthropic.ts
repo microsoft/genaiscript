@@ -318,7 +318,7 @@ const completerFactory = (
 
     let temperature = req.temperature;
     let top_p = req.top_p;
-    let tool_choice: Anthropic.Beta.MessageCreateParams["tool_choice"] =
+    const tool_choice: Anthropic.Beta.MessageCreateParams["tool_choice"] =
       req.tool_choice === "auto"
         ? { type: "auto" }
         : req.tool_choice === "none"

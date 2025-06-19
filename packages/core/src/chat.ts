@@ -236,7 +236,7 @@ async function runToolCalls(
   const { cancellationToken, trace, model } = options || {};
   const { encode: encoder } = await resolveTokenEncoder(model);
   assert(!!trace);
-  let edits: Edits[] = [];
+  const edits: Edits[] = [];
 
   if (!options.fallbackTools) {
     dbgt(`fallback: appending tool calls to assistant message`);
@@ -1136,11 +1136,11 @@ export async function executeChatSession(
           },
       )
     : undefined;
-  const cacheStore = !!cache
+  const cacheStore = cache
     ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
     : undefined;
   const chatTrace = trace.startTraceDetails(`💬 chat`, { expanded: true });
-  const store = !!metadata ? true : undefined;
+  const store = metadata ? true : undefined;
   const timer = measure("chat");
   const cacheImage = async (url: string) =>
     await fileCacheImage(url, {

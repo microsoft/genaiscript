@@ -79,7 +79,6 @@ const pullModel: PullModelFunction = async (cfg, options) => {
       logVerbose(resPull.statusText);
       return { ok: false, status: resPull.status };
     }
-    let lastStatus = "";
     for await (const chunk of iterateBody(resPull, { cancellationToken })) {
       const cs = JSONLTryParse(chunk) as {
         status?: string;

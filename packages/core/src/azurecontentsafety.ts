@@ -205,7 +205,7 @@ class AzureContentSafetyClient implements ContentSafety {
     )
       ?.toLowerCase()
       ?.trim() || "default") as AzureCredentialsType;
-    let apiKey = process.env.AZURE_CONTENT_SAFETY_KEY || process.env.AZURE_CONTENT_SAFETY_API_KEY;
+    const apiKey = process.env.AZURE_CONTENT_SAFETY_KEY || process.env.AZURE_CONTENT_SAFETY_API_KEY;
     let apiToken: string;
     if (!apiKey) {
       dbg(`requesting Azure token`);

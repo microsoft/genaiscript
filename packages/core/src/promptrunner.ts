@@ -156,7 +156,7 @@ export async function runTemplate(
 
     // Resolve expansion variables for the template
     const env = await resolveExpansionVars(prj, trace, template, fragment, outputTrace, options);
-    let {
+    const {
       messages,
       schemas,
       tools,
@@ -279,7 +279,7 @@ export async function runTemplate(
     tracePromptResult(trace, chatResult);
 
     const { json, fences, frames, error, finishReason, fileEdits, changelogs, edits } = chatResult;
-    let { annotations } = chatResult;
+    const { annotations } = chatResult;
 
     // Reporting and tracing output
     if (fences?.length) trace.details("📩 code regions", renderFencedVariables(fences));

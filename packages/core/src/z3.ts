@@ -75,7 +75,7 @@ export async function loadZ3Client(
     Z3.global_param_set("timeout", String(timeout));
 
     let output = "";
-    let error = "";
+    const error = "";
 
     try {
       output = (await Z3.eval_smtlib2_string(ctx, input)) ?? "";

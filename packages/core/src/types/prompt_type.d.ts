@@ -8,7 +8,7 @@
 /**
  * Console functions
  */
-declare var console: PromptGenerationConsole;
+declare let console: PromptGenerationConsole;
 
 /**
  * Setup prompt title and other parameters.
@@ -129,102 +129,102 @@ declare function defFileMerge(fn: FileMergeHandler): void;
 /**
  * Variables coming from the fragment on which the prompt is operating.
  */
-declare var env: ExpansionVariables;
+declare let env: ExpansionVariables;
 
 /**
  * Path manipulation functions.
  */
-declare var path: Path;
+declare let path: Path;
 
 /**
  * A set of parsers for well-known file formats
  */
-declare var parsers: Parsers;
+declare let parsers: Parsers;
 
 /**
  * Retrieval Augmented Generation services
  */
-declare var retrieval: Retrieval;
+declare let retrieval: Retrieval;
 
 /**
  * Access to the workspace file system.
  */
-declare var workspace: WorkspaceFileSystem;
+declare let workspace: WorkspaceFileSystem;
 
 /**
  * YAML parsing and stringifying functions.
  */
-declare var YAML: YAML;
+declare let YAML: YAML;
 
 /**
  * INI parsing and stringifying.
  */
-declare var INI: INI;
+declare let INI: INI;
 
 /**
  * CSV parsing and stringifying.
  */
-declare var CSV: CSV;
+declare let CSV: CSV;
 
 /**
  * XML parsing and stringifying.
  */
-declare var XML: XML;
+declare let XML: XML;
 
 /**
  * HTML parsing
  */
-declare var HTML: HTML;
+declare let HTML: HTML;
 
 /**
  * Markdown and frontmatter parsing.
  */
-declare var MD: MD;
+declare let MD: MD;
 
 /**
  * JSONL parsing and stringifying.
  */
-declare var JSONL: JSONL;
+declare let JSONL: JSONL;
 
 /**
  * JSON5 parsing
  */
-declare var JSON5: JSON5;
+declare let JSON5: JSON5;
 
 /**
  * JSON Schema utilities
  */
-declare var JSONSchema: JSONSchemaUtilities;
+declare let JSONSchema: JSONSchemaUtilities;
 
 /**
  * Diff utilities
  */
-declare var DIFF: DIFF;
+declare let DIFF: DIFF;
 
 /**
  * Access to current LLM chat session information
  */
-declare var host: PromptHost;
+declare let host: PromptHost;
 
 /**
  * Access to GitHub queries for the current repository
  */
-declare var github: GitHub;
+declare let github: GitHub;
 
 /**
  * Access to Git operations for the current repository
  */
-declare var git: Git;
+declare let git: Git;
 
 /**
  * Access to ffmpeg operations
  */
-declare var ffmpeg: Ffmpeg;
+declare let ffmpeg: Ffmpeg;
 
 /**
  * Computation around tokens
  */
-declare var tokenizers: Tokenizers;
+declare let tokenizers: Tokenizers;
 
 /**
  * @deprecated use `host.fetchText` instead

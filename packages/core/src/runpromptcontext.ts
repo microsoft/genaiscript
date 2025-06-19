@@ -794,7 +794,7 @@ export function createChatGenerationContext(
     Object.freeze(runOptions);
     const { label, applyEdits, throwOnError } = runOptions || {};
     const runTrace = trace.startTraceDetails(`🎁 ${label || "prompt"}`);
-    let messages: ChatCompletionMessageParam[] = [];
+    const messages: ChatCompletionMessageParam[] = [];
     try {
       infoCb?.({ text: label || "prompt" });
 

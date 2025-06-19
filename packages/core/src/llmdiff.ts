@@ -32,7 +32,7 @@ export function parseLLMDiffs(text: string): Chunk[] {
 
   let currentLine = Number.NaN;
   for (let i = 0; i < lines.length; ++i) {
-    let line = lines[i];
+    const line = lines[i];
     const diffM = /^(\[(\d+)\] )?(-|\+) (\[(\d+)\] )?/.exec(line);
 
     // Process lines that match the diff pattern
@@ -206,7 +206,7 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
     if (addedChunk?.state !== "added") throw new Error("expecting added chunk");
 
     // Find the end of the next existing chunk
-    let nextChunk = chunks[i];
+    const nextChunk = chunks[i];
     if (nextChunk && nextChunk.state !== "existing") throw new Error("expecting existing chunk");
     const chunkEnd = nextChunk ? findChunk(lines, nextChunk, current) : lines.length;
 

@@ -311,7 +311,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
   let usage: ChatCompletionUsage;
   let error: SerializedError;
   let responseModel: string;
-  let lbs: ChatCompletionTokenLogprob[] = [];
+  const lbs: ChatCompletionTokenLogprob[] = [];
 
   let reasoning = false;
 

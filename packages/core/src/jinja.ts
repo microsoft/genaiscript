@@ -46,7 +46,7 @@ export function jinjaRender(template: string, values: Record<string, any>): stri
  */
 export function jinjaRenderChatMessage(msg: ChatCompletionMessageParam, args: Record<string, any>) {
   const { content } = msg;
-  let template: string[] = [];
+  const template: string[] = [];
   if (typeof content === "string") template.push(content);
   else
     for (const part of content) {

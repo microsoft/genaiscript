@@ -103,7 +103,7 @@ export function JSONSchemaStringifyToTypeScript(
   options?: { typeName?: string; export?: boolean },
 ) {
   const { typeName = "Response" } = options || {};
-  let lines: string[] = []; // Array to accumulate lines of TypeScript code
+  const lines: string[] = []; // Array to accumulate lines of TypeScript code
   let indent = 0; // Manage indentation level
 
   const described = schema as JSONSchemaDescribed;

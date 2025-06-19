@@ -210,7 +210,7 @@ export class TextSplitter {
   private splitBySpaces(text: string): string[] {
     // Split text by tokens and return parts
     const parts: string[] = [];
-    let tokens = this._config.tokenizer.encode(text);
+    const tokens = this._config.tokenizer.encode(text);
     do {
       if (tokens.length <= this._config.chunkSize) {
         parts.push(this._config.tokenizer.decode(tokens));

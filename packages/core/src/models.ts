@@ -205,7 +205,7 @@ export function resolveModelAlias(model: string): ModelConfiguration {
     source: "script",
   };
   while (modelAliases[res.model]) {
-    let next = modelAliases[res.model];
+    const next = modelAliases[res.model];
     dbg(`alias ${res.model} -> ${next.model}`);
     if (seen.includes(next.model))
       throw new Error(`Circular model alias: ${next.model}, seen ${[...seen].join(",")}`);

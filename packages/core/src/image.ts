@@ -40,7 +40,7 @@ async function prepare(
     CancellationOptions & { detail?: "high" | "low" | "original" },
 ) {
   // Dynamically import the Jimp library and its alignment enums
-  let {
+  const {
     cancellationToken,
     autoCrop,
     maxHeight,
