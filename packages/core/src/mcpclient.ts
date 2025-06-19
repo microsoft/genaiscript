@@ -224,7 +224,13 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
                   onprogress: progress(`tool call ${name} `),
                 },
               );
-              const text = res?.text;
+              const text =
+                res?.text ||
+                (res?.content as { text?: string }[])
+                  ?.map((c) => c?.text)
+                  .filter(Boolean)
+                  .join("\n") ||
+                "";
               return text;
             },
           } satisfies ToolCallback;

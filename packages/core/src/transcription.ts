@@ -46,7 +46,7 @@ export function srtVttRender(transcription: TranscriptionResult) {
   const vtt =
     "WEBVTT\n\n" +
     segments
-      .map((segment, index) => {
+      .map((segment) => {
         const start = formatVRTTime(segment.start);
         const end = formatVRTTime(segment.end);
         return `${start} --> ${end}\n${segment.text.trim()}\n`;
@@ -90,7 +90,7 @@ export function srtVttRender(transcription: TranscriptionResult) {
  * - An array of extracted timestamp strings in the format `[hh:mm:ss.sss]` or `[mm:ss.sss]`.
  */
 export function parseTimestamps(transcription: string) {
-  let ts: string[] = [];
+  const ts: string[] = [];
   transcription?.replace(/\[((\d{2}:)?\d{2}:\d{2}(.\d{3})?)\]/g, (match, p1) => {
     ts.push(p1);
     return "";

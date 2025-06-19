@@ -1,49 +1,51 @@
-# action-poem action
 
-A custom GitHub Action that runs the script `action-poem`.
-
-This is the description
 
 ## Inputs
 
-- `github_token`: GitHub token with `models: read` permission at least. (required)
-- `github_issue`: GitHub issue number to use when generating comments.
-- `debug`: Enable debug logging.
+- `files`: Files to process, separated by semi columns (;). 
+- `github_token`: GitHub token with `models: read` permission at least (https://microsoft.github.io/genaiscript/reference/github-actions/#github-models-permissions). (required)
+- `debug`: Enable debug logging (https://microsoft.github.io/genaiscript/reference/scripts/logging/).
 
 ## Outputs
 
 - `text`: The generated text output.
-- `data`: The generated JSON data output, parsed and stringified.
 
 ## Usage
 
+Add the following to your step in your workflow file:
+
 ```yaml
-uses: action-poem-action
+uses: microsoft/genaiscript@main
 with:
-  github_token: ${{ ... }}
+  github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Example
 
+Save this file in your `.github/workflows/` directory as `action-poem.yml`:
+
 ```yaml
-name: Run action-poem Action
+name: Genaiscript
 on:
     workflow_dispatch:
-    push: # TODO: update event type
+    push:
 permissions:
     contents: read
+    # issues: write
+    # pull-requests: write
     models: read
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 jobs:
-  run-script:
+  genaiscript:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: microsoft/genaiscript@main
         with:
-          github_token: ${{ ... }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
 ```
 
 ## Development
@@ -85,4 +87,32 @@ npm run docker:build
 To run the action locally in Docker (build it first), use:
 ```bash
 npm run docker:start
+```
+
+To run the action using [act](https://nektosact.com/), first install the act CLI:
+
+```bash
+npm run act:install
+```
+
+Then, you can run the action with:
+
+```bash
+npm run act
+```
+
+## Upgrade
+
+The GenAIScript version is pinned in the `package.json` file. To upgrade it, run:
+
+```bash
+npm run upgrade
+```
+
+## Release
+
+To release a new version of this action, run the release script on a clean working directory.
+
+```bash
+npm run release
 ```

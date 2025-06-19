@@ -46,8 +46,17 @@ async function createAzureToken(
   credentialsType: AzureCredentialsType,
   cancellationToken?: CancellationToken,
 ): Promise<AuthenticationToken> {
-  // Dynamically import DefaultAzureCredential from the Azure SDK
-  dbg("dynamically importing Azure SDK credentials");
+  const {
+    DefaultAzureCredential,
+    EnvironmentCredential,
+    AzureCliCredential,
+    ManagedIdentityCredential,
+    AzurePowerShellCredential,
+    AzureDeveloperCliCredential,
+    WorkloadIdentityCredential,
+    ChainedTokenCredential,
+  } = await import("@azure/identity");
+
   let credential: TokenCredential;
   switch (credentialsType) {
     case "cli":

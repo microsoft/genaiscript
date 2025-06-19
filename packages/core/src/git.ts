@@ -47,18 +47,45 @@ function appendExtras(rest: Record<string, string | number | boolean>, args: str
  * GitClient class provides an interface to interact with Git.
  */
 export class GitClient implements Git {
-  readonly cwd: string;
+  private _cwd: string;
   readonly git = "git"; // Git command identifier
   private _defaultBranch: string; // Stores the default branch name
+  private _requiresSafeDirectory: boolean = false; // Indicates if the client requires a safe directory
 
   constructor(cwd: string) {
-    this.cwd = cwd || process.cwd();
+    this._cwd = cwd || process.cwd();
   }
 
   private static _default: GitClient;
   static default() {
     if (!this._default) this._default = new GitClient(undefined);
     return this._default;
+  }
+
+  get cwd() {
+    return this._cwd;
+  }
+
+  setGitHubWorkspace(cwd: string) {
+    if (cwd === this._cwd) return this;
+    dbg(`set github workspace mode: ${cwd}`);
+    this._cwd = cwd;
+    this._defaultBranch = undefined; // Reset default branch
+    this._requiresSafeDirectory = true;
+
+    if (!process.env.GITHUB_TOKEN && process.env.INPUT_GITHUB_TOKEN) {
+      dbg(`setting GITHUB_TOKEN from INPUT_GITHUB_TOKEN`);
+      process.env.GITHUB_TOKEN = process.env.INPUT_GITHUB_TOKEN;
+    }
+    return this;
+  }
+
+  private async configGlobalAddSafeDirectory() {
+    if (this._requiresSafeDirectory) {
+      this._requiresSafeDirectory = false;
+      dbg(`adding safe directory for git`);
+      await this.exec(`config --global --add safe.directory ${this.cwd}`);
+    }
   }
 
   private async resolveExcludedPaths(options?: {
@@ -161,9 +188,12 @@ export class GitClient implements Git {
     options?: { label?: string; valueOnError?: string },
   ): Promise<string> {
     const { valueOnError } = options || {};
+
+    await this.configGlobalAddSafeDirectory();
+
     const opts: ShellOptions = {
       ...(options || {}),
-      cwd: this.cwd,
+      cwd: this._cwd,
       env: {
         LC_ALL: "en_US",
       },
@@ -550,6 +580,6 @@ ${await this.diff({ ...options, nameOnly: true })}
   }
 
   toString() {
-    return `git ${this.cwd || ""}`;
+    return `git ${this._cwd || ""}`;
   }
 }

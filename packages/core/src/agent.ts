@@ -50,7 +50,7 @@ export async function agentQueryMemory(
   cache: AgentMemoryCache,
   ctx: ChatGenerationContext,
   query: string,
-  options: Required<TraceOptions>,
+  _options: Required<TraceOptions>,
 ) {
   if (!query) return undefined;
 

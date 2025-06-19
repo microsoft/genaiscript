@@ -38,6 +38,8 @@ jobs:
               run: yarn test:core
             - name: unit tests
               run: yarn test:samples
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: unit test:modulesamples
               run: yarn test:modulesamples
               env:

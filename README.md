@@ -318,6 +318,8 @@ Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) 
 npx genaiscript run tlaplus-linter "*.tla"
 ```
 
+or use the [Node.JS api](/genaiscript/reference/api) to run scripts programmatically:
+
 ```js
 import { run } from "genaiscript/api"
 

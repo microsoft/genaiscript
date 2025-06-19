@@ -62,6 +62,8 @@ $`- Do not translate header starting with ~
 # Translating MakeCode
 ## Automate
 
+<PackageManagers pkg="genaiscript" dev />
+
 ```js
 import { run } from "genaiscript/api"
 const langs = ["French", "German", ...]

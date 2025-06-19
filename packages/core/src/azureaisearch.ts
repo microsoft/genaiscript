@@ -35,7 +35,6 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
   } = options || {};
   const abortSignal = toSignal(cancellationToken);
 
-
   const endPoint = process.env.AZURE_AI_SEARCH_ENDPOINT;
   if (!endPoint) {
     dbg(`checking if AZURE_AI_SEARCH_ENDPOINT is configured`);

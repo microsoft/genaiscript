@@ -21,6 +21,7 @@ import {
   TOOL_ID,
   TOOL_NAME,
   UNHANDLED_ERROR_CODE,
+  GitClient,
   errorMessage,
   genaiscriptDebug,
   isQuiet,
@@ -107,21 +108,31 @@ export async function cli() {
       githubWorkspace: boolean;
     } = cmd.opts(); // Get environment options from command
     const includes: string[] = []; // Array to hold include paths
+    let ignoreCurrentWorkspace = false;
     if (include) includes.push(resolve(include));
-    const { workspaceDir } = githubActionConfigure();
-    if (githubWorkspace && workspaceDir && resolve(workspaceDir) !== resolve(process.cwd())) {
-      includes.push(resolve(process.cwd(), "**", "*.genai.*s"));
-      cwd = resolve(workspaceDir);
-      dbg(`github action workspace: %s`, cwd);
+    if (githubWorkspace) {
+      const { workspaceDir } = githubActionConfigure();
+      if (workspaceDir && resolve(workspaceDir) !== resolve(process.cwd())) {
+        includes.push(resolve(process.cwd(), "genaisrc", "*.genai.mts"));
+        ignoreCurrentWorkspace = true;
+        cwd = resolve(workspaceDir);
+        dbg(`github action workspace: %s`, cwd);
+        GitClient.default().setGitHubWorkspace(cwd);
+      }
     }
     if (cwd) {
       dbg(`chdir %s`, cwd);
       process.chdir(cwd);
     }
-    nodeHost = await NodeHost.install(
-      env?.length ? env : undefined,
-      includes.length ? { include: uniq(includes) } : undefined,
-    ); // Install NodeHost with environment options
+    nodeHost = await NodeHost.install(env?.length ? env : undefined, {
+      include: includes.length
+        ? uniq(includes).map((pattern) => ({
+            pattern,
+            ignoreGitIgnore: true,
+          }))
+        : undefined,
+      ignoreCurrentWorkspace,
+    }); // Install NodeHost with environment options
     dbg(`cwd: %s`, process.cwd());
     dbg(`config: %O`, nodeHost.config);
   });
@@ -496,6 +507,7 @@ export async function cli() {
     .command("action")
     .alias("github-action")
     .description("Configure a GitHub repository as a custom dockerized GitHub Action")
+    .argument("[script]", "Script id to use as action", "action")
     .option("-f, --force", "force override existing action files")
     .option("-o, --out <string>", "output folder for action files")
     .option("--ffmpeg", "use ffmpeg for video/audio processing")
@@ -504,6 +516,7 @@ export async function cli() {
     .option("--image <string>", "Docker image identifier")
     .option("--apks <string...>", "Linux packages to install")
     .option("--provider <string>", "LLM provider to use")
+    .option("--interactive", "Enable interactive mode")
     .action(actionConfigure);
   configureActionCmd.addOption(
     new Option("-e, --event <string>", "GitHub event type").choices([

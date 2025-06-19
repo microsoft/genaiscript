@@ -63,7 +63,7 @@ export async function resolveTokenEncoder(
       encode: (line) => encode(line, encoderOptions), // Return the default encoder function
       decode,
     });
-  } catch (e) {
+  } catch {
     if (disableFallback) {
       dbg(`encoder fallback disabled for ${encoding}`);
       return undefined;

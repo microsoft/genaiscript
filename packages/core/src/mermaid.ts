@@ -15,7 +15,6 @@ async function importMermaid() {
 
   await installWindow();
   dbg(`importing`);
-
   mermaid.initialize({ startOnLoad: false });
   return mermaid;
 }

@@ -66,6 +66,7 @@ import type {
 import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
 import { paginateRest } from "@octokit/plugin-paginate-rest";
+import { tryReadJSON } from "./fs.js";
 
 const dbg = genaiscriptDebug("github");
 
@@ -82,6 +83,8 @@ export interface GithubConnectionInfo {
   runId?: string;
   runUrl?: string;
   commitSha?: string;
+  eventName?: "push" | "pull_request" | "issue" | "issue_comment";
+  event?: unknown;
 }
 
 function readGitHubToken(env: Record<string, string>) {
@@ -96,7 +99,7 @@ function readGitHubToken(env: Record<string, string>) {
   return token;
 }
 
-function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
+async function githubFromEnv(env: Record<string, string>): Promise<GithubConnectionInfo> {
   const token = readGitHubToken(env);
   const apiUrl = env.GITHUB_API_URL || "https://api.github.com";
   const repository = env.GITHUB_REPOSITORY;
@@ -109,12 +112,18 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
   const serverUrl = env.GITHUB_SERVER_URL;
   const runUrl =
     serverUrl && runId ? `${serverUrl}/${repository}/actions/runs/${runId}` : undefined;
-  const issue = normalizeInt(
+  const eventName = env.GITHUB_EVENT_NAME as "push" | "pull_request" | "issue" | "issue_comment";
+  const eventPath = env.GITHUB_EVENT_PATH;
+  const event = eventPath ? await tryReadJSON(eventPath) : undefined;
+  let issue = normalizeInt(
     env.GITHUB_ISSUE ??
       env.INPUT_GITHUB_ISSUE ??
       /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue,
   );
-
+  if (event && isNaN(issue)) {
+    dbg(`resolving issue/pull_request from event`);
+    issue = normalizeInt(event.issue?.number || event.pull_request?.number);
+  }
   return deleteUndefinedValues({
     token,
     apiUrl,
@@ -128,6 +137,8 @@ function githubFromEnv(env: Record<string, string>): GithubConnectionInfo {
     runId,
     runUrl,
     commitSha,
+    eventName,
+    event,
   }) satisfies GithubConnectionInfo;
 }
 
@@ -173,7 +184,7 @@ export async function githubParseEnv(
     CancellationOptions,
 ): Promise<GithubConnectionInfo> {
   dbg(`resolving connection info`);
-  const res = githubFromEnv(env);
+  const res = await githubFromEnv(env);
   dbg(`found %O`, Object.keys(res).join(","));
   try {
     if (options?.owner && options?.repo) {
@@ -678,6 +689,7 @@ export class GitHubClient implements GitHub {
 
   async api() {
     if (!this._client) {
+      // eslint-disable-next-line no-async-promise-executor
       this._client = new Promise(async (resolve) => {
         const conn = await this.connection();
         const { token, apiUrl } = conn;
@@ -705,7 +717,7 @@ export class GitHubClient implements GitHub {
               }
               return false;
             },
-            onSecondaryRateLimit: (retryAfter: number, options: any, octokit: Octokit) => {
+            onSecondaryRateLimit: (_retryAfter: number, options: any, octokit: Octokit) => {
               octokit.log.warn(
                 `SecondaryRateLimit detected for request ${options.method} ${options.url}`,
               );
@@ -732,6 +744,8 @@ export class GitHubClient implements GitHub {
       issue,
       runId,
       runUrl,
+      event,
+      eventName,
     } = await this.connection();
     return Object.freeze(
       deleteUndefinedValues({
@@ -744,6 +758,8 @@ export class GitHubClient implements GitHub {
         runId,
         runUrl,
         issueNumber: issue,
+        eventName,
+        event,
       }),
     );
   }
@@ -768,7 +784,7 @@ export class GitHubClient implements GitHub {
         ref: `heads/${branchName}`,
       });
       return existing.data;
-    } catch (e) {
+    } catch {
       dbg(`ref not found`);
       return undefined;
     }
@@ -1008,7 +1024,7 @@ export class GitHubClient implements GitHub {
       gist_id,
       owner,
     });
-    const { files, id, description, created_at, ...rest } = data;
+    const { files, id, description, created_at } = data;
     if (Object.values(files || {}).some((f) => f.encoding !== "utf-8" && f.encoding != "base64")) {
       dbg(`unsupported encoding for gist files`);
       return undefined;
@@ -1167,7 +1183,7 @@ export class GitHubClient implements GitHub {
   ): Promise<GitHubComment[]> {
     const { client, owner, repo } = await this.api();
     dbg(`listing comments for issue number: ${issue_number}`);
-    const { reactions, count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+    const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
     const ite = client.paginate.iterator(client.rest.issues.listComments, {
       owner,
       repo,
@@ -1318,7 +1334,7 @@ export class GitHubClient implements GitHub {
     // Get the jobs for the specified workflow run
     dbg(`listing jobs for workflow run ID: ${run_id}`);
     const { client, owner, repo } = await this.api();
-    const { filter, count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+    const { filter, count = GITHUB_REST_PAGE_DEFAULT } = options ?? {};
     const ite = client.paginate.iterator(client.rest.actions.listJobsForWorkflowRun, {
       owner,
       repo,
@@ -1425,7 +1441,7 @@ export class GitHubClient implements GitHub {
     const { client, owner, repo } = await this.api();
     dbg(`searching code with query: ${query}`);
     const q = query + `+repo:${owner}/${repo}`;
-    const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+    const { count = GITHUB_REST_PAGE_DEFAULT } = options ?? {};
     const ite = client.paginate.iterator(client.rest.search.code, {
       q,
       ...(options ?? {}),
@@ -1456,7 +1472,7 @@ export class GitHubClient implements GitHub {
   async listWorkflows(options?: GitHubPaginationOptions): Promise<GitHubWorkflow[]> {
     const { client, owner, repo } = await this.api();
     dbg(`listing workflows for repository`);
-    const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+    const { count = GITHUB_REST_PAGE_DEFAULT } = options ?? {};
     const ite = client.paginate.iterator(client.rest.actions.listRepoWorkflows, {
       owner,
       repo,
@@ -1474,7 +1490,7 @@ export class GitHubClient implements GitHub {
   async listBranches(options?: GitHubPaginationOptions): Promise<string[]> {
     dbg(`listing branches for repository`);
     const { client, owner, repo } = await this.api();
-    const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+    const { count = GITHUB_REST_PAGE_DEFAULT } = options ?? {};
     const ite = client.paginate.iterator(client.rest.repos.listBranches, {
       owner,
       repo,

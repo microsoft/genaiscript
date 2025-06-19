@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 // This module provides functions to convert HTML content into different formats such as JSON, plain text, and Markdown.
-// It imports necessary libraries for HTML conversion and logging purposes.
 /// <reference path="./html-escaper.d.ts" />
+/// <reference path="./turndown-plugin-gfm.d.ts" />
 
 import { CancellationOptions, checkCancelled } from "./cancellation.js";
 import { TraceOptions } from "./trace.js"; // Import TraceOptions for optional logging features
@@ -11,6 +11,7 @@ import type { HTMLToMarkdownOptions, HTMLToTextOptions } from "./types.js"; // I
 import { tabletojson } from "tabletojson";
 import { convert as convertToText } from "html-to-text"; // Import the convert function from html-to-text library
 import Turndown from "turndown" // Import Turndown library for HTML to Markdown conversion
+import GFMPlugin from "turndown-plugin-gfm";
 
 /**
  * Converts HTML tables to JSON objects.
@@ -74,7 +75,6 @@ export async function HTMLToMarkdown(
     turndown.remove("title");
     turndown.remove("noscript");
     if (!disableGfm) {
-      const GFMPlugin: any = require("turndown-plugin-gfm");
       turndown.use(GFMPlugin.gfm); // Use GFM plugin for GitHub Flavored Markdown
     }
     const res = turndown.turndown(html); // Use Turndown library to convert HTML to Markdown

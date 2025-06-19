@@ -26,6 +26,7 @@ The `github` module provides several helper functions to query GitHub, along wit
 The `github` configuration is automatically detected from the environment and git.
 
 - The GitHub token is read from the `GITHUB_TOKEN` environment variable. Some queries might work without authentication for public repositories.
+- The current issue or pull request number is automatically detected from the `GITHUB_ISSUE` environment variable. It is set in a pull request action, but otherwise you can set it manually.
 
 ### GitHub CodeSpaces
 

@@ -47,12 +47,12 @@ export async function convertDiagnosticsToSARIF(template: PromptScript, issues: 
   });
 
   // Initialize a SARIF rule based on the provided template
-  const sarifRuleBuilder = new SarifRuleBuilder().initSimple({
+  const sarifRuleBuiler = new SarifRuleBuilder().initSimple({
     ruleId: SARIFF_RULEID_PREFIX + template.id, // Unique rule identifier
     shortDescriptionText: template.title, // Short description for the rule
     fullDescriptionText: template.description, // Full description for the rule
   });
-  sarifRunBuilder.addRule(sarifRuleBuilder);
+  sarifRunBuilder.addRule(sarifRuleBuiler);
 
   // Convert each diagnostic issue to a SARIF result
   for (const issue of issues) {

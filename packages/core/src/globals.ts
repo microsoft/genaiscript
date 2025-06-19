@@ -130,12 +130,12 @@ export function installGlobals() {
     resolve: resolveTokenEncoder,
     count: async (text, options) => {
       const { encode: encoder } = await resolveTokenEncoder(options?.model);
-      const c = estimateTokens(text, encoder);
+      const c = await estimateTokens(text, encoder);
       return c;
     },
     truncate: async (text, maxTokens, options) => {
       const { encode: encoder } = await resolveTokenEncoder(options?.model);
-      return truncateTextToTokens(text, maxTokens, encoder, options);
+      return await truncateTextToTokens(text, maxTokens, encoder, options);
     },
     chunk: chunk,
   });

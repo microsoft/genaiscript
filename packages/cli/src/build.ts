@@ -6,11 +6,13 @@ import {
   GENAI_ANY_REGEX,
   GENAISCRIPT_FOLDER,
   arrayify,
+  genaiscriptDebug,
   host,
   parseProject,
-  runtimeHost
+  runtimeHost,
 } from "@genaiscript/core";
 import { uniq } from "es-toolkit";
+const dbg = genaiscriptDebug("cli:build");
 
 /**
  * Asynchronously builds a project by parsing tool files.
@@ -29,19 +31,40 @@ export async function buildProject(options?: {
   if (toolFiles?.length) {
     scriptFiles = toolFiles;
   } else {
-    let tps = arrayify(toolsPath);
+    let tps = arrayify(toolsPath).map((pattern) => ({
+      pattern,
+      applyGitIgnore: true,
+    }));
     if (!tps?.length) {
       const config = await runtimeHost.config;
-      tps = [GENAI_ANYJS_GLOB, ...arrayify(config.include)];
+      tps = [];
+      if (config.ignoreCurrentWorkspace) { dbg(`ignoring current workspace scripts`); }
+      else tps.push({ pattern: GENAI_ANYJS_GLOB, applyGitIgnore: true });
+      tps.push(
+        ...arrayify(config.include).map((pattern) =>
+          typeof pattern === "string"
+            ? { pattern, applyGitIgnore: false }
+            : {
+                pattern: pattern.pattern,
+                applyGitIgnore: !pattern.ignoreGitIgnore,
+              },
+        ),
+      );
     }
     tps = arrayify(tps);
     scriptFiles = [];
     for (const tp of tps) {
-      const fs = await host.findFiles(tp, {
+      dbg(`searching %s .gitignore: %s`, tp.pattern, tp.applyGitIgnore);
+      const fs = await host.findFiles(tp.pattern, {
         ignore: `**/${GENAISCRIPT_FOLDER}/**`,
+        applyGitIgnore: tp.applyGitIgnore,
       });
+      if (!fs?.length) {
+        dbg(`no files found`);
+      }
       scriptFiles.push(...fs);
     }
+    dbg(`found script files: %O`, scriptFiles);
   }
 
   // filter out unwanted files

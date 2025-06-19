@@ -241,7 +241,6 @@ export async function astGrepParse(
   } // binary file
 
   dbg(`parsing file: ${filename}`);
-
   const lang = await resolveLang(options?.lang, filename);
   if (!lang) {
     return undefined;
@@ -330,7 +329,6 @@ const loadedDynamicLanguages = new Set<string>();
 async function loadDynamicLanguage(langName: string) {
   if (!loadedDynamicLanguages.has(langName)) {
     dbgLang(`loading language: ${langName}`);
-
     try {
       const dynamicLang = (await import(`@ast-grep/lang-${langName}`)).default;
       registerDynamicLanguage({ [langName]: dynamicLang });

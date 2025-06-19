@@ -372,7 +372,7 @@ By default, uses `sha-1`, but `sha-256` can also be used. The hash packing logic
 
 ## unthink
 
-Some models return their internal reasonings inside `<think>` tags.
+Some models return their internal reasoning inside `<think>` tags.
 
 ```markdown
 <think>This is my reasoning...</think>

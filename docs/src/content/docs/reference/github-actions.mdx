@@ -24,6 +24,19 @@ import { FileTree } from "@astrojs/starlight/components"
 
 The combo of Actions and Models allows you to run GenAIScript as part of your CI/CD.
 
+:::tip
+
+Jump to the [Custom Actions](#custom-actions) section to learn how to package a GenAIScript script as a GitHub Action.
+
+:::
+
+## Samples
+
+- [GenAI Issue Labeller](https://github.com/pelikhan/action-genai-issue-labeller/)
+- [GenAI Issue De-duplicator](https://github.com/pelikhan/action-genai-issue-dedup/)
+- [GenAI Video Issue Analyzer](https://github.com/pelikhan/action-genai-video-issue-analyzer/)
+- [GenAI Code Commentor](https://github.com/pelikhan/action-genai-commentor/)
+
 ## GitHub Models Permissions
 
 [To use Models in a GitHub Action](https://docs.github.com/en/github-models/use-github-models/integrating-ai-models-into-your-development-workflow#using-ai-models-with-github-actions), you need to set the `permissions` for the action to include `models: read`.
@@ -37,7 +50,8 @@ GenAIScript has built-in support for GitHub Models, so you can use it directly i
 
 ## Using the CLI
 
-The simplest way to use GenAIScript in a GitHub Action is to run the [CLI](/genaiscript/reference/cli) directly. You can do this by adding a step to your workflow that runs the `genaiscript` command.
+The simplest way to use GenAIScript in a GitHub Action is to run the [CLI](/genaiscript/reference/cli) directly.
+You can do this by adding a step to your workflow that runs the `genaiscript` command.
 
 ```yaml "npx -y genaiscript run ..."
 - uses: actions/setup-node@v4 # make sure node.js is installed
@@ -78,23 +92,13 @@ To get started,
 
 <li>
 
-Create a new repository for your action, or use an existing one.
-The action boilerplate generator will override the following files:
-
-<FileTree>
-
-- action.yml Action metadata file
-- Dockerfile Dockerfile for the action
-- README.md Documentation for the action
-- .gitignore Files to ignore in the repository
-
-</FileTree>
+Create a new repository for your action.
 
 </li>
 
 <li>
 
-Open a terminal in the root of your repository where you have a GenAIScript script you want to package as an action.
+Open a terminal in the root of your repository.
 
 </li>
 
@@ -103,22 +107,35 @@ Open a terminal in the root of your repository where you have a GenAIScript scri
 Run the command to generate the action boilerplate:
 
 ```bash
-npx -y genaiscript configure action <scriptid> --out .
+npx -y genaiscript configure action
 ```
-
-where `<scriptid>` is the ID of the script you want to package as an action (filename without `.genai...`).
-
-</li>
-
-<li>
-
-Push the changes, create a release and your action is ready!
 
 </li>
 
 </ol>
 
 </Steps>
+
+The action boilerplate generator will override the following files:
+
+<FileTree>
+
+- `action.yml` Action metadata file
+- `Dockerfile` Dockerfile for the action
+- `README.md` Documentation for the action
+- `.gitignore` Files to ignore in the repository
+- `.github/workflows/ci.yml` CI workflow to test the action
+- `package.json` Package configuration for the action
+- `devcontainer/devcontainer.json` Devcontainer configuration for VS Code
+- `devcontainer/Dockerfile` Devcontainer Dockerfile for VS Code. Must be kept in sync with the action Dockerfile.
+
+</FileTree>
+
+To update the action boilerplate, you can run the same command again:
+
+```bash
+npm run configure
+```
 
 ### Metadata
 
@@ -138,6 +155,7 @@ Each parameter is converted to an input with the same name, and the type is infe
 ```js title="poem.genai.mts"
 script({
     title: "A poem generator",
+    accept: "none",
     parameters: {
         topic: "nature"
     }
@@ -159,8 +177,10 @@ inputs:
 
 There are also additional fields that are common to all GenAIScript actions:
 
-- `github_token`: This is required to authenticate with GitHub Models.
+- `files`: Specify a file path to populate the `env.files` variable. To remove this field, set `accept: "none"` in the script.
+- `github_token`: **This is required to authenticate with GitHub Models.**
   It will become `INPUT_GITHUB_TOKEN` when the container is created and GenAIScript will pick it up automatically.
+- `github_issue`: The current GitHub issue or pull request number.
 - `debug`: The filter to control debug [logging](/genaiscript/reference/scripts/logging) messages.
 
 ### Outputs
@@ -190,8 +210,11 @@ By default, GenAIScript uses [node:lts-alpine](https://hub.docker.com/_/node/) a
 You can change this by specifying a different base image in the `cli`.
 
 ```dockerfile "--image <image>"
-npx -y genaiscript configure action <scriptid> ... --image <image>
+npx -y genaiscript configure action ... --image <image>
 ```
+
+GenAIScript will also create a [devcontainer](https://code.visualstudio.com/docs/devcontainers/create-dev-container)
+so that you can develop the action in the (almost same) containerized environment as when it runs in the GitHub Action.
 
 ### ffmpeg, playwright and other packages
 
@@ -199,29 +222,28 @@ To keep the action container small, GenAIScript does not include `ffmpeg`, `play
 You can add them to the container by specifying them in the `cli` command.
 
 ```bash "--ffmpeg --playwright"
-npx -y genaiscript configure action <scriptid> ... --ffmpeg --playwright
+npx -y genaiscript configure action ... --ffmpeg --playwright
 ```
 
 You can also add any other packages you need by specifying them in the `cli` command.
 
 ```bash "--apks <package1> <package2>"
-npx -y genaiscript configure action <scriptid> ... --apks <package1> <package2>
+npx -y genaiscript configure action ... --apks <package1> <package2>
 ```
 
 ### Testing the Action
 
-Your script should be testable locally using the `genaiscript run` command
-and parameters.
+Your script should be testable locally using the `npm run dev` command. Feel free to edit it in `package.json`.
 
 ```bash
-npx -y genaiscript run poem --vars topic=food
+npm run dev
 ```
 
 Or if you want to simulate the GitHub Action environment,
 you can set the `INPUT_<parameter>` variables in the environment.
 
 ```bash
-INPUT_TOPIC=nature npx -y genaiscript run poem
+INPUT_TOPIC=nature genaiscript run poem
 ```
 
 ### GitHub Workspace vs Action Workspace

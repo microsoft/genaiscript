@@ -1,23 +1,25 @@
-name: action-poem
+name: genaiscript
 author: microsoft
-description: This is the title
+description: Programmatically assemble prompts for LLMs using JavaScript.
+  Orchestrate LLMs, tools, and data in code.
 inputs:
+  files:
+    description: "Files to process, separated by semi columns (;). "
+    required: false
   github_token:
-    description: "GitHub token with `models: read` permission at least."
+    description: "GitHub token with `models: read` permission at least
+      (https://microsoft.github.io/genaiscript/reference/github-actions/#github\
+      -models-permissions)."
     required: true
-  github_issue:
-    description: GitHub issue number to use when generating comments.
   debug:
-    description: Enable debug logging.
+    description: Enable debug logging
+      (https://microsoft.github.io/genaiscript/reference/scripts/logging/).
     required: false
 outputs:
   text:
     description: The generated text output.
-  data:
-    description: The generated JSON data output, parsed and stringified.
 branding:
-  color: purple
-  icon: anchor
+  color: yellow
 runs:
   using: docker
   image: Dockerfile

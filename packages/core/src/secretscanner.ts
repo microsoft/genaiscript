@@ -26,10 +26,8 @@ export function redactSecrets(text: string, options?: TraceOptions) {
   const found: Record<string, number> = {};
   const res = Object.entries(secretPatterns).reduce((acc, [name, pattern]) => {
     if (!pattern) return acc; // null, undefined, or empty string
-    const stringPattern = pattern as string;
     const regex: RegExp =
-      cachedSecretScanners[stringPattern] ??
-      (cachedSecretScanners[stringPattern] = new RegExp(stringPattern, "g"));
+      cachedSecretScanners[pattern] ?? (cachedSecretScanners[pattern] = new RegExp(pattern, "g"));
     return acc.replace(regex, () => {
       found[name] = (found[name] ?? 0) + 1;
       return `<secret/>`;

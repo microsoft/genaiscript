@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CLI_ENV_VAR_RX, parseKeyValuePair } from "@genaiscript/core";
+import { CLI_ENV_VAR_RX, genaiscriptDebug, parseKeyValuePair } from "@genaiscript/core";
+import { camelCase } from "es-toolkit";
+const dbg = genaiscriptDebug("cli:vars");
 
 /**
  * Parses and combines variables from input and environment variables.
@@ -11,16 +13,19 @@ import { CLI_ENV_VAR_RX, parseKeyValuePair } from "@genaiscript/core";
  * @returns An object containing the merged key-value pairs from `vars` and environment variables whose keys match the regex, with their keys transformed to lowercase.
  */
 export function parseOptionsVars(
-  vars: string[],
+  vars: string[] | Record<string, string | number | boolean | object>,
   env: Record<string, string>,
 ): Record<string, string> {
-  const vals = vars?.reduce((acc, v) => ({ ...acc, ...parseKeyValuePair(v) }), {}) ?? {};
+  const vals = Array.isArray(vars)
+    ? vars.reduce((acc, v) => ({ ...acc, ...parseKeyValuePair(v) }), {})
+    : ((vars || {}) as Record<string, any>);
+  dbg(`cli %O`, Object.keys(vals));
   const envVals = Object.keys(env)
     .filter((k) => CLI_ENV_VAR_RX.test(k))
     .map((k) => ({
-      [k.replace(CLI_ENV_VAR_RX, "").toLocaleLowerCase()]: env[k],
+      [camelCase(k.replace(CLI_ENV_VAR_RX, ""))]: env[k],
     }))
     .reduce((acc, v) => ({ ...acc, ...v }), {});
-
+  dbg(`env %O`, Object.keys(envVals));
   return { ...vals, ...envVals };
 }

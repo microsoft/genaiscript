@@ -278,7 +278,7 @@ export async function startServer(
               responseChunk: chunk.chunk,
               inner,
             });
-            finishReason = chunk.finishReason as "length" | "stop" | "tool_calls" | "content_filter" | "cancel" | "fail" | undefined;
+            finishReason = chunk.finishReason as any;
             if (finishReason) {
               trace.appendContent("\n\n");
               trace.itemValue(`finish reason`, finishReason);
@@ -329,250 +329,258 @@ export async function startServer(
   });
 
   // Manage new WebSocket connections.
-  wss.on("connection", (ws) => {
-      logVerbose(`clients: connected (${wss.clients.size} clients)`);
-      ws.on("error", console.error);
-      ws.on("close", () => logVerbose(`clients: closed (${wss.clients.size} clients)`));
+  wss.on("connection", function connection(ws, req) {
+    logVerbose(`clients: connected (${wss.clients.size} clients)`);
+    ws.on("error", console.error);
+    ws.on("close", () => logVerbose(`clients: closed (${wss.clients.size} clients)`));
 
-      const send = (payload: object) => {
-        const cmsg = toPayload(payload);
-        if (dispatchProgress) for (const client of wss.clients) client.send(cmsg);
-        else ws?.send(cmsg);
-      };
-      const sendLastRunResult = () => {
-        if (!lastRunResult) return;
-        if (JSON.stringify(lastRunResult).length < WS_MAX_FRAME_LENGTH - 200) send(lastRunResult);
-
-        else
-          send({
-            type: "script.end",
-            runId: lastRunResult.runId,
-            exitCode: lastRunResult.exitCode,
-          } satisfies PromptScriptEndResponseEvent);
-      };
-      const sendProgress = (
-        runId: string,
-        payload: Omit<PromptScriptProgressResponseEvent, "type" | "runId">
-      ) => {
+    const send = (payload: object) => {
+      const cmsg = toPayload(payload);
+      if (dispatchProgress) for (const client of wss.clients) client.send(cmsg);
+      else ws?.send(cmsg);
+    };
+    const sendLastRunResult = () => {
+      if (!lastRunResult) return;
+      if (JSON.stringify(lastRunResult).length < WS_MAX_FRAME_LENGTH - 200) send(lastRunResult);
+      else
         send({
-          type: "script.progress",
-          runId,
-          ...payload,
-        } satisfies PromptScriptProgressResponseEvent);
-      };
+          type: "script.end",
+          runId: lastRunResult.runId,
+          exitCode: lastRunResult.exitCode,
+        } satisfies PromptScriptEndResponseEvent);
+    };
+    const sendProgress = (
+      runId: string,
+      payload: Omit<PromptScriptProgressResponseEvent, "type" | "runId">,
+    ) => {
+      send({
+        type: "script.progress",
+        runId,
+        ...payload,
+      } satisfies PromptScriptProgressResponseEvent);
+    };
 
-      // send traces of in-flight runs
-      const activeRuns = Object.entries(runs);
-      if (activeRuns.length) {
-        for (const [runId, run] of activeRuns) {
-          chunkString(unthink(run.outputTrace.content), WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) => ws.send(
+    // send traces of in-flight runs
+    const activeRuns = Object.entries(runs);
+    if (activeRuns.length) {
+      for (const [runId, run] of activeRuns) {
+        chunkString(unthink(run.outputTrace.content), WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
+          ws.send(
             toPayload({
               type: "script.progress",
               runId,
               output: c,
-            } satisfies PromptScriptProgressResponseEvent)
-          )
-          );
-          chunkString(run.trace.content, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) => ws.send(
+            } satisfies PromptScriptProgressResponseEvent),
+          ),
+        );
+        chunkString(run.trace.content, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
+          ws.send(
             toPayload({
               type: "script.progress",
               runId,
               trace: c,
-            } satisfies PromptScriptProgressResponseEvent)
-          )
-          );
-        }
-      } else if (lastRunResult) {
-        sendLastRunResult();
+            } satisfies PromptScriptProgressResponseEvent),
+          ),
+        );
       }
+    } else if (lastRunResult) {
+      sendLastRunResult();
+    }
 
-      // Handle incoming messages based on their type.
-      ws.on("message", async (msg) => {
-        const data = JSON.parse(msg.toString()) as RequestMessages;
-        const { id, type } = data;
-        dbg(`%s: %O`, type, data);
-        let response: ResponseStatus;
-        try {
-          switch (type) {
-            // Handle version request
-            case "server.version": {
-              logVerbose(`server: version ${CORE_VERSION}`);
-              response = serverVersion();
-              break;
+    // Handle incoming messages based on their type.
+    ws.on("message", async (msg) => {
+      const data = JSON.parse(msg.toString()) as RequestMessages;
+      const { id, type } = data;
+      dbg(`%s: %O`, type, data);
+      let response: ResponseStatus;
+      try {
+        switch (type) {
+          // Handle version request
+          case "server.version": {
+            logVerbose(`server: version ${CORE_VERSION}`);
+            response = serverVersion();
+            break;
+          }
+          // Handle environment request
+          case "server.env": {
+            logVerbose(`server: env`);
+            response = await serverEnv();
+            break;
+          }
+          // Handle server kill request
+          case "server.kill": {
+            logVerbose(`server: kill`);
+            process.exit(0);
+            break;
+          }
+          // Handle model configuration request
+          case "model.configuration": {
+            const { model, token } = data;
+            logVerbose(`model: lookup configuration ${model}`);
+            try {
+              const info = await host.getLanguageModelConfiguration(model, { token });
+              response = <LanguageModelConfigurationResponse>{
+                ok: true,
+                info,
+              };
+            } catch (e) {
+              response = <LanguageModelConfigurationResponse>{
+                ok: false,
+              };
             }
-            // Handle environment request
-            case "server.env": {
-              logVerbose(`server: env`);
-              response = await serverEnv();
-              break;
-            }
-            // Handle server kill request
-            case "server.kill": {
-              logVerbose(`server: kill`);
-              process.exit(0);
-              break;
-            }
-            // Handle model configuration request
-            case "model.configuration": {
-              const { model, token } = data;
-              logVerbose(`model: lookup configuration ${model}`);
-              try {
-                const info = await host.getLanguageModelConfiguration(model, { token });
-                response = <LanguageModelConfigurationResponse>{
-                  ok: true,
-                  info,
-                };
-              } catch {
-                response = <LanguageModelConfigurationResponse>{
-                  ok: false,
-                };
-              }
-              break;
-            }
-            case "script.list": {
-              response = await scriptList();
-              break;
-            }
-            // Handle test run request
-            case "tests.run": {
-              logVerbose(`tests: run ${data.scripts?.join(", ") || "*"}`);
-              await runtimeHost.readConfig();
-              response = await runPromptScriptTests(data.scripts, {
-                ...(data.options || {}),
-                //cache: true,
-                verbose: true,
-                promptfooVersion: PROMPTFOO_VERSION,
-              });
-              break;
-            }
-            // Handle script start request
-            case "script.start": {
-              // Cancel any active scripts
-              const { script, files = [], options = {}, runId } = data;
-              if (!script) throw new Error("missing script");
-              if (files.some((f) => !f)) throw new Error("invalid file");
-              cancelAll();
-              const canceller = new AbortSignalCancellationController();
-              const cancellationToken = canceller.token;
-              const trace = new MarkdownTrace({ cancellationToken });
-              const outputTrace = new MarkdownTrace({
-                cancellationToken,
-              });
-              trace.addEventListener(TRACE_CHUNK, (ev) => {
-                const tev = ev as TraceChunkEvent;
-                chunkString(tev.chunk, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) => sendProgress(runId, {
+            break;
+          }
+          case "script.list": {
+            response = await scriptList();
+            break;
+          }
+          // Handle test run request
+          case "tests.run": {
+            logVerbose(`tests: run ${data.scripts?.join(", ") || "*"}`);
+            await runtimeHost.readConfig();
+            response = await runPromptScriptTests(data.scripts, {
+              ...(data.options || {}),
+              //cache: true,
+              verbose: true,
+              promptfooVersion: PROMPTFOO_VERSION,
+            });
+            break;
+          }
+          // Handle script start request
+          case "script.start": {
+            // Cancel any active scripts
+            const { script, files = [], options = {}, runId } = data;
+            if (!script) throw new Error("missing script");
+            if (files.some((f) => !f)) throw new Error("invalid file");
+            cancelAll();
+            const canceller = new AbortSignalCancellationController();
+            const cancellationToken = canceller.token;
+            const trace = new MarkdownTrace({ cancellationToken });
+            const outputTrace = new MarkdownTrace({
+              cancellationToken,
+            });
+            trace.addEventListener(TRACE_CHUNK, (ev) => {
+              const tev = ev as TraceChunkEvent;
+              chunkString(tev.chunk, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
+                sendProgress(runId, {
                   trace: c,
                   inner: tev.inner,
-                })
-                );
-              });
-              outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
-                const tev = ev as TraceChunkEvent;
-                chunkString(tev.chunk, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) => sendProgress(runId, {
+                }),
+              );
+            });
+            outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
+              const tev = ev as TraceChunkEvent;
+              chunkString(tev.chunk, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
+                sendProgress(runId, {
                   output: c,
                   inner: tev.inner,
-                })
-                );
-              });
-              logVerbose(`run ${runId}: starting ${script}`);
-              await runtimeHost.readConfig();
-              const runner = runScriptInternal(script, files, {
-                ...options,
-                runId,
-                trace,
-                runOutputTrace: outputTrace,
-                runTrace: false,
-                cancellationToken: canceller.token,
-                infoCb: ({ text }) => {
-                  sendProgress(runId, { progress: text });
-                },
-                partialCb: ({
-                  responseChunk, responseSoFar, reasoningSoFar, tokensSoFar, responseTokens, inner,
-                }) => {
-                  sendProgress(runId, {
-                    response: responseSoFar,
-                    reasoning: reasoningSoFar,
-                    responseChunk,
-                    tokens: tokensSoFar,
-                    responseTokens,
-                    inner,
-                  });
-                },
-              })
-                .then(({ exitCode, result }) => {
-                  delete runs[runId];
-                  logVerbose(`\nrun ${runId}: completed with ${exitCode}`);
-                  lastRunResult = {
-                    type: "script.end",
-                    runId,
-                    exitCode,
-                    result,
-                    trace: trace.content,
-                  };
-                  sendLastRunResult();
-                })
-                .catch((e) => {
-                  if (canceller.controller.signal.aborted) return;
-                  if (!isCancelError(e)) trace.error(e);
-                  logError(`\nrun ${runId}: failed`);
-                  logError(e);
-                  send({
-                    type: "script.end",
-                    runId,
-                    result: {
-                      status: "error",
-                      error: serializeError(e),
-                    },
-                    exitCode: isCancelError(e) ? USER_CANCELLED_ERROR_CODE : UNHANDLED_ERROR_CODE,
-                  } satisfies PromptScriptEndResponseEvent);
+                }),
+              );
+            });
+            logVerbose(`run ${runId}: starting ${script}`);
+            await runtimeHost.readConfig();
+            const runner = runScriptInternal(script, files, {
+              ...options,
+              runId,
+              trace,
+              runOutputTrace: outputTrace,
+              runTrace: false,
+              cancellationToken: canceller.token,
+              infoCb: ({ text }) => {
+                sendProgress(runId, { progress: text });
+              },
+              partialCb: ({
+                responseChunk,
+                responseSoFar,
+                reasoningSoFar,
+                tokensSoFar,
+                responseTokens,
+                inner,
+              }) => {
+                sendProgress(runId, {
+                  response: responseSoFar,
+                  reasoning: reasoningSoFar,
+                  responseChunk,
+                  tokens: tokensSoFar,
+                  responseTokens,
+                  inner,
                 });
-              runs[runId] = {
-                runner,
-                canceller,
-                trace,
-                outputTrace,
-              };
-              response = <ResponseStatus>{
-                ok: true,
-                status: 0,
-                runId,
-              };
-              break;
-            }
-            // Handle script abort request
-            case "script.abort": {
-              const { runId, reason } = data;
-              logVerbose(`run ${runId}: abort (${reason})`);
-              const run = runs[runId];
-              if (run) {
+              },
+            })
+              .then(({ exitCode, result }) => {
                 delete runs[runId];
-                run.canceller.abort(reason);
-              }
-              response = <ResponseStatus>{
-                ok: true,
-                status: 0,
-                runId,
-              };
-              break;
-            }
-            // Handle chat chunk requests
-            case "chat.chunk": {
-              await handleChunk(data);
-              response = <ResponseStatus>{ ok: true };
-              break;
-            }
-            default:
-              throw new Error(`unknown message type ${type}`);
+                logVerbose(`\nrun ${runId}: completed with ${exitCode}`);
+                lastRunResult = {
+                  type: "script.end",
+                  runId,
+                  exitCode,
+                  result,
+                  trace: trace.content,
+                };
+                sendLastRunResult();
+              })
+              .catch((e) => {
+                if (canceller.controller.signal.aborted) return;
+                if (!isCancelError(e)) trace.error(e);
+                logError(`\nrun ${runId}: failed`);
+                logError(e);
+                send({
+                  type: "script.end",
+                  runId,
+                  result: {
+                    status: "error",
+                    error: serializeError(e),
+                  },
+                  exitCode: isCancelError(e) ? USER_CANCELLED_ERROR_CODE : UNHANDLED_ERROR_CODE,
+                } satisfies PromptScriptEndResponseEvent);
+              });
+            runs[runId] = {
+              runner,
+              canceller,
+              trace,
+              outputTrace,
+            };
+            response = <ResponseStatus>{
+              ok: true,
+              status: 0,
+              runId,
+            };
+            break;
           }
-        } catch (e) {
-          response = { ok: false, error: serializeError(e) };
-        } finally {
-          assert(!!response);
-          if (response.error) logError(response.error);
-          send({ id, type, response });
+          // Handle script abort request
+          case "script.abort": {
+            const { runId, reason } = data;
+            logVerbose(`run ${runId}: abort (${reason})`);
+            const run = runs[runId];
+            if (run) {
+              delete runs[runId];
+              run.canceller.abort(reason);
+            }
+            response = <ResponseStatus>{
+              ok: true,
+              status: 0,
+              runId,
+            };
+            break;
+          }
+          // Handle chat chunk requests
+          case "chat.chunk": {
+            await handleChunk(data);
+            response = <ResponseStatus>{ ok: true };
+            break;
+          }
+          default:
+            throw new Error(`unknown message type ${type}`);
         }
-      });
+      } catch (e) {
+        response = { ok: false, error: serializeError(e) };
+      } finally {
+        assert(!!response);
+        if (response.error) logError(response.error);
+        send({ id, type, response });
+      }
     });
+  });
 
   const setCORSHeaders = (res: http.ServerResponse) => {
     res.setHeader("Access-Control-Allow-Origin", corsOrigin);

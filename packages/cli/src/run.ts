@@ -130,7 +130,7 @@ const dbg = genaiscriptDebug("run");
 export async function runScriptWithExitCode(
   scriptId: string,
   files: string[],
-  options: Partial<PromptScriptRunOptions> & TraceOptions & { githubAction?: boolean },
+  options: Partial<PromptScriptRunOptions> & TraceOptions,
 ) {
   dbg(`run %s`, scriptId);
   await ensureDotGenaiscriptPath();
@@ -139,6 +139,20 @@ export async function runScriptWithExitCode(
   const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1);
   let exitCode = -1;
   let result: GenerationResult;
+
+  // process environment variables from github actions
+  const inputFiles = process.env.INPUT_FILES;
+  if (inputFiles) {
+    dbg(`input files from env: %s`, inputFiles);
+    files = [
+      ...(files || []),
+      ...inputFiles
+        .split(/\n|;/g)
+        .map((f) => f.trim())
+        .filter(Boolean),
+    ];
+  }
+
   for (let r = 0; r < runRetry; ++r) {
     if (cancellationToken.isCancellationRequested) break;
 
@@ -161,7 +175,7 @@ export async function runScriptWithExitCode(
   }
   if (cancellationToken.isCancellationRequested) exitCode = USER_CANCELLED_ERROR_CODE;
 
-  if (options?.githubAction) await githubActionSetOutputs(result);
+  await githubActionSetOutputs(result);
   process.exit(exitCode);
 }
 
@@ -495,13 +509,12 @@ export async function runScriptInternal(
     workspaceFiles,
   };
   dbg(
-    `%O\n%O`,
+    `files %O\n workspace files %O`,
     fragment.files,
     fragment.workspaceFiles.map((f) => f.filename),
   );
-  const vars = Array.isArray(options.vars)
-    ? parseOptionsVars(options.vars, process.env)
-    : structuredClone(options.vars || {});
+  const vars = parseOptionsVars(options.vars, process.env);
+  dbg(`vars: %o`, Object.keys(vars));
   const stats = new GenerationStats("");
   const userState: Record<string, any> = {};
   try {

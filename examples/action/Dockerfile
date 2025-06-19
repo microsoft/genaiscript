@@ -11,7 +11,7 @@ WORKDIR /genaiscript/action
 COPY . .
 
 # Install dependencies
-RUN npm install
+RUN yarn install --frozen-lockfile
 
 
 # GitHub Action forces the WORKDIR to GITHUB_WORKSPACE 

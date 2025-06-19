@@ -24,7 +24,7 @@ export interface CacheEntry<V> {
 
 export interface CreateCacheOptions {
   type: "memory" | "jsonl" | "fs";
-  userState?: Record<string, any>;
+  userState?: Record<string, unknown>;
   lookupOnly?: boolean;
 }
 

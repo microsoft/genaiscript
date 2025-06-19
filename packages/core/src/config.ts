@@ -41,6 +41,7 @@ export function mergeHostConfigs(
   return deleteEmptyValues({
     include: structuralMerge(config?.include || [], parsed?.include || []),
     envFile: [...arrayify(parsed?.envFile), ...arrayify(config?.envFile)],
+    ignoreCurrentWorkspace: config?.ignoreCurrentWorkspace || parsed?.ignoreCurrentWorkspace,
     modelAliases: structuralMerge(config?.modelAliases || {}, parsed?.modelAliases || {}),
     modelEncodings: structuralMerge(config?.modelEncodings || {}, parsed?.modelEncodings || {}),
     secretScanners: structuralMerge(config?.secretPatterns || {}, parsed?.secretPatterns || {}),

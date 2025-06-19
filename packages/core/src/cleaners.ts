@@ -110,6 +110,7 @@ export function normalizeFloat(s: string | number | boolean | object): number {
  * @returns The converted integer or undefined if conversion is not possible.
  */
 export function normalizeInt(s: string | number | boolean | object): number {
+  if (s === undefined) return undefined;
   if (typeof s === "string") {
     const f = parseInt(s);
     return isNaN(f) ? undefined : f;

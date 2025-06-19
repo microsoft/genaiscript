@@ -20,7 +20,6 @@ export async function XLSXParse(
   // Destructure options to separate sheet-specific option
   const { sheet, ...rest } = options || {};
   // Dynamically import 'xlsx' library's read and utils modules
-
   // Read the workbook from the data with 'array' type
   const workbook = read(data, { type: "array" });
   // Filter and map the sheet names to WorkbookSheet objects

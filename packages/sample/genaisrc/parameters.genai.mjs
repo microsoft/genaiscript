@@ -1,9 +1,7 @@
 script({
     accept: "*.prompty,.txt,.md,.pdf",
     files: "src/*",
-    model: "small",
-    tools: "agent_fs",
-    group: "mcp",
+    model: "echo",
     description: `This is markdown.
     
 - item
@@ -61,8 +59,8 @@ graph TD
 `,
     parameters: {
         string: "abc",
-        number: 12.3,
-        integer: 123,
+        aNumber: 12.3,
+        anotherInteger: 123,
         boolean: true,
         stringsEnum: {
             type: "string",
@@ -117,8 +115,8 @@ code
         files: "src/*",
         vars: {
             string: "abc",
-            number: 12.3,
-            integer: 123,
+            aNumber: 12.3,
+            anotherInteger: 123,
             boolean: true,
             stringSchema: "efg",
             numberSchema: 456,
@@ -132,8 +130,8 @@ console.log(Object.keys(env.vars))
 console.log(Object.entries(env.vars))
 console.log(Object.values(env.vars))
 console.log(`string: ${env.vars.string} ${typeof env.vars.string}`)
-console.log(`number: ${env.vars.number} ${typeof env.vars.number}`)
-console.log(`integer: ${env.vars.integer} ${typeof env.vars.integer}`)
+console.log(`a_number: ${env.vars.aNumber} ${typeof env.vars.aNumber}`)
+console.log(`anotherinteger: ${env.vars.anotherInteger} ${typeof env.vars.anotherInteger}`)
 console.log(`boolean: ${env.vars.boolean} ${typeof env.vars.boolean}`)
 console.log(
     `stringSchema: ${env.vars.stringSchema} ${typeof env.vars.stringSchema}`
@@ -150,8 +148,8 @@ console.log(
 console.log(`boolean-schema: ${env.vars["boolean-schema"]}`)
 
 if (env.vars["string"] !== "abc") throw new Error("string parameter not set")
-if (env.vars["number"] !== 12.3) throw new Error("number parameter not set")
-if (env.vars["integer"] !== 123) throw new Error("number parameter not set")
+if (env.vars["aNumber"] !== 12.3) throw new Error("number parameter not set")
+if (env.vars["anotherinteger"] !== 123) throw new Error("number parameter not set")
 if (env.vars["boolean"] !== true) throw new Error("boolean parameter not set")
 if (env.vars["stringSchema"] !== "efg")
     throw new Error("stringSchema parameter not set")

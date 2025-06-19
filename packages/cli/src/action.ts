@@ -12,18 +12,23 @@ import {
   YAMLTryParse,
   createScript as coreCreateScript,
   dedent,
+  deleteEmptyValues,
   deleteUndefinedValues,
   genaiscriptDebug,
+  isCI,
   logInfo,
   logVerbose,
   nodeTryReadPackage,
   runtimeHost,
   templateIdFromFileName,
+  titleize,
+  tryReadText,
   tryStat,
   writeText,
 } from "@genaiscript/core";
 import { buildProject } from "./build.js";
-import type { JSONSchemaDescribed, JSONSchemaObject } from "@genaiscript/core";
+import type { JSONSchemaDescribed, JSONSchemaObject, JSONSchemaString } from "@genaiscript/core";
+import { shellConfirm, shellSelect } from "@genaiscript/runtime";
 
 const dbg = genaiscriptDebug("cli:action");
 
@@ -60,20 +65,28 @@ interface GitHubActionFieldType {
  *   Writes or overwrites files in the output directory.
  *   Executes npm or node commands to generate lock files if packageLock is set.
  */
-export async function actionConfigure(options: {
-  force?: boolean;
-  out?: string;
-  ffmpeg?: boolean;
-  python?: boolean;
-  playwright?: boolean;
-  image?: string;
-  apks?: string[];
-  provider?: string;
-  pullRequestComment?: string | boolean;
-  pullRequestDescription?: string | boolean;
-  pullRequestReviews?: boolean;
-  event?: string;
-}) {
+export async function actionConfigure(
+  scriptId: string,
+  options: {
+    force?: boolean;
+    out?: string;
+    ffmpeg?: boolean;
+    python?: boolean;
+    playwright?: boolean;
+    image?: string;
+    apks?: string[];
+    provider?: string;
+    pullRequestComment?: string | boolean;
+    pullRequestDescription?: string | boolean;
+    pullRequestReviews?: boolean;
+    event?: string;
+    interactive?: boolean;
+  },
+) {
+  options = options || {};
+  const { owner, repo } = (await github.info()) || {};
+  if (!owner || !repo) throw new Error("GitHub repository information not found.");
+
   const {
     force,
     out = resolve("."),
@@ -81,19 +94,10 @@ export async function actionConfigure(options: {
     pullRequestComment,
     pullRequestDescription,
     pullRequestReviews,
-  } = options || {};
-  const event: "push" | "pull_request" | "issue_comment" | "issue" =
-    (options?.event as "push" | "pull_request" | "issue_comment" | "issue") ??
-    (pullRequestComment || pullRequestDescription || pullRequestReviews ? "pull_request" : "push");
-  const issue =
-    event === "issue" ||
-    event === "issue_comment" ||
-    pullRequestComment ||
-    pullRequestDescription ||
-    pullRequestReviews;
-  const { owner, repo } = (await github.info()) || {};
-  if (!owner || !repo) throw new Error("GitHub repository information not found.");
-  const scriptId = "action";
+    interactive,
+  } = options;
+
+  scriptId = scriptId || "action";
   dbg(`owner: %s`, owner);
   dbg(`repo: %s`, repo);
   dbg(`script: %s`, scriptId);
@@ -107,6 +111,61 @@ export async function actionConfigure(options: {
       await writeText(filePath, content);
     }
   };
+
+  if (!isCI && interactive) {
+    options.event =
+      options.event ||
+      (await shellSelect("What event will trigger the action?", [
+        "push",
+        "pull_request",
+        "issue_comment",
+        "issue",
+      ]));
+    options.python =
+      options.python === undefined
+        ? await shellConfirm("Will you use Python?", {
+            default: false,
+          })
+        : options.python;
+    if (options.event === "pull_request") {
+      options.pullRequestDescription =
+        options.pullRequestDescription === undefined
+          ? await shellConfirm("Will you publish the output as a pull request description?", {
+              default: false,
+            })
+          : options.pullRequestDescription;
+      options.pullRequestComment =
+        options.pullRequestComment === undefined
+          ? await shellConfirm("Will you publish the output as a pull request comment?", {
+              default: false,
+            })
+          : options.pullRequestComment;
+      options.pullRequestReviews =
+        options.pullRequestReviews === undefined
+          ? await shellConfirm("Will you publish diagnostics as a pull request review comments?", {
+              default: false,
+            })
+          : options.pullRequestReviews;
+    }
+    options.playwright =
+      options.playwright === undefined
+        ? await shellConfirm("Will you use Playwright? (host.browser...)", {
+            default: false,
+          })
+        : options.playwright;
+    options.ffmpeg =
+      options.ffmpeg === undefined
+        ? await shellConfirm("Will you use ffmpeg?", {
+            default: false,
+          })
+        : options.ffmpeg;
+  }
+
+  const event: "push" | "pull_request" | "issue_comment" | "issue" =
+    (options.event as "push" | "pull_request" | "issue_comment" | "issue" | undefined) ??
+    (pullRequestComment || pullRequestDescription || pullRequestReviews ? "pull_request" : "push");
+  const issue = event === "issue" || event === "issue_comment";
+  const pullRequest = event === "pull_request";
   logVerbose(`event: ${event}`);
 
   const prj = await buildProject(); // Build the project to get script templates
@@ -122,9 +181,10 @@ export async function actionConfigure(options: {
     // Write the prompt script to the determined path
     await writeFile(script.filename, script.jsSource);
   }
-  const ffmpeg = options?.ffmpeg || /ffmpeg$/.test(script.jsSource);
-  const playwright = options?.playwright || /host\.browser/.test(script.jsSource);
-  const python = options?.python;
+  const accept = script.accept;
+  const ffmpeg = options.ffmpeg || /ffmpeg$/.test(script.jsSource);
+  const playwright = options.playwright || /host\.browser/.test(script.jsSource);
+  const python = options.python;
   const image =
     options.image ||
     (playwright ? "mcr.microsoft.com/playwright:v1.52.0-noble" : "node:lts-alpine");
@@ -148,56 +208,71 @@ export async function actionConfigure(options: {
           {
             description: (value as JSONSchemaDescribed).description || "",
             required: scriptSchema.required?.includes(key) || false,
-            default: (value as any).default ?? undefined,
+            default: (value as JSONSchemaString).default ?? undefined,
           } satisfies GitHubActionFieldType,
         ];
       }),
     ),
+    files:
+      accept === "none"
+        ? undefined
+        : {
+            description: `Files to process, separated by semi columns (;). ${accept || ""}`,
+            required: false,
+          },
     github_token: {
-      description: "GitHub token with `models: read` permission at least.",
+      description:
+        "GitHub token with `models: read` permission at least (https://microsoft.github.io/genaiscript/reference/github-actions/#github-models-permissions).",
       required: true,
     },
     github_issue:
-      event !== "pull_request" && issue
+      issue || pullRequest
         ? {
-            description: "GitHub issue number to use when generating comments.",
+            description: `GitHub ${issue ? "issue" : "pull request"} number to use when generating comments (https://microsoft.github.io/genaiscript/reference/scripts/github/).`,
           }
         : undefined,
     debug: {
-      description: "Enable debug logging.",
+      description:
+        "Enable debug logging (https://microsoft.github.io/genaiscript/reference/scripts/logging/).",
       required: false,
     },
   });
-  const outputs: Record<string, GitHubActionFieldType> = {
+  let outputs: Record<string, GitHubActionFieldType> = deleteUndefinedValues({
     text: {
       description: "The generated text output.",
     },
-    data: {
-      description: "The generated JSON data output, parsed and stringified.",
-    },
-  };
+    data: script.responseSchema
+      ? {
+          description: "The generated data output, parsed and stringified as JSON.",
+        }
+      : undefined,
+  });
+  if (!Object.keys(outputs).length) outputs = undefined;
 
   const pkg = await nodeTryReadPackage();
   const apks = [
     "git",
+    "github-cli",
     python ? "python3" : undefined,
     python ? "py3-pip" : undefined,
     ffmpeg ? "ffmpeg" : undefined,
-    ...(options?.apks || []),
+    ...(options.apks || []),
   ].filter(Boolean);
 
-  const action = YAMLTryParse({ filename: "action.yml" });
+  const actionYmlFilename = resolve(out, "action.yml");
+  const action = YAMLTryParse(await tryReadText(actionYmlFilename));
   if (action && !force) {
-    logVerbose(`action.yml already exists, using existing values`);
-    action.description = script.title || pkg?.description;
+    logVerbose(`updating action.yml`);
+    action.description = script.description || pkg?.description;
     action.inputs = inputs;
+    action.outputs = outputs;
     action.branding = branding;
-    await writeFile("action.yml", YAMLStringify(action));
+    await writeText(actionYmlFilename, YAMLStringify(action));
   } else
     await writeFile(
       "action.yml",
       YAMLStringify(
-        deleteUndefinedValues({
+        deleteEmptyValues({
           name: repo,
           author: pkg?.author,
           description: script.title || pkg?.description,
@@ -232,7 +307,7 @@ RUN npm ci
 ${
   playwright
     ? dedent`# Install playwright dependencies
-RUN npx playwright install --with-deps
+RUN npx --yes playwright install --with-deps
 
 `
     : ""
@@ -243,8 +318,8 @@ ENTRYPOINT ["npm", "--prefix", "/genaiscript/action", "start"]
   );
   await writeFile(
     "README.md",
-    dedent`# ${script.id} action
-
+    dedent`# ${script.title || titleize(repo)}
+        
 ${script.description || ""}
 
 ## Inputs
@@ -258,17 +333,16 @@ ${Object.entries(inputs || {})
   )
   .join("\n")}
 
-## Outputs
+${
+  outputs
+    ? `## Outputs
 
-${Object.entries(outputs || {})
-  .map(
-    ([key, value]) =>
-      `- \`${key}\`: ${value.description || ""}${
-        value.required ? " (required)" : ""
-      }${value.default ? ` (default: \`${value.default}\`)` : ""}`,
-  )
+${Object.entries(outputs)
+  .map(([key, value]) => `- \`${key}\`: ${value.description || ""}`)
   .join("\n")}
-
+`
+    : ""
+}
 ## Usage
 
 Add the following to your step in your workflow file:
@@ -287,8 +361,10 @@ ${Object.entries(inputs || {})
 
 ## Example
 
+Save this file in your \`.github/workflows/\` directory as \`${script.id}.yml\`:
+
 \`\`\`yaml
-name: My action
+name: ${titleize(repo)}
 on:
     ${event}:
 permissions:
@@ -300,7 +376,7 @@ concurrency:
     group: \${{ github.workflow }}-\${{ github.ref }}
     cancel-in-progress: true
 jobs:
-  run-script:
+  ${snakeCase(repo)}:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -322,18 +398,15 @@ We recommend updating the script metadata instead of editing the action files di
 
 - the action inputs are inferred from the script parameters
 - the action outputs are inferred from the script output schema
-- the action description is the script title
+- the action description is the script description
 - the readme description is the script description
 - the action branding is the script branding
 
-To **regenerate** the action files (\`action.yml\`, \`Dockerfile\`, \`README.md\`, \`package.json\`, \`.gitignore\`), run:
+To **regenerate** the action files (\`action.yml\`), run:
 
 \`\`\`bash
 npm run configure
 \`\`\`
-
-> [!CAUTION]
-> This will overwrite any changes you made to these files!
 
 To lint script files, run:
 
@@ -376,15 +449,99 @@ The GenAIScript version is pinned in the \`package.json\` file. To upgrade it, r
 npm run upgrade
 \`\`\`
 
+## Release
+
+To release a new version of this action, run the release script on a clean working directory.
+
+\`\`\`bash
+npm run release
+\`\`\`
+
 `,
   );
   await writeFile(
-    ".gitignore",
-    dedent`node_modules
-.genaiscript
-.env
-.*.env
-.env.*
+    ".devcontainer/devcontainer.json",
+    JSON.stringify(
+      {
+        name: "GenAIScript GitHub Action Dev Container",
+        build: {
+          dockerfile: "Dockerfile",
+        },
+        features: {},
+        customizations: {
+          vscode: {
+            settings: {
+              "terminal.integrated.defaultProfile.linux": "ash",
+              "terminal.integrated.profiles.linux": {
+                ash: {
+                  path: "/bin/ash",
+                  args: ["-l"],
+                },
+              },
+            },
+            extensions: [
+              "GitHub.vscode-github-actions",
+              "esbenp.prettier-vscode",
+              "GitHub.copilot-chat",
+              "genaiscript.genaiscript-vscode",
+            ],
+          },
+        },
+        postCreateCommand: 'git config --global --add safe.directory "$(pwd)" && npm ci',
+      },
+      null,
+      2,
+    ),
+  );
+  await writeFile(
+    ".devcontainer/Dockerfile",
+    dedent`# Keep this Dockerfile in sync with the main Dockerfile
+FROM ${image}
+
+# Install packages
+${alpine ? `RUN apk add --no-cache ${apks.join(" ")}` : `RUN apt-get update && apt-get install -y ${apks.join(" ")}`}
+`,
+  );
+  await writeFile(".nvmrc", "lts/*");
+  await writeFile(
+    "release.sh",
+    dedent`#!/bin/bash
+set -e  # exit immediately if a command exits with a non-zero status
+
+# make sure there's no other changes
+git pull
+
+# re-generate action.yml
+npm run configure
+
+# Lint and build
+npm run lint
+# Step 0: ensure we're in sync
+if [ "$(git status --porcelain)" ]; then
+  echo "❌ Pending changes detected. Commit or stash them first."
+  exit 1
+fi
+
+# typecheck test
+npm run typecheck
+
+# Step 1: Bump patch version using npm
+NEW_VERSION=$(npm version patch -m "chore: bump version to %s")
+echo "version: $NEW_VERSION"
+
+# Step 2: Push commit and tag
+git push origin HEAD --tags
+
+# Step 3: Create GitHub release
+gh release create "$NEW_VERSION" --title "$NEW_VERSION" --notes "Patch release $NEW_VERSION"
+
+# Step 4: update major tag if any
+MAJOR=$(echo "$NEW_VERSION" | cut -d. -f1)
+echo "major: $MAJOR"
+git tag -f $MAJOR $NEW_VERSION
+git push origin $MAJOR --force
+
+echo "✅ GitHub release $NEW_VERSION created successfully."
 `,
   );
 
@@ -392,7 +549,6 @@ npm run upgrade
     ".github/workflows/ci.yml",
     `name: Continuous Integration
 on:
-  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -401,6 +557,7 @@ on:
       - main
 permissions:
   contents: read
+  models: read
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -412,30 +569,44 @@ jobs:
       - run: npm ci
       - run: npm test
   test-action:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./
         with:
           github_token: \${{ secrets.GITHUB_TOKEN }}
-${issue ? `          github_issue: \${{ github.event.issue.number }}` : ""}
 `,
   );
 
   if (!pkg || force) {
+    const args = [
+      `genaiscript`,
+      `run`,
+      scriptId,
+      provider ? `--provider` : undefined,
+      provider,
+      pullRequestComment ? `--pull-request-comment` : undefined,
+      typeof pullRequestComment === "string" ? pullRequestComment : undefined,
+      pullRequestDescription ? `--pull-request-description` : undefined,
+      typeof pullRequestDescription === "string" ? pullRequestDescription : undefined,
+      pullRequestReviews ? `--pull-request-reviews` : undefined,
+    ].filter(Boolean);
     await writeFile(
       "package.json",
       JSON.stringify(
         deleteUndefinedValues({
-          author: pkg.author,
-          license: pkg.license,
+          private: true,
+          version: "0.0.0",
+          author: pkg?.author,
+          license: pkg?.license,
           description: script.description,
           dependencies: {
-            ...(pkg.dependencies || {}),
+            ...(pkg?.dependencies || {}),
             genaiscript: CORE_VERSION,
           },
           scripts: {
-            upgrade: "npx -y npm-check-updates -u && npm install",
+            upgrade: "npx -y npm-check-updates -u && npm install && npm run fix",
             "docker:build": `docker build -t ${owner}-${repo} .`,
             "docker:start": `docker run -e GITHUB_TOKEN ${owner}-${repo}`,
             "act:install": "gh extension install https://github.com/nektos/gh-act",
@@ -443,23 +614,13 @@ ${issue ? `          github_issue: \${{ github.event.issue.number }}` : ""}
             lint: `npx --yes prettier --write genaisrc/`,
             fix: "genaiscript scripts fix",
             typecheck: `genaiscript scripts compile`,
-            configure: [`genaiscript configure action`].filter(Boolean).join(" "),
-            test: "echo 'No tests defined.'",
-            start: [
-              `genaiscript`,
-              `run`,
-              scriptId,
-              `--github-workspace`,
-              provider ? `--provider` : undefined,
-              provider,
-              pullRequestComment ? `--pull-request-comment` : undefined,
-              typeof pullRequestComment === "string" ? pullRequestComment : undefined,
-              pullRequestDescription ? `--pull-request-description` : undefined,
-              typeof pullRequestDescription === "string" ? pullRequestDescription : undefined,
-              pullRequestReviews ? `--pull-request-reviews` : undefined,
-            ]
+            configure: [`genaiscript configure action`, scriptId, `--interactive`]
               .filter(Boolean)
               .join(" "),
+            test: "echo 'No tests defined.'",
+            dev: args.join(" "),
+            start: [...args, "--github-workspace", "--no-run-trace", "--no-output-trace"].join(" "),
+            release: "sh release.sh",
           },
         }),
         null,
@@ -472,7 +633,4 @@ ${issue ? `          github_issue: \${{ github.event.issue.number }}` : ""}
   await runtimeHost.exec(undefined, "node", ["run", "upgrade"], {
     cwd: out,
   });
-
-  // fix scripts
-  await runtimeHost.exec(undefined, "npm", ["run", "fix"], { cwd: out });
 }

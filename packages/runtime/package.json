@@ -15,6 +15,7 @@
     "@inquirer/prompts": "^7.5.3",
     "dockerode": "^4.0.7",
     "es-toolkit": "^1.39.3",
+    "glob": "^11.0.3",
     "memorystream": "^0.3.1",
     "playwright": "^1.53.0",
     "tslib": "catalog:",
