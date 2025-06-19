@@ -1,520 +1,483 @@
-import debug from "debug"
-const dbg = debug("genaiscript:ffmpeg")
+import debug from "debug";
+const dbg = debug("genaiscript:ffmpeg");
 
-import { logVerbose } from "./util"
-import { TraceOptions } from "./trace"
-import { lookupMime } from "./mime"
-import pLimit from "p-limit"
-import { join, basename } from "node:path"
-import { ensureDir } from "fs-extra"
-import type { FfmpegCommand } from "fluent-ffmpeg"
-import { hash } from "./crypto"
-import { VIDEO_HASH_LENGTH } from "./constants"
-import { writeFile, readFile } from "fs/promises"
-import { errorMessage, serializeError } from "./error"
-import { fromBase64 } from "./base64"
-import { fileTypeFromBuffer } from "./filetype"
-import { appendFile, readdir, stat } from "node:fs/promises"
-import prettyBytes from "pretty-bytes"
-import { filenameOrFileToFilename } from "./unwrappers"
-import { Stats } from "node:fs"
-import { roundWithPrecision } from "./precision"
-import { parseTimestamps } from "./transcription"
-import { mark } from "./performance"
-import { dotGenaiscriptPath } from "./workdir"
-import { arrayify } from "./cleaners"
-import { tryStat } from "./fs"
+import { logVerbose } from "./util";
+import { TraceOptions } from "./trace";
+import { lookupMime } from "./mime";
+import pLimit from "p-limit";
+import { join, basename } from "node:path";
+import { ensureDir } from "fs-extra";
+import type { FfmpegCommand } from "fluent-ffmpeg";
+import { hash } from "./crypto";
+import { VIDEO_HASH_LENGTH } from "./constants";
+import { writeFile, readFile } from "fs/promises";
+import { errorMessage, serializeError } from "./error";
+import { fromBase64 } from "./base64";
+import { fileTypeFromBuffer } from "./filetype";
+import { appendFile, readdir, stat } from "node:fs/promises";
+import prettyBytes from "pretty-bytes";
+import { filenameOrFileToFilename } from "./unwrappers";
+import { Stats } from "node:fs";
+import { roundWithPrecision } from "./precision";
+import { parseTimestamps } from "./transcription";
+import { mark } from "./performance";
+import { dotGenaiscriptPath } from "./workdir";
+import { arrayify } from "./cleaners";
+import { tryStat } from "./fs";
 
-const ffmpegLimit = pLimit(1)
-const WILD_CARD = "%06d"
+const ffmpegLimit = pLimit(1);
+const WILD_CARD = "%06d";
 
 type FFmpegCommandRenderer = (
-    cmd: FfmpegCommand,
-    options: { input: string; dir: string }
-) => Awaitable<string | object>
+  cmd: FfmpegCommand,
+  options: { input: string; dir: string },
+) => Awaitable<string | object>;
 
 interface FFmpegCommandResult {
-    filenames: string[]
-    data: any[]
+  filenames: string[];
+  data: any[];
 }
 
 async function ffmpegCommand(options?: { timeout?: number }) {
-    const m = await import("fluent-ffmpeg")
-    const cmd = m.default
-    return cmd(options)
+  const m = await import("fluent-ffmpeg");
+  const cmd = m.default;
+  return cmd(options);
 }
 
 async function computeHashFolder(
-    filename: string | WorkspaceFile,
-    options: TraceOptions & FFmpegCommandOptions & { salt?: any }
+  filename: string | WorkspaceFile,
+  options: TraceOptions & FFmpegCommandOptions & { salt?: any },
 ) {
-    const { trace, salt, ...rest } = options
-    const h = await hash(
-        [typeof filename === "string" ? { filename } : filename, rest],
-        {
-            readWorkspaceFiles: true,
-            version: true,
-            length: VIDEO_HASH_LENGTH,
-            salt,
-        }
-    )
-    return dotGenaiscriptPath("cache", "ffmpeg", h)
+  const { trace, salt, ...rest } = options;
+  const h = await hash([typeof filename === "string" ? { filename } : filename, rest], {
+    readWorkspaceFiles: true,
+    version: true,
+    length: VIDEO_HASH_LENGTH,
+    salt,
+  });
+  return dotGenaiscriptPath("cache", "ffmpeg", h);
 }
 
-async function resolveInput(
-    filename: string | WorkspaceFile,
-    folder: string
-): Promise<string> {
-    if (typeof filename === "object") {
-        if (filename.content && filename.encoding === "base64") {
-            const bytes = fromBase64(filename.content)
-            const mime = await fileTypeFromBuffer(bytes)
-            filename = join(folder, "input." + mime.ext)
-            await writeFile(filename, bytes)
-        } else {
-            filename = filename.filename
-        }
+async function resolveInput(filename: string | WorkspaceFile, folder: string): Promise<string> {
+  if (typeof filename === "object") {
+    if (filename.content && filename.encoding === "base64") {
+      const bytes = fromBase64(filename.content);
+      const mime = await fileTypeFromBuffer(bytes);
+      filename = join(folder, "input." + mime.ext);
+      await writeFile(filename, bytes);
+    } else {
+      filename = filename.filename;
     }
-    return filename
+  }
+  return filename;
 }
 
 async function logFile(filename: string | WorkspaceFile, action: string) {
-    filename = filenameOrFileToFilename(filename)
-    const stats = await tryStat(filename)
-    logVerbose(
-        `ffmpeg: ${action} ${filename} (${stats ? prettyBytes(stats.size) : "0"})`
-    )
+  filename = filenameOrFileToFilename(filename);
+  const stats = await tryStat(filename);
+  logVerbose(`ffmpeg: ${action} ${filename} (${stats ? prettyBytes(stats.size) : "0"})`);
 }
 
 export class FFmepgClient implements Ffmpeg {
-    constructor() {}
+  constructor() {}
 
-    async run(
-        input: string | WorkspaceFile,
-        builder: (
-            cmd: FfmpegCommandBuilder,
-            options?: { input: string; dir: string }
-        ) => Awaitable<string>,
-        options?: FFmpegCommandOptions & { salt?: any }
-    ): Promise<string[]> {
-        await logFile(input, "input")
-        const { filenames } = await runFfmpeg(input, builder, options || {})
-        for (const filename of filenames) {
-            await logFile(filename, "output")
-        }
-        return filenames
+  async run(
+    input: string | WorkspaceFile,
+    builder: (
+      cmd: FfmpegCommandBuilder,
+      options?: { input: string; dir: string },
+    ) => Awaitable<string>,
+    options?: FFmpegCommandOptions & { salt?: any },
+  ): Promise<string[]> {
+    await logFile(input, "input");
+    const { filenames } = await runFfmpeg(input, builder, options || {});
+    for (const filename of filenames) {
+      await logFile(filename, "output");
     }
+    return filenames;
+  }
 
-    async extractFrames(
-        filename: string | WorkspaceFile,
-        options?: VideoExtractFramesOptions
-    ): Promise<string[]> {
-        if (!filename) {
-            throw new Error("filename is required")
-        }
-        mark("ffmpeg.extractFrames")
-        const {
-            transcript,
-            count,
-            cache = "frames",
-            ...soptions
-        } = options || {}
-        const format = options?.format || "jpg"
-        const size = options?.size
+  async extractFrames(
+    filename: string | WorkspaceFile,
+    options?: VideoExtractFramesOptions,
+  ): Promise<string[]> {
+    if (!filename) {
+      throw new Error("filename is required");
+    }
+    mark("ffmpeg.extractFrames");
+    const { transcript, count, cache = "frames", ...soptions } = options || {};
+    const format = options?.format || "jpg";
+    const size = options?.size;
 
-        const applyOptions = (cmd: FfmpegCommand) => {
-            if (size) {
-                cmd.size(size)
-                cmd.autopad()
-            }
-        }
+    const applyOptions = (cmd: FfmpegCommand) => {
+      if (size) {
+        cmd.size(size);
+        cmd.autopad();
+      }
+    };
 
-        const renderers: FFmpegCommandRenderer[] = []
-        if (
-            soptions.keyframes ||
-            (!count &&
-                !soptions.timestamps?.length &&
-                !(soptions.sceneThreshold > 0))
-        ) {
-            renderers.push((cmd) => {
-                cmd.videoFilter("select='eq(pict_type,I)'")
-                cmd.outputOptions("-fps_mode vfr")
-                cmd.outputOptions("-frame_pts 1")
-                applyOptions(cmd)
-                return `keyframe_*.${format}`
-            })
-        } else if (soptions.sceneThreshold > 0) {
-            renderers.push(
-                ((cmd) => {
-                    cmd.frames(1)
-                    applyOptions(cmd)
-                    return `scenes_000000.${format}`
-                }) satisfies FFmpegCommandRenderer,
-                ((cmd) => {
-                    cmd.videoFilter(
-                        `select='gt(scene,${soptions.sceneThreshold})',showinfo`
-                    )
-                    cmd.outputOptions("-fps_mode passthrough")
-                    cmd.outputOptions("-frame_pts 1")
-                    applyOptions(cmd)
-                    return `scenes_*.${format}`
-                }) satisfies FFmpegCommandRenderer
-            )
+    const renderers: FFmpegCommandRenderer[] = [];
+    if (
+      soptions.keyframes ||
+      (!count && !soptions.timestamps?.length && !(soptions.sceneThreshold > 0))
+    ) {
+      renderers.push((cmd) => {
+        cmd.videoFilter("select='eq(pict_type,I)'");
+        cmd.outputOptions("-fps_mode vfr");
+        cmd.outputOptions("-frame_pts 1");
+        applyOptions(cmd);
+        return `keyframe_*.${format}`;
+      });
+    } else if (soptions.sceneThreshold > 0) {
+      renderers.push(
+        ((cmd) => {
+          cmd.frames(1);
+          applyOptions(cmd);
+          return `scenes_000000.${format}`;
+        }) satisfies FFmpegCommandRenderer,
+        ((cmd) => {
+          cmd.videoFilter(`select='gt(scene,${soptions.sceneThreshold})',showinfo`);
+          cmd.outputOptions("-fps_mode passthrough");
+          cmd.outputOptions("-frame_pts 1");
+          applyOptions(cmd);
+          return `scenes_*.${format}`;
+        }) satisfies FFmpegCommandRenderer,
+      );
+    } else {
+      if (typeof transcript === "string") {
+        soptions.timestamps = parseTimestamps(transcript);
+      } else if (
+        typeof transcript === "object" &&
+        transcript?.segments?.length &&
+        !soptions.timestamps?.length
+      ) {
+        soptions.timestamps = transcript.segments.map((s) => s.start);
+      }
+      if (count && !soptions.timestamps?.length) {
+        dbg(`calculating timestamps for count: ${count}`);
+        const info = await this.probeVideo(filename);
+        const duration = Number(info.duration);
+        if (count === 1) {
+          soptions.timestamps = [0];
         } else {
-            if (typeof transcript === "string") {
-                soptions.timestamps = parseTimestamps(transcript)
-            } else if (
-                typeof transcript === "object" &&
-                transcript?.segments?.length &&
-                !soptions.timestamps?.length
-            ) {
-                soptions.timestamps = transcript.segments.map((s) => s.start)
-            }
-            if (count && !soptions.timestamps?.length) {
-                dbg(`calculating timestamps for count: ${count}`)
-                const info = await this.probeVideo(filename)
-                const duration = Number(info.duration)
-                if (count === 1) {
-                    soptions.timestamps = [0]
-                } else {
-                    soptions.timestamps = Array(count)
-                        .fill(0)
-                        .map((_, i) =>
-                            roundWithPrecision(
-                                Math.min(
-                                    (i * duration) / (count - 1),
-                                    duration - 0.1
-                                ),
-                                3
-                            )
-                        )
-                }
-            }
-            if (!soptions.timestamps?.length) {
-                dbg(`timestamps not provided, defaulting to [0]`)
-                soptions.timestamps = [0]
-            }
-            renderers.push(
-                ...soptions.timestamps.map(
-                    (ts) =>
-                        ((cmd) => {
-                            cmd.seekInput(ts)
-                            cmd.frames(1)
-                            applyOptions(cmd)
-                            return `frame-${String(ts).replace(":", "-").replace(".", "_")}.${format}`
-                        }) satisfies FFmpegCommandRenderer
-                )
-            )
+          soptions.timestamps = Array(count)
+            .fill(0)
+            .map((_, i) =>
+              roundWithPrecision(Math.min((i * duration) / (count - 1), duration - 0.1), 3),
+            );
         }
-
-        await logFile(filename, "input")
-        const { filenames } = await runFfmpeg(filename, renderers, {
-            ...soptions,
-            cache,
-            salt: {
-                transcript,
-                count,
-                format,
-                size,
-            },
-        })
-        logVerbose(`ffmpeg: extracted ${filenames.length} frames`)
-        for (const filename of filenames) {
-            await logFile(filename, "output")
-        }
-        return filenames
+      }
+      if (!soptions.timestamps?.length) {
+        dbg(`timestamps not provided, defaulting to [0]`);
+        soptions.timestamps = [0];
+      }
+      renderers.push(
+        ...soptions.timestamps.map(
+          (ts) =>
+            ((cmd) => {
+              cmd.seekInput(ts);
+              cmd.frames(1);
+              applyOptions(cmd);
+              return `frame-${String(ts).replace(":", "-").replace(".", "_")}.${format}`;
+            }) satisfies FFmpegCommandRenderer,
+        ),
+      );
     }
 
-    async extractAudio(
-        filename: string | WorkspaceFile,
-        options?: VideoExtractAudioOptions
-    ): Promise<string> {
-        if (!filename) {
-            throw new Error("filename is required")
-        }
+    await logFile(filename, "input");
+    const { filenames } = await runFfmpeg(filename, renderers, {
+      ...soptions,
+      cache,
+      salt: {
+        transcript,
+        count,
+        format,
+        size,
+      },
+    });
+    logVerbose(`ffmpeg: extracted ${filenames.length} frames`);
+    for (const filename of filenames) {
+      await logFile(filename, "output");
+    }
+    return filenames;
+  }
 
-        const { forceConversion, ...foptions } = options || {}
-        const { transcription = true } = foptions
-        if (
-            !forceConversion &&
-            !transcription &&
-            typeof filename === "string"
-        ) {
-            const mime = lookupMime(filename)
-            if (/^audio/.test(mime)) {
-                dbg(`filename is already an audio file: ${filename}`)
-                return filename
-            }
-        }
-        const res = await this.run(
-            filename,
-            async (cmd, fopts) => {
-                cmd.noVideo()
-                if (transcription) {
-                    // https://community.openai.com/t/whisper-api-increase-file-limit-25-mb/566754
-                    cmd.audioCodec("libopus")
-                    cmd.audioChannels(1)
-                    cmd.audioBitrate("12k")
-                    cmd.outputOptions("-map_metadata -1")
-                    cmd.outputOptions("-application voip")
-                    cmd.toFormat("ogg")
-                    return "audio.ogg"
-                } else {
-                    cmd.toFormat("mp3")
-                    return "audio.mp3"
-                }
-            },
-            {
-                ...foptions,
-                cache: foptions.cache || "audio-voip",
-                salt: {
-                    transcription,
-                },
-            }
-        )
-        return res[0]
+  async extractAudio(
+    filename: string | WorkspaceFile,
+    options?: VideoExtractAudioOptions,
+  ): Promise<string> {
+    if (!filename) {
+      throw new Error("filename is required");
     }
 
-    async extractClip(
-        filename: string | WorkspaceFile,
-        options: VideoExtractClipOptions
-    ): Promise<string> {
-        if (!filename) {
-            throw new Error("filename is required")
+    const { forceConversion, ...foptions } = options || {};
+    const { transcription = true } = foptions;
+    if (!forceConversion && !transcription && typeof filename === "string") {
+      const mime = lookupMime(filename);
+      if (/^audio/.test(mime)) {
+        dbg(`filename is already an audio file: ${filename}`);
+        return filename;
+      }
+    }
+    const res = await this.run(
+      filename,
+      async (cmd, fopts) => {
+        cmd.noVideo();
+        if (transcription) {
+          // https://community.openai.com/t/whisper-api-increase-file-limit-25-mb/566754
+          cmd.audioCodec("libopus");
+          cmd.audioChannels(1);
+          cmd.audioBitrate("12k");
+          cmd.outputOptions("-map_metadata -1");
+          cmd.outputOptions("-application voip");
+          cmd.toFormat("ogg");
+          return "audio.ogg";
+        } else {
+          cmd.toFormat("mp3");
+          return "audio.mp3";
         }
+      },
+      {
+        ...foptions,
+        cache: foptions.cache || "audio-voip",
+        salt: {
+          transcription,
+        },
+      },
+    );
+    return res[0];
+  }
 
-        const { start, duration, end, ...rest } = options || {}
-        const res = await this.run(
-            filename,
-            async (cmd) => {
-                cmd.seekInput(start)
-                if (duration !== undefined) {
-                    cmd.duration(duration)
-                }
-                if (end !== undefined) {
-                    cmd.inputOptions(`-to ${end}`)
-                }
-                if (!options?.size) {
-                    cmd.outputOptions("-c copy")
-                }
-                return `clip-${start}-${duration || end}.mp4`
-            },
-            {
-                ...rest,
-                salt: {
-                    start,
-                    duration,
-                    end,
-                },
-            }
-        )
-        return res[0]
+  async extractClip(
+    filename: string | WorkspaceFile,
+    options: VideoExtractClipOptions,
+  ): Promise<string> {
+    if (!filename) {
+      throw new Error("filename is required");
     }
 
-    async probe(filename: string | WorkspaceFile): Promise<VideoProbeResult> {
-        if (!filename) {
-            throw new Error("filename is required")
+    const { start, duration, end, ...rest } = options || {};
+    const res = await this.run(
+      filename,
+      async (cmd) => {
+        cmd.seekInput(start);
+        if (duration !== undefined) {
+          cmd.duration(duration);
         }
-        const res = await runFfmpeg(
-            filename,
-            async (cmd) => {
-                const res = new Promise<VideoProbeResult>((resolve, reject) => {
-                    cmd.ffprobe((err, data) => {
-                        if (err) {
-                            reject(err)
-                        } else {
-                            resolve(data as any as VideoProbeResult)
-                        }
-                    })
-                })
-                const meta = await res
-                return meta
-            },
-            { cache: "probe" }
-        )
-        return res.data[0] as VideoProbeResult
-    }
+        if (end !== undefined) {
+          cmd.inputOptions(`-to ${end}`);
+        }
+        if (!options?.size) {
+          cmd.outputOptions("-c copy");
+        }
+        return `clip-${start}-${duration || end}.mp4`;
+      },
+      {
+        ...rest,
+        salt: {
+          start,
+          duration,
+          end,
+        },
+      },
+    );
+    return res[0];
+  }
 
-    async probeVideo(filename: string | WorkspaceFile) {
-        const meta = await this.probe(filename)
-        const vstream = meta.streams.reduce((biggest, stream) => {
-            if (
-                stream.codec_type === "video" &&
-                stream.width &&
-                stream.height &&
-                (!biggest ||
-                    stream.width * stream.height >
-                        biggest.width * biggest.height)
-            ) {
-                return stream
+  async probe(filename: string | WorkspaceFile): Promise<VideoProbeResult> {
+    if (!filename) {
+      throw new Error("filename is required");
+    }
+    const res = await runFfmpeg(
+      filename,
+      async (cmd) => {
+        const res = new Promise<VideoProbeResult>((resolve, reject) => {
+          cmd.ffprobe((err, data) => {
+            if (err) {
+              reject(err);
             } else {
-                return biggest
+              resolve(data as any as VideoProbeResult);
             }
-        })
-        return vstream
-    }
+          });
+        });
+        const meta = await res;
+        return meta;
+      },
+      { cache: "probe" },
+    );
+    return res.data[0] as VideoProbeResult;
+  }
+
+  async probeVideo(filename: string | WorkspaceFile) {
+    const meta = await this.probe(filename);
+    const vstream = meta.streams.reduce((biggest, stream) => {
+      if (
+        stream.codec_type === "video" &&
+        stream.width &&
+        stream.height &&
+        (!biggest || stream.width * stream.height > biggest.width * biggest.height)
+      ) {
+        return stream;
+      } else {
+        return biggest;
+      }
+    });
+    return vstream;
+  }
 }
 
 async function runFfmpeg(
-    filename: string | WorkspaceFile,
-    renderer: FFmpegCommandRenderer | FFmpegCommandRenderer[],
-    options?: FFmpegCommandOptions & { salt?: any }
+  filename: string | WorkspaceFile,
+  renderer: FFmpegCommandRenderer | FFmpegCommandRenderer[],
+  options?: FFmpegCommandOptions & { salt?: any },
 ): Promise<FFmpegCommandResult> {
-    if (!filename) {
-        throw new Error("filename is required")
+  if (!filename) {
+    throw new Error("filename is required");
+  }
+  const { cache } = options || {};
+  const folder = await computeHashFolder(filename, options);
+  const resFilename = join(folder, "res.json");
+  const readCache = async () => {
+    if (cache === false) {
+      return undefined;
     }
-    const { cache } = options || {}
-    const folder = await computeHashFolder(filename, options)
-    const resFilename = join(folder, "res.json")
-    const readCache = async () => {
-        if (cache === false) {
-            return undefined
-        }
-        try {
-            dbg(`reading cache from: ${resFilename}`)
-            const res = JSON.parse(
-                await readFile(resFilename, {
-                    encoding: "utf-8",
-                })
-            )
-            logVerbose(`ffmpeg: cache hit at ${folder}`)
-            return res
-        } catch {
-            return undefined
-        }
+    try {
+      dbg(`reading cache from: ${resFilename}`);
+      const res = JSON.parse(
+        await readFile(resFilename, {
+          encoding: "utf-8",
+        }),
+      );
+      logVerbose(`ffmpeg: cache hit at ${folder}`);
+      return res;
+    } catch {
+      return undefined;
     }
+  };
 
-    // try to hit cache before limit on ffmpeg
+  // try to hit cache before limit on ffmpeg
+  {
+    const cached = await readCache();
+    if (cached) {
+      return cached;
+    }
+  }
+
+  return ffmpegLimit(async () => {
+    // try cache hit again
     {
-        const cached = await readCache()
-        if (cached) {
-            return cached
-        }
+      const cached = await readCache();
+      if (cached) {
+        return cached;
+      }
     }
 
-    return ffmpegLimit(async () => {
-        // try cache hit again
-        {
-            const cached = await readCache()
-            if (cached) {
-                return cached
-            }
-        }
+    await ensureDir(folder);
+    const input = await resolveInput(filename, folder);
 
-        await ensureDir(folder)
-        const input = await resolveInput(filename, folder)
-
-        const res: FFmpegCommandResult = { filenames: [], data: [] }
-        const renderers = arrayify(renderer)
-        for (const renderer of renderers) {
-            const cmd = await ffmpegCommand({})
-            logCommand(folder, cmd)
-            const rres = await runFfmpegCommandUncached(
-                cmd,
-                input,
-                options,
-                folder,
-                renderer
-            )
-            if (rres.filenames?.length) {
-                res.filenames.push(...rres.filenames)
-            }
-            if (rres.data?.length) {
-                res.data.push(...rres.data)
-            }
-        }
-        dbg(`writing ffmpeg result to cache: ${resFilename}`)
-        await writeFile(resFilename, JSON.stringify(res, null, 2))
-        return res
-    })
+    const res: FFmpegCommandResult = { filenames: [], data: [] };
+    const renderers = arrayify(renderer);
+    for (const renderer of renderers) {
+      const cmd = await ffmpegCommand({});
+      logCommand(folder, cmd);
+      const rres = await runFfmpegCommandUncached(cmd, input, options, folder, renderer);
+      if (rres.filenames?.length) {
+        res.filenames.push(...rres.filenames);
+      }
+      if (rres.data?.length) {
+        res.data.push(...rres.data);
+      }
+    }
+    dbg(`writing ffmpeg result to cache: ${resFilename}`);
+    await writeFile(resFilename, JSON.stringify(res, null, 2));
+    return res;
+  });
 }
 async function runFfmpegCommandUncached(
-    cmd: FfmpegCommand,
-    input: string,
-    options: FFmpegCommandOptions,
-    folder: string,
-    renderer: FFmpegCommandRenderer
+  cmd: FfmpegCommand,
+  input: string,
+  options: FFmpegCommandOptions,
+  folder: string,
+  renderer: FFmpegCommandRenderer,
 ): Promise<FFmpegCommandResult> {
-    return await new Promise(async (resolve, reject) => {
-        const r: FFmpegCommandResult = { filenames: [], data: [] }
-        const end = () => resolve(r)
+  return await new Promise(async (resolve, reject) => {
+    const r: FFmpegCommandResult = { filenames: [], data: [] };
+    const end = () => resolve(r);
 
-        let output: string
-        cmd.input(input)
-        if (options.size) {
-            cmd.size(options.size)
+    let output: string;
+    cmd.input(input);
+    if (options.size) {
+      cmd.size(options.size);
+    }
+    if (options.inputOptions) {
+      cmd.inputOptions(...arrayify(options.inputOptions));
+    }
+    if (options.outputOptions) {
+      cmd.outputOption(...arrayify(options.outputOptions));
+    }
+    dbg(`adding filenames listener`);
+    cmd.addListener("filenames", (fns: string[]) => {
+      r.filenames.push(...fns.map((f) => join(folder, f)));
+    });
+    cmd.addListener("codeData", (data) => {
+      logVerbose(`ffmpeg: input audio ${data.audio}, video ${data.video}`);
+    });
+    cmd.addListener("end", async () => {
+      dbg(`processing wildcard output: ${output}`);
+      if (output?.includes(WILD_CARD)) {
+        const [prefix, suffix] = output.split(WILD_CARD, 2);
+        const files = await readdir(folder);
+        const gen = files.filter((f) => f.startsWith(prefix) && f.endsWith(suffix));
+        r.filenames.push(...gen.map((f) => join(folder, f)));
+      }
+      end();
+    });
+    cmd.addListener("error", (err) => {
+      dbg(`ffmpeg command encountered an error`);
+      reject(err);
+    });
+    try {
+      const rendering = await renderer(cmd, {
+        input,
+        dir: folder,
+      });
+      if (typeof rendering === "string") {
+        output = rendering.replace(/\*/g, WILD_CARD);
+        const fo = join(folder, basename(output));
+        cmd.output(fo);
+        cmd.run();
+        if (!output.includes(WILD_CARD)) {
+          r.filenames.push(fo);
         }
-        if (options.inputOptions) {
-            cmd.inputOptions(...arrayify(options.inputOptions))
-        }
-        if (options.outputOptions) {
-            cmd.outputOption(...arrayify(options.outputOptions))
-        }
-        dbg(`adding filenames listener`)
-        cmd.addListener("filenames", (fns: string[]) => {
-            r.filenames.push(...fns.map((f) => join(folder, f)))
-        })
-        cmd.addListener("codeData", (data) => {
-            logVerbose(`ffmpeg: input audio ${data.audio}, video ${data.video}`)
-        })
-        cmd.addListener("end", async () => {
-            dbg(`processing wildcard output: ${output}`)
-            if (output?.includes(WILD_CARD)) {
-                const [prefix, suffix] = output.split(WILD_CARD, 2)
-                const files = await readdir(folder)
-                const gen = files.filter(
-                    (f) => f.startsWith(prefix) && f.endsWith(suffix)
-                )
-                r.filenames.push(...gen.map((f) => join(folder, f)))
-            }
-            end()
-        })
-        cmd.addListener("error", (err) => {
-            dbg(`ffmpeg command encountered an error`)
-            reject(err)
-        })
-        try {
-            const rendering = await renderer(cmd, {
-                input,
-                dir: folder,
-            })
-            if (typeof rendering === "string") {
-                output = rendering.replace(/\*/g, WILD_CARD)
-                const fo = join(folder, basename(output))
-                cmd.output(fo)
-                cmd.run()
-                if (!output.includes(WILD_CARD)) {
-                    r.filenames.push(fo)
-                }
-            } else if (typeof rendering === "object") {
-                r.data.push(rendering)
-                cmd.removeListener("end", end)
-                resolve(r)
-            }
-        } catch (err) {
-            reject(err)
-        }
-    })
+      } else if (typeof rendering === "object") {
+        r.data.push(rendering);
+        cmd.removeListener("end", end);
+        resolve(r);
+      }
+    } catch (err) {
+      reject(err);
+    }
+  });
 }
 
 function logCommand(folder: string, cmd: FfmpegCommand) {
-    // console logging
-    cmd.on("start", (commandLine) => logVerbose(commandLine))
-    cmd.on("stderr", (s) => dbg(s))
+  // console logging
+  cmd.on("start", (commandLine) => logVerbose(commandLine));
+  cmd.on("stderr", (s) => dbg(s));
 
-    // log to file
-    const log: string[] = []
-    const writeLog = async () => {
-        const logFilename = join(folder, "log.txt")
-        logVerbose(`ffmpeg log: ${logFilename}`)
-        await appendFile(logFilename, log.join("\n"), {
-            encoding: "utf-8",
-        })
-    }
-    cmd.on("stderr", (s) => log.push(s))
-    cmd.on("end", writeLog)
-    cmd.on("error", async (err) => {
-        log.push(`error: ${errorMessage(err)}\n${serializeError(err)}`)
-        await writeLog()
-    })
+  // log to file
+  const log: string[] = [];
+  const writeLog = async () => {
+    const logFilename = join(folder, "log.txt");
+    logVerbose(`ffmpeg log: ${logFilename}`);
+    await appendFile(logFilename, log.join("\n"), {
+      encoding: "utf-8",
+    });
+  };
+  cmd.on("stderr", (s) => log.push(s));
+  cmd.on("end", writeLog);
+  cmd.on("error", async (err) => {
+    log.push(`error: ${errorMessage(err)}\n${serializeError(err)}`);
+    await writeLog();
+  });
 }

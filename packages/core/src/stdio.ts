@@ -1,5 +1,5 @@
-export let stdout: NodeJS.WriteStream = process.stdout
-export let stderr: NodeJS.WriteStream = process.stderr
+export let stdout: NodeJS.WriteStream = process.stdout;
+export let stderr: NodeJS.WriteStream = process.stderr;
 
 /**
  * Overrides the standard output stream with the standard error stream.
@@ -9,5 +9,5 @@ export let stderr: NodeJS.WriteStream = process.stderr
  * instead be redirected to the standard error stream.
  */
 export function overrideStdoutWithStdErr() {
-    stdout = stderr
+  stdout = stderr;
 }

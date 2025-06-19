@@ -1,11 +1,11 @@
-import { describe, test } from "node:test"
-import assert from "node:assert/strict"
-import { parseLLMDiffs } from "./llmdiff"
-import { diffCreatePatch } from "./diff"
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
+import { parseLLMDiffs } from "./llmdiff";
+import { diffCreatePatch } from "./diff";
 
 describe("llmdiff", () => {
-    test("is_valid_email", () => {
-        const source = `[1] import re
+  test("is_valid_email", () => {
+    const source = `[1] import re
 [2] 
 [3] def is_valid_email(email):
 - [4]     if re.fullmatch(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", email):
@@ -13,13 +13,13 @@ describe("llmdiff", () => {
 + [5]     if pattern.fullmatch(email):
 [6]         return True
 [7]     else:
-[8]         return False`
-        const chunks = parseLLMDiffs(source)
-        assert.equal(chunks.length, 4)
-    })
+[8]         return False`;
+    const chunks = parseLLMDiffs(source);
+    assert.equal(chunks.length, 4);
+  });
 
-    test("missing line numbers", () => {
-        const source = `
+  test("missing line numbers", () => {
+    const source = `
 [10] CONSTANT
 -     \* @type: XXX;
 +     \* @type: Int;
@@ -32,14 +32,14 @@ describe("llmdiff", () => {
 +     \* @type: Int;
 -     \* @type: XXX;
 +     \* @type: Str;
-`
+`;
 
-        const chunks = parseLLMDiffs(source)
-        assert.equal(chunks.length, 12)
-    })
+    const chunks = parseLLMDiffs(source);
+    assert.equal(chunks.length, 12);
+  });
 
-    test("missing line numbers 2", () => {
-        const source = `
+  test("missing line numbers 2", () => {
+    const source = `
 [17] CONSTANTS
 -     \* @type: ???;
 +     \* @type: Int;
@@ -60,14 +60,14 @@ describe("llmdiff", () => {
 -   \* @type: ???;
 +   \* @type: Set(<<Int, Str>>);
 [34]   sent
-`
+`;
 
-        const chunks = parseLLMDiffs(source)
-        assert.equal(chunks.length, 19)
-    })
+    const chunks = parseLLMDiffs(source);
+    assert.equal(chunks.length, 19);
+  });
 
-    test("source same as added", () => {
-        const source = `[9] Annotations are errors, warning or notes that can be added to the LLM output. They are extracted and injected in VSCode or your CI environment.
+  test("source same as added", () => {
+    const source = `[9] Annotations are errors, warning or notes that can be added to the LLM output. They are extracted and injected in VSCode or your CI environment.
 + Annotations are errors, warnings, or notes that can be added to the LLM output. They are extracted and injected into VSCode or your CI environment.
 [30] The \`system.annotations\` prompt automatically enables line number injection for all \`def\` section. This helps
 - [31] with the precision of the LLM answer and reduces hallucinations.
@@ -84,13 +84,13 @@ describe("llmdiff", () => {
 + [87] -   Your organization may restrict the execution of GitHub Actions on pull requests.
 [92] You can use the [defOutput](/genaiscript/reference/scripts/custom-output/) function
 - [93] to filter the annotations.
-+ [93] to filter annotations.`
-        const chunks = parseLLMDiffs(source)
-        assert.equal(chunks.length, 18)
-    })
++ [93] to filter annotations.`;
+    const chunks = parseLLMDiffs(source);
+    assert.equal(chunks.length, 18);
+  });
 
-    test("start offset", () => {
-        const source = `[6] import { CORE_VERSION } from "./version"
+  test("start offset", () => {
+    const source = `[6] import { CORE_VERSION } from "./version"
 [7] 
 [8] // Represents a cache entry with a hash (sha), key, and value
 [9] export type CacheEntry<K, V> = { sha: string; key: K; val: V }
@@ -188,13 +188,13 @@ describe("llmdiff", () => {
 [101]    if (typeof key != "string") key = JSON.stringify(key) + CORE_VERSION
 [102]    return await sha256string(key)
 [103] }
-`
-        const chunks = parseLLMDiffs(source)
-        assert(chunks.length > 0)
-    })
+`;
+    const chunks = parseLLMDiffs(source);
+    assert(chunks.length > 0);
+  });
 
-    test("insert after incorrect line description", () => {
-        const source = `[1] import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
+  test("insert after incorrect line description", () => {
+    const source = `[1] import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
 [2] import { host, runtimeHost } from "./host"
 [3] import { dotGenaiscriptPath, sha256string } from "./util"
 [4] import { CHANGE } from "./constants"
@@ -283,38 +283,38 @@ describe("llmdiff", () => {
 [87] async function keySHA(key: any) {
 [88]     if (typeof key != "string") key = JSON.stringify(key) + CORE_VERSION
 [89]     return await sha256string(key)
-[90] }`
-        const chunks = parseLLMDiffs(source)
-        assert.notEqual(chunks.length, 0)
-    })
-})
+[90] }`;
+    const chunks = parseLLMDiffs(source);
+    assert.notEqual(chunks.length, 0);
+  });
+});
 test("createDiff with context", () => {
-    const left = {
-        filename: "file1.txt",
-        content: "line1\nline2\nline3\nline4\nline5\n",
-    }
-    const right = {
-        filename: "file1.txt",
-        content: "line1\nline2\nline3\nline4 modified\nline5\n",
-    }
-    const diff = diffCreatePatch(left, right, { context: 2 })
-    assert(diff.includes("@@ -2,4 +2,4 @@"))
-    assert(diff.includes("-line4"))
-    assert(diff.includes("+line4 modified"))
-})
+  const left = {
+    filename: "file1.txt",
+    content: "line1\nline2\nline3\nline4\nline5\n",
+  };
+  const right = {
+    filename: "file1.txt",
+    content: "line1\nline2\nline3\nline4 modified\nline5\n",
+  };
+  const diff = diffCreatePatch(left, right, { context: 2 });
+  assert(diff.includes("@@ -2,4 +2,4 @@"));
+  assert(diff.includes("-line4"));
+  assert(diff.includes("+line4 modified"));
+});
 
 test("createDiff without context", () => {
-    const left = {
-        filename: "file1.txt",
-        content: "line1\nline2\nline3\nline4\nline5\n",
-    }
-    const right = {
-        filename: "file1.txt",
-        content: "line1\nline2\nline3\nline4 modified\nline5\n",
-    }
-    const diff = diffCreatePatch(left, right)
-    console.log(diff)
-    assert(diff.includes("@@ -1,5 +1,5 @@"))
-    assert(diff.includes("-line4"))
-    assert(diff.includes("+line4 modified"))
-})
+  const left = {
+    filename: "file1.txt",
+    content: "line1\nline2\nline3\nline4\nline5\n",
+  };
+  const right = {
+    filename: "file1.txt",
+    content: "line1\nline2\nline3\nline4 modified\nline5\n",
+  };
+  const diff = diffCreatePatch(left, right);
+  console.log(diff);
+  assert(diff.includes("@@ -1,5 +1,5 @@"));
+  assert(diff.includes("-line4"));
+  assert(diff.includes("+line4 modified"));
+});

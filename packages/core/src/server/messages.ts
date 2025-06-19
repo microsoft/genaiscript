@@ -1,405 +1,400 @@
-import type {
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionMessageParam,
-} from "../chattypes"
+import type { ChatCompletionAssistantMessageParam, ChatCompletionMessageParam } from "../chattypes";
 
 export interface ResponseStatus {
-    ok: boolean
-    error?: SerializedError
-    status?: number
+  ok: boolean;
+  error?: SerializedError;
+  status?: number;
 }
 
 export type OpenAIAPIType =
-    | "openai"
-    | "azure"
-    | "localai"
-    | "azure_ai_inference"
-    | "azure_serverless"
-    | "azure_serverless_models"
-    | "alibaba"
-    | "huggingface"
-    | "github"
+  | "openai"
+  | "azure"
+  | "localai"
+  | "azure_ai_inference"
+  | "azure_serverless"
+  | "azure_serverless_models"
+  | "alibaba"
+  | "huggingface"
+  | "github";
 
 export type AzureCredentialsType =
-    | "default"
-    | "cli"
-    | "env"
-    | "powershell"
-    | "devcli"
-    | "managedidentity"
-    | "workloadidentity"
+  | "default"
+  | "cli"
+  | "env"
+  | "powershell"
+  | "devcli"
+  | "managedidentity"
+  | "workloadidentity";
 
 export interface LanguageModelConfiguration extends LanguageModelReference {
-    base: string
-    token: string
-    source?: string
-    type?: OpenAIAPIType
-    version?: string
-    azureCredentialsType?: AzureCredentialsType
+  base: string;
+  token: string;
+  source?: string;
+  type?: OpenAIAPIType;
+  version?: string;
+  azureCredentialsType?: AzureCredentialsType;
 }
 
-export type ResolvedLanguageModelConfiguration =
-    Partial<LanguageModelConfiguration> & {
-        models?: LanguageModelInfo[]
-        error?: string
-    }
+export type ResolvedLanguageModelConfiguration = Partial<LanguageModelConfiguration> & {
+  models?: LanguageModelInfo[];
+  error?: string;
+};
 
 /**
  * Represents a project containing templates and diagnostics.
  * Provides utility methods to manage templates and diagnose issues.
  */
 export interface Project {
-    systemDir?: string
-    scripts: PromptScript[] // Array of templates within the project
-    diagnostics: Diagnostic[] // Array of diagnostic records
+  systemDir?: string;
+  scripts: PromptScript[]; // Array of templates within the project
+  diagnostics: Diagnostic[]; // Array of diagnostic records
 }
 
 export interface RequestMessage {
-    type: string
-    id: string
-    response?: ResponseStatus
+  type: string;
+  id: string;
+  response?: ResponseStatus;
 }
 
 export interface ServerKill extends RequestMessage {
-    type: "server.kill"
+  type: "server.kill";
 }
 
 export interface ServerVersion extends RequestMessage {
-    type: "server.version"
-    version?: string
+  type: "server.version";
+  version?: string;
 }
 
 export interface ServerEnv extends RequestMessage {
-    type: "server.env"
+  type: "server.env";
 }
 
 export interface ServerEnvResponse extends ResponseStatus {
-    providers: ResolvedLanguageModelConfiguration[]
-    remote?: {
-        url: string
-        branch?: string
-    }
-    configuration: {
-        name?: string
-        description?: string
-        version?: string
-        homepage?: string
-        readme?: string
-        author?: string
-    }
+  providers: ResolvedLanguageModelConfiguration[];
+  remote?: {
+    url: string;
+    branch?: string;
+  };
+  configuration: {
+    name?: string;
+    description?: string;
+    version?: string;
+    homepage?: string;
+    readme?: string;
+    author?: string;
+  };
 }
 
-export interface PromptScriptTestRunOptions
-    extends PromptScriptModelRunOptions {
-    testProvider?: string
-    models?: string[]
-    groups?: string[]
+export interface PromptScriptTestRunOptions extends PromptScriptModelRunOptions {
+  testProvider?: string;
+  models?: string[];
+  groups?: string[];
 }
 
 export interface PromptScriptModelRunOptions {
-    model?: string
-    smallModel?: string
-    visionModel?: string
+  model?: string;
+  smallModel?: string;
+  visionModel?: string;
 }
 
 export interface PromptScriptTestRun extends RequestMessage {
-    type: "tests.run"
-    scripts?: string[]
-    options?: PromptScriptTestRunOptions
+  type: "tests.run";
+  scripts?: string[];
+  options?: PromptScriptTestRunOptions;
 }
 
 export interface PromptScriptTestResult extends ResponseStatus {
-    script: string
-    value?: {
-        evalId: string
-        results: {
-            stats?: {
-                successes: number
-                failures: number
-                errors: number
-                tokenUsage?: {
-                    cached?: number
-                    completion?: number
-                    prompt?: number
-                    total?: number
-                }
-            }
-        }
-    }
+  script: string;
+  value?: {
+    evalId: string;
+    results: {
+      stats?: {
+        successes: number;
+        failures: number;
+        errors: number;
+        tokenUsage?: {
+          cached?: number;
+          completion?: number;
+          prompt?: number;
+          total?: number;
+        };
+      };
+    };
+  };
 }
 
 export interface PromptScriptTestRunResponse extends ResponseStatus {
-    value?: PromptScriptTestResult[]
+  value?: PromptScriptTestResult[];
 }
 
 export interface PromptScriptRunOptions {
-    excludedFiles: string[]
-    ignoreGitIgnore: boolean
-    runRetry: string
-    out: string
-    retry: string
-    retryDelay: string
-    maxDelay: string
-    json: boolean
-    yaml: boolean
-    outTrace: string
-    outOutput: string
-    outAnnotations: string
-    outChangelogs: string
-    pullRequest: string
-    pullRequestComment: string | boolean
-    pullRequestDescription: string | boolean
-    pullRequestReviews: boolean
-    teamsMessage: boolean
-    outData: string
-    label: string
-    temperature: string | number
-    reasoningEffort: "high" | "low" | "medium"
-    topP: string | number
-    toolChoice: ChatToolChoice
-    seed: string | number
-    maxTokens: string | number
-    maxToolCalls: string | number
-    maxDataRepairs: string | number
-    model: string
-    smallModel: string
-    visionModel: string
-    embeddingsModel: string
-    modelAlias: string[]
-    provider: string
-    csvSeparator: string
-    cache: boolean | string
-    cacheName: string
-    applyEdits: boolean
-    failOnErrors: boolean
-    removeOut: boolean
-    vars: string[] | Record<string, string | boolean | number | object>
-    fallbackTools: boolean
-    jsSource: string
-    logprobs: boolean
-    topLogprobs: number
-    fenceFormat: FenceFormat
-    workspaceFiles?: WorkspaceFile[]
-    runTrace: boolean
-    outputTrace: boolean
-    accept: string
+  excludedFiles: string[];
+  ignoreGitIgnore: boolean;
+  runRetry: string;
+  out: string;
+  retry: string;
+  retryDelay: string;
+  maxDelay: string;
+  json: boolean;
+  yaml: boolean;
+  outTrace: string;
+  outOutput: string;
+  outAnnotations: string;
+  outChangelogs: string;
+  pullRequest: string;
+  pullRequestComment: string | boolean;
+  pullRequestDescription: string | boolean;
+  pullRequestReviews: boolean;
+  teamsMessage: boolean;
+  outData: string;
+  label: string;
+  temperature: string | number;
+  reasoningEffort: "high" | "low" | "medium";
+  topP: string | number;
+  toolChoice: ChatToolChoice;
+  seed: string | number;
+  maxTokens: string | number;
+  maxToolCalls: string | number;
+  maxDataRepairs: string | number;
+  model: string;
+  smallModel: string;
+  visionModel: string;
+  embeddingsModel: string;
+  modelAlias: string[];
+  provider: string;
+  csvSeparator: string;
+  cache: boolean | string;
+  cacheName: string;
+  applyEdits: boolean;
+  failOnErrors: boolean;
+  removeOut: boolean;
+  vars: string[] | Record<string, string | boolean | number | object>;
+  fallbackTools: boolean;
+  jsSource: string;
+  logprobs: boolean;
+  topLogprobs: number;
+  fenceFormat: FenceFormat;
+  workspaceFiles?: WorkspaceFile[];
+  runTrace: boolean;
+  outputTrace: boolean;
+  accept: string;
 }
 
 export interface RunResultList extends RequestMessage {
-    type: "run.list"
+  type: "run.list";
 }
 
 export interface RunResultListResponse extends ResponseStatus {
-    runs: { scriptId: string; runId: string; creationTime: string }[]
+  runs: { scriptId: string; runId: string; creationTime: string }[];
 }
 
 export interface PromptScriptList extends RequestMessage {
-    type: "script.list"
+  type: "script.list";
 }
 
 export interface PromptScriptListResponse extends ResponseStatus {
-    project: Project
+  project: Project;
 }
 
 export interface PromptScriptStart extends RequestMessage {
-    type: "script.start"
-    runId: string
-    script: string
-    files?: string[]
-    options: Partial<PromptScriptRunOptions>
+  type: "script.start";
+  runId: string;
+  script: string;
+  files?: string[];
+  options: Partial<PromptScriptRunOptions>;
 }
 
 export interface PromptScriptStartResponse extends ResponseStatus {
-    runId: string
+  runId: string;
 }
 
 // Type representing possible statuses of generation
-export type GenerationStatus = "success" | "error" | "cancelled" | undefined
+export type GenerationStatus = "success" | "error" | "cancelled" | undefined;
 
 // Interface for the result of a generation process
 export interface GenerationResult extends GenerationOutput {
-    /**
-     * Run identifier
-     */
-    runId: string
-    /**
-     * The environment variables passed to the prompt
-     */
-    env: Partial<ExpansionVariables>
+  /**
+   * Run identifier
+   */
+  runId: string;
+  /**
+   * The environment variables passed to the prompt
+   */
+  env: Partial<ExpansionVariables>;
 
-    /**
-     * Expanded prompt text composed of multiple messages
-     */
-    messages: ChatCompletionMessageParam[]
+  /**
+   * Expanded prompt text composed of multiple messages
+   */
+  messages: ChatCompletionMessageParam[];
 
-    /**
-     * Edits to apply, if any
-     */
-    edits: Edits[]
+  /**
+   * Edits to apply, if any
+   */
+  edits: Edits[];
 
-    /**
-     * Source annotations parsed as diagnostics
-     */
-    annotations: Diagnostic[]
+  /**
+   * Source annotations parsed as diagnostics
+   */
+  annotations: Diagnostic[];
 
-    /**
-     * Sections of the ChangeLog
-     */
-    changelogs: string[]
+  /**
+   * Sections of the ChangeLog
+   */
+  changelogs: string[];
 
-    /**
-     * Error message or object, if any error occurred
-     */
-    error?: SerializedError
+  /**
+   * Error message or object, if any error occurred
+   */
+  error?: SerializedError;
 
-    /**
-     * Status of the generation process (success, error, or cancelled)
-     */
-    status: GenerationStatus
+  /**
+   * Status of the generation process (success, error, or cancelled)
+   */
+  status: GenerationStatus;
 
-    /**
-     * Additional status information or message
-     */
-    statusText?: string
+  /**
+   * Additional status information or message
+   */
+  statusText?: string;
 
-    /**
-     * Completion status from the language model
-     */
-    finishReason?: string
+  /**
+   * Completion status from the language model
+   */
+  finishReason?: string;
 
-    /**
-     * Optional label for the run
-     */
-    label?: string
+  /**
+   * Optional label for the run
+   */
+  label?: string;
 
-    /**
-     * Version of the GenAIScript used
-     */
-    version: string
+  /**
+   * Version of the GenAIScript used
+   */
+  version: string;
 
-    /**
-     * Log probs of the choices
-     */
-    choices?: Logprob[]
+  /**
+   * Log probs of the choices
+   */
+  choices?: Logprob[];
 
-    /**
-     * Logprobs if computed
-     */
-    logprobs?: Logprob[]
+  /**
+   * Logprobs if computed
+   */
+  logprobs?: Logprob[];
 
-    /**
-     * Statistics of the generation
-     */
-    perplexity?: number
+  /**
+   * Statistics of the generation
+   */
+  perplexity?: number;
 
-    /**
-     * Structural uncertainty
-     */
-    uncertainty?: number
+  /**
+   * Structural uncertainty
+   */
+  uncertainty?: number;
 }
 
 export interface PromptScriptEndResponseEvent {
-    type: "script.end"
-    runId: string
-    exitCode: number
-    result?: Partial<GenerationResult>
-    trace?: string
+  type: "script.end";
+  runId: string;
+  exitCode: number;
+  result?: Partial<GenerationResult>;
+  trace?: string;
 }
 
 export interface PromptScriptAbort extends RequestMessage {
-    type: "script.abort"
-    reason: string
-    runId: string
+  type: "script.abort";
+  reason: string;
+  runId: string;
 }
 
 export interface PromptScriptProgressResponseEvent {
-    type: "script.progress"
-    runId: string
+  type: "script.progress";
+  runId: string;
 
-    trace?: string
-    output?: string
+  trace?: string;
+  output?: string;
 
-    progress?: string
+  progress?: string;
 
-    tokens?: number
+  tokens?: number;
 
-    response?: string
-    responseChunk?: string
-    responseTokens?: Logprob[]
+  response?: string;
+  responseChunk?: string;
+  responseTokens?: Logprob[];
 
-    reasoning?: string
-    reasoningChunk?: string
-    reasoningTokens?: Logprob[]
+  reasoning?: string;
+  reasoningChunk?: string;
+  reasoningTokens?: Logprob[];
 
-    inner?: boolean
+  inner?: boolean;
 }
 
 export interface LanguageModelConfigurationRequest extends RequestMessage {
-    type: "model.configuration"
-    model: string
-    token?: boolean
-    response?: LanguageModelConfigurationResponse
+  type: "model.configuration";
+  model: string;
+  token?: boolean;
+  response?: LanguageModelConfigurationResponse;
 }
 
 export interface LanguageModelConfigurationResponse extends ResponseStatus {
-    info?: LanguageModelConfiguration
+  info?: LanguageModelConfiguration;
 }
 
 export interface ServerResponse extends ResponseStatus {
-    version: string
-    node: string
-    platform: string
-    arch: string
-    pid: number
+  version: string;
+  node: string;
+  platform: string;
+  arch: string;
+  pid: number;
 }
 
 export interface ChatStart {
-    type: "chat.start"
-    chatId: string
-    messages: ChatCompletionAssistantMessageParam[]
-    model: string
-    modelOptions?: {
-        temperature?: number
-    }
+  type: "chat.start";
+  chatId: string;
+  messages: ChatCompletionAssistantMessageParam[];
+  model: string;
+  modelOptions?: {
+    temperature?: number;
+  };
 }
 
 export interface ChatCancel {
-    type: "chat.cancel"
-    chatId: string
+  type: "chat.cancel";
+  chatId: string;
 }
 
 export interface ChatChunk extends RequestMessage {
-    type: "chat.chunk"
-    chatId: string
-    model?: string
-    finishReason?: string
-    chunk?: string
-    tokens?: number
-    error?: SerializedError
+  type: "chat.chunk";
+  chatId: string;
+  model?: string;
+  finishReason?: string;
+  chunk?: string;
+  tokens?: number;
+  error?: SerializedError;
 }
 
-export type LogLevel = "debug" | "info" | "warn" | "error"
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
 export interface LogMessageEvent {
-    type: "log"
-    message: string
-    level: LogLevel
+  type: "log";
+  message: string;
+  level: LogLevel;
 }
 
 export type RequestMessages =
-    | ServerKill
-    | ServerEnv
-    | ServerVersion
-    | PromptScriptTestRun
-    | PromptScriptStart
-    | PromptScriptAbort
-    | ChatChunk
-    | LanguageModelConfigurationRequest
-    | PromptScriptList
-    | RunResultList
+  | ServerKill
+  | ServerEnv
+  | ServerVersion
+  | PromptScriptTestRun
+  | PromptScriptStart
+  | PromptScriptAbort
+  | ChatChunk
+  | LanguageModelConfigurationRequest
+  | PromptScriptList
+  | RunResultList;
 
 export type PromptScriptResponseEvents =
-    | PromptScriptProgressResponseEvent
-    | PromptScriptEndResponseEvent
+  | PromptScriptProgressResponseEvent
+  | PromptScriptEndResponseEvent;
 
-export type ChatEvents = ChatStart | ChatCancel
+export type ChatEvents = ChatStart | ChatCancel;

@@ -1,127 +1,124 @@
-import { chunkMarkdown } from "./mdchunk"
-import { beforeEach, describe, test } from "node:test"
-import assert from "node:assert"
-import { glob } from "glob"
-import { readFile } from "node:fs/promises"
-import { DOCXTryParse } from "./docx"
-import { TestHost } from "./testhost"
+import { chunkMarkdown } from "./mdchunk";
+import { beforeEach, describe, test } from "node:test";
+import assert from "node:assert";
+import { glob } from "glob";
+import { readFile } from "node:fs/promises";
+import { DOCXTryParse } from "./docx";
+import { TestHost } from "./testhost";
 
 describe(`chunkMarkdown`, async () => {
-    const estimateTokens = (text: string) => text.split(/\s+/).length
-    beforeEach(() => {
-        TestHost.install()
-    })
+  const estimateTokens = (text: string) => text.split(/\s+/).length;
+  beforeEach(() => {
+    TestHost.install();
+  });
 
-    test(`handles empty markdown string`, async () => {
-        const markdown = ``
-        const result = await chunkMarkdown(markdown, estimateTokens)
-        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+  test(`handles empty markdown string`, async () => {
+    const markdown = ``;
+    const result = await chunkMarkdown(markdown, estimateTokens);
+    assert.strictEqual(result.map((r) => r.content).join("\n"), markdown);
 
-        assert.deepStrictEqual(result, [])
-    })
+    assert.deepStrictEqual(result, []);
+  });
 
-    test(`chunks markdown with single heading`, async () => {
-        const markdown = `# Heading 1
-Content under heading 1`
-        const result = await chunkMarkdown(markdown, estimateTokens, {
-            maxTokens: 10,
-        })
-        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+  test(`chunks markdown with single heading`, async () => {
+    const markdown = `# Heading 1
+Content under heading 1`;
+    const result = await chunkMarkdown(markdown, estimateTokens, {
+      maxTokens: 10,
+    });
+    assert.strictEqual(result.map((r) => r.content).join("\n"), markdown);
 
-        assert.deepStrictEqual(
-            result.map((r) => r.content),
-            [`# Heading 1\nContent under heading 1`]
-        )
-    })
+    assert.deepStrictEqual(
+      result.map((r) => r.content),
+      [`# Heading 1\nContent under heading 1`],
+    );
+  });
 
-    test(`chunks markdown with multiple headings`, async () => {
-        const markdown = `# Heading 1
+  test(`chunks markdown with multiple headings`, async () => {
+    const markdown = `# Heading 1
 Content under heading 1
 Content under heading 1.1
 Content under heading 1.2
 ## Heading 2
-Content under heading 2`
-        const result = await chunkMarkdown(markdown, estimateTokens, {
-            maxTokens: 10,
-        })
-        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+Content under heading 2`;
+    const result = await chunkMarkdown(markdown, estimateTokens, {
+      maxTokens: 10,
+    });
+    assert.strictEqual(result.map((r) => r.content).join("\n"), markdown);
 
-        assert.deepStrictEqual(
-            result.map((r) => r.content),
-            [
-                `# Heading 1
+    assert.deepStrictEqual(
+      result.map((r) => r.content),
+      [
+        `# Heading 1
 Content under heading 1
 Content under heading 1.1
 Content under heading 1.2`,
-                `## Heading 2
+        `## Heading 2
 Content under heading 2`,
-            ]
-        )
-    })
+      ],
+    );
+  });
 
-    test(`chunks markdown with nested headings`, async () => {
-        const markdown = `# Heading 1
+  test(`chunks markdown with nested headings`, async () => {
+    const markdown = `# Heading 1
 Content under heading 1 abracadabra
 ## Heading 2
 Content under heading 2 abracadabra
 ### Heading 3
-Content under heading 3 abracadabra`
-        const result = await chunkMarkdown(markdown, estimateTokens, {
-            maxTokens: 5,
-        })
-        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+Content under heading 3 abracadabra`;
+    const result = await chunkMarkdown(markdown, estimateTokens, {
+      maxTokens: 5,
+    });
+    assert.strictEqual(result.map((r) => r.content).join("\n"), markdown);
 
-        assert.deepStrictEqual(
-            result.map((r) => r.content),
-            [
-                `# Heading 1
+    assert.deepStrictEqual(
+      result.map((r) => r.content),
+      [
+        `# Heading 1
 Content under heading 1 abracadabra`,
-                `## Heading 2
+        `## Heading 2
 Content under heading 2 abracadabra`,
-                `### Heading 3
+        `### Heading 3
 Content under heading 3 abracadabra`,
-            ]
-        )
-    })
+      ],
+    );
+  });
 
-    test(`chunks markdown with large content`, async () => {
-        const markdown =
-            `# Heading 1\n` +
-            `Content `.repeat(100) +
-            `\n## Heading 2\n` +
-            `Content `.repeat(100)
-        const result = await chunkMarkdown(markdown, estimateTokens, {
-            maxTokens: 50,
-        })
-        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+  test(`chunks markdown with large content`, async () => {
+    const markdown =
+      `# Heading 1\n` + `Content `.repeat(100) + `\n## Heading 2\n` + `Content `.repeat(100);
+    const result = await chunkMarkdown(markdown, estimateTokens, {
+      maxTokens: 50,
+    });
+    assert.strictEqual(result.map((r) => r.content).join("\n"), markdown);
 
-        assert(result.length > 1)
-    })
+    assert(result.length > 1);
+  });
 
-    test(`chunks markdown with backtracking`, async () => {
-        const markdown = `# Heading 1
+  test(`chunks markdown with backtracking`, async () => {
+    const markdown = `# Heading 1
 Content under heading 1
 ## Heading 2
 Content under heading 2
 ### Heading 3
-Content under heading 3`
-        const result = await chunkMarkdown(markdown, estimateTokens, {
-            maxTokens: 5,
-        })
-        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown)
+Content under heading 3`;
+    const result = await chunkMarkdown(markdown, estimateTokens, {
+      maxTokens: 5,
+    });
+    assert.strictEqual(result.map((r) => r.content).join("\n"), markdown);
 
-        assert.deepStrictEqual(
-            result.map((r) => r.content),
-            [
-                `# Heading 1\nContent under heading 1`,
-                `## Heading 2\nContent under heading 2`,
-                `### Heading 3\nContent under heading 3`,
-            ]
-        )
-    })
+    assert.deepStrictEqual(
+      result.map((r) => r.content),
+      [
+        `# Heading 1\nContent under heading 1`,
+        `## Heading 2\nContent under heading 2`,
+        `### Heading 3\nContent under heading 3`,
+      ],
+    );
+  });
 
-    test(`chunks markdown with large sections`, async () => {
-        const markdown = `
+  test(`chunks markdown with large sections`, async () => {
+    const markdown = `
 # markdown
 What is Markdown?
 
@@ -151,68 +148,56 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
 ### Where can I get some?
 
 There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words.
-        `
-        for (let i = 0; i < 70; ++i) {
-            const maxTokens = i * 10
-            const result = await chunkMarkdown(markdown, estimateTokens, {
-                maxTokens,
-            })
-            //console.log(`${maxTokens} => ${result.length}`)
-            assert.strictEqual(
-                result.map((r) => r.content).join("\n"),
-                markdown
-            )
-        }
-    })
-
-    const docs = await glob("../../docs/src/content/**/*.md*")
-    for (const doc of docs) {
-        await test(`docs: chunks markdown from ${doc}`, async () => {
-            const markdown = await readFile(doc, { encoding: "utf-8" })
-            assert(markdown)
-            for (let i = 0; i < 12; ++i) {
-                const maxTokens = 1 << i
-                const result = await chunkMarkdown(markdown, estimateTokens, {
-                    maxTokens,
-                })
-                // console.log(`${maxTokens} => ${result.length}`)
-                assert.strictEqual(
-                    result.map((r) => r.content).join("\n"),
-                    markdown
-                )
-            }
-        })
+        `;
+    for (let i = 0; i < 70; ++i) {
+      const maxTokens = i * 10;
+      const result = await chunkMarkdown(markdown, estimateTokens, {
+        maxTokens,
+      });
+      //console.log(`${maxTokens} => ${result.length}`)
+      assert.strictEqual(result.map((r) => r.content).join("\n"), markdown);
     }
+  });
 
-    await test(`word: chunks markdown from docx`, async () => {
-        const { file } = await DOCXTryParse(
-            "../../packages/sample/src/rag/Document.docx",
-            {
-                format: "markdown",
-            }
-        )
-        const markdown = file.content
-        assert(markdown)
-        for (let i = 0; i < 12; ++i) {
-            const result = await chunkMarkdown(markdown, estimateTokens, {
-                maxTokens: 1 << i,
-            })
-            assert.strictEqual(
-                result.map((r) => r.content).join("\n"),
-                markdown
-            )
-        }
-    })
+  const docs = await glob("../../docs/src/content/**/*.md*");
+  for (const doc of docs) {
+    await test(`docs: chunks markdown from ${doc}`, async () => {
+      const markdown = await readFile(doc, { encoding: "utf-8" });
+      assert(markdown);
+      for (let i = 0; i < 12; ++i) {
+        const maxTokens = 1 << i;
+        const result = await chunkMarkdown(markdown, estimateTokens, {
+          maxTokens,
+        });
+        // console.log(`${maxTokens} => ${result.length}`)
+        assert.strictEqual(result.map((r) => r.content).join("\n"), markdown);
+      }
+    });
+  }
 
-    await test(`chunk genaiscript/llms-full.txt`, async () => {
-        const markdown = await (
-            await fetch("https://microsoft.github.io/genaiscript/llms-full.txt")
-        ).text()
-        for (let i = 0; i < 12; ++i) {
-            const result = await chunkMarkdown(markdown, estimateTokens, {
-                maxTokens: 1 << i,
-            })
-            console.debug(`llms-full ${i} => ${result.length}`)
-        }
-    })
-})
+  await test(`word: chunks markdown from docx`, async () => {
+    const { file } = await DOCXTryParse("../../packages/sample/src/rag/Document.docx", {
+      format: "markdown",
+    });
+    const markdown = file.content;
+    assert(markdown);
+    for (let i = 0; i < 12; ++i) {
+      const result = await chunkMarkdown(markdown, estimateTokens, {
+        maxTokens: 1 << i,
+      });
+      assert.strictEqual(result.map((r) => r.content).join("\n"), markdown);
+    }
+  });
+
+  await test(`chunk genaiscript/llms-full.txt`, async () => {
+    const markdown = await (
+      await fetch("https://microsoft.github.io/genaiscript/llms-full.txt")
+    ).text();
+    for (let i = 0; i < 12; ++i) {
+      const result = await chunkMarkdown(markdown, estimateTokens, {
+        maxTokens: 1 << i,
+      });
+      console.debug(`llms-full ${i} => ${result.length}`);
+    }
+  });
+});

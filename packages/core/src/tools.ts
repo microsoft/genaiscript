@@ -1,8 +1,8 @@
-import debug from "debug"
-const dbg = debug("genaiscript:tools")
+import debug from "debug";
+const dbg = debug("genaiscript:tools");
 
-import { parseModelIdentifier } from "./models"
-import { providerFeatures } from "./features"
+import { parseModelIdentifier } from "./models";
+import { providerFeatures } from "./features";
 
 /**
  * Escapes a tool name by sanitizing it according to specific rules.
@@ -16,11 +16,11 @@ import { providerFeatures } from "./features"
  * @returns The sanitized tool name.
  */
 export function escapeToolName(name: string) {
-    return name
-        .replace(/[^a-zA-Z0-9_-]/g, "_")
-        .replace("-", "_")
-        .replace(/_{2,}/g, "_")
-        .replace(/_+$/, "")
+  return name
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
+    .replace("-", "_")
+    .replace(/_{2,}/g, "_")
+    .replace(/_+$/, "");
 }
 
 /**
@@ -35,31 +35,31 @@ export function escapeToolName(name: string) {
  * Models with family names matching the restricted patterns (e.g., "o1-mini" or "o1-preview") are not supported.
  */
 export function isToolsSupported(modelId: string): boolean | undefined {
-    if (!modelId) {
-        return undefined
-    }
-    const { provider, family } = parseModelIdentifier(modelId)
+  if (!modelId) {
+    return undefined;
+  }
+  const { provider, family } = parseModelIdentifier(modelId);
 
-    dbg(`searching for provider info for provider: ${provider}`)
-    const info = providerFeatures(provider)
-    if (info) {
-        dbg(`tools support is explicitly disabled for model family: ${family}`)
-        const value = info.models?.[family]?.tools
-        if (typeof value === "boolean") {
-            dbg(`model family ${family} = ${value}`)
-            return value
-        }
-        dbg(`tools support is explicitly disabled for provider: ${provider}`)
-        if (info.tools === false) {
-            return false
-        }
+  dbg(`searching for provider info for provider: ${provider}`);
+  const info = providerFeatures(provider);
+  if (info) {
+    dbg(`tools support is explicitly disabled for model family: ${family}`);
+    const value = info.models?.[family]?.tools;
+    if (typeof value === "boolean") {
+      dbg(`model family ${family} = ${value}`);
+      return value;
     }
-
-    dbg(`checking if model family matches restricted o1 patterns: ${family}`)
-    if (/^o1-(mini|preview)/.test(family)) {
-        return false
+    dbg(`tools support is explicitly disabled for provider: ${provider}`);
+    if (info.tools === false) {
+      return false;
     }
+  }
 
-    dbg(`model family tool support is undefined: ${family}`)
-    return undefined
+  dbg(`checking if model family matches restricted o1 patterns: ${family}`);
+  if (/^o1-(mini|preview)/.test(family)) {
+    return false;
+  }
+
+  dbg(`model family tool support is undefined: ${family}`);
+  return undefined;
 }

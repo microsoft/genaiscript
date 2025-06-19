@@ -1,11 +1,11 @@
-import { lstat, mkdir, writeFile, readFile, appendFile } from "fs/promises"
-import { HTTPS_REGEX } from "./constants"
-import { host } from "./host"
-import { dirname } from "path"
-import { JSON5TryParse } from "./json5"
-import { homedir } from "os"
-import { genaiscriptDebug } from "./debug"
-const dbg = genaiscriptDebug("fs")
+import { lstat, mkdir, writeFile, readFile, appendFile } from "fs/promises";
+import { HTTPS_REGEX } from "./constants";
+import { host } from "./host";
+import { dirname } from "path";
+import { JSON5TryParse } from "./json5";
+import { homedir } from "os";
+import { genaiscriptDebug } from "./debug";
+const dbg = genaiscriptDebug("fs");
 
 /**
  * Changes the file extension of a given file name.
@@ -15,11 +15,11 @@ const dbg = genaiscriptDebug("fs")
  * @returns The file name with the updated extension.
  */
 export function changeext(filename: string, newext: string) {
-    dbg(`checking if newext starts with a dot`)
-    if (newext && !newext.startsWith(".")) {
-        newext = "." + newext
-    }
-    return filename.replace(/\.[^.]+$/, newext)
+  dbg(`checking if newext starts with a dot`);
+  if (newext && !newext.startsWith(".")) {
+    newext = "." + newext;
+  }
+  return filename.replace(/\.[^.]+$/, newext);
 }
 
 /**
@@ -29,8 +29,8 @@ export function changeext(filename: string, newext: string) {
  * @returns The textual content of the file.
  */
 export async function readText(fn: string) {
-    dbg(`reading file ${fn}`)
-    return readFile(fn, { encoding: "utf8" })
+  dbg(`reading file ${fn}`);
+  return readFile(fn, { encoding: "utf8" });
 }
 
 /**
@@ -40,12 +40,12 @@ export async function readText(fn: string) {
  * @returns The content of the file as a string if successfully read, or undefined if an error occurs.
  */
 export async function tryReadText(fn: string) {
-    try {
-        dbg(`trying to read text from file ${fn}`)
-        return await readText(fn)
-    } catch {
-        return undefined
-    }
+  try {
+    dbg(`trying to read text from file ${fn}`);
+    return await readText(fn);
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -55,19 +55,19 @@ export async function tryReadText(fn: string) {
  * @param dir - The path of the directory to ensure exists.
  */
 export async function ensureDir(dir: string) {
-    dbg(`ensuring directory exists ${dir}`)
-    await mkdir(dir, { recursive: true })
+  dbg(`ensuring directory exists ${dir}`);
+  await mkdir(dir, { recursive: true });
 }
 
 /**
  * Expands homedir
  */
 export function expandHomeDir(dir: string) {
-    if (dir?.startsWith("~/")) {
-        const home = homedir()
-        dir = host.path.join(home, dir.slice(2))
-    }
-    return dir
+  if (dir?.startsWith("~/")) {
+    const home = homedir();
+    dir = host.path.join(home, dir.slice(2));
+  }
+  return dir;
 }
 
 /**
@@ -77,11 +77,11 @@ export function expandHomeDir(dir: string) {
  * @param content - The textual content to write into the file.
  */
 export async function writeText(fn: string, content: string) {
-    if (!fn) throw new Error("filename is required")
-    if (typeof content !== "string") throw new Error("content must be a string")
-    await ensureDir(dirname(fn))
-    dbg(`writing text to file ${fn}`)
-    await writeFile(fn, content, { encoding: "utf8" })
+  if (!fn) throw new Error("filename is required");
+  if (typeof content !== "string") throw new Error("content must be a string");
+  await ensureDir(dirname(fn));
+  dbg(`writing text to file ${fn}`);
+  await writeFile(fn, content, { encoding: "utf8" });
 }
 
 /**
@@ -92,10 +92,10 @@ export async function writeText(fn: string, content: string) {
  * @throws Throws an error if the filename is not provided.
  */
 export async function appendText(fn: string, content: string) {
-    if (!fn) throw new Error("filename is required")
-    await ensureDir(dirname(fn))
-    dbg(`append text to file ${fn}`)
-    await appendFile(fn, content, { encoding: "utf8" })
+  if (!fn) throw new Error("filename is required");
+  await ensureDir(dirname(fn));
+  dbg(`append text to file ${fn}`);
+  await appendFile(fn, content, { encoding: "utf8" });
 }
 
 /**
@@ -105,9 +105,9 @@ export async function appendText(fn: string, content: string) {
  * @returns A promise that resolves to `true` if the file exists and is a file, or `false` otherwise.
  */
 export async function fileExists(fn: string) {
-    dbg(`checking if file exists ${fn}`)
-    const stat = await tryStat(fn)
-    return !!stat?.isFile()
+  dbg(`checking if file exists ${fn}`);
+  const stat = await tryStat(fn);
+  return !!stat?.isFile();
 }
 
 /**
@@ -118,13 +118,13 @@ export async function fileExists(fn: string) {
  * @returns The file status object if the file exists, or undefined if it does not.
  */
 export async function tryStat(fn: string) {
-    try {
-        dbg(`getting file stats for ${fn}`)
-        if (!fn) return undefined
-        return await lstat(fn)
-    } catch {
-        return undefined
-    }
+  try {
+    dbg(`getting file stats for ${fn}`);
+    if (!fn) return undefined;
+    return await lstat(fn);
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -135,9 +135,9 @@ export async function tryStat(fn: string) {
  * @throws Throws an error if the file cannot be read or parsed as JSON.
  */
 export async function readJSON(fn: string) {
-    if (!fn) throw new Error("filename is required")
-    dbg(`reading JSON from file ${fn}`)
-    return JSON.parse(await readText(fn))
+  if (!fn) throw new Error("filename is required");
+  dbg(`reading JSON from file ${fn}`);
+  return JSON.parse(await readText(fn));
 }
 
 /**
@@ -147,20 +147,20 @@ export async function readJSON(fn: string) {
  * @returns The parsed JSON object if the operation succeeds, or `undefined` if an error occurs.
  */
 export async function tryReadJSON(fn: string) {
-    try {
-        if (!fn) return undefined
-        return JSON.parse(await readText(fn))
-    } catch {
-        return undefined
-    }
+  try {
+    if (!fn) return undefined;
+    return JSON.parse(await readText(fn));
+  } catch {
+    return undefined;
+  }
 }
 
 export async function tryReadJSON5(fn: string) {
-    try {
-        return JSON5TryParse(await readText(fn))
-    } catch {
-        return undefined
-    }
+  try {
+    return JSON5TryParse(await readText(fn));
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -170,9 +170,9 @@ export async function tryReadJSON5(fn: string) {
  * @param obj - The JSON object to be written to the file.
  */
 export async function writeJSON(fn: string, obj: any) {
-    if (!fn) throw new Error("filename is required")
-    dbg(`writing JSON to file ${fn}`)
-    await writeText(fn, JSON.stringify(obj))
+  if (!fn) throw new Error("filename is required");
+  dbg(`writing JSON to file ${fn}`);
+  await writeText(fn, JSON.stringify(obj));
 }
 
 /**
@@ -186,47 +186,45 @@ export async function writeJSON(fn: string, obj: any) {
  * @returns An array of expanded file paths and URLs, filtered based on the given options.
  */
 export async function expandFiles(
-    files: string[],
-    options?: {
-        excludedFiles?: string[]
-        accept?: string
-        applyGitIgnore?: boolean
-    }
+  files: string[],
+  options?: {
+    excludedFiles?: string[];
+    accept?: string;
+    applyGitIgnore?: boolean;
+  },
 ) {
-    const { excludedFiles = [], accept, applyGitIgnore } = options || {}
-    dbg(`no files to expand or accept is none`)
-    if (!files.length || accept === "none") {
-        return []
-    }
+  const { excludedFiles = [], accept, applyGitIgnore } = options || {};
+  dbg(`no files to expand or accept is none`);
+  if (!files.length || accept === "none") {
+    return [];
+  }
 
-    dbg(`filtering URLs from files`)
-    const urls = files
-        .filter((f) => HTTPS_REGEX.test(f))
-        .filter((f) => !excludedFiles.includes(f))
-    dbg(`finding other files`)
-    const others = await host.findFiles(
-        files.filter((f) => !HTTPS_REGEX.test(f)),
-        {
-            ignore: excludedFiles.filter((f) => !HTTPS_REGEX.test(f)),
-            applyGitIgnore,
-        }
-    )
+  dbg(`filtering URLs from files`);
+  const urls = files.filter((f) => HTTPS_REGEX.test(f)).filter((f) => !excludedFiles.includes(f));
+  dbg(`finding other files`);
+  const others = await host.findFiles(
+    files.filter((f) => !HTTPS_REGEX.test(f)),
+    {
+      ignore: excludedFiles.filter((f) => !HTTPS_REGEX.test(f)),
+      applyGitIgnore,
+    },
+  );
 
-    const res = new Set([...urls, ...others])
-    dbg(`applying accept filter`)
-    if (accept) {
-        const exts = accept
-            .split(",")
-            .map((s) => s.trim().replace(/^\*\./, "."))
-            .filter((s) => !!s)
-        for (const rf of res) {
-            dbg(`removing file ${rf} as it does not match accepted extensions`)
-            if (!exts.some((ext) => rf.endsWith(ext))) {
-                res.delete(rf)
-            }
-        }
+  const res = new Set([...urls, ...others]);
+  dbg(`applying accept filter`);
+  if (accept) {
+    const exts = accept
+      .split(",")
+      .map((s) => s.trim().replace(/^\*\./, "."))
+      .filter((s) => !!s);
+    for (const rf of res) {
+      dbg(`removing file ${rf} as it does not match accepted extensions`);
+      if (!exts.some((ext) => rf.endsWith(ext))) {
+        res.delete(rf);
+      }
     }
-    return Array.from(res)
+  }
+  return Array.from(res);
 }
 
 /**
@@ -241,28 +239,26 @@ export async function expandFiles(
  * through `expandFiles` to resolve all matching paths, and combines the results with the workspace file objects.
  */
 export async function expandFileOrWorkspaceFiles(
-    files: (string | WorkspaceFile)[]
+  files: (string | WorkspaceFile)[],
 ): Promise<WorkspaceFile[]> {
-    dbg(`expanding file or workspace files`)
-    const filesPaths = await expandFiles(
-        files.filter((f) => typeof f === "string"),
-        {
-            applyGitIgnore: false,
-        }
-    )
-    dbg(`filtering workspace files`)
-    const workspaceFiles = files.filter(
-        (f) => typeof f === "object"
-    ) as WorkspaceFile[]
-    return [
-        ...filesPaths.map(
-            (filename) =>
-                ({
-                    filename,
-                }) satisfies WorkspaceFile
-        ),
-        ...workspaceFiles,
-    ]
+  dbg(`expanding file or workspace files`);
+  const filesPaths = await expandFiles(
+    files.filter((f) => typeof f === "string"),
+    {
+      applyGitIgnore: false,
+    },
+  );
+  dbg(`filtering workspace files`);
+  const workspaceFiles = files.filter((f) => typeof f === "object") as WorkspaceFile[];
+  return [
+    ...filesPaths.map(
+      (filename) =>
+        ({
+          filename,
+        }) satisfies WorkspaceFile,
+    ),
+    ...workspaceFiles,
+  ];
 }
 
 /**
@@ -272,6 +268,6 @@ export async function expandFileOrWorkspaceFiles(
  * @returns The workspace-compatible file path or URL.
  */
 export function filePathOrUrlToWorkspaceFile(f: string) {
-    dbg(`converting file path or URL to workspace file ${f}`)
-    return HTTPS_REGEX.test(f) || host.path.resolve(f) === f ? f : `./${f}`
+  dbg(`converting file path or URL to workspace file ${f}`);
+  return HTTPS_REGEX.test(f) || host.path.resolve(f) === f ? f : `./${f}`;
 }

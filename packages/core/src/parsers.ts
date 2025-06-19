@@ -1,45 +1,41 @@
-import { CSVTryParse } from "./csv"
-import {
-    filenameOrFileToContent,
-    filenameOrFileToFilename,
-    unfence,
-} from "./unwrappers"
-import { JSON5TryParse, JSONLLMTryParse } from "./json5"
-import { estimateTokens } from "./tokens"
-import { TOMLTryParse } from "./toml"
-import { TraceOptions } from "./trace"
-import { YAMLTryParse } from "./yaml"
-import { DOCXTryParse } from "./docx"
-import { frontmatterTryParse } from "./frontmatter"
-import { extractFenced } from "./fence"
-import { parseAnnotations } from "./annotations"
-import { dotEnvTryParse } from "./dotenv"
-import { INITryParse } from "./ini"
-import { XMLTryParse } from "./xml"
-import { parsePdf } from "./pdf"
-import { HTMLToMarkdown, HTMLToText } from "./html"
-import { MathTryEvaluate } from "./math"
-import { tryValidateJSONWithSchema, validateJSONWithSchema } from "./schema"
-import { XLSXTryParse } from "./xlsx"
-import { host } from "./host"
-import { unzip } from "./zip"
-import { JSONLTryParse } from "./jsonl"
-import { resolveFileContent } from "./file"
-import { resolveTokenEncoder } from "./encoders"
-import { mustacheRender } from "./mustache"
-import { jinjaRender } from "./jinja"
-import { llmifyDiff } from "./llmdiff"
-import { tidyData } from "./tidy"
-import { hash } from "./crypto"
-import { GROQEvaluate } from "./groq"
-import { unthink } from "./think"
-import { CancellationOptions } from "./cancellation"
-import { dedent } from "./indent"
-import { vttSrtParse } from "./transcription"
-import { encodeIDs } from "./cleaners"
-import { diffCreatePatch } from "./diff"
-import { promptyParse } from "./prompty"
-import { mermaidParse } from "./mermaid"
+import { CSVTryParse } from "./csv";
+import { filenameOrFileToContent, filenameOrFileToFilename, unfence } from "./unwrappers";
+import { JSON5TryParse, JSONLLMTryParse } from "./json5";
+import { estimateTokens } from "./tokens";
+import { TOMLTryParse } from "./toml";
+import { TraceOptions } from "./trace";
+import { YAMLTryParse } from "./yaml";
+import { DOCXTryParse } from "./docx";
+import { frontmatterTryParse } from "./frontmatter";
+import { extractFenced } from "./fence";
+import { parseAnnotations } from "./annotations";
+import { dotEnvTryParse } from "./dotenv";
+import { INITryParse } from "./ini";
+import { XMLTryParse } from "./xml";
+import { parsePdf } from "./pdf";
+import { HTMLToMarkdown, HTMLToText } from "./html";
+import { MathTryEvaluate } from "./math";
+import { tryValidateJSONWithSchema, validateJSONWithSchema } from "./schema";
+import { XLSXTryParse } from "./xlsx";
+import { host } from "./host";
+import { unzip } from "./zip";
+import { JSONLTryParse } from "./jsonl";
+import { resolveFileContent } from "./file";
+import { resolveTokenEncoder } from "./encoders";
+import { mustacheRender } from "./mustache";
+import { jinjaRender } from "./jinja";
+import { llmifyDiff } from "./llmdiff";
+import { tidyData } from "./tidy";
+import { hash } from "./crypto";
+import { GROQEvaluate } from "./groq";
+import { unthink } from "./think";
+import { CancellationOptions } from "./cancellation";
+import { dedent } from "./indent";
+import { vttSrtParse } from "./transcription";
+import { encodeIDs } from "./cleaners";
+import { diffCreatePatch } from "./diff";
+import { promptyParse } from "./prompty";
+import { mermaidParse } from "./mermaid";
 
 /**
  * Asynchronously creates a set of parsers for handling various file formats, data operations,
@@ -85,136 +81,113 @@ import { mermaidParse } from "./mermaid"
  *   - encodeIDs: Encodes identifiers for use in various operations.
  */
 export async function createParsers(
-    options: {
-        model: string
-    } & TraceOptions &
-        CancellationOptions
+  options: {
+    model: string;
+  } & TraceOptions &
+    CancellationOptions,
 ): Promise<Parsers> {
-    const { trace, model, cancellationToken } = options
-    const { encode: encoder } = await resolveTokenEncoder(model)
-    return Object.freeze<Parsers>({
-        JSON5: (text, options) =>
-            tryValidateJSONWithSchema(
-                JSON5TryParse(
-                    filenameOrFileToContent(text),
-                    options?.defaultValue
-                ),
-                options
-            ),
-        JSONLLM: (text) => JSONLLMTryParse(text),
-        JSONL: (text) => JSONLTryParse(filenameOrFileToContent(text)),
-        YAML: (text, options) =>
-            tryValidateJSONWithSchema(
-                YAMLTryParse(
-                    filenameOrFileToContent(text),
-                    options?.defaultValue
-                ),
-                options
-            ),
-        XML: (text, options) => {
-            const { defaultValue, ...rest } = options || {}
-            return tryValidateJSONWithSchema(
-                XMLTryParse(filenameOrFileToContent(text), defaultValue, rest),
-                options
-            )
+  const { trace, model, cancellationToken } = options;
+  const { encode: encoder } = await resolveTokenEncoder(model);
+  return Object.freeze<Parsers>({
+    JSON5: (text, options) =>
+      tryValidateJSONWithSchema(
+        JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
+        options,
+      ),
+    JSONLLM: (text) => JSONLLMTryParse(text),
+    JSONL: (text) => JSONLTryParse(filenameOrFileToContent(text)),
+    YAML: (text, options) =>
+      tryValidateJSONWithSchema(
+        YAMLTryParse(filenameOrFileToContent(text), options?.defaultValue),
+        options,
+      ),
+    XML: (text, options) => {
+      const { defaultValue, ...rest } = options || {};
+      return tryValidateJSONWithSchema(
+        XMLTryParse(filenameOrFileToContent(text), defaultValue, rest),
+        options,
+      );
+    },
+    TOML: (text, options) =>
+      tryValidateJSONWithSchema(TOMLTryParse(filenameOrFileToContent(text), options), options),
+    frontmatter: (text, options) =>
+      tryValidateJSONWithSchema(
+        frontmatterTryParse(filenameOrFileToContent(text), options)?.value,
+        options,
+      ),
+    CSV: (text, options) =>
+      tryValidateJSONWithSchema(CSVTryParse(filenameOrFileToContent(text), options), options),
+    XLSX: async (file, options) =>
+      await XLSXTryParse(await host.readFile(filenameOrFileToFilename(file)), options),
+    dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
+    INI: (text, options) =>
+      tryValidateJSONWithSchema(
+        INITryParse(filenameOrFileToContent(text), options?.defaultValue),
+        options,
+      ),
+    transcription: (text) => vttSrtParse(filenameOrFileToContent(text)),
+    unzip: async (file, options) => await unzip(await host.readFile(file.filename), options),
+    tokens: (text) => estimateTokens(filenameOrFileToContent(text), encoder),
+    fences: (text) => extractFenced(filenameOrFileToContent(text)),
+    annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
+    HTMLToText: (text, options) =>
+      HTMLToText(filenameOrFileToContent(text), {
+        ...(options || {}),
+        trace,
+        cancellationToken,
+      }),
+    HTMLToMarkdown: (text, options) =>
+      HTMLToMarkdown(filenameOrFileToContent(text), {
+        ...(options || {}),
+        trace,
+        cancellationToken,
+      }),
+    DOCX: async (file, options) => await DOCXTryParse(file, options),
+    PDF: async (file, options) => {
+      if (!file) return { file: undefined, pages: [], data: [] };
+      const opts = {
+        ...(options || {}),
+        trace,
+        cancellationToken,
+      };
+      const filename = typeof file === "string" ? file : file.filename;
+      const { pages, content } = (await parsePdf(filename, opts)) || {};
+      return {
+        file: <WorkspaceFile>{
+          filename,
+          content,
         },
-        TOML: (text, options) =>
-            tryValidateJSONWithSchema(
-                TOMLTryParse(filenameOrFileToContent(text), options),
-                options
-            ),
-        frontmatter: (text, options) =>
-            tryValidateJSONWithSchema(
-                frontmatterTryParse(filenameOrFileToContent(text), options)
-                    ?.value,
-                options
-            ),
-        CSV: (text, options) =>
-            tryValidateJSONWithSchema(
-                CSVTryParse(filenameOrFileToContent(text), options),
-                options
-            ),
-        XLSX: async (file, options) =>
-            await XLSXTryParse(
-                await host.readFile(filenameOrFileToFilename(file)),
-                options
-            ),
-        dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
-        INI: (text, options) =>
-            tryValidateJSONWithSchema(
-                INITryParse(
-                    filenameOrFileToContent(text),
-                    options?.defaultValue
-                ),
-                options
-            ),
-        transcription: (text) => vttSrtParse(filenameOrFileToContent(text)),
-        unzip: async (file, options) =>
-            await unzip(await host.readFile(file.filename), options),
-        tokens: (text) =>
-            estimateTokens(filenameOrFileToContent(text), encoder),
-        fences: (text) => extractFenced(filenameOrFileToContent(text)),
-        annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
-        HTMLToText: (text, options) =>
-            HTMLToText(filenameOrFileToContent(text), {
-                ...(options || {}),
-                trace,
-                cancellationToken,
-            }),
-        HTMLToMarkdown: (text, options) =>
-            HTMLToMarkdown(filenameOrFileToContent(text), {
-                ...(options || {}),
-                trace,
-                cancellationToken,
-            }),
-        DOCX: async (file, options) => await DOCXTryParse(file, options),
-        PDF: async (file, options) => {
-            if (!file) return { file: undefined, pages: [], data: [] }
-            const opts = {
-                ...(options || {}),
-                trace,
-                cancellationToken,
-            }
-            const filename = typeof file === "string" ? file : file.filename
-            const { pages, content } = (await parsePdf(filename, opts)) || {}
-            return {
-                file: <WorkspaceFile>{
-                    filename,
-                    content,
-                },
-                pages: pages?.map((p) => p.content),
-                images: pages?.map((p) => p.image),
-                data: pages,
-            }
-        },
-        mermaid: async (file) => {
-            const f = filenameOrFileToContent(file)
-            const res = await mermaidParse(f)
-            return res
-        },
-        math: async (expression, scope) =>
-            await MathTryEvaluate(expression, { scope, trace }),
-        validateJSON: (schema, content) =>
-            validateJSONWithSchema(content, schema, { trace }),
-        mustache: (file, args) => {
-            const f = filenameOrFileToContent(file)
-            return mustacheRender(f, args)
-        },
-        jinja: (file, data) => {
-            const f = filenameOrFileToContent(file)
-            return jinjaRender(f, data)
-        },
-        diff: (f1, f2) => llmifyDiff(diffCreatePatch(f1, f2)),
-        tidyData: (rows, options) => tidyData(rows, options),
-        hash: async (text, options) => await hash(text, options),
-        unfence: unfence,
-        GROQ: GROQEvaluate,
-        unthink: unthink,
-        dedent: dedent,
-        encodeIDs: encodeIDs,
-        prompty: async (file) => {
-            await resolveFileContent(file, { trace })
-            return promptyParse(file.filename, file.content)
-        },
-    })
+        pages: pages?.map((p) => p.content),
+        images: pages?.map((p) => p.image),
+        data: pages,
+      };
+    },
+    mermaid: async (file) => {
+      const f = filenameOrFileToContent(file);
+      const res = await mermaidParse(f);
+      return res;
+    },
+    math: async (expression, scope) => await MathTryEvaluate(expression, { scope, trace }),
+    validateJSON: (schema, content) => validateJSONWithSchema(content, schema, { trace }),
+    mustache: (file, args) => {
+      const f = filenameOrFileToContent(file);
+      return mustacheRender(f, args);
+    },
+    jinja: (file, data) => {
+      const f = filenameOrFileToContent(file);
+      return jinjaRender(f, data);
+    },
+    diff: (f1, f2) => llmifyDiff(diffCreatePatch(f1, f2)),
+    tidyData: (rows, options) => tidyData(rows, options),
+    hash: async (text, options) => await hash(text, options),
+    unfence: unfence,
+    GROQ: GROQEvaluate,
+    unthink: unthink,
+    dedent: dedent,
+    encodeIDs: encodeIDs,
+    prompty: async (file) => {
+      await resolveFileContent(file, { trace });
+      return promptyParse(file.filename, file.content);
+    },
+  });
 }

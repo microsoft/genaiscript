@@ -1,12 +1,12 @@
-import { trimNewlines } from "./unwrappers"
+import { trimNewlines } from "./unwrappers";
 
 const contentTypes: Record<string, string> = {
-    markdown: "md",
-    prompty: "md",
-    javascript: "js",
-    typescript: "ts",
-    yml: "yaml",
-}
+  markdown: "md",
+  prompty: "md",
+  javascript: "js",
+  typescript: "ts",
+  yml: "yaml",
+};
 
 /**
  * Wraps text in a markdown code fence, extending the fence if the text contains existing fences.
@@ -15,11 +15,11 @@ const contentTypes: Record<string, string> = {
  * @returns The text wrapped in a code fence.
  */
 export function fenceMD(t: string, contentType?: string) {
-    if (t === undefined) return undefined
-    contentType = contentTypes[contentType] || contentType || ""
-    let f = "```"
-    while (t.includes(f) && f.length < 8) f += "`" // Extend fence if necessary
-    return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
+  if (t === undefined) return undefined;
+  contentType = contentTypes[contentType] || contentType || "";
+  let f = "```";
+  while (t.includes(f) && f.length < 8) f += "`"; // Extend fence if necessary
+  return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`;
 }
 
 /**
@@ -29,7 +29,7 @@ export function fenceMD(t: string, contentType?: string) {
  * @returns A markdown link or plain text.
  */
 export function link(text: string, href: string) {
-    return href ? `[${text}](${href})` : text
+  return href ? `[${text}](${href})` : text;
 }
 
 /**
@@ -40,10 +40,10 @@ export function link(text: string, href: string) {
  * @returns A string representing a markdown details block.
  */
 export function details(summary: string, body: string, open?: boolean) {
-    return `\n<details${open ? " open" : ""}>
+  return `\n<details${open ? " open" : ""}>
 <summary>${summary}</summary>
 
 ${body}
 
-</details>\n`
+</details>\n`;
 }

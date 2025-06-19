@@ -12,27 +12,27 @@
  * @returns Whether the tag passes the filter.
  */
 export function tagFilter(tags: string[], tag: string) {
-    if (!tags?.length) return true
+  if (!tags?.length) return true;
 
-    // normalize tag
-    const ltag = tag?.toLocaleLowerCase() || ""
+  // normalize tag
+  const ltag = tag?.toLocaleLowerCase() || "";
 
-    let noMatchDefault = false
-    // apply exclusions first
-    for (const t of tags.filter((t) => t.startsWith(":!"))) {
-        const lt = t.toLocaleLowerCase()
-        if (ltag.startsWith(lt.slice(2))) return false
-        noMatchDefault = true // if any exclusion is found, set noMatchDefault to true
-    }
+  let noMatchDefault = false;
+  // apply exclusions first
+  for (const t of tags.filter((t) => t.startsWith(":!"))) {
+    const lt = t.toLocaleLowerCase();
+    if (ltag.startsWith(lt.slice(2))) return false;
+    noMatchDefault = true; // if any exclusion is found, set noMatchDefault to true
+  }
 
-    // apply inclusions
-    for (const t of tags.filter((t) => !t.startsWith(":!"))) {
-        noMatchDefault = false // if any inclusion is found, set noMatchDefault to false
-        // check if the tag starts with the inclusion tag
-        const lt = t.toLocaleLowerCase()
-        if (ltag.startsWith(lt)) return true
-    }
+  // apply inclusions
+  for (const t of tags.filter((t) => !t.startsWith(":!"))) {
+    noMatchDefault = false; // if any inclusion is found, set noMatchDefault to false
+    // check if the tag starts with the inclusion tag
+    const lt = t.toLocaleLowerCase();
+    if (ltag.startsWith(lt)) return true;
+  }
 
-    // no matches
-    return noMatchDefault
+  // no matches
+  return noMatchDefault;
 }

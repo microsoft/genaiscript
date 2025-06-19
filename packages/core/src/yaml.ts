@@ -4,9 +4,9 @@
  * as well as direct parse and stringify functionalities.
  */
 
-import { parse, stringify } from "yaml"
-import { filenameOrFileToContent } from "./unwrappers"
-import { dedent } from "./indent"
+import { parse, stringify } from "yaml";
+import { filenameOrFileToContent } from "./unwrappers";
+import { dedent } from "./indent";
 
 /**
  * Safely attempts to parse a YAML string into a JavaScript object.
@@ -25,25 +25,21 @@ import { dedent } from "./indent"
  *          conditions are met.
  */
 export function YAMLTryParse<T = any>(
-    text: string | WorkspaceFile,
-    defaultValue?: T,
-    options?: { ignoreLiterals?: boolean }
+  text: string | WorkspaceFile,
+  defaultValue?: T,
+  options?: { ignoreLiterals?: boolean },
 ): T {
-    const { ignoreLiterals } = options || {}
-    text = filenameOrFileToContent(text)
-    try {
-        const res = parse(text)
-        // Check if parsed result is a primitive and ignoreLiterals is true
-        if (
-            ignoreLiterals &&
-            ["number", "boolean", "string"].includes(typeof res)
-        )
-            return defaultValue
-        return res ?? defaultValue
-    } catch (e) {
-        // Return defaultValue in case of a parsing error
-        return defaultValue
-    }
+  const { ignoreLiterals } = options || {};
+  text = filenameOrFileToContent(text);
+  try {
+    const res = parse(text);
+    // Check if parsed result is a primitive and ignoreLiterals is true
+    if (ignoreLiterals && ["number", "boolean", "string"].includes(typeof res)) return defaultValue;
+    return res ?? defaultValue;
+  } catch (e) {
+    // Return defaultValue in case of a parsing error
+    return defaultValue;
+  }
 }
 
 /**
@@ -55,8 +51,8 @@ export function YAMLTryParse<T = any>(
  * @returns The parsed JavaScript object.
  */
 export function YAMLParse(text: string | WorkspaceFile): any {
-    text = filenameOrFileToContent(text)
-    return parse(text)
+  text = filenameOrFileToContent(text);
+  return parse(text);
 }
 
 /**
@@ -67,7 +63,7 @@ export function YAMLParse(text: string | WorkspaceFile): any {
  * @returns The YAML string representation of the object.
  */
 export function YAMLStringify(obj: any): string {
-    return stringify(obj, undefined, 2)
+  return stringify(obj, undefined, 2);
 }
 
 /**
@@ -83,15 +79,15 @@ export function YAMLStringify(obj: any): string {
  * @returns A parsed object generated from the combined template strings and values.
  */
 export function createYAML(): YAML {
-    const res = (strings: TemplateStringsArray, ...values: any[]): any => {
-        let result = strings[0]
-        values.forEach((value, i) => {
-            result += String(value) + strings[i + 1]
-        })
-        const res = YAMLParse(dedent(result))
-        return res
-    }
-    res.parse = YAMLParse
-    res.stringify = YAMLStringify
-    return Object.freeze<YAML>(res) satisfies YAML
+  const res = (strings: TemplateStringsArray, ...values: any[]): any => {
+    let result = strings[0];
+    values.forEach((value, i) => {
+      result += String(value) + strings[i + 1];
+    });
+    const res = YAMLParse(dedent(result));
+    return res;
+  };
+  res.parse = YAMLParse;
+  res.stringify = YAMLStringify;
+  return Object.freeze<YAML>(res) satisfies YAML;
 }

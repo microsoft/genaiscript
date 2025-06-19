@@ -1,15 +1,15 @@
 // Import necessary functions from the "@tidyjs/tidy" library
 import {
-    tidy,
-    sliceTail,
-    sliceHead,
-    sliceSample,
-    select,
-    distinct,
-    arrange,
-    asc,
-} from "@tidyjs/tidy"
-import { arrayify } from "./util"
+  tidy,
+  sliceTail,
+  sliceHead,
+  sliceSample,
+  select,
+  distinct,
+  arrange,
+  asc,
+} from "@tidyjs/tidy";
+import { arrayify } from "./util";
 
 /**
  * Slices data rows based on provided options for sampling, head, and tail operations.
@@ -22,19 +22,18 @@ import { arrayify } from "./util"
  * @returns - The sliced data rows after applying the specified criteria.
  */
 export function sliceData(rows: any[], options: ArrayFilter = {}) {
-    if (!rows) return rows
+  if (!rows) return rows;
 
-    // Check if a random sample of rows is to be sliced and apply sampling
-    if (options.sliceSample > 0)
-        rows = tidy(rows, sliceSample(options.sliceSample))
+  // Check if a random sample of rows is to be sliced and apply sampling
+  if (options.sliceSample > 0) rows = tidy(rows, sliceSample(options.sliceSample));
 
-    // Check if the head of rows is to be sliced and apply slicing
-    if (options.sliceHead > 0) rows = tidy(rows, sliceHead(options.sliceHead))
+  // Check if the head of rows is to be sliced and apply slicing
+  if (options.sliceHead > 0) rows = tidy(rows, sliceHead(options.sliceHead));
 
-    // Check if the tail of rows is to be sliced and apply slicing
-    if (options.sliceTail > 0) rows = tidy(rows, sliceTail(options.sliceTail))
+  // Check if the tail of rows is to be sliced and apply slicing
+  if (options.sliceTail > 0) rows = tidy(rows, sliceTail(options.sliceTail));
 
-    return rows
+  return rows;
 }
 
 // JSDoc comment for the tidyData function
@@ -48,19 +47,19 @@ export function sliceData(rows: any[], options: ArrayFilter = {}) {
  * @returns - The processed and filtered data rows.
  */
 export function tidyData(rows: object[], options: DataFilter = {}) {
-    // Check if distinct operation is specified in options and apply it
-    const ds = arrayify(options.distinct)
-    if (ds.length) rows = tidy(rows, distinct(ds as any))
+  // Check if distinct operation is specified in options and apply it
+  const ds = arrayify(options.distinct);
+  if (ds.length) rows = tidy(rows, distinct(ds as any));
 
-    // Check if specific headers need to be selected and apply the selection
-    const headers = arrayify(options.headers)
-    if (headers.length) rows = tidy(rows, select(headers))
+  // Check if specific headers need to be selected and apply the selection
+  const headers = arrayify(options.headers);
+  if (headers.length) rows = tidy(rows, select(headers));
 
-    // slicing
-    rows = sliceData(rows, options)
+  // slicing
+  rows = sliceData(rows, options);
 
-    const sorts = arrayify(options.sort)
-    if (sorts) rows = tidy(rows, arrange(sorts))
-    // Return the processed rows after applying all specified operations
-    return rows
+  const sorts = arrayify(options.sort);
+  if (sorts) rows = tidy(rows, arrange(sorts));
+  // Return the processed rows after applying all specified operations
+  return rows;
 }

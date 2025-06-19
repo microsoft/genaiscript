@@ -1,4 +1,4 @@
-export const originalConsole = resolveGlobal().console
+export const originalConsole = resolveGlobal().console;
 
 /**
  * This file defines global utilities and installs them into the global context.
@@ -12,10 +12,10 @@ export const originalConsole = resolveGlobal().console
  * @throws Will throw an error if the global context cannot be determined.
  */
 export function resolveGlobal(): any {
-    if (typeof window !== "undefined")
-        return window // Browser environment
-    else if (typeof self !== "undefined")
-        return self // Web worker environment
-    else if (typeof global !== "undefined") return global // Node.js environment
-    throw new Error("Could not find global") // Error if no global context is found
+  if (typeof window !== "undefined")
+    return window; // Browser environment
+  else if (typeof self !== "undefined")
+    return self; // Web worker environment
+  else if (typeof global !== "undefined") return global; // Node.js environment
+  throw new Error("Could not find global"); // Error if no global context is found
 }

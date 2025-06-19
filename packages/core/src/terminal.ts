@@ -1,3 +1,3 @@
-import terminalSize_ from "terminal-size"
+import terminalSize_ from "terminal-size";
 
-export const terminalSize = terminalSize_
+export const terminalSize = terminalSize_;

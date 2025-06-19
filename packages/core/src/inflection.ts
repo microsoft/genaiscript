@@ -1,4 +1,4 @@
-import { titleize as _titlelize, humanize as _humanize } from "inflection"
+import { titleize as _titlelize, humanize as _humanize } from "inflection";
 
 /**
  * Splits camelCase or PascalCase text into separate words by inserting a space
@@ -8,8 +8,8 @@ import { titleize as _titlelize, humanize as _humanize } from "inflection"
  * @returns The modified string with spaces added between camelCase or PascalCase boundaries, or the original value if empty.
  */
 export function splitalize(text: string) {
-    if (!text) return text
-    return text?.replace(/([a-z])([A-Z])/g, "$1 $2")
+  if (!text) return text;
+  return text?.replace(/([a-z])([A-Z])/g, "$1 $2");
 }
 
 /**
@@ -22,8 +22,8 @@ export function splitalize(text: string) {
  * @returns The titleized version of the input string.
  */
 export function titleize(text: string) {
-    if (!text) return text
-    return _titlelize(splitalize(text))
+  if (!text) return text;
+  return _titlelize(splitalize(text));
 }
 
 /**
@@ -34,6 +34,6 @@ export function titleize(text: string) {
  * @returns The humanized version of the input text.
  */
 export function humanize(text: string) {
-    if (!text) return text
-    return _humanize(splitalize(text))
+  if (!text) return text;
+  return _humanize(splitalize(text));
 }

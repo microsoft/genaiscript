@@ -1,73 +1,73 @@
-import { CancellationOptions, CancellationToken } from "./cancellation"
-import { LanguageModel } from "./chat"
-import { Progress } from "./progress"
-import { MarkdownTrace, TraceOptions } from "./trace"
+import { CancellationOptions, CancellationToken } from "./cancellation";
+import { LanguageModel } from "./chat";
+import { Progress } from "./progress";
+import { MarkdownTrace, TraceOptions } from "./trace";
 import {
-    AzureCredentialsType,
-    LanguageModelConfiguration,
-    LogLevel,
-    Project,
-    ResponseStatus,
-} from "./server/messages"
-import { HostConfiguration } from "./hostconfiguration"
-import { LOG } from "./constants"
-import type { TokenCredential } from "@azure/identity"
-import { McpClientManager } from "./mcpclient"
-import { ResourceManager } from "./mcpresource"
+  AzureCredentialsType,
+  LanguageModelConfiguration,
+  LogLevel,
+  Project,
+  ResponseStatus,
+} from "./server/messages";
+import { HostConfiguration } from "./hostconfiguration";
+import { LOG } from "./constants";
+import type { TokenCredential } from "@azure/identity";
+import { McpClientManager } from "./mcpclient";
+import { ResourceManager } from "./mcpresource";
 
 export class LogEvent extends Event {
-    static Name = "log"
-    constructor(
-        public readonly level: LogLevel,
-        public readonly message: string
-    ) {
-        super(LOG)
-    }
+  static Name = "log";
+  constructor(
+    public readonly level: LogLevel,
+    public readonly message: string,
+  ) {
+    super(LOG);
+  }
 }
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
-    decode(
-        input: Uint8Array,
-        options?: {
-            stream?: boolean | undefined
-        }
-    ): string
+  decode(
+    input: Uint8Array,
+    options?: {
+      stream?: boolean | undefined;
+    },
+  ): string;
 }
 
 export interface UTF8Encoder {
-    encode(input: string): Uint8Array
+  encode(input: string): Uint8Array;
 }
 
 export interface RetrievalClientOptions {
-    progress?: Progress
-    token?: CancellationToken
-    trace?: MarkdownTrace
+  progress?: Progress;
+  token?: CancellationToken;
+  trace?: MarkdownTrace;
 }
 
 export interface RetrievalSearchOptions extends VectorSearchOptions {}
 
 export interface RetrievalSearchResponse extends ResponseStatus {
-    results: WorkspaceFileWithScore[]
+  results: WorkspaceFileWithScore[];
 }
 
 export interface RetrievalService {
-    vectorSearch(
-        text: string,
-        files: WorkspaceFile[],
-        options?: RetrievalSearchOptions
-    ): Promise<RetrievalSearchResponse>
+  vectorSearch(
+    text: string,
+    files: WorkspaceFile[],
+    options?: RetrievalSearchOptions,
+  ): Promise<RetrievalSearchResponse>;
 }
 
 export interface ServerManager {
-    start(): Promise<void>
-    close(): Promise<void>
+  start(): Promise<void>;
+  close(): Promise<void>;
 }
 
 export interface AuthenticationToken {
-    token: string
-    expiresOnTimestamp: number
-    credential: TokenCredential
+  token: string;
+  expiresOnTimestamp: number;
+  credential: TokenCredential;
 }
 
 /**
@@ -81,190 +81,184 @@ export interface AuthenticationToken {
  * of the current time, to account for potential timing discrepancies.
  */
 export function isAzureTokenExpired(token: AuthenticationToken) {
-    // Consider the token expired 5 seconds before the actual expiration to avoid timing issues
-    return !token || token.expiresOnTimestamp < Date.now() - 5_000
+  // Consider the token expired 5 seconds before the actual expiration to avoid timing issues
+  return !token || token.expiresOnTimestamp < Date.now() - 5_000;
 }
 
 export interface AzureTokenResolver {
-    token(
-        credentialsType: AzureCredentialsType,
-        options?: CancellationOptions
-    ): Promise<{
-        token?: AuthenticationToken
-        error?: SerializedError
-    }>
+  token(
+    credentialsType: AzureCredentialsType,
+    options?: CancellationOptions,
+  ): Promise<{
+    token?: AuthenticationToken;
+    error?: SerializedError;
+  }>;
 }
 
 export type ModelConfiguration = Readonly<
-    Pick<
-        ModelOptions,
-        "model" | "temperature" | "reasoningEffort" | "fallbackTools"
-    > & {
-        source: "cli" | "env" | "script" | "config" | "default"
-        candidates?: string[]
-    }
->
+  Pick<ModelOptions, "model" | "temperature" | "reasoningEffort" | "fallbackTools"> & {
+    source: "cli" | "env" | "script" | "config" | "default";
+    candidates?: string[];
+  }
+>;
 
 export type ModelConfigurations = {
-    large: ModelConfiguration
-    small: ModelConfiguration
-    vision: ModelConfiguration
-    embeddings: ModelConfiguration
-} & Record<string, ModelConfiguration>
+  large: ModelConfiguration;
+  small: ModelConfiguration;
+  vision: ModelConfiguration;
+  embeddings: ModelConfiguration;
+} & Record<string, ModelConfiguration>;
 
 export interface Host {
-    userState: Record<string, any>
-    server: ServerManager
-    path: Path
+  userState: Record<string, any>;
+  server: ServerManager;
+  path: Path;
 
-    createUTF8Decoder(): UTF8Decoder
-    createUTF8Encoder(): UTF8Encoder
-    projectFolder(): string
-    resolvePath(...segments: string[]): string
+  createUTF8Decoder(): UTF8Decoder;
+  createUTF8Encoder(): UTF8Encoder;
+  projectFolder(): string;
+  resolvePath(...segments: string[]): string;
 
-    getLanguageModelConfiguration(
-        modelId: string,
-        options?: { token?: boolean } & CancellationOptions & TraceOptions
-    ): Promise<LanguageModelConfiguration | undefined>
-    log(level: LogLevel, msg: string): void
+  getLanguageModelConfiguration(
+    modelId: string,
+    options?: { token?: boolean } & CancellationOptions & TraceOptions,
+  ): Promise<LanguageModelConfiguration | undefined>;
+  log(level: LogLevel, msg: string): void;
 
-    // fs
-    statFile(name: string): Promise<{
-        size: number
-        type: "file" | "directory" | "symlink"
-    }>
-    readFile(name: string): Promise<Uint8Array>
-    writeFile(name: string, content: Uint8Array): Promise<void>
-    deleteFile(name: string): Promise<void>
-    findFiles(
-        pattern: string | string[],
-        options?: {
-            ignore?: string | string[]
-            applyGitIgnore?: boolean
-        }
-    ): Promise<string[]>
+  // fs
+  statFile(name: string): Promise<{
+    size: number;
+    type: "file" | "directory" | "symlink";
+  }>;
+  readFile(name: string): Promise<Uint8Array>;
+  writeFile(name: string, content: Uint8Array): Promise<void>;
+  deleteFile(name: string): Promise<void>;
+  findFiles(
+    pattern: string | string[],
+    options?: {
+      ignore?: string | string[];
+      applyGitIgnore?: boolean;
+    },
+  ): Promise<string[]>;
 
-    // This has mkdirp-semantics (parent directories are created and existing ignored)
-    createDirectory(name: string): Promise<void>
-    deleteDirectory(name: string): Promise<void>
+  // This has mkdirp-semantics (parent directories are created and existing ignored)
+  createDirectory(name: string): Promise<void>;
+  deleteDirectory(name: string): Promise<void>;
 }
 
 export interface RuntimeHost extends Host {
-    project: Project
-    workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">
+  project: Project;
+  workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">;
 
-    azureToken?: AzureTokenResolver
-    azureAIServerlessToken?: AzureTokenResolver
-    azureManagementToken?: AzureTokenResolver
-    microsoftGraphToken?: AzureTokenResolver
+  azureToken?: AzureTokenResolver;
+  azureAIServerlessToken?: AzureTokenResolver;
+  azureManagementToken?: AzureTokenResolver;
+  microsoftGraphToken?: AzureTokenResolver;
 
-    modelAliases: Readonly<ModelConfigurations>
-    clientLanguageModel?: LanguageModel
+  modelAliases: Readonly<ModelConfigurations>;
+  clientLanguageModel?: LanguageModel;
 
-    mcp: McpClientManager
-    resources: ResourceManager
+  mcp: McpClientManager;
+  resources: ResourceManager;
 
-    pullModel(
-        cfg: LanguageModelConfiguration,
-        options?: TraceOptions & CancellationOptions
-    ): Promise<ResponseStatus>
+  pullModel(
+    cfg: LanguageModelConfiguration,
+    options?: TraceOptions & CancellationOptions,
+  ): Promise<ResponseStatus>;
 
-    clearModelAlias(source: "cli" | "env" | "config" | "script"): void
-    setModelAlias(
-        source: "env" | "cli" | "config" | "script",
-        id: string,
-        value: string | Omit<ModelConfiguration, "source">
-    ): void
+  clearModelAlias(source: "cli" | "env" | "config" | "script"): void;
+  setModelAlias(
+    source: "env" | "cli" | "config" | "script",
+    id: string,
+    value: string | Omit<ModelConfiguration, "source">,
+  ): void;
 
-    /**
-     * Reloads the configuration
-     */
-    readConfig(): Promise<HostConfiguration>
+  /**
+   * Reloads the configuration
+   */
+  readConfig(): Promise<HostConfiguration>;
 
-    /**
-     * Gets the current loaded configuration
-     */
-    get config(): HostConfiguration
-    /**
-     * Reads a secret
-     * @param name
-     */
-    readSecret(name: string): Promise<string | undefined>
-    // executes a process
-    exec(
-        containerId: string,
-        command: string,
-        args: string[],
-        options: ShellOptions & TraceOptions & CancellationOptions
-    ): Promise<ShellOutput>
+  /**
+   * Gets the current loaded configuration
+   */
+  get config(): HostConfiguration;
+  /**
+   * Reads a secret
+   * @param name
+   */
+  readSecret(name: string): Promise<string | undefined>;
+  // executes a process
+  exec(
+    containerId: string,
+    command: string,
+    args: string[],
+    options: ShellOptions & TraceOptions & CancellationOptions,
+  ): Promise<ShellOutput>;
 
-    /**
-     * Starts a container to execute sandboxed code
-     * @param options
-     */
-    container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
+  /**
+   * Starts a container to execute sandboxed code
+   * @param options
+   */
+  container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>;
 
-    /**
-     * Instantiates a python evaluation environment
-     */
-    python(
-        options?: PythonRuntimeOptions & TraceOptions & CancellationOptions
-    ): Promise<PythonRuntime>
+  /**
+   * Instantiates a python evaluation environment
+   */
+  python(
+    options?: PythonRuntimeOptions & TraceOptions & CancellationOptions,
+  ): Promise<PythonRuntime>;
 
-    /**
-     * Launches a browser page
-     * @param url
-     * @param options
-     */
-    browse(
-        url: string,
-        options?: BrowseSessionOptions & TraceOptions
-    ): Promise<BrowserPage>
+  /**
+   * Launches a browser page
+   * @param url
+   * @param options
+   */
+  browse(url: string, options?: BrowseSessionOptions & TraceOptions): Promise<BrowserPage>;
 
-    /**
-     * Cleanup all temporary containers.
-     */
-    removeContainers(): Promise<void>
+  /**
+   * Cleanup all temporary containers.
+   */
+  removeContainers(): Promise<void>;
 
-    /**
-     * Cleanup all temporary browsers.
-     */
-    removeBrowsers(): Promise<void>
+  /**
+   * Cleanup all temporary browsers.
+   */
+  removeBrowsers(): Promise<void>;
 
-    /**
-     * Asks the user to select between options
-     * @param message question to ask
-     * @param options options to select from
-     */
-    select(
-        message: string,
-        choices: (string | ShellSelectChoice)[],
-        options?: ShellSelectOptions
-    ): Promise<string>
+  /**
+   * Asks the user to select between options
+   * @param message question to ask
+   * @param options options to select from
+   */
+  select(
+    message: string,
+    choices: (string | ShellSelectChoice)[],
+    options?: ShellSelectOptions,
+  ): Promise<string>;
 
-    /**
-     * Asks the user to input a text
-     * @param message message to ask
-     */
-    input(message: string, options?: ShellInputOptions): Promise<string>
+  /**
+   * Asks the user to input a text
+   * @param message message to ask
+   */
+  input(message: string, options?: ShellInputOptions): Promise<string>;
 
-    /**
-     * Asks the user to confirm a message
-     * @param message message to ask
-     */
-    confirm(message: string, options?: ShellConfirmOptions): Promise<boolean>
+  /**
+   * Asks the user to confirm a message
+   * @param message message to ask
+   */
+  confirm(message: string, options?: ShellConfirmOptions): Promise<boolean>;
 
-    /**
-     * Instantiates a content safety client
-     * @param id
-     */
-    contentSafety(
-        id?: ContentSafetyProvider,
-        options?: TraceOptions & CancellationOptions
-    ): Promise<ContentSafety>
+  /**
+   * Instantiates a content safety client
+   * @param id
+   */
+  contentSafety(
+    id?: ContentSafetyProvider,
+    options?: TraceOptions & CancellationOptions,
+  ): Promise<ContentSafety>;
 }
 
-export let host: Host
+export let host: Host;
 /**
  * Assigns a Host implementation to the global `host` variable.
  *
@@ -272,9 +266,9 @@ export let host: Host
  *            with the provided Host functionality for further operations and services.
  */
 export function setHost(h: Host) {
-    host = h
+  host = h;
 }
-export let runtimeHost: RuntimeHost
+export let runtimeHost: RuntimeHost;
 /**
  * Sets the runtime host instance and updates the global host reference.
  *
@@ -282,6 +276,6 @@ export let runtimeHost: RuntimeHost
  *            This will also update the `host` to refer to the same instance.
  */
 export function setRuntimeHost(h: RuntimeHost) {
-    setHost(h)
-    runtimeHost = h
+  setHost(h);
+  runtimeHost = h;
 }

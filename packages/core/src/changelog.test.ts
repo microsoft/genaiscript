@@ -1,10 +1,10 @@
-import { describe, test } from "node:test"
-import assert from "node:assert/strict"
-import { parseChangeLogs } from "./changelog"
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
+import { parseChangeLogs } from "./changelog";
 
 describe("changelog", () => {
-    test("template", () => {
-        const source = `ChangeLog:1@<file1>
+  test("template", () => {
+    const source = `ChangeLog:1@<file1>
 Description: <summary1>.
 OriginalCode@4-6:
 [4] <white space> <original code line>
@@ -31,17 +31,17 @@ ChangedCode@15-17:
 OriginalCode@23-23:
 [23] <white space> <original code line>
 ChangedCode@23-23:
-[23] <white space> <changed code line>`
-        const res = parseChangeLogs(source)
-        assert.equal(res.length, 2)
-        assert.equal(res[0].filename, "<file1>")
-        assert.equal(res[1].filename, "<file2>")
-        assert.equal(res[0].changes.length, 2)
-        assert.equal(res[1].changes.length, 2)
-    })
+[23] <white space> <changed code line>`;
+    const res = parseChangeLogs(source);
+    assert.equal(res.length, 2);
+    assert.equal(res[0].filename, "<file1>");
+    assert.equal(res[1].filename, "<file2>");
+    assert.equal(res[0].changes.length, 2);
+    assert.equal(res[1].changes.length, 2);
+  });
 
-    test("url", () => {
-        const source = `ChangeLog:1@email_validator.py
+  test("url", () => {
+    const source = `ChangeLog:1@email_validator.py
 Description: Implement a function to validate both email addresses and URLs.
 OriginalCode@1-3:
 [1] # Placeholder for email validation logic
@@ -62,14 +62,14 @@ ChangedCode@1-10:
 [12] 
 [13] def validate_email_and_url(email, url):
 [14]     return validate_email(email) and validate_url(url)
-`
-        const res = parseChangeLogs(source)
-        assert.equal(res.length, 1)
-        assert.equal(res[0].filename, "email_validator.py")
-    })
+`;
+    const res = parseChangeLogs(source);
+    assert.equal(res.length, 1);
+    assert.equal(res[0].filename, "email_validator.py");
+  });
 
-    test("annotations", () => {
-        const source = `
+  test("annotations", () => {
+    const source = `
 ChangeLog:1@annotations.md
 Description: Corrected grammatical errors and enhanced technical language.
 OriginalCode@9-9:
@@ -121,14 +121,14 @@ ChangedCode@85-88:
 [86]     policies. Refer to the [GitHub Documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository#granting-access-to-security-alerts) for further assistance.
 [87] -   Your organization may impose restrictions on the execution of GitHub Actions for Pull Requests.
 [88]     Consult the [GitHub Documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#about-github-actions-permissions-for-your-repository) for additional guidance.
-        `
-        const res = parseChangeLogs(source)
-        assert.equal(res.length, 1)
-        assert.equal(res[0].changes.length, 6)
-    })
+        `;
+    const res = parseChangeLogs(source);
+    assert.equal(res.length, 1);
+    assert.equal(res[0].changes.length, 6);
+  });
 
-    test("documentor", () => {
-        const source = `ChangeLog:1@packages/core/src/cancellation.ts
+  test("documentor", () => {
+    const source = `ChangeLog:1@packages/core/src/cancellation.ts
 Description: Added comments to explain the purpose and functionality of the code.
 
 OriginalCode@3-10:
@@ -236,14 +236,14 @@ ChangedCode@46-48:
 [46] export interface CancellationOptions {
 [47]     // Optional CancellationToken for managing cancellation state
 [48]     cancellationToken?: CancellationToken
-[49] }`
-        const res = parseChangeLogs(source)
-        console.log(res)
-        assert.equal(res[0].filename, "packages/core/src/cancellation.ts")
-    })
+[49] }`;
+    const res = parseChangeLogs(source);
+    console.log(res);
+    assert.equal(res[0].filename, "packages/core/src/cancellation.ts");
+  });
 
-    test("missing header", () => {
-        const source = `
+  test("missing header", () => {
+    const source = `
 ChangeLog:1@src/edits/su/fib.ts
 Description: Implement the Fibonacci function and remove comments and empty lines.
 OriginalCode@105-107:
@@ -254,14 +254,14 @@ ChangedCode@105-107:
 [105]     if (n <= 1) return n;
 [106]     return fibonacci(n - 1) + fibonacci(n - 2);
 [107] }
-`
-        const res = parseChangeLogs(source)
-        console.log(res)
-        assert.equal(res[0].filename, "src/edits/su/fib.ts")
-    })
+`;
+    const res = parseChangeLogs(source);
+    console.log(res);
+    assert.equal(res[0].filename, "src/edits/su/fib.ts");
+  });
 
-    test("unbalancred fences", () => {
-        const source = `\`\`\`\`\`changelog
+  test("unbalancred fences", () => {
+    const source = `\`\`\`\`\`changelog
 ChangeLog:1@src/edits/bigfibs/fib.py
 Description: Implemented new_function, removed comments and empty lines.
 OriginalCode@48-51:
@@ -274,13 +274,13 @@ ChangedCode@48-50:
 [49]     return (10 - (sum % 10)) % 10
 [50] 
 \`\`\`
-`
-        const res = parseChangeLogs(source)
-        console.log(res)
-        assert.equal(res[0].filename, "src/edits/bigfibs/fib.py")
-    })
+`;
+    const res = parseChangeLogs(source);
+    console.log(res);
+    assert.equal(res[0].filename, "src/edits/bigfibs/fib.py");
+  });
 
-    /*
+  /*
     test("missing ChangedCode Change", async () => {
         const source = `
 \`\`\`\`\`changelog
@@ -426,4 +426,4 @@ ChangedCode@297-306:
         console.log(res)
     })
         */
-})
+});

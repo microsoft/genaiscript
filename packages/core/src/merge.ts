@@ -1,3 +1,3 @@
-import mergeDescriptors from "merge-descriptors"
+import mergeDescriptors from "merge-descriptors";
 
-export const structuralMerge = mergeDescriptors
+export const structuralMerge = mergeDescriptors;

@@ -1,44 +1,35 @@
-import replaceExt from "replace-ext"
-import { readFile, writeFile } from "node:fs/promises"
-import { DOCXTryParse } from "../../core/src/docx"
-import { extractFenced } from "../../core/src/fence"
-import {
-    expandFiles,
-    writeText,
-    readText,
-    tryReadText,
-} from "../../core/src/fs"
-import { HTMLToMarkdown, HTMLToText } from "../../core/src/html"
-import { isJSONLFilename, JSONLTryParse } from "../../core/src/jsonl"
-import { parsePdf } from "../../core/src/pdf"
-import { estimateTokens } from "../../core/src/tokens"
-import { YAMLStringify } from "../../core/src/yaml"
-import { resolveTokenEncoder } from "../../core/src/encoders"
-import {
-    CONSOLE_TOKEN_COLORS,
-    MD_REGEX,
-    PROMPTY_REGEX,
-} from "../../core/src/constants"
-import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty"
-import { basename, join } from "node:path"
-import { CSVStringify, dataToMarkdownTable } from "../../core/src/csv"
-import { INIStringify } from "../../core/src/ini"
-import { JSON5Stringify } from "../../core/src/json5"
-import { jinjaRender } from "../../core/src/jinja"
-import { splitMarkdown } from "../../core/src/frontmatter"
-import { parseOptionsVars } from "./vars"
-import { dataTryParse } from "../../core/src/data"
-import { resolveFileContent } from "../../core/src/file"
-import { redactSecrets } from "../../core/src/secretscanner"
-import { ellipse, logVerbose } from "../../core/src/util"
-import { chunkMarkdown } from "../../core/src/mdchunk"
-import { normalizeInt } from "../../core/src/cleaners"
-import { prettyBytes } from "../../core/src/pretty"
-import { terminalSize } from "../../core/src/terminal"
-import { consoleColors, wrapColor } from "../../core/src/consolecolor"
-import { genaiscriptDebug } from "../../core/src/debug"
-import { stderr, stdout } from "../../core/src/stdio"
-const dbg = genaiscriptDebug("cli:parse")
+import replaceExt from "replace-ext";
+import { readFile, writeFile } from "node:fs/promises";
+import { DOCXTryParse } from "../../core/src/docx";
+import { extractFenced } from "../../core/src/fence";
+import { expandFiles, writeText, readText, tryReadText } from "../../core/src/fs";
+import { HTMLToMarkdown, HTMLToText } from "../../core/src/html";
+import { isJSONLFilename, JSONLTryParse } from "../../core/src/jsonl";
+import { parsePdf } from "../../core/src/pdf";
+import { estimateTokens } from "../../core/src/tokens";
+import { YAMLStringify } from "../../core/src/yaml";
+import { resolveTokenEncoder } from "../../core/src/encoders";
+import { CONSOLE_TOKEN_COLORS, MD_REGEX, PROMPTY_REGEX } from "../../core/src/constants";
+import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty";
+import { basename, join } from "node:path";
+import { CSVStringify, dataToMarkdownTable } from "../../core/src/csv";
+import { INIStringify } from "../../core/src/ini";
+import { JSON5Stringify } from "../../core/src/json5";
+import { jinjaRender } from "../../core/src/jinja";
+import { splitMarkdown } from "../../core/src/frontmatter";
+import { parseOptionsVars } from "./vars";
+import { dataTryParse } from "../../core/src/data";
+import { resolveFileContent } from "../../core/src/file";
+import { redactSecrets } from "../../core/src/secretscanner";
+import { ellipse, logVerbose } from "../../core/src/util";
+import { chunkMarkdown } from "../../core/src/mdchunk";
+import { normalizeInt } from "../../core/src/cleaners";
+import { prettyBytes } from "../../core/src/pretty";
+import { terminalSize } from "../../core/src/terminal";
+import { consoleColors, wrapColor } from "../../core/src/consolecolor";
+import { genaiscriptDebug } from "../../core/src/debug";
+import { stderr, stdout } from "../../core/src/stdio";
+const dbg = genaiscriptDebug("cli:parse");
 
 /**
  * This module provides various parsing utilities for different file types such
@@ -53,12 +44,10 @@ const dbg = genaiscriptDebug("cli:parse")
  * @param file - The file to parse and extract fenced code blocks from.
  */
 export async function parseFence(language: string, file: string) {
-    const res = await resolveFileContent({ filename: file })
-    const fences = extractFenced(res.content || "").filter(
-        (f) => f.language === language
-    )
-    // Logs the content of the filtered fenced blocks
-    console.log(fences.map((f) => f.content).join("\n\n"))
+  const res = await resolveFileContent({ filename: file });
+  const fences = extractFenced(res.content || "").filter((f) => f.language === language);
+  // Logs the content of the filtered fenced blocks
+  console.log(fences.map((f) => f.content).join("\n\n"));
 }
 
 /**
@@ -73,26 +62,23 @@ export async function parseFence(language: string, file: string) {
  *   - images: Whether to include page images in the output.
  *   - out: The output directory where files will be saved.
  */
-export async function parsePDF(
-    file: string,
-    options: { images: boolean; out: string }
-) {
-    const { images, out } = options
-    const { content, pages } = await parsePdf(file, { renderAsImage: images })
-    if (out) {
-        const fn = basename(file)
-        console.log(`writing ${join(out, fn + ".txt")}`)
-        await writeText(join(out, fn + ".txt"), content || "")
-        for (const page of pages) {
-            if (page.image) {
-                const n = join(out, fn + ".page" + page.index + ".png")
-                console.log(`writing ${n}`)
-                await writeFile(n, page.image)
-            }
-        }
-    } else {
-        console.log(content || "")
+export async function parsePDF(file: string, options: { images: boolean; out: string }) {
+  const { images, out } = options;
+  const { content, pages } = await parsePdf(file, { renderAsImage: images });
+  if (out) {
+    const fn = basename(file);
+    console.log(`writing ${join(out, fn + ".txt")}`);
+    await writeText(join(out, fn + ".txt"), content || "");
+    for (const page of pages) {
+      if (page.image) {
+        const n = join(out, fn + ".page" + page.index + ".png");
+        console.log(`writing ${n}`);
+        await writeFile(n, page.image);
+      }
     }
+  } else {
+    console.log(content || "");
+  }
 }
 
 /**
@@ -103,10 +89,10 @@ export async function parsePDF(
  * @param options - Options for parsing the DOCX file.
  */
 export async function parseDOCX(file: string, options: DocxParseOptions) {
-    // Uses DOCXTryParse to extract text from the DOCX file
-    const res = await DOCXTryParse(file, options)
-    if (res.error) console.error(res.error)
-    else console.log(res.file.content)
+  // Uses DOCXTryParse to extract text from the DOCX file
+  const res = await DOCXTryParse(file, options);
+  if (res.error) console.error(res.error);
+  else console.log(res.file.content);
 }
 
 /**
@@ -115,21 +101,21 @@ export async function parseDOCX(file: string, options: DocxParseOptions) {
  * @param options - Options to specify the output format ("markdown" or "text") and the output file path.
  */
 export async function parseHTMLToText(
-    fileOrUrl: string,
-    options: { format?: "markdown" | "text"; out?: string }
+  fileOrUrl: string,
+  options: { format?: "markdown" | "text"; out?: string },
 ) {
-    const { format = "markdown", out } = options || {}
-    const file: WorkspaceFile = { filename: fileOrUrl }
-    await resolveFileContent(file)
-    // Converts HTML to plain text
-    let text: string
-    if (format === "markdown") text = await HTMLToMarkdown(file.content)
-    else text = await HTMLToText(file.content)
+  const { format = "markdown", out } = options || {};
+  const file: WorkspaceFile = { filename: fileOrUrl };
+  await resolveFileContent(file);
+  // Converts HTML to plain text
+  let text: string;
+  if (format === "markdown") text = await HTMLToMarkdown(file.content);
+  else text = await HTMLToText(file.content);
 
-    if (out) {
-        logVerbose(`writing ${out}`)
-        await writeText(out, text)
-    } else console.log(text)
+  if (out) {
+    logVerbose(`writing ${out}`);
+    await writeText(out, text);
+  } else console.log(text);
 }
 
 /**
@@ -144,25 +130,22 @@ export async function parseHTMLToText(
  * to numbers if possible. Environment variables are also considered during substitution.
  */
 export async function parseJinja2(
-    file: string,
-    options: {
-        vars: string[]
-    }
+  file: string,
+  options: {
+    vars: string[];
+  },
 ) {
-    let src = await readFile(file, { encoding: "utf-8" })
-    if (PROMPTY_REGEX.test(file)) src = promptyParse(file, src).content
-    else if (MD_REGEX.test(file)) src = splitMarkdown(src).content
+  let src = await readFile(file, { encoding: "utf-8" });
+  if (PROMPTY_REGEX.test(file)) src = promptyParse(file, src).content;
+  else if (MD_REGEX.test(file)) src = splitMarkdown(src).content;
 
-    const vars: Record<string, any> = parseOptionsVars(
-        options.vars,
-        process.env
-    )
-    for (const k in vars) {
-        const i = parseFloat(vars[k])
-        if (!isNaN(i)) vars[k] = i
-    }
-    const res: string = jinjaRender(src, vars)
-    console.log(res)
+  const vars: Record<string, any> = parseOptionsVars(options.vars, process.env);
+  for (const k in vars) {
+    const i = parseFloat(vars[k]);
+    if (!isNaN(i)) vars[k] = i;
+  }
+  const res: string = jinjaRender(src, vars);
+  console.log(res);
 }
 
 /**
@@ -181,36 +164,33 @@ export async function parseJinja2(
  * Logs the converted data to the console.
  * Throws an error if the data format cannot be determined.
  */
-export async function parseAnyToJSON(
-    file: string,
-    options: { format: string }
-) {
-    const data = await dataTryParse({ filename: file })
-    if (!data) throw new Error(`Unknown data format for ${file}`)
-    let out: string
-    switch (options?.format?.toLowerCase() || "") {
-        case "yaml":
-            out = YAMLStringify(data)
-            break
-        case "ini":
-            out = INIStringify(data)
-            break
-        case "csv":
-            out = CSVStringify(data, { header: true })
-            break
-        case "md":
-        case "markdown":
-            out = dataToMarkdownTable(data)
-            break
-        case "json5":
-            out = JSON5Stringify(data, null, 2)
-            break
-        default:
-            out = JSON.stringify(data, null, 2)
-            break
-    }
+export async function parseAnyToJSON(file: string, options: { format: string }) {
+  const data = await dataTryParse({ filename: file });
+  if (!data) throw new Error(`Unknown data format for ${file}`);
+  let out: string;
+  switch (options?.format?.toLowerCase() || "") {
+    case "yaml":
+      out = YAMLStringify(data);
+      break;
+    case "ini":
+      out = INIStringify(data);
+      break;
+    case "csv":
+      out = CSVStringify(data, { header: true });
+      break;
+    case "md":
+    case "markdown":
+      out = dataToMarkdownTable(data);
+      break;
+    case "json5":
+      out = JSON5Stringify(data, null, 2);
+      break;
+    default:
+      out = JSON.stringify(data, null, 2);
+      break;
+  }
 
-    console.log(out)
+  console.log(out);
 }
 
 /**
@@ -221,18 +201,18 @@ export async function parseAnyToJSON(
  * @param files - An array of files or glob patterns to process.
  */
 export async function jsonl2json(files: string[]) {
-    for (const file of await expandFiles(files, { applyGitIgnore: false })) {
-        if (!isJSONLFilename(file)) {
-            // Skips files that are not JSONL
-            console.log(`skipping ${file}`)
-            continue
-        }
-        const content = await tryReadText(file)
-        const objs = await JSONLTryParse(content, { repair: true })
-        const out: string = replaceExt(file, ".json")
-        await writeText(out, JSON.stringify(objs, null, 2))
-        console.log(`${file} -> ${out}`)
+  for (const file of await expandFiles(files, { applyGitIgnore: false })) {
+    if (!isJSONLFilename(file)) {
+      // Skips files that are not JSONL
+      console.log(`skipping ${file}`);
+      continue;
     }
+    const content = await tryReadText(file);
+    const objs = await JSONLTryParse(content, { repair: true });
+    const out: string = replaceExt(file, ".json");
+    await writeText(out, JSON.stringify(objs, null, 2));
+    console.log(`${file} -> ${out}`);
+  }
 }
 
 /**
@@ -244,29 +224,29 @@ export async function jsonl2json(files: string[]) {
  *   - ignoreGitIgnore - Whether to ignore .gitignore rules when expanding files.
  */
 export async function parseTokens(
-    filesGlobs: string[],
-    options: {
-        excludedFiles: string[]
-        model: string
-        ignoreGitIgnore: boolean
-    }
+  filesGlobs: string[],
+  options: {
+    excludedFiles: string[];
+    model: string;
+    ignoreGitIgnore: boolean;
+  },
 ) {
-    const { model } = options || {}
-    const { encode: encoder } = await resolveTokenEncoder(model)
+  const { model } = options || {};
+  const { encode: encoder } = await resolveTokenEncoder(model);
 
-    const files = await expandFiles(filesGlobs, options)
-    console.log(`parsing ${files.length} files`)
-    let text = ""
-    for (const file of files) {
-        const content = await readText(file)
-        if (content) {
-            const tokens = estimateTokens(content, encoder)
-            console.log(`${file}, ${tokens}`)
-            text += `${file}, ${tokens}\n`
-        }
+  const files = await expandFiles(filesGlobs, options);
+  console.log(`parsing ${files.length} files`);
+  let text = "";
+  for (const file of files) {
+    const content = await readText(file);
+    if (content) {
+      const tokens = estimateTokens(content, encoder);
+      console.log(`${file}, ${tokens}`);
+      text += `${file}, ${tokens}\n`;
     }
-    // Logs the aggregated text with file names and token estimates
-    console.log(text)
+  }
+  // Logs the aggregated text with file names and token estimates
+  console.log(text);
 }
 
 /**
@@ -281,22 +261,18 @@ export async function parseTokens(
  * Debug information about the process is also logged.
  */
 export async function parseTokenize(file: string, options: { model: string }) {
-    const text = await readText(file)
-    dbg(`text: %s`, text)
-    const { model } = options || {}
-    const {
-        model: tokenModel,
-        encode: encoder,
-        decode: decoder,
-    } = await resolveTokenEncoder(model)
+  const text = await readText(file);
+  dbg(`text: %s`, text);
+  const { model } = options || {};
+  const { model: tokenModel, encode: encoder, decode: decoder } = await resolveTokenEncoder(model);
 
-    console.debug(`model: %s`, tokenModel)
-    const tokens = encoder(text)
-    for (const token of tokens) {
-        stdout.write(
-            `(${wrapColor(CONSOLE_TOKEN_COLORS[0], decoder([token]))}, x${wrapColor(CONSOLE_TOKEN_COLORS[1], token.toString(16))})`
-        )
-    }
+  console.debug(`model: %s`, tokenModel);
+  const tokens = encoder(text);
+  for (const token of tokens) {
+    stdout.write(
+      `(${wrapColor(CONSOLE_TOKEN_COLORS[0], decoder([token]))}, x${wrapColor(CONSOLE_TOKEN_COLORS[1], token.toString(16))})`,
+    );
+  }
 }
 
 /**
@@ -308,22 +284,17 @@ export async function parseTokenize(file: string, options: { model: string }) {
  *
  * Logs the conversion process and writes the output files to the specified directory or replaces the extension in place if no directory is provided.
  */
-export async function prompty2genaiscript(
-    files: string[],
-    options: { out: string }
-) {
-    const { out } = options
-    const fs = await expandFiles(files)
-    for (const f of fs) {
-        const gf = out
-            ? join(out, replaceExt(basename(f), ".genai.mts"))
-            : replaceExt(f, ".genai.mts")
-        console.log(`${f} -> ${gf}`)
-        const content = await readText(f)
-        const doc = promptyParse(f, content)
-        const script: string = promptyToGenAIScript(doc)
-        await writeText(gf, script)
-    }
+export async function prompty2genaiscript(files: string[], options: { out: string }) {
+  const { out } = options;
+  const fs = await expandFiles(files);
+  for (const f of fs) {
+    const gf = out ? join(out, replaceExt(basename(f), ".genai.mts")) : replaceExt(f, ".genai.mts");
+    console.log(`${f} -> ${gf}`);
+    const content = await readText(f);
+    const doc = promptyParse(f, content);
+    const script: string = promptyToGenAIScript(doc);
+    await writeText(gf, script);
+  }
 }
 
 /**
@@ -336,20 +307,18 @@ export async function prompty2genaiscript(
  * Warns if secrets are found in any of the scanned files.
  */
 export async function parseSecrets(files: string[]) {
-    const fs = await expandFiles(files)
-    let n = 0
-    for (const f of fs) {
-        const content = await readText(f)
-        const { found } = redactSecrets(content)
-        const entries = Object.entries(found)
-        if (entries.length) {
-            n++
-            console.log(
-                `${f}: ${entries.map(([k, v]) => `${k} (${v})`).join(", ")}`
-            )
-        }
+  const fs = await expandFiles(files);
+  let n = 0;
+  for (const f of fs) {
+    const content = await readText(f);
+    const { found } = redactSecrets(content);
+    const entries = Object.entries(found);
+    if (entries.length) {
+      n++;
+      console.log(`${f}: ${entries.map(([k, v]) => `${k} (${v})`).join(", ")}`);
     }
-    if (n > 0) console.warn(`found secrets in ${n} of ${fs.length} files`)
+  }
+  if (n > 0) console.warn(`found secrets in ${n} of ${fs.length} files`);
 }
 
 /**
@@ -362,29 +331,23 @@ export async function parseSecrets(files: string[]) {
  *   - disableFallback - Whether to disable fallback for token encoding.
  */
 export async function parseMarkdown(
-    filename: string,
-    options: { model: string; maxTokens: string }
+  filename: string,
+  options: { model: string; maxTokens: string },
 ) {
-    const maxTokens = normalizeInt(options.maxTokens) || 1024
-    const file: WorkspaceFile = { filename }
-    await resolveFileContent(file)
-    if (file.size) console.debug(`file: ${prettyBytes(file.size)}`)
-    const encoding = await resolveTokenEncoder(options?.model, {
-        disableFallback: false,
-    })
-    const res = await chunkMarkdown(
-        file,
-        (text) => encoding.encode(text).length,
-        {
-            maxTokens,
-        }
-    )
+  const maxTokens = normalizeInt(options.maxTokens) || 1024;
+  const file: WorkspaceFile = { filename };
+  await resolveFileContent(file);
+  if (file.size) console.debug(`file: ${prettyBytes(file.size)}`);
+  const encoding = await resolveTokenEncoder(options?.model, {
+    disableFallback: false,
+  });
+  const res = await chunkMarkdown(file, (text) => encoding.encode(text).length, {
+    maxTokens,
+  });
 
-    const cols = terminalSize().columns
-    for (const { content, filename, lineStart, lineEnd } of res) {
-        const prefix = `${basename(filename)} (${lineStart}-${lineEnd}): `
-        console.log(
-            `${prefix}${ellipse(content.replace(/\n/g, " "), cols - prefix.length)}`
-        )
-    }
+  const cols = terminalSize().columns;
+  for (const { content, filename, lineStart, lineEnd } of res) {
+    const prefix = `${basename(filename)} (${lineStart}-${lineEnd}): `;
+    console.log(`${prefix}${ellipse(content.replace(/\n/g, " "), cols - prefix.length)}`);
+  }
 }

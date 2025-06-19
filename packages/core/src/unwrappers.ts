@@ -1,4 +1,4 @@
-import { arrayify } from "./cleaners"
+import { arrayify } from "./cleaners";
 
 /**
  * Remove code fences from a fenced block for the specified language.
@@ -7,22 +7,22 @@ import { arrayify } from "./cleaners"
  * @returns The text without fences, or the original text if no fences are found.
  */
 export function unfence(text: string, language?: "*" | ElementOrArray<string>) {
-    if (!text) return text
+  if (!text) return text;
 
-    language = arrayify(language)
-    const lg = language
-        .filter((s) => s !== undefined && s !== null)
-        .map((l) => (l === "*" ? ".*?" : l.replace(/[^a-z0-9_]/gi, "")))
-        .join("|")
-    const startRx = new RegExp(`^[\r\n\s]*(\`{3,})(${lg})\s*\r?\n`, "i")
-    const mstart = startRx.exec(text)
-    if (mstart) {
-        const n = mstart[1].length
-        const endRx = new RegExp(`\r?\n\`{${n},${n}}[\r\n\s]*$`, "i")
-        const mend = endRx.exec(text)
-        if (mend) return text.slice(mstart.index + mstart[0].length, mend.index)
-    }
-    return text
+  language = arrayify(language);
+  const lg = language
+    .filter((s) => s !== undefined && s !== null)
+    .map((l) => (l === "*" ? ".*?" : l.replace(/[^a-z0-9_]/gi, "")))
+    .join("|");
+  const startRx = new RegExp(`^[\r\n\s]*(\`{3,})(${lg})\s*\r?\n`, "i");
+  const mstart = startRx.exec(text);
+  if (mstart) {
+    const n = mstart[1].length;
+    const endRx = new RegExp(`\r?\n\`{${n},${n}}[\r\n\s]*$`, "i");
+    const mend = endRx.exec(text);
+    if (mend) return text.slice(mstart.index + mstart[0].length, mend.index);
+  }
+  return text;
 }
 
 /**
@@ -31,9 +31,8 @@ export function unfence(text: string, language?: "*" | ElementOrArray<string>) {
  * @returns The unquoted string, or the original string if no matching quotes are found.
  */
 export function unquote(s: string) {
-    for (const sep of "\"'`")
-        if (s && s[0] === sep && s[s.length - 1] === sep) return s.slice(1, -1)
-    return s
+  for (const sep of "\"'`") if (s && s[0] === sep && s[s.length - 1] === sep) return s.slice(1, -1);
+  return s;
 }
 
 /**
@@ -42,12 +41,8 @@ export function unquote(s: string) {
  * @param fileOrContent - Either the file content as a string or a file object containing `content` property.
  * @returns The content of the file as a string.
  */
-export function filenameOrFileToContent(
-    fileOrContent: string | WorkspaceFile
-): string {
-    return typeof fileOrContent === "string"
-        ? fileOrContent
-        : fileOrContent?.content
+export function filenameOrFileToContent(fileOrContent: string | WorkspaceFile): string {
+  return typeof fileOrContent === "string" ? fileOrContent : fileOrContent?.content;
 }
 
 /**
@@ -56,14 +51,12 @@ export function filenameOrFileToContent(
  * @param fileOrContent - Either a string representing a filename or a WorkspaceFile object containing filename and content.
  * @returns The extracted filename as a string.
  */
-export function filenameOrFileToFilename(
-    fileOrContent: string | WorkspaceFile
-): string {
-    return typeof fileOrContent === "string"
-        ? fileOrContent
-        : typeof fileOrContent === "object"
-          ? fileOrContent?.filename
-          : undefined
+export function filenameOrFileToFilename(fileOrContent: string | WorkspaceFile): string {
+  return typeof fileOrContent === "string"
+    ? fileOrContent
+    : typeof fileOrContent === "object"
+      ? fileOrContent?.filename
+      : undefined;
 }
 
 /**
@@ -73,5 +66,5 @@ export function filenameOrFileToFilename(
  * @returns The string without leading or trailing newlines.
  */
 export function trimNewlines(s: string) {
-    return s?.replace(/^\n*/, "").replace(/\n*$/, "")
+  return s?.replace(/^\n*/, "").replace(/\n*$/, "");
 }

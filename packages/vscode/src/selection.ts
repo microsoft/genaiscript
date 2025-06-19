@@ -1,13 +1,13 @@
-import * as vscode from "vscode"
+import * as vscode from "vscode";
 
 export function getSelectedText() {
-    const textEditor = vscode.window.activeTextEditor
-    if (!textEditor) return undefined
+  const textEditor = vscode.window.activeTextEditor;
+  if (!textEditor) return undefined;
 
-    const selection = textEditor.selection
-    if (!selection) return undefined
+  const selection = textEditor.selection;
+  if (!selection) return undefined;
 
-    // get selected text
-    const selectedText = textEditor.document.getText(selection)
-    return selectedText
+  // get selected text
+  const selectedText = textEditor.document.getText(selection);
+  return selectedText;
 }

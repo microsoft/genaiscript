@@ -1,5 +1,5 @@
-import _ci from "ci-info"
+import _ci from "ci-info";
 
-export const ci = _ci
+export const ci = _ci;
 
-export const isCI = _ci.isCI
+export const isCI = _ci.isCI;

@@ -1,6 +1,6 @@
-import { performance, PerformanceObserver } from "perf_hooks"
-import { logVerbose, toStringList } from "./util"
-import prettyMilliseconds from "pretty-ms"
+import { performance, PerformanceObserver } from "perf_hooks";
+import { logVerbose, toStringList } from "./util";
+import prettyMilliseconds from "pretty-ms";
 
 /**
  * Marks a specific point in the application's performance timeline.
@@ -8,7 +8,7 @@ import prettyMilliseconds from "pretty-ms"
  * @param id - The unique identifier for the performance mark.
  */
 export function mark(id: string) {
-    performance.mark(id)
+  performance.mark(id);
 }
 
 /**
@@ -23,18 +23,14 @@ export function mark(id: string) {
  * @returns The duration between the start and end marks in milliseconds.
  */
 export function measure(id: string, detail?: string) {
-    const start = id + ".start"
-    const end = id + ".end"
-    const startm = performance.mark(start)
-    return (endDetail?: string) => {
-        const endm = performance.mark(end)
-        performance.measure(
-            `${id} ${toStringList(detail, endDetail)}`,
-            start,
-            end
-        )
-        return endm.startTime - startm.startTime
-    }
+  const start = id + ".start";
+  const end = id + ".end";
+  const startm = performance.mark(start);
+  return (endDetail?: string) => {
+    const endm = performance.mark(end);
+    performance.measure(`${id} ${toStringList(detail, endDetail)}`, start, end);
+    return endm.startTime - startm.startTime;
+  };
 }
 
 /**
@@ -50,15 +46,15 @@ export function measure(id: string, detail?: string) {
  * - Logs the duration of each measurement and its cumulative total using `logVerbose`.
  */
 export function logPerformance() {
-    const measures: Record<string, number> = {}
-    const perfObserver = new PerformanceObserver((items) => {
-        items.getEntries().forEach((entry) => {
-            const total = (measures[entry.name] || 0) + entry.duration
-            measures[entry.name] = total
-            logVerbose(
-                `perf> ${entry.name} ${prettyMilliseconds(entry.duration)}/${prettyMilliseconds(total)}`
-            )
-        })
-    })
-    perfObserver.observe({ entryTypes: ["measure"], buffered: true })
+  const measures: Record<string, number> = {};
+  const perfObserver = new PerformanceObserver((items) => {
+    items.getEntries().forEach((entry) => {
+      const total = (measures[entry.name] || 0) + entry.duration;
+      measures[entry.name] = total;
+      logVerbose(
+        `perf> ${entry.name} ${prettyMilliseconds(entry.duration)}/${prettyMilliseconds(total)}`,
+      );
+    });
+  });
+  perfObserver.observe({ entryTypes: ["measure"], buffered: true });
 }

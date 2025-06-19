@@ -1,12 +1,12 @@
-import { host } from "./host"
-import { JSON5TryParse } from "./json5"
-import { concatBuffers, logVerbose, logWarn } from "./util"
+import { host } from "./host";
+import { JSON5TryParse } from "./json5";
+import { concatBuffers, logVerbose, logWarn } from "./util";
 
 function tryReadFile(fn: string) {
-    return host.readFile(fn).then<Uint8Array>(
-        (r) => r,
-        (_) => null
-    )
+  return host.readFile(fn).then<Uint8Array>(
+    (r) => r,
+    (_) => null,
+  );
 }
 
 /**
@@ -16,7 +16,7 @@ function tryReadFile(fn: string) {
  * @returns True if the filename ends with .jsonl, .mdjson, or .ldjson (case-insensitive), otherwise false.
  */
 export function isJSONLFilename(fn: string) {
-    return /\.(jsonl|mdjson|ldjson)$/i.test(fn)
+  return /\.(jsonl|mdjson|ldjson)$/i.test(fn);
 }
 
 /**
@@ -29,19 +29,19 @@ export function isJSONLFilename(fn: string) {
  * @returns An array of parsed objects. Lines that fail parsing or are empty are skipped.
  */
 export function JSONLTryParse(
-    text: string,
-    options?: {
-        repair?: boolean
-    }
+  text: string,
+  options?: {
+    repair?: boolean;
+  },
 ): any[] {
-    if (!text) return []
-    const res: any[] = []
-    const lines = text.split("\n")
-    for (const line of lines.filter((l) => !!l.trim())) {
-        const obj = JSON5TryParse(line, options)
-        if (obj !== undefined && obj !== null) res.push(obj)
-    }
-    return res
+  if (!text) return [];
+  const res: any[] = [];
+  const lines = text.split("\n");
+  for (const line of lines.filter((l) => !!l.trim())) {
+    const obj = JSON5TryParse(line, options);
+    if (obj !== undefined && obj !== null) res.push(obj);
+  }
+  return res;
 }
 
 /**
@@ -51,28 +51,28 @@ export function JSONLTryParse(
  * @returns A string where each object in the array is serialized as a JSON string and separated by newlines. Returns an empty string if the input array is empty or null.
  */
 export function JSONLStringify(objs: any[]) {
-    if (!objs?.length) return ""
-    const acc: string[] = []
-    for (const o of objs.filter((o) => o !== undefined && o !== null)) {
-        const s = JSON.stringify(o)
-        acc.push(s)
-    }
-    return acc.join("\n") + "\n"
+  if (!objs?.length) return "";
+  const acc: string[] = [];
+  for (const o of objs.filter((o) => o !== undefined && o !== null)) {
+    const s = JSON.stringify(o);
+    acc.push(s);
+  }
+  return acc.join("\n") + "\n";
 }
 
 function serialize(objs: any[]) {
-    const acc = JSONLStringify(objs)
-    const buf = host.createUTF8Encoder().encode(acc)
-    return buf
+  const acc = JSONLStringify(objs);
+  const buf = host.createUTF8Encoder().encode(acc);
+  return buf;
 }
 
 async function writeJSONLCore(fn: string, objs: any[], append: boolean) {
-    let buf = serialize(objs)
-    if (append) {
-        const curr = await tryReadFile(fn)
-        if (curr) buf = concatBuffers(curr, buf)
-    }
-    await host.writeFile(fn, buf)
+  let buf = serialize(objs);
+  if (append) {
+    const curr = await tryReadFile(fn);
+    if (curr) buf = concatBuffers(curr, buf);
+  }
+  await host.writeFile(fn, buf);
 }
 
 /**
@@ -82,7 +82,7 @@ async function writeJSONLCore(fn: string, objs: any[], append: boolean) {
  * @param objs - An array of objects to serialize and write to the file.
  */
 export async function writeJSONL(fn: string, objs: any[]) {
-    await writeJSONLCore(fn, objs, false)
+  await writeJSONLCore(fn, objs, false);
 }
 
 /**
@@ -93,11 +93,11 @@ export async function writeJSONL(fn: string, objs: any[]) {
  * @param meta - Optional metadata to include in each appended object under the `__meta` key.
  */
 export async function appendJSONL<T>(name: string, objs: T[], meta?: any) {
-    if (meta)
-        await writeJSONLCore(
-            name,
-            objs.map((obj) => ({ ...obj, __meta: meta })),
-            true
-        )
-    else await writeJSONLCore(name, objs, true)
+  if (meta)
+    await writeJSONLCore(
+      name,
+      objs.map((obj) => ({ ...obj, __meta: meta })),
+      true,
+    );
+  else await writeJSONLCore(name, objs, true);
 }

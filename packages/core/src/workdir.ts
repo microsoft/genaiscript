@@ -1,17 +1,17 @@
 import {
-    CONVERTS_DIR_NAME,
-    GENAI_ANYTS_REGEX,
-    GENAISCRIPT_FOLDER,
-    RUNS_DIR_NAME,
-    STATS_DIR_NAME,
-} from "./constants"
-import { randomHex } from "./crypto"
-import { genaiscriptDebug } from "./debug"
-import { ensureDir } from "./fs"
-import { gitIgnoreEnsure } from "./gitignore"
-import { host } from "./host"
-import { sanitizeFilename } from "./sanitize"
-const dbg = genaiscriptDebug("dirs")
+  CONVERTS_DIR_NAME,
+  GENAI_ANYTS_REGEX,
+  GENAISCRIPT_FOLDER,
+  RUNS_DIR_NAME,
+  STATS_DIR_NAME,
+} from "./constants";
+import { randomHex } from "./crypto";
+import { genaiscriptDebug } from "./debug";
+import { ensureDir } from "./fs";
+import { gitIgnoreEnsure } from "./gitignore";
+import { host } from "./host";
+import { sanitizeFilename } from "./sanitize";
+const dbg = genaiscriptDebug("dirs");
 
 /**
  * Constructs a resolved file path within the `.genaiscript` directory of the project.
@@ -20,11 +20,11 @@ const dbg = genaiscriptDebug("dirs")
  * @returns The resolved path as a string.
  */
 export function dotGenaiscriptPath(...segments: string[]) {
-    return host.resolvePath(
-        host.projectFolder(),
-        GENAISCRIPT_FOLDER,
-        ...segments.map((s) => sanitizeFilename(s))
-    )
+  return host.resolvePath(
+    host.projectFolder(),
+    GENAISCRIPT_FOLDER,
+    ...segments.map((s) => sanitizeFilename(s)),
+  );
 }
 
 /**
@@ -38,18 +38,18 @@ export function dotGenaiscriptPath(...segments: string[]) {
  * @returns A promise that resolves once the directory is created and configured.
  */
 export async function ensureDotGenaiscriptPath() {
-    const dir = dotGenaiscriptPath()
-    await ensureDir(dir)
-    await gitIgnoreEnsure(dir, ["*"])
+  const dir = dotGenaiscriptPath();
+  await ensureDir(dir);
+  await gitIgnoreEnsure(dir, ["*"]);
 }
 
 function friendlyDate() {
-    return new Date().toISOString().replace(/[:.]/g, "-")
+  return new Date().toISOString().replace(/[:.]/g, "-");
 }
 
 function createDatedFolder(id: string) {
-    const name = friendlyDate() + "-" + id
-    return name
+  const name = friendlyDate() + "-" + id;
+  return name;
 }
 
 /**
@@ -60,15 +60,15 @@ function createDatedFolder(id: string) {
  * @returns The resolved path for the specified run directory.
  */
 export function getRunDir(scriptId: string, runId: string) {
-    dbg(`run: %s %s`, scriptId, runId)
-    const name = createDatedFolder(runId)
-    const out = dotGenaiscriptPath(
-        RUNS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        name
-    )
-    dbg("run dir: %s", out)
-    return out
+  dbg(`run: %s %s`, scriptId, runId);
+  const name = createDatedFolder(runId);
+  const out = dotGenaiscriptPath(
+    RUNS_DIR_NAME,
+    host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+    name,
+  );
+  dbg("run dir: %s", out);
+  return out;
 }
 
 /**
@@ -81,16 +81,16 @@ export function getRunDir(scriptId: string, runId: string) {
  *          for the converted files.
  */
 export function getConvertDir(scriptId: string) {
-    const runId = randomHex(6)
-    dbg(`convert: %s %s`, scriptId, runId)
-    const name = createDatedFolder(runId)
-    const out = dotGenaiscriptPath(
-        CONVERTS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        name
-    )
-    dbg("convert dir: %s", out)
-    return out
+  const runId = randomHex(6);
+  dbg(`convert: %s %s`, scriptId, runId);
+  const name = createDatedFolder(runId);
+  const out = dotGenaiscriptPath(
+    CONVERTS_DIR_NAME,
+    host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+    name,
+  );
+  dbg("convert dir: %s", out);
+  return out;
 }
 
 /**
@@ -103,9 +103,9 @@ export function getConvertDir(scriptId: string) {
  * directory's existence, and returns the directory path.
  */
 export async function createVideoDir() {
-    const dir = dotGenaiscriptPath("videos", friendlyDate())
-    await ensureDir(dir)
-    return dir
+  const dir = dotGenaiscriptPath("videos", friendlyDate());
+  await ensureDir(dir);
+  return dir;
 }
 
 /**
@@ -118,7 +118,7 @@ export async function createVideoDir() {
  * the directory exists by creating it if necessary.
  */
 export async function createStatsDir() {
-    const statsDir = dotGenaiscriptPath(STATS_DIR_NAME)
-    await ensureDir(statsDir)
-    return statsDir
+  const statsDir = dotGenaiscriptPath(STATS_DIR_NAME);
+  await ensureDir(statsDir);
+  return statsDir;
 }

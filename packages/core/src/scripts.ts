@@ -1,22 +1,15 @@
-import { collectFolders } from "./ast"
-import {
-    DOCS_URL,
-    NEW_SCRIPT_TEMPLATE,
-    TYPE_DEFINITION_BASENAME,
-} from "./constants"
-import {
-    githubCopilotInstructions as ghInstructions,
-    promptDefinitions,
-} from "./default_prompts"
-import { tryReadText, writeText } from "./fs"
-import { host } from "./host"
-import { logVerbose } from "./util"
-import { Project } from "./server/messages"
-import { collapseNewlines } from "./cleaners"
-import { gitIgnoreEnsure } from "./gitignore"
-import { dotGenaiscriptPath } from "./workdir"
-import { genaiscriptDebug } from "./debug"
-const dbg = genaiscriptDebug("scripts")
+import { collectFolders } from "./ast";
+import { DOCS_URL, NEW_SCRIPT_TEMPLATE, TYPE_DEFINITION_BASENAME } from "./constants";
+import { githubCopilotInstructions as ghInstructions, promptDefinitions } from "./default_prompts";
+import { tryReadText, writeText } from "./fs";
+import { host } from "./host";
+import { logVerbose } from "./util";
+import { Project } from "./server/messages";
+import { collapseNewlines } from "./cleaners";
+import { gitIgnoreEnsure } from "./gitignore";
+import { dotGenaiscriptPath } from "./workdir";
+import { genaiscriptDebug } from "./debug";
+const dbg = genaiscriptDebug("scripts");
 
 /**
  * Creates a new script object based on the provided name and optional template.
@@ -27,21 +20,18 @@ const dbg = genaiscriptDebug("scripts")
  * @param options.title - A custom title for the script. Defaults to the provided name.
  * @returns A new script object with the specified or default attributes.
  */
-export function createScript(
-    name: string,
-    options?: { template: PromptScript; title?: string }
-) {
-    const { template, title } = options || {}
-    const t = structuredClone(
-        template || {
-            id: "",
-            title: title || name,
-            text: "New script empty template",
-            jsSource: NEW_SCRIPT_TEMPLATE,
-        }
-    )
-    t.id = ""
-    return t
+export function createScript(name: string, options?: { template: PromptScript; title?: string }) {
+  const { template, title } = options || {};
+  const t = structuredClone(
+    template || {
+      id: "",
+      title: title || name,
+      text: "New script empty template",
+      jsSource: NEW_SCRIPT_TEMPLATE,
+    },
+  );
+  t.id = "";
+  return t;
 }
 
 /**
@@ -56,77 +46,70 @@ export function createScript(
  *   - `project.scripts`: An array of scripts from the project, where system scripts determine tool usage.
  *   - `project.folders`: A set of folder data collected with relevant directory and file details.
  */
-export async function fixPromptDefinitions(
-    project: Project,
-    options?: { force?: boolean }
-) {
-    const folders = collectFolders(project, options)
-    const systems = project.scripts.filter((t) => t.isSystem)
-    const tools = systems.map(({ defTools }) => defTools || []).flat()
+export async function fixPromptDefinitions(project: Project, options?: { force?: boolean }) {
+  const folders = collectFolders(project, options);
+  const systems = project.scripts.filter((t) => t.isSystem);
+  const tools = systems.map(({ defTools }) => defTools || []).flat();
 
-    logVerbose(`fixing type definitions`)
-    for (const folder of folders) {
-        const { dirname, ts, js } = folder
-        logVerbose(`  ${dirname}`)
-        await gitIgnoreEnsure(dirname, [
-            "genaiscript.d.ts",
-            "tsconfig.json",
-            "jsconfig.json",
-        ])
-        for (let [defName, defContent] of Object.entries(promptDefinitions)) {
-            // patch genaiscript
-            if (defName === "genaiscript.d.ts") {
-                // update the system prompt identifiers
-                defContent = defContent
-                    .replace(
-                        "type SystemPromptId = OptionsOrString<string>",
-                        `type SystemPromptId = OptionsOrString<\n    | ${systems
-                            .sort((a, b) => a.id.localeCompare(b.id))
-                            .map((s) => JSON.stringify(s.id))
-                            .join("\n    | ")}\n>`
-                    )
-                    .replace(
-                        "    system?: SystemPromptId[]",
-                        `    /**
+  logVerbose(`fixing type definitions`);
+  for (const folder of folders) {
+    const { dirname, ts, js } = folder;
+    logVerbose(`  ${dirname}`);
+    await gitIgnoreEnsure(dirname, ["genaiscript.d.ts", "tsconfig.json", "jsconfig.json"]);
+    for (let [defName, defContent] of Object.entries(promptDefinitions)) {
+      // patch genaiscript
+      if (defName === "genaiscript.d.ts") {
+        // update the system prompt identifiers
+        defContent = defContent
+          .replace(
+            "type SystemPromptId = OptionsOrString<string>",
+            `type SystemPromptId = OptionsOrString<\n    | ${systems
+              .sort((a, b) => a.id.localeCompare(b.id))
+              .map((s) => JSON.stringify(s.id))
+              .join("\n    | ")}\n>`,
+          )
+          .replace(
+            "    system?: SystemPromptId[]",
+            `    /**
      * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
 ${systems.map((s) => `     * - \`${s.id}\`: ${s.title || s.description}`).join("\n")}
      **/
-    system?: SystemPromptId[]`
-                    )
+    system?: SystemPromptId[]`,
+          );
 
-                // update the tool prompt identifiers
-                defContent = defContent
-                    .replace(
-                        "type SystemToolId = OptionsOrString<string>",
-                        `type SystemToolId = OptionsOrString<\n    | ${tools
-                            .sort((a, b) => a.id.localeCompare(b.id))
-                            .map((s) => JSON.stringify(s.id))
-                            .join("\n    | ")}\n>`
-                    )
-                    .replace(
-                        "    tools?: SystemToolId[]",
-                        `/**
+        // update the tool prompt identifiers
+        defContent = defContent
+          .replace(
+            "type SystemToolId = OptionsOrString<string>",
+            `type SystemToolId = OptionsOrString<\n    | ${tools
+              .sort((a, b) => a.id.localeCompare(b.id))
+              .map((s) => JSON.stringify(s.id))
+              .join("\n    | ")}\n>`,
+          )
+          .replace(
+            "    tools?: SystemToolId[]",
+            `/**
 * System tool identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/tools/))
 ${tools.map((s) => `* - \`${s.id}\`: ${s.description}`).join("\n")}
 **/
-    tools?: SystemToolId[]`
-                    )
-            }
+    tools?: SystemToolId[]`,
+          );
+      }
 
-            if (defName === "tsconfig.json" && !ts) continue
-            if (defName === "jsconfig.json" && !js) continue
+      if (defName === "tsconfig.json" && !ts) continue;
+      if (defName === "jsconfig.json" && !js) continue;
 
-            const fn = host.path.join(dirname, defName)
-            const current = await tryReadText(fn)
-            if (current !== defContent) {
-                logVerbose(`updating ${fn}`)
-                await writeText(fn, defContent)
-            }
-        }
+      const fn = host.path.join(dirname, defName);
+      const current = await tryReadText(fn);
+      if (current !== defContent) {
+        logVerbose(`updating ${fn}`);
+        await writeText(fn, defContent);
+      }
     }
+  }
 }
 
-let _fullDocsText: string
+let _fullDocsText: string;
 /**
  * Updates custom prompts and related files with new definitions and data.
  *
@@ -141,39 +124,36 @@ let _fullDocsText: string
  * Fetches and processes external documentation content if required.
  */
 export async function fixGitHubCopilotInstructions(options?: {
-    githubCopilotInstructions?: boolean
-    docs?: boolean
+  githubCopilotInstructions?: boolean;
+  docs?: boolean;
 }) {
-    const { githubCopilotInstructions, docs } = options || {}
-    // write genaiscript.d.ts
-    const gdir = dotGenaiscriptPath()
-    await writeText(host.path.join(gdir, ".gitignore"), "*")
-    await writeText(
-        host.path.join(gdir, TYPE_DEFINITION_BASENAME),
-        promptDefinitions[TYPE_DEFINITION_BASENAME]
-    ) // Write the TypeScript definition file
-    if (githubCopilotInstructions) {
-        const pdir = dotGenaiscriptPath("instructions")
-        const pn = host.path.join(pdir, "genaiscript.instructions.md")
-        await writeText(pn, ghInstructions) // Write the GitHub Copilot instructions file
+  const { githubCopilotInstructions, docs } = options || {};
+  // write genaiscript.d.ts
+  const gdir = dotGenaiscriptPath();
+  await writeText(host.path.join(gdir, ".gitignore"), "*");
+  await writeText(
+    host.path.join(gdir, TYPE_DEFINITION_BASENAME),
+    promptDefinitions[TYPE_DEFINITION_BASENAME],
+  ); // Write the TypeScript definition file
+  if (githubCopilotInstructions) {
+    const pdir = dotGenaiscriptPath("instructions");
+    const pn = host.path.join(pdir, "genaiscript.instructions.md");
+    await writeText(pn, ghInstructions); // Write the GitHub Copilot instructions file
+  }
+  if (githubCopilotInstructions || docs) {
+    const ddir = dotGenaiscriptPath("instructions");
+    const route = "llms-full.txt";
+    const url = `${DOCS_URL}/${route}`;
+    const dn = host.path.join(ddir, route);
+    let text = _fullDocsText;
+    if (!text) {
+      const content = await fetch(url);
+      if (!content.ok) logVerbose(`failed to fetch ${url}`);
+      text = await content.text();
+      text = _fullDocsText = collapseNewlines(
+        text.replace(/^\!\[\]\(<data:image\/svg\+xml,.*$/gm, "<!-- mermaid diagram -->"),
+      );
     }
-    if (githubCopilotInstructions || docs) {
-        const ddir = dotGenaiscriptPath("instructions")
-        const route = "llms-full.txt"
-        const url = `${DOCS_URL}/${route}`
-        const dn = host.path.join(ddir, route)
-        let text = _fullDocsText
-        if (!text) {
-            const content = await fetch(url)
-            if (!content.ok) logVerbose(`failed to fetch ${url}`)
-            text = await content.text()
-            text = _fullDocsText = collapseNewlines(
-                text.replace(
-                    /^\!\[\]\(<data:image\/svg\+xml,.*$/gm,
-                    "<!-- mermaid diagram -->"
-                )
-            )
-        }
-        await writeText(dn, text) // Write the GitHub Copilot prompt file
-    }
+    await writeText(dn, text); // Write the GitHub Copilot prompt file
+  }
 }

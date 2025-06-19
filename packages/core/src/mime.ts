@@ -1,14 +1,14 @@
 // Import the 'lookup' function from the 'mime-types' library and rename it to 'mimeTypesLookup'
-import mime from "mime"
-import { JAVASCRIPT_MIME_TYPE } from "./constants"
+import mime from "mime";
+import { JAVASCRIPT_MIME_TYPE } from "./constants";
 
 // Define constant MIME types for specific programming languages
-export const FSTAR_MIME_TYPE = "text/x-fstar"
-export const TYPESCRIPT_MIME_TYPE = "text/x-typescript"
-export const CSHARP_MIME_TYPE = "text/x-csharp"
-export const PYTHON_MIME_TYPE = "text/x-python"
-export const MARKDOWN_MIME_TYPE = "text/markdown"
-export const ASTRO_MIME_TYPE = "text/x-astro"
+export const FSTAR_MIME_TYPE = "text/x-fstar";
+export const TYPESCRIPT_MIME_TYPE = "text/x-typescript";
+export const CSHARP_MIME_TYPE = "text/x-csharp";
+export const PYTHON_MIME_TYPE = "text/x-python";
+export const MARKDOWN_MIME_TYPE = "text/markdown";
+export const ASTRO_MIME_TYPE = "text/x-astro";
 
 // Define a function to look up the MIME type for a given filename
 /**
@@ -21,13 +21,13 @@ export const ASTRO_MIME_TYPE = "text/x-astro"
  * If none match, it uses 'mimeTypesLookup' from the 'mime-types' library to find the MIME type.
  */
 export function lookupMime(filename: string) {
-    if (!filename) return "" // Return an empty string if the filename is falsy
-    if (/\.m?ts$/i.test(filename)) return TYPESCRIPT_MIME_TYPE
-    if (/\.(c|m)?js$/i.test(filename)) return JAVASCRIPT_MIME_TYPE
-    if (/\.cs$/i.test(filename)) return CSHARP_MIME_TYPE
-    if (/\.py$/i.test(filename)) return PYTHON_MIME_TYPE
-    if (/\.astro$/i.test(filename)) return ASTRO_MIME_TYPE
-    if (/\.(md|prompty)$/i.test(filename)) return MARKDOWN_MIME_TYPE
-    if (/\.(fst|fsti)$/i.test(filename)) return FSTAR_MIME_TYPE
-    return mime.getType(filename) || ""
+  if (!filename) return ""; // Return an empty string if the filename is falsy
+  if (/\.m?ts$/i.test(filename)) return TYPESCRIPT_MIME_TYPE;
+  if (/\.(c|m)?js$/i.test(filename)) return JAVASCRIPT_MIME_TYPE;
+  if (/\.cs$/i.test(filename)) return CSHARP_MIME_TYPE;
+  if (/\.py$/i.test(filename)) return PYTHON_MIME_TYPE;
+  if (/\.astro$/i.test(filename)) return ASTRO_MIME_TYPE;
+  if (/\.(md|prompty)$/i.test(filename)) return MARKDOWN_MIME_TYPE;
+  if (/\.(fst|fsti)$/i.test(filename)) return FSTAR_MIME_TYPE;
+  return mime.getType(filename) || "";
 }

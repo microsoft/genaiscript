@@ -1,4 +1,4 @@
-import { parse, quote } from "shell-quote"
+import { parse, quote } from "shell-quote";
 
 /**
  * Parses a shell command into an array of arguments.
@@ -8,17 +8,13 @@ import { parse, quote } from "shell-quote"
  *          it resolves operation types (e.g., globs or operators) and includes them in the result.
  */
 export function shellParse(cmd: string): string[] {
-    const args = parse(cmd)
-    const res = args
-        .filter((e) => !(e as any).comment)
-        .map((e) =>
-            typeof e === "string"
-                ? e
-                : (e as any).op === "glob"
-                  ? (e as any).pattern
-                  : (e as any).op
-        )
-    return res
+  const args = parse(cmd);
+  const res = args
+    .filter((e) => !(e as any).comment)
+    .map((e) =>
+      typeof e === "string" ? e : (e as any).op === "glob" ? (e as any).pattern : (e as any).op,
+    );
+  return res;
 }
 
 /**
@@ -29,7 +25,7 @@ export function shellParse(cmd: string): string[] {
  * @returns A single string where the input arguments are properly quoted for shell usage.
  */
 export function shellQuote(args: string[]): string {
-    return quote(args)
+  return quote(args);
 }
 
 /**
@@ -39,5 +35,5 @@ export function shellQuote(args: string[]): string {
  * @returns The string with ANSI color codes removed.
  */
 export function shellRemoveAsciiColors(text: string) {
-    return text?.replace(/\x1b\[[0-9;]*m/g, "") // ascii colors
+  return text?.replace(/\x1b\[[0-9;]*m/g, ""); // ascii colors
 }

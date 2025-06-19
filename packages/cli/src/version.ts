@@ -1,4 +1,4 @@
-import packageJson from "../package.json"
+import packageJson from "../package.json";
 
 // This file exports specific versions of dependencies and engines from package.json
 
@@ -6,27 +6,27 @@ import packageJson from "../package.json"
  * The minimum required Node.js version for this package.
  * Retrieved from the "engines" field in package.json.
  */
-export const NODE_MIN_VERSION = packageJson.engines.node
+export const NODE_MIN_VERSION = packageJson.engines.node;
 
 /**
  * The version of the 'promptfoo' peer dependency.
  */
-export const PROMPTFOO_VERSION = "0.112.7"
+export const PROMPTFOO_VERSION = "0.112.7";
 
 /**
  * The version of the 'typescript' dependency.
  * Retrieved from the "dependencies" field in package.json.
  */
-export const TYPESCRIPT_VERSION = packageJson.dependencies.typescript
+export const TYPESCRIPT_VERSION = packageJson.dependencies.typescript;
 
 /**
  * The version of the 'dockerode' dependency.
  * Retrieved from the "dependencies" field in package.json.
  */
-export const DOCKERODE_VERSION = packageJson.dependencies.dockerode
+export const DOCKERODE_VERSION = packageJson.dependencies.dockerode;
 
 /**
  * The version of the 'playwright' dependency.
  * Retrieved from the "dependencies" field in package.json.
  */
-export const PLAYWRIGHT_VERSION = packageJson.optionalDependencies.playwright
+export const PLAYWRIGHT_VERSION = packageJson.optionalDependencies.playwright;

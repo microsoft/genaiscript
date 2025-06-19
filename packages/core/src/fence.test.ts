@@ -1,44 +1,44 @@
-import { describe, test } from "node:test"
-import assert from "node:assert/strict"
-import { extractFenced } from "./fence"
-import { unfence } from "./unwrappers"
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
+import { extractFenced } from "./fence";
+import { unfence } from "./unwrappers";
 
 describe("fence", () => {
-    test("unfence", () => {
-        const source = `
+  test("unfence", () => {
+    const source = `
 \`\`\`python
 import re
 \`\`\`
-`
-        const fenced = unfence(source, "python")
-        assert.equal(fenced, "import re")
-    })
+`;
+    const fenced = unfence(source, "python");
+    assert.equal(fenced, "import re");
+  });
 
-    test("unfencenested", () => {
-        const source = `
+  test("unfencenested", () => {
+    const source = `
 \`\`\`\`\`md
 \`\`\`
 import re
 \`\`\`
 \`\`\`\`\`
-`
-        const fenced = unfence(source, "md")
-        assert.equal(fenced, "\`\`\`\nimport re\n\`\`\`")
-    })
+`;
+    const fenced = unfence(source, "md");
+    assert.equal(fenced, "\`\`\`\nimport re\n\`\`\`");
+  });
 
-    test("unbalanced", () => {
-        const source = `
+  test("unbalanced", () => {
+    const source = `
 \`\`\`\`\`md
 \`\`\`
 import re
 \`\`\`\`\`
-`
-        const fenced = unfence(source, "md")
-        assert.equal(fenced, "\`\`\`\nimport re")
-    })
+`;
+    const fenced = unfence(source, "md");
+    assert.equal(fenced, "\`\`\`\nimport re");
+  });
 
-    test("fence opt", () => {
-        const source = `
+  test("fence opt", () => {
+    const source = `
 The provided \`email_recognizer.py\` file contains a simple function that uses a regular expression to validate an email address. The time it takes to run this function depends on the complexity of the regular expression and the length of the input email string. However, without specific performance metrics or a larger context, it's not possible to provide an exact time for how long this function might take to run.
 
 The key candidate to speed up in this code is the regular expression matching operation within the \`is_valid_email\` function. Regular expressions can be slow, especially if they are complex and the input string is long.
@@ -84,17 +84,17 @@ SUMMARY:
 Pre-compiled the regular expression to improve the performance of the is_valid_email function.
 \`\`\`    
 
-`
+`;
 
-        const fenced = extractFenced(source)
-        assert.equal(fenced.length, 3)
-        assert.equal(fenced[0].label, "DIFF ./email_recognizer.py")
-        assert.equal(fenced[1].language, "python")
-        assert.equal(fenced[2].label, "SUMMARY")
-    })
+    const fenced = extractFenced(source);
+    assert.equal(fenced.length, 3);
+    assert.equal(fenced[0].label, "DIFF ./email_recognizer.py");
+    assert.equal(fenced[1].language, "python");
+    assert.equal(fenced[2].label, "SUMMARY");
+  });
 
-    test("file arg", () => {
-        const source = `
+  test("file arg", () => {
+    const source = `
 lorem
 
 \`\`\`md file=./somefile.md
@@ -103,15 +103,15 @@ lorem
 
 bla
 
-`
+`;
 
-        const fenced = extractFenced(source)
-        assert.equal(fenced.length, 1)
-        assert.equal(fenced[0].label, "FILE ./somefile.md")
-    })
+    const fenced = extractFenced(source);
+    assert.equal(fenced.length, 1);
+    assert.equal(fenced[0].label, "FILE ./somefile.md");
+  });
 
-    test("file arg file quoted", () => {
-        const source = `
+  test("file arg file quoted", () => {
+    const source = `
 lorem
 
 \`\`\`md file="./somefile.md"
@@ -120,15 +120,15 @@ lorem
 
 bla
 
-`
+`;
 
-        const fenced = extractFenced(source)
-        assert.equal(fenced.length, 1)
-        assert.equal(fenced[0].label, "FILE ./somefile.md")
-    })
+    const fenced = extractFenced(source);
+    assert.equal(fenced.length, 1);
+    assert.equal(fenced[0].label, "FILE ./somefile.md");
+  });
 
-    test("data with schema", () => {
-        const source = `
+  test("data with schema", () => {
+    const source = `
         
  
 \`\`\`yaml schema=CITY_SCHEMA
@@ -149,12 +149,12 @@ bla
   url: https://en.wikipedia.org/wiki/Paris
 \`\`\`    
                     
-        `
+        `;
 
-        const fenced = extractFenced(source)
-        console.log(fenced)
-        assert.equal(fenced.length, 1)
-        assert.equal(fenced[0].args.schema, "CITY_SCHEMA")
-        assert.equal(fenced[0].language, "yaml")
-    })
-})
+    const fenced = extractFenced(source);
+    console.log(fenced);
+    assert.equal(fenced.length, 1);
+    assert.equal(fenced[0].args.schema, "CITY_SCHEMA");
+    assert.equal(fenced[0].language, "yaml");
+  });
+});

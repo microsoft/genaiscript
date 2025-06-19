@@ -1,18 +1,15 @@
-import { resolveScript } from "./ast"
-import { resolveSystems } from "./systems"
-import { logError } from "./util"
-import { YAMLStringify } from "./yaml"
-import { Project } from "./server/messages"
-import {
-    promptParametersSchemaToJSONSchema,
-    promptParameterTypeToJSONSchema,
-} from "./parameters"
-import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners"
-import { genaiscriptDebug } from "./debug"
-const dbg = genaiscriptDebug("vars")
-const dbgSchema = dbg.extend("schema")
-const dbgSystem = dbg.extend("system")
-dbgSchema.enabled = false
+import { resolveScript } from "./ast";
+import { resolveSystems } from "./systems";
+import { logError } from "./util";
+import { YAMLStringify } from "./yaml";
+import { Project } from "./server/messages";
+import { promptParametersSchemaToJSONSchema, promptParameterTypeToJSONSchema } from "./parameters";
+import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners";
+import { genaiscriptDebug } from "./debug";
+const dbg = genaiscriptDebug("vars");
+const dbgSchema = dbg.extend("schema");
+const dbgSystem = dbg.extend("system");
+dbgSchema.enabled = false;
 
 /**
  * Resolves and generates a JSON schema object representing the parameters schema
@@ -25,26 +22,24 @@ dbgSchema.enabled = false
  *          for the script itself and for each system associated with the script.
  */
 export function resolveScriptParametersSchema(
-    prj: Project,
-    script: PromptScript
+  prj: Project,
+  script: PromptScript,
 ): JSONSchemaObject {
-    const res: JSONSchemaObject = {
-        type: "object",
-        properties: {},
-    }
-    const schema = promptParametersSchemaToJSONSchema(script.parameters)
-    if (schema) res.properties["script"] = schema
-    for (const system of resolveSystems(prj, script)
-        .map((s) => resolveScript(prj, s))
-        .filter((t) => t?.parameters)) {
-        Object.entries(system.parameters).forEach(([k, v]) => {
-            res.properties[system.id] = promptParametersSchemaToJSONSchema(
-                system.parameters
-            )
-        })
-    }
-    dbgSchema(`%s: %O`, script.id, res.properties)
-    return res
+  const res: JSONSchemaObject = {
+    type: "object",
+    properties: {},
+  };
+  const schema = promptParametersSchemaToJSONSchema(script.parameters);
+  if (schema) res.properties["script"] = schema;
+  for (const system of resolveSystems(prj, script)
+    .map((s) => resolveScript(prj, s))
+    .filter((t) => t?.parameters)) {
+    Object.entries(system.parameters).forEach(([k, v]) => {
+      res.properties[system.id] = promptParametersSchemaToJSONSchema(system.parameters);
+    });
+  }
+  dbgSchema(`%s: %O`, script.id, res.properties);
+  return res;
 }
 
 /**
@@ -55,11 +50,8 @@ export function resolveScriptParametersSchema(
  * @param name - The name of the parameter to be converted into a variable name.
  * @returns A string representing the parameter's variable name in the format "systemId.parameterName".
  */
-export function systemParameterToVarName(
-    system: SystemPromptInstance,
-    name: string
-) {
-    return `${system.id}.${name}`
+export function systemParameterToVarName(system: SystemPromptInstance, name: string) {
+  return `${system.id}.${name}`;
 }
 
 /**
@@ -79,67 +71,65 @@ export function systemParameterToVarName(
  * @returns A frozen object containing the resolved and normalized prompt parameters.
  */
 export function parsePromptParameters(
-    prj: Project,
-    script: PromptScript,
-    optionsVars: Record<string, string | number | boolean | object>
+  prj: Project,
+  script: PromptScript,
+  optionsVars: Record<string, string | number | boolean | object>,
 ): PromptParameters {
-    const res: PromptParameters = {}
+  const res: PromptParameters = {};
 
-    // create the mega parameter structure
-    const parameters: PromptParameters = {
-        ...(script.parameters || {}),
-    }
-    for (const system of resolveSystems(prj, script)
-        .map((s) => resolveScript(prj, s))
-        .filter((t) => t?.parameters)) {
-        Object.entries(system.parameters).forEach(([k, v]) => {
-            parameters[systemParameterToVarName(system, k)] = v
-        })
-    }
+  // create the mega parameter structure
+  const parameters: PromptParameters = {
+    ...(script.parameters || {}),
+  };
+  for (const system of resolveSystems(prj, script)
+    .map((s) => resolveScript(prj, s))
+    .filter((t) => t?.parameters)) {
+    Object.entries(system.parameters).forEach(([k, v]) => {
+      parameters[systemParameterToVarName(system, k)] = v;
+    });
+  }
 
-    // apply defaults
-    for (const key in parameters || {}) {
-        const p = parameters[key] as any
-        if (p.default !== undefined) res[key] = structuredClone(p.default)
-        else {
-            const t = promptParameterTypeToJSONSchema(p)
-            if (t.default !== undefined) res[key] = structuredClone(t.default)
-        }
+  // apply defaults
+  for (const key in parameters || {}) {
+    const p = parameters[key] as any;
+    if (p.default !== undefined) res[key] = structuredClone(p.default);
+    else {
+      const t = promptParameterTypeToJSONSchema(p);
+      if (t.default !== undefined) res[key] = structuredClone(t.default);
     }
+  }
 
-    const vars = {
-        ...(script.vars || {}),
-        ...(optionsVars || {}),
-    }
-    // override with user parameters
-    for (const key in vars) {
-        const p = parameters[key]
-        if (!p) {
-            res[key] = vars[key]
-            continue
-        }
-
-        const t = promptParameterTypeToJSONSchema(p)
-        if (t?.type === "number") res[key] = normalizeFloat(vars[key])
-        else if (t?.type === "integer") res[key] = normalizeInt(vars[key])
-        else if (t?.type === "boolean")
-            res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key] + "")
-        else if (t?.type === "string") res[key] = vars[key]
+  const vars = {
+    ...(script.vars || {}),
+    ...(optionsVars || {}),
+  };
+  // override with user parameters
+  for (const key in vars) {
+    const p = parameters[key];
+    if (!p) {
+      res[key] = vars[key];
+      continue;
     }
 
-    // clone res to all lower case
-    for (const key of Object.keys(res)) {
-        const nkey = normalizeVarKey(key)
-        if (nkey !== key) {
-            if (res[nkey] !== undefined)
-                logError(`duplicate parameter ${key} (${nkey})`)
-            res[nkey] = res[key]
-            delete res[key]
-        }
-    }
+    const t = promptParameterTypeToJSONSchema(p);
+    if (t?.type === "number") res[key] = normalizeFloat(vars[key]);
+    else if (t?.type === "integer") res[key] = normalizeInt(vars[key]);
+    else if (t?.type === "boolean") res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key] + "");
+    else if (t?.type === "string") res[key] = vars[key];
+  }
 
-    dbg(`%s: %O`, script.id, res)
-    return Object.freeze(res)
+  // clone res to all lower case
+  for (const key of Object.keys(res)) {
+    const nkey = normalizeVarKey(key);
+    if (nkey !== key) {
+      if (res[nkey] !== undefined) logError(`duplicate parameter ${key} (${nkey})`);
+      res[nkey] = res[key];
+      delete res[key];
+    }
+  }
+
+  dbg(`%s: %O`, script.id, res);
+  return Object.freeze(res);
 }
 
 /**
@@ -157,46 +147,36 @@ export function parsePromptParameters(
  * - The proxy allows access to parameter values using normalized keys.
  */
 export function proxifyEnvVars(res: PromptParameters) {
-    const varsProxy: PromptParameters = new Proxy(
-        Object.fromEntries(
-            Object.entries(res).map(([k, v]) => [normalizeVarKey(k), v])
-        ),
-        {
-            get(target: PromptParameters, prop: string) {
-                if ((prop as any) === Object.prototype.toString)
-                    return YAMLStringify(
-                        Object.fromEntries(
-                            Object.entries(res).map(([k, v]) => [
-                                normalizeVarKey(k),
-                                v,
-                            ])
-                        )
-                    )
-                if (typeof prop === "string")
-                    return target[normalizeVarKey(prop)]
-                return undefined
-            },
-            ownKeys(target: PromptParameters) {
-                return Reflect.ownKeys(target).map((k) =>
-                    normalizeVarKey(k as string)
-                )
-            },
-            getOwnPropertyDescriptor(target: PromptParameters, prop: string) {
-                const normalizedKey = normalizeVarKey(prop)
-                const value = target[normalizedKey]
-                if (value !== undefined) {
-                    return {
-                        enumerable: true,
-                        configurable: true,
-                        writable: false,
-                        value,
-                    }
-                }
-                return undefined
-            },
+  const varsProxy: PromptParameters = new Proxy(
+    Object.fromEntries(Object.entries(res).map(([k, v]) => [normalizeVarKey(k), v])),
+    {
+      get(target: PromptParameters, prop: string) {
+        if ((prop as any) === Object.prototype.toString)
+          return YAMLStringify(
+            Object.fromEntries(Object.entries(res).map(([k, v]) => [normalizeVarKey(k), v])),
+          );
+        if (typeof prop === "string") return target[normalizeVarKey(prop)];
+        return undefined;
+      },
+      ownKeys(target: PromptParameters) {
+        return Reflect.ownKeys(target).map((k) => normalizeVarKey(k as string));
+      },
+      getOwnPropertyDescriptor(target: PromptParameters, prop: string) {
+        const normalizedKey = normalizeVarKey(prop);
+        const value = target[normalizedKey];
+        if (value !== undefined) {
+          return {
+            enumerable: true,
+            configurable: true,
+            writable: false,
+            value,
+          };
         }
-    )
-    return varsProxy
+        return undefined;
+      },
+    },
+  );
+  return varsProxy;
 }
 
 /**
@@ -207,27 +187,24 @@ export function proxifyEnvVars(res: PromptParameters) {
  * @returns A new object with `vars` containing merged environment variables, system parameters, and system variables, along with the rest of the `ev` properties.
  */
 export function mergeEnvVarsWithSystem(
-    ev: ExpansionVariables,
-    system: SystemPromptInstance
+  ev: ExpansionVariables,
+  system: SystemPromptInstance,
 ): ExpansionVariables {
-    const { parameters, vars } = system
-    if (!parameters && !vars) {
-        dbgSystem(`%s: no vars`, system.id)
-        return ev
-    }
+  const { parameters, vars } = system;
+  if (!parameters && !vars) {
+    dbgSystem(`%s: no vars`, system.id);
+    return ev;
+  }
 
-    const { vars: envVars, ...rest } = ev
-    const parameterVars = Object.fromEntries(
-        Object.entries(parameters || {}).map(([k, v]) => [
-            systemParameterToVarName(system, k),
-            v,
-        ])
-    )
-    const newVars = { ...envVars, ...parameterVars, ...(vars || {}) }
+  const { vars: envVars, ...rest } = ev;
+  const parameterVars = Object.fromEntries(
+    Object.entries(parameters || {}).map(([k, v]) => [systemParameterToVarName(system, k), v]),
+  );
+  const newVars = { ...envVars, ...parameterVars, ...(vars || {}) };
 
-    const res = { vars: newVars, ...rest }
-    dbgSystem(`%s: %O`, system.id, res.vars)
-    return res
+  const res = { vars: newVars, ...rest };
+  dbgSystem(`%s: %O`, system.id, res.vars);
+  return res;
 }
 
 /**
@@ -239,6 +216,6 @@ export function mergeEnvVarsWithSystem(
  *          Returns undefined if the input is not provided.
  */
 export function parametersToVars(parameters: PromptParameters): string[] {
-    if (!parameters) return undefined
-    return Object.keys(parameters).map((k) => `${k}=${parameters[k]}`)
+  if (!parameters) return undefined;
+  return Object.keys(parameters).map((k) => `${k}=${parameters[k]}`);
 }

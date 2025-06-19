@@ -1,5 +1,5 @@
-import { AbortSignalCancellationController } from "../../core/src/cancellation"
-import { logWarn } from "../../core/src/util"
+import { AbortSignalCancellationController } from "../../core/src/cancellation";
+import { logWarn } from "../../core/src/util";
 
 /**
  * Creates and returns an instance of AbortSignalCancellationController for handling cancellations.
@@ -11,12 +11,12 @@ import { logWarn } from "../../core/src/util"
  * @returns An initialized AbortSignalCancellationController instance.
  */
 export function createCancellationController() {
-    const canceller = new AbortSignalCancellationController()
-    const cancelHandler = () => {
-        logWarn("cancelling (cancel again to exit)...")
-        canceller.abort()
-        process.off("SIGINT", cancelHandler)
-    }
-    process.on("SIGINT", cancelHandler)
-    return canceller
+  const canceller = new AbortSignalCancellationController();
+  const cancelHandler = () => {
+    logWarn("cancelling (cancel again to exit)...");
+    canceller.abort();
+    process.off("SIGINT", cancelHandler);
+  };
+  process.on("SIGINT", cancelHandler);
+  return canceller;
 }

@@ -1,5 +1,5 @@
-import { satisfies, parse } from "semver"
+import { satisfies, parse } from "semver";
 
-export const semverSatisfies = satisfies
+export const semverSatisfies = satisfies;
 
-export const semverParse = parse
+export const semverParse = parse;

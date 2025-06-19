@@ -8,14 +8,14 @@
  */
 
 // Importing parse and stringify functions from the json5 library.
-import { parse, stringify } from "json5"
+import { parse, stringify } from "json5";
 
 // Importing jsonrepair function for fixing broken JSON strings.
-import { jsonrepair } from "jsonrepair"
+import { jsonrepair } from "jsonrepair";
 
 // Importing unfence function to handle fenced code blocks.
-import { unfence } from "./unwrappers"
-import { unthink } from "./think"
+import { unfence } from "./unwrappers";
+import { unthink } from "./think";
 
 /**
  * Checks if the input text starts with '{' or '[', indicating a JSON object or array.
@@ -24,8 +24,8 @@ import { unthink } from "./think"
  * @returns True if the string starts with '{' or '[', false otherwise.
  */
 export function isJSONObjectOrArray(text: string) {
-    // Tests if the input string starts with '{' or '[' after removing any leading whitespace.
-    return /^\s*[\{\[]/.test(text)
+  // Tests if the input string starts with '{' or '[' after removing any leading whitespace.
+  return /^\s*[\{\[]/.test(text);
 }
 
 /**
@@ -34,11 +34,11 @@ export function isJSONObjectOrArray(text: string) {
  * @returns The parsed object or undefined if parsing fails.
  */
 export function JSONTryParse(text: string) {
-    try {
-        return JSON.parse(text)
-    } catch (e) {
-        return undefined
-    }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return undefined;
+  }
 }
 
 /**
@@ -47,9 +47,9 @@ export function JSONTryParse(text: string) {
  * @returns The repaired JSON string.
  */
 export function JSONrepair(text: string) {
-    // Uses jsonrepair to fix any issues in the JSON string.
-    const repaired = jsonrepair(text)
-    return repaired
+  // Uses jsonrepair to fix any issues in the JSON string.
+  const repaired = jsonrepair(text);
+  return repaired;
 }
 
 /**
@@ -63,37 +63,37 @@ export function JSONrepair(text: string) {
  * @returns The parsed object, the default value, or undefined/null based on options.
  */
 export function JSON5parse<T = unknown>(
-    text: string,
-    options?: {
-        defaultValue?: T
-        errorAsDefaultValue?: boolean
-        repair?: boolean
-    }
+  text: string,
+  options?: {
+    defaultValue?: T;
+    errorAsDefaultValue?: boolean;
+    repair?: boolean;
+  },
 ): T | undefined | null {
-    try {
-        // Remove fencing if present.
-        text = unfence(text, "json")
-        if (options?.repair) {
-            try {
-                // Attempt parsing without repairing first.
-                const res = parse(text)
-                return res as T
-            } catch {
-                // Repair and parse if initial parsing fails.
-                const repaired = JSONrepair(text)
-                const res = parse(repaired)
-                return (res as T) ?? options?.defaultValue
-            }
-        } else {
-            // Parse without repair if repair option is false.
-            const res = parse(text)
-            return res as T
-        }
-    } catch (e) {
-        // Return default value if error occurs and errorAsDefaultValue is true.
-        if (options?.errorAsDefaultValue) return options?.defaultValue
-        throw e
+  try {
+    // Remove fencing if present.
+    text = unfence(text, "json");
+    if (options?.repair) {
+      try {
+        // Attempt parsing without repairing first.
+        const res = parse(text);
+        return res as T;
+      } catch {
+        // Repair and parse if initial parsing fails.
+        const repaired = JSONrepair(text);
+        const res = parse(repaired);
+        return (res as T) ?? options?.defaultValue;
+      }
+    } else {
+      // Parse without repair if repair option is false.
+      const res = parse(text);
+      return res as T;
     }
+  } catch (e) {
+    // Return default value if error occurs and errorAsDefaultValue is true.
+    if (options?.errorAsDefaultValue) return options?.defaultValue;
+    throw e;
+  }
 }
 
 /**
@@ -110,17 +110,17 @@ export function JSON5parse<T = unknown>(
  * @returns The parsed object, default value, or null/undefined based on input.
  */
 export function JSON5TryParse<T = unknown>(
-    text: string | undefined | null,
-    defaultValue?: T
+  text: string | undefined | null,
+  defaultValue?: T,
 ): T | undefined | null {
-    if (text === undefined) return undefined
-    if (text === null) return null
-    // Uses JSON5parse with repair option and errorAsDefaultValue set to true.
-    return JSON5parse<T>(text, {
-        defaultValue,
-        errorAsDefaultValue: true,
-        repair: true,
-    })
+  if (text === undefined) return undefined;
+  if (text === null) return null;
+  // Uses JSON5parse with repair option and errorAsDefaultValue set to true.
+  return JSON5parse<T>(text, {
+    defaultValue,
+    errorAsDefaultValue: true,
+    repair: true,
+  });
 }
 
 /**
@@ -131,12 +131,12 @@ export function JSON5TryParse<T = unknown>(
  * @returns The parsed object, the original input, or an empty object if input is empty.
  */
 export function JSONLLMTryParse(s: string): any {
-    if (s === undefined || s === null) return s
-    if (s === "") return {}
-    // Removes any fencing and then tries to parse the string.
-    const cleaned = unfence(unthink(s), "json")
-    return JSON5TryParse(cleaned)
+  if (s === undefined || s === null) return s;
+  if (s === "") return {};
+  // Removes any fencing and then tries to parse the string.
+  const cleaned = unfence(unthink(s), "json");
+  return JSON5TryParse(cleaned);
 }
 
 // Export the JSON5 stringify function directly for convenience.
-export const JSON5Stringify = stringify
+export const JSON5Stringify = stringify;

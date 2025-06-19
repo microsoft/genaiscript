@@ -1,13 +1,13 @@
-import { assert } from "./util"
-import { tryDiffParse } from "./diff"
+import { assert } from "./util";
+import { tryDiffParse } from "./diff";
 
 /**
  * Represents a chunk of changes in a diff.
  */
 export interface Chunk {
-    state: "existing" | "deleted" | "added"
-    lines: string[]
-    lineNumbers: number[]
+  state: "existing" | "deleted" | "added";
+  lines: string[];
+  lineNumbers: number[];
 }
 
 /**
@@ -20,120 +20,120 @@ export interface Chunk {
  * @returns An array of chunks representing the parsed diff, with each chunk containing its state, lines, and line numbers.
  */
 export function parseLLMDiffs(text: string): Chunk[] {
-    const lines = text.split("\n")
-    const chunks: Chunk[] = []
+  const lines = text.split("\n");
+  const chunks: Chunk[] = [];
 
-    // Initialize the first chunk
-    let chunk: Chunk = { state: "existing", lines: [], lineNumbers: [] }
-    chunks.push(chunk)
+  // Initialize the first chunk
+  let chunk: Chunk = { state: "existing", lines: [], lineNumbers: [] };
+  chunks.push(chunk);
 
-    let currentLine = Number.NaN
-    for (let i = 0; i < lines.length; ++i) {
-        let line = lines[i]
-        const diffM = /^(\[(\d+)\] )?(-|\+) (\[(\d+)\] )?/.exec(line)
+  let currentLine = Number.NaN;
+  for (let i = 0; i < lines.length; ++i) {
+    let line = lines[i];
+    const diffM = /^(\[(\d+)\] )?(-|\+) (\[(\d+)\] )?/.exec(line);
 
-        // Process lines that match the diff pattern
-        if (diffM) {
-            const l = line.substring(diffM[0].length)
-            let diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN
-            const op = diffM[3]
+    // Process lines that match the diff pattern
+    if (diffM) {
+      const l = line.substring(diffM[0].length);
+      let diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN;
+      const op = diffM[3];
 
-            // Adjust line numbers
-            if (isNaN(diffln) && !isNaN(currentLine)) {
-                currentLine++
-                diffln = currentLine
-                if (op === "-") currentLine--
-            } else {
-                currentLine = diffln
-            }
+      // Adjust line numbers
+      if (isNaN(diffln) && !isNaN(currentLine)) {
+        currentLine++;
+        diffln = currentLine;
+        if (op === "-") currentLine--;
+      } else {
+        currentLine = diffln;
+      }
 
-            // Handle added lines
-            if (op === "+") {
-                const l = line.substring(diffM[0].length)
-                if (lines[diffln] === l) {
-                    // Skip duplicate line
-                    continue
-                }
-                if (chunk.state === "added") {
-                    chunk.lines.push(l)
-                    chunk.lineNumbers.push(diffln)
-                } else {
-                    chunk = {
-                        state: "added",
-                        lines: [l],
-                        lineNumbers: [diffln],
-                    }
-                    chunks.push(chunk)
-                }
-            } else {
-                // Handle deleted lines
-                assert(op === "-")
-                if (chunk.state === "deleted") {
-                    chunk.lines.push(l)
-                    chunk.lineNumbers.push(diffln)
-                } else {
-                    chunk = {
-                        state: "deleted",
-                        lines: [l],
-                        lineNumbers: [diffln],
-                    }
-                    chunks.push(chunk)
-                }
-            }
+      // Handle added lines
+      if (op === "+") {
+        const l = line.substring(diffM[0].length);
+        if (lines[diffln] === l) {
+          // Skip duplicate line
+          continue;
+        }
+        if (chunk.state === "added") {
+          chunk.lines.push(l);
+          chunk.lineNumbers.push(diffln);
         } else {
-            // Handle existing lines
-            const lineM = /^\[(\d+)\] /.exec(line)
-            let lineNumber = lineM ? parseInt(lineM[1]) : Number.NaN
-            const l = line.substring(lineM ? lineM[0].length : 0)
-            if (isNaN(lineNumber) && !isNaN(currentLine)) {
-                currentLine++
-                lineNumber = currentLine
-            } else {
-                currentLine = lineNumber
-            }
-            if (chunk.state === "existing") {
-                chunk.lines.push(l)
-                chunk.lineNumbers.push(lineNumber)
-            } else {
-                chunk = {
-                    state: "existing",
-                    lines: [l],
-                    lineNumbers: [lineNumber],
-                }
-                chunks.push(chunk)
-            }
+          chunk = {
+            state: "added",
+            lines: [l],
+            lineNumbers: [diffln],
+          };
+          chunks.push(chunk);
         }
-    }
-
-    // Clean trailing empty lines in the last chunk
-    if (chunk.state === "existing") {
-        while (/^\s*$/.test(chunk.lines[chunk.lines.length - 1])) {
-            chunk.lines.pop()
-            chunk.lineNumbers.pop()
+      } else {
+        // Handle deleted lines
+        assert(op === "-");
+        if (chunk.state === "deleted") {
+          chunk.lines.push(l);
+          chunk.lineNumbers.push(diffln);
+        } else {
+          chunk = {
+            state: "deleted",
+            lines: [l],
+            lineNumbers: [diffln],
+          };
+          chunks.push(chunk);
         }
-        if (chunk.lines.length === 0) chunks.pop()
+      }
+    } else {
+      // Handle existing lines
+      const lineM = /^\[(\d+)\] /.exec(line);
+      let lineNumber = lineM ? parseInt(lineM[1]) : Number.NaN;
+      const l = line.substring(lineM ? lineM[0].length : 0);
+      if (isNaN(lineNumber) && !isNaN(currentLine)) {
+        currentLine++;
+        lineNumber = currentLine;
+      } else {
+        currentLine = lineNumber;
+      }
+      if (chunk.state === "existing") {
+        chunk.lines.push(l);
+        chunk.lineNumbers.push(lineNumber);
+      } else {
+        chunk = {
+          state: "existing",
+          lines: [l],
+          lineNumbers: [lineNumber],
+        };
+        chunks.push(chunk);
+      }
     }
+  }
 
-    // Remove duplicate lines added without changes
-    for (let i = 0; i < chunks.length - 1; ++i) {
-        const current = chunks[i]
-        const next = chunks[i + 1]
-        if (
-            current.lines.length === 1 &&
-            next.lines.length === 1 &&
-            current.state === "existing" &&
-            next.state === "added" &&
-            current.lines[0] === next.lines[0]
-        ) {
-            // Remove current, added line since it does not change the file
-            chunks.splice(i, 2)
-        }
+  // Clean trailing empty lines in the last chunk
+  if (chunk.state === "existing") {
+    while (/^\s*$/.test(chunk.lines[chunk.lines.length - 1])) {
+      chunk.lines.pop();
+      chunk.lineNumbers.pop();
     }
+    if (chunk.lines.length === 0) chunks.pop();
+  }
 
-    return chunks
+  // Remove duplicate lines added without changes
+  for (let i = 0; i < chunks.length - 1; ++i) {
+    const current = chunks[i];
+    const next = chunks[i + 1];
+    if (
+      current.lines.length === 1 &&
+      next.lines.length === 1 &&
+      current.state === "existing" &&
+      next.state === "added" &&
+      current.lines[0] === next.lines[0]
+    ) {
+      // Remove current, added line since it does not change the file
+      chunks.splice(i, 2);
+    }
+  }
+
+  return chunks;
 }
 
-const MIN_CHUNK_SIZE = 4
+const MIN_CHUNK_SIZE = 4;
 
 /**
  * Finds the starting position of a chunk in the given lines.
@@ -143,31 +143,26 @@ const MIN_CHUNK_SIZE = 4
  * @returns The index of the starting line of the chunk, or -1 if not found.
  */
 function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
-    const chunkLines = chunk.lines
-    if (chunkLines.length === 0) return startLine
-    const chunkStart = chunkLines[0].trim()
-    let linei = startLine
-    while (linei < lines.length) {
-        const line = lines[linei].trim()
-        if (line === chunkStart) {
-            let found = true
-            let i = 1
-            for (
-                ;
-                i < Math.min(MIN_CHUNK_SIZE, chunkLines.length) &&
-                linei + i < lines.length;
-                ++i
-            ) {
-                if (lines[linei + i].trim() !== chunkLines[i].trim()) {
-                    found = false
-                    break
-                }
-            }
-            if (found && i === chunkLines.length) return linei
+  const chunkLines = chunk.lines;
+  if (chunkLines.length === 0) return startLine;
+  const chunkStart = chunkLines[0].trim();
+  let linei = startLine;
+  while (linei < lines.length) {
+    const line = lines[linei].trim();
+    if (line === chunkStart) {
+      let found = true;
+      let i = 1;
+      for (; i < Math.min(MIN_CHUNK_SIZE, chunkLines.length) && linei + i < lines.length; ++i) {
+        if (lines[linei + i].trim() !== chunkLines[i].trim()) {
+          found = false;
+          break;
         }
-        ++linei
+      }
+      if (found && i === chunkLines.length) return linei;
     }
-    return -1
+    ++linei;
+  }
+  return -1;
 }
 
 /**
@@ -179,63 +174,58 @@ function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
  * @throws Error if the chunk sequence is invalid, unexpected states are encountered, or if chunk alignment fails.
  */
 export function applyLLMDiff(source: string, chunks: Chunk[]): string {
-    if (!chunks?.length || !source) return source
+  if (!chunks?.length || !source) return source;
 
-    const lines = source.split("\n")
-    let current = 0
-    let i = 0
-    while (i + 1 < chunks.length) {
-        const chunk = chunks[i++]
-        if (chunk.state !== "existing")
-            throw new Error("expecting existing chunk")
+  const lines = source.split("\n");
+  let current = 0;
+  let i = 0;
+  while (i + 1 < chunks.length) {
+    const chunk = chunks[i++];
+    if (chunk.state !== "existing") throw new Error("expecting existing chunk");
 
-        // Find location of existing chunk
-        const chunkStart = findChunk(lines, chunk, current)
-        if (chunkStart === -1) break
-        current = chunkStart + chunk.lines.length
+    // Find location of existing chunk
+    const chunkStart = findChunk(lines, chunk, current);
+    if (chunkStart === -1) break;
+    current = chunkStart + chunk.lines.length;
 
-        // Handle deleted chunk
-        if (chunks[i]?.state === "deleted") {
-            const deletedChunk = chunks[i++]
-            const chunkDel = findChunk(lines, deletedChunk, current)
-            if (chunkDel === current) {
-                lines.splice(current, deletedChunk.lines.length)
-            }
-            if (chunks[i]?.state === "existing") continue
-        }
-
-        const addedChunk = chunks[i++]
-        if (!addedChunk) break
-        if (addedChunk?.state !== "added")
-            throw new Error("expecting added chunk")
-
-        // Find the end of the next existing chunk
-        let nextChunk = chunks[i]
-        if (nextChunk && nextChunk.state !== "existing")
-            throw new Error("expecting existing chunk")
-        const chunkEnd = nextChunk
-            ? findChunk(lines, nextChunk, current)
-            : lines.length
-
-        if (chunkEnd === -1) break
-
-        // Finally, replace the lines with the added chunk
-        const toRemove = chunkEnd - current
-        lines.splice(current, toRemove, ...addedChunk.lines)
-
-        current += addedChunk.lines.length - toRemove
+    // Handle deleted chunk
+    if (chunks[i]?.state === "deleted") {
+      const deletedChunk = chunks[i++];
+      const chunkDel = findChunk(lines, deletedChunk, current);
+      if (chunkDel === current) {
+        lines.splice(current, deletedChunk.lines.length);
+      }
+      if (chunks[i]?.state === "existing") continue;
     }
 
-    return lines.join("\n")
+    const addedChunk = chunks[i++];
+    if (!addedChunk) break;
+    if (addedChunk?.state !== "added") throw new Error("expecting added chunk");
+
+    // Find the end of the next existing chunk
+    let nextChunk = chunks[i];
+    if (nextChunk && nextChunk.state !== "existing") throw new Error("expecting existing chunk");
+    const chunkEnd = nextChunk ? findChunk(lines, nextChunk, current) : lines.length;
+
+    if (chunkEnd === -1) break;
+
+    // Finally, replace the lines with the added chunk
+    const toRemove = chunkEnd - current;
+    lines.splice(current, toRemove, ...addedChunk.lines);
+
+    current += addedChunk.lines.length - toRemove;
+  }
+
+  return lines.join("\n");
 }
 
 /**
  * Custom error class for handling diff-related errors.
  */
 export class DiffError extends Error {
-    constructor(message: string) {
-        super(message)
-    }
+  constructor(message: string) {
+    super(message);
+  }
 }
 
 /**
@@ -249,45 +239,41 @@ export class DiffError extends Error {
  * @throws DiffError if invalid or missing line numbers are encountered.
  */
 export function applyLLMPatch(source: string, chunks: Chunk[]): string {
-    if (!chunks?.length || !source) return source
+  if (!chunks?.length || !source) return source;
 
-    const lines = source.split("\n")
+  const lines = source.split("\n");
 
-    // Process modified and deleted chunks
-    chunks
-        .filter((c) => c.state !== "added")
-        .forEach((chunk) => {
-            for (let li = 0; li < chunk.lines.length; ++li) {
-                const line =
-                    chunk.state === "deleted" ? undefined : chunk.lines[li]
-                const linei = chunk.lineNumbers[li] - 1
-                if (isNaN(linei))
-                    throw new DiffError(`diff: missing or nan line number`)
-                if (linei < 0 || linei >= lines.length)
-                    throw new DiffError(
-                        `diff: invalid line number ${linei} in ${lines.length}`
-                    )
-                lines[linei] = line
-            }
-        })
+  // Process modified and deleted chunks
+  chunks
+    .filter((c) => c.state !== "added")
+    .forEach((chunk) => {
+      for (let li = 0; li < chunk.lines.length; ++li) {
+        const line = chunk.state === "deleted" ? undefined : chunk.lines[li];
+        const linei = chunk.lineNumbers[li] - 1;
+        if (isNaN(linei)) throw new DiffError(`diff: missing or nan line number`);
+        if (linei < 0 || linei >= lines.length)
+          throw new DiffError(`diff: invalid line number ${linei} in ${lines.length}`);
+        lines[linei] = line;
+      }
+    });
 
-    // Insert added chunks after processing deletions and modifications
-    for (let ci = chunks.length - 1; ci > 0; ci--) {
-        const chunk = chunks[ci]
-        if (chunk.state !== "added") continue
-        let previ = ci - 1
-        let prev = chunks[previ]
-        // Find the previous existing chunk
-        while (prev && prev.state !== "existing") {
-            prev = chunks[--previ]
-        }
-        if (!prev) throw new Error("missing previous chunk for added chunk")
-        const prevLinei = prev.lineNumbers[prev.lineNumbers.length - 1]
-        lines.splice(prevLinei, 0, ...chunk.lines)
+  // Insert added chunks after processing deletions and modifications
+  for (let ci = chunks.length - 1; ci > 0; ci--) {
+    const chunk = chunks[ci];
+    if (chunk.state !== "added") continue;
+    let previ = ci - 1;
+    let prev = chunks[previ];
+    // Find the previous existing chunk
+    while (prev && prev.state !== "existing") {
+      prev = chunks[--previ];
     }
+    if (!prev) throw new Error("missing previous chunk for added chunk");
+    const prevLinei = prev.lineNumbers[prev.lineNumbers.length - 1];
+    lines.splice(prevLinei, 0, ...chunk.lines);
+  }
 
-    // Filter out undefined lines (deleted)
-    return lines.filter((l) => l !== undefined).join("\n")
+  // Filter out undefined lines (deleted)
+  return lines.filter((l) => l !== undefined).join("\n");
 }
 
 /**
@@ -300,37 +286,34 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
  * @returns The LLMDiff formatted string or undefined if parsing fails.
  */
 export function llmifyDiff(diff: string) {
-    if (!diff) return diff
+  if (!diff) return diff;
 
-    const parsed = tryDiffParse(diff)
-    if (!parsed?.length) return undefined
+  const parsed = tryDiffParse(diff);
+  if (!parsed?.length) return undefined;
 
-    for (const file of parsed) {
-        for (const chunk of file.chunks) {
-            let currentLineNumber = chunk.newStart
-            for (const change of chunk.changes) {
-                if (change.type === "del") continue
-                ;(change as any).line = currentLineNumber
-                currentLineNumber++
-            }
-        }
+  for (const file of parsed) {
+    for (const chunk of file.chunks) {
+      let currentLineNumber = chunk.newStart;
+      for (const change of chunk.changes) {
+        if (change.type === "del") continue;
+        (change as any).line = currentLineNumber;
+        currentLineNumber++;
+      }
     }
+  }
 
-    // Convert back to unified diff format
-    let result = ""
-    for (const file of parsed) {
-        result += `--- ${file.from}\n+++ ${file.to}\n`
-        for (const chunk of file.chunks) {
-            result += `${chunk.content}\n`
-            for (const change of chunk.changes) {
-                const ln =
-                    (change as any).line !== undefined
-                        ? `[${(change as any).line}] `
-                        : ""
-                result += `${ln}${change.content}\n`
-            }
-        }
+  // Convert back to unified diff format
+  let result = "";
+  for (const file of parsed) {
+    result += `--- ${file.from}\n+++ ${file.to}\n`;
+    for (const chunk of file.chunks) {
+      result += `${chunk.content}\n`;
+      for (const change of chunk.changes) {
+        const ln = (change as any).line !== undefined ? `[${(change as any).line}] ` : "";
+        result += `${ln}${change.content}\n`;
+      }
     }
+  }
 
-    return result
+  return result;
 }

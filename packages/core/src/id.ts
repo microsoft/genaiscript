@@ -1,4 +1,4 @@
-import { nanoid } from "nanoid"
+import { nanoid } from "nanoid";
 
 /**
  * Generates a unique identifier.
@@ -6,5 +6,5 @@ import { nanoid } from "nanoid"
  * @returns A unique identifier string.
  */
 export function generateId(): string {
-    return nanoid()
+  return nanoid();
 }

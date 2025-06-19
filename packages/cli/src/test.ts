@@ -2,56 +2,53 @@
 // listing, and viewing results. It handles configuration setup, execution logic,
 // and result processing.
 
-import { buildProject } from "./build"
-import { readFile, writeFile, appendFile } from "node:fs/promises"
-import { execa } from "execa"
-import { dirname, join, resolve } from "node:path"
-import { emptyDir, exists } from "fs-extra"
-import { PROMPTFOO_VERSION } from "./version"
+import { buildProject } from "./build";
+import { readFile, writeFile, appendFile } from "node:fs/promises";
+import { execa } from "execa";
+import { dirname, join, resolve } from "node:path";
+import { emptyDir, exists } from "fs-extra";
+import { PROMPTFOO_VERSION } from "./version";
 import {
-    PROMPTFOO_CACHE_PATH,
-    PROMPTFOO_CONFIG_DIR,
-    FILES_NOT_FOUND_ERROR_CODE,
-    GENAISCRIPT_FOLDER,
-    GENAI_ANY_REGEX,
-    EMOJI_SUCCESS,
-    EMOJI_FAIL,
-    TEST_RUNS_DIR_NAME,
-    PROMPTFOO_REMOTE_API_PORT,
-} from "../../core/src/constants"
-import { promptFooDriver } from "../../core/src/default_prompts"
-import { serializeError } from "../../core/src/error"
-import { runtimeHost } from "../../core/src/host"
-import { JSON5TryParse } from "../../core/src/json5"
-import { MarkdownTrace } from "../../core/src/trace"
-import { logInfo, logVerbose, toStringList } from "../../core/src/util"
-import { YAMLStringify } from "../../core/src/yaml"
+  PROMPTFOO_CACHE_PATH,
+  PROMPTFOO_CONFIG_DIR,
+  FILES_NOT_FOUND_ERROR_CODE,
+  GENAISCRIPT_FOLDER,
+  GENAI_ANY_REGEX,
+  EMOJI_SUCCESS,
+  EMOJI_FAIL,
+  TEST_RUNS_DIR_NAME,
+  PROMPTFOO_REMOTE_API_PORT,
+} from "../../core/src/constants";
+import { promptFooDriver } from "../../core/src/default_prompts";
+import { serializeError } from "../../core/src/error";
+import { runtimeHost } from "../../core/src/host";
+import { JSON5TryParse } from "../../core/src/json5";
+import { MarkdownTrace } from "../../core/src/trace";
+import { logInfo, logVerbose, toStringList } from "../../core/src/util";
+import { YAMLStringify } from "../../core/src/yaml";
 import {
-    PromptScriptTestRunOptions,
-    PromptScriptTestRunResponse,
-    PromptScriptTestResult,
-} from "../../core/src/server/messages"
-import { generatePromptFooConfiguration } from "../../core/src/promptfoo"
-import { delay } from "es-toolkit"
-import { resolveModelConnectionInfo } from "../../core/src/models"
-import { filterScripts } from "../../core/src/ast"
-import { link } from "../../core/src/mkmd"
-import { applyModelOptions } from "../../core/src/modelalias"
-import { arrayify, normalizeFloat, normalizeInt } from "../../core/src/cleaners"
-import { ChatCompletionReasoningEffort } from "../../core/src/chattypes"
+  PromptScriptTestRunOptions,
+  PromptScriptTestRunResponse,
+  PromptScriptTestResult,
+} from "../../core/src/server/messages";
+import { generatePromptFooConfiguration } from "../../core/src/promptfoo";
+import { delay } from "es-toolkit";
+import { resolveModelConnectionInfo } from "../../core/src/models";
+import { filterScripts } from "../../core/src/ast";
+import { link } from "../../core/src/mkmd";
+import { applyModelOptions } from "../../core/src/modelalias";
+import { arrayify, normalizeFloat, normalizeInt } from "../../core/src/cleaners";
+import { ChatCompletionReasoningEffort } from "../../core/src/chattypes";
+import { CancellationOptions, checkCancelled } from "../../core/src/cancellation";
+import { CORE_VERSION } from "../../core/src/version";
 import {
-    CancellationOptions,
-    checkCancelled,
-} from "../../core/src/cancellation"
-import { CORE_VERSION } from "../../core/src/version"
-import {
-    headersToMarkdownTableHead,
-    headersToMarkdownTableSeperator,
-    objectToMarkdownTableRow,
-} from "../../core/src/csv"
-import { roundWithPrecision } from "../../core/src/precision"
-import { ensureDir } from "../../core/src/fs"
-import { dotGenaiscriptPath } from "../../core/src/workdir"
+  headersToMarkdownTableHead,
+  headersToMarkdownTableSeperator,
+  objectToMarkdownTableRow,
+} from "../../core/src/csv";
+import { roundWithPrecision } from "../../core/src/precision";
+import { ensureDir } from "../../core/src/fs";
+import { dotGenaiscriptPath } from "../../core/src/workdir";
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
@@ -59,26 +56,26 @@ import { dotGenaiscriptPath } from "../../core/src/workdir"
  * @returns A ModelOptions object with model, temperature, and topP fields if applicable.
  */
 function parseModelSpec(m: string): ModelOptions & ModelAliasesOptions {
-    const values = m
-        .split(/&/g)
-        .map((kv) => kv.split("=", 2))
-        .reduce(
-            (acc, [key, value]) => {
-                acc[key] = decodeURIComponent(value)
-                return acc
-            },
-            {} as Record<string, string>
-        )
-    if (Object.keys(values).length > 1)
-        return {
-            model: values["m"],
-            smallModel: values["s"],
-            visionModel: values["v"],
-            temperature: normalizeFloat(values["t"]),
-            topP: normalizeFloat(values["p"]),
-            reasoningEffort: values["r"] as ChatCompletionReasoningEffort,
-        } satisfies ModelOptions & ModelAliasesOptions
-    else return { model: m }
+  const values = m
+    .split(/&/g)
+    .map((kv) => kv.split("=", 2))
+    .reduce(
+      (acc, [key, value]) => {
+        acc[key] = decodeURIComponent(value);
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+  if (Object.keys(values).length > 1)
+    return {
+      model: values["m"],
+      smallModel: values["s"],
+      visionModel: values["v"],
+      temperature: normalizeFloat(values["t"]),
+      topP: normalizeFloat(values["p"]),
+      reasoningEffort: values["r"] as ChatCompletionReasoningEffort,
+    } satisfies ModelOptions & ModelAliasesOptions;
+  else return { model: m };
 }
 
 /**
@@ -86,16 +83,16 @@ function parseModelSpec(m: string): ModelOptions & ModelAliasesOptions {
  * @returns An environment object with necessary configurations.
  */
 function createEnv() {
-    const env = process.env
-    return {
-        ...process.env,
-        PROMPTFOO_CACHE_PATH: env.PROMPTFOO_CACHE_PATH ?? PROMPTFOO_CACHE_PATH,
-        PROMPTFOO_CONFIG_DIR: env.PROMPTFOO_CONFIG_DIR ?? PROMPTFOO_CONFIG_DIR,
-        PROMPTFOO_DISABLE_TELEMETRY: env.PROMPTFOO_DISABLE_TELEMETRY ?? "true",
-        PROMPTFOO_DISABLE_UPDATE: env.PROMPTFOO_DISABLE_UPDATE ?? "true",
-        PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION:
-            env.PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION ?? "true",
-    }
+  const env = process.env;
+  return {
+    ...process.env,
+    PROMPTFOO_CACHE_PATH: env.PROMPTFOO_CACHE_PATH ?? PROMPTFOO_CACHE_PATH,
+    PROMPTFOO_CONFIG_DIR: env.PROMPTFOO_CONFIG_DIR ?? PROMPTFOO_CONFIG_DIR,
+    PROMPTFOO_DISABLE_TELEMETRY: env.PROMPTFOO_DISABLE_TELEMETRY ?? "true",
+    PROMPTFOO_DISABLE_UPDATE: env.PROMPTFOO_DISABLE_UPDATE ?? "true",
+    PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION:
+      env.PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION ?? "true",
+  };
 }
 
 /**
@@ -105,64 +102,62 @@ function createEnv() {
  * @returns A Promise resolving to the test run response, including results, status, and error details if applicable.
  */
 export async function runPromptScriptTests(
-    ids: string[],
-    options: PromptScriptTestRunOptions & {
-        out?: string
-        cli?: string
-        removeOut?: boolean
-        cache?: boolean
-        verbose?: boolean
-        write?: boolean
-        redteam?: boolean
-        promptfooVersion?: string
-        outSummary?: string
-        testDelay?: string
-        maxConcurrency?: string
-        testTimeout?: string
-    } & CancellationOptions
+  ids: string[],
+  options: PromptScriptTestRunOptions & {
+    out?: string;
+    cli?: string;
+    removeOut?: boolean;
+    cache?: boolean;
+    verbose?: boolean;
+    write?: boolean;
+    redteam?: boolean;
+    promptfooVersion?: string;
+    outSummary?: string;
+    testDelay?: string;
+    maxConcurrency?: string;
+    testTimeout?: string;
+  } & CancellationOptions,
 ): Promise<PromptScriptTestRunResponse> {
-    applyModelOptions(options, "cli")
-    const { cancellationToken, redteam } = options || {}
-    const scripts = await listTests({ ids, ...(options || {}) })
-    if (!scripts.length)
-        return {
-            ok: false,
-            status: FILES_NOT_FOUND_ERROR_CODE,
-            error: serializeError(new Error("no tests found")),
-        }
+  applyModelOptions(options, "cli");
+  const { cancellationToken, redteam } = options || {};
+  const scripts = await listTests({ ids, ...(options || {}) });
+  if (!scripts.length)
+    return {
+      ok: false,
+      status: FILES_NOT_FOUND_ERROR_CODE,
+      error: serializeError(new Error("no tests found")),
+    };
 
-    const cli = options.cli || resolve(__filename)
-    const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
-    let outSummary = options.outSummary
-        ? resolve(options.outSummary)
-        : undefined
-    const provider = join(out, "provider.mjs")
-    const port = PROMPTFOO_REMOTE_API_PORT
-    const serverUrl = `http://127.0.0.1:${port}`
-    const testDelay = normalizeInt(options?.testDelay)
-    const maxConcurrency = normalizeInt(options?.maxConcurrency)
-    const timeout = normalizeInt(options?.testTimeout) * 1000 || undefined
-    const runStart = new Date()
-    logInfo(`writing tests to ${out}`)
+  const cli = options.cli || resolve(__filename);
+  const out = options.out || join(GENAISCRIPT_FOLDER, "tests");
+  let outSummary = options.outSummary ? resolve(options.outSummary) : undefined;
+  const provider = join(out, "provider.mjs");
+  const port = PROMPTFOO_REMOTE_API_PORT;
+  const serverUrl = `http://127.0.0.1:${port}`;
+  const testDelay = normalizeInt(options?.testDelay);
+  const maxConcurrency = normalizeInt(options?.maxConcurrency);
+  const timeout = normalizeInt(options?.testTimeout) * 1000 || undefined;
+  const runStart = new Date();
+  logInfo(`writing tests to ${out}`);
 
-    if (options?.removeOut) await emptyDir(out)
-    await ensureDir(out)
-    await writeFile(provider, promptFooDriver)
+  if (options?.removeOut) await emptyDir(out);
+  await ensureDir(out);
+  await writeFile(provider, promptFooDriver);
 
-    if (!outSummary) {
-        outSummary = dotGenaiscriptPath(
-            TEST_RUNS_DIR_NAME,
-            `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
-        )
-    }
+  if (!outSummary) {
+    outSummary = dotGenaiscriptPath(
+      TEST_RUNS_DIR_NAME,
+      `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`,
+    );
+  }
 
-    await ensureDir(PROMPTFOO_CACHE_PATH)
-    await ensureDir(PROMPTFOO_CONFIG_DIR)
-    if (outSummary) {
-        await ensureDir(dirname(outSummary))
-        await appendFile(
-            outSummary,
-            `## GenAIScript Test Results
+  await ensureDir(PROMPTFOO_CACHE_PATH);
+  await ensureDir(PROMPTFOO_CONFIG_DIR);
+  if (outSummary) {
+    await ensureDir(dirname(outSummary));
+    await appendFile(
+      outSummary,
+      `## GenAIScript Test Results
 
 - start: ${runStart.toISOString()}
 - Run this command to launch the promptfoo test viewer.
@@ -171,190 +166,164 @@ export async function runPromptScriptTests(
 npx --yes genaiscript@${CORE_VERSION} test view
 \`\`\`
 
-`
-        )
-        logVerbose(`trace: ${outSummary}`)
-    }
+`,
+    );
+    logVerbose(`trace: ${outSummary}`);
+  }
 
-    // Prepare test configurations for each script
-    const optionsModels = Object.freeze(options.models?.map(parseModelSpec))
-    const configurations: { script: PromptScript; configuration: string }[] = []
-    for (const script of scripts) {
-        checkCancelled(cancellationToken)
-        const fn = out
-            ? join(out, `${script.id}.promptfoo.yaml`)
-            : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
-        const { info: chatInfo } = await resolveModelConnectionInfo(script, {
-            model: runtimeHost.modelAliases.large.model,
-        })
-        if (chatInfo.error) throw new Error(chatInfo.error)
-        let { info: embeddingsInfo } = await resolveModelConnectionInfo(
-            script,
-            { model: runtimeHost.modelAliases.embeddings.model }
-        )
-        if (embeddingsInfo?.error) embeddingsInfo = undefined
-        const testModels = arrayify(script.testModels).map((m) =>
-            typeof m === "string" ? parseModelSpec(m) : m
-        )
-        const models = testModels?.length ? testModels : optionsModels?.slice(0)
-        const config = await generatePromptFooConfiguration(script, {
-            out,
-            cli,
-            models,
-            provider: "provider.mjs",
-            chatInfo,
-            embeddingsInfo,
-            redteam,
-        })
-        const yaml = YAMLStringify(config)
-        await writeFile(fn, yaml)
-        configurations.push({ script, configuration: fn })
-    }
+  // Prepare test configurations for each script
+  const optionsModels = Object.freeze(options.models?.map(parseModelSpec));
+  const configurations: { script: PromptScript; configuration: string }[] = [];
+  for (const script of scripts) {
+    checkCancelled(cancellationToken);
+    const fn = out
+      ? join(out, `${script.id}.promptfoo.yaml`)
+      : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml");
+    const { info: chatInfo } = await resolveModelConnectionInfo(script, {
+      model: runtimeHost.modelAliases.large.model,
+    });
+    if (chatInfo.error) throw new Error(chatInfo.error);
+    let { info: embeddingsInfo } = await resolveModelConnectionInfo(script, {
+      model: runtimeHost.modelAliases.embeddings.model,
+    });
+    if (embeddingsInfo?.error) embeddingsInfo = undefined;
+    const testModels = arrayify(script.testModels).map((m) =>
+      typeof m === "string" ? parseModelSpec(m) : m,
+    );
+    const models = testModels?.length ? testModels : optionsModels?.slice(0);
+    const config = await generatePromptFooConfiguration(script, {
+      out,
+      cli,
+      models,
+      provider: "provider.mjs",
+      chatInfo,
+      embeddingsInfo,
+      redteam,
+    });
+    const yaml = YAMLStringify(config);
+    await writeFile(fn, yaml);
+    configurations.push({ script, configuration: fn });
+  }
 
-    let stats = {
-        prompt: 0,
-        completion: 0,
-        total: 0,
+  let stats = {
+    prompt: 0,
+    completion: 0,
+    total: 0,
+  };
+  const headers = ["status", "script", "prompt", "completion", "total", "duration", "url"];
+  if (outSummary) {
+    await appendFile(
+      outSummary,
+      [headersToMarkdownTableHead(headers), headersToMarkdownTableSeperator(headers)].join(""),
+    );
+  }
+  const promptFooVersion = options.promptfooVersion || PROMPTFOO_VERSION;
+  const results: PromptScriptTestResult[] = [];
+  // Execute each configuration and gather results
+  for (const config of configurations) {
+    checkCancelled(cancellationToken);
+    const { script, configuration } = config;
+    logInfo(
+      `test ${script.id} (${results.length + 1}/${configurations.length}) - ${configuration}`,
+    );
+    const testStart = new Date();
+    const outJson = configuration.replace(/\.yaml$/, ".res.json");
+    const cmd = "npx";
+    const args = ["--yes", `promptfoo@${promptFooVersion}`];
+    if (redteam) args.push("redteam", "run", "--force");
+    else args.push("eval", "--no-progress-bar");
+    args.push("--config", configuration);
+    if (!isNaN(maxConcurrency)) args.push("--max-concurrency", String(maxConcurrency));
+
+    if (options.cache) args.push("--cache");
+    if (options.verbose) args.push("--verbose");
+    args.push("--output", outJson);
+    logVerbose(`  ${cmd} ${args.join(" ")}`);
+    const exec = execa(cmd, args, {
+      preferLocal: true,
+      cleanup: true,
+      stripFinalNewline: true,
+      buffer: false,
+      env: createEnv(),
+      stdio: "inherit",
+      timeout,
+    });
+    let status: number;
+    let error: SerializedError;
+    let value: PromptScriptTestResult["value"] = undefined;
+    try {
+      const res = await exec;
+      status = res.exitCode;
+    } catch (e) {
+      status = e.errno ?? -1;
+      error = serializeError(e);
     }
-    const headers = [
-        "status",
-        "script",
-        "prompt",
-        "completion",
-        "total",
-        "duration",
-        "url",
-    ]
+    if (await exists(outJson)) value = JSON5TryParse(await readFile(outJson, "utf8"));
+    const ok = status === 0;
+    stats.prompt += value?.results?.stats?.tokenUsage?.prompt || 0;
+    stats.completion += value?.results?.stats?.tokenUsage?.completion || 0;
+    stats.total += value?.results?.stats?.tokenUsage?.total || 0;
+    const testEnd = new Date();
     if (outSummary) {
-        await appendFile(
-            outSummary,
-            [
-                headersToMarkdownTableHead(headers),
-                headersToMarkdownTableSeperator(headers),
-            ].join("")
-        )
+      const url = value?.evalId
+        ? " " +
+          link("result", `${serverUrl}/eval?evalId=${encodeURIComponent(value?.evalId)}`) +
+          " "
+        : "";
+      const row = {
+        status: ok ? EMOJI_SUCCESS : EMOJI_FAIL,
+        script: script.id,
+        prompt: value?.results?.stats?.tokenUsage?.prompt,
+        completion: value?.results?.stats?.tokenUsage?.completion,
+        total: value?.results?.stats?.tokenUsage?.total,
+        duration: roundWithPrecision((testEnd.getTime() - testStart.getTime()) / 1000, 1),
+        url,
+      };
+      await appendFile(outSummary, objectToMarkdownTableRow(row, headers, { skipEscape: true }));
     }
-    const promptFooVersion = options.promptfooVersion || PROMPTFOO_VERSION
-    const results: PromptScriptTestResult[] = []
-    // Execute each configuration and gather results
-    for (const config of configurations) {
-        checkCancelled(cancellationToken)
-        const { script, configuration } = config
-        logInfo(
-            `test ${script.id} (${results.length + 1}/${configurations.length}) - ${configuration}`
-        )
-        const testStart = new Date()
-        const outJson = configuration.replace(/\.yaml$/, ".res.json")
-        const cmd = "npx"
-        const args = ["--yes", `promptfoo@${promptFooVersion}`]
-        if (redteam) args.push("redteam", "run", "--force")
-        else args.push("eval", "--no-progress-bar")
-        args.push("--config", configuration)
-        if (!isNaN(maxConcurrency))
-            args.push("--max-concurrency", String(maxConcurrency))
+    results.push({
+      status,
+      ok,
+      error,
+      script: script.id,
+      value,
+    });
 
-        if (options.cache) args.push("--cache")
-        if (options.verbose) args.push("--verbose")
-        args.push("--output", outJson)
-        logVerbose(`  ${cmd} ${args.join(" ")}`)
-        const exec = execa(cmd, args, {
-            preferLocal: true,
-            cleanup: true,
-            stripFinalNewline: true,
-            buffer: false,
-            env: createEnv(),
-            stdio: "inherit",
-            timeout,
-        })
-        let status: number
-        let error: SerializedError
-        let value: PromptScriptTestResult["value"] = undefined
-        try {
-            const res = await exec
-            status = res.exitCode
-        } catch (e) {
-            status = e.errno ?? -1
-            error = serializeError(e)
-        }
-        if (await exists(outJson))
-            value = JSON5TryParse(await readFile(outJson, "utf8"))
-        const ok = status === 0
-        stats.prompt += value?.results?.stats?.tokenUsage?.prompt || 0
-        stats.completion += value?.results?.stats?.tokenUsage?.completion || 0
-        stats.total += value?.results?.stats?.tokenUsage?.total || 0
-        const testEnd = new Date()
-        if (outSummary) {
-            const url = value?.evalId
-                ? " " +
-                  link(
-                      "result",
-                      `${serverUrl}/eval?evalId=${encodeURIComponent(value?.evalId)}`
-                  ) +
-                  " "
-                : ""
-            const row = {
-                status: ok ? EMOJI_SUCCESS : EMOJI_FAIL,
-                script: script.id,
-                prompt: value?.results?.stats?.tokenUsage?.prompt,
-                completion: value?.results?.stats?.tokenUsage?.completion,
-                total: value?.results?.stats?.tokenUsage?.total,
-                duration: roundWithPrecision(
-                    (testEnd.getTime() - testStart.getTime()) / 1000,
-                    1
-                ),
-                url,
-            }
-            await appendFile(
-                outSummary,
-                objectToMarkdownTableRow(row, headers, { skipEscape: true })
-            )
-        }
-        results.push({
-            status,
-            ok,
-            error,
-            script: script.id,
-            value,
-        })
+    if (testDelay > 0) {
+      logVerbose(`  waiting ${testDelay}s`);
+      await delay(testDelay * 1000);
+    }
+  }
+  const runEnd = new Date();
 
-        if (testDelay > 0) {
-            logVerbose(`  waiting ${testDelay}s`)
-            await delay(testDelay * 1000)
-        }
-    }
-    const runEnd = new Date()
-
-    if (outSummary) {
-        await appendFile(
-            outSummary,
-            [
-                objectToMarkdownTableRow(
-                    {
-                        status: results.filter((r) => r.ok).length,
-                        prompt: stats.prompt,
-                        completion: stats.completion,
-                        total: stats.total,
-                        duration: roundWithPrecision(
-                            (runEnd.getTime() - runStart.getTime()) / 1000,
-                            1
-                        ),
-                    },
-                    headers,
-                    { skipEscape: true }
-                ),
-                "\n\n",
-                `- end: ${runEnd.toISOString()}\n`,
-            ].join("")
-        )
-    }
-    if (outSummary) logVerbose(`trace: ${outSummary}`)
-    const ok = results.every((r) => !!r.ok)
-    return {
-        ok,
-        status: ok ? 0 : -1,
-        value: results,
-        error: results.find((r) => r.error)?.error,
-    }
+  if (outSummary) {
+    await appendFile(
+      outSummary,
+      [
+        objectToMarkdownTableRow(
+          {
+            status: results.filter((r) => r.ok).length,
+            prompt: stats.prompt,
+            completion: stats.completion,
+            total: stats.total,
+            duration: roundWithPrecision((runEnd.getTime() - runStart.getTime()) / 1000, 1),
+          },
+          headers,
+          { skipEscape: true },
+        ),
+        "\n\n",
+        `- end: ${runEnd.toISOString()}\n`,
+      ].join(""),
+    );
+  }
+  if (outSummary) logVerbose(`trace: ${outSummary}`);
+  const ok = results.every((r) => !!r.ok);
+  return {
+    ok,
+    status: ok ? 0 : -1,
+    value: results,
+    error: results.find((r) => r.error)?.error,
+  };
 }
 
 /*
@@ -362,18 +331,14 @@ npx --yes genaiscript@${CORE_VERSION} test view
  * @param options - Options to filter the test scripts by IDs or groups.
  * @returns A Promise resolving to an array of filtered scripts.
  */
-async function listTests(options: {
-    ids?: string[]
-    groups?: string[]
-    redteam?: boolean
-}) {
-    const prj = await buildProject()
-    const scripts = filterScripts(prj.scripts, {
-        ...(options || {}),
-        test: options.redteam ? undefined : true,
-        redteam: options.redteam,
-    })
-    return scripts
+async function listTests(options: { ids?: string[]; groups?: string[]; redteam?: boolean }) {
+  const prj = await buildProject();
+  const scripts = filterScripts(prj.scripts, {
+    ...(options || {}),
+    test: options.redteam ? undefined : true,
+    redteam: options.redteam,
+  });
+  return scripts;
 }
 
 /**
@@ -382,31 +347,31 @@ async function listTests(options: {
  * @param options - Options to configure the test run, including output paths, CLI settings, verbosity, caching, test delay, groups, concurrency settings, and redteam mode.
  */
 export async function scriptsTest(
-    ids: string[],
-    options: PromptScriptTestRunOptions & {
-        out?: string
-        cli?: string
-        removeOut?: boolean
-        cache?: boolean
-        verbose?: boolean
-        write?: boolean
-        redteam?: boolean
-        promptfooVersion?: string
-        outSummary?: string
-        testDelay?: string
-        groups?: string[]
-        maxConcurrency?: string
-    }
+  ids: string[],
+  options: PromptScriptTestRunOptions & {
+    out?: string;
+    cli?: string;
+    removeOut?: boolean;
+    cache?: boolean;
+    verbose?: boolean;
+    write?: boolean;
+    redteam?: boolean;
+    promptfooVersion?: string;
+    outSummary?: string;
+    testDelay?: string;
+    groups?: string[];
+    maxConcurrency?: string;
+  },
 ) {
-    const { status, value = [] } = await runPromptScriptTests(ids, options)
-    const trace = new MarkdownTrace()
-    trace.appendContent(
-        `\n\ntests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed\n\n`
-    )
-    for (const result of value) trace.resultItem(result.ok, result.script)
-    console.log("")
-    console.log(trace.content)
-    process.exit(status)
+  const { status, value = [] } = await runPromptScriptTests(ids, options);
+  const trace = new MarkdownTrace();
+  trace.appendContent(
+    `\n\ntests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed\n\n`,
+  );
+  for (const result of value) trace.resultItem(result.ok, result.script);
+  console.log("");
+  console.log(trace.content);
+  process.exit(status);
 }
 
 /**
@@ -416,12 +381,9 @@ export async function scriptsTest(
  * @param options - Options to filter the scripts by groups or redteam flag.
  * Filters the scripts by groups and whether they are for redteam testing.
  */
-export async function scriptTestList(options: {
-    groups?: string[]
-    redteam?: boolean
-}) {
-    const scripts = await listTests(options)
-    console.log(scripts.map((s) => toStringList(s.id, s.filename)).join("\n"))
+export async function scriptTestList(options: { groups?: string[]; redteam?: boolean }) {
+  const scripts = await listTests(options);
+  console.log(scripts.map((s) => toStringList(s.id, s.filename)).join("\n"));
 }
 
 /**
@@ -432,19 +394,19 @@ export async function scriptTestList(options: {
  * @param options - Options to specify the promptfoo version.
  */
 export async function scriptTestsView(options: { promptfooVersion?: string }) {
-    await ensureDir(PROMPTFOO_CACHE_PATH)
-    await ensureDir(PROMPTFOO_CONFIG_DIR)
-    const cmd = `npx`
-    const args = [
-        "--yes",
-        `promptfoo@${options.promptfooVersion || PROMPTFOO_VERSION}`,
-        "view",
-        "-y",
-    ]
-    console.debug(`launching promptfoo result server`)
-    await execa(cmd, args, {
-        cleanup: true,
-        env: createEnv(),
-        stdio: "inherit",
-    })
+  await ensureDir(PROMPTFOO_CACHE_PATH);
+  await ensureDir(PROMPTFOO_CONFIG_DIR);
+  const cmd = `npx`;
+  const args = [
+    "--yes",
+    `promptfoo@${options.promptfooVersion || PROMPTFOO_VERSION}`,
+    "view",
+    "-y",
+  ];
+  console.debug(`launching promptfoo result server`);
+  await execa(cmd, args, {
+    cleanup: true,
+    env: createEnv(),
+    stdio: "inherit",
+  });
 }

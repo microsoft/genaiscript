@@ -1,5 +1,5 @@
 // Import the CancelError class from the error module
-import { CancelError } from "./error"
+import { CancelError } from "./error";
 
 /**
  * A cancellation token is passed to an asynchronous or long running
@@ -10,11 +10,11 @@ import { CancelError } from "./error"
  * {@link CancellationTokenSource}.
  */
 export interface CancellationToken {
-    /**
-     * Is `true` when the token has been cancelled, `false` otherwise.
-     * This flag should be checked by operations to decide if they should terminate.
-     */
-    isCancellationRequested: boolean
+  /**
+   * Is `true` when the token has been cancelled, `false` otherwise.
+   * This flag should be checked by operations to decide if they should terminate.
+   */
+  isCancellationRequested: boolean;
 }
 
 /**
@@ -22,13 +22,13 @@ export interface CancellationToken {
  * to track the cancellation state.
  */
 export class AbortSignalCancellationToken implements CancellationToken {
-    // Constructor takes an AbortSignal to track cancellation
-    constructor(private readonly signal: AbortSignal) {}
+  // Constructor takes an AbortSignal to track cancellation
+  constructor(private readonly signal: AbortSignal) {}
 
-    // Accessor for checking if the cancellation has been requested
-    get isCancellationRequested() {
-        return this.signal.aborted
-    }
+  // Accessor for checking if the cancellation has been requested
+  get isCancellationRequested() {
+    return this.signal.aborted;
+  }
 }
 
 /**
@@ -39,7 +39,7 @@ export class AbortSignalCancellationToken implements CancellationToken {
  * @returns The associated AbortSignal or undefined if unsupported.
  */
 export function toSignal(token: CancellationToken) {
-    return (token as any)?.signal as AbortSignal
+  return (token as any)?.signal as AbortSignal;
 }
 
 /**
@@ -47,24 +47,24 @@ export function toSignal(token: CancellationToken) {
  * Useful for creating cancellable operations.
  */
 export class AbortSignalCancellationController {
-    readonly controller: AbortController
-    readonly token: AbortSignalCancellationToken
+  readonly controller: AbortController;
+  readonly token: AbortSignalCancellationToken;
 
-    // Initializes the controller and creates a token with the associated signal
-    constructor() {
-        this.controller = new AbortController()
-        this.token = new AbortSignalCancellationToken(this.controller.signal)
-    }
+  // Initializes the controller and creates a token with the associated signal
+  constructor() {
+    this.controller = new AbortController();
+    this.token = new AbortSignalCancellationToken(this.controller.signal);
+  }
 
-    /**
-     * Aborts the ongoing operation with an optional reason.
-     * This triggers the cancellation state in the associated token.
-     *
-     * @param reason - Optional reason for aborting the operation.
-     */
-    abort(reason?: any) {
-        this.controller.abort(reason)
-    }
+  /**
+   * Aborts the ongoing operation with an optional reason.
+   * This triggers the cancellation state in the associated token.
+   *
+   * @param reason - Optional reason for aborting the operation.
+   */
+  abort(reason?: any) {
+    this.controller.abort(reason);
+  }
 }
 
 /**
@@ -75,7 +75,7 @@ export class AbortSignalCancellationController {
  * @throws CancelError - If the cancellation has been requested.
  */
 export function checkCancelled(token: CancellationToken) {
-    if (token?.isCancellationRequested) throw new CancelError("user cancelled")
+  if (token?.isCancellationRequested) throw new CancelError("user cancelled");
 }
 
 /**
@@ -83,5 +83,5 @@ export function checkCancelled(token: CancellationToken) {
  * Contains a CancellationToken that can be checked for cancellation requests.
  */
 export interface CancellationOptions {
-    cancellationToken?: CancellationToken
+  cancellationToken?: CancellationToken;
 }

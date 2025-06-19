@@ -6,8 +6,8 @@
  * @returns The detected file type object, or undefined if no buffer is provided or type cannot be determined.
  */
 export async function fileTypeFromBuffer(buffer: Uint8Array | ArrayBuffer) {
-    if (buffer === undefined) return undefined
+  if (buffer === undefined) return undefined;
 
-    const { fileTypeFromBuffer } = await import("file-type")
-    return fileTypeFromBuffer(buffer)
+  const { fileTypeFromBuffer } = await import("file-type");
+  return fileTypeFromBuffer(buffer);
 }

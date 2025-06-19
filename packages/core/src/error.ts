@@ -1,6 +1,6 @@
-import { serializeError as rawSerializeError } from "serialize-error"
-import debug from "debug"
-const dbg = debug("genaiscript:error")
+import { serializeError as rawSerializeError } from "serialize-error";
+import debug from "debug";
+const dbg = debug("genaiscript:error");
 
 /**
  * Serializes an error into a standardized format for easier handling.
@@ -13,24 +13,22 @@ const dbg = debug("genaiscript:error")
  *   - For other types, attempts to stringify and include as the `message` property.
  * @returns The serialized error with standardized properties or `undefined` for nullish input.
  */
-export function serializeError(
-    e: unknown | string | Error | SerializedError
-): SerializedError {
-    if (e === undefined || e === null) return undefined
-    else if (e instanceof Error) {
-        const err = rawSerializeError(e, { maxDepth: 3, useToJSON: false })
-        const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(err.stack)
-        if (m) {
-            err.line = parseInt(m[1])
-            err.column = parseInt(m[2])
-        }
-        dbg("%O", err)
-        return err
-    } else if (e instanceof Object) {
-        const obj = e as SerializedError
-        return obj
-    } else if (typeof e === "string") return { message: e }
-    else return { message: e.toString?.() }
+export function serializeError(e: unknown | string | Error | SerializedError): SerializedError {
+  if (e === undefined || e === null) return undefined;
+  else if (e instanceof Error) {
+    const err = rawSerializeError(e, { maxDepth: 3, useToJSON: false });
+    const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(err.stack);
+    if (m) {
+      err.line = parseInt(m[1]);
+      err.column = parseInt(m[2]);
+    }
+    dbg("%O", err);
+    return err;
+  } else if (e instanceof Object) {
+    const obj = e as SerializedError;
+    return obj;
+  } else if (typeof e === "string") return { message: e };
+  else return { message: e.toString?.() };
 }
 
 /**
@@ -41,47 +39,42 @@ export function serializeError(
  * @returns The extracted error message or the `defaultValue` if none is found.
  */
 export function errorMessage(e: any, defaultValue: string = "error"): string {
-    if (e === undefined || e === null) return undefined
-    if (typeof e.messsage === "string") return e.message
-    if (typeof e.error === "string") return e.error
-    if (typeof e.error === "object" && typeof e.error.message === "string")
-        return e.error.message
-    const ser = serializeError(e)
-    return ser?.message ?? ser?.name ?? defaultValue
+  if (e === undefined || e === null) return undefined;
+  if (typeof e.messsage === "string") return e.message;
+  if (typeof e.error === "string") return e.error;
+  if (typeof e.error === "object" && typeof e.error.message === "string") return e.error.message;
+  const ser = serializeError(e);
+  return ser?.message ?? ser?.name ?? defaultValue;
 }
 
 export class CancelError extends Error {
-    static readonly NAME = "CancelError"
-    constructor(message: string) {
-        super(message)
-        this.name = CancelError.NAME
-    }
+  static readonly NAME = "CancelError";
+  constructor(message: string) {
+    super(message);
+    this.name = CancelError.NAME;
+  }
 }
 
 export class NotSupportedError extends Error {
-    static readonly NAME = "NotSupportedError"
-    constructor(message: string) {
-        super(message)
-        this.name = NotSupportedError.NAME
-    }
+  static readonly NAME = "NotSupportedError";
+  constructor(message: string) {
+    super(message);
+    this.name = NotSupportedError.NAME;
+  }
 }
 
 export class RequestError extends Error {
-    static readonly NAME = "RequestError"
-    constructor(
-        public readonly status: number,
-        public readonly statusText: string,
-        public readonly body: any,
-        public readonly bodyText?: string,
-        readonly retryAfter?: number
-    ) {
-        super(
-            `LLM error (${status}): ${
-                body?.message ? body?.message : statusText
-            }`
-        )
-        this.name = "RequestError"
-    }
+  static readonly NAME = "RequestError";
+  constructor(
+    public readonly status: number,
+    public readonly statusText: string,
+    public readonly body: any,
+    public readonly bodyText?: string,
+    readonly retryAfter?: number,
+  ) {
+    super(`LLM error (${status}): ${body?.message ? body?.message : statusText}`);
+    this.name = "RequestError";
+  }
 }
 
 /**
@@ -93,8 +86,8 @@ export class RequestError extends Error {
  * @returns Boolean indicating whether the error is categorized as a cancellation error.
  */
 export function isCancelError(e: Error | SerializedError) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return e?.name === CancelError.NAME || e?.name === "AbortError"
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return e?.name === CancelError.NAME || e?.name === "AbortError";
 }
 
 /**
@@ -106,9 +99,9 @@ export function isCancelError(e: Error | SerializedError) {
  * @returns True if the error is a RequestError and matches the optional status and code, otherwise false.
  */
 export function isRequestError(e: Error, statusCode?: number, code?: string) {
-    return (
-        e instanceof RequestError &&
-        (statusCode === undefined || statusCode === e.status) &&
-        (code === undefined || code === e.body?.code)
-    )
+  return (
+    e instanceof RequestError &&
+    (statusCode === undefined || statusCode === e.status) &&
+    (code === undefined || code === e.body?.code)
+  );
 }

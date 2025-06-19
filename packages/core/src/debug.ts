@@ -1,6 +1,6 @@
-import debug, { Debugger } from "debug"
+import debug, { Debugger } from "debug";
 
-const _genaiscriptDebug = debug("genaiscript")
+const _genaiscriptDebug = debug("genaiscript");
 export function genaiscriptDebug(namespace: string): Debugger {
-    return _genaiscriptDebug.extend(namespace)
+  return _genaiscriptDebug.extend(namespace);
 }

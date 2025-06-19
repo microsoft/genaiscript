@@ -1,4 +1,4 @@
-import { select, input, confirm } from "@inquirer/prompts"
+import { select, input, confirm } from "@inquirer/prompts";
 
 /**
  * Provides utility functions to interact with users via the command line.
@@ -13,17 +13,17 @@ import { select, input, confirm } from "@inquirer/prompts"
  * @returns A promise that resolves to the selected option as a string.
  */
 export async function shellSelect(
-    message: string,
-    choices: string[],
-    options?: ShellSelectOptions
+  message: string,
+  choices: string[],
+  options?: ShellSelectOptions,
 ): Promise<string> {
-    const { select } = await import("@inquirer/prompts")
-    const res = await select<string>({
-        ...(options || {}), // Spread operator to include any optional configurations
-        message, // The message/question to display
-        choices: choices.map((o) => (typeof o === "string" ? { value: o } : o)), // Map choices to ensure they are in the correct format
-    })
-    return res // Return the selected option
+  const { select } = await import("@inquirer/prompts");
+  const res = await select<string>({
+    ...(options || {}), // Spread operator to include any optional configurations
+    message, // The message/question to display
+    choices: choices.map((o) => (typeof o === "string" ? { value: o } : o)), // Map choices to ensure they are in the correct format
+  });
+  return res; // Return the selected option
 }
 
 /**
@@ -32,16 +32,13 @@ export async function shellSelect(
  * @param options - Optional configuration for the input prompt.
  * @returns A promise that resolves to the entered text as a string.
  */
-export async function shellInput(
-    message: string,
-    options?: ShellInputOptions
-): Promise<string> {
-    const { input } = await import("@inquirer/prompts")
-    const res = await input({
-        ...(options || {}), // Include optional configurations if any
-        message, // The message to display to the user
-    })
-    return res // Return the entered text
+export async function shellInput(message: string, options?: ShellInputOptions): Promise<string> {
+  const { input } = await import("@inquirer/prompts");
+  const res = await input({
+    ...(options || {}), // Include optional configurations if any
+    message, // The message to display to the user
+  });
+  return res; // Return the entered text
 }
 
 /**
@@ -51,13 +48,13 @@ export async function shellInput(
  * @returns A promise that resolves to true if the user confirms, false otherwise.
  */
 export async function shellConfirm(
-    message: string,
-    options?: ShellConfirmOptions
+  message: string,
+  options?: ShellConfirmOptions,
 ): Promise<boolean> {
-    const { confirm } = await import("@inquirer/prompts")
-    const res = await confirm({
-        ...(options || {}), // Include optional configurations if any
-        message, // The message to display, usually a yes/no question
-    })
-    return res // Return true if confirmed, false otherwise
+  const { confirm } = await import("@inquirer/prompts");
+  const res = await confirm({
+    ...(options || {}), // Include optional configurations if any
+    message, // The message to display, usually a yes/no question
+  });
+  return res; // Return true if confirmed, false otherwise
 }
