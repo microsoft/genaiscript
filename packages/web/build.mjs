@@ -22,11 +22,11 @@ await cp("./dist/web.mjs.map", "../cli/dist/web.mjs.map")
 await cp("./index.html", "../cli/dist/index.html")
 await cp("./favicon.svg", "../cli/dist/favicon.svg")
 await cp(
-    "../../node_modules/@vscode/codicons/dist/codicon.ttf",
+    "node_modules/@vscode/codicons/dist/codicon.ttf",
     "../cli/dist/codicon.ttf"
 )
 await cp(
-    "../../node_modules/@vscode/codicons/dist/codicon.css",
+    "node_modules/@vscode/codicons/dist/codicon.css",
     "../cli/dist/codicon.css"
 )
 

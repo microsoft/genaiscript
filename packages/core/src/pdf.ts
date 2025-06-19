@@ -13,7 +13,7 @@ import { isUint8Array, isUint8ClampedArray } from "util/types";
 import { hash } from "./crypto.js";
 import { join } from "node:path";
 import { readFile, writeFile } from "node:fs/promises";
-import { ensureDir } from "fs-extra";
+import { ensureDir } from "./fs.js";
 import { YAMLStringify } from "./yaml.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { CancellationOptions, checkCancelled } from "./cancellation.js";
