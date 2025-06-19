@@ -52,3 +52,6 @@ docs/public/blog/*.mp4
 # build output
 dist/
 pnpm-lock.yaml
+
+# Turbo Build
+.turbo

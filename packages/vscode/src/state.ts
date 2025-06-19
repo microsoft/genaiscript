@@ -1,31 +1,34 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
 
 import { ExtensionContext } from "vscode";
-import { VSCodeHost } from "./vshost";
-import { applyEdits, toRange } from "./edit";
+import { VSCodeHost } from "./vshost.js";
+import { applyEdits, toRange } from "./edit.js";
 import { Utils } from "vscode-uri";
-import { saveAllTextDocuments } from "./fs";
-import { parseAnnotations } from "../../core/src/annotations";
-import { Project, PromptScriptRunOptions } from "../../core/src/server/messages";
-import { ChatCompletionsProgressReport } from "../../core/src/chattypes";
-import { fixGitHubCopilotInstructions, fixPromptDefinitions } from "../../core/src/scripts";
-import { logMeasure } from "../../core/src/perf";
+import { saveAllTextDocuments } from "./fs.js";
+import { DiagnosticSeverity, parseAnnotations, PromptParameters } from "@genaiscript/core";
+import { Project, PromptScriptRunOptions } from "@genaiscript/core";
+import { ChatCompletionsProgressReport } from "@genaiscript/core";
+import { fixGitHubCopilotInstructions, fixPromptDefinitions } from "@genaiscript/core";
+import { logMeasure } from "@genaiscript/core";
 import {
   TOOL_NAME,
   CHANGE,
   TOOL_ID,
   GENAI_ANYTS_REGEX,
   MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-} from "../../core/src/constants";
-import { isCancelError } from "../../core/src/error";
-import { MarkdownTrace } from "../../core/src/trace";
-import { logInfo, groupBy, logVerbose } from "../../core/src/util";
-import { GenerationResult } from "../../core/src/server/messages";
-import { randomHex } from "../../core/src/crypto";
+} from "@genaiscript/core";
+import { isCancelError } from "@genaiscript/core";
+import { MarkdownTrace } from "@genaiscript/core";
+import { logInfo, groupBy, logVerbose } from "@genaiscript/core";
+import { GenerationResult } from "@genaiscript/core";
+import { randomHex } from "@genaiscript/core";
 import { delay } from "es-toolkit";
-import { Fragment } from "../../core/src/generation";
-import { createWebview } from "./webview";
-import { isEmptyString } from "../../core/src/cleaners";
+import { Fragment } from "@genaiscript/core";
+import { createWebview } from "./webview.js";
+import { isEmptyString } from "@genaiscript/core";
 
 export const FRAGMENTS_CHANGE = "fragmentsChange";
 export const AI_REQUEST_CHANGE = "aiRequestChange";

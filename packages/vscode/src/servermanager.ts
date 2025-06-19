@@ -1,5 +1,8 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import { ExtensionState } from "./state.js";
 import {
   RECONNECT,
   OPEN,
@@ -10,18 +13,18 @@ import {
   CHANGE,
   SERVER_LOCALHOST,
   MIN_NODE_VERSION_MAJOR,
-} from "../../core/src/constants";
-import { ServerManager, host } from "../../core/src/host";
-import { assert, logError, logInfo, logVerbose } from "../../core/src/util";
-import { VsCodeClient } from "../../core/src/server/client";
-import { CORE_VERSION } from "../../core/src/version";
-import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess";
-import { semverParse, semverSatisfies } from "../../core/src/semver";
-import { resolveCli } from "./config";
-import { deleteUndefinedValues } from "../../core/src/cleaners";
-import { findRandomOpenPort } from "../../core/src/net";
-import { packageResolveExecute } from "../../core/src/packagemanagers";
-import { shellQuote } from "../../core/src/shell";
+} from "@genaiscript/core";
+import { ServerManager, host } from "@genaiscript/core";
+import { assert, logError, logInfo, logVerbose } from "@genaiscript/core";
+import { VsCodeClient } from "@genaiscript/core";
+import { CORE_VERSION } from "@genaiscript/core";
+import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess.js";
+import { semverParse, semverSatisfies } from "@genaiscript/core";
+import { resolveCli } from "./config.js";
+import { deleteUndefinedValues } from "@genaiscript/core";
+import { findRandomOpenPort } from "@genaiscript/core";
+import { packageResolveExecute } from "@genaiscript/core";
+import { shellQuote } from "@genaiscript/core";
 import { log } from "node:console";
 
 export class TerminalServerManager extends EventTarget implements ServerManager {

@@ -1,7 +1,10 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
-import { templateGroup } from "../../core/src/ast";
-import { groupBy } from "../../core/src/util";
-import { TemplateQuickPickItem } from "./parameterquickpick";
+import { PromptScript, templateGroup } from "@genaiscript/core";
+import { groupBy } from "@genaiscript/core";
+import { TemplateQuickPickItem } from "./parameterquickpick.js";
 
 export function scriptsToQuickPickItems(
   templates: PromptScript[],

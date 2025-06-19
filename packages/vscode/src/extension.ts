@@ -1,23 +1,26 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
 import { ExtensionContext } from "vscode";
-import { ExtensionState } from "./state";
-import { activateStatusBar } from "./statusbar";
-import { activateFragmentCommands } from "./fragmentcommands";
-import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider";
-import { activatePromptTreeDataProvider } from "./prompttree";
-import { activatePromptCommands, commandButtons } from "./promptcommands";
-import { activateTestController } from "./testcontroller";
-import { activateDocsNotebook } from "./docsnotebook";
-import { activateTraceTreeDataProvider } from "./tracetree";
-import { registerCommand } from "./commands";
-import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants";
+import { ExtensionState } from "./state.js";
+import { activateStatusBar } from "./statusbar.js";
+import { activateFragmentCommands } from "./fragmentcommands.js";
+import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider.js";
+import { activatePromptTreeDataProvider } from "./prompttree.js";
+import { activatePromptCommands, commandButtons } from "./promptcommands.js";
+import { activateTestController } from "./testcontroller.js";
+import { activateDocsNotebook } from "./docsnotebook.js";
+import { activateTraceTreeDataProvider } from "./tracetree.js";
+import { registerCommand } from "./commands.js";
+import { EXTENSION_ID, TOOL_NAME } from "@genaiscript/core";
 import type MarkdownIt from "markdown-it";
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts";
-import { activateConnectionInfoTree } from "./connectioninfotree";
-import { activeTaskProvider } from "./taskprovider";
-import { activateChatParticipant } from "./chatparticipant";
-import { activeWebview } from "./webview";
-import { activateFixCommand } from "./fixcommand";
+import { activateConnectionInfoTree } from "./connectioninfotree.js";
+import { activeTaskProvider } from "./taskprovider.js";
+import { activateChatParticipant } from "./chatparticipant.js";
+import { activeWebview } from "./webview.js";
+import { activateFixCommand } from "./fixcommand.js";
 
 export async function activate(context: ExtensionContext) {
   const state = new ExtensionState(context);

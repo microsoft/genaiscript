@@ -1,15 +1,18 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
-import { ChatCompletionMessageParam } from "../../core/src/chattypes";
-import { LanguageModelChatRequest } from "../../core/src/server/client";
-import { ChatStart } from "../../core/src/server/messages";
-import { serializeError } from "../../core/src/error";
-import { logVerbose } from "../../core/src/util";
-import { renderMessageContent } from "../../core/src/chatrender";
-import { parseModelIdentifier } from "../../core/src/models";
-import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "../../core/src/constants";
-import { dedent } from "../../core/src/indent";
+import { ExtensionState } from "./state.js";
+import { ChatCompletionMessageParam } from "@genaiscript/core";
+import { LanguageModelChatRequest } from "@genaiscript/core";
+import { ChatStart } from "@genaiscript/core";
+import { serializeError } from "@genaiscript/core";
+import { logVerbose } from "@genaiscript/core";
+import { renderMessageContent } from "@genaiscript/core";
+import { parseModelIdentifier } from "@genaiscript/core";
+import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "@genaiscript/core";
+import { dedent } from "@genaiscript/core";
 
 async function pickChatModel(
   state: ExtensionState,
@@ -60,7 +63,12 @@ async function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
       case "system":
       case "user":
       case "assistant":
-        if (Array.isArray(m.content) && m.content.some((c) => c.type === "image_url"))
+        if (
+          Array.isArray(m.content) &&
+          m.content.some(
+            (c: any) => typeof c === "object" && "type" in c && c.type === "image_url"
+          )
+        )
           throw new Error("Vision model not supported");
         res.push(
           vscode.LanguageModelChatMessage.User(

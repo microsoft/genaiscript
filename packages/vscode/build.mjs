@@ -5,21 +5,21 @@ import { writeFile } from "fs/promises"
 const config = {
     entryPoints: ["src/extension.ts"],
     bundle: true,
-    format: "cjs",
+    format: "esm",
     platform: "node",
     target: "node20",
-    outfile: "built/extension.js",
+    outfile: "dist/extension.js",
     sourcemap: true,
     metafile: true,
-    external: ["vscode", "pdfjs-dist", "@napi-rs/canvas"],
+    external: ["vscode", "pdfjs-dist", "@napi-rs/canvas", "@genaiscript/core", "@genaiscript/runtime"],
 }
 
 const result = await esbuild.build(config)
 await writeFile(
-    "built/metafile.json",
+    "dist/metafile.json",
     JSON.stringify(result.metafile, null, 2),
     { encoding: "utf-8" }
 )
 const stats = await esbuild.analyzeMetafile(result.metafile)
-await writeFile("built/stats.txt", stats, { encoding: "utf-8" })
+await writeFile("dist/stats.txt", stats, { encoding: "utf-8" })
 console.debug(stats.split("\n").slice(0, 20).join("\n"))

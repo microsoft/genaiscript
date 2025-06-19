@@ -1,9 +1,12 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
-import { scriptsToQuickPickItems } from "./scriptquickpick";
-import { registerCommand } from "./commands";
-import { createScript } from "../../core/src/scripts";
-import { copyPrompt } from "../../core/src/copy";
+import { ExtensionState } from "./state.js";
+import { scriptsToQuickPickItems } from "./scriptquickpick.js";
+import { registerCommand } from "./commands.js";
+import { createScript, PromptScript } from "@genaiscript/core";
+import { copyPrompt } from "@genaiscript/core";
 
 export function activatePromptCommands(state: ExtensionState) {
   const { context, host } = state;
@@ -44,9 +47,9 @@ export function activatePromptCommands(state: ExtensionState) {
         if (!state.project) await state.parseWorkspace();
         template = state.project?.scripts.find((t) => t.id === template);
       }
-      const newPrompt = await copyPrompt(template, {
+      const newPrompt = await copyPrompt(template as PromptScript, {
         fork: true,
-        name: template.id,
+        name: (template as PromptScript).id,
       });
       await state.parseWorkspace();
       await showPrompt(newPrompt);
