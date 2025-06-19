@@ -18,11 +18,11 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "${{ matrix.node-version }}"
                   cache: 'pnpm'
-            - uses: pnpm/action-setup@v4
             - run: sudo apt-get update && sudo apt-get install ffmpeg
             - run: pnpm install --frozen-lockfile
             - name: compile
