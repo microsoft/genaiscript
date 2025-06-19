@@ -693,12 +693,18 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      dedent:
+        specifier: ^1.6.0
+        version: 1.6.0
       es-toolkit:
         specifier: ^1.38.0
         version: 1.39.3
       html-escaper:
         specifier: 3.0.3
         version: 3.0.3
+      inflection:
+        specifier: ^3.0.2
+        version: 3.0.2
       mermaid:
         specifier: ^11.6.0
         version: 11.6.0
@@ -750,6 +756,9 @@ importers:
       victory:
         specifier: ^37.3.6
         version: 37.3.6(react@19.1.0)
+      yaml:
+        specifier: ^2.8.0
+        version: 2.8.0
     devDependencies:
       '@types/marked':
         specifier: ^6.0.0
