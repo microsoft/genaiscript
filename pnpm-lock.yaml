@@ -647,6 +647,9 @@ importers:
       es-toolkit:
         specifier: ^1.38.0
         version: 1.39.3
+      esbuild:
+        specifier: ^0.25.5
+        version: 0.25.5
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
