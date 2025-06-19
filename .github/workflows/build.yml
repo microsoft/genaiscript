@@ -22,9 +22,7 @@ jobs:
               with:
                   node-version: "${{ matrix.node-version }}"
                   cache: 'pnpm'
-            - uses: pnpm/action-setup@v2
-              with:
-                  version: '10.11.0'
+            - uses: pnpm/action-setup@v4
             - run: sudo apt-get update && sudo apt-get install ffmpeg
             - run: pnpm install --frozen-lockfile
             - name: compile
