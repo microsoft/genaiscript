@@ -58,3 +58,5 @@ export async function worker() {
     }
   }
 }
+
+worker()

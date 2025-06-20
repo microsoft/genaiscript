@@ -11,9 +11,10 @@ import { Worker } from "node:worker_threads";
 import { getModulePaths } from "@genaiscript/core";
 
 import debug from "debug";
+import { dirname, join } from "node:path";
 const dbg = debug("genaiscript:api");
 
-const { __filename } =
+const { __dirname } =
   typeof module !== "undefined" && module.filename
     ? getModulePaths(module)
     : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -69,7 +70,7 @@ export async function run(
     options: rest,
   };
   dbg(`__filename: %s`, __filename);
-  const workerJs = __filename.replace(/\.ts$/, ".js");
+  const workerJs = join(dirname(__dirname), "dist", "esm", "worker.js");
   dbg(`start ${workerJs}`);
   const worker = new Worker(workerJs, { workerData, name: options?.label });
   return new Promise((resolve, reject) => {
