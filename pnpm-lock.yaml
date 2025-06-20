@@ -250,6 +250,9 @@ importers:
       '@ast-grep/lang-c':
         specifier: ^0.0.1
         version: 0.0.1
+      '@ast-grep/lang-cpp':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@ast-grep/lang-python':
         specifier: ^0.0.1
         version: 0.0.1

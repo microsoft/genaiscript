@@ -17,7 +17,6 @@ describe("grepSearch (integration)", async () => {
       glob: "**/*.json",
       debug: true,
     });
-    console.log(result);
     assert(result.files.length > 0, "found files");
     assert.ok(result.matches.some((m) => typeof m.filename === "string"));
   });
@@ -51,8 +50,9 @@ describe("grepSearch (integration)", async () => {
   test("should return files and matches for string pattern", async () => {
     const result = await grepSearch("aojkhsdfvfaweiojhfwqepiouiasdojhvfadshjoasdf", {
       glob: "*.ts",
-      path: "src",
+      path: import.meta.dirname,
     });
+    console.log(result)
     assert(Array.isArray(result.files), "found files");
     assert(Array.isArray(result.matches), "found matches");
     assert(
@@ -64,6 +64,6 @@ describe("grepSearch (integration)", async () => {
       "files have content",
     );
     assert(result.files.length === 1, "found one file");
-    assert(result.files[0].filename === "src/grep.test.ts", "correct file");
+    assert(result.files[0].filename.endsWith("test/grep.test.ts"), "correct file");
   });
 });

@@ -23,7 +23,7 @@ async function importRipGrep(options?: TraceOptions) {
     dbg(`rg: %s`, rgPath);
     const rgStat = await tryStat(rgPath);
     if (!rgStat?.isFile())
-      throw new Error(`ripgrep not found at ${rgPath}. Please reinstall genaiscript.`);
+      throw new Error(`ripgrep not found at '${rgPath}'. Please reinstall genaiscript.`);
     return rgPath;
   } catch (e) {
     dbg(`%O`, e);

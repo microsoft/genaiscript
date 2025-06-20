@@ -1,15 +1,20 @@
 packages:
-  - "packages/*"
-
+  - packages/*
 catalog:
-  "@eslint/js": ^9.29.0
-  "@types/node": ^22.0.0
-  "@vitest/coverage-istanbul": ^3.2.4
-  eslint: "^9.29.0"
-  prettier: "^3.5.3"
-  rimraf: "^6.0.1"
+  '@eslint/js': ^9.29.0
+  '@types/node': ^22.0.0
+  '@vitest/coverage-istanbul': ^3.2.4
+  eslint: ^9.29.0
+  prettier: ^3.5.3
+  rimraf: ^6.0.1
   tshy: ^3.0.2
-  tslib: "^2.8.1"
-  typescript: "~5.8.3"
-  typescript-eslint: "^8.34.1"
-  vitest: "^3.2.4"
+  tslib: ^2.8.1
+  typescript: ~5.8.3
+  typescript-eslint: ^8.34.1
+  vitest: ^3.2.4
+onlyBuiltDependencies:
+  - '@ast-grep/lang-c'
+  - '@ast-grep/lang-cpp'
+  - '@ast-grep/lang-csharp'
+  - '@ast-grep/lang-python'
+  - '@lvce-editor/ripgrep'
