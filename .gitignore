@@ -55,3 +55,6 @@ pnpm-lock.yaml
 
 # Turbo Build
 .turbo
+
+# typescript
+*.tsbuildinfo
