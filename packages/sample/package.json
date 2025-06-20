@@ -15,7 +15,9 @@
     "test:scripts:view": "node ../cli/dist/src/index.js test view"
   },
   "dependencies": {
-    "@genaiscript/runtime": "workspace:*"
+    "@genaiscript/runtime": "workspace:*",
+    "ini": "^5.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@agentic/calculator": "v7.5.3",

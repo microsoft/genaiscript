@@ -654,6 +654,12 @@ importers:
       '@genaiscript/runtime':
         specifier: workspace:*
         version: link:../runtime
+      ini:
+        specifier: ^5.0.0
+        version: 5.0.0
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
     devDependencies:
       '@agentic/calculator':
         specifier: v7.5.3
