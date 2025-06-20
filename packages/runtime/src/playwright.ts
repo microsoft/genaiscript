@@ -8,10 +8,8 @@ import {
   createVideoDir,
   logError,
   logVerbose,
-  runtimeHost,
   uriRedact,
 } from "@genaiscript/core";
-import { PLAYWRIGHT_VERSION } from "./version.js";
 
 /**
  * Manages browser instances using Playwright, including launching,
@@ -37,24 +35,6 @@ export class BrowserManager {
   }
 
   /**
-   * Installs Playwright dependencies for a specific vendor.
-   * Uses the runtimeHost to execute the necessary commands.
-   * @param vendor The vendor for which to install Playwright.
-   * @throws Error if the installation fails.
-   */
-  private async installDependencies(vendor: string) {
-    const res = await runtimeHost.exec(
-      undefined,
-      "npx",
-      ["--yes", `playwright@${PLAYWRIGHT_VERSION}`, "install", "--with-deps", vendor],
-      {
-        label: `installing playwright ${vendor}`,
-      },
-    );
-    if (res.exitCode) throw new Error("playwright installation failed");
-  }
-
-  /**
    * Launches a browser instance with the given options.
    * Attempts installation if the browser launch fails initially.
    * @param options Optional settings for the browser launch.
@@ -69,13 +49,7 @@ export class BrowserManager {
     };
 
     const { browser = PLAYWRIGHT_DEFAULT_BROWSER, connectOverCDP, ...rest } = options || {};
-    try {
-      return await launch();
-    } catch {
-      logVerbose("trying to install playwright...");
-      await this.installDependencies(browser);
-      return await launch();
-    }
+    return await launch();
   }
 
   /**
@@ -130,6 +104,7 @@ export class BrowserManager {
    * @returns A promise that resolves to a Page object.
    */
   async browse(url?: string, options?: BrowseSessionOptions & TraceOptions): Promise<BrowserPage> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { trace, incognito, timeout, recordVideo, waitUntil, referer, connectOverCDP, ...rest } =
       options || {};
 

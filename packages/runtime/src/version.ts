@@ -56,16 +56,4 @@ export const PROMPTFOO_VERSION = "0.112.7";
  * The version of the 'typescript' dependency.
  * Retrieved from the "dependencies" field in package.json.
  */
-export const TYPESCRIPT_VERSION = packageJson.devDependencies.typescript;
-
-/**
- * The version of the 'dockerode' dependency.
- * Retrieved from the "dependencies" field in package.json.
- */
-export const DOCKERODE_VERSION = packageJson.dependencies.dockerode;
-
-/**
- * The version of the 'playwright' dependency.
- * Retrieved from the "dependencies" field in package.json.
- */
-export const PLAYWRIGHT_VERSION = packageJson.dependencies.playwright;
+export const TYPESCRIPT_VERSION = "5.8.3";
