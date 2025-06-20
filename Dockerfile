@@ -20,4 +20,4 @@ COPY --from=build /app/package.json /app/package.json
 
 EXPOSE 8003
 
-CMD ["node", "/app/packages/cli/built/genaiscript.cjs", "serve"]
+CMD ["node", "/app/packages/cli/dist/src/index.js", "serve"]

@@ -29,7 +29,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: genaiscript
-              run: node packages/cli/built/genaiscript.cjs run iat -m github:gpt-4.1 --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/dist/src/index.js run iat -m github:gpt-4.1 --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - uses: stefanzweifel/git-auto-commit-action@v5

@@ -11,6 +11,6 @@ for (const image of images) {
     await spinner(
         image,
         () =>
-            $`node ../packages/cli/built/genaiscript.cjs run image-alt-text ${image}`
+            $`node ../packages/cli/dist/src/index.js run image-alt-text ${image}`
     )
 }

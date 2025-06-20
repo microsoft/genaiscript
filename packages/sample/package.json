@@ -10,10 +10,10 @@
     "typecheck": "tsc -p src",
     "test": "node --import tsx --test src/**.test.ts",
     "test:watch": "node --import tsx --watch --test-name-pattern=run --test src/**.test.ts",
-    "cache:clear": "node ../cli/built/genaiscript.cjs cache clear",
-    "run:script": "node --trace-deprecation ../cli/built/genaiscript.cjs run",
-    "test:scripts": "node ../cli/built/genaiscript.cjs test -rmo",
-    "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
+    "cache:clear": "node ../cli/dist/src/index.js cache clear",
+    "run:script": "node --trace-deprecation ../cli/dist/src/index.js run",
+    "test:scripts": "node ../cli/dist/src/index.js test -rmo",
+    "test:scripts:view": "node ../cli/dist/src/index.js test view"
   },
   "devDependencies": {
     "@agentic/calculator": "v7.5.3",

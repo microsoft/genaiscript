@@ -13,9 +13,9 @@
     "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript && node fixllms.mjs",
     "preview": "astro preview",
     "astro": "astro",
-    "genai:test": "node ../packages/cli/built/genaiscript.cjs test src/**/*.md",
-    "genai:frontmatter": "node ../packages/cli/built/genaiscript.cjs run frontmatter \"src/**/*.{md,mdx}\" --apply-edits",
-    "genai:technical": "for file in \"src/**/*.md\"; do\nnode ../packages/cli/built/genaiscript.cjs run technical \"$file\" --apply-edits\ndone",
+    "genai:test": "node ../packages/cli/dist/src/index.js test src/**/*.md",
+    "genai:frontmatter": "node ../packages/cli/dist/src/index.js run frontmatter \"src/**/*.{md,mdx}\" --apply-edits",
+    "genai:technical": "for file in \"src/**/*.md\"; do\nnode ../packages/cli/dist/src/index.js run technical \"$file\" --apply-edits\ndone",
     "genai:alt-text": "node scripts/image-alt-text.mjs",
     "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
     "clean": "rm -Rf dist && rm -Rf distasw && rm -Rf public/slides && rm -Rf .genaiscript"

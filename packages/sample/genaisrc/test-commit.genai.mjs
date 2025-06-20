@@ -40,7 +40,7 @@ if (!changes) cancel("No changes in the latest commit.")
 
 // list of tests
 const { stdout: tests } = await host.exec("node", [
-    "packages/cli/built/genaiscript.cjs",
+    "packages/cli/dist/src/index.js",
     "test",
     "list",
     "--groups",

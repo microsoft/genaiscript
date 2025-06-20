@@ -4,7 +4,7 @@
             "type": "stdio",
             "command": "node",
             "args": [
-                "${workspaceFolder}/packages/cli/built/genaiscript.cjs",
+                "${workspaceFolder}/packages/cli/dist/src/index.js",
                 "mcp",
                 "--cwd",
                 "${workspaceFolder}",

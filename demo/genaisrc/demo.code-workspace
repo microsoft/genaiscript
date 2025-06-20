@@ -8,6 +8,6 @@
 		}
 	],
 	"settings": {
-		"genaiscript.cli.path": "../packages/cli/built/genaiscript.cjs"
+		"genaiscript.cli.path": "../packages/cli/dist/src/index.js"
 	}
 }
