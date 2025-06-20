@@ -136,6 +136,7 @@ export * from "./parser.js";
 export * from "./path.js";
 export * from "./parsers.js";
 export * from "./path.js";
+export * from "./pathUtils.js";
 export * from "./pdf.js";
 export * from "./perf.js";
 export * from "./performance.js";

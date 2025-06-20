@@ -7,14 +7,21 @@ import {
   GENAISCRIPT_FOLDER,
   arrayify,
   genaiscriptDebug,
+  getModulePaths,
   host,
   parseProject,
   runtimeHost,
 } from "@genaiscript/core";
 import { uniq } from "es-toolkit";
-import { __dirname } from "./utils/pathUtils.js"; // Importing __dirname for path resolution
 import { dirname } from "node:path";
 const dbg = genaiscriptDebug("cli:build");
+
+const { __dirname } =
+  typeof module !== "undefined" && module.filename
+    ? getModulePaths(module)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    : getModulePaths(import.meta);
 
 /**
  * Asynchronously builds a project by parsing tool files.
@@ -28,7 +35,7 @@ export async function buildProject(options?: {
   toolFiles?: string[];
   toolsPath?: string | string[];
 }) {
-  const installDir = dirname(dirname(dirname(__dirname))); // Use __dirname to resolve the installation directory
+  const installDir = dirname(dirname(__dirname)); // Use __dirname to resolve the installation directory
   const { toolFiles, toolsPath } = options || {};
   let scriptFiles: string[] = [];
   if (toolFiles?.length) {

@@ -9,9 +9,16 @@ import { logError } from "./util.js";
 import { TraceOptions } from "./trace.js";
 import { pathToFileURL } from "node:url";
 import { mark } from "./performance.js";
-import { __filename } from "./utils/pathUtils.js";
+import { getModulePaths } from "./pathUtils.js";
 import type { Awaitable, PromptContext, PromptScript } from "./types.js";
 import { tsImport, register } from "tsx/esm/api";
+
+const { __filename } =
+  typeof module !== "undefined" && module.filename
+    ? getModulePaths(module)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    : getModulePaths(import.meta);
 
 /**
  * Dynamically imports a JavaScript module from a specified file.

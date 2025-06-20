@@ -1,0 +1,20 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+
+export function getModulePaths(metaOrModule: { url?: string; filename?: string }) {
+  if (metaOrModule && "url" in metaOrModule && metaOrModule.url) {
+    // ESM: pass import.meta
+    const __filename = fileURLToPath(metaOrModule.url);
+    const __dirname = dirname(__filename);
+    return { __filename, __dirname };
+  } else if (metaOrModule && "filename" in metaOrModule && metaOrModule.filename) {
+    // CJS: pass module
+    const __filename = metaOrModule.filename;
+    const __dirname = dirname(__filename);
+    return { __filename, __dirname };
+  }
+  throw new Error("Invalid module context: pass import.meta (ESM) or module (CJS)");
+}

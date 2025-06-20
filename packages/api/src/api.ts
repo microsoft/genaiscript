@@ -8,10 +8,17 @@ import type {
   Resource,
 } from "@genaiscript/core";
 import { Worker } from "node:worker_threads";
-import { __filename } from "./utils/pathUtils.js";
+import { getModulePaths } from "@genaiscript/core";
 
 import debug from "debug";
 const dbg = debug("genaiscript:api");
+
+const { __filename } =
+  typeof module !== "undefined" && module.filename
+    ? getModulePaths(module)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    : getModulePaths(import.meta);
 
 /**
  * Runs a GenAIScript script with the given files and options.
