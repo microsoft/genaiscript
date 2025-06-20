@@ -37,9 +37,9 @@ export function stringToPos(str: string): CharPosition {
  * @param options - Contains an array of script file paths to process.
  * @returns Project - The project with processed templates and diagnostics.
  */
-export async function parseProject(options: { scriptFiles: string[] }) {
-  const { scriptFiles } = options;
-  const genaisrcDir = resolve(join(dirname(dirname(__filename)), "genaisrc")); // ignore esbuild warning
+export async function parseProject(options: { installDir: string; scriptFiles: string[] }) {
+  const { installDir, scriptFiles } = options;
+  const genaisrcDir = resolve(installDir, "genaisrc"); // ignore esbuild warning
   dbg(`genaisrc: %s`, genaisrcDir);
   const prj: Project = {
     systemDir: genaisrcDir,

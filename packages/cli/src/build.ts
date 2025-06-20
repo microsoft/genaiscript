@@ -12,6 +12,8 @@ import {
   runtimeHost,
 } from "@genaiscript/core";
 import { uniq } from "es-toolkit";
+import { __dirname } from "./utils/pathUtils.js"; // Importing __dirname for path resolution
+import { dirname } from "node:path";
 const dbg = genaiscriptDebug("cli:build");
 
 /**
@@ -26,6 +28,7 @@ export async function buildProject(options?: {
   toolFiles?: string[];
   toolsPath?: string | string[];
 }) {
+  const installDir = dirname(dirname(dirname(__dirname))); // Use __dirname to resolve the installation directory
   const { toolFiles, toolsPath } = options || {};
   let scriptFiles: string[] = [];
   if (toolFiles?.length) {
@@ -76,6 +79,7 @@ export async function buildProject(options?: {
 
   // Parse the project using the determined script files
   const newProject = await parseProject({
+    installDir,
     scriptFiles,
   });
 
