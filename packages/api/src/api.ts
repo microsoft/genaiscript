@@ -69,7 +69,7 @@ export async function run(
     files: files || [],
     options: rest,
   };
-  dbg(`__filename: %s`, __filename);
+  dbg(`__dirname: %s`, __dirname);
   const workerJs = join(dirname(__dirname), "dist", "esm", "worker.js");
   dbg(`start ${workerJs}`);
   const worker = new Worker(workerJs, { workerData, name: options?.label });
