@@ -86,7 +86,7 @@ to automate the release process. We configured release-it to run the script usin
 ```json title="package.json" wrap
  "release-it": {
      "github": {
-         "releaseNotes": "npx --yes genaiscript run git-release-notes"
+        "releaseNotes": "node packages/cli/dist/src/index.js run git-release-notes --cache --cache-name releases --no-run-trace --no-output-trace"
      }
  }
 ```
