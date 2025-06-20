@@ -174,7 +174,7 @@ export async function tryReadJSON5(fn: string) {
  * @param fn - The path to the file where the JSON object will be written.
  * @param obj - The JSON object to be written to the file.
  */
-export async function writeJSON(fn: string, obj: any) {
+export async function writeJSON(fn: string, obj: unknown) {
   if (!fn) throw new Error("filename is required");
   dbg(`writing JSON to file ${fn}`);
   await writeText(fn, JSON.stringify(obj));

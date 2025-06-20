@@ -266,10 +266,13 @@ export async function createPromptContext(
           trace,
         },
       );
-      return {
+      const res = {
         provider: configuration?.provider,
         model: configuration?.model,
+        modelId: modelId,
       } satisfies LanguageModelReference;
+      dbg(`model: %O`, res);
+      return res;
     },
     resolveLanguageModelProvider: async (id, options) => {
       if (!id) throw new Error("provider id is required");
