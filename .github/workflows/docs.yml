@@ -23,7 +23,7 @@ jobs:
                   node-version: "22"
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
-            - run: yarn playwright install
+            - run: pnpm install:playwright
             - name: compile
               run: pnpm compile:action
             - name: Build slides
