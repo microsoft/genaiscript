@@ -5,6 +5,9 @@
   "bin": "./dist/src/index.js",
   "files": [
     "dist/",
+    "genaisrc/*.genai.mts",
+    "genaisrc/genaiscript.d.ts",
+    "genaisrc/tsconfig.json",
     "README.md"
   ],
   "publisher": "Microsoft",
