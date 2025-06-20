@@ -103,6 +103,7 @@
     "minisearch": "^7.1.2",
     "mustache": "^4.2.0",
     "nanoid": "^5.1.5",
+    "node-sarif-builder": "^3.2.0",
     "object-inspect": "^1.13.4",
     "octokit": "^5.0.3",
     "openai": "^4.103.0",
