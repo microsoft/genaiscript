@@ -570,7 +570,11 @@ importers:
         specifier: ^3.25.67
         version: 3.25.67
 
-  packages/modulesample: {}
+  packages/modulesample:
+    devDependencies:
+      ini:
+        specifier: ^5.0.0
+        version: 5.0.0
 
   packages/runtime:
     dependencies:

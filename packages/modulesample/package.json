@@ -3,8 +3,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "genai": "node ../cli/built/genaiscript.cjs run",
-    "test": "yarn genai poem-js-module"
+    "genai": "node ../cli/dist/src/index.js run",
+    "test": "pnpm run genai poem-js-module"
   },
-  "version": "2.0.0"
+  "version": "2.0.0",
+  "devDependencies": {
+    "ini": "^5.0.0"
+  }
 }
