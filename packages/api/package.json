@@ -1,6 +1,6 @@
 {
   "name": "@genaiscript/api",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "./dist/commonjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/commonjs/index.d.ts",
