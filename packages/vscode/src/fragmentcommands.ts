@@ -4,7 +4,13 @@
 import * as vscode from "vscode";
 import { ExtensionState } from "./state.js";
 import { registerCommand } from "./commands.js";
-import { GENAI_ANY_REGEX, PromptParameters, PromptScript, TOOL_ID, TOOL_NAME } from "@genaiscript/core";
+import {
+  GENAI_ANY_REGEX,
+  PromptParameters,
+  PromptScript,
+  TOOL_ID,
+  TOOL_NAME,
+} from "@genaiscript/core";
 import { logInfo, logVerbose } from "@genaiscript/core";
 import { resolveCli } from "./config.js";
 import { YAMLStringify } from "@genaiscript/core";

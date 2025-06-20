@@ -19,9 +19,9 @@ const dbg = genaiscriptDebug("cli:build");
 const { __dirname } =
   typeof module !== "undefined" && module.filename
     ? getModulePaths(module)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    : getModulePaths(import.meta);
+    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      getModulePaths(import.meta);
 
 /**
  * Asynchronously builds a project by parsing tool files.

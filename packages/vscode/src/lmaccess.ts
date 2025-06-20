@@ -65,9 +65,7 @@ async function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
       case "assistant":
         if (
           Array.isArray(m.content) &&
-          m.content.some(
-            (c: any) => typeof c === "object" && "type" in c && c.type === "image_url"
-          )
+          m.content.some((c: any) => typeof c === "object" && "type" in c && c.type === "image_url")
         )
           throw new Error("Vision model not supported");
         res.push(

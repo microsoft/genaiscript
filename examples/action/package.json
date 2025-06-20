@@ -1,10 +1,10 @@
 {
   "private": true,
-  "version": "2.0.0",
+  "version": "0.0.0",
   "author": "microsoft",
   "license": "MIT",
   "dependencies": {
-    "genaiscript": "1.142.9"
+    "genaiscript": "2.0.0"
   },
   "scripts": {
     "upgrade": "npx -y npm-check-updates -u && npm install && npm run fix",
@@ -15,7 +15,7 @@
     "lint": "npx --yes prettier --write genaisrc/",
     "fix": "genaiscript scripts fix",
     "typecheck": "genaiscript scripts compile",
-    "configure": "genaiscript configure action",
+    "configure": "genaiscript configure action action-poem --interactive",
     "test": "echo 'No tests defined.'",
     "dev": "genaiscript run action-poem --provider echo",
     "start": "genaiscript run action-poem --provider echo --github-workspace --no-run-trace --no-output-trace",

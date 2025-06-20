@@ -4,10 +4,7 @@
 import * as vscode from "vscode";
 import { ExtensionState } from "./state.js";
 import { LanguageModelInfo, YAMLStringify } from "@genaiscript/core";
-import {
-  ResolvedLanguageModelConfiguration,
-  ServerEnvResponse,
-} from "@genaiscript/core";
+import { ResolvedLanguageModelConfiguration, ServerEnvResponse } from "@genaiscript/core";
 import { deleteUndefinedValues } from "@genaiscript/core";
 import { registerCommand } from "./commands.js";
 import {

@@ -16,9 +16,9 @@ import { tsImport, register } from "tsx/esm/api";
 const { __filename } =
   typeof module !== "undefined" && module.filename
     ? getModulePaths(module)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    : getModulePaths(import.meta);
+    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      getModulePaths(import.meta);
 
 /**
  * Dynamically imports a JavaScript module from a specified file.

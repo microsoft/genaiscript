@@ -1,3 +1,5 @@
+# Action-poem
+        
 
 
 ## Inputs
@@ -27,7 +29,6 @@ Save this file in your `.github/workflows/` directory as `action-poem.yml`:
 ```yaml
 name: Genaiscript
 on:
-    workflow_dispatch:
     push:
 permissions:
     contents: read
@@ -45,7 +46,6 @@ jobs:
       - uses: microsoft/genaiscript@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
 ```
 
 ## Development
@@ -55,18 +55,15 @@ We recommend updating the script metadata instead of editing the action files di
 
 - the action inputs are inferred from the script parameters
 - the action outputs are inferred from the script output schema
-- the action description is the script title
+- the action description is the script description
 - the readme description is the script description
 - the action branding is the script branding
 
-To **regenerate** the action files (`action.yml`, `Dockerfile`, `README.md`, `package.json`, `.gitignore`), run:
+To **regenerate** the action files (`action.yml`), run:
 
 ```bash
 npm run configure
 ```
-
-> [!CAUTION]
-> This will overwrite any changes you made to these files!
 
 To lint script files, run:
 

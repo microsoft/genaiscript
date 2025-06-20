@@ -1,6 +1,5 @@
 name: Continuous Integration
 on:
-  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -10,8 +9,6 @@ on:
 permissions:
   contents: read
   models: read
-  pull-requests: write
-  issues: write
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -30,4 +27,3 @@ jobs:
       - uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-

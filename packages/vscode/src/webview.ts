@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { TOOL_ID, TOOL_NAME } from  "@genaiscript/core";
+import { TOOL_ID, TOOL_NAME } from "@genaiscript/core";
 import { ExtensionState } from "./state.js";
 import { registerCommand } from "./commands.js";
 import { Utils } from "vscode-uri";
-import { assert } from  "@genaiscript/core";
-import { randomHex } from  "@genaiscript/core";
+import { assert } from "@genaiscript/core";
+import { randomHex } from "@genaiscript/core";
 
 export async function createWebview(state: ExtensionState): Promise<vscode.WebviewPanel> {
   const { host, sessionApiKey, context } = state;

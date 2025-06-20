@@ -1,6 +1,11 @@
+#!/bin/bash
+set -e  # exit immediately if a command exits with a non-zero status
 
 # make sure there's no other changes
 git pull
+
+# re-generate action.yml
+npm run configure
 
 # Lint and build
 npm run lint

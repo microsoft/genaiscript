@@ -52,7 +52,7 @@ describe("grepSearch (integration)", async () => {
       glob: "*.ts",
       path: import.meta.dirname,
     });
-    console.log(result)
+    console.log(result);
     assert(Array.isArray(result.files), "found files");
     assert(Array.isArray(result.matches), "found matches");
     assert(

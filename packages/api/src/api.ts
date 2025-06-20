@@ -16,9 +16,9 @@ const dbg = debug("genaiscript:api");
 const { __filename } =
   typeof module !== "undefined" && module.filename
     ? getModulePaths(module)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    : getModulePaths(import.meta);
+    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      getModulePaths(import.meta);
 
 /**
  * Runs a GenAIScript script with the given files and options.

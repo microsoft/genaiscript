@@ -2,18 +2,18 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { createNodePath, ElementOrArray } from  "@genaiscript/core";
+import { createNodePath, ElementOrArray } from "@genaiscript/core";
 import { TerminalServerManager } from "./servermanager.js";
 import { Uri } from "vscode";
 import { ExtensionState } from "./state.js";
 import { Utils } from "vscode-uri";
-import { filterGitIgnore } from  "@genaiscript/core";
-import { setHost, Host } from  "@genaiscript/core";
-import { TraceOptions } from  "@genaiscript/core";
-import { arrayify } from  "@genaiscript/core";
+import { filterGitIgnore } from "@genaiscript/core";
+import { setHost, Host } from "@genaiscript/core";
+import { TraceOptions } from "@genaiscript/core";
+import { arrayify } from "@genaiscript/core";
 import { uniq } from "es-toolkit";
-import { CancellationOptions } from  "@genaiscript/core";
-import { LanguageModelConfiguration, LogLevel } from  "@genaiscript/core";
+import { CancellationOptions } from "@genaiscript/core";
+import { LanguageModelConfiguration, LogLevel } from "@genaiscript/core";
 
 export class VSCodeHost extends EventTarget implements Host {
   userState: any = {};
