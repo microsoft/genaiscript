@@ -46,6 +46,7 @@ import {
   runtimeHost,
   serializeError,
   toStringList,
+  getModulePaths,
 } from "@genaiscript/core";
 import type {
   ChatCompletionReasoningEffort,
@@ -59,6 +60,13 @@ import type {
   SerializedError,
 } from "@genaiscript/core";
 import { buildProject } from "./build.js";
+
+const { __filename } =
+  typeof module !== "undefined" && module.filename
+    ? getModulePaths(module)
+    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      getModulePaths(import.meta);
 
 /**
  * Parses model specifications from a string and returns a ModelOptions object.
