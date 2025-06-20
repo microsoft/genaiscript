@@ -68,8 +68,10 @@ export async function run(
     files: files || [],
     options: rest,
   };
-  dbg(`start ${__filename}`);
-  const worker = new Worker(__filename, { workerData, name: options?.label });
+  dbg(`__filename: %s`, __filename);
+  const workerJs = __filename.replace(/\.ts$/, ".js");
+  dbg(`start ${workerJs}`);
+  const worker = new Worker(workerJs, { workerData, name: options?.label });
   return new Promise((resolve, reject) => {
     const abort = () => {
       if (worker) {
