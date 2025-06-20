@@ -81,7 +81,7 @@
     "vitest": "catalog:"
   },
   "scripts": {
-    "build": "npm run clean && tsc -p . && node ./scripts/fixup.mjs",
+    "build": "tsc -p . && node ./scripts/fixup.mjs",
     "clean": "rimraf dist",
     "format:check": "prettier --config ../../.prettierrc.json --ignore ../../.prettierignore --check src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
     "format:fix": "prettier --config ../../.prettierrc.json  --ignore ../../.prettierignore  --write src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
