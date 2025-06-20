@@ -41,6 +41,8 @@
     "format:fix": "prettier --config ../../.prettierrc.json  --ignore ../../.prettierignore  --write src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
     "lint:check": "eslint src test",
     "lint:fix": "eslint src test --fix --fix-type [problem,suggestion]",
+    "pack": "npm pack 2>&1",
+    "prepack": "npm run build",
     "test": "vitest"
   },
   "dependencies": {

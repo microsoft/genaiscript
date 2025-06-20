@@ -21,6 +21,13 @@
       "dependsOn": ["^lint:fix"],
       "cache": false
     },
+    "pack": {
+      "dependsOn": ["^pack"],
+      "cache": false
+    },
+    "prepack": {
+      "dependsOn": ["^prepack"]
+    },
     "test": {
       "dependsOn": ["^test"],
       "cache": false

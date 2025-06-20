@@ -56,6 +56,8 @@
     "ollama": "yarn ollama:stop && yarn ollama:start",
     "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama -e OLLAMA_FLASH_ATTENTION=1 -e OLLAMA_KV_CACHE_TYPE=q8_0 ollama/ollama",
     "ollama:stop": "docker stop ollama && docker rm ollama",
+    "pack": "turbo pack",
+    "prepack": "turbo prepack",
     "package": "cd packages/vscode && pnpm package",
     "patch-versions": "npx --yes zx scripts/patch-version.mjs",
     "prd": "yarn prd:text && yarn prd:sketch",
