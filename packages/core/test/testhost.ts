@@ -7,7 +7,7 @@
 
 // Import necessary modules and functions from various files
 import { readFile, writeFile } from "fs/promises";
-import { ensureDir } from "fs-extra";
+import { ensureDir } from "@genaiscript/core";
 import {
   ServerManager,
   UTF8Decoder,

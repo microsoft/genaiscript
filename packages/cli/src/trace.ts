@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ensureDir } from "fs-extra";
+import { ensureDir } from "@genaiscript/core";
 import { dirname } from "node:path";
 import { WriteStream, createWriteStream, writeFileSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
