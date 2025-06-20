@@ -8,7 +8,7 @@ import type {
   Resource,
 } from "@genaiscript/core";
 import { Worker } from "node:worker_threads";
-import { getModulePaths } from "@genaiscript/core";
+import { getModulePaths, tryStat } from "@genaiscript/core";
 
 import debug from "debug";
 import { dirname, join } from "node:path";
@@ -70,7 +70,10 @@ export async function run(
     options: rest,
   };
   dbg(`__dirname: %s`, __dirname);
-  const workerJs = join(dirname(__dirname), "dist", "esm", "worker.js");
+  const sidebyside = await tryStat(join(__dirname, "worker.js"));
+  const workerJs = sidebyside
+    ? join(__dirname, "worker.js")
+    : join(dirname(__dirname), "dist", "esm", "worker.js");
   dbg(`start ${workerJs}`);
   const worker = new Worker(workerJs, { workerData, name: options?.label });
   return new Promise((resolve, reject) => {
