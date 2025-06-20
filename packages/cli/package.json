@@ -53,6 +53,7 @@
     "openai": "^4.103.0",
     "replace-ext": "^2.0.0",
     "tslib": "catalog:",
+    "typescript": "catalog:",
     "ws": "^8.18.2"
   },
   "engines": {
@@ -71,7 +72,6 @@
     "eslint": "catalog:",
     "prettier": "catalog:",
     "rimraf": "catalog:",
-    "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "vitest": "catalog:"
   },

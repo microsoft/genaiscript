@@ -52,7 +52,7 @@ import {
   parseTokens,
   prompty2genaiscript,
 } from "./parse.js";
-import { compileScript, createScript, fixScripts, listScripts, scriptInfo } from "./scripts.js";
+import { createScript, fixScripts, listScripts, scriptInfo } from "./scripts.js";
 import { envInfo, modelAliasesInfo, modelList, scriptModelInfo, systemInfo } from "./info.js";
 import { scriptTestList, scriptTestsView, scriptsTest } from "./test.js";
 import { cacheClear } from "./cache.js";
@@ -69,6 +69,7 @@ import { resolve } from "node:path";
 import debug from "debug";
 import { githubActionConfigure } from "./githubaction.js";
 import { uniq } from "es-toolkit";
+import { compileScript } from "./typescript.js";
 const dbg = genaiscriptDebug("cli");
 
 /**
