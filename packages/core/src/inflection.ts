@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { titleize as _titlelize, humanize as _humanize } from "inflection";
+import { titleize as _titlelize, humanize as _humanize, capitalize, camelize } from "inflection";
+
+export { capitalize, camelize };
 
 /**
  * Splits camelCase or PascalCase text into separate words by inserting a space

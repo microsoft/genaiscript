@@ -59,7 +59,7 @@ import type {
   PromptScriptTestRunResponse,
   SerializedError,
 } from "@genaiscript/core";
-import { buildProject } from "./build.js";
+import { buildProject } from "@genaiscript/core";
 
 const { __filename } =
   typeof module !== "undefined" && module.filename

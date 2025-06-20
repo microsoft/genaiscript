@@ -1,19 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {
-  GENAI_ANYJS_GLOB,
-  GENAI_ANY_REGEX,
-  GENAISCRIPT_FOLDER,
-  arrayify,
-  genaiscriptDebug,
-  getModulePaths,
-  host,
-  parseProject,
-  runtimeHost,
-} from "@genaiscript/core";
 import { uniq } from "es-toolkit";
 import { dirname } from "node:path";
+import { arrayify } from "./cleaners.js";
+import { GENAI_ANYJS_GLOB, GENAISCRIPT_FOLDER, GENAI_ANY_REGEX } from "./constants.js";
+import { genaiscriptDebug } from "./debug.js";
+import { runtimeHost } from "./host.js";
+import { parseProject } from "./parser.js";
+import { getModulePaths } from "./pathUtils.js";
+
 const dbg = genaiscriptDebug("cli:build");
 
 const { __dirname } =
@@ -32,6 +28,7 @@ const { __dirname } =
  * @returns A promise that resolves to the newly parsed project structure.
  */
 export async function buildProject(options?: {
+  installDir: string
   toolFiles?: string[];
   toolsPath?: string | string[];
 }) {
@@ -66,7 +63,7 @@ export async function buildProject(options?: {
     scriptFiles = [];
     for (const tp of tps) {
       dbg(`searching %s .gitignore: %s`, tp.pattern, tp.applyGitIgnore);
-      const fs = await host.findFiles(tp.pattern, {
+      const fs = await runtimeHost.findFiles(tp.pattern, {
         ignore: `**/${GENAISCRIPT_FOLDER}/**`,
         applyGitIgnore: tp.applyGitIgnore,
       });

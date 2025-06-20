@@ -1,18 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ensureDir } from "@genaiscript/core";
 import { dirname } from "node:path";
 import { WriteStream, createWriteStream, writeFileSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import {
-  TRACE_CHUNK,
-  TRACE_DETAILS,
-  MarkdownTrace,
-  TraceChunkEvent,
-  logVerbose,
-  measure,
-} from "@genaiscript/core";
+import { MarkdownTrace, TraceChunkEvent } from "./trace.js";
+import { TRACE_CHUNK, TRACE_DETAILS } from "./constants.js";
+import { measure } from "./performance.js";
+import { logVerbose } from "./util.js";
+import { ensureDir } from "./fs.js";
 
 /**
  * Sets up trace writing to a specified file by handling trace events.

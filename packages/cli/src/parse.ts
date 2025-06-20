@@ -44,7 +44,7 @@ import {
 } from "@genaiscript/core";
 import type { DocxParseOptions, WorkspaceFile } from "@genaiscript/core";
 import { basename, join } from "node:path";
-import { parseOptionsVars } from "./vars.js";
+import { parseOptionsVars } from "@genaiscript/core";
 const dbg = genaiscriptDebug("cli:parse");
 
 /**

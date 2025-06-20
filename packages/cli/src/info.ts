@@ -20,7 +20,7 @@ import {
   resolveModelConnectionInfo,
   runtimeHost,
 } from "@genaiscript/core";
-import { buildProject } from "./build.js";
+import { buildProject } from "@genaiscript/core";
 
 /**
  * Outputs basic system information including node version, platform, architecture, and process ID.

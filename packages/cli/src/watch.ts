@@ -21,7 +21,7 @@ import type {
   ScriptFilterOptions,
 } from "@genaiscript/core";
 import { genaiscriptDebug } from "@genaiscript/core";
-import { buildProject } from "./build.js";
+import { buildProject } from "@genaiscript/core";
 const dbg = genaiscriptDebug("watch");
 
 interface ProjectWatcherOptions extends ScriptFilterOptions {

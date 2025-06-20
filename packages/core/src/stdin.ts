@@ -1,16 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { STDIN_READ_TIMEOUT } from "@genaiscript/core";
-import {
-  deleteUndefinedValues,
-  fileTypeFromBuffer,
-  isBinaryMimeType,
-  logVerbose,
-  prettyBytes,
-  toBase64,
-} from "@genaiscript/core";
-import type { WorkspaceFile } from "@genaiscript/core";
+import { fileTypeFromBuffer } from "file-type";
+import prettyBytes from "pretty-bytes";
+import { isBinaryMimeType } from "./binary.js";
+import { deleteUndefinedValues } from "./cleaners.js";
+import { STDIN_READ_TIMEOUT } from "./constants.js";
+import { logVerbose } from "./util.js";
+import { toBase64 } from "./base64.js";
 
 function readStdinOrTimeout(): Promise<Buffer | undefined> {
   return new Promise<Buffer | undefined>((resolve, reject) => {

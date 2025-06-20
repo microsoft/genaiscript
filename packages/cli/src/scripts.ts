@@ -4,7 +4,7 @@
 // This file contains functions to manage and compile project scripts,
 // including listing, creating, fixing, and compiling scripts.
 
-import { buildProject } from "./build.js";
+import { buildProject } from "@genaiscript/core";
 import { shellInput } from "@genaiscript/runtime";
 import type { ScriptFilterOptions } from "@genaiscript/core";
 import {

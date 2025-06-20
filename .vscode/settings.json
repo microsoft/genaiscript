@@ -274,6 +274,7 @@
         "tlaplus",
         "tmpl",
         "tokenless",
+        "tracefile",
         "traceparser",
         "treegrid",
         "treesitter",

@@ -13,7 +13,9 @@
   ],
   "dependencies": {
     "@genaiscript/core": "workspace:*",
-    "debug": "^4.4.1",
+    "@genaiscript/runtime": "workspace:*",
+    "es-toolkit": "catalog:",
+    "debug": "catalog:",
     "tslib": "catalog:"
   },
   "devDependencies": {

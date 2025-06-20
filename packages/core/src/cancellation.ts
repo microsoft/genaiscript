@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import { CancelError } from "./error.js";
+import { logWarn } from "./util.js";
 
 /**
  * A cancellation token is passed to an asynchronous or long running
@@ -86,4 +87,24 @@ export function checkCancelled(token: CancellationToken) {
  */
 export interface CancellationOptions {
   cancellationToken?: CancellationToken;
+}
+
+/**
+ * Creates and returns an instance of AbortSignalCancellationController for handling cancellations.
+ *
+ * This function sets up a signal handler for SIGINT. On receiving the signal, it logs a warning,
+ * aborts the cancellation controller, and removes the signal handler. Calling SIGINT again after
+ * the first cancellation is invoked will exit the process.
+ *
+ * @returns An initialized AbortSignalCancellationController instance.
+ */
+export function createCancellationController() {
+  const canceller = new AbortSignalCancellationController();
+  const cancelHandler = () => {
+    logWarn("cancelling (cancel again to exit)...");
+    canceller.abort();
+    process.off("SIGINT", cancelHandler);
+  };
+  process.on("SIGINT", cancelHandler);
+  return canceller;
 }

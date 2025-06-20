@@ -15,7 +15,7 @@
     "@genaiscript/core": "workspace:*",
     "@inquirer/prompts": "^7.5.3",
     "dockerode": "^4.0.7",
-    "es-toolkit": "^1.39.3",
+    "es-toolkit": "catalog:",
     "execa": "^9.6.0",
     "glob": "^11.0.3",
     "memorystream": "^0.3.1",

@@ -4,7 +4,7 @@
 import { WebSocketServer } from "ws";
 import { runPromptScriptTests } from "./test.js";
 import { PROMPTFOO_VERSION, NodeHost } from "@genaiscript/runtime";
-import { runScriptInternal } from "./run.js";
+import { runScriptInternal } from "@genaiscript/api";
 import type {
   ChatCancel,
   ChatChunk,

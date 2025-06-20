@@ -195,6 +195,10 @@ export * from "./z3.js";
 export * from "./zip.js";
 export * from "./zod.js";
 export * from "./testhost.js"
+export * from "./build.js";
+export * from "./sarif.js";
+export * from "./tracefile.js";
+export * from "./stdin.js";
 
 // Messages
 export * from "./server/client.js";

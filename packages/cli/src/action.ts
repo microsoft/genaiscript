@@ -26,7 +26,7 @@ import {
   tryStat,
   writeText,
 } from "@genaiscript/core";
-import { buildProject } from "./build.js";
+import { buildProject } from "@genaiscript/core";
 import type { JSONSchemaDescribed, JSONSchemaObject, JSONSchemaString } from "@genaiscript/core";
 import { shellConfirm, shellSelect } from "@genaiscript/runtime";
 

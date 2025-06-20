@@ -32,12 +32,12 @@ import {
   unfence,
   writeText,
 } from "@genaiscript/core";
-import { buildProject } from "./build.js";
+import { buildProject } from "@genaiscript/core";
 import { run } from "@genaiscript/api";
 import { createPatch } from "diff";
-import { setupTraceWriting } from "./trace.js";
+import { setupTraceWriting } from "@genaiscript/core";
 import { dirname, join } from "node:path";
-import { createCancellationController } from "./cancel.js";
+import { createCancellationController } from "@genaiscript/core";
 
 /**
  * Converts a set of files based on a specified script, applying transformations and generating output files.

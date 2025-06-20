@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { lstat, mkdir, writeFile, readFile, appendFile } from "node:fs/promises";
+import { lstat, mkdir, writeFile, readFile, appendFile, rm } from "node:fs/promises";
 import { HTTPS_REGEX } from "./constants.js";
 import { host } from "./host.js";
 import { dirname } from "node:path";
@@ -130,6 +130,11 @@ export async function tryStat(fn: string) {
   } catch {
     return undefined;
   }
+}
+
+export async function rmDir(dir: string) {
+  dbg(`removing directory ${dir}`);
+  await rm(dir, { recursive: true });
 }
 
 /**
