@@ -26,12 +26,14 @@
     "@types/turndown": "^5.0.5",
     "@vitest/coverage-istanbul": "catalog:",
     "eslint": "catalog:",
+    "glob": "^11.0.3",
     "prettier": "catalog:",
     "rimraf": "catalog:",
     "tshy": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "zod": "^3.25.67"
   },
   "scripts": {
     "build": "npm run clean && npm run build:prompts && tshy",
@@ -48,6 +50,8 @@
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "0.22.1",
     "@anthropic-ai/sdk": "0.52.0",
+    "@ast-grep/lang-c": "^0.0.1",
+    "@ast-grep/lang-python": "^0.0.1",
     "@ast-grep/napi": "^0.37.0",
     "@azure/core-auth": "^1.9.0",
     "@azure/identity": "^4.10.0",

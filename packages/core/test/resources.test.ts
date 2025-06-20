@@ -7,7 +7,7 @@ import { pathToFileURL } from "node:url";
 import { join } from "node:path";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { rmdir } from "node:fs/promises";
+import { rm } from "node:fs/promises";
 import { TestHost } from "./testhost.js";
 
 describe("resources", async () => {
@@ -20,7 +20,7 @@ describe("resources", async () => {
 
   afterEach(async () => {
     // Cleanup is left minimal intentionally
-    await rmdir(tempDir, { recursive: true });
+    await rm(tempDir, { recursive: true });
   });
 
   test("should resolve file URLs", async () => {

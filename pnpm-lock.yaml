@@ -179,7 +179,7 @@ importers:
         version: 3.2.0
       openai:
         specifier: ^4.103.0
-        version: 4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)
+        version: 4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)
       replace-ext:
         specifier: ^2.0.0
         version: 2.0.0
@@ -247,6 +247,12 @@ importers:
       '@anthropic-ai/sdk':
         specifier: 0.52.0
         version: 0.52.0
+      '@ast-grep/lang-c':
+        specifier: ^0.0.1
+        version: 0.0.1
+      '@ast-grep/lang-python':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@ast-grep/napi':
         specifier: ^0.37.0
         version: 0.37.0
@@ -405,7 +411,7 @@ importers:
         version: 5.0.3
       openai:
         specifier: ^4.103.0
-        version: 4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)
+        version: 4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)
       p-limit:
         specifier: ^6.2.0
         version: 6.2.0
@@ -480,7 +486,7 @@ importers:
         version: 4.15.1
       zod-to-json-schema:
         specifier: ^3.24.5
-        version: 3.24.5(zod@3.25.64)
+        version: 3.24.5(zod@3.25.67)
     devDependencies:
       '@eslint/js':
         specifier: 'catalog:'
@@ -536,6 +542,9 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 9.29.0
+      glob:
+        specifier: ^11.0.3
+        version: 11.0.3
       prettier:
         specifier: 'catalog:'
         version: 3.5.3
@@ -554,6 +563,9 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0)
+      zod:
+        specifier: ^3.25.67
+        version: 3.25.67
 
   packages/modulesample: {}
 
@@ -588,7 +600,7 @@ importers:
         version: 2.8.1
       zod:
         specifier: ^3.25.64
-        version: 3.25.64
+        version: 3.25.67
     devDependencies:
       '@eslint/js':
         specifier: 'catalog:'
@@ -634,13 +646,13 @@ importers:
     devDependencies:
       '@agentic/calculator':
         specifier: v7.5.3
-        version: 7.5.3(zod@3.25.64)
+        version: 7.5.3(zod@3.25.67)
       '@agentic/core':
         specifier: v7.5.3
-        version: 7.5.3(zod@3.25.64)
+        version: 7.5.3(zod@3.25.67)
       '@agentic/weather':
         specifier: v7.5.3
-        version: 7.5.3(zod@3.25.64)
+        version: 7.5.3(zod@3.25.67)
       '@ast-grep/lang-c':
         specifier: ^0.0.1
         version: 0.0.1
@@ -661,10 +673,10 @@ importers:
         version: 12.27.0
       '@langchain/core':
         specifier: ^0.3.42
-        version: 0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64))
+        version: 0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
       '@langchain/langgraph':
         specifier: ^0.2.57
-        version: 0.2.74(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.25.64))
+        version: 0.2.74(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.25.67))
       '@modelcontextprotocol/sdk':
         specifier: ^1.12.0
         version: 1.13.0
@@ -676,10 +688,10 @@ importers:
         version: 5.0.0
       zod:
         specifier: ^3.25.36
-        version: 3.25.64
+        version: 3.25.67
       zod-to-json-schema:
         specifier: ^3.24.5
-        version: 3.24.5(zod@3.25.64)
+        version: 3.24.5(zod@3.25.67)
       zx:
         specifier: ^8.5.4
         version: 8.5.4
@@ -8185,6 +8197,9 @@ packages:
   zod@3.25.64:
     resolution: {integrity: sha512-hbP9FpSZf7pkS7hRVUrOjhwKJNyampPgtXKc3AN6DsWtoHsg2Sb4SQaS4Tcay380zSwd2VPo9G9180emBACp5g==}
 
+  zod@3.25.67:
+    resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -8211,33 +8226,33 @@ snapshots:
 
   '@actions/io@1.1.3': {}
 
-  '@agentic/calculator@7.5.3(zod@3.25.64)':
+  '@agentic/calculator@7.5.3(zod@3.25.67)':
     dependencies:
-      '@agentic/core': 7.5.3(zod@3.25.64)
+      '@agentic/core': 7.5.3(zod@3.25.67)
       mathjs: 13.2.3
-      zod: 3.25.64
+      zod: 3.25.67
     transitivePeerDependencies:
       - babel-plugin-macros
 
-  '@agentic/core@7.5.3(zod@3.25.64)':
+  '@agentic/core@7.5.3(zod@3.25.67)':
     dependencies:
       dedent: 1.6.0
       delay: 6.0.0
       jsonrepair: 3.12.0
       ky: 1.8.1
-      openai-zod-to-json-schema: 1.0.3(zod@3.25.64)
+      openai-zod-to-json-schema: 1.0.3(zod@3.25.67)
       p-throttle: 6.2.0
       type-fest: 4.41.0
-      zod: 3.25.64
-      zod-validation-error: 3.4.1(zod@3.25.64)
+      zod: 3.25.67
+      zod-validation-error: 3.4.1(zod@3.25.67)
     transitivePeerDependencies:
       - babel-plugin-macros
 
-  '@agentic/weather@7.5.3(zod@3.25.64)':
+  '@agentic/weather@7.5.3(zod@3.25.67)':
     dependencies:
-      '@agentic/core': 7.5.3(zod@3.25.64)
+      '@agentic/core': 7.5.3(zod@3.25.67)
       ky: 1.8.1
-      zod: 3.25.64
+      zod: 3.25.67
     transitivePeerDependencies:
       - babel-plugin-macros
 
@@ -9554,7 +9569,7 @@ snapshots:
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-blur@1.6.0':
     dependencies:
@@ -9564,7 +9579,7 @@ snapshots:
   '@jimp/plugin-circle@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-color@1.6.0':
     dependencies:
@@ -9572,7 +9587,7 @@ snapshots:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
       tinycolor2: 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-contain@1.6.0':
     dependencies:
@@ -9581,7 +9596,7 @@ snapshots:
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-cover@1.6.0':
     dependencies:
@@ -9589,20 +9604,20 @@ snapshots:
       '@jimp/plugin-crop': 1.6.0
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-crop@1.6.0':
     dependencies:
       '@jimp/core': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-displace@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-dither@1.6.0':
     dependencies:
@@ -9612,12 +9627,12 @@ snapshots:
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-flip@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-hash@1.6.0':
     dependencies:
@@ -9635,7 +9650,7 @@ snapshots:
   '@jimp/plugin-mask@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-print@1.6.0':
     dependencies:
@@ -9648,18 +9663,18 @@ snapshots:
       parse-bmfont-binary: 1.0.6
       parse-bmfont-xml: 1.1.6
       simple-xml-to-json: 1.2.3
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-quantize@1.6.0':
     dependencies:
       image-q: 4.0.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-resize@1.6.0':
     dependencies:
       '@jimp/core': 1.6.0
       '@jimp/types': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-rotate@1.6.0':
     dependencies:
@@ -9668,7 +9683,7 @@ snapshots:
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/plugin-threshold@1.6.0':
     dependencies:
@@ -9677,11 +9692,11 @@ snapshots:
       '@jimp/plugin-hash': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/types@1.6.0':
     dependencies:
-      zod: 3.25.64
+      zod: 3.25.67
 
   '@jimp/utils@1.6.0':
     dependencies:
@@ -9712,47 +9727,47 @@ snapshots:
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
-  '@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64))':
+  '@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))':
     dependencies:
       '@cfworker/json-schema': 4.1.1
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.20
-      langsmith: 0.3.29(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64))
+      langsmith: 0.3.29(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
       mustache: 4.2.0
       p-queue: 6.6.2
       p-retry: 4.6.2
       uuid: 10.0.0
-      zod: 3.25.64
-      zod-to-json-schema: 3.24.5(zod@3.25.64)
+      zod: 3.25.67
+      zod-to-json-schema: 3.24.5(zod@3.25.67)
     transitivePeerDependencies:
       - openai
 
-  '@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)))':
+  '@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))':
     dependencies:
-      '@langchain/core': 0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64))
+      '@langchain/core': 0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
       uuid: 10.0.0
 
-  '@langchain/langgraph-sdk@0.0.78(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)))(react@19.1.0)':
+  '@langchain/langgraph-sdk@0.0.78(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(react@19.1.0)':
     dependencies:
       '@types/json-schema': 7.0.15
       p-queue: 6.6.2
       p-retry: 4.6.2
       uuid: 9.0.1
     optionalDependencies:
-      '@langchain/core': 0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64))
+      '@langchain/core': 0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
       react: 19.1.0
 
-  '@langchain/langgraph@0.2.74(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.25.64))':
+  '@langchain/langgraph@0.2.74(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.25.67))':
     dependencies:
-      '@langchain/core': 0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64))
-      '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)))
-      '@langchain/langgraph-sdk': 0.0.78(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)))(react@19.1.0)
+      '@langchain/core': 0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+      '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))
+      '@langchain/langgraph-sdk': 0.0.78(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(react@19.1.0)
       uuid: 10.0.0
-      zod: 3.25.64
+      zod: 3.25.67
     optionalDependencies:
-      zod-to-json-schema: 3.24.5(zod@3.25.64)
+      zod-to-json-schema: 3.24.5(zod@3.25.67)
     transitivePeerDependencies:
       - react
 
@@ -9819,7 +9834,7 @@ snapshots:
       serve-handler: 6.1.6
       tailwind-merge: 2.6.0
       tailwindcss-animate: 1.0.7(tailwindcss@4.1.10)
-      zod: 3.25.64
+      zod: 3.25.67
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
@@ -9832,7 +9847,7 @@ snapshots:
       cors: 2.8.5
       express: 5.1.0
       ws: 8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      zod: 3.25.64
+      zod: 3.25.67
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -9873,8 +9888,8 @@ snapshots:
       express-rate-limit: 7.5.0(express@5.1.0)
       pkce-challenge: 5.0.0
       raw-body: 3.0.0
-      zod: 3.25.64
-      zod-to-json-schema: 3.24.5(zod@3.25.64)
+      zod: 3.25.67
+      zod-to-json-schema: 3.24.5(zod@3.25.67)
     transitivePeerDependencies:
       - supports-color
 
@@ -14098,7 +14113,7 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.0.8
 
-  langsmith@0.3.29(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)):
+  langsmith@0.3.29(openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)):
     dependencies:
       '@types/uuid': 10.0.0
       chalk: 4.1.2
@@ -14108,7 +14123,7 @@ snapshots:
       semver: 7.7.2
       uuid: 10.0.0
     optionalDependencies:
-      openai: 4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64)
+      openai: 4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)
 
   layout-base@1.0.2: {}
 
@@ -14959,11 +14974,11 @@ snapshots:
       is-inside-container: 1.0.0
       is-wsl: 3.1.0
 
-  openai-zod-to-json-schema@1.0.3(zod@3.25.64):
+  openai-zod-to-json-schema@1.0.3(zod@3.25.67):
     dependencies:
-      zod: 3.25.64
+      zod: 3.25.67
 
-  openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.64):
+  openai@4.104.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67):
     dependencies:
       '@types/node': 18.19.109
       '@types/node-fetch': 2.6.12
@@ -14974,7 +14989,7 @@ snapshots:
       node-fetch: 2.7.0
     optionalDependencies:
       ws: 8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      zod: 3.25.64
+      zod: 3.25.67
     transitivePeerDependencies:
       - encoding
 
@@ -17170,15 +17185,17 @@ snapshots:
     dependencies:
       async-mutex: 0.3.2
 
-  zod-to-json-schema@3.24.5(zod@3.25.64):
+  zod-to-json-schema@3.24.5(zod@3.25.67):
     dependencies:
-      zod: 3.25.64
+      zod: 3.25.67
 
-  zod-validation-error@3.4.1(zod@3.25.64):
+  zod-validation-error@3.4.1(zod@3.25.67):
     dependencies:
-      zod: 3.25.64
+      zod: 3.25.67
 
   zod@3.25.64: {}
+
+  zod@3.25.67: {}
 
   zwitch@2.0.4: {}
 

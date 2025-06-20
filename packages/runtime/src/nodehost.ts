@@ -2,7 +2,7 @@
 // Licensed under the MIT Lice
 
 import { TextDecoder, TextEncoder } from "util";
-import { lstat, mkdir, readFile, rmdir, unlink, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
 import { ensureDir, fileExists } from "@genaiscript/core";
 import { dirname } from "node:path";
 import { glob } from "glob";
@@ -499,7 +499,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     await mkdir(name, { recursive: true });
   }
   async deleteDirectory(name: string): Promise<void> {
-    await rmdir(name, { recursive: true });
+    await rm(name, { recursive: true });
   }
 
   async contentSafety(
