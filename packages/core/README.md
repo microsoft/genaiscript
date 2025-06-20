@@ -1,6 +1,6 @@
-# GenAIScript Runtime
+# GenAIScript Core
 
-Independent runtime for the GenAIScript project, which provides a set of tools and libraries to execute GenAIScript code.
+Core package for the GenAIScript project, which provides the foundational libraries and tools to build and execute GenAIScript code.
 
 - [Documentation](https://microsoft.github.io/genaiscript/)
 
