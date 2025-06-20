@@ -18,8 +18,8 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
               run: yarn compile
             - name: git stuff

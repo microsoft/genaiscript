@@ -23,14 +23,15 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "${{ matrix.node-version }}"
-                  cache: yarn
+                  cache: pnpm
             - run: sudo apt-get update && sudo apt-get install ffmpeg
-            - run: yarn install --frozen-lockfile --prefer-offline
+            - run: pnpm install --frozen-lockfile --prefer-offline
             - name: compile
-              run: yarn compile:action
+              run: pnpm compile:action
             - name: echo tests
               run: yarn test:scripts -g commit -p github --test-timeout 60
               env:

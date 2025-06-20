@@ -25,7 +25,7 @@
     "compile:web": "pnpm --filter=@genaiscript/web build",
     "debug:mcp": "npx --yes @modelcontextprotocol/inspector node packages/cli/dist/src/index.js mcp --groups mcp --cwd packages/sample --startup resources",
     "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
-    "docs": "cd docs && ./node_modules/.bin/astro telemetry disable && ./node_modules/.bin/astro dev --host",
+    "docs": "cd docs && pnpm run dev",
     "ffmpeg:install": "sudo apt-get update && sudo apt-get install ffmpeg -y",
     "format:check": "turbo format:check",
     "format:fix": "turbo format:fix",

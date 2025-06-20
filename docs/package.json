@@ -5,14 +5,13 @@
   "version": "2.0.0",
   "license": "MIT",
   "scripts": {
-    "install:force": "rm yarn.lock && yarn install",
-    "dev": "astro dev --host",
+    "install:force": "rm yarn.lock && yarn install",    
+    "dev": "astro telemetry disable && astro dev --host",
     "start": "astro dev --host",
     "check": "astro check",
     "build": "astro build",
     "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript && node fixllms.mjs",
     "preview": "astro preview",
-    "astro": "astro",
     "genai:test": "node ../packages/cli/dist/src/index.js test src/**/*.md",
     "genai:frontmatter": "node ../packages/cli/dist/src/index.js run frontmatter \"src/**/*.{md,mdx}\" --apply-edits",
     "genai:technical": "for file in \"src/**/*.md\"; do\nnode ../packages/cli/dist/src/index.js run technical \"$file\" --apply-edits\ndone",
@@ -20,7 +19,7 @@
     "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
     "clean": "rm -Rf dist && rm -Rf distasw && rm -Rf public/slides && rm -Rf .genaiscript"
   },
-  "devDependencies": {
+  "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/starlight": "^0.34.3",
     "astro": "^5.8.1",

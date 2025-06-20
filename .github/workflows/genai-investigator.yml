@@ -23,11 +23,12 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
               run: yarn compile
             - name: genaiscript gai

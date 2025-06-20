@@ -23,13 +23,14 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 0
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile:action
+              run: pnpm compile:action
             - name: generate dummy result
               working-directory: packages/sample
               run: mkdir -p temp && touch temp/commit-tests.txt
