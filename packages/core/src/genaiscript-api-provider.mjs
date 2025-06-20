@@ -54,7 +54,7 @@ class GenAIScriptApiProvider {
           content: fileContent,
         });
       }
-      const api = await import(cli ?? "@genaiscript/api");
+      const api = await import("@genaiscript/api");
       const res = await api.run(scriptId, files, options);
       //logger.debug(res)
       const { error, stats, logprobs, finishReason } = res || {};

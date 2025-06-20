@@ -29,6 +29,7 @@
     "@ast-grep/lang-python": "^0.0.1",
     "@azure/identity": "^4.10.0",
     "@azure/storage-blob": "^12.27.0",
+    "@genaiscript/api": "workspace:*",
     "@langchain/core": "^0.3.42",
     "@langchain/langgraph": "^0.2.57",
     "@modelcontextprotocol/sdk": "^1.12.0",
