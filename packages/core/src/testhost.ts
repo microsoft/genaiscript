@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
@@ -7,7 +9,7 @@
 
 // Import necessary modules and functions from various files
 import { readFile, writeFile } from "fs/promises";
-import { ensureDir } from "@genaiscript/core";
+import { ensureDir } from "./fs.js";
 import {
   ServerManager,
   UTF8Decoder,
@@ -16,25 +18,25 @@ import {
   RuntimeHost,
   ModelConfigurations,
   ModelConfiguration,
-} from "../src/host.js";
-import { TraceOptions } from "../src/trace.js";
+} from "./host.js";
+import { TraceOptions } from "./trace.js";
 import { resolve } from "node:path";
-import { LanguageModel } from "../src/chat.js";
-import { errorMessage, NotSupportedError } from "../src/error.js";
+import { LanguageModel } from "./chat.js";
+import { errorMessage, NotSupportedError } from "./error.js";
 import {
   LanguageModelConfiguration,
   LogLevel,
   Project,
   ResponseStatus,
-} from "../src/server/messages.js";
-import { defaultModelConfigurations } from "../src/llms.js";
-import { CancellationToken } from "../src/cancellation.js";
-import { createNodePath } from "../src/path.js";
-import { McpClientManager } from "../src/mcpclient.js";
-import { ResourceManager } from "../src/mcpresource.js";
+} from "./server/messages.js";
+import { defaultModelConfigurations } from "./llms.js";
+import { CancellationToken } from "./cancellation.js";
+import { createNodePath } from "./path.js";
+import { McpClientManager } from "./mcpclient.js";
+import { ResourceManager } from "./mcpresource.js";
 import { execSync } from "node:child_process";
-import { shellQuote } from "../src/shell.js";
-import { genaiscriptDebug } from "../src/debug.js";
+import { shellQuote } from "./shell.js";
+import { genaiscriptDebug } from "./debug.js";
 const dbg = genaiscriptDebug("host:test");
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
@@ -159,7 +161,7 @@ export class TestHost implements RuntimeHost {
   }
 
   // Placeholder for finding files with a glob pattern
-  async findFiles(pattern: string, options?: {}): Promise<string[]> {
+  async findFiles(pattern: string, options?: unknown): Promise<string[]> {
     return [pattern];
   }
 

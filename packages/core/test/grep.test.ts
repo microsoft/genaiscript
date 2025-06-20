@@ -3,7 +3,7 @@
 
 import { describe, test, assert, beforeEach } from "vitest";
 import { grepSearch } from "../src/grep.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 
 // testmarker = aojkhsdfvfaweiojhfwqepiouiasdojhvfadshjoasdf
 

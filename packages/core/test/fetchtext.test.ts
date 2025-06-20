@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { describe, test, assert, beforeEach } from "vitest";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 import { fetchText } from "../src/fetchtext.js";
 
 describe("fetch", () => {

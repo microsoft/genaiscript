@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { rm } from "node:fs/promises";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 
 describe("resources", async () => {
   let tempDir: string;

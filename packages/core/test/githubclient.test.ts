@@ -6,7 +6,7 @@ import { GitHubClient } from "../src/githubclient.js";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { isCI } from "../src/ci.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 import { tryResolveResource } from "../src/resources.js";
 
 describe("GitHubClient", async () => {

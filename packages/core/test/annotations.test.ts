@@ -8,7 +8,7 @@ import {
   convertGithubMarkdownAnnotationsToItems,
   parseAnnotations,
 } from "../src/annotations.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 import { EMOJI_WARNING, EMOJI_FAIL } from "../src/constants.js";
 
 describe("annotations", () => {

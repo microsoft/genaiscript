@@ -3,7 +3,7 @@
 
 import { describe, test, assert, beforeEach } from "vitest";
 import { defaultModelConfigurations } from "../src/llms.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 import { LARGE_MODEL_ID, SMALL_MODEL_ID, VISION_MODEL_ID } from "../src/constants.js";
 
 describe("defaultModelConfigurations", () => {

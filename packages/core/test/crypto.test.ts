@@ -3,7 +3,7 @@
 
 import { describe, test, assert, beforeEach } from "vitest";
 import { hash, randomHex } from "../src/crypto.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 
 describe("randomHex function", () => {
   test("should generate a hex string of the correct length", () => {

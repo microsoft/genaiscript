@@ -4,7 +4,7 @@
 import { describe, test, assert, beforeEach } from "vitest";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 import { createCache } from "../src/cache.js";
 
 const tempDir = path.join(".genaiscript", "temp");

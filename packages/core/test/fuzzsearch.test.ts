@@ -3,7 +3,7 @@
 
 import { describe, test, assert, beforeEach } from "vitest";
 import { fuzzSearch } from "../src/fuzzsearch.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 
 describe("fuzzSearch", () => {
   beforeEach(() => {

@@ -7,7 +7,7 @@ import { MarkdownTrace } from "../src/trace.js";
 import { XLSXParse } from "../src/xlsx.js";
 import { readFile } from "fs/promises";
 import { resolve } from "path";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 import { writeFile } from "fs/promises";
 
 describe("parsers", async () => {

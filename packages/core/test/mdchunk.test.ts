@@ -6,7 +6,7 @@ import { describe, test, assert, beforeEach } from "vitest";
 import { glob } from "glob";
 import { readFile } from "node:fs/promises";
 import { DOCXTryParse } from "../src/docx.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 
 describe(`chunkMarkdown`, async () => {
   const estimateTokens = (text: string) => text.split(/\s+/).length;

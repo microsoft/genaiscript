@@ -6,10 +6,12 @@ import type { BrowserPage, BrowseSessionOptions, TraceOptions } from "@genaiscri
 import {
   PLAYWRIGHT_DEFAULT_BROWSER,
   createVideoDir,
+  genaiscriptDebug,
   logError,
   logVerbose,
   uriRedact,
 } from "@genaiscript/core";
+const dbg = genaiscriptDebug("playwright");
 
 /**
  * Manages browser instances using Playwright, including launching,
@@ -69,7 +71,7 @@ export class BrowserManager {
     for (const page of pages) {
       try {
         if (!page.isClosed()) {
-          logVerbose(`browsers: closing page`);
+          dbg(`browsers: closing page`);
           await page.close();
         }
       } catch (e) {
@@ -79,7 +81,7 @@ export class BrowserManager {
 
     for (const context of contexts) {
       try {
-        logVerbose(`browsers: closing context`);
+        dbg(`browsers: closing context`);
         await context.close();
       } catch (e) {
         logError(e);
@@ -89,7 +91,7 @@ export class BrowserManager {
     // Close all active browsers
     for (const browser of browsers) {
       try {
-        logVerbose(`browsers: closing browser`);
+        dbg(`browsers: closing browser`);
         await browser.close();
       } catch (e) {
         logError(e);

@@ -11,7 +11,7 @@ import {
   fileWriteCachedJSON,
   patchCachedImages,
 } from "../src/filecache.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 import { readFile } from "node:fs/promises";
 
 describe("fileWriteCached", () => {

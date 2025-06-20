@@ -3,7 +3,7 @@
 
 import { describe, test, assert, beforeEach } from "vitest";
 import { astGrepFindFiles, astGrepParse } from "../src/astgrep.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "../src/testhost.js";
 import { dedent } from "../src/indent.js";
 
 describe("astgrep", () => {
