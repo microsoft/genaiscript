@@ -45,7 +45,7 @@
     "lint:fix": "eslint src test --fix --fix-type [problem,suggestion]",
     "pack": "npm pack 2>&1",
     "prepack": "npm run build",
-    "test": "vitest"
+    "test": "vitest --run"
   },
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "0.22.1",
