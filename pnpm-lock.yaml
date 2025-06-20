@@ -10,7 +10,7 @@ catalogs:
       specifier: ^9.29.0
       version: 9.29.0
     '@types/node':
-      specifier: ^22.0.0
+      specifier: 22.15.28
       version: 22.15.28
     '@vitest/coverage-istanbul':
       specifier: ^3.2.4
@@ -31,7 +31,7 @@ catalogs:
       specifier: ^2.8.1
       version: 2.8.1
     typescript:
-      specifier: ~5.8.3
+      specifier: 5.8.3
       version: 5.8.3
     typescript-eslint:
       specifier: ^8.34.1
@@ -690,6 +690,9 @@ importers:
       '@tidyjs/tidy':
         specifier: ^2.5.2
         version: 2.5.2
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.28
       p-all:
         specifier: ^5.0.0
         version: 5.0.0

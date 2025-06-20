@@ -49,7 +49,7 @@ $`Create a blog post file that explains the GenAIScript source code in FILE.
 - use markdown headers starting from level 2
 - use lowercase characters, dashes for filenames
 - when invoking the CLI, prefer using the script filename instead of the full path : "genaiscript run <filename_without_genai_extension>"
-- if the script imports code from "genaiscript/runtime", explain what those imports do. The source is in file packages/cli/src/runtime.ts
+- if the script imports code from "@genaiscript/runtime", explain what those imports do. The source is in file packages/cli/src/runtime.ts
 - make sure to generate a filename for the blog post. The filename should be the same as the script filename without the "genai" extension. For example, if the script filename is "makeitbetter.genai.mjs", the blog post filename should be "makeitbetter.md"
 
 

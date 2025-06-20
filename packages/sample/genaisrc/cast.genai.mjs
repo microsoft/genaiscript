@@ -1,4 +1,4 @@
-import { cast } from "genaiscript/runtime"
+import { cast } from "@genaiscript/runtime"
 script({
     files: [
         "genaisrc/cast.genai.mjs",

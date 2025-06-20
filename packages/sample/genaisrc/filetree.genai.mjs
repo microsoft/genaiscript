@@ -1,4 +1,4 @@
-import { fileTree } from "genaiscript/runtime"
+import { fileTree } from "@genaiscript/runtime"
 
 script({ model: "small", tools: "fs_read_file" })
 

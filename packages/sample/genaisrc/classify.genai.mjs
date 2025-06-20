@@ -1,7 +1,7 @@
 script({
     files: "src/robots.jpg",
 })
-import { classify } from "genaiscript/runtime"
+import { classify } from "@genaiscript/runtime"
 
 const qa = await classify(
     "The app crashes when I try to upload a file.",

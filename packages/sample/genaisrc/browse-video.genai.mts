@@ -1,4 +1,4 @@
-import { delay} from "genaiscript/runtime"
+import { delay} from "@genaiscript/runtime"
 script({
     model: "small",
     group: "browser",

@@ -1,4 +1,4 @@
-import { delay, uniq } from "genaiscript/runtime"
+import { delay, uniq } from "@genaiscript/runtime"
 
 /**
  * In order to run this script, you will need the following:

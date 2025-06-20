@@ -1,4 +1,4 @@
-import { fileTree } from "genaiscript/runtime"
+import { fileTree } from "@genaiscript/runtime"
 
 script({
     description: "Generate a llms.txt file for a project",

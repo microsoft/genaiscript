@@ -1,4 +1,4 @@
-import { classify } from "genaiscript/runtime"
+import { classify } from "@genaiscript/runtime"
 
 script({
     title: "Generate TypeScript function documentation using AST insertion",

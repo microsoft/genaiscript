@@ -1,4 +1,4 @@
-import { markdownifyPdf } from "genaiscript/runtime"
+import { markdownifyPdf } from "@genaiscript/runtime"
 script({
     files: "src/pdf/jacdac.pdf",
 })

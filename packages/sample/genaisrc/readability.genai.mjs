@@ -1,4 +1,4 @@
-import { parseReadableContent } from "genaiscript/runtime"
+import { parseReadableContent } from "@genaiscript/runtime"
 
 const page = await host.browse("https://www.msn.com/en-ca", {
     waitUntil: "networkidle",
