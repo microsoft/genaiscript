@@ -11,6 +11,10 @@ import { PLimitPromiseQueue } from "./concurrency.js";
 import { stderr } from "./stdio.js";
 import type { PythonRuntime, PythonRuntimeOptions } from "./types.js";
 import { loadPyodide, version } from "pyodide";
+import { moduleResolve } from "./pathUtils.js";
+import { genaiscriptDebug } from "./debug.js";
+import { dirname } from "node:path";
+const dbg = genaiscriptDebug("pyodide");
 
 class PyProxy implements PythonProxy {
   constructor(
@@ -48,9 +52,11 @@ class PyodideRuntime implements PythonRuntime {
   async import(pkg: string) {
     await this.queue.add(async () => {
       if (!this.micropip) {
+        dbg(`loading micropip`);
         await this.runtime.loadPackage("micropip");
         this.micropip = this.runtime.pyimport("micropip");
       }
+      dbg(`install %s`, pkg);
       await this.micropip.install(pkg);
     });
   }
@@ -58,6 +64,7 @@ class PyodideRuntime implements PythonRuntime {
   async run(code: string): Promise<any> {
     return await this.queue.add(async () => {
       const d = dedent(code);
+      dbg(`running code: %s`, d);
       const res = await this.runtime.runPythonAsync(d);
       const r = toJs(res);
       return r;
@@ -81,15 +88,22 @@ export async function createPythonRuntime(
   options?: PythonRuntimeOptions & TraceOptions,
 ): Promise<PythonRuntime> {
   const { cache } = options ?? {};
+  dbg(`creating runtime`);
   const sha = await hash({ cache, version: true, pyodide: version });
+  const installDir = dirname(moduleResolve("pyodide"));
+  const packageCacheDir = dotGenaiscriptPath("cache", "python", sha)
+  dbg("package cache dir: %s", packageCacheDir);
+  dbg("install dir: %s", installDir);
   const pyodide = await loadPyodide(
     deleteUndefinedValues({
-      packageCacheDir: dotGenaiscriptPath("cache", "python", sha),
+      packageCacheDir,
       stdout: (msg: string) => stderr.write(msg),
       stderr: (msg: string) => stderr.write(msg),
       checkAPIVersion: true,
     }),
   );
+  dbg(`mounting %s at /workspace`, process.cwd());
   await pyodide.mountNodeFS("/workspace", process.cwd());
+  dbg(`runtime ready`);
   return new PyodideRuntime(version, pyodide);
 }

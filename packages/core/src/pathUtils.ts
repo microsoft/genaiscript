@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
