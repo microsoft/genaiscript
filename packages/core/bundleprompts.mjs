@@ -12,12 +12,11 @@ const { parse } = json5Pkg;
 
 async function main() {
   const pkg = JSON.parse(readFileSync("../../package.json", "utf-8"));
-  const dir = "../cli/genaisrc";
+  const dir = "./genaisrc";
   const fp = "./src/default_prompts.ts";
   const fmp = "../../docs/src/content/docs/reference/scripts/system.mdx";
   const fnp = "../../docs/src/components/BuiltinTools.mdx";
   const fap = "../../docs/src/components/BuiltinAgents.mdx";
-  console.debug(`bundling ${dir}/*.genai.js into default_prompts.ts`);
   const promptMap = {};
   const prompts = readdirSync(dir);
   for (const prompt of prompts) {

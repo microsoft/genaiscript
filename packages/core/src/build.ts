@@ -28,7 +28,6 @@ const { __dirname } =
  * @returns A promise that resolves to the newly parsed project structure.
  */
 export async function buildProject(options?: {
-  installDir: string
   toolFiles?: string[];
   toolsPath?: string | string[];
 }) {

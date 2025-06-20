@@ -6,9 +6,6 @@
   "files": [
     "dist/",
     "!dist/**/*.d.*ts.map",
-    "genaisrc/*.genai.mts",
-    "genaisrc/genaiscript.d.ts",
-    "genaisrc/tsconfig.json",
     "README.md"
   ],
   "publisher": "Microsoft",
