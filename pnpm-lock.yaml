@@ -37,7 +37,7 @@ catalogs:
       specifier: ^8.34.1
       version: 8.34.1
     vitest:
-      specifier: ^3.2.4
+      specifier: 3.2.4
       version: 3.2.4
 
 importers:
@@ -693,6 +693,9 @@ importers:
       p-all:
         specifier: ^5.0.0
         version: 5.0.0
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0)
       zod:
         specifier: ^3.25.36
         version: 3.25.67

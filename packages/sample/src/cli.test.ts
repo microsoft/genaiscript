@@ -1,9 +1,8 @@
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
-import { CLI_JS } from "../../core/src/constants";
+import { describe, test, assert, beforeEach } from "vitest";
 import { $ } from "zx";
+import { join } from "node:path";
 
-const cli = `../cli/built/${CLI_JS}`;
+const cli = join("..", "cli", "dist", "src", "index.js");
 
 describe("init", async () => {
   await import("zx/globals");
