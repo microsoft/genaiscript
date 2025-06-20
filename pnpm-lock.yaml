@@ -81,10 +81,10 @@ importers:
         specifier: ^0.9.4
         version: 0.9.4(prettier@3.5.3)(typescript@5.8.3)
       '@astrojs/starlight':
-        specifier: ^0.34.3
+        specifier: ^0.34.4
         version: 0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0))
       astro:
-        specifier: ^5.8.1
+        specifier: ^5.10.0
         version: 5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)
       astro-embed:
         specifier: ^0.9.0
@@ -93,11 +93,11 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(playwright@1.53.0)
       starlight-blog:
-        specifier: ^0.23.2
-        version: 0.23.2(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)))(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0))
+        specifier: ^0.24.0
+        version: 0.24.0(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)))(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0))
       starlight-links-validator:
-        specifier: ^0.16.0
-        version: 0.16.0(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)))
+        specifier: ^0.17.0
+        version: 0.17.0(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)))
       starlight-llms-txt:
         specifier: ^0.5.1
         version: 0.5.1(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)))(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0))
@@ -106,7 +106,7 @@ importers:
         version: 0.11.0(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)))
       zx:
         specifier: ^8.5.4
-        version: 8.5.4
+        version: 8.5.5
 
   packages/api:
     dependencies:
@@ -8049,14 +8049,14 @@ packages:
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
 
-  starlight-blog@0.23.2:
-    resolution: {integrity: sha512-ymyCOsohNb7xomYEL0+S6kV+RWE8uN3FJs6IqgKu2+930nt31zem+NYTCu81BO1wIXx3aF/qPK04RWLZ3wXhIg==}
+  starlight-blog@0.24.0:
+    resolution: {integrity: sha512-judPLTD+hyeKyiX//0x6adcOs4QR3EqmNxzFJNP+2sauUDA/ux1CS+wNzwMkHAadxdCir13rj9YsA3l8X0h9fQ==}
     engines: {node: '>=18.17.1'}
     peerDependencies:
       '@astrojs/starlight': '>=0.33.0'
 
-  starlight-links-validator@0.16.0:
-    resolution: {integrity: sha512-wInToor19C7UxhesPuxTBIhB1LH1wzNQHD4HaumfcB+yFhg5u80yQEnkZDrABHrUEEEwFm//NoZbWhnUj1m2ug==}
+  starlight-links-validator@0.17.0:
+    resolution: {integrity: sha512-D+j0W7Z6CVSxPlt8jskBcApqaAU16JmuxE4c483Xj2sWJteiz0wW2xvk0cG3o/cW1q9x44Ezc668OnUi3a5LAA==}
     engines: {node: '>=18.17.1'}
     peerDependencies:
       '@astrojs/starlight': '>=0.32.0'
@@ -9450,6 +9450,11 @@ packages:
 
   zx@8.5.4:
     resolution: {integrity: sha512-44oKea9Sa8ZnOkTnS6fRJpg3quzgnbB43nLrVfYnqE86J4sxgZMUDLezzKET/FdOAVkF4X+Alm9Bume+W+RW9Q==}
+    engines: {node: '>= 12.17.0'}
+    hasBin: true
+
+  zx@8.5.5:
+    resolution: {integrity: sha512-kzkjV3uqyEthw1IBDbA7Co2djji77vCP1DRvt58aYSMwiX4nyvAkFE8OBSEsOUbDJAst0Yo4asNvMTGG5HGPXA==}
     engines: {node: '>= 12.17.0'}
     hasBin: true
 
@@ -18690,7 +18695,7 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  starlight-blog@0.23.2(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)))(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)):
+  starlight-blog@0.24.0(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)))(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0)):
     dependencies:
       '@astrojs/markdown-remark': 6.3.2
       '@astrojs/mdx': 4.3.0(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0))
@@ -18707,7 +18712,7 @@ snapshots:
       - astro
       - supports-color
 
-  starlight-links-validator@0.16.0(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0))):
+  starlight-links-validator@0.17.0(@astrojs/starlight@0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0))):
     dependencies:
       '@astrojs/starlight': 0.34.4(astro@5.10.0(@azure/identity@4.10.0)(@azure/storage-blob@12.27.0)(@types/node@22.15.28)(rollup@4.41.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0))
       '@types/picomatch': 3.0.2
@@ -20160,3 +20165,5 @@ snapshots:
   zwitch@2.0.4: {}
 
   zx@8.5.4: {}
+
+  zx@8.5.5: {}

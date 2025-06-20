@@ -106,12 +106,6 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                                 "Guides on various LLM programming topics",
                             paths: ["guides/**", "case-studies/**"],
                         },
-                        {
-                            label: "Samples",
-                            description:
-                                "Advanced samples used for specific common scenarios",
-                            paths: ["samples/**"],
-                        },
                     ],
                 }),
                 starlightLinksValidator(),

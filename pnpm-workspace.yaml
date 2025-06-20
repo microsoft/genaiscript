@@ -21,3 +21,4 @@ onlyBuiltDependencies:
   - '@ast-grep/lang-csharp'
   - '@ast-grep/lang-python'
   - '@lvce-editor/ripgrep'
+  - 'sharp'
