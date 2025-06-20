@@ -49,7 +49,7 @@ const { stdout: tests } = await host.exec("node", [
 
 def("GIT_DIFF", changes, {
     language: "diff",
-    maxTokens: 20000,
+    maxTokens: 12000,
     ignoreEmpty: true,
     lineNumbers: false,
 })
