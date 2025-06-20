@@ -25,7 +25,7 @@ It provides a simple interface to leverage the power of LLMs for classification 
 and returns the label provided by the LLM.
 
 ```js
-import { classify } from "genaiscript/runtime"
+import { classify } from "@genaiscript/runtime"
 
 const { label } = await classify(
     "The app crashes when I try to upload a file.",
@@ -45,7 +45,7 @@ const { label } = await classify(
 `classify` is provided as part of the runtime (slightly different way to package GenAIScript functionalities) and needs to be imported using this code...
 
 ```js
-import { classify } from "genaiscript/runtime"
+import { classify } from "@genaiscript/runtime"
 ```
 
 :::

@@ -65,7 +65,7 @@ $`- Do not translate header starting with ~
 <PackageManagers pkg="genaiscript" dev />
 
 ```js
-import { run } from "genaiscript/api"
+import { run } from "@genaiscript/api"
 const langs = ["French", "German", ...]
 const files = await glob("docs/**/*.md")
 for(const lang of langs) {

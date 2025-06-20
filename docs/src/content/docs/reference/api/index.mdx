@@ -45,7 +45,7 @@ you can import the [cli](/genaiscript/reference/api) as follows:
 The API can be imported using imports from **"genaiscript/api"**.
 
 ```js wrap
-import { run } from "genaiscript/api"
+import { run } from "@genaiscript/api"
 ```
 
 The imported `api.mjs` wrapper is a tiny, zero dependency loader that
@@ -59,7 +59,7 @@ spawns a [Node.JS worker thread](https://nodejs.org/api/worker_threads.html) to 
 The `run` function wraps the [cli run](/genaiscript/reference/cli/run) command.
 
 ```js wrap
-import { run } from "genaiscript/api"
+import { run } from "@genaiscript/api"
 
 const results = await run("summarize", ["myfile.txt"])
 ```

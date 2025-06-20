@@ -26,7 +26,7 @@ It provides a simple interface to leverage the power of LLMs for extracting data
 and returns the extract data (or error).
 
 ```js
-import { cast } from "genaiscript/runtime"
+import { cast } from "@genaiscript/runtime"
 
 const { data } = await cast(
     "The quick brown fox jumps over the lazy dog.; jumps",
@@ -48,7 +48,7 @@ in that sentence. You have to determine the part of speech for a given word`,
 `cast` is provided as part of the runtime (slightly different way to package GenAIScript functionalities) and needs to be imported using this code...
 
 ```js
-import { cast } from "genaiscript/runtime"
+import { cast } from "@genaiscript/runtime"
 ```
 
 :::

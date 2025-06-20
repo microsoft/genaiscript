@@ -321,7 +321,7 @@ npx genaiscript run tlaplus-linter "*.tla"
 or use the [Node.JS api](/genaiscript/reference/api) to run scripts programmatically:
 
 ```js
-import { run } from "genaiscript/api"
+import { run } from "@genaiscript/api"
 
 const res = await run("tlaplus-linter", "*.tla")
 ```
