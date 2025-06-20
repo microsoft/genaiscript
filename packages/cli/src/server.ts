@@ -57,6 +57,7 @@ import {
   tryReadJSON,
   tryReadText,
   unthink,
+  getModulePaths,
 } from "@genaiscript/core";
 import { createReadStream } from "node:fs";
 import { URL } from "node:url";
@@ -64,13 +65,21 @@ import { findOpenPort } from "./port.js";
 import { applyRemoteOptions, RemoteOptions } from "./remote.js";
 import * as http from "node:http";
 import { startProjectWatcher } from "./watch.js";
-import { extname, join } from "node:path";
+import { extname, join, resolve } from "node:path";
 import { readFile } from "node:fs/promises";
 import { exists } from "fs-extra";
 import { collectRuns } from "./runs.js";
 import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi.js";
 import { networkInterfaces } from "node:os";
 const dbg = genaiscriptDebug("server");
+
+const { __dirname } =
+  typeof module !== "undefined" && module.filename
+    ? getModulePaths(module)
+    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      getModulePaths(import.meta);
+
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -115,6 +124,7 @@ export async function startServer(
   const readme = (await tryReadText("README.genai.md")) || (await tryReadText("README.md"));
 
   const wss = new WebSocketServer({ noServer: true });
+  const dirname = resolve(__dirname, "..")
 
   // Stores active script runs with their cancellation controllers and traces.
   let lastRunResult: PromptScriptEndResponseEvent = undefined;
@@ -635,7 +645,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
 </script>
         `;
 
-      const filePath = join(__dirname, "index.html");
+      const filePath = join(dirname, "index.html");
       const html = (await readFile(filePath, { encoding: "utf8" })).replace("<!--csp-->", csp);
       res.write(html);
       res.statusCode = 200;
@@ -643,29 +653,29 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
     } else if (method === "GET" && route === "/built/markdown.css") {
       res.setHeader("Content-Type", "text/css");
       res.statusCode = 200;
-      const filePath = join(__dirname, "markdown.css");
+      const filePath = join(dirname, "markdown.css");
       const stream = createReadStream(filePath);
       stream.pipe(res);
     } else if (method === "GET" && route === "/built/codicon.css") {
       res.setHeader("Content-Type", "text/css");
       res.statusCode = 200;
-      const filePath = join(__dirname, "codicon.css");
+      const filePath = join(dirname, "codicon.css");
       const stream = createReadStream(filePath);
       stream.pipe(res);
     } else if (method === "GET" && route === "/built/codicon.ttf") {
       res.setHeader("Content-Type", "font/ttf");
       res.statusCode = 200;
-      const filePath = join(__dirname, "codicon.ttf");
+      const filePath = join(dirname, "codicon.ttf");
       const stream = createReadStream(filePath);
       stream.pipe(res);
     } else if (method === "GET" && route === "/built/web.mjs") {
       res.setHeader("Content-Type", "application/javascript");
       res.statusCode = 200;
-      const filePath = join(__dirname, "web.mjs");
+      const filePath = join(dirname, "web.mjs");
       const stream = createReadStream(filePath);
       stream.pipe(res);
     } else if (method === "GET" && route === "/built/web.mjs.map") {
-      const filePath = join(__dirname, "web.mjs.map");
+      const filePath = join(dirname, "web.mjs.map");
       if (await exists(filePath)) {
         res.setHeader("Content-Type", "text/json");
         res.statusCode = 200;
@@ -678,7 +688,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
     } else if (method === "GET" && route === "/favicon.svg") {
       res.setHeader("Content-Type", "image/svg+xml");
       res.statusCode = 200;
-      const filePath = join(__dirname, "favicon.svg");
+      const filePath = join(dirname, "favicon.svg");
       const stream = createReadStream(filePath);
       stream.pipe(res);
     } else if (method === "GET" && imageRx.test(route)) {
