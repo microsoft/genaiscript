@@ -79,7 +79,7 @@ import type {
   ToolCallback,
   SecretDetectionOptions,
   WorkspaceFile,
-  ZodTypeLike
+  ZodTypeLike,
 } from "./types.js";
 
 const dbg = debug("genaiscript:prompt:dom");

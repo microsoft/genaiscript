@@ -11,10 +11,10 @@ import type {
 } from "./chattypes.js";
 import { collapseNewlines } from "./cleaners.js";
 import type {
-  JSONSchema, 
-  PromptParametersSchema, 
-  PromptTemplateResponseType, 
-  ShellOutput 
+  JSONSchema,
+  PromptParametersSchema,
+  PromptTemplateResponseType,
+  ShellOutput,
 } from "./types.js";
 
 // Import utility functions for JSON5 parsing, markdown formatting, and YAML stringification.

@@ -6,10 +6,10 @@
     "skipLibCheck": true
   },
   "include": [
-    "${configDir}/src/**/*.ts", 
+    "${configDir}/src/**/*.ts",
     "${configDir}/src/**/*.mts",
-    "${configDir}/src/**/*.cts",  
-    "${configDir}/src/**/*.json", 
+    "${configDir}/src/**/*.cts",
+    "${configDir}/src/**/*.json",
     "${configDir}/package.json"
   ]
 }

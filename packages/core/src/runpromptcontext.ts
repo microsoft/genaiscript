@@ -101,11 +101,11 @@ import { createCache } from "./cache.js";
 import { measure } from "./performance.js";
 import { genaiscriptDebug } from "./debug.js";
 import debug from "debug";
-import type { 
+import type {
   ChatGenerationContext,
   ChatTurnGenerationContext,
   ExpansionVariables,
-} from "./types.js"
+} from "./types.js";
 
 const dbg = genaiscriptDebug("prompt:context");
 

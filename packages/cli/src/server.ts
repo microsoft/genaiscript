@@ -24,7 +24,7 @@ import type {
   RunResultListResponse,
   ServerEnvResponse,
   ServerResponse,
-  TraceChunkEvent
+  TraceChunkEvent,
 } from "@genaiscript/core";
 import {
   CORE_VERSION,
@@ -56,7 +56,7 @@ import {
   serializeError,
   tryReadJSON,
   tryReadText,
-  unthink
+  unthink,
 } from "@genaiscript/core";
 import { createReadStream } from "node:fs";
 import { URL } from "node:url";

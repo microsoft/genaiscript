@@ -22,7 +22,7 @@ import {
   logInfo,
   logVerbose,
   runtimeHost,
-  wrapColor
+  wrapColor,
 } from "@genaiscript/core";
 import { dirname } from "node:path";
 

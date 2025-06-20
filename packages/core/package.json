@@ -37,8 +37,8 @@
     "build": "npm run clean && npm run build:prompts && tshy",
     "build:prompts": "node bundleprompts.mjs",
     "clean": "rimraf dist",
-    "format:check": "prettier --config ../../.prettierrc.json --ignore ../../.prettierignore --check src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
-    "format:fix": "prettier --config ../../.prettierrc.json  --ignore ../../.prettierignore  --write src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
     "lint:check": "eslint src test",
     "lint:fix": "eslint src test --fix --fix-type [problem,suggestion]",
     "pack": "npm pack 2>&1",
@@ -127,6 +127,12 @@
     "z3-solver": "^4.15.1",
     "zod-to-json-schema": "^3.24.5"
   },
+  "files": [
+    "dist",
+    "!dist/**/*.d.*ts.map",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=20.0.0"
   },

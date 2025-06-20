@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export type * from "./types.js"
+export type * from "./types.js";
 
 export * from "./agent.js";
 export * from "./annotations.js";
@@ -55,7 +55,13 @@ export * from "./evalprompt.js";
 export * from "./expander.js";
 export * from "./features.js";
 export * from "./fence.js";
-export { createFetch, fetch, iterateBody, statusToMessage, tryReadText as tryReadTextFromFetch } from "./fetch.js";
+export {
+  createFetch,
+  fetch,
+  iterateBody,
+  statusToMessage,
+  tryReadText as tryReadTextFromFetch,
+} from "./fetch.js";
 export type { FetchType } from "./fetch.js";
 export * from "./fetchtext.js";
 export * from "./ffmpeg.js";
@@ -84,7 +90,7 @@ export * from "./id.js";
 export * from "./image.js";
 export * from "./importprompt.js";
 export * from "./indent.js";
-export * from "./inflection.js"
+export * from "./inflection.js";
 export * from "./ini.js";
 export * from "./jinja.js";
 export * from "./json5.js";
@@ -107,7 +113,14 @@ export * from "./memcache.js";
 export * from "./merge.js";
 export * from "./mermaid.js";
 export * from "./metadata.js";
-export { ASTRO_MIME_TYPE, CSHARP_MIME_TYPE, FSTAR_MIME_TYPE, PYTHON_MIME_TYPE, TYPESCRIPT_MIME_TYPE, lookupMime } from "./mime.js";
+export {
+  ASTRO_MIME_TYPE,
+  CSHARP_MIME_TYPE,
+  FSTAR_MIME_TYPE,
+  PYTHON_MIME_TYPE,
+  TYPESCRIPT_MIME_TYPE,
+  lookupMime,
+} from "./mime.js";
 export * from "./mkmd.js";
 export * from "./modelalias.js";
 export * from "./models.js";

@@ -8,7 +8,7 @@ import type {
   ChatModel,
   ChatModels,
   CreateChatCompletionRequest,
-  TraceOptions
+  TraceOptions,
 } from "@genaiscript/core";
 import {
   LARGE_MODEL_ID,
@@ -18,7 +18,7 @@ import {
   logVerbose,
   resolveLanguageModel,
   resolveLanguageModelConfigurations,
-  resolveModelConnectionInfo
+  resolveModelConnectionInfo,
 } from "@genaiscript/core";
 
 async function readRequestBody<T>(req: IncomingMessage): Promise<T> {

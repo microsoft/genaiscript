@@ -11,7 +11,7 @@ import {
   MarkdownTrace,
   TraceChunkEvent,
   logVerbose,
-  measure
+  measure,
 } from "@genaiscript/core";
 
 /**

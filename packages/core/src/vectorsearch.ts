@@ -18,7 +18,13 @@ import { runtimeHost } from "./host.js";
 import { resolveLanguageModel } from "./lm.js";
 import { assert } from "./assert.js";
 import { createCache } from "./cache.js";
-import type { VectorIndexOptions, VectorSearchOptions, WorkspaceFile, WorkspaceFileIndex, WorkspaceFileWithScore } from "./types.js";
+import type {
+  VectorIndexOptions,
+  VectorSearchOptions,
+  WorkspaceFile,
+  WorkspaceFileIndex,
+  WorkspaceFileWithScore,
+} from "./types.js";
 
 interface EmbeddingsResponse {
   /**

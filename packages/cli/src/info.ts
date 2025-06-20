@@ -18,7 +18,7 @@ import {
   resolveLanguageModelConfigurations,
   resolveModelAlias,
   resolveModelConnectionInfo,
-  runtimeHost
+  runtimeHost,
 } from "@genaiscript/core";
 import { buildProject } from "./build.js";
 

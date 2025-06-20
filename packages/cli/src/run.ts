@@ -23,7 +23,7 @@ import type {
   GithubConnectionInfo,
   PromptScriptRunOptions,
   TraceChunkEvent,
-  TraceOptions
+  TraceOptions,
 } from "@genaiscript/core";
 import {
   ANNOTATION_ERROR_CODE,
@@ -104,7 +104,7 @@ import {
   writeFileEdits,
   writeText,
   wrapColor,
-  wrapRgbColor
+  wrapRgbColor,
 } from "@genaiscript/core";
 
 const dbg = genaiscriptDebug("run");

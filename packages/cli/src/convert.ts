@@ -30,7 +30,7 @@ import {
   tracePromptResult,
   tryReadText,
   unfence,
-  writeText
+  writeText,
 } from "@genaiscript/core";
 import { buildProject } from "./build.js";
 import { run } from "@genaiscript/api";

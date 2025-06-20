@@ -20,11 +20,11 @@ import { packageResolveInstall } from "./packagemanagers.js";
 import { normalizeInt } from "./cleaners.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { genaiscriptDebug } from "./debug.js";
-import type { 
-  ElementOrArray, 
+import type {
+  ElementOrArray,
   Git,
   GitCommit,
-  OptionsOrString, 
+  OptionsOrString,
   ShellOptions,
   WorkspaceFile,
 } from "./types.js";

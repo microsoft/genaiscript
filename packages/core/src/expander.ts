@@ -27,15 +27,15 @@ import { mark } from "./performance.js";
 import { nodeIsPackageTypeModule } from "./nodepackage.js";
 import { parseModelIdentifier } from "./models.js";
 import { metadataMerge } from "./metadata.js";
-import type { 
-  ChatParticipant, 
+import type {
+  ChatParticipant,
   ExpansionVariables,
   FileMergeHandler,
   FileOutput,
-  JSONSchema, 
+  JSONSchema,
   PromptOutputProcessorHandler,
   PromptScript,
-  ToolCallback 
+  ToolCallback,
 } from "./types.js";
 
 /**

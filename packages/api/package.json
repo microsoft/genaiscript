@@ -6,30 +6,37 @@
   "types": "./dist/commonjs/index.d.ts",
   "type": "module",
   "files": [
-    "dist/",
+    "dist",
+    "!dist/**/*.d.*ts.map",
     "README.md",
     "LICENSE"
   ],
   "dependencies": {
     "@genaiscript/core": "workspace:*",
     "debug": "^4.4.1",
-    "tslib": "^2.8.1"
+    "tslib": "catalog:"
   },
   "devDependencies": {
+    "@eslint/js": "catalog:",
     "@types/debug": "^4.1.12",
-    "@types/node": "^22.0.0",
-    "@vitest/coverage-istanbul": "^3.2.3",
-    "prettier": "^3.5.3",
-    "rimraf": "^6.0.1",
-    "tshy": "^3.0.2",
-    "typescript": "~5.8.3",
-    "vitest": "^3.2.3"
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "rimraf": "catalog:",
+    "tshy": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
+    "vitest": "catalog:"
   },
   "scripts": {
     "build": "npm run clean && tshy",
     "clean": "rimraf dist",
-    "format:check": "prettier --check src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
-    "format:fix": "prettier src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json --write",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "lint:check": "eslint src test",
+    "lint:fix": "eslint src test --fix --fix-type [problem,suggestion]",
+    "pack": "npm pack 2>&1",
+    "prepack": "npm run build",
     "test": "vitest"
   },
   "keywords": [],

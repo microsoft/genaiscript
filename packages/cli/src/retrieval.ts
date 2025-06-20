@@ -9,7 +9,7 @@ import {
   normalizeFloat,
   normalizeInt,
   vectorIndex,
-  vectorSearch
+  vectorSearch,
 } from "@genaiscript/core";
 
 /**

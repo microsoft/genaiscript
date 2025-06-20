@@ -12,22 +12,26 @@ import {
   logWarn,
   runtimeHost,
   setConsoleColors,
-  splitMarkdownTextImageParts
+  splitMarkdownTextImageParts,
 } from "@genaiscript/core";
 import type {
   JSONSchemaObject,
   Resource,
   ResourceContents,
-  ScriptFilterOptions
+  ScriptFilterOptions,
 } from "@genaiscript/core";
 import { run } from "@genaiscript/api";
-import { ListResourcesRequestSchema, ListResourceTemplatesRequestSchema, ReadResourceRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import {
+  ListResourcesRequestSchema,
+  ListResourceTemplatesRequestSchema,
+  ReadResourceRequestSchema,
+} from "@modelcontextprotocol/sdk/types.js";
 import type {
   CallToolResult,
   ListResourceTemplatesResult,
   ListResourcesResult,
   ListToolsResult,
-  ReadResourceResult
+  ReadResourceResult,
 } from "@modelcontextprotocol/sdk/types.js";
 import { applyRemoteOptions } from "./remote.js";
 import type { RemoteOptions } from "./remote.js";

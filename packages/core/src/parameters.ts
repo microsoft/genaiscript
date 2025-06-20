@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { deleteUndefinedValues } from "./cleaners.js";
-import type { 
+import type {
   JSONSchema,
   JSONSchemaArray,
   JSONSchemaBoolean,

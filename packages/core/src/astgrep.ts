@@ -10,7 +10,18 @@ import { readText, writeText } from "./fs.js";
 import { extname } from "node:path";
 import { diffFindChunk, diffResolve } from "./diff.js";
 import { genaiscriptDebug } from "./debug.js";
-import type { ElementOrArray, Sg, SgLang, SgMatcher, SgNode, SgRoot, SgEdit, SgChangeSet, SgSearchOptions, WorkspaceFile } from "./types.js";
+import type {
+  ElementOrArray,
+  Sg,
+  SgLang,
+  SgMatcher,
+  SgNode,
+  SgRoot,
+  SgEdit,
+  SgChangeSet,
+  SgSearchOptions,
+  WorkspaceFile,
+} from "./types.js";
 import { Lang, findInFiles, parseAsync, registerDynamicLanguage } from "@ast-grep/napi";
 
 const dbg = genaiscriptDebug("astgrep");
@@ -252,8 +263,6 @@ export async function astGrepParse(
 }
 
 async function resolveLang(lang: SgLang | Record<string, SgLang>, filename?: string) {
-
-
   const norm = (l: string) => l.toLowerCase().replace(/^\./, "");
 
   // pre-compiled with ast-grep

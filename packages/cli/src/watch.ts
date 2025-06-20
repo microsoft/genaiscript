@@ -11,14 +11,14 @@ import {
   createGitIgnorer,
   filterScripts,
   logError,
-  toSignal
+  toSignal,
 } from "@genaiscript/core";
 import type {
   CancellationOptions,
   ElementOrArray,
   Project,
   PromptScript,
-  ScriptFilterOptions
+  ScriptFilterOptions,
 } from "@genaiscript/core";
 import { genaiscriptDebug } from "@genaiscript/core";
 import { buildProject } from "./build.js";

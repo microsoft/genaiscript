@@ -4,11 +4,7 @@
 import { parentPort, workerData } from "node:worker_threads";
 import { delay } from "es-toolkit";
 import { NodeHost } from "@genaiscript/runtime";
-import {
-  RESOURCE_CHANGE,
-  overrideStdoutWithStdErr,
-  runtimeHost
-} from "@genaiscript/core";
+import { RESOURCE_CHANGE, overrideStdoutWithStdErr, runtimeHost } from "@genaiscript/core";
 import type { Resource } from "@genaiscript/core";
 import { runScriptInternal } from "./run.js";
 

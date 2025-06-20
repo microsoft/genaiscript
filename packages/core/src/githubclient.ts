@@ -61,8 +61,8 @@ import type {
   GitHubWorkflowRun,
   GitHubWorkflowRunStatus,
   PromptScript,
-  WorkspaceFile
-} from "./types.js"
+  WorkspaceFile,
+} from "./types.js";
 import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
 import { paginateRest } from "@octokit/plugin-paginate-rest";

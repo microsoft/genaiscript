@@ -10,14 +10,7 @@ import { dispose } from "./dispose.js";
 import { JSON5TryParse, JSONLLMTryParse, isJSONObjectOrArray } from "./json5.js";
 import { CancellationOptions, CancellationToken, checkCancelled } from "./cancellation.js";
 import { arrayify } from "./cleaners.js";
-import {
-  ellipse,
-  logError,
-  logInfo,
-  logVerbose,
-  logWarn,
-  toStringList,
-} from "./util.js";
+import { ellipse, logError, logInfo, logVerbose, logWarn, toStringList } from "./util.js";
 import { assert } from "./assert.js";
 import { extractFenced, findFirstDataFence } from "./fence.js";
 import { toStrictJSONSchema, validateFencesWithSchema, validateJSONWithSchema } from "./schema.js";
@@ -86,24 +79,24 @@ import { resolvePromptInjectionDetector } from "./contentsafety.js";
 import { genaiscriptDebug } from "./debug.js";
 import { providerFeatures } from "./features.js";
 import { redactSecrets } from "./secretscanner.js";
-import type { 
+import type {
   ContextExpansionOptions,
   ChatParticipant,
   EmbeddingsModelOptions,
   FileMergeHandler,
   FileOutput,
   JSONSchema,
-  LanguageModelInfo, 
+  LanguageModelInfo,
   ModelOptions,
-  PromptOutputProcessorHandler, 
-  RetryOptions, 
+  PromptOutputProcessorHandler,
+  RetryOptions,
   RunPromptResult,
-  SerializedError, 
+  SerializedError,
   ToolCallback,
-  TranscriptionOptions, 
-  TranscriptionResult, 
-  VectorIndexOptions, 
-  WorkspaceFileIndex 
+  TranscriptionOptions,
+  TranscriptionResult,
+  VectorIndexOptions,
+  WorkspaceFileIndex,
 } from "./types.js";
 
 const dbg = genaiscriptDebug("chat");

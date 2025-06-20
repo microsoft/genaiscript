@@ -5,7 +5,7 @@ import type { CancellationToken } from "./cancellation.js";
 import type { ChatCompletionsOptions } from "./chattypes.js";
 import { MarkdownTrace } from "./trace.js";
 import { GenerationStats } from "./usage.js";
-import type { 
+import type {
   ContentSafetyOptions,
   EmbeddingsModelOptions,
   MetadataOptions,

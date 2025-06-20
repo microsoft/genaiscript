@@ -2,11 +2,7 @@
 // Licensed under the MIT License.
 
 import { confirm } from "@inquirer/prompts";
-import {
-  indent,
-  isCI,
-  logVerbose
-} from "@genaiscript/core";
+import { indent, isCI, logVerbose } from "@genaiscript/core";
 
 const confirmed: string[] = [];
 

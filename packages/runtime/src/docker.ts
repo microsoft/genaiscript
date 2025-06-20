@@ -24,7 +24,7 @@ import {
   logError,
   logVerbose,
   shellParse,
-  shellQuote
+  shellQuote,
 } from "@genaiscript/core";
 import type {
   ContainerHost,
@@ -32,7 +32,7 @@ import type {
   FindFilesOptions,
   ShellOptions,
   ShellOutput,
-  TraceOptions
+  TraceOptions,
 } from "@genaiscript/core";
 const dbg = genaiscriptDebug("docker");
 

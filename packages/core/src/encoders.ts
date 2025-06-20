@@ -13,13 +13,7 @@ import { resolveFileContent } from "./file.js";
 import type { EncodeOptions } from "gpt-tokenizer/GptEncoding";
 import { assert } from "./assert.js";
 import { TextSplitter } from "./textsplitter.js";
-import type { 
-  Awaitable,
-  TextChunk,
-  TextChunkerConfig,
-  Tokenizer,
-  WorkspaceFile,
-} from "./types.js";
+import type { Awaitable, TextChunk, TextChunkerConfig, Tokenizer, WorkspaceFile } from "./types.js";
 import api, { encode, decode } from "gpt-tokenizer/model/gpt-4o";
 
 /**

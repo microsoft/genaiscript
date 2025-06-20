@@ -17,7 +17,7 @@ import { LOG } from "./constants.js";
 import type { TokenCredential } from "@azure/identity";
 import { McpClientManager } from "./mcpclient.js";
 import { ResourceManager } from "./mcpresource.js";
-import type { 
+import type {
   BrowserPage,
   BrowseSessionOptions,
   ContainerHost,

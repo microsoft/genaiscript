@@ -10,7 +10,7 @@ import { TraceOptions } from "./trace.js"; // Import TraceOptions for optional l
 import type { HTMLToMarkdownOptions, HTMLToTextOptions } from "./types.js"; // Import HTMLToTextOptions for configuring HTML to text conversion
 import { tabletojson } from "tabletojson";
 import { convert as convertToText } from "html-to-text"; // Import the convert function from html-to-text library
-import Turndown from "turndown" // Import Turndown library for HTML to Markdown conversion
+import Turndown from "turndown"; // Import Turndown library for HTML to Markdown conversion
 import GFMPlugin from "turndown-plugin-gfm";
 
 /**

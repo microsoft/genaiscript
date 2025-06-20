@@ -9,7 +9,7 @@ import {
   CONSOLE_COLOR_WARNING,
   consoleColors,
   isQuiet,
-  wrapColor
+  wrapColor,
 } from "@genaiscript/core";
 
 // This module provides logging functions with optional console color support

@@ -12,7 +12,13 @@ import {
 } from "./parameters.js";
 import { normalizeFloat, normalizeInt, normalizeVarKey } from "./cleaners.js";
 import { genaiscriptDebug } from "./debug.js";
-import type { ExpansionVariables, JSONSchemaObject, PromptParameters, PromptScript, SystemPromptInstance } from "./types.js";
+import type {
+  ExpansionVariables,
+  JSONSchemaObject,
+  PromptParameters,
+  PromptScript,
+  SystemPromptInstance,
+} from "./types.js";
 
 const dbg = genaiscriptDebug("vars");
 const dbgSchema = dbg.extend("schema");

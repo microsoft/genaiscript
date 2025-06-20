@@ -6,7 +6,8 @@
   "types": "./dist/commonjs/index.d.ts",
   "type": "module",
   "files": [
-    "dist/",
+    "dist",
+    "!dist/**/*.d.*ts.map",
     "README.md",
     "LICENSE"
   ],
@@ -40,8 +41,8 @@
   "scripts": {
     "build": "npm run clean && tshy",
     "clean": "rimraf dist",
-    "format:check": "prettier --config ../../.prettierrc.json --ignore ../../.prettierignore --check src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
-    "format:fix": "prettier --config ../../.prettierrc.json  --ignore ../../.prettierignore  --write src/**/*.ts src/**/*.cts src/**/*.mjs src/**/*.json",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
     "lint:check": "eslint src",
     "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
     "pack": "npm pack 2>&1",

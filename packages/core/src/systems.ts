@@ -12,7 +12,13 @@ import { isToolsSupported } from "./tools.js";
 import type { Project } from "./server/messages.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { genaiscriptDebug } from "./debug.js";
-import type { ContentSafetyOptions, ModelOptions, PromptSystemOptions, SystemPromptInstance, ToolCallback } from "./types.js";
+import type {
+  ContentSafetyOptions,
+  ModelOptions,
+  PromptSystemOptions,
+  SystemPromptInstance,
+  ToolCallback,
+} from "./types.js";
 
 const dbg = genaiscriptDebug("systems");
 const dbgr = dbg.extend("resolve");

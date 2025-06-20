@@ -33,8 +33,15 @@ import { generateId } from "./id.js";
 import { diffCreatePatch } from "./diff.js";
 import { prettyBytes } from "./pretty.js";
 import assert from "node:assert/strict";
-import { BufferLike, ElementOrArray, OptionsOrString, OutputTrace, SerializedError, WorkspaceFile, WorkspaceFileWithScore } from "./types.js";
-
+import {
+  BufferLike,
+  ElementOrArray,
+  OptionsOrString,
+  OutputTrace,
+  SerializedError,
+  WorkspaceFile,
+  WorkspaceFileWithScore,
+} from "./types.js";
 
 export class TraceChunkEvent extends Event {
   constructor(

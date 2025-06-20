@@ -43,12 +43,7 @@ export async function startOpenAPIServer(
 
   await ensureDotGenaiscriptPath();
   await applyRemoteOptions(options);
-  const {
-    startup,
-    cors,
-    network,
-    ...runOptions
-  } = options || {};
+  const { startup, cors, network, ...runOptions } = options || {};
   const serverHost = network ? "0.0.0.0" : "127.0.0.1";
   const route = ensureHeadSlash(trimTrailingSlash(options?.route || "/api"));
   const docsRoute = `${route}/docs`;

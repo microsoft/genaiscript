@@ -68,8 +68,8 @@ describe("TextSplitter", async () => {
         new TextSplitter({
           ...defaultConfig,
           chunkSize: 0,
-        } as TextSplitterConfig), 
-        "chunkSize must be >= 1"
+        } as TextSplitterConfig),
+      "chunkSize must be >= 1",
     );
   });
 
@@ -80,7 +80,7 @@ describe("TextSplitter", async () => {
           ...defaultConfig,
           chunkOverlap: -1,
         } as TextSplitterConfig),
-        "chunkOverlap must be >= 0",
+      "chunkOverlap must be >= 0",
     );
   });
 
@@ -91,7 +91,7 @@ describe("TextSplitter", async () => {
           ...defaultConfig,
           chunkOverlap: 11,
         } as TextSplitterConfig),
-        "chunkOverlap must be <= chunkSize"
+      "chunkOverlap must be <= chunkSize",
     );
   });
 

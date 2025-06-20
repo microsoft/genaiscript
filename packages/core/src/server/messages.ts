@@ -5,19 +5,19 @@ import type {
   ChatCompletionAssistantMessageParam,
   ChatCompletionMessageParam,
 } from "../chattypes.js";
-import type { 
+import type {
   ChatToolChoice,
-  Diagnostic, 
-  Edits, 
+  Diagnostic,
+  Edits,
   ExpansionVariables,
   FenceFormat,
   GenerationOutput,
   LanguageModelInfo,
   LanguageModelReference,
-  Logprob, 
+  Logprob,
   PromptScript,
   SerializedError,
-  WorkspaceFile
+  WorkspaceFile,
 } from "../types.js";
 
 export interface ResponseStatus {

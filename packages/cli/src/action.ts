@@ -352,10 +352,7 @@ uses: ${owner}/${repo}@main
 with:
 ${Object.entries(inputs || {})
   .filter(([, value]) => value.required)
-  .map(
-    ([key,]) =>
-      `  ${key}: \${{ ${key === "github_token" ? "secrets.GITHUB_TOKEN" : "..."} }}`,
-  )
+  .map(([key]) => `  ${key}: \${{ ${key === "github_token" ? "secrets.GITHUB_TOKEN" : "..."} }}`)
   .join("\n")}
 \`\`\`
 
@@ -385,7 +382,7 @@ jobs:
 ${Object.entries(inputs || {})
   .filter(([, value]) => value.required)
   .map(
-    ([key,]) =>
+    ([key]) =>
       `          ${key}: \${{ ${key === "github_token" ? "secrets.GITHUB_TOKEN" : "..."} }}`,
   )
   .join("\n")}

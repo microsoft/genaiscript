@@ -40,7 +40,7 @@ import {
   terminalSize,
   tryReadText,
   wrapColor,
-  writeText
+  writeText,
 } from "@genaiscript/core";
 import type { DocxParseOptions, WorkspaceFile } from "@genaiscript/core";
 import { basename, join } from "node:path";

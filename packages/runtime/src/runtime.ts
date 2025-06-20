@@ -6,24 +6,24 @@
  * This module provides core functionality for text classification, data transformation,
  * PDF processing, and file system operations in the GenAIScript environment.
  */
-import type { 
+import type {
   Awaitable,
   BrowserPage,
-  ChatGenerationContext, 
-  ElementOrArray, 
-  FileStats, 
-  JSONSchema, 
-  JSONSchemaArray, 
-  Logprob, 
-  OptionsOrString, 
-  ParsePDFOptions, 
-  PromptContext, 
-  PromptGenerator, 
+  ChatGenerationContext,
+  ElementOrArray,
+  FileStats,
+  JSONSchema,
+  JSONSchemaArray,
+  Logprob,
+  OptionsOrString,
+  ParsePDFOptions,
+  PromptContext,
+  PromptGenerator,
   PromptGeneratorOptions,
   RunPromptUsage,
   StringLike,
   WorkspaceFile,
-  WorkspaceGrepOptions
+  WorkspaceGrepOptions,
 } from "@genaiscript/core";
 import { delay, uniq, uniqBy, chunk } from "es-toolkit";
 import { z } from "zod";

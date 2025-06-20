@@ -13,7 +13,7 @@ import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import {
   CORE_VERSION,
-  EMOJI_FAIL, 
+  EMOJI_FAIL,
   EMOJI_SUCCESS,
   FILES_NOT_FOUND_ERROR_CODE,
   GENAI_ANY_REGEX,
@@ -45,7 +45,7 @@ import {
   roundWithPrecision,
   runtimeHost,
   serializeError,
-  toStringList
+  toStringList,
 } from "@genaiscript/core";
 import type {
   ChatCompletionReasoningEffort,
@@ -56,7 +56,7 @@ import type {
   PromptScriptTestResult,
   PromptScriptTestRunOptions,
   PromptScriptTestRunResponse,
-  SerializedError
+  SerializedError,
 } from "@genaiscript/core";
 import { buildProject } from "./build.js";
 

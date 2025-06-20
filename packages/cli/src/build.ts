@@ -38,8 +38,9 @@ export async function buildProject(options?: {
     if (!tps?.length) {
       const config = await runtimeHost.config;
       tps = [];
-      if (config.ignoreCurrentWorkspace) { dbg(`ignoring current workspace scripts`); }
-      else tps.push({ pattern: GENAI_ANYJS_GLOB, applyGitIgnore: true });
+      if (config.ignoreCurrentWorkspace) {
+        dbg(`ignoring current workspace scripts`);
+      } else tps.push({ pattern: GENAI_ANYJS_GLOB, applyGitIgnore: true });
       tps.push(
         ...arrayify(config.include).map((pattern) =>
           typeof pattern === "string"

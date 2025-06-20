@@ -2,7 +2,14 @@
 // Licensed under the MIT License.
 
 import { STDIN_READ_TIMEOUT } from "@genaiscript/core";
-import { deleteUndefinedValues, fileTypeFromBuffer, isBinaryMimeType, logVerbose, prettyBytes, toBase64 } from "@genaiscript/core";
+import {
+  deleteUndefinedValues,
+  fileTypeFromBuffer,
+  isBinaryMimeType,
+  logVerbose,
+  prettyBytes,
+  toBase64,
+} from "@genaiscript/core";
 import type { WorkspaceFile } from "@genaiscript/core";
 
 function readStdinOrTimeout(): Promise<Buffer | undefined> {

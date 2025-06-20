@@ -2,10 +2,7 @@
 // Licensed under the MIT License.
 
 import { join } from "node:path";
-import {
-  dotGenaiscriptPath,
-  sanitizeFilename
-} from "@genaiscript/core";
+import { dotGenaiscriptPath, sanitizeFilename } from "@genaiscript/core";
 import { emptyDir } from "fs-extra";
 
 /**

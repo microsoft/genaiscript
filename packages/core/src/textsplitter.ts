@@ -107,10 +107,14 @@ export class TextSplitter {
     return chunks;
   }
 
-  private recursiveSplit(text: string, separators: string[], startPos: number): TextSplitterTextChunk[] {
+  private recursiveSplit(
+    text: string,
+    separators: string[],
+    startPos: number,
+  ): TextSplitterTextChunk[] {
     const chunks: TextSplitterTextChunk[] = [];
     if (text.length > 0) {
-      // Split text into parts  
+      // Split text into parts
       let parts: string[];
       let separator = "";
       const nextSeparators = separators.length > 1 ? separators.slice(1) : [];

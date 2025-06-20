@@ -13,7 +13,7 @@ import {
   resolveLanguageModelConfigurations,
   runtimeHost,
   stderr,
-  tryReadText
+  tryReadText,
 } from "@genaiscript/core";
 import { parse } from "dotenv";
 import { writeFile } from "fs/promises";

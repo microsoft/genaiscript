@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { 
-  Awaitable, 
-  GenerationResult, 
-  PromptScriptRunOptions, 
-  Resource
+import type {
+  Awaitable,
+  GenerationResult,
+  PromptScriptRunOptions,
+  Resource,
 } from "@genaiscript/core";
 import { Worker } from "node:worker_threads";
 import { __filename } from "./utils/pathUtils.js";
@@ -54,7 +54,7 @@ export async function run(
   dbg(`run ${scriptId}`);
   if (typeof files === "string") files = [files];
 
-  const { envVars, signal, onMessage, ...rest } = options || {};
+  const { signal, onMessage, ...rest } = options || {};
   const workerData = {
     type: "run",
     scriptId,
@@ -62,7 +62,7 @@ export async function run(
     options: rest,
   };
   dbg(`start ${__filename}`);
-  let worker = new Worker(__filename, { workerData, name: options?.label });
+  const worker = new Worker(__filename, { workerData, name: options?.label });
   return new Promise((resolve, reject) => {
     const abort = () => {
       if (worker) {

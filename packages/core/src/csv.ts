@@ -10,11 +10,7 @@ import { stringify } from "csv-stringify/sync";
 import { arrayify } from "./cleaners.js";
 import { chunk } from "es-toolkit";
 import { filenameOrFileToContent } from "./unwrappers.js";
-import type {
-  CSVStringifyOptions,
-  ElementOrArray,
-  WorkspaceFile,
-} from "./types.js";
+import type { CSVStringifyOptions, ElementOrArray, WorkspaceFile } from "./types.js";
 
 /**
  * Parses a CSV string or file into an array of objects.

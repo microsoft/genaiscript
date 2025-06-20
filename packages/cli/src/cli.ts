@@ -31,7 +31,7 @@ import {
   semverSatisfies,
   serializeError,
   setConsoleColors,
-  setQuiet
+  setQuiet,
 } from "@genaiscript/core";
 import type { RequestError } from "@genaiscript/core";
 import { startServer } from "./server.js";
@@ -50,7 +50,7 @@ import {
   parseSecrets,
   parseTokenize,
   parseTokens,
-  prompty2genaiscript
+  prompty2genaiscript,
 } from "./parse.js";
 import { compileScript, createScript, fixScripts, listScripts, scriptInfo } from "./scripts.js";
 import { envInfo, modelAliasesInfo, modelList, scriptModelInfo, systemInfo } from "./info.js";

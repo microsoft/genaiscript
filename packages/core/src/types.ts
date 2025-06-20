@@ -2020,7 +2020,10 @@ export interface ExpansionVariables {
 
 export type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>;
 
-export type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "defTools" | "resolvedSystem">;
+export type PromptArgs = Omit<
+  PromptScript,
+  "text" | "id" | "jsSource" | "defTools" | "resolvedSystem"
+>;
 
 export type PromptSystemArgs = Omit<
   PromptArgs,
@@ -2249,7 +2252,14 @@ export interface DefImagesOptions extends ImageTransformOptions {
   ignoreEmpty?: boolean;
 }
 
-export type JSONSchemaTypeName = "string" | "number" | "integer" | "boolean" | "object" | "array" | "null";
+export type JSONSchemaTypeName =
+  | "string"
+  | "number"
+  | "integer"
+  | "boolean"
+  | "object"
+  | "array"
+  | "null";
 
 export type JSONSchemaSimpleType =
   | JSONSchemaString
@@ -4121,9 +4131,7 @@ export interface MD {
   ): string;
 }
 
-export interface GitHubAIDisclaimerOptions extends Record<string, unknown>{
-
-}
+export interface GitHubAIDisclaimerOptions extends Record<string, unknown> {}
 
 export interface JSONL {
   /**
@@ -4656,7 +4664,10 @@ export interface DefAgentOptions extends Omit<PromptGeneratorOptions, "label">, 
   disableMemoryQuery?: boolean;
 }
 
-export type ChatAgentHandler = (ctx: ChatGenerationContext, args: ChatFunctionArgs) => Awaitable<unknown>;
+export type ChatAgentHandler = (
+  ctx: ChatGenerationContext,
+  args: ChatFunctionArgs,
+) => Awaitable<unknown>;
 
 export interface McpToolSpecification {
   /**
