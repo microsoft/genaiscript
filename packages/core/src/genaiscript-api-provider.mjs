@@ -56,7 +56,7 @@ class GenAIScriptApiProvider {
       }
       const api = await import("@genaiscript/api");
       const res = await api.run(scriptId, files, options);
-      //logger.debug(res)
+      if (!res) throw new Error("No response from GenAIScript API");
       const { error, stats, logprobs, finishReason } = res || {};
       const cost = stats?.cost;
       const logProbs = logprobs?.length ? logprobs.map((lp) => lp.logprob) : undefined;
