@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
@@ -25,6 +26,7 @@ import { pathToFileURL } from "node:url";
 import { ParsePDFOptions, PDFPage, PDFPageImage } from "./types.js";
 import canvas from "@napi-rs/canvas";
 import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
+import { moduleResolve } from "./pathUtils.js";
 
 const dbg = genaiscriptDebug("pdf");
 
@@ -36,15 +38,16 @@ let standardFontDataUrl: string;
  * @param options - Optional tracing options
  * @returns A promise resolving to the pdfjs module
  */
-async function tryImportPdfjs(options?: TraceOptions) {
-  const { trace } = options || {};
+async function tryImportPdfjs() {
   installPromiseWithResolversShim(); // Ensure Promise.withResolvers is available
-  let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs");
+
+  let workerSrc = moduleResolve("pdfjs-dist/build/pdf.worker.min.mjs");
+  dbg(`workerSrc: %s`, workerSrc);
 
   // Adjust worker source path for Windows platform
   if (os.platform() === "win32") {
-    dbg("detected Windows platform, adjusting workerSrc: %s", workerSrc);
     workerSrc = "file://" + workerSrc.replace(/\\/g, "/");
+    dbg("detected Windows platform, worker: %s", workerSrc);
   }
 
   standardFontDataUrl = pathToFileURL(
@@ -133,14 +136,14 @@ async function tryImportCanvas() {
  * Installs a shim for Promise.withResolvers if not available.
  */
 function installPromiseWithResolversShim() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   (Promise as any).withResolvers ||
     ((Promise as any).withResolvers = function () {
-      let rs,
-        rj,
-        pm = new this((resolve: any, reject: any) => {
-          rs = resolve;
-          rj = reject;
-        });
+      let rs, rj;
+      const pm = new this((resolve: any, reject: any) => {
+        rs = resolve;
+        rj = reject;
+      });
       return {
         resolve: rs,
         reject: rj,
@@ -159,7 +162,7 @@ async function computeHashFolder(
   filename: string | WorkspaceFile,
   options: TraceOptions & ParsePDFOptions & { content?: Uint8Array },
 ) {
-  const { trace, content, ...rest } = options;
+  const { content, ...rest } = options;
   const h = await hash([typeof filename === "string" ? { filename } : filename, content, rest], {
     readWorkspaceFiles: true,
     version: true,
@@ -228,7 +231,7 @@ async function PDFTryParse(
   const m = measure("parsers.pdf");
   try {
     const createCanvas = await tryImportCanvas();
-    const pdfjs = await tryImportPdfjs(options);
+    const pdfjs = await tryImportPdfjs();
     checkCancelled(cancellationToken);
     const { getDocument } = pdfjs;
     const data = content || (await host.readFile(fileOrUrl));
@@ -303,7 +306,7 @@ async function PDFTryParse(
           const imageObj = args[0];
           if (imageObj) {
             checkCancelled(cancellationToken);
-            const img = await new Promise<any>((resolve, reject) => {
+            const img = await new Promise<any>((resolve) => {
               if (page.commonObjs.has(imageObj)) {
                 resolve(page.commonObjs.get(imageObj));
               } else if (page.objs.has(imageObj)) {

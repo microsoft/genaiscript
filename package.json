@@ -93,7 +93,7 @@
     "test:docx": "node packages/cli/dist/src/index.js parse docx packages/sample/src/rag/Document.docx",
     "test:fix": "node packages/cli/dist/src/index.js scripts fix --force && node packages/cli/dist/src/index.js configure action action-poem --force --python --ffmpeg --out examples/action --provider echo",
     "test:modulesamples": "cd packages/modulesample && pnpm run test",
-    "test:pdf": "node packages/cli/dist/src/index.js parse pdf packages/sample/src/rag/loremipsum.pdf",
+    "test:pdf": "DEBUG=genaiscript:pdf node packages/cli/dist/src/index.js parse pdf packages/sample/src/rag/loremipsum.pdf",
     "test:samples": "cd packages/sample && pnpm test",
     "test:scripts": "cd packages/sample/ && pnpm test:scripts",
     "test:scripts:view": "cd packages/sample/ && pnpm test:scripts:view",

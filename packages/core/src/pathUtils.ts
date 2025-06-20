@@ -18,3 +18,12 @@ export function getModulePaths(metaOrModule: { url?: string; filename?: string }
   }
   throw new Error("Invalid module context: pass import.meta (ESM) or module (CJS)");
 }
+
+export function moduleResolve(id: string): string {
+  // @ts-ignore: TODO
+  //if (typeof import.meta !== "undefined") {
+  //  return import.meta.resolve(id);
+  //} else {
+    return require.resolve(id);
+  //}
+}
