@@ -67,7 +67,7 @@ import * as http from "node:http";
 import { startProjectWatcher } from "./watch.js";
 import { extname, join, resolve } from "node:path";
 import { readFile } from "node:fs/promises";
-import { exists } from "fs-extra";
+import { tryStat } from "@genaiscript/core";
 import { collectRuns } from "./runs.js";
 import { openaiApiChatCompletions, openaiApiModels } from "./openaiapi.js";
 import { networkInterfaces } from "node:os";
@@ -79,7 +79,6 @@ const { __dirname } =
     : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       getModulePaths(import.meta);
-
 
 /**
  * Starts a WebSocket server for handling chat and script execution.
@@ -124,7 +123,7 @@ export async function startServer(
   const readme = (await tryReadText("README.genai.md")) || (await tryReadText("README.md"));
 
   const wss = new WebSocketServer({ noServer: true });
-  const dirname = resolve(__dirname, "..")
+  const dirname = resolve(__dirname, "..");
 
   // Stores active script runs with their cancellation controllers and traces.
   let lastRunResult: PromptScriptEndResponseEvent = undefined;
@@ -676,7 +675,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
       stream.pipe(res);
     } else if (method === "GET" && route === "/built/web.mjs.map") {
       const filePath = join(dirname, "web.mjs.map");
-      if (await exists(filePath)) {
+      if (await tryStat(filePath)) {
         res.setHeader("Content-Type", "text/json");
         res.statusCode = 200;
         const stream = createReadStream(filePath);

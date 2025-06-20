@@ -18,7 +18,7 @@
     "dedent": "^1.6.0",
     "es-toolkit": "catalog:",
     "html-escaper": "3.0.3",
-    "inflection": "^3.0.2",
+    "inflection": "catalog:",
     "mermaid": "^11.6.0",
     "nanoid": "^5.1.5",
     "pretty-bytes": "^7.0.0",

@@ -87,7 +87,7 @@
     "html-escaper": "3.0.3",
     "html-to-text": "^9.0.5",
     "ignore": "^7.0.4",
-    "inflection": "^3.0.2",
+    "inflection": "catalog:",
     "ini": "^5.0.0",
     "jimp": "^1.6.0",
     "jsdom": "^26.1.0",

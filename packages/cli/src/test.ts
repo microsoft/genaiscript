@@ -7,7 +7,7 @@
 
 import { PROMPTFOO_VERSION } from "@genaiscript/runtime";
 import { delay } from "es-toolkit";
-import { emptyDir, exists } from "fs-extra";
+import { rmDir, tryStat } from "@genaiscript/core";
 import { execa } from "execa";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -158,7 +158,7 @@ export async function runPromptScriptTests(
   const runStart = new Date();
   logInfo(`writing tests to ${out}`);
 
-  if (options?.removeOut) await emptyDir(out);
+  if (options?.removeOut) await rmDir(out);
   await ensureDir(out);
   await writeFile(provider, promptFooDriver);
 
@@ -276,7 +276,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
       status = e.errno ?? -1;
       error = serializeError(e);
     }
-    if (await exists(outJson)) value = JSON5TryParse(await readFile(outJson, "utf8"));
+    if (await tryStat(outJson)) value = JSON5TryParse(await readFile(outJson, "utf8"));
     const ok = status === 0;
     stats.prompt += value?.results?.stats?.tokenUsage?.prompt || 0;
     stats.completion += value?.results?.stats?.tokenUsage?.completion || 0;

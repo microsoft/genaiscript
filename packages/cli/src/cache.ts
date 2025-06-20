@@ -3,7 +3,7 @@
 
 import { join } from "node:path";
 import { dotGenaiscriptPath, sanitizeFilename } from "@genaiscript/core";
-import { emptyDir } from "fs-extra";
+import { rmDir } from "@genaiscript/core";
 
 /**
  * This module provides a function to clear a specified cache directory.
@@ -30,5 +30,5 @@ export async function cacheClear(name: string) {
   console.log(`removing ${dir}`);
 
   // Clear the contents of the directory asynchronously.
-  await emptyDir(dir);
+  await rmDir(dir);
 }
