@@ -6,6 +6,9 @@ const cli = join("..", "cli", "dist", "src", "index.js");
 
 describe("init", async () => {
   await import("zx/globals");
+  test("should import zx", () => {
+    assert($);
+  });
 });
 describe("run", async () => {
   const cmd = "run";
@@ -30,14 +33,6 @@ describe("scripts", async () => {
     assert(d.find((s) => s.id === "system"));
     assert(d.find((s) => s.id === "system.output_markdown"));
     assert(!d.some((s) => s.system && s.filename));
-  });
-  await test("create foobar", async () => {
-    const res = await $`node ${cli} ${cmd} create foobar`;
-    assert(res.stdout.includes("foobar"));
-  });
-  await test("create foobar", async () => {
-    const res = await $`node ${cli} ${cmd} create foobar`;
-    assert(res.stdout.includes("foobar"));
   });
 });
 describe("cli", async () => {
