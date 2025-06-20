@@ -4,7 +4,7 @@
   "type": "module",
   "bin": "./dist/src/index.js",
   "files": [
-    "dist/",
+    "dist/src/*.{d.ts,js}",
     "genaisrc/*.genai.mts",
     "genaisrc/genaiscript.d.ts",
     "genaisrc/tsconfig.json",
