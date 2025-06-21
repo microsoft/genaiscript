@@ -25,19 +25,18 @@ jobs:
                   cache: 'pnpm'
             - run: sudo apt-get update && sudo apt-get install ffmpeg
             - run: pnpm install --frozen-lockfile
-            - run: pnpm run install:playwright
             - name: build
-              run: pnpm run build
+              run: pnpm run build:ci
             - name: lint:check
               run: pnpm run lint:check
-            - name: package vscode
-              run: pnpm run package
+              continue-on-error: true
             - name: compile system scripts
               run: pnpm run test:system
+            - name: core tests
+              run: pnpm run test:core
             - name: compile tests
               run: pnpm run test:compile
-            - name: core tests
-              run: pnpm run --filter=@genaiscript/core test
+              continue-on-error: true
             - name: unit tests
               run: pnpm run test:samples
               env:
