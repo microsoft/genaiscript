@@ -39,7 +39,7 @@ jobs:
             - name: compile
               run: pnpm build:cli
             - name: install ffmpeg
-              run: pnpm ffmpeg:install
+              run: pnpm install:ffmpeg
             - name: start ollama
               run: pnpm ollama:start
             - name: start whisper
