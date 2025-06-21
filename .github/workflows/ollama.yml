@@ -37,7 +37,7 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: pnpm compile:action
+              run: pnpm build:cli
             - name: install ffmpeg
               run: yarn ffmpeg:install
             - name: start ollama

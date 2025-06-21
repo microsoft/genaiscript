@@ -31,7 +31,7 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: pnpm compile:action
+              run: pnpm build:cli
             - name: poem
               run: pnpm run:script poem --model azure:gpt-4.1 -tlp 5 --out-trace $GITHUB_STEP_SUMMARY
               env:

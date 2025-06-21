@@ -25,7 +25,7 @@ jobs:
             - run: pnpm install --frozen-lockfile
             - run: pnpm install:playwright
             - name: compile
-              run: pnpm compile:action
+              run: pnpm build:cli
             - name: Build slides
               run: yarn build:slides
             - name: Build docs

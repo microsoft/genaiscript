@@ -23,7 +23,7 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: pnpm compile:action
+              run: pnpm build:cli
             - name: run script with azure deployment
               run: node packages/cli/dist/src/index.js run poem --model azure:gpt-4-turbo --out-trace $GITHUB_STEP_SUMMARY
               env:

@@ -30,7 +30,7 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: pnpm compile:action
+              run: pnpm build:cli
             - name: poem
               run: pnpm run:script poem -p google --out-trace $GITHUB_STEP_SUMMARY
               env:

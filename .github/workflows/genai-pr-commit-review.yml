@@ -24,7 +24,7 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: pnpm compile:action
+              run: pnpm build:cli
             - name: git stuff
               run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-review-commit

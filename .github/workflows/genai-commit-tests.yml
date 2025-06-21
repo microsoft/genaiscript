@@ -31,7 +31,7 @@ jobs:
             - run: sudo apt-get update && sudo apt-get install ffmpeg
             - run: pnpm install --frozen-lockfile --prefer-offline
             - name: compile
-              run: pnpm compile:action
+              run: pnpm build:cli
             - name: echo tests
               run: yarn test:scripts -g commit -p github --test-timeout 60
               env:
