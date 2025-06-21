@@ -36,16 +36,11 @@ jobs:
                   node-version: "22"
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
-            - name: compile
-              run: pnpm build:cli
-            - name: install ffmpeg
-              run: pnpm install:ffmpeg
-            - name: start ollama
-              run: pnpm ollama:start
-            - name: start whisper
-              run: pnpm whisper:start
-            - name: run summarize-ollama-phi3
-              run: pnpm test:summarize --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3
+            - run: pnpm build:cli
+            - run: pnpm install:ffmpeg
+            - run: pnpm ollama:start
+            - run: pnpm whisper:start
+            - run: pnpm test:ci --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3
               env:
                   OLLAMA_HOST: "http://localhost:11434"
             - name: run convert-ollama-phi3

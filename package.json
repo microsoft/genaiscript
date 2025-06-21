@@ -82,6 +82,7 @@
     "setup:az": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
     "setup:bicep": "az bicep upgrade",
     "slides": "cd slides && pnpm run dev",
+    "test:ci": "node packages/cli/dist/src/index.js run poem --no-run-trace --no-output-trace",
     "test:cli": "node packages/cli/dist/src/index.js run code-annotator packages/sample/src/counting.py -l Test -o .genaiscript/tmp/tests/cli -ot .genaiscript/tmp/tests/cli/outtrace.md -oa .genaiscript/tmp/tests/cli/diags.sarif",
     "test:compile": "node packages/cli/dist/src/index.js scripts compile",
     "test:core": "pnpm --filter=@genaiscript/core test",

@@ -22,8 +22,7 @@ jobs:
             - run: pnpm install --frozen-lockfile
             - name: compile
               run: pnpm build:cli
-            - name: run summarize
-              run: pnpm test:summarize -p openai --out-trace $GITHUB_STEP_SUMMARY
+            - run: pnpm test:ci -p openai --out-trace $GITHUB_STEP_SUMMARY
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
