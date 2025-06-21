@@ -44,7 +44,7 @@ async function importZ3(): Promise<ReturnType<(typeof import("z3-solver"))["init
 export async function loadZ3Client(
   options?: TraceOptions & CancellationOptions,
 ): Promise<Z3Solver> {
-  const { trace, cancellationToken } = options || {};
+  const { cancellationToken } = options || {};
   const z3p = await (_z3 || (_z3 = importZ3()));
   checkCancelled(cancellationToken);
   if (!z3p) {
@@ -75,7 +75,6 @@ export async function loadZ3Client(
     Z3.global_param_set("timeout", String(timeout));
 
     let output = "";
-    const error = "";
 
     try {
       output = (await Z3.eval_smtlib2_string(ctx, input)) ?? "";

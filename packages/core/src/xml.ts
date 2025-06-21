@@ -5,6 +5,8 @@ import { XMLParser } from "fast-xml-parser";
 import { unfence } from "./unwrappers.js";
 import { filenameOrFileToContent } from "./unwrappers.js";
 import type { WorkspaceFile, XMLParseOptions } from "./types.js";
+import { genaiscriptDebug } from "./debug.js";
+const dbg = genaiscriptDebug("xml");
 
 /**
  * Attempts to parse an XML string or WorkspaceFile, returning a default value on failure.
@@ -16,7 +18,7 @@ import type { WorkspaceFile, XMLParseOptions } from "./types.js";
  */
 export function XMLTryParse(
   text: string | WorkspaceFile,
-  defaultValue?: any,
+  defaultValue?: unknown,
   options?: XMLParseOptions,
 ) {
   try {
@@ -24,6 +26,7 @@ export function XMLTryParse(
     return XMLParse(text, options) ?? defaultValue;
   } catch (e) {
     // Return the default value if parsing fails
+    dbg(`error: %s`, e?.message);
     return defaultValue;
   }
 }

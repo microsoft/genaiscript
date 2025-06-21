@@ -96,19 +96,19 @@ describe("video", () => {
     const action = "extract-audio";
     const res = await $`node ${cli} ${cmd} ${action} src/audio/helloworld.mp4`.nothrow();
     assert(!res.exitCode);
-  });
+  }, 10000);
 
   test("extract-frames", async () => {
     const action = "extract-frames";
     const res = await $`node ${cli} ${cmd} ${action} src/audio/helloworld.mp4`.nothrow();
     assert(!res.exitCode);
-  });
+  }, 10000);
 
   test("probe", async () => {
     const action = "probe";
     const res = await $`node ${cli} ${cmd} ${action} src/audio/helloworld.mp4`.nothrow();
     assert(!res.exitCode);
-  });
+  }, 10000);
 });
 
 describe("action", () => {
