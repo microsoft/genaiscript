@@ -37,6 +37,7 @@ jobs:
             - run: pnpm install --frozen-lockfile
             - name: compile
               run: pnpm build:cli
+            - run: pnpm install:playwright
             - name: download ollama docker
               run: pnpm ollama:start
             - name: run browse-text
