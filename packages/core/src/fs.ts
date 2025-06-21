@@ -133,8 +133,10 @@ export async function tryStat(fn: string) {
 }
 
 export async function rmDir(dir: string) {
-  dbg(`removing directory ${dir}`);
-  await rm(dir, { recursive: true });
+  if (await tryStat(dir)) {
+    dbg(`removing directory ${dir}`);
+    await rm(dir, { recursive: true });
+  }
 }
 
 /**
