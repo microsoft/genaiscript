@@ -28,7 +28,7 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile
+              run: pnpm compile
             - name: genaiscript issue-review
               run: node packages/cli/dist/src/index.js run issue-bot -p github -prc bot --out-output $GITHUB_STEP_SUMMARY
               env:

@@ -28,7 +28,7 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile
+              run: pnpm compile
             - name: genaiscript
               run: node packages/cli/dist/src/index.js run iat -m github:gpt-4.1 --out-trace $GITHUB_STEP_SUMMARY
               env:

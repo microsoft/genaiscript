@@ -20,6 +20,6 @@ jobs:
             - name: compile
               run: pnpm build:cli
             - name: unit tests
-              run: yarn test:samples
+              run: pnpm test:samples
             - name: run code-annotator
               run: node packages/cli/dist/src/index.js run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY

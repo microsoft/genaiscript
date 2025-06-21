@@ -27,9 +27,9 @@ jobs:
             - name: compile
               run: pnpm build:cli
             - name: Build slides
-              run: yarn build:slides
+              run: pnpm build:slides
             - name: Build docs
-              run: yarn build:docs
+              run: pnpm build:docs
             - name: no jekyll
               run: touch docs/dist/.nojekyll
             - name: Deploy 🚀

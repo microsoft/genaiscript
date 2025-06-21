@@ -24,6 +24,6 @@ jobs:
             - name: compile
               run: pnpm build:cli
             - name: download ollama docker
-              run: yarn ollama:start
+              run: pnpm ollama:start
             - name: run test within scripts
-              run: yarn test:scripts --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
+              run: pnpm test:scripts --out-summary $GITHUB_STEP_SUMMARY --test-delay 10

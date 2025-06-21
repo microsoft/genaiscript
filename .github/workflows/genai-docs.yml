@@ -28,7 +28,7 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile
+              run: pnpm compile
             - name: git fetch dev
               run: git fetch origin && git pull origin dev:dev
             - name: /docs
@@ -38,7 +38,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha}}
             - name: typecheck
-              run: yarn typecheck
+              run: pnpm typecheck
             - name: git status
               run: git status
             - name: commit

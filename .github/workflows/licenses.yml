@@ -26,8 +26,8 @@ jobs:
                   node-version: "22"
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
-            - run: yarn compile
-            - run: yarn gen:licenses
+            - run: pnpm compile
+            - run: pnpm gen:licenses
             - uses: stefanzweifel/git-auto-commit-action@v5
               with:
                   file_pattern: "THIRD_PARTY_LICENSES.md"

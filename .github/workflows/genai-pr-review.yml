@@ -30,7 +30,7 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile
+              run: pnpm compile
             - name: git stuff
               run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-describe
