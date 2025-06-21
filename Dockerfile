@@ -7,7 +7,7 @@ COPY . /app
 RUN apk update --no-cache && \
     apk add --no-cache python3 py3-pip && \
     echo "Installing && Compiling" && \
-    yarn install && yarn compile
+    pnpm install && pnpm build:cli
 
 
 # Prod

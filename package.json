@@ -39,7 +39,7 @@
     "genai:debug": "pnpm compile-debug && node packages/cli/dist/src/index.js run",
     "genai:debugify": "node packages/cli/dist/src/index.js run dbg-if",
     "genai:docify": "node packages/cli/dist/src/index.js run docify",
-    "genai:docs": "yarn genai docs \"packages/cli/src/**.ts\" \"packages/core/src/**.ts\" --vars diff=true --vars applyEdits=true",
+    "genai:docs": "pnpm genai docs \"packages/cli/src/**.ts\" \"packages/core/src/**.ts\" --vars diff=true --vars applyEdits=true",
     "genai:docs-images": "node packages/cli/dist/src/index.js convert docs-image \"docs/src/content/docs/getting-started/**/*.md*\" \"docs/src/content/docs/reference/**/*.md*\" --no-run-trace --no-output-trace",
     "genai:frontmatter": "pnpm genai:convert frontmatter \"docs/src/content/docs/reference/**/*.md*\" -- -p github --no-run-trace --no-output-trace",
     "genai:readme": "node packages/cli/dist/src/index.js run readme-updater",

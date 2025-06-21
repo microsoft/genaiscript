@@ -24,7 +24,7 @@ You can open this repo in GitHub CodeSpace/Docker to get the build environment n
 - Run yarn
 
 ```sh
-yarn install --frozen-lockfile --prefer-offline
+pnpm install --frozen-lockfile --prefer-offline
 ```
 
 ## Build
@@ -32,13 +32,13 @@ yarn install --frozen-lockfile --prefer-offline
 You can do a full compile using esbuild.
 
 ```sh
-yarn compile
+pnpm build
 ```
 
-or a typecheck using `tsc`.
+or just the cli
 
 ```sh
-yarn typecheck
+pnpm build:cli
 ```
 
 ## Pull Requests
@@ -57,13 +57,13 @@ When creating a pull request, please ensure that your code adheres to the follow
 To run a script using the locally built cli,
 
 ```sh
-yarn genai <scriptid> ...
+pnpm genai <scriptid> ...
 ```
 
 To run a sample script under the `packages/sample` folder:
 
 ```sh
-yarn run:script <scriptid> ...
+pnpm run:script <scriptid> ...
 ```
 
 In this case, it will use the `packages/sample/.env` file for the environment variables and workspace will be rooted at `packages/sample`.
@@ -73,13 +73,13 @@ In this case, it will use the `packages/sample/.env` file for the environment va
 Open a `JavaScript Debug Terminal` and launch the script using
 
 ```sh
-yarn genai:debug <scriptid> ...
+pnpm genai:debug <scriptid> ...
 ```
 
 or for samples
 
 ```sh
-yarn run:script:debug <scriptid> ...
+pnpm run:script:debug <scriptid> ...
 ```
 
 ## Logging
@@ -87,7 +87,7 @@ yarn run:script:debug <scriptid> ...
 GenAIScript uses the [debug](https://www.npmjs.com/package/debug) library for logging. You can enable logging by setting the `DEBUG` environment variable to `genai:*`.
 
 ```sh
-DEBUG=genaiscript:* yarn genai <scriptid> ...
+DEBUG=genaiscript:* pnpm genai <scriptid> ...
 ```
 
 ## Web viewer
@@ -101,7 +101,7 @@ The web application (React 19) is meant to run both as a Visual Studio Code pane
 Use the following command to start the local web server:
 
 ```sh
-yarn serve
+pnpm serve
 ```
 
 It will start a local server and rebuild the react client on file changes. **It will not rebuild/restart the server on changes.**
@@ -122,24 +122,20 @@ Remember that the debugger is only attached to the extension; not the GenAIScrip
 ### Caveats
 
 Launching the debugger sometimes fails but still unknown reasons. To work around this, open a terminal
-and run `yarn compile` once. Then launch the debugger again.
-
-## Dependencies
-
-- run `yarn install:force` to refresh the lock file
+and run `pnpm build` once. Then launch the debugger again.
 
 ## Docs
 
 Run `docs` to launch the documentation site.
 
 ```sh
-yarn docs
+pnpm docs
 ```
 
 Run this command to catch broken links
 
 ```sh
-yarn build:docs
+pnpm build:docs
 ```
 
 ## Slides
@@ -149,7 +145,7 @@ All files `slides/*slides.md` will be compiled and deployed on build.
 - run `slides` to launch the slide show (add the file name or it will default to `slides.md`)
 
 ```sh
-yarn slides [slides file name]
+pnpm slides [slides file name]
 ```
 
 Learn more about Slidev on [documentations](https://sli.dev/). For diagrams, leverage [mermaid](https://sli.dev/guide/syntax#diagrams) or use draw.io, tldraw.
@@ -159,19 +155,19 @@ Learn more about Slidev on [documentations](https://sli.dev/). For diagrams, lev
 - Commit with auto-generated message
 
 ```sh
-yarn gcm
+pnpm gcm
 ```
 
 - Add doc to new or updated apis
 
 ```sh
-yarn genai:docs
+pnpm genai:docs
 ```
 
 - Generate images for blog posts
 
 ```sh
-yarn genai:blog-images
+pnpm genai:blog-images
 ```
 
 ## Packaging
@@ -179,7 +175,7 @@ yarn genai:blog-images
 To compile and package the Visual Studio Code extension, run the `package` script.
 
 ```sh
-yarn package
+pnpm package
 ```
 
 You will find the built package files, `genaiscript.vsix`,
@@ -190,7 +186,7 @@ in the `packages/vscode` folder.
 Run the `release` script.
 
 ```sh
-yarn release
+pnpm release
 ```
 
 GitHub Pages are automatically updated on new release; or through manual trigger at

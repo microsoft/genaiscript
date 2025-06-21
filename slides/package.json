@@ -7,7 +7,6 @@
     "publish": false
   },
   "scripts": {
-    "install:force": "rm yarn.lock && yarn install",
     "build": "node build.mjs",
     "dev": "slidev --open"
   },

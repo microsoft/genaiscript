@@ -27,9 +27,9 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile
+              run: pnpm compile
             - name: generate blog post
-              run: yarn genai:blog-post -p github --out-trace $GITHUB_STEP_SUMMARY
+              run: pnpm genai:blog-post -p github --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - uses: stefanzweifel/git-auto-commit-action@v5

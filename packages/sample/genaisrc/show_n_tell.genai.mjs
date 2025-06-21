@@ -57,4 +57,4 @@ of the acheivements of the last month.
 - do not include HTML, images or videos in the slides.
 `
 
-// yarn genai copilotchat --vars "question=generate 1 snow-n-tell slide (markdown, slidev) about last month (starting after 2025/02/01) features. At most 3 slides, focus on highlights."
+// pnpm genai copilotchat --vars "question=generate 1 snow-n-tell slide (markdown, slidev) about last month (starting after 2025/02/01) features. At most 3 slides, focus on highlights."

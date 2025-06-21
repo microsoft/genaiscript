@@ -501,7 +501,7 @@
     "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
     "vis:sunburst": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.sunburst.html --template sunburst",
     "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
-    "vscode:prepublish": "yarn run build",
+    "vscode:prepublish": "pnpm build",
     "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/"
   },
   "dependencies": {

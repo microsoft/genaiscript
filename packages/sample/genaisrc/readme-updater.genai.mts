@@ -36,7 +36,7 @@ Update the README file of the project
 - online documentation: https://microsoft.github.io/genaiscript/ . The routing is docs/src/content/docs/**/<route>.md* becomes https://microsoft.github.io/genaiscript/<route>.
 - use links to online documentation
 - github repository: https://github.com/microsoft/genaiscript
-- the package.json contains helpful scripts, the project uses yarn and is codespace ready
+- the package.json contains helpful scripts, the project uses pnpm and is codespace ready
 
 `
 
