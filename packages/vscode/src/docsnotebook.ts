@@ -5,17 +5,18 @@ import * as vscode from "vscode";
 import { ExtensionState } from "./state.js";
 import { Utils } from "vscode-uri";
 import { registerCommand } from "./commands.js";
-import { ModelProviderType, PromptScript, renderMessagesToMarkdown } from "@genaiscript/core";
-import { TOOL_NAME, MDX_REGEX, EMOJI_FAIL, MARKDOWN_MIME_TYPE } from "@genaiscript/core";
-import { errorMessage } from "@genaiscript/core";
-import { parseKeyValuePairs } from "@genaiscript/core";
-import { frontmatterTryParse } from "@genaiscript/core";
-import { details } from "@genaiscript/core";
-import { parsePromptScriptMeta } from "@genaiscript/core";
-import { arrayify, normalizeBoolean } from "@genaiscript/core";
-import { YAMLTryParse, YAMLStringify } from "@genaiscript/core";
-import { Fragment } from "@genaiscript/core";
-import { fileCacheImage } from "@genaiscript/core";
+import type { ModelProviderType, PromptScript } from "../../core/src/types.js";
+import { renderMessagesToMarkdown } from "../../core/src/chatrender.js";
+import { TOOL_NAME, MDX_REGEX, EMOJI_FAIL, MARKDOWN_MIME_TYPE } from "../../core/src/constants.js";
+import { errorMessage } from "../../core/src/error.js";
+import { parseKeyValuePairs } from "../../core/src/fence.js";
+import { frontmatterTryParse } from "../../core/src/frontmatter.js";
+import { details } from "../../core/src/mkmd.js";
+import { parsePromptScriptMeta } from "../../core/src/template.js";
+import { arrayify, normalizeBoolean } from "../../core/src/cleaners.js";
+import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml.js";
+import { Fragment } from "../../core/src/generation.js";
+import { fileCacheImage } from "../../core/src/filecache.js";
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts

@@ -4,17 +4,11 @@
 import * as vscode from "vscode";
 import { ExtensionState } from "./state.js";
 import { registerCommand } from "./commands.js";
-import {
-  GENAI_ANY_REGEX,
-  PromptParameters,
-  PromptScript,
-  TOOL_ID,
-  TOOL_NAME,
-} from "@genaiscript/core";
-import { logInfo, logVerbose } from "@genaiscript/core";
-import { resolveCli } from "./config.js";
-import { YAMLStringify } from "@genaiscript/core";
-import { dotGenaiscriptPath } from "@genaiscript/core";
+import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants.js";
+import type { PromptParameters, PromptScript } from "../../core/src/types.js";
+import { logInfo, logVerbose } from "../../core/src/util.js";
+import { YAMLStringify } from "../../core/src/yaml.js";
+import { dotGenaiscriptPath } from "../../core/src/workdir.js";
 import { TemplateQuickPickItem, showPromptParametersQuickPicks } from "./parameterquickpick.js";
 import { scriptsToQuickPickItems } from "./scriptquickpick.js";
 import { getSelectedText } from "./selection.js";

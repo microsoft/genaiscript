@@ -4,8 +4,8 @@
 import * as vscode from "vscode";
 import { ExtensionState } from "./state.js";
 import { toMarkdownString } from "./markdown.js";
-import { ICON_LOGO_NAME, CHANGE } from "@genaiscript/core";
-import { toStringList } from "@genaiscript/core";
+import { ICON_LOGO_NAME, CHANGE } from "../../core/src/constants.js";
+import { toStringList } from "../../core/src/utils.js";
 
 export function activateStatusBar(state: ExtensionState) {
   const { context } = state;

@@ -772,9 +772,6 @@ importers:
 
   packages/vscode:
     dependencies:
-      '@genaiscript/core':
-        specifier: workspace:*
-        version: link:../core
       es-toolkit:
         specifier: 'catalog:'
         version: 1.39.3
@@ -784,9 +781,6 @@ importers:
       markdown-it-github-alerts:
         specifier: 0.2.0
         version: 0.2.0(markdown-it@14.1.0)
-      tslib:
-        specifier: 'catalog:'
-        version: 2.8.1
       vscode-uri:
         specifier: ^3.1.0
         version: 3.1.0
@@ -830,6 +824,9 @@ importers:
       rollup:
         specifier: ^4.44.0
         version: 4.44.0
+      tslib:
+        specifier: 'catalog:'
+        version: 2.8.1
       typescript:
         specifier: 'catalog:'
         version: 5.8.3

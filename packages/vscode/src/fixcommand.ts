@@ -4,9 +4,9 @@
 import * as vscode from "vscode";
 import { ExtensionState } from "./state.js";
 import { registerCommand } from "./commands.js";
-import { TYPE_DEFINITION_BASENAME, TYPE_DEFINITION_REFERENCE } from "@genaiscript/core";
-import { promptDefinitions } from "@genaiscript/core";
-import { createFetch } from "@genaiscript/core";
+import { TYPE_DEFINITION_BASENAME, TYPE_DEFINITION_REFERENCE } from "../../core/src/constants.js";
+import { promptDefinitions } from "../../core/src/default_prompts.js";
+import { createFetch } from "../../core/src/fetch.js";
 
 export function activateFixCommand(state: ExtensionState) {
   const { context } = state;

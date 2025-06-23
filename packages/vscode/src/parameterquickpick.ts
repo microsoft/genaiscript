@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { NotSupportedError, PromptParameters, PromptScript } from "@genaiscript/core";
-import { promptParameterTypeToJSONSchema } from "@genaiscript/core";
+import type { PromptParameters, PromptScript } from "../../core/src/types.js";
+import { promptParameterTypeToJSONSchema } from "../../core/src/parameters.js";
+import { NotSupportedError } from "../../core/src/error.js";
 
 export interface TemplateQuickPickItem extends vscode.QuickPickItem {
   template?: PromptScript;

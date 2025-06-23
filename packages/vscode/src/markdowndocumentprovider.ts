@@ -11,11 +11,11 @@ import {
 } from "./state.js";
 import { showMarkdownPreview } from "./markdown.js";
 import { registerCommand } from "./commands.js";
-import { TRACE_NODE_PREFIX } from "@genaiscript/core";
-import { prettifyMarkdown } from "@genaiscript/core";
-import { logprobToMarkdown, topLogprobsToMarkdown } from "@genaiscript/core";
-import { fenceMD } from "@genaiscript/core";
-import { renderTraceTree } from "@genaiscript/core";
+import { TRACE_NODE_PREFIX } from "../../core/src/constants.js";
+import { prettifyMarkdown } from "../../core/src/markdown.js";
+import { logprobToMarkdown, topLogprobsToMarkdown } from "../../core/src/markdown.js";
+import { fenceMD } from "../../core/src/markdown.js";
+import { renderTraceTree } from "../../core/src/trace.js";
 
 const SCHEME = "genaiscript";
 

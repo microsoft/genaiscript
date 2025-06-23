@@ -9,14 +9,14 @@ import {
   COPILOT_CHAT_PARTICIPANT_ID,
   ICON_LOGO_NAME,
   MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-  PromptScript,
-  HistoryMessageUser,
-  HistoryMessageAssistant,
-} from "@genaiscript/core";
-import { Fragment } from "@genaiscript/core";
-import { convertAnnotationsToItems } from "@genaiscript/core";
-import { deleteUndefinedValues } from "@genaiscript/core";
-import { patchCachedImages } from "@genaiscript/core";
+} from "../../core/src/constants.js";
+import type { PromptScript } from "../../core/src/types.js";
+import type { HistoryMessageUser, HistoryMessageAssistant } from "../../core/src/types.js";
+import { Fragment } from "../../core/src/generation.js";
+import { convertAnnotationsToItems } from "../../core/src/annotations.js";
+import { patchCachedImages } from "../../core/src/filecache.js";
+import { deleteUndefinedValues } from "../../core/src/cleaners.js";
+
 
 export async function activateChatParticipant(state: ExtensionState) {
   const { context } = state;

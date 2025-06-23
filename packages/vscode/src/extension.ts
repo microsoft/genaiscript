@@ -13,7 +13,7 @@ import { activateTestController } from "./testcontroller.js";
 import { activateDocsNotebook } from "./docsnotebook.js";
 import { activateTraceTreeDataProvider } from "./tracetree.js";
 import { registerCommand } from "./commands.js";
-import { EXTENSION_ID, TOOL_NAME } from "@genaiscript/core";
+import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants.js";
 import type MarkdownIt from "markdown-it";
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts";
 import { activateConnectionInfoTree } from "./connectioninfotree.js";

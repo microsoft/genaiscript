@@ -13,18 +13,18 @@ import {
   CHANGE,
   SERVER_LOCALHOST,
   MIN_NODE_VERSION_MAJOR,
-} from "@genaiscript/core";
-import { ServerManager, host } from "@genaiscript/core";
-import { assert, logError, logInfo, logVerbose } from "@genaiscript/core";
-import { VsCodeClient } from "@genaiscript/core";
-import { CORE_VERSION } from "@genaiscript/core";
+} from "../../core/src/constants.js";
+import { ServerManager, host } from "../../core/src/server.js";
+import { assert, logError, logInfo, logVerbose } from "../../core/src/utils.js";
+import { VsCodeClient } from "../../core/src/server.js";
+import { CORE_VERSION } from "../../core/src/constants.js";
 import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess.js";
-import { semverParse, semverSatisfies } from "@genaiscript/core";
+import { semverParse, semverSatisfies } from "../../core/src/semver.js";
 import { resolveCli } from "./config.js";
-import { deleteUndefinedValues } from "@genaiscript/core";
-import { findRandomOpenPort } from "@genaiscript/core";
-import { packageResolveExecute } from "@genaiscript/core";
-import { shellQuote } from "@genaiscript/core";
+import { deleteUndefinedValues } from "../../core/src/cleaners.js";
+import { findRandomOpenPort } from "../../core/src/server.js";
+import { packageResolveExecute } from "../../core/src/server.js";
+import { shellQuote } from "../../core/src/utils.js";
 import { log } from "node:console";
 
 export class TerminalServerManager extends EventTarget implements ServerManager {

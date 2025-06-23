@@ -8,7 +8,7 @@ import { Project } from "./server/messages.js";
 import { arrayify } from "./cleaners.js";
 import { tagFilter } from "./tags.js";
 import { dirname, resolve } from "node:path";
-import type { CharPosition, Diagnostic, PromptScript, SystemPromptInstance } from "./types.js";
+import type { Diagnostic, PromptScript, SystemPromptInstance } from "./types.js";
 
 // Interface representing a file reference, with a name and filename property
 export interface FileReference {
@@ -51,10 +51,6 @@ export function templateGroup(template: PromptScript) {
     "unassigned" // Default to "unassigned" if no group is determined
   );
 }
-
-// Constants representing special character positions within a file
-export const eolPosition = 0x3fffffff; // End of line position, a large constant
-export const eofPosition: CharPosition = [0x3fffffff, 0]; // End of file position, a tuple with a large constant
 
 /**
  * Collects and organizes templates by their directory, identifying the presence of JavaScript or TypeScript files in each directory.

@@ -3,7 +3,11 @@
 
 import * as vscode from "vscode";
 import { ExtensionState } from "./state.js";
-import { CharPosition, CharRange, Edits, eolPosition, LineRange } from "@genaiscript/core";
+import type { CharPosition, CharRange, Edits, LineRange } from "../../core/src/types.js";
+
+// Constants representing special character positions within a file
+export const eolPosition = 0x3fffffff; // End of line position, a large constant
+export const eofPosition: CharPosition = [0x3fffffff, 0]; // End of file position, a tuple with a large constant
 
 export function toPos(p: CharPosition | number) {
   if (typeof p === "number") return new vscode.Position(p, 0);

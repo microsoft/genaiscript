@@ -7,9 +7,9 @@ import {
   VSCODE_CONFIG_CLI_PACKAGE_MANAGER,
   VSCODE_CONFIG_CLI_PATH,
   VSCODE_CONFIG_CLI_VERSION,
-} from "@genaiscript/core";
-import { CORE_VERSION, VSCODE_CLI_VERSION } from "@genaiscript/core";
-import { semverParse, semverSatisfies } from "@genaiscript/core";
+} from "../../core/src/constants.js";
+import { CORE_VERSION, VSCODE_CLI_VERSION } from "../../core/src/version.js";
+import { semverParse, semverSatisfies } from "../../core/src/semver.js";
 import { ExtensionState } from "./state.js";
 
 export async function resolveCli(state: ExtensionState) {

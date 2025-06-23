@@ -3,10 +3,11 @@
 
 import * as vscode from "vscode";
 import { ExtensionState } from "./state.js";
-import { CHANGE, PromptScript } from "@genaiscript/core";
-import { groupBy } from "@genaiscript/core";
-import { templateGroup } from "@genaiscript/core";
-import { MarkdownStringify } from "@genaiscript/core";
+import { CHANGE } from "../../core/src/constants.js";
+import type { PromptScript } from "../../core/src/types.js";
+import { groupBy } from "../../core/src/utils.js";
+import { templateGroup } from "../../core/src/utils.js";
+import { MarkdownStringify } from "../../core/src/markdown.js";
 
 type PromptTreeNode = string | PromptScript;
 
