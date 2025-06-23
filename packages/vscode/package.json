@@ -47,7 +47,7 @@
     "workspaceContains:**/*.genai.{js,mjs,mts}",
     "onNotebook:genaiscript"
   ],
-  "main": "dist/bundle/extension.js",
+  "main": "dist/extension.js",
   "bugs": {
     "url": "https://github.com/microsoft/genaiscript/issues"
   },
@@ -487,8 +487,9 @@
     ]
   },
   "scripts": {
-    "build": "npm run clean && pnpm build:extension",
-    "build:extension": "tsc -p . && rollup -c rollup.config.mjs 2>&1",
+    "build": "npm run clean && pnpm build:tsc && pnpm build:extension",
+    "build:tsc": "tsc -p . --noEmit",
+    "build:extension": "node build.mjs",
     "build:icons": "node updatefonts.mjs",
     "clean": "rimraf dist",
     "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",

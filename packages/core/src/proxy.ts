@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ProxyAgent } from "undici";
 import { genaiscriptDebug } from "./debug.js";
 const dbg = genaiscriptDebug("proxy");
 
@@ -24,7 +23,7 @@ const dbg = genaiscriptDebug("proxy");
  * @returns An instance of `HttpsProxyAgent` if a proxy is configured,
  *          or null if no proxy is detected.
  */
-export function resolveHttpProxyAgent() {
+export async function resolveHttpProxyAgent() {
   // We create a proxy based on Node.js environment variables.
   const proxy =
     process.env.GENAISCRIPT_HTTPS_PROXY ||
@@ -34,6 +33,9 @@ export function resolveHttpProxyAgent() {
     process.env.https_proxy ||
     process.env.http_proxy;
   if (proxy) dbg(`proxy: %s`, proxy);
-  const agent = proxy ? new ProxyAgent(proxy) : null;
+  if (!proxy) return null;
+
+  const { ProxyAgent } = await import("undici");
+  const agent = new ProxyAgent(proxy);
   return agent;
 }

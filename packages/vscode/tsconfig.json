@@ -4,7 +4,8 @@
     "moduleResolution": "NodeNext",
     "outDir": "dist",
     "target": "es2024",
-    "lib": ["ES2024"]
+    "lib": ["ES2024"],
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["node_modules", ".vscode-test"]

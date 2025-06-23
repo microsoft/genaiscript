@@ -57,7 +57,7 @@ export async function createFetch(
   } = options || {};
 
   // We create a proxy based on Node.js environment variables.
-  const agent = resolveHttpProxyAgent();
+  const agent = await resolveHttpProxyAgent();
 
   // We enrich crossFetch with the proxy.
   const crossFetchWithProxy: typeof fetch = agent
