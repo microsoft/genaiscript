@@ -2,8 +2,15 @@
 // Licensed under the MIT License.
 
 import { readFileSync, existsSync } from "node:fs";
-import { __dirname } from "./utils/pathUtils.js";
+import { getModulePaths } from "@genaiscript/core";
 import { dirname, join } from "node:path";
+
+const { __dirname } =
+  typeof module !== "undefined" && module.filename
+    ? getModulePaths(module)
+    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      getModulePaths(import.meta);
 
 /**
  * Returns true if the package.json is a "tshy" file (only { "type": ... }).

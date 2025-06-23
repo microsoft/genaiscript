@@ -8,7 +8,6 @@
  */
 import type {
   Awaitable,
-  BrowserPage,
   ChatGenerationContext,
   ElementOrArray,
   FileStats,
@@ -28,19 +27,7 @@ import type {
 import { delay, uniq, uniqBy, chunk } from "es-toolkit";
 import { z } from "zod";
 
-let globalPromptContext: PromptContext | undefined;
-
-/**
- * Initialize the global prompt context.
- * @param ctx The prompt context to initialize.
- */
-export function initialize(ctx: PromptContext) {
-  globalPromptContext = ctx;
-}
-
-function checkInitialized() {
-  if (!globalPromptContext) throw new Error("GenAIScript runtime not initialized");
-}
+const globalPromptContext: PromptContext = globalThis as unknown as PromptContext;
 
 /**
  * Utility functions exported for general use
@@ -91,7 +78,6 @@ export async function classify<L extends Record<string, string>>(
   logprobs?: Record<keyof typeof labels | "other", Logprob>;
   usage?: RunPromptUsage;
 }> {
-  checkInitialized();
   const { other, explanations, ...rest } = options || {};
 
   const entries = Object.entries({
@@ -231,7 +217,6 @@ export async function cast(
     ctx?: ChatGenerationContext;
   },
 ): Promise<{ data?: unknown; error?: string; text: string }> {
-  checkInitialized();
   const {
     ctx = globalPromptContext.env.generator,
     multiple,
@@ -282,13 +267,11 @@ export async function markdownifyPdf(
       ctx?: ChatGenerationContext;
     },
 ) {
-  checkInitialized();
   const {
     ctx = globalPromptContext.env.generator,
     label = `markdownify PDF`,
     model = "ocr",
     responseType = "markdown",
-    systemSafety = true,
     instructions,
     ...rest
   } = options || {};
@@ -369,7 +352,6 @@ export async function fileTree(
     preview?: (file: WorkspaceFile, stats: FileStats) => Awaitable<unknown>;
   },
 ): Promise<string> {
-  checkInitialized();
   const { frontmatter, preview, query, size, ignore, ...rest } = options || {};
   const readText = !!(frontmatter || preview);
   // TODO
@@ -407,7 +389,7 @@ export async function fileTree(
               metadata.push(
                 ...frontmatter
                   .map((field) => [field, fm[field]])
-                  .filter(([_, v]) => v !== undefined)
+                  .filter(([, v]) => v !== undefined)
                   .map(([k, v]) => `${k}: ${JSON.stringify(v)}`),
               );
           }
@@ -450,54 +432,3 @@ export async function fileTree(
   }
 }
 
-/**
- * Injects @mozilla/readability into a page to extract structured data from an article.
- * This function evaluates the page content using the Readability library to parse and extract details such as title, content, text, and metadata.
- *
- * @param page - The browser page instance to evaluate and extract content from.
- * @returns An object containing the parsed article details, including title, content, text content, length, excerpt, byline, direction, site name, language, and published time, or null if parsing fails.
- * @see https://github.com/mishushakov/llm-scraper/
- */
-export async function parseReadableContent<T = string>(
-  page: BrowserPage,
-): Promise<null | {
-  /** article title */
-  title: string | null | undefined;
-
-  /** HTML string of processed article content */
-  content: T | null | undefined;
-
-  /** text content of the article, with all the HTML tags removed */
-  textContent: string | null | undefined;
-
-  /** length of an article, in characters */
-  length: number | null | undefined;
-
-  /** article description, or short excerpt from the content */
-  excerpt: string | null | undefined;
-
-  /** author metadata */
-  byline: string | null | undefined;
-
-  /** content direction */
-  dir: string | null | undefined;
-
-  /** name of the site */
-  siteName: string | null | undefined;
-
-  /** content language */
-  lang: string | null | undefined;
-
-  /** published time */
-  publishedTime: string | null | undefined;
-}> {
-  const results = await page.evaluate(async () => {
-    const readability = await import(
-      // @ts-ignore
-      "https://cdn.skypack.dev/@mozilla/readability"
-    );
-    const doc = document.cloneNode(true);
-    return new readability.Readability(doc).parse();
-  });
-  return results;
-}
