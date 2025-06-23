@@ -10,18 +10,18 @@ import {
     CHANGE,
     SERVER_LOCALHOST,
     MIN_NODE_VERSION_MAJOR,
-} from "../../core/src/constants"
-import { ServerManager, host } from "../../core/src/host"
-import { assert, logError, logInfo, logVerbose } from "../../core/src/util"
-import { VsCodeClient } from "../../core/src/server/client"
-import { CORE_VERSION } from "../../core/src/version"
+} from "../../core/src/constants.js"
+import { ServerManager, host } from "../../core/src/host.js"
+import { assert, logError, logInfo, logVerbose } from "../../core/src/util.js"
+import { VsCodeClient } from "../../core/src/server/client.js"
+import { CORE_VERSION } from "../../core/src/version.js"
 import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess"
-import { semverParse, semverSatisfies } from "../../core/src/semver"
+import { semverParse, semverSatisfies } from "../../core/src/semver.js"
 import { resolveCli } from "./config"
-import { deleteUndefinedValues } from "../../core/src/cleaners"
-import { findRandomOpenPort } from "../../core/src/net"
-import { packageResolveExecute } from "../../core/src/packagemanagers"
-import { shellQuote } from "../../core/src/shell"
+import { deleteUndefinedValues } from "../../core/src/cleaners.js"
+import { findRandomOpenPort } from "../../core/src/net.js"
+import { packageResolveExecute } from "../../core/src/packagemanagers.js"
+import { shellQuote } from "../../core/src/shell.js"
 import { log } from "node:console"
 
 export class TerminalServerManager

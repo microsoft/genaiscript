@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { ChatCompletionMessageParam } from "../../core/src/chattypes"
-import { LanguageModelChatRequest } from "../../core/src/server/client"
-import { ChatStart } from "../../core/src/server/messages"
-import { serializeError } from "../../core/src/error"
-import { logVerbose } from "../../core/src/util"
-import { renderMessageContent } from "../../core/src/chatrender"
-import { parseModelIdentifier } from "../../core/src/models"
+import { ChatCompletionMessageParam } from "../../core/src/chattypes.js"
+import { LanguageModelChatRequest } from "../../core/src/server/client.js"
+import { ChatStart } from "../../core/src/server/messages.js"
+import { serializeError } from "../../core/src/error.js"
+import { logVerbose } from "../../core/src/util.js"
+import { renderMessageContent } from "../../core/src/chatrender.js"
+import { parseModelIdentifier } from "../../core/src/models.js"
 import {
     MODEL_GITHUB_COPILOT_CHAT_CURRENT,
     TOOL_NAME,
-} from "../../core/src/constants"
-import { dedent } from "../../core/src/indent"
+} from "../../core/src/constants.js"
+import { dedent } from "../../core/src/indent.js"
 
 async function pickChatModel(
     state: ExtensionState,

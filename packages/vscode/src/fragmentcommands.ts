@@ -2,12 +2,12 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists, listFiles } from "./fs"
 import { registerCommand } from "./commands"
-import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants"
-import { Fragment } from "../../core/src/generation"
-import { assert, logInfo, logVerbose } from "../../core/src/util"
+import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants.js"
+import { Fragment } from "../../core/src/generation.js"
+import { assert, logInfo, logVerbose } from "../../core/src/util.js"
 import { resolveCli } from "./config"
-import { YAMLStringify } from "../../core/src/yaml"
-import { dotGenaiscriptPath } from "../../core/src/workdir"
+import { YAMLStringify } from "../../core/src/yaml.js"
+import { dotGenaiscriptPath } from "../../core/src/workdir.js"
 import {
     TemplateQuickPickItem,
     showPromptParametersQuickPicks,

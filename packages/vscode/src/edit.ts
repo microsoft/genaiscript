@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { eolPosition } from "../../core/src/ast"
+import { eolPosition } from "../../core/src/ast.js"
 
 export function toPos(p: CharPosition | number) {
     if (typeof p === "number") return new vscode.Position(p, 0)

@@ -10,10 +10,10 @@ import {
     PROMPTFOO_CACHE_PATH,
     PROMPTFOO_CONFIG_DIR,
     ICON_LOGO_NAME,
-} from "../../core/src/constants"
-import { errorMessage } from "../../core/src/error"
-import { arrayify } from "../../core/src/util"
-import { deleteUndefinedValues } from "../../core/src/cleaners"
+} from "../../core/src/constants.js"
+import { errorMessage } from "../../core/src/error.js"
+import { arrayify } from "../../core/src/util.js"
+import { deleteUndefinedValues } from "../../core/src/cleaners.js"
 
 export async function activateTestController(state: ExtensionState) {
     const { context, host } = state

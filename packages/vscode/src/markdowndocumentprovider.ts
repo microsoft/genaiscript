@@ -8,14 +8,14 @@ import {
 } from "./state"
 import { showMarkdownPreview } from "./markdown"
 import { registerCommand } from "./commands"
-import { TRACE_NODE_PREFIX } from "../../core/src/constants"
-import { prettifyMarkdown } from "../../core/src/markdown"
+import { TRACE_NODE_PREFIX } from "../../core/src/constants.js"
+import { prettifyMarkdown } from "../../core/src/markdown.js"
 import {
     logprobToMarkdown,
     topLogprobsToMarkdown,
-} from "../../core/src/logprob"
-import { fenceMD } from "../../core/src/mkmd"
-import { renderTraceTree } from "../../core/src/traceparser"
+} from "../../core/src/logprob.js"
+import { fenceMD } from "../../core/src/mkmd.js"
+import { renderTraceTree } from "../../core/src/traceparser.js"
 
 const SCHEME = "genaiscript"
 

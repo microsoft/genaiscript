@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import { TOOL_NAME } from "../../core/src/constants"
-import { errorMessage } from "../../core/src/error"
+import { TOOL_NAME } from "../../core/src/constants.js"
+import { errorMessage } from "../../core/src/error.js"
 
 export function registerCommand(
     id: string,

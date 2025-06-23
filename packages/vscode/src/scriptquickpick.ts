@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import { templateGroup } from "../../core/src/ast"
-import { groupBy } from "../../core/src/util"
+import { templateGroup } from "../../core/src/ast.js"
+import { groupBy } from "../../core/src/util.js"
 import { TemplateQuickPickItem } from "./parameterquickpick"
 
 export function scriptsToQuickPickItems(

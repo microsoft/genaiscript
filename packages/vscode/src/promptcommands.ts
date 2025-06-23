@@ -2,8 +2,8 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { scriptsToQuickPickItems } from "./scriptquickpick"
 import { registerCommand } from "./commands"
-import { createScript } from "../../core/src/scripts"
-import { copyPrompt } from "../../core/src/copy"
+import { createScript } from "../../core/src/scripts.js"
+import { copyPrompt } from "../../core/src/copy.js"
 
 export function activatePromptCommands(state: ExtensionState) {
     const { context, host } = state

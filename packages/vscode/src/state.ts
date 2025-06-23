@@ -5,30 +5,30 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { saveAllTextDocuments } from "./fs"
-import { parseAnnotations } from "../../core/src/annotations"
-import { Project, PromptScriptRunOptions } from "../../core/src/server/messages"
-import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
+import { parseAnnotations } from "../../core/src/annotations.js"
+import { Project, PromptScriptRunOptions } from "../../core/src/server/messages.js"
+import { ChatCompletionsProgressReport } from "../../core/src/chattypes.js"
 import {
     fixGitHubCopilotInstructions,
     fixPromptDefinitions,
-} from "../../core/src/scripts"
-import { logMeasure } from "../../core/src/perf"
+} from "../../core/src/scripts.js"
+import { logMeasure } from "../../core/src/perf.js"
 import {
     TOOL_NAME,
     CHANGE,
     TOOL_ID,
     GENAI_ANYTS_REGEX,
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-} from "../../core/src/constants"
-import { isCancelError } from "../../core/src/error"
-import { MarkdownTrace } from "../../core/src/trace"
-import { logInfo, groupBy, logVerbose } from "../../core/src/util"
-import { GenerationResult } from "../../core/src/server/messages"
-import { randomHex } from "../../core/src/crypto"
+} from "../../core/src/constants.js"
+import { isCancelError } from "../../core/src/error.js"
+import { MarkdownTrace } from "../../core/src/trace.js"
+import { logInfo, groupBy, logVerbose } from "../../core/src/util.js"
+import { GenerationResult } from "../../core/src/server/messages.js"
+import { randomHex } from "../../core/src/crypto.js"
 import { delay } from "es-toolkit"
-import { Fragment } from "../../core/src/generation"
+import { Fragment } from "../../core/src/generation.js"
 import { createWebview } from "./webview"
-import { isEmptyString } from "../../core/src/cleaners"
+import { isEmptyString } from "../../core/src/cleaners.js"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"

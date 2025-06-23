@@ -1,18 +1,18 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { YAMLStringify } from "../../core/src/yaml"
+import { YAMLStringify } from "../../core/src/yaml.js"
 import {
     ResolvedLanguageModelConfiguration,
     ServerEnvResponse,
-} from "../../core/src/server/messages"
-import { deleteUndefinedValues } from "../../core/src/cleaners"
+} from "../../core/src/server/messages.js"
+import { deleteUndefinedValues } from "../../core/src/cleaners.js"
 import { registerCommand } from "./commands"
 import {
     MODEL_PROVIDER_AZURE_AI_INFERENCE,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-} from "../../core/src/constants"
+} from "../../core/src/constants.js"
 
 interface ConnectionInfoTreeData {
     provider?: ResolvedLanguageModelConfiguration

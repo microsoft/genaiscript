@@ -1,10 +1,10 @@
 import * as vscode from "vscode"
-import { TOOL_ID, TOOL_NAME } from "../../core/src/constants"
+import { TOOL_ID, TOOL_NAME } from "../../core/src/constants.js"
 import { ExtensionState } from "./state"
 import { registerCommand } from "./commands"
 import { Utils } from "vscode-uri"
-import { assert } from "../../core/src/util"
-import { randomHex } from "../../core/src/crypto"
+import { assert } from "../../core/src/util.js"
+import { randomHex } from "../../core/src/crypto.js"
 
 export async function createWebview(
     state: ExtensionState

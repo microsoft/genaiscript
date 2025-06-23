@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { resolveCli } from "./config"
-import { TOOL_ID } from "../../core/src/constants"
-import { shellQuote } from "../../core/src/shell"
+import { TOOL_ID } from "../../core/src/constants.js"
+import { shellQuote } from "../../core/src/shell.js"
 
 export async function activeTaskProvider(state: ExtensionState) {
     const { context, host } = state

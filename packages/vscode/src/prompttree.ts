@@ -1,9 +1,9 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { CHANGE } from "../../core/src/constants"
-import { groupBy } from "../../core/src/util"
-import { templateGroup } from "../../core/src/ast"
-import { MarkdownStringify } from "../../core/src/markdown"
+import { CHANGE } from "../../core/src/constants.js"
+import { groupBy } from "../../core/src/util.js"
+import { templateGroup } from "../../core/src/ast.js"
+import { MarkdownStringify } from "../../core/src/markdown.js"
 
 type PromptTreeNode = string | PromptScript
 

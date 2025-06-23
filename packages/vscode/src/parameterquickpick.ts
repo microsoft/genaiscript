@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { NotSupportedError } from "../../core/src/error"
-import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
+import { NotSupportedError } from "../../core/src/error.js"
+import { promptParameterTypeToJSONSchema } from "../../core/src/parameters.js"
 
 export interface TemplateQuickPickItem extends vscode.QuickPickItem {
     template?: PromptScript

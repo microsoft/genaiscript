@@ -6,11 +6,11 @@ import {
     COPILOT_CHAT_PARTICIPANT_ID,
     ICON_LOGO_NAME,
     MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-} from "../../core/src/constants"
-import { Fragment } from "../../core/src/generation"
-import { convertAnnotationsToItems } from "../../core/src/annotations"
-import { deleteUndefinedValues } from "../../core/src/cleaners"
-import { patchCachedImages } from "../../core/src/filecache"
+} from "../../core/src/constants.js"
+import { Fragment } from "../../core/src/generation.js"
+import { convertAnnotationsToItems } from "../../core/src/annotations.js"
+import { deleteUndefinedValues } from "../../core/src/cleaners.js"
+import { patchCachedImages } from "../../core/src/filecache.js"
 
 export async function activateChatParticipant(state: ExtensionState) {
     const { context } = state

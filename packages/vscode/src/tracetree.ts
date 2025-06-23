@@ -1,9 +1,9 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { infoUri } from "./markdowndocumentprovider"
-import { CHANGE, TRACE_NODE_PREFIX } from "../../core/src/constants"
-import { TraceNode } from "../../core/src/traceparser"
-import { unmarkdown } from "../../core/src/cleaners"
+import { CHANGE, TRACE_NODE_PREFIX } from "../../core/src/constants.js"
+import { TraceNode } from "../../core/src/traceparser.js"
+import { unmarkdown } from "../../core/src/cleaners.js"
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     private previewTreeItems: Record<string, vscode.TreeItem> = {}

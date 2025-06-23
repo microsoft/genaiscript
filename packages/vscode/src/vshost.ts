@@ -1,19 +1,19 @@
 import * as vscode from "vscode"
-import { createNodePath } from "../../core/src/path"
+import { createNodePath } from "../../core/src/path.js"
 import { TerminalServerManager } from "./servermanager"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { filterGitIgnore } from "../../core/src/gitignore"
-import { setHost, Host } from "../../core/src/host"
-import { TraceOptions } from "../../core/src/trace"
-import { arrayify } from "../../core/src/util"
+import { filterGitIgnore } from "../../core/src/gitignore.js"
+import { setHost, Host } from "../../core/src/host.js"
+import { TraceOptions } from "../../core/src/trace.js"
+import { arrayify } from "../../core/src/util.js"
 import { uniq } from "es-toolkit"
-import { CancellationOptions } from "../../core/src/cancellation"
+import { CancellationOptions } from "../../core/src/cancellation.js"
 import {
     LanguageModelConfiguration,
     LogLevel,
-} from "../../core/src/server/messages"
+} from "../../core/src/server/messages.js"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}

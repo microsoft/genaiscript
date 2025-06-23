@@ -4,9 +4,9 @@ import { registerCommand } from "./commands"
 import {
     TYPE_DEFINITION_BASENAME,
     TYPE_DEFINITION_REFERENCE,
-} from "../../core/src/constants"
-import { promptDefinitions } from "../../core/src/default_prompts"
-import { createFetch } from "../../core/src/fetch"
+} from "../../core/src/constants.js"
+import { promptDefinitions } from "../../core/src/default_prompts.js"
+import { createFetch } from "../../core/src/fetch.js"
 
 export function activateFixCommand(state: ExtensionState) {
     const { context } = state
