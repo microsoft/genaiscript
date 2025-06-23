@@ -22,11 +22,11 @@ It provides a simple interface to leverage the power of LLMs for extracting data
 
 ## Usage
 
-`cast` is defined in the [GenAIScript runtime](/genaiscript/reference/scripts/runtime) and needs to be imported. It takes the unstructure text (or files), a JSON schema
+`cast` is defined in the [GenAIScript runtime](/genaiscript/reference/scripts/runtime) and needs to be imported. It takes the unstructured text (or files), a JSON schema
 and returns the extract data (or error).
 
 ```js
-import { cast } from "genaiscript/runtime"
+import { cast } from "@genaiscript/runtime"
 
 const { data } = await cast(
     "The quick brown fox jumps over the lazy dog.; jumps",
@@ -48,7 +48,7 @@ in that sentence. You have to determine the part of speech for a given word`,
 `cast` is provided as part of the runtime (slightly different way to package GenAIScript functionalities) and needs to be imported using this code...
 
 ```js
-import { cast } from "genaiscript/runtime"
+import { cast } from "@genaiscript/runtime"
 ```
 
 :::
@@ -78,6 +78,6 @@ const res = await cast("...", {
 
 The `options` are passed internally to the [inline prompt](/genaiscript/reference/scripts/inline-prompts) and can be used to modify the behavior of the LLM.
 
-## Acknowlegments
+## Acknowledgments
 
 This function is inspired from [Marvin](https://www.askmarvin.ai/docs/text/transformation/).

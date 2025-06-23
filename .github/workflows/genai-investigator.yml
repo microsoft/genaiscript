@@ -23,14 +23,15 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile
+              run: pnpm compile
             - name: genaiscript gai
-              run: node packages/cli/built/genaiscript.cjs run gai -p github -pr ${{ github.event.workflow_run.pull_requests[0].number }} -prc --vars "runId=${{ github.event.workflow_run.id }}" --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/dist/src/index.js run gai -p github -pr ${{ github.event.workflow_run.pull_requests[0].number }} -prc --vars "runId=${{ github.event.workflow_run.id }}" --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

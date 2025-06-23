@@ -43,3 +43,21 @@ TypeScript/
 react/
 docs/public/blog/*.mp4
 *.http
+
+# tshy
+.tshy
+.tshy-build-tmp
+.tshy-build
+
+# build output
+dist/
+pnpm-lock.yaml
+
+# Turbo Build
+.turbo
+
+# typescript
+*.tsbuildinfo
+
+# npm packs
+genaiscript*.tgz

@@ -3,42 +3,42 @@ title: Generative AI Scripting
 description: GenAIScript, scripting for Generative AI.
 template: splash
 hero:
-    image:
-        file: ../../assets/logo.svg
-        alt: GenAIScript logo A yellow square with genai text
-    actions:
-        - text: Getting Started
-          link: /genaiscript/getting-started/
-          icon: right-arrow
-          variant: primary
-        - text: Discord
-          link: https://discord.gg/y7HpumjHeB
-          icon: discord
-          variant: primary
-        - text: GitHub
-          link: https://github.com/microsoft/genaiscript/
-          icon: github
+  image:
+    file: ../../assets/logo.svg
+    alt: GenAIScript logo A yellow square with genai text
+  actions:
+    - text: Getting Started
+      link: /genaiscript/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: Discord
+      link: https://discord.gg/y7HpumjHeB
+      icon: discord
+      variant: primary
+    - text: GitHub
+      link: https://github.com/microsoft/genaiscript/
+      icon: github
 ---
 
-import { Image } from "astro:assets"
-import { Card, CardGrid } from "@astrojs/starlight/components"
-import { FileTree } from "@astrojs/starlight/components"
-import { YouTube } from "astro-embed"
-import AudioPlayer from "../../components/AudioPlayer.astro"
-import DirectoryLinks from "../../components/DirectoryLinks.astro"
-import { Content as BuiltinAgents } from "../../components/BuiltinAgents.mdx"
-import RecentBlogPosts from "../../components/RecentBlogPosts.astro"
-import { LinkButton } from "@astrojs/starlight/components"
-import vscodeSrc from "../../../public/images/visual-studio-code.png"
+import { Image } from "astro:assets";
+import { Card, CardGrid } from "@astrojs/starlight/components";
+import { FileTree } from "@astrojs/starlight/components";
+import { YouTube } from "astro-embed";
+import AudioPlayer from "../../components/AudioPlayer.astro";
+import DirectoryLinks from "../../components/DirectoryLinks.astro";
+import { Content as BuiltinAgents } from "../../components/BuiltinAgents.mdx";
+import RecentBlogPosts from "../../components/RecentBlogPosts.astro";
+import { LinkButton } from "@astrojs/starlight/components";
+import vscodeSrc from "../../../public/images/visual-studio-code.png";
 
-import debuggerSrc from "../../assets/debugger.png"
-import debuggerAlt from "../../assets/debugger.png.txt?raw"
+import debuggerSrc from "../../assets/debugger.png";
+import debuggerAlt from "../../assets/debugger.png.txt?raw";
 
-import sarifSrc from "../../assets/tla-ai-linter.png"
-import sarifAlt from "../../assets/tla-ai-linter.png.txt?raw"
+import sarifSrc from "../../assets/tla-ai-linter.png";
+import sarifAlt from "../../assets/tla-ai-linter.png.txt?raw";
 
-import testExplorerSrc from "../../assets/vscode-test-explorer.png"
-import testExplorerAlt from "../../assets/vscode-test-explorer.png.txt?raw"
+import testExplorerSrc from "../../assets/vscode-test-explorer.png";
+import testExplorerAlt from "../../assets/vscode-test-explorer.png.txt?raw";
 
 ## Prompting is Coding
 
@@ -54,7 +54,7 @@ Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, t
 Say to you want to create an LLM script that generates a 'hello world' poem. You can write the following script:
 
 ```js
-$`Write a 'hello world' poem.`
+$`Write a 'hello world' poem.`;
 ```
 
 The `$` function is a template tag that creates a prompt. The prompt is then sent to the LLM (you configured), which generates the poem.
@@ -63,50 +63,43 @@ Let's make it more interesting by adding files, data, and structured output. Say
 
 ```js
 // read files
-const file = await workspace.readText("data.txt")
+const file = await workspace.readText("data.txt");
 // include the file content in the prompt in a context-friendly way
-def("DATA", file)
+def("DATA", file);
 // the task
-$`Analyze DATA and extract data in JSON in data.json.`
+$`Analyze DATA and extract data in JSON in data.json.`;
 ```
 
 The `def` function includes the content of the file, and optimizes it if necessary for the target LLM. GenAIScript script also parses the LLM output
 and will extract the `data.json` file automatically.
 
 <center>
-    <YouTube id="https://youtu.be/ajEbAm6kjI4" posterQuality="high" />
+  <YouTube id="https://youtu.be/ajEbAm6kjI4" posterQuality="high" />
 </center>
 
 ## Next steps
 
 <CardGrid stagger>
-    <Card title="Install the extension or cli" icon="puzzle">
-        Install the [Visual Studio Code Extension or the
-        CLI](/genaiscript/getting-started/installation/) to get started.
-    </Card>
-    <Card title="Configure your LLMs" icon="setting">
-        Configure the [secrets](/genaiscript/getting-started/configuration) to
-        access your LLMs.
-    </Card>
-    <Card title="Write your first script" icon="pencil">
-        Follow [Getting
-        Started](/genaiscript/getting-started/your-first-genai-script/) to write
-        your first script.
-    </Card>
-    <Card title="Read the docs" icon="open-book">
-        Learn more about GenAIScript in the [Scripting
-        Reference](/genaiscript/reference/).
-    </Card>
+  <Card title="Install the extension or cli" icon="puzzle">
+    Install the [Visual Studio Code Extension or the
+    CLI](/genaiscript/getting-started/installation/) to get started.
+  </Card>
+  <Card title="Configure your LLMs" icon="setting">
+    Configure the [secrets](/genaiscript/getting-started/configuration) to access your LLMs.
+  </Card>
+  <Card title="Write your first script" icon="pencil">
+    Follow [Getting Started](/genaiscript/getting-started/your-first-genai-script/) to write your
+    first script.
+  </Card>
+  <Card title="Read the docs" icon="open-book">
+    Learn more about GenAIScript in the [Scripting Reference](/genaiscript/reference/).
+  </Card>
 </CardGrid>
 
-<Image
-    src={vscodeSrc}
-    alt="A screenshot of VSCode with a genaiscript opened"
-    loading="lazy"
-/>
+<Image src={vscodeSrc} alt="A screenshot of VSCode with a genaiscript opened" loading="lazy" />
 
 <center>
-    <YouTube id="https://youtu.be/ENunZe--7j0" posterQuality="high" />
+  <YouTube id="https://youtu.be/ENunZe--7j0" posterQuality="high" />
 </center>
 
 ## Latest news
@@ -125,7 +118,7 @@ Minimal syntax to build prompts using [JavaScript](/genaiscript/reference/script
 or [TypeScript](/genaiscript/reference/scripts/typescript).
 
 ```js wrap
-$`Summarize ${env.files}. Today is ${new Date()}.`
+$`Summarize ${env.files}. Today is ${new Date()}.`;
 ```
 
 </Card>
@@ -161,11 +154,11 @@ Use [tools](https://modelcontextprotocol.io/docs/concepts/tools) exposed in [Mod
 
 ```js wrap
 defTool({
-    memory: {
-        command: "npx",
-        args: ["-y", "@modelcontextprotocol/server-memory"],
-    },
-})
+  memory: {
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-memory"],
+  },
+});
 ```
 
 </Card>
@@ -176,11 +169,11 @@ Every script is a [Model Context Provider Tool](/genaiscript/reference/scripts/m
 
 ```js wrap
 script({
-    parameters: {
-        question: "What is the weather in Paris?",
-    },
-})
-$`Answer the question ${env.parameters.question}.`
+  parameters: {
+    question: "What is the weather in Paris?",
+  },
+});
+$`Answer the question ${env.parameters.question}.`;
 ```
 
 </Card>
@@ -192,17 +185,17 @@ into an [agent](/genaiscript/reference/scripts/agents).
 
 ```js wrap
 defAgent(
-    "git",
-    "Agent that answer git questions for the current repo",
-    "You are a helpful expert in using git.",
-    { tools: ["git"] }
-)
+  "git",
+  "Agent that answer git questions for the current repo",
+  "You are a helpful expert in using git.",
+  { tools: ["git"] },
+);
 ```
 
 ```js wrap
-script({ tools: "agent" })
+script({ tools: "agent" });
 
-$`Do a statistical analysis of the last commits`
+$`Do a statistical analysis of the last commits`;
 ```
 
 </Card>
@@ -214,8 +207,8 @@ Scripts are [files](/genaiscript/reference/scripts/)! They can be versioned, sha
 <FileTree>
 
 - genaisrc
-    - my-script.genai.mjs
-    - another-great-script.genai.mjs
+  - my-script.genai.mjs
+  - another-great-script.genai.mjs
 
 </FileTree>
 
@@ -242,9 +235,9 @@ Manipulate
 
 ```js wrap
 // automatically convert to text
-def("PDF", env.files, { endsWith: ".pdf" })
+def("PDF", env.files, { endsWith: ".pdf" });
 // or parse and process
-const { pages } = await parsers.PDF(env.files[0])
+const { pages } = await parsers.PDF(env.files[0]);
 ```
 
 </Card>
@@ -259,14 +252,14 @@ Manipulate tabular data from
 ```js wrap
 // automatically convert to text
 def("DATA", env.files, {
-    endsWith: ".csv",
-    // take top 100 rows
-    sliceHead: 100,
-})
+  endsWith: ".csv",
+  // take top 100 rows
+  sliceHead: 100,
+});
 // or parse to JavaScript object array
-const rows = await parsers.CSV(env.files[0])
+const rows = await parsers.CSV(env.files[0]);
 // render as markdown table
-defData("ROWS", rows, { sliceHead: 100 })
+defData("ROWS", rows, { sliceHead: 100 });
 ```
 
 </Card>
@@ -277,8 +270,8 @@ Automatically transcribe audio or videos using [OpenAI](/genaiscript/configurati
 or [others](/genaiscript/configuration/whisperasr).
 
 ```js
-const transcript = await transcript("path/to/audio.mp3")
-const { srt, vtt, segments } = transcript
+const transcript = await transcript("path/to/audio.mp3");
+const { srt, vtt, segments } = transcript;
 ```
 
 </Card>
@@ -288,7 +281,7 @@ const { srt, vtt, segments } = transcript
 Include images in prompts, we'll crop/resize/resize then for you.
 
 ```js
-defImages(images, { autoCrop: true, details: "low" })
+defImages(images, { autoCrop: true, details: "low" });
 ```
 
 <YouTube id="https://youtu.be/XbWgDn7NdTg" />
@@ -300,8 +293,8 @@ defImages(images, { autoCrop: true, details: "low" })
 Extract frames from videos using timestamps or even transcripts.
 
 ```js
-const frames = await ffmpeg.extractFrames("...", { count: 10 })
-defImages(frames, { details: "low" })
+const frames = await ffmpeg.extractFrames("...", { count: 10 });
+defImages(frames, { details: "low" });
 ```
 
 </Card>
@@ -312,7 +305,7 @@ Extract files and diff from the LLM output.
 Preview changes in Refactoring UI.
 
 ```js wrap
-$`Save the result in poem.txt.`
+$`Save the result in poem.txt.`;
 ```
 
 ````txt wrap
@@ -335,7 +328,7 @@ The quick brown fox jumps over the lazy dog.
 Grep or fuzz search [files](/genaiscript/reference/scripts/files)
 
 ```js wrap
-const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
+const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" });
 ```
 
 </Card>
@@ -345,7 +338,7 @@ const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 [Web search](/genaiscript/reference/scripts/web-search) using Bing or Tavily.
 
 ```js wrap
-const pages = await retrieval.webSearch("what are the latest news about AI?")
+const pages = await retrieval.webSearch("what are the latest news about AI?");
 ```
 
 </Card>
@@ -355,9 +348,9 @@ const pages = await retrieval.webSearch("what are the latest news about AI?")
 Browse and scrape the web with [Playwright](/genaiscript/reference/scripts/browser).
 
 ```js
-const page = await host.browse("https://...")
-const table = await page.locator("table[...]").innerHTML()
-def("TABLE", await HTML.convertToMarkdown(table))
+const page = await host.browse("https://...");
+const table = await page.locator("table[...]").innerHTML();
+def("TABLE", await HTML.convertToMarkdown(table));
 ```
 
 </Card>
@@ -368,9 +361,9 @@ def("TABLE", await HTML.convertToMarkdown(table))
 using a local database or [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
 
 ```js wrap
-const index = await retrieval.index("animals", { type: "azure_ai_search" })
-await index.insertOrUpdate(env.files)
-const docs = await index.search("cat dog")
+const index = await retrieval.index("animals", { type: "azure_ai_search" });
+await index.insertOrUpdate(env.files);
+const docs = await index.search("cat dog");
 ```
 
 </Card>
@@ -433,7 +426,7 @@ script({ ..., model: "ollama:phi3" })
 Let the LLM run code in a sandboxed execution environment.
 
 ```js wrap
-script({ tools: ["python_code_interpreter"] })
+script({ tools: ["python_code_interpreter"] });
 ```
 
 </Card>
@@ -444,9 +437,9 @@ Run code in Docker [containers](/genaiscript/reference/scripts/container).
 
 ```js wrap
 const c = await host.container({
-    image: "python:alpine",
-})
-const res = await c.exec("python --version")
+  image: "python:alpine",
+});
+const res = await c.exec("python --version");
 ```
 
 </Card>
@@ -458,15 +451,15 @@ const res = await c.exec("python --version")
 ```js wrap
 // summarize each files individually
 for (const file of env.files) {
-    const { text } = await runPrompt((_) => {
-        _.def("FILE", file)
-        _.$`Summarize the FILE.`
-    })
-    // use result in main prompt
-    def("SUMMARY", text)
+  const { text } = await runPrompt((_) => {
+    _.def("FILE", file);
+    _.$`Summarize the FILE.`;
+  });
+  // use result in main prompt
+  def("SUMMARY", text);
 }
 // use summary
-$`Summarize all the summaries.`
+$`Summarize all the summaries.`;
 ```
 
 </Card>
@@ -477,8 +470,8 @@ $`Summarize all the summaries.`
 
 ```js wrap
 const { image, revisedPrompt } = await generateImage(
-    `a cute cat. only one. photographic, high details. 4k resolution.`
-)
+  `a cute cat. only one. photographic, high details. 4k resolution.`,
+);
 ```
 
 </Card>
@@ -488,20 +481,17 @@ const { image, revisedPrompt } = await generateImage(
 Classify text, images or a mix of all.
 
 ```js
-const joke = await classify(
-    "Why did the chicken cross the roard? To fry in the sun.",
-    {
-        yes: "funny",
-        no: "not funny",
-    }
-)
+const joke = await classify("Why did the chicken cross the roard? To fry in the sun.", {
+  yes: "funny",
+  no: "not funny",
+});
 ```
 
 </Card>
 
 <Card title="Prompty" icon="seti:markdown">
 
-Run or convert [Prompty](https://prompty.ai/) files using GenAIScript.
+Convert [Prompty](https://prompty.ai/) files using GenAIScript.
 
 ```markdown title="poem.prompty"
 ---
@@ -515,7 +505,7 @@ user:
 ```
 
 ```js wrap
-importTemplate("poem.prompty", { something: "code " })
+importTemplate("poem.prompty", { something: "code " });
 ```
 
 </Card>

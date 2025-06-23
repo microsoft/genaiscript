@@ -10,28 +10,28 @@ await build({
     sourcemap: true,
     target: ["es2020"],
     format: "esm",
-    outfile: "./built/web.mjs",
+    outfile: "./dist/web.mjs",
     loader: { ".js": "jsx" },
     external: ["vscode"],
     define: {
         "process.env.NODE_ENV": '"production"',
     },
 })
-await cp("./built/web.mjs", "../cli/built/web.mjs")
-await cp("./built/web.mjs.map", "../cli/built/web.mjs.map")
-await cp("./index.html", "../cli/built/index.html")
-await cp("./favicon.svg", "../cli/built/favicon.svg")
+await cp("./dist/web.mjs", "../cli/dist/web.mjs")
+await cp("./dist/web.mjs.map", "../cli/dist/web.mjs.map")
+await cp("./index.html", "../cli/dist/index.html")
+await cp("./favicon.svg", "../cli/dist/favicon.svg")
 await cp(
-    "../../node_modules/@vscode/codicons/dist/codicon.ttf",
-    "../cli/built/codicon.ttf"
+    "node_modules/@vscode/codicons/dist/codicon.ttf",
+    "../cli/dist/codicon.ttf"
 )
 await cp(
-    "../../node_modules/@vscode/codicons/dist/codicon.css",
-    "../cli/built/codicon.css"
+    "node_modules/@vscode/codicons/dist/codicon.css",
+    "../cli/dist/codicon.css"
 )
 
 const cssDir = "./src"
-const outputCssFile = "../cli/built/markdown.css"
+const outputCssFile = "../cli/dist/markdown.css"
 const cssFiles = (await readdir(cssDir))
     .filter((file) => file.endsWith(".css"))
     .map((f) => join(cssDir, f))

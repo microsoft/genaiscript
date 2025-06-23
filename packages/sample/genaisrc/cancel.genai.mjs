@@ -1,5 +1,5 @@
 script({
-    title: "always cancels"
-})
+  title: "always cancels",
+});
 
-cancel('changed my mind!')
+cancel("changed my mind!");

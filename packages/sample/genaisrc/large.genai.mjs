@@ -1,2 +1,2 @@
-script({ model: "large" })
-$`Write a poem.`
+script({ model: "large" });
+$`Write a poem.`;

@@ -24,7 +24,7 @@ Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, t
 Say to you want to create an LLM script that generates a 'hello world' poem. You can write the following script:
 
 ```js
-$`Write a 'hello world' poem.`
+$`Write a 'hello world' poem.`;
 ```
 
 The `$` function is a template tag that creates a prompt. The prompt is then sent to the LLM (you configured), which generates the poem.
@@ -33,11 +33,11 @@ Let's make it more interesting by adding files, data and structured output. Say 
 
 ```js
 // read files
-const file = await workspace.readText("data.txt")
+const file = await workspace.readText("data.txt");
 // include the file content in the prompt in a context-friendly way
-def("DATA", file)
+def("DATA", file);
 // the task
-$`Analyze DATA and extract data in JSON in data.json.`
+$`Analyze DATA and extract data in JSON in data.json.`;
 ```
 
 The `def` function includes the content of the file, and optimizes it if necessary for the target LLM. GenAIScript script also parses the LLM output
@@ -58,8 +58,8 @@ Get started quickly by installing the [Visual Studio Code Extension](https://mic
 Build prompts programmatically using [JavaScript](https://microsoft.github.io/genaiscript/reference/scripts/) or [TypeScript](https://microsoft.github.io/genaiscript/reference/scripts/typescript).
 
 ```js
-def("FILE", env.files, { endsWith: ".pdf" })
-$`Summarize FILE. Today is ${new Date()}.`
+def("FILE", env.files, { endsWith: ".pdf" });
+$`Summarize FILE. Today is ${new Date()}.`;
 ```
 
 ---
@@ -76,11 +76,11 @@ Scripts are [files](https://microsoft.github.io/genaiscript/reference/scripts/)!
 
 ```js
 // define the context
-def("FILE", env.files, { endsWith: ".pdf" })
+def("FILE", env.files, { endsWith: ".pdf" });
 // structure the data
-const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
+const schema = defSchema("DATA", { type: "array", items: { type: "string" } });
 // assign the task
-$`Analyze FILE and extract data to JSON using the ${schema} schema.`
+$`Analyze FILE and extract data to JSON using the ${schema} schema.`;
 ```
 
 ---
@@ -101,8 +101,8 @@ $`Extract data from files using ${data} schema.`
 Manipulate [PDFs](https://microsoft.github.io/genaiscript/reference/scripts/pdf), [DOCX](https://microsoft.github.io/genaiscript/reference/scripts/docx), ...
 
 ```js
-def("PDF", env.files, { endsWith: ".pdf" })
-const { pages } = await parsers.PDF(env.files[0])
+def("PDF", env.files, { endsWith: ".pdf" });
+const { pages } = await parsers.PDF(env.files[0]);
 ```
 
 ---
@@ -112,9 +112,9 @@ const { pages } = await parsers.PDF(env.files[0])
 Manipulate tabular data from [CSV](https://microsoft.github.io/genaiscript/reference/scripts/csv), [XLSX](https://microsoft.github.io/genaiscript/reference/scripts/xlsx), ...
 
 ```js
-def("DATA", env.files, { endsWith: ".csv", sliceHead: 100 })
-const rows = await parsers.CSV(env.files[0])
-defData("ROWS", rows, { sliceHead: 100 })
+def("DATA", env.files, { endsWith: ".csv", sliceHead: 100 });
+const rows = await parsers.CSV(env.files[0]);
+defData("ROWS", rows, { sliceHead: 100 });
 ```
 
 ---
@@ -124,7 +124,7 @@ defData("ROWS", rows, { sliceHead: 100 })
 Extract files and diff from the LLM output. Preview changes in Refactoring UI.
 
 ```js
-$`Save the result in poem.txt.`
+$`Save the result in poem.txt.`;
 ```
 
 ```txt
@@ -139,7 +139,7 @@ The quick brown fox jumps over the lazy dog.
 Grep or fuzz search [files](https://microsoft.github.io/genaiscript/reference/scripts/files).
 
 ```js
-const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
+const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" });
 ```
 
 ---
@@ -149,13 +149,10 @@ const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" })
 Classify text, images or a mix of all.
 
 ```js
-const joke = await classify(
-    "Why did the chicken cross the road? To fry in the sun.",
-    {
-        yes: "funny",
-        no: "not funny",
-    }
-)
+const joke = await classify("Why did the chicken cross the road? To fry in the sun.", {
+  yes: "funny",
+  no: "not funny",
+});
 ```
 
 ### LLM Tools
@@ -165,12 +162,11 @@ Register JavaScript functions as [tools](https://microsoft.github.io/genaiscript
 
 ```js
 defTool(
-    "weather",
-    "query a weather web api",
-    { location: "string" },
-    async (args) =>
-        await fetch(`https://weather.api.api/?location=${args.location}`)
-)
+  "weather",
+  "query a weather web api",
+  { location: "string" },
+  async (args) => await fetch(`https://weather.api.api/?location=${args.location}`),
+);
 ```
 
 ---
@@ -181,21 +177,21 @@ Register JavaScript functions as **tools** and combine tools + prompt into agent
 
 ```js
 defAgent(
-    "git",
-    "Query a repository using Git to accomplish tasks.",
-    `Your are a helpful LLM agent that can use the git tools to query the current repository.
+  "git",
+  "Query a repository using Git to accomplish tasks.",
+  `Your are a helpful LLM agent that can use the git tools to query the current repository.
     Answer the question in QUERY.
     - The current repository is the same as github repository.`,
-    { model, system: ["system.github_info"], tools: ["git"] }
-)
+  { model, system: ["system.github_info"], tools: ["git"] },
+);
 ```
 
 then use it as a tool
 
 ```js
-script({ tools: "agent_git" })
+script({ tools: "agent_git" });
 
-$`Do a statistical analysis of the last commits`
+$`Do a statistical analysis of the last commits`;
 ```
 
 See the [git agent source](https://github.com/microsoft/genaiscript/blob/main/packages/cli/genaisrc/system.agent_git.genai.mts).
@@ -207,7 +203,7 @@ See the [git agent source](https://github.com/microsoft/genaiscript/blob/main/pa
 [Vector search](https://microsoft.github.io/genaiscript/reference/scripts/vector-search/).
 
 ```js
-const { files } = await retrieval.vectorSearch("cats", "**/*.md")
+const { files } = await retrieval.vectorSearch("cats", "**/*.md");
 ```
 
 ---
@@ -237,7 +233,7 @@ script({ ..., model: "ollama:phi3" })
 Let the LLM run code in a sand-boxed execution environment.
 
 ```js
-script({ tools: ["python_code_interpreter"] })
+script({ tools: ["python_code_interpreter"] });
 ```
 
 ---
@@ -247,8 +243,8 @@ script({ tools: ["python_code_interpreter"] })
 Run code in Docker [containers](https://microsoft.github.io/genaiscript/reference/scripts/container).
 
 ```js
-const c = await host.container({ image: "python:alpine" })
-const res = await c.exec("python --version")
+const c = await host.container({ image: "python:alpine" });
+const res = await c.exec("python --version");
 ```
 
 ---
@@ -259,11 +255,11 @@ Transcribe and screenshot your videos so that you can feed them efficiently in y
 
 ```js
 // transcribe
-const transcript = await transcript("path/to/audio.mp3")
+const transcript = await transcript("path/to/audio.mp3");
 // screenshots at segments
-const frames = await ffmpeg.extractFrames("path_url_to_video", { transcript })
-def("TRANSCRIPT", transcript)
-def("FRAMES", frames)
+const frames = await ffmpeg.extractFrames("path_url_to_video", { transcript });
+def("TRANSCRIPT", transcript);
+def("FRAMES", frames);
 ```
 
 ### 🧩 LLM Composition
@@ -272,27 +268,23 @@ def("FRAMES", frames)
 
 ```js
 for (const file of env.files) {
-    const { text } = await runPrompt((_) => {
-        _.def("FILE", file)
-        _.$`Summarize the FILE.`
-    })
-    def("SUMMARY", text)
+  const { text } = await runPrompt((_) => {
+    _.def("FILE", file);
+    _.$`Summarize the FILE.`;
+  });
+  def("SUMMARY", text);
 }
-$`Summarize all the summaries.`
+$`Summarize all the summaries.`;
 ```
 
 ---
 
 ### 🅿️ Prompty support
 
-Run your [Prompty](https://prompty.ai) files as well!
+Import your [Prompty](https://prompty.ai) files in scripts.
 
-```markdown
----
-name: poem
----
-
-Write me a poem
+```js
+importTemplate("summarize.prompty");
 ```
 
 ---
@@ -318,10 +310,12 @@ Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli) 
 npx genaiscript run tlaplus-linter "*.tla"
 ```
 
-```js
-import { run } from "genaiscript/api"
+or use the [Node.JS api](/genaiscript/reference/api) to run scripts programmatically:
 
-const res = await run("tlaplus-linter", "*.tla")
+```js
+import { run } from "@genaiscript/api";
+
+const res = await run("tlaplus-linter", "*.tla");
 ```
 
 ---

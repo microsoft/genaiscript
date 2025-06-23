@@ -1,20 +1,20 @@
 ---
 title: Data Schemas
 sidebar:
-  order: 6
+    order: 6
 description: Learn how to define and use data schemas for structured output in
-  JSON/YAML with LLM, including validation and repair techniques.
+    JSON/YAML with LLM, including validation and repair techniques.
 keywords: data schemas, JSON schema, YAML validation, LLM structured output,
-  schema repair
+    schema repair
 hero:
-  image:
-    alt: A simple 8-bit styled icon features three small colored squares, each
-      depicting a data type symbol (number, string, and web link), linked by
-      thin lines to a larger, rounded central square symbolizing a schema. The
-      image uses five flat corporate colors, omits text and human figures, and
-      is set on a transparent background.
-    file: ./schemas.png
-
+    image:
+        alt:
+            A simple 8-bit styled icon features three small colored squares, each
+            depicting a data type symbol (number, string, and web link), linked by
+            thin lines to a larger, rounded central square symbolizing a schema. The
+            image uses five flat corporate colors, omits text and human figures, and
+            is set on a transparent background.
+        file: ./schemas.png
 ---
 
 import { Card } from "@astrojs/starlight/components"
@@ -49,7 +49,7 @@ const schema = {
 
 Use `responseSchema` to define a JSON/YAML schema for the prompt output.
 
-```js user=true
+```js wrap
 script({
     responseSchema: schema,
 })
@@ -62,6 +62,16 @@ When using `responseSchema`, you can use the `responseType` to specify how the s
   It is also validated by GenAIScript.
 
 Both approaches are tradeoffs and typically depends on the LLM you are using.
+
+You can also apply it to `runPrompt` and GenAIScript will parse and validate the output against the schema
+and store it in the `json` field.
+
+```js wrap
+const { json } = await runPrompt(..., {
+    responseSchema: schema,
+    responseType: "json_object", // or "json"
+})
+```
 
 ## `defSchema`
 
@@ -157,7 +167,7 @@ The GenAIScript also exports the `z` object from Zod for convenience.
 
 ```js
 // import from genaiscript
-import { z } from "genaiscript/runtime"
+import { z } from "@genaiscript/runtime"
 // or directly from zod
 // import { z } from "zod"
 // create schema using zod

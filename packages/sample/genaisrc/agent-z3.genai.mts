@@ -1,14 +1,14 @@
 script({
-    title: "Use Z3 tool to solve SMT2 problems",
-    tools: ["agent_z3"]
-})
+  title: "Use Z3 tool to solve SMT2 problems",
+  tools: ["agent_z3"],
+});
 
 const problem = await host.fetchText(
-    "https://mindyourdecisions.com/blog/2018/09/06/send-more-money-a-great-puzzle/"
-)
-const problemText = await HTML.convertToMarkdown(problem.file.content)
+  "https://mindyourdecisions.com/blog/2018/09/06/send-more-money-a-great-puzzle/",
+);
+const problemText = await HTML.convertToMarkdown(problem.file.content);
 
-def("PROBLEM3", problemText)
+def("PROBLEM3", problemText);
 $`Solve the following problems:
 
 Problem 1:
@@ -27,4 +27,4 @@ the number it gives us is smaller than 100.
 
 Problem 3:
 The content is in <PROBLEM3> and is a puzzle.
-`
+`;

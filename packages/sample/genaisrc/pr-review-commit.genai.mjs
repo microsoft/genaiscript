@@ -1,24 +1,24 @@
 script({
-    temperature: 0,
-    files: [],
-    title: "pull request commit review",
-    system: [
-        "system",
-        "system.typescript",
-        "system.fs_find_files",
-        "system.fs_read_file",
-        "system.annotations",
-    ],
-})
+  temperature: 0,
+  files: [],
+  title: "pull request commit review",
+  system: [
+    "system",
+    "system.typescript",
+    "system.fs_find_files",
+    "system.fs_read_file",
+    "system.annotations",
+  ],
+});
 
-const commit = env.vars.commit || "HEAD"
+const commit = env.vars.commit || "HEAD";
 
 // diff latest commit
 const changes = await git.diff({
-    head: commit,
-    paths: ["**.ts"],
-})
-def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000 })
+  head: commit,
+  paths: ["**.ts"],
+});
+def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000 });
 
 $`You are an expert TypeScript software developer and architect. You are
 an expert in software reliability, security, scalability, and performance.
@@ -48,4 +48,4 @@ Think step by step and for each annotation explain your result.
 - only report issues about code in GIT_DIFF
 - do NOT report issues for the following codes: missing_coma, missing_comment, missing_blank_line, missing_dependency, missing_error_handling
 - do NOT report issues for the following codes: missing_coma, missing_comment, missing_blank_line, missing_dependency, missing_error_handling
-`
+`;

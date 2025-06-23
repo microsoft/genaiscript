@@ -7,10 +7,8 @@ sidebar:
 ---
 
 import { Image } from "astro:assets"
-import { Code } from "astro/components"
 import src from "../../../assets/lint-copilot.png"
 import alt from "../../../assets/lint-copilot.png.txt?raw"
-import code from "../../../../../packages/sample/genaisrc/lint.genai.mjs?raw"
 
 The motivation behind this script is to provide developers with an automated tool that can review and report on the correctness and style of both code and natural language files.
 It leverages the power of LLMs to inspect code or documents in new ways.
@@ -97,5 +95,3 @@ From the GitHub Copilot Chat window, you can run the linter on all the files in 
 ## Full Source
 
 The full source code is available at [https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/lint.genai.mts](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/lint.genai.mts).
-
-<Code code={code} wrap={true} lang="ts" title="lint.genai.mts" />

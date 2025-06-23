@@ -1,4 +1,4 @@
-script({ tools: ["agent"] })
+script({ tools: ["agent"] });
 
 $`Generate a pull request description 
-for the changes in the current branch.`
+for the changes in the current branch.`;

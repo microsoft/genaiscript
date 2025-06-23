@@ -1,7 +1,7 @@
 // inspired https://github.com/simonw/llm-jq
 script({
-    system: [""],
-})
+  system: [""],
+});
 
 const json = `[
   {
@@ -1204,13 +1204,13 @@ const json = `[
     "title": "ipsam aperiam voluptates qui",
     "completed": false
   }
-]`
-const query = "filter to keep completed tasks and userid 2"
-const schema = await JSONSchema.infer(JSON.parse(json))
+]`;
+const query = "filter to keep completed tasks and userid 2";
+const schema = await JSONSchema.infer(JSON.parse(json));
 
 const res = await runPrompt(
-    (ctx) => {
-        ctx.$`## Task
+  (ctx) => {
+    ctx.$`## Task
 Based on the example <DATASET> snippet, and schema <DATASET_SCHEMA> and the desired <QUERY>, write a GROQ program that executes the query.
 
 - The dataset does not specify types, do NOT use '_type' filters
@@ -1219,15 +1219,15 @@ Based on the example <DATASET> snippet, and schema <DATASET_SCHEMA> and the desi
 - Explain the query step by step
 - Emit the GROQ query in a groq code fence section.
 
-`.role("system")
-        ctx.def("QUERY", query)
-        ctx.def("DATASET_SCHEMA", JSON.stringify(schema, null, 2), { language: "json" })
-        ctx.def("DATASET", json, { maxTokens: 500 })
-    },
-    { system: ["system", "system.output_markdown", "system.assistant"] }
-)
+`.role("system");
+    ctx.def("QUERY", query);
+    ctx.def("DATASET_SCHEMA", JSON.stringify(schema, null, 2), { language: "json" });
+    ctx.def("DATASET", json, { maxTokens: 500 });
+  },
+  { system: ["system", "system.output_markdown", "system.assistant"] },
+);
 
-const GROQ = res.fences.find((f) => f.language === "groq").content
-console.log(GROQ)
-const resjq = await parsers.GROQ(GROQ, JSON.parse(json))
-console.log(resjq)
+const GROQ = res.fences.find((f) => f.language === "groq").content;
+console.log(GROQ);
+const resjq = await parsers.GROQ(GROQ, JSON.parse(json));
+console.log(resjq);

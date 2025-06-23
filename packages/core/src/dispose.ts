@@ -1,5 +1,10 @@
-import { TraceOptions } from "./trace"
-import { arrayify, logError } from "./util"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { TraceOptions } from "./trace.js";
+import { arrayify } from "./cleaners.js";
+import { logError } from "./util.js";
+import type { ElementOrArray } from "./types.js";
 
 /**
  * Disposes of the provided disposables by invoking their `Symbol.asyncDispose` method.
@@ -9,19 +14,16 @@ import { arrayify, logError } from "./util"
  *
  * Logs errors encountered during disposal using `logError` and the provided trace's error method.
  */
-export async function dispose(
-    disposables: ElementOrArray<AsyncDisposable>,
-    options: TraceOptions
-) {
-    const { trace } = options || {}
-    for (const disposable of arrayify(disposables)) {
-        if (disposable !== undefined && disposable[Symbol.asyncDispose]) {
-            try {
-                await disposable[Symbol.asyncDispose]()
-            } catch (e) {
-                logError(e)
-                trace.error(e)
-            }
-        }
+export async function dispose(disposables: ElementOrArray<AsyncDisposable>, options: TraceOptions) {
+  const { trace } = options || {};
+  for (const disposable of arrayify(disposables)) {
+    if (disposable !== undefined && disposable[Symbol.asyncDispose]) {
+      try {
+        await disposable[Symbol.asyncDispose]();
+      } catch (e) {
+        logError(e);
+        trace.error(e);
+      }
     }
+  }
 }

@@ -1,40 +1,35 @@
 script({
-    temperature: 1,
-    title: "pr-describe",
-    system: [
-        "system",
-        "system.output_markdown",
-        "system.assistant",
-        "system.english",
-    ],
-    parameters: {
-        defaultBranch: {
-            type: "string",
-            description: "The default branch of the repository",
-            default: "main",
-        },
+  temperature: 1,
+  title: "pr-describe",
+  system: ["system", "system.output_markdown", "system.assistant", "system.english"],
+  parameters: {
+    defaultBranch: {
+      type: "string",
+      description: "The default branch of the repository",
+      default: "main",
     },
-})
+  },
+});
 
-const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
+const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch());
 const changes = await git.diff({
-    base: defaultBranch,
-    staged: true,
-    excludedPaths: [
-        "**/genaiscript.d.ts",
-        "**/*sconfig.json",
-        "genaisrc/*",
-        ".github/*",
-        ".vscode/*",
-        "**/yarn.lock",
-        "*THIRD_PARTY_LICENSES.md",
-    ],
-})
+  base: defaultBranch,
+  staged: true,
+  excludedPaths: [
+    "**/genaiscript.d.ts",
+    "**/*sconfig.json",
+    "genaisrc/*",
+    ".github/*",
+    ".vscode/*",
+    "**/yarn.lock",
+    "*THIRD_PARTY_LICENSES.md",
+  ],
+});
 
 def("GIT_DIFF", changes, {
-    language: "diff",
-    maxTokens: 20000,
-})
+  language: "diff",
+  maxTokens: 20000,
+});
 
 $`You are an expert software developer and architect.
 You are an expert at writing English technical documentation.
@@ -54,4 +49,4 @@ You are an expert at writing English technical documentation.
 - the public API is defined in "packages/core/src/prompt_template.d.ts" and "packages/core/src/prompt_type.ts".
   Changes in those files are "user facing".
 
-`
+`;

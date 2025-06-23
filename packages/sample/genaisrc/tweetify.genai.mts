@@ -1,11 +1,11 @@
 script({
-    model: "large",
-    title: "tweetify",
-    tools: ["fs", "md"],
-    description: "Generates a tweet about a documentation page",
-})
+  model: "large",
+  title: "tweetify",
+  tools: ["fs", "md"],
+  description: "Generates a tweet about a documentation page",
+});
 
-def("DOC", env.files)
+def("DOC", env.files);
 
 $`
 ## Persona
@@ -35,4 +35,4 @@ Generate social media announcements for the documentation page or blog post in D
 - the genaiscript type definition: genaiscript/genaiscript.d.ts. Assume that all globals are ambient. Do not import or require genaiscript module.
 - the genaiscript samples: packages/sample/src/*.genai.*
 
-`
+`;

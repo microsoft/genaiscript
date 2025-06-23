@@ -11,9 +11,25 @@ A full list of the CLI command and its respective help text.
 ## `configure`
 
 ```
-Usage: genaiscript configure [options]
+Usage: genaiscript configure [options] [command]
 
-Interactive help to configure providers
+Configure LLMs or GitHub Actions
+
+Options:
+  -h, --help                               display help for command
+
+Commands:
+  llm [options]                            Configure LLM providers
+  action|github-action [options] [script]  Configure a GitHub repository as a custom dockerized GitHub Action
+  help [command]                           display help for command
+```
+
+### `configure llm`
+
+```
+Usage: genaiscript configure llm [options]
+
+Configure LLM providers
 
 Options:
   -p, --provider <string>  Preferred LLM provider aliases (choices: "openai",
@@ -25,6 +41,33 @@ Options:
                            "llamafile", "sglang", "vllm", "litellm",
                            "whisperasr", "echo")
   -h, --help               display help for command
+```
+
+### `configure action`
+
+```
+Usage: genaiscript configure action|github-action [options] [script]
+
+Configure a GitHub repository as a custom dockerized GitHub Action
+
+Arguments:
+  script                                     Script id to use as action (default: "action")
+
+Options:
+  -f, --force                                force override existing action files
+  -o, --out <string>                         output folder for action files
+  --ffmpeg                                   use ffmpeg for video/audio processing
+  --playwright                               Enable Playwright for browser testing
+  --python                                   Install Python 3.x support
+  --image <string>                           Docker image identifier
+  --apks <string...>                         Linux packages to install
+  --provider <string>                        LLM provider to use
+  --interactive                              Enable interactive mode
+  -e, --event <string>                       GitHub event type (choices: "push", "pull_request", "issue_comment", "issue")
+  -prc, --pull-request-comment [string]      create comment on a pull request with a unique id (defaults to script id)
+  -prd, --pull-request-description [string]  create comment on a pull request description with a unique id (defaults to script id)
+  -prr, --pull-request-reviews               create pull request reviews from annotations
+  -h, --help                                 display help for command
 ```
 
 ## `run`
@@ -464,7 +507,7 @@ Options:
 ## `retrieval`
 
 ```
-Usage: genaiscript retrieval|retreival [options] [command]
+Usage: genaiscript retrieval [options] [command]
 
 RAG support
 
@@ -572,8 +615,9 @@ Usage: genaiscript mcp|mcps [options]
 Starts a Model Context Protocol server that exposes scripts as tools
 
 Options:
-  --groups <string...>              Filter script by groups
   --ids <string...>                 Filter script by ids
+  -g, --groups <groups...>          groups to include or exclude. Use :! prefix
+                                    to exclude
   --startup <string>                Startup script id, executed after the
                                     server is started
   --remote <string>                 Remote repository URL to serve
@@ -615,7 +659,6 @@ Options:
   -c, --cors <string>               Enable CORS and sets the allowed origin.
                                     Use '*' to allow any origin.
   --route <string>                  Route prefix, like /api
-  --groups <string...>              Filter script by groups
   --ids <string...>                 Filter script by ids
   --startup <string>                Startup script id, executed after the
                                     server is started
@@ -640,6 +683,8 @@ Options:
   -ma, --model-alias <nameid...>    model alias as name=modelid
   -re, --reasoning-effort <string>  Reasoning effort for o* models (choices:
                                     "high", "medium", "low")
+  -g, --groups <groups...>          groups to include or exclude. Use :! prefix
+                                    to exclude
   -h, --help                        display help for command
 ```
 
@@ -665,8 +710,6 @@ Commands:
   pdf [options] <file>          Parse a PDF into text and images
   docx [options] <file>         Parse a DOCX into texts
   html [options] <file_or_url>  Parse an HTML file to text
-  code <file> [query]           Parse code using tree sitter and executes a
-                                query
   tokens [options] <files...>   Count tokens in a set of files
   tokenize [options] <file>     Tokenizes a piece of text and display the
                                 tokens (in hex format)
@@ -741,17 +784,6 @@ Options:
   -f, --format <string>  output format (choices: "markdown", "text")
   -o, --out <string>     output file
   -h, --help             display help for command
-```
-
-### `parse code`
-
-```
-Usage: genaiscript parse code [options] <file> [query]
-
-Parse code using tree sitter and executes a query
-
-Options:
-  -h, --help  display help for command
 ```
 
 ### `parse tokens`

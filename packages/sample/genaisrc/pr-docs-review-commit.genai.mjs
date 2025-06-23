@@ -1,31 +1,31 @@
 script({
-    model: "large",
-    files: [],
-    temperature: 0,
-    title: "pull request docs review",
-    system: ["system", "system.technical", "system.annotations"],
-    tools: ["fs_find_files", "fs_read_file"],
-    parameters: {
-        defaultBranch: {
-            type: "string",
-            description: "The default branch to compare against.",
-        },
+  model: "large",
+  files: [],
+  temperature: 0,
+  title: "pull request docs review",
+  system: ["system", "system.technical", "system.annotations"],
+  tools: ["fs_find_files", "fs_read_file"],
+  parameters: {
+    defaultBranch: {
+      type: "string",
+      description: "The default branch to compare against.",
     },
-})
+  },
+});
 
-const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
-console.log(`default branch: ${defaultBranch}`)
+const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch());
+console.log(`default branch: ${defaultBranch}`);
 const diff = await git.diff({
-    base: defaultBranch,
-    paths: ["docs/**.md", "docs/**.mdx"],
-})
-if (!diff) cancel("No changes in docs")
-const settings = await workspace.readJSON(".vscode/settings.json")
+  base: defaultBranch,
+  paths: ["docs/**.md", "docs/**.mdx"],
+});
+if (!diff) cancel("No changes in docs");
+const settings = await workspace.readJSON(".vscode/settings.json");
 
 def("GIT_DIFF", diff, {
-    language: "diff",
-    maxTokens: 20000,
-})
+  language: "diff",
+  maxTokens: 20000,
+});
 
 $`You are an expert technical documentation writer.
 
@@ -41,4 +41,4 @@ Analyze the changes in GIT_DIFF in your mind and provide feedback on the style o
 - if your confidence in the feedback is low, ignore the feedback
 - only report major issues
 - ignore these words: ${settings["cSpell.words"].join(", ")}
-`
+`;

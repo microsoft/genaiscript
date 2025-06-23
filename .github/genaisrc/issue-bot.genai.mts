@@ -4,16 +4,11 @@ script({
     responseType: "markdown",
     systemSafety: true,
     group: "actions",
-    parameters: {
-        issue: {
-            type: "integer",
-            description: "The issue number to answer.",
-            required: false,
-        },
-    },
 })
 
-const { title, body, number } = await github.getIssue(env.vars.issue)
+const info = await github.info()
+console.log(info)
+const { title, body, number } = await github.getIssue()
 const comments = await github.listIssueComments(number, { count: 100 })
 
 def("TITLE", title)

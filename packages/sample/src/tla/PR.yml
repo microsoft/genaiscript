@@ -30,6 +30,7 @@ jobs:
 
             - name: Setup NodeJS
               ## https://github.com/actions/setup-node
+            - uses: pnpm/action-setup@v4
               uses: actions/setup-node@v4
               with:
                   node-version: "22"

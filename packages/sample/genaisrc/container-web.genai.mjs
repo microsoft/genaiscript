@@ -1,19 +1,19 @@
 script({
-    model: "gpt-3.5-turbo",
-})
+  model: "gpt-3.5-turbo",
+});
 
-const persistent = env.vars.purge === "no"
+const persistent = env.vars.purge === "no";
 
 // start web server
-const hostPort = 8089
+const hostPort = 8089;
 const webContainer = await host.container({
-    persistent,
-    networkEnabled: true,
-    ports: { containerPort: "80/tcp", hostPort: 8088 },
-})
+  persistent,
+  networkEnabled: true,
+  ports: { containerPort: "80/tcp", hostPort: 8088 },
+});
 await webContainer.writeText(
-    "main.py",
-    `
+  "main.py",
+  `
 import http.server
 import socketserver
 import urllib.parse
@@ -36,19 +36,19 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
 with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
     print(f"Serving at port {PORT}")
     httpd.serve_forever()
-`
-)
-webContainer.exec("python", ["main.py"]) // don't await
-await sleep(1000) // wait for server to start
-const msg = Math.random().toString()
-const url = `http://localhost:${hostPort}/echo?message=` + msg
-console.log(`fetching ${url} with msg ${msg}`)
-const res = await fetch(url)
-console.log(res.status)
-const text = await res.text()
-console.log(text)
-if (text !== msg) throw new Error(`expected ${msg}, got ${text} instead`)
+`,
+);
+webContainer.exec("python", ["main.py"]); // don't await
+await sleep(1000); // wait for server to start
+const msg = Math.random().toString();
+const url = `http://localhost:${hostPort}/echo?message=` + msg;
+console.log(`fetching ${url} with msg ${msg}`);
+const res = await fetch(url);
+console.log(res.status);
+const text = await res.text();
+console.log(text);
+if (text !== msg) throw new Error(`expected ${msg}, got ${text} instead`);
 
 function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

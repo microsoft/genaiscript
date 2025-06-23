@@ -1,51 +1,50 @@
 script({
-    system: ["system"],
-    temperature: 0.5,
-    model: "github:gpt-4.1"
-})
+  system: ["system"],
+  temperature: 0.5,
+  model: "github:openai/gpt-4o",
+});
 
-const product = env.vars.product || "GenAIScript"
+const product = env.vars.product || "GenAIScript";
 
 // find previous tag
-const { version } = await workspace.readJSON("package.json")
-const tag = await git.lastTag()
+const { version } = await workspace.readJSON("package.json");
+const tag = await git.lastTag();
 const excludedPaths = [
-    "package.json",
-    "**/package.json",
-    "yarn.lock",
-    "**/yarn.lock",
-    "**/genaiscript.d.ts",
-    "**/jsconfig.json",
-    "docs/**",
-    ".github/*",
-    ".vscode/*",
-    "slides/**",
-    "THIRD_PARTY_LICENSES.md",
-]
+  "package.json",
+  "**/package.json",
+  "yarn.lock",
+  "**/yarn.lock",
+  "**/genaiscript.d.ts",
+  "**/jsconfig.json",
+  "docs/**",
+  ".github/*",
+  ".vscode/*",
+  "slides/**",
+  "THIRD_PARTY_LICENSES.md",
+];
 const commits = (
-    await git.log({
-        excludedGrep:
-            "(skip ci|THIRD_PARTY_NOTICES|THIRD_PARTY_LICENSES|genai)",
-        base: tag,
-        head: "HEAD",
-        excludedPaths,
-    })
-)
-    .map(({ message }) => message)
-    .join("\n")
-console.debug(commits)
-const diff = await git.diff({
+  await git.log({
+    excludedGrep: "(skip ci|THIRD_PARTY_NOTICES|THIRD_PARTY_LICENSES|genai)",
     base: tag,
     head: "HEAD",
     excludedPaths,
-})
-console.debug(diff)
+  })
+)
+  .map(({ message }) => message)
+  .join("\n");
+console.debug(commits.slice(0, 50) + "...");
+const diff = await git.diff({
+  base: tag,
+  head: "HEAD",
+  excludedPaths,
+});
+console.debug(diff.slice(0, 1000) + "...");
 
 const commitsName = def("COMMITS", commits, {
-    ignoreEmpty: true,
-    maxTokens: 3000,
-})
-const diffName = def("DIFF", diff, { maxTokens: 12000 })
+  ignoreEmpty: true,
+  maxTokens: 3000,
+});
+const diffName = def("DIFF", diff, { maxTokens: 12000 });
 
 $`
 You are an expert software developer and release manager.
@@ -69,4 +68,4 @@ for the upcoming release ${version} of ${product} on GitHub.
 - do NOT mention ignore commits or instructions
 - be concise
 - do not wrap text in markdown section
-`
+`;

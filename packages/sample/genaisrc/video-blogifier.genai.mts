@@ -1,32 +1,32 @@
 script({
-    files: "src/video/introduction.mkv",
-    cache: "video-blogifier",
-    tools: "agent",
-    temperature: 1,
-    parameters: {
-        instructions: {
-            type: "string",
-            description: "additional instructions for the model",
-        },
+  files: "src/video/introduction.mkv",
+  cache: "video-blogifier",
+  tools: "agent",
+  temperature: 1,
+  parameters: {
+    instructions: {
+      type: "string",
+      description: "additional instructions for the model",
     },
-})
+  },
+});
 
-const { files, vars } = env
-const { instructions } = vars
-const videoFile = files[0]
-if (!videoFile) throw new Error("No video file found")
+const { files, vars } = env;
+const { instructions } = vars;
+const videoFile = files[0];
+if (!videoFile) throw new Error("No video file found");
 
 // speech to text
 const transcript = await transcribe(videoFile, {
-    model: "openai:whisper-1",
-    cache: "transcription",
-})
+  model: "openai:whisper-1",
+  cache: "transcription",
+});
 // screnshot images
-const frames = await ffmpeg.extractFrames(videoFile, { sceneThreshold: 0.15 })
+const frames = await ffmpeg.extractFrames(videoFile, { sceneThreshold: 0.15 });
 // prompting
 
-def("TRANSCRIPT", transcript.srt.replace(/geni+\s*script/i, "GenAIScript"), { language: "srt" })
-defImages(frames, { detail: "low" })
+def("TRANSCRIPT", transcript.srt.replace(/geni+\s*script/i, "GenAIScript"), { language: "srt" });
+defImages(frames, { detail: "low" });
 $`You are an expert YouTube creator.
       
 Your task is to analyze the video <TRANSCRIPT> and screenshot images (taken at some transcript segment).
@@ -58,4 +58,4 @@ Descriptive paragraph
 
 #hashtags #hashtags2 ... 
 \`\`\`
-`
+`;

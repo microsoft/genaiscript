@@ -1,9 +1,9 @@
 script({
-    model: "small",
-    tests: {},
-})
+  model: "small",
+  tests: {},
+});
 
-const csv = await workspace.readText("src/penguins.csv")
-const rows = CSV.parse(csv)
+const csv = await workspace.readText("src/penguins.csv");
+const rows = CSV.parse(csv);
 
-console.log(rows)
+console.log(rows);

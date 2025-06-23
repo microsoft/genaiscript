@@ -1,19 +1,18 @@
 {
   "name": "genaiscript-slides",
-  "version": "1.140.0",
+  "version": "2.0.4",
   "type": "module",
   "private": true,
   "npm": {
     "publish": false
   },
   "scripts": {
-    "install:force": "rm yarn.lock && yarn install",
     "build": "node build.mjs",
     "dev": "slidev --open"
   },
   "devDependencies": {
-    "@slidev/cli": "^51.7.1",
+    "@slidev/cli": "^51.8.2",
     "@slidev/theme-default": "^0.25.0",
-    "zx": "^8.5.4"
+    "zx": "^8.6.0"
   }
 }

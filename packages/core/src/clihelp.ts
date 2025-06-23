@@ -1,10 +1,15 @@
-import { NPM_CLI_PACKAGE } from "./constants"
-import { GenerationOptions } from "./generation"
-import { MarkdownTrace } from "./trace"
-import { arrayify, relativePath } from "./util"
-import { CORE_VERSION } from "./version"
-import { host } from "./host"
-import { isCI } from "./ci"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { NPM_CLI_PACKAGE } from "./constants.js";
+import { GenerationOptions } from "./generation.js";
+import { MarkdownTrace } from "./trace.js";
+import { arrayify } from "./cleaners.js";
+import { relativePath } from "./util.js";
+import { CORE_VERSION } from "./version.js";
+import { host } from "./host.js";
+import { isCI } from "./ci.js";
+import type { PromptScript } from "./types.js";
 
 /**
  * Generates command-line arguments for executing or batching a CLI prompt template.
@@ -28,38 +33,30 @@ import { isCI } from "./ci"
  * - CLI utilizes the latest compatible version of the CLI package defined in constants.
  */
 export function generateCliArguments(
-    template: PromptScript,
-    options: GenerationOptions,
-    command: "run" | "batch"
+  template: PromptScript,
+  options: GenerationOptions,
+  command: "run" | "batch",
 ) {
-    const {
-        model,
-        temperature,
-        reasoningEffort,
-        fallbackTools,
-        topP,
-        seed,
-        cliInfo,
-    } = options
-    const { files = [] } = cliInfo || {}
+  const { model, temperature, reasoningEffort, fallbackTools, topP, seed, cliInfo } = options;
+  const { files = [] } = cliInfo || {};
 
-    const cli = [
-        "npx",
-        "--yes",
-        `${NPM_CLI_PACKAGE}@^${CORE_VERSION}`,
-        command,
-        template.id,
-        ...files.map((f) => `"${relativePath(host.projectFolder(), f)}"`),
-        "--apply-edits",
-    ]
-    if (model) cli.push(`--model`, model)
-    if (!isNaN(temperature)) cli.push(`--temperature`, temperature + "")
-    if (!isNaN(topP)) cli.push(`--top-p`, topP + "")
-    if (!isNaN(seed)) cli.push("--seed", seed + "")
-    if (reasoningEffort) cli.push("--reasoning-effort", reasoningEffort)
-    if (fallbackTools) cli.push("--fallback-tools")
+  const cli = [
+    "npx",
+    "--yes",
+    `${NPM_CLI_PACKAGE}@^${CORE_VERSION}`,
+    command,
+    template.id,
+    ...files.map((f) => `"${relativePath(host.projectFolder(), f)}"`),
+    "--apply-edits",
+  ];
+  if (model) cli.push(`--model`, model);
+  if (!isNaN(temperature)) cli.push(`--temperature`, temperature + "");
+  if (!isNaN(topP)) cli.push(`--top-p`, topP + "");
+  if (!isNaN(seed)) cli.push("--seed", seed + "");
+  if (reasoningEffort) cli.push("--reasoning-effort", reasoningEffort);
+  if (fallbackTools) cli.push("--fallback-tools");
 
-    return cli.join(" ")
+  return cli.join(" ");
 }
 
 /**
@@ -75,15 +72,15 @@ export function generateCliArguments(
  * - If applicable, the CLI command for testing the template if associated tests are defined.
  */
 export function traceCliArgs(
-    trace: MarkdownTrace,
-    template: PromptScript,
-    options: GenerationOptions
+  trace: MarkdownTrace,
+  template: PromptScript,
+  options: GenerationOptions,
 ) {
-    if (isCI) return
+  if (isCI) return;
 
-    trace.details(
-        "🤖 automation",
-        `Use the command line interface [run](https://microsoft.github.io/genaiscript/reference/cli/run/) to automate this task:
+  trace.details(
+    "🤖 automation",
+    `Use the command line interface [run](https://microsoft.github.io/genaiscript/reference/cli/run/) to automate this task:
 
 \`\`\`bash
 ${generateCliArguments(template, options, "run")}
@@ -92,19 +89,19 @@ ${generateCliArguments(template, options, "run")}
 
 -   You will need to install [Node.js LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 -   The cli uses the same secrets in the \`.env\` file.
-`
-    )
+`,
+  );
 
-    if (arrayify(template.tests)?.length) {
-        trace.details(
-            "🧪 testing",
-            `
+  if (arrayify(template.tests)?.length) {
+    trace.details(
+      "🧪 testing",
+      `
 Use the command line interface [test](https://microsoft.github.io/genaiscript/reference/cli/test) to run the tests for this script:
 
 \`\`\`sh
 npx --yes genaiscript test ${template.id}
 \`\`\`
-`
-        )
-    }
+`,
+    );
+  }
 }

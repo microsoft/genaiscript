@@ -1,4 +1,4 @@
-import { delay, uniq } from "genaiscript/runtime"
+import { delay, uniq } from "@genaiscript/runtime";
 
 /**
  * In order to run this script, you will need the following:
@@ -14,81 +14,79 @@ import { delay, uniq } from "genaiscript/runtime"
  * ```
  */
 script({
-    files: "src/video/ai_kitchen.local.mp4",
-    cache: "ai-kitchen",
-    temperature: 1.1,
-    responseType: "markdown",
-    systemSafety: false,
-    parameters: {
-        guest: {
-            type: "string",
-            description: "guest name",
-            default: "Kori Jalskoski",
-        },
-        instructions: {
-            type: "string",
-            description: "additional instructions for the model",
-            default: "This episode is about embeddings",
-        },
+  files: "src/video/ai_kitchen.local.mp4",
+  cache: "ai-kitchen",
+  temperature: 1.1,
+  responseType: "markdown",
+  systemSafety: false,
+  parameters: {
+    guest: {
+      type: "string",
+      description: "guest name",
+      default: "Kori Jalskoski",
     },
-})
+    instructions: {
+      type: "string",
+      description: "additional instructions for the model",
+      default: "This episode is about embeddings",
+    },
+  },
+});
 
-const { files, vars } = env
-const { guest, instructions } = vars
-const videoFile = files[0]
-if (!videoFile) throw new Error("No video file found")
+const { files, vars } = env;
+const { guest, instructions } = vars;
+const videoFile = files[0];
+if (!videoFile) throw new Error("No video file found");
 
 const hashtags = [
-    ".NET",
-    "Azure",
-    "Azure AI services",
-    "Azure OpenAI Service",
-    "Microsoft Copilot",
-]
+  ".NET",
+  "Azure",
+  "Azure AI services",
+  "Azure OpenAI Service",
+  "Microsoft Copilot",
+];
 
 // get some shows description
 const listPage = await host.browse(
-    "https://learn.microsoft.com/en-us/shows/mr-maedas-cozy-ai-kitchen/",
-    { incognito: true }
-)
-await delay(2000)
+  "https://learn.microsoft.com/en-us/shows/mr-maedas-cozy-ai-kitchen/",
+  { incognito: true },
+);
+await delay(2000);
 const hrefs = uniq(
-    await listPage
-        .locator(
-            "a[href^='/en-us/shows/mr-maedas-cozy-ai-kitchen/']:not([href='/en-us/shows/mr-maedas-cozy-ai-kitchen/'])"
-        )
-        .all()
-        .then((ps) => Promise.all(ps.map((p) => p.getAttribute("href"))))
-        .then((ps) => ps.map((p) => "https://learn.microsoft.com" + p))
-)
+  await listPage
+    .locator(
+      "a[href^='/en-us/shows/mr-maedas-cozy-ai-kitchen/']:not([href='/en-us/shows/mr-maedas-cozy-ai-kitchen/'])",
+    )
+    .all()
+    .then((ps) => Promise.all(ps.map((p) => p.getAttribute("href"))))
+    .then((ps) => ps.map((p) => "https://learn.microsoft.com" + p)),
+);
 // load the first 10
-const articles = []
+const articles = [];
 for (const href of hrefs.slice(0, 8)) {
-    await listPage.goto(href)
-    console.debug(`scrapping ${href}`)
-    const title = await listPage
-        .locator('meta[property="og:title"]')
-        .getAttribute("content")
-    const description = await listPage
-        .locator('meta[property="og:description"]')
-        .getAttribute("content")
-    if (title && description) articles.push({ title, description })
+  await listPage.goto(href);
+  console.debug(`scrapping ${href}`);
+  const title = await listPage.locator('meta[property="og:title"]').getAttribute("content");
+  const description = await listPage
+    .locator('meta[property="og:description"]')
+    .getAttribute("content");
+  if (title && description) articles.push({ title, description });
 }
 
 // speech to text
 const transcript = await transcribe(videoFile, {
-    model: "openai:whisper-1",
-    cache: "ai-kitchen",
-})
+  model: "openai:whisper-1",
+  cache: "ai-kitchen",
+});
 // screnshot images
 const frames = await ffmpeg.extractFrames(videoFile, {
-    sceneThreshold: 0.4,
-    cache: "ai-kitchen",
-})
+  sceneThreshold: 0.4,
+  cache: "ai-kitchen",
+});
 
 // prompting
-def("TRANSCRIPT", transcript.srt, { language: "srt" })
-defImages(frames, { detail: "low" })
+def("TRANSCRIPT", transcript.srt, { language: "srt" });
+defImages(frames, { detail: "low" });
 
 $`You are an expert YouTube creator for the "Mr. Maea's Cozy AI Kitchen" show (https://learn.microsoft.com/en-us/shows/mr-maedas-cozy-ai-kitchen/).
 The topic of the show is generative AI and LLMs, centered around Microsoft technologies.
@@ -129,4 +127,4 @@ ${instructions || ""}
 ## Previous shows
 
 ${articles.map((a) => `# ${a.title}\n\n${a.description}`).join("\n\n")}
-`
+`;

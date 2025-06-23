@@ -1,32 +1,52 @@
-name: genai commit tests
-permissions:
-    contents: read
-    models: read
+name: build genai commit tests
+
 on:
-    push:
-        branches: [main, dev]
-    pull_request:
-    workflow_dispatch:
+  workflow_dispatch:
+  push:
+    branches: [dev]
+    paths:
+      - "packages/core/**"
+      - "packages/api/**"
+      - "packages/runtime/**"
+      - "packages/sample/**"
+      - "packages/cli/**"
+concurrency:
+  group: -genai-test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  models: read
+  contents: read
+  pull-requests: write
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node-version: [22]
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-                  fetch-depth: 10
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: "${{ matrix.node-version }}"
-                  cache: yarn
-            - run: sudo apt-get update && sudo apt-get install ffmpeg
-            - run: yarn install --frozen-lockfile --prefer-offline
-            - name: compile
-              run: yarn compile:action
-            - name: echo tests
-              run: yarn test:scripts -g commit -p github --test-timeout 60
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  genai_commit_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: compile
+        run: pnpm build:cli
+      - name: generate dummy result
+        working-directory: packages/sample
+        run: mkdir -p temp && touch temp/commit-tests.txt
+      - name: select llm tests to run
+        run: node packages/cli/dist/src/index.js run test-commit --out-trace $GITHUB_STEP_SUMMARY -p github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: show test file
+        working-directory: packages/sample
+        run: cat temp/commit-tests.txt
+      - name: run llm tests
+        working-directory: packages/sample
+        run: xargs -r -a temp/commit-tests.txt node ../cli/dist/src/index.js test --out-summary $GITHUB_STEP_SUMMARY --test-delay 10 -p github
+        env:
+          DEBUG: "genaiscript:*"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}

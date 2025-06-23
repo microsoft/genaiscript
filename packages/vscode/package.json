@@ -7,10 +7,10 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.140.0",
+    "version": "2.0.4",
     "icon": "icon.png",
     "engines": {
-        "vscode": "^1.98.0"
+        "vscode": "^1.101.0"
     },
     "keywords": [
         "javascript",
@@ -47,7 +47,7 @@
         "workspaceContains:**/*.genai.{js,mjs,mts}",
         "onNotebook:genaiscript"
     ],
-    "main": "./built/extension.js",
+    "main": "dist/extension.js",
     "bugs": {
         "url": "https://github.com/microsoft/genaiscript/issues"
     },
@@ -238,7 +238,7 @@
             "editor/title/run": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.((genai\\.(js|mjs|mts))|prompty)$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.(genai\\.(js|mjs|mts))$/",
                     "group": "genaiscript@1"
                 },
                 {
@@ -309,7 +309,7 @@
             "explorer/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts|prompty)$/)",
+                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts)$/)",
                     "group": "genaiscript@1"
                 }
             ]
@@ -487,34 +487,44 @@
         ]
     },
     "scripts": {
-        "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/",
-        "vscode:prepublish": "yarn run compile",
-        "compile:icons": "node updatefonts.mjs",
-        "compile:extension": "node build.mjs",
-        "compile": "yarn compile:extension",
-        "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
+        "build": "npm run clean && pnpm build:tsc && pnpm build:extension",
+        "build:tsc": "tsc -p . --noEmit",
+        "build:extension": "node build.mjs",
+        "build:icons": "node updatefonts.mjs",
+        "clean": "rimraf dist",
+        "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+        "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+        "generate-manifest": "vsce generate-manifest -i genaiscript.vsix -o genaiscript.manifest",
+        "lint:check": "eslint src test",
+        "lint:fix": "eslint src test --fix --fix-type [problem,suggestion]",
+        "package": "vsce package --no-dependencies --out genaiscript.vsix",
+        "postpackage": "zx postpackage.mjs",
+        "prepackage": "zx prepackage.mjs",
+        "prebuild": "tsc -p .",
         "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
         "vis:sunburst": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.sunburst.html --template sunburst",
-        "lint": "eslint src --ext ts",
-        "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
-        "typecheck": "tsc -p .",
-        "prepackage": "zx prepackage.mjs",
-        "postpackage": "zx postpackage.mjs",
-        "package": "vsce package --dependencies --out genaiscript.vsix --yarn",
-        "generate-manifest": "vsce generate-manifest -i genaiscript.vsix -o genaiscript.manifest"
+        "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
+        "vscode:prepublish": "pnpm build",
+        "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/"
     },
-    "devDependencies": {
-        "@types/markdown-it": "^14.1.2",
-        "@types/vscode": "^1.98.0",
-        "@vscode/vsce": "^3.4.2",
-        "assert": "^2.1.0",
-        "es-toolkit": "^1.38.0",
+    "dependencies": {
+        "es-toolkit": "catalog:",
         "markdown-it": "^14.1.0",
         "markdown-it-github-alerts": "0.2.0",
-        "process": "^0.11.10",
-        "typescript": "5.8.3",
         "vscode-uri": "^3.1.0",
-        "websocket-polyfill": "0.0.3",
-        "zx": "^8.5.4"
+        "websocket-polyfill": "0.0.3"
+    },
+    "devDependencies": {
+        "@eslint/js": "catalog:",
+        "@types/markdown-it": "^14.1.2",
+        "@types/vscode": "^1.101.0",
+        "@vscode/vsce": "^3.5.0",
+        "esbuild": "^0.25.5",
+        "eslint": "catalog:",
+        "prettier": "catalog:",
+        "rimraf": "catalog:",
+        "tslib": "catalog:",
+        "typescript": "catalog:",
+        "zx": "catalog:"
     }
 }

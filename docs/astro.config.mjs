@@ -39,6 +39,13 @@ export default defineConfig({
                                 "https://avatars.githubusercontent.com/u/4175913?s=400&u=2aca7b068fa646da550c534145764d50f533561d&v=4",
                             url: "https://github.com/pelikhan",
                         },
+                        volkanunsal: {
+                            name: "Volkan Unsal",
+                            title: "GenAIScript enthusiast",
+                            picture:
+                                "https://avatars.githubusercontent.com/u/151600?v=4",
+                            url: "https://github.com/volkanunsal",
+                        },
                     },
                 }),
                 starlightLlmsTxt({
@@ -71,7 +78,8 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                         },
                         {
                             label: "Configuration",
-                            description: "Configure access to LLMs and other services",
+                            description:
+                                "Configure access to LLMs and other services",
                             paths: ["configuration/**"],
                         },
                         {
@@ -97,12 +105,6 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                             description:
                                 "Guides on various LLM programming topics",
                             paths: ["guides/**", "case-studies/**"],
-                        },
-                        {
-                            label: "Samples",
-                            description:
-                                "Advanced samples used for specific common scenarios",
-                            paths: ["samples/**"],
                         },
                     ],
                 }),
@@ -141,18 +143,22 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
                 {
                     label: "Configuration",
                     autogenerate: { directory: "configuration" },
+                    collapsed: true,
                 },
                 {
                     label: "Case Studies",
                     autogenerate: { directory: "case-studies" },
+                    collapsed: true,
                 },
                 {
                     label: "Samples",
                     autogenerate: { directory: "samples" },
+                    collapsed: true,
                 },
                 {
                     label: "Guides",
                     autogenerate: { directory: "guides" },
+                    collapsed: true,
                 },
                 {
                     label: "Reference",

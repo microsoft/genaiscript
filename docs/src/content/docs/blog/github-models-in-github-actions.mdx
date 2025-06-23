@@ -38,8 +38,8 @@ jobs:
     genai:
         steps:
           run: npx -y genaiscript run ...
-            env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 This simplifies your workflows by integrating AI capabilities directly into your actions, 

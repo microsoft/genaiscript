@@ -21,23 +21,24 @@ jobs:
                   submodules: "recursive"
                   fetch-depth: 10
                   ref: ${{ github.head_ref }}
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile
+              run: pnpm compile
             - name: git fetch dev
               run: git fetch origin && git pull origin dev:dev
             - name: /docs
-              run: node packages/cli/built/genaiscript.cjs run docs "packages/**/*.ts" --out ./temp/genai/docs -prc -p github --out-trace $GITHUB_STEP_SUMMARY --vars diff=true --vars pretty=true --vars applyEdits=true --vars defaultBranch=dev
+              run: node packages/cli/dist/src/index.js run docs "packages/**/*.ts" --out ./temp/genai/docs -prc -p github --out-trace $GITHUB_STEP_SUMMARY --vars diff=true --vars pretty=true --vars applyEdits=true --vars defaultBranch=dev
               env:
                   DEBUG: "script*"
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha}}
             - name: typecheck
-              run: yarn typecheck
+              run: pnpm typecheck
             - name: git status
               run: git status
             - name: commit

@@ -66,24 +66,25 @@ jobs:
             #
             # Setup and build project
             #
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
+                  cache: pnpm
             - name: install dependencies
-              run: yarn install --frozen-lockfile
+              run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile
+              run: pnpm compile
             - name: genaiscript pr-describe
               if: startsWith(github.event.comment.body, '/genai describe')
-              run: node packages/cli/built/genaiscript.cjs run pr-describe -p github -prd --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
+              run: node packages/cli/dist/src/index.js run pr-describe -p github -prd --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_COMMIT_SHA: ${{ fromJSON(steps.sha.outputs.result).sha }}
             - name: genaiscript pr-review
               if: startsWith(github.event.comment.body, '/genai review')
-              run: node packages/cli/built/genaiscript.cjs run pr-review -p github -prc --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
+              run: node packages/cli/dist/src/index.js run pr-review -p github -prc --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,97 +1,92 @@
 script({
-    title: "Source Code Comment Generator",
-    description: `Add comments to source code to make it more understandable for AI systems or human developers.`,
-    parameters: {
-        format: {
-            type: "string",
-            description: "Format source code command",
-        },
-        build: {
-            type: "string",
-            description: "Build command",
-        },
+  title: "Source Code Comment Generator",
+  description: `Add comments to source code to make it more understandable for AI systems or human developers.`,
+  parameters: {
+    format: {
+      type: "string",
+      description: "Format source code command",
     },
-})
+    build: {
+      type: "string",
+      description: "Build command",
+    },
+  },
+});
 
-const { format, build } = env.vars
+const { format, build } = env.vars;
 
 // Get files from environment or modified files from Git if none provided
-let files = env.files
-if (!files.length)
-    files = await git.listFiles("staged", { askStageOnEmpty: true })
-if (!files.length) files = await git.listFiles("modified-base")
+let files = env.files;
+if (!files.length) files = await git.listFiles("staged", { askStageOnEmpty: true });
+if (!files.length) files = await git.listFiles("modified-base");
 
 // custom filter to only process code files
 files = files.filter(
-    ({ filename }) =>
-        /\.(py|m?ts|m?js|cs|java|c|cpp|h|hpp)$/.test(filename) && // known languages only
-        !/\.test/.test(filename) // ignore test files
-)
+  ({ filename }) =>
+    /\.(py|m?ts|m?js|cs|java|c|cpp|h|hpp)$/.test(filename) && // known languages only
+    !/\.test/.test(filename), // ignore test files
+);
 
 // Shuffle files
-files = files.sort(() => Math.random() - 0.5)
+files = files.sort(() => Math.random() - 0.5);
 
-console.log(YAML.stringify(files.map((f) => f.filename)))
+console.log(YAML.stringify(files.map((f) => f.filename)));
 
 // Process each file separately to avoid context explosion
-const jobs = host.promiseQueue(5)
-await jobs.mapAll(files, processFile)
+const jobs = host.promiseQueue(5);
+await jobs.mapAll(files, processFile);
 
 async function processFile(file: WorkspaceFile) {
-    console.log(`processing ${file.filename}`)
-    if (!file.content) console.log(`empty file, continue`)
-    try {
-        const newContent = await addComments(file)
-        // Save modified content if different
-        if (newContent && file.content !== newContent) {
-            console.log(`updating ${file.filename}`)
-            await workspace.writeText(file.filename, newContent)
-            let revert = false
-            // try formatting
-            if (format) {
-                const formatRes = await host.exec(`${format} ${file.filename}`)
-                if (formatRes.exitCode !== 0) {
-                    revert = true
-                }
-            }
-            // try building
-            if (!revert && build) {
-                const buildRes = await host.exec(`${build} ${file.filename}`)
-                if (buildRes.exitCode !== 0) {
-                    revert = true
-                }
-            }
-            // last LLM as judge check
-            if (!revert) revert = await checkModifications(file.filename)
-
-            // revert
-            if (revert) {
-                console.error(`reverting ${file.filename}...`)
-                await workspace.writeText(file.filename, file.content)
-            }
+  console.log(`processing ${file.filename}`);
+  if (!file.content) console.log(`empty file, continue`);
+  try {
+    const newContent = await addComments(file);
+    // Save modified content if different
+    if (newContent && file.content !== newContent) {
+      console.log(`updating ${file.filename}`);
+      await workspace.writeText(file.filename, newContent);
+      let revert = false;
+      // try formatting
+      if (format) {
+        const formatRes = await host.exec(`${format} ${file.filename}`);
+        if (formatRes.exitCode !== 0) {
+          revert = true;
         }
-    } catch (e) {
-        console.error(`error: ${e}`)
+      }
+      // try building
+      if (!revert && build) {
+        const buildRes = await host.exec(`${build} ${file.filename}`);
+        if (buildRes.exitCode !== 0) {
+          revert = true;
+        }
+      }
+      // last LLM as judge check
+      if (!revert) revert = await checkModifications(file.filename);
+
+      // revert
+      if (revert) {
+        console.error(`reverting ${file.filename}...`);
+        await workspace.writeText(file.filename, file.content);
+      }
     }
+  } catch (e) {
+    console.error(`error: ${e}`);
+  }
 }
 
 // Function to add comments to code
 async function addComments(file: WorkspaceFile): Promise<string | undefined> {
-    let { filename, content } = file
-    if (parsers.tokens(file) > 20000) return undefined // too big
+  let { filename, content } = file;
+  if (parsers.tokens(file) > 20000) return undefined; // too big
 
-    const res = await runPrompt(
-        (ctx) => {
-            // Define code snippet for AI context with line numbers
-            const code = ctx.def(
-                "CODE",
-                { filename, content },
-                { lineNumbers: false }
-            )
+  const res = await runPrompt(
+    (ctx) => {
+      // Define code snippet for AI context with line numbers
+      const code = ctx.def("CODE", { filename, content }, { lineNumbers: false });
 
-            // AI prompt to add comments for better understanding
-            ctx.def("FILE", code, { detectPromptInjection: "available" })
-            ctx.$`You are an expert developer at all programming languages.
+      // AI prompt to add comments for better understanding
+      ctx.def("FILE", code, { detectPromptInjection: "available" });
+      ctx.$`You are an expert developer at all programming languages.
 
 You are tasked with adding comments to code in FILE to make it more understandable for AI systems or human developers.
 You should analyze it, and add/update appropriate comments as needed.
@@ -131,44 +126,43 @@ Your output should be the original code with your added comments. Make sure to p
 
 Remember, the goal is to make the code more understandable without changing its functionality. DO NOT MODIFY THE CODE ITSELF.
 Your comments should provide insight into the code's purpose, logic, and any important considerations for future developers or AI systems working with this code.
-`
-        },
-        {
-            system: [
-                "system.assistant",
-                "system.safety_jailbreak",
-                "system.safety_harmful_content",
-                "system.safety_validate_harmful_content",
-            ],
-            label: `comment ${filename}`,
-        }
-    )
-    const { text, fences } = res
-    const newContent = fences?.[0]?.content ?? text
-    return newContent
+`;
+    },
+    {
+      system: [
+        "system.assistant",
+        "system.safety_jailbreak",
+        "system.safety_harmful_content",
+        "system.safety_validate_harmful_content",
+      ],
+      label: `comment ${filename}`,
+    },
+  );
+  const { text, fences } = res;
+  const newContent = fences?.[0]?.content ?? text;
+  return newContent;
 }
 
 async function checkModifications(filename: string): Promise<boolean> {
-    const diff = await git.diff({ paths: filename })
-    if (!diff) return false
-    const res = await runPrompt(
-        (ctx) => {
-            ctx.def("DIFF", diff, { language: "diff" })
-            ctx.$`You are an expert developer at all programming languages.
+  const diff = await git.diff({ paths: filename });
+  if (!diff) return false;
+  const res = await runPrompt(
+    (ctx) => {
+      ctx.def("DIFF", diff, { language: "diff" });
+      ctx.$`You are an expert developer at all programming languages.
         
         Your task is to analyze the changes in DIFF and make sure that only comments are modified. 
         Report all changes that are not comments or spacing and print <MOD>;
         otherwise, print <NO_MOD>.
-        `
-        },
-        {
-            system: ["system.assistant", "system.safety_jailbreak"],
-            cache: "cmt-check",
-            label: `check comments in ${filename}`,
-        }
-    )
+        `;
+    },
+    {
+      system: ["system.assistant", "system.safety_jailbreak"],
+      cache: "cmt-check",
+      label: `check comments in ${filename}`,
+    },
+  );
 
-    const modified =
-        res.text?.includes("<MOD>") || !res.text?.includes("<NO_MOD>")
-    return modified
+  const modified = res.text?.includes("<MOD>") || !res.text?.includes("<NO_MOD>");
+  return modified;
 }

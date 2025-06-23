@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "author": "microsoft",
+  "license": "MIT",
+  "dependencies": {
+    "genaiscript": "2.0.4"
+  },
+  "scripts": {
+    "upgrade": "npx -y npm-check-updates -u && npm install && npm run fix",
+    "docker:build": "docker build -t microsoft-genaiscript .",
+    "docker:start": "docker run -e GITHUB_TOKEN microsoft-genaiscript",
+    "act:install": "gh extension install https://github.com/nektos/gh-act",
+    "act": "gh act",
+    "lint": "npx --yes prettier --write genaisrc/",
+    "fix": "genaiscript scripts fix",
+    "typecheck": "genaiscript scripts compile",
+    "configure": "genaiscript configure action action-poem --interactive",
+    "test": "echo 'No tests defined.'",
+    "dev": "genaiscript run action-poem --provider echo",
+    "start": "genaiscript run action-poem --provider echo --github-workspace --no-run-trace --no-output-trace",
+    "release": "sh release.sh"
+  }
+}

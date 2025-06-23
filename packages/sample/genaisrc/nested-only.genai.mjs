@@ -1,1 +1,1 @@
-await prompt`write a coding poem`
+await prompt`write a coding poem`;

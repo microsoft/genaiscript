@@ -1,195 +1,169 @@
 script({
-    title: "GitHub Action Investigator",
-    description:
-        "Analyze GitHub Action runs to find the root cause of a failure",
-    parameters: {
-        /** the user can get the url from the github web
-         *  like 14890513008 or https://github.com/microsoft/genaiscript/actions/runs/14890513008
-         */
-        runId: {
-            type: "number",
-            description: "Run identifier",
-        },
-        jobId: {
-            type: "number",
-            description: "Job identifier",
-        },
-        runUrl: {
-            type: "string",
-            description: "Run identifier or URL",
-        },
+  title: "GitHub Action Investigator",
+  description: "Analyze GitHub Action runs to find the root cause of a failure",
+  parameters: {
+    /** the user can get the url from the github web
+     *  like 14890513008 or https://github.com/microsoft/genaiscript/actions/runs/14890513008
+     */
+    runId: {
+      type: "number",
+      description: "Run identifier",
     },
-    system: [
-        "system",
-        "system.assistant",
-        "system.annotations",
-        "system.files",
-    ],
-    flexTokens: 30000,
-    cache: "gai",
-    tools: ["agent_fs", "agent_github", "agent_git"],
-})
-const { dbg, output, vars } = env
+    jobId: {
+      type: "number",
+      description: "Job identifier",
+    },
+    runUrl: {
+      type: "string",
+      description: "Run identifier or URL",
+    },
+  },
+  system: ["system", "system.assistant", "system.annotations", "system.files"],
+  flexTokens: 10000,
+  cache: "gai",
+  model: "small",
+  tools: ["agent_fs", "agent_github", "agent_git"],
+});
+const { dbg, output, vars } = env;
 
-output.heading(2, "Investigator report")
-output.heading(3, "Context collection")
-const { owner, repo } = await github.info()
+output.heading(2, "Investigator report");
+output.heading(3, "Context collection");
+const { owner, repo } = await github.info();
 
-let runId: number = vars.runId
-let jobId: number = vars.jobId
+let runId: number = vars.runId;
+let jobId: number = vars.jobId;
 if (isNaN(runId)) {
-    const runUrl = vars.runUrl
-    output.itemLink(`run url`, runUrl)
+  const runUrl = vars.runUrl;
+  output.itemLink(`run url`, runUrl);
 
-    // Retrieve repository information
-    const { runRepo, runOwner, runIdUrl, jobIdUrl } =
-        /^https:\/\/github\.com\/(?<runOwner>\w+)\/(?<runRepo>\w+)\/actions\/runs\/(?<runIdUrl>\d+)?(\/job\/(?<jobIdRun>\d+))?/i.exec(
-            runUrl
-        )?.groups || {}
-    if (!runRepo)
-        throw new Error(
-            "Url not recognized. Please provide a valid URL https://github.com/<owner>/<repo>/actions/runs/<runId>/..."
-        )
-    runId = parseInt(runIdUrl)
-    dbg(`runId: ${runId}`)
+  // Retrieve repository information
+  const { runRepo, runOwner, runIdUrl, jobIdUrl } =
+    /^https:\/\/github\.com\/(?<runOwner>\w+)\/(?<runRepo>\w+)\/actions\/runs\/(?<runIdUrl>\d+)?(\/job\/(?<jobIdRun>\d+))?/i.exec(
+      runUrl,
+    )?.groups || {};
+  if (!runRepo)
+    throw new Error(
+      "Url not recognized. Please provide a valid URL https://github.com/<owner>/<repo>/actions/runs/<runId>/...",
+    );
+  runId = parseInt(runIdUrl);
+  dbg(`runId: ${runId}`);
 
-    jobId = parseInt(jobIdUrl)
-    dbg(`jobId: ${jobId}`)
+  jobId = parseInt(jobIdUrl);
+  dbg(`jobId: ${jobId}`);
 
-    if (runOwner !== owner)
-        cancel(
-            `Run owner ${runOwner} does not match the current repository owner ${owner}`
-        )
-    if (runRepo !== repo)
-        cancel(
-            `Run repository ${runRepo} does not match the current repository ${repo}`
-        )
+  if (runOwner !== owner)
+    cancel(`Run owner ${runOwner} does not match the current repository owner ${owner}`);
+  if (runRepo !== repo)
+    cancel(`Run repository ${runRepo} does not match the current repository ${repo}`);
 }
 
-if (isNaN(runId)) throw new Error("You must provide a runId or runUrl")
-output.itemValue(`run id`, runId)
+if (isNaN(runId)) throw new Error("You must provide a runId or runUrl");
+output.itemValue(`run id`, runId);
 // fetch run
-const run = await github.workflowRun(runId)
-dbg(`run: %O`, run)
-const branch = run.head_branch
-dbg(`branch: ${branch}`)
+const run = await github.workflowRun(runId);
+dbg(`run: %O`, run);
+const branch = run.head_branch;
+dbg(`branch: ${branch}`);
 
-const workflow = await github.workflow(run.workflow_id)
-dbg(`workflow: ${workflow.name}`)
+const workflow = await github.workflow(run.workflow_id);
+dbg(`workflow: ${workflow.name}`);
 
 // List workflow runs for the specified workflow and branch
 const runs = await github.listWorkflowRuns(workflow.id, {
-    status: "completed",
-    branch,
-    count: 100,
-})
-runs.reverse() // from newest to oldest
+  status: "completed",
+  branch,
+  count: 100,
+});
+runs.reverse(); // from newest to oldest
 
 dbg(
-    `runs: %O`,
-    runs.map(({ id, conclusion, workflow_id, html_url, run_started_at }) => ({
-        id,
-        conclusion,
-        workflow_id,
-        html_url,
-        run_started_at,
-    }))
-)
+  `runs: %O`,
+  runs.map(({ id, conclusion, workflow_id, html_url, run_started_at }) => ({
+    id,
+    conclusion,
+    workflow_id,
+    html_url,
+    run_started_at,
+  })),
+);
 
-const reversedRuns = runs.filter(
-    (r) => new Date(r.run_started_at) <= new Date(run.run_started_at)
-)
-if (!reversedRuns.length) cancel("No runs found")
+const reversedRuns = runs.filter((r) => new Date(r.run_started_at) <= new Date(run.run_started_at));
+if (!reversedRuns.length) cancel("No runs found");
 dbg(
-    `reversed runs: %O`,
-    reversedRuns.map(
-        ({ id, conclusion, workflow_id, html_url, run_started_at }) => ({
-            id,
-            conclusion,
-            workflow_id,
-            html_url,
-            run_started_at,
-        })
-    )
-)
+  `reversed runs: %O`,
+  reversedRuns.map(({ id, conclusion, workflow_id, html_url, run_started_at }) => ({
+    id,
+    conclusion,
+    workflow_id,
+    html_url,
+    run_started_at,
+  })),
+);
 
-const firstFailedJobs = await github.listWorkflowJobs(run.id)
+const firstFailedJobs = await github.listWorkflowJobs(run.id);
 const firstFailedJob =
-    firstFailedJobs.find(({ conclusion }) => conclusion === "failure") ??
-    firstFailedJobs[0]
-const firstFailureLog = firstFailedJob.content
-if (!firstFailureLog) cancel("No logs found")
-output.itemLink(`failed job`, firstFailedJob.html_url)
+  firstFailedJobs.find(({ conclusion }) => conclusion === "failure") ?? firstFailedJobs[0];
+const firstFailureLog = firstFailedJob.content;
+if (!firstFailureLog) cancel("No logs found");
+output.itemLink(`failed job`, firstFailedJob.html_url);
 
 // resolve the latest successful workflow run
-const lastSuccessRun = reversedRuns.find(
-    ({ conclusion }) => conclusion === "success"
-)
+const lastSuccessRun = reversedRuns.find(({ conclusion }) => conclusion === "success");
 if (lastSuccessRun)
-    output.itemLink(
-        `last successful run #${lastSuccessRun.run_number}`,
-        lastSuccessRun.html_url
-    )
-else output.item(`last successful run not found`)
+  output.itemLink(`last successful run #${lastSuccessRun.run_number}`, lastSuccessRun.html_url);
+else output.item(`last successful run not found`);
 
-let gitDiffRef: string
-let logRef: string
-let logDiffRef: string
+let gitDiffRef: string;
+let logRef: string;
+let logDiffRef: string;
 if (lastSuccessRun) {
-    if (lastSuccessRun.head_sha === run.head_sha) {
-        console.debug("No previous successful run found")
-    } else {
-        output.itemLink(
-            `diff (${lastSuccessRun.head_sha.slice(0, 7)}...${run.head_sha.slice(0, 7)})`,
-            `https://github.com/${owner}/${repo}/compare/${lastSuccessRun.head_sha}...${run.head_sha}`
-        )
+  if (lastSuccessRun.head_sha === run.head_sha) {
+    console.debug("No previous successful run found");
+  } else {
+    output.itemLink(
+      `diff (${lastSuccessRun.head_sha.slice(0, 7)}...${run.head_sha.slice(0, 7)})`,
+      `https://github.com/${owner}/${repo}/compare/${lastSuccessRun.head_sha}...${run.head_sha}`,
+    );
 
-        // Execute git diff between the last success and failed run commits
-        await git.fetch("origin", lastSuccessRun.head_sha)
-        await git.fetch("origin", run.head_sha)
-        const gitDiff = await git.diff({
-            base: lastSuccessRun.head_sha,
-            head: run.head_sha,
-            excludedPaths: "**/genaiscript.d.ts",
-        })
+    // Execute git diff between the last success and failed run commits
+    await git.fetch("origin", lastSuccessRun.head_sha);
+    await git.fetch("origin", run.head_sha);
+    const gitDiff = await git.diff({
+      base: lastSuccessRun.head_sha,
+      head: run.head_sha,
+      excludedPaths: "**/genaiscript.d.ts",
+    });
 
-        if (gitDiff) {
-            gitDiffRef = def("GIT_DIFF", gitDiff, {
-                language: "diff",
-                lineNumbers: true,
-                flex: 1,
-            })
-        }
+    if (gitDiff) {
+      gitDiffRef = def("GIT_DIFF", gitDiff, {
+        language: "diff",
+        lineNumbers: true,
+        flex: 1,
+      });
     }
+  }
 }
 
 if (!lastSuccessRun) {
-    // Define log content if no last successful run is available
-    logRef = def("LOG", firstFailureLog, {
-        maxTokens: 20000,
-        lineNumbers: false,
-    })
+  // Define log content if no last successful run is available
+  logRef = def("LOG", firstFailureLog, {
+    maxTokens: 20000,
+    lineNumbers: false,
+  });
 } else {
-    const lastSuccessJobs = await github.listWorkflowJobs(lastSuccessRun.id)
-    const lastSuccessJob = lastSuccessJobs.find(
-        ({ name }) => firstFailedJob.name === name
-    )
-    if (!lastSuccessJob)
-        console.debug(
-            `could not find job ${firstFailedJob.name} in last success run`
-        )
-    else {
-        output.itemLink(`last successful job`, lastSuccessJob.html_url)
-        const jobDiff = await github.diffWorkflowJobLogs(
-            firstFailedJob.id,
-            lastSuccessJob.id
-        )
-        // Generate a diff of logs between the last success and failed runs
-        logDiffRef = def("LOG_DIFF", jobDiff, {
-            language: "diff",
-            lineNumbers: false,
-        })
-    }
+  const lastSuccessJobs = await github.listWorkflowJobs(lastSuccessRun.id);
+  const lastSuccessJob = lastSuccessJobs.find(({ name }) => firstFailedJob.name === name);
+  if (!lastSuccessJob)
+    console.debug(`could not find job ${firstFailedJob.name} in last success run`);
+  else {
+    output.itemLink(`last successful job`, lastSuccessJob.html_url);
+    const jobDiff = await github.diffWorkflowJobLogs(firstFailedJob.id, lastSuccessJob.id);
+    // Generate a diff of logs between the last success and failed runs
+    logDiffRef = def("LOG_DIFF", jobDiff, {
+      language: "diff",
+      lineNumbers: false,
+    });
+  }
 }
 
 // Instruction for generating a report based on the analysis
@@ -219,6 +193,6 @@ If you cannot locate the error, do not generate a diff.
 Use 'agent_fs', 'agent_git' and 'agent_github' if you need more information.
 Do not invent git or github information.
 You have access to the entire source code through the agent_fs tool.
-`
+`;
 
-output.heading(2, `AI Analysis`)
+output.heading(2, `AI Analysis`);

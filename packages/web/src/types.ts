@@ -1,3 +1,3 @@
-import { FileWithPath } from "react-dropzone/."
+import { FileWithPath } from "react-dropzone/.";
 
-export type ImportedFile = FileWithPath & { selected?: boolean }
+export type ImportedFile = FileWithPath & { selected?: boolean };

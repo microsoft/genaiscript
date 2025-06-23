@@ -1,18 +1,20 @@
 {
   "name": "genaiscript-sample",
-  "version": "1.140.0",
+  "version": "2.0.4",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "go": "node ../cli/built/main.js src/sample.ts",
-    "token": "mkdir -p .genaiscript/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .genaiscript/tmp/request.txt",
-    "typecheck": "tsc -p src",
-    "test": "node --import tsx --test src/**.test.ts",
-    "test:watch": "node --import tsx --watch --test-name-pattern=run --test src/**.test.ts",
-    "cache:clear": "node ../cli/built/genaiscript.cjs cache clear",
-    "run:script": "node --trace-deprecation ../cli/built/genaiscript.cjs run",
-    "test:scripts": "node ../cli/built/genaiscript.cjs test -rmo",
-    "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"genaisrc/**/*.{ts,cts,mts,mjs}\" \"*.{js,cjs,mjs,json,mjs}\" ",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"genaisrc/**/*.{ts,cts,mts,mjs}\" \"*.{js,cjs,mjs,json,mjs}\" ",
+    "test": "vitest --run",
+    "run:script": "node --trace-deprecation ../cli/dist/src/index.js run",
+    "test:scripts": "node ../cli/dist/src/index.js test -rmo",
+    "test:scripts:view": "node ../cli/dist/src/index.js test view"
+  },
+  "dependencies": {
+    "@genaiscript/runtime": "workspace:*",
+    "ini": "^5.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@agentic/calculator": "v7.5.3",
@@ -22,14 +24,18 @@
     "@ast-grep/lang-cpp": "^0.0.1",
     "@ast-grep/lang-csharp": "^0.0.1",
     "@ast-grep/lang-python": "^0.0.1",
-    "@azure/identity": "^4.10.0",
+    "@azure/identity": "^4.10.1",
     "@azure/storage-blob": "^12.27.0",
+    "@genaiscript/api": "workspace:*",
     "@langchain/core": "^0.3.42",
     "@langchain/langgraph": "^0.2.57",
-    "@modelcontextprotocol/sdk": "^1.12.0",
+    "@modelcontextprotocol/sdk": "^1.13.1",
     "@tidyjs/tidy": "^2.5.2",
+    "@types/node": "catalog:",
     "p-all": "^5.0.0",
-    "zod": "^3.25.30",
-    "zod-to-json-schema": "^3.24.5"
+    "vitest": "catalog:",
+    "zod": "^3.25.67",
+    "zod-to-json-schema": "^3.24.5",
+    "zx": "catalog:"
   }
 }

@@ -129,7 +129,7 @@ If you are looking to build a LLM-as-a-Judge and only looking for outputs in a s
 The [cast](/genaiscript/reference/scripts/cast) function is a [GenAIScript runtime helper](/genaiscript/reference/scripts/runtime) to convert unstructured text/images into structured data.
 
 ```js "cast"
-import { cast } from "genaiscript/runtime"
+import { cast } from "@genaiscript/runtime"
 
 const { data } = await cast((_) => _.defImages(images), {
     type: "object",

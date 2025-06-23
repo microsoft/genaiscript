@@ -1,12 +1,16 @@
-script({ 
-    model: "small",
-    title: "git-history", tests: {} })
+script({
+  model: "small",
+  title: "git-history",
+  tests: {},
+});
 
-const author = env.vars.author as string || "pelikhan"
-const until = env.vars.until as string || "2023-11-15"
+const author = (env.vars.author as string) || "pelikhan";
+const until = (env.vars.until as string) || "2023-11-15";
 
-const { stdout: commits } = await host.exec(`git log --author ${author} --until ${until} --format=oneline`)
+const { stdout: commits } = await host.exec(
+  `git log --author ${author} --until ${until} --format=oneline`,
+);
 
-def("COMMITS", commits.replace(/^[^ ]+ /gm, ""), { maxTokens: 20000 })
+def("COMMITS", commits.replace(/^[^ ]+ /gm, ""), { maxTokens: 20000 });
 
-$`Summarize the git history of ${author} from ${until}.`
+$`Summarize the git history of ${author} from ${until}.`;

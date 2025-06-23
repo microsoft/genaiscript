@@ -1,9 +1,9 @@
 script({
-    title: "Pull Request Descriptor - Tools",
-    description: "Generate a pull request description from the git diff",
-    tools: ["fs", "git"],
-    temperature: 0.5,
-})
+  title: "Pull Request Descriptor - Tools",
+  description: "Generate a pull request description from the git diff",
+  tools: ["fs", "git"],
+  temperature: 0.5,
+});
 
 $`You are an expert software developer and architect.
 
@@ -22,4 +22,4 @@ $`You are an expert software developer and architect.
 - use emojis to make the description more engaging
 - focus on the most important changes
 - ignore comments about imports (like added, remove, changed, etc.)
-`
+`;

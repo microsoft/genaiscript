@@ -1,8 +1,8 @@
 defTool("mytool", "same", {}, () => {
-    return "same"
-})
+  return "same";
+});
 // trigger
 defTool("mytool", "same", {}, () => {
-    return "same"
-})
-$`Show mytool output.`
+  return "same";
+});
+$`Show mytool output.`;

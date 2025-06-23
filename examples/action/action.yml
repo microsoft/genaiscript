@@ -1,0 +1,24 @@
+name: genaiscript
+author: microsoft
+description: Action-poem
+inputs:
+  files:
+    description: "Files to process, separated by semi columns (;). "
+    required: false
+  github_token:
+    description: "GitHub token with `models: read` permission at least
+      (https://microsoft.github.io/genaiscript/reference/github-actions/#github\
+      -models-permissions)."
+    required: true
+  debug:
+    description: Enable debug logging
+      (https://microsoft.github.io/genaiscript/reference/scripts/logging/).
+    required: false
+outputs:
+  text:
+    description: The generated text output.
+branding:
+  color: yellow
+runs:
+  using: docker
+  image: Dockerfile

@@ -17,18 +17,19 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
-            - run: yarn playwright install
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm install:playwright
             - name: compile
-              run: yarn compile:action
+              run: pnpm build:cli
             - name: Build slides
-              run: yarn build:slides
+              run: pnpm build:slides
             - name: Build docs
-              run: yarn build:docs
+              run: pnpm build:docs
             - name: no jekyll
               run: touch docs/dist/.nojekyll
             - name: Deploy 🚀

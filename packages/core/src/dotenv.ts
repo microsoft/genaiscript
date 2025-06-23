@@ -1,12 +1,15 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 // This module provides utilities for parsing and stringifying dotenv-style files.
 // It includes functions to handle parsing errors gracefully and formatting key-value pairs properly.
 // Tags: dotenv, parsing, error handling
 
 // Import the 'parse' function from the 'dotenv' library to parse dotenv files
-import { parse } from "dotenv"
+import { parse } from "dotenv";
 
 // Import a local utility function 'logError' for logging errors
-import { logError } from "./util"
+import { logError } from "./util.js";
 
 /**
  * Safely parses a dotenv-style string into a key-value object.
@@ -16,19 +19,19 @@ import { logError } from "./util"
  * @returns A record with key-value pairs from the dotenv file
  */
 export function dotEnvTryParse(text: string): Record<string, string> {
-    try {
-        // Try parsing the text using the 'parse' function
-        return parse(text)
-    } catch (e) {
-        // Log any parsing error encountered
-        logError(e)
-        // Return an empty object to indicate parsing failure
-        return {}
-    }
+  try {
+    // Try parsing the text using the 'parse' function
+    return parse(text);
+  } catch (e) {
+    // Log any parsing error encountered
+    logError(e);
+    // Return an empty object to indicate parsing failure
+    return {};
+  }
 }
 
 // Export the 'parse' function directly so it can be used externally
-export const dotEnvParse = parse
+export const dotEnvParse = parse;
 
 /**
  * Converts a key-value record into a dotenv-style string.
@@ -38,22 +41,22 @@ export const dotEnvParse = parse
  * @returns A dotenv-formatted string
  */
 export function dotEnvStringify(record: Record<string, string>): string {
-    return (
-        Object.entries(record || {})
-            .map(([key, value]) => {
-                // Ensure null or undefined values are treated as empty strings
-                if (value === undefined || value === null) value = ""
+  return (
+    Object.entries(record || {})
+      .map(([key, value]) => {
+        // Ensure null or undefined values are treated as empty strings
+        if (value === undefined || value === null) value = "";
 
-                // Enclose in quotes if the value contains newlines or quotes, and escape quotes
-                if (value.includes("\n") || value.includes('"')) {
-                    value = value.replace(/"/g, '\\"') // Escape existing quotes
-                    return `${key}="${value}"`
-                }
+        // Enclose in quotes if the value contains newlines or quotes, and escape quotes
+        if (value.includes("\n") || value.includes('"')) {
+          value = value.replace(/"/g, '\\"'); // Escape existing quotes
+          return `${key}="${value}"`;
+        }
 
-                // Default key-value format without quotes
-                return `${key}=${value}`
-            })
-            // Join all key-value pairs with newline characters for dotenv format
-            .join("\n")
-    )
+        // Default key-value format without quotes
+        return `${key}=${value}`;
+      })
+      // Join all key-value pairs with newline characters for dotenv format
+      .join("\n")
+  );
 }
