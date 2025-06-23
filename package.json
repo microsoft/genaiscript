@@ -65,7 +65,7 @@
     "prd:zine": "node packages/cli/dist/src/index.js run prd-zine -prd --model github:gpt-4.1 --vars base=dev",
     "prr": "node packages/cli/dist/src/index.js run prr -prr --model github:gpt-4.1 --vars base=dev",
     "release": "pnpm release:github && pnpm release:npm",
-    "release:github": "pnpm compile && pnpm dlx release-it && pnpm patch-versions && pnpm compile && pnpm commit-versions",
+    "release:github": "pnpm compile && pnpm dlx release-it && pnpm patch-versions && pnpm compile && pnpm package && pnpm release:vsix && pnpm commit-versions",
     "release:npm": "zx scripts/npm-publish.mjs",
     "release:vsix": "pnpm dlx release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/genaiscript.vsix --no-github.draft",
     "retrieval:codequery": "node packages/cli/dist/src/index.js code query packages/core/src/progress.ts \"(interface_declaration) @i\"",
