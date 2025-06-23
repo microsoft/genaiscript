@@ -516,9 +516,6 @@
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
-    "@rollup/plugin-commonjs": "^28.0.6",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^16.0.1",
     "@types/markdown-it": "^14.1.2",
     "@types/vscode": "^1.98.0",
     "@vscode/vsce": "^3.4.2",
@@ -526,7 +523,6 @@
     "eslint": "catalog:",
     "prettier": "catalog:",
     "rimraf": "catalog:",
-    "rollup": "^4.44.0",
     "tslib": "catalog:",
     "typescript": "catalog:",
     "zx": "^8.5.4"

@@ -8,7 +8,7 @@ const config = {
   format: "esm",
   platform: "node",
   target: "node20",
-  outfile: "built/extension.js",
+  outfile: "dist/extension.js",
   sourcemap: true,
   metafile: true,
   external: [
@@ -26,9 +26,9 @@ const config = {
 };
 
 const result = await esbuild.build(config);
-await writeFile("built/metafile.json", JSON.stringify(result.metafile, null, 2), {
+await writeFile("dist/metafile.json", JSON.stringify(result.metafile, null, 2), {
   encoding: "utf-8",
 });
 const stats = await esbuild.analyzeMetafile(result.metafile);
-await writeFile("built/stats.txt", stats, { encoding: "utf-8" });
+await writeFile("dist/stats.txt", stats, { encoding: "utf-8" });
 console.debug(stats.split("\n").slice(0, 50).join("\n"));
