@@ -5,8 +5,8 @@ import * as vscode from "vscode";
 import { ExtensionState } from "./state";
 import { CHANGE } from "../../core/src/constants";
 import type { PromptScript } from "../../core/src/types";
-import { groupBy } from "../../core/src/utils";
-import { templateGroup } from "../../core/src/utils";
+import { groupBy } from "es-toolkit";
+import { templateGroup } from "../../core/src/ast";
 import { MarkdownStringify } from "../../core/src/markdown";
 
 type PromptTreeNode = string | PromptScript;

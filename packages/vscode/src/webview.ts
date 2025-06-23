@@ -6,8 +6,7 @@ import { TOOL_ID, TOOL_NAME } from "../../core/src/constants";
 import { ExtensionState } from "./state";
 import { registerCommand } from "./commands";
 import { Utils } from "vscode-uri";
-import { assert } from "../../core/src/utils";
-import { randomHex } from "../../core/src/utils";
+import { randomHex } from "../../core/src/crypto";
 
 export async function createWebview(state: ExtensionState): Promise<vscode.WebviewPanel> {
   const { host, sessionApiKey, context } = state;
@@ -25,7 +24,10 @@ export async function createWebview(state: ExtensionState): Promise<vscode.Webvi
   let html: string;
   const web = vscode.env.uiKind === vscode.UIKind.Web;
   if (web) {
-    assert(!state.sessionApiKey);
+    if (!state.sessionApiKey)
+      throw new Error(
+        "Session API key is not set. Please ensure the server is running and the API key is available.",
+      );
     html = `<!DOCTYPE html>
 <html lang="en">
 <head>
