@@ -12,6 +12,7 @@ import { dotGenaiscriptPath } from "../../core/src/workdir";
 import { TemplateQuickPickItem, showPromptParametersQuickPicks } from "./parameterquickpick";
 import { scriptsToQuickPickItems } from "./scriptquickpick";
 import { getSelectedText } from "./selection";
+import { resolveCli } from "./config";
 
 export function activateFragmentCommands(state: ExtensionState) {
   const { context, host } = state;
