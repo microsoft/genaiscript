@@ -51,6 +51,7 @@ export function installGlobals() {
     dbg("already installed");
     return; // Prevent multiple installations
   }
+  _globalsInstalled = true; // Mark globals as installed
   dbg("install");
   const glb = resolveGlobal(); // Get the global context
 
