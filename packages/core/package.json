@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
-    "@types/debug": "^4.1.12",
+    "@types/debug": "catalog:",
     "@types/diff": "^8.0.0",
     "@types/file-type": "^10.9.3",
     "@types/fluent-ffmpeg": "^2.1.27",

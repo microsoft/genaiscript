@@ -61,9 +61,9 @@
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
-    "@types/debug": "^4.1.12",
+    "@types/debug": "catalog:",
     "@types/diff": "^8.0.0",
-    "@types/node": "^24.0.3",
+    "@types/node": "catalog:",
     "@types/papaparse": "^5.3.16",
     "@types/prompts": "^2.4.9",
     "@types/replace-ext": "^2.0.2",

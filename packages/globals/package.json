@@ -41,8 +41,8 @@
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
-    "@types/debug": "^4.1.12",
-    "@types/node": "^24.0.3",
+    "@types/debug": "catalog:",
+    "@types/node": "catalog:",
     "@vitest/coverage-istanbul": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",

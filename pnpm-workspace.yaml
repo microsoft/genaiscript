@@ -4,6 +4,7 @@ packages:
 
 catalog:
   '@eslint/js': ^9.29.0
+  '@types/debug': ^4.1.12
   '@types/node': 22.15.28
   '@vitest/coverage-istanbul': ^3.2.4
   debug: ^4.4.1
