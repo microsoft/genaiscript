@@ -24,10 +24,6 @@ export async function createWebview(state: ExtensionState): Promise<vscode.Webvi
   let html: string;
   const web = vscode.env.uiKind === vscode.UIKind.Web;
   if (web) {
-    if (!state.sessionApiKey)
-      throw new Error(
-        "Session API key is not set. Please ensure the server is running and the API key is available.",
-      );
     html = `<!DOCTYPE html>
 <html lang="en">
 <head>
