@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "author": "microsoft",
-  "packageManager": "pnpm@10.12.1",
+  "packageManager": "pnpm@10.12.2",
   "type": "module",
   "scripts": {
     "az:login": "az login --scope api://trapi/.default",
