@@ -26,8 +26,8 @@ jobs:
             - run: pnpm install:playwright
             - name: compile
               run: pnpm build:cli
-            - name: Build slides
-              run: pnpm build:slides
+#            - name: Build slides
+#              run: pnpm build:slides
             - name: Build docs
               run: pnpm build:docs
             - name: no jekyll

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { useState, useEffect } from "react";
 import { urlParams } from "./configuration";
 

@@ -4,31 +4,30 @@
 import * as vscode from "vscode";
 
 import { ExtensionContext } from "vscode";
-import { VSCodeHost } from "./vshost.js";
-import { applyEdits, toRange } from "./edit.js";
+import { VSCodeHost } from "./vshost";
+import { applyEdits, toRange } from "./edit";
 import { Utils } from "vscode-uri";
-import { saveAllTextDocuments } from "./fs.js";
-import { DiagnosticSeverity, parseAnnotations, PromptParameters } from "@genaiscript/core";
-import { Project, PromptScriptRunOptions } from "@genaiscript/core";
-import { ChatCompletionsProgressReport } from "@genaiscript/core";
-import { fixGitHubCopilotInstructions, fixPromptDefinitions } from "@genaiscript/core";
-import { logMeasure } from "@genaiscript/core";
+import { saveAllTextDocuments } from "./fs";
+import { delay, groupBy } from "es-toolkit";
+import { createWebview } from "./webview";
+import { parseAnnotations } from "../../core/src/annotations";
+import { ChatCompletionsProgressReport } from "../../core/src/chattypes";
+import { isEmptyString } from "../../core/src/cleaners";
 import {
   TOOL_NAME,
   CHANGE,
-  TOOL_ID,
   GENAI_ANYTS_REGEX,
+  TOOL_ID,
   MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-} from "@genaiscript/core";
-import { isCancelError } from "@genaiscript/core";
-import { MarkdownTrace } from "@genaiscript/core";
-import { logInfo, groupBy, logVerbose } from "@genaiscript/core";
-import { GenerationResult } from "@genaiscript/core";
-import { randomHex } from "@genaiscript/core";
-import { delay } from "es-toolkit";
-import { Fragment } from "@genaiscript/core";
-import { createWebview } from "./webview.js";
-import { isEmptyString } from "@genaiscript/core";
+} from "../../core/src/constants";
+import { randomHex } from "../../core/src/crypto";
+import { isCancelError } from "../../core/src/error";
+import { Fragment } from "../../core/src/generation";
+import { fixPromptDefinitions, fixGitHubCopilotInstructions } from "../../core/src/scripts";
+import { PromptScriptRunOptions, GenerationResult, Project } from "../../core/src/server/messages";
+import { MarkdownTrace } from "../../core/src/trace";
+import { logInfo, logVerbose } from "../../core/src/util";
+import { logMeasure } from "../../core/src/perf";
 
 export const FRAGMENTS_CHANGE = "fragmentsChange";
 export const AI_REQUEST_CHANGE = "aiRequestChange";
@@ -411,7 +410,7 @@ export class ExtensionState extends EventTarget {
     };
     for (const [filename, diags] of Object.entries(groupBy(diagnostics, (d) => d.filename))) {
       const ds = diags.map((d) => {
-        let message = d.message;
+        const message = d.message;
         let value: string;
         let target: vscode.Uri;
         const murl = /\[([^\]]+)\]\((https:\/\/([^)]+))\)/.exec(message);

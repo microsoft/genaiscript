@@ -1,5 +1,7 @@
-// src/components/FormField.tsx
-import React, { useEffect, useState } from "react";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { useEffect, useState } from "react";
 
 export function useAttributeValue(el: HTMLElement, name: string) {
   const [value, setValue] = useState(el.getAttribute(name));

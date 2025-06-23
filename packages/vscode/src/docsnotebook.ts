@@ -2,20 +2,21 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
+import { ExtensionState } from "./state";
 import { Utils } from "vscode-uri";
-import { registerCommand } from "./commands.js";
-import { ModelProviderType, PromptScript, renderMessagesToMarkdown } from "@genaiscript/core";
-import { TOOL_NAME, MDX_REGEX, EMOJI_FAIL, MARKDOWN_MIME_TYPE } from "@genaiscript/core";
-import { errorMessage } from "@genaiscript/core";
-import { parseKeyValuePairs } from "@genaiscript/core";
-import { frontmatterTryParse } from "@genaiscript/core";
-import { details } from "@genaiscript/core";
-import { parsePromptScriptMeta } from "@genaiscript/core";
-import { arrayify, normalizeBoolean } from "@genaiscript/core";
-import { YAMLTryParse, YAMLStringify } from "@genaiscript/core";
-import { Fragment } from "@genaiscript/core";
-import { fileCacheImage } from "@genaiscript/core";
+import { registerCommand } from "./commands";
+import type { ModelProviderType, PromptScript } from "../../core/src/types";
+import { renderMessagesToMarkdown } from "../../core/src/chatrender";
+import { TOOL_NAME, MDX_REGEX, EMOJI_FAIL, MARKDOWN_MIME_TYPE } from "../../core/src/constants";
+import { errorMessage } from "../../core/src/error";
+import { parseKeyValuePairs } from "../../core/src/fence";
+import { frontmatterTryParse } from "../../core/src/frontmatter";
+import { details } from "../../core/src/mkmd";
+import { parsePromptScriptMeta } from "../../core/src/template";
+import { arrayify, normalizeBoolean } from "../../core/src/cleaners";
+import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml";
+import { Fragment } from "../../core/src/generation";
+import { fileCacheImage } from "../../core/src/filecache";
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts
@@ -334,7 +335,7 @@ function isCodeBlockEndLine(line: string): boolean {
 
 function parseMarkdown(content: string): RawNotebookCell[] {
   const lines = content.split(/\r?\n/g);
-  let cells: RawNotebookCell[] = [];
+  const cells: RawNotebookCell[] = [];
   let i = 0;
 
   // eat frontmatter
@@ -394,7 +395,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
   }
 
   function parseWhitespaceLines(isFirst: boolean): string {
-    let start = i;
+    const start = i;
     const nextNonWhitespaceLineOffset = lines.slice(start).findIndex((l) => l !== "");
     let end: number; // will be next line or overflow
     let isLast = false;

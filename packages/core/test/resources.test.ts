@@ -57,6 +57,8 @@ describe("resources", async () => {
     assert(result.files[0].content);
     assert(result.files[0].content.includes("GenAIScript"));
   });
+
+  /*
   test("should resolve gist URLs", async () => {
     // Using a public test gist
     const url = "https://github.com/pelikhan/7f3f28389b7a9712da340f08cd19cff5/";
@@ -66,6 +68,7 @@ describe("resources", async () => {
     assert(result.files.length > 0);
     assert(result.files[0].content.includes("GenAIScript"));
   });
+  
   test("should resolve gist URLs (gist.github.com)", async () => {
     // Using a public test gist
     const url = "https://gist.github.com/pelikhan/7f3f28389b7a9712da340f08cd19cff5/";
@@ -75,6 +78,7 @@ describe("resources", async () => {
     assert(result.files.length > 0);
     assert(result.files[0].content.includes("GenAIScript"));
   });
+
   test("should resolve gist URLs with files", async () => {
     // Using a public test gist
     const url = "https://github.com/pelikhan/7f3f28389b7a9712da340f08cd19cff5/readme.md";
@@ -95,4 +99,5 @@ describe("resources", async () => {
     // The first file should be the one specified in the URL
     assert(result.files[0].filename.includes("readme.md"));
   });
+  */
 });

@@ -125,7 +125,7 @@ export const UNRECOVERABLE_ERROR_CODES = Object.freeze([
   ANNOTATION_ERROR_CODE,
 ]);
 
-export const DOT_ENV_REGEX = /\.env(\.[^\/]+)?$/i;
+export const DOT_ENV_REGEX = /\.env(\.[^/]+)?$/i;
 export const PROMPT_FENCE = "```";
 export const MARKDOWN_PROMPT_FENCE = "`````";
 
@@ -388,6 +388,7 @@ export const IMAGE_DETAIL_SHORT_SIDE_LIMIT = 768;
 export const MIN_LINE_NUMBER_LENGTH = 10;
 
 export const VSCODE_SERVER_MAX_RETRIES = 5;
+export const VSCODE_STARTUP_TIMEOUT = 5000;
 
 export const VIDEO_HASH_LENGTH = 18;
 export const VIDEO_FRAMES_DIR_NAME = "frames";
@@ -410,6 +411,7 @@ export const THINK_END_TOKEN_REGEX = /<\/think>$/;
 export const MAX_FILE_CONTENT_SIZE = 1024 * 1024 * 2; // 2MB
 export const TEST_CSV_ENTRY_SEPARATOR = /[;|\n]/g;
 
+// eslint-disable-next-line no-control-regex
 export const INVALID_FILENAME_REGEX = /[<>:"/\\|?*\x00-\x1F]+/g;
 
 export const STDIN_READ_TIMEOUT = 50;

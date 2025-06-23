@@ -23,6 +23,43 @@ import type { FetchOptions, RetryOptions } from "./types.js";
 
 const dbg = debug("genaiscript:fetch");
 
+/**
+ * Parses the retry-after header value.
+ *
+ * @param retryAfterHeader - The retry-after header value
+ * @returns The number of seconds to wait, or null if parsing failed
+ */
+export function parseRetryAfter(retryAfterHeader: string): number | null {
+  if (!retryAfterHeader) return null;
+
+  const trimmed = retryAfterHeader.trim();
+  dbg(`parsing retry-after header: ${trimmed}`);
+
+  // Try to parse as seconds (integer) first - must be a valid non-negative integer
+  const seconds = parseInt(trimmed, 10);
+  if (!isNaN(seconds) && seconds >= 0 && trimmed === seconds.toString()) {
+    return seconds;
+  }
+
+  // Try to parse as HTTP date only if it's not a pure number
+  if (!/^-?\d+$/.test(trimmed)) {
+    try {
+      const date = new Date(trimmed);
+      if (!isNaN(date.getTime())) {
+        const now = new Date();
+        const delayMs = date.getTime() - now.getTime();
+        const delaySeconds = Math.max(0, Math.ceil(delayMs / 1000));
+        return delaySeconds;
+      }
+    } catch(e) {
+      dbg(`failed to parse retry-after header as date: %s`, errorMessage(e));
+    }
+  }
+
+  dbg(`failed to parse retry-after header: ${retryAfterHeader}`);
+  return null;
+}
+
 export type FetchType = (
   input: string | URL | globalThis.Request,
   options?: FetchOptions & TraceOptions,
@@ -57,7 +94,7 @@ export async function createFetch(
   } = options || {};
 
   // We create a proxy based on Node.js environment variables.
-  const agent = resolveHttpProxyAgent();
+  const agent = await resolveHttpProxyAgent();
 
   // We enrich crossFetch with the proxy.
   const crossFetchWithProxy: typeof fetch = agent
@@ -89,11 +126,42 @@ export async function createFetch(
 
       const message = errorMessage(error);
       const status = statusToMessage(response);
-      const delay =
-        Math.min(maxDelay, Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay) *
-        (1 + Math.random() / 20); // 5% jitter for delay randomization
+
+      // Check for retry-after header and respect its value
+      let delay: number;
+      let retryAfterInfo = "";
+
+      if (response?.headers) {
+        const retryAfterHeader =
+          response.headers.get?.("retry-after") || (response.headers as any)["retry-after"];
+
+        if (retryAfterHeader) {
+          const retryAfterSeconds = parseRetryAfter(retryAfterHeader);
+          if (retryAfterSeconds !== null) {
+            delay = Math.min(maxDelay, retryAfterSeconds * 1000); // Convert to milliseconds
+            retryAfterInfo = ` (retry-after: ${retryAfterSeconds}s)`;
+            dbg(`using retry-after header value: ${retryAfterSeconds}s`);
+          } else {
+            // Fallback to exponential backoff if retry-after parsing failed
+            delay =
+              Math.min(maxDelay, Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay) *
+              (1 + Math.random() / 20);
+          }
+        } else {
+          // No retry-after header, use exponential backoff
+          delay =
+            Math.min(maxDelay, Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay) *
+            (1 + Math.random() / 20);
+        }
+      } else {
+        // No response headers, use exponential backoff
+        delay =
+          Math.min(maxDelay, Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay) *
+          (1 + Math.random() / 20);
+      }
+
       const msg = prettyStrings(
-        `retry #${attempt + 1} in ${renderWithPrecision(Math.floor(delay) / 1000, 1)}s`,
+        `retry #${attempt + 1} in ${renderWithPrecision(Math.floor(delay) / 1000, 1)}s${retryAfterInfo}`,
         message,
         status,
       );

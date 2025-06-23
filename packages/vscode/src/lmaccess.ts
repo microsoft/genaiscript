@@ -3,16 +3,16 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
-import { ChatCompletionMessageParam } from "@genaiscript/core";
-import { LanguageModelChatRequest } from "@genaiscript/core";
-import { ChatStart } from "@genaiscript/core";
-import { serializeError } from "@genaiscript/core";
-import { logVerbose } from "@genaiscript/core";
-import { renderMessageContent } from "@genaiscript/core";
-import { parseModelIdentifier } from "@genaiscript/core";
-import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "@genaiscript/core";
-import { dedent } from "@genaiscript/core";
+import { ExtensionState } from "./state";
+import type { ChatCompletionMessageParam } from "../../core/src/chattypes";
+import type { LanguageModelChatRequest } from "../../core/src/server/client";
+import type { ChatStart } from "../../core/src/server/messages";
+import { serializeError } from "../../core/src/error";
+import { logVerbose } from "../../core/src/util";
+import { renderMessageContent } from "../../core/src/chatrender";
+import { parseModelIdentifier } from "../../core/src/models";
+import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "../../core/src/constants";
+import { dedent } from "../../core/src/indent";
 
 async function pickChatModel(
   state: ExtensionState,

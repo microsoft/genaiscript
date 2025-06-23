@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "author": "microsoft",
-  "packageManager": "pnpm@10.12.1",
+  "packageManager": "pnpm@10.12.2",
   "type": "module",
   "scripts": {
     "az:login": "az login --scope api://trapi/.default",
@@ -65,7 +65,7 @@
     "prd:zine": "node packages/cli/dist/src/index.js run prd-zine -prd --model github:gpt-4.1 --vars base=dev",
     "prr": "node packages/cli/dist/src/index.js run prr -prr --model github:gpt-4.1 --vars base=dev",
     "release": "pnpm release:github && pnpm release:npm",
-    "release:github": "pnpm compile && pnpm dlx release-it && pnpm patch-versions && pnpm compile && pnpm commit-versions",
+    "release:github": "pnpm compile && pnpm dlx release-it && pnpm patch-versions && pnpm compile && pnpm package && pnpm release:vsix && pnpm commit-versions",
     "release:npm": "zx scripts/npm-publish.mjs",
     "release:vsix": "pnpm dlx release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/genaiscript.vsix --no-github.draft",
     "retrieval:codequery": "node packages/cli/dist/src/index.js code query packages/core/src/progress.ts \"(interface_declaration) @i\"",
@@ -111,11 +111,11 @@
     "@modelcontextprotocol/inspector": "^0.14.3",
     "npm-check-updates": "^18.0.1",
     "npm-run-all": "^4.1.5",
-    "playwright": "^1.53.0",
-    "prettier": "^3.5.3",
+    "playwright": "^1.53.1",
+    "prettier": "catalog:",
     "prettier-plugin-curly": "^0.3.2",
     "tailwindcss": "^4.1.10",
     "turbo": "^2.5.4",
-    "zx": "^8.5.4"
+    "zx": "catalog:"
   }
 }

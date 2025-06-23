@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { PromptScript, templateGroup } from "@genaiscript/core";
-import { groupBy } from "@genaiscript/core";
-import { TemplateQuickPickItem } from "./parameterquickpick.js";
+import type { PromptScript } from "../../core/src/types";
+import { TemplateQuickPickItem } from "./parameterquickpick";
+import { groupBy } from "es-toolkit";
+import { templateGroup } from "../../core/src/ast";
 
 export function scriptsToQuickPickItems(
   templates: PromptScript[],

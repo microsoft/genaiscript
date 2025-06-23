@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { TOOL_NAME, errorMessage } from "@genaiscript/core";
+import { TOOL_NAME } from "../../core/src/constants";
+import { errorMessage } from "../../core/src/error";
 
 export function registerCommand(id: string, command: (...args: any[]) => Thenable<void>) {
   return vscode.commands.registerCommand(id, async function (...args: any[]) {

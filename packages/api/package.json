@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
-    "@types/debug": "^4.1.12",
+    "@types/debug": "catalog:",
     "@types/node": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",

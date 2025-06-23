@@ -2,22 +2,17 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
-import { registerCommand } from "./commands.js";
-import {
-  GENAI_ANY_REGEX,
-  PromptParameters,
-  PromptScript,
-  TOOL_ID,
-  TOOL_NAME,
-} from "@genaiscript/core";
-import { logInfo, logVerbose } from "@genaiscript/core";
-import { resolveCli } from "./config.js";
-import { YAMLStringify } from "@genaiscript/core";
-import { dotGenaiscriptPath } from "@genaiscript/core";
-import { TemplateQuickPickItem, showPromptParametersQuickPicks } from "./parameterquickpick.js";
-import { scriptsToQuickPickItems } from "./scriptquickpick.js";
-import { getSelectedText } from "./selection.js";
+import { ExtensionState } from "./state";
+import { registerCommand } from "./commands";
+import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants";
+import type { PromptParameters, PromptScript } from "../../core/src/types";
+import { logInfo, logVerbose } from "../../core/src/util";
+import { YAMLStringify } from "../../core/src/yaml";
+import { dotGenaiscriptPath } from "../../core/src/workdir";
+import { TemplateQuickPickItem, showPromptParametersQuickPicks } from "./parameterquickpick";
+import { scriptsToQuickPickItems } from "./scriptquickpick";
+import { getSelectedText } from "./selection";
+import { resolveCli } from "./config";
 
 export function activateFragmentCommands(state: ExtensionState) {
   const { context, host } = state;

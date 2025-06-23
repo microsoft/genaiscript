@@ -20,5 +20,5 @@ export function resolveGlobal(): any {
   else if (typeof self !== "undefined")
     return self; // Web worker environment
   else if (typeof global !== "undefined") return global; // Node.js environment
-  throw new Error("Could not find global"); // Error if no global context is found
+  return globalThis;
 }

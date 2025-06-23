@@ -8,14 +8,14 @@ import {
   ExtensionState,
   REQUEST_OUTPUT_FILENAME,
   REQUEST_TRACE_FILENAME,
-} from "./state.js";
-import { showMarkdownPreview } from "./markdown.js";
-import { registerCommand } from "./commands.js";
-import { TRACE_NODE_PREFIX } from "@genaiscript/core";
-import { prettifyMarkdown } from "@genaiscript/core";
-import { logprobToMarkdown, topLogprobsToMarkdown } from "@genaiscript/core";
-import { fenceMD } from "@genaiscript/core";
-import { renderTraceTree } from "@genaiscript/core";
+} from "./state";
+import { showMarkdownPreview } from "./markdown";
+import { registerCommand } from "./commands";
+import { TRACE_NODE_PREFIX } from "../../core/src/constants";
+import { prettifyMarkdown } from "../../core/src/markdown";
+import { logprobToMarkdown, topLogprobsToMarkdown } from "../../core/src/logprob";
+import { fenceMD } from "../../core/src/mkmd";
+import { renderTraceTree } from "../../core/src/traceparser";
 
 const SCHEME = "genaiscript";
 

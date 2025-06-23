@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { ChatModels } from "../../core/src/chattypes";
 import {
   Project,
@@ -14,7 +17,9 @@ async function checkFetchError(res: Response): Promise<never> {
   let msg: string;
   try {
     msg = await res.text();
-  } catch {}
+  } catch {
+    // Do nothing if we can't read the response text
+  }
   throw new Error(msg || `${res.status} ${res.statusText}`);
 }
 

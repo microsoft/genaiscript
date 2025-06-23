@@ -3,20 +3,20 @@
 
 // cspell: disable
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
+import { ExtensionState } from "./state";
 import {
   COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
   COPILOT_CHAT_PARTICIPANT_ID,
   ICON_LOGO_NAME,
   MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-  PromptScript,
-  HistoryMessageUser,
-  HistoryMessageAssistant,
-} from "@genaiscript/core";
-import { Fragment } from "@genaiscript/core";
-import { convertAnnotationsToItems } from "@genaiscript/core";
-import { deleteUndefinedValues } from "@genaiscript/core";
-import { patchCachedImages } from "@genaiscript/core";
+} from "../../core/src/constants";
+import type { PromptScript } from "../../core/src/types";
+import type { HistoryMessageUser, HistoryMessageAssistant } from "../../core/src/types";
+import { Fragment } from "../../core/src/generation";
+import { convertAnnotationsToItems } from "../../core/src/annotations";
+import { patchCachedImages } from "../../core/src/filecache";
+import { deleteUndefinedValues } from "../../core/src/cleaners";
+
 
 export async function activateChatParticipant(state: ExtensionState) {
   const { context } = state;
@@ -65,7 +65,7 @@ export async function activateChatParticipant(state: ExtensionState) {
         md(`This is the current model alias mapping:\n`);
         for (const chatModel of chatModels) {
           md(
-            `- \`${languageChatModels[chatModel.id] || "---"}\` > \`${chatModel.id}\`, ${chatModel.name}, max ${chatModel.maxInputTokens}\n`,
+            `- \`${languageChatModels[chatModel.id] || "---"}\` > \`${chatModel.id}\`, ${chatModel.name}, max ${chatModel.maxInputTokens}t\n`,
           );
         }
         return;

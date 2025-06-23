@@ -21,14 +21,14 @@
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/starlight": "^0.34.4",
-    "astro": "^5.10.0",
+    "astro": "^5.10.1",
     "astro-embed": "^0.9.0",
     "rehype-mermaid": "^3.0.0",
     "starlight-blog": "^0.24.0",
     "starlight-links-validator": "^0.17.0",
     "starlight-llms-txt": "^0.5.1",
     "starlight-package-managers": "^0.11.0",
-    "zx": "^8.5.4"
+    "zx": "catalog:"
   },
   "resolutions": {
     "marked": "15.0.8"

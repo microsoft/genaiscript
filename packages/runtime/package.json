@@ -20,13 +20,13 @@
     "execa": "catalog:",
     "glob": "^11.0.3",
     "memorystream": "^0.3.1",
-    "playwright": "^1.53.0",
+    "playwright": "^1.53.1",
     "tslib": "catalog:",
-    "zod": "^3.25.64"
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
-    "@types/debug": "^4.1.12",
+    "@types/debug": "catalog:",
     "@types/dockerode": "^3.3.41",
     "@types/memorystream": "^0.3.4",
     "@types/node": "catalog:",

@@ -1,7 +1,7 @@
 name: build
 permissions:
     contents: read
-    models: read
+    models: read    
 on:
     push:
         branches: [main, dev]

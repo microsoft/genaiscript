@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
-import { infoUri } from "./markdowndocumentprovider.js";
-import { CHANGE, TRACE_NODE_PREFIX } from "@genaiscript/core";
-import { TraceNode } from "@genaiscript/core";
-import { unmarkdown } from "@genaiscript/core";
+import { ExtensionState } from "./state";
+import { infoUri } from "./markdowndocumentprovider";
+import { TraceNode } from "../../core/src/traceparser";
+import { CHANGE, TRACE_NODE_PREFIX } from "../../core/src/constants";
+import { unmarkdown } from "../../core/src/cleaners";
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
   private previewTreeItems: Record<string, vscode.TreeItem> = {};

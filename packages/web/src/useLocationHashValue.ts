@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 export function useLocationHashValue(name: string): ReturnType<typeof useState<string | null>> {

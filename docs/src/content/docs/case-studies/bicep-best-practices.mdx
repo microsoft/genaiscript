@@ -12,9 +12,9 @@ import scriptSource from "../../../../../packages/sample/genaisrc/bicep-best-pra
 import src from './bicep-best-practices.png';
 import alt from "./bicep-best-practices.png.txt?raw"
 
-[Azure Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep) is a Domain Specific Language (DSL) for deploying Azure resources declaratively. 
+[Azure Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep) is a Domain Specific Language (DSL) for deploying Azure resources declaratively.
 It is a language that is designed to be a more readable 
-and maintainable way to define Azure resources. 
+and maintainable way to define Azure resources.
 
 Bicep comes with a [linter](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/linter) that detects various faults, but also comes with
 online best practices which are not completely covered by the linter.
@@ -41,7 +41,7 @@ def("FILE", env.files, { endsWith: ".bicep", lineNumbers: true })
 ```
 
 - the script uses a builtin support for [annotations](/genaiscript/reference/scripts/annotations) 
-to generate parseable warnings and errors. Annotations are automatically integrated as problems 
+to generate parsable warnings and errors. Annotations are automatically integrated as problems 
 in VSCode or as build errors in the CI/CD pipeline.
 
 ```js "annotations"

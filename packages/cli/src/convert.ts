@@ -34,7 +34,6 @@ import {
 } from "@genaiscript/core";
 import { buildProject } from "@genaiscript/core";
 import { run } from "@genaiscript/api";
-import { createPatch } from "diff";
 import { setupTraceWriting } from "@genaiscript/core";
 import { dirname, join } from "node:path";
 import { createCancellationController } from "@genaiscript/core";
@@ -258,10 +257,6 @@ export async function convertFiles(
       // save file
       const existing = await tryReadText(outf);
       if (text && existing !== text) {
-        if (rewrite) {
-          const patch = createPatch(outf, existing || "", text || "", undefined, undefined, {});
-          logVerbose(patch);
-        }
         await writeText(outf, text);
       }
 
