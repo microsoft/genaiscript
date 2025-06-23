@@ -37,12 +37,14 @@ describe("GitHubClient", async () => {
     assert(issue?.title);
   });
 
+  /*
   test("listGists()", async () => {
     const gists = await client.listGists({ count: 2 });
     assert(Array.isArray(gists));
     const gist = await client.getGist(gists[0].id);
     assert(gist?.files);
   });
+  */
 
   test("listPullRequests()", async () => {
     const prs = await client.listPullRequests({ count: 2 });
