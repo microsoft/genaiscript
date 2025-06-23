@@ -5,7 +5,7 @@ import { writeFile } from "fs/promises";
 const config = {
   entryPoints: ["src/extension.ts"],
   bundle: true,
-  format: "esm",
+  format: "cjs",
   platform: "node",
   target: "node20",
   outfile: "dist/extension.js",
