@@ -213,9 +213,6 @@ importers:
       debug:
         specifier: 'catalog:'
         version: 4.4.1
-      diff:
-        specifier: ^7.0.0
-        version: 7.0.0
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
@@ -253,9 +250,6 @@ importers:
       '@types/debug':
         specifier: 'catalog:'
         version: 4.1.12
-      '@types/diff':
-        specifier: ^8.0.0
-        version: 8.0.0
       '@types/node':
         specifier: 'catalog:'
         version: 22.15.28
@@ -368,8 +362,8 @@ importers:
         specifier: 'catalog:'
         version: 4.4.1
       diff:
-        specifier: ^7.0.0
-        version: 7.0.0
+        specifier: ^8.0.2
+        version: 8.0.2
       dompurify:
         specifier: ^3.2.6
         version: 3.2.6
@@ -5145,8 +5139,8 @@ packages:
     resolution: {integrity: sha512-uIFDxqpRZGZ6ThOk84hEfqWoHx2devRFvpTZcTHur85vImfaxUbTW9Ryh4CpCuDnToOP1CEtXKIgytHBPVff5A==}
     engines: {node: '>=0.3.1'}
 
-  diff@7.0.0:
-    resolution: {integrity: sha512-PJWHUb1RFevKCwaFA9RlG5tCd+FO5iRh9A8HEtkmBH2Li03iJriB6m6JIN4rGz3K3JLawI7/veA1xzRKP6ISBw==}
+  diff@8.0.2:
+    resolution: {integrity: sha512-sSuxWU5j5SR9QQji/o2qMvqRNYRDOcBTgsJ/DeCf4iSN4gW+gNMXM7wFIP+fdXZxoNiAnHUTGjCr+TSWXdRDKg==}
     engines: {node: '>=0.3.1'}
 
   dingbat-to-unicode@1.0.1:
@@ -13410,7 +13404,7 @@ snapshots:
 
   '@types/diff@8.0.0':
     dependencies:
-      diff: 7.0.0
+      diff: 8.0.2
 
   '@types/docker-modem@3.0.6':
     dependencies:
@@ -14975,7 +14969,7 @@ snapshots:
 
   diff@5.2.0: {}
 
-  diff@7.0.0: {}
+  diff@8.0.2: {}
 
   dingbat-to-unicode@1.0.1: {}
 

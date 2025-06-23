@@ -74,7 +74,7 @@
     "csv-parse": "^5.6.0",
     "csv-stringify": "^6.5.2",
     "debug": "catalog:",
-    "diff": "^7.0.0",
+    "diff": "^8.0.2",
     "dompurify": "^3.2.6",
     "dotenv": "^16.5.0",
     "es-toolkit": "catalog:",

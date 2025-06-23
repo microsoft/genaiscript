@@ -42,9 +42,8 @@
     "@inquirer/prompts": "^7.5.3",
     "@modelcontextprotocol/sdk": "^1.13.1",
     "chokidar": "^4.0.3",
-    "commander": "^12.1.0",
+    "commander": "^12.1.0",    
     "debug": "catalog:",
-    "diff": "^7.0.0",
     "dotenv": "^16.5.0",
     "es-toolkit": "catalog:",
     "execa": "catalog:",
@@ -62,7 +61,6 @@
   "devDependencies": {
     "@eslint/js": "catalog:",
     "@types/debug": "catalog:",
-    "@types/diff": "^8.0.0",
     "@types/node": "catalog:",
     "@types/papaparse": "^5.3.16",
     "@types/prompts": "^2.4.9",
