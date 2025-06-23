@@ -1,11 +1,11 @@
 script({
-    model: "large",
-    title: "unit test generator",
-    system: ["system", "system.typescript", "system.files"],
-    tools: ["fs"],
-})
+  model: "large",
+  title: "unit test generator",
+  system: ["system", "system.typescript", "system.files"],
+  tools: ["fs"],
+});
 
-const code = def("CODE", env.files)
+const code = def("CODE", env.files);
 
 $`## Step 1
 
@@ -23,9 +23,9 @@ in the same folder as the source file.
 
 - always organize tests using 'describe' blocks
 - this is important, generate all the source code
-- use "describe", "test", "beforeEach" from the "node:test" test runner framework
+- use "describe", "test", "beforeEach" from the "vitest" test runner framework
 
-${fence('import test, { beforeEach, describe } from "node:test"', { language: "js" })}
+${fence('import { test, beforeEach, describe } from "vitest"', { language: "js" })}
 
 - use "assert" from node:assert/strict (default export)
 - the test title should describe the tested function
@@ -52,9 +52,9 @@ Call the 'run_test' tool to execute the generated test code and fix the test cod
 - if the test fails because of missing 'host' or 'runtimeHost' add 
 TestHost.install() in the beforeEach block
 
-`
+`;
 fence(
-    `import { beforeEach } from "node:test";
+  `import { beforeEach } from "vitest";
 import { TestHost } from "./testhost"
 ...
 describe(..., () => {
@@ -62,35 +62,32 @@ describe(..., () => {
         TestHost.install()
     })
     ...
-`
-)
+`,
+);
 
 defFileOutput(
-    env.files.map(
-        ({ filename }) => filename.replace(/\.ts$/, ".test.ts"),
-        "generated test files"
-    )
-)
+  env.files.map(({ filename }) => filename.replace(/\.ts$/, ".test.ts"), "generated test files"),
+);
 defTool(
-    "run_test",
-    "run test code with node:test",
-    {
-        type: "object",
-        properties: {
-            filename: {
-                type: "string",
-                description: "full path to the test file",
-            },
-            source: { type: "string", description: "source of the test file" },
-        },
-        required: ["filename", "source"],
+  "run_test",
+  "run test code with vitest",
+  {
+    type: "object",
+    properties: {
+      filename: {
+        type: "string",
+        description: "full path to the test file",
+      },
+      source: { type: "string", description: "source of the test file" },
     },
-    async (args) => {
-        const { filename, source } = args
-        if (!filename) return "error: missing 'filename' parameter"
-        if (!source) return "error: missing 'source' parameter"
-        await workspace.writeText(filename, source)
-        console.debug(`running test code ${filename}`)
-        return host.exec(`node`, ["--import", "tsx", "--test", filename])
-    }
-)
+    required: ["filename", "source"],
+  },
+  async (args) => {
+    const { filename, source } = args;
+    if (!filename) return "error: missing 'filename' parameter";
+    if (!source) return "error: missing 'source' parameter";
+    await workspace.writeText(filename, source);
+    console.debug(`running test code ${filename}`);
+    return host.exec(`node`, ["--import", "tsx", "--test", filename]);
+  },
+);

@@ -335,7 +335,7 @@ function isCodeBlockEndLine(line: string): boolean {
 
 function parseMarkdown(content: string): RawNotebookCell[] {
   const lines = content.split(/\r?\n/g);
-  let cells: RawNotebookCell[] = [];
+  const cells: RawNotebookCell[] = [];
   let i = 0;
 
   // eat frontmatter
@@ -395,7 +395,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
   }
 
   function parseWhitespaceLines(isFirst: boolean): string {
-    let start = i;
+    const start = i;
     const nextNonWhitespaceLineOffset = lines.slice(start).findIndex((l) => l !== "");
     let end: number; // will be next line or overflow
     let isLast = false;

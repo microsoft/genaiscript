@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import test, { describe } from "node:test";
-import { parseRetryAfter } from "./fetch.js";
+import { test, describe } from "vitest";
+import { parseRetryAfter } from "../src/fetch.js";
 
 describe("parseRetryAfter", () => {
   test("parses seconds correctly", () => {

@@ -410,7 +410,7 @@ export class ExtensionState extends EventTarget {
     };
     for (const [filename, diags] of Object.entries(groupBy(diagnostics, (d) => d.filename))) {
       const ds = diags.map((d) => {
-        let message = d.message;
+        const message = d.message;
         let value: string;
         let target: vscode.Uri;
         const murl = /\[([^\]]+)\]\((https:\/\/([^)]+))\)/.exec(message);

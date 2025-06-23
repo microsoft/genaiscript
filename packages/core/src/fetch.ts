@@ -51,7 +51,7 @@ export function parseRetryAfter(retryAfterHeader: string): number | null {
         const delaySeconds = Math.max(0, Math.ceil(delayMs / 1000));
         return delaySeconds;
       }
-    } catch {
+    } catch(e) {
       dbg(`failed to parse retry-after header as date: %s`, errorMessage(e));
     }
   }
