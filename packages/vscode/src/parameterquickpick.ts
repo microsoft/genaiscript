@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import type { PromptParameters, PromptScript } from "../../core/src/types.js";
-import { promptParameterTypeToJSONSchema } from "../../core/src/parameters.js";
-import { NotSupportedError } from "../../core/src/error.js";
+import type { PromptParameters, PromptScript } from "../../core/src/types";
+import { promptParameterTypeToJSONSchema } from "../../core/src/parameters";
+import { NotSupportedError } from "../../core/src/error";
 
 export interface TemplateQuickPickItem extends vscode.QuickPickItem {
   template?: PromptScript;

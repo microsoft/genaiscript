@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
+import { ExtensionState } from "./state";
 import {
   RECONNECT,
   OPEN,
@@ -13,18 +13,18 @@ import {
   CHANGE,
   SERVER_LOCALHOST,
   MIN_NODE_VERSION_MAJOR,
-} from "../../core/src/constants.js";
-import { ServerManager, host } from "../../core/src/server.js";
-import { assert, logError, logInfo, logVerbose } from "../../core/src/utils.js";
-import { VsCodeClient } from "../../core/src/server.js";
-import { CORE_VERSION } from "../../core/src/constants.js";
-import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess.js";
-import { semverParse, semverSatisfies } from "../../core/src/semver.js";
-import { resolveCli } from "./config.js";
-import { deleteUndefinedValues } from "../../core/src/cleaners.js";
-import { findRandomOpenPort } from "../../core/src/server.js";
-import { packageResolveExecute } from "../../core/src/server.js";
-import { shellQuote } from "../../core/src/utils.js";
+} from "../../core/src/constants";
+import { ServerManager, host } from "../../core/src/server";
+import { assert, logError, logInfo, logVerbose } from "../../core/src/utils";
+import { VsCodeClient } from "../../core/src/server";
+import { CORE_VERSION } from "../../core/src/constants";
+import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess";
+import { semverParse, semverSatisfies } from "../../core/src/semver";
+import { resolveCli } from "./config";
+import { deleteUndefinedValues } from "../../core/src/cleaners";
+import { findRandomOpenPort } from "../../core/src/server";
+import { packageResolveExecute } from "../../core/src/server";
+import { shellQuote } from "../../core/src/utils";
 import { log } from "node:console";
 
 export class TerminalServerManager extends EventTarget implements ServerManager {

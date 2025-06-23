@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { TOOL_ID, TOOL_NAME } from "../../core/src/constants.js";
-import { ExtensionState } from "./state.js";
-import { registerCommand } from "./commands.js";
+import { TOOL_ID, TOOL_NAME } from "../../core/src/constants";
+import { ExtensionState } from "./state";
+import { registerCommand } from "./commands";
 import { Utils } from "vscode-uri";
-import { assert } from "../../core/src/utils.js";
-import { randomHex } from "../../core/src/utils.js";
+import { assert } from "../../core/src/utils";
+import { randomHex } from "../../core/src/utils";
 
 export async function createWebview(state: ExtensionState): Promise<vscode.WebviewPanel> {
   const { host, sessionApiKey, context } = state;

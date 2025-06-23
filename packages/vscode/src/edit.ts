@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
-import type { CharPosition, CharRange, Edits, LineRange } from "../../core/src/types.js";
+import { ExtensionState } from "./state";
+import type { CharPosition, CharRange, Edits, LineRange } from "../../core/src/types";
 
 // Constants representing special character positions within a file
 export const eolPosition = 0x3fffffff; // End of line position, a large constant

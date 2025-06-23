@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
-import { CHANGE } from "../../core/src/constants.js";
-import type { PromptScript } from "../../core/src/types.js";
-import { groupBy } from "../../core/src/utils.js";
-import { templateGroup } from "../../core/src/utils.js";
-import { MarkdownStringify } from "../../core/src/markdown.js";
+import { ExtensionState } from "./state";
+import { CHANGE } from "../../core/src/constants";
+import type { PromptScript } from "../../core/src/types";
+import { groupBy } from "../../core/src/utils";
+import { templateGroup } from "../../core/src/utils";
+import { MarkdownStringify } from "../../core/src/markdown";
 
 type PromptTreeNode = string | PromptScript;
 

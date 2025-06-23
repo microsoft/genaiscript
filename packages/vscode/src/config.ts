@@ -7,10 +7,10 @@ import {
   VSCODE_CONFIG_CLI_PACKAGE_MANAGER,
   VSCODE_CONFIG_CLI_PATH,
   VSCODE_CONFIG_CLI_VERSION,
-} from "../../core/src/constants.js";
-import { CORE_VERSION, VSCODE_CLI_VERSION } from "../../core/src/version.js";
-import { semverParse, semverSatisfies } from "../../core/src/semver.js";
-import { ExtensionState } from "./state.js";
+} from "../../core/src/constants";
+import { CORE_VERSION, VSCODE_CLI_VERSION } from "../../core/src/version";
+import { semverParse, semverSatisfies } from "../../core/src/semver";
+import { ExtensionState } from "./state";
 
 export async function resolveCli(state: ExtensionState) {
   const config = state.getConfiguration();

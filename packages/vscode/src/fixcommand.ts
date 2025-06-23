@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
-import { registerCommand } from "./commands.js";
-import { TYPE_DEFINITION_BASENAME, TYPE_DEFINITION_REFERENCE } from "../../core/src/constants.js";
-import { promptDefinitions } from "../../core/src/default_prompts.js";
-import { createFetch } from "../../core/src/fetch.js";
+import { ExtensionState } from "./state";
+import { registerCommand } from "./commands";
+import { TYPE_DEFINITION_BASENAME, TYPE_DEFINITION_REFERENCE } from "../../core/src/constants";
+import { promptDefinitions } from "../../core/src/default_prompts";
+import { createFetch } from "../../core/src/fetch";
 
 export function activateFixCommand(state: ExtensionState) {
   const { context } = state;

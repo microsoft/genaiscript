@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
-import { infoUri } from "./markdowndocumentprovider.js";
+import { ExtensionState } from "./state";
+import { infoUri } from "./markdowndocumentprovider";
 import { CHANGE, TRACE_NODE_PREFIX } from "@genaiscript/core";
 import { TraceNode } from "@genaiscript/core";
 import { unmarkdown } from "@genaiscript/core";

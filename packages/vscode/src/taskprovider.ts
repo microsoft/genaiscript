@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
-import { resolveCli } from "./config.js";
+import { ExtensionState } from "./state";
+import { resolveCli } from "./config";
 import { TOOL_ID } from "@genaiscript/core";
 import { shellQuote } from "@genaiscript/core";
 

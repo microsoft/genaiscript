@@ -3,19 +3,19 @@
 
 // cspell: disable
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
+import { ExtensionState } from "./state";
 import {
   COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
   COPILOT_CHAT_PARTICIPANT_ID,
   ICON_LOGO_NAME,
   MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
-} from "../../core/src/constants.js";
-import type { PromptScript } from "../../core/src/types.js";
-import type { HistoryMessageUser, HistoryMessageAssistant } from "../../core/src/types.js";
-import { Fragment } from "../../core/src/generation.js";
-import { convertAnnotationsToItems } from "../../core/src/annotations.js";
-import { patchCachedImages } from "../../core/src/filecache.js";
-import { deleteUndefinedValues } from "../../core/src/cleaners.js";
+} from "../../core/src/constants";
+import type { PromptScript } from "../../core/src/types";
+import type { HistoryMessageUser, HistoryMessageAssistant } from "../../core/src/types";
+import { Fragment } from "../../core/src/generation";
+import { convertAnnotationsToItems } from "../../core/src/annotations";
+import { patchCachedImages } from "../../core/src/filecache";
+import { deleteUndefinedValues } from "../../core/src/cleaners";
 
 
 export async function activateChatParticipant(state: ExtensionState) {

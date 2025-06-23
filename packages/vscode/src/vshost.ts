@@ -3,9 +3,9 @@
 
 import * as vscode from "vscode";
 import { createNodePath, ElementOrArray } from "@genaiscript/core";
-import { TerminalServerManager } from "./servermanager.js";
+import { TerminalServerManager } from "./servermanager";
 import { Uri } from "vscode";
-import { ExtensionState } from "./state.js";
+import { ExtensionState } from "./state";
 import { Utils } from "vscode-uri";
 import { filterGitIgnore } from "@genaiscript/core";
 import { setHost, Host } from "@genaiscript/core";

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
+import { ExtensionState } from "./state";
 import { TOOL_ID, CHANGE, EMOJI_SUCCESS, EMOJI_FAIL, PromptScript } from "@genaiscript/core";
 
 import { errorMessage } from "@genaiscript/core";

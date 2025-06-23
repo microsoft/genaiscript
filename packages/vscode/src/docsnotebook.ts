@@ -2,21 +2,21 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state.js";
+import { ExtensionState } from "./state";
 import { Utils } from "vscode-uri";
-import { registerCommand } from "./commands.js";
-import type { ModelProviderType, PromptScript } from "../../core/src/types.js";
-import { renderMessagesToMarkdown } from "../../core/src/chatrender.js";
-import { TOOL_NAME, MDX_REGEX, EMOJI_FAIL, MARKDOWN_MIME_TYPE } from "../../core/src/constants.js";
-import { errorMessage } from "../../core/src/error.js";
-import { parseKeyValuePairs } from "../../core/src/fence.js";
-import { frontmatterTryParse } from "../../core/src/frontmatter.js";
-import { details } from "../../core/src/mkmd.js";
-import { parsePromptScriptMeta } from "../../core/src/template.js";
-import { arrayify, normalizeBoolean } from "../../core/src/cleaners.js";
-import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml.js";
-import { Fragment } from "../../core/src/generation.js";
-import { fileCacheImage } from "../../core/src/filecache.js";
+import { registerCommand } from "./commands";
+import type { ModelProviderType, PromptScript } from "../../core/src/types";
+import { renderMessagesToMarkdown } from "../../core/src/chatrender";
+import { TOOL_NAME, MDX_REGEX, EMOJI_FAIL, MARKDOWN_MIME_TYPE } from "../../core/src/constants";
+import { errorMessage } from "../../core/src/error";
+import { parseKeyValuePairs } from "../../core/src/fence";
+import { frontmatterTryParse } from "../../core/src/frontmatter";
+import { details } from "../../core/src/mkmd";
+import { parsePromptScriptMeta } from "../../core/src/template";
+import { arrayify, normalizeBoolean } from "../../core/src/cleaners";
+import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml";
+import { Fragment } from "../../core/src/generation";
+import { fileCacheImage } from "../../core/src/filecache";
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts

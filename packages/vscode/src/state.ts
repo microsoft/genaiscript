@@ -4,10 +4,10 @@
 import * as vscode from "vscode";
 
 import { ExtensionContext } from "vscode";
-import { VSCodeHost } from "./vshost.js";
-import { applyEdits, toRange } from "./edit.js";
+import { VSCodeHost } from "./vshost";
+import { applyEdits, toRange } from "./edit";
 import { Utils } from "vscode-uri";
-import { saveAllTextDocuments } from "./fs.js";
+import { saveAllTextDocuments } from "./fs";
 import { DiagnosticSeverity, parseAnnotations, PromptParameters } from "@genaiscript/core";
 import { Project, PromptScriptRunOptions } from "@genaiscript/core";
 import { ChatCompletionsProgressReport } from "@genaiscript/core";
@@ -27,7 +27,7 @@ import { GenerationResult } from "@genaiscript/core";
 import { randomHex } from "@genaiscript/core";
 import { delay } from "es-toolkit";
 import { Fragment } from "@genaiscript/core";
-import { createWebview } from "./webview.js";
+import { createWebview } from "./webview";
 import { isEmptyString } from "@genaiscript/core";
 
 export const FRAGMENTS_CHANGE = "fragmentsChange";

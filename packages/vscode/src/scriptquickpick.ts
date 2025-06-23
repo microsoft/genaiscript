@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import type { PromptScript } from "../../core/src/types.js";
-import { templateGroup } from "../../core/src/utils.js";
-import { groupBy } from "../../core/src/utils.js";
-import { TemplateQuickPickItem } from "./parameterquickpick.js";
+import type { PromptScript } from "../../core/src/types";
+import { templateGroup } from "../../core/src/utils";
+import { groupBy } from "../../core/src/utils";
+import { TemplateQuickPickItem } from "./parameterquickpick";
 
 export function scriptsToQuickPickItems(
   templates: PromptScript[],
