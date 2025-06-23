@@ -18,7 +18,6 @@ import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess";
 import { semverParse, semverSatisfies } from "../../core/src/semver";
 import { resolveCli } from "./config";
 import { deleteUndefinedValues } from "../../core/src/cleaners";
-import { assert, log } from "node:console";
 import { ServerManager, host } from "../../core/src/host";
 import { packageResolveExecute } from "../../core/src/packagemanagers";
 import { VsCodeClient } from "../../core/src/server/client";
@@ -115,7 +114,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
   }
 
   private async startClient(): Promise<VsCodeClient> {
-    assert(!this._client);
+    if (this._client) throw new Error("client already started");
     await this.allocatePort();
     const url = this.url;
     const authority = (await vscode.env.asExternalUri(vscode.Uri.parse(this.authority))).toString();
