@@ -12,7 +12,6 @@ import {
   genaiscriptDebug,
   generateId,
   getTestDir,
-  logWarn,
   randomHex,
   rmDir,
   toWorkspaceFile,
