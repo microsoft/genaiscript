@@ -1,0 +1,75 @@
+{
+  "name": "@genaiscript/globals",
+  "version": "2.0.4",
+  "type": "module",
+  "bin": "./dist/src/index.js",
+  "files": [
+    "dist/",
+    "!dist/**/*.d.*ts.map",
+    "README.md"
+  ],
+  "publisher": "Microsoft",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/genaiscript.git",
+    "directory": "packages/globals"
+  },
+  "homepage": "https://microsoft.github.io/genaiscript",
+  "keywords": [
+    "genai",
+    "ai",
+    "agentic",
+    "agent",
+    "cli",
+    "prompt",
+    "llm",
+    "generative ai",
+    "gpt4",
+    "chatgpt",
+    "ollama",
+    "llamacpp",
+    "chatgpt"
+  ],
+  "description": "Global helpers for the GenAIScript runtime.",
+  "license": "MIT",
+  "dependencies": {
+    "@genaiscript/core": "workspace:*",
+    "debug": "catalog:"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@types/debug": "^4.1.12",
+    "@types/node": "^22.15.2",
+    "@vitest/coverage-istanbul": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "rimraf": "catalog:",
+    "typescript-eslint": "catalog:",
+    "vitest": "catalog:"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "lint:check": "eslint src",
+    "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
+    "pack": "npm pack 2>&1",
+    "prepack": "npm run build",
+    "test": "vitest --run"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "module": "./dist/src/index.js"
+}

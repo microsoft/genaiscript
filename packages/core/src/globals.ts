@@ -27,6 +27,7 @@ import { MarkdownStringify } from "./markdown.js";
 import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff.js";
 import type { PromptContext } from "./types.js";
 
+let _globalsInstalled = false;
 /**
  * Installs global utilities for various data formats and operations.
  * Sets up global objects with frozen utilities for parsing, stringifying, and manipulating
@@ -46,6 +47,11 @@ import type { PromptContext } from "./types.js";
  * - Includes an ffmpeg client for multimedia operations.
  */
 export function installGlobals() {
+  if (_globalsInstalled) {
+    dbg("already installed");
+    return; // Prevent multiple installations
+  }
+  _globalsInstalled = true; // Mark globals as installed
   dbg("install");
   const glb = resolveGlobal(); // Get the global context
 

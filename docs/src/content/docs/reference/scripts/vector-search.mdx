@@ -103,7 +103,7 @@ const index = await retrieval.index("animals", {
 
 ## Indexing
 
-The `index.insertOrUpdate` functiont takes care of chunking, vectorizing and
+The `index.insertOrUpdate` function takes care of chunking, vectorizing and
 updating the vector database.
 
 ```js "await index.insertOrUpdate(env.files)"
@@ -119,7 +119,7 @@ The `index.search` performs a search (vector or hybrid) using the index.
 const hits = await retrieval.search("keyword")
 ```
 
-The returned value is an array of files with the resconstructed content from the matching chunks.
+The returned value is an array of files with the reconstructed content from the matching chunks.
 
 ```js wrap
 const hits = await retrieval.search("keyword")
