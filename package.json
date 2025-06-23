@@ -111,11 +111,11 @@
     "@modelcontextprotocol/inspector": "^0.14.3",
     "npm-check-updates": "^18.0.1",
     "npm-run-all": "^4.1.5",
-    "playwright": "^1.53.0",
-    "prettier": "^3.5.3",
+    "playwright": "^1.53.1",
+    "prettier": "catalog:",
     "prettier-plugin-curly": "^0.3.2",
     "tailwindcss": "^4.1.10",
     "turbo": "^2.5.4",
-    "zx": "^8.5.4"
+    "zx": "catalog:"
   }
 }

@@ -525,6 +525,6 @@
         "rimraf": "catalog:",
         "tslib": "catalog:",
         "typescript": "catalog:",
-        "zx": "^8.5.4"
+        "zx": "catalog:"
     }
 }

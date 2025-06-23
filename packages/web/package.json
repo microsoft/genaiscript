@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@daiji256/rehype-mathml": "^1.2.0",
+    "@daiji256/rehype-mathml": "^1.2.1",
     "@vscode-elements/elements": "1.16.0",
     "@vscode-elements/webview-playground": "1.6.0",
     "@vscode/codicons": "^0.0.36",
@@ -19,7 +19,7 @@
     "es-toolkit": "catalog:",
     "html-escaper": "3.0.3",
     "inflection": "catalog:",
-    "mermaid": "^11.6.0",
+    "mermaid": "^11.7.0",
     "nanoid": "^5.1.5",
     "pretty-bytes": "^7.0.0",
     "react": "^19.1.0",

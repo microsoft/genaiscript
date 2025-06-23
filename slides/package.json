@@ -11,8 +11,8 @@
     "dev": "slidev --open"
   },
   "devDependencies": {
-    "@slidev/cli": "^51.7.1",
+    "@slidev/cli": "^51.8.2",
     "@slidev/theme-default": "^0.25.0",
-    "zx": "^8.5.4"
+    "zx": "^8.6.0"
   }
 }
