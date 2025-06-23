@@ -3,9 +3,9 @@
 
 import * as vscode from "vscode";
 import type { PromptScript } from "../../core/src/types";
-import { templateGroup } from "../../core/src/utils";
-import { groupBy } from "../../core/src/utils";
 import { TemplateQuickPickItem } from "./parameterquickpick";
+import { groupBy } from "es-toolkit";
+import { templateGroup } from "../../core/src/ast";
 
 export function scriptsToQuickPickItems(
   templates: PromptScript[],

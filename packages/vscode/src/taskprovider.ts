@@ -4,8 +4,8 @@
 import * as vscode from "vscode";
 import { ExtensionState } from "./state";
 import { resolveCli } from "./config";
-import { TOOL_ID } from "@genaiscript/core";
-import { shellQuote } from "@genaiscript/core";
+import { shellQuote } from "../../core/src/shell";
+import { TOOL_ID } from "../../core/src/constants";
 
 export async function activeTaskProvider(state: ExtensionState) {
   const { context, host } = state;

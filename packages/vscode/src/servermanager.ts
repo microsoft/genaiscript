@@ -14,18 +14,18 @@ import {
   SERVER_LOCALHOST,
   MIN_NODE_VERSION_MAJOR,
 } from "../../core/src/constants";
-import { ServerManager, host } from "../../core/src/server";
-import { assert, logError, logInfo, logVerbose } from "../../core/src/utils";
-import { VsCodeClient } from "../../core/src/server";
-import { CORE_VERSION } from "../../core/src/constants";
 import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess";
 import { semverParse, semverSatisfies } from "../../core/src/semver";
 import { resolveCli } from "./config";
 import { deleteUndefinedValues } from "../../core/src/cleaners";
-import { findRandomOpenPort } from "../../core/src/server";
-import { packageResolveExecute } from "../../core/src/server";
-import { shellQuote } from "../../core/src/utils";
-import { log } from "node:console";
+import { assert, log } from "node:console";
+import { ServerManager, host } from "../../core/src/host";
+import { packageResolveExecute } from "../../core/src/packagemanagers";
+import { VsCodeClient } from "../../core/src/server/client";
+import { shellQuote } from "../../core/src/shell";
+import { logError, logInfo, logVerbose } from "../../core/src/util";
+import { CORE_VERSION } from "../../core/src/version";
+import { findRandomOpenPort } from "../../core/src/net";
 
 export class TerminalServerManager extends EventTarget implements ServerManager {
   private _terminal: vscode.Terminal;

@@ -4,9 +4,9 @@
 import * as vscode from "vscode";
 import { ExtensionState } from "./state";
 import { infoUri } from "./markdowndocumentprovider";
-import { CHANGE, TRACE_NODE_PREFIX } from "@genaiscript/core";
-import { TraceNode } from "@genaiscript/core";
-import { unmarkdown } from "@genaiscript/core";
+import { TraceNode } from "../../core/src/traceparser";
+import { CHANGE, TRACE_NODE_PREFIX } from "../../core/src/constants";
+import { unmarkdown } from "../../core/src/cleaners";
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
   private previewTreeItems: Record<string, vscode.TreeItem> = {};

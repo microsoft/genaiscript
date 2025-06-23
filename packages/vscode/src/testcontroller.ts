@@ -3,10 +3,9 @@
 
 import * as vscode from "vscode";
 import { ExtensionState } from "./state";
-import { TOOL_ID, CHANGE, EMOJI_SUCCESS, EMOJI_FAIL, PromptScript } from "@genaiscript/core";
-
-import { errorMessage } from "@genaiscript/core";
-import { arrayify } from "@genaiscript/core";
+import { arrayify } from "../../core/src/cleaners";
+import { TOOL_ID, CHANGE, EMOJI_SUCCESS, EMOJI_FAIL } from "../../core/src/constants";
+import { errorMessage } from "../../core/src/error";
 
 export async function activateTestController(state: ExtensionState) {
   const { context, host } = state;
