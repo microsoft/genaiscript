@@ -54,11 +54,10 @@ const dbg = genaiscriptDebug("ctx");
 export async function createPromptContext(
   prj: Project,
   ev: ExpansionVariables,
-  trace: MarkdownTrace,
   options: GenerationOptions,
   model: string,
 ) {
-  const { cancellationToken } = options;
+  const { trace, cancellationToken } = options;
   const { generator, vars, dbg, output, ...varsNoGenerator } = ev;
 
   dbg(`create`);

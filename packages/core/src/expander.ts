@@ -52,14 +52,14 @@ export async function callExpander(
   prj: Project,
   r: PromptScript,
   ev: ExpansionVariables,
-  trace: MarkdownTrace,
   options: GenerationOptions,
   installGlobally: boolean,
 ) {
   mark("prompt.expand.main");
   assert(!!options.model);
+  const trace = options.trace;
   const modelId = r.model ?? options.model;
-  const ctx = await createPromptContext(prj, ev, trace, options, modelId);
+  const ctx = await createPromptContext(prj, ev, options, modelId);
   if (installGlobally) installGlobalPromptContext(ctx);
 
   let status: GenerationStatus = undefined;
@@ -268,9 +268,9 @@ export async function expandTemplate(
     prj,
     template,
     env,
-    trace,
     {
       ...options,
+      trace,
       maxTokens,
       maxToolCalls,
       flexTokens,
@@ -356,8 +356,7 @@ export async function expandTemplate(
         prj,
         system,
         mergeEnvVarsWithSystem(env, systemId),
-        trace,
-        options,
+        { ...options, trace },
         false,
       );
 

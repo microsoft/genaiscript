@@ -894,7 +894,6 @@ export function createChatGenerationContext(
               prj,
               system,
               mergeEnvVarsWithSystem(env, systemId),
-              runTrace,
               genOptions,
               false,
             );

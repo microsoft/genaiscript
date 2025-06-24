@@ -36,9 +36,9 @@ import {
   generateId,
   getRunDir,
   installGlobalPromptContext,
-  installGlobals,
   genaiscriptDebug,
   LARGE_MODEL_ID,
+  MarkdownTrace,
 } from "@genaiscript/core";
 import { NodeHost } from "./nodehost.js";
 import debug from "debug";
@@ -124,6 +124,7 @@ export async function config(
   const prj = await buildProject();
   const runId = generateId();
   const runDir = getRunDir("runtime", runId);
+  const output = new MarkdownTrace();
   const env: ExpansionVariables = {
     runId,
     runDir,
@@ -135,21 +136,19 @@ export async function config(
       id: "",
     },
     generator: undefined,
-    output: undefined,
+    output,
     dbg: debug(DEBUG_SCRIPT_CATEGORY),
   };
   const ctx = await createPromptContext(
     prj,
     env,
-    undefined,
     {
       inner: false,
       stats: undefined,
-      trace: undefined,
       model: LARGE_MODEL_ID,
       userState: {},
     },
-    undefined,
+    LARGE_MODEL_ID,
   );
   installGlobalPromptContext(ctx);
 }

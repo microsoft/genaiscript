@@ -1,4 +1,6 @@
-import "@genaiscript/runtime";
+import { config } from "@genaiscript/runtime";
+
+await config();
 
 const d = YAML`foo: bar`;
 
