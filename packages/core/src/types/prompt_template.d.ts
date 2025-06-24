@@ -3076,7 +3076,7 @@ interface Parsers {
   prompty(file: WorkspaceFile): Promise<PromptyDocument>;
 }
 
-interface YAML {
+interface YAMLObject {
   /**
    * Parses a YAML string into a JavaScript object using JSON5.
    */
@@ -3212,7 +3212,7 @@ type DiffChangeType = "normal" | "add" | "del";
 
 type DiffChange = DiffNormalChange | DiffAddChange | DiffDeleteChange;
 
-interface DIFF {
+interface DIFFObject {
   /**
    * Parses a diff string into a structured object
    * @param input
@@ -3248,7 +3248,7 @@ interface DIFF {
   ): string;
 }
 
-interface XML {
+interface XMLObject {
   /**
    * Parses an XML payload to an object
    * @param text
@@ -3296,7 +3296,7 @@ interface HTMLToMarkdownOptions {
   disableGfm?: boolean;
 }
 
-interface HTML {
+interface HTMLObject {
   /**
    * Converts all HTML tables to JSON.
    * @param html
@@ -4075,7 +4075,7 @@ interface GitHub {
   client(owner: string, repo: string): GitHub;
 }
 
-interface MD {
+interface MDObject {
   /**
    * Parses front matter from markdown
    * @param text
@@ -4119,7 +4119,7 @@ interface MD {
   ): string;
 }
 
-interface JSONL {
+interface JSONLObject {
   /**
    * Parses a JSONL string to an array of objects
    * @param text
@@ -4132,7 +4132,7 @@ interface JSONL {
   stringify(objs: any[]): string;
 }
 
-interface INI {
+interface INIObject {
   /**
    * Parses a .ini file
    * @param text
@@ -4146,7 +4146,7 @@ interface INI {
   stringify(value: any): string;
 }
 
-interface JSON5 {
+interface JSON5Object {
   /**
    * Parses a JSON/YAML/XML string to an object
    * @param text
@@ -4168,7 +4168,7 @@ interface CSVStringifyOptions {
 /**
  * Interface representing CSV operations.
  */
-interface CSV {
+interface CSVObject {
   /**
    * Parses a CSV string to an array of objects.
    *

@@ -7,7 +7,7 @@ import type {
   PromptGeneratorOptions,
   StringLike,
 } from "@genaiscript/core";
-import { resolveChatGenerationContext, resolveRuntime } from "./runtime.js";
+import { resolveChatGenerationContext } from "./runtime.js";
 
 /**
  * Converts unstructured text or data into structured JSON format.
@@ -28,7 +28,6 @@ export async function cast(
     },
 ): Promise<{ data?: unknown; error?: string; text: string }> {
   const ctx = resolveChatGenerationContext(options);
-  const { parsers } = resolveRuntime();
   const { multiple, instructions, label = `cast text to schema`, ...rest } = options || {};
   const responseSchema = multiple
     ? ({

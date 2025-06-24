@@ -154,42 +154,42 @@ declare let workspace: WorkspaceFileSystem;
 /**
  * YAML parsing and stringifying functions.
  */
-declare let YAML: YAML;
+declare let YAML: YAMLObject;
 
 /**
  * INI parsing and stringifying.
  */
-declare let INI: INI;
+declare let INI: INIObject;
 
 /**
  * CSV parsing and stringifying.
  */
-declare let CSV: CSV;
+declare let CSV: CSVObject;
 
 /**
  * XML parsing and stringifying.
  */
-declare let XML: XML;
+declare let XML: XMLObject;
 
 /**
  * HTML parsing
  */
-declare let HTML: HTML;
+declare let HTML: HTMLObject;
 
 /**
  * Markdown and frontmatter parsing.
  */
-declare let MD: MD;
+declare let MD: MDObject;
 
 /**
  * JSONL parsing and stringifying.
  */
-declare let JSONL: JSONL;
+declare let JSONL: JSONLObject;
 
 /**
  * JSON5 parsing
  */
-declare let JSON5: JSON5;
+declare let JSON5: JSON5Object;
 
 /**
  * JSON Schema utilities
@@ -199,7 +199,7 @@ declare let JSONSchema: JSONSchemaUtilities;
 /**
  * Diff utilities
  */
-declare let DIFF: DIFF;
+declare let DIFF: DIFFObject;
 
 /**
  * Access to current LLM chat session information

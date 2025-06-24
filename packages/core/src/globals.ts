@@ -12,7 +12,6 @@ import { frontmatterTryParse, splitMarkdown, updateFrontmatter } from "./frontma
 import { JSONLStringify, JSONLTryParse } from "./jsonl.js";
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html.js";
 import { CancelError } from "./error.js";
-import { fetchText } from "./fetchtext.js";
 import { GitHubClient } from "./githubclient.js";
 import { GitClient } from "./git.js";
 import { estimateTokens, truncateTextToTokens } from "./tokens.js";
@@ -62,7 +61,7 @@ export function installGlobals() {
   glb.YAML = createYAML();
 
   // Freeze CSV utilities
-  glb.CSV = Object.freeze<CSV>({
+  glb.CSV = Object.freeze<CSVObject>({
     parse: CSVParse, // Parse CSV string to objects
     stringify: CSVStringify, // Convert objects to CSV string
     markdownify: dataToMarkdownTable, // Convert CSV to Markdown format
@@ -70,18 +69,18 @@ export function installGlobals() {
   });
 
   // Freeze INI utilities
-  glb.INI = Object.freeze<INI>({
+  glb.INI = Object.freeze<INIObject>({
     parse: INIParse, // Parse INI string to objects
     stringify: INIStringify, // Convert objects to INI string
   });
 
   // Freeze XML utilities
-  glb.XML = Object.freeze<XML>({
+  glb.XML = Object.freeze<XMLObject>({
     parse: XMLParse, // Parse XML string to objects
   });
 
   // Freeze Markdown utilities with frontmatter operations
-  glb.MD = Object.freeze<MD>({
+  glb.MD = Object.freeze<MDObject>({
     stringify: MarkdownStringify,
     frontmatter: (text, format) => frontmatterTryParse(text, { format })?.value ?? {}, // Parse frontmatter from markdown
     content: (text) => splitMarkdown(text)?.content, // Extract content from markdown
@@ -97,12 +96,12 @@ export function installGlobals() {
   });
 
   // Freeze JSONL utilities
-  glb.JSONL = Object.freeze<JSONL>({
+  glb.JSONL = Object.freeze<JSONLObject>({
     parse: JSONLTryParse, // Parse JSONL string to objects
     stringify: JSONLStringify, // Convert objects to JSONL string
   });
 
-  glb.JSON5 = Object.freeze<JSON5>({
+  glb.JSON5 = Object.freeze<JSON5Object>({
     parse: JSON5TryParse,
     stringify: JSON5Stringify,
   });
@@ -113,7 +112,7 @@ export function installGlobals() {
   });
 
   // Freeze HTML utilities
-  glb.HTML = Object.freeze<HTML>({
+  glb.HTML = Object.freeze<HTMLObject>({
     convertTablesToJSON: HTMLTablesToJSON, // Convert HTML tables to JSON
     convertToMarkdown: HTMLToMarkdown, // Convert HTML to Markdown
     convertToText: HTMLToText, // Convert HTML to plain text
@@ -149,19 +148,10 @@ export function installGlobals() {
     chunk: chunk,
   });
 
-  /**
-   * Asynchronous function to fetch text from a URL or file.
-   * Handles both HTTP(S) URLs and local workspace files.
-   * @param urlOrFile - URL or file descriptor.
-   * @param [fetchOptions] - Options for fetching.
-   * @returns Fetch result.
-   */
-  glb.fetchText = fetchText; // Assign fetchText function to global
-
   // ffmpeg
   glb.ffmpeg = new FFmepgClient();
 
-  glb.DIFF = Object.freeze<DIFF>({
+  glb.DIFF = Object.freeze<DIFFObject>({
     parse: tryDiffParse,
     createPatch: diffCreatePatch,
     findChunk: diffFindChunk,

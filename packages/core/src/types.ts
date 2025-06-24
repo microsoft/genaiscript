@@ -3086,7 +3086,7 @@ export interface Parsers {
   prompty(file: WorkspaceFile): Promise<PromptyDocument>;
 }
 
-export interface YAML {
+export interface YAMLObject {
   /**
    * Parses a YAML string into a JavaScript object using JSON5.
    */
@@ -3224,7 +3224,7 @@ export type DiffChangeType = "normal" | "add" | "del";
 
 export type DiffChange = DiffNormalChange | DiffAddChange | DiffDeleteChange;
 
-export interface DIFF {
+export interface DIFFObject {
   /**
    * Parses a diff string into a structured object
    * @param input
@@ -3260,7 +3260,7 @@ export interface DIFF {
   ): string;
 }
 
-export interface XML {
+export interface XMLObject {
   /**
    * Parses an XML payload to an object
    * @param text
@@ -3308,7 +3308,7 @@ export interface HTMLToMarkdownOptions {
   disableGfm?: boolean;
 }
 
-export interface HTML {
+export interface HTMLObject {
   /**
    * Converts all HTML tables to JSON.
    * @param html
@@ -4083,7 +4083,7 @@ export interface GitHub {
   client(owner: string, repo: string): GitHub;
 }
 
-export interface MD {
+export interface MDObject {
   /**
    * Parses front matter from markdown
    * @param text
@@ -4129,7 +4129,7 @@ export interface MD {
 
 export interface GitHubAIDisclaimerOptions extends Record<string, unknown> {}
 
-export interface JSONL {
+export interface JSONLObject {
   /**
    * Parses a JSONL string to an array of objects
    * @param text
@@ -4142,7 +4142,7 @@ export interface JSONL {
   stringify(objs: any[]): string;
 }
 
-export interface INI {
+export interface INIObject {
   /**
    * Parses a .ini file
    * @param text
@@ -4156,7 +4156,7 @@ export interface INI {
   stringify(value: any): string;
 }
 
-export interface JSON5 {
+export interface JSON5Object {
   /**
    * Parses a JSON/YAML/XML string to an object
    * @param text
@@ -4178,7 +4178,7 @@ export interface CSVStringifyOptions {
 /**
  * Interface representing CSV operations.
  */
-export interface CSV {
+export interface CSVObject {
   /**
    * Parses a CSV string to an array of objects.
    *

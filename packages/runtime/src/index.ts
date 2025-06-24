@@ -13,5 +13,5 @@ export * from "./makeitbetter.js";
 export * from "./cast.js";
 export * from "./filetree.js";
 export * from "./markdownifypdf.js";
-
+export * from "./globals.js";
 export * from "./runtime.js";

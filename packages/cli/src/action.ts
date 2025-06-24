@@ -260,7 +260,12 @@ export async function actionConfigure(
   ].filter(Boolean);
 
   const actionYmlFilename = resolve(out, "action.yml");
-  const action = YAMLTryParse(await tryReadText(actionYmlFilename));
+  const action = YAMLTryParse(await tryReadText(actionYmlFilename)) as {
+    description?: string;
+    inputs?: Record<string, GitHubActionFieldType>;
+    outputs?: Record<string, GitHubActionFieldType>;
+    branding?: Record<string, unknown>;
+  };
   if (action && !force) {
     logVerbose(`updating action.yml`);
     action.description = script.description || pkg?.description;

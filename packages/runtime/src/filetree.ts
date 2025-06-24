@@ -15,7 +15,6 @@ import type {
   WorkspaceFile,
   WorkspaceGrepOptions,
 } from "@genaiscript/core";
-import { resolveRuntime } from "./runtime.js";
 
 /**
  * Creates a tree representation of files in the workspace.
@@ -39,7 +38,6 @@ export async function fileTree(
     preview?: (file: WorkspaceFile, stats: FileStats) => Awaitable<unknown>;
   },
 ): Promise<string> {
-  const { workspace, parsers } = resolveRuntime();
   const { frontmatter, preview, query, size, ignore, ...rest } = options || {};
   const readText = !!(frontmatter || preview);
   // TODO

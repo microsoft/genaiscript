@@ -10,7 +10,7 @@
 import { parse, stringify } from "yaml";
 import { filenameOrFileToContent } from "./unwrappers.js";
 import { dedent } from "./indent.js";
-import type { WorkspaceFile, YAML } from "./types.js";
+import type { WorkspaceFile, YAMLObject } from "./types.js";
 
 /**
  * Safely attempts to parse a YAML string into a JavaScript object.
@@ -28,7 +28,7 @@ import type { WorkspaceFile, YAML } from "./types.js";
  * @returns The parsed object, or the defaultValue if parsing fails or
  *          conditions are met.
  */
-export function YAMLTryParse<T = any>(
+export function YAMLTryParse<T = unknown>(
   text: string | WorkspaceFile,
   defaultValue?: T,
   options?: { ignoreLiterals?: boolean },
@@ -40,7 +40,7 @@ export function YAMLTryParse<T = any>(
     // Check if parsed result is a primitive and ignoreLiterals is true
     if (ignoreLiterals && ["number", "boolean", "string"].includes(typeof res)) return defaultValue;
     return res ?? defaultValue;
-  } catch (e) {
+  } catch {
     // Return defaultValue in case of a parsing error
     return defaultValue;
   }
@@ -54,6 +54,7 @@ export function YAMLTryParse<T = any>(
  * @param text - The YAML string or workspace file to parse.
  * @returns The parsed JavaScript object.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function YAMLParse(text: string | WorkspaceFile): any {
   text = filenameOrFileToContent(text);
   return parse(text);
@@ -66,6 +67,7 @@ export function YAMLParse(text: string | WorkspaceFile): any {
  * @param obj - The object to convert to YAML.
  * @returns The YAML string representation of the object.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function YAMLStringify(obj: any): string {
   return stringify(obj, undefined, 2);
 }
@@ -82,7 +84,8 @@ export function YAMLStringify(obj: any): string {
  * @param values - Corresponding interpolated values to be included in the YAML string.
  * @returns A parsed object generated from the combined template strings and values.
  */
-export function createYAML(): YAML {
+export function createYAML(): YAMLObject {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res = (strings: TemplateStringsArray, ...values: any[]): any => {
     let result = strings[0];
     values.forEach((value, i) => {
@@ -93,5 +96,5 @@ export function createYAML(): YAML {
   };
   res.parse = YAMLParse;
   res.stringify = YAMLStringify;
-  return Object.freeze<YAML>(res) satisfies YAML;
+  return Object.freeze<YAMLObject>(res) satisfies YAMLObject;
 }

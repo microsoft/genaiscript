@@ -6,13 +6,28 @@
  * This module provides core functionality for text classification, data transformation,
  * PDF processing, and file system operations in the GenAIScript environment.
  */
+import "./globals.js";
 import type {
   ChatGenerationContext,
   ChatGenerationContextOptions,
   ElementOrArray,
   ExpansionVariables,
   HostConfiguration,
+  ImageGenerationOptions,
+  Path,
+  PromptGenerator,
+  PromptGeneratorOptions,
+  PromptHost,
+  Retrieval,
+  RunPromptResult,
+  RunPromptResultPromiseWithOptions,
   RuntimePromptContext,
+  SpeechOptions,
+  SpeechResult,
+  TranscriptionOptions,
+  TranscriptionResult,
+  WorkspaceFile,
+  WorkspaceFileSystem,
 } from "@genaiscript/core";
 import {
   buildProject,
@@ -43,6 +58,57 @@ export function resolveChatGenerationContext(
   return generator;
 }
 
+declare global {
+  const host: PromptHost;
+  const retrieval: Retrieval;
+  const workspace: WorkspaceFileSystem;
+  const env: ExpansionVariables;
+  const path: Path;
+  /**
+   * Expands and executes prompt
+   * @param generator
+   */
+  function runPrompt(
+    generator: string | PromptGenerator,
+    options?: PromptGeneratorOptions,
+  ): Promise<RunPromptResult>;
+
+  /**
+   * Expands and executes the prompt
+   */
+  function prompt(
+    strings: TemplateStringsArray,
+    ...args: unknown[]
+  ): RunPromptResultPromiseWithOptions;
+
+  /**
+   * Transcribes audio to text.
+   * @param audio An audio file to transcribe.
+   * @param options
+   */
+  function transcribe(
+    audio: string | WorkspaceFile,
+    options?: TranscriptionOptions,
+  ): Promise<TranscriptionResult>;
+
+  /**
+   * Converts text to speech.
+   * @param text
+   * @param options
+   */
+  function speak(text: string, options?: SpeechOptions): Promise<SpeechResult>;
+
+  /**
+   * Generate an image and return the workspace file.
+   * @param prompt
+   * @param options
+   */
+  function generateImage(
+    prompt: string,
+    options?: ImageGenerationOptions,
+  ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+}
+
 /**
  * Configure the default GenAIScript runtime environment. Installs the global helpers and configure host and env.
  */
@@ -55,7 +121,6 @@ export async function config(
   dbg(`config %o`, dotEnvPaths);
   dbg(`hostConfig %O`, hostConfig);
   await NodeHost.install(dotEnvPaths, hostConfig);
-  installGlobals();
   const prj = await buildProject();
   const runId = generateId();
   const runDir = getRunDir("runtime", runId);
