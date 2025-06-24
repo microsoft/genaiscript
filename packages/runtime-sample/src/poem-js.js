@@ -1,4 +1,4 @@
-import { prompt } from "@genaiscript/runtime";
+import "@genaiscript/runtime";
 
 const d = YAML`foo: bar`;
 

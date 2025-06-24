@@ -7,6 +7,7 @@
   "scripts": {
     "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"genaisrc/**/*.{ts,cts,mts,mjs}\" \"*.{js,cjs,mjs,json,mjs}\" ",
     "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"genaisrc/**/*.{ts,cts,mts,mjs}\" \"*.{js,cjs,mjs,json,mjs}\" ",
+    "run:node": "node",
     "test": "vitest --run"
   },
   "dependencies": {
