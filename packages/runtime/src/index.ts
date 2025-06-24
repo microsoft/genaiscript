@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+export * from "./globals.js";
 export * from "./version.js";
 export * from "./docker.js";
 export * from "./input.js";

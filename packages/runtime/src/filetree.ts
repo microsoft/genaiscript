@@ -15,7 +15,7 @@ import type {
   WorkspaceFile,
   WorkspaceGrepOptions,
 } from "@genaiscript/core";
-import { resolveChatGenerationContext } from "./runtime.js";
+import { resolveRuntime } from "./runtime.js";
 
 /**
  * Creates a tree representation of files in the workspace.
@@ -39,12 +39,13 @@ export async function fileTree(
     preview?: (file: WorkspaceFile, stats: FileStats) => Awaitable<unknown>;
   },
 ): Promise<string> {
+  const { workspace, parsers } = resolveRuntime();
   const { frontmatter, preview, query, size, ignore, ...rest } = options || {};
   const readText = !!(frontmatter || preview);
   // TODO
   const files = query
-    ? (await globalPromptContext.workspace.grep(query, glob, { ...rest, readText })).files
-    : await globalPromptContext.workspace.findFiles(glob, {
+    ? (await workspace.grep(query, glob, { ...rest, readText })).files
+    : await workspace.findFiles(glob, {
         ignore,
         readText,
       });
@@ -68,10 +69,10 @@ export async function fileTree(
         const part = parts[index];
         let node = currentLevel.find((n) => n.filename === part);
         if (!node) {
-          const stats = await globalPromptContext.workspace.stat(filename);
+          const stats = await workspace.stat(filename);
           const metadata: unknown[] = [];
           if (frontmatter && /\.mdx?$/i.test(filename)) {
-            const fm = globalPromptContext.parsers.frontmatter(file) || {};
+            const fm = parsers.frontmatter(file) || {};
             if (fm)
               metadata.push(
                 ...frontmatter

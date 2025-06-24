@@ -14,7 +14,7 @@ import type {
   PromptGeneratorOptions,
   WorkspaceFile,
 } from "@genaiscript/core";
-import { resolveChatGenerationContext } from "./runtime.js";
+import { resolveChatGenerationContext, resolveRuntime } from "./runtime.js";
 
 /**
  * Converts a PDF file to markdown format with intelligent formatting preservation.
@@ -32,7 +32,8 @@ export async function markdownifyPdf(
       ctx?: ChatGenerationContext;
     },
 ) {
-  const ctx = resolveChatGenerationContext(options);
+  const generator = resolveChatGenerationContext(options);
+  const { parsers } = resolveRuntime();
   const {
     label = `markdownify PDF`,
     model = "ocr",
@@ -42,7 +43,7 @@ export async function markdownifyPdf(
   } = options || {};
 
   // extract text and render pages as images
-  const { pages, images = [] } = await globalPromptContext.parsers.PDF(file, {
+  const { pages, images = [] } = await parsers.PDF(file, {
     ...rest,
     renderAsImage: true,
   });
@@ -51,7 +52,7 @@ export async function markdownifyPdf(
     const page = pages[i];
     const image = images[i];
     // mix of text and vision
-    const res = await ctx.runPrompt(
+    const res = await generator.runPrompt(
       async (_) => {
         const previousPages = markdowns.slice(-2).join("\n\n");
         if (previousPages.length) _.def("PREVIOUS_PAGES", previousPages);
@@ -76,7 +77,7 @@ export async function markdownifyPdf(
                 - Do not repeat the <PREVIOUS_PAGES> content.
                 - Do not include any additional explanations or comments in the markdown formatted extracted text.
                 `;
-        if (image) globalPromptContext.$`- For images, generate a short alt-text description.`;
+        if (image) _.$`- For images, generate a short alt-text description.`;
         if (typeof instructions === "string") _.$`${instructions}`;
         else if (typeof instructions === "function") await instructions(_);
       },
