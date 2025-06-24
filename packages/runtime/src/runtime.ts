@@ -10,13 +10,19 @@ import type { ElementOrArray, HostConfiguration, RuntimePromptContext } from "@g
 import { installGlobals } from "@genaiscript/core";
 import { NodeHost } from "./nodehost.js";
 
-installGlobals();
-
-export const globalPromptContext: RuntimePromptContext = globalThis as unknown as RuntimePromptContext;
+export const globalPromptContext: RuntimePromptContext =
+  globalThis as unknown as RuntimePromptContext;
 
 let _nodeHost: NodeHost | undefined;
-export async function config(dotEnvPaths?: ElementOrArray<string>, hostConfig?: HostConfiguration): Promise<RuntimePromptContext> {
-    if (_nodeHost) throw new Error("Runtime already configured. Call `config` only once.");
-    await NodeHost.install(dotEnvPaths, hostConfig);
-}
 
+/**
+ * Configure the default GenAIScript runtime environment. Installs the global helpers and configure host and env.
+ */
+export async function config(
+  dotEnvPaths?: ElementOrArray<string>,
+  hostConfig?: HostConfiguration,
+): Promise<void> {
+  if (_nodeHost) throw new Error("Runtime already configured. Call `config` only once.");
+  installGlobals();
+  await NodeHost.install(dotEnvPaths, hostConfig);
+}
