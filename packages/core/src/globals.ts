@@ -26,6 +26,7 @@ import { resolveGlobal } from "./global.js";
 import { MarkdownStringify } from "./markdown.js";
 import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff.js";
 import type { PromptContext } from "./types.js";
+import { createParsers } from "./parsers.js";
 
 let _globalsInstalled = false;
 /**
@@ -54,6 +55,8 @@ export function installGlobals() {
   _globalsInstalled = true; // Mark globals as installed
   dbg("install");
   const glb = resolveGlobal(); // Get the global context
+
+  glb.parsers = createParsers();
 
   // Freeze YAML utilities to prevent modification
   glb.YAML = createYAML();

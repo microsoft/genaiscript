@@ -31,12 +31,6 @@ const dbg = genaiscriptDebug("runtime");
 
 let _nodeHost: NodeHost | undefined;
 
-export function resolveRuntime(): RuntimePromptContext {
-  if (!_nodeHost) throw new Error("Runtime not configured. Call `config` first.");
-  const globalPromptContext: RuntimePromptContext = globalThis as unknown as RuntimePromptContext;
-  return globalPromptContext;
-}
-
 export function resolveChatGenerationContext(
   options?: ChatGenerationContextOptions,
 ): ChatGenerationContext {

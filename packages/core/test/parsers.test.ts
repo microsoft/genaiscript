@@ -3,7 +3,6 @@
 
 import { describe, test, assert, beforeEach } from "vitest";
 import { createParsers } from "../src/parsers.js";
-import { MarkdownTrace } from "../src/trace.js";
 import { XLSXParse } from "../src/xlsx.js";
 import { readFile } from "fs/promises";
 import { resolve } from "path";
@@ -11,14 +10,10 @@ import { TestHost } from "../src/testhost.js";
 import { writeFile } from "fs/promises";
 
 describe("parsers", async () => {
-  let trace: MarkdownTrace;
-  let model: string;
-  let parsers: Awaited<ReturnType<typeof createParsers>>;
+  let parsers: Parsers;
 
   beforeEach(async () => {
-    trace = new MarkdownTrace({});
-    model = "test model";
-    parsers = await createParsers({ trace, model });
+    parsers = createParsers();
     TestHost.install();
   });
 

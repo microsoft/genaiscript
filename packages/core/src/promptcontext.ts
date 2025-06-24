@@ -72,7 +72,6 @@ export async function createPromptContext(
   };
   assert(!!output, "missing output");
   // Create parsers for the given trace and model
-  const parsers = await createParsers({ trace, cancellationToken, model });
   const path = runtimeHost.path;
   const runDir = ev.runDir;
   assert(!!runDir, "missing run directory");
@@ -382,7 +381,6 @@ export async function createPromptContext(
     env: undefined, // set later
     path,
     workspace,
-    parsers,
     retrieval,
     host: promptHost,
   };

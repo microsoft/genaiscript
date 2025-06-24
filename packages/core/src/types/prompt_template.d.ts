@@ -2968,12 +2968,6 @@ interface Parsers {
   unzip(file: WorkspaceFile, options?: ParseZipOptions): Promise<WorkspaceFile[]>;
 
   /**
-   * Estimates the number of tokens in the content.
-   * @param content content to tokenize
-   */
-  tokens(content: string | WorkspaceFile): number;
-
-  /**
    * Parses fenced code sections in a markdown text
    */
   fences(content: string | WorkspaceFile): Fenced[];
@@ -6330,7 +6324,6 @@ interface PromptContext extends ChatGenerationContext {
   script(options: PromptArgs): void;
   system(options: PromptSystemArgs): void;
   path: Path;
-  parsers: Parsers;
   retrieval: Retrieval;
   workspace: WorkspaceFileSystem;
   host: PromptHost;

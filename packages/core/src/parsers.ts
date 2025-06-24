@@ -4,9 +4,7 @@
 import { CSVTryParse } from "./csv.js";
 import { filenameOrFileToContent, filenameOrFileToFilename, unfence } from "./unwrappers.js";
 import { JSON5TryParse, JSONLLMTryParse } from "./json5.js";
-import { estimateTokens } from "./tokens.js";
 import { TOMLTryParse } from "./toml.js";
-import { TraceOptions } from "./trace.js";
 import { YAMLTryParse } from "./yaml.js";
 import { DOCXTryParse } from "./docx.js";
 import { frontmatterTryParse } from "./frontmatter.js";
@@ -24,7 +22,6 @@ import { host } from "./host.js";
 import { unzip } from "./zip.js";
 import { JSONLTryParse } from "./jsonl.js";
 import { resolveFileContent } from "./file.js";
-import { resolveTokenEncoder } from "./encoders.js";
 import { mustacheRender } from "./mustache.js";
 import { jinjaRender } from "./jinja.js";
 import { llmifyDiff } from "./llmdiff.js";
@@ -32,7 +29,6 @@ import { tidyData } from "./tidy.js";
 import { hash } from "./crypto.js";
 import { GROQEvaluate } from "./groq.js";
 import { unthink } from "./think.js";
-import { CancellationOptions } from "./cancellation.js";
 import { dedent } from "./indent.js";
 import { vttSrtParse } from "./transcription.js";
 import { encodeIDs } from "./cleaners.js";
@@ -84,14 +80,7 @@ import type { Parsers, WorkspaceFile } from "./types.js";
  *   - dedent: Dedents indented text content.
  *   - encodeIDs: Encodes identifiers for use in various operations.
  */
-export async function createParsers(
-  options: {
-    model: string;
-  } & TraceOptions &
-    CancellationOptions,
-): Promise<Parsers> {
-  const { trace, model, cancellationToken } = options;
-  const { encode: encoder } = await resolveTokenEncoder(model);
+export function createParsers(): Parsers {
   return Object.freeze<Parsers>({
     JSON5: (text, options) =>
       tryValidateJSONWithSchema(
@@ -131,31 +120,15 @@ export async function createParsers(
       ),
     transcription: (text) => vttSrtParse(filenameOrFileToContent(text)),
     unzip: async (file, options) => await unzip(await host.readFile(file.filename), options),
-    tokens: (text) => estimateTokens(filenameOrFileToContent(text), encoder),
     fences: (text) => extractFenced(filenameOrFileToContent(text)),
     annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
-    HTMLToText: (text, options) =>
-      HTMLToText(filenameOrFileToContent(text), {
-        ...(options || {}),
-        trace,
-        cancellationToken,
-      }),
-    HTMLToMarkdown: (text, options) =>
-      HTMLToMarkdown(filenameOrFileToContent(text), {
-        ...(options || {}),
-        trace,
-        cancellationToken,
-      }),
+    HTMLToText: (text, options) => HTMLToText(filenameOrFileToContent(text), options),
+    HTMLToMarkdown: (text, options) => HTMLToMarkdown(filenameOrFileToContent(text), options),
     DOCX: async (file, options) => await DOCXTryParse(file, options),
     PDF: async (file, options) => {
       if (!file) return { file: undefined, pages: [], data: [] };
-      const opts = {
-        ...(options || {}),
-        trace,
-        cancellationToken,
-      };
       const filename = typeof file === "string" ? file : file.filename;
-      const { pages, content } = (await parsePdf(filename, opts)) || {};
+      const { pages, content } = (await parsePdf(filename, options)) || {};
       return {
         file: <WorkspaceFile>{
           filename,
@@ -171,8 +144,8 @@ export async function createParsers(
       const res = await mermaidParse(f);
       return res;
     },
-    math: async (expression, scope) => await MathTryEvaluate(expression, { scope, trace }),
-    validateJSON: (schema, content) => validateJSONWithSchema(content, schema, { trace }),
+    math: async (expression, scope) => await MathTryEvaluate(expression, { scope }),
+    validateJSON: (schema, content) => validateJSONWithSchema(content, schema),
     mustache: (file, args) => {
       const f = filenameOrFileToContent(file);
       return mustacheRender(f, args);
@@ -190,7 +163,7 @@ export async function createParsers(
     dedent: dedent,
     encodeIDs: encodeIDs,
     prompty: async (file) => {
-      await resolveFileContent(file, { trace });
+      await resolveFileContent(file);
       return promptyParse(file.filename, file.content);
     },
   });

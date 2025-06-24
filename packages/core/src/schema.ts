@@ -246,9 +246,10 @@ export function tryValidateJSONWithSchema<T = unknown>(
  * @returns Validation result indicating success status and error details if validation fails.
  */
 export function validateJSONWithSchema(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   object: any,
   schema: JSONSchema,
-  options?: { trace: MarkdownTrace },
+  options?: TraceOptions,
 ): FileEditValidation {
   const { trace } = options || {};
   if (!schema)
