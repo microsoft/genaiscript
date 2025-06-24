@@ -7,6 +7,7 @@ export * from "./log.js";
 export * from "./nodehost.js";
 export * from "./playwright.js";
 export * from "./runtime.js";
+export * from "./classify.js";
 export * from "./version.js";
 
 import { installGlobals } from "@genaiscript/core";
