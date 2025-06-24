@@ -4945,6 +4945,10 @@ export interface ChatGenerationContext extends ChatTurnGenerationContext {
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
 }
 
+export interface ChatGenerationContextOptions {
+  ctx?: ChatGenerationContext;
+}
+
 export interface GenerationOutput {
   /**
    * full chat history

@@ -77,7 +77,7 @@ export async function classify<L extends Record<string, string>>(
 
   const choices = entries.map(([k]) => k);
   const allChoices = uniq<keyof typeof labels | "other">(choices);
-  const ctx = options?.ctx || globalPromptContext.env.generator;
+  const ctx: ChatGenerationContext = options?.ctx || globalPromptContext.env.generator;
 
   const res = await ctx.runPrompt(
     async (_) => {
