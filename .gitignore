@@ -68,3 +68,5 @@ genaiscript*.tgz
 # START Ruler Generated Files
 .github/copilot-instructions.md
 # END Ruler Generated Files
+
+packages/*/src/package.json

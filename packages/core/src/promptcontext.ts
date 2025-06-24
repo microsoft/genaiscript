@@ -379,7 +379,6 @@ export async function createPromptContext(
     system: () => {},
     env: undefined, // set later
     path,
-    fs: workspace,
     workspace,
     parsers,
     retrieval,

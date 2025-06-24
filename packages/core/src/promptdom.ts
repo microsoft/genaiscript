@@ -940,6 +940,7 @@ async function resolvePromptNode(
 
         const resolvedArgs: Record<string, string | number | boolean> = {};
         for (const argkv of Object.entries(args || {})) {
+          // eslint-disable-next-line prefer-const
           let [argk, argv] = argkv;
           if (typeof argv === "function") argv = argv();
           resolvedArgs[argk] = await argv;
