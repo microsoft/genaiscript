@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import debug from "debug";
-const runnerDbg = debug("genaiscript:promptrunner");
-
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat.js";
 import { GenerationStatus, Project } from "./server/messages.js";
@@ -32,6 +29,8 @@ import { deleteUndefinedValues } from "./cleaners.js";
 import { DEBUG_SCRIPT_CATEGORY } from "./constants.js";
 import type { PromptScript } from "./types.js";
 import { genaiscriptDebug } from "./debug.js";
+import debug from "debug";
+const runnerDbg = genaiscriptDebug("promptrunner");
 const dbg = genaiscriptDebug("env");
 
 // Asynchronously resolve expansion variables needed for a template
@@ -185,6 +184,7 @@ export async function runTemplate(
       cache,
       metadata,
     } = await expandTemplate(prj, template, options, env);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { output, generator, secrets, dbg: envDbg, ...restEnv } = env;
 
     runnerDbg(`messages ${messages.length}`);

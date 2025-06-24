@@ -15,6 +15,7 @@ import type {
   WorkspaceFile,
   WorkspaceGrepOptions,
 } from "@genaiscript/core";
+import { resolveChatGenerationContext } from "./runtime.js";
 
 /**
  * Creates a tree representation of files in the workspace.

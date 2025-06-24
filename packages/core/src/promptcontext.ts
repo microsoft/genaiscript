@@ -39,7 +39,7 @@ import { resolveLanguageModelConfigurations } from "./config.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import type { ExpansionVariables, PromptContext } from "./types.js";
 
-const dbg = genaiscriptDebug("promptcontext");
+const dbg = genaiscriptDebug("ctx");
 
 /**
  * Creates a prompt context for the specified project, variables, trace, options, and model.
@@ -61,6 +61,7 @@ export async function createPromptContext(
   const { cancellationToken } = options;
   const { generator, vars, dbg, output, ...varsNoGenerator } = ev;
 
+  dbg(`create`);
   // Clone variables to prevent modification of the original object
   const env = {
     generator,
@@ -297,6 +298,7 @@ export async function createPromptContext(
       } satisfies LanguageModelProviderInfo);
     },
     cache: async (name: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res = createCache<any, any>(name, { type: "memory" });
       return res;
     },

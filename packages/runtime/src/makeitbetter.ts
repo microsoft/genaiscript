@@ -1,4 +1,5 @@
-import type { ChatGenerationContext } from "@genaiscript/core";
+import type { ChatGenerationContext, ChatGenerationContextOptions } from "@genaiscript/core";
+import { resolveChatGenerationContext } from "./runtime.js";
 
 /**
  * Enhances content generation by applying iterative improvements.
@@ -9,13 +10,14 @@ import type { ChatGenerationContext } from "@genaiscript/core";
  * @param options.instructions - Custom instructions for improvement. Defaults to "Make it better!".
  * The instructions are applied in each iteration.
  */
-export function makeItBetter(options?: {
-  ctx?: ChatGenerationContext;
-  repeat?: number;
-  instructions?: string;
-}) {
+export function makeItBetter(
+  options?: ChatGenerationContextOptions & {
+    repeat?: number;
+    instructions?: string;
+  },
+) {
+  const ctx = resolveChatGenerationContext(options);
   const { repeat = 1, instructions = "Make it better!" } = options || {};
-  const ctx: ChatGenerationContext = options?.ctx || globalPromptContext.env.generator;
 
   let round = 0;
   ctx.defChatParticipant((cctx) => {

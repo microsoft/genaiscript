@@ -3,7 +3,7 @@
 
 import type { CancellationToken } from "./cancellation.js";
 import type { ChatCompletionsOptions } from "./chattypes.js";
-import { MarkdownTrace } from "./trace.js";
+import { MarkdownTrace, TraceOptions } from "./trace.js";
 import { GenerationStats } from "./usage.js";
 import type {
   ContentSafetyOptions,
@@ -28,13 +28,13 @@ export interface GenerationOptions
     EmbeddingsModelOptions,
     ContentSafetyOptions,
     ScriptRuntimeOptions,
-    MetadataOptions {
+    MetadataOptions,
+    TraceOptions {
   inner: boolean; // Indicates if the process is an inner operation
   runId?: string;
   runDir?: string;
   cancellationToken?: CancellationToken; // Token to cancel the operation
   infoCb?: (partialResponse: { text: string }) => void; // Callback for providing partial responses
-  trace: MarkdownTrace; // Trace information for debugging or logging
   outputTrace?: MarkdownTrace;
   maxCachedTemperature?: number; // Maximum temperature for caching purposes
   maxCachedTopP?: number; // Maximum top-p value for caching
@@ -44,6 +44,6 @@ export interface GenerationOptions
   };
   vars?: PromptParameters; // Variables for prompt customization
   stats: GenerationStats; // Statistics of the generation
-  userState: Record<string, any>;
+  userState: Record<string, unknown>;
   applyGitIgnore?: boolean;
 }

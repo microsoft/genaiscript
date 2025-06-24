@@ -25,7 +25,6 @@ import { mergeEnvVarsWithSystem } from "./vars.js";
 import { installGlobalPromptContext } from "./globals.js";
 import { mark } from "./performance.js";
 import { nodeIsPackageTypeModule } from "./nodepackage.js";
-import { parseModelIdentifier } from "./models.js";
 import { metadataMerge } from "./metadata.js";
 import type {
   ChatParticipant,
@@ -255,7 +254,6 @@ export async function expandTemplate(
   let topLogprobs = Math.max(options.topLogprobs || 0, template.topLogprobs || 0);
 
   // finalize options
-  const { provider } = parseModelIdentifier(model);
   env.meta.model = model;
   Object.freeze(env.meta);
 

@@ -16,6 +16,7 @@ import type {
   StringLike,
 } from "@genaiscript/core";
 import { uniq } from "es-toolkit";
+import { resolveChatGenerationContext } from "./runtime.js";
 
 /**
  * Options for classifying data using AI models.
@@ -62,6 +63,7 @@ export async function classify<L extends Record<string, string>>(
   logprobs?: Record<keyof typeof labels | "other", Logprob>;
   usage?: RunPromptUsage;
 }> {
+  const ctx = resolveChatGenerationContext(options);
   const { other, explanations, ...rest } = options || {};
 
   const entries = Object.entries({
@@ -77,7 +79,6 @@ export async function classify<L extends Record<string, string>>(
 
   const choices = entries.map(([k]) => k);
   const allChoices = uniq<keyof typeof labels | "other">(choices);
-  const ctx: ChatGenerationContext = options?.ctx || globalPromptContext.env.generator;
 
   const res = await ctx.runPrompt(
     async (_) => {
