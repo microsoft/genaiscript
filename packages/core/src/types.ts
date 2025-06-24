@@ -3096,16 +3096,18 @@ export interface YAML {
   /**
    * Parses a YAML string into a JavaScript object using JSON5.
    */
-  (strings: TemplateStringsArray, ...values: any[]): any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (strings: TemplateStringsArray, ...values: unknown[]): any;
 
   /**
    * Converts an object to its YAML representation
    * @param obj
    */
-  stringify(obj: any): string;
+  stringify(obj: unknown): string;
   /**
    * Parses a YAML string to object
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parse(text: string | WorkspaceFile): any;
 }
 

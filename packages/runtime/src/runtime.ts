@@ -94,3 +94,9 @@ export async function config(
   );
   installGlobalPromptContext(ctx);
 }
+
+export function context(): RuntimePromptContext {
+  const globalPromptContext: RuntimePromptContext = globalThis as unknown as RuntimePromptContext;
+  if (!globalPromptContext.env) throw new Error("Runtime not configured. Call `config` first.");
+  return globalPromptContext;
+}
