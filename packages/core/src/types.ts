@@ -6346,10 +6346,20 @@ export interface PromptContext extends ChatGenerationContext {
   path: Path;
   parsers: Parsers;
   retrieval: Retrieval;
-  /**
-   * @deprecated Use `workspace` instead
-   */
-  fs: WorkspaceFileSystem;
   workspace: WorkspaceFileSystem;
   host: PromptHost;
 }
+
+export type RuntimePromptContext = Pick<
+  PromptContext,
+  | "host"
+  | "parsers"
+  | "env"
+  | "workspace"
+  | "retrieval"
+  | "prompt"
+  | "runPrompt"
+  | "generateImage"
+  | "transcribe"
+  | "speak"
+>;

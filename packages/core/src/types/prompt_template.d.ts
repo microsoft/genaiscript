@@ -6332,10 +6332,6 @@ interface PromptContext extends ChatGenerationContext {
   path: Path;
   parsers: Parsers;
   retrieval: Retrieval;
-  /**
-   * @deprecated Use `workspace` instead
-   */
-  fs: WorkspaceFileSystem;
   workspace: WorkspaceFileSystem;
   host: PromptHost;
 }
