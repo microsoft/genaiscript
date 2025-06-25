@@ -22,6 +22,7 @@ import type {
   JSONLObject,
   XMLObject,
   MDObject,
+  ModelConnectionOptions,
 } from "@genaiscript/core";
 import type {
   ChatGenerationContext,
@@ -147,15 +148,19 @@ export function resolveChatGenerationContext(
 }
 
 /**
- * Configure the default GenAIScript runtime environment. Installs the global helpers and configure host and env.
+ * Configure the default GenAIScript runtime environment.
+ * Installs the global helpers and configure host and env.
  */
-export async function config(
-  dotEnvPaths?: ElementOrArray<string>,
-  hostConfig?: HostConfiguration,
+export async function initialize(
+  options?: {
+    dotEnvPaths?: ElementOrArray<string>;
+    hostConfig?: HostConfiguration;
+  } & ModelConnectionOptions,
 ): Promise<void> {
   if (_nodeHost) throw new Error("Runtime already configured. Call `config` only once.");
 
   setQuiet(true);
+  const { dotEnvPaths, hostConfig, ...rest } = options || {};
   dbg(`config %o`, dotEnvPaths);
   dbg(`hostConfig %O`, hostConfig);
   installGlobals();
@@ -173,6 +178,7 @@ export async function config(
     secrets: {},
     meta: {
       id: "",
+      ...rest,
     },
     generator: undefined,
     output,
@@ -183,6 +189,7 @@ export async function config(
     prj,
     env,
     {
+      ...rest,
       inner: true,
       stats: new GenerationStats(model),
       model: LARGE_MODEL_ID,

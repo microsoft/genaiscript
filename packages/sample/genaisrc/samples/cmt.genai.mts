@@ -77,7 +77,7 @@ async function processFile(file: WorkspaceFile) {
 // Function to add comments to code
 async function addComments(file: WorkspaceFile): Promise<string | undefined> {
   let { filename, content } = file;
-  if (parsers.tokens(file) > 20000) return undefined; // too big
+  if ((await tokenizers.count(file.content)) > 20000) return undefined; // too big
 
   const res = await runPrompt(
     (ctx) => {
