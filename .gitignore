@@ -64,6 +64,8 @@ genaiscript*.tgz
 
 *.bak
 
+devproxy/
+.demo/
 
 # START Ruler Generated Files
 .github/copilot-instructions.md

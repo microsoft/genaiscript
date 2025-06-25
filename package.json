@@ -26,6 +26,7 @@
     "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
     "docs": "cd docs && pnpm run dev",
     "install:ffmpeg": "sudo apt-get update && sudo apt-get install ffmpeg -y",
+    "install:devproxy": "sudo bash -c \"$(curl -sL https://aka.ms/devproxy/setup.sh)\"",
     "format:check": "turbo format:check",
     "format:fix": "turbo format:fix",
     "gcm": "node packages/cli/dist/src/index.js run gcm --model gcm --no-run-trace --no-output-trace",
