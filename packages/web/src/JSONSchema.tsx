@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/// <reference path="../../core/src/types/prompt_template.d.ts" />
-/// <reference path="./vscode-elements.d.ts" />
 import React, { Dispatch, SetStateAction, startTransition, useEffect, useState } from "react";
 
 import { underscore } from "inflection";
@@ -233,7 +231,7 @@ function JSONSchemaSimpleTypeFormField(props: {
 function fieldDisplayName(fieldPrefix: string, fieldName: string, field: JSONSchemaSimpleType) {
   return underscore(
     (fieldPrefix ? `${fieldPrefix} / ` : fieldPrefix) + (field.title || fieldName),
-  ).replaceAll(/[_\.]/g, " ");
+  ).replaceAll(/[_.]/g, " ");
 }
 
 export function JSONBooleanOptionsGroup(props: {

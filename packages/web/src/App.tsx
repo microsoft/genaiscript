@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/// <reference path="../../core/src/types/prompt_template.d.ts" />
-/// <reference path="./vscode-elements.d.ts" />
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import "@vscode-elements/elements/dist/vscode-button";
 import "@vscode-elements/elements/dist/vscode-single-select";
@@ -185,7 +183,6 @@ function RefreshButton() {
 function ScriptSelect() {
   const scripts = useScripts();
   const { scriptid, setScriptid } = useScriptId();
-  const { refresh } = useApi();
   const { filename } = useScript() || {};
 
   return (
@@ -207,7 +204,7 @@ function ScriptSelect() {
         {scripts
           .filter((s) => !s.isSystem && !s.unlisted)
           .map(({ id, title }) => (
-            <vscode-option value={id} selected={scriptid === id} description={title}>
+            <vscode-option key={id} value={id} selected={scriptid === id} description={title}>
               {id}
             </vscode-option>
           ))}
@@ -282,6 +279,7 @@ function PromptParametersFields() {
             .map(([key, fieldSchema]) => {
               return (
                 <JSONSchemaObjectForm
+                  key={key}
                   schema={fieldSchema as JSONSchemaObject}
                   value={parameters}
                   fieldPrefix={`${key}.`}

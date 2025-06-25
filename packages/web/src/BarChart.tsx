@@ -4,7 +4,7 @@
 import React from "react";
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryGroup, VictoryTheme } from "victory";
 
-export default function BarChart(props: { rows: any[]; headers: string[] }) {
+export default function BarChart(props: { rows: Record<string, number>[]; headers: string[] }) {
   const { rows, headers } = props;
   const x = headers[0];
   const ys = headers.slice(1);

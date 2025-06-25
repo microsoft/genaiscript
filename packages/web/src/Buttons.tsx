@@ -7,6 +7,7 @@ import "@vscode-elements/elements/dist/vscode-button";
 import AIDisclaimer from "./AIDisclaimer";
 import { hosted } from "./configuration";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extractTextFromChildren(children: any): string {
   if (!children) return "";
 
@@ -14,12 +15,14 @@ function extractTextFromChildren(children: any): string {
     if (typeof child === "string") {
       return text + child;
     } else if (React.isValidElement(child)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return text + extractTextFromChildren((child.props as any).children);
     }
     return text;
   }, "") as string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CopyButton(props: { children: any; text?: string }) {
   const { children, text } = props;
   const [copied, setCopied] = useState(false);
@@ -30,7 +33,7 @@ function CopyButton(props: { children: any; text?: string }) {
       await navigator.clipboard.writeText(res);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {}
+    } catch {}
   };
   const title = copied ? "Copied!" : "Copy";
   const buttonText = copied ? "Copied!" : "";
@@ -41,6 +44,7 @@ function CopyButton(props: { children: any; text?: string }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SaveButton(props: { filename?: string; children: any; text?: string }) {
   const { children, text, filename } = props;
   const [saved, setSaved] = useState(false);
@@ -64,7 +68,7 @@ function SaveButton(props: { filename?: string; children: any; text?: string }) 
       }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-    } catch (err) {}
+    } catch {}
   };
   const title = saved ? "Saved!" : "Save";
   return (
@@ -79,6 +83,7 @@ function SaveButton(props: { filename?: string; children: any; text?: string }) 
 }
 
 export default function CopySaveButtons(props: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: any;
   filename?: string;
   text?: string;

@@ -9,7 +9,7 @@ import "@vscode-elements/elements/dist/vscode-table-row";
 import "@vscode-elements/elements/dist/vscode-table-header-cell";
 import "@vscode-elements/elements/dist/vscode-table-cell";
 
-export default function DataTable(props: { rows: any[]; headers: string[] }) {
+export default function DataTable(props: { rows: Record<string, number>[]; headers: string[] }) {
   const { rows, headers } = props;
   if (!rows?.length || !headers?.length) return null;
 

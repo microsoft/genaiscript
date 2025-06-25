@@ -14,7 +14,7 @@ import DataTable from "./DataTable";
 
 export default function DataTableTabs(props: { children: string; chart?: string }) {
   const { children, chart } = props;
-  const rows: any[] = JSON5TryParse(children);
+  const rows: Record<string, number>[] = JSON5TryParse(children);
 
   // find rows that are numbers
   if (!rows?.length && typeof rows[0] !== "object") return null;

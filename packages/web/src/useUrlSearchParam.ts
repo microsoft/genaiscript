@@ -11,6 +11,7 @@ export function useUrlSearchParams<T>(
   const [state, setState] = useState<T>(initialValues);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newState: any = {};
     Object.entries(fields).forEach(([key, field]) => {
       const { type } = field;
@@ -43,7 +44,7 @@ export function useUrlSearchParams<T>(
       if (type === "string") {
         if (value !== "") params.set(key, value as string);
       } else if (type === "boolean") {
-        if (!!value) params.set(key, "1");
+        if (value) params.set(key, "1");
       } else if (type === "integer" || type === "number") {
         const v = value as number;
         if (!isNaN(v)) params.set(key, v.toString());

@@ -54,7 +54,7 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
   useEventListener(client, RunClient.SCRIPT_START_EVENT, start, false);
 
   const runUpdate = useCallback(
-    (e: Event) =>
+    () =>
       startTransition(() => {
         setRunId(client.runId);
         setState("running");
@@ -64,7 +64,7 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
   useEventListener(client, RunClient.RUN_EVENT, runUpdate, false);
 
   const end = useCallback(
-    (e: Event) =>
+    () =>
       startTransition(() => {
         setState(undefined);
         if (runId === client.runId) setResult(client.result);
@@ -74,7 +74,7 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
   useEventListener(client, RunClient.SCRIPT_END_EVENT, end, false);
 
   const appendTrace = useCallback(
-    (evt: Event) =>
+    () =>
       startTransition(() => {
         setTrace(() => client.trace);
         setOutput(() => client.output);

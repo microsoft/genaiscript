@@ -204,6 +204,7 @@ function StatsTabPanel() {
   const result = useResult();
   const { usage } = result || {};
   if (!usage) return null;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { cost, ...rest } = usage || {};
 
   const md = usage
