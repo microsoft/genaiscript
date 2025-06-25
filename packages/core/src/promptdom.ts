@@ -80,6 +80,8 @@ import type {
   SecretDetectionOptions,
   WorkspaceFile,
   ZodTypeLike,
+  ContentSafety,
+  TokenEncoder,
 } from "./types.js";
 
 const dbg = debug("genaiscript:prompt:dom");
@@ -343,7 +345,7 @@ function renderDefNode(def: PromptDefNode): string {
     return s;
   };
 
-  const dtype = language || /\.([^\.]+)$/i.exec(filename)?.[1] || "";
+  const dtype = language || /\.([^.]+)$/i.exec(filename)?.[1] || "";
   let body = content;
   if (/^(c|t)sv$/i.test(dtype)) {
     const parsed = !/^\s*|/.test(content) && CSVTryParse(content);

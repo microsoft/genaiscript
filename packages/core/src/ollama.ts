@@ -9,6 +9,7 @@ import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai.js";
 import { logError, logVerbose } from "./util.js";
 import { JSONLTryParse } from "./jsonl.js";
 import { stderr } from "./stdio.js";
+import type { LanguageModelInfo } from "./types.js";
 
 /**
  * Lists available models for the Ollama language model configuration.

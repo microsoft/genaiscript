@@ -14,7 +14,7 @@ import {
 } from "./constants.js";
 import { hash } from "./crypto.js";
 import pLimit from "p-limit";
-import type { WorkspaceFileCache } from "./types.js";
+import type { HashOptions, WorkspaceFileCache } from "./types.js";
 
 /**
  * A cache class stores each entry as a separate file in a directory.

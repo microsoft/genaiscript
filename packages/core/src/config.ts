@@ -30,6 +30,7 @@ import { uniq } from "es-toolkit";
 import { expandHomeDir, tryReadText, tryStat } from "./fs.js";
 import { parseDefaultsFromEnv } from "./env.js";
 import { genaiscriptDebug } from "./debug.js";
+import { LanguageModelInfo } from "./types.js";
 const dbg = genaiscriptDebug("config");
 
 export function mergeHostConfigs(
@@ -58,6 +59,7 @@ async function resolveGlobalConfiguration(
   dbg("starting to resolve global configuration");
   // import and merge global local files
   let config: HostConfiguration = structuredClone(defaultConfig);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete (config as any)["$schema"];
   dbg(`loaded defaultConfig: %O`, config);
 

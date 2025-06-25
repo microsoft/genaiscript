@@ -8,6 +8,7 @@ import { deleteUndefinedValues } from "./cleaners.js";
 import { STDIN_READ_TIMEOUT } from "./constants.js";
 import { logVerbose } from "./util.js";
 import { toBase64 } from "./base64.js";
+import type { WorkspaceFile } from "./types.js";
 
 function readStdinOrTimeout(): Promise<Buffer | undefined> {
   return new Promise<Buffer | undefined>((resolve, reject) => {

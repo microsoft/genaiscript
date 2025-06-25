@@ -26,7 +26,15 @@ import { lastAssistantReasoning } from "./chatrender.js";
 import { unthink } from "./think.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { DEBUG_SCRIPT_CATEGORY } from "./constants.js";
-import type { PromptScript } from "./types.js";
+import type {
+  ChatGenerationContext,
+  ExpansionVariables,
+  ModelConnectionOptions,
+  OutputTrace,
+  PromptDefinition,
+  PromptScript,
+  WorkspaceFile,
+} from "./types.js";
 import { genaiscriptDebug } from "./debug.js";
 import debug from "debug";
 const runnerDbg = genaiscriptDebug("promptrunner");

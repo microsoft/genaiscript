@@ -19,7 +19,17 @@ import { dotGenaiscriptPath } from "./workdir.js";
 import { YAMLStringify } from "./yaml.js";
 import { resolvePromptInjectionDetector } from "./contentsafety.js";
 import { genaiscriptDebug } from "./debug.js";
-import type { McpClient, McpServerConfig, ToolCallback } from "./types.js";
+import type {
+  DefToolOptions,
+  McpClient,
+  McpServerConfig,
+  McpServerToolResult,
+  McpServerToolResultPart,
+  McpToolReference,
+  McpToolSpecification,
+  ToolCallback,
+  WorkspaceFile,
+} from "./types.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 

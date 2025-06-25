@@ -35,7 +35,19 @@ import { loadZ3Client } from "./z3.js";
 import { genaiscriptDebug } from "./debug.js";
 import { resolveLanguageModelConfigurations } from "./config.js";
 import { deleteUndefinedValues } from "./cleaners.js";
-import type { ExpansionVariables, PromptContext } from "./types.js";
+import type {
+  ExpansionVariables,
+  LanguageModelProviderInfo,
+  LanguageModelReference,
+  PromptContext,
+  PromptHost,
+  Retrieval,
+  Sg,
+  ShellOptions,
+  WorkspaceFile,
+  WorkspaceFileSystem,
+  WorkspaceGrepOptions,
+} from "./types.js";
 
 const dbg = genaiscriptDebug("ctx");
 

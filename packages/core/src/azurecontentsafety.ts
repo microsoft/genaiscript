@@ -17,7 +17,13 @@ import { chunkString } from "./chunkers.js";
 import { createCache } from "./cache.js";
 import { traceFetchPost } from "./fetchtext.js";
 import { genaiscriptDebug } from "./debug.js";
-import type { ContentSafety, ElementOrArray, WorkspaceFile } from "./types.js";
+import type {
+  Awaitable,
+  ContentSafety,
+  ElementOrArray,
+  WorkspaceFile,
+  WorkspaceFileCache,
+} from "./types.js";
 
 const dbg = genaiscriptDebug("contentsafety:azure");
 
@@ -209,7 +215,7 @@ class AzureContentSafetyClient implements ContentSafety {
     let apiToken: string;
     if (!apiKey) {
       dbg(`requesting Azure token`);
-      const { token, error } = await runtimeHost.azureToken.token(credentialsType, options);
+      const { token } = await runtimeHost.azureToken.token(credentialsType, options);
       apiToken = token.token;
     }
     const version = process.env.AZURE_CONTENT_SAFETY_VERSION || "2024-09-01";
@@ -233,7 +239,7 @@ class AzureContentSafetyClient implements ContentSafety {
 
     const fetch = await createFetch(this.options);
     const url = `${endpoint}/contentsafety/${route}?api-version=${version}`;
-    const fetcher = async (body: any) => {
+    const fetcher = async (body: unknown) => {
       traceFetchPost(trace, url, headers, body);
       return await fetch(url, {
         method: "POST",
