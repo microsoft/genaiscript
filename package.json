@@ -76,7 +76,7 @@
     "retrieval:index": "node packages/cli/dist/src/index.js retrieval index \"packages/sample/src/rag/*\"",
     "retrieval:search": "node packages/cli/dist/src/index.js retrieval search lorem \"packages/sample/src/rag/*\"",
     "run:script": "cd packages/sample/ && pnpm run:script",
-    "run:script:devproxy": "cd packages/sample/ && HTTP_PROXY=http://127.0.0.1:8000 DEBUG=script,genaiscript:fetch* pnpm run:script",
+    "run:script:devproxy": "cd packages/sample/ && HTTP_PROXY=http://127.0.0.1:8000 DEBUG=script,genaiscript:fetch* NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm run:script",
     "serve": "pnpm build:cli && run-p serve:*",
     "serve:cli": "node --watch --watch-path=packages/cli/dist packages/cli/dist/src/index.js serve --dispatch-progress",
     "serve:web": "pnpm --filter=@genaiscript/web watch",
