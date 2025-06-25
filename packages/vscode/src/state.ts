@@ -28,7 +28,7 @@ import { PromptScriptRunOptions, GenerationResult, Project } from "../../core/sr
 import { MarkdownTrace } from "../../core/src/trace";
 import { logInfo, logVerbose } from "../../core/src/util";
 import { logMeasure } from "../../core/src/perf";
-import type { PromptParameters } from "../../core/src/types";
+import type { DiagnosticSeverity, PromptParameters } from "../../core/src/types";
 
 export const FRAGMENTS_CHANGE = "fragmentsChange";
 export const AI_REQUEST_CHANGE = "aiRequestChange";
