@@ -11,7 +11,6 @@ hero:
       details include a small play button or gear symbol, symbolizing operations
       or scripting functionality.
     file: ./mcp-clients.png
-
 ---
 
 The [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) defines a protocol for sharing [tools](https://modelcontextprotocol.io/docs/concepts/tools)
@@ -40,10 +39,10 @@ This identifier is used to reference the server in the `mcpClient`.
 
 ```js
 const fs = await host.mcpServer({
-    id: "filesystem",
-    command: "npx",
-    args: ["-y", "@modelcontextprotocol/server-filesystem", path.resolve(".")],
-})
+  id: "filesystem",
+  command: "npx",
+  args: ["-y", "@modelcontextprotocol/server-filesystem", path.resolve(".")],
+});
 ```
 
 The server is automatically stopped when the prompt finishes.
@@ -52,28 +51,28 @@ The server is automatically stopped when the prompt finishes.
 
 You can perform operations on tools. Queries are not cached and always communicate with the server.
 
-- List tools:
+- List tools (metadata):
 
-    ```js
-    const tools = await fs.listTools()
-    ```
+  ```js
+  const tools = await fs.listTools();
+  ```
 
 - Call a tool:
 
-    ```js
-    const res = await fs.callTool("get_file_info", { path: "README.md" })
-    ```
+  ```js
+  const res = await fs.callTool("get_file_info", { path: "README.md" });
+  ```
 
 - Use the result:
 
-    ```js
-    const info = res.content[0].text
-    ```
+  ```js
+  const info = res.content[0].text;
+  ```
 
 The structure of the output depends on the tool, but it is designed to be consumed by an LLM. You will likely want to use `def` to store it in your prompt:
 
 ```js
-def("INFO", info)
+def("INFO", info);
 ```
 
 ## Example: YouTube Transcript
@@ -83,12 +82,28 @@ of a YouTube video. It is listed in the [Docker MCP Catalog](https://hub.docker.
 
 ```js
 const yt = await host.mcpServer({
-    id: "youtube_transcript",
-    command: "docker",
-    args: ["run", "-i", "--rm", "mcp/youtube-transcript"],
-})
+  id: "youtube_transcript",
+  command: "docker",
+  args: ["run", "-i", "--rm", "mcp/youtube-transcript"],
+});
 
-const url = "https://youtu.be/ENunZe--7j0"
-const transcript = await yt.callTool("get_transcript", { url })
-console.log(`transcript: ${transcript.text}`)
+const url = "https://youtu.be/ENunZe--7j0";
+const transcript = await yt.callTool("get_transcript", { url });
+console.log(`transcript: ${transcript.text}`);
+```
+
+## Sharing MCPs
+
+By default, MCP servers are not shared between prompts. If you want to use the same MCP server in multiple prompts,
+you can use the `host.mcpClient` function to create a client that can be reused across prompts.
+
+You can also get tools in a form that can be used in `defTool` and reuse it in multiple prompts:
+
+```js
+const tools = await fs.listToolCallbacks();
+
+await runPrompt((ctx) => {
+  for (const tool of tools) ctx.defTool(tools);
+  ctx....
+});
 ```

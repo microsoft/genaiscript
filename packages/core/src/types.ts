@@ -4703,6 +4703,11 @@ export interface McpServerConfig extends ContentSafetyOptions {
    */
   cwd?: string;
 
+  /**
+   * Do not prepend client identifier with the tool id.
+   */
+  disableToolIdMangling?: boolean;
+
   id: string;
   options?: DefToolOptions;
 

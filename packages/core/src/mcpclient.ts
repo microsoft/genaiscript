@@ -83,6 +83,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
       tools: _toolsConfig,
       generator,
       intent,
+      disableToolIdMangling,
       env: unresolvedEnv,
       ...rest
     } = serverConfig;
@@ -203,7 +204,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
           } satisfies DefToolOptions;
           return {
             spec: {
-              name: `${id}_${name}`,
+              name: disableToolIdMangling ? name : `${id}_${name}`,
               description,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               parameters: inputSchema as any,

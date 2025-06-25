@@ -4694,6 +4694,11 @@ interface McpServerConfig extends ContentSafetyOptions {
   options?: DefToolOptions;
 
   /**
+   * Do not prepend client identifier with the tool id.
+   */
+  disableToolIdMangling?: boolean;
+
+  /**
    * A list of allowed tools and their specifications. This filtering is applied
    * before computing the sha signature.
    */
