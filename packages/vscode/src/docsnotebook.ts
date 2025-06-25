@@ -5,7 +5,7 @@ import * as vscode from "vscode";
 import { ExtensionState } from "./state";
 import { Utils } from "vscode-uri";
 import { registerCommand } from "./commands";
-import type { ModelProviderType, PromptScript } from "../../core/src/types";
+import type { ModelProviderType, PromptParameters, PromptScript } from "../../core/src/types";
 import { renderMessagesToMarkdown } from "../../core/src/chatrender";
 import { TOOL_NAME, MDX_REGEX, EMOJI_FAIL, MARKDOWN_MIME_TYPE } from "../../core/src/constants";
 import { errorMessage } from "../../core/src/error";

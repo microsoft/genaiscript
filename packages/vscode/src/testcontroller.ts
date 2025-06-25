@@ -6,6 +6,7 @@ import { ExtensionState } from "./state";
 import { arrayify } from "../../core/src/cleaners";
 import { TOOL_ID, CHANGE, EMOJI_SUCCESS, EMOJI_FAIL } from "../../core/src/constants";
 import { errorMessage } from "../../core/src/error";
+import type { PromptScript } from "../../core/src/types";
 
 export async function activateTestController(state: ExtensionState) {
   const { context, host } = state;

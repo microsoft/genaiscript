@@ -14,6 +14,7 @@ import { filterGitIgnore } from "../../core/src/gitignore";
 import { CancellationOptions } from "../../core/src/cancellation";
 import { TraceOptions } from "../../core/src/trace";
 import { LanguageModelConfiguration, LogLevel } from "../../core/src/server/messages";
+import type { ElementOrArray } from "../../core/src/types";
 
 export class VSCodeHost extends EventTarget implements Host {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
