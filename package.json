@@ -28,6 +28,7 @@
     "install:ffmpeg": "sudo apt-get update && sudo apt-get install ffmpeg -y",
     "devproxy:install": "sudo bash -c \"$(curl -sL https://aka.ms/devproxy/setup.sh)\"",
     "devproxy:start": "cd packages/sample && devproxy",
+    "devproxy:test": "curl -ikx http://127.0.0.1:8000 https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/main/SUPPORT.md",
     "format:check": "turbo format:check",
     "format:fix": "turbo format:fix",
     "gcm": "node packages/cli/dist/src/index.js run gcm --model gcm --no-run-trace --no-output-trace",
