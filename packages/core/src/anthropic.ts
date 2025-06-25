@@ -31,7 +31,7 @@ import {
 } from "./chattypes.js";
 
 import { logError } from "./util.js";
-import { resolveHttpProxyAgent } from "./proxy.js";
+import { resolveUndiciProxyAgent } from "./proxy.js";
 import { ProxyAgent } from "undici";
 import { MarkdownTrace } from "./trace.js";
 import { createFetch, FetchType } from "./fetch.js";
@@ -303,7 +303,7 @@ const completerFactory = (
     // https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-to-implement-prompt-caching
     const caching =
       /sonnet|haiku|opus/i.test(model) && req.messages.some((m) => m.cacheControl === "ephemeral");
-    const httpAgent = await resolveHttpProxyAgent();
+    const httpAgent = await resolveUndiciProxyAgent();
     const messagesApi = await resolver(trace, cfg, httpAgent, fetch);
     dbg("caching", caching);
     trace?.itemValue(`caching`, caching);

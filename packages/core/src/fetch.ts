@@ -13,7 +13,7 @@ import {
 import { errorMessage } from "./error.js";
 import { logVerbose } from "./util.js";
 import { CancellationOptions } from "./cancellation.js";
-import { resolveHttpProxyAgent } from "./proxy.js";
+import { resolveHttpsProxyAgent } from "./proxy.js";
 import { host } from "./host.js";
 import { renderWithPrecision } from "./precision.js";
 import crossFetch from "cross-fetch";
@@ -96,11 +96,11 @@ export async function createFetch(
 
   dbg(`create fetch`);
   // We create a proxy based on Node.js environment variables.
-  const agent = await resolveHttpProxyAgent();
+  const agent = await resolveHttpsProxyAgent();
 
   // We enrich crossFetch with the proxy.
   const crossFetchWithProxy: typeof fetch = agent
-    ? (url, options) => crossFetch(url, { ...options, dispatcher: agent } as RequestInit)
+    ? (url, options) => crossFetch(url, { ...options, agent } as RequestInit)
     : crossFetch;
 
   const loggingFetch: typeof fetch = (url, options) => {

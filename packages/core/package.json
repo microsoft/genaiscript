@@ -87,6 +87,7 @@
     "groq-js": "^1.17.1",
     "html-escaper": "3.0.3",
     "html-to-text": "^9.0.5",
+    "https-proxy-agent": "^7.0.6",
     "ignore": "^7.0.5",
     "inflection": "catalog:",
     "ini": "^5.0.0",

@@ -412,6 +412,9 @@ importers:
       html-to-text:
         specifier: ^9.0.5
         version: 9.0.5
+      https-proxy-agent:
+        specifier: ^7.0.6
+        version: 7.0.6
       ignore:
         specifier: ^7.0.5
         version: 7.0.5
