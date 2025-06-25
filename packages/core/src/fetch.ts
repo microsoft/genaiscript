@@ -84,6 +84,7 @@ export type FetchType = (
 export async function createFetch(
   options?: TraceOptions & CancellationOptions & RetryOptions,
 ): Promise<FetchType> {
+  options = options || {};
   const {
     retries = FETCH_RETRY_DEFAULT,
     retryOn = FETCH_RETRY_ON_DEFAULT,
@@ -91,7 +92,7 @@ export async function createFetch(
     retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
     maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
     cancellationToken,
-  } = options || {};
+  } = options;
 
   dbg(`create fetch`);
   // We create a proxy based on Node.js environment variables.
@@ -99,17 +100,22 @@ export async function createFetch(
 
   // We enrich crossFetch with the proxy.
   const crossFetchWithProxy: typeof fetch = agent
-    ? (url, options) => crossFetch(url, { ...(options || {}), dispatcher: agent } as any)
+    ? (url, options) => crossFetch(url, { ...options, dispatcher: agent } as RequestInit)
     : crossFetch;
+
+  const loggingFetch: typeof fetch = (url, options) => {
+    dbg(`fetch: %s %s`, options?.method || "GET", url);
+    return crossFetchWithProxy(url, options);
+  };
 
   // Return the default fetch if no retry status codes are specified
   if (!retryOn?.length) {
     dbg("no retry logic applied, using crossFetchWithProxy directly");
-    return crossFetchWithProxy;
+    return loggingFetch;
   }
 
   // Create a fetch function with retry logic
-  const fetchRetry = wrapFetch(crossFetchWithProxy, {
+  const fetchRetry = wrapFetch(loggingFetch, {
     retryOn,
     retries,
     retryDelay: (attempt, error, response) => {
