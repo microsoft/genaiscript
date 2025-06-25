@@ -17,11 +17,11 @@ import { resolveHttpProxyAgent } from "./proxy.js";
 import { host } from "./host.js";
 import { renderWithPrecision } from "./precision.js";
 import crossFetch from "cross-fetch";
-import debug from "debug";
 import { prettyStrings } from "./pretty.js";
 import type { FetchOptions, RetryOptions } from "./types.js";
+import { genaiscriptDebug } from "./debug.js";
 
-const dbg = debug("genaiscript:fetch");
+const dbg = genaiscriptDebug("fetch");
 
 /**
  * Parses the retry-after header value.
@@ -51,7 +51,7 @@ export function parseRetryAfter(retryAfterHeader: string): number | null {
         const delaySeconds = Math.max(0, Math.ceil(delayMs / 1000));
         return delaySeconds;
       }
-    } catch(e) {
+    } catch (e) {
       dbg(`failed to parse retry-after header as date: %s`, errorMessage(e));
     }
   }
@@ -93,6 +93,7 @@ export async function createFetch(
     cancellationToken,
   } = options || {};
 
+  dbg(`create fetch`);
   // We create a proxy based on Node.js environment variables.
   const agent = await resolveHttpProxyAgent();
 

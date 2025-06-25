@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { genaiscriptDebug } from "./debug.js";
-const dbg = genaiscriptDebug("proxy");
+const dbg = genaiscriptDebug("fetch:proxy");
 
 /**
  * Resolves an HTTP proxy agent based on environment variables.
