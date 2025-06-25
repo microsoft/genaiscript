@@ -25,10 +25,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 
 const dbg = genaiscriptDebug("mcp:client");
 
-export interface McpClientProxy extends McpClient {
-  listToolCallbacks(): Promise<ToolCallback[]>;
-}
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toolResultContentToText(res: any) {
   const content = res.content as (TextContent | ImageContent | EmbeddedResource)[];
   let text = arrayify(content)
@@ -56,8 +53,8 @@ function resolveMcpEnv(_env: Record<string, string>) {
   if (!_env) return _env;
   const res = structuredClone(_env);
   Object.entries(res)
-    .filter(([k, v]) => v === "")
-    .forEach(([key, value]) => {
+    .filter(([, v]) => v === "")
+    .forEach(([key]) => {
       dbg(`filling env var: %s`, key);
       res[key] = process.env[key] || "";
     });
@@ -65,7 +62,7 @@ function resolveMcpEnv(_env: Record<string, string>) {
 }
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
-  private _clients: McpClientProxy[] = [];
+  private _clients: McpClient[] = [];
   constructor() {
     super();
   }
@@ -73,7 +70,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
   async startMcpServer(
     serverConfig: McpServerConfig,
     options: Required<TraceOptions> & CancellationOptions,
-  ): Promise<McpClientProxy> {
+  ): Promise<McpClient> {
     const { cancellationToken } = options || {};
     logVerbose(`mcp: starting ` + serverConfig.id);
     const signal = toSignal(cancellationToken);
@@ -137,11 +134,12 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             ({
               name: t.name,
               description: t.description,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               inputSchema: t.inputSchema as any,
             }) satisfies McpToolReference,
         );
       };
-      const listToolCallbacks: McpClientProxy["listToolCallbacks"] = async () => {
+      const listToolCallbacks: McpClient["listToolCallbacks"] = async () => {
         // list tools
         dbgc(`listing tools`);
         let { tools: toolDefinitions } = await client.listTools(
@@ -207,11 +205,13 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             spec: {
               name: `${id}_${name}`,
               description,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               parameters: inputSchema as any,
             },
             options: toolOptions,
             generator,
-            impl: async (args: any) => {
+            impl: async (args) => {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { context, ...restArgs } = args;
               const res = await client.callTool(
                 {
@@ -251,7 +251,8 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             content: content.text
               ? String(content.text)
               : content.blob
-                ? Buffer.from(content.blob as any).toString("base64")
+                ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  Buffer.from(content.blob as any).toString("base64")
                 : undefined,
             encoding: content.blob ? "base64" : undefined,
             filename: content.uri,
@@ -297,6 +298,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             name: toolId,
             arguments: args,
           },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           responseSchema as any,
           {
             signal,
@@ -320,7 +322,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         readResource,
         dispose,
         [Symbol.asyncDispose]: dispose,
-      } satisfies McpClientProxy);
+      } satisfies McpClient);
       this._clients.push(res);
       return res;
     } finally {
@@ -328,7 +330,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
     }
   }
 
-  get clients(): McpClientProxy[] {
+  get clients(): McpClient[] {
     return this._clients.slice(0);
   }
 

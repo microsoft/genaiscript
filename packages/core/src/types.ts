@@ -5888,10 +5888,16 @@ export interface McpClient extends AsyncDisposable {
    * Pings the server
    */
   ping(): Promise<void>;
+
   /**
    * List all available MCP tools
    */
   listTools(): Promise<McpToolReference[]>;
+
+  /**
+   * Returns a list of tools that can be used in a chat session
+   */
+  listToolCallbacks(): Promise<ToolCallback[]>;
 
   /**
    * List resources available in the server
@@ -5908,6 +5914,7 @@ export interface McpClient extends AsyncDisposable {
    * @param name Call the MCP tool
    * @param args
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callTool(name: string, args: Record<string, any>): Promise<McpServerToolResult>;
 
   /**
