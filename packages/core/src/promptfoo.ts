@@ -80,21 +80,21 @@ function resolveTestProvider(
 }
 
 function renderPurpose(script: PromptScript): string {
-  const { description, title, id, redteam, jsSource } = script;
+  const { description, title, redteam, jsSource } = script;
   const { purpose } = redteam || {};
   const trace = new MarkdownTrace();
   if (purpose) {
-    trace.heading(2, "Purpose");
-    trace.appendContent(purpose);
+    trace?.heading(2, "Purpose");
+    trace?.appendContent(purpose);
   }
-  trace.heading(2, "Prompt details");
-  trace.appendContent(
+  trace?.heading(2, "Prompt details");
+  trace?.appendContent(
     `The prompt is written using GenAIScript (https://microsoft.github.io/genaiscript), a JavaScript-based DSL for creating AI prompts. The generated prompt will be injected in the 'env.files' variable.`,
   );
-  trace.itemValue(`title`, title);
-  trace.itemValue(`description`, description);
-  if (jsSource) trace.fence(jsSource, "js");
-  return trace.content;
+  trace?.itemValue(`title`, title);
+  trace?.itemValue(`description`, description);
+  if (jsSource) trace?.fence(jsSource, "js");
+  return trace?.content;
 }
 
 /**

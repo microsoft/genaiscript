@@ -107,6 +107,7 @@ export function traceLanguageModelConnection(
   options: ModelOptions,
   connectionToken: LanguageModelConfiguration,
 ) {
+  if (!trace) return;
   const {
     model,
     temperature,

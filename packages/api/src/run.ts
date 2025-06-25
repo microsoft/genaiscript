@@ -512,7 +512,7 @@ export async function runScriptInternal(
       topLogprobs,
       fenceFormat,
       runDir,
-      applyGitIgnore,      
+      applyGitIgnore,
       cliInfo: options.cli
         ? {
             files,

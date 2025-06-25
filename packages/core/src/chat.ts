@@ -253,7 +253,7 @@ async function runToolCalls(
   for (const call of resp.toolCalls) {
     checkCancelled(cancellationToken);
     dbgt(`running tool call %s`, call.name);
-    const toolTrace = trace.startTraceDetails(`📠 tool call ${call.name}`);
+    const toolTrace = trace?.startTraceDetails(`📠 tool call ${call.name}`);
     try {
       await runToolCall(
         toolTrace,
@@ -268,10 +268,10 @@ async function runToolCalls(
       );
     } catch (e) {
       logError(e);
-      toolTrace.error(`tool call ${call.id} error`, e);
+      toolTrace?.error(`tool call ${call.id} error`, e);
       throw e;
     } finally {
-      toolTrace.endDetails();
+      toolTrace?.endDetails();
     }
   }
 
@@ -290,8 +290,8 @@ async function runToolCall(
   options: GenerationOptions,
 ) {
   const callArgs: any = JSONLLMTryParse(call.arguments);
-  trace.fence(call.arguments, "json");
-  if (callArgs === undefined) trace.error("arguments failed to parse");
+  trace?.fence(call.arguments, "json");
+  if (callArgs === undefined) trace?.error("arguments failed to parse");
 
   let todos: { tool: ToolCallback; args: any }[];
   if (call.name === "multi_tool_use.parallel") {
@@ -324,7 +324,7 @@ async function runToolCall(
       logVerbose(JSON.stringify(call, null, 2));
       logVerbose(`tool ${call.name} not found in ${tools.map((t) => t.spec.name).join(", ")}`);
       dbgt(`tool ${call.name} not found`);
-      trace.log(`tool ${call.name} not found`);
+      trace?.log(`tool ${call.name} not found`);
       tool = {
         spec: {
           name: call.name,
@@ -349,11 +349,11 @@ async function runToolCall(
     const context: ToolCallContext = {
       log: (message: string) => {
         logInfo(message);
-        trace.log(message);
+        trace?.log(message);
       },
       debug: (message: string) => {
         logVerbose(message);
-        trace.log(message);
+        trace?.log(message);
       },
       trace,
     };
@@ -366,7 +366,7 @@ async function runToolCall(
       dbgtt(e);
       logWarn(`tool: ${tool.spec.name} error`);
       logError(e);
-      trace.error(`tool: ${tool.spec.name} error`, e);
+      trace?.error(`tool: ${tool.spec.name} error`, e);
       output = errorMessage(e);
     }
     if (output === undefined || output === null) output = "no output from tool";
@@ -399,7 +399,7 @@ ${fenceMD(content, " ")}
     }
 
     if (toolEdits?.length) {
-      trace.fence(toolEdits);
+      trace?.fence(toolEdits);
       edits.push(
         ...toolEdits.map((e) => {
           const { filename, ...rest } = e;
@@ -429,7 +429,7 @@ ${fenceMD(content, " ")}
       dbgtt(`attack detected: ${result?.attackDetected}`);
       if (result.attackDetected) {
         logWarn(`tool ${tool.spec.name}: prompt injection detected`);
-        trace.error(`tool ${tool.spec.name}: prompt injection detected`, result);
+        trace?.error(`tool ${tool.spec.name}: prompt injection detected`, result);
         toolContent = `!WARNING! prompt injection detected in tool ${tool.spec.name} !WARNING!`;
       } else {
         logVerbose(`tool: ${tool.spec.name} prompt injection not detected`);
@@ -492,7 +492,7 @@ ${fenceMD(content, " ")}
         error: resIntent.error,
         choices: resIntent.choices,
       });
-      trace.detailsFenced(`intent validation`, resIntent.text, "markdown");
+      trace?.detailsFenced(`intent validation`, resIntent.text, "markdown");
       const validated = /OK/.test(resIntent.text) && !/ERR/.test(resIntent.text);
       if (!validated) {
         logVerbose(`intent: ${resIntent.text}`);
@@ -500,7 +500,7 @@ ${fenceMD(content, " ")}
       }
     }
 
-    trace.fence(toolContent, "markdown");
+    trace?.fence(toolContent, "markdown");
     toolResult.push(toolContent);
   }
 
@@ -603,14 +603,14 @@ async function applyRepairs(
   // too many attempts
   if (stats.repairs >= maxDataRepairs) {
     dbg(`maximum number of repairs reached`);
-    trace.error(`maximum number of repairs (${maxDataRepairs}) reached`);
+    trace?.error(`maximum number of repairs (${maxDataRepairs}) reached`);
     return false;
   }
 
   dbg(`appending repair instructions to messages`);
   infoCb?.({ text: "appending data repair instructions" });
   // let's get to work
-  trace.startDetails("🔧 data repairs");
+  trace?.startDetails("🔧 data repairs");
   const repair = invalids
     .map((f) =>
       toStringList(
@@ -627,7 +627,7 @@ ${repair}
                             
 `;
   logVerbose(repair);
-  trace.fence(repairMsg, "markdown");
+  trace?.fence(repairMsg, "markdown");
   messages.push({
     role: "user",
     content: [
@@ -637,7 +637,7 @@ ${repair}
       },
     ],
   });
-  trace.endDetails();
+  trace?.endDetails();
   stats.repairs++;
   return true;
 }
@@ -721,35 +721,35 @@ async function structurifyChatSession(
       ),
     );
     try {
-      trace.startDetails("📊 logprobs");
-      trace.itemValue("perplexity", perplexity);
-      trace.itemValue("uncertainty", uncertainty);
+      trace?.startDetails("📊 logprobs");
+      trace?.itemValue("perplexity", perplexity);
+      trace?.itemValue("uncertainty", uncertainty);
       if (choices?.length) {
-        trace.item("choices (0%:red, 100%: blue)");
-        trace.appendContent("\n\n");
-        trace.appendContent(choices.map((lp) => logprobToMarkdown(lp)).join("\n"));
-        trace.appendContent("\n\n");
+        trace?.item("choices (0%:red, 100%: blue)");
+        trace?.appendContent("\n\n");
+        trace?.appendContent(choices.map((lp) => logprobToMarkdown(lp)).join("\n"));
+        trace?.appendContent("\n\n");
       }
-      trace.item("logprobs (0%:red, 100%: blue)");
-      trace.appendContent("\n\n");
-      trace.appendContent(logprobs.map((lp) => logprobToMarkdown(lp)).join("\n"));
-      trace.appendContent("\n\n");
+      trace?.item("logprobs (0%:red, 100%: blue)");
+      trace?.appendContent("\n\n");
+      trace?.appendContent(logprobs.map((lp) => logprobToMarkdown(lp)).join("\n"));
+      trace?.appendContent("\n\n");
       if (!isNaN(logprobs[0].entropy)) {
-        trace.item("entropy (0:red, 1: blue)");
-        trace.appendContent("\n\n");
-        trace.appendContent(
+        trace?.item("entropy (0:red, 1: blue)");
+        trace?.appendContent("\n\n");
+        trace?.appendContent(
           logprobs.map((lp) => logprobToMarkdown(lp, { entropy: true })).join("\n"),
         );
-        trace.appendContent("\n\n");
+        trace?.appendContent("\n\n");
       }
       if (logprobs[0]?.topLogprobs?.length) {
-        trace.item("top_logprobs");
-        trace.appendContent("\n\n");
-        trace.appendContent(logprobs.map((lp) => topLogprobsToMarkdown(lp)).join("\n"));
-        trace.appendContent("\n\n");
+        trace?.item("top_logprobs");
+        trace?.appendContent("\n\n");
+        trace?.appendContent(logprobs.map((lp) => topLogprobsToMarkdown(lp)).join("\n"));
+        trace?.appendContent("\n\n");
       }
     } finally {
-      trace.endDetails();
+      trace?.endDetails();
     }
   }
 
@@ -875,7 +875,7 @@ async function processChatMessage(
     for (const participant of chatParticipants) {
       const { generator, options: participantOptions } = participant || {};
       const { label } = participantOptions || {};
-      const participantTrace = trace.startTraceDetails(`🙋 participant ${label || ""}`);
+      const participantTrace = trace?.startTraceDetails(`🙋 participant ${label || ""}`);
       try {
         const ctx = createChatTurnGenerationContext(options, participantTrace, cancellationToken);
         const { messages: newMessages } =
@@ -892,7 +892,7 @@ async function processChatMessage(
           dbg(`updating messages with new participant messages`);
           messages.splice(0, messages.length, ...newMessages);
           needsNewTurn = true;
-          participantTrace.details(
+          participantTrace?.details(
             `💬 new messages`,
             await renderMessagesToMarkdown(messages, {
               textLang: "markdown",
@@ -918,7 +918,7 @@ async function processChatMessage(
           if (participantMessages.some(({ role }) => role === "system")) {
             throw new Error("system messages not supported for chat participants");
           }
-          participantTrace.details(
+          participantTrace?.details(
             `💬 added messages (${participantMessages.length})`,
             await renderMessagesToMarkdown(participantMessages, {
               textLang: "text",
@@ -931,13 +931,13 @@ async function processChatMessage(
           messages.push(...participantMessages);
           needsNewTurn = true;
         } else {
-          participantTrace.item("no message");
+          participantTrace?.item("no message");
         }
         if (errors?.length) {
           dbg(`participant processing encountered errors`);
           err = errors[0];
           for (const error of errors) {
-            participantTrace.error(undefined, error);
+            participantTrace?.error(undefined, error);
           }
           needsNewTurn = false;
           break;
@@ -945,11 +945,11 @@ async function processChatMessage(
       } catch (e) {
         err = e;
         logError(e);
-        participantTrace.error(`participant error`, e);
+        participantTrace?.error(`participant error`, e);
         needsNewTurn = false;
         break;
       } finally {
-        participantTrace.endDetails();
+        participantTrace?.endDetails();
       }
     }
     if (needsNewTurn) {
@@ -1023,7 +1023,7 @@ async function choicesToLogitBias(
   if (!encode && choices.some((c) => typeof c === "string" || typeof c.token === "string")) {
     logWarn(`unable to compute logit bias, no token encoder found for ${model}`);
     logVerbose(YAMLStringify({ choices }));
-    trace.warn(`unable to compute logit bias, no token encoder found for ${model}`);
+    trace?.warn(`unable to compute logit bias, no token encoder found for ${model}`);
     return undefined;
   }
   const logit_bias: Record<number, number> = Object.fromEntries(
@@ -1032,16 +1032,16 @@ async function choicesToLogitBias(
       const encoded = typeof token === "number" ? [token] : encode(token);
       if (encoded.length !== 1) {
         logWarn(`choice ${c} tokenizes to ${encoded.join(", ")} (expected one token)`);
-        trace.warn(`choice ${c} tokenizes to ${encoded.join(", ")} (expected one token)`);
+        trace?.warn(`choice ${c} tokenizes to ${encoded.join(", ")} (expected one token)`);
       }
       return [encoded[0], isNaN(weight) ? CHOICE_LOGIT_BIAS : weight] as [number, number];
     }),
   );
-  trace.itemValue(
+  trace?.itemValue(
     "choices",
     choices.map((c) => (typeof c === "string" ? c : JSON.stringify(c))).join(", "),
   );
-  trace.itemValue("logit bias", JSON.stringify(logit_bias));
+  trace?.itemValue("logit bias", JSON.stringify(logit_bias));
   return logit_bias;
 }
 
@@ -1132,24 +1132,24 @@ export async function executeChatSession(
   const cacheStore = cache
     ? getChatCompletionCache(typeof cache === "string" ? cache : "chat")
     : undefined;
-  const chatTrace = trace.startTraceDetails(`💬 chat`, { expanded: true });
+  const chatTrace = trace?.startTraceDetails(`💬 chat`, { expanded: true });
   const store = metadata ? true : undefined;
   const timer = measure("chat");
   const cacheImage = async (url: string) =>
     await fileCacheImage(url, {
       trace,
       cancellationToken,
-      dir: chatTrace.options?.dir,
+      dir: chatTrace?.options?.dir,
     });
   try {
     if (toolDefinitions?.length) {
-      chatTrace.detailsFenced(`🛠️ tools`, tools, "yaml");
+      chatTrace?.detailsFenced(`🛠️ tools`, tools, "yaml");
       const toolNames = toolDefinitions.map(({ spec }) => spec.name);
       const duplicates = uniq(toolNames).filter(
         (name, index) => toolNames.lastIndexOf(name) !== index,
       );
       if (duplicates.length) {
-        chatTrace.error(`duplicate tools: ${duplicates.join(", ")}`);
+        chatTrace?.error(`duplicate tools: ${duplicates.join(", ")}`);
         return {
           error: serializeError(`duplicate tools: ${duplicates.join(", ")}`),
           finishReason: "fail",
@@ -1163,7 +1163,7 @@ export async function executeChatSession(
       collapseChatMessages(messages);
       dbg(`turn ${stats.turns}`);
       if (messages) {
-        chatTrace.details(
+        chatTrace?.details(
           `💬 messages (${messages.length})`,
           await renderMessagesToMarkdown(messages, {
             textLang: "markdown",
@@ -1181,7 +1181,7 @@ export async function executeChatSession(
       let resp: ChatCompletionResponse;
       try {
         checkCancelled(cancellationToken);
-        const reqTrace = chatTrace.startTraceDetails(`📤 llm request`);
+        const reqTrace = chatTrace?.startTraceDetails(`📤 llm request`);
         try {
           const logit_bias = await choicesToLogitBias(reqTrace, model, choices);
           req = {
@@ -1261,8 +1261,8 @@ export async function executeChatSession(
             logVerbose("\n");
             resp = cacheRes.value;
             resp.cached = cacheRes.cached;
-            reqTrace.itemValue("cache", cacheStore.name);
-            reqTrace.itemValue("cache_key", cacheRes.key);
+            reqTrace?.itemValue("cache", cacheStore.name);
+            reqTrace?.itemValue("cache_key", cacheRes.key);
             dbg(
               `cache ${resp.cached ? "hit" : "miss"} (${cacheStore.name}/${cacheRes.key.slice(0, 7)})`,
             );
@@ -1285,7 +1285,7 @@ export async function executeChatSession(
           }
         } finally {
           logVerbose("\n");
-          reqTrace.endDetails();
+          reqTrace?.endDetails();
         }
 
         const output = await processChatMessage(
@@ -1323,7 +1323,7 @@ export async function executeChatSession(
   } finally {
     await dispose(disposables, { trace: chatTrace });
     stats.trace(chatTrace);
-    chatTrace.endDetails();
+    chatTrace?.endDetails();
   }
 }
 
@@ -1337,27 +1337,27 @@ function updateChatFeatures(
 
   if (!isNaN(req.seed) && features?.seed === false) {
     dbg(`seed: disabled, not supported by ${provider}`);
-    trace.itemValue(`seed`, `disabled`);
+    trace?.itemValue(`seed`, `disabled`);
     delete req.seed; // some providers do not support seed
   }
   if (req.logit_bias && features?.logitBias === false) {
     dbg(`logit_bias: disabled, not supported by ${provider}`);
-    trace.itemValue(`logit_bias`, `disabled`);
+    trace?.itemValue(`logit_bias`, `disabled`);
     delete req.logit_bias; // some providers do not support logit_bias
   }
   if (!isNaN(req.top_p) && features?.topP === false) {
     dbg(`top_p: disabled, not supported by ${provider}`);
-    trace.itemValue(`top_p`, `disabled`);
+    trace?.itemValue(`top_p`, `disabled`);
     delete req.top_p;
   }
   if (req.tool_choice && features?.toolChoice === false) {
     dbg(`tool_choice: disabled, not supported by ${provider}`);
-    trace.itemValue(`tool_choice`, `disabled`);
+    trace?.itemValue(`tool_choice`, `disabled`);
     delete req.tool_choice;
   }
   if (req.logprobs && features?.logprobs === false) {
     dbg(`logprobs: disabled, not supported by ${provider}`);
-    trace.itemValue(`logprobs`, `disabled`);
+    trace?.itemValue(`logprobs`, `disabled`);
     delete req.logprobs;
     delete req.top_logprobs;
   }
@@ -1367,7 +1367,7 @@ function updateChatFeatures(
   }
   if (req.top_logprobs && (features?.logprobs === false || features?.topLogprobs === false)) {
     dbg(`top_logprobs: disabled, not supported by ${provider}`);
-    trace.itemValue(`top_logprobs`, `disabled`);
+    trace?.itemValue(`top_logprobs`, `disabled`);
     delete req.top_logprobs;
   }
   if (/^o1/i.test(model) && !req.max_completion_tokens) {
@@ -1401,7 +1401,7 @@ export function tracePromptResult(
   const { text, reasoning } = resp || {};
 
   if (reasoning) {
-    trace.detailsFenced(`🤔 reasoning`, reasoning, "markdown");
+    trace?.detailsFenced(`🤔 reasoning`, reasoning, "markdown");
   }
   // try to sniff the output type
   if (text) {
@@ -1412,9 +1412,9 @@ export function tracePromptResult(
         : /^(-|\*|#+|```)\s/im.test(text)
           ? "markdown"
           : "text";
-    trace.detailsFenced(`🔠 output`, text, language, { expanded: true });
+    trace?.detailsFenced(`🔠 output`, text, language, { expanded: true });
     if (language === "markdown") {
-      trace.appendContent("\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n");
+      trace?.appendContent("\n\n" + HTMLEscape(prettifyMarkdown(text)) + "\n\n");
     }
   }
 }

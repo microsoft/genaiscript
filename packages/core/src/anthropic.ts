@@ -160,6 +160,7 @@ const convertAssistantMessage = (
             signature: msg.signature,
           } satisfies Anthropic.ThinkingBlockParam)
         : undefined,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ...((convertStandardMessage(msg)?.content || []) as any),
       ...(msg.tool_calls || []).map(
         (tool) =>
@@ -305,7 +306,7 @@ const completerFactory = (
     const httpAgent = await resolveHttpProxyAgent();
     const messagesApi = await resolver(trace, cfg, httpAgent, fetch);
     dbg("caching", caching);
-    trace.itemValue(`caching`, caching);
+    trace?.itemValue(`caching`, caching);
 
     let numTokens = 0;
     let chatResp = "";
@@ -363,8 +364,8 @@ const completerFactory = (
     }
 
     dbgMessages(`messages: %O`, messages);
-    trace.detailsFenced("✉️ body", mreq, "json");
-    trace.appendContent("\n");
+    trace?.detailsFenced("✉️ body", mreq, "json");
+    trace?.appendContent("\n");
 
     try {
       const stream = messagesApi.stream({ ...mreq, ...headers });
@@ -399,9 +400,9 @@ const completerFactory = (
                 break;
               case "thinking_delta":
                 reasoningContent = chunk.delta.thinking;
-                trace.appendToken(reasoningContent);
+                trace?.appendToken(reasoningContent);
                 reasoningChatResp += reasoningContent;
-                trace.appendToken(chunkContent);
+                trace?.appendToken(chunkContent);
                 break;
               case "text_delta":
                 if (!chunk.delta.text) dbg(`empty text_delta`, chunk);
@@ -409,7 +410,7 @@ const completerFactory = (
                   chunkContent = chunk.delta.text;
                   numTokens += approximateTokens(chunkContent, { encoder });
                   chatResp += chunkContent;
-                  trace.appendToken(chunkContent);
+                  trace?.appendToken(chunkContent);
                 }
                 break;
 
@@ -448,13 +449,13 @@ const completerFactory = (
     } catch (e) {
       finishReason = "fail";
       logError(e);
-      trace.error("error while processing event", serializeError(e));
+      trace?.error("error while processing event", serializeError(e));
     }
 
-    trace.appendContent("\n\n");
-    trace.itemValue(`🏁 finish reason`, finishReason);
+    trace?.appendContent("\n\n");
+    trace?.itemValue(`🏁 finish reason`, finishReason);
     if (usage?.total_tokens) {
-      trace.itemValue(
+      trace?.itemValue(
         `🪙 tokens`,
         `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`,
       );
@@ -472,7 +473,7 @@ const completerFactory = (
   return completion;
 };
 
-const listModels: ListModelsFunction = async (cfg, options) => {
+const listModels: ListModelsFunction = async (cfg) => {
   try {
     const anthropic = new Anthropic({
       baseURL: cfg.base,
@@ -507,9 +508,10 @@ export const AnthropicModel = Object.freeze<LanguageModel>({
       fetch,
       fetchOptions: {
         dispatcher: httpAgent,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as RequestInit as any,
     });
-    if (anthropic.baseURL) trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`);
+    if (anthropic.baseURL) trace?.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`);
     const messagesApi = anthropic.beta.messages;
     return messagesApi;
   }),
@@ -524,9 +526,10 @@ export const AnthropicBedrockModel = Object.freeze<LanguageModel>({
       fetch,
       fetchOptions: {
         dispatcher: httpAgent,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as RequestInit as any,
     });
-    if (anthropic.baseURL) trace.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`);
+    if (anthropic.baseURL) trace?.itemValue(`url`, `[${anthropic.baseURL}](${anthropic.baseURL})`);
     return anthropic.beta.messages;
   }),
   id: MODEL_PROVIDER_ANTHROPIC_BEDROCK,

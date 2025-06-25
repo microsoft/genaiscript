@@ -85,7 +85,7 @@ export class VsCodeClient extends WebSocketClient {
       if (run) {
         switch (type) {
           case "script.progress": {
-            if (ev.trace) run.trace.appendContent(ev.trace);
+            if (ev.trace && run.trace) run.trace.appendContent(ev.trace);
             if (ev.progress && !ev.inner) run.infoCb({ text: ev.progress });
             if (ev.response || ev.tokens !== undefined)
               run.partialCb({

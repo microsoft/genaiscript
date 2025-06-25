@@ -75,9 +75,8 @@ export async function computeFileEdits(
     let fileEdit: FileUpdate = fileEdits[fn];
     if (!fileEdit) {
       let before: string = null;
-      let after: string = undefined;
+      const after: string = undefined;
       if (await fileExists(fn)) before = await readText(fn);
-      else if (await fileExists(fn)) after = await readText(fn);
       fileEdit = fileEdits[fn] = { before, after };
     }
     return fileEdit;
@@ -104,7 +103,7 @@ export async function computeFileEdits(
                 )) ?? val;
           } catch (e) {
             logVerbose(e);
-            trace.error(`error custom merging diff in ${fn}`, e);
+            trace?.error(`error custom merging diff in ${fn}`, e);
           }
         } else fileEdit.after = val;
       } else if (kw === "diff") {
@@ -113,12 +112,12 @@ export async function computeFileEdits(
           fileEdit.after = applyLLMPatch(fileEdit.after || fileEdit.before, chunks);
         } catch (e) {
           logVerbose(e);
-          trace.error(`error applying patch to ${fn}`, e);
+          trace?.error(`error applying patch to ${fn}`, e);
           try {
             fileEdit.after = applyLLMDiff(fileEdit.after || fileEdit.before, chunks);
           } catch (e) {
             logVerbose(e);
-            trace.error(`error merging diff in ${fn}`, e);
+            trace?.error(`error merging diff in ${fn}`, e);
           }
         }
       }
@@ -136,15 +135,15 @@ export async function computeFileEdits(
         }
       } catch (e) {
         logError(e);
-        trace.error(`error parsing changelog`, e);
-        trace.detailsFenced(`changelog`, val, "text");
+        trace?.error(`error parsing changelog`, e);
+        trace?.detailsFenced(`changelog`, val, "text");
       }
     }
   }
 
   // Apply user-defined output processors
   if (outputProcessors?.length) {
-    const opTrace = trace.startTraceDetails("🖨️ output processors");
+    const opTrace = trace?.startTraceDetails("🖨️ output processors");
     try {
       for (const outputProcessor of outputProcessors) {
         const {
@@ -164,13 +163,13 @@ export async function computeFileEdits(
 
         if (newText !== undefined) {
           text = newText;
-          opTrace.detailsFenced(`📝 text`, text);
+          opTrace?.detailsFenced(`📝 text`, text);
         }
 
         if (files)
           for (const [n, content] of Object.entries(files)) {
             const fn = runtimeHost.path.isAbsolute(n) ? n : runtimeHost.resolvePath(projFolder, n);
-            opTrace.detailsFenced(`📁 file ${fn}`, content);
+            opTrace?.detailsFenced(`📁 file ${fn}`, content);
             const fileEdit = await getFileEdit(fn);
             fileEdit.after = content;
             fileEdit.validation = { pathValid: true };
@@ -180,9 +179,9 @@ export async function computeFileEdits(
     } catch (e) {
       if (isCancelError(e)) throw e;
       logError(e);
-      opTrace.error(`output processor failed`, e);
+      opTrace?.error(`output processor failed`, e);
     } finally {
-      opTrace.endDetails();
+      opTrace?.endDetails();
     }
   }
 
@@ -215,7 +214,7 @@ export async function computeFileEdits(
     });
 
   if (edits.length)
-    trace.details(
+    trace?.details(
       "✏️ edits",
       dataToMarkdownTable(edits, {
         headers: ["type", "filename", "message", "validated"],
@@ -244,7 +243,7 @@ function validateFileOutputs(
   schemas: Record<string, JSONSchema>,
 ) {
   if (fileOutputs?.length && Object.keys(fileEdits || {}).length) {
-    trace.startDetails("🗂 file outputs");
+    trace?.startDetails("🗂 file outputs");
     try {
       for (const fileEditName of Object.keys(fileEdits)) {
         const fe = fileEdits[fileEditName];
@@ -252,13 +251,13 @@ function validateFileOutputs(
           const { pattern, options } = fileOutput;
           if (isGlobMatch(fileEditName, pattern)) {
             try {
-              trace.startDetails(`📁 ${fileEditName}`);
-              trace.itemValue(`pattern`, pattern);
+              trace?.startDetails(`📁 ${fileEditName}`);
+              trace?.itemValue(`pattern`, pattern);
               const { schema: schemaId } = options || {};
               if (/\.(json|yaml)$/i.test(fileEditName)) {
                 const { after } = fileEdits[fileEditName];
                 const data = /\.json$/i.test(fileEditName) ? JSON5parse(after) : YAMLParse(after);
-                trace.detailsFenced("📝 data", data);
+                trace?.detailsFenced("📝 data", data);
                 if (schemaId) {
                   const schema = schemas[schemaId];
                   if (!schema)
@@ -274,19 +273,19 @@ function validateFileOutputs(
                 fe.validation = { pathValid: true };
               }
             } catch (e) {
-              trace.error(errorMessage(e));
+              trace?.error(errorMessage(e));
               fe.validation = {
                 schemaError: errorMessage(e),
               };
             } finally {
-              trace.endDetails();
+              trace?.endDetails();
             }
             break;
           }
         }
       }
     } finally {
-      trace.endDetails();
+      trace?.endDetails();
     }
   }
 }
@@ -316,7 +315,7 @@ export async function writeFileEdits(
 
     // Skip writing if the edit is invalid and applyEdits is false
     if (validation?.schemaError) {
-      trace.detailsFenced(`skipping ${fn}, invalid schema`, validation.schemaError, "text");
+      trace?.detailsFenced(`skipping ${fn}, invalid schema`, validation.schemaError, "text");
       continue;
     }
 
@@ -324,7 +323,7 @@ export async function writeFileEdits(
     if (after !== before) {
       // Log whether the file is being updated or created
       logVerbose(`${before !== undefined ? `updating` : `creating`} ${fn}`);
-      trace.detailsFenced(
+      trace?.detailsFenced(
         `updating ${fn}`,
         diffCreatePatch({ filename: fn, content: before }, { filename: fn, content: after }),
         "diff",

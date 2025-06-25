@@ -145,28 +145,28 @@ export function createChatTurnGenerationContext(
     log: (...args: any[]) => {
       const line = consoleLogFormat(...args);
       if (line) {
-        trace.log(line);
+        trace?.log(line);
         stdout.write(line + "\n");
       }
     },
     debug: (...args: any[]) => {
       const line = consoleLogFormat(...args);
       if (line) {
-        trace.log(line);
+        trace?.log(line);
         logVerbose(line);
       }
     },
     warn: (...args: any[]) => {
       const line = consoleLogFormat(...args);
       if (line) {
-        trace.warn(line);
+        trace?.warn(line);
         logWarn(line);
       }
     },
     error: (...args: any[]) => {
       const line = consoleLogFormat(...args);
       if (line) {
-        trace.error(line);
+        trace?.error(line);
         logError(line);
       }
     },
@@ -441,6 +441,7 @@ export function createChatGenerationContext(
         createToolNode(
           tool.spec.name,
           tool.spec.description,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           tool.spec.parameters as any,
           tool.impl,
           defOptions,
@@ -508,6 +509,7 @@ export function createChatGenerationContext(
       async (args) => {
         // the LLM automatically adds extract arguments to the context
         checkCancelled(cancellationToken);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { context, ...argsRest } = args;
         const { query, ...argsNoQuery } = argsRest;
 
@@ -647,7 +649,7 @@ export function createChatGenerationContext(
   ): Promise<TranscriptionResult> => {
     checkCancelled(cancellationToken);
     const { cache, ...rest } = options || {};
-    const transcriptionTrace = trace.startTraceDetails("🎤 transcribe");
+    const transcriptionTrace = trace?.startTraceDetails("🎤 transcribe");
     try {
       const conn: ModelConnectionOptions = {
         model: options?.model,
@@ -676,9 +678,9 @@ export function createChatGenerationContext(
       });
       const file = await BufferToBlob(await host.readFile(audioFile), "audio/ogg");
       const update: () => Promise<TranscriptionResult> = async () => {
-        transcriptionTrace.itemValue(`model`, configuration.model);
-        transcriptionTrace.itemValue(`file size`, prettyBytes(file.size));
-        transcriptionTrace.itemValue(`file type`, file.type);
+        transcriptionTrace?.itemValue(`model`, configuration.model);
+        transcriptionTrace?.itemValue(`file size`, prettyBytes(file.size));
+        transcriptionTrace?.itemValue(`file type`, file.type);
         const res = await transcriber(
           {
             file,
@@ -703,29 +705,29 @@ export function createChatGenerationContext(
       );
       if (cache) {
         const hit = await _cache.getOrUpdate({ file, ...rest }, update, (res) => !res.error);
-        transcriptionTrace.itemValue(`cache ${hit.cached ? "hit" : "miss"}`, hit.key);
+        transcriptionTrace?.itemValue(`cache ${hit.cached ? "hit" : "miss"}`, hit.key);
         res = hit.value;
       } else res = await update();
-      transcriptionTrace.fence(res.text, "markdown");
-      if (res.error) transcriptionTrace.error(errorMessage(res.error));
-      if (res.segments) transcriptionTrace.fence(res.segments, "yaml");
+      transcriptionTrace?.fence(res.text, "markdown");
+      if (res.error) transcriptionTrace?.error(errorMessage(res.error));
+      if (res.segments) transcriptionTrace?.fence(res.segments, "yaml");
       return res;
     } catch (e) {
       logError(e);
-      transcriptionTrace.error(e);
+      transcriptionTrace?.error(e);
       return {
         text: undefined,
         error: serializeError(e),
       } satisfies TranscriptionResult;
     } finally {
-      transcriptionTrace.endDetails();
+      transcriptionTrace?.endDetails();
     }
   };
 
   const speak = async (input: string, options?: SpeechOptions): Promise<SpeechResult> => {
     checkCancelled(cancellationToken);
     const { cache, voice, instructions, ...rest } = options || {};
-    const speechTrace = trace.startTraceDetails("🦜 speak");
+    const speechTrace = trace?.startTraceDetails("🦜 speak");
     try {
       const conn: ModelConnectionOptions = {
         model: options?.model || SPEECH_MODEL_ID,
@@ -747,7 +749,7 @@ export function createChatGenerationContext(
       checkCancelled(cancellationToken);
       const { speaker } = await resolveLanguageModel(configuration.provider);
       if (!speaker) throw new Error("speech converter not found for " + info.model);
-      speechTrace.itemValue(`model`, configuration.model);
+      speechTrace?.itemValue(`model`, configuration.model);
       const req = deleteUndefinedValues({
         input,
         model: configuration.model,
@@ -759,7 +761,7 @@ export function createChatGenerationContext(
         cancellationToken,
       });
       if (res.error) {
-        speechTrace.error(errorMessage(res.error));
+        speechTrace?.error(errorMessage(res.error));
         return { error: res.error } satisfies SpeechResult;
       }
       const h = await hash(res.audio, { length: 20 });
@@ -771,13 +773,13 @@ export function createChatGenerationContext(
       } satisfies SpeechResult;
     } catch (e) {
       logError(e);
-      speechTrace.error(e);
+      speechTrace?.error(e);
       return {
         filename: undefined,
         error: serializeError(e),
       } satisfies SpeechResult;
     } finally {
-      speechTrace.endDetails();
+      speechTrace?.endDetails();
     }
   };
 
@@ -793,7 +795,7 @@ export function createChatGenerationContext(
     checkCancelled(cancellationToken);
     Object.freeze(runOptions);
     const { label, applyEdits, throwOnError } = runOptions || {};
-    const runTrace = trace.startTraceDetails(`🎁 ${label || "prompt"}`);
+    const runTrace = trace?.startTraceDetails(`🎁 ${label || "prompt"}`);
     const messages: ChatCompletionMessageParam[] = [];
     try {
       infoCb?.({ text: label || "prompt" });
@@ -879,7 +881,7 @@ export function createChatGenerationContext(
 
       if (systemScripts.length)
         try {
-          runTrace.startDetails("👾 systems");
+          runTrace?.startDetails("👾 systems");
           for (const systemId of systemScripts) {
             checkCancelled(cancellationToken);
             dbg(`system ${systemId.id}`, {
@@ -887,9 +889,9 @@ export function createChatGenerationContext(
             });
             const system = resolveScript(prj, systemId);
             if (!system) throw new Error(`system template ${systemId.id} not found`);
-            runTrace.startDetails(`👾 ${system.id}`);
+            runTrace?.startDetails(`👾 ${system.id}`);
             if (systemId.parameters)
-              runTrace.detailsFenced(`parameters`, YAMLStringify(systemId.parameters));
+              runTrace?.detailsFenced(`parameters`, YAMLStringify(systemId.parameters));
             const sysr = await callExpander(
               prj,
               system,
@@ -905,21 +907,21 @@ export function createChatGenerationContext(
             if (sysr.chatParticipants) chatParticipants.push(...sysr.chatParticipants);
             if (sysr.fileOutputs?.length) fileOutputs.push(...sysr.fileOutputs);
             if (sysr.disposables?.length) disposables.push(...sysr.disposables);
-            if (sysr.logs?.length) runTrace.details("📝 console.log", sysr.logs);
+            if (sysr.logs?.length) runTrace?.details("📝 console.log", sysr.logs);
             for (const smsg of sysr.messages) {
               if (smsg.role === "user" && typeof smsg.content === "string") {
                 appendSystemMessage(messages, smsg.content);
-                runTrace.fence(smsg.content, "markdown");
+                runTrace?.fence(smsg.content, "markdown");
               } else throw new NotSupportedError("only string user messages supported in system");
             }
             genOptions.logprobs = genOptions.logprobs || system.logprobs;
-            runTrace.detailsFenced("💻 script source", system.jsSource, "js");
-            runTrace.endDetails();
+            runTrace?.detailsFenced("💻 script source", system.jsSource, "js");
+            runTrace?.endDetails();
             if (sysr.status !== "success")
               throw new Error(`system ${system.id} failed ${sysr.status} ${sysr.statusText}`);
           }
         } finally {
-          runTrace.endDetails();
+          runTrace?.endDetails();
         }
 
       if (genOptions.fallbackTools) {
@@ -965,7 +967,7 @@ export function createChatGenerationContext(
       if (resp.error && throwOnError) throw new Error(errorMessage(resp.error));
       return resp;
     } catch (e) {
-      runTrace.error(e);
+      runTrace?.error(e);
       if (throwOnError) throw e;
       return {
         messages,
@@ -975,7 +977,7 @@ export function createChatGenerationContext(
         error: serializeError(e),
       };
     } finally {
-      runTrace.endDetails();
+      runTrace?.endDetails();
     }
   };
 
@@ -985,7 +987,7 @@ export function createChatGenerationContext(
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }> => {
     if (!prompt) throw new Error("prompt is missing");
 
-    const imgTrace = trace.startTraceDetails("🖼️ generate image");
+    const imgTrace = trace?.startTraceDetails("🖼️ generate image");
     try {
       const { style, quality, size, outputFormat, mime, ...rest } = imageOptions || {};
       const conn: ModelConnectionOptions = {
@@ -1009,7 +1011,7 @@ export function createChatGenerationContext(
       checkCancelled(cancellationToken);
       const { imageGenerator } = await resolveLanguageModel(configuration.provider);
       if (!imageGenerator) throw new Error("image generator not found for " + info.model);
-      imgTrace.itemValue(`model`, configuration.model);
+      imgTrace?.itemValue(`model`, configuration.model);
       const req = deleteUndefinedValues({
         model: configuration.model,
         prompt: dedent(prompt),
@@ -1026,7 +1028,7 @@ export function createChatGenerationContext(
       });
       const duration = m();
       if (res.error) {
-        imgTrace.error(errorMessage(res.error));
+        imgTrace?.error(errorMessage(res.error));
         return undefined;
       }
       dbg(`usage: %o`, res.usage);
@@ -1061,8 +1063,8 @@ export function createChatGenerationContext(
         );
       } else logVerbose(`image: ${filename}`);
 
-      imgTrace.image(filename, `generated image`);
-      imgTrace.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
+      imgTrace?.image(filename, `generated image`);
+      imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
       return {
         image: {
           filename,
@@ -1072,7 +1074,7 @@ export function createChatGenerationContext(
         revisedPrompt: res.revisedPrompt,
       };
     } finally {
-      imgTrace.endDetails();
+      imgTrace?.endDetails();
     }
   };
 

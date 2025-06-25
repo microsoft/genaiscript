@@ -76,7 +76,7 @@ export function traceCliArgs(
   template: PromptScript,
   options: GenerationOptions,
 ) {
-  if (isCI) return;
+  if (isCI || !trace) return;
 
   trace.details(
     "🤖 automation",

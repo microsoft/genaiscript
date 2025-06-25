@@ -211,6 +211,8 @@ export class GenerationStats {
    * @param trace - The MarkdownTrace instance used for tracing.
    */
   trace(trace: MarkdownTrace) {
+    if (!trace) return;
+
     trace.startDetails("🪙 usage");
     try {
       this.traceStats(trace);

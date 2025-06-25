@@ -8,8 +8,6 @@ import debug from "debug";
 import { assert } from "./assert.js";
 import { arrayify } from "./cleaners.js";
 import { runtimeHost } from "./host.js";
-import { MarkdownTrace } from "./trace.js";
-import { createParsers } from "./parsers.js";
 import { bingSearch, tavilySearch } from "./websearch.js";
 import { RunPromptContextNode, createChatGenerationContext } from "./runpromptcontext.js";
 import { GenerationOptions } from "./generation.js";
@@ -118,7 +116,7 @@ export async function createPromptContext(
         } as WorkspaceGrepOptions;
       }
       const { path, glob, ...rest } = grepOptions || {};
-      const grepTrace = trace.startTraceDetails(
+      const grepTrace = trace?.startTraceDetails(
         `🌐 grep ${HTMLEscape(typeof query === "string" ? query : query.source)} ${glob ? `--glob ${glob}` : ""} ${path || ""}`,
       );
       try {
@@ -129,14 +127,14 @@ export async function createPromptContext(
           trace: grepTrace,
           cancellationToken,
         });
-        grepTrace.files(matches, {
+        grepTrace?.files(matches, {
           model,
           secrets: env.secrets,
           maxLength: 0,
         });
         return { files, matches };
       } finally {
-        grepTrace.endDetails();
+        grepTrace?.endDetails();
       }
     },
   };
@@ -146,7 +144,7 @@ export async function createPromptContext(
     webSearch: async (q, options) => {
       const { provider, count, ignoreMissingProvider } = options || {};
       // Conduct a web search and return the results
-      const webTrace = trace.startTraceDetails(`🌐 web search <code>${HTMLEscape(q)}</code>`);
+      const webTrace = trace?.startTraceDetails(`🌐 web search <code>${HTMLEscape(q)}</code>`);
       try {
         let files: WorkspaceFile[];
         if (provider === "bing") files = await bingSearch(q, { trace: webTrace, count });
@@ -163,36 +161,36 @@ export async function createPromptContext(
         }
         if (!files) {
           if (ignoreMissingProvider) {
-            webTrace.log(`no search provider configured`);
+            webTrace?.log(`no search provider configured`);
             return undefined;
           }
           throw new Error(`No search provider configured. See ${DOCS_WEB_SEARCH_URL}.`);
         }
-        webTrace.files(files, {
+        webTrace?.files(files, {
           model,
           secrets: env.secrets,
           maxLength: 0,
         });
         return files;
       } finally {
-        webTrace.endDetails();
+        webTrace?.endDetails();
       }
     },
     fuzzSearch: async (q, files_, searchOptions) => {
       // Perform a fuzzy search on the provided files
       const files = arrayify(files_);
       searchOptions = searchOptions || {};
-      const fuzzTrace = trace.startTraceDetails(`🧐 fuzz search <code>${HTMLEscape(q)}</code>`);
+      const fuzzTrace = trace?.startTraceDetails(`🧐 fuzz search <code>${HTMLEscape(q)}</code>`);
       try {
         if (!files?.length) {
-          fuzzTrace.error("no files provided");
+          fuzzTrace?.error("no files provided");
           return [];
         } else {
           const res = await fuzzSearch(q, files, {
             ...searchOptions,
             trace: fuzzTrace,
           });
-          fuzzTrace.files(res, {
+          fuzzTrace?.files(res, {
             model,
             secrets: env.secrets,
             skipIfEmpty: true,
@@ -201,7 +199,7 @@ export async function createPromptContext(
           return res;
         }
       } finally {
-        fuzzTrace.endDetails();
+        fuzzTrace?.endDetails();
       }
     },
     index: async (indexId, indexOptions) => {
@@ -220,10 +218,10 @@ export async function createPromptContext(
       // Perform a vector-based search on the provided files
       const files = arrayify(files_).map(toWorkspaceFile);
       searchOptions = { ...(searchOptions || {}) };
-      const vecTrace = trace.startTraceDetails(`🔍 vector search <code>${HTMLEscape(q)}</code>`);
+      const vecTrace = trace?.startTraceDetails(`🔍 vector search <code>${HTMLEscape(q)}</code>`);
       try {
         if (!files?.length) {
-          vecTrace.error("no files provided");
+          vecTrace?.error("no files provided");
           return [];
         }
 
@@ -239,7 +237,7 @@ export async function createPromptContext(
         });
         return res;
       } finally {
-        vecTrace.endDetails();
+        vecTrace?.endDetails();
       }
     },
   };

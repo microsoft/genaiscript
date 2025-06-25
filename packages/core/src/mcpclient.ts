@@ -99,7 +99,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
     // genaiscript:mcp:id
     const dbgc = dbg.extend(id);
     dbgc(`starting`);
-    const trace = options.trace.startTraceDetails(`🪚 mcp ${id}`);
+    const trace = options.trace?.startTraceDetails(`🪚 mcp ${id}`);
     try {
       const progress: (msg: string) => ProgressCallback = (msg) => (ev) =>
         dbgc(msg + " ", `${ev.progress || ""}/${ev.total || ""}`);
@@ -148,7 +148,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
           {},
           { signal, onprogress: progress("list tools") },
         );
-        trace.fence(
+        trace?.fence(
           toolDefinitions.map(({ name, description }) => ({
             name,
             description,
@@ -165,7 +165,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         // apply filter
         if (toolSpecs.length > 0) {
           dbg(`filtering tools`);
-          trace.fence(toolSpecs, "json");
+          trace?.fence(toolSpecs, "json");
           toolDefinitions = toolDefinitions.filter((tool) =>
             toolSpecs.some((s) => s.id === tool.name),
           );
@@ -173,7 +173,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         }
 
         const sha = await hash(JSON.stringify(toolDefinitions));
-        trace.itemValue("tools sha", sha);
+        trace?.itemValue("tools sha", sha);
         logVerbose(`mcp ${id}: tools sha: ${sha}`);
         if (toolsSha !== undefined) {
           if (sha === toolsSha) logVerbose(`mcp ${id}: tools signature validated successfully`);
@@ -324,7 +324,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
       this._clients.push(res);
       return res;
     } finally {
-      trace.endDetails();
+      trace?.endDetails();
     }
   }
 

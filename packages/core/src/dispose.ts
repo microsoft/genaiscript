@@ -22,7 +22,7 @@ export async function dispose(disposables: ElementOrArray<AsyncDisposable>, opti
         await disposable[Symbol.asyncDispose]();
       } catch (e) {
         logError(e);
-        trace.error(e);
+        trace?.error(e);
       }
     }
   }

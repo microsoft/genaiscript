@@ -111,7 +111,7 @@ export async function agentAddMemory(
   };
   dbg(`add ${agent}: ${ellipse(query, 80)} -> ${ellipse(text, 128)}`);
   await cache.set(cacheKey, cachedValue);
-  trace.detailsFenced(
+  trace?.detailsFenced(
     `🧠 agent memory: ${HTMLEscape(query)}`,
     HTMLEscape(prettifyMarkdown(cachedValue.answer)),
     "markdown",
@@ -139,6 +139,7 @@ export async function traceAgentMemory(
   options: Pick<GenerationOptions, "userState"> & Required<TraceOptions>,
 ) {
   const { trace } = options || {};
+  if (!trace) return;
   const cache = agentCreateCache({
     userState: options.userState,
     lookupOnly: true,
@@ -146,18 +147,18 @@ export async function traceAgentMemory(
   const memories = await loadMemories(cache);
   if (memories?.length) {
     try {
-      trace.startDetails("🧠 agent memory");
+      trace?.startDetails("🧠 agent memory");
       memories
         .reverse()
         .forEach(({ agent, query, answer }) =>
-          trace.detailsFenced(
+          trace?.detailsFenced(
             `👤 ${agent}: ${HTMLEscape(query)}`,
             HTMLEscape(prettifyMarkdown(answer)),
             "markdown",
           ),
         );
     } finally {
-      trace.endDetails();
+      trace?.endDetails();
     }
   }
 }

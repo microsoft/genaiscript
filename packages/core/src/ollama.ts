@@ -99,7 +99,6 @@ const pullModel: PullModelFunction = async (cfg, options) => {
     return { ok: true };
   } catch (e) {
     logError(e);
-    trace.error(e);
     return { ok: false, error: serializeError(e) };
   }
 };

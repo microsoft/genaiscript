@@ -32,9 +32,9 @@ async function WhisperASRTranscribe(
     if (req.language) url.searchParams.append(`language`, req.language);
     dbg(`url: %s`, url.toString());
 
-    trace.itemValue(`url`, `[${url}](${url})`);
-    trace.itemValue(`size`, req.file.size);
-    trace.itemValue(`mime`, req.file.type);
+    trace?.itemValue(`url`, `[${url}](${url})`);
+    trace?.itemValue(`size`, req.file.size);
+    trace?.itemValue(`mime`, req.file.type);
 
     dbg(`file: %s`, prettyBytes(req.file.size));
 
@@ -56,7 +56,7 @@ async function WhisperASRTranscribe(
     // TODO: switch back to cross-fetch in the future
     const res = await global.fetch(url, freq as any);
     dbg(`res: %d %s`, res.status, res.statusText);
-    trace.itemValue(`status`, `${res.status} ${res.statusText}`);
+    trace?.itemValue(`status`, `${res.status} ${res.statusText}`);
     const j = await res.json();
     if (!res.ok) return { text: undefined, error: j?.error };
     else return j;

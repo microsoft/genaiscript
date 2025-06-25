@@ -1037,7 +1037,7 @@ async function truncatePromptNode(
       });
       n.tokens = approximateTokens(n.resolved);
       truncated = true;
-      trace.log(`truncated text to ${n.tokens} tokens (max ${n.maxTokens})`);
+      trace?.log(`truncated text to ${n.tokens} tokens (max ${n.maxTokens})`);
     }
   };
 
@@ -1056,7 +1056,7 @@ async function truncatePromptNode(
       n.preview = rendered;
       n.children = [createTextNode(rendered, cloneContextFields(n))];
       truncated = true;
-      trace.log(`truncated def ${n.name} to ${n.tokens} tokens (max ${n.maxTokens})`);
+      trace?.log(`truncated def ${n.name} to ${n.tokens} tokens (max ${n.maxTokens})`);
     }
   };
 
@@ -1141,15 +1141,15 @@ async function tracePromptNode(
       );
       if (value.length > 0) title += `: ${value}`;
       if (n.children?.length || n.preview) {
-        trace.startDetails(title, {
+        trace?.startDetails(title, {
           success: n.error ? false : undefined,
         });
-        if (n.preview) trace.fence(ellipse(n.preview, PROMPTDOM_PREVIEW_MAX_LENGTH), "markdown");
-      } else trace.resultItem(!n.error, title);
-      if (n.error) trace.error(undefined, n.error);
+        if (n.preview) trace?.fence(ellipse(n.preview, PROMPTDOM_PREVIEW_MAX_LENGTH), "markdown");
+      } else trace?.resultItem(!n.error, title);
+      if (n.error) trace?.error(undefined, n.error);
     },
     afterNode: (n) => {
-      if (n.children?.length || n.preview) trace.endDetails();
+      if (n.children?.length || n.preview) trace?.endDetails();
     },
   });
 }
@@ -1186,7 +1186,7 @@ async function validateSafetyPromptNode(trace: MarkdownTrace, root: PromptNode) 
         n.preview = SANITIZED_PROMPT_INJECTION;
         n.children = [];
         n.error = `safety: prompt injection detected`;
-        trace.error(`safety: prompt injection detected in ${n.resolved.filename}`);
+        trace?.error(`safety: prompt injection detected in ${n.resolved.filename}`);
       }
     },
     defData: async (n) => {
@@ -1204,7 +1204,7 @@ async function validateSafetyPromptNode(trace: MarkdownTrace, root: PromptNode) 
         n.children = [];
         n.preview = SANITIZED_PROMPT_INJECTION;
         n.error = `safety: prompt injection detected`;
-        trace.error(`safety: prompt injection detected in data`);
+        trace?.error(`safety: prompt injection detected in data`);
       }
     },
   });
@@ -1219,7 +1219,7 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
     def: async (n) => {
       const key = await hash(n);
       if (defs.has(key)) {
-        trace.log(`duplicate definition and content: ${n.name}`);
+        trace?.log(`duplicate definition and content: ${n.name}`);
         n.deleted = true;
         mod = true;
       } else {
@@ -1229,7 +1229,7 @@ async function deduplicatePromptNode(trace: MarkdownTrace, root: PromptNode) {
     defData: async (n) => {
       const key = await hash(n);
       if (defs.has(key)) {
-        trace.log(`duplicate definition and content: ${n.name}`);
+        trace?.log(`duplicate definition and content: ${n.name}`);
         n.deleted = true;
         mod = true;
       } else {
@@ -1359,7 +1359,7 @@ export async function renderPromptNode(
     },
     schema: (n) => {
       const { name: schemaName, value: schema, options } = n;
-      if (schemas[schemaName]) trace.error("duplicate schema name: " + schemaName);
+      if (schemas[schemaName]) trace?.error("duplicate schema name: " + schemaName);
       schemas[schemaName] = schema;
       const { format = SCHEMA_DEFAULT_FORMAT } = options || {};
       let schemaText: string;
@@ -1382,7 +1382,7 @@ ${trimNewlines(schemaText)}
       appendUser(text, n);
       n.tokens = approximateTokens(text);
       if (trace && format !== "json")
-        trace.detailsFenced(`🧬 schema ${schemaName} as ${format}`, schemaText, format);
+        trace?.detailsFenced(`🧬 schema ${schemaName} as ${format}`, schemaText, format);
     },
     tool: (n) => {
       const { description, parameters, impl: fn, options, generator } = n;
@@ -1398,30 +1398,30 @@ ${trimNewlines(schemaText)}
         impl: fn,
         options,
       });
-      trace.detailsFenced(`🛠️ tool ${name}`, { description, parameters }, "yaml");
+      trace?.detailsFenced(`🛠️ tool ${name}`, { description, parameters }, "yaml");
     },
     fileMerge: (n) => {
       fileMerges.push(n.fn);
-      trace.itemValue(`file merge`, n.fn);
+      trace?.itemValue(`file merge`, n.fn);
     },
     outputProcessor: (n) => {
       outputProcessors.push(n.fn);
-      trace.itemValue(`output processor`, n.fn.name);
+      trace?.itemValue(`output processor`, n.fn.name);
     },
     chatParticipant: (n) => {
       chatParticipants.push(n.participant);
-      trace.itemValue(
+      trace?.itemValue(
         `chat participant`,
         n.participant.options?.label || n.participant.generator.name,
       );
     },
     fileOutput: (n) => {
       fileOutputs.push(n.output);
-      trace.itemValue(`file output`, n.output.pattern);
+      trace?.itemValue(`file output`, n.output.pattern);
     },
     mcpServer: (n) => {
       mcpServers.push(n.config);
-      trace.itemValue(`mcp server`, n.config.id);
+      trace?.itemValue(`mcp server`, n.config.id);
     },
   });
 
@@ -1517,9 +1517,9 @@ ${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description || "generated file
     responseType = features?.responseType || "json";
     dbg(`response type: %s (auto)`, responseType);
   }
-  if (responseType) trace.itemValue(`response type`, responseType);
+  if (responseType) trace?.itemValue(`response type`, responseType);
   if (responseSchema) {
-    trace.detailsFenced("📜 response schema", responseSchema);
+    trace?.detailsFenced("📜 response schema", responseSchema);
     if (responseType !== "json_schema") {
       const typeName = "Output";
       const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {

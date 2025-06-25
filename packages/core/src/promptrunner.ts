@@ -8,7 +8,6 @@ import { arrayify } from "./cleaners.js";
 import { relativePath } from "./util.js";
 import { assert } from "./assert.js";
 import { runtimeHost } from "./host.js";
-import { MarkdownTrace } from "./trace.js";
 import { CORE_VERSION } from "./version.js";
 import { expandFiles } from "./fs.js";
 import { dataToMarkdownTable } from "./csv.js";
@@ -45,13 +44,12 @@ const dbg = genaiscriptDebug("env");
  */
 async function resolveExpansionVars(
   project: Project,
-  trace: MarkdownTrace,
   template: PromptScript,
   fragment: Fragment,
   output: OutputTrace,
   options: GenerationOptions,
 ): Promise<ExpansionVariables> {
-  const { vars, runDir, runId, applyGitIgnore } = options;
+  const { vars, runDir, runId, trace, applyGitIgnore } = options;
   const root = runtimeHost.projectFolder();
 
   assert(!!vars);
@@ -158,7 +156,7 @@ export async function runTemplate(
     }
 
     // Resolve expansion variables for the template
-    const env = await resolveExpansionVars(prj, trace, template, fragment, outputTrace, options);
+    const env = await resolveExpansionVars(prj, template, fragment, outputTrace, options);
     const {
       messages,
       schemas,
@@ -199,7 +197,7 @@ export async function runTemplate(
         env: restEnv,
         label,
         version,
-        text: unthink(outputTrace.content),
+        text: unthink(outputTrace?.content),
         reasoning: lastAssistantReasoning(messages),
         edits: [],
         annotations: [],
@@ -229,7 +227,7 @@ export async function runTemplate(
         env: restEnv,
         label,
         version,
-        text: unthink(outputTrace.content),
+        text: unthink(outputTrace?.content),
         reasoning: lastAssistantReasoning(messages),
         edits: [],
         annotations: [],
@@ -326,7 +324,7 @@ export async function runTemplate(
       annotations,
       changelogs,
       fileEdits,
-      text: unthink(outputTrace.content),
+      text: unthink(outputTrace?.content),
       reasoning: lastAssistantReasoning(messages),
       version,
       fences,

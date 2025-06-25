@@ -6,7 +6,23 @@
  * This module provides core functionality for text classification, data transformation,
  * PDF processing, and file system operations in the GenAIScript environment.
  */
-import "./globals.js";
+import type {
+  Ffmpeg,
+  Git,
+  GitHub,
+  JSONSchemaUtilities,
+  Tokenizers,
+  Parsers,
+  YAMLObject,
+  CSVObject,
+  DIFFObject,
+  HTMLObject,
+  INIObject,
+  JSON5Object,
+  JSONLObject,
+  XMLObject,
+  MDObject,
+} from "@genaiscript/core";
 import type {
   ChatGenerationContext,
   ChatGenerationContextOptions,
@@ -39,23 +55,29 @@ import {
   genaiscriptDebug,
   LARGE_MODEL_ID,
   MarkdownTrace,
+  installGlobals,
+  GenerationStats,
 } from "@genaiscript/core";
 import { NodeHost } from "./nodehost.js";
 import debug from "debug";
 const dbg = genaiscriptDebug("runtime");
 
-let _nodeHost: NodeHost | undefined;
-
-export function resolveChatGenerationContext(
-  options?: ChatGenerationContextOptions,
-): ChatGenerationContext {
-  const { ctx } = options || {};
-  if (ctx) return ctx;
-  const globalPromptContext: RuntimePromptContext = globalThis as unknown as RuntimePromptContext;
-  const generator = globalPromptContext.env?.generator;
-  if (!generator)
-    throw new Error("You must pass a chat generation context when using the runtime.");
-  return generator;
+declare global {
+  const parsers: Parsers;
+  const YAML: YAMLObject;
+  const INI: INIObject;
+  const CSV: CSVObject;
+  const XML: XMLObject;
+  const HTML: HTMLObject;
+  const MD: MDObject;
+  const JSONL: JSONLObject;
+  const JSON5: JSON5Object;
+  const JSONSchema: JSONSchemaUtilities;
+  const DIFF: DIFFObject;
+  const github: GitHub;
+  const git: Git;
+  const ffmpeg: Ffmpeg;
+  const tokenizers: Tokenizers;
 }
 
 declare global {
@@ -109,6 +131,20 @@ declare global {
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
 }
 
+let _nodeHost: NodeHost | undefined;
+
+export function resolveChatGenerationContext(
+  options?: ChatGenerationContextOptions,
+): ChatGenerationContext {
+  const { ctx } = options || {};
+  if (ctx) return ctx;
+  const globalPromptContext: RuntimePromptContext = globalThis as unknown as RuntimePromptContext;
+  const generator = globalPromptContext.env?.generator;
+  if (!generator)
+    throw new Error("You must pass a chat generation context when using the runtime.");
+  return generator;
+}
+
 /**
  * Configure the default GenAIScript runtime environment. Installs the global helpers and configure host and env.
  */
@@ -120,6 +156,7 @@ export async function config(
 
   dbg(`config %o`, dotEnvPaths);
   dbg(`hostConfig %O`, hostConfig);
+  installGlobals();
   await NodeHost.install(dotEnvPaths, hostConfig);
   const prj = await buildProject();
   const runId = generateId();
@@ -139,22 +176,17 @@ export async function config(
     output,
     dbg: debug(DEBUG_SCRIPT_CATEGORY),
   };
+  const model = LARGE_MODEL_ID;
   const ctx = await createPromptContext(
     prj,
     env,
     {
-      inner: false,
-      stats: undefined,
+      inner: true,
+      stats: new GenerationStats(model),
       model: LARGE_MODEL_ID,
-      userState: {},
+      userState: {},      
     },
     LARGE_MODEL_ID,
   );
   installGlobalPromptContext(ctx);
-}
-
-export function context(): RuntimePromptContext {
-  const globalPromptContext: RuntimePromptContext = globalThis as unknown as RuntimePromptContext;
-  if (!globalPromptContext.env) throw new Error("Runtime not configured. Call `config` first.");
-  return globalPromptContext;
 }
