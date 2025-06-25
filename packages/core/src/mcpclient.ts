@@ -19,7 +19,7 @@ import { dotGenaiscriptPath } from "./workdir.js";
 import { YAMLStringify } from "./yaml.js";
 import { resolvePromptInjectionDetector } from "./contentsafety.js";
 import { genaiscriptDebug } from "./debug.js";
-import type { McpClient, McpServerConfig, ToolCallback } from "./types.js";
+import type { JSONSchemaObject, McpClient, McpServerConfig, ToolCallback } from "./types.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
@@ -65,6 +65,16 @@ function resolveMcpEnv(_env: Record<string, string>) {
       dbg(`filling env var: %s`, key);
       res[key] = process.env[key] || "";
     });
+  return res;
+}
+
+function patchInputSchema(inputSchema: any): any {
+  const res = structuredClone(inputSchema);
+  delete res["$schema"];
+  if (res.type === "object") {
+    if (!res.properties) res.properties = {};
+    if (!res.required) res.required = [];
+  }
   return res;
 }
 
@@ -143,7 +153,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
               name: t.name,
               description: t.description,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              inputSchema: t.inputSchema as any,
+              inputSchema: patchInputSchema(t.inputSchema),
             }) satisfies McpToolReference,
         );
       };
@@ -214,7 +224,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
               name: disableToolIdMangling ? name : `${id}_${name}`,
               description,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              parameters: inputSchema as any,
+              parameters: patchInputSchema(inputSchema),
             },
             options: toolOptions,
             generator,
