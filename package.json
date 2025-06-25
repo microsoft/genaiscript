@@ -94,6 +94,7 @@
     "test:scripts": "cd packages/sample/ && pnpm test:scripts",
     "test:scripts:view": "cd packages/sample/ && pnpm test:scripts:view",
     "test:system": "cd packages/core && node ../cli/dist/src/index.js scripts compile",
+    "test:runtime": "cd packages/runtime && pnpm run test",
     "tsx": "tsx",
     "typecheck": "echo skipped",
     "typecheck:web": "pnpm --filter=@genaiscript/web run typecheck",
