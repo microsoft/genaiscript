@@ -23,7 +23,7 @@ import { dotGenaiscriptPath } from "./workdir.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { Canvas } from "@napi-rs/canvas";
 import { pathToFileURL } from "node:url";
-import { ParsePDFOptions, PDFPage, PDFPageImage } from "./types.js";
+import type { ParsePDFOptions, PDFPage, PDFPageImage, WorkspaceFile } from "./types.js";
 import canvas from "@napi-rs/canvas";
 import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 import { moduleResolve } from "./pathUtils.js";

@@ -8,6 +8,7 @@ import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai.js";
 import { serializeError } from "./error.js";
 import { genaiscriptDebug } from "./debug.js";
 import { deleteUndefinedValues } from "./cleaners.js";
+import { LanguageModelInfo } from "./types.js";
 const dbg = genaiscriptDebug("github");
 
 interface GitHubMarketplaceModel {

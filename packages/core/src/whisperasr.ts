@@ -13,6 +13,7 @@ import { logVerbose, logError } from "./util.js";
 import { prettyBytes } from "./pretty.js";
 import { genaiscriptDebug } from "./debug.js";
 import { isCancelError } from "./error.js";
+import type { TranscriptionResult } from "./types.js";
 const dbg = genaiscriptDebug("whisperasr");
 
 async function WhisperASRTranscribe(

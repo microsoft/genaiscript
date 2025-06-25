@@ -140,6 +140,7 @@ import type {
   TranscriptionResult,
   WorkspaceFile,
   WriteTextOptions,
+  JSONSchema,
 } from "./types.js";
 
 const dbg = genaiscriptDebug("prompt:context");

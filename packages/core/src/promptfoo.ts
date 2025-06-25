@@ -29,6 +29,7 @@ import { uniq } from "es-toolkit";
 import { dedent } from "./indent.js";
 import { importFile } from "./importprompt.js";
 import type {
+  JSONSchema,
   ModelAliasesOptions,
   ModelOptions,
   PromptRedteam,

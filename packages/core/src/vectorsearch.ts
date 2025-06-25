@@ -22,6 +22,7 @@ import type {
   VectorIndexOptions,
   VectorSearchOptions,
   WorkspaceFile,
+  WorkspaceFileCache,
   WorkspaceFileIndex,
   WorkspaceFileWithScore,
 } from "./types.js";

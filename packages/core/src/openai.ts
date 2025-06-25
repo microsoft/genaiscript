@@ -66,7 +66,13 @@ import { fromBase64 } from "./base64.js";
 import { traceFetchPost } from "./fetchtext.js";
 import { providerFeatures } from "./features.js";
 import { genaiscriptDebug } from "./debug.js";
-import type { RetryOptions, TranscriptionResult } from "./types.js";
+import type {
+  LanguageModelInfo,
+  Logprob,
+  RetryOptions,
+  SerializedError,
+  TranscriptionResult,
+} from "./types.js";
 
 const dbg = genaiscriptDebug("openai");
 const dbgMessages = dbg.extend("msg");

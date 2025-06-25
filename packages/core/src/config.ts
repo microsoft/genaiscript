@@ -30,7 +30,7 @@ import { uniq } from "es-toolkit";
 import { expandHomeDir, tryReadText, tryStat } from "./fs.js";
 import { parseDefaultsFromEnv } from "./env.js";
 import { genaiscriptDebug } from "./debug.js";
-import { LanguageModelInfo } from "./types.js";
+import type { JSONSchema, LanguageModelInfo } from "./types.js";
 const dbg = genaiscriptDebug("config");
 
 export function mergeHostConfigs(

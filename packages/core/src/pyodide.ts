@@ -9,7 +9,7 @@ import { deleteUndefinedValues } from "./cleaners.js";
 import { dedent } from "./indent.js";
 import { PLimitPromiseQueue } from "./concurrency.js";
 import { stderr } from "./stdio.js";
-import type { PythonRuntime, PythonRuntimeOptions } from "./types.js";
+import type { PythonProxy, PythonRuntime, PythonRuntimeOptions } from "./types.js";
 import { loadPyodide, version } from "pyodide";
 import { moduleResolve } from "./pathUtils.js";
 import { genaiscriptDebug } from "./debug.js";

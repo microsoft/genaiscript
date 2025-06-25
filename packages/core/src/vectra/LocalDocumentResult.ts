@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { Tokenizer } from "../types.js";
 import { LocalDocument } from "./LocalDocument.js";
 import { LocalDocumentIndex } from "./LocalDocumentIndex.js";
 import { QueryResult, DocumentChunkMetadata, DocumentTextSection } from "./types.js";

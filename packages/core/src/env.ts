@@ -145,7 +145,7 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
   }
 
   const rx =
-    /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9_\-]+)_MODEL|(INPUT_)?MODEL_(?<id2>[A-Z0-9_\-]+))$/i;
+    /^GENAISCRIPT(_DEFAULT)?_((?<id>[A-Z0-9_-]+)_MODEL|(INPUT_)?MODEL_(?<id2>[A-Z0-9_-]+))$/i;
   for (const kv of Object.entries(env)) {
     const [k, v] = kv;
     const m = rx.exec(k);
@@ -238,6 +238,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       type,
       token,
@@ -274,6 +275,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: res.value,
       type,
@@ -319,6 +321,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token,
       type: "azure",
@@ -358,6 +361,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token,
       type: "azure_serverless",
@@ -398,6 +402,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token,
       type: "azure_ai_inference",
@@ -436,6 +441,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token,
       type: "azure_serverless_models",
@@ -462,6 +468,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token,
       type: "openai",
@@ -484,6 +491,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       token,
       base,
       version,
@@ -496,6 +504,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       source: "AWS SDK",
       base: undefined,
       token: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
@@ -512,6 +521,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       token,
       base,
       source: "env: MISTRAL_API_...",
@@ -536,6 +546,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token,
       type: "alibaba",
@@ -550,6 +561,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: MODEL_PROVIDER_OLLAMA,
       type: "openai",
@@ -569,6 +581,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: MODEL_PROVIDER_DOCKER_MODEL_RUNNER,
       type: "openai",
@@ -589,6 +602,7 @@ export async function parseTokenFromEnv(
     }
     return {
       base,
+      modelId,
       token: token?.value,
       provider,
       model,
@@ -610,6 +624,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token,
       type: "openai",
@@ -626,6 +641,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: undefined,
       source: "env: WHISPERASR_API_...",
@@ -637,6 +653,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base: WINDOWS_AI_API_BASE,
       token: MODEL_PROVIDER_WINDOWS_AI,
       type: "openai",
@@ -667,6 +684,7 @@ export async function parseTokenFromEnv(
       return {
         provider,
         model,
+        modelId,
         token,
         base,
         type,
@@ -685,6 +703,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: MODEL_PROVIDER_SGLANG,
       type: "openai",
@@ -701,6 +720,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: MODEL_PROVIDER_VLLM,
       type: "openai",
@@ -717,6 +737,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: MODEL_PROVIDER_LLAMAFILE,
       type: "openai",
@@ -733,6 +754,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: MODEL_PROVIDER_LITELLM,
       type: "openai",
@@ -749,6 +771,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: MODEL_PROVIDER_LMSTUDIO,
       type: "openai",
@@ -765,6 +788,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base,
       token: MODEL_PROVIDER_JAN,
       type: "openai",
@@ -782,6 +806,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base: undefined,
       token: MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
     };
@@ -792,6 +817,7 @@ export async function parseTokenFromEnv(
     return {
       provider,
       model,
+      modelId,
       base: undefined,
       token: provider,
     };

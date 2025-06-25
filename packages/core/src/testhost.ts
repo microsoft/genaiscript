@@ -37,7 +37,6 @@ import { ResourceManager } from "./mcpresource.js";
 import { execSync } from "node:child_process";
 import { shellQuote } from "./shell.js";
 import { genaiscriptDebug } from "./debug.js";
-import { Path } from "groq-js";
 import type {
   WorkspaceFileSystem,
   ContentSafety,
@@ -49,6 +48,7 @@ import type {
   ContainerHost,
   PythonRuntimeOptions,
   PythonRuntime,
+  Path,
 } from "./types.js";
 const dbg = genaiscriptDebug("host:test");
 

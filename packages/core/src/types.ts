@@ -6068,6 +6068,7 @@ export interface PromiseQueue {
 export interface LanguageModelReference {
   provider: ModelProviderType;
   model: ModelType;
+  modelId: string;
 }
 
 export interface LanguageModelInfo {

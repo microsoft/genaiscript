@@ -17,6 +17,7 @@ import {
 import { LocalDocumentResult } from "./LocalDocumentResult.js";
 import { LocalDocument } from "./LocalDocument.js";
 import { TextSplitter, TextSplitterConfig } from "../textsplitter.js";
+import { Tokenizer } from "../types.js";
 
 /**
  * Options for querying documents in the index.
