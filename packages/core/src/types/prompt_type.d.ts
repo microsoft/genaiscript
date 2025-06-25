@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/// <reference path="./prompt_template.d.ts"/>
-
 // keep in sync with PromptContext!
 
 /**
