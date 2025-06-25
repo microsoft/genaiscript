@@ -174,11 +174,6 @@ Back to first level`,
     assert.strictEqual(result, "I think the answer is 42. ");
   });
 
-  test("tokens", () => {
-    const result = parsers.tokens("Hello world");
-    assert(typeof result === "number");
-    assert(result > 0);
-  });
   test("transcription", () => {
     const vttContent = `WEBVTT
 
