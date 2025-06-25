@@ -109,7 +109,7 @@
     }
   },
   "devDependencies": {
-    "@inquirer/prompts": "^7.5.3",
+    "@inquirer/prompts": "catalog:",
     "@intellectronica/ruler": "^0.2.3",
     "@modelcontextprotocol/inspector": "^0.14.3",
     "npm-check-updates": "^18.0.1",

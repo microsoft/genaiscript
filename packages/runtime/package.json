@@ -14,7 +14,8 @@
   ],
   "dependencies": {
     "@genaiscript/core": "workspace:*",
-    "@inquirer/prompts": "^7.5.3",
+    "@inquirer/prompts": "catalog:",
+    "debug": "catalog:",
     "dockerode": "^4.0.7",
     "es-toolkit": "catalog:",
     "execa": "catalog:",

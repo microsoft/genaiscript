@@ -57,7 +57,6 @@ import {
   MarkdownTrace,
   installGlobals,
   GenerationStats,
-  isQuiet,
   setQuiet,
 } from "@genaiscript/core";
 import { NodeHost } from "./nodehost.js";

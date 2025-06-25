@@ -3,10 +3,11 @@ packages:
   - packages/*
 
 catalog:
-  '@eslint/js': ^9.29.0
-  '@types/debug': ^4.1.12
-  '@types/node': 22.15.28
-  '@vitest/coverage-istanbul': ^3.2.4
+  "@eslint/js": ^9.29.0
+  "@inquirer/prompts": ^7.5.3
+  "@types/debug": ^4.1.12
+  "@types/node": 22.15.28
+  "@vitest/coverage-istanbul": ^3.2.4
   debug: ^4.4.1
   eslint: ^9.29.0
   es-toolkit: ^1.39.3
@@ -19,15 +20,14 @@ catalog:
   tsx: ^4.19.4
   typescript: 5.8.3
   typescript-eslint: ^8.34.1
-  vitest: 3.2.4  
+  vitest: 3.2.4
   zx: ^8.6.0
 
 onlyBuiltDependencies:
-  - '@ast-grep/lang-c'
-  - '@ast-grep/lang-cpp'
-  - '@ast-grep/lang-csharp'
-  - '@ast-grep/lang-python'
-  - '@lvce-editor/ripgrep'
-  - 'sharp'
-  - '@vscode/vsce-sign'
-  
+  - "@ast-grep/lang-c"
+  - "@ast-grep/lang-cpp"
+  - "@ast-grep/lang-csharp"
+  - "@ast-grep/lang-python"
+  - "@lvce-editor/ripgrep"
+  - "sharp"
+  - "@vscode/vsce-sign"
