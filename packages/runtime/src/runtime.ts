@@ -57,6 +57,8 @@ import {
   MarkdownTrace,
   installGlobals,
   GenerationStats,
+  isQuiet,
+  setQuiet,
 } from "@genaiscript/core";
 import { NodeHost } from "./nodehost.js";
 import debug from "debug";
@@ -154,6 +156,7 @@ export async function config(
 ): Promise<void> {
   if (_nodeHost) throw new Error("Runtime already configured. Call `config` only once.");
 
+  setQuiet(true);
   dbg(`config %o`, dotEnvPaths);
   dbg(`hostConfig %O`, hostConfig);
   installGlobals();
@@ -184,7 +187,7 @@ export async function config(
       inner: true,
       stats: new GenerationStats(model),
       model: LARGE_MODEL_ID,
-      userState: {},      
+      userState: {},
     },
     LARGE_MODEL_ID,
   );
