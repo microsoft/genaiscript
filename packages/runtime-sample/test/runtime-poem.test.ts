@@ -1,18 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test, assert, beforeEach } from "vitest";
+import { describe, test } from "vitest";
 import { writePoem } from "../src/poem-function";
-import "@genaiscript/runtime";
+import { initialize } from "@genaiscript/runtime";
 
-describe(`runtime`, () => {
-  test(`dynamic import`, async () => {
-    const res = await prompt`write a poem`;
+describe(`runtime`, async () => {
+  await initialize();
+  await test(`dynamic import`, async () => {
+    const res = await prompt`write a poem`.options({ model: "echo" });
     console.log(res.text);
     // Add assertions if needed
   });
 
-  test(`poem function`, async () => {
+  await test(`poem function`, async () => {
     await writePoem();
   });
 });

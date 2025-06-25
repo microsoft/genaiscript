@@ -1,0 +1,23 @@
+---
+title: Runtime
+sidebar:
+  order: 1.2
+description: Learn how to run GenAIScript scripts in a Node.JS environment, including configuration
+---
+
+Scripts using the `.genai.mts` (or any `.genai.*` extension) are meant to be run through the [command line interfanece](/genaiscript/reference/cli).
+
+This page describes how to use the runtime in a Node.JS script without using the CLI.
+
+## Import and configuration
+
+```js
+import { initialize } from "@genaiscript/runtime";
+
+// runs this before using any global ty\pes
+await initialize();
+```
+
+## globals
+
+The runtime installs global parsers and inline prompt types. However, the global `$`, `def`, etc... is not available, online inline prompts.
