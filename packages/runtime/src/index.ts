@@ -13,3 +13,4 @@ export * from "./cast.js";
 export * from "./filetree.js";
 export * from "./markdownifypdf.js";
 export * from "./runtime.js";
+export * from "./extras.js";
