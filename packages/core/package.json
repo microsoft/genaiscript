@@ -124,7 +124,7 @@
     "toml": "^3.0.0",
     "ts-dedent": "^2.2.0",
     "tslib": "catalog:",
-    "tsx": "^4.19.4",
+    "tsx": "catalog:",
     "turndown": "^7.2.0",
     "turndown-plugin-gfm": "^1.0.2",
     "undici": "^7.10.0",

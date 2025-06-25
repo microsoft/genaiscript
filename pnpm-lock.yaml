@@ -45,6 +45,9 @@ catalogs:
     tslib:
       specifier: ^2.8.1
       version: 2.8.1
+    tsx:
+      specifier: ^4.19.4
+      version: 4.19.4
     typescript:
       specifier: 5.8.3
       version: 5.8.3
@@ -89,6 +92,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.10
         version: 4.1.10
+      tsx:
+        specifier: 'catalog:'
+        version: 4.19.4
       turbo:
         specifier: ^2.5.4
         version: 2.5.4
@@ -515,7 +521,7 @@ importers:
         specifier: 'catalog:'
         version: 2.8.1
       tsx:
-        specifier: ^4.19.4
+        specifier: 'catalog:'
         version: 4.19.4
       turndown:
         specifier: ^7.2.0

@@ -94,6 +94,7 @@
     "test:scripts": "cd packages/sample/ && pnpm test:scripts",
     "test:scripts:view": "cd packages/sample/ && pnpm test:scripts:view",
     "test:system": "cd packages/core && node ../cli/dist/src/index.js scripts compile",
+    "tsx": "tsx",
     "typecheck": "echo skipped",
     "typecheck:web": "pnpm --filter=@genaiscript/web run typecheck",
     "whisper": "pnpm whisper:stop && pnpm whisper:start",
@@ -117,6 +118,7 @@
     "prettier": "catalog:",
     "prettier-plugin-curly": "^0.3.2",
     "tailwindcss": "^4.1.10",
+    "tsx": "catalog:",
     "turbo": "^2.5.4",
     "zx": "catalog:"
   }
