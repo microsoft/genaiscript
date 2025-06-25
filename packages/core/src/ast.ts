@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/// <reference types="./types/prompt_template.d.ts" />
 // Import necessary regular expressions for file type detection and host utilities
 import { GENAI_ANYJS_REGEX, GENAI_ANYTS_REGEX } from "./constants.js";
 import { Project } from "./server/messages.js";

@@ -17,6 +17,7 @@ import { resolveFileContent } from "./file.js";
 import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { resolveTokenEncoder } from "./encoders.js";
+import type { VectorIndexOptions, WorkspaceFileWithScore, WorkspaceFileIndex } from "./types.js";
 
 /**
  * Class for creating embeddings using the OpenAI API.

@@ -8,6 +8,7 @@ import {
   SARIFF_RULEID_PREFIX,
 } from "./constants.js";
 import { CORE_VERSION } from "./version.js";
+import type { PromptScript, Diagnostic } from "./types.js";
 
 /**
  * This module contains utility functions for working with SARIF (Static Analysis Results Interchange Format)

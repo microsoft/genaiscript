@@ -6,6 +6,8 @@ import { join } from "path";
 import { execSync } from "child_process";
 import { uniq } from "es-toolkit";
 import { dedent } from "ts-dedent";
+import debug from "debug";
+const dbg = debug("build");
 
 import json5Pkg from "json5";
 const { parse } = json5Pkg;
@@ -30,8 +32,8 @@ async function main() {
       promptMap[id] = text;
     }
   }
-  console.log(`found ${Object.keys(promptMap).length} prompts`);
-  console.debug(Object.keys(promptMap).join("\n"));
+  dbg(`found ${Object.keys(promptMap).length} prompts`);
+  dbg(Object.keys(promptMap).join("\n"));
   const promptFooDriver = readFileSync("./src/genaiscript-api-provider.mjs", "utf-8");
   const logCategories = uniq([
     "script",
@@ -50,8 +52,14 @@ async function main() {
       export const DEBUG_CATEGORIES = ${JSON.stringify(logCategories)};\n`,
     "utf-8",
   );
-  const genaiscriptdts = ["./src/types/prompt_template.d.ts", "./src/types/prompt_type.d.ts"]
-    .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
+
+  const types = readFileSync("./src/types.ts", { encoding: "utf-8" }).replace(
+    /^(\s*)export /gm,
+    "$1 ",
+  );
+  dbg(`types: %s`, types);
+  const globals = readFileSync("./src/types/prompt_type.d.ts", { encoding: "utf-8" });
+  const genaiscriptdts = [types, globals]
     .map((src) => src.replace(/^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm, ""))
     .join("")
     .replace("@version 0.0.0", `@version ${pkg.version}`);

@@ -24,7 +24,19 @@ import { chunkMarkdown } from "./mdchunk.js";
 import { resolveGlobal } from "./global.js";
 import { MarkdownStringify } from "./markdown.js";
 import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff.js";
-import type { PromptContext } from "./types.js";
+import type {
+  CSVObject,
+  DIFFObject,
+  HTMLObject,
+  INIObject,
+  JSON5Object,
+  JSONLObject,
+  JSONSchemaUtilities,
+  MDObject,
+  PromptContext,
+  Tokenizers,
+  XMLObject,
+} from "./types.js";
 import { createParsers } from "./parsers.js";
 
 let _globalsInstalled = false;
@@ -195,6 +207,7 @@ export function installGlobalPromptContext(ctx: PromptContext) {
   const glb = resolveGlobal(); // Get the global context
 
   for (const field of Object.keys(ctx)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     glb[field] = (ctx as any)[field];
   }
 }
