@@ -32,10 +32,13 @@ export async function resolveHttpProxyAgent() {
     process.env.HTTP_PROXY ||
     process.env.https_proxy ||
     process.env.http_proxy;
-  if (proxy) dbg(`proxy: %s`, proxy);
   if (!proxy) return null;
 
+  dbg(`proxy: %s`, proxy);
   const { ProxyAgent } = await import("undici");
   const agent = new ProxyAgent(proxy);
+  agent.on(`connect`, (info) => dbg(`connect: %s`, info.href));
+  agent.on(`connectionError`, (err) => dbg(`connection error: %s`, err.toString()));
+  agent.on(`disconnect`, () => dbg(`disconnect`));
   return agent;
 }
