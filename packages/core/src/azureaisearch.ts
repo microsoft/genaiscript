@@ -14,6 +14,15 @@ import { LanguageModelConfiguration } from "./server/messages.js";
 import { chunk } from "./encoders.js";
 import { genaiscriptDebug } from "./debug.js";
 import { SearchClient, SearchIndexClient, AzureKeyCredential } from "@azure/search-documents";
+import type {
+  ElementOrArray,
+  TextChunk,
+  VectorIndexOptions,
+  VectorSearchOptions,
+  WorkspaceFile,
+  WorkspaceFileIndex,
+  WorkspaceFileWithScore,
+} from "./types.js";
 
 const dbg = genaiscriptDebug("azureaisearch");
 

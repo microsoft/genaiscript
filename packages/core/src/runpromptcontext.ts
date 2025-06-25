@@ -527,7 +527,6 @@ export function createChatGenerationContext(
             memory,
             ctx,
             query + (hasExtraArgs ? `\n${YAMLStringify(argsNoQuery)}` : ""),
-            { trace },
           );
           if (memoryAnswer) adbgm(`found ${memoryAnswer}`);
         }
@@ -618,6 +617,7 @@ export function createChatGenerationContext(
 
   const prompt = (
     strings: TemplateStringsArray,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: any[]
   ): RunPromptResultPromiseWithOptions => {
     checkCancelled(cancellationToken);
@@ -834,7 +834,6 @@ export function createChatGenerationContext(
       const outputProcessors: PromptOutputProcessorHandler[] = [];
       const fileOutputs: FileOutput[] = [];
       const disposables: AsyncDisposable[] = [];
-      let prediction: PromptPrediction;
 
       // expand template
       const {
@@ -847,7 +846,7 @@ export function createChatGenerationContext(
         outputProcessors: ops,
         fileOutputs: fos,
         images: imgs,
-        prediction: pred,
+        prediction,
         disposables: dps,
       } = await renderPromptNode(genOptions.model, node, {
         flexTokens: genOptions.flexTokens,
@@ -865,7 +864,6 @@ export function createChatGenerationContext(
       fileOutputs.push(...fos);
       images.push(...imgs);
       disposables.push(...dps);
-      prediction = pred;
 
       if (errors?.length) {
         logError(errors.map((err) => errorMessage(err)).join("\n"));

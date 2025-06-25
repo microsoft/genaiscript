@@ -97,6 +97,18 @@ import type {
   TranscriptionResult,
   VectorIndexOptions,
   WorkspaceFileIndex,
+  ChatMessage,
+  DataFrame,
+  Edits,
+  ElementOrArray,
+  Logprob,
+  RunPromptUsage,
+  ShellOutput,
+  TokenEncoder,
+  ToolCallContent,
+  ToolCallContext,
+  ToolCallOutput,
+  WorkspaceFile,
 } from "./types.js";
 
 const dbg = genaiscriptDebug("chat");

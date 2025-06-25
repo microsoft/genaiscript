@@ -40,6 +40,7 @@ import { LanguageModelConfiguration } from "./server/messages.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import debug from "debug";
 import { providerFeatures } from "./features.js";
+import { LanguageModelInfo } from "./types.js";
 const dbg = debug("genaiscript:anthropic");
 const dbgMessages = debug("genaiscript:anthropic:msg");
 

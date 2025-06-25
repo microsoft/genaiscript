@@ -9,7 +9,11 @@ import { HTMLEscape } from "./htmlescape.js";
 import { prettifyMarkdown } from "./markdown.js";
 import { TraceOptions } from "./trace.js";
 import { ellipse } from "./util.js";
-import type { ChatGenerationContext, WorkspaceFileCache } from "./types.js";
+import type {
+  ChatGenerationContext,
+  ChatTurnGenerationContext,
+  WorkspaceFileCache,
+} from "./types.js";
 
 import debug from "debug";
 const dbg = debug("agent:memory");
@@ -50,7 +54,6 @@ export async function agentQueryMemory(
   cache: AgentMemoryCache,
   ctx: ChatGenerationContext,
   query: string,
-  _options: Required<TraceOptions>,
 ) {
   if (!query) return undefined;
 

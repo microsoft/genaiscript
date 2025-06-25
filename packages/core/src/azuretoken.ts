@@ -26,6 +26,7 @@ import {
   ManagedIdentityCredential,
   WorkloadIdentityCredential,
 } from "@azure/identity";
+import type { SerializedError } from "./types.js";
 
 /**
  * This module provides functions to handle Azure authentication tokens,

@@ -110,6 +110,7 @@ export async function azureDevOpsUpdatePullRequestDescription(
   // query pull request
   const pr = await findPullRequest(info);
   if (!pr) return;
+  // eslint-disable-next-line prefer-const
   let { pullRequestId, description } = pr;
 
   text = prettifyMarkdown(text);

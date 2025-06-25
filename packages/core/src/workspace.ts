@@ -20,7 +20,17 @@ import { YAMLTryParse } from "./yaml.js";
 import { dirname } from "node:path";
 import { createCache } from "./cache.js";
 import { tryValidateJSONWithSchema } from "./schema.js";
-import type { WorkspaceFileSystem } from "./types.js";
+import type {
+  Awaitable,
+  CSVParseOptions,
+  ElementOrArray,
+  FindFilesOptions,
+  INIParseOptions,
+  JSONSchemaValidationOptions,
+  WorkspaceFile,
+  WorkspaceFileSystem,
+  XMLParseOptions,
+} from "./types.js";
 
 /**
  * Creates a file system interface for interacting with workspace files.

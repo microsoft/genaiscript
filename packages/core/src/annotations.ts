@@ -10,7 +10,7 @@
 import { deleteUndefinedValues } from "./cleaners.js";
 import { EMOJI_FAIL, EMOJI_WARNING } from "./constants.js";
 import { unfence } from "./unwrappers.js";
-import type { Diagnostic } from "./types.js";
+import type { Diagnostic, DiagnosticSeverity } from "./types.js";
 
 // Regular expression for matching GitHub Actions annotations.
 // Example: ::error file=foo.js,line=10,endLine=11::Something went wrong.
@@ -39,7 +39,7 @@ const GITHUB_MARKDOWN_WARNINGS_RX =
 // Example: src/connection.ts(71,5): error TS1128: Declaration or statement expected.
 // src/connection.ts(71,5): error TS1128: Declaration or statement expected.
 const TYPESCRIPT_PARENTHESES_ANNOTATIONS_RX =
-  /^(?<file>[^\(\n]+)\((?<line>\d+),(?<col>\d+)\):\s+(?<severity>error|warning)\s+(?<code>TS\d+):\s+(?<message>.+)$/gim;
+  /^(?<file>[^(\n]+)\((?<line>\d+),(?<col>\d+)\):\s+(?<severity>error|warning)\s+(?<code>TS\d+):\s+(?<message>.+)$/gim;
 const ANNOTATIONS_RX = [
   TYPESCRIPT_PARENTHESES_ANNOTATIONS_RX,
   TYPESCRIPT_ANNOTATIONS_RX,
@@ -187,6 +187,7 @@ export function convertGithubMarkdownAnnotationsToItems(text: string) {
  * @returns A formatted string representing the Diagnostic as a list item.
  */
 export function convertAnnotationToItem(d: Diagnostic) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { severity, message, filename, code, range } = d;
   const line = range?.[0]?.[0];
   return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message}${filename ? ` (\`${filename}${line ? `#L${line}` : ""}\`)` : ""}`;

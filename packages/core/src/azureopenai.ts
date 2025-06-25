@@ -34,7 +34,7 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
     const { base } = cfg;
     const subscriptionId = process.env.AZURE_OPENAI_SUBSCRIPTION_ID;
     let resourceGroupName = process.env.AZURE_OPENAI_RESOURCE_GROUP;
-    const accountName = /^https:\/\/([^\.]+)\./.exec(base)[1];
+    const accountName = /^https:\/\/([^.]+)\./.exec(base)[1];
 
     if (!subscriptionId || !accountName) {
       dbg("subscriptionId or accountName is missing, returning an empty model list");
@@ -78,7 +78,7 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
         `https://management.azure.com/subscriptions/${subscriptionId}/resources?api-version=2021-04-01`,
       );
       const resource = resources.value.find((r) => r.name === accountName);
-      resourceGroupName = /\/resourceGroups\/([^\/]+)\/providers\//.exec(resource?.id)[1];
+      resourceGroupName = /\/resourceGroups\/([^/]+)\/providers\//.exec(resource?.id)[1];
       if (!resourceGroupName) {
         dbg("unable to extract resource group name from resource id");
         throw new Error("Resource group not found");
