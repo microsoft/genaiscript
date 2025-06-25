@@ -73,6 +73,7 @@
         "demux",
         "devcli",
         "devcontainers",
+        "devproxy",
         "dfence",
         "docify",
         "Dockerized",
