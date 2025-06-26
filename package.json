@@ -15,7 +15,7 @@
     "build:cli": "pnpm --filter=!docs --filter=!genaiscript-vscode --filter=!@genaiscript/web build",
     "build:ci": "pnpm --filter=!docs build",
     "build:ruler": "ruler apply --mcp-overwrite",
-    "build:commands": "pnpm run cli info help > docs/src/content/docs/reference/cli/commands.md",
+    "build:commands": "node packages/cli/dist/src/index.js info help > docs/src/content/docs/reference/cli/commands.md",
     "clean": "git prune && git gc && rm -Rf slides/node_modules && rm -Rf docs/dist && rm -Rf docs/distasw && rm -Rf docs/node_modules && rm -Rf .genaiscript && rm -Rf packages/sample/.genaiscript && git checkout -- .",
     "cli": "node packages/cli/dist/src/index.js",
     "commit": "pnpm pretty && pnpm build && pnpm test:core && pnpm gcm",
