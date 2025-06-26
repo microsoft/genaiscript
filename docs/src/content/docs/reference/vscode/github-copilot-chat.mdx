@@ -1,39 +1,45 @@
 ---
 title: GitHub Copilot Chat
 sidebar:
-    order: 3
+  order: 3
 description: Integrate with GitHub Copilot Chat to run scripts through a chat
-    participant and custom prompts in Visual Studio Code. Learn how to execute
-    scripts, select models, leverage context, and enable more efficient
-    AI-assisted coding workflows using chat-based interfaces.
+  participant and custom prompts in Visual Studio Code. Learn how to execute
+  scripts, select models, leverage context, and enable more efficient
+  AI-assisted coding workflows using chat-based interfaces.
 keywords:
-    - Copilot Chat
-    - VS Code extensions
-    - AI scripting
-    - code automation
-    - chat participants
+  - Copilot Chat
+  - VS Code extensions
+  - AI scripting
+  - code automation
+  - chat participants
 hero:
-    image:
-        alt:
-            A small, flat, abstract image uses five solid colors and geometric 8-bit
-            shapes to depict a chat bubble, a sheet of code with bracket symbols, an
-            AI chip, and a diagram block connected by thin lines. The icons are
-            arranged without backgrounds or text, all in a simple corporate style,
-            illustrating AI-driven chat and code integration.
-        file: ./github-copilot-chat.png
+  image:
+    alt: A small, flat, abstract image uses five solid colors and geometric 8-bit
+      shapes to depict a chat bubble, a sheet of code with bracket symbols, an
+      AI chip, and a diagram block connected by thin lines. The icons are
+      arranged without backgrounds or text, all in a simple corporate style,
+      illustrating AI-driven chat and code integration.
+    file: ./github-copilot-chat.png
 ---
 
-import { Image } from "astro:assets"
-import { YouTube } from "astro-embed"
-import { Code } from "@astrojs/starlight/components"
-import scriptSource from "../../../../../../packages/sample/genaisrc/samples/copilotchat.genai.mjs?raw"
-import src from "../../../../assets/chat-participant.png"
-import alt from "../../../../assets/chat-participant.png.txt?raw"
-import { Steps } from "@astrojs/starlight/components"
+import { Image } from "astro:assets";
+import { YouTube } from "astro-embed";
+import { Code } from "@astrojs/starlight/components";
+import scriptSource from "../../../../../../packages/sample/genaisrc/samples/copilotchat.genai.mjs?raw";
+import src from "../../../../assets/chat-participant.png";
+import alt from "../../../../assets/chat-participant.png.txt?raw";
+import { Steps } from "@astrojs/starlight/components";
 
 GenAIScript integrates with [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat)
 by providing a **chat participant** that allows you to run scripts in the context of a chat conversation,
 and a **custom prompt** to generate GenAIScript more efficiently with Copilot Chat.
+
+:::tip
+
+If you need to check your available premium request quota for GitHub Copilot,
+you can naviate to `https://github.com/github-copilot/quotas/[your-github-handle]` .
+
+:::
 
 ## `@genaiscript` chat participant
 
@@ -68,16 +74,16 @@ You can specify which model to choose in the script configuration as well using 
 
 ```js "github_copilot_chat:current"
 script({
-    model: "github_copilot_chat:current",
-})
+  model: "github_copilot_chat:current",
+});
 ```
 
 - gpt-4o-mini: `github_copilot_chat:gpt-4o-mini`
 
 ```js "github_copilot_chat:gpt-4o-mini"
 script({
-    model: "github_copilot_chat:gpt-4o-mini",
-})
+  model: "github_copilot_chat:gpt-4o-mini",
+});
 ```
 
 When GenAIScript prompts you to choose a model, it will store your choices in the workspace settings
@@ -85,9 +91,9 @@ under the
 
 ```json file=".vscode/settings.json"
 {
-    "genaiscript.languageChatModels": {
-        "gpt-4o": "gpt-4o-2024-11-20"
-    }
+  "genaiscript.languageChatModels": {
+    "gpt-4o": "gpt-4o-2024-11-20"
+  }
 }
 ```
 
@@ -118,19 +124,19 @@ The context selected by the user in Copilot Chat is converted to variables and p
 - `mermaid` will generate a diagram from the user prompt.
 
 ```js title="mermaid.genai.mjs" wrap
-def("CODE", env.files)
-$`Generate a class diagram using mermaid of the code symbols in the CODE.`
+def("CODE", env.files);
+$`Generate a class diagram using mermaid of the code symbols in the CODE.`;
 ```
 
 - `websearcher` will search the web for the user prompt
   and use the file in context in the answer.
 
 ```js title="websearcher.genai.mjs" wrap
-const res = await retrieval.webSearch(env.vars.question)
-def("QUESTION", env.vars.question)
-def("WEB_SEARCH", res)
-def("FILE", env.files, { ignoreEmpty: true })
-$`Answer QUESTION using WEB_SEARCH and FILE.`
+const res = await retrieval.webSearch(env.vars.question);
+def("QUESTION", env.vars.question);
+def("WEB_SEARCH", res);
+def("FILE", env.files, { ignoreEmpty: true });
+$`Answer QUESTION using WEB_SEARCH and FILE.`;
 ```
 
 - `dataanalyst` uses the Python code interpreter tools to
@@ -138,20 +144,20 @@ $`Answer QUESTION using WEB_SEARCH and FILE.`
 
 ```js title="dataanalyst.genai.mjs" wrap
 script({
-    tools: [
-        "fs_read_file",
-        "python_code_interpreter_copy_files_to_container",
-        "python_code_interpreter_read_file",
-        "python_code_interpreter_run",
-    ],
-})
-def("DATA", env.files.map(({ filename }) => filename).join("\n"))
-def("QUESTION", env.vars.question)
+  tools: [
+    "fs_read_file",
+    "python_code_interpreter_copy_files_to_container",
+    "python_code_interpreter_read_file",
+    "python_code_interpreter_run",
+  ],
+});
+def("DATA", env.files.map(({ filename }) => filename).join("\n"));
+def("QUESTION", env.vars.question);
 
 $`Run python code to answer the data analyst question 
 in QUESTION using the data in DATA.
 Return the python code that was used to compute the answer.
-`
+`;
 ```
 
 #### History
@@ -160,14 +166,14 @@ The history of messages is passed in `env.vars["copilot.history"]`. It is an arr
 
 ```json
 [
-    {
-        "role": "user",
-        "content": "write a poem"
-    },
-    {
-        "role": "assistant",
-        "content": "I am an assistant"
-    }
+  {
+    "role": "user",
+    "content": "write a poem"
+  },
+  {
+    "role": "assistant",
+    "content": "I am an assistant"
+  }
 ]
 ```
 
@@ -184,12 +190,7 @@ of the script are placed back into the chat history and are available to any cop
 
 The following script can used as a starter template to create the default script when the user does not use the `/run` command.
 
-<Code
-    code={scriptSource}
-    wrap={true}
-    lang="ts"
-    title="genaisrc/copilotchat.genai.mts"
-/>
+<Code code={scriptSource} wrap={true} lang="ts" title="genaisrc/copilotchat.genai.mts" />
 
 ### Unsupported features
 
