@@ -36,6 +36,13 @@ jobs:
           sudo apt-get install -y python3 python3-pip
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get install -y gh
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -59,6 +66,8 @@ jobs:
           yarn --version
           python3 --version
           az --version
+          gh --version
+          docker --version
           rustc --version
           ffmpeg -version
           genaiscript --version
