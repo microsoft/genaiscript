@@ -609,7 +609,7 @@ jobs:
       `run`,
       scriptId,
       provider ? `--provider` : undefined,
-      provider,
+      provider ? `--provider ${provider}` : undefined,
       pullRequestComment ? `--pull-request-comment` : undefined,
       typeof pullRequestComment === "string" ? pullRequestComment : undefined,
       pullRequestDescription ? `--pull-request-description` : undefined,
