@@ -40,7 +40,6 @@ export * from "./copy.js";
 export * from "./crypto.js";
 export * from "./csv.js";
 export * from "./data.js";
-export * from "./dbg.js";
 export * from "./debug.js";
 export * from "./diff.js";
 export * from "./dispose.js";
