@@ -70,7 +70,7 @@ describe("parse", async () => {
     assert(res.stdout.includes("**Microsoft Word**"));
   });
   await test("tokens", async () => {
-    await $`node ${cli} ${cmd} tokens "src/*" -ef "**/*.pdf" -ef "**/*.docx"`;
+    await $`node ${cli} ${cmd} tokens "src/*" -e "**/*.pdf" -e "**/*.docx"`;
   });
 });
 
