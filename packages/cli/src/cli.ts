@@ -9,7 +9,6 @@ import { NODE_MIN_VERSION, PROMPTFOO_VERSION, NodeHost } from "@genaiscript/runt
 import { Command, Option, program } from "commander";
 import {
   CORE_VERSION,
-  DEBUG_CATEGORIES,
   DEBUG_SCRIPT_CATEGORY,
   GITHUB_REPO,
   MODEL_PROVIDERS,
@@ -149,10 +148,6 @@ export async function cli() {
     .option("--env <paths...>", "paths to .env files, defaults to './.env' if not specified")
     .option("--no-colors", "disable color output")
     .option("-q, --quiet", "disable verbose output")
-    .option(
-      "-d, --debug <categories...>",
-      `debug categories (${DEBUG_CATEGORIES.map((c) => c).join(", ")})`,
-    )
     .option("--perf", "enable performance logging")
     .option("--github-workspace", "Use GitHub Actions workspace directory as cwd");
 
@@ -164,94 +159,77 @@ export async function cli() {
   );
 
   const configureCmd = program.command("configure").description("Configure LLMs or GitHub Actions");
-  configureCmd
-    .command("llm", { isDefault: true })
-    .description("Configure LLM providers")
-    .addOption(
-      new Option("-p, --provider <string>", "Preferred LLM provider aliases").choices(
-        MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map(({ id }) => id),
-      ),
-    )
-    .action(configure);
+  configureCmd.command("llm", { isDefault: true }).description("Configure LLM providers");
+  addProviderOptions(configureCmd).action(configure);
 
   // Define 'run' command for executing scripts
   const run = program
     .command("run")
     .description("Runs a GenAIScript against files.")
     .arguments("<script> [files...]")
-    .option("-a, --accept <string>", "comma separated list of accepted file extensions");
-  addModelOptions(run) // Add model options to the command
-    .option("-lp, --logprobs", "enable reporting token probabilities")
-    .option("-tlp, --top-logprobs <number>", "number of top logprobs (1 to 5)")
-    .option("-ef, --excluded-files <string...>", "excluded files")
+    .option("--accept <string>", "comma separated list of accepted file extensions");
+  addModelOptions(run); // Add model options to the command
+  addLogProbsOptions(run)
+    .option("-e, --excluded-files <string...>", "excluded files")
     .option(
-      "-igi, --ignore-git-ignore",
+      "--ignore-git-ignore",
       "by default, files ignored by .gitignore are excluded. disables this mode",
     )
     .option(
-      "-ft, --fallback-tools",
+      "--fallback-tools",
       "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls",
     )
     .option(
       "-o, --out <string>",
       "output folder. Extra markdown fields for output and trace will also be generated",
     )
-    .option("-rmo, --remove-out", "remove output folder if it exists")
-    .option("-ot, --out-trace <string>", "output file for trace")
-    .option("-oo, --out-output <string>", "output file for output")
+    .option("--remove-out", "remove output folder if it exists")
+    .option("--out-trace <string>", "output file for trace")
+    .option("--out-output <string>", "output file for output")
     .option(
-      "-od, --out-data <string>",
+      "--out-data <string>",
       "output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available.",
     )
     .option(
-      "-oa, --out-annotations <string>",
+      "--out-annotations <string>",
       "output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)",
     )
-    .option("-ocl, --out-changelog <string>", "output file for changelogs")
-    .option("-pr, --pull-request <number>", "pull request identifier");
+    .option("--out-changelog <string>", "output file for changelogs")
+    .option("--pull-request <number>", "pull request number");
   addPullRequestOptions(run)
-    .option("-tm, --teams-message", "Posts a message to the teams channel")
+    .option("--teams-message", "Posts a message to the teams channel")
     .option("-j, --json", "emit full JSON response to output")
-    .option("-y, --yaml", "emit full YAML response to output")
-    .option(`-fe, --fail-on-errors`, `fails on detected annotation error`)
-    .option("-r, --retry <number>", "number of retries", String(OPENAI_MAX_RETRY_COUNT))
+    .option(`--fail-on-errors`, `fails on detected annotation error`)
+    .option("--retry <number>", "number of retries", String(OPENAI_MAX_RETRY_COUNT))
     .option(
-      "-rd, --retry-delay <number>",
+      "--retry-delay <number>",
       "minimum delay between retries",
       String(OPENAI_RETRY_DEFAULT_DEFAULT),
     )
-    .option(
-      "-md, --max-delay <number>",
-      "maximum delay between retries",
-      String(OPENAI_MAX_RETRY_DELAY),
-    )
+    .option("--max-delay <number>", "maximum delay between retries", String(OPENAI_MAX_RETRY_DELAY))
     .option("-l, --label <string>", "label for the run")
     .option("-t, --temperature <number>", "temperature for the run")
-    .option("-tp, --top-p <number>", "top-p for the run")
-    .option("-mt, --max-tokens <number>", "maximum completion tokens for the run")
-    .option("-mdr, --max-data-repairs <number>", "maximum data repairs")
-    .option("-mtc, --max-tool-calls <number>", "maximum tool calls for the run")
+    .option("--top-p <number>", "top-p for the run")
+    .option("--max-tokens <number>", "maximum completion tokens for the run")
+    .option("--max-data-repairs <number>", "maximum data repairs")
+    .option("--max-tool-calls <number>", "maximum tool calls for the run")
     .option(
-      "-tc, --tool-choice <string>",
+      "--tool-choice <string>",
       "tool choice for the run, 'none', 'auto', 'required', or a function name",
     )
-    .option("-se, --seed <number>", "seed for the run")
+    .option("--seed <number>", "seed for the run")
     .option("-c, --cache", "enable LLM result cache")
-    .option("-cn, --cache-name <name>", "custom cache file name")
-    .option("-cs, --csv-separator <string>", "csv separator", "\t")
+    .option("--cache-name <name>", "custom cache file name")
+    .option("--csv-separator <string>", "csv separator", "\t")
     .addOption(
-      new Option("-ff, --fence-format <string>", "fence format").choices([
-        "xml",
-        "markdown",
-        "none",
-      ]),
+      new Option("--fence-format <string>", "fence format").choices(["xml", "markdown", "none"]),
     )
-    .option("-ae, --apply-edits", "apply file edits")
+    .option("-y, --apply-edits", "apply file edits")
     .option(
-      "--vars <namevalue...>",
+      "-x, --vars <namevalue...>",
       "variables, as name=value, stored in env.vars. Use environment variables GENAISCRIPT_VAR_name=value to pass variable through the environment",
     )
-    .option("-rr, --run-retry <number>", "number of retries for the entire run")
+    .option("--run-retry <number>", "number of retries for the entire run")
     .option("--no-run-trace", "disable automatic trace generation")
     .option("--no-output-trace", "disable automatic output generation")
     .action(runScriptWithExitCode); // Action to execute the script with exit code
@@ -279,17 +257,14 @@ export async function cli() {
     )
     .option("--max-concurrency <number>", "maximum concurrency", "1")
     .option("-o, --out <folder>", "output folder")
-    .option("-rmo, --remove-out", "remove output folder if it exists")
+    .option("--remove-out", "remove output folder if it exists")
     .option("--cli <string>", "override path to the cli")
-    .option("-td, --test-delay <string>", "delay between tests in seconds")
+    .option("--test-delay <string>", "delay between tests in seconds")
     .option("--cache", "enable LLM result cache")
     .option("-r, --random", "Randomize test order")
     .option("-v, --verbose", "verbose output")
-    .option(
-      "-pv, --promptfoo-version [version]",
-      `promptfoo version, default is ${PROMPTFOO_VERSION}`,
-    )
-    .option("-os, --out-summary <file>", "append output summary in file");
+    .option("--promptfoo-version [version]", `promptfoo version, default is ${PROMPTFOO_VERSION}`)
+    .option("--out-summary <file>", "append output summary in file");
   addGroupsOptions(testRun)
     .option("--test-timeout <number>", "test timeout in seconds")
     .action(scriptsTest); // Action to run the tests
@@ -310,20 +285,20 @@ export async function cli() {
       "Converts file through a GenAIScript. Each file is processed separately through the GenAIScript and the LLM output is saved to a <filename>.genai.md (or custom suffix).",
     )
     .arguments("<script> [files...]")
-    .option("-s, --suffix <string>", "suffix for converted files")
-    .option("-rw, --rewrite", "rewrite input file with output (overrides suffix)")
+    .option("-u, --suffix <string>", "suffix for converted files")
+    .option("-r, --rewrite", "rewrite input file with output (overrides suffix)")
     .option(
-      "-cw, --cancel-word <string>",
+      "-w, --cancel-word <string>",
       "cancel word which allows the LLM to notify to ignore output",
     )
-    .option("-ef, --excluded-files <string...>", "excluded files")
+    .option("-e, --excluded-files <string...>", "excluded files")
     .option(
-      "-igi, --ignore-git-ignore",
+      "--ignore-git-ignore",
       "by default, files ignored by .gitignore are excluded. disables this mode",
     );
   addModelOptions(convert)
     .option(
-      "-ft, --fallback-tools",
+      "--fallback-tools",
       "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls",
     )
     .option(
@@ -331,12 +306,12 @@ export async function cli() {
       "output folder. Extra markdown fields for output and trace will also be generated",
     )
     .option(
-      "--vars <namevalue...>",
+      "-x, --vars <namevalue...>",
       "variables, as name=value, stored in env.vars. Use environment variables GENAISCRIPT_VAR_name=value to pass variable through the environment",
     )
     .option("-c, --cache", "enable LLM result cache")
-    .option("-cn, --cache-name <name>", "custom cache file name")
-    .option("-cc, --concurrency <number>", "number of concurrent conversions")
+    .option("--cache-name <name>", "custom cache file name")
+    .option("--concurrency <number>", "number of concurrent conversions")
     .option("--no-run-trace", "disable automatic trace generation")
     .option("--no-output-trace", "disable automatic output generation")
     .action(convertFiles);
@@ -363,7 +338,7 @@ export async function cli() {
     .command("fix")
     .description("Write TypeScript definition files in the script folder to enable type checking.")
     .option(
-      "-gci, --github-copilot-instructions",
+      "--github-copilot-instructions",
       "Write GitHub Copilot custom instructions for better GenAIScript code generation",
     )
     .option("--docs", "Download documentation")
@@ -413,7 +388,7 @@ export async function cli() {
     .description("Extract video frames")
     .argument("<file>", "Audio or video file to transcode")
     .option("-k, --keyframes", "Extract only keyframes (intra frames)")
-    .option("-st, --scene-threshold <number>", "Extract frames with a minimum threshold")
+    .option("-t, --scene-threshold <number>", "Extract frames with a minimum threshold")
     .option("-c, --count <number>", "maximum number of frames to extract")
     .option("-s, --size <string>", "size of the output frames wxh")
     .option("-f, --format <string>", "Image file format")
@@ -425,12 +400,12 @@ export async function cli() {
     .command("index")
     .arguments("<name> <files...>")
     .description("Index files for vector search")
-    .option("-ef, --excluded-files <string...>", "excluded files")
+    .option("-e, --excluded-files <string...>", "excluded files")
     .option(
-      "-igi, --ignore-git-ignore",
+      "--ignore-git-ignore",
       "by default, files ignored by .gitignore are excluded. disables this mode",
     )
-    .option("-em, --embeddings-model <string>", "'embeddings' alias model")
+    .option("-g, --embeddings-model <string>", "'embeddings' alias model")
     .addOption(
       new Option("--database <string>", "Type of database to use for indexing").choices([
         "local",
@@ -444,17 +419,17 @@ export async function cli() {
     .alias("search")
     .description("Search using vector embeddings similarity")
     .arguments("<query> [files...]")
-    .option("-ef, --excluded-files <string...>", "excluded files")
-    .option("-tk, --top-k <number>", "maximum number of results")
-    .option("-ms, --min-score <number>", "minimum score")
+    .option("-e, --excluded-files <string...>", "excluded files")
+    .option("-k, --top-k <number>", "maximum number of results")
+    .option("-s, --min-score <number>", "minimum score")
     .action(retrievalSearch); // Action to perform vector search
   retrieval
     .command("fuzz")
     .description("Search using string distance")
     .arguments("<query> [files...]")
-    .option("-ef, --excluded-files <string...>", "excluded files")
-    .option("-tk, --top-k <number>", "maximum number of results")
-    .option("-ms, --min-score <number>", "minimum score")
+    .option("-e, --excluded-files <string...>", "excluded files")
+    .option("-k, --top-k <number>", "maximum number of results")
+    .option("-s, --min-score <number>", "minimum score")
     .action(retrievalFuzz); // Action to perform fuzzy search
 
   // Define 'serve' command to start a local server
@@ -462,10 +437,10 @@ export async function cli() {
     .command("serve")
     .description("Start a GenAIScript local web server")
     .option("--port <number>", `Specify the port number, default: ${SERVER_PORT}`)
-    .option("-k, --api-key <string>", "API key to authenticate requests")
-    .option("-n, --network", "Opens server on 0.0.0.0 to make it accessible on the network")
+    .option("--api-key <string>", "API key to authenticate requests")
+    .option("--network", "Opens server on 0.0.0.0 to make it accessible on the network")
     .option(
-      "-c, --cors <string>",
+      "--cors <string>",
       "Enable CORS and sets the allowed origin. Use '*' to allow any origin.",
     )
     .option("--dispatch-progress", "Dispatch progress events to all clients")
@@ -491,7 +466,7 @@ export async function cli() {
     .option("-n, --network", "Opens server on 0.0.0.0 to make it accessible on the network")
     .option("--port <number>", `Specify the port number, default: ${SERVER_PORT}`)
     .option(
-      "-c, --cors <string>",
+      "--cors <string>",
       "Enable CORS and sets the allowed origin. Use '*' to allow any origin.",
     )
     .option("--route <string>", "Route prefix, like /api")
@@ -515,7 +490,7 @@ export async function cli() {
     .option("--ffmpeg", "use ffmpeg for video/audio processing")
     .option("--playwright", "Enable Playwright for browser testing")
     .option("--python", "Install Python 3.x support")
-    .option("--image <string>", "Docker image identifier")
+    .option("-i, --image <string>", "Docker image identifier")
     .option("--apks <string...>", "Linux packages to install")
     .option("--provider <string>", "LLM provider to use")
     .option("--interactive", "Enable interactive mode")
@@ -576,7 +551,7 @@ export async function cli() {
     .command("tokens")
     .description("Count tokens in a set of files")
     .arguments("<files...>")
-    .option("-ef, --excluded-files <string...>", "excluded files")
+    .option("-e, --excluded-files <string...>", "excluded files")
     .action(parseTokens); // Action to count tokens in files
   parser
     .command("tokenize")
@@ -598,7 +573,7 @@ export async function cli() {
     .command("jinja2")
     .description("Renders Jinja2 or prompty template")
     .argument("<file>", "input Jinja2 or prompty template file")
-    .option("--vars <namevalue...>", "variables, as name=value passed to the template")
+    .option("-x, --vars <namevalue...>", "variables, as name=value passed to the template")
     .action(parseJinja2);
   parser
     .command("secrets")
@@ -610,7 +585,7 @@ export async function cli() {
     .description("Chunks markdown files")
     .argument("<file>", "input markdown file")
     .option("-m, --model <string>", "encoding model")
-    .option("-mt, --max-tokens <number>", "maximum tokens per chunk")
+    .option("--max-tokens <number>", "maximum tokens per chunk")
     .action(parseMarkdown);
 
   // Define 'info' command group for utility information tasks
@@ -655,30 +630,39 @@ export async function cli() {
   function addPullRequestOptions(command: Command) {
     return command
       .option(
-        "-prc, --pull-request-comment [string]",
+        "-n, --pull-request-comment [string]",
         "create comment on a pull request with a unique id (defaults to script id)",
       )
       .option(
-        "-prd, --pull-request-description [string]",
+        "-d, --pull-request-description [string]",
         "create comment on a pull request description with a unique id (defaults to script id)",
       )
-      .option("-prr, --pull-request-reviews", "create pull request reviews from annotations");
+      .option("-r, --pull-request-reviews", "create pull request reviews from annotations");
+  }
+
+  function addLogProbsOptions(command: Command) {
+    return command
+      .option("--logprobs", "enable reporting token probabilities")
+      .option("--top-logprobs <number>", "number of top logprobs (1 to 5)");
+  }
+
+  function addProviderOptions(command: Command) {
+    return command.addOption(
+      new Option("-p, --provider <string>", "Preferred LLM provider aliases").choices(
+        MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map(({ id }) => id),
+      ),
+    );
   }
 
   function addModelOptions(command: Command) {
-    return command
-      .addOption(
-        new Option("-p, --provider <string>", "Preferred LLM provider aliases").choices(
-          MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map(({ id }) => id),
-        ),
-      )
+    return addProviderOptions(command)
       .option("-m, --model <string>", "'large' model alias (default)")
-      .option("-sm, --small-model <string>", "'small' alias model")
-      .option("-vm, --vision-model <string>", "'vision' alias model")
-      .option("-em, --embeddings-model <string>", "'embeddings' alias model")
-      .option("-ma, --model-alias <nameid...>", "model alias as name=modelid")
+      .option("-s, --small-model <string>", "'small' alias model")
+      .option("--vision-model <string>", "'vision' alias model")
+      .option("--embeddings-model <string>", "'embeddings' alias model")
+      .option("-a, --model-alias <nameid...>", "model alias as name=modelid")
       .addOption(
-        new Option("-re, --reasoning-effort <string>", "Reasoning effort for o* models").choices([
+        new Option("--reasoning-effort <string>", "Reasoning effort for o* models").choices([
           "high",
           "medium",
           "low",

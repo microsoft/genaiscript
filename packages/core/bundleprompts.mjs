@@ -46,12 +46,6 @@ async function main() {
       .sort()
       .map((m) => m.groups.category),
   ]);
-  writeFileSync(
-    "./src/dbg.ts",
-    dedent`// auto-generated: do not edit
-      export const DEBUG_CATEGORIES = ${JSON.stringify(logCategories)};\n`,
-    "utf-8",
-  );
 
   const types = readFileSync("./src/types.ts", { encoding: "utf-8" }).replace(
     /^(\s*)export /gm,

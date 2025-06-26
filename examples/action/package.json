@@ -17,8 +17,8 @@
     "typecheck": "genaiscript scripts compile",
     "configure": "genaiscript configure action action-poem --interactive",
     "test": "echo 'No tests defined.'",
-    "dev": "genaiscript run action-poem --provider echo",
-    "start": "genaiscript run action-poem --provider echo --github-workspace --no-run-trace --no-output-trace",
+    "dev": "genaiscript run action-poem",
+    "start": "genaiscript run action-poem --github-workspace --no-run-trace --no-output-trace",
     "release": "sh release.sh"
   }
 }

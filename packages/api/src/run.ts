@@ -192,7 +192,7 @@ export async function runScriptInternal(
   let result: GenerationResult;
   let workspaceFiles = options.workspaceFiles || [];
   const excludedFiles = options.excludedFiles || [];
-  const stream = !options.json && !options.yaml;
+  const stream = !options.json;
   const retry = normalizeInt(options.retry) || 8;
   const retryDelay = normalizeInt(options.retryDelay) || 15000;
   const maxDelay = normalizeInt(options.maxDelay) || 180000;
@@ -228,7 +228,7 @@ export async function runScriptInternal(
 
   assert(!!runDir);
 
-  if (options.json || options.yaml) overrideStdoutWithStdErr();
+  if (options.json) overrideStdoutWithStdErr();
   applyModelOptions(options, "cli");
 
   const fail = (msg: string, exitCode: number, url?: string) => {
@@ -613,9 +613,6 @@ export async function runScriptInternal(
   if (options.json && result !== undefined)
     // needs to go to process.stdout
     stdout.write(JSON.stringify(result, null, 2));
-  if (options.yaml && result !== undefined)
-    // needs to go to process.stdout
-    stdout.write(YAMLStringify(result));
 
   let _ghInfo: GithubConnectionInfo = undefined;
   const resolveGitHubInfo = async () => {
