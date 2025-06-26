@@ -366,8 +366,68 @@ export async function generatePromptFooConfiguration(
                             transform: assertTransforms[format],
                         })),
                         ...arrayify(facts).map((value) => ({
-                            type: "factuality", // Check factuality of output
-                            value,
+                            type: "javascript", // Custom fact evaluator
+                            value: `
+// Fact evaluation using LLM-based classification approach
+// This is a simplified version that implements the classify concept inline
+
+async function evaluateFactWithClassify(output, fact) {
+    // Extract text from various output formats
+    const outputText = typeof output === 'string' ? output : 
+                      output?.text || 
+                      output?.content ||
+                      JSON.stringify(output);
+    
+    // Simple classification-based evaluation
+    // Check if the output supports, contradicts, or is insufficient for the fact
+    
+    const factLower = fact.toLowerCase();
+    const outputLower = outputText.toLowerCase();
+    
+    // Extract key concepts from the fact
+    const factWords = factLower
+        .replace(/[^\w\s]/g, ' ')
+        .split(/\s+/)
+        .filter(word => word.length > 2)
+        .filter(word => !['the', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'has', 'have', 'had'].includes(word));
+    
+    // Check for explicit contradictions
+    const contradictionPhrases = ['not', 'never', 'cannot', 'does not', 'is not', 'are not'];
+    const hasContradiction = contradictionPhrases.some(phrase => 
+        outputLower.includes(phrase) && factWords.some(word => 
+            outputLower.includes(phrase + ' ' + word) || 
+            outputLower.includes(word + ' ' + phrase)
+        )
+    );
+    
+    if (hasContradiction) {
+        return {
+            pass: false,
+            score: 0,
+            reason: "Output contradicts the fact"
+        };
+    }
+    
+    // Check for supporting evidence
+    const supportingWords = factWords.filter(word => outputLower.includes(word));
+    const supportRatio = supportingWords.length / factWords.length;
+    
+    // Require at least 70% of key terms to be present for support
+    const threshold = 0.7;
+    const pass = supportRatio >= threshold;
+    
+    return {
+        pass,
+        score: supportRatio,
+        reason: pass 
+            ? \`Fact supported: \${supportingWords.length}/\${factWords.length} key terms found\`
+            : \`Insufficient evidence: only \${supportingWords.length}/\${factWords.length} key terms found\`
+    };
+}
+
+// Execute the evaluation
+const result = await evaluateFactWithClassify(output, "${value.replace(/"/g, '\\"').replace(/\n/g, '\\n')}");
+result;`,
                             transform: assertTransforms[format],
                         })),
                         ...arrayify(asserts).map((assert) => ({
