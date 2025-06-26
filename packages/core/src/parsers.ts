@@ -36,6 +36,7 @@ import { diffCreatePatch } from "./diff.js";
 import { promptyParse } from "./prompty.js";
 import { mermaidParse } from "./mermaid.js";
 import type { Parsers, WorkspaceFile } from "./types.js";
+import { levenshteinDistance } from "./levenshtein.js";
 
 /**
  * Asynchronously creates a set of parsers for handling various file formats, data operations,
@@ -166,5 +167,7 @@ export function createParsers(): Parsers {
       await resolveFileContent(file);
       return promptyParse(file.filename, file.content);
     },
+    levenshtein: async (a, b) =>
+      await levenshteinDistance(filenameOrFileToContent(a), filenameOrFileToContent(b)),
   });
 }

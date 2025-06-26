@@ -101,6 +101,7 @@ export * from "./llmdiff.js";
 export * from "./llms.js";
 export * from "./lm.js";
 export * from "./lmstudio.js";
+export * from "./levenshtein.js";
 export * from "./logging.js";
 export * from "./logprob.js";
 export * from "./markdown.js";

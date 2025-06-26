@@ -848,17 +848,6 @@ export type PromptAssertion = {
       // The threshold value
       threshold?: number;
     }
-  | {
-      type: "javascript";
-      /**
-       * JavaScript expression to evaluate.
-       */
-      value: string;
-      /**
-       * Optional threshold if the javascript expression returns a number
-       */
-      threshold?: number;
-    }
 );
 
 export interface PromptTest {
@@ -3084,6 +3073,11 @@ export interface Parsers {
    * @param file
    */
   prompty(file: WorkspaceFile): Promise<PromptyDocument>;
+
+  /**
+   * Computes the levenshtein distance between two strings or workspace files.
+   */
+  levenshtein(a: string | WorkspaceFile, b: string | WorkspaceFile): Promise<number>;
 }
 
 export interface YAMLObject {

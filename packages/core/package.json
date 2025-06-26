@@ -75,6 +75,7 @@
     "dotenv": "^16.5.0",
     "es-toolkit": "catalog:",
     "fast-xml-parser": "^5.2.5",
+    "fastest-levenshtein": "^1.0.16",
     "fetch-retry": "^6.0.0",
     "fflate": "^0.8.2",
     "file-type": "^21.0.0",
