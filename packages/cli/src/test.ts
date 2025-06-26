@@ -163,7 +163,7 @@ export async function runPromptScriptTests(
     promptfoo?: boolean;
   } & CancellationOptions,
 ): Promise<PromptScriptTestRunResponse> {
-  const { promptfoo, cancellationToken } = options || {};
+  const { promptfoo } = options || {};
   if (promptfoo) return await promptFooRunPromptScriptTests(ids, options);
   return await apiRunPromptScriptTests(ids, options);
 }
