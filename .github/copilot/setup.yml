@@ -14,65 +14,16 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: "recursive"
           fetch-depth: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: pnpm
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-
-      - name: Install Python and Azure CLI
-        run: |
-          sudo apt-get install -y python3 python3-pip
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-      - name: Install GitHub CLI
-        run: |
-          sudo apt-get install -y gh
-
-      - name: Setup Docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install project dependencies
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm install:playwright
-
-      - name: Setup Git submodules
-        run: pnpm setup
-
-      - name: Compile project
-        run: pnpm compile:action
-
-      - name: Install GenAIScript CLI globally
-        run: npm install -g genaiscript
-
-      - name: Verify installation
-        run: |
-          node --version
-          pnpm --version
-          python3 --version
-          az --version
-          gh --version
-          docker --version
-          rustc --version
-          ffmpeg -version
-          genaiscript --version
+          cache: 'pnpm'
+      - run: sudo apt-get update && sudo apt-get install ffmpeg
+      - run: pnpm install --frozen-lockfile
+      - name: build
+        run: pnpm run build:ci
