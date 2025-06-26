@@ -1,0 +1,64 @@
+---
+name: Copilot Environment Setup
+"on":
+  workflow_dispatch:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          fetch-depth: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python and Azure CLI
+        run: |
+          sudo apt-get install -y python3 python3-pip
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install project dependencies
+        run: |
+          yarn install --frozen-lockfile --prefer-offline
+          yarn install:playwright
+
+      - name: Setup Git submodules
+        run: yarn setup
+
+      - name: Compile project
+        run: yarn compile:action
+
+      - name: Install GenAIScript CLI globally
+        run: npm install -g genaiscript
+
+      - name: Verify installation
+        run: |
+          node --version
+          yarn --version
+          python3 --version
+          az --version
+          rustc --version
+          ffmpeg -version
+          genaiscript --version
