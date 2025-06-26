@@ -1,19 +1,19 @@
 ---
 title: GitHub Copilot Chat
 sidebar:
-    order: 2
+  order: 2
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
-import lmSelectSrc from "../../../assets/vscode-language-models-select.png"
-import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?raw"
+import lmSelectSrc from "../../../assets/vscode-language-models-select.png";
+import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?raw";
 
-import { YouTube } from "astro-embed"
+import { YouTube } from "astro-embed";
 
 If you have access to **GitHub Copilot Chat in Visual Studio Code**,
 GenAIScript will be able to leverage those [language models](https://code.visualstudio.com/api/extension-guides/language-model) as well.
@@ -59,3 +59,9 @@ select the best chat model that matches the one you have in your script
 </Steps>
 
 The mapping of GenAIScript model names to Visual Studio Models is stored in the settings.
+
+:::tip
+
+If you need to check your available premium request quota for GitHub Copilot, go to [Features](https://github.com/settings/copilot/features) or [Quotes](https://github.com/github-copilot/quotas/<your-github-handle>).
+
+:::
