@@ -48,7 +48,7 @@ export function prettyTokens(n: number, direction?: "prompt" | "completion" | "b
   return `${prefix}${(n / 1e6).toFixed(1)}Mt`;
 }
 
-export function prettyParenthesized(value: any) {
+export function prettyParenthesized(value: unknown) {
   return value !== undefined ? `(${value})` : "";
 }
 

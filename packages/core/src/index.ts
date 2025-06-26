@@ -169,6 +169,7 @@ export * from "./terminal.js";
 export * from "./testschema.js";
 export * from "./textsplitter.js";
 export * from "./think.js";
+export * from "./testeval.js";
 export * from "./tidy.js";
 export * from "./tokens.js";
 export * from "./toml.js";

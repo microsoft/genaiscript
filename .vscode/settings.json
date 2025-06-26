@@ -343,5 +343,6 @@
         "mdx": true,
         "text": true,
         "plaintext": true
-    }
+    },
+    "editor.tabSize": 2
 }

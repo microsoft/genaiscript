@@ -8,8 +8,7 @@
     "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"genaisrc/**/*.{ts,cts,mts,mjs}\" \"*.{js,cjs,mjs,json,mjs}\" ",
     "test": "vitest --run",
     "run:script": "node --trace-deprecation ../cli/dist/src/index.js run",
-    "test:scripts": "node ../cli/dist/src/index.js test -rmo",
-    "test:scripts:view": "node ../cli/dist/src/index.js test view"
+    "test:scripts": "node ../cli/dist/src/index.js test -rmo -r"
   },
   "dependencies": {
     "@genaiscript/runtime": "workspace:*",
@@ -20,10 +19,10 @@
     "@agentic/calculator": "v7.5.3",
     "@agentic/core": "v7.5.3",
     "@agentic/weather": "v7.5.3",
-    "@ast-grep/lang-c": "^0.0.1",
-    "@ast-grep/lang-cpp": "^0.0.1",
-    "@ast-grep/lang-csharp": "^0.0.1",
-    "@ast-grep/lang-python": "^0.0.1",
+    "@ast-grep/lang-c": "^0.0.2",
+    "@ast-grep/lang-cpp": "^0.0.2",
+    "@ast-grep/lang-csharp": "^0.0.2",
+    "@ast-grep/lang-python": "^0.0.2",
     "@azure/identity": "^4.10.1",
     "@azure/storage-blob": "^12.27.0",
     "@genaiscript/api": "workspace:*",

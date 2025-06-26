@@ -283,6 +283,7 @@ export async function cli() {
     .option("--cli <string>", "override path to the cli")
     .option("-td, --test-delay <string>", "delay between tests in seconds")
     .option("--cache", "enable LLM result cache")
+    .option("-r, --random", "Randomize test order")
     .option("-v, --verbose", "verbose output")
     .option(
       "-pv, --promptfoo-version [version]",

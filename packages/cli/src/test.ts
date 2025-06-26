@@ -6,12 +6,20 @@
 // and result processing.
 
 import { PROMPTFOO_VERSION } from "@genaiscript/runtime";
-import { delay } from "es-toolkit";
+import { delay, shuffle } from "es-toolkit";
 import {
+  BOX_RIGHT,
+  BOX_UP_AND_RIGHT,
+  createCancellationController,
   dataTryParse,
+  evaluateTestResult,
   genaiscriptDebug,
   generateId,
   getTestDir,
+  isCancelError,
+  logError,
+  prettyDuration,
+  prettyTokens,
   randomHex,
   rmDir,
   toWorkspaceFile,
@@ -71,6 +79,7 @@ import type {
   PromptTest,
   PromptScriptRunOptions,
   ElementOrArray,
+  PromptTestConfiguration,
 } from "@genaiscript/core";
 import { run } from "@genaiscript/api";
 const dbg = genaiscriptDebug("test");
@@ -150,10 +159,11 @@ export async function runPromptScriptTests(
     testDelay?: string;
     maxConcurrency?: string;
     testTimeout?: string;
+    random?: boolean;
     promptfoo?: boolean;
   } & CancellationOptions,
 ): Promise<PromptScriptTestRunResponse> {
-  const { promptfoo } = options || {};
+  const { promptfoo, cancellationToken } = options || {};
   if (promptfoo) return await promptFooRunPromptScriptTests(ids, options);
   return await apiRunPromptScriptTests(ids, options);
 }
@@ -193,11 +203,12 @@ async function apiRunPromptScriptTests(
     testDelay?: string;
     maxConcurrency?: string;
     testTimeout?: string;
+    random?: boolean;
     promptfoo?: boolean;
   } & CancellationOptions,
 ): Promise<PromptScriptTestRunResponse> {
   applyModelOptions(options, "cli");
-  const { cancellationToken } = options || {};
+  const { cancellationToken, random } = options || {};
   const scripts = await listTests({ ids, ...(options || {}) });
   if (!scripts.length)
     return {
@@ -226,12 +237,7 @@ async function apiRunPromptScriptTests(
   // Prepare test configurations for each script
   const optionsModels = Object.freeze(options.models?.map(parseModelSpec));
   dbg(`options models: %o`, optionsModels);
-  type TestConfiguration = {
-    script: PromptScript;
-    test: PromptTest;
-    options: Partial<PromptScriptRunOptions>;
-  };
-  const configurations: TestConfiguration[] = [];
+  let configurations: PromptTestConfiguration[] = [];
   for (const script of scripts) {
     dbg(`script: %s`, script.id);
     checkCancelled(cancellationToken);
@@ -256,12 +262,17 @@ async function apiRunPromptScriptTests(
 
   dbg(`configurations: %d`, configurations.length);
 
+  if (random) {
+    dbg(`shuffling configurations`);
+    configurations = shuffle(configurations);
+  }
+
   const stats = {
     prompt: 0,
     completion: 0,
     total: 0,
   };
-  const headers = ["status", "script", "prompt", "completion", "total", "duration", "url"];
+  const headers = ["status", "script", "prompt", "completion", "total", "duration", "error"];
   if (outSummary) {
     dbg(`summary: %s`, outSummary);
     await ensureDir(dirname(outSummary));
@@ -271,40 +282,63 @@ async function apiRunPromptScriptTests(
     );
   }
   const results = [];
-  for (const config of configurations) {
-    checkCancelled(cancellationToken);
-    const { script, options, test } = config;
-    logInfo(`test ${script.id} (${results.length + 1}/${configurations.length})`);
-    dbgRun(`options: %O`, options);
-    const { files = [] } = test;
-    const res = await run(script.id, files, {
-      ...options,
-      runTrace: false,
-      outputTrace: false,
-    });
-    const { status, usage } = res || { error: { message: "run failed" }, status: "error" };
+  try {
+    for (const config of configurations) {
+      checkCancelled(cancellationToken);
+      const { script, options, test } = config;
+      logInfo(`test ${script.id} - ${results.length + 1}/${configurations.length}`);
+      const elapsed = Date.now() - runStart.getTime();
+      logVerbose(
+        BOX_UP_AND_RIGHT +
+          BOX_RIGHT +
+          toStringList(
+            prettyDuration(elapsed),
+            `${results.filter((r) => !r.ok).length} failed`,
+            `${results.filter((r) => r.ok).length} success`,
+            prettyTokens(stats.total, "both"),
+            prettyTokens(stats.prompt, "prompt"),
+            prettyTokens(stats.completion, "completion"),
+          ),
+      );
+      dbgRun(`options: %O`, options);
+      const { files = [] } = test;
+      const res = await run(script.id, files, {
+        ...options,
+        runTrace: false,
+        outputTrace: false,
+      });
+      const { usage } = res || { error: { message: "run failed" }, status: "error" };
+      const error = await evaluateTestResult(config, res);
 
-    const ok = status === "success";
-    stats.prompt += usage?.prompt || 0;
-    stats.completion += usage?.completion || 0;
-    stats.total += usage?.total || 0;
-    if (outSummary) {
-      const row = {
-        ok,
-        status: ok ? EMOJI_SUCCESS : EMOJI_FAIL,
-        script: script.id,
-        prompt: usage?.prompt,
-        completion: usage?.completion,
-        total: usage?.total,
-        duration: usage?.duration,
-      };
-      await appendFile(outSummary, objectToMarkdownTableRow(row, headers, { skipEscape: true }));
+      const ok = !error;
+      stats.prompt += usage?.prompt || 0;
+      stats.completion += usage?.completion || 0;
+      stats.total += usage?.total || 0;
+      if (outSummary) {
+        const row = {
+          ok,
+          status: ok ? EMOJI_SUCCESS : EMOJI_FAIL,
+          script: script.id,
+          prompt: usage?.prompt,
+          completion: usage?.completion,
+          total: usage?.total,
+          duration: usage?.duration,
+          error,
+        };
+        await appendFile(outSummary, objectToMarkdownTableRow(row, headers, { skipEscape: true }));
+      }
+      results.push({ ok, res, config, error });
+
+      if (testDelay > 0) {
+        logVerbose(`  waiting ${testDelay}s`);
+        await delay(testDelay * 1000);
+      }
     }
-    results.push({ ok, res, config });
-
-    if (testDelay > 0) {
-      logVerbose(`  waiting ${testDelay}s`);
-      await delay(testDelay * 1000);
+  } catch (e) {
+    if (isCancelError(e)) logInfo(`test run cancelled`);
+    else {
+      logError(e);
+      throw e;
     }
   }
   const runEnd = new Date();
@@ -611,7 +645,10 @@ export async function scriptsTest(
     maxConcurrency?: string;
   },
 ) {
-  const { status, value = [] } = await runPromptScriptTests(ids, options);
+  const canceller = createCancellationController();
+  const cancellationToken = canceller.token;
+
+  const { status, value = [] } = await runPromptScriptTests(ids, { ...options, cancellationToken });
   const trace = new MarkdownTrace();
   trace.appendContent(
     `\n\ntests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed\n\n`,
