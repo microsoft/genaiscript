@@ -201,7 +201,6 @@ export async function runScriptInternal(
   const outAnnotations = options.outAnnotations;
   const failOnErrors = options.failOnErrors;
   const outChangelogs = options.outChangelogs;
-  const pullRequest = normalizeInt(options.pullRequest);
   const pullRequestComment = options.pullRequestComment;
   const pullRequestDescription = options.pullRequestDescription;
   const pullRequestReviews = options.pullRequestReviews;
@@ -454,7 +453,7 @@ export async function runScriptInternal(
   const vars = parseOptionsVars(options.vars, process.env);
   dbg(`vars: %o`, Object.keys(vars));
   const stats = new GenerationStats("");
-  const userState: Record<string, any> = {};
+  const userState: Record<string, unknown> = {};
   try {
     if (options.label) trace.heading(2, options.label);
     applyScriptModelAliases(script);
@@ -618,7 +617,6 @@ export async function runScriptInternal(
   const resolveGitHubInfo = async () => {
     if (!_ghInfo)
       _ghInfo = await githubParseEnv(process.env, {
-        issue: pullRequest,
         resolveToken: true,
         resolveIssue: true,
         resolveCommit: true,

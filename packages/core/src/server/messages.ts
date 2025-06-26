@@ -160,7 +160,6 @@ export interface PromptScriptRunOptions {
   outOutput: string;
   outAnnotations: string;
   outChangelogs: string;
-  pullRequest: string;
   pullRequestComment: string | boolean;
   pullRequestDescription: string | boolean;
   pullRequestReviews: boolean;

@@ -8,7 +8,7 @@
     "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"genaisrc/**/*.{ts,cts,mts,mjs}\" \"*.{js,cjs,mjs,json,mjs}\" ",
     "test": "vitest --run",
     "run:script": "node --trace-deprecation ../cli/dist/src/index.js run",
-    "test:scripts": "node ../cli/dist/src/index.js test -rmo -r"
+    "test:scripts": "node ../cli/dist/src/index.js test --remove-out -r"
   },
   "dependencies": {
     "@genaiscript/runtime": "workspace:*",

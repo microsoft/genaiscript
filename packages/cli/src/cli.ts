@@ -195,7 +195,6 @@ export async function cli() {
       "output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)",
     )
     .option("--out-changelog <string>", "output file for changelogs")
-    .option("--pull-request <number>", "pull request number");
   addPullRequestOptions(run)
     .option("--teams-message", "Posts a message to the teams channel")
     .option("-j, --json", "emit full JSON response to output")

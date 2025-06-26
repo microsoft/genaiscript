@@ -22,4 +22,4 @@ jobs:
             - name: unit tests
               run: pnpm test:samples
             - name: run code-annotator
-              run: node packages/cli/dist/src/index.js run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY
+              run: node packages/cli/dist/src/index.js run code-annotator packages/sample/src/counting.py -l Test --out-trace $GITHUB_STEP_SUMMARY
