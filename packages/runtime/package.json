@@ -1,0 +1,14 @@
+{
+  "name": "genaiscript-runtime-internal",
+  "version": "1.140.0",
+  "main": "deepresearch.ts",
+  "license": "MIT",
+  "private": true,
+  "npm": {
+    "publish": false
+  },
+  "repository": {
+    "directory": "packages/runtime",
+    "url": "https://github.com/microsoft/genaiscript"
+  }
+}
