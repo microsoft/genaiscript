@@ -199,7 +199,7 @@ permissions:
 - set the `GITHUB_TOKEN` secret in the `env` when running the cli
 
 ```yaml
-    - run: npx --yes genaiscript run ... -prc --out-trace $GITHUB_STEP_SUMMARY
+    - run: npx --yes genaiscript run ... --pull-request-comment --out-trace $GITHUB_STEP_SUMMARY
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ... # LLM secrets
@@ -211,7 +211,7 @@ permissions:
 - pass secrets to scripts, including `System.AccessToken`
 
 ```yaml
-- script: npx genaiscript run ... -prd
+- script: npx genaiscript run ... --pull-request-description
   env:
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
     ... # LLM secrets
@@ -223,7 +223,7 @@ When running within a GitHub Action or Azure DevOps pipeline on a pull request,
 the CLI inserts the LLM output in the description of the pull request ([example](https://github.com/microsoft/genaiscript/pull/564))
 
 ```sh
-npx genaiscript run ... -prd
+npx genaiscript run ... --pull-request-description
 ```
 
 The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
@@ -233,7 +233,7 @@ The `tag` parameter is a unique id used to differentiate description generate by
 Upserts a comment on the pull request/issue with the LLM output ([example](https://github.com/microsoft/genaiscript/pull/564#issuecomment-2200474305))
 
 ```sh
-npx genaiscript run ... -prc
+npx genaiscript run ... --pull-request-comment
 ```
 
 The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
@@ -244,7 +244,7 @@ Create pull request review comments from each [annotations](/genaiscript/referen
 ([example](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).
 
 ```sh
-npx genaiscript run ... -prr
+npx genaiscript run ... --pull-request-reviews
 ```
 
 ## Read more

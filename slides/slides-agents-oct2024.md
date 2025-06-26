@@ -55,7 +55,7 @@ src: pages/agents-memory.md
 ---
 
 ---
-src: pages/agents-prd.md
+src: pages/agents--pull-request-description.md
 ---
 
 ---

@@ -36,11 +36,11 @@ jobs:
               run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-describe
               continue-on-error: true
-              run: node packages/cli/dist/src/index.js run pr-describe --out ./temp/genai/pr-describe -prd -m review --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
+              run: node packages/cli/dist/src/index.js run pr-describe --out ./temp/genai/pr-describe --pull-request-description -m review --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: genaiscript pr-review
-              run: node packages/cli/dist/src/index.js run pr-review --out ./temp/genai/pr-review -prc -m review --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
+              run: node packages/cli/dist/src/index.js run pr-review --out ./temp/genai/pr-review --pull-request-comment -m review --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

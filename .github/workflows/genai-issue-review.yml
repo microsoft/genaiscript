@@ -26,7 +26,7 @@ jobs:
             - name: compile
               run: pnpm compile
             - name: genaiscript issue-review
-              run: node packages/cli/dist/src/index.js run issue-reviewer -p github -prc --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/dist/src/index.js run issue-reviewer -p github --pull-request-comment --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

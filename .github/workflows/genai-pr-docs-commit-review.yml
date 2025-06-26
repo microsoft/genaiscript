@@ -26,7 +26,7 @@ jobs:
             - name: git stuff
               run: git fetch origin && git pull origin dev:dev
             - name: genaiscript pr-review-commit
-              run: node packages/cli/dist/src/index.js run pr-docs-review-commit --out ./temp/genai/pr-docs-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev -p github
+              run: node packages/cli/dist/src/index.js run pr-docs-review-commit --out ./temp/genai/pr-docs-review-commit --pull-request-reviews --out-trace $GITHUB_STEP_SUMMARY --vars defaultBranch=dev -p github
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -32,7 +32,7 @@ jobs:
             - name: git fetch dev
               run: git fetch origin && git pull origin dev:dev
             - name: /docs
-              run: node packages/cli/dist/src/index.js run docs "packages/**/*.ts" --out ./temp/genai/docs -prc -p github --out-trace $GITHUB_STEP_SUMMARY --vars diff=true --vars pretty=true --vars applyEdits=true --vars defaultBranch=dev
+              run: node packages/cli/dist/src/index.js run docs "packages/**/*.ts" --out ./temp/genai/docs --pull-request-comment -p github --out-trace $GITHUB_STEP_SUMMARY --vars diff=true --vars pretty=true --vars applyEdits=true --vars defaultBranch=dev
               env:
                   DEBUG: "script*"
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
