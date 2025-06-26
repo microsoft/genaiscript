@@ -90,7 +90,6 @@ Options:
   --out-data <string>                      output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available.
   --out-annotations <string>               output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)
   --out-changelog <string>                 output file for changelogs
-  --pull-request <number>                  pull request number
   -n, --pull-request-comment [string]      create comment on a pull request with a unique id (defaults to script id)
   -d, --pull-request-description [string]  create comment on a pull request description with a unique id (defaults to script id)
   -r, --pull-request-reviews               create pull request reviews from annotations

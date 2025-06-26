@@ -12,7 +12,7 @@
     "az:login": "az login --scope api://trapi/.default",
     "prebuild": "pnpm run build:ruler",
     "build": "turbo build",
-    "postbuild": "pnpm test:fix",
+    "postbuild": "pnpm test:fix && pnpm build:commands",
     "build:cli": "pnpm --filter=!docs --filter=!genaiscript-vscode --filter=!@genaiscript/web build",
     "build:ci": "pnpm --filter=!docs build",
     "build:ruler": "ruler apply --mcp-overwrite",
