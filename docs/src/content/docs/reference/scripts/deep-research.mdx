@@ -1,0 +1,219 @@
+---
+title: Deep Research
+description: Comprehensive iterative research helper for GenAIScript
+keywords: research, web search, analysis, iterative, depth, breadth
+sidebar:
+  order: 25
+---
+
+import { Code } from "@astrojs/starlight/components"
+
+The `deepResearch` helper conducts comprehensive iterative research on any topic using web searches and AI analysis. It performs multiple rounds of searches, analyzes results, generates follow-up questions, and produces structured research reports.
+
+## Basic Usage
+
+```javascript
+import { deepResearch } from "genaiscript/runtime"
+
+const result = await deepResearch({
+    topic: "renewable energy trends 2024"
+})
+
+// Output the research report  
+output.appendContent(MD.stringify(result.report, { headings: 1 }))
+```
+
+## Options
+
+The `deepResearch` function accepts the following options:
+
+### `topic` (required)
+The research topic or query to investigate.
+
+```javascript
+const result = await deepResearch({
+    topic: "quantum computing advancements in AI"
+})
+```
+
+### `breadth`
+Number of search queries to generate per iteration. Controls how wide the research goes.
+- **Default:** `4`
+- **Range:** `1-10` (recommended)
+
+```javascript
+const result = await deepResearch({
+    topic: "climate change solutions",
+    breadth: 6  // Generate 6 different search queries per iteration
+})
+```
+
+### `depth`
+Number of recursive research iterations to perform. Controls how deep the research goes.
+- **Default:** `2`
+- **Range:** `1-5` (recommended)
+
+```javascript
+const result = await deepResearch({
+    topic: "machine learning applications",
+    depth: 3  // Perform 3 rounds of iterative research
+})
+```
+
+### `searchResultsPerQuery`
+Maximum number of search results to analyze per query.
+- **Default:** `5`
+- **Range:** `1-10`
+
+```javascript
+const result = await deepResearch({
+    topic: "blockchain technology",
+    searchResultsPerQuery: 8  // Analyze up to 8 results per search
+})
+```
+
+### `onProgress`
+Callback function to track research progress.
+
+```javascript
+const result = await deepResearch({
+    topic: "space exploration",
+    onProgress: (progress) => {
+        console.log(`Progress: ${progress.completedQueries}/${progress.totalQueries} queries completed`)
+        if (progress.currentQuery) {
+            console.log(`Current query: "${progress.currentQuery}"`)
+        }
+    }
+})
+```
+
+### `ctx`
+Chat generation context to use for running prompts.
+- **Default:** `env.generator`
+
+```javascript
+const result = await deepResearch({
+    topic: "artificial intelligence ethics",
+    ctx: myCustomContext
+})
+```
+
+## Return Value
+
+The `deepResearch` function returns a comprehensive result object:
+
+```typescript
+type DeepResearchResult = {
+    // Structured research report
+    report: {
+        title: string
+        executiveSummary: string
+        keyFindings: Array<{
+            finding: string
+            confidence: "high" | "medium" | "low"
+            sources?: string[]
+        }>
+        gaps?: string[]
+        furtherResearch?: string[]
+    }
+    
+    // Research statistics  
+    stats: {
+        iterations: number
+        searchesConducted: number
+        findingsDiscovered: number
+        sourcesConsulted: number
+    }
+    
+    // All findings collected during research
+    allFindings: Array<{
+        text: string
+        query: string
+        sourcesQuality: number
+    }>
+    
+    // Sources consulted during research
+    sources: string[]
+}
+```
+
+## Advanced Example
+
+```javascript
+import { deepResearch } from "genaiscript/runtime"
+
+script({
+    title: "Market Research",
+    parameters: {
+        market: { type: "string", default: "electric vehicles" },
+        timeframe: { type: "string", default: "2024-2025" }
+    }
+})
+
+const { market, timeframe } = env.vars
+
+const result = await deepResearch({
+    topic: `${market} market trends and forecasts for ${timeframe}`,
+    breadth: 5,        // Wide research scope
+    depth: 3,          // Deep analysis
+    searchResultsPerQuery: 7,
+    onProgress: (progress) => {
+        const percent = Math.round((progress.completedQueries / progress.totalQueries) * 100)
+        console.log(`🔍 Research ${percent}% complete...`)
+    }
+})
+
+// Generate comprehensive market report
+output.appendContent(`# ${result.report.title}
+
+${result.report.executiveSummary}
+
+## Key Market Insights
+
+${result.report.keyFindings.map(finding => 
+    `- **${finding.finding}** (Confidence: ${finding.confidence})`
+).join('\n')}
+
+## Research Gaps & Opportunities
+
+${result.report.gaps?.map(gap => `- ${gap}`).join('\n') || 'No gaps identified'}
+
+## Recommended Research Directions
+
+${result.report.furtherResearch?.map(rec => `- ${rec}`).join('\n') || 'No recommendations'}
+
+---
+
+### Research Statistics
+- **Searches conducted:** ${result.stats.searchesConducted}
+- **Sources analyzed:** ${result.stats.sourcesConsulted}  
+- **Key findings:** ${result.stats.findingsDiscovered}
+- **Research iterations:** ${result.stats.iterations}
+`)
+```
+
+## How It Works
+
+The deep research process follows these steps:
+
+1. **Question Generation**: Analyzes the topic and generates targeted search queries
+2. **Web Search**: Executes searches using the web search API
+3. **Content Analysis**: Extracts key findings, insights, and follow-up questions from results
+4. **Iterative Exploration**: Uses findings to generate new research directions
+5. **Report Synthesis**: Compiles all findings into a structured research report
+
+The function intelligently balances breadth (number of different search angles) and depth (recursive research iterations) to provide comprehensive coverage of the topic.
+
+## Best Practices
+
+- **Start with broad topics** for initial exploration, then narrow down with specific parameters
+- **Use moderate breadth/depth** values (4-6 breadth, 2-3 depth) for most research tasks
+- **Implement progress tracking** for long-running research sessions
+- **Review research gaps** in the final report to identify areas needing manual investigation
+- **Combine with other tools** like document analysis or data visualization for enhanced reports
+
+## Related
+
+- [Web Search](/genaiscript/reference/scripts/web-search) - Basic web search functionality
+- [Retrieval](/genaiscript/reference/scripts/retrieval) - Vector search and document retrieval
+- [Cast](/genaiscript/reference/scripts/cast) - Structure unstructured data
