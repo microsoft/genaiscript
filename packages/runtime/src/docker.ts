@@ -52,7 +52,7 @@ export class DockerManager {
     this._createQueue = new PLimitPromiseQueue(1);
   }
 
-  private async init(options?: TraceOptions) {
+  private async init() {
     if (this._docker) {
       return;
     }
@@ -110,7 +110,9 @@ export class DockerManager {
       dbg(`stopping container with id ${id}`);
       try {
         await c.stop();
-      } catch {}
+      } catch {
+        // Do not log error if container is already stopped
+      }
       try {
         await c.remove();
       } catch (e) {
@@ -143,7 +145,7 @@ export class DockerManager {
     try {
       const info = await this._docker.getImage(image).inspect();
       return info?.Size > 0;
-    } catch (e) {
+    } catch {
       // statusCode: 404
       dbg(`image ${image} does not exist`);
       return false;
@@ -278,7 +280,6 @@ export class DockerManager {
       networkEnabled,
       postCreateCommands,
     } = options;
-    const persistent = !!options.persistent || !!(options as any).disablePurge;
     const ports = arrayify(options.ports);
     const { name, hostPath } = await this.containerName(options);
     try {
@@ -509,7 +510,7 @@ export class DockerManager {
       const hostFilename = host.path.resolve(hostPath, resolveContainerPath(filename));
       try {
         return await readFile(hostFilename, { encoding: "utf8" });
-      } catch (e) {
+      } catch {
         return undefined;
       }
     };
@@ -539,7 +540,7 @@ export class DockerManager {
       try {
         const files = await readdir(source);
         return files;
-      } catch (e) {
+      } catch {
         return [];
       }
     };
@@ -548,7 +549,7 @@ export class DockerManager {
       dbgc(`disconnect network`);
       const networks = await this._docker.listNetworks();
       for (const network of networks.filter(({ Name }) => Name === "bridge")) {
-        const n = await this._docker.getNetwork(network.Id);
+        const n = this._docker.getNetwork(network.Id);
         if (n) {
           const state = await n.inspect();
           if (state?.Containers?.[container.id]) {

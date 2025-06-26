@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { delay, uniq, uniqBy, chunk } from "es-toolkit";
 import { z } from "zod";
 

@@ -1,4 +1,7 @@
-import type { ChatGenerationContext, ChatGenerationContextOptions } from "@genaiscript/core";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import type { ChatGenerationContextOptions } from "@genaiscript/core";
 import { resolveChatGenerationContext } from "./runtime.js";
 
 /**
@@ -23,7 +26,6 @@ export function makeItBetter(
   ctx.defChatParticipant((cctx) => {
     if (round++ < repeat) {
       cctx.console.log(`make it better (round ${round})`);
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       cctx.$`${instructions}`;
     }
   });

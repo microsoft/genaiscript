@@ -80,6 +80,12 @@ import { uniq } from "es-toolkit";
 import { shellConfirm, shellInput, shellSelect } from "./input.js";
 const dbg = genaiscriptDebug("nodehost");
 
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P];
+};
+
+type MutableModelConfiguration = Mutable<ModelConfiguration>;
+
 class NodeServerManager implements ServerManager {
   async start(): Promise<void> {
     dbg(`starting NodeServerManager`);
@@ -187,6 +193,11 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     value: string | ModelConfiguration,
   ): void {
     id = id.toLowerCase();
+    const dangerousKeys = ["__proto__", "prototype", "constructor"];
+    if (dangerousKeys.includes(id)) {
+      throw new Error("Invalid key");
+    }
+
     if (typeof value === "string") {
       value = { model: value, source };
     }
@@ -197,19 +208,19 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       delete aliases[id];
     } else if (value.model !== undefined && value.model !== id) {
       dbg(`alias: ${id}.model = ${value.model} (source: ${source})`);
-      (c as any).model = value.model;
+      (c as MutableModelConfiguration).model = value.model;
     }
     if (!isNaN(value.temperature)) {
       dbg(`alias: ${id}.temperature = ${value.temperature} (source: ${source})`);
-      (c as any).temperature = value.temperature;
+      (c as MutableModelConfiguration).temperature = value.temperature;
     }
     if (value.reasoningEffort) {
       dbg(`alias: ${id}.reasoning effort = ${value.reasoningEffort} (source: ${source})`);
-      (c as any).reasoningEffort = value.reasoningEffort;
+      (c as MutableModelConfiguration).reasoningEffort = value.reasoningEffort;
     }
     if (value.fallbackTools) {
       dbg(`alias: ${id}.fallback tools = ${value.fallbackTools} (source: ${source})`);
-      (c as any).fallbackTools = value.fallbackTools;
+      (c as MutableModelConfiguration).fallbackTools = value.fallbackTools;
     }
   }
 
@@ -442,7 +453,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
               ? "symlink"
               : undefined,
       };
-    } catch (error) {
+    } catch {
       return undefined;
     }
   }
