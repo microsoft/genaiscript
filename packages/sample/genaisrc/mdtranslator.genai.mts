@@ -169,7 +169,9 @@ export default async function main() {
           if (todos.has(hash)) {
             todos.delete(hash);
             dbg(`translation: %s`, hash);
-            const chunkTranslated = fence.content.replace(/\r?\n$/, "").trim() + " ";
+            let chunkTranslated = fence.content.replace(/\r?\n$/, "").trim();
+            const node = nodes[hash];
+            if (node.type === "text" && /\s$/.test(node.value)) chunkTranslated += " ";
             dbg(`content: %s`, chunkTranslated);
             cache[hash] = chunkTranslated;
           }

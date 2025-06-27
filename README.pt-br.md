@@ -387,4 +387,4 @@ Qualquer uso de marcas registradas ou logotipos de terceiros está sujeito às p
 
 <hr/>
 
-Translated using AI. Please verify the content for accuracy.
+Traduzido com IA. Por favor, verifique o conteúdo para garantir precisão.
