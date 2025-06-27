@@ -1,0 +1,53 @@
+import type { Root } from "mdast";
+import { filenameOrFileToContent, genaiscriptDebug, WorkspaceFile } from "@genaiscript/core";
+import type { Test, BuildVisitor } from "unist-util-visit";
+const dbg = genaiscriptDebug("md:remark");
+
+export async function mdastParse(file: string | WorkspaceFile): Promise<Root> {
+  const content = filenameOrFileToContent(file);
+  if (!content) return { type: "root", children: [] };
+
+  dbg(`parse`);
+  const { unified } = await import("unified");
+  const { default: parse } = await import("remark-parse");
+  const { default: directive } = await import("remark-directive");
+  const { default: gfm } = await import("remark-gfm");
+  const { default: github } = await import("remark-github");
+  const { default: frontmatter } = await import("remark-frontmatter");
+  const { default: math } = await import("remark-math");
+
+  const ast = unified()
+    .use(parse)
+    .use(frontmatter)
+    .use(gfm)
+    .use(github)
+    .use(directive)
+    .use(math)
+    .parse(content);
+  ast.type = "root";
+  return ast;
+}
+
+export async function mdastStringify(root: Root): Promise<string> {
+  if (!root) return "";
+
+  const { unified } = await import("unified");
+  const { default: stringify } = await import("remark-stringify");
+
+  return unified().use(stringify).stringify(root);
+}
+
+export async function mdastVisit(
+  root: Root,
+  visitor: BuildVisitor<Root, Test>,
+  options?: {
+    check?: Test;
+    reverse?: boolean;
+  },
+): Promise<void> {
+  if (!root) return;
+
+  const { check, reverse } = options || {};
+  const { visit } = await import("unist-util-visit");
+  return visit(root, check, visitor, reverse);
+}

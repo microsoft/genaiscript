@@ -58,6 +58,7 @@ import {
   tryReadText,
   unthink,
   getModulePaths,
+  sanitizeFilename,
 } from "@genaiscript/core";
 import { createReadStream } from "node:fs";
 import { URL } from "node:url";
@@ -693,7 +694,7 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
       stream.pipe(res);
     } else if (method === "GET" && imageRx.test(route)) {
       try {
-        const filePath = await realpath(resolve(ROOT, route));
+        const filePath = await realpath(resolve(ROOT, sanitizeFilename(route)));
         if (!filePath.startsWith(ROOT)) throw new Error(`invalid path ${filePath}`);
         const stream = createReadStream(filePath);
         res.setHeader("Content-Type", "image/" + extname(route));

@@ -427,9 +427,6 @@ importers:
       mathjs:
         specifier: ^14.5.2
         version: 14.5.2
-      mdast:
-        specifier: ^3.0.0
-        version: 3.0.0
       merge-descriptors:
         specifier: ^2.0.0
         version: 2.0.0
@@ -475,18 +472,6 @@ importers:
       pretty-ms:
         specifier: ^9.2.0
         version: 9.2.0
-      remark:
-        specifier: ^15.0.1
-        version: 15.0.1
-      remark-frontmatter:
-        specifier: ^5.0.0
-        version: 5.0.0
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1
-      remark-github:
-        specifier: ^12.0.0
-        version: 12.0.0
       remark-parse:
         specifier: ^11.0.0
         version: 11.0.0
@@ -532,9 +517,6 @@ importers:
       undici:
         specifier: ^7.10.0
         version: 7.10.0
-      unified:
-        specifier: ^11.0.5
-        version: 11.0.5
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -572,9 +554,6 @@ importers:
       '@types/jsdom':
         specifier: ^21.1.7
         version: 21.1.7
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
       '@types/mime-types':
         specifier: ^3.0.1
         version: 3.0.1
@@ -672,6 +651,9 @@ importers:
       '@inquirer/prompts':
         specifier: 'catalog:'
         version: 7.5.3(@types/node@22.15.28)
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       debug:
         specifier: 'catalog:'
         version: 4.4.1
@@ -687,15 +669,45 @@ importers:
       glob:
         specifier: ^11.0.3
         version: 11.0.3
+      mdast:
+        specifier: ^3.0.0
+        version: 3.0.0
       memorystream:
         specifier: ^0.3.1
         version: 0.3.1
       playwright:
         specifier: ^1.53.1
         version: 1.53.1
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      remark-directive:
+        specifier: ^4.0.0
+        version: 4.0.0
+      remark-frontmatter:
+        specifier: ^5.0.0
+        version: 5.0.0
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+      remark-github:
+        specifier: ^12.0.0
+        version: 12.0.0
+      remark-math:
+        specifier: ^6.0.0
+        version: 6.0.0
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      remark-stringify:
+        specifier: ^11.0.0
+        version: 11.0.0
       tslib:
         specifier: 'catalog:'
         version: 2.8.1
+      unist-util-visit:
+        specifier: ^5.0.0
+        version: 5.0.0
       zod:
         specifier: ^3.25.67
         version: 3.25.67
@@ -6319,6 +6331,9 @@ packages:
   micromark-extension-directive@3.0.2:
     resolution: {integrity: sha512-wjcXHgk+PPdmvR58Le9d7zQYWy+vKEU9Se44p2CrCDPiLr2FMyiT4Fyb5UFKFC66wGB3kPlgD7q3TnoqPS7SZA==}
 
+  micromark-extension-directive@4.0.0:
+    resolution: {integrity: sha512-/C2nqVmXXmiseSSuCdItCMho7ybwwop6RrrRPk0KbOHW21JKoCldC+8rFOaundDoRBUWBnJJcxeA/Kvi34WQXg==}
+
   micromark-extension-frontmatter@2.0.0:
     resolution: {integrity: sha512-C4AkuM3dA58cgZha7zVnuVxBhDsbttIMiytjgsM2XbHAB2faRVaHRle40558FBN+DJcrLNCoqG5mlrpdU4cRtg==}
 
@@ -7298,6 +7313,9 @@ packages:
 
   remark-directive@3.0.1:
     resolution: {integrity: sha512-gwglrEQEZcZYgVyG1tQuA+h58EZfq5CSULw7J90AFuCTyib1thgHPoqQ+h9iFvU6R+vnZ5oNFQR5QKgGpk741A==}
+
+  remark-directive@4.0.0:
+    resolution: {integrity: sha512-7sxn4RfF1o3izevPV1DheyGDD6X4c9hrGpfdUpm7uC++dqrnJxIZVkk7CoKqcLm0VUMAuOol7Mno3m6g8cfMuA==}
 
   remark-frontmatter@5.0.0:
     resolution: {integrity: sha512-XTFYvNASMe5iPN0719nPrdItC9aU0ssC4v14mH1BCi1u0n1gAocqcujWUrByftZTbLhRtiKRyjYTSIOcr69UVQ==}
@@ -16194,6 +16212,16 @@ snapshots:
       micromark-util-types: 2.0.2
       parse-entities: 4.0.2
 
+  micromark-extension-directive@4.0.0:
+    dependencies:
+      devlop: 1.1.0
+      micromark-factory-space: 2.0.1
+      micromark-factory-whitespace: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+      parse-entities: 4.0.2
+
   micromark-extension-frontmatter@2.0.0:
     dependencies:
       fault: 2.0.1
@@ -17403,6 +17431,15 @@ snapshots:
       '@types/mdast': 4.0.4
       mdast-util-directive: 3.1.0
       micromark-extension-directive: 3.0.2
+      unified: 11.0.5
+    transitivePeerDependencies:
+      - supports-color
+
+  remark-directive@4.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-directive: 3.1.0
+      micromark-extension-directive: 4.0.0
       unified: 11.0.5
     transitivePeerDependencies:
       - supports-color
