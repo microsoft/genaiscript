@@ -4095,7 +4095,7 @@ export interface MDObject {
    * @param frontmatter
    * @param format
    */
-  updateFrontmatter(text: string, frontmatter: any, format?: "yaml" | "json"): string;
+  updateFrontmatter(text: string, frontmatter: unknown, format?: "yaml" | "json"): string;
 
   /**
    * Attempts to chunk markdown in text section in a way that does not splitting the heading structure.
@@ -4112,7 +4112,7 @@ export interface MDObject {
    * @param value
    */
   stringify(
-    value: any,
+    value: unknown,
     options?: {
       quoteValues?: boolean;
       headings?: number;

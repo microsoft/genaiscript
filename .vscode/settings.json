@@ -171,6 +171,7 @@
         "mcpresource",
         "mcps",
         "mcpserver",
+        "mdast",
         "mdchunk",
         "mdstringify",
         "memorystream",
