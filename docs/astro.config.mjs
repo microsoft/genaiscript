@@ -39,6 +39,13 @@ export default defineConfig({
                                 "https://avatars.githubusercontent.com/u/4175913?s=400&u=2aca7b068fa646da550c534145764d50f533561d&v=4",
                             url: "https://github.com/pelikhan",
                         },
+                        mattpodwysocki: {
+                            name: "Matt Podwysocki",
+                            title: "GenAIScript developer",
+                            picture:
+                                "https://avatars.githubusercontent.com/u/11578097?v=4",
+                            url: "https://github.com/mattpodwysocki",
+                        },
                         volkanunsal: {
                             name: "Volkan Unsal",
                             title: "GenAIScript enthusiast",
