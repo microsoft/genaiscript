@@ -142,6 +142,7 @@ export default async function main() {
       ## Instructions
 
       - Be extremely careful about the HASH names. They are unique identifiers for each node and should not be changed.
+      - Use code regions to respond with the translated content.
       - Do not translate the text outside of the HASH tags.
       - Do not change the structure of the document.
       - As much as possible, maintain the original formatting and structure of the document.
