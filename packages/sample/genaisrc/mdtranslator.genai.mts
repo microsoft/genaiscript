@@ -1,5 +1,5 @@
 import { hash } from "crypto";
-import { mdast } from "@genaiscript/runtime";
+import { classify, mdast } from "@genaiscript/runtime";
 script({
   accept: ".md",
   files: "src/rag/markdown.md",
@@ -178,6 +178,30 @@ export default async function main() {
 
     let contentTranslated = await stringify(translated);
     output.diff(content, contentTranslated);
+    if (content === contentTranslated) {
+      output.warn(`Unable to translate anything, skipping file.`);
+      continue;
+    }
+
+    // judge quality is good enough
+    const res = await classify(
+      (ctx) => {
+        ctx.$`You are an expert at judging the quality of translations. Your task is to determine if the translation of a Markdown document from English to ${to} is of high quality.
+      The original document is provided as a variable named ${ctx.def("ORIGINAL", content)}, and the translated document is provided as a variable named ${ctx.def("TRANSLATED", contentTranslated)}.`.role(
+          "system",
+        );
+      },
+      { ok: "Translation is of high quality.", bad: "Translation is of low quality." },
+      {
+        systemSafety: false,
+      },
+    );
+
+    if (res.label !== "ok") {
+      output.error(`Translation quality is low. Skipping file.`);
+      output.fence(res.answer);
+      continue;
+    }
 
     if (aiDisclaimer)
       contentTranslated += `\n\n<hr/>\n\nTranslated using AI. Please verify the content for accuracy.\n\n`;
@@ -185,6 +209,7 @@ export default async function main() {
     // apply translations and save
     dbgc(`translated: %s`, contentTranslated);
     dbg(`writing translation to %s`, translationFn);
+
     await workspace.writeText(translationFn, contentTranslated);
   }
 
