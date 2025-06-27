@@ -41,6 +41,7 @@ import { encodeIDs } from "./cleaners"
 import { diffCreatePatch } from "./diff"
 import { promptyParse } from "./prompty"
 import { mermaidParse } from "./mermaid"
+import { parseMarkdown, reconstructMarkdown, createTranslationMap, extractTranslatableContent } from "./mdtranslator"
 
 /**
  * Asynchronously creates a set of parsers for handling various file formats, data operations,
@@ -222,5 +223,11 @@ export async function createParsers(
             await resolveFileContent(file, { trace })
             return promptyParse(file.filename, file.content)
         },
+        markdownTranslator: {
+            parse: async (content, options) => await parseMarkdown(content, options),
+            reconstruct: (parseResult, translationMap) => reconstructMarkdown(parseResult, translationMap),
+            createTranslationMap: (chunks, translations) => createTranslationMap(chunks, translations),
+            extractTranslatableContent: (chunks) => extractTranslatableContent(chunks)
+        }
     })
 }

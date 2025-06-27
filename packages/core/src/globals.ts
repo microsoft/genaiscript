@@ -26,6 +26,7 @@ import { chunkMarkdown } from "./mdchunk"
 import { resolveGlobal } from "./global"
 import { MarkdownStringify } from "./markdown"
 import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff"
+import { parseMarkdown, reconstructMarkdown, createTranslationMap, extractTranslatableContent } from "./mdtranslator"
 
 /**
  * Installs global utilities for various data formats and operations.
@@ -90,6 +91,12 @@ export function installGlobals() {
             )
             return res
         },
+        translator: {
+            parse: parseMarkdown,
+            reconstruct: reconstructMarkdown,
+            createTranslationMap: createTranslationMap,
+            extractTranslatableContent: extractTranslatableContent
+        }
     })
 
     // Freeze JSONL utilities

@@ -3937,6 +3937,92 @@ interface MD {
             headingLevel?: number
         }
     ): string
+
+    /**
+     * Markdown translator utilities for LLM-based translation
+     */
+    translator: {
+        /**
+         * Parses markdown content into lexical chunks
+         * @param content - Markdown content as string or WorkspaceFile
+         * @param options - Parsing options
+         */
+        parse(
+            content: string | WorkspaceFile,
+            options?: {
+                includeCodeBlocks?: boolean
+                includeHtmlBlocks?: boolean
+                hashAlgorithm?: string
+                hashLength?: number
+            }
+        ): Promise<{
+            chunks: Array<{
+                hash: string
+                type: string
+                content: string
+                startLine: number
+                endLine: number
+                level?: number
+                translatable: boolean
+            }>
+            originalLines: string[]
+        }>
+
+        /**
+         * Reconstructs markdown from translation map with fallback to original content
+         * @param parseResult - Result from parse function
+         * @param translationMap - Hash to translation mapping
+         */
+        reconstruct(
+            parseResult: {
+                chunks: Array<{
+                    hash: string
+                    type: string
+                    content: string
+                    startLine: number
+                    endLine: number
+                    level?: number
+                    translatable: boolean
+                }>
+                originalLines: string[]
+            },
+            translationMap: Record<string, string>
+        ): string
+
+        /**
+         * Creates a translation map from chunks and their translations
+         * @param chunks - Array of chunks from parse
+         * @param translations - Array of translated content strings
+         */
+        createTranslationMap(
+            chunks: Array<{
+                hash: string
+                type: string
+                content: string
+                startLine: number
+                endLine: number
+                level?: number
+                translatable: boolean
+            }>,
+            translations: string[]
+        ): Record<string, string>
+
+        /**
+         * Extracts translatable content from chunks
+         * @param chunks - Array of chunks from parse
+         */
+        extractTranslatableContent(
+            chunks: Array<{
+                hash: string
+                type: string
+                content: string
+                startLine: number
+                endLine: number
+                level?: number
+                translatable: boolean
+            }>
+        ): string[]
+    }
 }
 
 interface JSONL {
