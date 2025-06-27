@@ -1,0 +1,179 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://microsoft.github.io/genaiscript/schemas/llmdata.json",
+  "title": "GenAIScript LLM Data Schema",
+  "description": "Schema for LLM data sourced from models.dev",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the data format"
+    },
+    "generated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this data was generated"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source of the data (e.g., models.dev)"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the source data was last updated"
+    },
+    "providers": {
+      "type": "array",
+      "description": "Array of LLM providers",
+      "items": {
+        "$ref": "#/definitions/LLMProvider"
+      }
+    },
+    "models": {
+      "type": "array",
+      "description": "Array of LLM models",
+      "items": {
+        "$ref": "#/definitions/LLMModel"
+      }
+    },
+    "aliases": {
+      "type": "object",
+      "description": "Model aliases mapping",
+      "patternProperties": {
+        "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+          "type": "string",
+          "description": "Provider:model format"
+        }
+      }
+    },
+    "pricings": {
+      "type": "object",
+      "description": "Pricing information for models",
+      "patternProperties": {
+        ".*": {
+          "$ref": "#/definitions/PricingInfo"
+        }
+      }
+    }
+  },
+  "required": ["version", "generated", "source", "providers", "models", "aliases", "pricings"],
+  "definitions": {
+    "LLMProvider": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Provider identifier"
+        },
+        "detail": {
+          "type": "string",
+          "description": "Provider description or name"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Provider website or documentation URL"
+        },
+        "aliases": {
+          "type": "object",
+          "description": "Model aliases for this provider",
+          "patternProperties": {
+            ".*": {
+              "type": "string"
+            }
+          }
+        },
+        "models": {
+          "type": "object",
+          "description": "Provider-specific model configurations"
+        },
+        "env": {
+          "type": "object",
+          "description": "Environment variables required by this provider"
+        }
+      },
+      "required": ["id", "detail"]
+    },
+    "LLMModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Model identifier"
+        },
+        "provider": {
+          "type": "string",
+          "description": "Provider identifier this model belongs to"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable model name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Model description"
+        },
+        "capabilities": {
+          "type": "object",
+          "description": "Model capabilities (tools, vision, etc.)"
+        },
+        "context_length": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum context length in tokens"
+        },
+        "pricing": {
+          "$ref": "#/definitions/PricingInfo"
+        }
+      },
+      "required": ["id", "name"]
+    },
+    "PricingInfo": {
+      "type": "object",
+      "properties": {
+        "price_per_million_input_tokens": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Price per million input tokens in USD"
+        },
+        "price_per_million_output_tokens": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Price per million output tokens in USD"
+        },
+        "input_cache_token_rebate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rebate factor for cached input tokens (0-1)"
+        },
+        "tiers": {
+          "type": "array",
+          "description": "Tiered pricing based on usage",
+          "items": {
+            "type": "object",
+            "properties": {
+              "context_size": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "price_per_million_input_tokens": {
+                "type": "number",
+                "minimum": 0
+              },
+              "price_per_million_output_tokens": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

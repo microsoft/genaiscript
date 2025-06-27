@@ -42,6 +42,8 @@
         "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/genaiscript.vsix --no-github.draft",
         "release:npm": "cd packages/cli && npm publish",
         "patch-versions": "npx --yes zx scripts/patch-version.mjs",
+        "build:llmdata": "node scripts/build-llmdata.mjs",
+        "test:llmdata": "node scripts/test-llmdata.mjs",
         "commit-versions": "git add packages/**/package.json && git add docs/package.json && git add slides/package.json && git commit -m '[skip ci] updated version numbers' && git push",
         "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix && yarn commit-versions",
         "bump": "yarn release",
