@@ -1,5 +1,5 @@
 import { hash } from "crypto";
-import { mdastParse, mdastStringify, mdastVisit } from "@genaiscript/runtime";
+import { mdast } from "@genaiscript/runtime";
 script({
   accept: ".md",
   files: "src/rag/markdown.md",
@@ -34,6 +34,7 @@ export default async function main() {
   const { to, force, aiDisclaimer } = vars as { to: string; force: boolean; aiDisclaimer: boolean };
   const dbgc = host.logger(`script:md`);
   const dbgt = host.logger(`script:tree`);
+  const { parse, stringify, visit } = await mdast();
 
   output.heading(2, `Translating Markdown files to ${to}`);
   const cacheFn = `translations-${to.toLowerCase()}.json`;
@@ -53,14 +54,14 @@ export default async function main() {
     dbgc(`md: %s`, content);
 
     // parse to tree
-    const root = await mdastParse(content);
+    const root = parse(content);
     dbgt(`original %O`, root.children);
 
     const nodes = {};
     // apply translations and mark untranslated nodes with id
     let translated = structuredClone(root);
     const todos = new Set<string>();
-    await mdastVisit(translated, nodeTypes, (node) => {
+    visit(translated, nodeTypes, (node) => {
       const hash = hashNode(node);
       nodes[hash] = node;
       const translation = cache[hash];
@@ -81,7 +82,7 @@ export default async function main() {
     let attempts = 0;
     while (todos.size && attempts++ < maxPromptPerFile) {
       dbg(`todos: %O`, todos);
-      const contentMix = await mdastStringify(translated);
+      const contentMix = stringify(translated);
       dbgc(`translatable content: %s`, contentMix);
 
       // run prompt to generate translations
@@ -162,7 +163,7 @@ export default async function main() {
 
     // apply translations
     translated = structuredClone(root);
-    await mdastVisit(translated, nodeTypes, (node) => {
+    await visit(translated, nodeTypes, (node) => {
       const hash = hashNode(node);
       const translation = cache[hash];
       if (translation) {
@@ -175,7 +176,7 @@ export default async function main() {
       }
     });
 
-    let contentTranslated = await mdastStringify(translated);
+    let contentTranslated = await stringify(translated);
     output.diff(content, contentTranslated);
 
     if (aiDisclaimer)
