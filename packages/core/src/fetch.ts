@@ -99,11 +99,11 @@ export async function createFetch(
                 (1 + Math.random() / 20) // 5% jitter for delay randomization
             
             // Use retry-after header if present and valid, otherwise use calculated delay
-            const actualDelay = retryAfterSeconds ? retryAfterSeconds * 1000 : calculatedDelay
+            const actualDelay = retryAfterSeconds && retryAfterSeconds > 0 ? retryAfterSeconds * 1000 : calculatedDelay
             
             // Create a clear message about which delay is being used
             let delayMessage: string
-            if (retryAfterSeconds) {
+            if (retryAfterSeconds && retryAfterSeconds > 0) {
                 delayMessage = `waiting ${retryAfterSeconds}s before retry #${attempt + 1} as instructed by retry-after header`
             } else {
                 delayMessage = `retry #${attempt + 1} in ${renderWithPrecision(Math.floor(actualDelay) / 1000, 1)}s using exponential backoff`
