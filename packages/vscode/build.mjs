@@ -15,12 +15,13 @@ const config = {
     "vscode",
     "pdfjs-dist",
     "@napi-rs/canvas",
+    "iconv-lite",
     "canvas",
     "sharp",
     "@xmldom/xmldom",
     "toml",
     "turndown",
-    "undici"
+    "undici",
   ],
 };
 
