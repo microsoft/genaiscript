@@ -14,6 +14,11 @@ script({
       default: false,
       description: "Force translation even if the file has already been translated.",
     },
+    aiDisclaimer: {
+      type: "boolean",
+      default: true,
+      description: "Include a disclaimer about AI-generated content.",
+    },
   },
 });
 
@@ -22,9 +27,11 @@ function hashNode(node: unknown): string {
   return chunkHash.slice(0, 8).toUpperCase();
 }
 
+const maxPromptPerFile = 5;
+
 export default async function main() {
   const { files, dbg, output, vars } = env;
-  const { to, force } = vars as { to: string; force: boolean };
+  const { to, force, aiDisclaimer } = vars as { to: string; force: boolean; aiDisclaimer: boolean };
   const dbgc = host.logger(`script:md`);
   const dbgt = host.logger(`script:tree`);
 
@@ -51,7 +58,7 @@ export default async function main() {
 
     // apply translations and mark untranslated nodes with id
     let translated = structuredClone(root);
-    const todos = [];
+    const todos = new Set<string>();
     await mdastVisit(translated, nodeTypes, (node) => {
       const hash = hashNode(node);
       const translation = cache[hash];
@@ -59,7 +66,7 @@ export default async function main() {
         dbg(`translated: %s`, hash);
         Object.assign(node, translation);
       } else {
-        todos.push(hash);
+        todos.add(hash);
         if (node.type === "paragraph" || node.type === "heading") {
           node.children.unshift({
             type: "text",
@@ -75,12 +82,10 @@ export default async function main() {
       }
     });
 
-    if (!todos.length) {
-      dbgc(`no untranslated nodes`);
-    } else {
-      dbgt(`translated %O`, translated.children);
+    dbgt(`translated %O`, translated.children);
+    let attempts = 0;
+    while (todos.size && attempts++ < maxPromptPerFile) {
       dbg(`todos: %O`, todos);
-
       const contentMix = await mdastStringify(translated);
       dbgc(`translatable content: %s`, contentMix);
 
@@ -150,7 +155,8 @@ export default async function main() {
       // collect translations
       for (const fence of fences) {
         const hash = fence.language;
-        if (todos.includes(hash)) {
+        if (todos.has(hash)) {
+          todos.delete(hash);
           dbg(`translation: %s`, hash);
           dbg(`content: %s`, fence.content);
           cache[hash] = fence.content;
@@ -173,8 +179,11 @@ export default async function main() {
       }
     });
 
-    const contentTranslated = await mdastStringify(translated);
+    let contentTranslated = await mdastStringify(translated);
     output.diff(content, contentTranslated);
+
+    if (aiDisclaimer)
+      contentTranslated += `\n\n<hr/>\n\nTranslated using AI. Please verify the content for accuracy.\n\n`;
 
     // apply translations and save
     dbgc(`translated: %s`, contentTranslated);
