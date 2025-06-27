@@ -7,7 +7,7 @@ import { CHANGE } from "../../core/src/constants";
 import type { PromptScript } from "../../core/src/types";
 import { groupBy } from "es-toolkit";
 import { templateGroup } from "../../core/src/ast";
-import { MarkdownStringify } from "../../core/src/markdown";
+import { markdownStringify } from "../../core/src/mdstringify";
 
 type PromptTreeNode = string | PromptScript;
 
@@ -64,7 +64,7 @@ class PromptTreeDataProvider implements vscode.TreeDataProvider<PromptTreeNode> 
 ${description}
 
 - filename: \`${filename || "builtin"}\`
-${MarkdownStringify(rest, { quoteValues: true })}
+${markdownStringify(rest, { quoteValues: true })}
 `,
         true,
       );

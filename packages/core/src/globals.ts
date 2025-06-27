@@ -22,7 +22,7 @@ import { FFmepgClient } from "./ffmpeg.js";
 import { promptParametersSchemaToJSONSchema } from "./parameters.js";
 import { chunkMarkdown } from "./mdchunk.js";
 import { resolveGlobal } from "./global.js";
-import { MarkdownStringify } from "./markdown.js";
+import { markdownStringify } from "./mdstringify.js";
 import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff.js";
 import type {
   CSVObject,
@@ -93,7 +93,7 @@ export function installGlobals() {
 
   // Freeze Markdown utilities with frontmatter operations
   glb.MD = Object.freeze<MDObject>({
-    stringify: MarkdownStringify,
+    stringify: markdownStringify,
     frontmatter: (text, format) => frontmatterTryParse(text, { format })?.value ?? {}, // Parse frontmatter from markdown
     content: (text) => splitMarkdown(text)?.content, // Extract content from markdown
     updateFrontmatter: (text, frontmatter, format): string =>

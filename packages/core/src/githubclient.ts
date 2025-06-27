@@ -14,7 +14,7 @@ import {
 } from "./constants.js";
 import { createFetch } from "./fetch.js";
 import { runtimeHost } from "./host.js";
-import { prettifyMarkdown } from "./markdown.js";
+import { prettifyMarkdown } from "./pretty.js";
 import { arrayify } from "./cleaners.js";
 import { assert } from "./assert.js";
 import { logError, logVerbose } from "./util.js";

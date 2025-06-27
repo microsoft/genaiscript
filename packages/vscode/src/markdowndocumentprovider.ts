@@ -12,7 +12,7 @@ import {
 import { showMarkdownPreview } from "./markdown";
 import { registerCommand } from "./commands";
 import { TRACE_NODE_PREFIX } from "../../core/src/constants";
-import { prettifyMarkdown } from "../../core/src/markdown";
+import { prettifyMarkdown } from "../../core/src/pretty";
 import { logprobToMarkdown, topLogprobsToMarkdown } from "../../core/src/logprob";
 import { fenceMD } from "../../core/src/mkmd";
 import { renderTraceTree } from "../../core/src/traceparser";

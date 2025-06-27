@@ -6,7 +6,7 @@ import { AGENT_MEMORY_CACHE_NAME, AGENT_MEMORY_FLEX_TOKENS, TOKEN_NO_ANSWER } fr
 import { errorMessage } from "./error.js";
 import { GenerationOptions } from "./generation.js";
 import { HTMLEscape } from "./htmlescape.js";
-import { prettifyMarkdown } from "./markdown.js";
+import { prettifyMarkdown } from "./pretty.js";
 import { TraceOptions } from "./trace.js";
 import { ellipse } from "./util.js";
 import type {

@@ -48,7 +48,7 @@ import {
   renderShellOutput,
 } from "./chatrender.js";
 import { promptParametersSchemaToJSONSchema } from "./parameters.js";
-import { prettifyMarkdown } from "./markdown.js";
+import { prettifyMarkdown } from "./pretty.js";
 import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml.js";
 import { resolveTokenEncoder } from "./encoders.js";
 import { approximateTokens, truncateTextToTokens } from "./tokens.js";

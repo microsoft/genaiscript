@@ -15,7 +15,7 @@ import { renderImageToTerminal } from "./image.js";
 import { terminalSize } from "./terminal.js";
 import { ellipse } from "./util.js";
 import { YAMLStringify } from "./yaml.js";
-import { dataUriToBuffer } from "./file.js";
+import { dataUriToBuffer } from "./filebytes.js";
 import { wrapColor } from "./consolecolor.js";
 import {
   BOX_DOWN_AND_RIGHT,

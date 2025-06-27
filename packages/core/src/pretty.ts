@@ -10,6 +10,23 @@ import {
   CHAR_UP_DOWN_ARROWS,
 } from "./constants.js";
 import { roundWithPrecision } from "./precision.js";
+import { unfence } from "./unwrappers.js";
+import { convertAnnotationsToMarkdown } from "./annotations.js";
+import { convertThinkToMarkdown } from "./think.js";
+import { collapseNewlines } from "./cleaners.js";
+
+/**
+ * Prettifies markdown content by converting annotations to markdown, processing "think" blocks, and collapsing excessive newlines.
+ * @param md - The markdown string to prettify.
+ * @returns The cleaned and formatted markdown string.
+ */
+export function prettifyMarkdown(md: string) {
+  let res = unfence(md, ["markdown", "md", "text"]);
+  res = convertAnnotationsToMarkdown(res); // Convert annotations to markdown format
+  res = convertThinkToMarkdown(res);
+  res = collapseNewlines(res); // Clean up excessive newlines
+  return res;
+}
 
 /**
  * Formats token usage into a human-readable string indicating tokens per second.

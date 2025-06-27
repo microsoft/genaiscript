@@ -12,7 +12,7 @@ import { logError, logVerbose } from "./util.js";
 import { dedent } from "./indent.js";
 import { TOOL_ID } from "./constants.js";
 import { filenameOrFileToFilename } from "./unwrappers.js";
-import { resolveFileBytes } from "./file.js";
+import { resolveFileBytes } from "./filebytes.js";
 import { basename } from "node:path";
 import { frontmatterTryParse, splitMarkdown } from "./frontmatter.js";
 import type { MessageChannelClient, PromptScript, WorkspaceFileWithDescription } from "./types.js";

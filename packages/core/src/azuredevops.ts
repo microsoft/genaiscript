@@ -3,7 +3,7 @@
 
 import { createFetch, tryReadText } from "./fetch.js";
 import { generatedByFooter, mergeDescription } from "./githubclient.js";
-import { prettifyMarkdown } from "./markdown.js";
+import { prettifyMarkdown } from "./pretty.js";
 import { logError, logVerbose } from "./util.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { PromptScript } from "./types.js";

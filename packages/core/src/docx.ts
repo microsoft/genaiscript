@@ -11,7 +11,7 @@ import { logVerbose } from "./util.js";
 import { readFile, writeFile } from "node:fs/promises";
 import { YAMLStringify } from "./yaml.js";
 import { errorMessage, serializeError } from "./error.js";
-import { resolveFileBytes } from "./file.js";
+import { resolveFileBytes } from "./filebytes.js";
 import { filenameOrFileToFilename } from "./unwrappers.js";
 import { ensureDir } from "./fs.js";
 import { measure } from "./performance.js";
