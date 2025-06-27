@@ -42,7 +42,7 @@ export default async function main() {
   const cache = force ? {} : (await workspace.readJSON(cacheFn)) || {};
   dbgc(`cache: %O`, cache);
 
-  const nodeTypes = ["heading", "paragraph"];
+  const nodeTypes = ["text"];
   for (const file of files) {
     const { filename, content } = file;
     const translationFn = path.changeext(file.filename, `.${to.toLowerCase()}.md`);
@@ -56,26 +56,21 @@ export default async function main() {
     const root = await mdastParse(content);
     dbgt(`original %O`, root.children);
 
+    const nodes = {};
     // apply translations and mark untranslated nodes with id
     let translated = structuredClone(root);
     const todos = new Set<string>();
     await mdastVisit(translated, nodeTypes, (node) => {
       const hash = hashNode(node);
+      nodes[hash] = node;
       const translation = cache[hash];
       if (translation) {
         dbg(`translated: %s`, hash);
         Object.assign(node, translation);
       } else {
         todos.add(hash);
-        if (node.type === "paragraph" || node.type === "heading") {
-          node.children.unshift({
-            type: "text",
-            value: `┌${hash}\n`,
-          });
-          node.children.push({
-            type: "text",
-            value: `\n└${hash}`,
-          });
+        if (node.type === "text" && node.value) {
+          node.value = `┌${hash}┐${node.value}└${hash}┘`;
         } else {
           dbg(`untranslated node type: %s`, node.type);
         }
@@ -100,14 +95,14 @@ export default async function main() {
       Your task is to translate a Markdown (GFM) document to ${to} while preserving the structure and formatting of the original document.
       You will receive the original document as a variable named ${originalRef} and the currently translated document as a variable named ${translatedRef}.
 
-      Each node in the translated document that has not been translated yet will have a unique identifier in the form of \`┌HASH\` at the start and \`└HASH\` at the end of the node.
+      Each node in the translated document that has not been translated yet will have a unique identifier in the form of \`┌HASH┐\` at the start and \`└HASH┘\` at the end of the node.
       You should translate the content of each these nodes.
       Example:
 
       \`\`\`markdown
-      ┌HASH1
+      ┌HASH1┐
       This is the content to be translated.
-      └HASH1
+      └HASH1┘
 
       This is some other content that does not need translation.
 
@@ -158,8 +153,9 @@ export default async function main() {
         if (todos.has(hash)) {
           todos.delete(hash);
           dbg(`translation: %s`, hash);
-          dbg(`content: %s`, fence.content);
-          cache[hash] = fence.content;
+          const chunkTranslated = fence.content.replace(/\r?\n$/, "").trim() + " ";
+          dbg(`content: %s`, chunkTranslated);
+          cache[hash] = chunkTranslated;
         }
       }
     }
@@ -170,9 +166,9 @@ export default async function main() {
       const hash = hashNode(node);
       const translation = cache[hash];
       if (translation) {
-        if (node.type === "paragraph" || node.type === "heading") {
+        if (node.type === "text") {
           dbg(`translated: %s -> %s`, hash, translation);
-          node.children = [{ type: "text", value: translation }];
+          node.value = translation;
         } else {
           dbg(`untranslated node type: %s`, node.type);
         }
