@@ -13,6 +13,7 @@ import { CancellationOptions, CancellationToken } from "./cancellation"
 import { resolveHttpProxyAgent } from "./proxy"
 import { host } from "./host"
 import { renderWithPrecision } from "./precision"
+import { normalizeInt } from "./cleaners"
 import crossFetch from "cross-fetch"
 import debug from "debug"
 import { prettyStrings } from "./pretty"
@@ -85,20 +86,33 @@ export async function createFetch(
 
             const message = errorMessage(error)
             const status = statusToMessage(response)
-            const delay =
+            
+            // Check for retry-after header
+            const retryAfterHeader = response?.headers?.get?.("retry-after") || response?.headers?.["retry-after"]
+            const retryAfterSeconds = normalizeInt(retryAfterHeader)
+            
+            const calculatedDelay =
                 Math.min(
                     maxDelay,
                     Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
                 ) *
                 (1 + Math.random() / 20) // 5% jitter for delay randomization
-            const msg = prettyStrings(
-                `retry #${attempt + 1} in ${renderWithPrecision(Math.floor(delay) / 1000, 1)}s`,
-                message,
-                status
-            )
+            
+            // Use retry-after header if present and valid, otherwise use calculated delay
+            const actualDelay = retryAfterSeconds ? retryAfterSeconds * 1000 : calculatedDelay
+            
+            // Create a clear message about which delay is being used
+            let delayMessage: string
+            if (retryAfterSeconds) {
+                delayMessage = `waiting ${retryAfterSeconds}s before retry #${attempt + 1} as instructed by retry-after header`
+            } else {
+                delayMessage = `retry #${attempt + 1} in ${renderWithPrecision(Math.floor(actualDelay) / 1000, 1)}s using exponential backoff`
+            }
+            
+            const msg = prettyStrings(delayMessage, message, status)
             logVerbose(msg)
             trace?.resultItem(false, msg)
-            return delay
+            return actualDelay
         },
     })
     return fetchRetry
