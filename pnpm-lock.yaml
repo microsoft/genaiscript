@@ -472,12 +472,6 @@ importers:
       pretty-ms:
         specifier: ^9.2.0
         version: 9.2.0
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0
-      remark-stringify:
-        specifier: ^11.0.0
-        version: 11.0.0
       sanitize-filename:
         specifier: ^1.6.3
         version: 1.6.3
