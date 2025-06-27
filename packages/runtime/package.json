@@ -15,12 +15,12 @@
   "dependencies": {
     "@genaiscript/core": "workspace:*",
     "@inquirer/prompts": "catalog:",
+    "@types/mdast": "^4.0.4",
     "debug": "catalog:",
     "dockerode": "^4.0.7",
     "es-toolkit": "catalog:",
     "execa": "catalog:",
     "glob": "^11.0.3",
-    "@types/mdast": "^4.0.4",
     "mdast": "^3.0.0",
     "memorystream": "^0.3.1",
     "playwright": "^1.53.1",
@@ -33,6 +33,7 @@
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
     "tslib": "catalog:",
+    "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
     "zod": "^3.25.67"
   },
