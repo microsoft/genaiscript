@@ -8,7 +8,7 @@
  */
 import { createFetch } from "./fetch.js";
 import { host } from "./host.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { CancellationOptions, checkCancelled } from "./cancellation.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { WorkspaceFile } from "./types.js";
