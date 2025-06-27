@@ -39,15 +39,15 @@ async function usePlugins(processor: Processor<Root>) {
   return processor.use(frontmatter).use(gfm).use(github).use(directive).use(math);
 }
 
-export async function unifiedVisit(
+export async function mdastVisit(
   root: Root,
   visitor: BuildVisitor<Root, Test>,
   options?: {
     check?: Test;
     reverse?: boolean;
   },
-): Promise<void> {
-  if (!root) return;
+): Promise<Root> {
+  if (!root) return root;
 
   const { check, reverse } = options || {};
   const { visit } = await import("unist-util-visit");
