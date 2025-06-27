@@ -3,7 +3,7 @@ import { filenameOrFileToContent, genaiscriptDebug, WorkspaceFile } from "@genai
 import type { Test, BuildVisitor } from "unist-util-visit";
 const dbg = genaiscriptDebug("md:remark");
 
-export async function mdastParse(file: string | WorkspaceFile): Promise<Root> {
+export async function remarkParse(file: string | WorkspaceFile): Promise<Root> {
   const content = filenameOrFileToContent(file);
   if (!content) return { type: "root", children: [] };
 
@@ -28,7 +28,7 @@ export async function mdastParse(file: string | WorkspaceFile): Promise<Root> {
   return ast;
 }
 
-export async function mdastStringify(root: Root): Promise<string> {
+export async function remarkStringify(root: Root): Promise<string> {
   if (!root) return "";
 
   const { unified } = await import("unified");
@@ -37,7 +37,7 @@ export async function mdastStringify(root: Root): Promise<string> {
   return unified().use(stringify).stringify(root);
 }
 
-export async function mdastVisit(
+export async function unifiedVisit(
   root: Root,
   visitor: BuildVisitor<Root, Test>,
   options?: {
