@@ -24,6 +24,7 @@ export async function mdastStringify(root: Root): Promise<string> {
   const { unified } = await import("unified");
   const { default: stringify } = await import("remark-stringify");
 
+  dbg(`stringify`);
   const processor = unified();
   await usePlugins(processor);
   const ast = await processor.use(stringify).stringify(root);
@@ -31,6 +32,7 @@ export async function mdastStringify(root: Root): Promise<string> {
 }
 
 async function usePlugins(processor: Processor<Root>) {
+  dbg(`loading plugins`);
   const { default: directive } = await import("remark-directive");
   const { default: gfm } = await import("remark-gfm");
   const { default: github } = await import("remark-github");
@@ -41,15 +43,13 @@ async function usePlugins(processor: Processor<Root>) {
 
 export async function mdastVisit(
   root: Root,
+  check: Test,
   visitor: BuildVisitor<Root, Test>,
-  options?: {
-    check?: Test;
-    reverse?: boolean;
-  },
-): Promise<Root> {
-  if (!root) return root;
+  reverse?: boolean,
+): Promise<void> {
+  if (!root) return;
 
-  const { check, reverse } = options || {};
+  dbg(`visit`);
   const { visit } = await import("unist-util-visit");
-  return visit(root, check, visitor, reverse);
+  visit(root, check, visitor, reverse);
 }
