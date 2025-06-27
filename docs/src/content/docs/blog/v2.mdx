@@ -10,7 +10,30 @@ tags:
   - architecture
   - dev
   - performance
-description: GenAIScript v2.0 introduces a major architectural refactoring with proper TypeScript packages, unified types, pnpm migration, and improved developer experience.
+description: GenAIScript v2.0 introduces a major architectural refactoring with
+  proper TypeScript packages, unified types, pnpm migration, and improved
+  developer experience.
+cover:
+  alt: The image shows a network of geometric blocks connected by wires,
+    symbolizing a modular 2D server in retro 8-bit style. One block is marked
+    with a "runtime" symbol and another with a "CLI" symbol, each featuring
+    plug-in style ports. Flexible wire connections link a Node.js logo to these
+    blocks. Surrounding the central setup are minimalist icons that represent
+    code, packages, and script files. The design uses five bold corporate
+    colors, maintains flat and iconic visuals, and has a neutral, wordless
+    background.
+  image: ./v2.png
+excerpt: We've rolled out GenAIScript 2.0, featuring a modular and maintainable
+  runtime now accessible in any Node.js application, beyond just the CLI. This
+  shift involved significant backend refactoring, streamlining the integration
+  process for developers and expanding usage possibilities. The new
+  @genaiscript/runtime npm package isolates the core functionality, allowing
+  direct imports and straightforward initialization in projects. For those
+  building with the Node.js API, updating your imports ensures compatibility
+  with the latest structure. This release makes it easier to incorporate
+  GenAIScript into diverse workflows, whether through the CLI or embedded in
+  broader Node.js solutions.
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";
@@ -23,10 +46,12 @@ application, not just the CLI. This is a major release and so it was time to cal
 **While this is a major release, your scripts should be mostly unaffected**. A lot of the changes are under the hood,
 however we did some breaking changes with the CLI and some APIs.
 
-## 🏗️ Major Architectural Overhaul
+> The v2.0 release is available in [npm](https://www.npmjs.com/package/genaiscript) and in Visual Studio Code.
+
+## "Major refactoring"
 
 [Matthew Podwysocki](https://www.linkedin.com/in/podwysocki/) ([@mattpodwysocki](https://github.com/mattpodwysocki)),
-recently approached us asking if he could contribute to the project. 
+recently approached us asking if he could contribute to the project.
 We suggested so small features but he quickly suggested **a major refactoring of the codebase to make it more modular and maintainable**.
 
 A bit of history is needed here: GenAIScript, as a research project, morphed into various things during its lifetime.
@@ -34,7 +59,7 @@ It assumed that the scripts were running into some kind of augmented Node.JS run
 to reuse the code in other contexts. In particular, you _always_ would have to run through the CLI to execute GenAIScript scripts.
 
 **Enter Matthew...** (drumroll) who took on the task of rewiring our build system and
-refactoring the codebase to create consumable ESM/CommonJS npm packages from the GenAISScript.
+[refactoring the codebase](https://github.com/microsoft/genaiscript/pull/1594) to create consumable ESM/CommonJS npm packages from the GenAISScript.
 
 ### `@genaiscript/runtime`
 
@@ -44,7 +69,7 @@ It provides the core functionality needed to run GenAIScript scripts in any Node
 Formerly, we had a custom export `genaiscript/runtime` in the `genaiscript` package, but now we have a dedicated
 `@genaiscript/runtime` package that can be imported directly.
 
-To use in your project, import the package and initialize it. It will load the global parsers and the 
+To use in your project, import the package and initialize it. It will load the global parsers and the
 [inline prompt helpers](/genaiscript/reference/scripts/inline-prompts).
 
 ```typescript
@@ -54,27 +79,25 @@ import { initialize } from "@genaiscript/runtime";
 await initialize();
 ```
 
+The top level function to build the global prompt like `$`, `def` are not available
+using the runtime since only exist in the context of the CLI. Instead, you always start form an inline prompt.
+
+```typescript
+import { prompt, runPrompt } from "@genaiscript/runtime";
+
+const { text: recipe } = await prompt`write a recipe`;
+const { text: poem } = await runPrompt((ctx) => ctx.$`write a poem for this recipe: ${recipe}`);
+```
+
 ### CLI or node.js runtime
 
 Another benefit of moving to proper node.js packages is that you can write library code using GenAIScript that be used
-in both the CLI and in a Node.js application. 
+in both the CLI and in a Node.js application.
 
 ### `@genaiscript/api`
 
-The [@genaiscript/api](https://www.npmjs.com/package/@genaiscript/api) 
-package provides the Node.JS runner to [run](/genaiscript/reference/api)  with minimum runtime dependencies.
-
-
-```typescript
-// Your existing scripts work as before
-script({
-  title: "Code Review",
-  model: "openai:gpt-4o",
-});
-
-def("FILES", env.files);
-$`Review these files for potential issues.`;
-```
+The [@genaiscript/api](https://www.npmjs.com/package/@genaiscript/api)
+package provides the Node.JS runner to [run](/genaiscript/reference/api) with minimum runtime dependencies.
 
 ### For API Users
 
@@ -82,47 +105,12 @@ If you're using the Node.js API, update your imports:
 
 ```typescript
 // Before v2.0
-import { run } from "genaiscript";
+import { run } from "genaiscript/api";
 
 // v2.0 and later
 import { run } from "@genaiscript/api";
 ```
 
-### For Extension Developers
-
-The extension architecture is now more modular, enabling better customization and plugins.
-
-## 🚀 Future-Proofing
-
-The v2.0 architecture sets the stage for exciting future developments:
-
-- **Plugin system** - Modular packages enable easier plugin development
-- **Better extensibility** - Clear package boundaries facilitate third-party extensions
-- **Performance optimizations** - Foundation for advanced optimizations
-- **Platform expansion** - Easier adaptation to new platforms and environments
-
-## 🎉 What's Next?
-
-With the solid foundation of v2.0 in place, we're focusing on:
-
-- **Enhanced plugin ecosystem** - Better support for community extensions
-- **Advanced caching** - Cross-session result caching
-- **Improved streaming** - Better real-time response handling
-- **Extended platform support** - Native mobile and embedded support
-
 ## 📝 Acknowledgments
 
-Special thanks to the community members who contributed to this massive refactoring effort, particularly [@matthew-podwysocki](https://github.com/matthew-podwysocki) for leading the pnpm migration and the TypeScript improvements.
-
-## 🔗 Learn More
-
-- [Migration Guide](/genaiscript/reference/migration/v2)
-- [Package Documentation](/genaiscript/reference/packages)
-- [TypeScript Configuration](/genaiscript/reference/typescript)
-- [Performance Best Practices](/genaiscript/reference/performance)
-
-The v2.0 release represents our commitment to building a robust, scalable, and maintainable platform for the future of AI-powered scripting. We're excited to see what you'll build with these improvements!
-
----
-
-_GenAIScript v2.0 is available now. Update your installation with `npm install -g genaiscript@latest` or explore the new features in our [getting started guide](/genaiscript/getting-started)._
+Special thanks to [@matthew-podwysocki](https://github.com/matthew-podwysocki) for leading the pnpm migration and the TypeScript improvements.
