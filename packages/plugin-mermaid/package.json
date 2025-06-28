@@ -1,0 +1,82 @@
+{
+  "name": "@genaiscript/plugin-mermaid",
+  "private": false,
+  "version": "2.1.1",
+  "main": "./dist/commonjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/commonjs/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist",
+    "!dist/**/*.d.*ts.map",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@genaiscript/core": "workspace:*",
+    "dompurify": "^3.2.6",
+    "jsdom": "^26.1.0",
+    "mermaid": "^11.7.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@types/debug": "catalog:",
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "rimraf": "catalog:",
+    "tshy": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
+    "vitest": "catalog:"
+  },
+  "scripts": {
+    "build": "npm run clean && tshy",
+    "clean": "rimraf dist",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "lint:check": "eslint src",
+    "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
+    "pack": "npm pack 2>&1",
+    "prepack": "npm run build",
+    "test": "vitest --run"
+  },
+  "keywords": [],
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "description": "The runtime for GenAIScript, providing the core functionality and APIs for executing scripts.",
+  "repository": "github:microsoft/genaiscript",
+  "bugs": {
+    "url": "https://github.com/microsoft/genaiscript/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "tshy": {
+    "dialects": [
+      "esm",
+      "commonjs"
+    ],
+    "project": "./tsconfig.src.json",
+    "exports": {
+      ".": "./src/index.ts",
+      "./package.json": "./package.json"
+    },
+    "selfLink": false
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/index.d.ts",
+        "default": "./dist/commonjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  }
+}

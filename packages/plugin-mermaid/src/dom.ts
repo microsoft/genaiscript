@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { genaiscriptDebug } from "./debug.js";
+import { genaiscriptDebug } from "@genaiscript/core";
 
 const dbg = genaiscriptDebug("dom");
 

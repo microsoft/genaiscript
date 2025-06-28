@@ -34,7 +34,6 @@ import { vttSrtParse } from "./transcription.js";
 import { encodeIDs } from "./cleaners.js";
 import { diffCreatePatch } from "./diff.js";
 import { promptyParse } from "./prompty.js";
-import { mermaidParse } from "./mermaid.js";
 import type { Parsers, WorkspaceFile } from "./types.js";
 import { levenshteinDistance } from "./levenshtein.js";
 
@@ -139,11 +138,6 @@ export function createParsers(): Parsers {
         images: pages?.map((p) => p.image),
         data: pages,
       };
-    },
-    mermaid: async (file) => {
-      const f = filenameOrFileToContent(file);
-      const res = await mermaidParse(f);
-      return res;
     },
     math: async (expression, scope) => await MathTryEvaluate(expression, { scope }),
     validateJSON: (schema, content) => validateJSONWithSchema(content, schema),

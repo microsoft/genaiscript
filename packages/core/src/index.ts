@@ -44,7 +44,6 @@ export * from "./debug.js";
 export * from "./diff.js";
 export * from "./dispose.js";
 export * from "./docx.js";
-export * from "./dom.js";
 export * from "./dotenv.js";
 export * from "./echomodel.js";
 export * from "./encoders.js";
@@ -113,7 +112,6 @@ export * from "./mddiff.js";
 export * from "./mdstringify.js";
 export * from "./memcache.js";
 export * from "./merge.js";
-export * from "./mermaid.js";
 export * from "./metadata.js";
 export {
   ASTRO_MIME_TYPE,

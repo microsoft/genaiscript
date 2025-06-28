@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { genaiscriptDebug } from "./debug.js";
-import { installWindow } from "./dom.js";
-import { errorMessage } from "./error.js";
+import { errorMessage, genaiscriptDebug } from "@genaiscript/core";
 import type { Mermaid } from "mermaid";
+import { installWindow } from "./dom.js";
 
 const dbg = genaiscriptDebug("mermaid");
 

@@ -355,9 +355,6 @@ importers:
       diff:
         specifier: ^8.0.2
         version: 8.0.2
-      dompurify:
-        specifier: ^3.2.6
-        version: 3.2.6
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
@@ -409,9 +406,6 @@ importers:
       jimp:
         specifier: ^1.6.0
         version: 1.6.0
-      jsdom:
-        specifier: ^26.1.0
-        version: 26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -545,9 +539,6 @@ importers:
       '@types/ini':
         specifier: ^4.1.1
         version: 4.1.1
-      '@types/jsdom':
-        specifier: ^21.1.7
-        version: 21.1.7
       '@types/mime-types':
         specifier: ^3.0.1
         version: 3.0.1
@@ -615,9 +606,6 @@ importers:
       '@lvce-editor/ripgrep':
         specifier: ^2.1.0
         version: 2.1.0
-      mermaid:
-        specifier: ^11.7.0
-        version: 11.7.0
       pdfjs-dist:
         specifier: 5.3.31
         version: 5.3.31
@@ -700,6 +688,58 @@ importers:
       '@types/debug':
         specifier: 'catalog:'
         version: 4.1.12
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.28
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0))
+      eslint:
+        specifier: 'catalog:'
+        version: 9.29.0
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.0
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      tshy:
+        specifier: 'catalog:'
+        version: 3.0.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      typescript-eslint:
+        specifier: 'catalog:'
+        version: 8.34.1(eslint@9.29.0)(typescript@5.8.3)
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0)
+
+  packages/plugin-mermaid:
+    dependencies:
+      '@genaiscript/core':
+        specifier: workspace:*
+        version: link:../core
+      dompurify:
+        specifier: ^3.2.6
+        version: 3.2.6
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      mermaid:
+        specifier: ^11.7.0
+        version: 11.7.0
+    devDependencies:
+      '@eslint/js':
+        specifier: 'catalog:'
+        version: 9.29.0
+      '@types/debug':
+        specifier: 'catalog:'
+        version: 4.1.12
+      '@types/jsdom':
+        specifier: ^21.1.7
+        version: 21.1.7
       '@types/node':
         specifier: 'catalog:'
         version: 22.15.28
