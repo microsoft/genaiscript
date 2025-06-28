@@ -26,12 +26,6 @@ script({
 });
 
 const HASH_LENGTH = 20;
-function hashNode(node: Node | string, ancestors?: Node[]): string {
-  const c = structuredClone(node);
-  if (typeof c === "object") delete c.position;
-  const chunkHash = hash("sha-256", JSON.stringify(c));
-  return chunkHash.slice(0, HASH_LENGTH).toUpperCase();
-}
 const maxPromptPerFile = 5;
 const nodeTypes = ["text", "paragraph", "heading", "yaml"];
 const starlightDir = "docs/src/content/docs";
@@ -56,7 +50,16 @@ export default async function main() {
     .filter(Boolean);
   const dbgc = host.logger(`script:md`);
   const dbgt = host.logger(`script:tree`);
-  const { parse, stringify, visitParents, SKIP } = await mdast();
+  const { visit, parse, stringify, visitParents, SKIP } = await mdast();
+
+  const hashNode = (node: Node | string, ancestors?: Node[]) => {
+    if (typeof node === "object") {
+      node = structuredClone(node);
+      visit(node, (node) => delete node.position);
+    }
+    const chunkHash = hash("sha-256", JSON.stringify(node));
+    return chunkHash.slice(0, HASH_LENGTH).toUpperCase();
+  };
 
   for (const to of tos) {
     let lang = langs[to];
@@ -259,7 +262,6 @@ export default async function main() {
       - Do not change the structure of the document.
       - As much as possible, maintain the original formatting and structure of the document.
       - Do not translate inline code blocks, code blocks, or any other code-related content.
-      - Use markdown compatible characters, like ' not ’.
 
       `.role("system");
             },
@@ -345,8 +347,14 @@ export default async function main() {
                 node.value = translation;
               } else if (node.type === "paragraph" || node.type === "heading") {
                 dbg(`translated %s: %s -> %s`, node.type, hash, translation);
-                const newNodes = parse(translation).children as PhrasingContent[];
-                node.children.splice(0, node.children.length, ...newNodes);
+                try {
+                  const newNodes = parse(translation).children as PhrasingContent[];
+                  node.children.splice(0, node.children.length, ...newNodes);
+                } catch (error) {
+                  output.error(`error parsing paragraph translation`, error);
+                  output.fence(node, "json");
+                  output.fence(translation);
+                }
               } else {
                 dbg(`untranslated node type: %s`, node.type);
               }
@@ -354,10 +362,9 @@ export default async function main() {
           }
         });
 
+        dbgt(`stringifying %O`, translated.children);
         let contentTranslated = await stringify(translated);
-        output.startDetails(`translation`);
         output.diff(content, contentTranslated);
-        output.endDetails();
         if (content === contentTranslated) {
           output.warn(`Unable to translate anything, skipping file.`);
           continue;

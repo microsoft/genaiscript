@@ -69,7 +69,7 @@ The LLM output is sent to `stdout`, while the rest of the logging is sent to `st
 cat README.md | genaiscript run summarize > summary.md
 ```
 
-### --excluded-files &lt;files...&gt;
+### `--excluded-files` _files..._
 
 Excludes the specified files from the file set.
 
@@ -77,7 +77,7 @@ Excludes the specified files from the file set.
 npx genaiscript run <script> <files> --excluded-files <excluded-files...>
 ```
 
-### --exclude-git-ignore
+### `--exclude-git-ignore`
 
 Exclude files ignored by the `.gitignore` file at the workspace root.
 
@@ -87,21 +87,21 @@ npx genaiscript run <script> <files> --exclude-git-ignore
 
 ## Configuration
 
-### --model ...
+### `--model` ...
 
 Configure the default or `large` model alias. Use `echo` to do a dry run and return the messages instead of calling a LLM provider.
 
-## --provider ...
+### `--provider` ...
 
 Loads a set of model aliases for the given LLM provider.
 
-### --vars name=value name2=value2 ...
+### `--vars` name=value name2=value2 ...
 
 Populate values in the `env.vars` map that can be used when running the prompt.
 
 ## Output
 
-### --out &lt;file|directory&gt;
+### `--out` _file|directory_
 
 Saves the results in a JSON file, along with markdown files of the output and the trace.
 
@@ -115,20 +115,16 @@ If `file` does not end with `.json`, the path is treated as a directory path.
 npx genaiscript run <script> <files> --out tmp
 ```
 
-### --json
+### `--json`
 
 Output the entire response as JSON to the stdout.
 
-### --yaml
-
-Output the entire response as YAML to the stdout.
-
-### --out-trace &lt;file&gt;
+### `--out-trace` _file_
 
 Save the markdown trace to the specified file.
 
 ```sh wrap
-npx genaiscript run <script> <files> --out-trace &lt;file&gt;
+npx genaiscript run <script> <files> --out-trace file
 ```
 
 In a GitHub Actions workflow, you can use this feature to save the trace as a step summary (`GITHUB_STEP_SUMMARY`):
@@ -150,7 +146,7 @@ in your pipeline to upload the trace as a summary.
   displayName: "append readme to pipeline report"
 ```
 
-### --out-annotations &lt;file&gt;
+### `--out-annotations` _file_
 
 Emit annotations in the specified file as a JSON array, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) or a CSV file if the file ends with `.csv`.
 
@@ -164,16 +160,16 @@ Use JSON lines (`.jsonl`) to aggregate annotations from multiple runs in a singl
 npx genaiscript run <script> <files> --out-annotations diags.jsonl
 ```
 
-### --out-data &lt;file&gt;
+### `--out-data` _file_
 
 Emits parsed data as JSON, YAML or JSONL. If a JSON schema is specified
-and availabe, the JSON validation result is also stored.
+and available, the JSON validation result is also stored.
 
 ```sh
 npx genaiscript run <script> <files> --out-data data.jsonl
 ```
 
-### --out-changelogs &lt;file&gt;
+### `--out-changelogs` _file_
 
 Emit changelogs in the specified file as text.
 
@@ -217,7 +213,7 @@ permissions:
     ... # LLM secrets
 ```
 
-### --pull-request-description \[tag\]
+### `--pull-request-description` \[tag\]
 
 When running within a GitHub Action or Azure DevOps pipeline on a pull request,
 the CLI inserts the LLM output in the description of the pull request ([example](https://github.com/microsoft/genaiscript/pull/564))
@@ -228,7 +224,7 @@ npx genaiscript run ... --pull-request-description
 
 The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
 
-### --pull-request-comment \[tag\];
+### `--pull-request-comment` \[tag\];
 
 Upserts a comment on the pull request/issue with the LLM output ([example](https://github.com/microsoft/genaiscript/pull/564#issuecomment-2200474305))
 
@@ -238,7 +234,7 @@ npx genaiscript run ... --pull-request-comment
 
 The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
 
-### --pull-request-reviews
+### `--pull-request-reviews` <a href="" id="pull-request-reviews" />
 
 Create pull request review comments from each [annotations](/genaiscript/reference/scripts/annotations)
 ([example](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).

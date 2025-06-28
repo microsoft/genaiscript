@@ -20,40 +20,35 @@ hero:
 
 import WarningCode from "../../../../components/WarningCode.astro";
 
-We discuss various security risks and possible mitigations when using GenAIScript.
-GenAIScript inherits the same security risks as running scripts, and adds some new threats due to the nature of the LLM-generated outputs.
+Nous discutons des divers risques de sécurité et des mesures d'atténuation possibles lors de l'utilisation de GenAIScript. GenAIScript hérite des mêmes risques de sécurité que l'exécution de scripts, et ajoute de nouvelles menaces en raison de la nature des sorties générées par le LLM.
 
-We also recommend reading the [Transparency Note](/genaiscript/reference/transparency-note/)
-to understand the capabilities and limitations of GenAIScript.
+Nous recommandons également la lecture de la [Note de Transparence](/genaiscript/reference/transparency-note/) pour comprendre les capacités et les limites de GenAIScript.
 
-## Don't trust the scripts
+## Ne faites pas confiance aux scripts
 
-Since the GenAIScript files `.genai.mjs` are executable JavaScript files and are in fact using a JavaScript runtime (VSCode or Node). It is important to understand that the script can do anything that JavaScript can do. This includes reading and writing files, making network requests, and executing JavaScript arbitrary code.
+Puisque les fichiers GenAIScript `.genai.mjs` sont des fichiers JavaScript exécutables et utilisent en fait un environnement d'exécution JavaScript (VSCode ou Node), il est important de comprendre que le script peut faire tout ce que JavaScript peut faire. Cela inclut la lecture et l’écriture de fichiers, l'envoi de requêtes réseau, et l'exécution de code JavaScript arbitraire.
 
 :::caution
-Do not run `.genai.mjs` scripts from untrusted sources.
+Ne lancez pas de scripts `.genai.mjs` provenant de sources non fiables.
 :::
 
-## Don't trust the LLM Outputs
+## Ne faites pas confiance aux sorties du LLM
 
-A trusted script might use malicious files from the context to generate a malicious output.
-For example, overriding files in the project with new malicious code.
+Un script apparemment fiable pourrait utiliser des fichiers malveillants du contexte pour générer une sortie malveillante. Par exemple, en écrasant des fichiers du projet avec un nouveau code malveillant.
 
 <WarningCode />
 
-* in Visual Studio Code, use the refactoring preview
-* in your CI/CD, create a pull request with the changes and review them
+* dans Visual Studio Code, utilisez l’aperçu de refactorisation
+* dans votre CI/CD, créez une pull request avec les modifications et révisez-les
 
-## Visual Studio Code Workspace Trust
+## Confiance dans l’espace de travail de Visual Studio Code
 
-The extension is **disabled** when opening a folder in [Restricted Mode](https://code.visualstudio.com/docs/editor/workspace-trust) in Visual Studio Code.
+L’extension est **désactivée** lors de l’ouverture d’un dossier en [Mode Restreint](https://code.visualstudio.com/docs/editor/workspace-trust) dans Visual Studio Code.
 
-## Visual Studio Code Markdown Preview
+## Aperçu Markdown dans Visual Studio Code
 
-The output of the LLM and the trace use the built-in markdown preview of Visual Studio Code.
-By default, [VS Code restricts the content displayed in the Markdown preview](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security).
-This includes disabling script execution and only allowing resources to be loaded over `https`.
+La sortie du LLM et la trace utilisent l’aperçu Markdown intégré de Visual Studio Code. Par défaut, [VS Code restreint le contenu affiché dans l’aperçu Markdown](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security). Cela inclut la désactivation de l’exécution de scripts et l’autorisation uniquement des ressources chargées via `https`.
 
 <hr />
 
-Translated using AI. Please verify the content for accuracy.
+Traduction réalisée avec l’IA. Veuillez vérifier le contenu pour sa précision.
