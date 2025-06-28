@@ -237,6 +237,28 @@ const result = await github.graphql(query)
 console.log(result.viewer)
 ```
 
+### Current Repository Context
+
+For queries that need the current repository context, use the `useCurrentRepo` option to automatically inject `owner` and `name` variables:
+
+```js
+// Get repository information with automatic context injection
+const repoQuery = `
+  query($owner: String!, $name: String!) {
+    repository(owner: $owner, name: $name) {
+      name
+      stargazerCount
+      forkCount
+      primaryLanguage { name }
+      defaultBranchRef { name }
+    }
+  }
+`
+
+const result = await github.graphql(repoQuery, {}, { useCurrentRepo: true })
+console.log(result.repository)
+```
+
 You can also query multiple data points in a single request:
 
 ```js
@@ -268,6 +290,38 @@ const data = await github.graphql(complexQuery, {
 console.log("Issues found:", data.search.nodes)
 ```
 
+### Repository-specific Queries
+
+Combine the `useCurrentRepo` option with additional variables for repository-specific queries:
+
+```js
+// Get recent issues and pull requests for current repository
+const repoContentQuery = `
+  query($owner: String!, $name: String!, $count: Int!) {
+    repository(owner: $owner, name: $name) {
+      issues(first: $count, states: OPEN, orderBy: { field: CREATED_AT, direction: DESC }) {
+        nodes {
+          number
+          title
+          createdAt
+        }
+      }
+      pullRequests(first: $count, states: OPEN, orderBy: { field: CREATED_AT, direction: DESC }) {
+        nodes {
+          number
+          title
+          createdAt
+        }
+      }
+    }
+  }
+`
+
+const data = await github.graphql(repoContentQuery, { count: 5 }, { useCurrentRepo: true })
+console.log("Recent issues:", data.repository.issues.nodes)
+console.log("Recent PRs:", data.repository.pullRequests.nodes)
+```
+
 The GraphQL method supports TypeScript generics for type safety:
 
 ```js
@@ -278,7 +332,7 @@ interface RepositoryData {
   }
 }
 
-const result = await github.graphql<RepositoryData>(query, variables)
+const result = await github.graphql<RepositoryData>(query, variables, { useCurrentRepo: true })
 // result is now properly typed
 ```
 

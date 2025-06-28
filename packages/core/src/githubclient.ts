@@ -1662,13 +1662,25 @@ export class GitHubClient implements GitHub {
         return res
     }
 
-    async graphql<T = any>(query: string, variables?: Record<string, any>): Promise<T> {
-        const { client } = await this.api()
+    async graphql<T = any>(query: string, variables?: Record<string, any>, options?: { useCurrentRepo?: boolean }): Promise<T> {
+        const { client, owner, repo } = await this.api()
         dbg(`executing GraphQL query: ${query.slice(0, 100)}...`)
-        dbg(`GraphQL variables: %O`, variables)
+        
+        // Automatically inject current repository context if requested
+        let finalVariables = variables || {}
+        if (options?.useCurrentRepo) {
+            finalVariables = {
+                owner,
+                name: repo,
+                ...finalVariables
+            }
+            dbg(`injected current repo context: owner=${owner}, name=${repo}`)
+        }
+        
+        dbg(`GraphQL variables: %O`, finalVariables)
         
         try {
-            const result = await client.graphql<T>(query, variables)
+            const result = await client.graphql<T>(query, finalVariables)
             dbg(`GraphQL query executed successfully`)
             return result
         } catch (error) {

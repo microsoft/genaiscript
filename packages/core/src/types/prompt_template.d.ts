@@ -3879,8 +3879,9 @@ interface GitHub {
      * Executes a GraphQL query against the GitHub API
      * @param query The GraphQL query string
      * @param variables Optional variables for the query
+     * @param options Optional configuration for the query
      */
-    graphql<T = any>(query: string, variables?: Record<string, any>): Promise<T>
+    graphql<T = any>(query: string, variables?: Record<string, any>, options?: { useCurrentRepo?: boolean }): Promise<T>
 
     /**
      * Gets the underlying Octokit client

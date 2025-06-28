@@ -164,4 +164,69 @@ describe("GitHubClient", async () => {
         assert(result.repository.name === info.repo)
         assert(typeof result.repository.stargazerCount === "number")
     })
+
+    await test("graphql() with useCurrentRepo option", async () => {
+        // Test with useCurrentRepo option to automatically inject repository context
+        const query = `
+            query($owner: String!, $name: String!) {
+                repository(owner: $owner, name: $name) {
+                    name
+                    description
+                    stargazerCount
+                    defaultBranchRef {
+                        name
+                    }
+                }
+            }
+        `
+        
+        const result = await client.graphql<{
+            repository: {
+                name: string
+                description: string
+                stargazerCount: number
+                defaultBranchRef: { name: string }
+            }
+        }>(query, {}, { useCurrentRepo: true })
+        
+        const info = await client.info()
+        assert(result.repository)
+        assert(result.repository.name === info.repo)
+        assert(typeof result.repository.stargazerCount === "number")
+        assert(result.repository.defaultBranchRef?.name)
+    })
+
+    await test("graphql() with useCurrentRepo and additional variables", async () => {
+        // Test combining useCurrentRepo with additional variables
+        const query = `
+            query($owner: String!, $name: String!, $count: Int!) {
+                repository(owner: $owner, name: $name) {
+                    name
+                    issues(first: $count, states: OPEN) {
+                        totalCount
+                        nodes {
+                            number
+                            title
+                        }
+                    }
+                }
+            }
+        `
+        
+        const result = await client.graphql<{
+            repository: {
+                name: string
+                issues: {
+                    totalCount: number
+                    nodes: Array<{ number: number; title: string }>
+                }
+            }
+        }>(query, { count: 2 }, { useCurrentRepo: true })
+        
+        const info = await client.info()
+        assert(result.repository)
+        assert(result.repository.name === info.repo)
+        assert(typeof result.repository.issues.totalCount === "number")
+        assert(Array.isArray(result.repository.issues.nodes))
+    })
 })
