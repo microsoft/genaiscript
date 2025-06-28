@@ -20,35 +20,44 @@ hero:
 
 import WarningCode from "../../../../components/WarningCode.astro";
 
-Nous discutons des divers risques de sécurité et des mesures d'atténuation possibles lors de l'utilisation de GenAIScript. GenAIScript hérite des mêmes risques de sécurité que l'exécution de scripts, et ajoute de nouvelles menaces en raison de la nature des sorties générées par le LLM.
+Nous discutons des différents risques de sécurité et des stratégies d'atténuation lors de l'utilisation de GenAIScript.
+GenAIScript hérite des mêmes risques de sécurité que l'exécution de scripts, et ajoute de nouvelles menaces dues à la nature des sorties générées par le LLM.
 
-Nous recommandons également la lecture de la [Note de Transparence](/genaiscript/reference/transparency-note/) pour comprendre les capacités et les limites de GenAIScript.
+Nous recommandons également de lire la [Note de transparence](/genaiscript/reference/transparency-note/)
+pour comprendre les capacités et les limitations de GenAIScript.
 
-## Ne faites pas confiance aux scripts
+## ┌T000┐Note de Transparence└T000┘
 
-Puisque les fichiers GenAIScript `.genai.mjs` sont des fichiers JavaScript exécutables et utilisent en fait un environnement d'exécution JavaScript (VSCode ou Node), il est important de comprendre que le script peut faire tout ce que JavaScript peut faire. Cela inclut la lecture et l’écriture de fichiers, l'envoi de requêtes réseau, et l'exécution de code JavaScript arbitraire.
+┌P001┐Ne faites pas confiance aux scripts└P001┘
 
 :::caution
-Ne lancez pas de scripts `.genai.mjs` provenant de sources non fiables.
+┌P002┐Étant donné que les fichiers GenAIScript `.genai.mjs` sont des fichiers JavaScript exécutables et utilisent en réalité un environnement d'exécution JavaScript (VSCode ou Node). Il est important de comprendre que le script peut faire tout ce que JavaScript peut faire. Cela inclut la lecture et l’écriture de fichiers, la réalisation de requêtes réseau, et l’exécution de code JavaScript arbitraire.└P002┘
 :::
 
-## Ne faites pas confiance aux sorties du LLM
+## ┌P003┐Ne pas exécuter les scripts `.genai.mjs` provenant de sources non fiables.└P003┘
 
-Un script apparemment fiable pourrait utiliser des fichiers malveillants du contexte pour générer une sortie malveillante. Par exemple, en écrasant des fichiers du projet avec un nouveau code malveillant.
+┌P004┐Ne faites pas confiance aux sorties de l’LLM└P004┘
 
 <WarningCode />
 
-* dans Visual Studio Code, utilisez l’aperçu de refactorisation
-* dans votre CI/CD, créez une pull request avec les modifications et révisez-les
+* ┌P005┐Un script de confiance pourrait utiliser des fichiers malveillants du contexte pour générer une sortie malveillante.
+  Par exemple, en écrasant des fichiers du projet avec un code malveillant.└P005┘
+* <WarningCode />- ┌P006┐en Visual Studio Code, utilisez l'aperçu du refactoring└P006┘
+  - ┌P007┐dans votre CI/CD, créez une demande de fusion avec les modifications et examinez-les└P007┘
 
-## Confiance dans l’espace de travail de Visual Studio Code
+## ┌P008┐Confiance dans l’espace de travail Visual Studio Code└P008┘
 
-L’extension est **désactivée** lors de l’ouverture d’un dossier en [Mode Restreint](https://code.visualstudio.com/docs/editor/workspace-trust) dans Visual Studio Code.
+┌P009┐L’extension est **désactivée** lors de l’ouverture d’un dossier en [Mode Restreint](https://code.visualstudio.com/docs/editor/workspace-trust) dans Visual Studio Code.└P009┘
 
-## Aperçu Markdown dans Visual Studio Code
+┌P010┐L’affichage Markdown dans Visual Studio Code et la trace utilisent l’aperçu Markdown intégré.
+Par défaut, [VS Code restreint le contenu affiché dans l’aperçu Markdown](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security).
+Cela inclut la désactivation de l'exécution des scripts et la seule charge des ressources via `https`.└P010┘
+------------------------------------------------------------------------------------------------------------
 
-La sortie du LLM et la trace utilisent l’aperçu Markdown intégré de Visual Studio Code. Par défaut, [VS Code restreint le contenu affiché dans l’aperçu Markdown](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security). Cela inclut la désactivation de l’exécution de scripts et l’autorisation uniquement des ressources chargées via `https`.
+The output of the LLM and the trace use the built-in markdown preview of Visual Studio Code.
+By default, [VS Code restricts the content displayed in the Markdown preview](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security).
+This includes disabling script execution and only allowing resources to be loaded over `https`.
 
 <hr />
 
-Traduction réalisée avec l’IA. Veuillez vérifier le contenu pour sa précision.
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

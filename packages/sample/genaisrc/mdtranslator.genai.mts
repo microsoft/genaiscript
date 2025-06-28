@@ -384,7 +384,6 @@ export default async function main() {
 
         dbgt(`stringifying %O`, translated.children);
         let contentTranslated = await stringify(translated);
-        output.diff(content, contentTranslated);
         if (content === contentTranslated) {
           output.warn(`Unable to translate anything, skipping file.`);
           continue;
@@ -400,17 +399,18 @@ export default async function main() {
             );
           },
           {
-            ok: `Translation is faithful to the original document and conveys the same meaning. Translation uses proper ${lang}.`,
+            ok: `Translation is faithful to the original document and conveys the same meaning.`,
             bad: `Translation is of low quality or poor usage of ${lang}.`,
           },
           {
+            model: "large",
             explanations: true,
             systemSafety: false,
           },
         );
 
+        output.resultItem(res.label === "ok", `Translation quality: ${res.label}`);
         if (res.label !== "ok") {
-          output.error(`Translation quality is low. Skipping file.`);
           output.fence(res.answer);
           continue;
         }

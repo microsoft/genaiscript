@@ -63,7 +63,7 @@ export async function classify<L extends Record<string, string>>(
   usage?: RunPromptUsage;
 }> {
   const ctx = resolveChatGenerationContext(options);
-  const { other, explanations, ...rest } = options || {};
+  const { other, explanations, model = "classify", ...rest } = options || {};
 
   const entries = Object.entries({
     ...labels,
@@ -112,7 +112,7 @@ no
       else _.def("DATA", text);
     },
     {
-      model: "classify",
+      model,
       choices: choices,
       label: `classify ${choices.join(", ")}`,
       logprobs: true,

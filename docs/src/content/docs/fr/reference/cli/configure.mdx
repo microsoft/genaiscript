@@ -1,0 +1,40 @@
+---
+title: Configure
+description: Configurez et validez les connexions LLM.
+sidebar:
+  order: 4
+hero:
+  image:
+    alt: An 8-bit style computer terminal is depicted alongside a gear and network
+      node icons, using a flat 2D geometric design with only five distinct
+      colors. The image is small, at 128 by 128 pixels, and completely avoids
+      people, text, shadows, gradients, reflections, backgrounds, or any
+      three-dimensional effects. The composition suggests themes of computer
+      configuration and network connectivity.
+    file: ../../../reference/cli/configure.png
+
+---
+
+Commande interactive pour configurer et valider les connexions LLM.
+
+## LLMs
+
+L’action `configure llm` vous permet de configurer et de valider les connexions LLM. Cela est utile pour garantir que votre application peut communiquer avec les LLMs que vous souhaitez utiliser.
+
+```bash
+genaiscript configure llm
+```
+
+## Action GitHub
+
+L’action `configure action` génère la structure de fichiers pour publier un script en tant que [action GitHub personnalisée en conteneur](https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-docker-container-action).
+
+```bash
+genaiscript configure action <my-script-id>
+```
+
+La plupart des métadonnées de l'action sont extraites du script lui-même, vous n’avez qu’à fournir le nom du script. Elle exporte les fichiers générés dans `.genaiscript/action/<script-id>` par défaut, mais vous pouvez modifier cela lors de la mise à jour d’un projet d’action existant.
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

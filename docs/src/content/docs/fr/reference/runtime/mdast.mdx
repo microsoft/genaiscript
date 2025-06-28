@@ -8,13 +8,13 @@ sidebar:
 
 import { PackageManagers } from "starlight-package-managers";
 
-Ces aides d’exécution fournissent une interface conviviale autour de l’écosystème [remark](https://github.com/remarkjs/remark), [mdast](https://github.com/syntax-tree/mdast), [unified](https://github.com/syntax-tree/unist) pour analyser et manipuler des documents Markdown.
+Ces assistants d'exécution fournissent une interface conviviale autour de l'écosystème [remark](https://github.com/remarkjs/remark), [mdast](https://github.com/syntax-tree/mdast), [unified](https://github.com/syntax-tree/unist) pour analyser et manipuler des documents Markdown.
 
-Pour bénéficier de l’auto-complétion des types, vous devrez installer le paquet `@types/mdast` comme dépendance de développement.
+Pour bénéficier de la complétion de type, vous devrez installer le paquet `@types/mdast` en tant que dépendance de développement.
 
 <PackageManagers pkg="@types/mdast" dev />
 
-## Manipulation du Markdown
+## Manipulation de Markdown
 
 * charger les analyseurs
 
@@ -24,13 +24,13 @@ import { mdast } from "@genaiscript/runtime";
 const { parse, visit, stringify } = await mdast();
 ```
 
-* analyser vers un arbre mdast
+* analyse en arbre mdast
 
 ```typescript
 const root = parse("# Hello World");
 ```
 
-* parcourir l’arbre (voir [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))
+* parcourir l'arbre (voir la [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))
 
 ```typescript
 const updated = visit(root, `code`, (node) => {
@@ -38,7 +38,7 @@ const updated = visit(root, `code`, (node) => {
 });
 ```
 
-* sérialiser l’arbre en Markdown
+* sérialiser l'arbre en Markdown
 
 ```typescript
 const markdown = await stringify(updated);
@@ -46,4 +46,4 @@ const markdown = await stringify(updated);
 
 <hr />
 
-Traduit par IA. Veuillez vérifier l’exactitude du contenu.
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

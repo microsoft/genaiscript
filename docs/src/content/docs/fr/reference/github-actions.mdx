@@ -19,38 +19,37 @@ hero:
 import { Steps } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 
-[GitHub Actions](https://docs.github.com/en/actions) est une plateforme d'intégration continue et de livraison continue (CI/CD) qui vous permet d'automatiser votre pipeline de compilation, de test et de déploiement. Vous pouvez créer des workflows qui compilent et testent chaque pull request vers votre dépôt, ou déployer les pull requests fusionnées en production.
+[GitHub Actions](https://docs.github.com/en/actions) est une plateforme d'intégration continue et de livraison continue (CI/CD) qui vous permet d'automatiser votre pipeline de construction, de test et de déploiement. Vous pouvez créer des workflows qui construisent et testent chaque pull request vers votre dépôt, ou déployer les pull requests fusionnées en production.
 
-[Dernièrement](https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/), GitHub a ajouté la possibilité d'utiliser également les [Modèles GitHub](https://docs.github.com/en/github-models) dans les actions.
+[Dernièrement](https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/), GitHub a également ajouté la possibilité d'utiliser les [GitHub Models](https://docs.github.com/en/github-models) dans les actions.
 
 La combinaison d'Actions et de Models vous permet d'exécuter GenAIScript dans le cadre de votre CI/CD.
 
 :::tip
-Accédez à la section [Actions Personnalisées](#custom-actions) pour apprendre comment empaqueter un script GenAIScript en tant qu'action GitHub.
+Passez à la section [Actions personnalisées](#custom-actions) pour apprendre comment empaqueter un script GenAIScript en tant qu'action GitHub.
 :::
 
 ## Exemples
 
-* [Étiqueteur de Problèmes GenAI](https://github.com/pelikhan/action-genai-issue-labeller/)
-* [Dé-Duplicateur de Problèmes GenAI](https://github.com/pelikhan/action-genai-issue-dedup/)
-* [Analyseur de Problèmes Vidéo GenAI](https://github.com/pelikhan/action-genai-video-issue-analyzer/)
-* [Commentateur de Code GenAI](https://github.com/pelikhan/action-genai-commentor/)
+* [Étiqueteur d'issues GenAI](https://github.com/pelikhan/action-genai-issue-labeller/)
+* [Dédupliqueur d'issues GenAI](https://github.com/pelikhan/action-genai-issue-dedup/)
+* [Analyseur vidéo d'issues GenAI](https://github.com/pelikhan/action-genai-video-issue-analyzer/)
+* [Commentateur de code GenAI](https://github.com/pelikhan/action-genai-commentor/)
 
 ## Permissions GitHub Models
 
-[Pour utiliser les Models dans une Action GitHub](https://docs.github.com/en/github-models/use-github-models/integrating-ai-models-into-your-development-workflow#using-ai-models-with-github-actions), vous devez définir les `permissions` de l'action pour inclure `models: read`.
+[Pour utiliser les Models dans une action GitHub](https://docs.github.com/en/github-models/use-github-models/integrating-ai-models-into-your-development-workflow#using-ai-models-with-github-actions), vous devez définir les `permissions` de l'action pour inclure `models: read`.
 
 ```yaml "models: read"
 permissions:
     models: read
 ```
 
-GenAIScript prend en charge nativement les GitHub Models, vous pouvez donc l'utiliser directement dans votre workflow GitHub Actions.
+GenAIScript supporte nativement les GitHub Models, vous pouvez donc l'utiliser directement dans votre workflow GitHub Actions.
 
 ## Utilisation de la CLI
 
-La manière la plus simple d'utiliser GenAIScript dans une Action GitHub est d'exécuter directement la [Interface en ligne de commande (CLI)](/genaiscript/reference/cli).
-Vous pouvez le faire en ajoutant une étape à votre workflow qui exécute la commande `genaiscript`.
+La façon la plus simple d'utiliser GenAIScript dans une action GitHub est d'exécuter directement la [CLI](/genaiscript/reference/cli). Vous pouvez le faire en ajoutant une étape dans votre workflow qui exécute la commande `genaiscript`.
 
 ```yaml "npx -y genaiscript run ..."
 - uses: actions/setup-node@v4 # make sure node.js is installed
@@ -71,7 +70,7 @@ env:
 
 ## Actions personnalisées <a id="custom-actions" />
 
-GitHub prend en charge l'empaquetage des tâches sous forme d’[actions personnalisées](https://docs.github.com/en/actions/sharing-automations/creating-actions/about-custom-actions), généralement dans un dépôt dédié. C’est une excellente manière d’empaqueter un script IA et de le partager avec d’autres.
+GitHub supporte le packaging des tâches sous forme d'[actions personnalisées](https://docs.github.com/en/actions/sharing-automations/creating-actions/about-custom-actions), généralement dans un dépôt dédié. C’est un excellent moyen d'empaqueter un script IA et de le partager avec d'autres.
 
 ```yaml "uses: <owner>/<repo>@<tag>"
 - name: Run AI Script
@@ -80,7 +79,7 @@ GitHub prend en charge l'empaquetage des tâches sous forme d’[actions personn
       github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-L’interface en ligne de commande GenAIScript fournit une commande pour générer/mettre à jour le code standard afin d’empaqueter un script en tant qu’[action conteneur Docker](https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-docker-container-action) afin qu’il puisse être utilisé dans GitHub Actions, quel que soit le langage utilisé pour écrire le script.
+La CLI GenAIScript fournit une commande pour générer/mettre à jour le code standard afin d'empaqueter un script sous forme d’une [action conteneur Docker](https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-docker-container-action), ce qui permet de l'utiliser dans GitHub Actions quel que soit le langage utilisé pour écrire le script.
 
 Pour commencer,
 
@@ -95,7 +94,7 @@ Pour commencer,
     </li>
 
     <li>
-      Exécutez la commande pour générer la structure de base de l’action :
+      Exécutez la commande pour générer le squelette de l’action :
 
       ```bash
       npx -y genaiscript configure action
@@ -104,20 +103,20 @@ Pour commencer,
   </ol>
 </Steps>
 
-Le générateur de structure d’action écrasera les fichiers suivants :
+Le générateur de squelette d’action va écraser les fichiers suivants :
 
 <FileTree>
-  * `action.yml` Fichier de métadonnées de l’action
-  * `Dockerfile` Dockerfile pour l’action
-  * `README.md` Documentation de l’action
+  * `action.yml` Fichier des métadonnées de l'action
+  * `Dockerfile` Dockerfile pour l'action
+  * `README.md` Documentation pour l'action
   * `.gitignore` Fichiers à ignorer dans le dépôt
-  * `.github/workflows/ci.yml` Workflow CI pour tester l’action
-  * `package.json` Configuration du package pour l’action
+  * `.github/workflows/ci.yml` Workflow CI pour tester l'action
+  * `package.json` Configuration du package pour l'action
   * `devcontainer/devcontainer.json` Configuration du devcontainer pour VS Code
-  * `devcontainer/Dockerfile` Dockerfile du devcontainer pour VS Code. Doit être synchronisé avec le Dockerfile de l’action.
+  * `devcontainer/Dockerfile` Dockerfile du devcontainer pour VS Code. Doit être synchronisé avec le Dockerfile de l'action.
 </FileTree>
 
-Pour mettre à jour la structure de l’action, vous pouvez relancer la même commande :
+Pour mettre à jour le squelette de l’action, vous pouvez relancer la même commande :
 
 ```bash
 npm run configure
@@ -131,11 +130,12 @@ Le fichier `action.yml` contient les métadonnées de l’action. Elles sont ext
 * La `description` est dérivée du `title` du script.
 * Les `inputs` sont dérivés des [paramètres](/genaiscript/reference/scripts/parameters) du script (voir ci-dessous).
 
-Notez que la `script.description` est utilisée pour compléter le fichier `README.md`.
+Notez que la `script.description` est utilisée pour remplir le fichier `README.md`.
 
-### Paramètres (Inputs)
+### Entrées
 
-La section `inputs` du fichier `action.yml` est générée automatiquement à partir des paramètres du script. Chaque paramètre est converti en un input avec le même nom, et le type est inféré à partir du type du paramètre.
+La section `inputs` du fichier `action.yml` est générée automatiquement à partir des paramètres du script.
+Chaque paramètre est converti en une entrée (input) portant le même nom, et le type est inféré à partir du type du paramètre.
 
 ```js title="poem.genai.mts"
 script({
@@ -160,23 +160,24 @@ inputs:
         default: nature
 ```
 
-Il y a aussi des champs supplémentaires qui sont communs à toutes les actions GenAIScript :
+Il existe aussi des champs additionnels communs à toutes les actions GenAIScript :
 
-* `files` : Spécifie un chemin de fichier pour remplir la variable `env.files`. Pour enlever ce champ, définissez `accept : "none"` dans le script.
-* `github_token` : **Cela est requis pour s’authentifier auprès de GitHub Models.** Il deviendra `INPUT_GITHUB_TOKEN` lorsque le conteneur sera créé et GenAIScript le prendra automatiquement en compte.
-* `github_issue` : Le numéro de l’issue ou pull request GitHub en cours.
-* `debug` : Le filtre pour contrôler les messages de [journalisation](/genaiscript/reference/scripts/logging) en mode debug.
+* `files` : Spécifie un chemin de fichier pour alimenter la variable `env.files`. Pour retirer ce champ, mettez `accept: "none"` dans le script.
+* `github_token` : **Cela est requis pour s'authentifier auprès des GitHub Models.**\
+  Il deviendra `INPUT_GITHUB_TOKEN` lorsque le conteneur sera créé et GenAIScript le détectera automatiquement.
+* `github_issue` : Le numéro actuel de l’issue ou de la pull request GitHub.
+* `debug` : Le filtre pour contrôler les messages de [logging](/genaiscript/reference/scripts/logging) de débogage.
 
-### Sorties (Outputs)
+### Sorties
 
-L’action fournie quelques champs de sortie.
+L’action remplit quelques champs de sortie.
 
-* `text` : il s’agit du texte généré par le script.
-* `data` : il s’agit de la sortie structurée analysée et convertie en JSON. Ce champ est rempli si vous fournissez un [schéma de réponse](/genaiscript/reference/scripts/schemas) dans le script et si le LLM est capable de générer une réponse conforme au schéma.
+* `text` : le texte généré par le script.
+* `data` : la structure de sortie analysée et convertie en chaîne JSON. Ce champ est rempli si vous fournissez un [responseSchema](/genaiscript/reference/scripts/schemas) dans le script et si le LLM peut générer une réponse conforme au schéma.
 
-### Personnalisation visuelle
+### Branding
 
-Le champ `branding` du `script` est utilisé pour [personnaliser l’apparence de l’action dans l’interface GitHub](https://docs.github.com/en/actions/sharing-automations/creating-actions/metadata-syntax-for-github-actions?versionId=free-pro-team%40latest\&productId=actions\&restPage=sharing-automations%2Ccreating-actions%2Creleasing-and-maintaining-actions#branding).
+Le champ `branding` du `script` est utilisé pour [personnaliser l'apparence de l'action dans l'interface GitHub](https://docs.github.com/en/actions/sharing-automations/creating-actions/metadata-syntax-for-github-actions?versionId=free-pro-team%40latest\&productId=actions\&restPage=sharing-automations%2Ccreating-actions%2Creleasing-and-maintaining-actions#branding).
 
 ```js
 script({
@@ -189,31 +190,33 @@ script({
 
 ### Conteneurs
 
-Par défaut, GenAIScript utilise [node:lts-alpine](https://hub.docker.com/_/node/) comme image de base pour le conteneur de l’action. Vous pouvez changer cela en spécifiant une image de base différente dans la `cli`.
+Par défaut, GenAIScript utilise [node:lts-alpine](https://hub.docker.com/_/node/) comme image de base pour le conteneur de l'action.\
+Vous pouvez changer cela en spécifiant une autre image de base dans la `cli`.
 
 ```dockerfile "--image <image>"
 npx -y genaiscript configure action ... --image <image>
 ```
 
-GenAIScript crée également un [container de développement](https://code.visualstudio.com/docs/devcontainers/create-dev-container) afin que vous puissiez développer l’action dans un environnement conteneurisé (presque le même) que celui dans lequel elle s’exécute dans GitHub Action.
+GenAIScript créera également un [devcontainer](https://code.visualstudio.com/docs/devcontainers/create-dev-container) afin que vous puissiez développer l’action dans un environnement conteneurisé (presque identique) à celui où elle s’exécute dans GitHub Action.
 
-### ffmpeg, playwright et autres packages
+### ffmpeg, playwright et autres paquets
 
-Pour garder le conteneur de l’action léger, GenAIScript n’inclut pas par défaut `ffmpeg`, `playwright` ou d’autres packages. Vous pouvez les ajouter au conteneur en les spécifiant dans la commande `cli`.
+Pour garder le conteneur d’action léger, GenAIScript n’inclut pas `ffmpeg`, `playwright` ni d’autres paquets par défaut.\
+Vous pouvez les ajouter au conteneur en les spécifiant dans la commande de la `cli`.
 
 ```bash "--ffmpeg --playwright"
 npx -y genaiscript configure action ... --ffmpeg --playwright
 ```
 
-Vous pouvez également ajouter tous les autres packages dont vous avez besoin en les spécifiant dans la commande `cli`.
+Vous pouvez également ajouter tous les autres paquets nécessaires en les indiquant dans la commande `cli`.
 
 ```bash "--apks <package1> <package2>"
 npx -y genaiscript configure action ... --apks <package1> <package2>
 ```
 
-### Tester l’Action
+### Tests de l’Action
 
-Votre script devrait pouvoir être testé localement en utilisant la commande `npm run dev`. N’hésitez pas à l’éditer dans `package.json`.
+Votre script devrait être testable localement en utilisant la commande `npm run dev`. N’hésitez pas à la modifier dans `package.json`.
 
 ```bash
 npm run dev
@@ -225,14 +228,14 @@ Ou si vous souhaitez simuler l’environnement GitHub Action, vous pouvez défin
 INPUT_TOPIC=nature genaiscript run poem
 ```
 
-### Espace de travail GitHub vs Espace de travail Action
+### Workspace GitHub vs Workspace Action
 
 Lors de l’exécution de l’action dans un conteneur, le contenu du dépôt de l’action est d’abord copié dans le répertoire `/github/action`. GitHub clone le dépôt dans le répertoire `/github/workspace`.
 
-Le `ENTRYPOINT` du `Dockerfile` est configuré pour lancer le cli `genaiscript` dans le répertoire `/github/action` puis il détecte la variable d’environnement `GITHUB_WORKSPACE` pour déterminer le répertoire de travail et y change le répertoire courant (`cwd`).
+Le `ENTRYPOINT` du `Dockerfile` est configuré pour lancer la CLI `genaiscript` dans le répertoire `/github/action`, puis il détecte la variable d’environnement `GITHUB_WORKSPACE` pour déterminer le répertoire de travail et change le `cwd` en conséquence.
 
-Ce mode est activé par le flag `--github-workspace` dans la commande `cli`.
+Ce mode est activé par l’option `--github-workspace` dans la commande `cli`.
 
 <hr />
 
-Traduit à l’aide de l’IA. Veuillez vérifier la précision du contenu.
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

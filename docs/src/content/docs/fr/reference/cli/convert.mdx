@@ -1,0 +1,101 @@
+---
+title: Convertir
+description: Découvrez comment appliquer un script à plusieurs fichiers et
+  extraire le résultat.
+sidebar:
+  order: 2
+keywords: CLI tool execution, genai script running, stdout streaming, file
+  globing, environment configuration
+hero:
+  image:
+    alt: An illustration featuring an 8-bit style terminal icon, surrounded by
+      colorful minimalist file icons that symbolize markdown, TypeScript, and
+      text documents. These files flow through a geometric icon resembling a
+      script tool, such as a gear or magic wand, with prominent arrows showing
+      the transformation process. On the other side, new file icons appear, each
+      displaying bold suffixes to indicate conversion. The entire scene uses a
+      simple, flat design with only five colors on a clean white or transparent
+      background, without any human figures or text.
+    file: ../../../reference/cli/convert.png
+
+---
+
+Convertit un ensemble de fichiers, séparément, à l'aide d'un script.
+
+```bash
+npx genaiscript convert <script> "<files...>"
+```
+
+où `<script>` est l'identifiant ou le chemin du fichier de l'outil à exécuter, et `<files...>` est le nom du fichier de spécifications sur lequel l'exécuter.
+Contrairement à `run` qui traite tous les fichiers en une seule fois, `convert` traite chaque fichier individuellement.
+
+## Fichiers
+
+`convert` prend un ou plusieurs motifs [glob](https://en.wikipedia.org/wiki/Glob_\(programming\)) pour correspondre aux fichiers dans l’espace de travail.
+
+```bash sh
+npx genaiscript run <script> "**/*.md" "**/*.ts"
+```
+
+### --excluded-files \<files...>
+
+Exclut les fichiers spécifiés de l'ensemble de fichiers.
+
+```sh "--excluded-files <excluded-files...>"
+npx genaiscript convert <script> <files> --excluded-files <excluded-files...>
+```
+
+### --exclude-git-ignore
+
+Exclut les fichiers ignorés par le fichier `.gitignore` à la racine de l'espace de travail.
+
+```sh "--exclude-git-ignore"
+npx genaiscript convert <script> <files> --exclude-git-ignore
+```
+
+## Sortie
+
+La sortie de chaque fichier est enregistrée dans un fichier nouveau ou existant. Vous pouvez contrôler la logique pour décider quelle partie de la sortie sauvegarder et où la sauvegarder.
+Par défaut, le résultat de la conversion d’un fichier `<filename>` est enregistré dans un fichier `<filename>.genai.md`.
+
+### --suffix \<suffix>
+
+L’option `--suffix` vous permet de spécifier un suffixe à ajouter au nom du fichier de sortie.
+
+```sh "--suffix .genai.txt"
+npx genaiscript convert <script> <files> --suffix .genai.txt
+```
+
+GenAIScript "délimite" automatiquement la sortie dans le markdown correspondant au suffixe (après `.genai`). Ainsi, si le LLM génère
+
+````markdown
+```txt
+:)
+```
+````
+
+Le contenu converti dans `<filename>.genai.txt` sera `:)`.
+
+### --rewrite
+
+Ce drapeau remplace `suffix` et indique à GenAIScript de réécrire le fichier original avec le contenu converti.
+
+```sh "--rewrite"
+npx genaiscript convert <script> <files> --rewrite
+```
+
+### --cancel-word \<word>
+
+Spécifiez le mot-clé "ignorer la sortie, rien à voir ici" en utilisant le flag `-cw`.
+
+```sh '--cancel-word "<NO>"'
+npx genaiscript convert <script> <files> --cancel-word "<NO>"
+```
+
+## En savoir plus
+
+La liste complète des options est disponible dans la [référence CLI](/genaiscript/reference/cli/commands#convert).
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

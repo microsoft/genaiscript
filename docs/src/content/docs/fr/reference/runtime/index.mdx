@@ -18,7 +18,7 @@ hero:
 
 import { PackageManagers } from "starlight-package-managers";
 
-Le runtime GenAIScript fournit des utilitaires supplémentaires et permet d’utiliser le runtime dans n’importe quelle application Node.JS.
+Le runtime GenAIScript fournit des aides supplémentaires et permet d'utiliser le runtime dans n'importe quelle application Node.JS.
 
 Pour utiliser le runtime, vous devrez installer GenAIScript dans votre projet.
 
@@ -26,7 +26,7 @@ Pour utiliser le runtime, vous devrez installer GenAIScript dans votre projet.
 
 ## Initialisation
 
-Si vous utilisez GenAIScript sans l’interface en ligne de commande (CLI) ou l’extension Visual Studio Code, vous devez initialiser le runtime avant d’utiliser des types ou fonctions globaux.
+Si vous utilisez GenAIScript sans la CLI ou l'extension Visual Studio Code, vous devez initialiser le runtime avant d'utiliser les types ou fonctions globales.
 
 ```js
 import { initialize } from "@genaiscript/runtime";
@@ -37,7 +37,7 @@ await initialize();
 
 ## Importer le runtime
 
-Le runtime est disponible en tant que module. Vous pouvez l’importer avec le code suivant :
+Le runtime est disponible en tant que module. Vous pouvez l'importer avec le code suivant :
 
 ```js
 import { cast } from "@genaiscript/runtime";
@@ -45,14 +45,14 @@ import { cast } from "@genaiscript/runtime";
 
 ## Globaux
 
-Le runtime installe des analyseurs globaux et des types de prompts en ligne. Toutefois, les globaux `$`, `def`, etc. ne sont pas disponibles, uniquement dans les prompts en ligne.
+Le runtime installe des parseurs globaux et des types de prompt en ligne. Cependant, le global `$`, `def`, etc. ne sont pas disponibles, les prompts en ligne le sont.
 
-## Utilitaires
+## Assistants
 
-* [cast](/genaiscript/reference/runtime/cast), convertissez n’importe quelle donnée en sorties structurées
-* [classify](/genaiscript/reference/runtime/classify), classifiez du texte
-* [makeItBetter](/genaiscript/reference/runtime/make-it-better), demandez au LLM d’améliorer son résultat
+* [cast](/genaiscript/reference/runtime/cast), convertir n'importe quelle donnée en sorties structurées
+* [classify](/genaiscript/reference/runtime/classify), classifier du texte
+* [makeItBetter](/genaiscript/reference/runtime/make-it-better), demander au LLM d'améliorer son résultat
 
 <hr />
 
-Traduit avec l’IA. Veuillez vérifier l’exactitude du contenu.
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.
