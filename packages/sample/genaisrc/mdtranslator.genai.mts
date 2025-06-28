@@ -4,6 +4,7 @@ import "mdast-util-mdxjs-esm";
 import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
 import { dirname, join, relative } from "path";
 import { URL } from "url";
+import { chunk } from "../../core/dist/esm/encoders.js";
 script({
   accept: ".md,.mdx",
   files: "src/rag/markdown.md",
@@ -30,6 +31,8 @@ const HASH_LENGTH = 20;
 const maxPromptPerFile = 5;
 const nodeTypes = ["text", "paragraph", "heading", "yaml"];
 const starlightDir = "docs/src/content/docs";
+const MARKER_START = "┌";
+const MARKER_END = "└";
 type NodeType = Text | Paragraph | Heading | Yaml;
 const langs = {
   fr: "French",
@@ -42,6 +45,10 @@ const isUri = (str: string): boolean => {
   } catch {
     return false;
   }
+};
+
+const hasMarker = (str: string): boolean => {
+  return str.includes(MARKER_START) || str.includes(MARKER_END);
 };
 
 export default async function main() {
@@ -90,6 +97,9 @@ export default async function main() {
     const translationCache: Record<string, string> = force
       ? {}
       : (await workspace.readJSON(translationCacheFilename)) || {};
+    for (const [k, v] of Object.entries(translationCache)) {
+      if (hasMarker(v)) delete translationCache[k];
+    }
     dbgc(`translation cache: %O`, translationCache);
 
     for (const file of files) {
@@ -307,6 +317,9 @@ export default async function main() {
                 dbg(`patch trailing space for %s`, hash);
                 chunkTranslated += " ";
               }
+              chunkTranslated = chunkTranslated
+                .replace(/┌[A-Z]\d{3,5}┐/g, "")
+                .replace(/└[A-Z]\d{3,5}┘/g, "");
               dbg(`content: %s`, chunkTranslated);
               translationCache[hash] = chunkTranslated;
             }

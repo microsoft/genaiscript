@@ -1,0 +1,89 @@
+---
+title: Z3
+description: Z3 est un prouveur de théorèmes haute performance développé par
+  Microsoft Research. C'est un outil intégré de GenAIScript.
+sidebar:
+  order: 200
+hero:
+  image:
+    alt: "A small, 8-bit style computer chip labeled as Z3 is centrally positioned,
+      with fine lines linking it to three simple shapes: a circle containing a
+      checkmark to suggest problem solving, a square featuring an inequality
+      sign to indicate logical constraints, and a triangle with tiny gears
+      inside to represent verifying programs. The image uses only blue, gray,
+      black, white, and green, appears flat and geometric with a professional,
+      minimalistic look, and has no background or human figures."
+    file: ../../../reference/scripts/z3.png
+
+---
+
+[Z3](https://microsoft.github.io/z3guide/) est un prouveur de théorèmes haute performance développé par Microsoft Research. C'est un outil intégré de GenAIScript. Z3 est utilisé pour résoudre des formules logiques et peut être employé pour diverses applications, notamment la vérification de programmes, la résolution de contraintes et l'exécution symbolique.
+
+GenAIScript utilise le paquet npm [z3-solver](https://www.npmjs.com/package/z3-solver) basé sur WebAssembly pour exécuter Z3.
+
+## Instance Z3
+
+La méthode `host.z3()` crée une nouvelle instance de Z3. L'instance peut être utilisée pour exécuter des commandes Z3 et obtenir les résultats. L'instance `z3` est un wrapper autour du paquet npm [z3-solver](https://www.npmjs.com/package/z3-solver). L'instance `z3` possède la méthode `run` qui exécute la formule SMTLIB2 donnée et retourne le résultat.
+
+```js
+const z3 = await host.z3()
+const res = await z3.run(`
+(declare-const a Int)
+(declare-fun f (Int Bool) Int)
+(assert (< a 10))
+(assert (< (f a true) 100))
+(check-sat)
+`)
+console.log(res) // unsat
+```
+
+## Outil Z3
+
+Le script de l'outil `z3` (dans [system.z3](/genaiscript/reference/scripts/system#systemz3)) encapsule Z3 en tant qu'outil LLM utilisable dans GenAIScript. L'outil prend une formule SMTLIB2 en entrée et retourne la sortie de Z3.
+
+```js
+script({
+    tools: "z3"
+})
+
+script({
+    title: "Use Z3 tool to solve SMT2 problems",
+    tools: "z3",
+})
+
+$`Solve the following problems using Z3:
+
+(declare-const a Int)
+(declare-fun f (Int Bool) Int)
+(assert (< a 10))
+(assert (< (f a true) 100))
+(check-sat)
+```
+
+L'outil ne peut pas gérer des problèmes arbitraires, ce qui nous amène à l'agent.
+
+### Agent Z3
+
+Le script de l'agent `z3` (dans [system.agent-z3](/genaiscript/reference/scripts/system#systemagent_z3)) encapsule l'outil `z3` avec un LLM capable de (tenter de) formaliser des problèmes arbitraires en SMTLIB2.
+
+```js
+script({
+    tools: ["agent_z3"],
+})
+
+$`Solve the following problems using Z3:
+
+Imagine we have a number called 'a' that is smaller than 10. 
+We also have a special machine called 'f' that takes a number and a 'true'/'false' answer, 
+and it gives back another number. 
+When we put the number 'a' and the answer “true” into this machine, 
+the number it gives us is smaller than 100.`
+```
+
+:::note
+La conversation LLM allant du problème à la formule SMTLIB2 peut être incorrecte. Vérifiez vos résultats avec l'outil Z3. L'agent ne remplace pas l'outil Z3, mais offre un moyen d'utiliser Z3 avec des problèmes arbitraires.
+:::
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.
