@@ -113,6 +113,11 @@ export default async function main() {
 
           // mark untranslated nodes with a unique identifier
           if (node.type === "text") {
+            if (/\s*[.,:;]\s*/.test(node.value)) {
+              delete llmHashes[llmHash]; // don't translate empty text nodes
+              llmHashTodos.delete(llmHash);
+              dbg(`skipping empty text node: %s`, hash);
+            }
             node.value = `┌${llmHash}┐${node.value}└${llmHash}┘`;
           } else if (node.type === "paragraph" || node.type === "heading") {
             node.children.unshift({

@@ -7,13 +7,13 @@ sidebar:
 
 import { PackageManagers } from "starlight-package-managers";
 
-Ces assistants à l’exécution offrent une interface conviviale autour de l’écosystème [remark](https://github.com/remarkjs/remark), [mdast](https://github.com/syntax-tree/mdast), [unified](https://github.com/syntax-tree/unist) pour analyser et manipuler des documents Markdown.
+Ces assistants d'exécution offrent une interface conviviale autour de l’écosystème [remark](https://github.com/remarkjs/remark), [mdast](https://github.com/syntax-tree/mdast), [unified](https://github.com/syntax-tree/unist) pour parser et manipuler des documents Markdown.
 
-Pour bénéficier de la complétion de types, vous devrez installer le paquet `@types/mdast` en tant que dépendance de développement.
+Pour bénéficier de l’auto-complétion des types, vous devez installer le paquet `@types/mdast` comme dépendance de développement.
 
 <PackageManagers pkg="@types/mdast" dev />
 
-## Manipulation du Markdown
+## Manipulation de Markdown
 
 * charger les parseurs
 
@@ -37,7 +37,7 @@ const updated = visit(root, `code`, (node) => {
 });
 ```
 
-* sérialiser l’arbre de nouveau en Markdown
+* sérialiser l’arbre en Markdown
 
 ```typescript
 const markdown = await stringify(updated);
@@ -45,4 +45,4 @@ const markdown = await stringify(updated);
 
 <hr />
 
-Traduit avec l’IA. Veuillez vérifier l’exactitude du contenu.
+Traduit à l’aide d’une intelligence artificielle. Veuillez vérifier l’exactitude du contenu.
