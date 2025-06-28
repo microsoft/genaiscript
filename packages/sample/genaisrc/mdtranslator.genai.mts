@@ -2,7 +2,7 @@ import { hash } from "crypto";
 import { classify } from "@genaiscript/runtime";
 import { mdast } from "@genaiscript/mdast";
 import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
-import { dirname, join, relative } from "path";
+import { basename, dirname, join, relative } from "path";
 import { URL } from "url";
 script({
   accept: ".md,.mdx",
@@ -416,6 +416,7 @@ export default async function main() {
             bad: `Translation is of low quality or has a different meaning from the original.`,
           },
           {
+            label: `judge translation ${to} ${basename(filename)}`,
             model: "large",
             explanations: true,
             systemSafety: false,

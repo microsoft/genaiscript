@@ -1,0 +1,70 @@
+---
+title: Débogage des scripts
+sidebar:
+  order: 4.5
+description: Apprenez à déboguer les fichiers GenAIScript à l'aide du débogueur
+  de Visual Studio Code pour dépanner efficacement et améliorer vos scripts
+  d'automatisation JavaScript.
+keywords: debugging, JavaScript, Visual Studio Code, automation scripts, breakpoints
+hero:
+  image:
+    alt: A simple 8-bit icon depicts a computer monitor displaying a code editor
+      with colored lines, a play button for running code, and a pause icon
+      indicating a breakpoint. A blue bug symbol in the corner represents
+      debugging, while a log file icon sits beside the window, and a gear icon
+      suggests settings. The design uses five flat corporate colors and
+      geometric shapes on a transparent background.
+    file: ../../getting-started/debugging-scripts.png
+
+---
+
+import { Image } from "astro:assets"
+import src from "../../../../assets/debugger.png";
+import alt from "../../../../assets/debugger.png.txt?raw";
+
+Les fichiers de script GenAIScript sont des JavaScript exécutables et peuvent être débogués à l'aide du [débogueur de Visual Studio Code](https://code.visualstudio.com/Docs/editor/debugging), comme tout autre programme JavaScript.
+
+<Image src={src} alt={alt} />
+
+:::tip
+GenAIScript fournit également un [journalisation légère intégrée](/genaiscript/reference/scripts/logging) pour vous aider à dépanner vos scripts sans débogueur.
+:::
+
+## Démarrer une session de débogage
+
+* Ouvrez le fichier `.genai.mjs` à déboguer et ajoutez des points d'arrêt.
+
+### Depuis les fichiers env
+
+* Cliquez droit dans l'éditeur du fichier que vous souhaitez dans `env.files`.
+* Sélectionnez GenAIScript dans le sélecteur.
+
+#### Depuis le script lui-même
+
+* Ajoutez un champ `files` dans la fonction `script`
+
+```js
+script({
+    ...,
+    files: "*.md"
+})
+```
+
+* Cliquez sur le bouton icône **Déboguer** dans le menu de l'éditeur (caché sous le bouton d'exécution).
+
+Le débogueur lancera le [cli](/genaiscript/reference/cli) et exécutera le script en mode débogage.
+Le débogueur s'arrêtera aux points d'arrêt que vous avez définis.
+
+## Limitations
+
+Le JavaScript s'exécute dans un processus Node externe. Par conséquent,
+
+* L'aperçu et la sortie de la trace ne sont pas pris en charge pendant le débogage.
+
+## Étapes suivantes
+
+Continuez à itérer sur le script ou [ajoutez des tests](/genaiscript/getting-started/testing-scripts).
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

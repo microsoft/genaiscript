@@ -1,0 +1,275 @@
+---
+title: Automatisation des scripts
+sidebar:
+  order: 5
+description: Apprenez à automatiser vos scripts en utilisant l'interface en
+  ligne de commande GenAIScript pour un traitement par lot efficace et une
+  intégration dans les pipelines CI/CD.
+keywords: automation, CLI, batch processing, CI/CD integration, script execution
+hero:
+  image:
+    alt: A simple, flat 8-bit icon displays a geometric laptop alongside a cogwheel
+      and checkmark, a stylized file tree linked by lines, a small cloud with an
+      upload arrow, and a basic shield representing security. All elements use a
+      five-color corporate palette, arranged on a transparent background in a
+      128x128 pixel square, with no people, text, shadows, or 3D effects.
+    file: ../../getting-started/automating-scripts.png
+
+---
+
+import { Steps } from "@astrojs/starlight/components"
+import { FileTree } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+import { Code } from "@astrojs/starlight/components"
+import prDescribeSrc from "../../../../../../packages/sample/genaisrc/pr-describe.genai.mjs?raw";
+
+Une fois que vous avez un script qui vous convient, vous pouvez l'automatiser en utilisant l'[interface en ligne de commande](/genaiscript/reference/cli).
+
+## Exécution d'un script avec la CLI
+
+L'utilisation de base de la CLI est de [lancer](/genaiscript/reference/cli/run/) un script avec un nom d'outil et une liste de fichiers.
+
+```sh wrap
+npx --yes genaiscript run <script_id> <...files>
+```
+
+où `<script_id>` est le nom du script (par exemple le nom de fichier sans `.genai.mjs`) et `<...files>` est une liste de fichiers sur lesquels exécuter le script.
+
+La CLI utilisera les secrets dans le fichier `.env`, remplira `env.files` avec `<...files>`, exécutera le script et affichera la sortie sur la sortie standard.
+
+:::tip
+[npx](https://docs.npmjs.com/cli/v10/commands/npx) vous permet d'exécuter une commande à partir du [package npm genaiscript](https://www.npmjs.com/package/genaiscript) (installé localement ou récupéré à distance). Ajoutez le drapeau `--yes` pour accepter automatiquement toutes les invites sans confirmation.
+:::
+
+Vous pouvez utiliser la CLI pour exécuter vos scripts dans un pipeline CI/CD. La CLI renverra un code de sortie non nul si le script échoue, ce qui peut être utilisé pour faire échouer le pipeline.
+
+### Appliquer les modifications
+
+Ajoutez l'option `--apply-edits` à la CLI pour écrire automatiquement les modifications dans les fichiers.
+
+```sh wrap "--apply-edits"
+npx --yes genaiscript run <script> <...files> --apply-edits
+```
+
+:::caution
+Un LLM peut générer du code arbitraire qui peut être nuisible à votre système. Nous vous recommandons de réviser le code modifié avant de l'exécuter. Cela peut se faire via une branche séparée et une demande de tirage. Vous pouvez également utiliser un [conteneur](/genaiscript/reference/scripts/container) pour exécuter le script dans un environnement isolé.
+
+Consultez la section [Sécurité et confiance](/genaiscript/reference/security-and-trust) pour plus d'informations.
+:::
+
+## Action GitHub
+
+[GitHub Actions](https://docs.github.com/en/actions) est une plateforme d'intégration continue et de livraison continue (CI/CD) qui vous permet d'automatiser votre pipeline de construction, de test et de déploiement. Cette section explique comment intégrer votre GenAIScript dans les workflows et demandes de tirage de GitHub Actions.
+
+[GitHub Models](https://github.com/marketplace/models) offrent un moyen intégré d'exécuter une inférence LLM à partir d'une action GitHub.
+
+### Configurer GitHub Models
+
+Pour utiliser GitHub Models, vous devez ajouter la permission `models: read` à votre workflow, transmettre le secret `GITHUB_TOKEN` à la CLI, et configurer la CLI pour utiliser GitHub Models. Cela peut se faire en définissant le fournisseur LLM sur `github` dans la CLI.
+
+```yaml "models: read" "--provider github"
+permissions:
+    models: read
+...
+- run: npx --yes genaiscript run <script> <...files> --provider github
+  env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Configurer secrets et variables
+
+Configurez les [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) et les [variables](https://docs.github.com/en/actions/learn-github-actions/variables) sur votre dépôt ou organisation afin que GenAIScript puisse se connecter à votre LLM.
+
+Les secrets et variables doivent correspondre au fichier `.env` de votre environnement local.
+
+### Exécution d'un script
+
+Utilisez la [CLI](/genaiscript/reference/cli/run/) pour exécuter le script dans une action GitHub.
+
+* Assurez-vous de transmettre les secrets et variables au script pour permettre l'accès au LLM.
+* Utilisez l'option `--out <path>` pour stocker les résultats dans un répertoire afin de pouvoir les télécharger comme artefact.
+
+```yaml
+- run: npx --yes genaiscript run <script> <...files> --out results
+  env:
+      # variables
+      OPENAI_API_TYPE: ${{ env.OPENAI_API_TYPE }}
+      OPENAI_API_BASE: ${{ env.OPENAI_API_BASE }}
+      # secret, redacted
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+```
+
+### Ajouter la trace au résumé de l'action
+
+Utilisez l'option `out-trace` pour écrire la trace dans le fichier de résumé, `$GITHUB_STEP_SUMMARY` (voir [exemple](https://github.com/microsoft/genaiscript/actions/runs/9370477073#summary-25797526178)).
+
+```yaml "--out-trace $GITHUB_STEP_SUMMARY"
+- run: npx --yes genaiscript run ... --out-trace $GITHUB_STEP_SUMMARY
+```
+
+### Diff
+
+Vous pouvez utiliser `git.diff` pour exécuter une commande [git](https://git-scm.com/) `diff` afin de récupérer les modifications dans la branche courante.
+
+```js
+const changes = await git.diff({ base: "main" })
+def("GIT_DIFF", changes, {
+    language: "diff",
+    maxTokens: 20000,
+})
+```
+
+Notez que vous devrez récupérer la branche `origin/main` pour que cette commande fonctionne dans une action.
+
+```yaml
+- run: git fetch origin && git pull origin main:main
+```
+
+### Stockage des résultats dans les artefacts
+
+Assurez-vous que le répertoire contenant les résultats est téléchargé comme artefact. Vous pouvez consulter la trace en ouvrant le fichier `res.trace.md` dans l’artefact compressé.
+
+```yaml
+- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+      path: |
+          genairesults/**
+```
+
+### Azure OpenAI avec un principal de service
+
+La documentation officielle de l'[action azure login](https://github.com/Azure/login?tab=readme-ov-file#azure-login-action) contient des étapes détaillées pour configurer l'accès aux ressources Azure depuis GitHub Actions.
+
+:::note
+La [connexion avec OpenID Connect (OIDC)](https://github.com/Azure/login?tab=readme-ov-file#login-with-openid-connect-oidc-recommended) est la solution recommandée dans les pages de documentation Azure.
+
+Les étapes ci-dessous montrent comment configurer l'action de connexion Azure pour accéder à la ressource OpenAI **en utilisant un secret client de principal de service**.
+:::
+
+<Steps>
+  <ol>
+    <li>
+      Créez un principal de service en suivant le guide [connect from azure secret](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-secret#prerequisites).
+    </li>
+
+    <li>
+      Attribuez un rôle quelconque au principal de service (par exemple **Lecteur**) dans votre abonnement Azure. Vous en avez besoin pour vous connecter.
+    </li>
+
+    <li>
+      Attribuez le rôle **Cognitive Services OpenAI User** au principal de service. Vous en avez besoin pour que le principal de service puisse accéder à la ressource OpenAI.
+    </li>
+
+    <li>
+      Configurez le secret [AZURE\_CREDENTIALS](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-secret#create-a-github-secret-for-the-service-principal) dans votre dépôt GitHub avec les identifiants du principal de service.
+
+      ```json
+      {
+          "clientId": "<Client ID>",
+          "clientSecret": "<Client Secret>",
+          "subscriptionId": "<Subscription ID>",
+          "tenantId": "<Tenant ID>"
+      }
+      ```
+    </li>
+
+    <li>
+      Configurez la variable `AZURE_OPENAI_API_ENDPOINT` dans les variables GitHub Actions de votre dépôt.
+    </li>
+
+    <li>
+      Ajoutez l'étape suivante dans votre workflow GitHub pour vous connecter à Azure.
+
+      ```yaml title="genai.yml"
+      - name: Azure Login action
+        uses: azure/login@v2
+        with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+      ```
+    </li>
+
+    <li>
+      Mettez à jour chaque étape qui invoque la [CLI](/genaiscript/reference/cli) pour inclure la variable `AZURE_OPENAI_API_ENDPOINT`.
+
+      ```yaml
+      - name: run genai script
+        run: npx --yes genaiscript run ...
+        env:
+            AZURE_OPENAI_API_ENDPOINT: ${{ env.AZURE_OPENAI_API_ENDPOINT }}
+      ```
+    </li>
+  </ol>
+</Steps>
+
+## Demande de tirage GitHub
+
+Si votre action GitHub est déclenchée par un [événement de demande de tirage](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request), vous pouvez utiliser les options suivantes pour ajouter des commentaires : description, conversation et revues.
+
+Pour créer des commentaires, le workflow doit avoir la permission `pull-requests: write` et le secret `GITHUB_TOKEN` doit être transmis au script.
+
+```yaml
+permissions:
+    pull-requests: write
+...
+    - run: npx --yes genaiscript run ...
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ...
+```
+
+### Mettre à jour la description
+
+L'option `--pull-request-description` insère la sortie du LLM dans la section de la demande de tirage (voir [exemple](https://github.com/microsoft/genaiscript/pull/504)). La commande accepte un argument optionnel de chaîne pour identifier de manière unique ce commentaire, il est utilisé pour mettre à jour le commentaire (par défaut c'est l'id du script).
+
+```yaml "--pull-request-description"
+- run: npx --yes genaiscript run --pull-request-description
+```
+
+Si vous souhaitez exécuter ce script lorsque la demande de tirage est prête pour révision, utilisez les événements [`ready_for_review`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request), `opened`, `reopened`.
+
+```yaml
+on:
+    pull_request:
+        types: [ready_for_review, opened, reopened]
+```
+
+:::note
+Le commentaire est encadré par deux commentaires XML (`<genaiscript begin [id]>`, `<genaiscript end [id]>`) pour permettre une identification et une suppression faciles. Veuillez les conserver.
+:::
+
+### Commentaire de conversation
+
+L'option `--pull-request-comment` ajoute la sortie du LLM en tant que commentaire à la conversation de la demande de tirage (voir [exemple](https://github.com/microsoft/genaiscript/pull/504#issuecomment-2145273728)). L'argument optionnel est un identifiant pour le commentaire (par défaut l'id du script) afin qu'un seul commentaire apparaisse pour cet id.
+
+```yaml "--pull-request-comment"
+- run: npx --yes genaiscript run --pull-request-comment
+  env: ...
+```
+
+### Commentaires de revue
+
+Utilisez l'option `--pull-request-reviews` pour convertir les [annotations](/genaiscript/reference/scripts/annotations) en commentaires de revue **sur le dernier commit** de la demande de tirage (voir [exemple](https://github.com/microsoft/genaiscript/pull/504#pullrequestreview-2093960791)).
+
+```yaml "--pull-request-reviews"
+- run: npx --yes genaiscript run --pull-request-reviews
+  env: ...
+```
+
+GenAIScript essaiera automatiquement d'ignorer les commentaires de revue en double et de ne créer que les nouveaux.
+
+Pour collecter les modifications du dernier commit dans la branche de la demande de tirage (voir [article intéressant](https://www.kenmuse.com/blog/the-many-shas-of-a-github-pull-request/)), vous pouvez essayer cette commande git :
+
+```js
+const { stdout: changes } = await host.exec("git", [
+    "diff",
+    "HEAD^",
+    "HEAD",
+    "--",
+    "**.ts",
+])
+```
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.
