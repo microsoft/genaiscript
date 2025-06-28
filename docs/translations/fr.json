@@ -170,5 +170,18 @@
   "68112C82": "Ce projet peut contenir des marques ou logos relatifs à des projets, produits ou services. L’utilisation des marques ou logos Microsoft doit être autorisée et suivre les ",
   "D95A0468": "Directives Microsoft relatives aux marques & à l’image de marque ",
   "B22C0938": ".\nL’utilisation des marques ou logos Microsoft dans des versions modifiées de ce projet ne doit pas prêter à confusion ni sous-entendre un parrainage par Microsoft.\nToute utilisation de marques ou logos tiers est soumise aux règles de ces tiers. ",
-  "D67D678C": "Traduit avec l'IA. Veuillez vérifier l'exactitude du contenu. "
+  "D67D678C": "Traduit avec l'IA. Veuillez vérifier l'exactitude du contenu. ",
+  "7BCCEFB7560D860413A8": "Ces assistants d’exécution offrent une interface conviviale autour de ",
+  "6F6B519BE3E60EA9A96F": ", ",
+  "3C9225DDEBF772CCC170": ", ",
+  "E504ABB1B5183487629B": "écosystème afin d’analyser et de manipuler des documents Markdown.",
+  "825939892C47FDDAD6A8": "Pour bénéficier de l'autocomplétion de types, vous devrez installer le paquet ",
+  "38544FEA9526D8B281F2": "`@types/mdast` en tant que dépendance de développement.",
+  "EDCAC3B7B8A44DD6E9B9": "Manipulation de Markdown",
+  "DBE692B4EC10B9D69A77": "charger les parseurs",
+  "24DD3D375620BA2E27FE": "analyse vers un arbre mdast",
+  "4D1DAE8D932F0E09176E": "parcourir l’arbre (voir ",
+  "47A88FFA4C67D74D2300": ")",
+  "12FFE51BCC2B286B4C6B": "sérialiser l’arbre de nouveau en Markdown",
+  "22D7753B1DBD53F621E3": "Traduit à l’aide de l’IA. Veuillez vérifier le contenu pour en garantir l’exactitude."
 }

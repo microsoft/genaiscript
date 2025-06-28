@@ -1,8 +1,8 @@
 import { hash } from "crypto";
 import { classify, mdast } from "@genaiscript/runtime";
-import type { Node } from "mdast";
+import type { Node, Text } from "mdast";
 script({
-  accept: ".md",
+  accept: ".md,.mdx",
   files: "src/rag/markdown.md",
   parameters: {
     to: {
@@ -24,16 +24,20 @@ script({
 });
 
 const HASH_LENGTH = 20;
-
 function hashNode(node: Node, ancestors: Node[]): string {
   const chunkHash = hash("sha-256", JSON.stringify(node));
   return chunkHash.slice(0, HASH_LENGTH).toUpperCase();
 }
-
 const maxPromptPerFile = 5;
+const langs = {
+  fr: "French",
+};
 
 export default async function main() {
   const { files, dbg, output, vars } = env;
+
+  if (!files.length) cancel("No files selected.");
+
   const { force, aiDisclaimer } = vars as { to: string; force: boolean; aiDisclaimer: boolean };
   const tos = vars.to
     .split(",")
@@ -44,11 +48,16 @@ export default async function main() {
   const { parse, stringify, visitParents } = await mdast();
 
   for (const to of tos) {
-    const { text: lang } = await prompt`Respond human friendly name of language: ${to}`.options({
-      cache: true,
-      systemSafety: false,
-      responseType: "text",
-    });
+    let lang = langs[to];
+    if (!lang) {
+      const res = await prompt`Respond human friendly name of language: ${to}`.options({
+        cache: true,
+        systemSafety: false,
+        responseType: "text",
+        throwOnError: true,
+      });
+      lang = res.text;
+    }
     output.heading(2, `Translating Markdown files to ${lang} (${to})`);
     const cacheFn = `docs/translations/${to.toLowerCase()}.json`;
     dbg(`cache: %s`, cacheFn);
@@ -77,8 +86,13 @@ export default async function main() {
       const root = parse(content);
       dbgt(`original %O`, root.children);
 
-      // parsed nodes
-      const nodes = {};
+      // collect original nodes nodes
+      const nodes: Record<string, Text> = {};
+      visitParents(root, nodeTypes, (node, ancestors) => {
+        const hash = hashNode(node, ancestors);
+        nodes[hash] = node as Text;
+      });
+
       const llmHashes: Record<string, string> = {};
       const llmHashTodos = new Set<string>();
 
@@ -86,7 +100,6 @@ export default async function main() {
       let translated = structuredClone(root);
       visitParents(translated, nodeTypes, (node, ancestors) => {
         const hash = hashNode(node, ancestors);
-        nodes[hash] = node;
         const translation = translationCache[hash];
         if (translation) {
           dbg(`translated: %s`, hash);
@@ -186,7 +199,12 @@ export default async function main() {
             dbg(`translation: %s - %s`, llmHash, hash);
             let chunkTranslated = fence.content.replace(/\r?\n$/, "").trim();
             const node = nodes[hash];
-            if (node.type === "text" && /\s$/.test(node.value)) chunkTranslated += " ";
+            dbg(`original node: %O`, node);
+            if (node.type === "text" && /\s$/.test(node.value)) {
+              // preserve trailing space if original text had it
+              dbg(`patch trailing space for %s`, hash);
+              chunkTranslated += " ";
+            }
             dbg(`content: %s`, chunkTranslated);
             translationCache[hash] = chunkTranslated;
           }
@@ -218,13 +236,18 @@ export default async function main() {
       // judge quality is good enough
       const res = await classify(
         (ctx) => {
-          ctx.$`You are an expert at judging the quality of translations. Your task is to determine if the translation of a Markdown document from English to ${to} is of high quality.
-      The original document is provided as a variable named ${ctx.def("ORIGINAL", content)}, and the translated document is provided as a variable named ${ctx.def("TRANSLATED", contentTranslated)}.`.role(
+          ctx.$`You are an expert at judging the quality of translations. 
+          Your task is to determine the quality of the translation of a Markdown document from English to ${lang} (${to}).
+          The original document is in ${ctx.def("ORIGINAL", content)}, and the translated document is provided as a variable named ${ctx.def("TRANSLATED", contentTranslated)}.`.role(
             "system",
           );
         },
-        { ok: "Translation is of high quality.", bad: "Translation is of low quality." },
         {
+          ok: `Translation is faithful to the original document and conveys the same meaning. Translation uses proper ${lang}.`,
+          bad: `Translation is of low quality or poor usage of ${lang}.`,
+        },
+        {
+          explanations: true,
           systemSafety: false,
         },
       );
