@@ -1,7 +1,7 @@
 import { hash } from "crypto";
 import { classify, mdast } from "@genaiscript/runtime";
 import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
-import { basename, dirname, join, relative } from "path";
+import { basename, dirname, join, relative, resolve } from "path";
 script({
   accept: ".md,.mdx",
   files: "src/rag/markdown.md",
@@ -86,6 +86,23 @@ export default async function main() {
           ? filename.replace(starlightDir, join(starlightDir, to.toLowerCase()))
           : path.changeext(filename, `.${to.toLowerCase()}.md`);
         output.itemValue(`translation`, translationFn);
+
+        const patchFn = (fn: string) => {
+          if (/^\./.test(fn) && starlight) {
+            // given an local image path fn (like ./image.png) relative to the original file (filename),
+            // path it to the translation file (translationFn).
+            // Calculate the relative path from the translation file's directory to the original file's directory,
+            // then join it with the local image path to get the correct relative path for the translation
+            const originalDir = dirname(filename);
+            const translationDir = dirname(translationFn);
+            const relativeToOriginal = relative(translationDir, originalDir);
+            const r = join(relativeToOriginal, fn);
+            dbg(`patching %s -> %s`, fn, r);
+            return r;
+          }
+          return fn;
+        };
+
         let content = file.content;
         if (aiDisclaimer)
           content += `\n\n<hr/>\n\nTranslated using AI. Please verify the content for accuracy.\n\n`;
@@ -287,10 +304,7 @@ export default async function main() {
             const data = parsers.YAML(node.value);
             if (data) {
               if (starlight && data?.hero?.image?.file) {
-                data.hero.image.file = join(
-                  dirname(relative(filename, translationFn)),
-                  data.hero.image.file,
-                );
+                data.hero.image.file = patchFn(data.hero.image.file);
                 dbg(`yaml hero image: %s`, data.hero.image.file);
               }
               if (typeof data.title === "string") {

@@ -13,6 +13,7 @@
         "usernamehw.errorlens",
         "goessner.mdmath",
         "ms-azuretools.vscode-containers",
-        "ms-vscode.vscode-js-profile-flame"
+        "ms-vscode.vscode-js-profile-flame",
+        "streetsidesoftware.code-spell-checker-french"
     ]
 }
