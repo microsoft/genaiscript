@@ -11,7 +11,7 @@ sidebar:
 
 Les métadonnées sont une carte de paires clé-valeur utilisées pour activer les complétions stockées — une fonctionnalité dans OpenAI et [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/stored-completions) qui vous permet de stocker et de récupérer des complétions pour une invite donnée. Cela est utile pour les processus de distillation et d'évaluation.
 
-![A recorded completion](../../../reference/scripts/stored-completions.png)
+![Une complétion enregistrée](../../../reference/scripts/stored-completions.png)
 
 ```js
 script({
