@@ -1,6 +1,7 @@
 import { hash } from "crypto";
 import { classify } from "@genaiscript/runtime";
 import { mdast } from "@genaiscript/mdast";
+import "mdast-util-mdxjs-esm";
 import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
 import { basename, dirname, join, relative } from "path";
 import { URL } from "url";
@@ -385,9 +386,11 @@ export default async function main() {
             node.url = patchFn(node.url);
             return SKIP;
           } else if (node.type === "mdxjsEsm") {
-            const rx = /^import\s+(.*)\s+from\s+\"(\.\.\/.*)";?$/gm;
-            node.value = node.value.replace(rx, (m, i, p) => {
-              const r = `import ${i} from "${patchFn(p)}";`;
+            // path local imports
+            const rx = /^(import|\})\s*(.*)\s+from\s+\"(\.\.\/.*)";?$/gm;
+            node.value = node.value.replace(rx, (m, k, i, p) => {
+              const pp = patchFn(p);
+              const r = k === "}" ? `} from "${pp}";` : `import ${i} from "${pp}";`;
               dbg(`mdxjsEsm import: %s -> %s`, m, r);
               return r;
             });
