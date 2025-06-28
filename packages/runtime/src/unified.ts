@@ -12,6 +12,7 @@ export async function mdast() {
   const { default: github } = await import("remark-github");
   const { default: frontmatter } = await import("remark-frontmatter");
   const { default: math } = await import("remark-math");
+  const { default: mdx } = await import("remark-mdx");
   const { default: stringify } = await import("remark-stringify");
   const { visit, CONTINUE, EXIT, SKIP } = await import("unist-util-visit");
   const { visitParents } = await import("unist-util-visit-parents");
@@ -39,7 +40,7 @@ export async function mdast() {
   }
 
   function usePlugins(processor: Processor<Root>) {
-    return processor.use(frontmatter).use(gfm).use(github).use(directive).use(math);
+    return processor.use(frontmatter).use(gfm).use(github).use(directive).use(math).use(mdx);
   }
 
   return Object.freeze({

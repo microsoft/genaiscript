@@ -16,16 +16,24 @@ In order to get type completion, you will need to install the `@types/mdast` pac
 
 ## Markdown manipulation
 
+- load the parsers
+
+```typescript
+import { mdast } from "@genaiscript/runtime";
+
+const { parse, visit, stringify } = await mdast();
+```
+
 - parsing to mdast tree
 
 ```typescript
-const root = await mdastParse("# Hello World");
+const root = parse("# Hello World");
 ```
 
 - visiting the tree (see [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))
 
 ```typescript
-const updated = await mdastVisit(root, `code`, (node) => {
+const updated = visit(root, `code`, (node) => {
   ...node
 });
 ```
@@ -33,5 +41,5 @@ const updated = await mdastVisit(root, `code`, (node) => {
 - serializing the tree back to Markdown
 
 ```typescript
-const markdown = await mdastStringify(updated);
+const markdown = await stringify(updated);
 ```

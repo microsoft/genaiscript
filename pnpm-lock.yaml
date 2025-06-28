@@ -690,6 +690,9 @@ importers:
       remark-math:
         specifier: ^6.0.0
         version: 6.0.0
+      remark-mdx:
+        specifier: ^3.1.0
+        version: 3.1.0
       remark-parse:
         specifier: ^11.0.0
         version: 11.0.0
