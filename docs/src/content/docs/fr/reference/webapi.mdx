@@ -13,27 +13,27 @@ hero:
 
 ---
 
-Vous pouvez lancer le [cli](/genaiscript/reference/cli) en tant que **serveur Web API** pour exposer des scripts en tant qu'endpoints REST.
+Vous pouvez lancer le [cli](/genaiscript/reference/cli) en tant que **serveur Web API** pour exposer des scripts en tant que points de terminaison REST.
 Le serveur est compatible OpenAPI 3.1 et utilise [fastify](https://www.fastify.io/) en interne.
 
 ```bash
 genaiscript webapi
 ```
 
-## Scripts en tant qu'endpoints REST
+## Scripts en tant que points de terminaison REST
 
-Le serveur Web API expose les scripts comme des endpoints REST. Il utilise le titre, la description, les groupes et les tags
-pour générer une spécification OpenAPI 3.1 et un serveur basé sur fastify.
+Le serveur Web API expose les scripts comme points de terminaison REST. Il utilise le titre, la description, les groupes et les tags
+pour générer une spécification OpenAPI 3.1 et un serveur avec fastify.
 
-Les paramètres des endpoints OpenAPI sont automatiquement déduits des [paramètres des scripts](/genaiscript/reference/scripts/parameters) et des fichiers.
-Les paramètres OpenAPI viendront alors alimenter l'objet `env.vars` dans le script,
+Les paramètres des points de terminaison OpenAPI sont déduits automatiquement des [paramètres des scripts](/genaiscript/reference/scripts/parameters) et des fichiers.
+Les paramètres OpenAPI alimenteront ensuite l'objet `env.vars` dans le script
 comme d'habitude.
 
-La sortie de l'endpoint OpenAPI correspond à la sortie du script. Il s'agit, généralement, du dernier message de l'assistant pour un script qui utilise le contexte de haut niveau.
-La sortie de l'endpoint OpenAPI correspond à la sortie du script, généralement le dernier message de l'assistant ou tout contenu passé à [env.output](/genaiscript/reference/scripts/output-builder).
+La sortie du point de terminaison OpenAPI est la sortie du script. C'est-à-dire, typiquement, le dernier message de l'assistant pour un script qui utilise le contexte de haut niveau.
+La sortie du point de terminaison OpenAPI correspond à la sortie du script, généralement le dernier message de l'assistant ou tout contenu passé à [env.output](/genaiscript/reference/scripts/output-builder).
 
-Voyons un exemple. Voici un script `task.genai.mjs` qui prend un paramètre d'entrée `task`, construit une invite,
-et la sortie du LLM est renvoyée.
+Voyons un exemple. Voici un script `task.genai.mjs` qui prend un paramètre `task` en entrée, construit une invite
+et renvoie la sortie du LLM.
 
 ```js title="task.genai.mjs"
 script({
@@ -53,7 +53,7 @@ const { task } = env.vars // extract the task parameter
 $`... prompt ... ${task}` // output the result
 ```
 
-Un script plus avancé peut ne pas utiliser le contexte de haut niveau et utiliser à la place `env.output` pour transmettre le résultat.
+Un script plus avancé pourrait ne pas utiliser le contexte de haut niveau et utiliser plutôt `env.output` pour passer le résultat.
 
 ```js title="task.genai.mjs"
 script({
@@ -81,36 +81,36 @@ output.fence(`The result is ${res.text}`)
 
 ## Route
 
-La route par défaut est `/api` et la spécification OpenAPI est disponible à l'adresse `/api/docs/json`.
-Vous pouvez changer la route à l'aide de l'option `--route`.
+La route par défaut est `/api` et la spécification OpenAPI est disponible à `/api/docs/json`.
+Vous pouvez changer la route avec l'option `--route`.
 
 ```bash
 genaiscript webapi --route /genai
 ```
 
-La spécification OpenAPI sera accessible à l'adresse `/genai/docs/json`.
+La spécification OpenAPI sera disponible à `/genai/docs/json`.
 Vous pouvez également changer le port avec l'option `--port`.
 
 ```bash
 genaiscript webapi --route /genai --port 4000
 ```
 
-Le serveur sera disponible à `http://localhost:4000/genai`.
+Le serveur sera disponible à l'adresse `http://localhost:4000/genai`.
 
 ## Script de démarrage
 
-Vous pouvez spécifier un identifiant de script de démarrage dans la ligne de commande grâce à l'option `--startup`.
-Il s'exécutera une fois le serveur lancé.
+Vous pouvez spécifier un identifiant de script de démarrage en ligne de commande en utilisant l'option `--startup`.
+Il s'exécutera après le démarrage du serveur.
 
 ```sh
 genaiscript openapi --startup load-resources
 ```
 
-Vous pouvez utiliser ce script pour charger des ressources ou effectuer toute autre configuration nécessaire.
+Vous pouvez utiliser ce script pour charger des ressources ou réaliser toute autre configuration nécessaire.
 
 ### Filtrage des scripts
 
-Si vous avez besoin de filtrer les scripts exposés comme endpoints OpenAPI, vous pouvez utiliser le flag `--groups` et
+Si vous souhaitez filtrer les scripts exposés en tant que points de terminaison OpenAPI, vous pouvez utiliser le flag `--groups` et
 définir le groupe `openapi` dans vos scripts.
 
 ```js 'group: "openapi"' title="task.genai.mjs"
@@ -123,31 +123,31 @@ script({
 genaiscript openapi --groups openapi
 ```
 
-## Exécuter des scripts depuis un dépôt distant
+## Exécution de scripts depuis un dépôt distant
 
 Vous pouvez utiliser l'option `--remote` pour charger des scripts depuis un dépôt distant.
-GenAIScript effectuera un clonage superficiel du dépôt et exécutera le script dans le dossier cloné.
+GenAIScript effectuera un clonage superficiel du dépôt et exécutera le script depuis le dossier cloné.
 
 ```sh
 npx --yes genaiscript openapi --remote https://github.com/...
 ```
 
-Il existe des options supplémentaires pour la façon dont le dépôt est cloné :
+Il existe des options supplémentaires pour le clonage du dépôt :
 
 * `--remote-branch <branche>` : La branche à cloner depuis le dépôt distant.
-* `--remote-force` : Force le clonage même si le dossier cloné existe déjà.
-* `--remote-install` : Installe les dépendances après le clonage du dépôt.
+* `--remote-force` : Forcer le clonage même si le dossier cloné existe déjà.
+* `--remote-install` : Installer les dépendances après le clonage du dépôt.
 
 :::caution
-Comme toujours, soyez vigilant lorsque vous exécutez des scripts provenant d'un dépôt distant.
+Comme toujours, faites preuve de prudence lorsque vous exécutez des scripts provenant d'un dépôt distant.
 Assurez-vous de faire confiance à la source avant d'exécuter le script et envisagez de verrouiller sur un commit spécifique.
 :::
 
-## Linting
+## Analyse syntaxique (Linting)
 
-Vous pouvez utiliser [spectral](https://github.com/stoplightio/spectral) pour valider vos spécifications OpenAPI.
+Vous pouvez utiliser [spectral](https://github.com/stoplightio/spectral) pour analyser vos spécifications OpenAPI.
 
-* Enregistrez ce fichier `.spectral.yaml` à la racine de votre projet :
+* enregistrez ce fichier `.spectral.yaml` à la racine de votre projet :
 
 ```yaml
 extends: "spectral:oas"
@@ -162,4 +162,4 @@ npx --yes -p @stoplight/spectral-cli spectral lint http://localhost:3000/api/doc
 
 <hr />
 
-Traduit par IA. Veuillez vérifier le contenu pour en garantir l'exactitude.
+Traduction réalisée avec l’IA. Veuillez vérifier le contenu pour en assurer l’exactitude.

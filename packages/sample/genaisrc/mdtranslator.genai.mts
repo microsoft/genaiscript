@@ -27,7 +27,9 @@ script({
 
 const HASH_LENGTH = 20;
 function hashNode(node: Node | string, ancestors?: Node[]): string {
-  const chunkHash = hash("sha-256", JSON.stringify(node));
+  const c = structuredClone(node);
+  if (typeof c === "object") delete c.position;
+  const chunkHash = hash("sha-256", JSON.stringify(c));
   return chunkHash.slice(0, HASH_LENGTH).toUpperCase();
 }
 const maxPromptPerFile = 5;
@@ -257,6 +259,7 @@ export default async function main() {
       - Do not change the structure of the document.
       - As much as possible, maintain the original formatting and structure of the document.
       - Do not translate inline code blocks, code blocks, or any other code-related content.
+      - Use markdown compatible characters, like ' not ’.
 
       `.role("system");
             },
@@ -352,7 +355,9 @@ export default async function main() {
         });
 
         let contentTranslated = await stringify(translated);
+        output.startDetails(`translation`);
         output.diff(content, contentTranslated);
+        output.endDetails();
         if (content === contentTranslated) {
           output.warn(`Unable to translate anything, skipping file.`);
           continue;
@@ -388,11 +393,14 @@ export default async function main() {
         dbg(`writing translation to %s`, translationFn);
 
         await workspace.writeText(translationFn, contentTranslated);
+        await workspace.writeText(
+          translationCacheFilename,
+          JSON.stringify(translationCache, null, 2),
+        );
       } catch (error) {
         output.error(error);
         break;
       }
     }
-    await workspace.writeText(translationCacheFilename, JSON.stringify(translationCache, null, 2));
   }
 }

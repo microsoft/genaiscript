@@ -15,10 +15,10 @@ hero:
 
 ---
 
-Lancer un serveur web local qui est utilisé pour exécuter le bac à sable
+Lancez un serveur web local utilisé pour exécuter le playground
 ou Visual Studio Code.
 
-Exécuter depuis la racine de l'espace de travail :
+Exécutez depuis la racine de l’espace de travail :
 
 ```bash
 npx genaiscript serve
@@ -26,16 +26,16 @@ npx genaiscript serve
 
 ## port
 
-Le port par défaut est `8003`. Vous pouvez spécifier le port en définissant le drapeau `--port`.
+Le port par défaut est `8003`. Vous pouvez spécifier le port en utilisant le paramètre `--port`.
 
 ```bash
 npx genaiscript serve --port 8004
 ```
 
-## clé API
+## Clé API
 
 La clé API est utilisée pour authentifier les requêtes vers le serveur.
-Vous pouvez spécifier une clé API en utilisant le drapeau `--api-key` ou la variable d'environnement `GENAISCRIPT_API_KEY`.
+Vous pouvez spécifier une clé API en utilisant le paramètre `--api-key` ou la variable d’environnement `GENAISCRIPT_API_KEY`.
 
 ```bash
 npx genaiscript serve --api-key my-api-key
@@ -47,11 +47,11 @@ ou
 GENAISCRIPT_API_KEY=my-api-key
 ```
 
-La clé API peut être configurée dans l'en-tête `Authorization` d'une requête ou dans le paramètre de requête URL `api-key` (`http://localhost:8003/#api-key=ma-clé-api`)
+La clé API peut être définie dans l’en-tête `Authorization` d’une requête ou dans le paramètre de requête de l’URL `api-key` (`http://localhost:8003/#api-key=my-api-key`)
 
 ## CORS
 
-Vous pouvez activer [Ressource Partagée Cross-Origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) en utilisant le drapeau `--cors` ou en configurant la variable d'environnement `GENAISCRIPT_CORS_ORIGIN`.
+Vous pouvez activer le [Cross Origin Shared Resource](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) en utilisant le paramètre `--cors` ou en définissant la variable d’environnement `GENAISCRIPT_CORS_ORIGIN`.
 
 ```bash
 npx genaiscript serve --cors contoso.com
@@ -59,17 +59,17 @@ npx genaiscript serve --cors contoso.com
 
 ## Réseau
 
-Vous pouvez lier le serveur à `0.0.0.0` pour le rendre accessible depuis le réseau en utilisant le drapeau `--network`. Ce drapeau est nécessaire pour rendre le serveur accessible depuis un conteneur.
+Vous pouvez lier le serveur sur `0.0.0.0` et le rendre accessible depuis le réseau en utilisant le paramètre `--network`. Ce paramètre est nécessaire pour rendre le serveur accessible depuis un conteneur.
 
 ```bash
 npx genaiscript serve --network
 ```
 
-Nous recommandons vivement de définir la clé API lors de l'exécution du serveur sur le réseau.
+Nous recommandons vivement de définir la clé API lorsque le serveur est exécuté sur le réseau.
 
 ## Dockerisé
 
-Pour exécuter une image Docker minimale avec le serveur, créez d'abord une image Docker avec genaiscript et les outils nécessaires.
+Pour exécuter une image Docker minimale avec le serveur, commencez par créer une image Docker avec genaiscript et les outils nécessaires.
 
 ```sh
 docker build -t genaiscript -<<EOF
@@ -78,7 +78,7 @@ RUN apk add --no-cache git && npm install -g genaiscript
 EOF
 ```
 
-Cela crée une image `genaiscript` localement que vous pouvez utiliser pour lancer le serveur.
+Cela crée localement une image `genaiscript` que vous pouvez utiliser pour lancer le serveur.
 
 ```sh
 docker run --env GITHUB_TOKEN --env-file .env --name genaiscript --rm -it --expose 8003 -p 8003:8003 -v ${PWD}:/workspace -w /workspace genaiscript genaiscript serve --network
@@ -86,10 +86,10 @@ docker run --env GITHUB_TOKEN --env-file .env --name genaiscript --rm -it --expo
 
 puis ouvrez `http://localhost:8003` dans votre navigateur.
 
-## Points de terminaison API OpenAI
+## Points de terminaison de l’API OpenAI
 
-Le serveur implémente divers points de terminaison compatibles avec l'API OpenAI. Vous pouvez utiliser le serveur comme proxy vers l'API OpenAI en configurant le drapeau `--openai`.
-Les routes peuvent être utilisées pour fournir un accès stable aux LLM configurés à d'autres outils comme promptfoo.
+Le serveur implémente plusieurs points de terminaison compatibles avec l’API OpenAI. Vous pouvez utiliser le serveur comme proxy vers l’API OpenAI en activant le paramètre `--openai`.
+Ces routes permettent d’offrir un accès stable aux LLM configurés pour d’autres outils comme promptfoo.
 
 ```bash
 npx genaiscript serve --openai
@@ -99,14 +99,14 @@ Cela activera les routes suivantes :
 
 ### `/v1/chat/completions`
 
-Principalement compatible avec l'API de complétions de chat d'OpenAI. Le serveur transmettra les requêtes à l'API OpenAI et renverra la réponse.
+Principalement compatible avec l’API de complétion de chat d’OpenAI. Le serveur transmettra les requêtes à l’API OpenAI et retournera la réponse.
 
-* `stream` n'est pas supporté.
+* `stream` n’est pas pris en charge.
 
 ### `/v1/models`
 
-Renvoie la liste des modèles et des alias disponibles sur le serveur.
+Retourne la liste des modèles et alias disponibles sur le serveur.
 
 <hr />
 
-Traduit avec AI. Veuillez vérifier le contenu pour assurer l'exactitude.
+Traduction réalisée à l’aide de l’IA. Veuillez vérifier le contenu pour en assurer l’exactitude.

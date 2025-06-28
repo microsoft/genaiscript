@@ -12,10 +12,9 @@ keywords: VSCode settings, user preferences, CLI path, extension configuration,
 
 Les paramètres suivants sont accessibles via la commande **Préférences : Ouvrir les paramètres utilisateur**.
 
-## CLI
+## Interface en ligne de commande (CLI)
 
-Ces paramètres contrôlent la manière dont le serveur GenAIScript est exécuté depuis l'extension.
-Par défaut, l'extension utilise [npx](https://www.npmjs.com/package/npx) et la version actuelle de l'extension pour exécuter le CLI GenAIScript.
+Ces paramètres contrôlent la manière dont le serveur GenAIScript est exécuté depuis l'extension. Par défaut, l'extension utilise [npx](https://www.npmjs.com/package/npx) et la version actuelle de l'extension pour exécuter le CLI GenAIScript.
 
 ```sh
 genaiscript@[extension_version] serve
@@ -23,7 +22,7 @@ genaiscript@[extension_version] serve
 
 ## Chemin
 
-Si vous disposez d'une version spécifique du CLI installée, vous pouvez définir son chemin ici.
+Si vous avez une version spécifique du CLI installée, vous pouvez définir ici son chemin.
 
 ## Version
 
@@ -35,12 +34,12 @@ node cli_path serve
 
 ## Masquer le terminal du serveur
 
-Par défaut, le terminal du serveur GenAIScript est masqué après le démarrage du serveur. L'activation de ce drapeau ouvrira un terminal où vous pourrez inspecter les journaux du serveur GenAIScript.
+Par défaut, le terminal du serveur GenAIScript est caché après le démarrage du serveur. Activer ce drapeau ouvrira un terminal où vous pourrez inspecter les journaux du serveur GenAIScript.
 
 ## Diagnostics
 
-Ce drapeau active une variété de journaux supplémentaires et de comportements pour aider à diagnostiquer les problèmes avec le serveur GenAIScript.
+Ce drapeau active diverses options supplémentaires de journalisation et de comportement pour aider à diagnostiquer les problèmes avec le serveur GenAIScript.
 
 <hr />
 
-Traduit avec IA. Veuillez vérifier l'exactitude du contenu.
+Traduit avec l'IA. Veuillez vérifier le contenu pour en assurer l'exactitude.

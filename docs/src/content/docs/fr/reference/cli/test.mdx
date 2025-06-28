@@ -24,14 +24,14 @@ Exécute les tests dans les scripts en utilisant [promptfoo](https://www.promptf
 genaiscript test "<scripts...>"
 ```
 
-Vous pouvez remplacer les modèles utilisés pour les tests à l’aide de `--models` :
+Vous pouvez choisir les modèles à utiliser pour les tests avec l’option `--models` :
 
 ```bash "--models openai:gpt-4 ollama:phi3"
 genaiscript test "<scripts...>" --models openai:gpt-4 ollama:phi3
 ```
 
 :::note
-Cette fonctionnalité nécessite d’ajouter `@genaiscript/api` à vos dépendances dans `package.json`.
+Cette fonctionnalité nécessite d’ajouter `@genaiscript/api` dans les dépendances de votre `package.json`.
 :::
 
 ## visionneuse de résultats
@@ -44,4 +44,4 @@ npx genaiscript test view
 
 <hr />
 
-Traduit à l'aide de l’IA. Veuillez vérifier l’exactitude du contenu.
+Traduit avec l’IA. Veuillez vérifier l’exactitude du contenu.

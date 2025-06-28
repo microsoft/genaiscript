@@ -20,51 +20,52 @@ hero:
 import { Code } from "@astrojs/starlight/components"
 import schema from "../../../../../public/schemas/config.json?raw";
 
-GenAIScript prend en charge des fichiers de configuration locaux et globaux afin de permettre la réutilisation de paramètres et de secrets communs entre plusieurs scripts.
+GenAIScript prend en charge les fichiers de configuration locaux et globaux pour permettre la réutilisation des paramètres de configuration courants et des secrets dans plusieurs scripts.
 
-## Résolution du fichier .env
+## Résolution des fichiers .env
 
-GenAIScript va scanner et charger les fichiers `.env` suivants dans l’ordre suivant :
+GenAIScript analysera et chargera les fichiers `.env` suivants dans l'ordre indiqué :
 
 * propriété `envFile` dans les fichiers de configuration (voir ci-dessous)
-* variable d’environnement `GENAISCRIPT_ENV_FILE`
+* variable d'environnement `GENAISCRIPT_ENV_FILE`
 * options de ligne de commande `--env`
 
 ```sh
 genaiscript run ... --env ./.env.debug --env ~/.env.dev
 ```
 
-Si aucune des options ci-dessus n’est définie, il essaiera de charger les fichiers suivants :
+Si aucun des éléments ci-dessus n'est défini, il tentera de charger les fichiers suivants :
 
 * `~/.env`
 * `./.env`
 * `./.env.genaiscript`
 
-### Résolution du fichier de configuration
+### Résolution des fichiers de configuration
 
-GenAIScript va rechercher les fichiers de configuration suivants et fusionner leur contenu dans la configuration finale.
+GenAIScript recherchera les fichiers de configuration suivants
+et fusionnera leur contenu dans la configuration finale.
 
 * `~/genaiscript.config.yaml`
 * `~/genaiscript.config.json`
 * `./genaiscript.config.yaml`
 * `./genaiscript.config.json`
 
-Les fichiers JSON prennent en charge le format [JSON5](https://json5.org/) (y compris les commentaires, les virgules finales, etc.).
+Les fichiers JSON supportent le format [JSON5](https://json5.org/) (incluant les commentaires, les virgules finales, etc.).
 
 ## Schéma
 
-Le schéma de configuration se trouve à l’adresse [https://microsoft.github.io/genaiscript/schemas/config.json](https://microsoft.github.io/genaiscript/schemas/config.json).
+Le schéma de configuration est disponible à l'adresse [https://microsoft.github.io/genaiscript/schemas/config.json](https://microsoft.github.io/genaiscript/schemas/config.json) .
 
 <Code code={schema} wrap={true} lang="json" />
 
 ## Propriété `envFile`
 
-L’emplacement final de `envFile` sera utilisé pour charger le secret dans les variables d’environnement. Cela ne prend en charge qu’un seul fichier.
+L'emplacement final de `envFile` sera utilisé pour charger le secret dans les variables d'environnement. Elle supporte un seul fichier.
 
 ## Propriété `include`
 
-La propriété `include` permet de fournir des chemins glob pour inclure plus de scripts.
-Combinée avec un fichier de configuration global, cela permet de partager des scripts entre plusieurs projets.
+La propriété `include` permet de fournir des chemins glob pour inclure davantage de scripts.
+Combinée à un fichier de configuration global, cela permet de partager des scripts pour plusieurs projets.
 
 ```yaml title="genaiscript.config.yaml"
 include:
@@ -73,7 +74,7 @@ include:
 
 ## Propriété `modelAliases`
 
-La propriété `modelAliases` vous permet de définir des alias pour les noms de modèles.
+La propriété `modelAliases` vous permet de fournir des alias pour les noms de modèles.
 
 ```js
 {
@@ -89,7 +90,7 @@ La propriété `modelAliases` vous permet de définir des alias pour les noms de
 
 ## Propriété `modelEncodings`
 
-La propriété `modelEncodings` vous permet de spécifier l’encodage pour un modèle.
+La propriété `modelEncodings` vous permet de fournir l'encodage pour le modèle.
 
 ```js
 {
@@ -103,7 +104,7 @@ La propriété `modelEncodings` vous permet de spécifier l’encodage pour un m
 
 Activez la catégorie de débogage `config` pour voir des informations supplémentaires sur la résolution de la configuration.
 
-Vous pouvez également activer d’autres catégories de débogage pour des journaux plus détaillés.
+Vous pouvez également activer d'autres catégories de débogage pour obtenir des journaux plus détaillés.
 
 ```sh
 DEBUG=config genaiscript run ...
@@ -111,4 +112,4 @@ DEBUG=config genaiscript run ...
 
 <hr />
 
-Traduit à l’aide de l’IA. Veuillez vérifier l’exactitude du contenu.
+Traduit avec l'aide de l'IA. Veuillez vérifier l'exactitude du contenu.

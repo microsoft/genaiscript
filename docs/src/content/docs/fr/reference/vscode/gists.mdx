@@ -16,15 +16,15 @@ hero:
 
 ---
 
-[GitHub Gists](https://gist.github.com/) sont un moyen simple de partager des extraits de code et des notes avec d'autres personnes.
-Ce sont essentiellement des dépôts Git qui peuvent être créés et partagés facilement.
-Les gists peuvent être publics ou secrets, et ils supportent le versionnage, ce qui en fait un excellent outil pour la collaboration.
+[GitHub Gists](https://gist.github.com/) sont un moyen simple de partager des extraits de code et des notes avec d'autres.
+Ils sont essentiellement des dépôts Git qui peuvent être créés et partagés facilement.
+Les gists peuvent être publics ou secrets, et ils supportent la gestion des versions, ce qui en fait un excellent outil de collaboration.
 
-![Une capture d’écran de GistPad dans Visual Studio Code](../../../reference/vscode/gistpad.png)
+![Une capture d'écran de GistPad dans Visual Studio Code](../../../reference/vscode/gistpad.png)
 
-## Exécuter GenAIScript depuis des Gists
+## Exécution de GenAIScript à partir des Gists
 
-GenAIScript prend en charge les formats d’URL suivants pour exécuter des scripts directement depuis un gist.
+GenAIScript prend en charge les formats d'URL suivants pour exécuter des scripts directement depuis un gist.
 
 * `gist://<id du gist>/<nom du fichier>`
 * `vscode://vsls-contrib.gistfs/open?gist=<id du gist>&file=<fichier>`
@@ -37,42 +37,41 @@ Le fichier gist est mis en cache localement dans `.genaiscript/resources` puis e
 il utilise les informations de connexion GitHub pour accéder aux gists privés.
 
 :::caution
-GenAIScript sont des fichiers JavaScript donc assurez-vous d’exécuter uniquement des gists auxquels vous faites confiance.
+GenAIScript est constitué de fichiers JavaScript, assurez-vous donc d'exécuter uniquement des gists en qui vous avez confiance.
 :::
 
 ## GistPad dans Visual Studio Code
 
-L’[extension GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs)
-pour Visual Studio Code permet de créer, éditer et gérer des gists directement depuis votre éditeur.
+L'[extension GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs) pour Visual Studio Code vous permet de créer, modifier et gérer des gists directement depuis votre éditeur.
 
-Vous pouvez ouvrir un fichier dans un Gist et l’exécuter à l’aide de la commande `genaiscript`.
+Vous pouvez ouvrir un fichier dans un Gist et l'exécuter en utilisant la commande `genaiscript`.
 
-### Vérification de types
+### Vérification de type
 
-Pour activer la vérification des types, il faut téléverser le fichier `genaiscript.d.ts` dans le gist et ajouter une référence à celui-ci
+Pour activer la vérification de type, nous devons télécharger le fichier `genaiscript.d.ts` dans le gist et mettre en place une référence à celui-ci
 en ajoutant ce commentaire **en haut du fichier** :
 
 ```js
 /// <reference path="./genaiscript.d.ts" />
 ```
 
-Cela peut se faire automatiquement :
+Cela peut être fait automatiquement :
 
 * clic droit sur le fichier GenAIScript du Gist
-* sélectionnez `GenAIScript: Fix Type Definitions`
-* Il se peut que l’on vous demande d’autoriser GenAIScript à utiliser votre compte GitHub. GenAIScript demandera un jeton avec le scope `gist` pour téléverser les fichiers manquants.
+* sélectionnez `GenAIScript : Corriger les définitions de types`
+* Vous pourriez être invité à autoriser GenAIScript à utiliser votre compte GitHub. GenAIScript demandera un jeton avec la portée `gist` pour télécharger les fichiers manquants.
 
-Pour charger les types GenAIScript, vous devrez “stimuler” le compilateur TypeScript :
+Pour charger les types GenAIScript, vous devrez "pousser" le compilateur TypeScript :
 
-* ouvrez le fichier `genaiscript.d.ts` à partir de l’arborescence GistPad (cela charge les types en mémoire)
-* ouvrez votre fichier GenAIScript dans l’arborescence GistPad et il devrait bénéficier de la vérification de types !
+* ouvrez le fichier `genaiscript.d.ts` depuis l'arborescence GistPad (cela charge les types en mémoire)
+* ouvrez votre fichier GenAIScript dans l'arborescence GistPad et la vérification de type devrait fonctionner !
 
-## Limites
+## Limitations
 
-Comme l’extension GistPad n’est pas un IDE complet, il existe certaines limites à prendre en compte :
+Comme l'extension GistPad n'est pas un IDE complet, il y a certaines limitations à prendre en compte :
 
-* les imports risquent probablement de ne pas se résoudre
+* les imports ne seront probablement pas résolus
 
 <hr />
 
-Traduit avec l’IA. Veuillez vérifier l’exactitude du contenu.
+Traduit par IA. Veuillez vérifier le contenu pour en assurer l'exactitude.
