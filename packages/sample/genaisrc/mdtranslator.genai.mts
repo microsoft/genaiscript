@@ -130,6 +130,11 @@ export default async function main() {
         }
       });
 
+      if (llmHashTodos.size === 0) {
+        output.resultItem(true, `No untranslated nodes found, skipping file.`);
+        continue;
+      }
+
       dbgt(`translated %O`, translated.children);
       let attempts = 0;
       while (llmHashTodos.size && attempts++ < maxPromptPerFile) {
