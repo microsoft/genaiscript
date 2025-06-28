@@ -1,10 +1,9 @@
 import { hash } from "crypto";
-import { classify, mdast } from "@genaiscript/runtime";
-import "mdast-util-mdxjs-esm";
+import { classify } from "@genaiscript/runtime";
+import { mdast } from "@genaiscript/mdast";
 import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
 import { dirname, join, relative } from "path";
 import { URL } from "url";
-import { chunk } from "../../core/dist/esm/encoders.js";
 script({
   accept: ".md,.mdx",
   files: "src/rag/markdown.md",

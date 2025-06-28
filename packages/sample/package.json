@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@genaiscript/runtime": "workspace:*",
+    "@genaiscript/mdast": "workspace:*",
     "ini": "^5.0.0",
     "uuid": "^11.1.0"
   },

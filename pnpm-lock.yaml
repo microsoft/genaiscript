@@ -834,6 +834,9 @@ importers:
 
   packages/sample:
     dependencies:
+      '@genaiscript/mdast':
+        specifier: workspace:*
+        version: link:../mdast
       '@genaiscript/runtime':
         specifier: workspace:*
         version: link:../runtime
