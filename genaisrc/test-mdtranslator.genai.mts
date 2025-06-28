@@ -71,34 +71,77 @@ function validateLinks(originalContent: string, translatedContent: string): {val
     }
 }
 
-// Test the link extraction functionality
-const testContent = `# Test
-[Link 1](https://example.com)
-[Link 2](https://test.com)
-[ref]: https://reference.com
+/**
+ * Test the enhanced link validation functionality
+ */
+
+// Test with a more complex markdown document
+const complexTestContent = `# Complex Test Document
+
+Here's an [inline link](https://example.com) and another [complex link with (parentheses)](https://test.com/path?param=value).
+
+Check out the [docs][docs] and [repo][repo].
+
+The same link appears [here](https://example.com) again.
+
+[docs]: https://microsoft.github.io/genaiscript/ "Documentation Title"
+[repo]: https://github.com/microsoft/genaiscript
+[unused]: https://unused.com
+
+## Code Examples
+\`\`\`
+// This should not be extracted: [fake](https://fake.com)
+\`\`\`
+
+Inline code like \`[not a link](https://ignored.com)\` should be ignored.
 `
 
-const links = extractLinks(testContent)
-console.log("Extracted links:", links)
+const complexGoodTranslation = `# Document de Test Complexe
 
-// Test with a simulated translation that preserves links
-const translatedContent = `# Test (Translated)
-[Lien 1](https://example.com)
-[Lien 2](https://test.com)
-[ref]: https://reference.com
+Voici un [lien en ligne](https://example.com) et un autre [lien complexe avec (parenthèses)](https://test.com/path?param=value).
+
+Consultez la [documentation][docs] et le [dépôt][repo].
+
+Le même lien apparaît [ici](https://example.com) encore.
+
+[docs]: https://microsoft.github.io/genaiscript/ "Documentation Title"
+[repo]: https://github.com/microsoft/genaiscript
+[unused]: https://unused.com
+
+## Exemples de Code
+\`\`\`
+// This should not be extracted: [fake](https://fake.com)
+\`\`\`
+
+Le code en ligne comme \`[not a link](https://ignored.com)\` devrait être ignoré.
 `
 
-const validation = validateLinks(testContent, translatedContent)
-console.log("Validation result:", validation)
+const complexBadTranslation = `# Document de Test Complexe
 
-// Test with a problematic translation (missing link)
-const problematicTranslation = `# Test (Problematic)
-[Lien 1](https://example.com)
-[ref]: https://reference.com
+Voici un [lien en ligne](https://example.com) et un autre [lien complexe](https://test.com/path?param=value).
+
+Consultez la [documentation][docs].
+
+[docs]: https://microsoft.github.io/genaiscript/ "Documentation Title"
 `
 
-const problemValidation = validateLinks(testContent, problematicTranslation)
-console.log("Problem validation result:", problemValidation)
+console.log("=== Testing Enhanced Link Extraction ===")
+const complexLinks = extractLinks(complexTestContent)
+console.log("Complex links found:", complexLinks.length)
+complexLinks.forEach(link => console.log(`  ${link.type}: "${link.text}" -> ${link.url} (line ${link.line})`))
+
+console.log("\n=== Testing Enhanced Validation (Good) ===")
+const complexGoodValidation = validateLinks(complexTestContent, complexGoodTranslation)
+console.log("Valid:", complexGoodValidation.valid)
+console.log("Issues:", complexGoodValidation.issues)
+console.log("Details:", JSON.stringify(complexGoodValidation.details, null, 2))
+
+console.log("\n=== Testing Enhanced Validation (Bad) ===")
+const complexBadValidation = validateLinks(complexTestContent, complexBadTranslation)
+console.log("Valid:", complexBadValidation.valid)
+console.log("Issues:", complexBadValidation.issues)
+
+console.log("\n✅ Enhanced link validation test completed")
 
 $`## Test Results
 
