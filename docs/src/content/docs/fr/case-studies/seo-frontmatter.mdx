@@ -1,0 +1,47 @@
+---
+title: Métadonnées SEO
+sidebar:
+  order: 2
+description: Apprenez à automatiser la création de métadonnées optimisées pour
+  le SEO dans vos documents markdown avec GenAIScript.
+keywords: SEO automation, front matter generation, markdown SEO, content
+  optimization, metadata management
+
+---
+
+import { Code, Steps } from '@astrojs/starlight/components';
+import importedCode from "../../../../../genaisrc/frontmatter.genai.mjs?raw";
+
+La génération et la maintenance de bonnes métadonnées SEO peuvent être une tâche fastidieuse. GenAIScript peut vous aider à automatiser ce processus.
+
+Le script ci-dessous générera des informations SEO et mettra à jour le fichier existant. Le script utilise une stratégie de fusion personnalisée pour fusionner les nouvelles métadonnées avec celles existantes.
+
+<Code code={importedCode} wrap={true} lang="js" title="slides.genai.mjs" />
+
+## Traitement par lots sur tous les fichiers
+
+Une fois le script ajusté sur quelques fichiers, vous pouvez automatiser son utilisation avec la [CLI](/genaiscript/reference/cli). La CLI dispose d'un indicateur **--apply-edits** pour appliquer les modifications au fichier.
+
+```sh
+for file in src/**/*.md; do
+  genaiscript run frontmatter "$file" --apply-edits
+```
+
+Vous pouvez exécuter cette commande dans votre pipeline CI/CD pour garder vos métadonnées SEO à jour.
+
+:::tip
+Ajoutez cette commande à votre `package.json` pour facilitaer son exécution à nouveau.
+
+```json title="package.json"
+{
+  ...
+  "scripts": {
+    "genai:frontmatter": "for file in \"src/**/*.md\"; do\ngenaiscript run frontmatter \"$file\" --apply-edits\ndone",
+  }
+}
+```
+:::
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

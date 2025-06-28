@@ -1,0 +1,67 @@
+---
+title: Que la vidéo soit !
+date: 2025-01-15
+authors:
+  - pelikhan
+tags:
+  - video
+  - ffmpeg
+canonical_url: https://microsoft.github.io/genaiscript/blog/video
+description: Ajoutez des vidéos à vos appels LLM.
+cover:
+  alt: A colorful, simplified illustration shows a futuristic desk setup. There's
+    a large computer screen with visual representations of video and audio, like
+    frames and waveforms. Surrounding the screen are stylized geometric symbols
+    for video and audio tools. The design uses abstract shapes in the background
+    to convey an atmosphere of creativity and innovation, drawing inspiration
+    from 8-bit style. It employs just five bold colors to keep the look clear
+    and corporate, with no people or language visible.
+  image: ./video.png
+excerpt: Analyze videos with ease. Traditional LLMs require timestamp-based
+  screenshots, often leading to context window issues. GenAIScript simplifies
+  video and audio analysis by enabling automated frame extraction and transcript
+  integration. Learn how tools and agents streamline these tasks for your
+  scripts in the documentation.
+
+---
+
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+La dernière version inclut la prise en charge de l'inclusion de vidéos et de transcriptions audio dans vos scripts.
+
+```js wrap
+const frames = await ffmpeg.extractFrames("demo.mp4", { transcription: true })
+def("DEMO", frames)
+
+$`Describe what happens in the <DEMO>.`
+```
+
+Supposons que vous souhaitiez analyser un fichier vidéo. Pour la plupart des LLM qui supportent les images, vous devrez extraire des captures d'écran à des horodatages précis, puis les envoyer sous forme de séquence d'images. Choisir ces horodatages peut être un défi car vous risquez d'épuiser la fenêtre de contexte. GenAIScript fournit des assistants pour résoudre ces tâches fastidieuses liées à l'analyse vidéo avec les LLM.
+
+* consultez la [documentation](/genaiscript/reference/scripts/videos).
+
+## outils et agents
+
+Nous proposons également d'encapsuler les nouvelles fonctionnalités dans des [outils](/genaiscript/reference/scripts/tools) et des [agents](/genaiscript/reference/scripts/agents) afin que vous puissiez les utiliser dans vos scripts.
+
+Par exemple, pour inclure l'outil d'extraction de frames afin que le LLM puisse l'appeler, vous pouvez utiliser l'extrait suivant :
+
+```js wrap
+script({
+    tools: "video_extract_frames",
+})
+```
+
+Ou laissez simplement l'agent travailler sur la vidéo pour vous.
+
+```js wrap
+script({
+    tools: "agent_video",
+})
+```
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

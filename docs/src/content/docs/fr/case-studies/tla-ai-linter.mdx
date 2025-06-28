@@ -1,0 +1,67 @@
+---
+title: TLA+ AI Linter
+sidebar:
+  order: 7
+description: Découvrez comment le TLA+ AI Linter exploite des scripts GenAI et
+  des LLMs pour améliorer les spécifications TLA+ grâce à un linting automatisé
+  et une vérification cohérente des commentaires.
+keywords: TLA+ linting, AI-powered linter, GenAI integration, automated code
+  review, distributed systems modeling
+
+---
+
+import { Image } from 'astro:assets';
+import { Code } from '@astrojs/starlight/components';
+import specSource from "../../../../../../packages/sample/src/tla/EWD998PCal.tla?raw";
+import actionSource from "../../../../../../packages/sample/src/tla/PR.yml?raw";
+import scriptSource from "../../../../../../packages/sample/src/tla/tlAI-Linter.genai.js?raw";
+import src from '../../../assets/tla-ai-linter.png';
+import alt from "../../../../assets/tla-ai-linter.png.txt?raw";
+
+[TLA+](https://lamport.azurewebsites.net/tla/tla.html) est un langage de haut niveau pour modéliser des programmes et des systèmes, en particulier ceux qui sont concurrents et distribués. Il repose sur l'idée que la meilleure façon de décrire les choses avec précision est d'utiliser des mathématiques simples.
+
+TLA+ ne dispose pas d'un linter ou d'un formateur traditionnel. Le TLA+ AI Linter est un script GenAI qui utilise des LLMs pour analyser les fichiers TLA+.
+
+## Spécifications TLA+
+
+Voici une spécification TLA+ qui modélise une solution fondamentale au [problème de détection de terminaison dans les systèmes distribués](https://www.cs.utexas.edu/users/EWD/ewd09xx/EWD998.PDF).
+
+<Code code={specSource} wrap={true} lang="txt" title="EWD998PCal.tla" />
+
+## Script
+
+Le script GenAI suivant analysera la spécification TLA+ ci-dessus. Plus précisément, il vérifiera si les commentaires en prose dans la spécification sont cohérents avec les définitions TLA+.
+
+<Code code={scriptSource} wrap={true} lang="js" title="tlAI-Linter.genai.mjs" />
+
+* des numéros de ligne sont ajoutés au contenu du fichier pour aider le LLM à localiser précisément les problèmes.
+
+```js "lineNumbers" wrap
+def("TLA+", env.files.filter(f => f.filename.endsWith(".tla")), {lineNumbers: true})
+```
+
+* le script utilise un support intégré pour les [annotations](/genaiscript/reference/scripts/annotations) afin de générer des avertissements et erreurs analysables. Les annotations sont automatiquement intégrées comme problèmes dans VSCode ou comme erreurs de compilation dans la chaîne CI/CD.
+
+```js "annotations"
+$`Report inconsistent and consistent pairs in a single ANNOTATION section.`
+```
+
+* GPT-4 connaît déjà beaucoup de choses sur la logique et les mathématiques de base. Cependant, le script liste également des idiomes communs à TLA+ pertinents pour analyser une spécification.
+
+## Github Action
+
+<Code code={actionSource} wrap={true} lang="yaml" title="PR.yml" />
+
+* après avoir cloné le dépôt et installé des dépendances telles que node.js, le script GenAI est exécuté pour analyser les spécifications TLA+ qui ont été ajoutées ou modifiées dans la Pull Request.
+
+* La sortie du script, c’est-à-dire les annotations générées par le LLM, est formatée comme un rapport [SARIF](https://sarifweb.azurewebsites.net) et [téléversée](https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github) dans la Pull Request.
+
+## Résultats
+
+Le linter a généré des annotations pour chaque commentaire en prose dans la spécification, et un commentaire a été trouvé incohérent avec les définitions TLA+. Un avertissement correspondant est ajouté à la Pull Request.
+
+<Image src={src} alt={alt} />
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

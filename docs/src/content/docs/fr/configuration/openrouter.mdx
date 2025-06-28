@@ -1,0 +1,37 @@
+---
+title: OpenRouter
+sidebar:
+  order: 50
+
+---
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+Vous pouvez configurer le fournisseur OpenAI pour utiliser à la place le service [OpenRouter](https://openrouter.ai/docs/quick-start) en définissant `OPENAI_API_BASE` sur `https://openrouter.ai/api/v1`.
+Vous aurez également besoin d'une [clé API](https://openrouter.ai/settings/keys).
+
+```txt title=".env"
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=...
+```
+
+Utilisez ensuite le nom du modèle OpenRouter dans votre script :
+
+```js
+script({ model: "openai:openai/gpt-4o-mini" })
+```
+
+Par défaut, GenAIScript définira l'URL et le nom du site sur `GenAIScript`, mais vous pouvez remplacer ces réglages avec vos propres valeurs :
+
+```txt title=".env"
+OPENROUTER_SITE_URL=... # populates HTTP-Referer header
+OPENROUTER_SITE_NAME=... # populate X-Title header
+```
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.
