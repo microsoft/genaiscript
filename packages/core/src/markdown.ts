@@ -179,14 +179,3 @@ export async function splitMarkdownTextImageParts(
     }
     return parts
 }
-
-// Re-export unified mdast functionality
-export {
-    parseMarkdownToMdast,
-    processMarkdownWithMdast,
-    stringifyMdast,
-    containsHtmlComments,
-    removeHtmlComments,
-    type MdastOptions,
-    type MdastRoot,
-} from "./unified"
