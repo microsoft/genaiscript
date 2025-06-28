@@ -216,6 +216,83 @@ const releases = await github.listReleases()
 console.log(releases)
 ```
 
+## GraphQL Queries
+
+Execute GraphQL queries against the GitHub API using the `graphql` method. This provides access to GitHub's full GraphQL API v4, which often allows more efficient data retrieval than REST APIs.
+
+```js
+// Basic repository information
+const query = `
+  query($owner: String!, $name: String!) {
+    repository(owner: $owner, name: $name) {
+      name
+      description
+      stargazerCount
+      forkCount
+      primaryLanguage {
+        name
+        color
+      }
+    }
+  }
+`
+
+const result = await github.graphql(query, {
+  owner: "microsoft",
+  name: "genaiscript"
+})
+
+console.log(result.repository)
+```
+
+You can also query multiple data points in a single request:
+
+```js
+// Get issues and pull requests together
+const complexQuery = `
+  query($owner: String!, $name: String!) {
+    repository(owner: $owner, name: $name) {
+      issues(first: 5, states: OPEN) {
+        nodes {
+          number
+          title
+          author { login }
+        }
+      }
+      pullRequests(first: 5, states: OPEN) {
+        nodes {
+          number
+          title
+          author { login }
+        }
+      }
+    }
+  }
+`
+
+const data = await github.graphql(complexQuery, {
+  owner: "microsoft", 
+  name: "genaiscript"
+})
+
+console.log("Open Issues:", data.repository.issues.nodes)
+console.log("Open PRs:", data.repository.pullRequests.nodes)
+```
+
+The GraphQL method supports TypeScript generics for type safety:
+
+```js
+interface RepositoryData {
+  repository: {
+    name: string
+    stargazerCount: number
+  }
+}
+
+const result = await github.graphql<RepositoryData>(query, variables)
+// result is now properly typed
+```
+
 ## Octokit access
 
 Utilize [octokit](https://www.npmjs.com/package/octokit) to access the full GitHub APIs.

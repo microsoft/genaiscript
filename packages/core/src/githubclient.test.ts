@@ -134,4 +134,34 @@ describe("GitHubClient", async () => {
         assert(resolved.files[0].content)
         assert.strictEqual(resolved.files[0].type, "image/jpeg")
     })
+
+    await test("graphql() executes GraphQL query", async () => {
+        // Test with a simple GraphQL query to get repository information
+        const query = `
+            query($owner: String!, $name: String!) {
+                repository(owner: $owner, name: $name) {
+                    name
+                    description
+                    stargazerCount
+                }
+            }
+        `
+        const info = await client.info()
+        const variables = {
+            owner: info.owner,
+            name: info.repo
+        }
+        
+        const result = await client.graphql<{
+            repository: {
+                name: string
+                description: string
+                stargazerCount: number
+            }
+        }>(query, variables)
+        
+        assert(result.repository)
+        assert(result.repository.name === info.repo)
+        assert(typeof result.repository.stargazerCount === "number")
+    })
 })

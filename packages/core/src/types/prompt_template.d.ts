@@ -3876,6 +3876,13 @@ interface GitHub {
     resolveAssetUrl(url: string): Promise<string | undefined>
 
     /**
+     * Executes a GraphQL query against the GitHub API
+     * @param query The GraphQL query string
+     * @param variables Optional variables for the query
+     */
+    graphql<T = any>(query: string, variables?: Record<string, any>): Promise<T>
+
+    /**
      * Gets the underlying Octokit client
      */
     api(): Promise<any>

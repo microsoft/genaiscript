@@ -1661,6 +1661,21 @@ export class GitHubClient implements GitHub {
         }
         return res
     }
+
+    async graphql<T = any>(query: string, variables?: Record<string, any>): Promise<T> {
+        const { client } = await this.api()
+        dbg(`executing GraphQL query: ${query.slice(0, 100)}...`)
+        dbg(`GraphQL variables: %O`, variables)
+        
+        try {
+            const result = await client.graphql<T>(query, variables)
+            dbg(`GraphQL query executed successfully`)
+            return result
+        } catch (error) {
+            dbg(`GraphQL query failed: %O`, error)
+            throw error
+        }
+    }
 }
 
 function parseJobLog(text: string) {
