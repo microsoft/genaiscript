@@ -791,9 +791,6 @@ importers:
       ini:
         specifier: ^5.0.0
         version: 5.0.0
-      mdast-util-mdxjs-esm:
-        specifier: ^2.0.1
-        version: 2.0.1
       uuid:
         specifier: ^11.1.0
         version: 11.1.0

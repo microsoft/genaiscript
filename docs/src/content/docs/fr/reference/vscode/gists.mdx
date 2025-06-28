@@ -1,0 +1,78 @@
+---
+title: GitHub Gists
+description: Utilisez les gists pour partager des extraits de code GenAIScript.
+sidebar:
+  order: 20
+hero:
+  image:
+    alt: A simple 2D 8-bit style illustration at 128x128 pixels displays a geometric
+      computer screen with two overlapping windows. One window shows code
+      snippets, and the other features icons for version control. Additional
+      symbols include a cloud for sharing, a stylized lock symbolizing secret
+      content, a gear for settings, and a minimalistic folder. The color palette
+      uses five solid corporate colors in a flat, minimalist design with no
+      people, text, shadows, or background.
+    file: ../../../reference/vscode/gists.png
+
+---
+
+[GitHub Gists](https://gist.github.com/) sont un moyen simple de partager des extraits de code et des notes avec d'autres personnes.
+Ce sont essentiellement des dépôts Git qui peuvent être créés et partagés facilement.
+Les gists peuvent être publics ou secrets, et ils supportent le versionnage, ce qui en fait un excellent outil pour la collaboration.
+
+![Une capture d’écran de GistPad dans Visual Studio Code](../../../reference/vscode/gistpad.png)
+
+## Exécuter GenAIScript depuis des Gists
+
+GenAIScript prend en charge les formats d’URL suivants pour exécuter des scripts directement depuis un gist.
+
+* `gist://<id du gist>/<nom du fichier>`
+* `vscode://vsls-contrib.gistfs/open?gist=<id du gist>&file=<fichier>`
+
+```sh
+genaiscript run gist://8f7db2674f7b0eaaf563eae28253c2b0/poem.genai.mts
+```
+
+Le fichier gist est mis en cache localement dans `.genaiscript/resources` puis exécuté. Si disponible,
+il utilise les informations de connexion GitHub pour accéder aux gists privés.
+
+:::caution
+GenAIScript sont des fichiers JavaScript donc assurez-vous d’exécuter uniquement des gists auxquels vous faites confiance.
+:::
+
+## GistPad dans Visual Studio Code
+
+L’[extension GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs)
+pour Visual Studio Code permet de créer, éditer et gérer des gists directement depuis votre éditeur.
+
+Vous pouvez ouvrir un fichier dans un Gist et l’exécuter à l’aide de la commande `genaiscript`.
+
+### Vérification de types
+
+Pour activer la vérification des types, il faut téléverser le fichier `genaiscript.d.ts` dans le gist et ajouter une référence à celui-ci
+en ajoutant ce commentaire **en haut du fichier** :
+
+```js
+/// <reference path="./genaiscript.d.ts" />
+```
+
+Cela peut se faire automatiquement :
+
+* clic droit sur le fichier GenAIScript du Gist
+* sélectionnez `GenAIScript: Fix Type Definitions`
+* Il se peut que l’on vous demande d’autoriser GenAIScript à utiliser votre compte GitHub. GenAIScript demandera un jeton avec le scope `gist` pour téléverser les fichiers manquants.
+
+Pour charger les types GenAIScript, vous devrez “stimuler” le compilateur TypeScript :
+
+* ouvrez le fichier `genaiscript.d.ts` à partir de l’arborescence GistPad (cela charge les types en mémoire)
+* ouvrez votre fichier GenAIScript dans l’arborescence GistPad et il devrait bénéficier de la vérification de types !
+
+## Limites
+
+Comme l’extension GistPad n’est pas un IDE complet, il existe certaines limites à prendre en compte :
+
+* les imports risquent probablement de ne pas se résoudre
+
+<hr />
+
+Traduit avec l’IA. Veuillez vérifier l’exactitude du contenu.

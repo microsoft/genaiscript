@@ -1,8 +1,7 @@
 import { hash } from "crypto";
 import { classify, mdast } from "@genaiscript/runtime";
 import "mdast-util-mdxjs-esm";
-import type { MdxjsEsm } from "mdast-util-mdxjs-esm";
-import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml, Literal } from "mdast";
+import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
 import { dirname, join, relative } from "path";
 script({
   accept: ".md,.mdx",
@@ -301,8 +300,11 @@ export default async function main() {
 
         // apply translations
         translated = structuredClone(root);
-        visitParents(translated, [...nodeTypes, "mdxjsEsm"], (node, ancestors) => {
-          if (node.type === "mdxjsEsm") {
+        visitParents(translated, [...nodeTypes, "mdxjsEsm", "image"], (node, ancestors) => {
+          if (node.type === "image") {
+            node.url = patchFn(node.url);
+            return SKIP;
+          } else if (node.type === "mdxjsEsm") {
             const rx = /^import\s+(.*)\s+from\s+\"(\.\.\/.*)";?$/gm;
             node.value = node.value.replace(rx, (m, i, p) => {
               const r = `import ${i} from "${patchFn(p)}";`;
