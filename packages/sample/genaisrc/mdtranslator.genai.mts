@@ -162,7 +162,7 @@ export default async function main() {
           } else {
             // mark untranslated nodes with a unique identifier
             if (node.type === "text") {
-              if (!/\s*[.,:;<>\]\[{}\(\)]+\s*/.test(node.value) && !isUri(node.value)) {
+              if (!/\s*[.,:;<>\]\[{}\(\)…]+\s*/.test(node.value) && !isUri(node.value)) {
                 dbg(`text node: %s`, nhash);
                 // compress long hash into LLM friendly short hash
                 const llmHash = `T${Object.keys(llmHashes).length.toString().padStart(3, "0")}`;
