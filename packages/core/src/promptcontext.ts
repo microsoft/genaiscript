@@ -49,7 +49,7 @@ import type {
   WorkspaceGrepOptions,
 } from "./types.js";
 
-const dbg = genaiscriptDebug("ctx");
+const dbgc = genaiscriptDebug("ctx");
 
 /**
  * Creates a prompt context for the specified project, variables, trace, options, and model.
@@ -70,7 +70,7 @@ export async function createPromptContext(
   const { trace, cancellationToken } = options;
   const { generator, vars, dbg, output, ...varsNoGenerator } = ev;
 
-  dbg(`create`);
+  dbgc(`create`);
   // Clone variables to prevent modification of the original object
   const env = {
     generator,
@@ -280,7 +280,7 @@ export async function createPromptContext(
         model: configuration?.model,
         modelId: modelId,
       } satisfies LanguageModelReference;
-      dbg(`model: %O`, res);
+      dbgc(`model: %O`, res);
       return res;
     },
     resolveLanguageModelProvider: async (id, options) => {
@@ -293,7 +293,7 @@ export async function createPromptContext(
         token: true,
       });
       if (provider.error) {
-        dbg(`Error resolving provider %s: %s`, id, provider.error);
+        dbgc(`Error resolving provider %s: %s`, id, provider.error);
         return undefined;
       }
       return deleteUndefinedValues({
