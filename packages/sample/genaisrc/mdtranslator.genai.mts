@@ -31,7 +31,7 @@ function hashNode(node: Node, ancestors: Node[]): string {
 }
 const maxPromptPerFile = 5;
 const nodeTypes = ["text", "paragraph", "heading"];
-const starlightDir = "docs/src/contents/docs";
+const starlightDir = "docs/src/content/docs";
 type NodeType = Text | Paragraph | Heading;
 const langs = {
   fr: "French",
