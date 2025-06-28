@@ -7,9 +7,9 @@ sidebar:
 
 import { PackageManagers } from "starlight-package-managers";
 
-Ces assistants d’exécution offrent une interface conviviale autour de [remark](https://github.com/remarkjs/remark), [mdast](https://github.com/syntax-tree/mdast), [unified](https://github.com/syntax-tree/unist)écosystème afin d’analyser et de manipuler des documents Markdown.
+Ces assistants à l’exécution offrent une interface conviviale autour de l’écosystème [remark](https://github.com/remarkjs/remark), [mdast](https://github.com/syntax-tree/mdast), [unified](https://github.com/syntax-tree/unist) pour analyser et manipuler des documents Markdown.
 
-Pour bénéficier de l'autocomplétion de types, vous devrez installer le paquet `@types/mdast`\`@types/mdast\` en tant que dépendance de développement.
+Pour bénéficier de la complétion de types, vous devrez installer le paquet `@types/mdast` en tant que dépendance de développement.
 
 <PackageManagers pkg="@types/mdast" dev />
 
@@ -23,13 +23,13 @@ import { mdast } from "@genaiscript/runtime";
 const { parse, visit, stringify } = await mdast();
 ```
 
-* analyse vers un arbre mdast
+* analyser vers un arbre mdast
 
 ```typescript
 const root = parse("# Hello World");
 ```
 
-* parcourir l’arbre (voir [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))
+* parcourir l’arbre (voir la [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))
 
 ```typescript
 const updated = visit(root, `code`, (node) => {
@@ -45,4 +45,4 @@ const markdown = await stringify(updated);
 
 <hr />
 
-Traduit à l’aide de l’IA. Veuillez vérifier le contenu pour en garantir l’exactitude.
+Traduit avec l’IA. Veuillez vérifier l’exactitude du contenu.

@@ -183,5 +183,12 @@
   "4D1DAE8D932F0E09176E": "parcourir l’arbre (voir ",
   "47A88FFA4C67D74D2300": ")",
   "12FFE51BCC2B286B4C6B": "sérialiser l’arbre de nouveau en Markdown",
-  "22D7753B1DBD53F621E3": "Traduit à l’aide de l’IA. Veuillez vérifier le contenu pour en garantir l’exactitude."
+  "22D7753B1DBD53F621E3": "Traduit à l’aide de l’IA. Veuillez vérifier le contenu pour en garantir l’exactitude.",
+  "7FF4A579A373349036EF": "Ces assistants à l’exécution offrent une interface conviviale autour de l’écosystème [remark](https://github.com/remarkjs/remark), [mdast](https://github.com/syntax-tree/mdast), [unified](https://github.com/syntax-tree/unist) pour analyser et manipuler des documents Markdown.",
+  "B97AD2FDFF4E97817CD3": "Pour bénéficier de la complétion de types, vous devrez installer le paquet `@types/mdast` en tant que dépendance de développement.",
+  "88EE574108F304F2E1E4": "charger les parseurs",
+  "2B652AE7037011442E86": "analyser vers un arbre mdast",
+  "742232A1BD5BD5EEEEA4": "parcourir l’arbre (voir la [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))",
+  "750B426709E8940B01A1": "sérialiser l’arbre de nouveau en Markdown",
+  "F4636CADBC2A666FBFB7": "Traduit avec l’IA. Veuillez vérifier l’exactitude du contenu."
 }

@@ -1,6 +1,6 @@
 import { hash } from "crypto";
 import { classify, mdast } from "@genaiscript/runtime";
-import type { Node, Text } from "mdast";
+import type { Node, Text, Paragraph, PhrasingContent } from "mdast";
 script({
   accept: ".md,.mdx",
   files: "src/rag/markdown.md",
@@ -29,6 +29,7 @@ function hashNode(node: Node, ancestors: Node[]): string {
   return chunkHash.slice(0, HASH_LENGTH).toUpperCase();
 }
 const maxPromptPerFile = 5;
+const nodeTypes = ["text", "paragraph"];
 const langs = {
   fr: "French",
 };
@@ -45,7 +46,7 @@ export default async function main() {
     .filter(Boolean);
   const dbgc = host.logger(`script:md`);
   const dbgt = host.logger(`script:tree`);
-  const { parse, stringify, visitParents } = await mdast();
+  const { parse, stringify, visitParents, SKIP } = await mdast();
 
   for (const to of tos) {
     let lang = langs[to];
@@ -68,7 +69,6 @@ export default async function main() {
       : (await workspace.readJSON(cacheFn)) || {};
     dbgc(`translation cache: %O`, translationCache);
 
-    const nodeTypes = ["text"];
     for (const file of files) {
       const { filename } = file;
       let content = file.content;
@@ -87,10 +87,10 @@ export default async function main() {
       dbgt(`original %O`, root.children);
 
       // collect original nodes nodes
-      const nodes: Record<string, Text> = {};
+      const nodes: Record<string, Text | Paragraph> = {};
       visitParents(root, nodeTypes, (node, ancestors) => {
         const hash = hashNode(node, ancestors);
-        nodes[hash] = node as Text;
+        nodes[hash] = node as Text | Paragraph;
       });
 
       const llmHashes: Record<string, string> = {};
@@ -111,8 +111,18 @@ export default async function main() {
           llmHashTodos.add(llmHash);
 
           // mark untranslated nodes with a unique identifier
-          if (node.type === "text" && node.value) {
+          if (node.type === "text") {
             node.value = `┌${llmHash}┐${node.value}└${llmHash}┘`;
+          } else if (node.type === "paragraph") {
+            node.children.unshift({
+              type: "text",
+              value: `┌${llmHash}┐`,
+            } as Text);
+            node.children.push({
+              type: "text",
+              value: `└${llmHash}┘`,
+            });
+            return SKIP; // don't process children of paragraphs
           } else {
             dbg(`untranslated node type: %s`, node.type);
           }
@@ -173,6 +183,7 @@ export default async function main() {
       - Do not translate the text outside of the HASH tags.
       - Do not change the structure of the document.
       - As much as possible, maintain the original formatting and structure of the document.
+      - Do not translate inline code blocks, code blocks, or any other code-related content.
 
       `.role("system");
           },
@@ -218,8 +229,12 @@ export default async function main() {
         const translation = translationCache[hash];
         if (translation) {
           if (node.type === "text") {
-            dbg(`translated: %s -> %s`, hash, translation);
+            dbg(`translated text: %s -> %s`, hash, translation);
             node.value = translation;
+          } else if (node.type === "paragraph") {
+            dbg(`translated paragraph: %s -> %s`, hash, translation);
+            const newNodes = parse(translation).children as PhrasingContent[];
+            node.children.splice(0, node.children.length, ...newNodes);
           } else {
             dbg(`untranslated node type: %s`, node.type);
           }
