@@ -401,7 +401,7 @@ export default async function main() {
           },
           {
             ok: `Translation is faithful to the original document and conveys the same meaning.`,
-            bad: `Translation is of low quality or poor usage of ${lang}.`,
+            bad: `Translation is of low quality or has a different meaning from the original.`,
           },
           {
             model: "large",
