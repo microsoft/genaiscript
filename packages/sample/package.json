@@ -11,8 +11,8 @@
     "test:scripts": "node ../cli/dist/src/index.js test --remove-out -r"
   },
   "dependencies": {
-    "@genaiscript/mdast": "workspace:*",
     "@genaiscript/runtime": "workspace:*",
+    "@genaiscript/plugin-mdast": "workspace:*",
     "ini": "^5.0.0",
     "mdast-util-mdxjs-esm": "^2.0.1",
     "uuid": "^11.1.0"

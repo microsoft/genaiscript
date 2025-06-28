@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@genaiscript/runtime": "workspace:*",
-    "@genaiscript/mdast": "workspace:*"
+    "@genaiscript/plugin-mdast": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

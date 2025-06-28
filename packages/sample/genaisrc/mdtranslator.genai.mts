@@ -1,6 +1,6 @@
 import { hash } from "crypto";
 import { classify } from "@genaiscript/runtime";
-import { mdast } from "@genaiscript/mdast";
+import { mdast } from "@genaiscript/plugin-mdast";
 import "mdast-util-mdxjs-esm";
 import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
 import { basename, dirname, join, relative } from "path";
