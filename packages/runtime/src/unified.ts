@@ -16,6 +16,7 @@ export async function mdast() {
   const { default: stringify } = await import("remark-stringify");
   const { visit, CONTINUE, EXIT, SKIP } = await import("unist-util-visit");
   const { visitParents } = await import("unist-util-visit-parents");
+  await import("mdast-util-mdxjs-esm");
 
   function mdastParse(file: string | WorkspaceFile): Root {
     const content = filenameOrFileToContent(file);

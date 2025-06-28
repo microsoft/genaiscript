@@ -22,6 +22,7 @@
     "execa": "catalog:",
     "glob": "^11.0.3",
     "mdast": "^3.0.0",
+    "mdast-util-mdxjs-esm": "^2.0.1",
     "memorystream": "^0.3.1",
     "playwright": "^1.53.1",
     "remark": "^15.0.1",

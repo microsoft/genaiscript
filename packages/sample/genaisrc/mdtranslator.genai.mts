@@ -1,7 +1,9 @@
 import { hash } from "crypto";
 import { classify, mdast } from "@genaiscript/runtime";
-import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
-import { basename, dirname, join, relative, resolve } from "path";
+import "mdast-util-mdxjs-esm";
+import type { MdxjsEsm } from "mdast-util-mdxjs-esm";
+import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml, Literal } from "mdast";
+import { dirname, join, relative } from "path";
 script({
   accept: ".md,.mdx",
   files: "src/rag/markdown.md",
@@ -111,7 +113,7 @@ export default async function main() {
         // parse to tree
         const root = parse(content);
         dbgt(`original %O`, root.children);
-
+        await host.confirm("inspect");
         // collect original nodes nodes
         const nodes: Record<string, NodeType> = {};
         visitParents(root, nodeTypes, (node, ancestors) => {
@@ -299,8 +301,16 @@ export default async function main() {
 
         // apply translations
         translated = structuredClone(root);
-        visitParents(translated, nodeTypes, (node, ancestors) => {
-          if (node.type === "yaml") {
+        visitParents(translated, [...nodeTypes, "mdxjsEsm"], (node, ancestors) => {
+          if (node.type === "mdxjsEsm") {
+            const rx = /^import\s+(.*)\s+from\s+\"(\.\.\/.*)";?$/gm;
+            node.value = node.value.replace(rx, (m, i, p) => {
+              const r = `import ${i} from "${patchFn(p)}";`;
+              dbg(`mdxjsEsm import: %s -> %s`, m, r);
+              return r;
+            });
+            return SKIP;
+          } else if (node.type === "yaml") {
             const data = parsers.YAML(node.value);
             if (data) {
               if (starlight && data?.hero?.image?.file) {
