@@ -1,0 +1,47 @@
+---
+title: Vidéo
+description: Découvrez diverses commandes liées à la vidéo
+sidebar:
+  order: 3
+keywords: CLI tool execution, genai script running, stdout streaming, file
+  globing, environment configuration
+hero:
+  image:
+    alt: A small, flat, geometric video player rectangle sits at the center, with
+      four simple 8-bit icons—film strip, speaker, waveform, and
+      clock—positioned near each corner. Each icon uses a solid color and basic
+      shapes. The image has no background, text, or people, and uses only five
+      corporate color tones in a minimal, retro 128x128 pixel style.
+    file: ../../../reference/cli/video.png
+
+---
+
+Certaines des [fonctionnalités de traitement vidéo](/genaiscript/reference/scripts/videos) sont également disponibles dans la CLI.
+
+### `video probe`
+
+Affiche le résultat de `ffprobe` dans la console.
+
+```sh
+genaiscript video probe myvid.mp4
+```
+
+### `video extract-audio`
+
+Extrait l’audio dans un format plus léger, optimisé pour la transcription.
+
+```sh
+genaiscript video extract-audio myvid.mp4
+```
+
+### `video extract-frames`
+
+Extrait des captures d’écran de la vidéo. Vous pouvez spécifier les timestamps en secondes ou sous le format `h:mm:ss`, ou encore un nombre de captures.
+
+```sh
+genaiscript video extract-video myvid.mp4
+```
+
+<hr />
+
+Traduit à l'aide de l'IA. Veuillez vérifier l'exactitude du contenu.

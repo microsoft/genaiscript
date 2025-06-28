@@ -1,0 +1,132 @@
+---
+title: Note de transparence
+sidebar:
+  order: 99
+description: Découvrez le framework GenAIScript, ses capacités, ses cas
+  d'utilisation et les meilleures pratiques pour une intégration responsable de
+  l'IA.
+keywords: AI scripting, LLM integration, VS Code extension, AI automation, responsible AI
+lastUpdated: 2024-04-13
+hero:
+  image:
+    alt: A minimalistic 8-bit graphic featuring a stylized laptop with a VS Code
+      extension icon in the center, surrounded by colorful geometric file icons
+      representing various formats. Arrows connect these elements to a
+      circuit-themed AI brain symbol, all illustrated with sharp, interconnected
+      shapes in a palette of five corporate colors. The image includes no
+      people, text, gradients, or background, and is sized at 128 by 128 pixels.
+    file: ../../reference/transparency-note.png
+
+---
+
+## Principes de base de GenAIScript
+
+### Introduction
+
+GenAIScript est un framework qui permet aux équipes, y compris les non-développeurs, de créer et d'utiliser des scripts enrichis par l'IA pour soutenir leurs flux de travail. GenAIScript offre un support pour la création et le débogage de scripts JavaScript qui intègrent des appels à des modèles fondamentaux et à des LLM \[^1] lors de leur exécution. GenAIScript est un framework de programmation qui permet à ses utilisateurs de concevoir des scripts d’IA (que nous appelons des GenAIScripts), de les déboguer dans un environnement de développement qui est une extension de VS Code, et de les emballer dans une interface en ligne de commande pouvant être déployée dans de nombreux contextes.
+
+Notre extension VS Code facilite la création d'un GenAIScript en rédigeant du langage naturel en syntaxe markdown, accompagné d'une petite quantité de code JavaScript stylisé. Notre framework permet aux utilisateurs d'utiliser plusieurs modèles LLM, de paramétrer les appels aux modèles, d'exécuter et de déboguer des scripts, de tracer la construction des invites LLM et de fournir une trace complète de l'exécution, de la construction de l'invite à la génération LLM jusqu’au parsing du résultat. Notre framework permet également d'extraire plusieurs formes de sortie des générations LLM, y compris des fichiers de différents types, des sorties destinées à modifier des fichiers existants et des formats structurés tels que JSON.
+
+### Termes clés
+
+**GenAIScript** Un programme JavaScript stylisé qui définit le contexte de l'appel LLM, permet l'exécution de code JavaScript arbitraire, met en forme l'entrée pour l'invite LLM, appelle le LLM et décompresse la sortie du LLM selon les instructions fournies dans l'invite.
+
+**GPVM** : Un système d’exécution qui, étant donné un GenAIScript, exécute le GenAIScript, ce qui consiste à intégrer le contexte dans une invite, à appeler le LLM spécifié, puis à extraire le contenu du résultat du LLM.
+
+**Extension GenAIScript pour VS Code** Un module complémentaire à VS Code qui fournit aux utilisateurs des moyens simples de créer, éditer, exécuter et déboguer des GenAIScripts.
+
+**Modèles fondamentaux et LLM** Bien que GenAIScript prenne actuellement en charge plusieurs LLM, nous prévoyons d'intégrer à l'avenir d'autres modèles fondamentaux au-delà des grands modèles de langage.
+
+## Capacités
+
+### Comportement du système
+
+GenAIScript est un framework généraliste pour la création de scripts IA, facilitant l'intégration fluide de l'exécution de code avec l’appel à des modèles fondamentaux/LLM. Un GenAIScript est un programme JavaScript possédant une structure stylisée permettant aux utilisateurs de définir facilement le contexte et l’invite du LLM, d’invoquer un modèle donné et de parser le résultat selon les spécifications de l’utilisateur. Cette fonctionnalité permet même aux non-programmeurs d’inspecter les résultats du modèle et de les vérifier pour s’assurer de leur exactitude.
+
+GenAIScript peut être écrit dans n'importe quel IDE, mais l’extension GenAIScript pour VS Code facilite particulièrement la création, l’exécution et le débogage. Les utilisateurs de GenAIScript peuvent créer des outils qui génèrent et éditent plusieurs fichiers avec un outil unique, et notre intégration avec VS Code exploite les fonctionnalités existantes de refactoring pour permettre aux utilisateurs de visualiser facilement les résultats de l'exécution de l'outil. L’extension prend en charge la création d’un nouveau GenAIScript, l’invocation d’un GenAIScript donné, le traçage de l’exécution du GenAIScript pour constituer le contexte LLM et l'invite finale, ainsi que l’extraction de la sortie du LLM dans les éléments spécifiés par l’utilisateur. Des exemples de toutes ces fonctionnalités sont consultables dans la documentation du dépôt GenAIScript : [microsoft/GenAIScript: Generative AI Scripting (github.com)](https://microsoft.github.io/genaiscript/)
+
+Le but de GenAIScript est d’offrir à un large éventail d'utilisateurs la possibilité d’innover en créant des scripts dopés par l’IA et d’identifier de nouveaux moyens de tirer parti de l’IA dans leur quotidien. Nous pensons que les développeurs professionnels, habitués à écrire et utiliser des scripts pour gagner en productivité, seront les premiers adoptants de GenAIScript. Ces utilisateurs y gagneront car GenAIScript permet de réaliser de nombreuses tâches impossibles à accomplir par les scripts classiques en JavaScript ou Python. Bien que les développeurs puissent utiliser d’autres frameworks comme langchain ou Semantic Kernel pour intégrer l’appel à des LLM en Python, ces frameworks requièrent plus d’efforts côté utilisateur et offrent moins de prise en charge IDE que GenAIScript. Au final, parce que notre objectif est de rendre GenAIScript facile à écrire, modifier, déboguer et exécuter, nous anticipons une utilité bien au-delà des seuls développeurs professionnels. Un impact majeur de GenAIScript sera d’autoriser les non-développeurs à innover et créer des GenAIScripts qui décuplent leur efficacité. Nous illustrons ce point par les exemples ci-dessous.
+
+### Documentation
+
+Pour aider les utilisateurs à se lancer avec GenAIScript, nous proposons dans notre dépôt une documentation illustrant, sous forme d’extraits de code, le contenu de plusieurs GenAIScripts différents. La documentation montre à la fois l’aspect du GenAIScript exemple et l’effet produit sur une entrée particulière. Bien que ces exemples servent à expliquer la technologie, ils ne sont pas destinés à constituer une base pour les outils écrits par les utilisateurs.
+
+### Cas d’utilisation
+
+#### Usages prévus
+
+GenAIScript peut être utilisé dans tout contexte où un script en ligne de commande dans un autre langage de programmation pourrait être utilisé, mais les cas d’utilisation sont bien plus ambitieux car un LLM peut faire bien plus qu’un code ordinaire. Voici quelques exemples :
+
+* **Vérification des incohérences potentielles dans une collection de fichiers de configuration ou d'autres contenus.** En utilisant le LLM, un GenAIScript peut examiner des fichiers de configuration et tirer parti de la compréhension du LLM des erreurs de configuration courantes pour les détecter et les signaler. Avant les LLM, les développeurs professionnels écrivaient des outils, comme lint\[^2], qui sont des programmes complexes détectant les incohérences dans la syntaxe de leurs fichiers de code. Avec GenAIScript, des outils de vérification peuvent être écrits pour des scénarios bien plus riches (comme la détection de noms de variables inappropriés), et ce, par des personnes qui ne sont pas des développeurs professionnels.
+
+* **Automatisation de la traduction de documents :** Étant donné une documentation dans un dépôt écrite dans une langue naturelle, un GenAIScript peut être écrit pour traduire cette documentation dans une autre langue. Un exemple concret soulignant l’importance de GenAIScript pour ce cas d’usage est la localisation de la documentation MakeCode\[^3]. La documentation MakeCode comprend près de 2 millions de fichiers, généralement en markdown mêlé à des extraits de code. Beaucoup de documents sont seulement partiellement traduits (au niveau du paragraphe). Pour vérifier la correction des traductions, il existe 3 500 traducteurs bénévoles enregistrés pour plus de 35 langues. On ne peut pas simplement appliquer Bing Translate dans ce cas, car cela détruirait en général les extraits de code. Avec GenAIScript, nous pouvons avoir un script qui parcourt chaque fichier de documentation, extrait la version localisée actuelle et assemble une invite pour demander au LLM de compléter uniquement les traductions manquantes, en préservant celles déjà en place. En outre, le modèle LLM que nous utilisons a déjà été entraîné sur les exemples et la documentation MakeCode, il est donc sensibilisé à la syntaxe.
+
+* **Création d'une version courte d'un rapport long en résumant chaque chapitre.** Les LLM sont très efficaces pour résumer des documents. Un GenAIScript peut être écrit pour prendre chaque chapitre d’un long document et en faire un résumé dans une section d’un document plus court.
+
+* **Conversion d'un monologue en dialogue.** À partir d’un monologue tiré d’une transcription vidéo, un GenAIScript peut être conçu pour réécrire ce monologue en un dialogue entre deux personnes (comme des commentateurs sportifs se répondant) afin de rendre la vidéo plus attrayante et accessible.
+
+#### Usages non prévus
+
+GenAIScript est un framework généraliste pour la création de scripts. De ce fait, un adversaire peut utiliser GenAIScript pour créer des scripts malveillants à des fins nuisibles. Tous les usages adversariaux de GenAIScript pourraient aussi être mis en œuvre via d’autres frameworks d’extension pour LLM tels que Semantic Kernel, autogen et langchain, de sorte que le risque lié aux usages non prévus de GenAIScript vient du fait qu’il pourrait être plus facile d’écrire de tels scripts. Ce problème est présent dans toute infrastructure qui facilite la programmation, y compris des langages comme PowerShell, JavaScript ou Python, ainsi que les IDE comme VS Code et Visual Studio. Bien que nous ne puissions empêcher les usages non souhaités, nous encourageons les utilisateurs à considérer les bonnes pratiques d’IA responsable lors du développement de leurs GenAIScripts. Plus de détails sur les questions de sécurité et de confiance dans [sécurité et confiance](https://microsoft.github.io/genaiscript/reference/security-and-trust/).
+
+#### Bonnes pratiques pour les modèles fondamentaux
+
+Nous encourageons fortement les utilisateurs de GenAIScript à utiliser des modèles fondamentaux et LLM qui intègrent de solides mesures d’atténuation pour une IA responsable, telles que les services Azure Open AI (AOAI). Ces services mettent constamment à jour leurs protections et mécanismes RAI pour refléter l’état de l’art en matière de déploiement et d’utilisation responsables des modèles fondamentaux. Voici quelques ressources pour comprendre et appliquer les meilleures pratiques lors de l’usage de tels modèles pour des scripts et applications :
+
+* [Article de blog sur les fonctionnalités d’IA responsable dans AOAI présentées à Ignite 2023](https://techcommunity.microsoft.com/t5/ai-azure-ai-services-blog/announcing-new-ai-safety-amp-responsible-ai-features-in-azure/ba-p/3983686)
+* [Note de transparence pour Azure OpenAI Service](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/transparency-note?tabs=text)
+* [Pratiques recommandées de l’Office Microsoft pour l’IA Responsable (ORA) sur l’utilisation des modèles AOAI](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/overview)
+
+Nous recommandons de consulter la documentation sur la [Sécurité des contenus](/genaiscript/reference/scripts/content-safety) pour en savoir plus sur les moyens de se prémunir contre les contenus préjudiciables et le contournement des protections.
+
+## Limitations
+
+GenAIScript est un framework en évolution qui s'améliorera grâce aux retours des utilisateurs. Les limitations actuelles incluent une intégration à un seul IDE (VS Code), un support natif des API OpenAI et un nombre relativement faible d'autres LLM. Nous comptons permettre aux utilisateurs d'intégrer des appels à des services externes (comme RAG) dans GenAIScript afin d'apporter davantage de contexte au LLM. Nous prévoyons d’ajouter le support de modèles fondamentaux supplémentaires à mesure que les cas d’utilisation évolueront.
+
+Nous anticipons aussi une évolution du parcours d’intégration à GenAIScript. Nous avons exploré l’intégration de GenAIScript dans l’expérience Copilot Chat de VS Code (accessible via VS Code Insider’s Edition). Nous comprenons aussi que certains développeurs préféreraient implémenter leur GenAIScript en Python plutôt qu’en JavaScript. Nous envisageons de proposer une liaison Python pour l’écriture de GenAIScripts à l’avenir.
+
+### Limitations techniques, facteurs opérationnels et plages
+
+GenAIScript n’utilise aucun modèle d’IA pour exécuter le framework lui-même. Les personnes créant leurs propres scripts IA avec GenAIScript seront soumises aux limitations techniques, facteurs opérationnels et plages du LLM utilisé dans leur script.
+
+### Bonnes pratiques pour améliorer la performance du système
+
+GenAIScript encourage les utilisateurs à consulter les bonnes pratiques d'écriture d'invites efficaces pour le LLM spécifique qu'ils invoquent dans leur outil.
+
+## En savoir plus sur l’IA responsable
+
+[Principes de l’IA Microsoft](https://www.microsoft.com/en-us/ai/responsible-ai)
+
+[Ressources IA responsable Microsoft](https://www.microsoft.com/en-us/ai/responsible-ai-resources)
+
+[Formations Microsoft Azure sur l’IA responsable](https://docs.microsoft.com/en-us/learn/paths/responsible-ai-business-principles/)
+
+## En savoir plus sur GenAIScript
+
+Pour en savoir plus sur GenAIScript, rendez-vous sur notre référentiel GitHub : [microsoft/GenAIScript: GenAI Scripting (github.com)](https://github.com/microsoft/genaiscript/)
+
+## Nous contacter
+
+Donnez-nous votre avis sur ce document : [zorn@microsoft.com](mailto\:zorn@microsoft.com), [jhalleux@microsoft.com](mailto\:jhalleux@microsoft.com)
+
+## À propos de ce document
+
+© 2024 Microsoft Corporation. Tous droits réservés. Ce document est fourni « en l’état » et à titre informatif uniquement. Les informations et points de vue exprimés dans ce document, y compris les URL et autres liens Internet, peuvent changer sans préavis. L’utilisation est à vos risques et périls. Certains exemples sont uniquement destinés à l’illustration et sont fictifs. Aucune association réelle n’est prévue ou sous-entendue.
+
+Ce document n’est pas destiné à être, et ne doit pas être interprété comme, un avis juridique. La juridiction dans laquelle vous exercez peut imposer diverses obligations réglementaires ou légales à votre système d’IA. Consultez un spécialiste juridique si vous n’êtes pas certain des lois ou réglementations applicables à votre système, notamment si vous pensez que cela pourrait impacter ces recommandations. Sachez que toutes ces recommandations et ressources ne seront pas adaptées à chaque scénario ; inversement, elles peuvent aussi s’avérer insuffisantes selon le contexte.
+
+* Publié le : 18 mars 2024
+
+* Dernière mise à jour : 18 mars 2024
+
+***
+
+[^1]: Tout au long de ce document, lorsque nous évoquons les LLM, nous désignons tout modèle fondamental compatible avec nos interfaces.
+
+[^2]: [Lint (logiciel) - Wikipédia](https://en.wikipedia.org/wiki/Lint_\(software\))
+
+[^3]: [https://makecode.org/](https://makecode.org/)
+
+<hr />
+
+Traduit à l'aide de l’IA. Veuillez vérifier l’exactitude du contenu.

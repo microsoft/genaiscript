@@ -1,0 +1,60 @@
+---
+title: Rends-le meilleur
+sidebar:
+  order: 100
+description: Demandez au LLM d'améliorer votre code !
+
+---
+
+Des résultats surprenants peuvent survenir lorsque vous demandez à plusieurs reprises au LLM de « rendre le code meilleur » (voir [l'article de blog](https://minimaxir.com/2025/01/write-better-code/)).
+
+Dans cet exemple, nous utilisons la fonction `makeItBetter` issue du [runtime GenAIScript](/genaiscript/reference/runtime)
+pour faire exactement cela : demander au LLM d'améliorer le code plusieurs fois de suite.
+
+## Explication du code
+
+Passons en revue le script ligne par ligne :
+
+```js
+import { makeItBetter } from "@genaiscript/runtime"
+```
+
+Cette ligne importe la fonction `makeItBetter` depuis le runtime GenAIScript. Cette fonction permet d'améliorer le code en répétant un ensemble d'instructions plusieurs fois.
+
+```js
+def("CODE", env.files)
+```
+
+Cette ligne définit une constante nommée "CODE" qui représente les fichiers présents dans l'environnement. Elle sert essentiellement à définir le contexte du code à améliorer.
+
+```js
+$`Analyze and improve the code.`
+```
+
+Cette ligne constitue une instruction destinée au modèle d'IA. Elle demande au système d'analyser et d'améliorer le code. Le symbole `$` indique qu’il s’agit d’une instruction spéciale et non d’une commande de code ordinaire.
+
+```js
+makeItBetter({ repeat: 2 })
+```
+
+Cette ligne appelle la fonction `makeItBetter` avec l'option de répéter le processus d'amélioration deux fois. Elle enregistre un [participant de chat](/genaiscript/reference/scripts/chat-participants)
+qui insère des messages dans la boucle de conversation du chat.
+
+La fonction `makeItBetter` ressemble approximativement à ceci. Elle enregistre une fonction de rappel qui est appelée
+à chaque tour de chat.
+
+```js
+export function makeItBetter(options?: { repeat: ... }) {
+    let round = 0
+    defChatParticipant((cctx) => {
+        if (round++ < repeat) {
+            cctx.console.log(`make it better (round ${round})`)
+            cctx.$`make it better`
+        }
+    })
+}
+```
+
+<hr />
+
+Traduit avec l'IA. Veuillez vérifier l'exactitude du contenu.

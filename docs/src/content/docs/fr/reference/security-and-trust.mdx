@@ -1,0 +1,58 @@
+---
+title: Sécurité et Confiance
+sidebar:
+  order: 99
+description: Découvrez les risques de sécurité et les stratégies d'atténuation
+  lors de l'utilisation de scripts générés par l’IA dans des environnements de
+  développement.
+keywords: security, LLM outputs, JavaScript runtime, VSCode, code safety
+hero:
+  image:
+    alt: The image shows a basic 2D 8-bit style computer monitor with a yellow
+      warning triangle on the screen. Around it are overlapping shapes
+      symbolizing code blocks, a small padlock indicating security, and a
+      document icon with a jagged line to suggest a risky script. The
+      illustration uses five flat colors, has no background, people, or text,
+      and is presented in a clear, iconic manner.
+    file: ../../reference/security-and-trust.png
+
+---
+
+import WarningCode from "../../../../components/WarningCode.astro";
+
+Nous abordons divers risques de sécurité ainsi que les mesures possibles d’atténuation lors de l’utilisation de GenAIScript.
+GenAIScript hérite des mêmes risques de sécurité que l’exécution de scripts, et ajoute de nouvelles menaces en raison de la nature des résultats générés par les LLM.
+
+Nous recommandons également de lire la [Note de transparence](/genaiscript/reference/transparency-note/) pour comprendre les capacités et les limites de GenAIScript.
+
+## Ne faites pas confiance aux scripts
+
+Puisque les fichiers GenAIScript `.genai.mjs` sont des fichiers JavaScript exécutables et utilisent effectivement un environnement d'exécution JavaScript (VSCode ou Node), il est important de comprendre que le script peut faire tout ce que JavaScript permet. Cela inclut la lecture et l’écriture de fichiers, les requêtes réseau et l’exécution de code JavaScript arbitraire.
+
+:::caution
+Ne lancez pas de scripts `.genai.mjs` provenant de sources non fiables.
+:::
+
+## Ne faites pas confiance aux résultats du LLM
+
+Un script de confiance pourrait utiliser des fichiers malveillants du contexte pour générer un résultat malveillant.
+Par exemple, il pourrait écraser des fichiers du projet avec du nouveau code malicieux.
+
+<WarningCode />
+
+* dans Visual Studio Code, utilisez l’aperçu de refactorisation
+* dans votre CI/CD, créez une pull request avec les modifications et révisez-les
+
+## Confiance dans l’espace de travail Visual Studio Code
+
+L’extension est **désactivée** lors de l’ouverture d’un dossier en [mode restreint](https://code.visualstudio.com/docs/editor/workspace-trust) dans Visual Studio Code.
+
+## Aperçu Markdown dans Visual Studio Code
+
+La sortie du LLM et la trace utilisent l’aperçu markdown intégré de Visual Studio Code.
+Par défaut, [VS Code restreint le contenu affiché dans l’aperçu Markdown](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security).
+Cela inclut la désactivation de l’exécution des scripts et n’autorise le chargement des ressources que via `https`.
+
+<hr />
+
+Traduit à l’aide de l’IA. Veuillez vérifier l’exactitude du contenu.

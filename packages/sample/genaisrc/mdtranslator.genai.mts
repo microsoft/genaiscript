@@ -68,13 +68,13 @@ export default async function main() {
       lang = res.text;
     }
     output.heading(2, `Translating Markdown files to ${lang} (${to})`);
-    const cacheFn = `docs/translations/${to.toLowerCase()}.json`;
-    dbg(`cache: %s`, cacheFn);
-    output.itemValue("cache", cacheFn);
+    const translationCacheFilename = `docs/translations/${to.toLowerCase()}.json`;
+    dbg(`cache: %s`, translationCacheFilename);
+    output.itemValue("cache", translationCacheFilename);
     // hash -> text translation
     const translationCache: Record<string, string> = force
       ? {}
-      : (await workspace.readJSON(cacheFn)) || {};
+      : (await workspace.readJSON(translationCacheFilename)) || {};
     dbgc(`translation cache: %O`, translationCache);
 
     for (const file of files) {
@@ -112,7 +112,6 @@ export default async function main() {
         // parse to tree
         const root = parse(content);
         dbgt(`original %O`, root.children);
-        await host.confirm("inspect");
         // collect original nodes nodes
         const nodes: Record<string, NodeType> = {};
         visitParents(root, nodeTypes, (node, ancestors) => {
@@ -394,6 +393,6 @@ export default async function main() {
         break;
       }
     }
-    await workspace.writeText(cacheFn, JSON.stringify(translationCache, null, 2));
+    await workspace.writeText(translationCacheFilename, JSON.stringify(translationCache, null, 2));
   }
 }

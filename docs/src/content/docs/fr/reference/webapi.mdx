@@ -1,0 +1,165 @@
+---
+title: Serveur Web API
+description: Le serveur Web API expose une API REST compatible OpenAPI pour
+  exécuter des scripts.
+hero:
+  image:
+    alt: A minimalistic illustration of a geometric server icon with small nodes and
+      connections radiating outward, symbolizing API endpoints. A gear icon is
+      included, along with a branching folder structure to represent scripts and
+      grouped data. The design uses five flat colors for clean and distinct
+      shapes.
+    file: ../../reference/webapi.png
+
+---
+
+Vous pouvez lancer le [cli](/genaiscript/reference/cli) en tant que **serveur Web API** pour exposer des scripts en tant qu'endpoints REST.
+Le serveur est compatible OpenAPI 3.1 et utilise [fastify](https://www.fastify.io/) en interne.
+
+```bash
+genaiscript webapi
+```
+
+## Scripts en tant qu'endpoints REST
+
+Le serveur Web API expose les scripts comme des endpoints REST. Il utilise le titre, la description, les groupes et les tags
+pour générer une spécification OpenAPI 3.1 et un serveur basé sur fastify.
+
+Les paramètres des endpoints OpenAPI sont automatiquement déduits des [paramètres des scripts](/genaiscript/reference/scripts/parameters) et des fichiers.
+Les paramètres OpenAPI viendront alors alimenter l'objet `env.vars` dans le script,
+comme d'habitude.
+
+La sortie de l'endpoint OpenAPI correspond à la sortie du script. Il s'agit, généralement, du dernier message de l'assistant pour un script qui utilise le contexte de haut niveau.
+La sortie de l'endpoint OpenAPI correspond à la sortie du script, généralement le dernier message de l'assistant ou tout contenu passé à [env.output](/genaiscript/reference/scripts/output-builder).
+
+Voyons un exemple. Voici un script `task.genai.mjs` qui prend un paramètre d'entrée `task`, construit une invite,
+et la sortie du LLM est renvoyée.
+
+```js title="task.genai.mjs"
+script({
+    description: "You MUST provide a description!",
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic
+$`... prompt ... ${task}` // output the result
+```
+
+Un script plus avancé peut ne pas utiliser le contexte de haut niveau et utiliser à la place `env.output` pour transmettre le résultat.
+
+```js title="task.genai.mjs"
+script({
+    description: "You should provide a description!",
+    accept: "none", // this script does not use 'env.files'
+    parameters: {
+        task: {
+            type: "string",
+            description: "The task to perform",
+            required: true
+        }
+    }
+})
+
+const { output } = env // store the output builder
+const { task } = env.vars // extract the task parameter
+
+... // genaiscript logic with inline prompts
+const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the prompt
+...
+
+// build the output
+output.fence(`The result is ${res.text}`)
+```
+
+## Route
+
+La route par défaut est `/api` et la spécification OpenAPI est disponible à l'adresse `/api/docs/json`.
+Vous pouvez changer la route à l'aide de l'option `--route`.
+
+```bash
+genaiscript webapi --route /genai
+```
+
+La spécification OpenAPI sera accessible à l'adresse `/genai/docs/json`.
+Vous pouvez également changer le port avec l'option `--port`.
+
+```bash
+genaiscript webapi --route /genai --port 4000
+```
+
+Le serveur sera disponible à `http://localhost:4000/genai`.
+
+## Script de démarrage
+
+Vous pouvez spécifier un identifiant de script de démarrage dans la ligne de commande grâce à l'option `--startup`.
+Il s'exécutera une fois le serveur lancé.
+
+```sh
+genaiscript openapi --startup load-resources
+```
+
+Vous pouvez utiliser ce script pour charger des ressources ou effectuer toute autre configuration nécessaire.
+
+### Filtrage des scripts
+
+Si vous avez besoin de filtrer les scripts exposés comme endpoints OpenAPI, vous pouvez utiliser le flag `--groups` et
+définir le groupe `openapi` dans vos scripts.
+
+```js 'group: "openapi"' title="task.genai.mjs"
+script({
+    group: "openapi",
+})
+```
+
+```bash
+genaiscript openapi --groups openapi
+```
+
+## Exécuter des scripts depuis un dépôt distant
+
+Vous pouvez utiliser l'option `--remote` pour charger des scripts depuis un dépôt distant.
+GenAIScript effectuera un clonage superficiel du dépôt et exécutera le script dans le dossier cloné.
+
+```sh
+npx --yes genaiscript openapi --remote https://github.com/...
+```
+
+Il existe des options supplémentaires pour la façon dont le dépôt est cloné :
+
+* `--remote-branch <branche>` : La branche à cloner depuis le dépôt distant.
+* `--remote-force` : Force le clonage même si le dossier cloné existe déjà.
+* `--remote-install` : Installe les dépendances après le clonage du dépôt.
+
+:::caution
+Comme toujours, soyez vigilant lorsque vous exécutez des scripts provenant d'un dépôt distant.
+Assurez-vous de faire confiance à la source avant d'exécuter le script et envisagez de verrouiller sur un commit spécifique.
+:::
+
+## Linting
+
+Vous pouvez utiliser [spectral](https://github.com/stoplightio/spectral) pour valider vos spécifications OpenAPI.
+
+* Enregistrez ce fichier `.spectral.yaml` à la racine de votre projet :
+
+```yaml
+extends: "spectral:oas"
+```
+
+* lancez le serveur API
+* exécutez le linter spectral
+
+```bash
+npx --yes -p @stoplight/spectral-cli spectral lint http://localhost:3000/api/docs/json
+```
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour en garantir l'exactitude.
