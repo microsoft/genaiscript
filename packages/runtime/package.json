@@ -36,6 +36,7 @@
     "tslib": "catalog:",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
+    "unist-util-visit-parents": "^6.0.1",
     "zod": "^3.25.67"
   },
   "devDependencies": {
