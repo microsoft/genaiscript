@@ -1,6 +1,6 @@
 import { hash } from "crypto";
 import { classify, mdast } from "@genaiscript/runtime";
-import type { Node, Text, Paragraph, PhrasingContent } from "mdast";
+import type { Node, Text, Heading, Paragraph, PhrasingContent } from "mdast";
 script({
   accept: ".md,.mdx",
   files: "src/rag/markdown.md",
@@ -29,7 +29,8 @@ function hashNode(node: Node, ancestors: Node[]): string {
   return chunkHash.slice(0, HASH_LENGTH).toUpperCase();
 }
 const maxPromptPerFile = 5;
-const nodeTypes = ["text", "paragraph"];
+const nodeTypes = ["text", "paragraph", "heading"];
+type NodeType = Text | Paragraph | Heading;
 const langs = {
   fr: "French",
 };
@@ -87,10 +88,10 @@ export default async function main() {
       dbgt(`original %O`, root.children);
 
       // collect original nodes nodes
-      const nodes: Record<string, Text | Paragraph> = {};
+      const nodes: Record<string, NodeType> = {};
       visitParents(root, nodeTypes, (node, ancestors) => {
         const hash = hashNode(node, ancestors);
-        nodes[hash] = node as Text | Paragraph;
+        nodes[hash] = node as NodeType;
       });
 
       const llmHashes: Record<string, string> = {};
@@ -113,7 +114,7 @@ export default async function main() {
           // mark untranslated nodes with a unique identifier
           if (node.type === "text") {
             node.value = `┌${llmHash}┐${node.value}└${llmHash}┘`;
-          } else if (node.type === "paragraph") {
+          } else if (node.type === "paragraph" || node.type === "heading") {
             node.children.unshift({
               type: "text",
               value: `┌${llmHash}┐`,
@@ -231,8 +232,8 @@ export default async function main() {
           if (node.type === "text") {
             dbg(`translated text: %s -> %s`, hash, translation);
             node.value = translation;
-          } else if (node.type === "paragraph") {
-            dbg(`translated paragraph: %s -> %s`, hash, translation);
+          } else if (node.type === "paragraph" || node.type === "heading") {
+            dbg(`translated %s: %s -> %s`, node.type, hash, translation);
             const newNodes = parse(translation).children as PhrasingContent[];
             node.children.splice(0, node.children.length, ...newNodes);
           } else {

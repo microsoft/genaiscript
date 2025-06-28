@@ -190,5 +190,10 @@
   "2B652AE7037011442E86": "analyser vers un arbre mdast",
   "742232A1BD5BD5EEEEA4": "parcourir l’arbre (voir la [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))",
   "750B426709E8940B01A1": "sérialiser l’arbre de nouveau en Markdown",
-  "F4636CADBC2A666FBFB7": "Traduit avec l’IA. Veuillez vérifier l’exactitude du contenu."
+  "F4636CADBC2A666FBFB7": "Traduit avec l’IA. Veuillez vérifier l’exactitude du contenu.",
+  "72A2D793C3933AC7B54F": "remark",
+  "FBBFCF9090E78B6ED0BD": "mdast",
+  "AB2B271B70D622C7C40F": "unified",
+  "93ECBC1CC890D2DC0948": "Manipulation du Markdown",
+  "F1E1700040109CBC4AAE": "documentation"
 }

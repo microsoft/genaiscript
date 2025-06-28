@@ -13,7 +13,7 @@ Pour bénéficier de la complétion de types, vous devrez installer le paquet `@
 
 <PackageManagers pkg="@types/mdast" dev />
 
-## Manipulation de Markdown
+## Manipulation du Markdown
 
 * charger les parseurs
 
