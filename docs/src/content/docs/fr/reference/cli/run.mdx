@@ -60,7 +60,7 @@ GenAIScript gérera et résoudra automatiquement certains motifs d'URI spécifiq
 * `https://gist.github.com/<owner>/<id>/<file glob>` - GitHub Gist et motif de fichiers
 * `git://<owner>/<repo>.git/<file glob>` - dépôt Git et motif de fichiers
 
-### Redirection
+### Piping
 
 `run` prend le contenu de stdin et le convertit en fichier `stdin`.\
 La sortie du LLM est envoyée vers `stdout`, tandis que le reste des journaux est envoyé vers `stderr`.
@@ -101,7 +101,7 @@ Remplit les valeurs dans la carte `env.vars` qui peuvent être utilisées lors d
 
 ## Sortie
 
-### `--out` *fichier|répertoire*
+### `--out` *file|directory*
 
 Sauvegarde les résultats dans un fichier JSON, ainsi que les fichiers markdown de la sortie et de la trace.
 
@@ -119,7 +119,7 @@ npx genaiscript run <script> <files> --out tmp
 
 Sort la réponse complète au format JSON vers stdout.
 
-### `--out-trace` *Émet des journaux des modifications dans le fichier spécifié en texte.*
+### `--out-trace` *file*
 
 Enregistre la trace en markdown dans le fichier spécifié.
 
@@ -145,7 +145,7 @@ Dans Azure DevOps, vous pouvez utiliser la [task.uploadSummary](https://learn.mi
   displayName: "append readme to pipeline report"
 ```
 
-### `--out-annotations` *Émet des journaux des modifications dans le fichier spécifié en texte.*
+### `--out-annotations` *file*
 
 Émet les annotations dans le fichier spécifié comme un tableau JSON, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) ou un fichier CSV si le fichier se termine par `.csv`.
 
@@ -159,7 +159,7 @@ Utilisez JSON lines (`.jsonl`) pour agréger les annotations de plusieurs exécu
 npx genaiscript run <script> <files> --out-annotations diags.jsonl
 ```
 
-### `--out-data` *Émet des journaux des modifications dans le fichier spécifié en texte.*
+### `--out-data` *file*
 
 Émet les données analysées au format JSON, YAML ou JSONL. Si un schéma JSON est spécifié et disponible, le résultat de la validation JSON est également enregistré.
 
@@ -167,7 +167,7 @@ npx genaiscript run <script> <files> --out-annotations diags.jsonl
 npx genaiscript run <script> <files> --out-data data.jsonl
 ```
 
-### `--out-changelogs` *Émet des journaux des modifications dans le fichier spécifié en texte.*
+### `--out-changelogs` *file*
 
 Émet les journaux des modifications dans le fichier spécifié en texte.
 
@@ -231,7 +231,7 @@ npx genaiscript run ... --pull-request-comment
 
 Le paramètre `tag` est un identifiant unique utilisé pour différencier les descriptions générées par différentes exécutions. La valeur par défaut est l'identifiant du script.
 
-### `--pull-request-reviews`
+### Créez des commentaires de revue de pull request à partir de chaque [annotations](/genaiscript/reference/scripts/annotations)&#xA;([exemple](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).
 
 Crée des commentaires de revue de pull request à partir de chaque [annotation](/genaiscript/reference/scripts/annotations) ([exemple](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).
 

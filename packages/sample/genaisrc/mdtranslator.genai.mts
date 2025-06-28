@@ -3,6 +3,7 @@ import { classify, mdast } from "@genaiscript/runtime";
 import "mdast-util-mdxjs-esm";
 import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
 import { dirname, join, relative } from "path";
+import { URL } from "url";
 script({
   accept: ".md,.mdx",
   files: "src/rag/markdown.md",
@@ -32,6 +33,15 @@ const starlightDir = "docs/src/content/docs";
 type NodeType = Text | Paragraph | Heading | Yaml;
 const langs = {
   fr: "French",
+};
+
+const isUri = (str: string): boolean => {
+  try {
+    new URL(str);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 export default async function main() {
@@ -141,7 +151,7 @@ export default async function main() {
           } else {
             // mark untranslated nodes with a unique identifier
             if (node.type === "text") {
-              if (!/\s*[.,:;<>\]\[{}\(\)]+\s*/.test(node.value)) {
+              if (!/\s*[.,:;<>\]\[{}\(\)]+\s*/.test(node.value) && !isUri(node.value)) {
                 dbg(`text node: %s`, nhash);
                 // compress long hash into LLM friendly short hash
                 const llmHash = `T${Object.keys(llmHashes).length.toString().padStart(3, "0")}`;
@@ -262,6 +272,8 @@ export default async function main() {
       - Do not change the structure of the document.
       - As much as possible, maintain the original formatting and structure of the document.
       - Do not translate inline code blocks, code blocks, or any other code-related content.
+      - Use ' instead of ’
+      - Always make sure that the URLs are not modified by the translation.
 
       `.role("system");
             },
@@ -304,19 +316,10 @@ export default async function main() {
 
         // apply translations
         translated = structuredClone(root);
-        visitParents(translated, [...nodeTypes, "mdxjsEsm", "image"], (node, ancestors) => {
-          if (node.type === "image") {
-            node.url = patchFn(node.url);
-            return SKIP;
-          } else if (node.type === "mdxjsEsm") {
-            const rx = /^import\s+(.*)\s+from\s+\"(\.\.\/.*)";?$/gm;
-            node.value = node.value.replace(rx, (m, i, p) => {
-              const r = `import ${i} from "${patchFn(p)}";`;
-              dbg(`mdxjsEsm import: %s -> %s`, m, r);
-              return r;
-            });
-            return SKIP;
-          } else if (node.type === "yaml") {
+
+        // apply translations
+        visitParents(translated, nodeTypes, (node, ancestors) => {
+          if (node.type === "yaml") {
             const data = parsers.YAML(node.value);
             if (data) {
               if (starlight && data?.hero?.image?.file) {
@@ -350,6 +353,7 @@ export default async function main() {
                 try {
                   const newNodes = parse(translation).children as PhrasingContent[];
                   node.children.splice(0, node.children.length, ...newNodes);
+                  return SKIP;
                 } catch (error) {
                   output.error(`error parsing paragraph translation`, error);
                   output.fence(node, "json");
@@ -359,6 +363,22 @@ export default async function main() {
                 dbg(`untranslated node type: %s`, node.type);
               }
             }
+          }
+        });
+
+        // patch images and esm imports
+        visit(translated, ["mdxjsEsm", "image"], (node) => {
+          if (node.type === "image") {
+            node.url = patchFn(node.url);
+            return SKIP;
+          } else if (node.type === "mdxjsEsm") {
+            const rx = /^import\s+(.*)\s+from\s+\"(\.\.\/.*)";?$/gm;
+            node.value = node.value.replace(rx, (m, i, p) => {
+              const r = `import ${i} from "${patchFn(p)}";`;
+              dbg(`mdxjsEsm import: %s -> %s`, m, r);
+              return r;
+            });
+            return SKIP;
           }
         });
 

@@ -11,13 +11,13 @@ hero:
 
 ---
 
-![Une capture d’écran de Azure AI Foundry.](../../reference/azure-ai-foundry.png)
+![Une capture d'écran d'Azure AI Foundry.](../../reference/azure-ai-foundry.png)
 
-GenAIScript prend en charge nativement plusieurs services de [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/).
+GenAIScript prend en charge nativement divers services de [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/).
 
 ## Authentification
 
-GenAIScript prend en charge l’authentification basée sur des clés dans les variables d’environnement ainsi que l’authentification Microsoft Entra pour chaque service.
+GenAIScript prend en charge l'authentification par clé via des variables d'environnement ainsi que l'authentification Microsoft Entra pour chaque service.
 
 ## Services Azure OpenAI et IA
 
@@ -32,26 +32,26 @@ script({
 GenAIScript prend en charge 4 types de déploiements Azure :
 
 * [Azure OpenAI](/genaiscript/configuration/azure-openai)
-* [Inférence Azure AI](/genaiscript/configuration/azure-ai-foundry##azure-ai-inference)
+* [Azure AI Inference](/genaiscript/configuration/azure-ai-foundry##azure-ai-inference)
 * [Azure OpenAI Serverless](/genaiscript/configuration/azure-ai-foundry/#azure-ai-openai-serverless)
-* [Modèles Azure AI Serverless](/genaiscript/configuration/azure-ai-foundry/#azure_serverless_models)
+* [Modèles Serverless Azure AI](/genaiscript/configuration/azure-ai-foundry/#azure_serverless_models)
 
 ## Recherche Azure AI
 
-[Recherche Azure AI](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search) est un moteur de recherche hybride puissant combinant recherche vectorielle et par mots-clés dans une base de données.
+[Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search) est un moteur de recherche hybride puissant combinant recherche vectorielle et par mots-clés dans une base de données.
 
 ```js
 const index = retrieval.index("animals", { type: "azure_ai_search" })
 ```
 
-* [Recherche vectorielle](/genaiscript/reference/scripts/vector-search/#azure-ai-search)
+* [Recherche Vectorielle](/genaiscript/reference/scripts/vector-search/#azure-ai-search)
 * [Configuration](/genaiscript/configuration/azure-ai-search)
 
-## Sécurité du contenu Azure
+## Sécurité de contenu Azure
 
-[Sécurité du contenu Azure](https://learn.microsoft.com/en-us/azure/cognitive-services/content-safety/) est un service qui vous aide à identifier et filtrer les contenus nuisibles dans vos applications.
+[Azure Content Safety](https://learn.microsoft.com/en-us/azure/cognitive-services/content-safety/) est un service qui vous aide à identifier et filtrer les contenus nuisibles dans vos applications.
 
-GenAIScript propose une prise en charge intégrée pour utiliser Azure Content Safety, depuis l’analyse d’une partie du prompt jusqu’à l’inspection des réponses des LLM ou des serveurs MCP.
+GenAIScript offre une prise en charge intégrée pour utiliser Azure Content Safety, depuis l'analyse d'une partie de l'invite jusqu'à l'analyse des réponses des LLM ou des serveurs MCP.
 
 ```js
 const safety = await host.contentSafety("azure")
@@ -65,4 +65,4 @@ if (res.attackDetected) throw new Error("Prompt Injection detected")
 
 <hr />
 
-Traduit avec l’aide d’une IA. Veuillez vérifier l’exactitude du contenu.
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

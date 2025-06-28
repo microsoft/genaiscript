@@ -20,12 +20,12 @@ hero:
 
 ---
 
-GenAIScript est un langage de script qui intègre les LLM comme une partie essentielle du processus de script, permettant aux utilisateurs de créer, déboguer et déployer facilement des scripts basés sur des LLM capables d'exécuter des tâches au-delà des capacités du code conventionnel. Ce guide de référence fournit une documentation complète pour GenAIScripts, incluant la syntaxe des scripts, les configurations LLM, l'extension VSCode et l'interface en ligne de commande (CLI).
+GenAIScript est un langage de script qui intègre les LLM comme une partie essentielle du processus de scripting, permettant aux utilisateurs de créer, déboguer et déployer facilement des scripts basés sur les LLM capables d'exécuter des tâches au-delà des capacités du code conventionnel. Ce guide de référence fournit une documentation complète pour GenAIScripts, incluant la syntaxe des scripts, les configurations LLM, l'extension VSCode et l'interface en ligne de commande.
 
 * [Scripts](/genaiscript/reference/scripts) fournissent un cadre JavaScript spécifique au domaine pour construire des requêtes LLM.
-* [Interface en ligne de commande (CLI)](/genaiscript/reference/cli) documente l'interface en ligne de commande pour automatiser l'exécution des GenAIScripts.
-* [L'extension Visual Studio Code](/genaiscript/reference/vscode) offre un ensemble riche de fonctionnalités pour créer, déboguer et déployer des GenAIScripts.
+* [CLI](/genaiscript/reference/cli) documente l'interface en ligne de commande pour automatiser l'exécution des GenAIScripts.
+* [Extension Visual Studio Code](/genaiscript/reference/vscode) offre un ensemble riche de fonctionnalités pour créer, déboguer et déployer des GenAIScripts.
 
 <hr />
 
-Traduit avec l'aide de l'IA. Veuillez vérifier le contenu pour garantir son exactitude.
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.
