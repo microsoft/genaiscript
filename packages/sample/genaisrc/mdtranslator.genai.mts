@@ -1,5 +1,6 @@
 import { hash } from "crypto";
 import { classify, mdast } from "@genaiscript/runtime";
+import type { Node } from "mdast";
 script({
   accept: ".md",
   files: "src/rag/markdown.md",
@@ -22,9 +23,11 @@ script({
   },
 });
 
-function hashNode(node: unknown): string {
+const HASH_LENGTH = 20;
+
+function hashNode(node: Node, ancestors: Node[]): string {
   const chunkHash = hash("sha-256", JSON.stringify(node));
-  return chunkHash.slice(0, 8).toUpperCase();
+  return chunkHash.slice(0, HASH_LENGTH).toUpperCase();
 }
 
 const maxPromptPerFile = 5;
@@ -38,7 +41,7 @@ export default async function main() {
     .filter(Boolean);
   const dbgc = host.logger(`script:md`);
   const dbgt = host.logger(`script:tree`);
-  const { parse, stringify, visit } = await mdast();
+  const { parse, stringify, visitParents } = await mdast();
 
   for (const to of tos) {
     const { text: lang } = await prompt`Respond human friendly name of language: ${to}`.options({
@@ -50,8 +53,11 @@ export default async function main() {
     const cacheFn = `docs/translations/${to.toLowerCase()}.json`;
     dbg(`cache: %s`, cacheFn);
     output.itemValue("cache", cacheFn);
-    const cache = force ? {} : (await workspace.readJSON(cacheFn)) || {};
-    dbgc(`cache: %O`, cache);
+    // hash -> text translation
+    const translationCache: Record<string, string> = force
+      ? {}
+      : (await workspace.readJSON(cacheFn)) || {};
+    dbgc(`translation cache: %O`, translationCache);
 
     const nodeTypes = ["text"];
     for (const file of files) {
@@ -71,21 +77,29 @@ export default async function main() {
       const root = parse(content);
       dbgt(`original %O`, root.children);
 
+      // parsed nodes
       const nodes = {};
+      const llmHashes: Record<string, string> = {};
+      const llmHashTodos = new Set<string>();
+
       // apply translations and mark untranslated nodes with id
       let translated = structuredClone(root);
-      const todos = new Set<string>();
-      visit(translated, nodeTypes, (node) => {
-        const hash = hashNode(node);
+      visitParents(translated, nodeTypes, (node, ancestors) => {
+        const hash = hashNode(node, ancestors);
         nodes[hash] = node;
-        const translation = cache[hash];
+        const translation = translationCache[hash];
         if (translation) {
           dbg(`translated: %s`, hash);
           Object.assign(node, translation);
         } else {
-          todos.add(hash);
+          // compress long hash into LLM friendly short hash
+          const llmHash = `ID${Object.keys(llmHashes).length.toString().padStart(3, "0")}`;
+          llmHashes[llmHash] = hash;
+          llmHashTodos.add(llmHash);
+
+          // mark untranslated nodes with a unique identifier
           if (node.type === "text" && node.value) {
-            node.value = `┌${hash}┐${node.value}└${hash}┘`;
+            node.value = `┌${llmHash}┐${node.value}└${llmHash}┘`;
           } else {
             dbg(`untranslated node type: %s`, node.type);
           }
@@ -94,8 +108,8 @@ export default async function main() {
 
       dbgt(`translated %O`, translated.children);
       let attempts = 0;
-      while (todos.size && attempts++ < maxPromptPerFile) {
-        dbg(`todos: %O`, todos);
+      while (llmHashTodos.size && attempts++ < maxPromptPerFile) {
+        dbg(`todos: %O`, llmHashTodos);
         const contentMix = stringify(translated);
         dbgc(`translatable content: %s`, contentMix);
 
@@ -165,24 +179,25 @@ export default async function main() {
 
         // collect translations
         for (const fence of fences) {
-          const hash = fence.language;
-          if (todos.has(hash)) {
-            todos.delete(hash);
-            dbg(`translation: %s`, hash);
+          const llmHash = fence.language;
+          if (llmHashTodos.has(llmHash)) {
+            llmHashTodos.delete(llmHash);
+            const hash = llmHashes[llmHash];
+            dbg(`translation: %s - %s`, llmHash, hash);
             let chunkTranslated = fence.content.replace(/\r?\n$/, "").trim();
             const node = nodes[hash];
             if (node.type === "text" && /\s$/.test(node.value)) chunkTranslated += " ";
             dbg(`content: %s`, chunkTranslated);
-            cache[hash] = chunkTranslated;
+            translationCache[hash] = chunkTranslated;
           }
         }
       }
 
       // apply translations
       translated = structuredClone(root);
-      await visit(translated, nodeTypes, (node) => {
-        const hash = hashNode(node);
-        const translation = cache[hash];
+      visitParents(translated, nodeTypes, (node, ancestors) => {
+        const hash = hashNode(node, ancestors);
+        const translation = translationCache[hash];
         if (translation) {
           if (node.type === "text") {
             dbg(`translated: %s -> %s`, hash, translation);
@@ -227,6 +242,6 @@ export default async function main() {
       await workspace.writeText(translationFn, contentTranslated);
     }
 
-    await workspace.writeText(cacheFn, JSON.stringify(cache, null, 2));
+    await workspace.writeText(cacheFn, JSON.stringify(translationCache, null, 2));
   }
 }

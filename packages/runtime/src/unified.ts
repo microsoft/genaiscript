@@ -1,6 +1,5 @@
 import type { Root } from "mdast";
 import { filenameOrFileToContent, genaiscriptDebug, WorkspaceFile } from "@genaiscript/core";
-import type { Test, BuildVisitor } from "unist-util-visit";
 import type { Processor } from "unified";
 const dbg = genaiscriptDebug("mdast");
 
@@ -14,7 +13,8 @@ export async function mdast() {
   const { default: frontmatter } = await import("remark-frontmatter");
   const { default: math } = await import("remark-math");
   const { default: stringify } = await import("remark-stringify");
-  const { visit } = await import("unist-util-visit");
+  const { visit, CONTINUE, EXIT, SKIP } = await import("unist-util-visit");
+  const { visitParents } = await import("unist-util-visit-parents");
 
   function mdastParse(file: string | WorkspaceFile): Root {
     const content = filenameOrFileToContent(file);
@@ -42,21 +42,13 @@ export async function mdast() {
     return processor.use(frontmatter).use(gfm).use(github).use(directive).use(math);
   }
 
-  function mdastVisit(
-    root: Root,
-    check: Test,
-    visitor: BuildVisitor<Root, Test>,
-    reverse?: boolean,
-  ): void {
-    if (!root) return;
-
-    dbg(`visit`);
-    visit(root, check, visitor, reverse);
-  }
-
   return Object.freeze({
     parse: mdastParse,
     stringify: mdastStringify,
-    visit: mdastVisit,
+    visit,
+    visitParents,
+    CONTINUE,
+    EXIT,
+    SKIP,
   });
 }
