@@ -11,7 +11,8 @@
     "test": "vitest --run"
   },
   "dependencies": {
-    "@genaiscript/runtime": "workspace:*"
+    "@genaiscript/runtime": "workspace:*",
+    "@genaiscript/mdast": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

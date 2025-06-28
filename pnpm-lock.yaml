@@ -631,13 +631,7 @@ importers:
         specifier: ^4.15.2
         version: 4.15.2
 
-  packages/modulesample:
-    dependencies:
-      ini:
-        specifier: ^5.0.0
-        version: 5.0.0
-
-  packages/runtime:
+  packages/mdast:
     dependencies:
       '@genaiscript/core':
         specifier: workspace:*
@@ -645,39 +639,21 @@ importers:
       '@inquirer/prompts':
         specifier: 'catalog:'
         version: 7.5.3(@types/node@22.15.28)
+      '@slorber/remark-comment':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
       debug:
         specifier: 'catalog:'
         version: 4.4.1
-      dockerode:
-        specifier: ^4.0.7
-        version: 4.0.7
-      es-toolkit:
-        specifier: 'catalog:'
-        version: 1.39.3
-      execa:
-        specifier: 'catalog:'
-        version: 9.6.0
-      glob:
-        specifier: ^11.0.3
-        version: 11.0.3
       mdast:
         specifier: ^3.0.0
         version: 3.0.0
       mdast-util-mdxjs-esm:
         specifier: ^2.0.1
         version: 2.0.1
-      memorystream:
-        specifier: ^0.3.1
-        version: 0.3.1
-      playwright:
-        specifier: ^1.53.1
-        version: 1.53.1
-      remark:
-        specifier: ^15.0.1
-        version: 15.0.1
       remark-directive:
         specifier: ^4.0.0
         version: 4.0.0
@@ -702,9 +678,6 @@ importers:
       remark-stringify:
         specifier: ^11.0.0
         version: 11.0.0
-      tslib:
-        specifier: 'catalog:'
-        version: 2.8.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -714,6 +687,79 @@ importers:
       unist-util-visit-parents:
         specifier: ^6.0.1
         version: 6.0.1
+    devDependencies:
+      '@eslint/js':
+        specifier: 'catalog:'
+        version: 9.29.0
+      '@types/debug':
+        specifier: 'catalog:'
+        version: 4.1.12
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.28
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0))
+      eslint:
+        specifier: 'catalog:'
+        version: 9.29.0
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.0
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      tshy:
+        specifier: 'catalog:'
+        version: 3.0.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      typescript-eslint:
+        specifier: 'catalog:'
+        version: 8.34.1(eslint@9.29.0)(typescript@5.8.3)
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0)
+
+  packages/modulesample:
+    dependencies:
+      ini:
+        specifier: ^5.0.0
+        version: 5.0.0
+
+  packages/runtime:
+    dependencies:
+      '@genaiscript/core':
+        specifier: workspace:*
+        version: link:../core
+      '@inquirer/prompts':
+        specifier: 'catalog:'
+        version: 7.5.3(@types/node@22.15.28)
+      debug:
+        specifier: 'catalog:'
+        version: 4.4.1
+      dockerode:
+        specifier: ^4.0.7
+        version: 4.0.7
+      es-toolkit:
+        specifier: 'catalog:'
+        version: 1.39.3
+      execa:
+        specifier: 'catalog:'
+        version: 9.6.0
+      glob:
+        specifier: ^11.0.3
+        version: 11.0.3
+      memorystream:
+        specifier: ^0.3.1
+        version: 0.3.1
+      playwright:
+        specifier: ^1.53.1
+        version: 1.53.1
+      tslib:
+        specifier: 'catalog:'
+        version: 2.8.1
       zod:
         specifier: ^3.25.67
         version: 3.25.67
@@ -760,6 +806,9 @@ importers:
 
   packages/runtime-sample:
     dependencies:
+      '@genaiscript/mdast':
+        specifier: workspace:*
+        version: link:../mdast
       '@genaiscript/runtime':
         specifier: workspace:*
         version: link:../runtime
@@ -2942,6 +2991,9 @@ packages:
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
+
+  '@slorber/remark-comment@1.0.0':
+    resolution: {integrity: sha512-RCE24n7jsOj1M0UPvIQCHTe7fI0sFL4S2nwKVWwHyVr/wI/H8GosgsJGyhnsZoGFnD/P2hLf1mSbrrgSLN93NA==}
 
   '@smithy/abort-controller@2.2.0':
     resolution: {integrity: sha512-wRlta7GuLWpTqtFfGo+nZyOO1vEvewdNR1R4rTxpC8XU6vG/NDyrFBhwLZsqg1NUoR1noVaXJPC/7ZK47QCySw==}
@@ -6391,6 +6443,9 @@ packages:
   micromark-factory-mdx-expression@2.0.3:
     resolution: {integrity: sha512-kQnEtA3vzucU2BkrIa8/VaSAsP+EJ3CKOvhMuJgOEGg9KDC6OAY6nSnNDVRiVNRqj7Y4SlSzcStaH/5jge8JdQ==}
 
+  micromark-factory-space@1.1.0:
+    resolution: {integrity: sha512-cRzEj7c0OL4Mw2v6nwzttyOZe8XY/Z8G0rzmWQZTBi/jjwyw/U4uqKtUORXQrR5bAZZnbTI/feRV/R7hc4jQYQ==}
+
   micromark-factory-space@2.0.1:
     resolution: {integrity: sha512-zRkxjtBxxLd2Sc0d+fbnEunsTj46SWXgXciZmHq0kDYGnck/ZSGj9/wULTV95uoeYiK5hRXP2mJ98Uo4cq/LQg==}
 
@@ -6399,6 +6454,9 @@ packages:
 
   micromark-factory-whitespace@2.0.1:
     resolution: {integrity: sha512-Ob0nuZ3PKt/n0hORHyvoD9uZhr+Za8sFoP+OnMcnWK5lngSzALgQYKMr9RJVOWLqQYuyn6ulqGWSXdwf6F80lQ==}
+
+  micromark-util-character@1.2.0:
+    resolution: {integrity: sha512-lXraTwcX3yH/vMDaFWCQJP1uIszLVebzUa3ZHdrgxr7KEU/9mL4mVgCpGbyhvNLNlauROiNUq7WN5u7ndbY6xg==}
 
   micromark-util-character@2.1.1:
     resolution: {integrity: sha512-wv8tdUTJ3thSFFFJKtpYKOYiGP2+v96Hvk4Tu8KpCAsTMs6yi+nVmGh1syvSCsaxz45J6Jbw+9DD6g97+NV67Q==}
@@ -6439,8 +6497,14 @@ packages:
   micromark-util-subtokenize@2.1.0:
     resolution: {integrity: sha512-XQLu552iSctvnEcgXw6+Sx75GflAPNED1qx7eBJ+wydBb2KCbRZe+NwvIEEMM83uml1+2WSXpBAcp9IUCgCYWA==}
 
+  micromark-util-symbol@1.1.0:
+    resolution: {integrity: sha512-uEjpEYY6KMs1g7QfJ2eX1SQEV+ZT4rUD3UcF6l57acZvLNK7PBZL+ty82Z1qhK1/yXIY4bdx04FKMgR0g4IAag==}
+
   micromark-util-symbol@2.0.1:
     resolution: {integrity: sha512-vs5t8Apaud9N28kgCrRUdEed4UJ+wWNvicHLPxCa9ENlYuAY31M0ETy5y1vA33YoNPDFTghEbnh6efaE8h4x0Q==}
+
+  micromark-util-types@1.1.0:
+    resolution: {integrity: sha512-ukRBgie8TIAcacscVHSiddHjO4k/q3pnedmzMQ4iwDcK0FtFCohKOlFbaOL/mPgfnPsL3C1ZyxJa4sbWrBl3jg==}
 
   micromark-util-types@2.0.2:
     resolution: {integrity: sha512-Yw0ECSpJoViF1qTU4DC6NwtC4aWGt1EkzaQB8KPPyCRR8z9TWeV0HbEFGTO+ZY1wB22zmxnJqhPyTpOVCpeHTA==}
@@ -7359,9 +7423,6 @@ packages:
 
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
-
-  remark@15.0.1:
-    resolution: {integrity: sha512-Eht5w30ruCXgFmxVUSlNWQ9iiimq07URKeFS3hNc8cUWy1llX4KDWfyEDZRycMc+znsN9Ux5/tJ/BFdgdOwA3A==}
 
   replace-ext@2.0.0:
     resolution: {integrity: sha512-UszKE5KVK6JvyD92nzMn9cDapSk6w/CaFZ96CnmDMUqH9oowfxF/ZjRITD25H4DnOQClLA4/j7jLGXXLVKxAug==}
@@ -11669,6 +11730,12 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
+  '@slorber/remark-comment@1.0.0':
+    dependencies:
+      micromark-factory-space: 1.1.0
+      micromark-util-character: 1.2.0
+      micromark-util-symbol: 1.1.0
+
   '@smithy/abort-controller@2.2.0':
     dependencies:
       '@smithy/types': 2.12.0
@@ -15062,7 +15129,7 @@ snapshots:
 
   hast-util-to-jsx-runtime@2.3.6:
     dependencies:
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.8
       '@types/hast': 3.0.4
       '@types/unist': 3.0.3
       comma-separated-tokens: 2.0.3
@@ -16379,6 +16446,11 @@ snapshots:
       unist-util-position-from-estree: 2.0.0
       vfile-message: 4.0.2
 
+  micromark-factory-space@1.1.0:
+    dependencies:
+      micromark-util-character: 1.2.0
+      micromark-util-types: 1.1.0
+
   micromark-factory-space@2.0.1:
     dependencies:
       micromark-util-character: 2.1.1
@@ -16397,6 +16469,11 @@ snapshots:
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
       micromark-util-types: 2.0.2
+
+  micromark-util-character@1.2.0:
+    dependencies:
+      micromark-util-symbol: 1.1.0
+      micromark-util-types: 1.1.0
 
   micromark-util-character@2.1.1:
     dependencies:
@@ -16464,7 +16541,11 @@ snapshots:
       micromark-util-symbol: 2.0.1
       micromark-util-types: 2.0.2
 
+  micromark-util-symbol@1.1.0: {}
+
   micromark-util-symbol@2.0.1: {}
+
+  micromark-util-types@1.1.0: {}
 
   micromark-util-types@2.0.2: {}
 
@@ -17535,15 +17616,6 @@ snapshots:
       '@types/mdast': 4.0.4
       mdast-util-to-markdown: 2.1.2
       unified: 11.0.5
-
-  remark@15.0.1:
-    dependencies:
-      '@types/mdast': 4.0.4
-      remark-parse: 11.0.0
-      remark-stringify: 11.0.0
-      unified: 11.0.5
-    transitivePeerDependencies:
-      - supports-color
 
   replace-ext@2.0.0: {}
 
