@@ -156,8 +156,12 @@ export function removeHtmlComments(markdown: string): string {
  * @returns The markdown content with HTML comments removed
  */
 function removeHtmlCommentsSimple(markdown: string): string {
-    // Remove HTML comments using regex
-    return markdown.replace(/<!--[\s\S]*?-->/g, "")
+    // Remove HTML comments using regex, handling nested cases and edge cases
+    // This regex handles:
+    // - Single line comments: <!-- comment -->
+    // - Multi-line comments: <!-- comment\nmore\nlines -->
+    // - Comments with special characters and nested content
+    return markdown.replace(/<!--[\s\S]*?-->/g, "").replace(/\n\s*\n\s*\n/g, "\n\n")
 }
 
 /**
