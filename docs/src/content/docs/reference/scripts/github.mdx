@@ -221,49 +221,39 @@ console.log(releases)
 Execute GraphQL queries against the GitHub API using the `graphql` method. This provides access to GitHub's full GraphQL API v4, which often allows more efficient data retrieval than REST APIs.
 
 ```js
-// Basic repository information
+// Get current user information
 const query = `
-  query($owner: String!, $name: String!) {
-    repository(owner: $owner, name: $name) {
+  query {
+    viewer {
+      login
       name
-      description
-      stargazerCount
-      forkCount
-      primaryLanguage {
-        name
-        color
-      }
+      email
     }
   }
 `
 
-const result = await github.graphql(query, {
-  owner: "microsoft",
-  name: "genaiscript"
-})
+const result = await github.graphql(query)
 
-console.log(result.repository)
+console.log(result.viewer)
 ```
 
 You can also query multiple data points in a single request:
 
 ```js
-// Get issues and pull requests together
+// Get issues with label filtering
 const complexQuery = `
-  query($owner: String!, $name: String!) {
-    repository(owner: $owner, name: $name) {
-      issues(first: 5, states: OPEN) {
-        nodes {
+  query($label: String!, $count: Int!) {
+    search(query: $label, type: ISSUE, first: $count) {
+      nodes {
+        ... on Issue {
           number
           title
+          state
           author { login }
-        }
-      }
-      pullRequests(first: 5, states: OPEN) {
-        nodes {
-          number
-          title
-          author { login }
+          repository {
+            name
+            owner { login }
+          }
         }
       }
     }
@@ -271,12 +261,11 @@ const complexQuery = `
 `
 
 const data = await github.graphql(complexQuery, {
-  owner: "microsoft", 
-  name: "genaiscript"
+  label: "label:bug state:open",
+  count: 5
 })
 
-console.log("Open Issues:", data.repository.issues.nodes)
-console.log("Open PRs:", data.repository.pullRequests.nodes)
+console.log("Issues found:", data.search.nodes)
 ```
 
 The GraphQL method supports TypeScript generics for type safety:
