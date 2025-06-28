@@ -1,0 +1,64 @@
+---
+title: Recherche Web
+description: Exécutez des recherches sur le web avec l'API Bing en utilisant
+  retrieval.webSearch dans les scripts.
+keywords: web search, Bing API, Tavily, search automation, API configuration,
+  search function
+sidebar:
+  order: 15
+hero:
+  image:
+    alt: A minimalistic 2D digital image shows a stylized browser window with a
+      magnifying glass hovering over abstract web page icons. Small dots and
+      lines suggest APIs, with a key icon nearby indicating API keys, and two
+      cloud icons featuring gear symbols to represent cloud-based services. The
+      illustration uses a simple 8-bit, five-color palette, and bold flat lines,
+      all without text, people, or background features.
+    file: ../../../reference/scripts/web-search.png
+
+---
+
+La fonction `retrieval.webSearch` effectue une recherche web en utilisant [Tavily](https://docs.tavily.com/) ou Bing Web Search.
+
+## Pages Web
+
+Par défaut, l'API renvoie les 10 premières pages web dans le champ `webPages` sous forme d'un tableau de fichiers, de manière similaire à `env.files`. Le contenu contient l'extrait résumé retourné par le moteur de recherche.
+
+```js
+const webPages = await retrieval.webSearch("microsoft")
+def("PAGES", webPages)
+```
+
+Vous pouvez utiliser `fetchText` pour télécharger le contenu complet de la page web.
+
+## Configuration Tavily <a href="" id="tavily" />
+
+L’[API Tavily](https://docs.tavily.com/docs/rest-api/api-reference#endpoint-post-search) donne accès à un moteur de recherche puissant pour les agents LLM.
+
+```txt title=".env"
+TAVILY_API_KEY="your-api-key"
+```
+
+## Configuration de Bing Web Search <a href="" id="bing" />
+
+L'API utilise [Bing Web Search v7](https://learn.microsoft.com/en-us/bing/search-apis/bing-web-search/overview) pour effectuer des recherches sur le web. Pour utiliser l'API, vous devez créer une ressource Bing Web Search dans le portail Azure et stocker la clé API dans le fichier `.env`.
+
+```txt title=".env"
+BING_SEARCH_API_KEY="your-api-key"
+```
+
+## Outil
+
+Ajoutez le script système [system.retrieval\_web\_search](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.retrieval_web_search.genai.mjs) pour enregistrer un [outil](/genaiscript/reference/scripts/tools) qui utilise `retrieval.webSearch`.
+
+```js
+script({
+    ...,
+    system: ["system.retrieval_web_search"]
+})
+...
+```
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

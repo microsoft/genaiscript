@@ -1,0 +1,235 @@
+---
+title: Tests / Évaluations
+sidebar:
+  order: 11
+description: Apprenez à exécuter et à évaluer la qualité des sorties LLM avec
+  promptfoo, un outil conçu pour tester les résultats des modèles de langage.
+keywords: promptfoo, LLM testing, output quality, language model evaluation, script tests
+hero:
+  image:
+    alt: A flat, colorful illustration on a white background features a clipboard
+      with checkmarks to represent testing, overlapping minimalist file icons
+      marked with code file extensions (.js, .json, .csv, .ts), a puzzle piece
+      as a symbol for integration, two connected neural network nodes with a
+      gear for LLMs and evaluation, and a shield with an exclamation mark
+      indicating AI vulnerabilities—all rendered in a five-color, 8-bit style.
+    file: ../../../reference/scripts/tests.png
+
+---
+
+Il est possible de définir des tests pour les scripts LLM, afin d’évaluer la qualité des sorties du LLM au fil du temps et selon les types de modèles.
+
+Les tests sont exécutés par [promptfoo](https://promptfoo.dev/), un outil d’évaluation de la qualité des sorties des LLM.
+
+Vous pouvez également détecter des vulnérabilités de l’IA, telles que les biais, la toxicité et les problèmes de factualité, en utilisant la fonctionnalité [redteam](/genaiscript/reference/scripts/redteam).
+
+## Définition des tests
+
+Les tests sont déclarés dans la fonction `script` de votre test.
+Vous pouvez définir un ou plusieurs tests (sous forme de tableau).
+
+```js title="proofreader.genai.js" wrap "tests"
+script({
+  ...,
+  tests: [{
+    files: "src/rag/testcode.ts",
+    rubrics: "is a report with a list of issues",
+    facts: `The report says that the input string
+      should be validated before use.`,
+  }, { ... }],
+})
+```
+
+### Modèles de test
+
+Vous pouvez spécifier une liste de modèles (ou d’alias de modèles) à tester.
+
+```js title="proofreader.genai.js" wrap "tests"
+script({
+  ...,
+  testModels: ["ollama:phi3", "ollama:gpt-4o"],
+})
+```
+
+Le moteur d’évaluation (PromptFoo) exécutera chaque test pour chaque modèle de la liste.
+Cette configuration peut être remplacée par l’option `--models` en ligne de commande.
+
+### Fichiers de test externes
+
+Vous pouvez aussi spécifier le nom de fichiers de test externes aux formats JSON, YAML, CSV, ainsi que des fichiers JavaScript `.mjs` ou `.mts` qui seront exécutés pour générer les tests.
+
+```js title="proofreader.genai.js" wrap "tests"
+script({
+  ...,
+  tests: ["tests.json", "more-tests.csv", "tests.mjs"],
+})
+```
+
+Les fichiers JSON et YAML supposent que les fichiers contiennent une liste d’objets `PromptTest` et vous pouvez valider ces fichiers à l’aide du schéma JSON disponible à [https://microsoft.github.io/genaiscript/schemas/tests.json](https://microsoft.github.io/genaiscript/schemas/tests.json).
+
+Les fichiers CSV supposent que la première ligne est l’en-tête et que les colonnes correspondent principalement aux propriétés de l’objet `PromptTest`.
+La colonne `file` doit contenir un nom de fichier, la colonne `fileContent` contient le contenu d’un fichier virtuel.
+
+```csv title="tests.csv"
+content,rubrics,facts
+"const x = 1;",is a report with a list of issues,The report says that the input string should be validated before use.
+```
+
+Les fichiers JavaScript doivent exporter une liste d’objets `PromptTest` ou une fonction qui génère cette liste.
+
+```js title="tests.mjs"
+export default [
+    {
+        content: "const x = 1;",
+        rubrics: "is a report with a list of issues",
+        facts: "The report says that the input string should be validated before use.",
+    },
+]
+```
+
+### `files`
+
+`files` prend une liste de chemins de fichier (relatifs à l’espace de travail) et remplit la variable `env.files` pendant l’exécution du test. Vous pouvez fournir plusieurs fichiers en passant un tableau de chaînes.
+
+```js title="proofreader.genai.js" wrap "files"
+script({
+  tests: {
+    files: "src/rag/testcode.ts",
+    ...
+  }
+})
+```
+
+### `rubrics`
+
+`rubrics` vérifie si la sortie du LLM correspond aux exigences données,
+en utilisant un modèle de langage pour noter la sortie selon la rubrique (voir [llm-rubric](https://promptfoo.dev/docs/configuration/expected-outputs/model-graded/#examples-output-based)).
+Vous pouvez spécifier plusieurs rubriques en passant un tableau de chaînes.
+
+```js title="proofreader.genai.js" wrap "rubrics"
+script({
+  tests: {
+    rubrics: "is a report with a list of issues",
+    ...,
+  }
+})
+```
+
+:::note[GPT-4 requis]
+Les tests avec `rubrics` nécessitent une configuration OpenAI ou Azure OpenAI avec un modèle `gpt-4` dans le fichier `.env`.
+:::
+
+### `facts`
+
+`facts` vérifie la cohérence factuelle (voir [factuality](https://promptfoo.dev/docs/guides/factuality-eval/)).
+Vous pouvez spécifier plusieurs faits en passant un tableau de chaînes.
+
+> étant donné une complétion A et une réponse de référence B, évalue si
+> A est un sous-ensemble de B, A est un sur-ensemble de B, A et B sont équivalents,
+> A et B divergent, ou A et B diffèrent,
+> mais la différence n’a pas d’importance du point de vue de la factualité.
+
+```js title="proofreader.genai.js" wrap "facts"
+script({
+  tests: {
+    facts: `The report says that the input string should be validated before use.`,
+    ...,
+  }
+})
+```
+
+:::note[gpt-4o requis]
+Les tests avec `facts` nécessitent une configuration OpenAI ou Azure OpenAI avec un modèle `gpt-4o` dans le fichier `.env`.
+:::
+
+### `asserts`
+
+Autres assertions disponibles sur
+[assertions et métriques de promptfoo](https://promptfoo.dev/docs/configuration/expected-outputs/).
+
+* `icontains` (`not-icontains`) la sortie contient une sous-chaîne, insensible à la casse
+* `equals` (`not-equals`) la sortie est égale à la chaîne
+* `starts-with` (`not-starts-with`) la sortie commence par la chaîne
+
+```js title="proofreader.genai.js" wrap "asserts"
+script({
+    tests: {
+        facts: `The report says that the input string should be validated before use.`,
+        asserts: [
+            {
+                type: "icontains",
+                value: "issue",
+            },
+        ],
+    },
+})
+```
+
+* `contains-all` (`not-contains-all`) la sortie contient toutes les sous-chaînes
+* `contains-any` (`not-contains-any`) la sortie contient n’importe quelle sous-chaîne
+* `icontains-all` (`not-icontains-all`) la sortie contient toutes les sous-chaînes, insensible à la casse
+
+```js title="proofreader.genai.js" wrap "asserts"
+script({
+    tests: {
+        ...,
+        asserts: [
+            {
+                type: "icontains-all",
+                value: ["issue", "fix"],
+            },
+        ],
+    },
+})
+```
+
+#### transformer
+
+Par défaut, GenAIScript extrait le champ `text` de la sortie avant de l’envoyer à PromptFoo.
+Vous pouvez désactiver ce mode en définissant `format: "json"` ; dans ce cas, les `asserts` sont exécutés sur la sortie brute du LLM.
+Vous pouvez utiliser une expression JavaScript pour sélectionner une partie de la sortie à tester.
+
+```js title="proofreader.genai.js" wrap "transform"
+script({
+    tests: {
+        files: "src/will-trigger.cancel.txt",
+        format: "json",
+        asserts: {
+            type: "equals",
+            value: "cancelled",
+            transform: "output.status",
+        },
+    },
+})
+```
+
+## Exécution des tests
+
+Vous pouvez exécuter les tests depuis Visual Studio Code ou depuis la [ligne de commande](/genaiscript/reference/cli).
+Dans les deux cas, genaiscript génère un [fichier de configuration promptfoo](https://promptfoo.dev/docs/configuration/guide)
+et exécute promptfoo dessus.
+
+### Visual Studio Code
+
+* Ouvrez le script à tester
+* Cliquez droit dans l’éditeur et sélectionnez **Run GenAIScript Tests** dans le menu contextuel
+* La [vue web promptfoo](https://promptfoo.dev/docs/usage/web-ui/) s’ouvrira automatiquement
+  et se rafraîchira avec les résultats des tests.
+
+### Ligne de commande
+
+Exécutez la commande `test` avec le fichier script en argument.
+
+```sh "test"
+npx genaiscript test <scriptid>
+```
+
+Vous pouvez spécifier des modèles supplémentaires à tester en utilisant l’option `--models`.
+
+```sh '--models "ollama:phi3"'
+npx genaiscript test <scriptid> --models "ollama:phi3"
+```
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

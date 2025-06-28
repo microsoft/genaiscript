@@ -1,0 +1,124 @@
+---
+title: Recherche Vectorielle
+sidebar:
+  order: 10
+description: Apprenez à utiliser la fonction retrieval.vectorSearch pour indexer
+  des fichiers avec des embeddings afin d'effectuer une recherche de similarité
+  efficace dans des bases de données vectorielles.
+keywords: embeddings search, similarity search, vector database, indexing, LLM API
+hero:
+  image:
+    alt: "A minimal, pixelated 8-bit image shows four main icons: a plain computer
+      file, a classic database cylinder, a search magnifying glass, and a
+      network of connected blocks implying data relationships. These simple,
+      geometric icons use five bold, flat colors typical of corporate design.
+      The objects are arranged closely together, nodding to concepts like file
+      storage, local and cloud databases, data chunking, and search operations.
+      There are no background elements, text, people, gradients, shadows, or 3D
+      effects, all confined to a compact 128x128 pixel square."
+    file: ../../../reference/scripts/vector-search.png
+
+---
+
+import { YouTube } from "astro-embed"
+
+GenAIScript fournit diverses bases de données vectorielles pour supporter la recherche par embeddings et la génération augmentée par récupération (RAG).
+
+```js
+// index creation
+const index = await retrieval.index("animals")
+// indexing
+await index.insertOrUpdate(env.files)
+// search
+const res = await index.search("cat dog")
+def("RAG", res)
+```
+
+## Création de l'index
+
+La fonction `retrieve.index` crée ou charge un index existant. La création de l'index prend en compte plusieurs options **qui ne doivent pas changer** entre les exécutions.
+
+```js
+// index creation
+const index = await retrieval.index("animals")
+```
+
+### Index local
+
+Par défaut, les vecteurs sont stockés localement dans des fichiers sous le dossier `.genaiscript/vector` en utilisant une base de données vectorielle locale basée sur [vectra](https://www.npmjs.com/package/vectra). Les embeddings sont calculés à l'aide de l'[alias de modèle](/genaiscript/reference/scripts/model-aliases) `embeddings`.
+
+<YouTube id="https://youtu.be/-gBs5PW_F20" posterQuality="high" />
+
+Les `embeddings` peuvent également être configurés via les options.
+
+```js
+const index = await retrieval.index("animals", {
+    embeddingsModel: "ollama:nomic-embed-text",
+})
+```
+
+L'index est sérialisé par défaut. Si vous souhaitez le réinitialiser à chaque exécution, définissez `deleteIfExists: true`.
+
+### Recherche Azure AI
+
+GenAIScript prend également en charge l'utilisation d'un service [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search). Azure AI Search utilise la [syntaxe de requête simple](https://learn.microsoft.com/en-us/azure/search/query-simple-syntax).
+
+```js
+const index = retrieval.index("animals", { type: "azure_ai_search" })
+```
+
+Pour configurer le service, vous devrez définir les variables d'environnement `AZURE_AI_SEARCH_ENDPOINT` et `AZURE_AI_SEARCH_API_KEY` dans votre fichier `.env`. Veuillez consulter la [documentation d'authentification](https://learn.microsoft.com/en-us/javascript/api/overview/azure/search-documents-readme?view=azure-node-latest#authenticate-the-client) pour plus de détails.
+
+```txt
+AZURE_AI_SEARCH_ENDPOINT=https://{{service-name}}.search.windows.net/
+AZURE_AI_SEARCH_API_KEY=...
+```
+
+La gestion supplémentaire de l'index peut être effectuée via le portail Azure.
+
+### Configuration du modèle et du découpage
+
+Le calcul des embeddings est effectué via les API LLM en utilisant le même jeton d'autorisation que l'API LLM.
+
+```js wrap 'embeddingsModel: "ollama:all-minilm"'
+const index = await retrieval.index("animals", {
+    embeddingsModel: "ollama:all-minilm",
+})
+```
+
+Vous pouvez également configurer le découpage des fichiers d'entrée. Vous pouvez modifier cela en définissant les options `chunkSize` et `chunkOverlap`.
+
+```js
+const index = await retrieval.index("animals", {
+    chunkSize: 512,
+    chunkOverlap: 0,
+})
+```
+
+## Indexation
+
+La fonction `index.insertOrUpdate` gère le découpage, la vectorisation et la mise à jour de la base de données vectorielle.
+
+```js "await index.insertOrUpdate(env.files)"
+// indexing
+await index.insertOrUpdate(env.files)
+```
+
+## Recherche
+
+La fonction `index.search` effectue une recherche (vectorielle ou hybride) en utilisant l'index.
+
+```js wrap
+const hits = await retrieval.search("keyword")
+```
+
+La valeur retournée est un tableau de fichiers avec le contenu reconstitué à partir des morceaux correspondants.
+
+```js wrap
+const hits = await retrieval.search("keyword")
+def("FILE", files)
+```
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

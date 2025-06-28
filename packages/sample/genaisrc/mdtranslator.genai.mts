@@ -125,6 +125,7 @@ export default async function main() {
         dbgc(`md: %s`, content);
 
         // parse to tree
+        dbgc(`parsing %s`, filename);
         const root = parse(content);
         dbgt(`original %O`, root.children);
         // collect original nodes nodes

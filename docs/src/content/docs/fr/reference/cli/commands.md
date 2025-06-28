@@ -1,11 +1,12 @@
 ---
-title: Commands
-description: List of all CLI commands
+title: Commandes
+description: Liste de toutes les commandes CLI
 sidebar:
   order: 100
+
 ---
 
-A full list of the CLI command and its respective help text.
+Une liste complète des commandes CLI et de leur texte d'aide respectif.
 
 ## `configure`
 
@@ -952,3 +953,7 @@ Show model alias mapping
 Options:
   -h, --help  display help for command
 ```
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

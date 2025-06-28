@@ -1,0 +1,94 @@
+---
+title: Transcription audio
+description: Décrire comment transcrire un fichier audio/vidéo
+sidebar:
+  order: 40
+hero:
+  image:
+    alt: A simple 8-bit style graphic features a blocky computer monitor displaying
+      an audio waveform. Nearby, a video file icon transitions into an audio
+      file icon, indicated by an arrow between them. There is also a symbol for
+      SRT subtitles and a small settings gear, all created with flat geometric
+      shapes using five colors against a blank background. There are no people
+      or text in the image, and the size is 128 by 128 pixels.
+    file: ../../../reference/scripts/transcription.png
+
+---
+
+GenAIScript prend en charge la transcription et les traductions depuis les API similaires à OpenAI.
+
+```js "transcribe"
+const { text } = await transcribe("video.mp4")
+```
+
+## Configuration
+
+L'API de transcription utilise automatiquement [ffmpeg](https://ffmpeg.org/) pour convertir les vidéos en fichiers audio ([codec opus dans un conteneur ogg](https://community.openai.com/t/whisper-api-increase-file-limit-25-mb/566754)).
+
+Vous devez installer ffmpeg sur votre système. Si la variable d'environnement `FFMPEG_PATH` est définie, GenAIScript l'utilisera comme chemin complet vers l'exécutable ffmpeg. Sinon, il tentera d'appeler ffmpeg directement (il doit donc être dans votre PATH).
+
+## Modèle
+
+Par défaut, l'API utilise l'[alias de modèle](/genaiscript/reference/scripts/model-aliases) `transcription` pour transcrire l'audio. Vous pouvez également spécifier un alias de modèle différent en utilisant l'option `model`.
+
+```js "openai:whisper-1" wrap
+const { text } = await transcribe("...", { model: "openai:whisper-1" })
+```
+
+:::tip
+Vous pouvez utiliser le [service Web Whisper ASR](/genaiscript/configuration/whisperasr) pour exécuter Whisper localement ou dans un conteneur docker.
+:::
+
+## Segments
+
+Pour les modèles qui le supportent, vous pouvez récupérer les segments individuels.
+
+```js "{ segments }"
+const { segments } = await transcribe("...")
+for (const segment of segments) {
+    const { start, text } = segment
+    console.log(`[${start}] ${text}`)
+}
+```
+
+## SRT et VTT
+
+GenAIScript génère également les segments aux formats [SRT](https://fr.wikipedia.org/wiki/SubRip) et [WebVTT](https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API).
+
+```js
+const { srt, vtt } = await transcribe("...")
+```
+
+## Traduction
+
+Certains modèles prennent également en charge la transcription et la traduction en anglais en une seule passe. Dans ce cas, activez l'option `translate: true`.
+
+```js "translate: true"
+const { srt } = await transcribe("...", { translate: true })
+```
+
+## Cache
+
+Vous pouvez mettre en cache les résultats de la transcription en définissant l'option `cache` à `true` (ou un nom personnalisé).
+
+```js "cache: true"
+const { srt } = await transcribe("...", { cache: true })
+```
+
+ou un sel personnalisé
+
+```js
+const { srt } = await transcribe("...", { cache: "whisper" })
+```
+
+## Parseurs VTT et SRT
+
+Vous pouvez analyser les fichiers VTT et SRT en utilisant la fonction `parsers.transcription`.
+
+```js
+const segments = parsers.transcription("WEBVTT...")
+```
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.
