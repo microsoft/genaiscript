@@ -1,6 +1,7 @@
 import { hash } from "crypto";
 import { classify, mdast } from "@genaiscript/runtime";
 import type { Node, Text, Heading, Paragraph, PhrasingContent } from "mdast";
+import { join } from "path";
 script({
   accept: ".md,.mdx",
   files: "src/rag/markdown.md",
@@ -30,6 +31,7 @@ function hashNode(node: Node, ancestors: Node[]): string {
 }
 const maxPromptPerFile = 5;
 const nodeTypes = ["text", "paragraph", "heading"];
+const starlightDir = "docs/src/contents/docs";
 type NodeType = Text | Paragraph | Heading;
 const langs = {
   fr: "French",
@@ -37,10 +39,14 @@ const langs = {
 
 export default async function main() {
   const { files, dbg, output, vars } = env;
+  const { force, aiDisclaimer } = vars as {
+    to: string;
+    force: boolean;
+    aiDisclaimer: boolean;
+  };
 
   if (!files.length) cancel("No files selected.");
 
-  const { force, aiDisclaimer } = vars as { to: string; force: boolean; aiDisclaimer: boolean };
   const tos = vars.to
     .split(",")
     .map((s) => s.trim())
@@ -72,15 +78,16 @@ export default async function main() {
 
     for (const file of files) {
       const { filename } = file;
+      output.heading(3, `${filename}`);
+
+      const starlight = filename.startsWith(starlightDir);
+      const translationFn = starlight
+        ? filename.replace(starlightDir, join(starlightDir, to.toLowerCase()))
+        : path.changeext(filename, `.${to.toLowerCase()}.md`);
+      output.itemValue(`translation`, translationFn);
       let content = file.content;
       if (aiDisclaimer)
         content += `\n\n<hr/>\n\nTranslated using AI. Please verify the content for accuracy.\n\n`;
-
-      const translationFn = path.changeext(file.filename, `.${to.toLowerCase()}.md`);
-
-      output.heading(3, `${filename}`);
-      output.itemValue(`translation`, translationFn);
-
       dbgc(`md: %s`, content);
 
       // parse to tree
