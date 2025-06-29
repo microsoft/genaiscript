@@ -7,16 +7,12 @@ import { z3 } from "../src/z3.js";
 describe("z3", () => {
   test("should return Z3Solver or undefined based on availability", async () => {
     const solver = await z3();
+    assert(solver);
 
-    if (solver) {
-      // z3-solver is available
-      assert.isDefined(solver);
-      assert.isFunction(solver.run);
-      assert.isFunction(solver.api);
-    } else {
-      // z3-solver is not available
-      assert.isUndefined(solver);
-    }
+    // z3-solver is available
+    assert.isDefined(solver);
+    assert.isFunction(solver.run);
+    assert.isFunction(solver.api);
   });
 
   test("should run SMT-LIB2 input successfully if z3 is available", async () => {
