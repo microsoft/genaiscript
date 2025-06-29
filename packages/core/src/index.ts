@@ -192,7 +192,6 @@ export * from "./workspace.js";
 export * from "./xlsx.js";
 export * from "./xml.js";
 export * from "./yaml.js";
-export * from "./z3.js";
 export * from "./zip.js";
 export * from "./zod.js";
 export * from "./testhost.js";

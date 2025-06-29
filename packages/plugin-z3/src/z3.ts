@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
-import { genaiscriptDebug } from "./debug.js";
-import { TraceOptions } from "./trace.js";
-import { logWarn } from "./util.js";
-import type { Z3Solver } from "./types.js";
+import {
+  CancellationOptions,
+  checkCancelled,
+  genaiscriptDebug,
+  TraceOptions,
+} from "@genaiscript/core";
 
 const dbg = genaiscriptDebug("z3");
 
@@ -41,9 +42,7 @@ async function importZ3(): Promise<ReturnType<(typeof import("z3-solver"))["init
  *
  * Logs a warning if the Z3 solver module is not available. Ensures cancellation checks are respected at initialization and execution.
  */
-export async function loadZ3Client(
-  options?: TraceOptions & CancellationOptions,
-): Promise<Z3Solver> {
+async function loadZ3Client(options?: TraceOptions & CancellationOptions): Promise<Z3Solver> {
   const { cancellationToken } = options || {};
   const z3p = await (_z3 || (_z3 = importZ3()));
   checkCancelled(cancellationToken);
@@ -88,4 +87,21 @@ export async function loadZ3Client(
     }
     return output;
   }
+}
+
+export interface Z3Solver {
+  /**
+   * Runs Z3 on a given SMT string
+   * @param smt
+   */
+  run(smt: string): Promise<string>;
+
+  /**
+   * Native underlying Z3 api
+   */
+  api(): any;
+}
+
+export function z3(): Promise<Z3Solver> {
+  return loadZ3Client();
 }

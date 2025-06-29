@@ -132,8 +132,7 @@
     "@lvce-editor/ripgrep": "^2.1.0",
     "pdfjs-dist": "5.3.31",
     "pyodide": "^0.27.7",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
-    "z3-solver": "^4.15.2"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
   },
   "files": [
     "dist",

@@ -31,7 +31,6 @@ import { createMicrosoftTeamsChannelClient } from "./teams.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { astGrepCreateChangeSet, astGrepFindFiles, astGrepParse } from "./astgrep.js";
 import { createCache } from "./cache.js";
-import { loadZ3Client } from "./z3.js";
 import { genaiscriptDebug } from "./debug.js";
 import { resolveLanguageModelConfigurations } from "./config.js";
 import { deleteUndefinedValues } from "./cleaners.js";
@@ -310,7 +309,6 @@ export async function createPromptContext(
       const res = createCache<any, any>(name, { type: "memory" });
       return res;
     },
-    z3: () => loadZ3Client({ trace, cancellationToken }),
     exec: async (command: string, args?: string[] | ShellOptions, options?: ShellOptions) => {
       // Parse the command and arguments if necessary
       if (!Array.isArray(args) && typeof args === "object") {
