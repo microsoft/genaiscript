@@ -25,8 +25,6 @@ import type {
   ModelConnectionOptions,
 } from "@genaiscript/core";
 import type {
-  ChatGenerationContext,
-  ChatGenerationContextOptions,
   ElementOrArray,
   ExpansionVariables,
   HostConfiguration,
@@ -38,7 +36,6 @@ import type {
   Retrieval,
   RunPromptResult,
   RunPromptResultPromiseWithOptions,
-  RuntimePromptContext,
   SpeechOptions,
   SpeechResult,
   TranscriptionOptions,
@@ -134,18 +131,6 @@ declare global {
 }
 
 let _nodeHost: NodeHost | undefined;
-
-export function resolveChatGenerationContext(
-  options?: ChatGenerationContextOptions,
-): ChatGenerationContext {
-  const { ctx } = options || {};
-  if (ctx) return ctx;
-  const globalPromptContext: RuntimePromptContext = globalThis as unknown as RuntimePromptContext;
-  const generator = globalPromptContext.env?.generator;
-  if (!generator)
-    throw new Error("You must pass a chat generation context when using the runtime.");
-  return generator;
-}
 
 /**
  * Configure the default GenAIScript runtime environment.

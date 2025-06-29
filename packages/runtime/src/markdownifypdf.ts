@@ -8,6 +8,7 @@
  */
 import type {
   ChatGenerationContext,
+  ChatGenerationContextOptions,
   ParsePDFOptions,
   PromptGenerator,
   PromptGeneratorOptions,
@@ -25,10 +26,9 @@ import { resolveChatGenerationContext } from "@genaiscript/core";
 export async function markdownifyPdf(
   file: WorkspaceFile,
   options?: PromptGeneratorOptions &
-    ChatGenerationContext &
+    ChatGenerationContextOptions &
     Omit<ParsePDFOptions, "renderAsImage"> & {
       instructions?: string | PromptGenerator;
-      ctx?: ChatGenerationContext;
     },
 ) {
   const generator: ChatGenerationContext = resolveChatGenerationContext(options);
