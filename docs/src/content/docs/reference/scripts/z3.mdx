@@ -29,7 +29,9 @@ The `z3` instance is a wrapper around the [z3-solver](https://www.npmjs.com/pack
 The `z3` instance has the `run` method that runs the given SMTLIB2 formula and returns the result.
 
 ```js
-const z3 = await host.z3()
+import { z3 } from "@genaiscript/plugin-z3"
+
+const z3 = await z3()
 const res = await z3.run(`
 (declare-const a Int)
 (declare-fun f (Int Bool) Int)
