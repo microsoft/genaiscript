@@ -2,7 +2,10 @@ import type { ChatGenerationContextOptions } from "@genaiscript/core";
 import { resolveChatGenerationContext } from "@genaiscript/core";
 import { z3 } from "./z3.js";
 
-export default async function (options?: ChatGenerationContextOptions) {
+/**
+ * Import the z3 tool into the prompt generation context.
+ */
+export default function (options?: ChatGenerationContextOptions) {
   const { defTool } = resolveChatGenerationContext(options);
 
   defTool(
@@ -18,6 +21,7 @@ export default async function (options?: ChatGenerationContextOptions) {
       },
       required: ["smtlib2"],
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (args: any) => {
       const { smtlib2 } = args as { smtlib2: string };
       const z3lib = await z3();
