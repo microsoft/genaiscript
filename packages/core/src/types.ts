@@ -1926,7 +1926,7 @@ export interface ChatParticipant {
 /**
  * A set of text extracted from the context of the prompt execution
  */
-export interface ExpansionVariables {
+export interface ExpansionVariables extends Required<ChatGenerationContextOptions> {
   /**
    * Directory where the prompt is executed
    */
@@ -1985,11 +1985,6 @@ export interface ExpansionVariables {
    * List of secrets used by the prompt, must be registered in `genaiscript`.
    */
   secrets: Record<string, string>;
-
-  /**
-   * Root prompt generation context
-   */
-  generator: ChatGenerationContext;
 
   /**
    * Output trace builder
@@ -4918,6 +4913,9 @@ export interface ChatGenerationContext extends ChatTurnGenerationContext {
 }
 
 export interface ChatGenerationContextOptions {
+  /**
+   * Prompt generation context
+   */
   generator?: ChatGenerationContext;
 }
 
