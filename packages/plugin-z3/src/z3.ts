@@ -37,7 +37,7 @@ async function importZ3(): Promise<ReturnType<(typeof import("z3-solver"))["init
  *
  * Logs a warning if the Z3 solver module is not available. Ensures cancellation checks are respected at initialization and execution.
  */
-async function loadZ3Client(options?: CancellationOptions): Promise<Z3Solver> {
+export async function z3(options?: CancellationOptions): Promise<Z3Solver> {
   const { cancellationToken } = options || {};
   const z3p = await (_z3 || (_z3 = importZ3()));
   checkCancelled(cancellationToken);
@@ -94,9 +94,5 @@ export interface Z3Solver {
   /**
    * Native underlying Z3 api
    */
-  api(): any;
-}
-
-export function z3(): Promise<Z3Solver> {
-  return loadZ3Client();
+  api(): unknown;
 }
