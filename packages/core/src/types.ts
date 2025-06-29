@@ -1926,7 +1926,8 @@ export interface ChatParticipant {
 /**
  * A set of text extracted from the context of the prompt execution
  */
-export interface ExpansionVariables extends Required<ChatGenerationContextOptions> {
+export interface ExpansionVariables
+  extends Required<Pick<ChatGenerationContextOptions, "generator">> {
   /**
    * Directory where the prompt is executed
    */
