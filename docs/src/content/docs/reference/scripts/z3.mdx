@@ -42,18 +42,13 @@ console.log(res) // unsat
 
 ## Z3 tool
 
-The `z3` tool (in [system.z3](/genaiscript/reference/scripts/system#systemz3)) script wraps Z3 as a LLM tool that can be used in GenAIScript.
+The `z3` tool plugin wraps Z3 as a LLM tool that can be used in GenAIScript.
 The tool takes a SMTLIB2 formula as input and returns the Z3 output.
 
 ```js
-script({
-    tools: "z3"
-})
+import z3 from "@genaiscript/plugin-z3"
 
-script({
-    title: "Use Z3 tool to solve SMT2 problems",
-    tools: "z3",
-})
+z3(env)
 
 $`Solve the following problems using Z3:
 

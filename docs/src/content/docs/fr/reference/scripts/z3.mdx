@@ -39,17 +39,12 @@ console.log(res) // unsat
 
 ## Outil Z3
 
-Le script de l'outil `z3` (dans [system.z3](../../../reference/reference/scripts/system#systemz3/)) encapsule Z3 en tant qu'outil LLM utilisable dans GenAIScript. L'outil prend une formule SMTLIB2 en entrée et retourne la sortie de Z3.
+Le script de l'outil `z3` encapsule Z3 en tant qu'outil LLM utilisable dans GenAIScript. L'outil prend une formule SMTLIB2 en entrée et retourne la sortie de Z3.
 
 ```js
-script({
-    tools: "z3"
-})
+import z3 from "@genaiscript/plugin-z3"
 
-script({
-    title: "Use Z3 tool to solve SMT2 problems",
-    tools: "z3",
-})
+z3(env)
 
 $`Solve the following problems using Z3:
 
