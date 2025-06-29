@@ -9,7 +9,7 @@ import type {
   PromptGeneratorOptions,
   StringLike,
 } from "@genaiscript/core";
-import { resolveChatGenerationContext } from "./runtime.js";
+import { resolveChatGenerationContext } from "@genaiscript/core";
 
 /**
  * Converts unstructured text or data into structured JSON format.

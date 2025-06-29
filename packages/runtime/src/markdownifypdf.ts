@@ -13,7 +13,7 @@ import type {
   PromptGeneratorOptions,
   WorkspaceFile,
 } from "@genaiscript/core";
-import { resolveChatGenerationContext } from "./runtime.js";
+import { resolveChatGenerationContext } from "@genaiscript/core";
 
 /**
  * Converts a PDF file to markdown format with intelligent formatting preservation.

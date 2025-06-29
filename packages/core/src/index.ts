@@ -140,6 +140,7 @@ export * from "./pathUtils.js";
 export * from "./pdf.js";
 export * from "./perf.js";
 export * from "./performance.js";
+export * from "./plugin.js";
 export * from "./precision.js";
 export * from "./pretty.js";
 export * from "./progress.js";

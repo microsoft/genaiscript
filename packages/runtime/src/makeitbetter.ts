@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { ChatGenerationContextOptions } from "@genaiscript/core";
-import { resolveChatGenerationContext } from "./runtime.js";
+import { resolveChatGenerationContext } from "@genaiscript/core";
 
 /**
  * Enhances content generation by applying iterative improvements.

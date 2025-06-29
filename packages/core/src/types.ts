@@ -4918,7 +4918,7 @@ export interface ChatGenerationContext extends ChatTurnGenerationContext {
 }
 
 export interface ChatGenerationContextOptions {
-  ctx?: ChatGenerationContext;
+  generator?: ChatGenerationContext;
 }
 
 export interface GenerationOutput {

@@ -14,8 +14,8 @@ import type {
   RunPromptUsage,
   StringLike,
 } from "@genaiscript/core";
+import { resolveChatGenerationContext } from "@genaiscript/core";
 import { uniq } from "es-toolkit";
-import { resolveChatGenerationContext } from "./runtime.js";
 
 /**
  * Options for classifying data using AI models.
