@@ -29,7 +29,6 @@ import { fileWriteCached } from "./filecache.js";
 import { join } from "node:path";
 import { createMicrosoftTeamsChannelClient } from "./teams.js";
 import { dotGenaiscriptPath } from "./workdir.js";
-import { astGrepCreateChangeSet, astGrepFindFiles, astGrepParse } from "./astgrep.js";
 import { createCache } from "./cache.js";
 import { genaiscriptDebug } from "./debug.js";
 import { resolveLanguageModelConfigurations } from "./config.js";
@@ -41,7 +40,6 @@ import type {
   PromptContext,
   PromptHost,
   Retrieval,
-  Sg,
   ShellOptions,
   WorkspaceFile,
   WorkspaceFileSystem,
@@ -363,20 +361,6 @@ export async function createPromptContext(
         ...(pyOptions || {}),
       }),
     teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
-    astGrep: async () =>
-      Object.freeze<Sg>({
-        changeset: astGrepCreateChangeSet,
-        search: (lang, glob, matcher, sgOptions) =>
-          astGrepFindFiles(lang, glob, matcher, {
-            ...(sgOptions || {}),
-            cancellationToken,
-          }),
-        parse: (file, sgOptions) =>
-          astGrepParse(file, {
-            ...(sgOptions || {}),
-            cancellationToken,
-          }),
-      }),
   });
 
   // Freeze project options to prevent modification

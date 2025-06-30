@@ -8,7 +8,6 @@ export * from "./annotations.js";
 export * from "./anthropic.js";
 export * from "./assert.js";
 export * from "./ast.js";
-export * from "./astgrep.js";
 export * from "./azureaiinference.js";
 export * from "./azureaisearch.js";
 export * from "./azurecontentsafety.js";

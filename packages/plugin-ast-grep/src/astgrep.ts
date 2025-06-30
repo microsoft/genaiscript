@@ -1,27 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
-import { CancelError, errorMessage } from "./error.js";
-import { resolveFileContent } from "./file.js";
-import { host } from "./host.js";
-import { uniq } from "es-toolkit";
-import { readText, writeText } from "./fs.js";
-import { extname } from "node:path";
-import { diffFindChunk, diffResolve } from "./diff.js";
-import { genaiscriptDebug } from "./debug.js";
+import {
+  CancelError,
+  checkCancelled,
+  diffFindChunk,
+  diffResolve,
+  errorMessage,
+  genaiscriptDebug,
+  host,
+  resolveFileContent,
+} from "@genaiscript/core";
+import type { CancellationOptions, ElementOrArray, WorkspaceFile } from "@genaiscript/core";
 import type {
-  ElementOrArray,
   Sg,
+  SgChangeSet,
+  SgEdit,
   SgLang,
   SgMatcher,
   SgNode,
   SgRoot,
-  SgEdit,
-  SgChangeSet,
   SgSearchOptions,
-  WorkspaceFile,
 } from "./types.js";
+import { extname } from "path";
 
 const dbg = genaiscriptDebug("astgrep");
 const dbgLang = dbg.extend("lang");
@@ -71,7 +71,7 @@ class SgChangeSetImpl implements SgChangeSet {
  *
  * @returns A new change set instance to handle AST edits.
  */
-export function astGrepCreateChangeSet(): SgChangeSet {
+function astGrepCreateChangeSet(): SgChangeSet {
   return new SgChangeSetImpl();
 }
 
@@ -92,7 +92,7 @@ export function astGrepCreateChangeSet(): SgChangeSet {
  *
  * @throws An error if `glob` or `matcher` is not provided.
  */
-export async function astGrepFindFiles(
+async function astGrepFindFiles(
   lang: SgLang,
   glob: ElementOrArray<string>,
   matcher: string | SgMatcher,
@@ -191,34 +191,6 @@ export async function astGrepFindFiles(
 }
 
 /**
- * Writes edits to the roots of the provided nodes to their corresponding files.
- *
- * @param nodes - An array of AST nodes whose root edits need to be written.
- * @param options - Optional configuration for cancellation, containing a cancellation token to handle operation interruptions.
- *
- * The function iterates through the unique roots of the provided nodes, checks for file content differences,
- * and writes updated content to the respective files if changes are detected. If a file does not have a filename, it is skipped.
- */
-export async function astGrepWriteRootEdits(nodes: SgNode[], options?: CancellationOptions) {
-  const { cancellationToken } = options || {};
-  const roots = uniq(nodes.map((n) => n.getRoot()));
-  dbg(`writing edits to roots: ${roots.length}`);
-  for (const root of roots) {
-    checkCancelled(cancellationToken);
-
-    const filename = root.filename();
-    if (!filename) continue;
-
-    const existing = await readText(filename);
-    const updated = root.root().text();
-    if (existing !== updated) {
-      dbg(`writing changes to root: ${filename}`);
-      await writeText(filename, updated);
-    }
-  }
-}
-
-/**
  * Parses a given file into an abstract syntax tree (AST) root node.
  *
  * @param file - The input file to parse. Must include filename, encoding, and content properties.
@@ -233,7 +205,7 @@ export async function astGrepWriteRootEdits(nodes: SgNode[], options?: Cancellat
  * - Automatically resolves file content before parsing.
  * - Uses the library "@ast-grep/napi" for parsing.
  */
-export async function astGrepParse(
+async function astGrepParse(
   file: WorkspaceFile,
   options?: { lang?: SgLang | Record<string, SgLang> } & CancellationOptions,
 ): Promise<SgRoot> {
@@ -354,4 +326,21 @@ async function loadDynamicLanguage(langName: string) {
     }
   }
   return langName;
+}
+
+export async function astGrep(options?: CancellationOptions): Promise<Sg> {
+  const { cancellationToken } = options || {};
+  return Object.freeze<Sg>({
+    changeset: astGrepCreateChangeSet,
+    search: (lang, glob, matcher, sgOptions) =>
+      astGrepFindFiles(lang, glob, matcher, {
+        ...(sgOptions || {}),
+        cancellationToken,
+      }),
+    parse: (file, sgOptions) =>
+      astGrepParse(file, {
+        ...(sgOptions || {}),
+        cancellationToken,
+      }),
+  });
 }

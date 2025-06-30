@@ -595,18 +595,6 @@ importers:
         specifier: ^3.25.67
         version: 3.25.67
     optionalDependencies:
-      '@ast-grep/lang-c':
-        specifier: ^0.0.2
-        version: 0.0.2
-      '@ast-grep/lang-cpp':
-        specifier: ^0.0.2
-        version: 0.0.2
-      '@ast-grep/lang-python':
-        specifier: ^0.0.2
-        version: 0.0.2
-      '@ast-grep/napi':
-        specifier: ^0.38.6
-        version: 0.38.6
       '@lvce-editor/ripgrep':
         specifier: ^2.1.0
         version: 2.1.0
@@ -625,6 +613,61 @@ importers:
       ini:
         specifier: ^5.0.0
         version: 5.0.0
+
+  packages/plugin-ast-grep:
+    dependencies:
+      '@ast-grep/lang-c':
+        specifier: ^0.0.2
+        version: 0.0.2
+      '@ast-grep/lang-cpp':
+        specifier: ^0.0.2
+        version: 0.0.2
+      '@ast-grep/lang-python':
+        specifier: ^0.0.2
+        version: 0.0.2
+      '@ast-grep/napi':
+        specifier: ^0.38.6
+        version: 0.38.6
+      '@genaiscript/core':
+        specifier: workspace:*
+        version: link:../core
+      es-toolkit:
+        specifier: 'catalog:'
+        version: 1.39.3
+    devDependencies:
+      '@eslint/js':
+        specifier: 'catalog:'
+        version: 9.29.0
+      '@types/debug':
+        specifier: 'catalog:'
+        version: 4.1.12
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.28
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0))
+      eslint:
+        specifier: 'catalog:'
+        version: 9.29.0
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.0
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      tshy:
+        specifier: 'catalog:'
+        version: 3.0.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      typescript-eslint:
+        specifier: 'catalog:'
+        version: 8.34.1(eslint@9.29.0)(typescript@5.8.3)
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.19.4)(yaml@2.8.0)
 
   packages/plugin-mdast:
     dependencies:
@@ -784,9 +827,6 @@ importers:
       '@types/debug':
         specifier: 'catalog:'
         version: 4.1.12
-      '@types/jsdom':
-        specifier: ^21.1.7
-        version: 21.1.7
       '@types/node':
         specifier: 'catalog:'
         version: 22.15.28
@@ -9354,7 +9394,6 @@ snapshots:
       '@ast-grep/napi-win32-arm64-msvc': 0.38.6
       '@ast-grep/napi-win32-ia32-msvc': 0.38.6
       '@ast-grep/napi-win32-x64-msvc': 0.38.6
-    optional: true
 
   '@ast-grep/setup-lang@0.0.3': {}
 

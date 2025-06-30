@@ -1,5 +1,5 @@
 {
-  "name": "@genaiscript/plugin-z3",
+  "name": "@genaiscript/plugin-ast-grep",
   "private": false,
   "version": "2.1.1",
   "main": "./dist/commonjs/index.js",
@@ -14,7 +14,11 @@
   ],
   "dependencies": {
     "@genaiscript/core": "workspace:*",
-    "z3-solver": "^4.15.2"
+    "@ast-grep/napi": "^0.38.6",
+    "@ast-grep/lang-c": "^0.0.2",
+    "@ast-grep/lang-cpp": "^0.0.2",
+    "@ast-grep/lang-python": "^0.0.2",
+    "es-toolkit": "catalog:"
   },
   "devDependencies": {
     "@eslint/js": "catalog:",

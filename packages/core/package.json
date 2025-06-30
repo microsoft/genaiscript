@@ -125,10 +125,6 @@
     "zod-to-json-schema": "^3.24.6"
   },
   "optionalDependencies": {
-    "@ast-grep/lang-c": "^0.0.2",
-    "@ast-grep/lang-cpp": "^0.0.2",
-    "@ast-grep/lang-python": "^0.0.2",
-    "@ast-grep/napi": "^0.38.6",
     "@lvce-editor/ripgrep": "^2.1.0",
     "pdfjs-dist": "5.3.31",
     "pyodide": "^0.27.7",
