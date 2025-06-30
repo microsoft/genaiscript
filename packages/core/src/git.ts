@@ -402,6 +402,45 @@ export class GitClient implements Git {
     }
 
     /**
+     * Lists files that have been modified since a specific date or elapsed time.
+     * @param since Date string (ISO format) or elapsed time (e.g., "2 hours ago", "1 day ago")
+     * @param options Optional settings such as paths and exclusions
+     * @returns {Promise<WorkspaceFile[]>} List of modified files since the specified time
+     */
+    async changedFilesSince(
+        since: string,
+        options?: {
+            paths?: ElementOrArray<string>
+            excludedPaths?: ElementOrArray<string>
+        }
+    ): Promise<WorkspaceFile[]> {
+        dbg(`listing files changed since: ${since}`)
+        const paths = arrayify(options?.paths, { filterEmpty: true })
+        const excludedPaths = await this.resolveExcludedPaths(options)
+
+        // Use git log to get files that changed since the specified date/time
+        const args = ["log", "--name-only", "--pretty=format:", `--since=${since}`]
+        
+        GitClient.addFileFilters(paths, excludedPaths, args)
+        
+        const res = await this.exec(args, {
+            label: `git list files changed since ${since}`,
+        })
+        
+        // Parse the output and remove duplicates
+        const filenames = res
+            .split("\n")
+            .filter((f) => f.trim() !== "")
+            .filter((f, index, arr) => arr.indexOf(f) === index) // Remove duplicates
+
+        dbg(`found ${filenames.length} files changed since ${since}`)
+        
+        const files = filenames.map((filename) => ({ filename }))
+        await resolveFileContents(files)
+        return files
+    }
+
+    /**
      * Generates a diff of changes based on provided options.
      * @param options Options such as staged flag, base, head, paths, and exclusions.
      * @returns {Promise<string>} The diff output.
