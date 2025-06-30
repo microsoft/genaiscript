@@ -15,6 +15,7 @@
     "@genaiscript/plugin-mdast": "workspace:*",
     "@genaiscript/plugin-mermaid": "workspace:*",
     "@genaiscript/plugin-z3": "workspace:*",
+    "@genaiscript/plugin-ast-grep": "workspace:*",
     "ini": "^5.0.0",
     "mdast-util-mdxjs-esm": "^2.0.1",
     "uuid": "^11.1.0"
