@@ -135,4 +135,43 @@ export default function (ctx: ChatGenerationContext) {
     defTool("git_last_tag", "Gets the last tag using client.", {}, async () => {
         return await client.lastTag()
     })
+
+    defTool(
+        "git_changed_files_since",
+        "Lists files that have been modified since a specific date or elapsed time.",
+        {
+            type: "object",
+            properties: {
+                since: {
+                    type: "string",
+                    description: "Date string (ISO format) or elapsed time (e.g., '2 hours ago', '1 day ago')",
+                },
+                paths: {
+                    type: "array",
+                    description: "Paths to include",
+                    items: {
+                        type: "string",
+                        description: "File path or wildcard supported by git",
+                    },
+                },
+                excludedPaths: {
+                    type: "array",
+                    description: "Paths to exclude",
+                    items: {
+                        type: "string",
+                        description: "File path or wildcard supported by git",
+                    },
+                },
+            },
+            required: ["since"],
+        },
+        async (args) => {
+            const { since, paths, excludedPaths } = args
+            const files = await client.changedFilesSince(since, {
+                paths,
+                excludedPaths,
+            })
+            return files.map(f => f.filename).join("\n")
+        }
+    )
 }
