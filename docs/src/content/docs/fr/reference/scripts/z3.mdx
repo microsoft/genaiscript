@@ -26,7 +26,9 @@ GenAIScript utilise le paquet npm [z3-solver](https://www.npmjs.com/package/z3-s
 La méthode `host.z3()` crée une nouvelle instance de Z3. L'instance peut être utilisée pour exécuter des commandes Z3 et obtenir les résultats. L'instance `z3` est un wrapper autour du paquet npm [z3-solver](https://www.npmjs.com/package/z3-solver). L'instance `z3` possède la méthode `run` qui exécute la formule SMTLIB2 donnée et retourne le résultat.
 
 ```js
-const z3 = await host.z3()
+import { z3 } from "@genaiscript/plugin-z3"
+
+const z3 = await z3()
 const res = await z3.run(`
 (declare-const a Int)
 (declare-fun f (Int Bool) Int)
@@ -39,7 +41,7 @@ console.log(res) // unsat
 
 ## Outil Z3
 
-Le script de l'outil `z3` encapsule Z3 en tant qu'outil LLM utilisable dans GenAIScript. L'outil prend une formule SMTLIB2 en entrée et retourne la sortie de Z3.
+Le plugin d'outil `z3` enveloppe Z3 en tant qu'outil LLM pouvant être utilisé dans GenAIScript. L'outil prend une formule SMTLIB2 en entrée et retourne la sortie de Z3.
 
 ```js
 import z3 from "@genaiscript/plugin-z3"

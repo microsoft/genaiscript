@@ -10626,5 +10626,6 @@
   "B3BB2D3F076BAC26B49A": "vérifiez si c’est vide",
   "F1F06617835EA43CC69A": "Résumé 🎉",
   "84AEEE27D503C1EEC3FA": "Explorez davantage avec les ",
-  "8F7C4C07A9E3F74F72FF": "Docs GenAIScript"
+  "8F7C4C07A9E3F74F72FF": "Docs GenAIScript",
+  "534DC676499E132A7D94": "Le plugin d'outil `z3` enveloppe Z3 en tant qu'outil LLM pouvant être utilisé dans GenAIScript. L'outil prend une formule SMTLIB2 en entrée et retourne la sortie de Z3."
 }
