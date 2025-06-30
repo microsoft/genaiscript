@@ -5,7 +5,7 @@ import "zx/globals";
 console.log("Publishing npm packages...");
 let otp = await question("Please enter your npm 2FA code: ");
 const cwd = process.cwd();
-for (const d of ["core", "api", "runtime", "plugin-mdast", "plugin-mermaid", "plugin-z3", "cli"]) {
+for (const d of ["core", "api", "runtime", "plugin-ast-grep", "plugin-mdast", "plugin-mermaid", "plugin-z3", "cli"]) {
   console.log(`publishing ${d}`);
   cd(`packages/${d}`);
   const res =

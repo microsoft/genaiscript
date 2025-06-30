@@ -1,6 +1,6 @@
-# GenAIScript Z3
+# GenAIScript ast-grep
 
-Friendly wrapper around z3 for the GenAIScript runtime.
+Friendly wrapper around ast-grep for the GenAIScript runtime.
 
 - [Documentation](https://microsoft.github.io/genaiscript/)
 

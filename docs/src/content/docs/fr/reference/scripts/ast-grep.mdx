@@ -17,17 +17,25 @@ hero:
 
 ---
 
+import { PackageManagers } from "starlight-package-managers";
+
 [ast-grep](https://ast-grep.github.io/) est un outil rapide et polyglotte pour la recherche structurelle dans le code, le linting et la réécriture à grande échelle.
 
 GenAIScript fournit un wrapper autour de `ast-grep` pour rechercher des motifs dans l'AST d'un script,
 et transformer l'AST ! C'est une méthode très efficace pour créer des scripts qui modifient le code source puisqu'elle permet
 de cibler de manière chirurgicale des parties spécifiques du code.
 
+## Installation
+
+La fonctionnalité ast-grep est fournie sous forme de plugin, il faut donc l’installer au préalable :
+
+<PackageManagers pkg="@genaiscript/plugin-ast-grep" />
 
 * charger le module `ast-grep`
 
 ```ts
-const sg = await host.astGrep()
+import { astGrep } from "@genaiscript/plugin-ast-grep";
+const sg = await astGrep();
 ```
 
 ## Rechercher des motifs
@@ -39,40 +47,44 @@ Le premier argument est la langue, le deuxième argument est les correspondances
 
 ```ts
 // matches is an array of AST (immutable) nodes
-const { matches } = await sg.search("ts", "src/*.ts", "console.log($META)")
+const { matches } = await sg.search(
+  "ts",
+  "src/*.ts",
+  "console.log($META)",
+);
 ```
 
 * trouver toutes les fonctions TypeScript sans commentaires. Cet exemple utilise la [syntaxe des règles](https://ast-grep.github.io/reference/rule.html).
 
 ```ts
 const { matches } = await sg.search("ts", "src/fib.ts", {
-    rule: {
-        kind: "function_declaration",
-        not: {
-            precedes: {
-                kind: "comment",
-                stopBy: "neighbor",
-            },
-        },
+  rule: {
+    kind: "function_declaration",
+    not: {
+      precedes: {
+        kind: "comment",
+        stopBy: "neighbor",
+      },
     },
-})
+  },
+});
 ```
 
 ou si vous copiez les règles depuis le [terrain de jeu ast-grep](https://ast-grep.github.io/playground.html) en utilisant YAML,
 
 ```ts
 const { matches } = await sg.search(
-    "ts",
-    "src/fib.ts",
-    YAML`
+  "ts",
+  "src/fib.ts",
+  YAML`
 rule:
     kind: function_declaration
     not:
         precedes: 
             kind: comment
             stopBy: neighbor
-`
-)
+`,
+);
 ```
 
 :::tip
@@ -98,25 +110,26 @@ Un cas d'utilisation courant consiste à rechercher un motif et à le remplacer 
 Cela peut être réalisé avec la méthode `replace`.
 
 ```js
-const edits = sg.changeset()
+const edits = sg.changeset();
 ```
 
 La méthode `replace` crée une modification qui remplace le contenu d'un nœud par un nouveau texte.
 La modification est stockée en interne mais n'est pas appliquée avant que `commit` soit appelé.
 
 ```js
-edits.replace(matches[0], "console.log('replaced')")
+edits.replace(matches[0], "console.log('replaced')");
 ```
 
 Bien sûr, les choses deviennent plus intéressantes lorsque vous utilisez des requêtes intégrées pour générer le texte de remplacement.
 
 ```js wrap
-for(const match of matches) {
-  const updated = await prompt`... ${match.text()} ...`
+for (const match of matches) {
+  const updated = await prompt`... ${match.text()} ...`;
   edits.replace(
     match.node,
     `console.log
-  ('${updated.text}')`)
+  ('${updated.text}')`,
+  );
 }
 ```
 
@@ -124,13 +137,13 @@ Ensuite, vous pouvez valider les modifications pour créer un ensemble de fichie
 au système de fichiers.
 
 ```js
-const newFiles = edits.commit()
+const newFiles = edits.commit();
 ```
 
 Si vous souhaitez appliquer les modifications au système de fichiers, vous pouvez utiliser la fonction `writeFiles`.
 
 ```js
-await workspace.writeFiles(newFiles)
+await workspace.writeFiles(newFiles);
 ```
 
 :::caution
