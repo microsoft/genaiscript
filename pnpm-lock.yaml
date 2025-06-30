@@ -817,6 +817,9 @@ importers:
       '@genaiscript/core':
         specifier: workspace:*
         version: link:../core
+      '@genaiscript/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       z3-solver:
         specifier: ^4.15.2
         version: 4.15.2

@@ -1,17 +1,24 @@
-import { assert, describe, test } from "vitest";
+import { assert, describe, test, beforeEach } from "vitest";
 import { z3 } from "../src/z3.js";
 import plugin from "../src/index.js";
-import { runPrompt } from "@genaiscript/core"
+import { initialize } from "@genaiscript/runtime";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 describe("z3", () => {
+  beforeEach(async () => {
+    await initialize();
+  });
+
   test("default export", async () => {
-    await runPrompt(_ => {
-      plugin(_) 
-    }, { model: "echo"})
-  })
+    await runPrompt(
+      (_) => {
+        plugin({ generator: _ });
+      },
+      { model: "echo" },
+    );
+  });
   test("should return Z3Solver or undefined based on availability", async () => {
     const solver = await z3();
     assert(solver);

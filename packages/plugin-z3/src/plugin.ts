@@ -5,7 +5,7 @@ import { z3 } from "./z3.js";
 /**
  * Import the z3 tool into the prompt generation context.
  */
-export default function (options?: ChatGenerationContextOptions) {
+export function plugin(options?: ChatGenerationContextOptions) {
   const { defTool } = resolveChatGenerationContext(options);
 
   defTool(

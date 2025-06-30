@@ -14,6 +14,7 @@
   ],
   "dependencies": {
     "@genaiscript/core": "workspace:*",
+    "@genaiscript/runtime": "workspace:*",
     "z3-solver": "^4.15.2"
   },
   "devDependencies": {
