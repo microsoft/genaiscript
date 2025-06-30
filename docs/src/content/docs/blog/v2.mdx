@@ -100,6 +100,18 @@ The [@genaiscript/api](https://www.npmjs.com/package/@genaiscript/api) package d
 import { run } from "@genaiscript/api";
 ```
 
+### Plugins
+
+Some of the large functionalities have been moved out to separate packages (plugins) to reduce the default installation footprint.
+
+- `@genaiscript/plugin-mermaid` - mermaid parse
+- `@genaiscript/plugin-ast-grep` - the ast grep parser
+- `@genaiscript/plugin-z3` - the Z3 solver
+
+### Other breaking changes
+
+- the short options of the command line tools have been modified to support upgrading to the latest Commander library.
+
 ## Acknowledgments
 
 Big thanks to [@matthew-podwysocki](https://github.com/matthew-podwysocki) for investing his time and effort into this project.
