@@ -137,7 +137,7 @@ export default function (ctx: ChatGenerationContext) {
     })
 
     defTool(
-        "git_changed_files_since",
+        "git_changed_files",
         "Lists files that have been modified since a specific date or elapsed time.",
         {
             type: "object",
@@ -163,11 +163,11 @@ export default function (ctx: ChatGenerationContext) {
                     },
                 },
             },
-            required: ["since"],
         },
         async (args) => {
             const { since, paths, excludedPaths } = args
-            const files = await client.changedFilesSince(since, {
+            const files = await client.changedFiles({
+                since,
                 paths,
                 excludedPaths,
             })

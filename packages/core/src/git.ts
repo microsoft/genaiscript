@@ -403,20 +403,24 @@ export class GitClient implements Git {
 
     /**
      * Lists files that have been modified since a specific date or elapsed time.
-     * @param since Date string (ISO format) or elapsed time (e.g., "2 hours ago", "1 day ago")
-     * @param options Optional settings such as paths and exclusions
+     * @param options Optional settings including since date, paths and exclusions
      * @returns {Promise<WorkspaceFile[]>} List of modified files since the specified time
      */
-    async changedFilesSince(
-        since: string,
-        options?: {
-            paths?: ElementOrArray<string>
-            excludedPaths?: ElementOrArray<string>
+    async changedFiles(options?: {
+        since?: string
+        paths?: ElementOrArray<string>
+        excludedPaths?: ElementOrArray<string>
+    }): Promise<WorkspaceFile[]> {
+        const { since, paths: optionPaths, excludedPaths: optionExcludedPaths } = options || {}
+        
+        if (!since) {
+            dbg(`no since parameter provided, returning empty list`)
+            return []
         }
-    ): Promise<WorkspaceFile[]> {
+        
         dbg(`listing files changed since: ${since}`)
-        const paths = arrayify(options?.paths, { filterEmpty: true })
-        const excludedPaths = await this.resolveExcludedPaths(options)
+        const paths = arrayify(optionPaths, { filterEmpty: true })
+        const excludedPaths = await this.resolveExcludedPaths({ excludedPaths: optionExcludedPaths })
 
         // Use git log to get files that changed since the specified date/time
         const args = ["log", "--name-only", "--pretty=format:", `--since=${since}`]
@@ -427,11 +431,12 @@ export class GitClient implements Git {
             label: `git list files changed since ${since}`,
         })
         
-        // Parse the output and remove duplicates
-        const filenames = res
-            .split("\n")
-            .filter((f) => f.trim() !== "")
-            .filter((f, index, arr) => arr.indexOf(f) === index) // Remove duplicates
+        // Parse the output and remove duplicates using Set
+        const uniqueFilenames = new Set(
+            res.split("\n")
+               .filter((f) => f.trim() !== "")
+        )
+        const filenames = Array.from(uniqueFilenames)
 
         dbg(`found ${filenames.length} files changed since ${since}`)
         

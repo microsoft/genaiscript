@@ -3258,16 +3258,13 @@ interface Git {
 
     /**
      * Lists files that have been modified since a specific date or elapsed time
-     * @param since Date string (ISO format) or elapsed time (e.g., "2 hours ago", "1 day ago")
-     * @param options Optional settings such as paths and exclusions
+     * @param options Optional settings including since date, paths and exclusions
      */
-    changedFilesSince(
-        since: string,
-        options?: {
-            paths?: ElementOrArray<string>
-            excludedPaths?: ElementOrArray<string>
-        }
-    ): Promise<WorkspaceFile[]>
+    changedFiles(options?: {
+        since?: string
+        paths?: ElementOrArray<string>
+        excludedPaths?: ElementOrArray<string>
+    }): Promise<WorkspaceFile[]>
 
     /**
      * Create a shallow git clone
