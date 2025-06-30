@@ -138,6 +138,8 @@ Après avoir écrit l’invite, nous utilisons Cline pour générer le code GenA
 Voici le script que Cline a généré pour moi (votre script peut légèrement varier) :
 
 ```ts wrap
+import { astGrep } from "@genaiscript/plugin-ast-grep";
+
 script({
   title: "Add JSDoc Comments to TypeScript Code",
   description:
@@ -303,7 +305,7 @@ type Target = {
 const allTargets: Target[] = [];
 
 // Get ast-grep instance
-const sg = await host.astGrep();
+const sg = await astGrep();
 
 // Process each file using ast-grep
 for (const file of files) {

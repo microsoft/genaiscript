@@ -139,6 +139,8 @@ After writing the prompt, we use Cline to generate the GenAIScript code. Cline w
 This is the script Cline generated for me (your script may vary slightly):
 
 ```ts wrap
+import { astGrep } from "@genaiscript/plugin-ast-grep";
+
 script({
   title: "Add JSDoc Comments to TypeScript Code",
   description:
@@ -304,7 +306,7 @@ type Target = {
 const allTargets: Target[] = [];
 
 // Get ast-grep instance
-const sg = await host.astGrep();
+const sg = await astGrep();
 
 // Process each file using ast-grep
 for (const file of files) {

@@ -1,3 +1,5 @@
+import { astGrep} from "@genaiscript/plugin-ast-grep";
+
 script({ model: "none" });
 const dbg = host.logger("stackgraph");
 
@@ -85,7 +87,7 @@ const graph = await stackGraph("typescript");
 const dir = "packages/sample/src";
 await graph.index(dir);
 
-const sg = await host.astGrep();
+const sg = await astGrep();
 const { matches } = await sg.search(
   "ts",
   `${dir}/*.ts`,

@@ -65,7 +65,7 @@ export interface Sg {
    * Create a change set
    */
   changeset(): SgChangeSet;
-  parse(file: WorkspaceFile, options: { lang?: SgLang }): Promise<SgRoot>;
+  parse(file: WorkspaceFile, options?: { lang?: SgLang }): Promise<SgRoot>;
   search(
     lang: SgLang,
     glob: ElementOrArray<string>,

@@ -1,4 +1,5 @@
 import { classify } from "@genaiscript/runtime";
+import { astGrep } from "@genaiscript/plugin-ast-grep";
 
 script({
   title: "Generate TypeScript function documentation using AST insertion",
@@ -83,7 +84,7 @@ if (maxFiles && files.length > maxFiles) {
   }) as WorkspaceFile[];
 }
 
-const sg = await host.astGrep();
+const sg = await astGrep();
 const stats = [];
 for (const file of files) {
   console.debug(file.filename);

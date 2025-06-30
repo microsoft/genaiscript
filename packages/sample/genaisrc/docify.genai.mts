@@ -1,3 +1,5 @@
+import { astGrep } from "@genaiscript/plugin-ast-grep";
+
 script({
   tools: ["md_find_files", "fs_read_file"],
   parameters: {
@@ -13,7 +15,7 @@ const { api } = env.vars;
 if (!api) cancel("missing 'api' parameter");
 dbg(`api: ${api}`);
 
-const sg = await host.astGrep();
+const sg = await astGrep();
 const { matches } = await sg.search(
   "ts",
   ".genaiscript/genaiscript.d.ts",

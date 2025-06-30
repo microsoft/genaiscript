@@ -2,18 +2,21 @@
 // Licensed under the MIT License.
 
 import { describe, test, assert, beforeEach } from "vitest";
-import { astGrepFindFiles, astGrepParse } from "../src/astgrep.js";
-import { TestHost } from "../src/testhost.js";
-import { dedent } from "../src/indent.js";
+import { astGrep } from "../src/astgrep.js";
+import { TestHost, WorkspaceFile } from "@genaiscript/core";
+import { dedent } from "@genaiscript/core";
+import { Sg } from "../src/types.js";
 
 describe("astgrep", () => {
-  beforeEach(() => {
+  let sg: Sg
+  beforeEach(async () => {
     TestHost.install();
+    sg = await astGrep();
   });
 
   test("finds matches in files", async () => {
     console.log("Hello, world!");
-    const result = await astGrepFindFiles("ts", "test/astgrep.test.ts", "console.log($GREETING)");
+    const result = await sg.search("ts", "test/astgrep.test.ts", "console.log($GREETING)");
     assert.equal(result.files, 1);
     assert(result.matches.length > 0);
   });
@@ -22,7 +25,7 @@ describe("astgrep", () => {
       filename: "test.js",
       content: "const x = 1;",
     };
-    const result = await astGrepParse(file, { lang: "js" });
+    const result = await sg.parse(file, { lang: "js" });
     assert(result);
   });
 
@@ -31,7 +34,7 @@ describe("astgrep", () => {
       filename: "test.bin",
       encoding: "base64",
     };
-    const result = await astGrepParse(file, { lang: "js" });
+    const result = await sg.parse(file, { lang: "js" });
     assert.equal(result, undefined);
   });
 
@@ -47,7 +50,7 @@ describe("astgrep", () => {
             }
             `,
     };
-    const result = await astGrepParse(file);
+    const result = await sg.parse(file);
     assert(result);
   });
   test("parse TypeScript file", async () => {
@@ -55,7 +58,7 @@ describe("astgrep", () => {
       filename: "test.ts",
       content: "const x: number = 1;",
     };
-    const result = await astGrepParse(file);
+    const result = await sg.parse(file);
     assert(result);
   });
   test("parse python file", async () => {
@@ -63,7 +66,7 @@ describe("astgrep", () => {
       filename: "test.py",
       content: "x = 1",
     };
-    const result = await astGrepParse(file);
+    const result = await sg.parse(file);
     assert(result);
   });
   test("parse C file", async () => {
@@ -71,7 +74,7 @@ describe("astgrep", () => {
       filename: "test.c",
       content: "#include <stdio.h>",
     };
-    const result = await astGrepParse(file);
+    const result = await sg.parse(file);
     assert(result);
   });
 });

@@ -961,6 +961,9 @@ importers:
 
   packages/sample:
     dependencies:
+      '@genaiscript/plugin-ast-grep':
+        specifier: workspace:*
+        version: link:../plugin-ast-grep
       '@genaiscript/plugin-mdast':
         specifier: workspace:*
         version: link:../plugin-mdast
