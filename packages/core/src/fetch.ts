@@ -35,7 +35,7 @@ export function parseRetryAfter(retryAfterHeader: string): number | null {
   if (!retryAfterHeader) return null;
 
   const trimmed = retryAfterHeader.trim();
-  dbg(`parsing retry-after header: ${trimmed}`);
+  dbgr(`parsing retry-after header: ${trimmed}`);
 
   // Try to parse as seconds (integer) first - must be a valid non-negative integer
   const seconds = parseInt(trimmed, 10);
@@ -54,11 +54,11 @@ export function parseRetryAfter(retryAfterHeader: string): number | null {
         return delaySeconds;
       }
     } catch (e) {
-      dbg(`failed to parse retry-after header as date: %s`, errorMessage(e));
+      dbgr(`failed to parse retry-after header as date: %s`, errorMessage(e));
     }
   }
 
-  dbg(`failed to parse retry-after header: ${retryAfterHeader}`);
+  dbgr(`failed to parse retry-after header: ${retryAfterHeader}`);
   return null;
 }
 
@@ -66,12 +66,11 @@ function parseRetryAfterHeader(response: Response) {
   const retryAfterHeader =
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     response.headers.get?.("retry-after") || (response.headers as any)["retry-after"];
-  dbgr(`retry-after header: %s`, retryAfterHeader);
   if (retryAfterHeader) {
     const retryAfterSeconds = parseRetryAfter(retryAfterHeader);
     if (retryAfterSeconds !== null) {
       const retryAfter = retryAfterSeconds * 1000; // Convert to milliseconds
-      dbgr(`retry-after header: %s`, prettyDuration(retryAfter));
+      dbgr(`retry-after: %s`, prettyDuration(retryAfter));
       return retryAfter;
     }
   }
@@ -180,7 +179,7 @@ export async function createFetch(
     retryDelay: (attempt, error, response) => {
       // Check for retry-after header and respect its value
       let delay: number;
-      let retryAfter = parseRetryAfterHeader(response);
+      const retryAfter = parseRetryAfterHeader(response);
 
       if (retryAfter) {
         delay = Math.min(maxDelay, retryAfter); // Convert to milliseconds
