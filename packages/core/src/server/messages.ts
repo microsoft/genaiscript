@@ -155,6 +155,7 @@ export interface PromptScriptRunOptions {
   retry: string;
   retryDelay: string;
   maxDelay: string;
+  maxRetryAfter: string;
   json: boolean;
   outTrace: string;
   outOutput: string;

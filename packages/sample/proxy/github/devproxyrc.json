@@ -19,6 +19,6 @@
   "gitHubModelsApi": {
     "errorsFile": "github-models-errors.json"
   },
-  "rate": 90,
+  "rate": 99,
   "logLevel": "information"
 }

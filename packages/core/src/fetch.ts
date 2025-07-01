@@ -8,6 +8,7 @@ import {
   FETCH_RETRY_DEFAULT_DEFAULT,
   FETCH_RETRY_GROWTH_FACTOR,
   FETCH_RETRY_MAX_DELAY_DEFAULT,
+  FETCH_RETRY_MAX_RETRY_AFTER_DEFAULT,
   FETCH_RETRY_ON_DEFAULT,
 } from "./constants.js";
 import { errorMessage } from "./error.js";
@@ -61,6 +62,22 @@ export function parseRetryAfter(retryAfterHeader: string): number | null {
   return null;
 }
 
+function parseRetryAfterHeader(response: Response) {
+  const retryAfterHeader =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    response.headers.get?.("retry-after") || (response.headers as any)["retry-after"];
+  dbgr(`retry-after header: %s`, retryAfterHeader);
+  if (retryAfterHeader) {
+    const retryAfterSeconds = parseRetryAfter(retryAfterHeader);
+    if (retryAfterSeconds !== null) {
+      const retryAfter = retryAfterSeconds * 1000; // Convert to milliseconds
+      dbgr(`retry-after header: %s`, prettyDuration(retryAfter));
+      return retryAfter;
+    }
+  }
+  return undefined;
+}
+
 export type FetchType = (
   input: string | URL | globalThis.Request,
   options?: FetchOptions & TraceOptions,
@@ -92,6 +109,7 @@ export async function createFetch(
     trace,
     retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
     maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
+    maxRetryAfter = FETCH_RETRY_MAX_RETRY_AFTER_DEFAULT,
     cancellationToken,
   } = options;
 
@@ -115,18 +133,24 @@ export async function createFetch(
 
   // Create a fetch function with retry logic
   dbgr(
-    `retries: %d, retryOn: %s, retryDelay: %d, maxDelay: %d`,
+    `retries: %d, retry on: %o, retry delay: %d, max delay: %d, max retry after: %d`,
     retries,
     retryOn,
     retryDelay,
     maxDelay,
+    maxRetryAfter,
   );
   const fetchRetry = wrapFetch(crossFetchWithProxy, {
-    retryOn,
     retries,
-    retryDelay: (attempt, error, response) => {
+    retryOn: (attempt, error, response) => {
       const code: string = (error as { code?: string })?.code as string;
-      dbgr(`retry attempt: %d, error code: %s`, attempt, code);
+
+      if (response.ok) {
+        dbgr("status %d is success, not retrying", response.status);
+        return false;
+      }
+
+      dbgr(`retry #%d, %d`, attempt, response.status);
       if (
         code === "ECONNRESET" ||
         code === "ENOTFOUND" ||
@@ -137,55 +161,43 @@ export async function createFetch(
         return undefined;
       }
 
-      const message = errorMessage(error);
-      const status = statusToMessage(response);
-      dbgr(`message %s`, message);
-      dbgr(`status %s`, status);
-
+      const status = response.status;
+      if (retryOn?.length && !retryOn.includes(status)) {
+        dbgr(`status %d not in retryOn %o, not retrying`, status, retryOn);
+        return false;
+      }
+      const retryAfter = parseRetryAfterHeader(response);
+      if (!isNaN(maxRetryAfter) && retryAfter > maxRetryAfter) {
+        dbgr(
+          `retry-after %s exceeds max-retry-after %s, give up`,
+          prettyDuration(retryAfter),
+          prettyDuration(maxRetryAfter),
+        );
+        return false;
+      }
+      return true;
+    },
+    retryDelay: (attempt, error, response) => {
       // Check for retry-after header and respect its value
       let delay: number;
-      let retryAfterInfo = "";
+      let retryAfter = parseRetryAfterHeader(response);
 
-      if (response?.headers) {
-        const retryAfterHeader =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          response.headers.get?.("retry-after") || (response.headers as any)["retry-after"];
-        dbgr(`retry-after header: %s`, retryAfterHeader);
-        if (retryAfterHeader) {
-          const retryAfterSeconds = parseRetryAfter(retryAfterHeader);
-          if (retryAfterSeconds) {
-            delay = Math.min(maxDelay, retryAfterSeconds * 1000); // Convert to milliseconds
-            retryAfterInfo = `retry-after: ${prettyDuration(retryAfterSeconds * 1000)}`;
-            dbgr(`using retry-after header value: %d seconds`, retryAfterSeconds);
-          } else {
-            // Fallback to exponential backoff if retry-after parsing failed
-            delay =
-              Math.min(maxDelay, Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay) *
-              (1 + Math.random() / 20);
-            dbgr(`using exponential backoff: %d`, delay);
-          }
-        } else {
-          // No retry-after header, use exponential backoff
-          delay =
-            Math.min(maxDelay, Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay) *
-            (1 + Math.random() / 20);
-          dbgr(`no retry-after header, using exponential backoff: %d`, delay);
-        }
+      if (retryAfter) {
+        delay = Math.min(maxDelay, retryAfter); // Convert to milliseconds
       } else {
-        // No response headers, use exponential backoff
+        // Fallback to exponential backoff if retry-after parsing failed
         delay =
           Math.min(maxDelay, Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay) *
           (1 + Math.random() / 20);
-        dbgr(`no response headers, using exponential backoff: %d`, delay);
+        dbgr(`using exponential backoff: %d`, delay);
       }
-
       const msg = prettyStrings(
         `retry #${attempt + 1} in ${prettyDuration(delay)}`,
-        retryAfterInfo,
+        `retry after: ${prettyDuration(retryAfter)}`,
         `max delay: ${prettyDuration(maxDelay)}`,
         `retry delay: ${prettyDuration(retryDelay)}`,
-        message,
-        status,
+        errorMessage(error),
+        statusToMessage(response),
       );
       logVerbose(msg);
       trace?.resultItem(false, msg);

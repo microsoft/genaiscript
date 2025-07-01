@@ -115,8 +115,16 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
 }
 
 export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, options, trace) => {
-  const { requestOptions, partialCb, retry, retryDelay, maxDelay, cancellationToken, inner } =
-    options;
+  const {
+    requestOptions,
+    partialCb,
+    retries,
+    retryDelay,
+    maxDelay,
+    maxRetryAfter,
+    cancellationToken,
+    inner,
+  } = options;
   const { headers = {}, ...rest } = requestOptions || {};
   const { provider, model, family, reasoningEffort } = parseModelIdentifier(req.model);
   const features = providerFeatures(provider);
@@ -256,9 +264,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
   let numReasoningTokens = 0;
   const fetchRetry = await createFetch({
     trace,
-    retries: retry,
+    retries,
     retryDelay,
     maxDelay,
+    maxRetryAfter,
     cancellationToken,
   });
   trace?.dispatchChange();

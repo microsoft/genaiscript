@@ -5609,6 +5609,7 @@ export interface RetryOptions {
   retries?: number; // Number of retry attempts
   retryDelay?: number; // Initial delay between retries
   maxDelay?: number; // Maximum delay between retries
+  maxRetryAfter?: number; // Maximum retry-after in milliseconds before giving up
 }
 
 export interface CacheOptions {

@@ -99,11 +99,19 @@ export const ICON_LOGO_NAME = "genaiscript-logo";
 export const SARIFF_RULEID_PREFIX = "genaiscript/";
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/";
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID;
+
+export const OPENAI_MAX_RETRY_DELAY = 60000; // 60s
+export const OPENAI_MAX_RETRY_COUNT = 10;
+export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000;
+export const OPENAI_MAX_RETRY_AFTER_DEFAULT = 300000; // 300s
+
 export const FETCH_RETRY_DEFAULT = 6;
 export const FETCH_RETRY_DEFAULT_DEFAULT = 2000;
-export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000;
+export const FETCH_RETRY_MAX_DELAY_DEFAULT = 60000; // 60s
+export const FETCH_RETRY_MAX_RETRY_AFTER_DEFAULT = 300000; // 300s
 export const FETCH_RETRY_GROWTH_FACTOR = 1.5;
 export const FETCH_RETRY_ON_DEFAULT = [408, 429, 500, 504];
+
 export const EXEC_MAX_BUFFER = 64;
 export const DOT_ENV_FILENAME = ".env";
 export const DOT_ENV_GENAISCRIPT_FILENAME = ".env.genaiscript";
@@ -335,10 +343,6 @@ export const MAX_TOKENS_ELLIPSE = "...";
 export const ESTIMATE_TOKEN_OVERHEAD = 2;
 
 export const DEDENT_INSPECT_MAX_DEPTH = 3;
-
-export const OPENAI_MAX_RETRY_DELAY = 10000;
-export const OPENAI_MAX_RETRY_COUNT = 10;
-export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000;
 
 export const ANTHROPIC_MAX_TOKEN = 4096;
 export const TEMPLATE_ARG_FILE_MAX_TOKENS = 4000;

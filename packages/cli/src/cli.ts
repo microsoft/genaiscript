@@ -15,6 +15,7 @@ import {
   OPENAI_MAX_RETRY_COUNT,
   OPENAI_MAX_RETRY_DELAY,
   OPENAI_RETRY_DEFAULT_DEFAULT,
+  OPENAI_MAX_RETRY_AFTER_DEFAULT,
   RUNTIME_ERROR_CODE,
   SERVER_PORT,
   TOOL_ID,
@@ -194,7 +195,7 @@ export async function cli() {
       "--out-annotations <string>",
       "output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)",
     )
-    .option("--out-changelog <string>", "output file for changelogs")
+    .option("--out-changelog <string>", "output file for changelogs");
   addPullRequestOptions(run)
     .option("--teams-message", "Posts a message to the teams channel")
     .option("-j, --json", "emit full JSON response to output")
@@ -206,6 +207,10 @@ export async function cli() {
       String(OPENAI_RETRY_DEFAULT_DEFAULT),
     )
     .option("--max-delay <number>", "maximum delay between retries", String(OPENAI_MAX_RETRY_DELAY))
+    .option(
+      "--max-retry-after <number>",
+      "maximum retry-after delay in milliseconds before giving up", String(OPENAI_MAX_RETRY_AFTER_DEFAULT)
+    )
     .option("-l, --label <string>", "label for the run")
     .option("-t, --temperature <number>", "temperature for the run")
     .option("--top-p <number>", "top-p for the run")
