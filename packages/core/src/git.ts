@@ -403,20 +403,15 @@ export class GitClient implements Git {
 
     /**
      * Lists files that have been modified since a specific date or elapsed time.
-     * @param options Optional settings including since date, paths and exclusions
+     * @param since Date string (ISO format) or elapsed time (e.g., '2 hours ago', '1 day ago')
+     * @param options Optional settings for paths and exclusions
      * @returns {Promise<WorkspaceFile[]>} List of modified files since the specified time
      */
-    async changedFiles(options?: {
-        since?: string
+    async changedFiles(since: string, options?: {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
     }): Promise<WorkspaceFile[]> {
-        const { since, paths: optionPaths, excludedPaths: optionExcludedPaths } = options || {}
-        
-        if (!since) {
-            dbg(`no since parameter provided, returning empty list`)
-            return []
-        }
+        const { paths: optionPaths, excludedPaths: optionExcludedPaths } = options || {}
         
         dbg(`listing files changed since: ${since}`)
         const paths = arrayify(optionPaths, { filterEmpty: true })

@@ -12,19 +12,18 @@ describe("GitClient", () => {
         const client = new GitClient(".")
         // Test that the method accepts the expected parameters
         const method = client.changedFiles
-        assert.equal(method.length, 1, "changedFiles should accept 1 parameter")
+        assert.equal(method.length, 2, "changedFiles should accept 2 parameters")
     })
 
     test("changedFiles returns Promise", () => {
         const client = new GitClient(".")
-        const result = client.changedFiles({ since: "1 hour ago" })
+        const result = client.changedFiles("1 hour ago")
         assert(result instanceof Promise, "changedFiles should return a Promise")
     })
 
-    test("changedFiles returns empty array when no since parameter", async () => {
+    test("changedFiles with options returns Promise", () => {
         const client = new GitClient(".")
-        const result = await client.changedFiles()
-        assert(Array.isArray(result), "changedFiles should return an array")
-        assert.equal(result.length, 0, "changedFiles should return empty array when no since parameter")
+        const result = client.changedFiles("1 hour ago", { paths: ["src/"] })
+        assert(result instanceof Promise, "changedFiles should return a Promise")
     })
 })

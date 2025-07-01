@@ -163,11 +163,11 @@ export default function (ctx: ChatGenerationContext) {
                     },
                 },
             },
+            required: ["since"],
         },
         async (args) => {
             const { since, paths, excludedPaths } = args
-            const files = await client.changedFiles({
-                since,
+            const files = await client.changedFiles(since, {
                 paths,
                 excludedPaths,
             })

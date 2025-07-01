@@ -3258,10 +3258,10 @@ interface Git {
 
     /**
      * Lists files that have been modified since a specific date or elapsed time
-     * @param options Optional settings including since date, paths and exclusions
+     * @param since Date string (ISO format) or elapsed time (e.g., '2 hours ago', '1 day ago')
+     * @param options Optional settings for paths and exclusions
      */
-    changedFiles(options?: {
-        since?: string
+    changedFiles(since: string, options?: {
         paths?: ElementOrArray<string>
         excludedPaths?: ElementOrArray<string>
     }): Promise<WorkspaceFile[]>
