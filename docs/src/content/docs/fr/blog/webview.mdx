@@ -1,0 +1,55 @@
+---
+title: Revamping the views...
+date: 2025-01-23
+authors:
+  - pelikhan
+tags:
+  - react
+  - webview
+  - vscode
+canonical_url: https://microsoft.github.io/genaiscript/blog/webview
+description: Annonçant la nouvelle vue GenAIScript.
+cover:
+  alt: The image illustrates a split screen in an 8-bit style, contrasting two
+    environments for the GenAIScript interface. On the left, a computer monitor
+    shows the interface with interactive elements like mermaid diagrams and math
+    notations. On the right, a standalone web browser presents the same
+    interface. The composition is framed with a simple, geometric design using
+    five accent colors, creating a vibe of technological progress in a corporate
+    context.
+  image: ../../blog/webview.png
+excerpt: Nous avons amélioré l’expérience GenAIScript en dépassant l’aperçu
+  Markdown par défaut de Visual Studio Code. Notre nouvelle webview
+  personnalisée prend non seulement en charge des formats supplémentaires comme
+  les diagrammes mermaid et les mathématiques, mais vous permet également
+  d’accéder à vos scripts et de les exécuter directement dans votre navigateur
+  ou toute autre application compatible webview. La transition se fait en
+  douceur, avec des options pour tester ceci en parallèle avec les
+  fonctionnalités existantes. Découvrez ces nouveautés pour un flux de travail
+  plus interactif et flexible.
+
+---
+
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+Dans le passé, notre visualisation dans Visual Studio Code reposait sur la fonction d’aperçu Markdown intégrée. Elle fonctionnait très bien, mais parfois ce n’était pas suffisant. Nous voulions offrir une expérience plus interactive à nos utilisateurs. Nous avons donc décidé de créer une vue web personnalisée pour GenAIScript.
+
+Recréer cette vue nous donne également plus de contrôle sur la prise en charge du rendu de divers sousformats Markdown comme les diagrammes mermaid, les annotations, les mathématiques, ...
+
+![Une capture d'écran de la vue GenAIScript.](../../blog/webview.png)
+
+:::note
+Alors que nous testons et migrons vers la nouvelle vue, les anciens éléments de menu `Output`/`Trace` sont toujours accessibles depuis le menu de la barre d'état.
+:::
+
+## Accéder à la vue en dehors de Visual Studio Code
+
+Par conséquent, vous pouvez désormais accéder à la vue GenAIScript en dehors de Visual Studio Code. Cela signifie que vous pouvez maintenant **exécuter** vos scripts dans un navigateur ou toute autre application compatible avec les vues web.
+
+Lancez la commande [serve](../../reference/cli/serve/) depuis le [cli](../../reference/cli/) pour démarrer le serveur et suivez les instructions pour ouvrir la vue dans votre navigateur.
+
+```sh
+genaiscript serve
+```

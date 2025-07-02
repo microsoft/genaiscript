@@ -1,7 +1,7 @@
 script({
-    system: ["system.tools"],
-    tools: "agent",
-})
+  system: ["system.tools"],
+  tools: "agent",
+});
 
 $`You are a chat assistant that uses agent tools to solve problems.
 
@@ -14,4 +14,4 @@ end while
 ## guidance:
     - use the agent tools to help you
     - do NOT try to ask the user questions directly, use the agent_user_input tool instead.
-`
+`;

@@ -1,15 +1,15 @@
 script({
-    title: "Universal Linter",
-    description: "Review files for correctness and style",
-    model: "large",
-    system: [
-        "system",
-        "system.assistant",
-        "system.annotations",
-        "system.safety_jailbreak",
-        "system.safety_harmful_content",
-    ],
-})
+  title: "Universal Linter",
+  description: "Review files for correctness and style",
+  model: "large",
+  system: [
+    "system",
+    "system.assistant",
+    "system.annotations",
+    "system.safety_jailbreak",
+    "system.safety_harmful_content",
+  ],
+});
 
 $`## Task
 
@@ -26,6 +26,6 @@ Your task is to review the content in FILE and report warnings and errors.
 - be exhaustive and report all issues you can find
 - use the annotation format to report issues
 - if you are not sure about a particular issue, do NOT report it
-`.role("system")
+`.role("system");
 
-def("FILE", env.files, { lineNumbers: true })
+def("FILE", env.files, { lineNumbers: true });

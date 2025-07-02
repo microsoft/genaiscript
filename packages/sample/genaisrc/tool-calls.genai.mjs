@@ -1,39 +1,39 @@
-script({ system: ["system", "system.tool_calls"] })
-defTool("random", "Generate a random number", {}, () => Math.random())
+script({ system: ["system", "system.tool_calls"] });
+defTool("random", "Generate a random number", {}, () => Math.random());
 defTool(
-    "weather",
-    "Gets the weather in a city",
-    {
-        type: "object",
-        properties: {
-            city: {
-                type: "string",
-                description: "The name of the city",
-            },
-        },
-        required: ["city"],
+  "weather",
+  "Gets the weather in a city",
+  {
+    type: "object",
+    properties: {
+      city: {
+        type: "string",
+        description: "The name of the city",
+      },
     },
-    () => "sunny",
-    {
-        intent: "description",
-    }
-)
+    required: ["city"],
+  },
+  () => "sunny",
+  {
+    intent: "description",
+  },
+);
 defTool(
-    "browse",
-    "Download the HTML of a page",
-    {
-        type: "object",
-        properties: { url: { type: "string" } },
-        required: ["url"],
-    },
-    ({ url }) => "<html>empty</html>"
-)
+  "browse",
+  "Download the HTML of a page",
+  {
+    type: "object",
+    properties: { url: { type: "string" } },
+    required: ["url"],
+  },
+  ({ url }) => "<html>empty</html>",
+);
 defTool(
-    "math_add",
-    "Add two numbers",
-    { a: { type: "number" }, b: { type: "number" } },
-    ({ a, b }) => String(a + b)
-)
+  "math_add",
+  "Add two numbers",
+  { a: { type: "number" }, b: { type: "number" } },
+  ({ a, b }) => String(a + b),
+);
 
 $`Answer all questions. Be concise, do not explain:
 
@@ -41,4 +41,4 @@ $`Answer all questions. Be concise, do not explain:
 - Tell the weather in Brussels now.
 - Download the HTML of https://bing.com
 - Compute 0.123123 * 0.23456
-`
+`;

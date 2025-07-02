@@ -7,7 +7,7 @@ COPY . /app
 RUN apk update --no-cache && \
     apk add --no-cache python3 py3-pip && \
     echo "Installing && Compiling" && \
-    yarn install && yarn compile
+    pnpm install && pnpm build:cli
 
 
 # Prod
@@ -20,4 +20,4 @@ COPY --from=build /app/package.json /app/package.json
 
 EXPOSE 8003
 
-CMD ["node", "/app/packages/cli/built/genaiscript.cjs", "serve"]
+CMD ["node", "/app/packages/cli/dist/src/index.js", "serve"]

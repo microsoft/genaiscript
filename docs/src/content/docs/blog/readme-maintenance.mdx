@@ -11,26 +11,28 @@ tags:
   - Maintenance
   - Engagement
 canonical_url: https://microsoft.github.io/genaiscript/blog/README-maintenance
-description: Optimize your project's front door with our script for an always
+description:
+  Optimize your project's front door with our script for an always
   up-to-date and engaging README.
 cover:
-  alt: A simplistic, pixelated image shows a computer screen displaying a brightly
+  alt:
+    A simplistic, pixelated image shows a computer screen displaying a brightly
     colored README.md file. Surrounding the computer are digital icons depicting
     various folders and files, symbolizing documentation and examples. The
     setting is a stylized corporate office, depicted with minimal geometric
     shapes and a 5-color palette, giving it a classic, retro aesthetic.
   image: ./readme-maintenance.png
-excerpt: A strong `README` can define your project's success in the open source
+excerpt:
+  A strong `README` can define your project's success in the open source
   world. The GenAIScript used in the GenAI project is a great example of
   automating `README` maintenance by pulling the latest details from
   documentation and samples. This ensures your project's first impression stays
   both current and engaging. Curious about how to run it? The GenAIScript CLI
   makes it seamless. Keep your contributions visible, your documentation sharp,
   and your users informed.
-
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -48,17 +50,19 @@ Let's walk through the script code as if we are crafting it from the ground up:
 
 ```ts
 script({
-    description:
-        "Maintenance script for the README that imports information from the documentation and samples to make it more attractive to users.",
-    tools: ["fs"],
-})
+  description:
+    "Maintenance script for the README that imports information from the documentation and samples to make it more attractive to users.",
+  tools: ["fs"],
+});
 ```
 
 Here, we're defining the script's metadata, including a description of its purpose and the tools it will utilize. The `fs` tool indicates file system operations will be involved.
 
 ```ts
-def("README", { filename: "README.md" })
-def("FEATURES", { filename: "docs/src/content/docs/index.mdx" })
+def("README", { filename: "README.md" });
+def("FEATURES", {
+  filename: "docs/src/content/docs/index.mdx",
+});
 ```
 
 These lines declare two important files: the `README` itself and a `FEATURES` file that contains information to be imported into the `README`.
@@ -66,13 +70,13 @@ These lines declare two important files: the `README` itself and a `FEATURES` fi
 ```ts
 $`You are an expert open source maintainer.
 ...
-`
+`;
 ```
 
 In this template literal, we're outlining the tasks for the script, including guidelines for updating the `README` with features, samples, and documentation links while preserving certain sections unchanged.
 
 ```ts
-defFileOutput("README.md")
+defFileOutput("README.md");
 ```
 
 Finally, we specify that the output of this script will be an updated `README.md` file.

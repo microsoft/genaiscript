@@ -6,7 +6,7 @@
         {
             "label": "gcm",
             "type": "shell",
-            "command": "node packages/cli/built/genaiscript.cjs run gcm",
+            "command": "node packages/cli/dist/src/index.js run gcm",
             "detail": "git commit flow with automatic message",
             "problemMatcher": "$tsc",
             "presentation": {
@@ -21,7 +21,7 @@
         {
             "label": "iat",
             "type": "shell",
-            "command": "node packages/cli/built/genaiscript.cjs run iat",
+            "command": "node packages/cli/dist/src/index.js run iat",
             "detail": "generate image alt text in markdown files",
             "problemMatcher": "$tsc",
             "presentation": {

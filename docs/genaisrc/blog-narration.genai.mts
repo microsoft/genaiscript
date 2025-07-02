@@ -2,7 +2,6 @@ script({
     title: "Blog Post Narrator",
     description: "Creates narrated summaries of blog posts",
     accept: ".mdx,.md",
-    model: "openai:gpt-4.1",
     system: ["system.annotations"],
     files: "docs/src/content/docs/blog/azure-ai-search.mdx",
     parameters: {

@@ -1,28 +1,28 @@
 script({
-    model: "small",
-    title: "Multi-turn conversation",
-    files: ["src/rag/markdown.md"],
-    system: ["system", "system.files"],
-    tests: {},
-})
+  model: "small",
+  title: "Multi-turn conversation",
+  files: ["src/rag/markdown.md"],
+  system: ["system", "system.files"],
+  tests: {},
+});
 
-def("FILE", env.files)
-$`Generate a set of questions for the files to build a FAQ.`
+def("FILE", env.files);
+$`Generate a set of questions for the files to build a FAQ.`;
 
 // turn 2
-let turn = 0
+let turn = 0;
 defChatParticipant(
-    async (ctx, messages) => {
-        turn++
-        if (turn <= 1) {
-            const text = messages.at(-1).content as string
-            const questions =
-                text
-                    ?.split("\n")
-                    .map((q) => q.trim())
-                    .filter((q) => q.length > 0) || []
+  async (ctx, messages) => {
+    turn++;
+    if (turn <= 1) {
+      const text = messages.at(-1).content as string;
+      const questions =
+        text
+          ?.split("\n")
+          .map((q) => q.trim())
+          .filter((q) => q.length > 0) || [];
 
-            ctx.$`Here is the list of answers to the questions in the file. 
+      ctx.$`Here is the list of answers to the questions in the file. 
             
 ## Task 1:
 
@@ -37,22 +37,22 @@ using the JSONL format:
 File: <filename>.qt.jsonl
 \`\`\`
 ${JSONL.stringify([
-    { q: "<question1>", a: "<answer1>" },
-    { q: "<question2>", a: "<answer2>" },
+  { q: "<question1>", a: "<answer1>" },
+  { q: "<question2>", a: "<answer2>" },
 ])}
 ...
 \`\`\`
 \`\`\`\`
 
 ### Questions:
-            `
+            `;
 
-            for (const question of questions) {
-                const res = await runPrompt(
-                    (_) => {
-                        _.def("FILE", env.files)
-                        _.def("QUESTION", question)
-                        _.$`
+      for (const question of questions) {
+        const res = await runPrompt(
+          (_) => {
+            _.def("FILE", env.files);
+            _.def("QUESTION", question);
+            _.$`
 ## Roles
                 
 You are an expert educator at explaining concepts simply. 
@@ -67,18 +67,18 @@ Answer the QUESTION using the contents in FILE.
 - Be concise.
 - Use simple language.
 - use gitmojis.
-`
-                    },
-                    { label: question }
-                )
+`;
+          },
+          { label: question },
+        );
 
-                ctx.$`
+        ctx.$`
             
-- question: ${question}`
-                ctx.fence(res.text)
-                ctx.$`\n\n`
-            }
-        }
-    },
-    { label: "answerer" }
-)
+- question: ${question}`;
+        ctx.fence(res.text);
+        ctx.$`\n\n`;
+      }
+    }
+  },
+  { label: "answerer" },
+);

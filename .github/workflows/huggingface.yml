@@ -24,14 +24,15 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 0
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile:action
+              run: pnpm build:cli
             - name: poem
-              run: yarn run:script poem -p huggingface --out-trace $GITHUB_STEP_SUMMARY
+              run: pnpm run:script poem -p huggingface --out-trace $GITHUB_STEP_SUMMARY
               env:
                   HUGGINGFACE_API_KEY: ${{ secrets.HUGGINGFACE_API_KEY }}

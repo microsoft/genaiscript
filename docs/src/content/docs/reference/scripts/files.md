@@ -156,7 +156,7 @@ the API to throw using `throwOnValidationError`.
 
 ```ts
 const data = await workspace.readJSON("data.json", {
-    schema: { type: "object", properties: { ... },
+    schema: { type: "object", properties: { ... }, },
     throwOnValidationError: true
 })
 ```
@@ -187,7 +187,7 @@ By default, files are resolved relative to the workspace root. You can use the `
 
 ```ts
 const cur = path.dirname(env.spec.filename)
-const fs = path.join(cur, "myfile.md)
+const fs = path.join(cur, "myfile.md")
 ```
 
 ### globs

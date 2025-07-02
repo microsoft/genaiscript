@@ -1,30 +1,30 @@
 script({
-    model: "small",
-    title: "Output tester",
-    description: "Generation various outputs",
-    group: "mcp",
-    accept: "none",
-})
-const { output } = env
+  model: "small",
+  title: "Output tester",
+  description: "Generation various outputs",
+  group: "mcp",
+  accept: "none",
+});
+const { output } = env;
 
-for (let i = 1; i <= 6; i++) output.heading(i, "heading " + i)
+for (let i = 1; i <= 6; i++) output.heading(i, "heading " + i);
 
-$`Write 2 word poem`
+$`Write 2 word poem`;
 
-output.warn("this is a warning")
-output.caution("this is a caution")
-output.item("this is an item")
-output.itemValue("item", "value")
-output.note("this is a note")
+output.warn("this is a warning");
+output.caution("this is a caution");
+output.item("this is an item");
+output.itemValue("item", "value");
+output.note("this is a note");
 output.diff(
-    `A
+  `A
 B
 C`,
-    `AA
-B`
-)
+  `AA
+B`,
+);
 output.fence(
-    `---
+  `---
 title: What is Markdown? - Understanding Markdown Syntax
 description: Learn about Markdown, a lightweight markup language for formatting plain text, its syntax, and how it differs from WYSIWYG editors.
 keywords: Markdown, markup language, formatting, plain text, syntax
@@ -37,36 +37,36 @@ Using Markdown is different than using a WYSIWYG editor. In an application like 
 
 For example, to denote a heading, you add a number sign before it (e.g., # Heading One). Or to make a phrase bold, you add two asterisks before and after it (e.g., **this text is bold**). It may take a while to get used to seeing Markdown syntax in your text, especially if you’re accustomed to WYSIWYG applications. The screenshot below shows a Markdown file displayed in the Visual Studio Code text editor....
 `,
-    "md"
-)
-output.fence(`let x = "abc"`, "js")
-output.itemValue("item", "value")
-output.fence("This is a fence")
+  "md",
+);
+output.fence(`let x = "abc"`, "js");
+output.itemValue("item", "value");
+output.fence("This is a fence");
 output.fence(
-    [
-        { a: 1, b: 2 },
-        { a: 3, b: 4 },
-    ],
-    "md"
-)
+  [
+    { a: 1, b: 2 },
+    { a: 3, b: 4 },
+  ],
+  "md",
+);
 output.fence(
-    [
-        { a: 1, b: 2 },
-        { a: 3, b: 4 },
-    ],
-    "csv"
-)
+  [
+    { a: 1, b: 2 },
+    { a: 3, b: 4 },
+  ],
+  "csv",
+);
 
-output.fence(`A --> B`, "mermaid")
-output.item(`- testing broken mermaid chart`)
-output.fence(`A -> B`, "mermaid")
+output.fence(`A --> B`, "mermaid");
+output.item(`- testing broken mermaid chart`);
+output.fence(`A -> B`, "mermaid");
 
 output.appendContent(`$$
 E = mc^2
-$$`)
-output.fence(`unknown language`, "unknown")
+$$`);
+output.fence(`unknown language`, "unknown");
 output.fence(
-    `
+  `
 sequenceDiagram
     Alice ->> Bob: Hello Bob, how are you?
     Bob-->>John: How about you John?
@@ -78,24 +78,24 @@ sequenceDiagram
     Alice->John: Yes... John, how are you?
 
     `,
-    "mermaid"
-)
+  "mermaid",
+);
 await output.image(
-    "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png?raw=true",
-    "icon"
-)
+  "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png?raw=true",
+  "icon",
+);
 
-output.detailsFenced("A", "AAA")
-output.detailsFenced("B", "BBB")
-output.detailsFenced("C", "CCC")
-output.detailsFenced("D", "DDD")
+output.detailsFenced("A", "AAA");
+output.detailsFenced("B", "BBB");
+output.detailsFenced("C", "CCC");
+output.detailsFenced("D", "DDD");
 
 output.table([
-    { a: 1, b: 2 },
-    { a: 3, b: 4 },
-])
-output.appendContent("<XML>hello</XML>\n")
+  { a: 1, b: 2 },
+  { a: 3, b: 4 },
+]);
+output.appendContent("<XML>hello</XML>\n");
 
-output.appendContent("☺️".repeat(50000))
+output.appendContent("☺️".repeat(50000));
 
-await output.image("packages/sample/src/robots.jpg")
+await output.image("packages/sample/src/robots.jpg");

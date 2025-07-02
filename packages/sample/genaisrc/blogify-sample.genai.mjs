@@ -1,19 +1,19 @@
 script({
-    files: "packages/sample/genaisrc/readme-updater.genai.mts",
-    system: ["system", "system.assistant", "system.files"],
-    tools: ["fs"],
-    model: "large",
-    temperature: 0.8,
-})
+  files: "packages/sample/genaisrc/readme-updater.genai.mts",
+  system: ["system", "system.assistant", "system.files"],
+  tools: ["fs"],
+  model: "large",
+  temperature: 0.8,
+});
 
-const today = new Date()
-const yyyy = today.getFullYear()
-const mm = String(today.getMonth() + 1).padStart(2, "0")
-const dd = String(today.getDate()).padStart(2, "0")
-const formattedDate = `${yyyy}-${mm}-${dd}`
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, "0");
+const dd = String(today.getDate()).padStart(2, "0");
+const formattedDate = `${yyyy}-${mm}-${dd}`;
 
-def("FILE", env.files)
-defFileOutput("docs/src/content/docs/blog/drafts/*.mdx", "generated blog posts")
+def("FILE", env.files);
+defFileOutput("docs/src/content/docs/blog/drafts/*.mdx", "generated blog posts");
 
 $`Create a blog post file that explains the GenAIScript source code in FILE.
 
@@ -49,7 +49,7 @@ $`Create a blog post file that explains the GenAIScript source code in FILE.
 - use markdown headers starting from level 2
 - use lowercase characters, dashes for filenames
 - when invoking the CLI, prefer using the script filename instead of the full path : "genaiscript run <filename_without_genai_extension>"
-- if the script imports code from "genaiscript/runtime", explain what those imports do. The source is in file packages/cli/src/runtime.ts
+- if the script imports code from "@genaiscript/runtime", explain what those imports do. The source is in file packages/cli/src/runtime.ts
 - make sure to generate a filename for the blog post. The filename should be the same as the script filename without the "genai" extension. For example, if the script filename is "makeitbetter.genai.mjs", the blog post filename should be "makeitbetter.md"
 
 
@@ -69,4 +69,4 @@ $`Create a blog post file that explains the GenAIScript source code in FILE.
 Render the output as a markdown file using
 the FILE formats. Make sure the output code section as 5 back ticks.
 
-`
+`;

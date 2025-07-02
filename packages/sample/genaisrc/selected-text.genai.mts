@@ -1,6 +1,6 @@
 script({
-    model: "echo"
-})
+  model: "echo",
+});
 
-def("TEXT", env.vars["editor.selectedText"])
-$`Summarize <TEXT> in a single sentence.`
+def("TEXT", env.vars["editor.selectedText"]);
+$`Summarize <TEXT> in a single sentence.`;

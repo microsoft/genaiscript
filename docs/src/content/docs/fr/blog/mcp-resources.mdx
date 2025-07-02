@@ -1,0 +1,72 @@
+---
+title: Ressources MCP
+description: Apprenez à publier des ressources MCP sans effort grâce à GenAIScript.
+keywords: MCP, GenAIScript, resources, publishing
+date: 2025-03-30
+cover:
+  alt: A colorful 2D illustration in an 8-bit retro style, depicting a stylized
+    server setup with abstract data nodes linked by lines. The design uses five
+    corporate colors, forming a geometric pattern that symbolizes data and
+    resource exchange. The interconnected nodes illustrate a protocol for
+    interaction, creating an iconic and corporate atmosphere without any people
+    or text.
+  image: ../../blog/mcp-resources.png
+tags:
+  - MCP resources
+  - Model Context Protocol
+  - MCP tools
+  - publishResource method
+  - GenAIScript framework
+excerpt: Le Model Context Protocol (MCP) propose une méthode puissante
+  permettant aux scripts de fournir un contexte aux grands modèles de langage
+  (LLM) en exposant des données via des ressources MCP. Ces ressources
+  permettent aux serveurs de partager un contenu structuré auquel les clients
+  peuvent accéder et qu'ils peuvent exploiter efficacement. En intégrant
+  `publishResource` dans vos workflows, vous rationalisez la façon dont vos
+  applications interagissent avec les clients MCP, améliorant ainsi la
+  découverte et la résolution de contexte. Découvrez comment les outils et
+  ressources MCP peuvent améliorer vos systèmes dès aujourd'hui.
+
+---
+
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+# Ressources MCP
+
+Dans un [article précédent](../../blog/scripts-as-mcp-tools/),
+nous avons annoncé que chaque script peut être un [outil MCP](https://modelcontextprotocol.io/docs/concepts/tools).
+
+Pour faire suite à cette idée, nous avons ajouté la prise en charge de la publication des [ressources MCP](https://modelcontextprotocol.io/docs/concepts/resources)
+dans le cadre de l'exécution du script.
+
+Les ressources sont une primitive essentielle du Model Context Protocol (MCP)
+qui permettent aux serveurs d'exposer des données et du contenu pouvant être lus par les clients et utilisés comme contexte pour les interactions avec les LLM.
+
+```mermaid
+
+graph TD
+    VS[GitHub Copilot Chat] --> MCPServer[GenAIScript = MCP Server]
+    MCPServer --> MCPTools1[script A = MCP Tool]
+    MCPTools1 --> MCPResources1[MCP Resource]
+    MCPResources1 --> MCPServer
+```
+
+MCP gère la découverte et la résolution des ressources, donc une fois que votre script publie une ressource,
+le client MCP (IDE) en est "informé" et peut décider de la lire.
+
+## `publishResource`
+
+La méthode `publishResource` vous permet de publier une ressource avec un identifiant unique et un fichier/chaîne/tampon.
+Le reste du processus de publication de la ressource MCP est pris en charge par le framework GenAIScript.
+
+```js
+const uri = await host.publishResource("unique-id", file);
+```
+
+## Étapes suivantes
+
+Êtes-vous prêt à créer vos propres outils et ressources MCP ?
+
+* [Lisez la documentation](../../reference/scripts/mcp-server#resources/)

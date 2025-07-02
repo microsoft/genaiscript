@@ -1,16 +1,19 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 /**
  * This module provides functions for parsing and validating prompt scripts
  * within a project. It includes a Checker class for validation of various
  * data types and formats.
  */
 
-import { GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
-import { host } from "./host"
-import { JSON5TryParse } from "./json5"
-import { humanize } from "./inflection"
-import { promptyParse, promptyToGenAIScript } from "./prompty"
-import { metadataValidate } from "./metadata"
-import { deleteUndefinedValues } from "./cleaners"
+import { GENAI_ANY_REGEX } from "./constants.js";
+import { host } from "./host.js";
+import { JSON5TryParse } from "./json5.js";
+import { humanize } from "./inflection.js";
+import { metadataValidate } from "./metadata.js";
+import { deleteUndefinedValues } from "./cleaners.js";
+import type { PromptArgs, PromptScript } from "./types.js";
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions
@@ -19,11 +22,11 @@ import { deleteUndefinedValues } from "./cleaners"
  * @param filename - The filename to extract the template ID from.
  * @returns The extracted template ID.
  */
-function templateIdFromFileName(filename: string) {
-    return filename
-        .replace(/\.(mjs|ts|js|mts|prompty)$/i, "")
-        .replace(/\.genai$/i, "")
-        .replace(/.*[\/\\]/, "")
+export function templateIdFromFileName(filename: string) {
+  return filename
+    .replace(/\.(mjs|ts|js|mts|prompty)$/i, "")
+    .replace(/\.genai$/i, "")
+    .replace(/.*[\/\\]/, "");
 }
 
 /**
@@ -34,38 +37,34 @@ function templateIdFromFileName(filename: string) {
  * @returns An object containing extracted metadata, tool definitions, and system-specific properties.
  */
 export function parsePromptScriptMeta(
-    jsSource: string
+  jsSource: string,
 ): PromptArgs & Pick<PromptScript, "defTools"> {
-    const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(
-        jsSource
-    )
-    const meta: PromptArgs & Pick<PromptScript, "defTools"> =
-        JSON5TryParse(m?.groups?.meta) ?? {}
-    if (m?.groups?.kind === "system") {
-        meta.unlisted = true
-        meta.isSystem = true
-        meta.group = meta.group || "system"
-    }
-    meta.defTools = parsePromptScriptTools(jsSource)
-    meta.metadata = metadataValidate(meta.metadata)
-    return deleteUndefinedValues(meta)
+  const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(jsSource);
+  const meta: PromptArgs & Pick<PromptScript, "defTools"> = JSON5TryParse(m?.groups?.meta) ?? {};
+  if (m?.groups?.kind === "system") {
+    meta.unlisted = true;
+    meta.isSystem = true;
+    meta.group = meta.group || "system";
+  }
+  meta.defTools = parsePromptScriptTools(jsSource);
+  meta.metadata = metadataValidate(meta.metadata);
+  return deleteUndefinedValues(meta);
 }
 
 function parsePromptScriptTools(jsSource: string) {
-    const tools: { id: string; description: string; kind: "tool" | "agent" }[] =
-        []
-    jsSource.replace(
-        /def(?<kind>Tool|Agent)\s*\(\s*"(?<id>[^"]+?)"\s*,\s*"(?<description>[^"]+?)"/g,
-        (m, kind, id, description) => {
-            tools.push({
-                id: kind === "Agent" ? "agent_" + id : id,
-                description,
-                kind: kind.toLocaleLowerCase(),
-            })
-            return ""
-        }
-    )
-    return tools
+  const tools: { id: string; description: string; kind: "tool" | "agent" }[] = [];
+  jsSource.replace(
+    /def(?<kind>Tool|Agent)\s*\(\s*"(?<id>[^"]+?)"\s*,\s*"(?<description>[^"]+?)"/g,
+    (m, kind, id, description) => {
+      tools.push({
+        id: kind === "Agent" ? "agent_" + id : id,
+        description,
+        kind: kind.toLocaleLowerCase(),
+      });
+      return "";
+    },
+  );
+  return tools;
 }
 
 /**
@@ -78,17 +77,15 @@ function parsePromptScriptTools(jsSource: string) {
  * @returns The parsed PromptScript or undefined in case of errors.
  */
 async function parsePromptTemplateCore(filename: string, content: string) {
-    const r = {
-        id: templateIdFromFileName(filename),
-        title: humanize(
-            host.path.basename(filename).replace(GENAI_ANY_REGEX, "")
-        ),
-        jsSource: content,
-    } as PromptScript
-    r.filename = host.path.resolve(filename)
-    const meta = parsePromptScriptMeta(r.jsSource)
-    Object.assign(r, meta)
-    return r
+  const r = {
+    id: templateIdFromFileName(filename),
+    title: humanize(host.path.basename(filename).replace(GENAI_ANY_REGEX, "")),
+    jsSource: content,
+  } as PromptScript;
+  r.filename = host.path.resolve(filename);
+  const meta = parsePromptScriptMeta(r.jsSource);
+  Object.assign(r, meta);
+  return r;
 }
 
 /**
@@ -99,14 +96,6 @@ async function parsePromptTemplateCore(filename: string, content: string) {
  * @returns The parsed PromptScript or undefined in case of errors.
  */
 export async function parsePromptScript(filename: string, content: string) {
-    let text: string = undefined
-    if (PROMPTY_REGEX.test(filename)) {
-        text = content
-        const doc = await promptyParse(filename, content)
-        content = await promptyToGenAIScript(doc)
-    }
-
-    const script = await parsePromptTemplateCore(filename, content)
-    if (text) script.text = text
-    return script
+  const script = await parsePromptTemplateCore(filename, content);
+  return script;
 }

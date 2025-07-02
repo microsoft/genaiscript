@@ -1,60 +1,60 @@
 script({
-    title: "Reasoning Agent",
-    description:
-        "A reasoning agent that can answer questions about files, git, github, documentation, web queries, video analysis.",
-    model: "large",
-    system: [
-        // List of system components and tools available for the script
-        "system",
-        "system.assistant",
-        "system.safety_harmful_content",
-        "system.safety_jailbreak",
-        "system.safety_protected_material",
-        "system.tools",
-        "system.files",
-        "system.files_schema",
-        "system.diagrams",
-        "system.annotations",
-        "system.git_info",
-        "system.github_info",
-        "system.safety_harmful_content",
-        "system.safety_validate_harmful_content",
-        "system.agent_fs",
-        "system.agent_git",
-        "system.agent_github",
-        "system.agent_interpreter",
-        "system.agent_docs",
-        "system.agent_web",
-        "system.agent_video",
-        "system.agent_data",
-        "system.vision_ask_images",
-        "system.think",
-    ],
-    group: "mcp", // Group categorization for the script
-    parameters: {
-        question: {
-            type: "string",
-            description: "the user question",
-        },
-        "copilot.editor": {
-            type: "string",
-            description: "the content of the opened editor, if any",
-            default: "",
-        },
-        "copilot.selection": {
-            type: "string",
-            description: "the content of the opened editor, if any",
-            default: "",
-        },
+  title: "Reasoning Agent",
+  description:
+    "A reasoning agent that can answer questions about files, git, github, documentation, web queries, video analysis.",
+  model: "large",
+  system: [
+    // List of system components and tools available for the script
+    "system",
+    "system.assistant",
+    "system.safety_harmful_content",
+    "system.safety_jailbreak",
+    "system.safety_protected_material",
+    "system.tools",
+    "system.files",
+    "system.files_schema",
+    "system.diagrams",
+    "system.annotations",
+    "system.git_info",
+    "system.github_info",
+    "system.safety_harmful_content",
+    "system.safety_validate_harmful_content",
+    "system.agent_fs",
+    "system.agent_git",
+    "system.agent_github",
+    "system.agent_interpreter",
+    "system.agent_docs",
+    "system.agent_web",
+    "system.agent_video",
+    "system.agent_data",
+    "system.vision_ask_images",
+    "system.think",
+  ],
+  group: "mcp", // Group categorization for the script
+  parameters: {
+    question: {
+      type: "string",
+      description: "the user question",
     },
-    flexTokens: 20000, // Flexible token limit for the script
-})
+    "copilot.editor": {
+      type: "string",
+      description: "the content of the opened editor, if any",
+      default: "",
+    },
+    "copilot.selection": {
+      type: "string",
+      description: "the content of the opened editor, if any",
+      default: "",
+    },
+  },
+  flexTokens: 20000, // Flexible token limit for the script
+});
 
 // Extract the 'question' parameter from the environment variables
-const { question } = env.vars
-const editor = env.vars["copilot.editor"]
-const selection = env.vars["copilot.selection"]
-const history = env.vars["copilot.history"]
+const { question } = env.vars;
+const editor = env.vars["copilot.editor"];
+const selection = env.vars["copilot.selection"];
+const history = env.vars["copilot.history"];
 
 $`## Tasks
 
@@ -72,36 +72,35 @@ $`## Tasks
 - use the agent tools to help you
 - do NOT be lazy, always finish the tasks
 - do NOT skip any steps
-`
+`;
 
 // Define a variable QUESTION with the value of 'question'
 def("QUESTION", question, {
-    lineNumbers: false,
-    detectPromptInjection: "available",
-})
+  lineNumbers: false,
+  detectPromptInjection: "available",
+});
 
-$`## Context`
+$`## Context`;
 
 // Define a variable FILE with the file data from the environment variables
 // The { ignoreEmpty: true, flex: 1 } options specify to ignore empty files and to use flexible token allocation
-if (history?.length > 0)
-    defData("HISTORY", history, { flex: 1, format: "yaml", sliceTail: 10 })
+if (history?.length > 0) defData("HISTORY", history, { flex: 1, format: "yaml", sliceTail: 10 });
 if (env.files.length)
-    def("FILE", env.files, {
-        lineNumbers: false,
-        ignoreEmpty: true,
-        flex: 1,
-        detectPromptInjection: "available",
-    })
+  def("FILE", env.files, {
+    lineNumbers: false,
+    ignoreEmpty: true,
+    flex: 1,
+    detectPromptInjection: "available",
+  });
 if (editor)
-    def("EDITOR", editor, {
-        flex: 4,
-        ignoreEmpty: true,
-        detectPromptInjection: "available",
-    })
+  def("EDITOR", editor, {
+    flex: 4,
+    ignoreEmpty: true,
+    detectPromptInjection: "available",
+  });
 if (selection)
-    def("SELECTION", selection, {
-        flex: 5,
-        ignoreEmpty: true,
-        detectPromptInjection: "available",
-    })
+  def("SELECTION", selection, {
+    flex: 5,
+    ignoreEmpty: true,
+    detectPromptInjection: "available",
+  });

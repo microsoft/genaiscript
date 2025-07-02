@@ -1,12 +1,12 @@
 script({
-    files: "src/audio/helloworld.mp4",
-})
+  files: "src/audio/helloworld.mp4",
+});
 const transcript = await transcribe(env.files[0], {
-    model: "whisperasr:default",
-    cache: "voip2",
-})
-console.log(transcript)
+  model: "whisperasr:default",
+  cache: "voip2",
+});
+console.log(transcript);
 def("TRANSCRIPT", transcript.srt, {
-    language: "srt",
-})
-$`Summarize the text in the transcript in <TRANSCRIPT>.`
+  language: "srt",
+});
+$`Summarize the text in the transcript in <TRANSCRIPT>.`;

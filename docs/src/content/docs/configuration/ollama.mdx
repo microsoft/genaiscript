@@ -1,15 +1,14 @@
 ---
 title: Ollama
 sidebar:
-    order: 50
+  order: 50
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
-
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 [Ollama](https://ollama.ai/) is a desktop application that lets you download and run models locally.
 
@@ -98,9 +97,9 @@ You can conviniately run Ollama in a Docker container.
 
 ```json
 {
-    "features": {
-        "docker-in-docker": "latest"
-    }
+  "features": {
+    "docker-in-docker": "latest"
+  }
 }
 ```
 
@@ -122,10 +121,10 @@ Add these scripts to your `package.json` file to make it easier to start and sto
 
 ```json
 {
-    "scripts": {
-        "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama",
-        "ollama:stop": "docker stop ollama && docker rm ollama"
-    }
+  "scripts": {
+    "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama",
+    "ollama:stop": "docker stop ollama && docker rm ollama"
+  }
 }
 ```
 

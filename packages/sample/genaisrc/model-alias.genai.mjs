@@ -1,5 +1,5 @@
 script({
-    model: "foo",
-    modelAliases: { foo: "small" },
-})
-$`Write a poem.`
+  model: "foo",
+  modelAliases: { foo: "small" },
+});
+$`Write a poem.`;

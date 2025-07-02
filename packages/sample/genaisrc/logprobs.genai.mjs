@@ -1,2 +1,2 @@
-script({ logprobs: true})
-$`Write a poem about a tree`
+script({ logprobs: true });
+$`Write a poem about a tree`;

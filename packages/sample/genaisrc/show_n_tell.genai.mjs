@@ -1,16 +1,16 @@
 script({
-    responseType: "markdown",
-})
-const lastMonth = new Date()
-lastMonth.setMonth(lastMonth.getMonth() - 1)
+  responseType: "markdown",
+});
+const lastMonth = new Date();
+lastMonth.setMonth(lastMonth.getMonth() - 1);
 
 const commits = await git.log({
-    after: lastMonth.toISOString(),
-})
-def("COMMITS", commits.map(({ message }) => message).join("\n"))
+  after: lastMonth.toISOString(),
+});
+def("COMMITS", commits.map(({ message }) => message).join("\n"));
 def(
-    "SLIDES_EXAMPLE",
-    `# Title
+  "SLIDES_EXAMPLE",
+  `# Title
 
 Hello, **Slidev**!
 
@@ -33,8 +33,8 @@ Use UnoCSS classes and Vue components to style and enrich your slides:
 <div class="p-3">
   <Tweet id="..." />
 </div>
-`
-)
+`,
+);
 
 $`## Role
 You are an expert at creating amazing, entertaining and informative content
@@ -55,6 +55,6 @@ of the acheivements of the last month.
 - at most 3 slides, do not have question/conclusion slides
 - use markdown (uses slidev syntax as in example <SLIDES_EXAMPLE>) format for the slides.
 - do not include HTML, images or videos in the slides.
-`
+`;
 
-// yarn genai copilotchat --vars "question=generate 1 snow-n-tell slide (markdown, slidev) about last month (starting after 2025/02/01) features. At most 3 slides, focus on highlights."
+// pnpm genai copilotchat --vars "question=generate 1 snow-n-tell slide (markdown, slidev) about last month (starting after 2025/02/01) features. At most 3 slides, focus on highlights."

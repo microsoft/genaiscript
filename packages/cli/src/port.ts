@@ -1,17 +1,15 @@
-import { SERVER_PORT } from "../../core/src/constants"
-import { findRandomOpenPort, isPortInUse } from "../../core/src/net"
-import { logWarn } from "../../core/src/util"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-export async function findOpenPort(
-    defaultPort: number,
-    options?: { port?: string }
-) {
-    let port = parseInt(options.port) || defaultPort
-    if (await isPortInUse(port)) {
-        if (options.port) throw new Error(`port ${port} in use`)
-        const oldPort = port
-        port = await findRandomOpenPort()
-        logWarn(`port ${oldPort} in use, using port ${port}`)
-    }
-    return port
+import { findRandomOpenPort, isPortInUse, logWarn } from "@genaiscript/core";
+
+export async function findOpenPort(defaultPort: number, options?: { port?: string }) {
+  let port = parseInt(options.port) || defaultPort;
+  if (await isPortInUse(port)) {
+    if (options.port) throw new Error(`port ${port} in use`);
+    const oldPort = port;
+    port = await findRandomOpenPort();
+    logWarn(`port ${oldPort} in use, using port ${port}`);
+  }
+  return port;
 }

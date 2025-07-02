@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "outDir": "./dist",
+    "emitDeclarationOnly": false
+  },
+  "include": [
+    "${configDir}/src/**/*.ts",
+    "${configDir}/src/**/*.mts",
+    "${configDir}/src/**/*.cts",
+    "${configDir}/src/**/*.json",
+    "${configDir}/package.json"
+  ]
+}

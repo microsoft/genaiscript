@@ -54,32 +54,35 @@
 |Phi\-3\-medium\-128k\-instruct|32000|
 
  */
+script({ model: "echo" });
 
-const { output } = env
-const gh = await host.resolveLanguageModelProvider("github")
-const sizes: { model: string; size: number }[] = []
-const length = 64000
-const text = "😊".repeat(length)
-const maxTokens = 256000
+const { output } = env;
+const gh = await host.resolveLanguageModelProvider("github", {
+  listModels: true,
+});
+output.fence(gh, "yaml");
+const sizes: { model: string; size: number }[] = [];
+const length = 64000;
+const text = "😊".repeat(length);
+const maxTokens = 256000;
 
-output.itemValue(`length`, length)
-output.itemValue(`maxToken`, maxTokens)
+output.itemValue(`length`, length);
+output.itemValue(`maxToken`, maxTokens);
 
 for (const model of gh.models) {
-    output.heading(2, model.id)
-    const res = await prompt`Count the number of smileys: ${text}`.options({
-        system: [],
-        maxTokens,
-        model: `github:` + model.id,
-        label: model.id,
-    })
-    if (res.error) {
-        output.itemValue(`error`, res.error.message)
-        const { maxSize } =
-            /Max\s+size:\s*(?<maxSize>\d+)\s*tokens\./i.exec(res.error.message)
-                ?.groups || {}
-        sizes.push({ model: model.id, size: parseInt(maxSize) })
-    } else output.itemValue(`result`, res.text)
+  output.heading(2, model.id);
+  const res = await prompt`Count the number of smileys: ${text}`.options({
+    system: [],
+    maxTokens,
+    model: `github:` + model.id,
+    label: model.id,
+  });
+  if (res.error) {
+    output.itemValue(`error`, res.error.message);
+    const { maxSize } =
+      /Max\s+size:\s*(?<maxSize>\d+)\s*tokens\./i.exec(res.error.message)?.groups || {};
+    sizes.push({ model: model.id, size: parseInt(maxSize) });
+  } else output.itemValue(`result`, res.text);
 }
 
-output.table(sizes)
+output.table(sizes);

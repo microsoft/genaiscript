@@ -16,14 +16,15 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 0
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile:action
+              run: pnpm build:cli
             - name: run script with azure deployment
-              run: node packages/cli/built/genaiscript.cjs run poem --model azure:gpt-4-turbo --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/dist/src/index.js run poem --model azure:gpt-4-turbo --out-trace $GITHUB_STEP_SUMMARY
               env:
                   AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}

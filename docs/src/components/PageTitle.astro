@@ -1,0 +1,12 @@
+---
+// src/overrides/PageTitle.astro
+import Default from "@astrojs/starlight/components/PageTitle.astro";
+import AIGeneratedNotice from "./AIGeneratedNotice.astro";
+
+const { starlightRoute } = Astro.locals;
+const isLocalized = starlightRoute.lang !== "en";
+console.log(`Building page: ${starlightRoute.slug} (${starlightRoute.lang})`);
+---
+
+<Default><slot /></Default>
+{isLocalized ? <AIGeneratedNotice /> : null}

@@ -1,20 +1,18 @@
 script({
-    model: "small",
-    tests: {
-        keywords: ["paris", "berlin"],
-    },
-})
-const question = "- What is the capital of France?"
+  model: "small",
+  tests: {
+    keywords: ["paris", "berlin"],
+  },
+});
+const question = "- What is the capital of France?";
 const hint = () => {
-    return "- What is the capital of Germinay"
-}
-await runPrompt((_) =>
-    _.importTemplate("src/templates/basic.prompty", { question, hint, n: 5 })
-)
+  return "- What is the capital of Germinay";
+};
+await runPrompt((_) => _.importTemplate("src/templates/basic.prompty", { question, hint, n: 5 }));
 importTemplate(
-    {
-        filename: "",
-        content: `---
+  {
+    filename: "",
+    content: `---
 name: Basic Prompt
 description: A basic prompt that uses the chat API to answer questions
 model:
@@ -58,6 +56,6 @@ user:
 
 {{hint}}
 `,
-    },
-    { question, hint, n: 5 }
-)
+  },
+  { question, hint, n: 5 },
+);

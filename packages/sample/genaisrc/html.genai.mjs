@@ -1,20 +1,18 @@
 script({
-    model: "small",
-    title: "HTML to Text",
-    tests: {},
-})
+  model: "small",
+  title: "HTML to Text",
+  tests: {},
+});
 
-const { text: html } = await fetchText(
-    "https://microsoft.github.io/genaiscript/getting-started/"
-)
-const text = await HTML.convertToText(html)
-def("TEXT", text)
+const { text: html } = await fetchText("https://microsoft.github.io/genaiscript/getting-started/");
+const text = await HTML.convertToText(html);
+def("TEXT", text);
 
-const md = await HTML.convertToMarkdown(html)
-const v = def("MARKDOWN", md)
+const md = await HTML.convertToMarkdown(html);
+const v = def("MARKDOWN", md);
 
-const tables = await HTML.convertTablesToJSON(html)
-defData("TABLES", tables)
+const tables = await HTML.convertTablesToJSON(html);
+defData("TABLES", tables);
 
 $`Compare TEXT and MARKDOWN.
-Analyze the TABLES data.`
+Analyze the TABLES data.`;

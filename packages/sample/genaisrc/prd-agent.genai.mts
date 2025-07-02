@@ -1,10 +1,10 @@
 script({
-    title: "Pull Request Descriptor - Agent",
-    description: "Generate a pull request description from the git diff",
-    tools: ["agent_fs", "agent_git"],
-    temperature: 0.5,
-    model: "reasoning_small",
-})
+  title: "Pull Request Descriptor - Agent",
+  description: "Generate a pull request description from the git diff",
+  tools: ["agent_fs", "agent_git"],
+  temperature: 0.5,
+  model: "reasoning_small",
+});
 
 $`You are an expert software developer and architect.
 
@@ -23,4 +23,4 @@ $`You are an expert software developer and architect.
 - focus on the most important changes
 - ignore comments about imports (like added, remove, changed, etc.)
 - do NOT add a "pull request description" header
-`
+`;
