@@ -2,6 +2,7 @@ import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { ollamaParseHostVariable } from "./env"
 import { OLLAMA_API_BASE, OLLAMA_DEFAULT_PORT } from "./constants"
+import { normalizeOllamaModelName, areOllamaModelsEquivalent } from "./ollama"
 
 describe("parseHostVariable", () => {
     test("parses OLLAMA_HOST environment variable correctly", () => {
@@ -50,5 +51,56 @@ describe("parseHostVariable", () => {
         const env = { OLLAMA_HOST: "0.0.0.0" }
         const result = ollamaParseHostVariable(env)
         assert.strictEqual(result, `http://0.0.0.0:${OLLAMA_DEFAULT_PORT}`)
+    })
+})
+
+describe("normalizeOllamaModelName", () => {
+    test("adds :latest tag to model without tag", () => {
+        assert.strictEqual(normalizeOllamaModelName("llama3.2"), "llama3.2:latest")
+    })
+
+    test("preserves existing tag", () => {
+        assert.strictEqual(normalizeOllamaModelName("llama3.2:3b"), "llama3.2:3b")
+        assert.strictEqual(normalizeOllamaModelName("llama3.2:latest"), "llama3.2:latest")
+    })
+
+    test("handles empty or invalid input", () => {
+        assert.strictEqual(normalizeOllamaModelName(""), "")
+        assert.strictEqual(normalizeOllamaModelName("llama3.2:"), "llama3.2:")
+    })
+
+    test("handles complex model names", () => {
+        assert.strictEqual(normalizeOllamaModelName("hf.co/bartowski/llama3.2"), "hf.co/bartowski/llama3.2:latest")
+        assert.strictEqual(normalizeOllamaModelName("hf.co/bartowski/llama3.2:gguf"), "hf.co/bartowski/llama3.2:gguf")
+    })
+})
+
+describe("areOllamaModelsEquivalent", () => {
+    test("recognizes model without tag as equivalent to model with :latest tag", () => {
+        assert.strictEqual(areOllamaModelsEquivalent("llama3.2", "llama3.2:latest"), true)
+        assert.strictEqual(areOllamaModelsEquivalent("llama3.2:latest", "llama3.2"), true)
+    })
+
+    test("recognizes exact matches", () => {
+        assert.strictEqual(areOllamaModelsEquivalent("llama3.2", "llama3.2"), true)
+        assert.strictEqual(areOllamaModelsEquivalent("llama3.2:latest", "llama3.2:latest"), true)
+        assert.strictEqual(areOllamaModelsEquivalent("llama3.2:3b", "llama3.2:3b"), true)
+    })
+
+    test("recognizes different models as not equivalent", () => {
+        assert.strictEqual(areOllamaModelsEquivalent("llama3.2", "llama3.1"), false)
+        assert.strictEqual(areOllamaModelsEquivalent("llama3.2:3b", "llama3.2:7b"), false)
+        assert.strictEqual(areOllamaModelsEquivalent("llama3.2", "llama3.2:3b"), false)
+    })
+
+    test("handles empty or invalid input", () => {
+        assert.strictEqual(areOllamaModelsEquivalent("", "llama3.2"), false)
+        assert.strictEqual(areOllamaModelsEquivalent("llama3.2", ""), false)
+        assert.strictEqual(areOllamaModelsEquivalent("", ""), false)
+    })
+
+    test("handles complex model names", () => {
+        assert.strictEqual(areOllamaModelsEquivalent("hf.co/bartowski/llama3.2", "hf.co/bartowski/llama3.2:latest"), true)
+        assert.strictEqual(areOllamaModelsEquivalent("hf.co/bartowski/llama3.2:gguf", "hf.co/bartowski/llama3.2:latest"), false)
     })
 })

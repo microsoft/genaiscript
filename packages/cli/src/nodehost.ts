@@ -16,6 +16,7 @@ import { filterGitIgnore } from "../../core/src/gitignore"
 import { parseTokenFromEnv } from "../../core/src/env"
 import {
     MODEL_PROVIDER_AZURE_OPENAI,
+    MODEL_PROVIDER_OLLAMA,
     SHELL_EXEC_TIMEOUT,
     AZURE_COGNITIVE_SERVICES_TOKEN_SCOPES,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
@@ -60,6 +61,7 @@ import {
 import { readConfig } from "../../core/src/config"
 import { HostConfiguration } from "../../core/src/hostconfiguration"
 import { resolveLanguageModel } from "../../core/src/lm"
+import { areOllamaModelsEquivalent } from "../../core/src/ollama"
 import { CancellationOptions } from "../../core/src/cancellation"
 import { defaultModelConfigurations } from "../../core/src/llms"
 import { createPythonRuntime } from "../../core/src/pyodide"
@@ -222,7 +224,14 @@ export class NodeHost extends EventTarget implements RuntimeHost {
                 trace?.error(`${provider}: ${errorMessage(error)}`, error)
                 return { ok, status, error }
             }
-            if (models.find(({ id }) => id === model)) {
+            if (models.find(({ id }) => {
+                // For Ollama, use tag-aware comparison that treats missing tags as :latest
+                if (provider === MODEL_PROVIDER_OLLAMA) {
+                    return areOllamaModelsEquivalent(model, id)
+                }
+                // For other providers, use exact match
+                return id === model
+            })) {
                 dbg(`found model ${model} in provider ${provider}, skip pull`)
                 this.pulledModels.push(modelId)
                 return { ok: true }

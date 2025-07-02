@@ -103,6 +103,42 @@ const pullModel: PullModelFunction = async (cfg, options) => {
     }
 }
 
+/**
+ * Normalizes Ollama model names for comparison by handling the implicit :latest tag.
+ * If a model name has no tag, it's equivalent to having :latest tag.
+ * 
+ * @param modelName - The model name to normalize
+ * @returns The normalized model name
+ */
+export function normalizeOllamaModelName(modelName: string): string {
+    if (!modelName) return modelName
+    
+    // If the model name contains a colon, it already has a tag
+    if (modelName.includes(':')) {
+        return modelName
+    }
+    
+    // If no tag specified, add :latest
+    return `${modelName}:latest`
+}
+
+/**
+ * Checks if two Ollama model names refer to the same model, considering
+ * that missing tags default to :latest.
+ * 
+ * @param requestedModel - The model name requested by the user
+ * @param availableModel - The model name available in Ollama
+ * @returns True if the models refer to the same model
+ */
+export function areOllamaModelsEquivalent(requestedModel: string, availableModel: string): boolean {
+    if (!requestedModel || !availableModel) return false
+    
+    const normalizedRequested = normalizeOllamaModelName(requestedModel)
+    const normalizedAvailable = normalizeOllamaModelName(availableModel)
+    
+    return normalizedRequested === normalizedAvailable
+}
+
 // Define the Ollama model with its completion handler and model listing function
 export const OllamaModel = Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_OLLAMA,
