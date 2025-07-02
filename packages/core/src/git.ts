@@ -470,8 +470,28 @@ export class GitClient implements Git {
         res = await this.exec(args);
       }
     }
+    if (!nameOnly && llmify) {
+      dbg(`llmifying diff`);
+      res = llmifyDiff(res);
+      dbg(`encoding diff`);
+      const tokens = approximateTokens(res);
+      if (tokens > maxTokensFullDiff) {
+        dbg(`truncating diff due to token limit`);
+        res = `## Diff
+Truncated diff to large (${tokens} tokens). Diff files individually for details.
 
-    async lastCommitSha(): Promise<string> {
+${ellipse(res, maxTokensFullDiff * 3)}
+...
+
+## Files
+${await this.diff({ ...options, nameOnly: true })}
+`;
+      }
+    }
+    return res;
+  }
+
+  async lastCommitSha(): Promise<string> {
         dbg(`fetching last commit`)
         const res = await this.exec(["rev-parse", "HEAD"])
         return res.split("\n")[0]
@@ -615,109 +635,6 @@ export class GitClient implements Git {
         await resolveFileContents(files)
         return files
     }
-
-    /**
-     * Generates a diff of changes based on provided options.
-     * @param options Options such as staged flag, base, head, paths, and exclusions.
-     * @returns {Promise<string>} The diff output.
-     */
-    async diff(options?: {
-        staged?: boolean
-        askStageOnEmpty?: boolean
-        base?: string
-        head?: string
-        paths?: ElementOrArray<string>
-        excludedPaths?: ElementOrArray<string>
-        unified?: number
-        nameOnly?: boolean
-        llmify?: boolean
-        algorithm?: "patience" | "minimal" | "histogram" | "myers"
-        extras?: string[]
-        /**
-         * Maximum of tokens before returning a name-only diff
-         */
-        maxTokensFullDiff?: number
-    }): Promise<string> {
-        const paths = arrayify(options?.paths, { filterEmpty: true })
-        const excludedPaths = await this.resolveExcludedPaths(options)
-        const {
-            staged,
-            base,
-            head,
-            unified,
-            askStageOnEmpty,
-            nameOnly,
-            maxTokensFullDiff = GIT_DIFF_MAX_TOKENS,
-            llmify,
-            algorithm = "minimal",
-            extras,
-        } = options || {}
-        const args = ["diff"]
-        if (staged) {
-            dbg(`including staged changes`)
-            args.push("--staged")
-        }
-        if (unified > 0) {
-            args.push("--ignore-all-space")
-            args.push(`--unified=${unified}`)
-        }
-        if (nameOnly) {
-            args.push("--name-only")
-        }
-        if (algorithm) {
-            args.push(`--diff-algorithm=${algorithm}`)
-        }
-        if (extras?.length) {
-            args.push(...extras)
-        }
-        if (base && !head) {
-            dbg(`diff base: ${base}`)
-            args.push(base)
-        } else if (head && !base) {
-            dbg(`diff head: ${head}`)
-            args.push(`${head}^..${head}`)
-        } else if (base && head) {
-            dbg(`diff range: ${base}..${head}`)
-            args.push(`${base}..${head}`)
-        }
-        GitClient.addFileFilters(paths, excludedPaths, args)
-        let res = await this.exec(args)
-        dbg(`executing diff command`)
-        if (!res && staged && askStageOnEmpty) {
-            // If no staged changes, optionally ask to stage all changes
-            dbg(`asking to stage all changes`)
-            const stage = await runtimeHost.confirm(
-                "No staged changes. Stage all changes?",
-                {
-                    default: true,
-                }
-            )
-            if (stage) {
-                dbg(`staging all changes`)
-                await this.exec(["add", "."])
-                res = await this.exec(args)
-            }
-        }
-    if (!nameOnly && llmify) {
-      dbg(`llmifying diff`);
-      res = llmifyDiff(res);
-      dbg(`encoding diff`);
-      const tokens = approximateTokens(res);
-      if (tokens > maxTokensFullDiff) {
-        dbg(`truncating diff due to token limit`);
-        res = `## Diff
-Truncated diff to large (${tokens} tokens). Diff files individually for details.
-
-${ellipse(res, maxTokensFullDiff * 3)}
-...
-
-## Files
-${await this.diff({ ...options, nameOnly: true })}
-`;
-      }
-    }
-    return res;
-  }
 
   /**
    * Create a shallow git clone
