@@ -1,20 +1,20 @@
-import { calculator } from "@agentic/calculator"
+import { calculator } from "@agentic/calculator";
 
 // usual
-defTool("foo", "bar", {}, () => "")
+defTool("foo", "bar", {}, () => "");
 // Tool callback
 defTool({
-    spec: {
-        name: "test",
-    },
-    impl: () => undefined,
-})
+  spec: {
+    name: "test",
+  },
+  impl: () => undefined,
+});
 // MCP
 defTool({
-    memory: {
-        command: "npx",
-        args: ["-y", "@modelcontextprotocol/server-memory"],
-    },
-})
+  memory: {
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-memory"],
+  },
+});
 // agentic
-defTool(calculator as any)
+defTool(calculator as any);

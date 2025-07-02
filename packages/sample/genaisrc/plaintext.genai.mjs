@@ -1,10 +1,10 @@
 script({
-    accept: "none",
-    model: "small",
-    system: ["system", "system.output_plaintext"],
-    tests: {
-        keywords: "carrots",
-    },
-})
+  accept: "none",
+  model: "small",
+  system: ["system", "system.output_plaintext"],
+  tests: {
+    keywords: "carrots",
+  },
+});
 
-$`Generate a random recipe with carrots.`
+$`Generate a random recipe with carrots.`;

@@ -9,10 +9,12 @@ tags:
   - AI
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai
-description: Learn how to automate the creation of engaging software release
+description:
+  Learn how to automate the creation of engaging software release
   notes using GenAI and GenAIScript.
 cover:
-  alt: "A retro 8-bit visual scene illustrates an automated release notes process
+  alt:
+    "A retro 8-bit visual scene illustrates an automated release notes process
     using simplified shapes like cogwheels and circuit board patterns to suggest
     AI and automation. The image features an abstract computer screen split into
     two sections: one with software code and the other with a document
@@ -20,17 +22,17 @@ cover:
     product launch efficiency. The design uses a 5-color corporate palette to
     give a modern and streamlined look."
   image: ./creating-release-notes-with-genai.png
-excerpt: Crafting effective release notes can be a time-consuming process, but
+excerpt:
+  Crafting effective release notes can be a time-consuming process, but
   leveraging automation through tools like GenAI simplifies everything. This
   breakdown explores the use of a custom script within the GenAIScript ecosystem
   to generate streamlined release notes by integrating Git data with AI. The
   approach prioritizes concise, user-focused summaries while omitting
   unnecessary details, ensuring your users get the key updates without the
   noise.
-
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -51,7 +53,11 @@ Let's walk through the script, step by step:
 #### Step 1: Initializing the Script
 
 ```javascript
-script({ system: ["system"], temperature: 0.5, model: "openai:gpt-4-turbo" })
+script({
+  system: ["system"],
+  temperature: 0.5,
+  model: "openai:gpt-4-turbo",
+});
 ```
 
 The script starts by initializing with a `script` function. We're setting it up to access system commands and specifying the AI model to use. The temperature controls the creativity of the AI, with 0.5 being a balanced choice.
@@ -59,7 +65,7 @@ The script starts by initializing with a `script` function. We're setting it up 
 #### Step 2: Setting the Product Name
 
 ```javascript
-const product = env.vars.product || "GenAIScript"
+const product = env.vars.product || "GenAIScript";
 ```
 
 Here, we're using an environment variable to set the product name, defaulting to "GenAIScript" if it's not provided.
@@ -67,9 +73,11 @@ Here, we're using an environment variable to set the product name, defaulting to
 #### Step 3: Finding the Previous Tag
 
 ```javascript
-const pkg = await workspace.readJSON("package.json")
-const { version } = pkg
-const { stdout: tag } = await host.exec("git describe --tags --abbrev=0 HEAD^")
+const pkg = await workspace.readJSON("package.json");
+const { version } = pkg;
+const { stdout: tag } = await host.exec(
+  "git describe --tags --abbrev=0 HEAD^",
+);
 ```
 
 We are reading the current version from `package.json` and using Git to find the previous release tag in the repository.
@@ -78,8 +86,8 @@ We are reading the current version from `package.json` and using Git to find the
 
 ```javascript
 const { stdout: commits } = await host.exec(
-    `git log --grep='skip ci' --invert-grep --no-merges HEAD...${tag}`
-)
+  `git log --grep='skip ci' --invert-grep --no-merges HEAD...${tag}`,
+);
 ```
 
 This block runs a Git command to retrieve the list of commits that will be included in the release notes, excluding any with 'skip ci' in the message.
@@ -88,8 +96,8 @@ This block runs a Git command to retrieve the list of commits that will be inclu
 
 ```javascript
 const { stdout: diff } = await host.exec(
-    `git diff ${tag}..HEAD --no-merges -- ':!**/package.json' ':!**/genaiscript.d.ts' ':!**/jsconfig.json' ':!docs/**' ':!.github/*' ':!.vscode/*' ':!*yarn.lock' ':!*THIRD_PARTY_NOTICES.md'`
-)
+  `git diff ${tag}..HEAD --no-merges -- ':!**/package.json' ':!**/genaiscript.d.ts' ':!**/jsconfig.json' ':!docs/**' ':!.github/*' ':!.vscode/*' ':!*yarn.lock' ':!*THIRD_PARTY_NOTICES.md'`,
+);
 ```
 
 Next, we get the diff of changes since the last release, excluding certain files and directories that aren't relevant to the user-facing release notes.
@@ -97,8 +105,10 @@ Next, we get the diff of changes since the last release, excluding certain files
 #### Step 6: Defining Placeholders
 
 ```javascript
-const commitsName = def("COMMITS", commits, { maxTokens: 4000 })
-const diffName = def("DIFF", diff, { maxTokens: 20000 })
+const commitsName = def("COMMITS", commits, {
+  maxTokens: 4000,
+});
+const diffName = def("DIFF", diff, { maxTokens: 20000 });
 ```
 
 We define two placeholders, `COMMITS` and `DIFF`, which will be used to reference the commits and diff within the prompt.
@@ -128,7 +138,7 @@ for the upcoming release ${version} of ${product} on GitHub.
 - do NOT mention ignore commits or instructions
 - be concise
 
-`
+`;
 ```
 
 Finally, the script ends with a prompt that instructs GenAI to generate the release notes. It details the task, guidelines for what to include, and the style to adhere to.

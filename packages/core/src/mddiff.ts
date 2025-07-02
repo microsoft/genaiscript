@@ -1,5 +1,8 @@
-import { diffLines } from "diff"
-import { fenceMD } from "./mkmd"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { diffLines } from "diff";
+import { fenceMD } from "./mkmd.js";
 
 /**
  * Generates a markdown-styled diff between two strings.
@@ -12,20 +15,18 @@ import { fenceMD } from "./mkmd"
  * @returns A fenced markdown string representing the diff or the new string if oldStr is undefined.
  */
 export function markdownDiff(
-    oldStr: string,
-    newStr: string,
-    options?: {
-        lang?: string
-        ignoreWhitespace?: boolean
-    }
+  oldStr: string,
+  newStr: string,
+  options?: {
+    lang?: string;
+    ignoreWhitespace?: boolean;
+  },
 ) {
-    const { lang, ...rest } = options || {}
+  const { lang, ...rest } = options || {};
 
-    if (oldStr === undefined) return fenceMD(newStr, lang)
+  if (oldStr === undefined) return fenceMD(newStr, lang);
 
-    const changes = diffLines(oldStr || "", newStr || "", rest)
-    const source = changes
-        .map((c) => `${c.added ? "+" : c.removed ? "-" : " "}${c.value}`)
-        .join("")
-    return fenceMD(source, "diff")
+  const changes = diffLines(oldStr || "", newStr || "", rest);
+  const source = changes.map((c) => `${c.added ? "+" : c.removed ? "-" : " "}${c.value}`).join("");
+  return fenceMD(source, "diff");
 }

@@ -1,1 +1,1 @@
-$`Tell me a joke`
+$`Tell me a joke`;

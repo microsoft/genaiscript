@@ -30,28 +30,24 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 0
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
-            - name: compile
-              run: yarn compile:action
-            - name: install ffmpeg
-              run: yarn ffmpeg:install
-            - name: start ollama
-              run: yarn ollama:start
-            - name: start whisper
-              run: yarn whisper:start
-            - name: run summarize-ollama-phi3
-              run: yarn test:summarize --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm build:cli
+            - run: pnpm install:ffmpeg
+            - run: pnpm ollama:start
+            - run: pnpm whisper:start
+            - run: pnpm test:ci --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3
               env:
                   OLLAMA_HOST: "http://localhost:11434"
             - name: run convert-ollama-phi3
-              run: yarn cli convert summarize --model ollama:llama3.2:1b "packages/sample/src/rag/*.md" --cache-name sum
+              run: pnpm cli convert summarize --model ollama:llama3.2:1b "packages/sample/src/rag/*.md" --cache-name sum
               env:
                   OLLAMA_HOST: "http://localhost:11434"
             - name: run transcribe
-              run: yarn run:script video-transcript --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3 --out-output $GITHUB_STEP_SUMMARY
+              run: pnpm run:script video-transcript --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3 --out-output $GITHUB_STEP_SUMMARY
               env:
                   OLLAMA_HOST: "http://localhost:11434"

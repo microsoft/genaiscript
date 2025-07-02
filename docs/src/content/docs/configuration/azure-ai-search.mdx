@@ -1,23 +1,25 @@
 ---
 title: Azure AI Search
 sidebar:
-    order: 3.1
+  order: 3.1
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 This is not a LLM provider, but a content search provider. However since it is configured similarly to the other Azure services,
 it is included here. It allows you to do [vector search](/genaiscript/reference/scripts/vector-search) of your documents
 using [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
 
 ```js "azure_search:"
-const index = await retrieval.index("animals", { type: "azure_ai_search" })
-await index.insertOrUpdate(env.files)
-const docs = await index.search("cat dog")
+const index = await retrieval.index("animals", {
+  type: "azure_ai_search",
+});
+await index.insertOrUpdate(env.files);
+const docs = await index.search("cat dog");
 ```
 
 ### Managed Identity (Entra ID)

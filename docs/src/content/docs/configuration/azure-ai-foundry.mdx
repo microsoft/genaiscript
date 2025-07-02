@@ -1,20 +1,20 @@
 ---
 title: Azure AI Foundry
 sidebar:
-    order: 3
+  order: 3
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
-import { YouTube } from "astro-embed"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
+import { YouTube } from "astro-embed";
 
 import {
-    AZURE_OPENAI_API_VERSION,
-    AZURE_AI_INFERENCE_VERSION,
-} from "../../../../../packages/core/src/constants"
+  AZURE_OPENAI_API_VERSION,
+  AZURE_AI_INFERENCE_VERSION,
+} from "../../../../../packages/core/src/constants";
 
 Azure AI Foundry provides access to serverless and deployed models, both for OpenAI and other providers. There are multiple ways to access those servers
 that are supported in GenAIScript:
@@ -40,12 +40,12 @@ provides a single endpoint to access a number of LLMs. This is a great way to ex
 It supports both Entra ID and key-based authentication.
 
 ```js "azure_ai_inference:gpt-4o"
-script({ model: "azure_ai_inference:gpt-4o" })
+script({ model: "azure_ai_inference:gpt-4o" });
 ```
 
 <YouTube
-    id="https://www.youtube.com/watch?v=kh670Bxe_1E"
-    posterQuality="high"
+  id="https://www.youtube.com/watch?v=kh670Bxe_1E"
+  posterQuality="high"
 />
 
 #### Managed Identity (Entra ID)
@@ -83,7 +83,7 @@ Find the model name in the model catalog with the **Deployment options = Serverl
 `model: "azure_id_inference:model-id"`.
 
 ```js
-script({ model: "azure_ai_inference:model-id" })
+script({ model: "azure_ai_inference:model-id" });
 ```
 
 </li>
@@ -122,7 +122,7 @@ Find the model name in the model catalog with the **Deployment options = Serverl
 `model: "azure_id_inference:model-id"`.
 
 ```js
-script({ model: "azure_ai_inference:model-id" })
+script({ model: "azure_ai_inference:model-id" });
 ```
 
 </li>
@@ -149,7 +149,7 @@ The `azure_serverless` provider supports OpenAI models deployed through the Azur
 It supports both Entra ID and key-based authentication.
 
 ```js "azure_serverless:"
-script({ model: "azure_serverless:deployment-id" })
+script({ model: "azure_serverless:deployment-id" });
 ```
 
 :::note
@@ -288,7 +288,7 @@ AZURE_SERVERLESS_OPENAI_API_KEY=...
 The `azure_serverless_models` provider supports non-OpenAI models, such as DeepSeek R1/v3, deployed through the Azure AI Foundary serverless deployments.
 
 ```js "azure_serverless_models:"
-script({ model: "azure_serverless_models:deployment-id" })
+script({ model: "azure_serverless_models:deployment-id" });
 ```
 
 #### Managed Identity (Entra ID)

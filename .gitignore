@@ -43,3 +43,50 @@ TypeScript/
 react/
 docs/public/blog/*.mp4
 *.http
+
+# tshy
+.tshy
+.tshy-build-tmp
+.tshy-build
+
+# build output
+dist/
+pnpm-lock.yaml
+
+# Turbo Build
+.turbo
+
+# typescript
+*.tsbuildinfo
+
+# npm packs
+genaiscript*.tgz
+
+*.bak
+
+devproxy/
+devproxy-beta/
+.demo/
+dev-proxy-ca.crt
+
+# START Ruler Generated Files
+.aider.conf.yml
+.clinerules
+.cursor/rules/ruler_cursor_instructions.mdc
+.github/copilot-instructions.md
+.idx/airules.md
+.openhands/config.toml
+.openhands/microagents/repo.md
+.windsurf/rules/ruler_windsurf_instructions.md
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+ruler_aider_instructions.md
+# END Ruler Generated Files
+
+packages/*/src/package.json
+
+.cursor/mcp.json
+.gemini/settings.json
+claude_desktop_config.json
+.mcp.json

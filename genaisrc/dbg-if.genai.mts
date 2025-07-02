@@ -1,4 +1,5 @@
 import { prettier } from "./src/prettier.mts"
+import { astGrep } from "@genaiscript/runtime"
 
 script({
     title: "Add debug logging statements to if statements",
@@ -18,7 +19,7 @@ const { applyEdits } = vars as {
     applyEdits?: boolean
 }
 
-const sg = await host.astGrep()
+const sg = await astGrep()
 for (const file of env.files) {
     dbg(file.filename)
 

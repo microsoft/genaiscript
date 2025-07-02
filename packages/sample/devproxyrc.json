@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/dev-proxy/main/schemas/v0.29.0/rc.schema.json",
+  "plugins": [
+    {
+      "name": "DevToolsPlugin",
+      "enabled": true,
+      "pluginPath": "~appFolder/plugins/DevProxy.Plugins.dll",
+      "configSection": "devTools"
+    }
+  ],
+  "devTools": {
+    "$schema": "https://raw.githubusercontent.com/dotnet/dev-proxy/main/schemas/v0.29.0/devtoolsplugin.schema.json",
+    "preferredBrowser": "EdgeDev"
+  },
+  "urlsToWatch": ["*"],
+  "logLevel": "debug",
+  "newVersionNotification": "stable",
+  "showSkipMessages": true,
+  "asSystemProxy": false
+}

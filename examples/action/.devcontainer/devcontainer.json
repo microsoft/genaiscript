@@ -1,0 +1,29 @@
+{
+  "name": "GenAIScript GitHub Action Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "ash",
+        "terminal.integrated.profiles.linux": {
+          "ash": {
+            "path": "/bin/ash",
+            "args": [
+              "-l"
+            ]
+          }
+        }
+      },
+      "extensions": [
+        "GitHub.vscode-github-actions",
+        "esbenp.prettier-vscode",
+        "GitHub.copilot-chat",
+        "genaiscript.genaiscript-vscode"
+      ]
+    }
+  },
+  "postCreateCommand": "git config --global --add safe.directory \"$(pwd)\" && npm ci"
+}

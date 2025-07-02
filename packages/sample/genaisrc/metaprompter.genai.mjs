@@ -1,13 +1,13 @@
 script({
-    title: "Meta-prompt generator",
-    system: [
-        "system",
-        "system.assistant",
-        "system.safety_jailbreak",
-        "system.safety_protected_material",
-    ],
-    tools: ["agent_docs", "agent_fs", "agent_planner"],
-})
+  title: "Meta-prompt generator",
+  system: [
+    "system",
+    "system.assistant",
+    "system.safety_jailbreak",
+    "system.safety_protected_material",
+  ],
+  tools: ["agent_docs", "agent_fs", "agent_planner"],
+});
 
 $`
 ## Task
@@ -28,4 +28,4 @@ Generate a meta-prompt that will teach an LLM how to use the library in this rep
 - samples: javascript/typescript files under packages/sample/src/**/*.m*s
 - documentation: markdown files under docs/src/content/docs/**/*.md*
 
-`
+`;

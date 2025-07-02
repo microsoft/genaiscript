@@ -1,7 +1,7 @@
 script({
-    title: "Use Z3 tool to solve SMT2 problems",
-    tools: "z3",
-})
+  title: "Use Z3 tool to solve SMT2 problems",
+  tools: "z3",
+});
 
 $`Solve the following problems using Z3:
 
@@ -30,4 +30,4 @@ Problem 2:
 (assert (nat-list list1))
 (check-sat)
 (get-model)
-`
+`;

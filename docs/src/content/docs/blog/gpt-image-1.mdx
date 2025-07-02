@@ -4,7 +4,8 @@ description: A new model for generating images from text prompts
 author: pelikhan
 date: 2025-04-25
 cover:
-  alt: Three side-by-side square frames, each showing a uniquely posed 8-bit style
+  alt:
+    Three side-by-side square frames, each showing a uniquely posed 8-bit style
     pixel cat. Each frame visually represents image generation from different AI
     models, using five flat corporate colors and minimalist geometric
     backgrounds. The cats are simple, highly pixelated, and visually distinct
@@ -17,7 +18,8 @@ tags:
   - dall-e comparison
   - azure ai foundry
   - pixel art cat
-excerpt: Our team just launched support for the new OpenAI gpt-image-1 image
+excerpt:
+  Our team just launched support for the new OpenAI gpt-image-1 image
   generation model, now available through both OpenAI’s API and Azure AI
   Foundry. We compared gpt-image-1 to DALL·E 2 and DALL·E 3 by generating 8-bit
   pixel cat images using the same prompt. Each model produces distinct visual
@@ -26,9 +28,9 @@ excerpt: Our team just launched support for the new OpenAI gpt-image-1 image
   tasks while leveraging advances in image synthesis. Try running the same
   workflows you use for existing models to see how output and prompt handling
   differ with gpt-image-1.
-
 ---
-import BlogNarration from "../../../components/BlogNarration.astro"
+
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -45,24 +47,24 @@ To compare the performance of this model, here is a little script that
 generate an pixelated cat image on DallE-2/3 and `gpt-image-1`.
 
 ```js title="images.genai.mjs" wrap
-const { output } = env
+const { output } = env;
 for (const model of [
-    "openai:dall-e-2",
-    "openai:dall-e-3",
-    "openai:gpt-image-1",
+  "openai:dall-e-2",
+  "openai:dall-e-3",
+  "openai:gpt-image-1",
 ]) {
-    output.heading(3, `Model: ${model}`)
-    const { image, revisedPrompt } = await generateImage(
-        `a cute cat. only one. iconic, high details. 8-bit resolution.`,
-        {
-            maxWidth: 400,
-            mime: "image/png",
-            model,
-            size: "square",
-        }
-    )
-    await env.output.image(image.filename)
-    output.fence(revisedPrompt)
+  output.heading(3, `Model: ${model}`);
+  const { image, revisedPrompt } = await generateImage(
+    `a cute cat. only one. iconic, high details. 8-bit resolution.`,
+    {
+      maxWidth: 400,
+      mime: "image/png",
+      model,
+      size: "square",
+    },
+  );
+  await env.output.image(image.filename);
+  output.fence(revisedPrompt);
 }
 ```
 

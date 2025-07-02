@@ -1,7 +1,7 @@
 script({
-    tests: {},
-})
+  tests: {},
+});
 
-import { delay } from "genaiscript/runtime"
+import { delay } from "@genaiscript/runtime";
 
-await delay(100)
+await delay(100);

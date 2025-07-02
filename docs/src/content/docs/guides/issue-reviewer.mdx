@@ -58,7 +58,7 @@ def("BODY", body)
 ## Automation in Github Actions
 
 Add this step to your Github Actions workflow to automate the issue review process.
-The `-prc` flag stands for [--pull-request-comment](/genaiscript/reference/cli/run#pull-requests)
+The `--pull-request-comment` flag stands for [--pull-request-comment](/genaiscript/reference/cli/run#pull-requests)
 and takes care of up-serting a comment in the pull request/issue conversation.
 
 ```yaml wrap
@@ -66,7 +66,7 @@ permissions:
     content: read # permission to read the repository
     issues: write # permission to write a comment
 ...
-    - run: npx --yes genaiscript run issue-reviewer -prc --out-trace $GITHUB_STEP_SUMMARY
+    - run: npx --yes genaiscript run issue-reviewer --pull-request-comment --out-trace $GITHUB_STEP_SUMMARY
       env:
         GITHUB_ISSUE: ${{ github.event.issue.number }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

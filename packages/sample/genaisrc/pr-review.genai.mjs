@@ -1,35 +1,35 @@
 script({
-    files: [],
-    title: "pull request review",
-    system: ["system", "system.typescript"],
-    tools: ["fs"],
-    parameters: {
-        defaultBranch: {
-            type: "string",
-            description: "The default branch to compare against.",
-        },
+  files: [],
+  title: "pull request review",
+  system: ["system", "system.typescript"],
+  tools: ["fs"],
+  parameters: {
+    defaultBranch: {
+      type: "string",
+      description: "The default branch to compare against.",
     },
-})
+  },
+});
 
-const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch())
+const defaultBranch = env.vars.defaultBranch || (await git.defaultBranch());
 const diff = await git.diff({
-    base: defaultBranch,
-    paths: ["**.ts"],
-    excludedPaths: [
-        "**/genaiscript.d.ts",
-        "**/jsconfig.json",
-        "genaisrc/*",
-        ".github/*",
-        ".vscode/*",
-        "**/yarn.lock",
-        "*THIRD_PARTY_LICENSES.md",
-    ],
-})
+  base: defaultBranch,
+  paths: ["**.ts"],
+  excludedPaths: [
+    "**/genaiscript.d.ts",
+    "**/jsconfig.json",
+    "genaisrc/*",
+    ".github/*",
+    ".vscode/*",
+    "**/yarn.lock",
+    "*THIRD_PARTY_LICENSES.md",
+  ],
+});
 
 def("GIT_DIFF", diff, {
-    language: "diff",
-    maxTokens: 20000,
-})
+  language: "diff",
+  maxTokens: 20000,
+});
 
 $`You are an expert software developer and architect. You are
 an expert in software reliability, security, scalability, and performance.
@@ -47,4 +47,4 @@ If the changes look good, respond "LGTM :rocket:". If you have any concerns, pro
 - Use emojis
 - If available, suggest code fixes and improvements using a diff format.
 - do not report about individual lines of code, summarize changes
-`
+`;

@@ -4,64 +4,63 @@
  */
 
 script({
-    title: "git commit message",
-    description: "Generate a commit message for all staged changes",
-    unlisted: true,
-    parameters: {
-        chunkSize: {
-            type: "number",
-            default: 10000,
-            description: "Maximum number of tokens per chunk",
-        },
-        maxChunks: {
-            type: "number",
-            default: 4,
-            description:
-                "Safeguard against huge commits. Asks confirmation to the user before running more than maxChunks chunks",
-        },
-        gitmoji: {
-            type: "boolean",
-            default: true,
-            description: "Use gitmoji in the commit message",
-        },
+  title: "git commit message",
+  description: "Generate a commit message for all staged changes",
+  unlisted: true,
+  parameters: {
+    chunkSize: {
+      type: "number",
+      default: 10000,
+      description: "Maximum number of tokens per chunk",
     },
-})
-const { chunkSize, maxChunks, gitmoji } = env.vars
+    maxChunks: {
+      type: "number",
+      default: 4,
+      description:
+        "Safeguard against huge commits. Asks confirmation to the user before running more than maxChunks chunks",
+    },
+    gitmoji: {
+      type: "boolean",
+      default: true,
+      description: "Use gitmoji in the commit message",
+    },
+  },
+});
+const { chunkSize, maxChunks, gitmoji } = env.vars;
 
 // Check for staged changes and stage all changes if none are staged
 const diff = await git.diff({
-    staged: true,
-    askStageOnEmpty: true,
-    ignoreSpaceChange: true,
-})
+  staged: true,
+  askStageOnEmpty: true,
+  ignoreSpaceChange: true,
+});
 
 // If no staged changes are found, cancel the script with a message
-if (!diff) cancel("no staged changes")
+if (!diff) cancel("no staged changes");
 
 // Display the diff of staged changes in the console
-console.debug(diff)
+console.debug(diff);
 
-await git.pull()
+await git.pull();
 
 // chunk if case of massive diff
-const chunks = await tokenizers.chunk(diff, { chunkSize })
+const chunks = await tokenizers.chunk(diff, { chunkSize });
 if (chunks.length > 1) {
-    console.log(`staged changes chunked into ${chunks.length} parts`)
-    if (chunks.length > maxChunks) {
-        const res = await host.confirm(
-            `This is a big diff with ${chunks.length} chunks, do you want to proceed?`
-        )
-        if (!res) cancel("user cancelled")
-    }
+  console.log(`staged changes chunked into ${chunks.length} parts`);
+  if (chunks.length > maxChunks) {
+    const res = await host.confirm(
+      `This is a big diff with ${chunks.length} chunks, do you want to proceed?`,
+    );
+    if (!res) cancel("user cancelled");
+  }
 }
 
 const gitPush = async () => {
-    if (await host.confirm("Push changes?", { default: true }))
-        console.log(await git.exec("push"))
-}
+  if (await host.confirm("Push changes?", { default: true })) console.log(await git.exec("push"));
+};
 
 const addInstructions = (ctx) => {
-    ctx.$`
+  ctx.$`
     
 <type>: <description>
 <body>
@@ -77,112 +76,106 @@ ${gitmoji ? `- <type> is a gitmoji` : `- <type> can be one of the following: fea
 - keep <body> short, 1 LINE ONLY, maximum 72 characters
 - follow the conventional commit spec at https://www.conventionalcommits.org/en/v1.0.0/#specification
 - do NOT confuse delete lines starting with '-' and add lines starting with '+'
-`
-}
+`;
+};
 
-let choice
-let message
+let choice;
+let message;
 do {
-    // Generate a conventional commit message based on the staged changes diff
-    message = ""
-    for (const chunk of chunks) {
-        const res = await runPrompt(
-            (_) => {
-                _.def("GIT_DIFF", chunk, {
-                    maxTokens: 10000,
-                    language: "diff",
-                    detectPromptInjection: "available",
-                })
-                _.$`Generate a git conventional commit message that summarizes the changes in GIT_DIFF.`
-                addInstructions(_)
-            },
-            {
-                model: "large", // Specifies the LLM model to use for message generation
-                label: "generate commit message", // Label for the prompt task
-                system: ["system.assistant"],
-                systemSafety: true,
-                responseType: "text",
-            }
-        )
-        if (res.error) throw res.error
-        message += (res.fences?.[0]?.content || res.text) + "\n"
-    }
+  // Generate a conventional commit message based on the staged changes diff
+  message = "";
+  for (const chunk of chunks) {
+    const res = await runPrompt(
+      (_) => {
+        _.def("GIT_DIFF", chunk, {
+          maxTokens: 10000,
+          language: "diff",
+          detectPromptInjection: "available",
+        });
+        _.$`Generate a git conventional commit message that summarizes the changes in GIT_DIFF.`;
+        addInstructions(_);
+      },
+      {
+        model: "large", // Specifies the LLM model to use for message generation
+        label: "generate commit message", // Label for the prompt task
+        system: ["system.assistant"],
+        systemSafety: true,
+        responseType: "text",
+      },
+    );
+    if (res.error) throw res.error;
+    message += (res.fences?.[0]?.content || res.text) + "\n";
+  }
 
-    // since we've concatenated the chunks, let's compress it back into a single sentence again
-    if (chunks.length > 1) {
-        const res = await runPrompt(
-            (_) => {
-                _.$`Generate a git conventional commit message that summarizes the <COMMIT_MESSAGES>.`
-                addInstructions(_)
-                _.def("COMMIT_MESSAGES", message)
-            },
-            {
-                model: "large",
-                label: "summarize chunk commit messages",
-                system: ["system.assistant"],
-                systemSafety: true,
-                responseType: "text",
-            }
-        )
-        if (res.error) throw res.error
-        message = res.text
-    }
+  // since we've concatenated the chunks, let's compress it back into a single sentence again
+  if (chunks.length > 1) {
+    const res = await runPrompt(
+      (_) => {
+        _.$`Generate a git conventional commit message that summarizes the <COMMIT_MESSAGES>.`;
+        addInstructions(_);
+        _.def("COMMIT_MESSAGES", message);
+      },
+      {
+        model: "large",
+        label: "summarize chunk commit messages",
+        system: ["system.assistant"],
+        systemSafety: true,
+        responseType: "text",
+      },
+    );
+    if (res.error) throw res.error;
+    message = res.text;
+  }
 
-    message = message?.trim()
-    if (!message) {
-        console.log(
-            "No commit message generated, did you configure the LLM model?"
-        )
-        break
-    }
+  message = message?.trim();
+  if (!message) {
+    console.log("No commit message generated, did you configure the LLM model?");
+    break;
+  }
 
-    // Prompt user to accept, edit, or regenerate the commit message
-    choice = await host.select(message, [
-        {
-            value: "commit",
-            description: "accept message and commit",
-        },
-        {
-            value: "edit",
-            description: "edit message in git editor",
-        },
-        {
-            value: "regenerate",
-            description: "run LLM generation again",
-        },
-        {
-            value: "cancel",
-            description: "cancel commit",
-        },
-    ])
+  // Prompt user to accept, edit, or regenerate the commit message
+  choice = await host.select(message, [
+    {
+      value: "commit",
+      description: "accept message and commit",
+    },
+    {
+      value: "edit",
+      description: "edit message in git editor",
+    },
+    {
+      value: "regenerate",
+      description: "run LLM generation again",
+    },
+    {
+      value: "cancel",
+      description: "cancel commit",
+    },
+  ]);
 
-    // Handle user's choice for commit message
-    if (choice === "edit") {
-        // @ts-ignore
-        const { spawnSync } = await import("child_process")
-        // 1) Launch git commit in an interactive editor
-        const spawnResult = spawnSync(
-            "git",
-            ["commit", "-m", message, "--edit"],
-            {
-                stdio: "inherit",
-            }
-        )
+  // Handle user's choice for commit message
+  if (choice === "edit") {
+    // @ts-ignore
+    const { spawnSync } = await import("child_process");
+    // 1) Launch git commit in an interactive editor
+    const spawnResult = spawnSync("git", ["commit", "-m", message, "--edit"], {
+      stdio: "inherit",
+    });
 
-        // 2) After the editor closes, forcibly exit the entire script
-        console.debug("git editor closed with exit code ", spawnResult.status)
-        if (spawnResult.status === 0) await gitPush()
-        break
-    }
-    // If user chooses to commit, execute the git commit and optionally push changes
-    if (choice === "commit" && message) {
-        console.log(await git.exec(["commit", "-m", message]))
-        await gitPush()
-        break
-    }
+    // 2) After the editor closes, forcibly exit the entire script
+    console.debug("git editor closed with exit code ", spawnResult.status);
+    if (spawnResult.status === 0) await gitPush();
+    break;
+  }
+  // If user chooses to commit, execute the git commit and optionally push changes
+  if (choice === "commit" && message) {
+    console.log(await git.exec(["commit", "-m", message]));
+    await gitPush();
+    break;
+  }
 
-    if (choice === "cancel") {
-        cancel("User cancelled commit")
-        break
-    }
-} while (choice !== "commit")
+  if (choice === "cancel") {
+    cancel("User cancelled commit");
+    break;
+  }
+} while (choice !== "commit");

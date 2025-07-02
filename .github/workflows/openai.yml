@@ -14,15 +14,15 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 0
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile:action
-            - name: run summarize
-              run: yarn test:summarize -p openai --out-trace $GITHUB_STEP_SUMMARY
+              run: pnpm build:cli
+            - run: pnpm test:ci -p openai --out-trace $GITHUB_STEP_SUMMARY
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}

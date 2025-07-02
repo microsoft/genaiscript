@@ -1,9 +1,9 @@
 script({
-    model: "small",
-    system: ["system.git_info"],
-    tests: {
-        keywords: "main",
-    },
-})
+  model: "small",
+  system: ["system.git_info"],
+  tests: {
+    keywords: "main",
+  },
+});
 
-$`What is the current git branch?`
+$`What is the current git branch?`;

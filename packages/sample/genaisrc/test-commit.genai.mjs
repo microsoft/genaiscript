@@ -1,68 +1,63 @@
 script({
-    model: "large",
-    temperature: 0,
-    files: [],
-    title: "pull request commit review",
-    tools: "fs",
-    system: [
-        "system",
-        "system.files",
-        "system.typescript",
-        "system.annotations",
-    ],
-    parameters: {
-        commit: {
-            type: "string",
-            default: "HEAD",
-            description: "The commit sha to review.",
-        },
+  model: "large",
+  temperature: 0,
+  files: [],
+  title: "pull request commit review",
+  tools: "fs",
+  system: ["system", "system.files", "system.typescript", "system.annotations"],
+  parameters: {
+    commit: {
+      type: "string",
+      default: "HEAD",
+      description: "The commit sha to review.",
     },
-})
+  },
+});
 
-const commit = env.vars.commit
+const commit = env.vars.commit;
 // diff latest commit
 const { stdout: changes } = await host.exec("git", [
-    "diff",
-    `${commit}^`,
-    commit,
-    "--",
-    "**.ts",
-    ":!**/genaiscript.d.ts",
-    ":!**/jsconfig.json",
-    ":!genaisrc/*",
-    ":!.github/*",
-    ":!.vscode/*",
-    ":!*yarn.lock",
-    ":!*THIRD_PARTY_LICENSES.md",
-])
+  "diff",
+  `${commit}^`,
+  commit,
+  "--",
+  "**.ts",
+  ":!**/genaiscript.d.ts",
+  ":!**/jsconfig.json",
+  ":!genaisrc/*",
+  ":!.github/*",
+  ":!.vscode/*",
+  ":!*yarn.lock",
+  ":!*THIRD_PARTY_LICENSES.md",
+]);
 
-if (!changes) cancel("No changes in the latest commit.")
+if (!changes) cancel("No changes in the latest commit.");
 
 // list of tests
 const { stdout: tests } = await host.exec("node", [
-    "packages/cli/built/genaiscript.cjs",
-    "test",
-    "list",
-    "--groups",
-    ":!vision",
-])
+  "packages/cli/dist/src/index.js",
+  "test",
+  "list",
+  "--groups",
+  ":!vision",
+]);
 
 def("GIT_DIFF", changes, {
-    language: "diff",
-    maxTokens: 20000,
-    ignoreEmpty: true,
-    lineNumbers: false,
-})
+  language: "diff",
+  maxTokens: 12000,
+  ignoreEmpty: true,
+  lineNumbers: false,
+});
 
 def(
-    "TESTS",
-    tests
-        .split(/\n/g)
-        .map((test) => test.split(/,\s*/)[1])
-        .map((filename) => filename)
-        .join("\n"),
-    { language: "txt", lineNumbers: false }
-)
+  "TESTS",
+  tests
+    .split(/\n/g)
+    .map((test) => test.split(/,\s*/)[1])
+    .map((filename) => filename)
+    .join("\n"),
+  { language: "txt", lineNumbers: false },
+);
 
 $`You are an expert TypeScript software developer and architect.
 
@@ -99,6 +94,6 @@ Remove the .genai.js extension, do not include folder names.
     ...
     \`\`\`
 
-`
+`;
 
-defFileOutput("packages/sample/temp/commit-tests.txt")
+defFileOutput("packages/sample/temp/commit-tests.txt");

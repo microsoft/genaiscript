@@ -78,7 +78,7 @@ layout: center
 
 - pattern matching over tree-sitter ASTs
 
-![AST-GREP playground](/ast-grep.png){
+![AST-GREP playground](/ast-grep.png)
 
 - https://ast-grep.github.io/
 

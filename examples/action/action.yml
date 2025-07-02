@@ -1,0 +1,73 @@
+name: genaiscript
+author: microsoft
+description: Action-poem
+inputs:
+  files:
+    description: "Files to process, separated by semi columns (;). "
+    required: false
+  debug:
+    description: Enable debug logging
+      (https://microsoft.github.io/genaiscript/reference/scripts/logging/).
+    required: false
+  openai_api_key:
+    description: OpenAI API key
+    required: false
+    default: ${{ secrets.OPENAI_API_KEY }}
+  openai_api_base:
+    description: OpenAI API base URL
+    required: false
+    default: ${{ env.OPENAI_API_BASE }}
+  azure_openai_api_endpoint:
+    description: Azure OpenAI endpoint. In the Azure Portal, open your Azure OpenAI
+      resource, Keys and Endpoints, copy Endpoint.
+    required: false
+    default: ${{ env.AZURE_OPENAI_API_ENDPOINT }}
+  azure_openai_api_key:
+    description: Azure OpenAI API key. **You do NOT need this if you are using
+      Microsoft Entra ID.
+    required: false
+    default: ${{ secrets.AZURE_OPENAI_API_KEY }}
+  azure_openai_subscription_id:
+    description: Azure OpenAI subscription ID to list available deployments
+      (Microsoft Entra only).
+    required: false
+    default: ${{ env.AZURE_OPENAI_SUBSCRIPTION_ID }}
+  azure_openai_api_version:
+    description: Azure OpenAI API version.
+    required: false
+    default: ${{ env.AZURE_OPENAI_API_VERSION }}
+  azure_openai_api_credentials:
+    description: Azure OpenAI API credentials type. Leave as 'default' unless you
+      have a special Azure setup.
+    required: false
+    default: ${{ env.AZURE_OPENAI_API_CREDENTIALS }}
+  azure_ai_inference_api_key:
+    description: Azure AI Inference key
+    required: false
+    default: ${{ secrets.AZURE_AI_INFERENCE_API_KEY }}
+  azure_ai_inference_api_endpoint:
+    description: Azure Serverless OpenAI endpoint
+    required: false
+    default: ${{ env.AZURE_AI_INFERENCE_API_ENDPOINT }}
+  azure_ai_inference_api_version:
+    description: Azure Serverless OpenAI API version
+    required: false
+    default: ${{ env.AZURE_AI_INFERENCE_API_VERSION }}
+  azure_ai_inference_api_credentials:
+    description: Azure Serverless OpenAI API credentials type
+    required: false
+    default: ${{ env.AZURE_AI_INFERENCE_API_CREDENTIALS }}
+  github_token:
+    description: "GitHub token with `models: read` permission at least
+      (https://microsoft.github.io/genaiscript/reference/github-actions/#github\
+      -models-permissions)."
+    required: false
+    default: ${{ secrets.GITHUB_TOKEN }}
+outputs:
+  text:
+    description: The generated text output.
+branding:
+  color: yellow
+runs:
+  using: docker
+  image: Dockerfile

@@ -1,11 +1,11 @@
 script({
-    title: "Bicep Best Practices",
-    temperature: 0,
-    system: ["system", "system.annotations"],
-    accept: ".bicep",
-})
+  title: "Bicep Best Practices",
+  temperature: 0,
+  system: ["system", "system.annotations"],
+  accept: ".bicep",
+});
 
-def("FILE", env.files, { endsWith: ".bicep" })
+def("FILE", env.files, { endsWith: ".bicep" });
 
 $`You are an expert at Azure Bicep.
 
@@ -16,4 +16,4 @@ Review the bicep in FILE and generate errors to enhance the script base on best 
 - Limit range to a single line.
 - Do NOT generate notes.
 - If a line starts with "#disable-next-line genaiscript", ignore the next line.
-`
+`;

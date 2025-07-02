@@ -1,35 +1,35 @@
 script({
-    title: "Pull Request Descriptor",
-    description: "Generate a pull request description from the git diff",
-    temperature: 0.5,
-    systemSafety: true,
-    parameters: {
-        base: {
-            type: "string",
-            description: "The base branch of the pull request",
-        },
-        maxTokens: {
-            type: "number",
-            description: "The maximum number of tokens to generate",
-            default: 14000,
-        },
+  title: "Pull Request Descriptor",
+  description: "Generate a pull request description from the git diff",
+  temperature: 0.5,
+  systemSafety: true,
+  parameters: {
+    base: {
+      type: "string",
+      description: "The base branch of the pull request",
     },
-})
-const maxTokens = env.vars.maxTokens
-const defaultBranch = env.vars.base || (await git.defaultBranch())
-const branch = await git.branch()
-if (branch === defaultBranch) cancel("you are already on the default branch")
+    maxTokens: {
+      type: "number",
+      description: "The maximum number of tokens to generate",
+      default: 14000,
+    },
+  },
+});
+const maxTokens = env.vars.maxTokens;
+const defaultBranch = env.vars.base || (await git.defaultBranch());
+const branch = await git.branch();
+if (branch === defaultBranch) cancel("you are already on the default branch");
 
 // compute diff
 const changes = await git.diff({
-    base: defaultBranch,
-})
-console.log(changes)
+  base: defaultBranch,
+});
+console.log(changes);
 
 def("GIT_DIFF", changes, {
-    maxTokens,
-    detectPromptInjection: "available",
-})
+  maxTokens,
+  detectPromptInjection: "available",
+});
 
 // task
 $`## Task
@@ -48,4 +48,4 @@ This description will be used as the pull request description.
 - focus on the most important changes
 - do not try to fix issues, only describe the changes
 - ignore comments about imports (like added, remove, changed, etc.)
-`
+`;

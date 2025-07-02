@@ -1,0 +1,211 @@
+---
+title: Guide du développeur
+description: Directives de contribution pour la création et l'ajout de
+  fonctionnalités à GenAIScript
+sidebar:
+  order: 100
+
+---
+
+GenAIScript accueille les contributions de la communauté. Ce document fournit des directives pour la configuration de l'environnement de développement, la compilation du projet, et la contribution à la base de code.
+
+## Installation
+
+Vous pouvez ouvrir ce dépôt dans GitHub CodeSpace/Docker pour obtenir l'environnement de compilation nécessaire.
+
+[![Ouvrir dans GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true\&ref=main\&repo=679784368)
+
+* Allez sur [https://github.com/microsoft/genaiscript](https://github.com/microsoft/genaiscript)
+* Cliquez sur **Code**
+* Sélectionnez Créer un nouveau Codespace
+* Sélectionnez la branche **dev**
+
+### Configuration manuelle
+
+* Installez [Node.JS LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+* Exécutez yarn
+
+```sh
+pnpm install --frozen-lockfile --prefer-offline
+```
+
+## Compilation
+
+Vous pouvez effectuer une compilation complète avec esbuild.
+
+```sh
+pnpm build
+```
+
+ou seulement l'interface en ligne de commande (cli)
+
+```sh
+pnpm build:cli
+```
+
+## Demandes de tirage (Pull Requests)
+
+Vous devez créer des pull requests contre la branche `dev`. La branche `main` est réservée aux versions.
+La branche `dev` est la branche principale de développement. C'est là que toutes les nouvelles fonctionnalités et corrections de bugs sont fusionnées avant d'être publiées.
+
+Lors de la création d'une pull request, veuillez vous assurer que votre code respecte les directives suivantes :
+
+* Respectez le [Code de conduite open source Microsoft](https://opensource.microsoft.com/codeofconduct/).
+* Assurez-vous que votre code est bien documenté et respecte le style de codage du projet.
+* Si possible, ajoutez des tests pour toutes nouvelles fonctionnalités ou corrections de bugs.
+
+## Exécution de scripts locaux
+
+Pour exécuter un script avec l'interface de commande localement compilée,
+
+```sh
+pnpm genai <scriptid> ...
+```
+
+Pour exécuter un script d'exemple dans le dossier `packages/sample` :
+
+```sh
+pnpm run:script <scriptid> ...
+```
+
+Dans ce cas, le fichier `packages/sample/.env` sera utilisé pour les variables d'environnement et l'espace de travail sera raciné à `packages/sample`.
+
+## Débogage des scripts locaux
+
+Ouvrez un `Terminal de débogage JavaScript` et lancez le script avec
+
+```sh
+pnpm genai:debug <scriptid> ...
+```
+
+ou pour les exemples
+
+```sh
+pnpm run:script:debug <scriptid> ...
+```
+
+## Journalisation
+
+GenAIScript utilise la bibliothèque [debug](https://www.npmjs.com/package/debug) pour la journalisation. Vous pouvez activer la journalisation en définissant la variable d'environnement `DEBUG` à `genai:*`.
+
+```sh
+DEBUG=genaiscript:* pnpm genai <scriptid> ...
+```
+
+## Visionneuse web
+
+L'application web (React 19) est conçue pour fonctionner à la fois comme un panneau Visual Studio Code et comme un visualiseur autonome (**playground**). Pour des tests, le mode autonome est le plus simple.
+
+* React 19, avec très peu de dépendances actuellement
+* react-markdown + quelques plugins pour interpréter le markdown
+* [vscode-elements](https://vscode-elements.github.io/) est le système de design que nous utilisons car il imite l'apparence de vscode.
+
+Utilisez la commande suivante pour démarrer le serveur web local :
+
+```sh
+pnpm serve
+```
+
+Il démarrera un serveur local et reconstruira le client react lors des modifications de fichiers. **Il ne reconstruira/niera pas le serveur lors des modifications.**
+Il n'y a **pas** de rechargement à chaud, vous devez actualiser le navigateur. Si un état doit être sérialisé, nous devrions commencer à l'ajouter au hash.
+
+## Développement de l'extension Visual Studio Code
+
+Travailler sur VSCode implique de lancer le débogueur principal du projet, qui ouvre une seconde instance de VSCode avec l'extension GenAIScript.
+
+Vous pouvez placer des points d'arrêt dans les fichiers TypeScript de GenAIScript et ils seront pris en compte.
+
+* désinstallez l'extension officielle GenAIScript sinon elle entrera en conflit avec celle compilée localement
+* ouvrez la vue `Débogage` dans Vs Code
+* sélectionnez la configuration de débogage **Samples** et cliquez sur **Exécuter**
+
+N'oubliez pas que le débogueur est seulement attaché à l'extension ; pas au serveur GenAIScript.
+
+### Précautions
+
+Le lancement du débogueur échoue parfois pour des raisons encore inconnues. Pour contourner ce problème, ouvrez un terminal et exécutez `pnpm build` une fois. Puis relancez le débogueur.
+
+## Documentation
+
+Exécutez `docs` pour lancer le site de documentation.
+
+```sh
+pnpm docs
+```
+
+Exécutez cette commande pour détecter les liens brisés
+
+```sh
+pnpm build:docs
+```
+
+## Slides
+
+Tous les fichiers `slides/*slides.md` seront compilés et déployés lors de la compilation.
+
+* exécutez `slides` pour lancer la présentation (ajoutez le nom du fichier ou il prendra `slides.md` par défaut)
+
+```sh
+pnpm slides [slides file name]
+```
+
+En savoir plus sur Slidev dans la [documentation](https://sli.dev/). Pour les diagrammes, utilisez [mermaid](https://sli.dev/guide/syntax#diagrams) ou draw\.io, tldraw.
+
+## GenAIScripts
+
+* Commettre avec un message généré automatiquement
+
+```sh
+pnpm gcm
+```
+
+* Ajouter la documentation aux nouvelles APIs ou mises à jour
+
+```sh
+pnpm genai:docs
+```
+
+* Générer des images pour les articles de blog
+
+```sh
+pnpm genai:blog-images
+```
+
+## Emballage
+
+Pour compiler et empaqueter l'extension Visual Studio Code, exécutez le script `package`.
+
+```sh
+pnpm package
+```
+
+Vous trouverez les fichiers du paquet compilé, `genaiscript.vsix`,
+dans le dossier `packages/vscode`.
+
+## Publication
+
+Exécutez le script `release`.
+
+```sh
+pnpm release
+```
+
+Les pages GitHub sont automatiquement mises à jour lors d'une nouvelle version ; ou via un déclenchement manuel sur
+[https://github.com/microsoft/genaiscript/actions/workflows/docs.yml](https://github.com/microsoft/genaiscript/actions/workflows/docs.yml) .
+
+## Contribution
+
+Ce projet accepte les contributions et suggestions. La plupart des contributions exigent que vous acceptiez un Accord de Licence de Contributeur (CLA) déclarant que vous avez le droit, et accordez effectivement, les droits pour utiliser votre contribution. Pour plus de détails, visitez [https://cla.opensource.microsoft.com](https://cla.opensource.microsoft.com).
+
+Lorsque vous soumettez une pull request, un bot CLA déterminera automatiquement si vous devez fournir un CLA et décorera la PR en conséquence (par ex., vérification de statut, commentaire). Suivez simplement les instructions fournies par le bot. Vous ne devrez faire cela qu'une seule fois sur tous les dépôts utilisant notre CLA.
+
+Ce projet a adopté le [Code de conduite open source Microsoft](https://opensource.microsoft.com/codeofconduct/).
+Pour plus d'informations, consultez la [FAQ du Code de conduite](https://opensource.microsoft.com/codeofconduct/faq/) ou contactez [opencode@microsoft.com](mailto\:opencode@microsoft.com) pour toute question ou remarque.
+
+<hr />
+
+Traduction réalisée par IA. Veuillez vérifier le contenu pour plus de précision.
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

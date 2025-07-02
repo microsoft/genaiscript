@@ -1,3 +1,3 @@
-script({ tools: "agent"})
+script({ tools: "agent" });
 
-$`Investigate the last failure of the workflow run of 'build.yml'.`
+$`Investigate the last failure of the workflow run of 'build.yml'.`;

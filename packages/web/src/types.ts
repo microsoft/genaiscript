@@ -1,3 +1,6 @@
-import { FileWithPath } from "react-dropzone/."
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-export type ImportedFile = FileWithPath & { selected?: boolean }
+import { FileWithPath } from "react-dropzone/.";
+
+export type ImportedFile = FileWithPath & { selected?: boolean };

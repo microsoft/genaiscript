@@ -24,20 +24,21 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 0
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile:action
+              run: pnpm build:cli
             - name: poem
               continue-on-error: true
-              run: yarn run:script poem -p anthropic --out-trace $GITHUB_STEP_SUMMARY
+              run: pnpm run:script poem -p anthropic --out-trace $GITHUB_STEP_SUMMARY
               env:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
             - name: reasoning
               continue-on-error: true
-              run: yarn run:script tools -p anthropic -m reasoning --out-trace $GITHUB_STEP_SUMMARY
+              run: pnpm run:script tools -p anthropic -m reasoning --out-trace $GITHUB_STEP_SUMMARY
               env:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

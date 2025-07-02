@@ -1,27 +1,26 @@
 script({
-    title: "SEO front matter",
-    description:
-        "Update or generate SEO-optimized front matter for a markdown file.",
-    group: "samples",
-    system: ["system", "system.files"],
-    temperature: 0.5,
-    model: "large",
-})
+  title: "SEO front matter",
+  description: "Update or generate SEO-optimized front matter for a markdown file.",
+  group: "samples",
+  system: ["system", "system.files"],
+  temperature: 0.5,
+  model: "large",
+});
 
-defFileOutput("*.{md,mdx}", "Updated markdown files")
+defFileOutput("*.{md,mdx}", "Updated markdown files");
 defFileMerge(function frontmatter(fn, label, before, generated) {
-    if (!/\.mdx?$/i.test(fn)) return undefined
-    const after = YAML.parse(generated)
-    if (after.tag && !Array.isArray(after.tag)) delete after.tag
-    const updated = MD.updateFrontmatter(before, {
-        title: after.title,
-        description: after.description,
-        keywords: after.keywords,
-    })
-    return updated
-})
+  if (!/\.mdx?$/i.test(fn)) return undefined;
+  const after = YAML.parse(generated);
+  if (after.tag && !Array.isArray(after.tag)) delete after.tag;
+  const updated = MD.updateFrontmatter(before, {
+    title: after.title,
+    description: after.description,
+    keywords: after.keywords,
+  });
+  return updated;
+});
 
-def("FILE", env.files, { glob: "**.{md,mdx}" })
+def("FILE", env.files, { glob: "**.{md,mdx}" });
 
 $`
 You are a search engine optimization expert at creating front matter for markdown document.
@@ -36,4 +35,4 @@ ONLY generate the front matter section.
 - Do NOT modify the markdown content after the front matter
 
 If no front matter is present, generate it.
-`
+`;
