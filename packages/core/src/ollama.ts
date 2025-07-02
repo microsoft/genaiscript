@@ -113,8 +113,12 @@ const pullModel: PullModelFunction = async (cfg, options) => {
 export function normalizeOllamaModelName(modelName: string): string {
     if (!modelName) return modelName
     
-    // If the model name contains a colon, it already has a tag
-    if (modelName.includes(':')) {
+    // Check if there's a tag (colon after the last slash, if any)
+    const lastSlashIndex = modelName.lastIndexOf('/')
+    const relevantPart = lastSlashIndex >= 0 ? modelName.substring(lastSlashIndex + 1) : modelName
+    
+    // If the relevant part (after last slash) contains a colon, it has a tag
+    if (relevantPart.includes(':')) {
         return modelName
     }
     
