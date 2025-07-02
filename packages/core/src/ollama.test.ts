@@ -103,4 +103,16 @@ describe("areOllamaModelsEquivalent", () => {
         assert.strictEqual(areOllamaModelsEquivalent("hf.co/bartowski/llama3.2", "hf.co/bartowski/llama3.2:latest"), true)
         assert.strictEqual(areOllamaModelsEquivalent("hf.co/bartowski/llama3.2:gguf", "hf.co/bartowski/llama3.2:latest"), false)
     })
+
+    test("handles case sensitivity correctly", () => {
+        // Model names should be case-sensitive as in Docker registries
+        assert.strictEqual(areOllamaModelsEquivalent("Llama3.2", "llama3.2:latest"), false)
+        assert.strictEqual(areOllamaModelsEquivalent("LLAMA3.2", "llama3.2"), false)
+    })
+
+    test("handles registry-like names correctly", () => {
+        // Models with registry:port format should not get :latest added
+        assert.strictEqual(normalizeOllamaModelName("registry:5000/model"), "registry:5000/model")
+        assert.strictEqual(areOllamaModelsEquivalent("registry:5000/model", "registry:5000/model:latest"), false)
+    })
 })
