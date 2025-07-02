@@ -3131,6 +3131,17 @@ export interface Git {
   blame(filename: string, line: number): Promise<string>;
 
   /**
+   * Lists files that have been modified since a specific date or elapsed time.
+   * @param since Date string (ISO format) or elapsed time (e.g., '2 hours ago', '1 day ago')
+   * @param options Optional settings for paths and exclusions
+   * @returns List of modified files since the specified time
+   */
+  changedFiles(since: string, options?: {
+    paths?: ElementOrArray<string>;
+    excludedPaths?: ElementOrArray<string>;
+  }): Promise<WorkspaceFile[]>;
+
+  /**
    * Create a shallow git clone
    * @param repository URL of the remote repository
    * @param options various clone options
