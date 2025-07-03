@@ -16,6 +16,7 @@ import { fuzzSearch } from "./fuzzsearch"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorCreateIndex, vectorSearch } from "./vectorsearch"
+import { agenticSearch, AgenticSearchContext } from "./agenticsearch"
 import { Project } from "./server/messages"
 import { shellParse } from "./shell"
 import { PLimitPromiseQueue } from "./concurrency"
@@ -262,6 +263,96 @@ export async function createPromptContext(
                 return res
             } finally {
                 vecTrace.endDetails()
+            }
+        },
+        agenticSearch: async (q, files_, searchOptions) => {
+            // Perform agentic search combining multiple strategies
+            const files = arrayify(files_).map(toWorkspaceFile)
+            searchOptions = { ...(searchOptions || {}) }
+            const agenticTrace = trace.startTraceDetails(
+                `🎯 agentic search <code>${HTMLEscape(q)}</code>`
+            )
+            try {
+                if (!files?.length && !searchOptions.includeWebSearch) {
+                    agenticTrace.error("no files provided and web search disabled")
+                    return []
+                }
+
+                // Create context for agentic search
+                const searchContext: AgenticSearchContext = {
+                    runPrompt: async (generator, runOptions) => {
+                        const ctx = createChatGenerationContext(
+                            output,
+                            options,
+                            trace,
+                            model
+                        )
+                        return await ctx.runPrompt(generator, runOptions)
+                    },
+                    retrieval: {
+                        vectorSearch: async (query, searchFiles, vecOptions) => {
+                            await resolveFileContents(searchFiles)
+                            vecOptions = { ...(vecOptions || {}) }
+                            vecOptions.embeddingsModel =
+                                vecOptions?.embeddingsModel ?? options?.embeddingsModel
+                            const key =
+                                vecOptions?.indexName ||
+                                (await hash(
+                                    { files: searchFiles, searchOptions: vecOptions },
+                                    { length: VECTOR_INDEX_HASH_LENGTH }
+                                ))
+                            return await vectorSearch(key, query, searchFiles, {
+                                ...vecOptions,
+                                trace: agenticTrace,
+                                cancellationToken,
+                            })
+                        },
+                        webSearch: async (query, webOptions) => {
+                            const { provider, count, ignoreMissingProvider } = webOptions || {}
+                            let results: WorkspaceFile[]
+                            if (provider === "bing")
+                                results = await bingSearch(query, { trace: agenticTrace, count })
+                            else if (provider === "tavily")
+                                results = await tavilySearch(query, { trace: agenticTrace, count })
+                            else {
+                                for (const f of [bingSearch, tavilySearch]) {
+                                    results = await f(query, {
+                                        ignoreMissingApiKey: true,
+                                        trace: agenticTrace,
+                                        count,
+                                    })
+                                    if (results) break
+                                }
+                            }
+                            if (!results && !ignoreMissingProvider) {
+                                throw new Error(
+                                    `No search provider configured. See ${DOCS_WEB_SEARCH_URL}.`
+                                )
+                            }
+                            return results || []
+                        },
+                        fuzzSearch: async (query, searchFiles, fuzzOptions) => {
+                            if (!searchFiles?.length) return []
+                            return await fuzzSearch(query, searchFiles, {
+                                ...fuzzOptions,
+                                trace: agenticTrace,
+                            })
+                        },
+                    }
+                }
+
+                // Set embeddings model
+                searchOptions.embeddingsModel =
+                    searchOptions?.embeddingsModel ?? options?.embeddingsModel
+
+                const res = await agenticSearch(q, files, searchContext, {
+                    ...searchOptions,
+                    trace: agenticTrace,
+                    cancellationToken,
+                })
+                return res
+            } finally {
+                agenticTrace.endDetails()
             }
         },
     }

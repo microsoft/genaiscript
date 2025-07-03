@@ -4174,6 +4174,67 @@ interface FuzzSearchOptions {
     minScore?: number
 }
 
+interface AgenticSearchOptions {
+    /**
+     * Maximum number of results to return
+     */
+    topK?: number
+    
+    /**
+     * Minimum score threshold for results
+     */
+    minScore?: number
+    
+    /**
+     * Whether to include web search results
+     */
+    includeWebSearch?: boolean
+    
+    /**
+     * Whether to include vector search results  
+     */
+    includeVectorSearch?: boolean
+    
+    /**
+     * Whether to include fuzzy search results
+     */
+    includeFuzzSearch?: boolean
+    
+    /**
+     * Web search provider to use
+     */
+    webSearchProvider?: "bing" | "tavily"
+    
+    /**
+     * Embeddings model for vector search
+     */
+    embeddingsModel?: string
+    
+    /**
+     * Index name for vector search
+     */
+    indexName?: string
+    
+    /**
+     * Number of query variations to generate
+     */
+    queryVariations?: number
+    
+    /**
+     * Strategy for combining results
+     */
+    combinationStrategy?: "weighted" | "rrf" | "simple"
+    
+    /**
+     * Weights for different search types (vector, web, fuzzy)
+     */
+    searchWeights?: {
+        vector?: number
+        web?: number
+        fuzzy?: number
+    }
+}
+
 interface Retrieval {
     /**
      * Executers a web search with Tavily or Bing Search.
@@ -4217,6 +4278,18 @@ interface Retrieval {
         files: WorkspaceFile | WorkspaceFile[],
         options?: FuzzSearchOptions
     ): Promise<WorkspaceFile[]>
+
+    /**
+     * Performs agentic search combining multiple strategies with intelligent query rewriting
+     * @param query search query
+     * @param files files to search within
+     * @param options agentic search configuration
+     */
+    agenticSearch(
+        query: string,
+        files: WorkspaceFile | WorkspaceFile[],
+        options?: AgenticSearchOptions
+    ): Promise<WorkspaceFileWithScore[]>
 }
 
 interface ArrayFilter {
