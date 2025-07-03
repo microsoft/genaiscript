@@ -230,6 +230,11 @@ export async function vectorSearch(
   indexName = indexName || "default";
   const { topK, embeddingsModel, minScore = 0, cancellationToken, trace } = options;
 
+  dbg(`search index %s for query %s`, indexName, query);
+  dbg(
+    `files: %O`,
+    files.map((f) => f.filename),
+  );
   trace?.startDetails(`🔍 embeddings: searching`);
   try {
     trace?.itemValue(`name`, indexName);
