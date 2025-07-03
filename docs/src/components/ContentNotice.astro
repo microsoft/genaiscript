@@ -5,27 +5,29 @@ import type { StarlightIcon } from "@astrojs/starlight/types";
 interface Props {
   icon: StarlightIcon;
   label: string;
+  link?: string;
 }
 
-const { icon, label } = Astro.props;
+const { icon, label, link } = Astro.props;
 ---
 
 <p class="sl-flex">
   <Icon
     name={icon}
     size="1.5em"
-    color="var(--sl-color-orange-high)"
+    color="var(--sl-color-blue-high)"
   />
-  <span>{label}</span>
+  {!link ? <span>{label}</span> : null}
+  {link ? <a href={link}>{label}</a> : null}
 </p>
 
 <style>
   @layer starlight.core {
     p {
-      border: 1px solid var(--sl-color-orange);
+      border: 1px solid var(--sl-color-blue);
       padding: 0.75em 1em;
-      background-color: var(--sl-color-orange-low);
-      color: var(--sl-color-orange-high);
+      background-color: var(--sl-color-blue-low);
+      color: var(--sl-color-blue-high);
       width: max-content;
       max-width: 100%;
       align-items: center;

@@ -9,7 +9,6 @@ import {
   GENAI_SRC,
   GitHubClient,
   MODEL_PROVIDERS,
-  MODEL_PROVIDER_AZURE_AI_INFERENCE,
   MODEL_PROVIDER_AZURE_OPENAI,
   MODEL_PROVIDER_GITHUB,
   MODEL_PROVIDER_OPENAI,
@@ -27,6 +26,7 @@ import {
   runtimeHost,
   templateIdFromFileName,
   titleize,
+  toStringList,
   tryReadText,
   tryStat,
   writeText,
@@ -206,12 +206,7 @@ export async function actionConfigure(
     required: [],
   };
   const providers = MODEL_PROVIDERS.filter(({ id }) =>
-    [
-      MODEL_PROVIDER_GITHUB,
-      MODEL_PROVIDER_OPENAI,
-      MODEL_PROVIDER_AZURE_OPENAI,
-      MODEL_PROVIDER_AZURE_AI_INFERENCE,
-    ].includes(id),
+    [MODEL_PROVIDER_GITHUB, MODEL_PROVIDER_OPENAI, MODEL_PROVIDER_AZURE_OPENAI].includes(id),
   ).filter(({ env }) => env);
   const inputs: Record<string, GitHubActionFieldType> = deleteUndefinedValues({
     ...Object.fromEntries(
@@ -241,10 +236,9 @@ export async function actionConfigure(
     github_issue:
       issue || pullRequest
         ? {
-            description: `GitHub ${issue ? "issue" : "pull request"} number to use when generating comments (https://microsoft.github.io/genaiscript/reference/scripts/github/).`,
-            default: issue
-              ? "${{ github.event.issue.number }}"
-              : "${{ github.event.pull_request.number }}",
+            description: `GitHub ${issue ? "issue" : "pull request"} number to use when generating comments (https://microsoft.github.io/genaiscript/reference/scripts/github/) (\`${
+              issue ? "${{ github.event.issue.number }}" : "${{ github.event.pull_request.number }}"
+            }\`)`,
             required: false,
           }
         : undefined,
@@ -252,10 +246,11 @@ export async function actionConfigure(
   for (const provider of providers) {
     for (const [key, value] of Object.entries(provider.env)) {
       inputs[key.toLowerCase()] = deleteUndefinedValues({
-        description:
-          value.description || provider.url || `Configuration for ${provider.id} provider.`,
+        description: toStringList(
+          value.description || provider.url || `Configuration for ${provider.id} provider`,
+          `\`${value.secret ? `\${{ secrets.${key} }}` : `\${{ env.${key} }}`}\``,
+        ),
         required: false,
-        default: value.secret ? `\${{ secrets.${key} }}` : `\${{ env.${key} }}`,
       }) satisfies GitHubActionFieldType;
     }
   }
@@ -404,7 +399,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ${owner}/${repo}@main
+      - uses: actions/cache@v4
+        with:
+          path: .genaiscript/cache/**
+          key: genaiscript-\${{ github.run_id }}
+          restore-keys: |
+            genaiscript-
+      - uses: ${owner}/${repo}@v0 # update to the major version you want to use
         with:
 ${Object.entries(inputs || {})
   .filter(([, value]) => value.required)
@@ -451,18 +452,6 @@ npm run docker:build
 To run the action locally in Docker (build it first), use:
 \`\`\`bash
 npm run docker:start
-\`\`\`
-
-To run the action using [act](https://nektosact.com/), first install the act CLI:
-
-\`\`\`bash
-npm run act:install
-\`\`\`
-
-Then, you can run the action with:
-
-\`\`\`bash
-npm run act
 \`\`\`
 
 ## Upgrade
@@ -633,17 +622,13 @@ jobs:
             upgrade: "npx -y npm-check-updates -u && npm install && npm run fix",
             "docker:build": `docker build -t ${owner}-${repo} .`,
             "docker:start": `docker run -e GITHUB_TOKEN ${owner}-${repo}`,
-            "act:install": "gh extension install https://github.com/nektos/gh-act",
-            act: "gh act",
             lint: `npx --yes prettier --write genaisrc/`,
             fix: "genaiscript scripts fix",
             typecheck: `genaiscript scripts compile`,
-            configure: [`genaiscript configure action`, scriptId, `--interactive`]
-              .filter(Boolean)
-              .join(" "),
+            configure: [`genaiscript configure action`, scriptId].filter(Boolean).join(" "),
             test: "echo 'No tests defined.'",
             dev: args.join(" "),
-            start: [...args, "--github-workspace", "--no-run-trace", "--no-output-trace"].join(" "),
+            start: [...args, "--github-workspace", "--no-run-trace", "--no-output-trace", "--out-output", "$GITHUB_STEP_SUMMARY"].join(" "),
             release: "sh release.sh",
           },
         }),

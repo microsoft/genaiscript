@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import debug from "debug";
-const dbg = debug("genaiscript:azuretoken");
-
 import { AZURE_TOKEN_EXPIRATION } from "./constants.js";
 import {
   AuthenticationToken,
@@ -27,6 +24,8 @@ import {
   WorkloadIdentityCredential,
 } from "@azure/identity";
 import type { SerializedError } from "./types.js";
+import { genaiscriptDebug } from "./debug.js";
+const dbg = genaiscriptDebug("azure:token");
 
 /**
  * This module provides functions to handle Azure authentication tokens,

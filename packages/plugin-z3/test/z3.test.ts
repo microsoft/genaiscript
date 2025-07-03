@@ -11,7 +11,7 @@ import { initialize } from "@genaiscript/runtime";
 
 describe("z3", () => {
   beforeEach(async () => {
-    await initialize();
+    await initialize({ test: true });
   });
 
   test("default export", async () => {

@@ -1,8 +1,12 @@
 ---
 import ContentNotice from "./ContentNotice.astro";
+const { starlightRoute } = Astro.locals;
+const isLocalized = starlightRoute.lang !== "en";
 ---
-
-<ContentNotice
-  icon="information"
-  label="AI generated translation."
-/>
+{isLocalized ? (
+  <ContentNotice
+    icon="information"
+    label="AI generated translation."
+    link="https://github.com/microsoft/genaiscript/blob/dev/packages/sample/genaisrc/mdtranslator.genai.mts"
+  />
+) : null}

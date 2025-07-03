@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import CONFIGURATION_DATA from "./llmsdata.js";
+import type { LanguageModelPricing, LanguageModelProviderInformation } from "./llmsdata.js";
 import type { FenceFormat } from "./types.js";
 
 export const CHANGE = "change";
@@ -99,11 +100,19 @@ export const ICON_LOGO_NAME = "genaiscript-logo";
 export const SARIFF_RULEID_PREFIX = "genaiscript/";
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/";
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID;
+
+export const OPENAI_MAX_RETRY_DELAY = 60000; // 60s
+export const OPENAI_MAX_RETRY_COUNT = 10;
+export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000;
+export const OPENAI_MAX_RETRY_AFTER_DEFAULT = 300000; // 300s
+
 export const FETCH_RETRY_DEFAULT = 6;
 export const FETCH_RETRY_DEFAULT_DEFAULT = 2000;
-export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000;
+export const FETCH_RETRY_MAX_DELAY_DEFAULT = 60000; // 60s
+export const FETCH_RETRY_MAX_RETRY_AFTER_DEFAULT = 300000; // 300s
 export const FETCH_RETRY_GROWTH_FACTOR = 1.5;
 export const FETCH_RETRY_ON_DEFAULT = [408, 429, 500, 504];
+
 export const EXEC_MAX_BUFFER = 64;
 export const DOT_ENV_FILENAME = ".env";
 export const DOT_ENV_GENAISCRIPT_FILENAME = ".env.genaiscript";
@@ -212,7 +221,7 @@ export const OPENROUTER_API_CHAT_URL = "https://openrouter.ai/api/v1/chat/comple
 export const OPENROUTER_SITE_URL_HEADER = "HTTP-Referer";
 export const OPENROUTER_SITE_NAME_HEADER = "X-Title";
 
-export const GITHUB_MODELS_BASE = "https://models.github.ai/inference/chat/completions";
+export const GITHUB_MODELS_BASE = "https://models.github.ai/inference";
 
 export const DOCS_CONFIGURATION_URL =
   "https://microsoft.github.io/genaiscript/getting-started/configuration/";
@@ -227,54 +236,12 @@ export const DOCS_WEB_SEARCH_BING_SEARCH_URL =
 export const DOCS_WEB_SEARCH_TAVILY_URL =
   "https://microsoft.github.io/genaiscript/reference/scripts/web-search/#tavily";
 
-export const MODEL_PROVIDERS = Object.freeze<
-  {
-    id: string;
-    detail: string;
-    url?: string;
-    seed?: boolean;
-    logitBias?: boolean;
-    tools?: boolean;
-    logprobs?: boolean;
-    topLogprobs?: boolean;
-    topP?: boolean;
-    toolChoice?: boolean;
-    prediction?: boolean;
-    bearerToken?: boolean;
-    listModels?: boolean;
-    transcribe?: boolean;
-    speech?: boolean;
-    tokenless?: boolean;
-    hidden?: boolean;
-    imageGeneration?: boolean;
-    singleModel?: boolean;
-    metadata?: boolean;
-    responseType?: "json" | "json_object" | "json_schema";
-    reasoningEfforts?: Record<string, number>;
-    aliases?: Record<string, string>;
-    models?: Record<string, { tools?: boolean }>;
-    env?: Record<
-      string,
-      {
-        description?: string;
-        secret?: boolean;
-        required?: boolean;
-        format?: string;
-        enum?: string[];
-      }
-    >;
-  }[]
->(CONFIGURATION_DATA.providers);
-export const MODEL_PRICINGS = Object.freeze<
-  Record<
-    string,
-    {
-      price_per_million_input_tokens: number;
-      price_per_million_output_tokens: number;
-      input_cache_token_rebate?: number;
-    }
-  >
->(CONFIGURATION_DATA.pricings);
+export const MODEL_PROVIDERS = Object.freeze<LanguageModelProviderInformation[]>(
+  CONFIGURATION_DATA.providers,
+);
+export const MODEL_PRICINGS = Object.freeze<Record<string, LanguageModelPricing>>(
+  CONFIGURATION_DATA.pricings,
+);
 
 export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `;
@@ -335,10 +302,6 @@ export const MAX_TOKENS_ELLIPSE = "...";
 export const ESTIMATE_TOKEN_OVERHEAD = 2;
 
 export const DEDENT_INSPECT_MAX_DEPTH = 3;
-
-export const OPENAI_MAX_RETRY_DELAY = 10000;
-export const OPENAI_MAX_RETRY_COUNT = 10;
-export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000;
 
 export const ANTHROPIC_MAX_TOKEN = 4096;
 export const TEMPLATE_ARG_FILE_MAX_TOKENS = 4000;

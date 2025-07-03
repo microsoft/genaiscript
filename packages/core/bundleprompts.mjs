@@ -3,9 +3,6 @@
 
 import { readdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { execSync } from "child_process";
-import { uniq } from "es-toolkit";
-import { dedent } from "ts-dedent";
 import debug from "debug";
 const dbg = debug("build");
 
@@ -14,6 +11,7 @@ const { parse } = json5Pkg;
 
 async function main() {
   const pkg = JSON.parse(readFileSync("../../package.json", "utf-8"));
+  const docsPublic = "../../docs/public";
   const dir = "./genaisrc";
   const fp = "./src/default_prompts.ts";
   const fmp = "../../docs/src/content/docs/reference/scripts/system.mdx";
@@ -35,18 +33,6 @@ async function main() {
   dbg(`found ${Object.keys(promptMap).length} prompts`);
   dbg(Object.keys(promptMap).join("\n"));
   const promptFooDriver = readFileSync("./src/genaiscript-api-provider.mjs", "utf-8");
-  const logCategories = uniq([
-    "script",
-    "agent*",
-    ...Array.from(
-      execSync(`grep -r 'debug("genaiscript:.*")' --include \\*.ts --exclude-dir='.genaiscript' .`)
-        .toString("utf8")
-        .matchAll(/debug\("(?<category>genaiscript:[^"]+)"\)/g),
-    )
-      .sort()
-      .map((m) => m.groups.category),
-  ]);
-
   const types = readFileSync("./src/types.ts", { encoding: "utf-8" }).replace(
     /^(\s*)export /gm,
     "$1 ",
@@ -102,6 +88,8 @@ async function main() {
     ),
     "genaiscript.d.ts": genaiscriptdts,
   };
+  writeFileSync(join(docsPublic, "genaiscript.d.ts"), genaiscriptdts, "utf-8");
+  writeFileSync(join(docsPublic, "copilot.instructions.md"), githubCopilotInstructions, "utf-8");
 
   const functions = Object.keys(promptMap)
     .sort()

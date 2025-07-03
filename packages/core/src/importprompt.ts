@@ -1,9 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
-import debug from "debug";
-const dbg = debug("genaiscript:importprompt");
-
 import { host } from "./host.js";
 import { logError } from "./util.js";
 import { TraceOptions } from "./trace.js";
@@ -12,6 +8,10 @@ import { mark } from "./performance.js";
 import { getModulePaths } from "./pathUtils.js";
 import type { Awaitable, PromptContext, PromptScript } from "./types.js";
 import { tsImport, register } from "tsx/esm/api";
+import { genaiscriptDebug } from "./debug.js";
+import { errorMessage } from "./error.js";
+const dbg = genaiscriptDebug("tsx");
+const dbgi = genaiscriptDebug("tsx:import");
 
 const { __filename } =
   typeof module !== "undefined" && module.filename
@@ -46,17 +46,12 @@ export async function importFile<T = void>(
 
   let unregister: () => void = undefined;
   try {
-    dbg(`resolving module path for filename: ${filename}`);
     const modulePath = pathToFileURL(
       host.path.isAbsolute(filename) ? filename : host.path.join(host.projectFolder(), filename),
     ).toString();
     const parentURL = pathToFileURL(__filename).toString();
-
-    dbg(`importing module from path: ${modulePath}`);
-    const onImport = (_file: string) => {
-      // trace?.itemValue("📦 import", fileURLToPath(file))
-    };
-    onImport(modulePath);
+    const onImport = (_file: string) => dbgi(`%s`, _file);
+    dbg(`import %s, parent %s`, modulePath, parentURL);
     unregister = register({ onImport });
     const module = await tsImport(modulePath, {
       parentURL,
@@ -68,7 +63,7 @@ export async function importFile<T = void>(
 
     return result;
   } catch (err) {
-    dbg("module imported failed");
+    dbg(`error %s`, errorMessage(err));
     unregister?.();
     logError(err);
     trace?.error(err);

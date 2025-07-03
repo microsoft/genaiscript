@@ -98,7 +98,8 @@ Options:
   --fail-on-errors                         fails on detected annotation error
   --retry <number>                         number of retries (default: "10")
   --retry-delay <number>                   minimum delay between retries (default: "1000")
-  --max-delay <number>                     maximum delay between retries (default: "10000")
+  --max-delay <number>                     maximum delay between retries (default: "60000")
+  --max-retry-after <number>               maximum retry-after delay in milliseconds before giving up (default: "300000")
   -l, --label <string>                     label for the run
   -t, --temperature <number>               temperature for the run
   --top-p <number>                         top-p for the run
@@ -568,6 +569,8 @@ Options:
                                  on the network
   --cors <string>                Enable CORS and sets the allowed origin. Use
                                  '*' to allow any origin.
+  --chat                         Enable OpenAI compatible chat completion routes
+                                 (/v1/chat/completions)
   --dispatch-progress            Dispatch progress events to all clients
   --github-copilot-chat-client   Allow github_copilot_chat provider to connect
                                  to connected Visual Studio Code

@@ -1,13 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, beforeEach } from "vitest";
 import { mdast } from "../src/unified.js";
+import { initialize } from "@genaiscript/runtime";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 describe("mdast", () => {
+  beforeEach(async () => {
+    await initialize({ test: true });
+  });
   test("should load and expose parse, stringify, and visit utilities", async () => {
     const api = await mdast();
     expect(typeof api.parse).toBe("function");

@@ -3,11 +3,13 @@
 
 import type { Root } from "mdast";
 import type { WorkspaceFile } from "@genaiscript/core";
-import { filenameOrFileToContent, genaiscriptDebug } from "@genaiscript/core";
+import { checkRuntime, filenameOrFileToContent, genaiscriptDebug } from "@genaiscript/core";
 import type { Processor } from "unified";
 const dbg = genaiscriptDebug("mdast");
 
 export async function mdast() {
+  checkRuntime();
+
   dbg(`loading plugins`);
   const { unified } = await import("unified");
   const { default: parse } = await import("remark-parse");

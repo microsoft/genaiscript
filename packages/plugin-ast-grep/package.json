@@ -1,7 +1,7 @@
 {
   "name": "@genaiscript/plugin-ast-grep",
   "private": false,
-  "version": "2.2.1",
+  "version": "2.2.5",
   "main": "./dist/commonjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/commonjs/index.d.ts",
@@ -14,6 +14,7 @@
   ],
   "dependencies": {
     "@genaiscript/core": "workspace:*",
+    "@genaiscript/runtime": "workspace:*",
     "@ast-grep/napi": "^0.38.6",
     "@ast-grep/lang-c": "^0.0.2",
     "@ast-grep/lang-cpp": "^0.0.2",

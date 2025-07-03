@@ -1,7 +1,7 @@
 {
   "name": "@genaiscript/plugin-mermaid",
   "private": false,
-  "version": "2.2.1",
+  "version": "2.2.5",
   "main": "./dist/commonjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/commonjs/index.d.ts",
@@ -14,6 +14,7 @@
   ],
   "dependencies": {
     "@genaiscript/core": "workspace:*",
+    "@genaiscript/runtime": "workspace:*",
     "dompurify": "^3.2.6",
     "jsdom": "^26.1.0",
     "mermaid": "^11.7.0"

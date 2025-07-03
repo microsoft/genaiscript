@@ -2,7 +2,7 @@
   "name": "docs",
   "type": "module",
   "private": true,
-  "version": "2.2.1",
+  "version": "2.2.5",
   "license": "MIT",
   "scripts": {
     "build": "astro build",
@@ -27,7 +27,7 @@
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/starlight": "^0.34.4",
-    "astro": "^5.10.1",
+    "astro": "^5.11.0",
     "astro-embed": "^0.9.0",
     "rehype-mermaid": "^3.0.0",
     "starlight-blog": "^0.24.0",

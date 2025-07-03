@@ -1,4 +1,7 @@
-import { defineConfig, passthroughImageService } from "astro/config";
+import {
+  defineConfig,
+  passthroughImageService,
+} from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightBlog from "starlight-blog";
 import rehypeMermaid from "rehype-mermaid";
@@ -13,7 +16,9 @@ export default defineConfig({
     service: passthroughImageService(),
   },
   markdown: {
-    rehypePlugins: [[rehypeMermaid, { strategy: "img-svg", dark: true }]],
+    rehypePlugins: [
+      [rehypeMermaid, { strategy: "img-svg", dark: true }],
+    ],
   },
   integrations: [
     starlight({
@@ -21,7 +26,7 @@ export default defineConfig({
       favicon: "/images/favicon.png",
       logo: {
         src: "./src/assets/logo.svg",
-      },      
+      },
       customCss: ["./src/styles/custom.css"],
       defaultLocale: "root",
       locales: {
@@ -53,13 +58,15 @@ export default defineConfig({
             mattpodwysocki: {
               name: "Matt Podwysocki",
               title: "GenAIScript developer",
-              picture: "https://avatars.githubusercontent.com/u/11578097?v=4",
+              picture:
+                "https://avatars.githubusercontent.com/u/11578097?v=4",
               url: "https://github.com/mattpodwysocki",
             },
             volkanunsal: {
               name: "Volkan Unsal",
               title: "GenAIScript enthusiast",
-              picture: "https://avatars.githubusercontent.com/u/151600?v=4",
+              picture:
+                "https://avatars.githubusercontent.com/u/151600?v=4",
               url: "https://github.com/volkanunsal",
             },
           },
@@ -88,22 +95,26 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
           customSets: [
             {
               label: "Getting Started",
-              description: "Sequence of short tutorials on how to get started with GenAIScript",
+              description:
+                "Sequence of short tutorials on how to get started with GenAIScript",
               paths: ["getting-started/**"],
             },
             {
               label: "Configuration",
-              description: "Configure access to LLMs and other services",
+              description:
+                "Configure access to LLMs and other services",
               paths: ["configuration/**"],
             },
             {
               label: "Reference",
-              description: "full reference documentation (runtime and cli)",
+              description:
+                "full reference documentation (runtime and cli)",
               paths: ["reference/**"],
             },
             {
               label: "Reference Scripts",
-              description: "full reference documentation for the runtime",
+              description:
+                "full reference documentation for the runtime",
               paths: ["reference/scripts/**"],
             },
             {
@@ -114,17 +125,21 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
             },
             {
               label: "Guides",
-              description: "Guides on various LLM programming topics",
+              description:
+                "Guides on various LLM programming topics",
               paths: ["guides/**", "case-studies/**"],
             },
           ],
         }),
-        starlightLinksValidator({ errorOnRelativeLinks: false, }),
+        starlightLinksValidator({
+          errorOnRelativeLinks: false,
+        }),
       ],
       components: {
         Head: "./src/components/Head.astro",
-        MarkdownContent: "./src/components/MarkdownContent.astro",
+        PageTitle: "./src/components/PageTitle.astro",
         Footer: "./src/components/Footer.astro",
+        Hero: "./src/components/Hero.astro",
       },
       social: [
         {
@@ -144,7 +159,8 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
         },
       ],
       editLink: {
-        baseUrl: "https://github.com/microsoft/genaiscript/edit/main/docs/",
+        baseUrl:
+          "https://github.com/microsoft/genaiscript/edit/main/docs/",
       },
       sidebar: [
         {

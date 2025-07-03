@@ -1,8 +1,8 @@
 # GenAIScript Z3
 
-Friendly wrapper around z3 for the GenAIScript runtime.
+Friendly wrapper around the [Z3 solver](https://github.com/Z3Prover/z3) for the GenAIScript runtime.
 
-- [Documentation](https://microsoft.github.io/genaiscript/)
+- [Documentation](https://microsoft.github.io/genaiscript/runtime/z3/)
 
 ## Trademarks
 

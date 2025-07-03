@@ -5,32 +5,33 @@ packages:
   - tools/*
 
 catalog:
-  "@eslint/js": ^9.29.0
-  "@inquirer/prompts": ^7.5.3
-  "@types/debug": ^4.1.12
-  "@types/mdast": "^4.0.4"
-  "@types/node": 22.15.28
-  "@vitest/coverage-istanbul": ^3.2.4
+  '@eslint/js': ^9.30.1
+  '@inquirer/prompts': ^7.6.0
+  '@types/debug': ^4.1.12
+  '@types/mdast': 4.0.4
+  '@types/node': 22.15.28
+  '@vitest/coverage-istanbul': ^3.2.4
   debug: ^4.4.1
-  eslint: ^9.29.0
-  es-toolkit: ^1.39.3
+  eslint: ^9.30.1
+  es-toolkit: ^1.39.6
   execa: ^9.6.0
   inflection: ^3.0.2
-  prettier: ^3.6.0
+  prettier: ^3.6.2
   rimraf: ^6.0.1
   tshy: ^3.0.2
   tslib: ^2.8.1
-  tsx: ^4.19.4
+  tsx: ^4.20.3
   typescript: 5.8.3
-  typescript-eslint: ^8.34.1
+  typescript-eslint: ^8.35.1
   vitest: 3.2.4
-  zx: ^8.6.0
+  zod: ^3.25.71
+  zx: ^8.6.1
 
 onlyBuiltDependencies:
-  - "@ast-grep/lang-c"
-  - "@ast-grep/lang-cpp"
-  - "@ast-grep/lang-csharp"
-  - "@ast-grep/lang-python"
-  - "@lvce-editor/ripgrep"
-  - "sharp"
-  - "@vscode/vsce-sign"
+  - '@ast-grep/lang-c'
+  - '@ast-grep/lang-cpp'
+  - '@ast-grep/lang-csharp'
+  - '@ast-grep/lang-python'
+  - '@lvce-editor/ripgrep'
+  - sharp
+  - '@vscode/vsce-sign'

@@ -24,6 +24,7 @@ import type {
   ElementOrArray,
   Git,
   GitCommit,
+  GitLogOptions,
   OptionsOrString,
   ShellOptions,
   WorkspaceFile,
@@ -312,24 +313,13 @@ export class GitClient implements Git {
     return res.split("\n")[0];
   }
 
-  async log(options?: {
-    base?: string;
-    head?: string;
-    merges?: boolean;
-    author?: string;
-    until?: string;
-    after?: string;
-    count?: number;
-    excludedGrep?: string | RegExp;
-    paths?: ElementOrArray<string>;
-    excludedPaths?: ElementOrArray<string>;
-  }): Promise<GitCommit[]> {
+  async log(options?: GitLogOptions): Promise<GitCommit[]> {
     const { base, head, merges, excludedGrep, count, author, until, after } = options || {};
     const paths = arrayify(options?.paths, { filterEmpty: true });
     const excludedPaths = await this.resolveExcludedPaths(options);
 
     dbg(`building git log command arguments`);
-    const args = ["log", "--pretty=format:%h %ad %s", "--date=short"];
+    const args = ["log", "--pretty=format:%h %ad %ae %s", "--date=short", "--name-only"];
     if (!merges) {
       args.push("--no-merges");
     }
@@ -357,23 +347,40 @@ export class GitClient implements Git {
     }
     GitClient.addFileFilters(paths, excludedPaths, args);
     const res = await this.exec(args);
-    const commits = res
-      .split("\n")
-      .map(
-        (line) =>
-          /^(?<sha>[a-z0-9]{6,40})\s+(?<date>\d{4,4}-\d{2,2}-\d{2,2})\s+(?<message>.*)$/.exec(line)
-            ?.groups,
-      )
-      .filter((g) => !!g)
-      .map(
-        (g) =>
-          <GitCommit>{
+    const commits: GitCommit[] = [];
+    let commit: GitCommit;
+    for (const line of res.split(/\n/g).map((l) => l.trim())) {
+      const g =
+        /^(?<sha>[a-z0-9]{6,40}) (?<date>\d{4,4}-\d{2,2}-\d{2,2}) (?<author>.+) (?<message>.*)$/.exec(
+          line,
+        )?.groups;
+      if (g) {
+        commits.push(
+          (commit = <GitCommit>{
             sha: g?.sha,
             date: g?.date,
+            author: g?.author?.replace(/@users\.noreply\.github\.com$/, ""),
             message: g?.message,
-          },
-      );
+            files: [],
+          }),
+        );
+      } else if (line) {
+        commit.files.push(line);
+      } else commit = undefined;
+    }
     return commits;
+  }
+
+  /**
+   * Returns a list of files that have changed in the git repository
+   * @param options
+   */
+  async changedFiles(options?: GitLogOptions & { readText?: string }): Promise<WorkspaceFile[]> {
+    const { readText, ...rest } = options || {};
+    const commits = await this.log(rest);
+    const files = uniq(commits.flatMap((commit) => commit.files)).map((filename) => ({ filename }));
+    if (readText) await resolveFileContents(files);
+    return files;
   }
 
   /**

@@ -19,18 +19,20 @@ tags:
   - 4. GitHub Models integration
   - 5. Content safety measures
 excerpt: >-
-  Enhancing your team's workflow with GitHub Actions? Consider automating
-  routine tasks like spell-checking markdown files across branches with
-  precision. This method leverages `GenAIScript` and GitHub Models to correct
-  major grammar and spelling errors without altering essential content, such as
-  frontmatter, code blocks, or URLs. 
+  Vous cherchez à améliorer le workflow de votre équipe avec GitHub Actions ?
+  Pensez à automatiser les tâches courantes telles que la vérification
+  orthographique des fichiers markdown sur plusieurs branches, avec une grande
+  précision. Cette méthode utilise `GenAIScript` et les GitHub Models pour
+  corriger les principales erreurs de grammaire et d’orthographe, sans modifier
+  les contenus essentiels comme le frontmatter, les blocs de code ou les URLs.
 
 
-  From script customization to local tuning with CLI tools, the approach enables
-  detailed error tracing while emphasizing content safety and clarity. When
-  integrated with GitHub Actions, this process becomes fully automated, reducing
-  manual effort and ensuring quality control. Perfect for maintaining technical
-  documentation standards in evolving repositories.
+  De la personnalisation du script à l’optimisation locale via des outils CLI,
+  cette approche permet un traçage détaillé des erreurs tout en mettant l’accent
+  sur la sécurité et la clarté du contenu. Une fois intégrée à GitHub Actions,
+  cette procédure devient totalement automatisée, ce qui réduit les efforts
+  manuels et garantit le contrôle qualité. Idéal pour maintenir les standards de
+  la documentation technique dans des dépôts en constante évolution.
 
 ---
 

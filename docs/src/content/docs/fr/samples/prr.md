@@ -17,13 +17,15 @@ tags:
   - GitHub Actions Automation
   - Content Safety Measures
   - Script with File System Integration
-excerpt: Take your pull request reviews to the next level with automation. This
-  guide walks you through creating a script that analyzes code changes,
-  identifies errors (not warnings), and provides actionable suggestions directly
-  in GitHub. Learn how to integrate this process locally for refinement,
-  leverage built-in agents for deeper file analysis, and ultimately automate it
-  using GitHub Actions. From metadata configurations to safety measures, you'll
-  implement a workflow that's comprehensive, efficient, and secure.
+excerpt: Passez vos revues de pull request au niveau supérieur grâce à
+  l'automatisation. Ce guide vous accompagne pas à pas dans la création d'un
+  script qui analyse les changements de code, identifie les erreurs (pas les
+  avertissements) et fournit des suggestions concrètes directement sur GitHub.
+  Apprenez à intégrer ce processus localement pour affiner votre workflow, à
+  tirer parti des agents intégrés pour une analyse plus approfondie des fichiers
+  et, enfin, à l'automatiser avec GitHub Actions. Des configurations de
+  métadonnées aux mesures de sécurité, vous mettrez en place un flux de travail
+  complet, efficace et sécurisé.
 
 ---
 

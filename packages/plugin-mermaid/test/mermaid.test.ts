@@ -1,10 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test, assert } from "vitest";
+import { describe, test, assert, beforeEach } from "vitest";
 import { mermaidParse } from "../src/mermaid.js";
+import { initialize } from "@genaiscript/runtime";
 
 describe("mermaidParse", () => {
+  beforeEach(async () => {
+    await initialize({ test: true });
+  });
   test("parses a valid flowchart", async () => {
     const input = `graph TD; A-->B;`;
     const res = await mermaidParse(input);

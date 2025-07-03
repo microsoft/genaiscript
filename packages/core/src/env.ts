@@ -188,7 +188,7 @@ export async function parseTokenFromEnv(
   const { provider, model, tag } = parseModelIdentifier(
     modelId ?? runtimeHost.modelAliases.large.model,
   );
-  dbg(`parsing token for ${provider} ${model || ""} ${tag || ""}`);
+  dbg(`parsing token for '%s:%s:%s'`, provider, model, tag);
   const TOKEN_SUFFIX = ["_API_KEY", "_API_TOKEN", "_TOKEN", "_KEY"];
   const BASE_SUFFIX = ["_API_BASE", "_API_ENDPOINT", "_BASE", "_ENDPOINT"];
 

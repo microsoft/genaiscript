@@ -18,28 +18,33 @@ tags:
   - 4. GenAIScript Integration
   - 5. Content Safety Measures
 excerpt: >-
-  Streamline your pull request process with automated descriptions. In this
-  guide, you'll learn how to build a script that generates high-level summaries
-  of code changes in pull requests. The script can be run locally for testing
-  and refinement, then integrated with GitHub Actions for seamless automation. 
+  Rationalisez votre processus de pull request avec des descriptions
+  automatisées. Dans ce guide, vous apprendrez à créer un script qui génère des
+  résumés de haut niveau des modifications apportées au code dans les pull
+  requests. Le script peut être exécuté localement pour les tests et les
+  ajustements, puis intégré avec GitHub Actions pour une automatisation
+  transparente.
 
 
-  Key highlights include:
-
-  - Utilizing `git.diff` to extract changes and summarize their intent.
-
-  - Adding safety mechanisms to prevent harmful content generation.
-
-  - Leveraging agents like `fs_read_file` or `agent_fs` for deeper context
-  analysis.
-
-  - Automating the process with a GitHub workflow to update pull request
-  descriptions dynamically.
+  Principaux points à retenir :
 
 
-  This approach not only improves developer efficiency but also enhances code
-  review clarity. Adapt it to fit your workflow and enjoy more streamlined
-  collaboration.
+  - Utilisation de `git.diff` pour extraire les changements et résumer leur
+  intention.
+
+  - Ajout de mécanismes de sécurité pour éviter la génération de contenu
+  nuisible.
+
+  - Utilisation d’agents comme `fs_read_file` ou `agent_fs` pour une analyse
+  contextuelle plus approfondie.
+
+  - Automatisation du processus avec un workflow GitHub pour mettre à jour
+  dynamiquement les descriptions de pull request.
+
+
+  Cette approche améliore non seulement l’efficacité des développeurs mais
+  renforce aussi la clarté lors de la revue du code. Adaptez-la à votre manière
+  de travailler et profitez d’une collaboration plus fluide.
 
 ---
 

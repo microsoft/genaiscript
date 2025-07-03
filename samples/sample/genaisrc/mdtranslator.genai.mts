@@ -2,10 +2,12 @@ import { hash } from "crypto";
 import { classify } from "@genaiscript/runtime";
 import { mdast } from "@genaiscript/plugin-mdast";
 import "mdast-util-mdxjs-esm";
+import "mdast-util-mdx-jsx";
 import type { Node, Text, Heading, Paragraph, PhrasingContent, Yaml } from "mdast";
 import { basename, dirname, join, relative } from "path";
 import { URL } from "url";
 import { xor } from "es-toolkit";
+import type { MdxJsxFlowElement } from "mdast-util-mdx-jsx";
 
 script({
   accept: ".md,.mdx",
@@ -54,6 +56,7 @@ export default async function main() {
   const dbgc = host.logger(`script:md`);
   const dbgt = host.logger(`script:tree`);
   const dbge = host.logger(`script:text`);
+  const dbgm = host.logger(`script:mdx`);
   const { force } = vars as {
     to: string;
     force: boolean;
@@ -74,9 +77,9 @@ export default async function main() {
     files.map((f) => f.filename),
   );
 
-  const { visit, parse, stringify, visitParents, SKIP } = await mdast();
+  const { visit, parse, stringify, SKIP } = await mdast();
 
-  const hashNode = (node: Node | string, ancestors?: Node[]) => {
+  const hashNode = (node: Node | string) => {
     if (typeof node === "object") {
       node = structuredClone(node);
       visit(node, (node) => delete node.position);
@@ -118,7 +121,7 @@ export default async function main() {
         const translationFn = starlight
           ? filename.replace(starlightDir, join(starlightDir, to.toLowerCase()))
           : path.changeext(filename, `.${to.toLowerCase()}.md`);
-        output.itemValue(`translation`, translationFn);
+        dbg(`translation %s`, translationFn);
 
         const patchFn = (fn: string, trailingSlash?: boolean) => {
           if (typeof fn === "string" && /^\./.test(fn) && starlight) {
@@ -150,8 +153,8 @@ export default async function main() {
         dbgt(`original %O`, root.children);
         // collect original nodes nodes
         const nodes: Record<string, NodeType> = {};
-        visitParents(root, nodeTypes, (node, ancestors) => {
-          const hash = hashNode(node, ancestors);
+        visit(root, nodeTypes, (node) => {
+          const hash = hashNode(node);
           dbg(`node: %s -> %s`, node.type, hash);
           nodes[hash] = node as NodeType;
         });
@@ -262,6 +265,29 @@ export default async function main() {
           }
         });
 
+        // patch images and esm imports
+        visit(translated, ["mdxJsxFlowElement"], (node) => {
+          const flow = node as MdxJsxFlowElement;
+          for (const attribute of flow.attributes || []) {
+            if (attribute.type === "mdxJsxAttribute" && attribute.name === "title") {
+              // collect title attributes
+              dbgm(`attribute title: %s`, attribute.value);
+              let title = attribute.value;
+              const nhash = hashNode(title);
+              const tr = translationCache[nhash];
+              if (tr) title = tr;
+              else {
+                const llmHash = `T${Object.keys(llmHashes).length.toString().padStart(3, "0")}`;
+                llmHashes[llmHash] = nhash;
+                llmHashTodos.add(llmHash);
+                title = `┌${llmHash}┐${title}└${llmHash}┘`;
+              }
+              attribute.value = title;
+              return SKIP;
+            }
+          }
+        });
+
         dbgt(`translated %O`, translated.children);
         let attempts = 0;
         let lastLLmHashTodos = llmHashTodos.size + 1;
@@ -279,8 +305,8 @@ export default async function main() {
           // run prompt to generate translations
           const { fences, error } = await runPrompt(
             async (ctx) => {
-              const originalRef = ctx.def("ORIGINAL", file.content);
-              const translatedRef = ctx.def("TRANSLATED", contentMix);
+              const originalRef = ctx.def("ORIGINAL", file.content, { lineNumbers: false });
+              const translatedRef = ctx.def("TRANSLATED", contentMix, { lineNumbers: false });
               ctx.$`You are an expert at translating technical documentation into ${lang} (${to}).
       
       ## Task
@@ -480,6 +506,20 @@ export default async function main() {
           }
         });
 
+        visit(translated, ["mdxJsxFlowElement"], (node) => {
+          const flow = node as MdxJsxFlowElement;
+          for (const attribute of flow.attributes || []) {
+            if (attribute.type === "mdxJsxAttribute" && attribute.name === "title") {
+              const hash = hashNode(attribute.value);
+              const tr = translationCache[hash];
+              if (tr) {
+                dbg(`translate title: %s -> %s`, hash, tr);
+                attribute.value = tr;
+              }
+            }
+          }
+        });
+
         // patch links
         visit(translated, "link", (node) => {
           if (startlightBaseRx.test(node.url)) {
@@ -531,7 +571,7 @@ export default async function main() {
             (ctx) => {
               ctx.$`You are an expert at judging the quality of translations. 
           Your task is to determine the quality of the translation of a Markdown document from English to ${lang} (${to}).
-          The original document is in ${ctx.def("ORIGINAL", content)}, and the translated document is provided as a variable named ${ctx.def("TRANSLATED", contentTranslated)}.`.role(
+          The original document is in ${ctx.def("ORIGINAL", content)}, and the translated document is provided in ${ctx.def("TRANSLATED", contentTranslated, { lineNumbers: true })} (line numbers were added).`.role(
                 "system",
               );
             },
@@ -542,6 +582,7 @@ export default async function main() {
             {
               label: `judge translation ${to} ${basename(filename)}`,
               explanations: true,
+              system: ["system.annotations"],
               systemSafety: false,
             },
           );

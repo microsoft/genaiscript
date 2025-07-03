@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 import { genaiscriptDebug } from "./debug.js";
+import { errorMessage } from "./error.js";
 const dbg = genaiscriptDebug("fetch:proxy");
 
 function resolveProxyUrl() {
   const proxy =
-    process.env.GENAISCRIPT_HTTPS_PROXY ||
-    process.env.GENAISCRIPT_HTTP_PROXY ||
     process.env.HTTPS_PROXY ||
     process.env.HTTP_PROXY ||
     process.env.https_proxy ||
@@ -43,7 +42,7 @@ export async function resolveUndiciProxyAgent() {
   const { ProxyAgent } = await import("undici");
   const agent = new ProxyAgent(proxy);
   agent.on(`connect`, (info) => dbg(`connect: %s`, info.href));
-  agent.on(`connectionError`, (err) => dbg(`connection error: %s`, err.toString()));
+  agent.on(`connectionError`, (err) => dbg(`connection error: %s`, errorMessage(err)));
   agent.on(`disconnect`, () => dbg(`disconnect`));
   return agent;
 }
@@ -52,10 +51,10 @@ export async function resolveHttpsProxyAgent() {
   const proxyUrl = resolveProxyUrl();
   if (!proxyUrl) return null;
 
-  dbg(`proxy (hpa): %s`, proxyUrl);
-  const { HttpsProxyAgent } = await import("https-proxy-agent");
-  const agent = new HttpsProxyAgent(proxyUrl);
-  agent.on(`connect`, (info) => dbg(`connect: %s`, info.href));
-  agent.on(`error`, (err) => dbg(`error: %s`, err.toString()));
+  dbg(`proxy (proxy-agent): %s`, proxyUrl);
+  const { ProxyAgent } = await import("proxy-agent");
+  const agent = new ProxyAgent();
+  agent.on(`connect`, () => dbg(`connect`));
+  agent.on(`error`, (err) => dbg(`error: %s`, errorMessage(err)));
   return agent;
 }

@@ -4,7 +4,11 @@
 // forked from https://raw.githubusercontent.com/Stevenic/vectra/refs/heads/main/src/TextSplitter.ts
 // removed tokenizer dependency
 
+import { assert } from "console";
+import { genaiscriptDebug } from "./debug.js";
 import type { Tokenizer } from "./types.js";
+import { chunk } from "./encoders.js";
+const dbg = genaiscriptDebug("splitter");
 
 export interface TextSplitterConfig {
   separators: string[];
@@ -74,6 +78,8 @@ export class TextSplitter {
     } else if (this._config.chunkOverlap > this._config.chunkSize) {
       throw new Error("chunkOverlap must be <= chunkSize");
     }
+
+    dbg(`config: %O`, this._config);
   }
 
   public split(text: string): TextSplitterTextChunk[] {
@@ -81,17 +87,17 @@ export class TextSplitter {
 
     // Get basic chunks
     const chunks = this.recursiveSplit(text, this._config.separators, 0);
+    assert(!chunks.some((c) => !c.text), `TextSplitter returned empty chunk.`);
 
-    const that = this;
-    function getOverlapTokens(tokens?: number[]): number[] {
+    const getOverlapTokens = (tokens?: number[]): number[] => {
       if (tokens != undefined) {
         const len =
-          tokens.length > that._config.chunkOverlap ? that._config.chunkOverlap : tokens.length;
+          tokens.length > this._config.chunkOverlap ? this._config.chunkOverlap : tokens.length;
         return tokens.slice(0, len);
       } else {
         return [];
       }
-    }
+    };
 
     // Add overlap tokens and text to the start and end of each chunk
     if (this._config.chunkOverlap > 0) {

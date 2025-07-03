@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 import * as fs from "fs/promises";
-import * as path from "path";
 import { v4 } from "uuid";
 import { ItemSelector } from "./ItemSelector.js";
 import { IndexItem, IndexStats, MetadataFilter, MetadataTypes, QueryResult } from "./types.js";
+import { genaiscriptDebug } from "../debug.js";
+import { join } from "path";
+const dbg = genaiscriptDebug("vector:index");
 
 export interface CreateIndexConfig {
   version: number;
@@ -104,8 +106,9 @@ export class LocalIndex<
         items: [],
       };
 
-      await fs.writeFile(path.join(this._folderPath, this._indexName), JSON.stringify(this._data));
+      await fs.writeFile(join(this._folderPath, this._indexName), JSON.stringify(this._data));
     } catch (err: unknown) {
+      dbg(err);
       await this.deleteIndex();
       throw new Error("Error creating index");
     }
@@ -156,10 +159,7 @@ export class LocalIndex<
 
     try {
       // Save index
-      await fs.writeFile(
-        path.join(this._folderPath, this._indexName),
-        JSON.stringify(this._update),
-      );
+      await fs.writeFile(join(this._folderPath, this._indexName), JSON.stringify(this._update));
       this._data = this._update;
       this._update = undefined;
     } catch (err: unknown) {
@@ -218,9 +218,10 @@ export class LocalIndex<
    */
   public async isIndexCreated(): Promise<boolean> {
     try {
-      await fs.access(path.join(this._folderPath, this.indexName));
+      await fs.access(join(this._folderPath, this.indexName));
       return true;
     } catch (err: unknown) {
+      dbg(err);
       return false;
     }
   }
@@ -304,7 +305,7 @@ export class LocalIndex<
     // Load external metadata
     for (const item of top) {
       if (item.item.metadataFile) {
-        const metadataPath = path.join(this._folderPath, item.item.metadataFile);
+        const metadataPath = join(this._folderPath, item.item.metadataFile);
         const metadata = await fs.readFile(metadataPath);
         item.item.metadata = JSON.parse(metadata.toString());
       }
@@ -346,7 +347,7 @@ export class LocalIndex<
       throw new Error("Index does not exist");
     }
 
-    const data = await fs.readFile(path.join(this._folderPath, this.indexName));
+    const data = await fs.readFile(join(this._folderPath, this.indexName));
     this._data = JSON.parse(data.toString());
   }
 
@@ -356,7 +357,8 @@ export class LocalIndex<
   ): Promise<IndexItem> {
     // Ensure vector is provided
     if (!item.vector) {
-      throw new Error("Vector is required");
+      dbg(`item: %O`, item);
+      throw new Error("embeddings vector is required");
     }
 
     // Ensure unique
@@ -385,7 +387,7 @@ export class LocalIndex<
 
       // Save remaining metadata to disk
       metadataFile = `${v4()}.json`;
-      const metadataPath = path.join(this._folderPath, metadataFile);
+      const metadataPath = join(this._folderPath, metadataFile);
       await fs.writeFile(metadataPath, JSON.stringify(item.metadata));
     } else if (item.metadata) {
       metadata = item.metadata;

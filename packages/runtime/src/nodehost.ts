@@ -78,7 +78,8 @@ import { DockerManager } from "./docker.js";
 import { BrowserManager } from "./playwright.js";
 import { uniq } from "es-toolkit";
 import { shellConfirm, shellInput, shellSelect } from "./input.js";
-const dbg = genaiscriptDebug("nodehost");
+import { areModelsSame } from "@genaiscript/core";
+const dbg = genaiscriptDebug("host:node");
 
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
@@ -249,7 +250,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         trace?.error(`${provider}: ${errorMessage(error)}`, error);
         return { ok, status, error };
       }
-      if (models.find(({ id }) => id === model)) {
+      if (models.find((other) => areModelsSame(other.id, model))) {
         dbg(`found model ${model} in provider ${provider}, skip pull`);
         this.pulledModels.push(modelId);
         return { ok: true };
@@ -285,6 +286,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
   }
 
   static async install(dotEnvPaths?: ElementOrArray<string>, hostConfig?: HostConfiguration) {
+    dbg(`installing %o`, dotEnvPaths);
     const h = new NodeHost(dotEnvPaths ? arrayify(dotEnvPaths) : undefined);
     setRuntimeHost(h);
     if (hostConfig) h.updateHostConfig(hostConfig);

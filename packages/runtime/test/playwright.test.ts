@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { BrowserManager } from "../src/playwright.js";
-import { TestHost } from "@genaiscript/core";
+import { initialize } from "@genaiscript/runtime";
 
 describe("BrowserManager", () => {
   let browserManager: BrowserManager;
 
-  beforeEach(() => {
-    TestHost.install()
+  beforeEach(async () => {
+    await initialize({ test: true})
     browserManager = new BrowserManager();
   });
 

@@ -6,9 +6,14 @@ import { host } from "./host.js";
 import {
   AZURE_AI_INFERENCE_VERSION,
   AZURE_OPENAI_API_VERSION,
+  MODEL_PROVIDER_ALIBABA,
+  MODEL_PROVIDER_AZURE_AI_INFERENCE,
   MODEL_PROVIDER_AZURE_OPENAI,
   MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
   MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+  MODEL_PROVIDER_GITHUB,
+  MODEL_PROVIDER_HUGGINGFACE,
+  MODEL_PROVIDER_OPENAI,
   MODEL_PROVIDER_OPENAI_HOSTS,
   OPENROUTER_API_CHAT_URL,
   OPENROUTER_SITE_NAME_HEADER,
@@ -115,8 +120,16 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
 }
 
 export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, options, trace) => {
-  const { requestOptions, partialCb, retry, retryDelay, maxDelay, cancellationToken, inner } =
-    options;
+  const {
+    requestOptions,
+    partialCb,
+    retries,
+    retryDelay,
+    maxDelay,
+    maxRetryAfter,
+    cancellationToken,
+    inner,
+  } = options;
   const { headers = {}, ...rest } = requestOptions || {};
   const { provider, model, family, reasoningEffort } = parseModelIdentifier(req.model);
   const features = providerFeatures(provider);
@@ -187,24 +200,28 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
   let url = "";
   const toolCalls: ChatCompletionToolCall[] = [];
 
-  if (cfg.type === "openai" || cfg.type === "localai" || cfg.type === "alibaba") {
+  if (
+    cfg.type === MODEL_PROVIDER_OPENAI ||
+    cfg.type === "localai" ||
+    cfg.type === MODEL_PROVIDER_ALIBABA
+  ) {
     url = trimTrailingSlash(cfg.base) + "/chat/completions";
     if (url === OPENROUTER_API_CHAT_URL) {
       (headers as any)[OPENROUTER_SITE_URL_HEADER] = process.env.OPENROUTER_SITE_URL || TOOL_URL;
       (headers as any)[OPENROUTER_SITE_NAME_HEADER] = process.env.OPENROUTER_SITE_NAME || TOOL_NAME;
     }
-  } else if (cfg.type === "azure") {
+  } else if (cfg.type === MODEL_PROVIDER_AZURE_OPENAI) {
     delete postReq.model;
     const version = cfg.version || AZURE_OPENAI_API_VERSION;
     trace?.itemValue(`version`, version);
     url = trimTrailingSlash(cfg.base) + "/" + family + `/chat/completions?api-version=${version}`;
-  } else if (cfg.type === "azure_ai_inference") {
+  } else if (cfg.type === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
     const version = cfg.version;
     trace?.itemValue(`version`, version);
     url = trimTrailingSlash(cfg.base) + `/chat/completions`;
     if (version) url += `?api-version=${version}`;
     (headers as any)["extra-parameters"] = "pass-through";
-  } else if (cfg.type === "azure_serverless_models") {
+  } else if (cfg.type === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
     const version = cfg.version || AZURE_AI_INFERENCE_VERSION;
     trace?.itemValue(`version`, version);
     url =
@@ -215,15 +232,15 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
     (headers as any)["extra-parameters"] = "pass-through";
     delete postReq.model;
     delete postReq.stream_options;
-  } else if (cfg.type === "azure_serverless") {
+  } else if (cfg.type === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
     const version = cfg.version || AZURE_AI_INFERENCE_VERSION;
     trace?.itemValue(`version`, version);
     url = trimTrailingSlash(cfg.base) + "/" + family + `/chat/completions?api-version=${version}`;
     // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
     (headers as any)["extra-parameters"] = "pass-through";
     delete postReq.model;
-  } else if (cfg.type === "github") {
-    url = cfg.base;
+  } else if (cfg.type === MODEL_PROVIDER_GITHUB) {
+    url = trimTrailingSlash(cfg.base) + "/chat/completions";
     const { prefix } = /^(?<prefix>[^-]+)-([^\/]+)$/.exec(postReq.model)?.groups || {};
     const patch = {
       gpt: "openai",
@@ -239,7 +256,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
       postReq.model = `${patch}/${postReq.model}`;
       dbg(`updated model to ${postReq.model}`);
     }
-  } else if (cfg.type === "huggingface") {
+  } else if (cfg.type === MODEL_PROVIDER_HUGGINGFACE) {
     // https://github.com/huggingface/text-generation-inference/issues/2946
     delete postReq.model;
     url =
@@ -256,9 +273,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
   let numReasoningTokens = 0;
   const fetchRetry = await createFetch({
     trace,
-    retries: retry,
+    retries,
     retryDelay,
     maxDelay,
+    maxRetryAfter,
     cancellationToken,
   });
   trace?.dispatchChange();
@@ -838,12 +856,13 @@ export async function OpenAIImageGeneration(
  * for the given input. Handles response parsing, error checking, and supports cancellation.
  */
 export async function OpenAIEmbedder(
-  input: string,
+  input: string | string[],
   cfg: LanguageModelConfiguration,
   options: TraceOptions & CancellationOptions & RetryOptions,
 ): Promise<EmbeddingResult> {
   const { trace, cancellationToken } = options || {};
   const { base, provider, type, model } = cfg;
+  if (input === undefined) throw new Error("input is required for embedding");
   try {
     const route = "embeddings";
     let url: string;
@@ -877,7 +896,8 @@ export async function OpenAIEmbedder(
       body: JSON.stringify(body),
     };
     // traceFetchPost(trace, url, freq.headers, body)
-    logVerbose(`${provider}: embedding ${ellipse(input, 44)} with ${model}`);
+    const first = typeof input === "string" ? input : input[0];
+    logVerbose(`${provider}: embedding ${ellipse(first, 44)} with ${model}`);
     const fetch = await createFetch(options);
     checkCancelled(cancellationToken);
     const res = await fetch(url, freq);

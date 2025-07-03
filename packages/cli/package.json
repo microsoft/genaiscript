@@ -1,6 +1,6 @@
 {
   "name": "genaiscript",
-  "version": "2.2.1",
+  "version": "2.2.5",
   "type": "module",
   "bin": "./dist/src/index.js",
   "files": [
@@ -40,20 +40,20 @@
     "@genaiscript/core": "workspace:*",
     "@genaiscript/runtime": "workspace:*",
     "@inquirer/prompts": "catalog:",
-    "@modelcontextprotocol/sdk": "^1.13.1",
+    "@modelcontextprotocol/sdk": "^1.13.3",
     "chokidar": "^4.0.3",
     "commander": "^14.0.0",
     "debug": "catalog:",
-    "dotenv": "^16.5.0",
+    "dotenv": "^16.6.1",
     "es-toolkit": "catalog:",
     "execa": "catalog:",
     "fastify": "^5.4.0",
     "inflection": "catalog:",
-    "openai": "^5.7.0",
+    "openai": "^5.8.2",
     "replace-ext": "^2.0.0",
     "tslib": "catalog:",
     "typescript": "catalog:",
-    "ws": "^8.18.2"
+    "ws": "^8.18.3"
   },
   "engines": {
     "node": ">=20.0.0"

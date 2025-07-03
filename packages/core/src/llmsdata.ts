@@ -1,5 +1,57 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+export interface LanguageModelProviderInformation {
+  id: string;
+  detail: string;
+  url?: string;
+  seed?: boolean;
+  logitBias?: boolean;
+  tools?: boolean;
+  logprobs?: boolean;
+  topLogprobs?: boolean;
+  topP?: boolean;
+  toolChoice?: boolean;
+  prediction?: boolean;
+  bearerToken?: boolean;
+  listModels?: boolean;
+  transcribe?: boolean;
+  speech?: boolean;
+  tokenless?: boolean;
+  hidden?: boolean;
+  imageGeneration?: boolean;
+  singleModel?: boolean;
+  metadata?: boolean;
+  limitations?: string;
+  responseType?: "json" | "json_object" | "json_schema";
+  reasoningEfforts?: Record<string, number>;
+  aliases?: Record<string, string>;
+  latestTag?: boolean;
+  openaiCompatibility?: string;
+  pullModel?: boolean;
+  models?: Record<string, { tools?: boolean }>;
+  env?: Record<
+    string,
+    {
+      description?: string;
+      secret?: boolean;
+      required?: boolean;
+      format?: string;
+      enum?: string[];
+    }
+  >;
+}
+
+export interface LanguageModelPricing {
+  price_per_million_input_tokens: number;
+  price_per_million_output_tokens: number;
+  input_cache_token_rebate?: number;
+  tiers?: {
+    context_size: number;
+    price_per_million_input_tokens: number;
+    price_per_million_output_tokens: number;
+    input_cache_token_rebate?: number;
+  }[];
+}
 
 export default {
   $schema: "../../../docs/public/schemas/llms.json",
@@ -13,7 +65,7 @@ export default {
       speech: true,
       listModels: true,
       imageGeneration: true,
-      responseFormat: "json_schema",
+      responseType: "json_schema",
       metadata: true,
       aliases: {
         large: "gpt-4.1",
@@ -228,7 +280,8 @@ export default {
       url: "https://github.com/marketplace/models-github",
       logprobs: false,
       topLogprobs: false,
-      limitations: "Smaller context windows, and rate limiting",
+      limitations:
+        "Smaller context windows, and rate limiting in free tier. See https://docs.github.com/en/github-models/use-github-models/prototyping-with-ai-models.",
       prediction: false,
       listModels: false,
       bearerToken: true,
@@ -237,9 +290,9 @@ export default {
         small: "openai/gpt-4.1-mini",
         tiny: "openai/gpt-4.1-nano",
         vision: "openai/gpt-4.1",
-        embeddings: "openai/text-embedding-3-small",
         reasoning: "openai/o3",
         reasoning_small: "openai/o3-mini",
+        embeddings: "openai/text-embedding-3-small",
       },
       models: {
         "o1-preview": {
@@ -270,6 +323,7 @@ export default {
       prediction: false,
       bearerToken: true,
       tokenless: true,
+      latestTag: true,
       aliases: {
         embeddings: "nomic-embed-text",
       },
@@ -688,7 +742,7 @@ export default {
       detail:
         "A LLM provider that stops the execution. Used on top level script to prevent LLM execution.",
     },
-  ],
+  ] satisfies LanguageModelProviderInformation[],
   aliases: {
     agent: "large",
     long: "large",
@@ -1351,5 +1405,5 @@ export default {
       price_per_million_output_tokens: 0.28,
       input_cache_token_rebate: 0.1,
     },
-  },
+  } satisfies Record<string, LanguageModelPricing>,
 };

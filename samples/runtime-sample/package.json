@@ -1,6 +1,6 @@
 {
   "name": "runtime-sample",
-  "version": "2.2.1",
+  "version": "2.2.5",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -11,14 +11,14 @@
     "test": "vitest --run"
   },
   "dependencies": {
-    "@genaiscript/runtime": "workspace:*",
-    "@genaiscript/plugin-mdast": "workspace:*"
+    "@genaiscript/plugin-mdast": "workspace:*",
+    "@genaiscript/runtime": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "p-all": "^5.0.0",
     "vitest": "catalog:",
-    "zod": "^3.25.67",
+    "zod": "catalog:",
     "zod-to-json-schema": "^3.24.6",
     "zx": "catalog:"
   }

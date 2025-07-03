@@ -58,6 +58,7 @@ export async function classify<L extends Record<string, string>>(
   answer: string;
   logprobs?: Record<keyof typeof labels | "other", Logprob>;
   usage?: RunPromptUsage;
+  error?: string;
 }> {
   const ctx = resolveChatGenerationContext(options);
   const { other, explanations, model = "classify", ...rest } = options || {};
@@ -149,5 +150,6 @@ no
     answer,
     logprobs,
     usage,
+    error: res.error?.message,
   };
 }

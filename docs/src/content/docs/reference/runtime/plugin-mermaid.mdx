@@ -1,5 +1,5 @@
 ---
-title: plugin-mermaid
+title: MermaidJs
 description: Use the mermaid plugin to parse mermaid diagrams
 ---
 
@@ -12,6 +12,16 @@ The [@genaiscript/plugin-mermaid](https://www.npmjs.com/package/@genaiscript/plu
 ## Installation
 
 <PackageManagers pkg="@genaiscript/plugin-mermaid" dev />
+
+If you are using the plugin in a Node.JS environment, without a `.genai...` entry file, you will need 
+to initialize the [runtime](/genaiscript/reference/runtime) before using the plugin:
+
+```ts
+import { initialize } from "@genaiscript/runtime";
+
+await initialize()
+```
+
 
 ## Usage
 

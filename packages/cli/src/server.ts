@@ -102,6 +102,7 @@ export async function startServer(
     apiKey?: string;
     cors?: string;
     network?: boolean;
+    chat?: boolean;
     dispatchProgress?: boolean;
     githubCopilotChatClient?: boolean;
   } & RemoteOptions,
@@ -112,6 +113,7 @@ export async function startServer(
   const serverHost = options.network ? "0.0.0.0" : "127.0.0.1";
   const remote = options.remote;
   const dispatchProgress = !!options.dispatchProgress;
+  const openAIChatCompletions = !!options.chat;
 
   const port = await findOpenPort(SERVER_PORT, options);
 
@@ -187,7 +189,7 @@ export async function startServer(
     const { authorization } = req.headers;
     if (authorization === apiKey || `Bearer ${apiKey}`) return true;
 
-    const url = req.url.replace(/^[^\?]*\?/, "");
+    const url = req.url.replace(/^[^?]*\?/, "");
     const search = new URLSearchParams(url);
     const hash = search.get("api-key");
     if (hash === apiKey) return true;
@@ -729,6 +731,12 @@ window.vscodeWebviewPlaygroundNonce = ${JSON.stringify(nonce)};
           })),
         };
       } else if (method === "POST" && route === "/v1/chat/completions") {
+        if (!openAIChatCompletions) {
+          console.debug(`403: chat completions not enabled`);
+          res.statusCode = 403;
+          res.end();
+          return;
+        }
         await openaiApiChatCompletions(req, res);
         return;
       } else if (method === "GET" && route === "/v1/models") {

@@ -6,7 +6,7 @@
  * This module provides core functionality for text classification, data transformation,
  * PDF processing, and file system operations in the GenAIScript environment.
  */
-import type {
+import {
   Ffmpeg,
   Git,
   GitHub,
@@ -23,6 +23,8 @@ import type {
   XMLObject,
   MDObject,
   ModelConnectionOptions,
+  runtimeHost,
+  TestHost,
 } from "@genaiscript/core";
 import type {
   ElementOrArray,
@@ -130,8 +132,6 @@ declare global {
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
 }
 
-let _nodeHost: NodeHost | undefined;
-
 /**
  * Configure the default GenAIScript runtime environment.
  * Installs the global helpers and configure host and env.
@@ -140,16 +140,24 @@ export async function initialize(
   options?: {
     dotEnvPaths?: ElementOrArray<string>;
     hostConfig?: HostConfiguration;
+    /**
+     * Load unit test host
+     */
+    test?: boolean;
   } & ModelConnectionOptions,
 ): Promise<void> {
-  if (_nodeHost) throw new Error("Runtime already configured. Call `config` only once.");
-
   setQuiet(true);
-  const { dotEnvPaths, hostConfig, ...rest } = options || {};
-  dbg(`config %o`, dotEnvPaths);
-  dbg(`hostConfig %O`, hostConfig);
+  const { dotEnvPaths, hostConfig, test, ...rest } = options || {};
   installGlobals();
-  await NodeHost.install(dotEnvPaths, hostConfig);
+  if (test) {
+    dbg(`test host install`);
+    await TestHost.install();
+  } else {
+    if (runtimeHost) throw new Error("Runtime already configured. Call `initialize` only once.");
+    dbg(`config %o`, dotEnvPaths);
+    dbg(`host config %O`, hostConfig);
+    await NodeHost.install(dotEnvPaths, hostConfig);
+  }
   const prj = await buildProject();
   const runId = generateId();
   const runDir = getRunDir("runtime", runId);

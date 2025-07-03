@@ -1,7 +1,7 @@
 {
   "name": "@genaiscript/plugin-mdast",
   "private": false,
-  "version": "2.2.1",
+  "version": "2.2.5",
   "main": "./dist/commonjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/commonjs/index.d.ts",
@@ -14,12 +14,13 @@
   ],
   "dependencies": {
     "@genaiscript/core": "workspace:*",
+    "@genaiscript/runtime": "workspace:*",
     "@inquirer/prompts": "catalog:",
     "@slorber/remark-comment": "^1.0.0",
     "@types/mdast": "catalog:",
     "debug": "catalog:",
-    "mdast": "^3.0.0",
     "mdast-util-mdxjs-esm": "^2.0.1",
+    "remark": "^15.0.1",
     "remark-directive": "^4.0.0",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",

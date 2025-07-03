@@ -50,6 +50,8 @@ import type {
   PythonRuntime,
   Path,
 } from "./types.js";
+import { installGlobals } from "./globals.js";
+import { originalConsole } from "./global.js";
 const dbg = genaiscriptDebug("host:test");
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
@@ -71,6 +73,7 @@ export class TestHost implements RuntimeHost {
 
   // Static method to set this class as the runtime host
   static install() {
+    installGlobals();
     setRuntimeHost(new TestHost());
   }
 
@@ -148,7 +151,8 @@ export class TestHost implements RuntimeHost {
 
   // Placeholder for logging functionality
   log(level: LogLevel, msg: string): void {
-    console[level](msg);
+    const fn = originalConsole[level] || originalConsole.debug;
+    fn(msg);
   }
 
   // Method to read a file and return its content as a Uint8Array

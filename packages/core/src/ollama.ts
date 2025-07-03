@@ -60,7 +60,7 @@ const listModels: ListModelsFunction = async (cfg, options) => {
 };
 
 const pullModel: PullModelFunction = async (cfg, options) => {
-  const { trace, cancellationToken } = options || {};
+  const { cancellationToken } = options || {};
   const { provider, model } = cfg;
   const fetch = await createFetch({ retries: 0, ...options });
   const base = cfg.base.replace(/\/v1$/i, "");

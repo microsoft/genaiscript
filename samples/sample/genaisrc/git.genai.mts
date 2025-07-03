@@ -29,6 +29,9 @@ console.log({ files });
 const log = await git.log();
 console.log({ log });
 
+const changedFiles = await git.changedFiles({ count: 10 });
+console.log({ changedFiles });
+
 for (const commit of log.slice(0, 10)) {
   const diff = await git.diff({ base: commit.sha, llmify: true });
   console.log({ commit: commit.sha, diff: (await tokenizers.count(diff)) + " tokens" });

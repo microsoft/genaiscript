@@ -9,7 +9,7 @@
  */
 
 import OpenAI from "openai";
-import type { Logprob, PromptCacheControlType, SerializedError } from "./types.js";
+import type { Logprob, PromptCacheControlType, RetryOptions, SerializedError } from "./types.js";
 
 export type ChatModel = OpenAI.Models.Model;
 
@@ -186,14 +186,11 @@ export interface ChatCompletionsProgressReport {
 /**
  * Interface representing options for chat completions.
  */
-export interface ChatCompletionsOptions {
+export interface ChatCompletionsOptions extends RetryOptions {
   partialCb?: (progress: ChatCompletionsProgressReport) => void; // Callback for partial responses
   requestOptions?: Partial<Omit<RequestInit, "signal">>; // Custom request options
   maxCachedTemperature?: number; // Max temperature for caching responses
   maxCachedTopP?: number; // Max top-p for caching responses
   cache?: boolean | string; // Cache setting or cache name
-  retry?: number; // Number of retries for failed requests
-  retryDelay?: number; // Delay between retries
-  maxDelay?: number; // Maximum delay for retry attempts
   inner: boolean; // Indicates if the option is for inner processing
 }

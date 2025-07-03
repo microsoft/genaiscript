@@ -288,17 +288,26 @@ const completerFactory = (
   ) => Promise<Omit<Anthropic.Beta.Messages, "batches" | "countTokens">>,
 ) => {
   const completion: ChatCompletionHandler = async (req, cfg, options, trace) => {
-    const { requestOptions, partialCb, cancellationToken, inner, retry, maxDelay, retryDelay } =
-      options;
+    const {
+      requestOptions,
+      partialCb,
+      cancellationToken,
+      inner,
+      retries,
+      maxDelay,
+      maxRetryAfter,
+      retryDelay,
+    } = options;
     const { headers } = requestOptions || {};
     const { provider, model, reasoningEffort } = parseModelIdentifier(req.model);
     const { encode: encoder } = await resolveTokenEncoder(model);
 
     const fetch = await createFetch({
       trace,
-      retries: retry,
+      retries,
       retryDelay,
       maxDelay,
+      maxRetryAfter,
       cancellationToken,
     });
     // https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-to-implement-prompt-caching

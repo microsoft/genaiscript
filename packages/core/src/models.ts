@@ -15,6 +15,7 @@ import { LanguageModelConfiguration } from "./server/messages.js";
 import { roundWithPrecision } from "./precision.js";
 import { ChatCompletionReasoningEffort } from "./chattypes.js";
 import type { ModelConnectionOptions, ModelOptions } from "./types.js";
+import { MODEL_PROVIDERS } from "./constants.js";
 
 export interface ParsedModelType {
   provider: string;
@@ -64,6 +65,22 @@ export function parseModelIdentifier(id: string): {
   else res = { provider: id, family: "*", model: "*" };
   if (reasoningEffort) res.reasoningEffort = reasoningEffort;
   return res;
+}
+
+export function normalizeModelIdentifier(id: string): string {
+  if (!id) return "";
+  // eslint-disable-next-line prefer-const
+  let { provider, model, tag } = parseModelIdentifier(id);
+  const info = MODEL_PROVIDERS.find((p) => p.id === provider);
+  if (!tag && info?.latestTag) tag = "latest";
+  return `${provider}:${model}${tag ? `:${tag}` : ""}`;
+}
+
+export function areModelsSame(l: string, r: string): boolean {
+  if (!l && !r) return true;
+  if (!l || !r) return false;
+  if (l === r) return true;
+  return normalizeModelIdentifier(l) === normalizeModelIdentifier(r);
 }
 
 export interface ModelConnectionInfo
