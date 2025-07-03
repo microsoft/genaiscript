@@ -41,6 +41,7 @@ defTool(
     dbg(`found ${results.length} results`);
     return results.map(({ content }) => content).join("\n\n---\n\n");
   },
+  { maxTokens: 4000 },
 );
 
 def("QUESTION", question);
