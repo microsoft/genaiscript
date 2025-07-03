@@ -96,7 +96,7 @@
     "test:compile": "node packages/cli/dist/src/index.js scripts compile",
     "test:core": "pnpm --filter=@genaiscript/core test",
     "test:docx": "node packages/cli/dist/src/index.js parse docx packages/sample/src/rag/Document.docx",
-    "test:fix": "node packages/cli/dist/src/index.js scripts fix --force && node packages/cli/dist/src/index.js configure action action-poem --force --python --ffmpeg --out examples/action --provider echo && cp genaisrc/genaiscript.d.ts docs/public/genaiscript.d.ts",
+    "test:fix": "node packages/cli/dist/src/index.js scripts fix --force && node packages/cli/dist/src/index.js configure action action-poem --force --python --ffmpeg --out examples/action --provider echo && cp genaisrc/genaiscript.d.ts docs/public/genaiscript.d.ts.txt",
     "test:modulesamples": "cd packages/modulesample && pnpm run test",
     "test:pdf": "DEBUG=genaiscript:pdf node packages/cli/dist/src/index.js parse pdf packages/sample/src/rag/loremipsum.pdf",
     "test:pyodide": "DEBUG=genaiscript:pyodide node packages/cli/dist/src/index.js run pyodide --no-run-trace --no-output-trace",
