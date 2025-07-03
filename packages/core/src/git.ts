@@ -591,6 +591,84 @@ ${await this.diff({ ...options, nameOnly: true })}
         return new GitClient(directory)
     }
 
+    /**
+     * Add a new worktree
+     * @param path path to the new worktree
+     * @param commitish optional commit, branch, or tag to checkout
+     */
+    async worktreeAdd(path: string, commitish?: string): Promise<string> {
+        dbg(`adding worktree: ${path}`)
+        const args = ["worktree", "add"]
+        args.push(path)
+        if (commitish) {
+            args.push(commitish)
+        }
+        return await this.exec(args)
+    }
+
+    /**
+     * List all worktrees
+     */
+    async worktreeList(): Promise<GitWorktree[]> {
+        dbg(`listing worktrees`)
+        const args = ["worktree", "list", "--porcelain"]
+        const res = await this.exec(args)
+        const worktrees: GitWorktree[] = []
+        const lines = res.split('\n')
+        let current: Partial<GitWorktree> = {}
+        
+        for (const line of lines) {
+            if (line.startsWith('worktree ')) {
+                current.path = line.substring(9)
+            } else if (line.startsWith('HEAD ')) {
+                current.head = line.substring(5)
+            } else if (line.startsWith('branch ')) {
+                current.branch = line.substring(7)
+            } else if (line === 'bare') {
+                current.bare = true
+            } else if (line === 'detached') {
+                current.detached = true
+            } else if (line === '') {
+                // Empty line indicates end of worktree entry
+                if (current.path && current.head) {
+                    worktrees.push(current as GitWorktree)
+                }
+                current = {}
+            }
+        }
+        
+        // Handle last entry if file doesn't end with empty line
+        if (current.path && current.head) {
+            worktrees.push(current as GitWorktree)
+        }
+        
+        return worktrees
+    }
+
+    /**
+     * Remove a worktree
+     * @param path path to the worktree to remove
+     * @param force force removal even if worktree is dirty
+     */
+    async worktreeRemove(path: string, force?: boolean): Promise<string> {
+        dbg(`removing worktree: ${path}`)
+        const args = ["worktree", "remove"]
+        if (force) {
+            args.push("--force")
+        }
+        args.push(path)
+        return await this.exec(args)
+    }
+
+    /**
+     * Prune worktree information
+     */
+    async worktreePrune(): Promise<string> {
+        dbg(`pruning worktree information`)
+        const args = ["worktree", "prune"]
+        return await this.exec(args)
+    }
+
     client(cwd: string) {
         return new GitClient(cwd)
     }

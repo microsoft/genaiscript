@@ -3130,6 +3130,14 @@ interface GitCommit {
     message: string
 }
 
+interface GitWorktree {
+    path: string
+    head: string
+    branch?: string
+    bare?: boolean
+    detached?: boolean
+}
+
 interface Git {
     /**
      * Current working directory
@@ -3292,6 +3300,30 @@ interface Git {
      * @param cwd working directory
      */
     client(cwd: string): Git
+
+    /**
+     * Add a new worktree
+     * @param path path to the new worktree
+     * @param commitish optional commit, branch, or tag to checkout
+     */
+    worktreeAdd(path: string, commitish?: string): Promise<string>
+
+    /**
+     * List all worktrees
+     */
+    worktreeList(): Promise<GitWorktree[]>
+
+    /**
+     * Remove a worktree
+     * @param path path to the worktree to remove
+     * @param force force removal even if worktree is dirty
+     */
+    worktreeRemove(path: string, force?: boolean): Promise<string>
+
+    /**
+     * Prune worktree information
+     */
+    worktreePrune(): Promise<string>
 }
 
 /**
