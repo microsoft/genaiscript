@@ -123,9 +123,12 @@ export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
       const { topK, minScore = 0 } = options || {};
       dbg(`vectra search: %s`, query);
       const unfilteredDocs = await index.queryDocuments(query, { maxDocuments: topK });
-      dbg(`vectra search: %d documents found`, unfilteredDocs.length);
-      const docs = unfilteredDocs.filter((r) => r.score >= minScore);
-      dbg(`vectra search: %d documents after filtering by minScore %d`, docs.length, minScore);
+      dbg(`vectra search: %d docs (min score: %)`, unfilteredDocs.length, minScore);
+      dbg(
+        `%O`,
+        unfilteredDocs.map((d) => ({ uri: d.uri, score: d.score })),
+      );
+      const docs = unfilteredDocs.filter((r) => isNaN(minScore) || r.score >= minScore);
       const res: WorkspaceFileWithScore[] = [];
       for (const doc of docs) {
         res.push(<WorkspaceFileWithScore>{
