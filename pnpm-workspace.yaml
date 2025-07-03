@@ -1,6 +1,8 @@
 packages:
   - docs
   - packages/*
+  - samples/*
+  - tools/*
 
 catalog:
   "@eslint/js": ^9.29.0

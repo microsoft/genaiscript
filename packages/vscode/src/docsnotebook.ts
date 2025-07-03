@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { Utils } from "vscode-uri";
 import { registerCommand } from "./commands";
 import type { ModelProviderType, PromptParameters, PromptScript } from "../../core/src/types";
@@ -15,7 +15,7 @@ import { details } from "../../core/src/mkmd";
 import { parsePromptScriptMeta } from "../../core/src/template";
 import { arrayify, normalizeBoolean } from "../../core/src/cleaners";
 import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml";
-import { Fragment } from "../../core/src/generation";
+import type { Fragment } from "../../core/src/generation";
 import { fileCacheImage } from "../../core/src/filecache";
 
 // parser

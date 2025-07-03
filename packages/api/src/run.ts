@@ -256,9 +256,9 @@ export async function runScriptInternal(
         });
   if (outTrace && !/^false$/i.test(outTrace)) await setupTraceWriting(trace, " trace", outTrace);
   if (outOutput && !/^false$/i.test(outOutput))
-    await setupTraceWriting(runOutputTrace, " output", outOutput, {
+    {await setupTraceWriting(runOutputTrace, " output", outOutput, {
       ignoreInner: true,
-    });
+    });}
 
   const toolFiles: string[] = [];
   const resourceScript = await tryResolveScript(scriptId, {
@@ -275,11 +275,11 @@ export async function runScriptInternal(
     toolFiles,
   });
   if (jsSource)
-    prj.scripts.push({
+    {prj.scripts.push({
       id: scriptId,
       ...parsePromptScriptMeta(jsSource),
       jsSource,
-    });
+    });}
   const script = prj.scripts.find(
     (t) =>
       t.id === scriptId ||
@@ -536,7 +536,7 @@ export async function runScriptInternal(
   if (outAnnotations && result.annotations?.length) {
     if (isJSONLFilename(outAnnotations)) await appendJSONL(outAnnotations, result.annotations);
     else
-      await writeText(
+      {await writeText(
         outAnnotations,
         CSV_REGEX.test(outAnnotations)
           ? diagnosticsToCSV(result.annotations, csvSeparator)
@@ -545,13 +545,13 @@ export async function runScriptInternal(
             : /\.sarif$/i.test(outAnnotations)
               ? await convertDiagnosticsToSARIF(script, result.annotations)
               : JSON.stringify(result.annotations, null, 2),
-      );
+      );}
   }
   if (outChangelogs && result.changelogs?.length)
-    await writeText(outChangelogs, result.changelogs.join("\n"));
+    {await writeText(outChangelogs, result.changelogs.join("\n"));}
   if (outData && result.frames?.length)
-    if (isJSONLFilename(outData)) await appendJSONL(outData, result.frames);
-    else await writeText(outData, JSON.stringify(result.frames, null, 2));
+    {if (isJSONLFilename(outData)) await appendJSONL(outData, result.frames);
+    else await writeText(outData, JSON.stringify(result.frames, null, 2));}
 
   await writeFileEdits(result.fileEdits, { applyEdits, trace });
 
@@ -602,7 +602,7 @@ export async function runScriptInternal(
   }
   if (sariff) await writeText(sariff, await convertDiagnosticsToSARIF(script, result.annotations));
   if (changelogf && result.changelogs?.length)
-    await writeText(changelogf, result.changelogs.join("\n"));
+    {await writeText(changelogf, result.changelogs.join("\n"));}
   for (const [filename, edits] of Object.entries(result.fileEdits || {})) {
     const rel = relative(process.cwd(), filename);
     const isAbsolutePath = resolve(rel) === rel;
@@ -611,16 +611,16 @@ export async function runScriptInternal(
 
   if (options.json && result !== undefined)
     // needs to go to process.stdout
-    stdout.write(JSON.stringify(result, null, 2));
+    {stdout.write(JSON.stringify(result, null, 2));}
 
   let _ghInfo: GithubConnectionInfo = undefined;
   const resolveGitHubInfo = async () => {
     if (!_ghInfo)
-      _ghInfo = await githubParseEnv(process.env, {
+      {_ghInfo = await githubParseEnv(process.env, {
         resolveToken: true,
         resolveIssue: true,
         resolveCommit: true,
-      });
+      });}
     return _ghInfo;
   };
   let adoInfo: AzureDevOpsEnv = undefined;
@@ -722,9 +722,9 @@ export async function runScriptInternal(
     if (ghInfo.repository && ghInfo.issue) {
       if (!ghInfo.commitSha) dbg(`no commit sha found, skipping pull request reviews`);
       else
-        await githubCreatePullRequestReviews(script, ghInfo, result.annotations, {
+        {await githubCreatePullRequestReviews(script, ghInfo, result.annotations, {
           cancellationToken,
-        });
+        });}
     }
   }
 
@@ -741,7 +741,7 @@ export async function runScriptInternal(
   }
 
   if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
-    return fail("error annotations found", ANNOTATION_ERROR_CODE);
+    {return fail("error annotations found", ANNOTATION_ERROR_CODE);}
 
   return { exitCode: 0, result };
 }
@@ -755,7 +755,7 @@ async function aggregateResults(
   const statsDir = await createStatsDir();
   const statsFile = host.path.join(statsDir, "runs.csv");
   if (!(await tryStat(statsFile)))
-    await writeFile(
+    {await writeFile(
       statsFile,
       [
         "script",
@@ -768,7 +768,7 @@ async function aggregateResults(
         "version",
       ].join(",") + "\n",
       { encoding: "utf-8" },
-    );
+    );}
   const acc = stats.accumulatedUsage();
   await appendFile(
     statsFile,

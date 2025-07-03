@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { infoUri } from "./markdowndocumentprovider";
-import { TraceNode } from "../../core/src/traceparser";
+import type { TraceNode } from "../../core/src/traceparser";
 import { CHANGE, TRACE_NODE_PREFIX } from "../../core/src/constants";
 import { unmarkdown } from "../../core/src/cleaners";
 
@@ -63,9 +63,9 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     }
     if (!element) return [];
     if (typeof element === "string") return undefined;
-    else if (element.type === "details")
+    else if (element.type === "details") {
       return element?.content?.filter((s) => typeof s !== "string");
-    else return undefined;
+    } else return undefined;
   }
 
   private _onDidChangeTreeData: vscode.EventEmitter<void | TraceNode | TraceNode[]> =

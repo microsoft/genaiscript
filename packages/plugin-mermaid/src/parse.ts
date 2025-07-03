@@ -1,4 +1,8 @@
-import { filenameOrFileToContent, WorkspaceFile } from "@genaiscript/core";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import type { WorkspaceFile } from "@genaiscript/core";
+import { filenameOrFileToContent } from "@genaiscript/core";
 import { mermaidParse } from "./mermaid.js";
 
 export async function parse(

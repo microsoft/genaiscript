@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { test, describe, expect } from "vitest";
 import { run } from "../src/api.js";
 

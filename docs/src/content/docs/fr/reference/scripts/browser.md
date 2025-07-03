@@ -26,7 +26,7 @@ Cela vous permet d'interagir avec des pages Web, d'extraire des données et d'au
 
 ```js
 const page = await host.browse(
-    "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv"
+    "https://github.com/microsoft/genaiscript/blob/main/samples/sample/src/penguins.csv"
 )
 const table = page.locator('table[data-testid="csv-table"]')
 const csv = parsers.HTMLToMarkdown(await table.innerHTML())

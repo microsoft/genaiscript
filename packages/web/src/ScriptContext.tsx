@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { createContext, use } from "react";
+import type React from "react";
+import { createContext, use } from "react";
 import { useLocationHashValue } from "./useLocationHashValue";
 
 export const ScriptContext = createContext<{

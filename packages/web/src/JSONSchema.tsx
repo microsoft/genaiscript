@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { Dispatch, SetStateAction, startTransition, useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import React, { startTransition, useEffect, useState } from "react";
 
 import { underscore } from "inflection";
 import "@vscode-elements/elements/dist/vscode-textarea";

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ExtensionContext } from "vscode";
+import type { ExtensionContext } from "vscode";
 
 export function dispose(context: ExtensionContext, o: { dispose: () => void }) {
   if (!o) return;

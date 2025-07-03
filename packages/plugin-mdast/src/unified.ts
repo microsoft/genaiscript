@@ -1,5 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { Root } from "mdast";
-import { filenameOrFileToContent, genaiscriptDebug, WorkspaceFile } from "@genaiscript/core";
+import type { WorkspaceFile } from "@genaiscript/core";
+import { filenameOrFileToContent, genaiscriptDebug } from "@genaiscript/core";
 import type { Processor } from "unified";
 const dbg = genaiscriptDebug("mdast");
 

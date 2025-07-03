@@ -1,7 +1,6 @@
 import { readFile, readdir, writeFile } from "fs/promises"
 
 async function main() {
-    const dir = "./dist/_llms-txt"
     const files = [
         "./dist/llms-full.txt",
         "./dist/llms-small.txt",

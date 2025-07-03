@@ -4,7 +4,7 @@
 import { throttle } from "es-toolkit";
 import { cleanedClone } from "../../core/src/clone";
 import { QUEUE_SCRIPT_START, MESSAGE } from "../../core/src/constants";
-import {
+import type {
   GenerationResult,
   PromptScriptResponseEvents,
   RequestMessages,

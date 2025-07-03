@@ -19,9 +19,9 @@ export function useUrlSearchParams<T>(
       if (value !== undefined && value !== null) {
         if (type === "string") {
           if (value !== "") newState[key] = value;
-        } else if (type === "boolean")
+        } else if (type === "boolean") {
           newState[key] = value === "1" || value === "yes" || value === "true";
-        else if (type === "integer" || type === "number") {
+        } else if (type === "integer" || type === "number") {
           const parsed = type === "number" ? parseFloat(value) : parseInt(value);
           if (!isNaN(parsed)) newState[key] = parsed;
         } else if (type === "array") {

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionContext } from "vscode";
+import type { ExtensionContext } from "vscode";
 import { ExtensionState } from "./state";
 import { activateStatusBar } from "./statusbar";
 import { activateFragmentCommands } from "./fragmentcommands";

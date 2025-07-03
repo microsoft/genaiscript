@@ -20,7 +20,7 @@
     "tslib": "catalog:"
   },
   "devDependencies": {
-    "@eslint/js": "catalog:",
+    "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
     "@types/debug": "catalog:",
     "@types/node": "catalog:",
     "eslint": "catalog:",
@@ -28,7 +28,6 @@
     "rimraf": "catalog:",
     "tshy": "catalog:",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:",
     "vitest": "catalog:"
   },
   "scripts": {

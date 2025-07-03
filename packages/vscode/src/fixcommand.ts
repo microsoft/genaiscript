@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { registerCommand } from "./commands";
 import { TYPE_DEFINITION_BASENAME, TYPE_DEFINITION_REFERENCE } from "../../core/src/constants";
 import { promptDefinitions } from "../../core/src/default_prompts";

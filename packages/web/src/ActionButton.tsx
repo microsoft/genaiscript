@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from "react";
+import type React from "react";
 
 import "@vscode-elements/elements/dist/vscode-icon";
 

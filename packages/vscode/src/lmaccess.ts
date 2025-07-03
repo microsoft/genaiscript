@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import type { ChatCompletionMessageParam } from "../../core/src/chattypes";
 import type { LanguageModelChatRequest } from "../../core/src/server/client";
 import type { ChatStart } from "../../core/src/server/messages";
@@ -68,8 +68,9 @@ async function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
             (c: ChatCompletionMessageParam["content"][0]) =>
               typeof c === "object" && "type" in c && c.type === "image_url",
           )
-        )
+        ) {
           throw new Error("Vision model not supported");
+        }
         res.push(
           vscode.LanguageModelChatMessage.User(
             await renderMessageContent(m, { textLang: "raw" }),
@@ -130,12 +131,13 @@ export function createChatModelRunner(state: ExtensionState): LanguageModelChatR
           error: serializeError(err),
         });
       } else {
-        if (err instanceof Error && /Request Failed: 400/.test(err.message))
+        if (err instanceof Error && /Request Failed: 400/.test(err.message)) {
           // This model is not support in the the
           await vscode.window.showErrorMessage(
             dedent`${TOOL_NAME} - The model ${chatModel?.name || model} is not supported for chat participants (@genaiscript).
                         Please select a different model in GitHub Copilot Chat.`,
           );
+        }
         onChunk({
           finishReason: "fail",
           error: serializeError(err),

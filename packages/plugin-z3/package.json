@@ -18,7 +18,7 @@
     "z3-solver": "^4.15.2"
   },
   "devDependencies": {
-    "@eslint/js": "catalog:",
+    "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
     "@types/debug": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-istanbul": "catalog:",
@@ -27,16 +27,15 @@
     "rimraf": "catalog:",
     "tshy": "catalog:",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:",
     "vitest": "catalog:"
   },
   "scripts": {
     "build": "npm run clean && tshy",
     "clean": "rimraf dist",
-    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
-    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
-    "lint:check": "eslint src",
-    "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\"  \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\"  \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "lint:check": "eslint src test",
+    "lint:fix": "eslint src test --fix --fix-type [problem,suggestion]",
     "pack": "npm pack 2>&1",
     "prepack": "npm run build",
     "test": "vitest --run"

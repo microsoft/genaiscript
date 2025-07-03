@@ -3,7 +3,7 @@
 
 import * as vscode from "vscode";
 import { TOOL_ID, TOOL_NAME } from "../../core/src/constants";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { registerCommand } from "./commands";
 import { Utils } from "vscode-uri";
 import { randomHex } from "../../core/src/crypto";

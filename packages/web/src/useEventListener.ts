@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DependencyList, useEffect } from "react";
+import type { DependencyList } from "react";
+import { useEffect } from "react";
 
 export function useEventListener(
   target: EventTarget | undefined,

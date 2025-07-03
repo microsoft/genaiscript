@@ -13,8 +13,8 @@ import React, {
 import Suspense from "./Suspense";
 import Markdown from "./Markdown";
 import { useRunClient } from "./RunClientContext";
-import { VscTabsSelectEvent } from "@vscode-elements/elements/dist/vscode-tabs/vscode-tabs";
-import {
+import type { VscTabsSelectEvent } from "@vscode-elements/elements/dist/vscode-tabs/vscode-tabs";
+import type {
   TreeItemIconConfig,
   TreeItem,
   VscTreeSelectEvent,
@@ -22,19 +22,15 @@ import {
 import { ErrorBoundary } from "react-error-boundary";
 import { convertAnnotationToItem } from "../../core/src/annotations";
 import { renderMessagesToMarkdown } from "../../core/src/chatrender";
-import { ChatCompletionMessageParam } from "../../core/src/chattypes";
+import type { ChatCompletionMessageParam } from "../../core/src/chattypes";
 import { unmarkdown } from "../../core/src/cleaners";
 import { rgbToCss, logprobColor, renderLogprob } from "../../core/src/logprob";
 import { markdownDiff } from "../../core/src/mddiff";
 import { fenceMD } from "../../core/src/mkmd";
 import { roundWithPrecision } from "../../core/src/precision";
 import { prettyDuration, prettyTokens, prettyCost } from "../../core/src/pretty";
-import {
-  TraceNode,
-  parseTraceTree,
-  DetailsNode,
-  renderTraceTree,
-} from "../../core/src/traceparser";
+import type { TraceNode, DetailsNode } from "../../core/src/traceparser";
+import { parseTraceTree, renderTraceTree } from "../../core/src/traceparser";
 import { diagnostics } from "./configuration";
 import MarkdownPreviewTabs from "./MarkdownPreviewTabs";
 import { RunClient } from "./RunClient";
@@ -424,8 +420,9 @@ function ValueBadge(props: {
     value === null ||
     (typeof value === "number" && isNaN(value)) ||
     value === ""
-  )
+  ) {
     return null;
+  }
   const s = render ? render(value) : precision ? roundWithPrecision(value, precision) : "" + value;
   if (s === "") return null;
   return (
@@ -510,8 +507,9 @@ function TraceTreeMarkdown() {
   };
   const preview = useMemo(() => {
     if (!node) return undefined;
-    if (typeof node === "object" && node?.type === "details")
+    if (typeof node === "object" && node?.type === "details") {
       return node.content.map((n) => renderTraceTree(n, 2)).join("\n");
+    }
     return renderTraceTree(node, 2);
   }, [node]);
 
@@ -576,8 +574,9 @@ function OutputMarkdown() {
   if (!output && !reasoning) return null;
 
   let markdown = ``;
-  if (reasoning)
+  if (reasoning) {
     markdown += `<details class="reasoning"><summary>🤔 thinking...</summary>\n${reasoning}\n</details>\n\n`;
+  }
   if (output) markdown += output;
   return (
     <vscode-tabs className="output">

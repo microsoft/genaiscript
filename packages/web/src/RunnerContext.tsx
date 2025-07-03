@@ -1,15 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, {
-  createContext,
-  startTransition,
-  use,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-import { GenerationResult, PromptScriptRunOptions } from "../../core/src/server/messages";
+import type React from "react";
+import { createContext, startTransition, use, useCallback, useEffect, useState } from "react";
+import type { GenerationResult, PromptScriptRunOptions } from "../../core/src/server/messages";
 import { toBase64 } from "../../core/src/base64";
 import { isBinaryMimeType } from "../../core/src/binary";
 import { fetchRun } from "./api";
@@ -18,7 +12,7 @@ import { useRunClient } from "./RunClientContext";
 import { useEventListener } from "./useEventListener";
 import { useLocationHashValue } from "./useLocationHashValue";
 import { useScriptId } from "./ScriptContext";
-import { ImportedFile } from "./types";
+import type { ImportedFile } from "./types";
 import { generateId } from "../../core/src/id";
 
 export const RunnerContext = createContext<{
@@ -125,7 +119,7 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
   const loadRunResult = async (runId: string) => {
     if (!runId) return;
     const res = await fetchRun(runId);
-    if (res)
+    if (res) {
       startTransition(() => {
         client.cancel("load run");
         setRunId(runId);
@@ -134,6 +128,7 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
         setOutput(res.result?.text);
         setState(undefined);
       });
+    }
   };
 
   useEffect(() => {

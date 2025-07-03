@@ -3,7 +3,7 @@
 
 // cspell: disable
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import {
   COPILOT_CHAT_PARTICIPANT_SCRIPT_ID,
   COPILOT_CHAT_PARTICIPANT_ID,
@@ -12,7 +12,7 @@ import {
 } from "../../core/src/constants";
 import type { PromptScript } from "../../core/src/types";
 import type { HistoryMessageUser, HistoryMessageAssistant } from "../../core/src/types";
-import { Fragment } from "../../core/src/generation";
+import type { Fragment } from "../../core/src/generation";
 import { convertAnnotationsToItems } from "../../core/src/annotations";
 import { patchCachedImages } from "../../core/src/filecache";
 import { deleteUndefinedValues } from "../../core/src/cleaners";
@@ -29,10 +29,11 @@ export async function activateChatParticipant(state: ExtensionState) {
     for (const reference of references) {
       const { id, value } = reference;
       if (typeof value === "string") vars[id] = value;
-      else if (value instanceof vscode.Uri)
+      else if (value instanceof vscode.Uri) {
         files.push(vscode.workspace.asRelativePath(value, false));
-      else if (value instanceof vscode.Location)
-        files.push(vscode.workspace.asRelativePath(value.uri, false)); // TODO range
+      } else if (value instanceof vscode.Location) {
+        files.push(vscode.workspace.asRelativePath(value.uri, false));
+      } // TODO range
       else state.output.appendLine(`unknown reference type: ${typeof value}`);
     }
     return { files, vars };
@@ -51,10 +52,11 @@ export async function activateChatParticipant(state: ExtensionState) {
 
       const md = (t: string, ...enabledCommands: string[]) => {
         const ms = new vscode.MarkdownString(t + "\n", true);
-        if (enabledCommands.length)
+        if (enabledCommands.length) {
           ms.isTrusted = {
             enabledCommands,
           };
+        }
         response.markdown(ms);
       };
 
@@ -203,9 +205,9 @@ function renderHistory(
               if (r instanceof vscode.ChatResponseMarkdownPart) {
                 return r.value.value;
               } else if (r instanceof vscode.ChatResponseAnchorPart) {
-                if (r.value instanceof vscode.Uri)
+                if (r.value instanceof vscode.Uri) {
                   return vscode.workspace.asRelativePath(r.value.fsPath);
-                else return vscode.workspace.asRelativePath(r.value.uri.fsPath);
+                } else return vscode.workspace.asRelativePath(r.value.uri.fsPath);
               }
               return "";
             })

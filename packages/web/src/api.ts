@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ChatModels } from "../../core/src/chattypes";
-import {
+import type { ChatModels } from "../../core/src/chattypes";
+import type {
   Project,
   PromptScriptEndResponseEvent,
   PromptScriptListResponse,

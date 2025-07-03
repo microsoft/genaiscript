@@ -64,7 +64,7 @@ export function error(...args: any[]) {
  * @returns An array with either color wrapped or original arguments
  */
 function wrapArgs(color: number, args: any[]) {
-  if (consoleColors && args.every((e) => typeof e == "string" || typeof e == "number")) {
+  if (consoleColors && args.every((e) => typeof e === "string" || typeof e === "number")) {
     // if it's just strings & numbers use the coloring
     const msg = args.join(" ");
     return [wrapColor(color, msg)];

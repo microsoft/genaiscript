@@ -89,12 +89,13 @@ export default function Markdown(props: {
                 const codeClassName = (node as any).children?.[0]?.properties
                   ?.className?.[1] as string;
                 const codeText = (node as any).children?.[0]?.children?.[0]?.value as string;
-                if (/language-(barchart|linechart)/.test(codeClassName))
+                if (/language-(barchart|linechart)/.test(codeClassName)) {
                   return (
                     <DataTableTabs chart={codeClassName} {...props}>
                       {codeText}
                     </DataTableTabs>
                   );
+                }
                 return (
                   <pre className={className} {...props}>
                     {children}
@@ -102,12 +103,13 @@ export default function Markdown(props: {
                 );
               },
               code({ node, className, children, ...props }) {
-                if (!/hljs/.test(className))
+                if (!/hljs/.test(className)) {
                   return (
                     <code className={className} {...props}>
                       {children}
                     </code>
                   );
+                }
                 return (
                   <Code className={className} {...props}>
                     {children}

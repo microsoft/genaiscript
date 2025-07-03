@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useState } from "react";
 
 export function useLocationHashValue(name: string): ReturnType<typeof useState<string | null>> {
   const read = () => new URLSearchParams(window.location.hash.slice(1)).get(name);

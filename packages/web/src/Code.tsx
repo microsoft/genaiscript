@@ -7,8 +7,9 @@ import CopySaveButtons from "./Buttons";
 
 function CodeRender(props: { className?: string; children: any }) {
   const { className, children, ...restProps } = props;
-  if (className?.includes("language-mermaid"))
+  if (className?.includes("language-mermaid")) {
     return <Mermaid {...restProps} value={String(children)} />;
+  }
   return (
     <code className={className} {...restProps}>
       {children}

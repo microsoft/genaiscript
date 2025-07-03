@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { toMarkdownString } from "./markdown";
 import { ICON_LOGO_NAME, CHANGE } from "../../core/src/constants";
 import { toStringList } from "../../core/src/util";

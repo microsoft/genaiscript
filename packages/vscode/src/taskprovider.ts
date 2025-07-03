@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { resolveCli } from "./config";
 import { shellQuote } from "../../core/src/shell";
 import { TOOL_ID } from "../../core/src/constants";

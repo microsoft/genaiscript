@@ -7,7 +7,7 @@ sidebar:
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import source from "../../../../../../packages/sample/genaisrc/samples/cmt.genai.mts?raw";
+import source from "../../../../../../samples/sample/genaisrc/samples/cmt.genai.mts?raw";
 
 Cet exemple automatise le processus d'ajout de commentaires au code source à l'aide d'un LLM
 et vérifie que les modifications n'ont pas introduit de changements dans le code.
@@ -139,7 +139,7 @@ const { format, build } = env.vars.build
 genaiscript run cmt --vars "build=npm run build" "format=npm run format"
 ```
 
-## Source complète ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/samples/cmt.genai.mts))
+## Source complète ([GitHub](https://github.com/microsoft/genaiscript/blob/main/samples/sample/genaisrc/samples/cmt.genai.mts))
 
 <Code code={source} wrap={true} lang="ts" title="cmt.genai.mts" />
 

@@ -5,21 +5,24 @@
   "version": "2.2.1",
   "license": "MIT",
   "scripts": {
-    "install:playwright": " pnpm exec playwright install --with-deps chromium",
-    "postinstall": "pnpm install:playwright",
-    "dev": "astro telemetry disable && astro dev --host",
-    "start": "astro dev --host",
-    "check": "astro check",
     "build": "astro build",
     "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript && node fixllms.mjs",
-    "lint:fix": "prettier --write \"src/content/**/*.{md,mdx}\"",
-    "preview": "astro preview",
-    "genai:test": "node ../packages/cli/dist/src/index.js test src/**/*.md",
+    "check": "astro check",
+    "clean": "rm -Rf dist && rm -Rf distasw && rm -Rf public/slides && rm -Rf .genaiscript",
+    "dev": "astro telemetry disable && astro dev --host",
+    "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
+    "format:check": "prettier \"src/content/**/*.{md,mdx}\"",
+    "format:fix": "prettier --write \"src/content/**/*.{md,mdx}\"",
+    "genai:alt-text": "node scripts/image-alt-text.mjs",
     "genai:frontmatter": "node ../packages/cli/dist/src/index.js run frontmatter \"src/**/*.{md,mdx}\" --apply-edits",
     "genai:technical": "for file in \"src/**/*.md\"; do\nnode ../packages/cli/dist/src/index.js run technical \"$file\" --apply-edits\ndone",
-    "genai:alt-text": "node scripts/image-alt-text.mjs",
-    "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
-    "clean": "rm -Rf dist && rm -Rf distasw && rm -Rf public/slides && rm -Rf .genaiscript"
+    "genai:test": "node ../packages/cli/dist/src/index.js test src/**/*.md",
+    "install:playwright": " pnpm exec playwright install --with-deps chromium",
+    "lint:check": "eslint src",
+    "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
+    "postinstall": "pnpm install:playwright",
+    "preview": "astro preview",
+    "start": "astro dev --host"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -34,6 +37,7 @@
     "zx": "catalog:"
   },
   "devDependencies": {
+    "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
     "prettier": "catalog:"
   },
   "resolutions": {

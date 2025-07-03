@@ -9,7 +9,7 @@
     "url": "https://github.com/microsoft/genaiscript/issues"
   },
   "devDependencies": {
-    "@eslint/js": "catalog:",
+    "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
     "@types/debug": "catalog:",
     "@types/diff": "^8.0.0",
     "@types/file-type": "^10.9.3",
@@ -31,7 +31,6 @@
     "rimraf": "catalog:",
     "tshy": "catalog:",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:",
     "vitest": "catalog:",
     "zod": "^3.25.67"
   },
@@ -143,6 +142,9 @@
     "node": ">=20.0.0"
   },
   "tshy": {
+    "esmDialects": [
+      "browser"
+    ],
     "dialects": [
       "esm",
       "commonjs"
@@ -156,6 +158,10 @@
   },
   "exports": {
     ".": {
+      "browser": {
+        "types": "./dist/browser/index.d.ts",
+        "default": "./dist/browser/index.js"
+      },
       "import": {
         "types": "./dist/esm/index.d.ts",
         "default": "./dist/esm/index.js"

@@ -3,7 +3,7 @@
 
 import * as vscode from "vscode";
 
-import { ExtensionContext } from "vscode";
+import type { ExtensionContext } from "vscode";
 import { VSCodeHost } from "./vshost";
 import { applyEdits, toRange } from "./edit";
 import { Utils } from "vscode-uri";
@@ -11,7 +11,7 @@ import { saveAllTextDocuments } from "./fs";
 import { delay, groupBy } from "es-toolkit";
 import { createWebview } from "./webview";
 import { parseAnnotations } from "../../core/src/annotations";
-import { ChatCompletionsProgressReport } from "../../core/src/chattypes";
+import type { ChatCompletionsProgressReport } from "../../core/src/chattypes";
 import { isEmptyString } from "../../core/src/cleaners";
 import {
   TOOL_NAME,
@@ -22,9 +22,13 @@ import {
 } from "../../core/src/constants";
 import { randomHex } from "../../core/src/crypto";
 import { isCancelError } from "../../core/src/error";
-import { Fragment } from "../../core/src/generation";
+import type { Fragment } from "../../core/src/generation";
 import { fixPromptDefinitions, fixGitHubCopilotInstructions } from "../../core/src/scripts";
-import { PromptScriptRunOptions, GenerationResult, Project } from "../../core/src/server/messages";
+import type {
+  PromptScriptRunOptions,
+  GenerationResult,
+  Project,
+} from "../../core/src/server/messages";
 import { MarkdownTrace } from "../../core/src/trace";
 import { logInfo, logVerbose } from "../../core/src/util";
 import { logMeasure } from "../../core/src/perf";
@@ -241,8 +245,9 @@ export class ExtensionState extends EventTarget {
         r.response.text = progress.responseSoFar;
         r.response.reasoning = progress.reasoningSoFar;
         r.response.logprobs = progress.responseTokens;
-        if (/\n/.test(progress.responseChunk))
+        if (/\n/.test(progress.responseChunk)) {
           r.response.annotations = parseAnnotations(r.response.text);
+        }
       }
       reqChange();
     };
@@ -367,8 +372,9 @@ export class ExtensionState extends EventTarget {
     if (localTypeDefinitions) await fixPromptDefinitions(project);
 
     const githubCopilotInstructions = !!config.get("githubCopilotInstructions");
-    if (githubCopilotInstructions)
-      fixGitHubCopilotInstructions({ githubCopilotInstructions: true }); // finish async
+    if (githubCopilotInstructions) {
+      fixGitHubCopilotInstructions({ githubCopilotInstructions: true });
+    } // finish async
   }
 
   private _parseWorkspacePromise: Promise<void> = undefined;
@@ -401,8 +407,9 @@ export class ExtensionState extends EventTarget {
     if (this._aiRequest?.options?.mode === "notebook") return;
 
     let diagnostics = this.project.diagnostics;
-    if (this._aiRequest?.response?.annotations?.length)
+    if (this._aiRequest?.response?.annotations?.length) {
       diagnostics = diagnostics.concat(this._aiRequest?.response?.annotations);
+    }
     // project entries
     const severities: Record<DiagnosticSeverity | "notice", vscode.DiagnosticSeverity> = {
       notice: vscode.DiagnosticSeverity.Information,

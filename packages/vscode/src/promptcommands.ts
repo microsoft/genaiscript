@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { scriptsToQuickPickItems } from "./scriptquickpick";
 import { registerCommand } from "./commands";
 import type { PromptScript } from "../../core/src/types";

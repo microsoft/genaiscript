@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { createContext, useState, useMemo, use } from "react";
-import { ChatModels } from "../../core/src/chattypes";
-import { Project, ServerEnvResponse } from "../../core/src/server/messages";
+import type React from "react";
+import { createContext, useState, useMemo, use } from "react";
+import type { ChatModels } from "../../core/src/chattypes";
+import type { Project, ServerEnvResponse } from "../../core/src/server/messages";
 import { fetchEnv, fetchScripts, fetchModels } from "./api";
 import { useUrlSearchParams } from "./useUrlSearchParam";
 import { useScriptId } from "./ScriptContext";
-import { ImportedFile } from "./types";
+import type { ImportedFile } from "./types";
 
 export const ApiContext = createContext<{
   project: Promise<Project | undefined>;

@@ -5,15 +5,16 @@ import * as vscode from "vscode";
 import { createNodePath } from "../../core/src/path";
 import { TerminalServerManager } from "./servermanager";
 import { Uri } from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { Utils } from "vscode-uri";
 import { uniq } from "es-toolkit";
-import { Host, setHost } from "../../core/src/host";
+import type { Host } from "../../core/src/host";
+import { setHost } from "../../core/src/host";
 import { arrayify } from "../../core/src/cleaners";
 import { filterGitIgnore } from "../../core/src/gitignore";
-import { CancellationOptions } from "../../core/src/cancellation";
-import { TraceOptions } from "../../core/src/trace";
-import { LanguageModelConfiguration, LogLevel } from "../../core/src/server/messages";
+import type { CancellationOptions } from "../../core/src/cancellation";
+import type { TraceOptions } from "../../core/src/trace";
+import type { LanguageModelConfiguration, LogLevel } from "../../core/src/server/messages";
 import type { ElementOrArray } from "../../core/src/types";
 
 export class VSCodeHost extends EventTarget implements Host {
@@ -60,8 +61,9 @@ export class VSCodeHost extends EventTarget implements Host {
   toUri(filenameOrUrl: string): vscode.Uri {
     const folder = this.projectUri;
     if (!filenameOrUrl) return folder;
-    if (/^[a-z][a-z0-9+\-.]*:\/\//.test(filenameOrUrl))
+    if (/^[a-z][a-z0-9+\-.]*:\/\//.test(filenameOrUrl)) {
       return vscode.Uri.parse(filenameOrUrl, true);
+    }
     if (this.path.isAbsolute(filenameOrUrl)) return vscode.Uri.file(filenameOrUrl);
     else return Utils.resolvePath(folder, filenameOrUrl);
   }

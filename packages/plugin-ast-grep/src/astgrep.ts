@@ -178,10 +178,11 @@ async function astGrepFindFiles(
     matches = matches.filter((m) => {
       const range: [number, number] = [m.range().start.line, m.range().end.line];
       const { chunk } = diffFindChunk(m.getRoot().filename(), range, diffFiles) || {};
-      if (chunk)
+      if (chunk) {
         dbg(
           `diff overlap at (${range[0]},${range[1]}) x (${chunk.newStart},${chunk.newStart + chunk.newLines})`,
         );
+      }
       return chunk;
     });
     dbg(`matches filtered by diff: ${matches.length}`);

@@ -7,7 +7,7 @@ sidebar:
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import source from "../../../../../../packages/sample/genaisrc/samples/gcm.genai.mts?raw";
+import source from "../../../../../../samples/sample/genaisrc/samples/gcm.genai.mts?raw";
 
 Le script `gcm` propose un flux guidé pour créer des commits avec des messages générés.
 Il commence par générer un message de commit basé sur les changements mis en scène dans votre dépôt Git
@@ -97,7 +97,7 @@ Utilisez le [cli](../../reference/cli/) pour exécuter le script :
 npx genaiscript run gcm
 ```
 
-## Source complète ([GitHub](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/samples/gcm.genai.mts))
+## Source complète ([GitHub](https://github.com/microsoft/genaiscript/blob/main/samples/sample/genaisrc/samples/gcm.genai.mts))
 
 <Code code={source} wrap={true} lang="ts" title="gcm.genai.mts" />
 

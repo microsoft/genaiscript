@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
+import { useEffect, useRef, useState } from "react";
 
 import "@vscode-elements/elements/dist/vscode-button";
 import "@vscode-elements/elements/dist/vscode-single-select";
@@ -27,9 +28,9 @@ import "@vscode-elements/elements/dist/vscode-split-layout";
 import Markdown from "./Markdown";
 import { useDropzone } from "react-dropzone";
 import { lookupMime } from "../../core/src/mime";
-import { VscodeMultiSelect } from "@vscode-elements/elements/dist/vscode-multi-select/vscode-multi-select";
+import type { VscodeMultiSelect } from "@vscode-elements/elements/dist/vscode-multi-select/vscode-multi-select";
 import MarkdownPreviewTabs from "./MarkdownPreviewTabs";
-import { TreeItem, VscodeTree } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree";
+import type { TreeItem, VscodeTree } from "@vscode-elements/elements/dist/vscode-tree/vscode-tree";
 import CONFIGURATION from "../../core/src/llms.json";
 import { MODEL_PROVIDER_GITHUB_COPILOT_CHAT } from "../../core/src/constants";
 import { apiKey, hosted, viewMode } from "./configuration";
@@ -42,10 +43,11 @@ import { useApi, useScripts, useEnv, useScript, useModels, ApiProvider } from ".
 import { ScriptProvider, useScriptId } from "./ScriptContext";
 import { ResultsTabs } from "./Results";
 import { RunnerProvider, useRunner } from "./RunnerContext";
-import { ImportedFile } from "./types";
+import type { ImportedFile } from "./types";
 import { ProjectView } from "./ProjectView";
 import { prettyBytes } from "../../core/src/pretty";
 import { RunResultSelector } from "./Runs";
+import { JSONSchemaBoolean, JSONSchemaObject, JSONSchemaSimpleType, PromptScript } from "../../core/src/types";
 
 function useSyncProjectScript() {
   const { scriptid, setScriptid } = useScriptId();
@@ -82,18 +84,20 @@ function acceptToAccept(accept: string | undefined) {
 function FilesFormInput() {
   const script = useScript();
   const { accept } = script || {};
-  if (!script)
+  if (!script) {
     return (
       <vscode-form-group>
         <vscode-label>Select a script to run.</vscode-label>
       </vscode-form-group>
     );
-  if (accept === "none")
+  }
+  if (accept === "none") {
     return (
       <vscode-form-group>
         <vscode-label>No files accepted.</vscode-label>
       </vscode-form-group>
     );
+  }
   return <FilesDropZone script={script} />;
 }
 
@@ -109,11 +113,12 @@ function FilesDropZone(props: { script: PromptScript }) {
   useEffect(() => {
     const newImportedFiles = [...importedFiles];
     if (acceptedFiles?.length) {
-      for (const f of acceptedFiles)
+      for (const f of acceptedFiles) {
         if (!newImportedFiles.find((nf) => nf.path === f.path)) {
           (f as ImportedFile).selected = true;
           newImportedFiles.push(f);
         }
+      }
     }
     if (newImportedFiles.length !== importedFiles.length) setImportedFiles(newImportedFiles);
   }, [importedFiles, acceptedFiles]);
@@ -408,11 +413,11 @@ function ChatCompletationTabPanel() {
         console.log(`openai request aborted`);
         return;
       }
-      if (!resp.ok)
+      if (!resp.ok) {
         setResponse({
           error: `Error: ${resp.status} ${resp.statusText}`,
         });
-      else setResponse(await resp.json());
+      } else setResponse(await resp.json());
     } catch (e) {
       c.abort();
       setResponse({ error: `Error: ${e}` });

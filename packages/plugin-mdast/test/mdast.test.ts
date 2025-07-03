@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { describe, test, expect } from "vitest";
 import { mdast } from "../src/unified.js";
 

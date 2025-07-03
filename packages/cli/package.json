@@ -59,7 +59,7 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "catalog:",
+    "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
     "@types/debug": "catalog:",
     "@types/node": "catalog:",
     "@types/papaparse": "^5.3.16",
@@ -70,7 +70,6 @@
     "eslint": "catalog:",
     "prettier": "catalog:",
     "rimraf": "catalog:",
-    "typescript-eslint": "catalog:",
     "vitest": "catalog:"
   },
   "scripts": {

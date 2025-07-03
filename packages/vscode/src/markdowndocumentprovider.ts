@@ -3,12 +3,8 @@
 
 // cspell: disable
 import * as vscode from "vscode";
-import {
-  AI_REQUEST_CHANGE,
-  ExtensionState,
-  REQUEST_OUTPUT_FILENAME,
-  REQUEST_TRACE_FILENAME,
-} from "./state";
+import type { ExtensionState } from "./state";
+import { AI_REQUEST_CHANGE, REQUEST_OUTPUT_FILENAME, REQUEST_TRACE_FILENAME } from "./state";
 import { showMarkdownPreview } from "./markdown";
 import { registerCommand } from "./commands";
 import { TRACE_NODE_PREFIX } from "../../core/src/constants";
@@ -49,8 +45,9 @@ class MarkdownTextDocumentContentProvider implements vscode.TextDocumentContentP
   private previewTraceNode(id: string) {
     const tree = this.state.aiRequest?.trace?.tree;
     const node = tree?.nodes[id];
-    if (typeof node === "object" && node?.type === "details")
+    if (typeof node === "object" && node?.type === "details") {
       return node.content.map((n) => renderTraceTree(n, 3)).join("\n");
+    }
     return renderTraceTree(node, 3);
   }
 
@@ -70,9 +67,9 @@ ${prettifyMarkdown(md)}
       case REQUEST_OUTPUT_FILENAME: {
         const tokens = res?.logprobs;
         if (tokens?.length) {
-          if (tokens[0].topLogprobs?.length)
+          if (tokens[0].topLogprobs?.length) {
             return wrap(tokens.map((lp) => topLogprobsToMarkdown(lp)).join("\n"));
-          else return wrap(tokens.map((lp) => logprobToMarkdown(lp)).join("\n"));
+          } else return wrap(tokens.map((lp) => logprobToMarkdown(lp)).join("\n"));
         }
         let text = res?.text;
         if (/^\s*\{/.test(text)) text = fenceMD(text, "json");

@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT Lice
+// Licensed under the MIT License.
 
 import { TextDecoder, TextEncoder } from "util";
 import { lstat, mkdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
@@ -22,12 +22,6 @@ import {
   LogEvent,
   McpClientManager,
   ResourceManager,
-  RuntimeHost,
-  ServerManager,
-  UTF8Decoder,
-  UTF8Encoder,
-  AzureTokenResolver,
-  LanguageModel,
   NotSupportedError,
   assert,
   arrayify,
@@ -73,6 +67,12 @@ import type {
   ResponseStatus,
   ShellOptions,
   TraceOptions,
+  RuntimeHost,
+  ServerManager,
+  UTF8Decoder,
+  UTF8Encoder,
+  AzureTokenResolver,
+  LanguageModel,
 } from "@genaiscript/core";
 import { DockerManager } from "./docker.js";
 import { BrowserManager } from "./playwright.js";

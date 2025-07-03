@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { YAMLStringify } from "../../core/src/yaml";
 import type { LanguageModelInfo } from "../../core/src/types";
 import type {
@@ -91,13 +91,14 @@ ${url ? `[${url}](${url})` : ""}
       const providers = this._info?.providers || [];
       return providers.map((provider) => ({ provider }));
     }
-    if (element.provider)
+    if (element.provider) {
       return (
         element.provider.models?.map((model) => ({
           provider: element.provider,
           model,
         })) || []
       );
+    }
     return undefined;
   }
 

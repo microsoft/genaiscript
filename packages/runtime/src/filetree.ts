@@ -70,13 +70,14 @@ export async function fileTree(
           const metadata: unknown[] = [];
           if (frontmatter && /\.mdx?$/i.test(filename)) {
             const fm = parsers.frontmatter(file) || {};
-            if (fm)
+            if (fm) {
               metadata.push(
                 ...frontmatter
                   .map((field) => [field, fm[field]])
                   .filter(([, v]) => v !== undefined)
                   .map(([k, v]) => `${k}: ${JSON.stringify(v)}`),
               );
+            }
           }
           if (preview) metadata.push(await preview(file, stats));
           node = {

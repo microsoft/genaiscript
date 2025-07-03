@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import { CHANGE } from "../../core/src/constants";
 import type { PromptScript } from "../../core/src/types";
 import { groupBy } from "es-toolkit";

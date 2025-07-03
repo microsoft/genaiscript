@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 import {
   RECONNECT,
   OPEN,
@@ -19,7 +19,8 @@ import { createChatModelRunner, isLanguageModelsAvailable } from "./lmaccess";
 import { semverParse, semverSatisfies } from "../../core/src/semver";
 import { resolveCli } from "./config";
 import { deleteUndefinedValues } from "../../core/src/cleaners";
-import { ServerManager, host } from "../../core/src/host";
+import type { ServerManager } from "../../core/src/host";
+import { host } from "../../core/src/host";
 import { packageResolveExecute } from "../../core/src/packagemanagers";
 import { VsCodeClient } from "../../core/src/server/client";
 import { shellQuote } from "../../core/src/shell";
@@ -136,11 +137,12 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
       const v = await this._client.version();
       this._version = v.version;
       const gv = semverParse(CORE_VERSION);
-      if (!semverSatisfies(v.version, ">=" + gv.major + "." + gv.minor))
+      if (!semverSatisfies(v.version, ">=" + gv.major + "." + gv.minor)) {
         vscode.window.showWarningMessage(
           TOOL_ID +
             ` - genaiscript cli version (${v.version}) outdated, please update to ${CORE_VERSION}`,
         );
+      }
       this.status = "running";
     });
     client.addEventListener(RECONNECT, () => {
@@ -216,11 +218,11 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
       }),
       hideFromUser,
     });
-    if (cliPath)
+    if (cliPath) {
       this._terminal.sendText(
         `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" ${githubCopilotChatClient}`,
       );
-    else {
+    } else {
       const pkg = await packageResolveExecute(
         cwd,
         [

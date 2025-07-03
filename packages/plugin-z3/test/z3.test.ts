@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { assert, describe, test, beforeEach } from "vitest";
 import { z3 } from "../src/z3.js";
 import plugin from "../src/index.js";

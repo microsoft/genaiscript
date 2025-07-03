@@ -10,7 +10,7 @@ import {
 } from "../../core/src/constants";
 import { CORE_VERSION, VSCODE_CLI_VERSION } from "../../core/src/version";
 import { semverParse, semverSatisfies } from "../../core/src/semver";
-import { ExtensionState } from "./state";
+import type { ExtensionState } from "./state";
 
 export async function resolveCli(state: ExtensionState) {
   const config = state.getConfiguration();
@@ -23,10 +23,11 @@ export async function resolveCli(state: ExtensionState) {
     | "yarn"
     | "pnpm"; // TODO: add support for bun
   const gv = semverParse(CORE_VERSION);
-  if (!semverSatisfies(cliVersion, ">=" + gv.major + "." + gv.minor))
+  if (!semverSatisfies(cliVersion, ">=" + gv.major + "." + gv.minor)) {
     vscode.window.showWarningMessage(
       TOOL_ID +
         ` - genaiscript cli version (${cliVersion}) outdated, please update to ${CORE_VERSION}`,
     );
+  }
   return { cliPath, cliVersion, packageManager };
 }

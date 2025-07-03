@@ -4,7 +4,8 @@
 import MemoryStream from "memorystream";
 import { finished } from "node:stream/promises";
 import { copyFile, readFile, readdir, rm, writeFile } from "fs/promises";
-import Dockerode, { Container } from "dockerode";
+import type { Container } from "dockerode";
+import type Dockerode from "dockerode";
 import { delay } from "es-toolkit";
 import {
   CORE_VERSION,

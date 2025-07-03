@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { ChatGenerationContextOptions } from "@genaiscript/core";
 import { resolveChatGenerationContext } from "@genaiscript/core";
 import { z3 } from "./z3.js";

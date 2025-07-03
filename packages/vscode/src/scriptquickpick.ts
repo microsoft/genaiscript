@@ -3,7 +3,7 @@
 
 import * as vscode from "vscode";
 import type { PromptScript } from "../../core/src/types";
-import { TemplateQuickPickItem } from "./parameterquickpick";
+import type { TemplateQuickPickItem } from "./parameterquickpick";
 import { groupBy } from "es-toolkit";
 import { templateGroup } from "../../core/src/ast";
 
