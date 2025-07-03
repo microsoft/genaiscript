@@ -22,4 +22,12 @@ for (const doc of docs) {
   dbg(`chunk ${doc.content.length}c, ${doc.score}`);
 }
 
-docs.forEach((doc) => output.fence(doc.content.slice(0, 160) + "..."));
+def("DOCS", docs, { maxTokens: 12000 });
+def("QUESTION", question);
+$`You are an expert at answering <QUESTION> based on the documentation <DOCS> provided.
+
+Respond to <QUESTION> using the information in <DOCS>. If you cannot find the answer, say "I don't know."
+
+- be clear and concise
+- be precise about code
+`.role("system");
