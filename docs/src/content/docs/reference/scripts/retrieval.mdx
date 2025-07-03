@@ -2,10 +2,10 @@
 title: Retrieval
 sidebar:
   order: 10
-description: Learn how to use GenAIScript's retrieval utilities for content
+description: Learn how to use GenAIScript's retrieval utilities including agentic search for content
   search and prompt augmentation with RAG techniques.
 keywords: RAG, content retrieval, search augmentation, indexing, web search,
-  Azure AI Search
+  Azure AI Search, agentic search, multi-strategy search, query rewriting
 hero:
   image:
     alt: "A minimalist 8-bit illustration features three evenly spaced icons: the
@@ -23,6 +23,58 @@ import { YouTube } from "astro-embed"
 
 GenAIScript provides various utilities to retrieve content and augment the prompt.
 This technique is typically referred to as **RAG** (Retrieval-Augmentation-Generation) in the literature.
+
+## Agentic Search
+
+The `retrieval.agenticSearch` provides intelligent search that combines multiple search strategies with AI-powered query rewriting for optimal results.
+
+```js
+const results = await retrieval.agenticSearch("machine learning", env.files, {
+    topK: 10,
+    queryVariations: 3,
+    combinationStrategy: "weighted",
+    includeWebSearch: true,
+    includeVectorSearch: true,
+    includeFuzzSearch: true,
+    searchWeights: {
+        vector: 0.5,
+        web: 0.3,
+        fuzzy: 0.2
+    }
+})
+def("SEARCH_RESULTS", results)
+```
+
+### Features
+
+- **Query Rewriting**: Automatically generates multiple query variations using AI for improved search coverage
+- **Multi-Strategy Search**: Combines vector search, web search, and fuzzy search in parallel
+- **Smart Result Fusion**: Uses advanced algorithms (weighted, RRF, simple) to combine and rank results
+- **Configurable**: Full control over search types, weights, and result filtering
+
+### Options
+
+- `topK`: Maximum number of results to return (default: 10)
+- `minScore`: Minimum score threshold for results (default: 0)
+- `queryVariations`: Number of AI-generated query variations (default: 2)
+- `combinationStrategy`: Result combination algorithm - "weighted", "rrf", or "simple" (default: "weighted")
+- `includeWebSearch`: Enable web search (default: true)
+- `includeVectorSearch`: Enable vector search (default: true)  
+- `includeFuzzSearch`: Enable fuzzy search (default: true)
+- `searchWeights`: Custom weights for each search type
+- `webSearchProvider`: Web search provider - "bing" or "tavily"
+- `embeddingsModel`: Model for vector embeddings
+- `indexName`: Vector search index name
+
+### Tool Usage
+
+The agentic search is also available as a tool for LLM usage:
+
+```js
+system: ["system.retrieval_agentic_search"]
+```
+
+This enables the LLM to automatically use agentic search when needed to find relevant information.
 
 ## Vector Search
 
