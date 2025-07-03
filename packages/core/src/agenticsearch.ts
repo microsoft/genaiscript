@@ -119,7 +119,11 @@ export interface AgenticSearchContext {
         ) => Promise<WorkspaceFileWithScore[]>
         webSearch: (
             query: string,
-            options?: WebSearchOptions
+            options?: {
+                count?: number
+                provider?: "tavily" | "bing"
+                ignoreMissingProvider?: boolean
+            }
         ) => Promise<WorkspaceFile[]>
         fuzzSearch: (
             query: string,
@@ -207,13 +211,13 @@ function combineSearchResults(
     
     // Add results from each source
     if (results.vector) {
-        allResults.push(...results.vector.map(r => ({ ...r, source: "vector" })))
+        allResults.push(...results.vector)
     }
     if (results.web) {
-        allResults.push(...results.web.map(r => ({ ...r, source: "web" })))
+        allResults.push(...results.web)
     }
     if (results.fuzzy) {
-        allResults.push(...results.fuzzy.map(r => ({ ...r, source: "fuzzy" })))
+        allResults.push(...results.fuzzy)
     }
     
     if (strategy === "simple") {
