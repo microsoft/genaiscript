@@ -207,7 +207,7 @@ export type ImageGenerationFunction = (
 ) => Promise<CreateImageResult>;
 
 export type EmbeddingFunction = (
-  input: string,
+  input: string | string[],
   cfg: LanguageModelConfiguration,
   options: TraceOptions & CancellationOptions & RetryOptions,
 ) => Promise<EmbeddingResult>;

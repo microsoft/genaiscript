@@ -856,12 +856,13 @@ export async function OpenAIImageGeneration(
  * for the given input. Handles response parsing, error checking, and supports cancellation.
  */
 export async function OpenAIEmbedder(
-  input: string,
+  input: string | string[],
   cfg: LanguageModelConfiguration,
   options: TraceOptions & CancellationOptions & RetryOptions,
 ): Promise<EmbeddingResult> {
   const { trace, cancellationToken } = options || {};
   const { base, provider, type, model } = cfg;
+  if (input === undefined) throw new Error("input is required for embedding");
   try {
     const route = "embeddings";
     let url: string;
@@ -895,7 +896,8 @@ export async function OpenAIEmbedder(
       body: JSON.stringify(body),
     };
     // traceFetchPost(trace, url, freq.headers, body)
-    logVerbose(`${provider}: embedding ${ellipse(input, 44)} with ${model}`);
+    const first = typeof input === "string" ? input : input[0];
+    logVerbose(`${provider}: embedding ${ellipse(first, 44)} with ${model}`);
     const fetch = await createFetch(options);
     checkCancelled(cancellationToken);
     const res = await fetch(url, freq);

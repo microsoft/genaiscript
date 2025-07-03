@@ -3971,6 +3971,11 @@ export interface VectorIndexOptions extends EmbeddingsModelOptions {
   chunkOverlap?: number;
 
   /**
+   * Max tokens in a request
+   */
+  maxTokens?: number;
+
+  /**
    * Embeddings vector size
    */
   vectorSize?: number;

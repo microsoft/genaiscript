@@ -18,6 +18,13 @@ import { LocalDocumentResult } from "./LocalDocumentResult.js";
 import { LocalDocument } from "./LocalDocument.js";
 import { TextSplitter, TextSplitterConfig } from "../textsplitter.js";
 import { Tokenizer } from "../types.js";
+import { errorMessage } from "../error.js";
+import { genaiscriptDebug } from "../debug.js";
+import { join } from "path";
+import prettyBytes from "pretty-bytes";
+import { readFile } from "fs/promises";
+import { assert } from "console";
+const dbg = genaiscriptDebug("vector:db");
 
 /**
  * Options for querying documents in the index.
@@ -116,7 +123,9 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
    */
   public async isCatalogCreated(): Promise<boolean> {
     try {
-      await fs.access(path.join(this.folderPath, "catalog.json"));
+      const fn = join(this.folderPath, "catalog.json");
+      dbg(`create catalog %s`, fn);
+      await fs.access(fn);
       return true;
     } catch (err: unknown) {
       return false;
@@ -162,6 +171,8 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
    * @param uri URI of the document to delete.
    */
   public async deleteDocument(uri: string): Promise<void> {
+    dbg(`delete %s`, uri);
+
     // Lookup document ID
     const documentId = await this.getDocumentId(uri);
     if (documentId == undefined) {
@@ -173,7 +184,7 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
     try {
       // Get list of chunks for document
       const chunks = await this.listItemsByMetadata({ documentId });
-
+      dbg(`delete chunks: %d`, chunks.length);
       // Delete chunks
       for (const chunk of chunks) {
         await this.deleteItem(chunk.id);
@@ -189,7 +200,7 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
     } catch (err: unknown) {
       // Cancel update and raise error
       this.cancelUpdate();
-      throw new Error(`Error deleting document "${uri}": ${(err as any).toString()}`);
+      throw new Error(`Error deleting document "${uri}": ${errorMessage(err)}`);
     }
 
     // Delete text file from disk
@@ -197,14 +208,14 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
       await fs.unlink(path.join(this.folderPath, `${documentId}.txt`));
     } catch (err: unknown) {
       throw new Error(
-        `Error removing text file for document "${uri}" from disk: ${(err as any).toString()}`,
+        `Error removing text file for document "${uri}" from disk: ${errorMessage(err)}`,
       );
     }
 
     // Delete metadata file from disk
     try {
       await fs.unlink(path.join(this.folderPath, `${documentId}.json`));
-    } catch (err: unknown) {
+    } catch {
       // Ignore error
     }
   }
@@ -231,6 +242,7 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
       throw new Error(`Embeddings model not configured.`);
     }
 
+    dbg(`upsert %s, %dc`, uri, text.length);
     // Check for existing document ID
     let documentId = await this.getDocumentId(uri);
     if (documentId != undefined) {
@@ -256,6 +268,10 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
     const splitter = new TextSplitter(config);
     const chunks = splitter.split(text);
 
+    dbg(`chunks: %d`, chunks.length);
+    assert(!chunks.some((c) => c.text === undefined), `TextSplitter returned empty chunk.`);
+    assert(!chunks.some((c) => !c.tokens?.length), `TextSplitter returned chunk with no tokens.`);
+
     // Break chunks into batches for embedding generation
     let totalTokens = 0;
     const chunkBatches: string[][] = [];
@@ -263,7 +279,7 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
     for (const chunk of chunks) {
       totalTokens += chunk.tokens.length;
       if (totalTokens > this._embeddings.maxTokens) {
-        chunkBatches.push(currentBatch);
+        if (currentBatch.length > 0) chunkBatches.push(currentBatch);
         currentBatch = [];
         totalTokens = chunk.tokens.length;
       }
@@ -273,14 +289,17 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
       chunkBatches.push(currentBatch);
     }
 
+    dbg(`chunk batches: %d`, chunkBatches.length);
+
     // Generate embeddings for chunks
     const embeddings: number[][] = [];
     for (const batch of chunkBatches) {
       let response: EmbeddingsResponse;
       try {
+        dbg(`batch: %O`, batch);
         response = await this._embeddings.createEmbeddings(batch);
       } catch (err: unknown) {
-        throw new Error(`Error generating embeddings: ${(err as any).toString()}`);
+        throw new Error(`Error generating embeddings: ${errorMessage(err)}`);
       }
 
       // Check for error
@@ -288,10 +307,22 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
         throw new Error(`Error generating embeddings: ${response.message}`);
       }
 
+      if (response.output.length != batch.length)
+        throw new Error(
+          `Error generating embedding batches: expected ${batch.length} embeddings, got ${response.output.length}`,
+        );
+
       // Add embeddings to output
       for (const embedding of response.output!) {
         embeddings.push(embedding);
       }
+    }
+
+    dbg(`embeddings: %d`, embeddings.length);
+    if (embeddings.length != chunks.length) {
+      throw new Error(
+        `Error generating embeddings: expected ${chunks.length} embeddings, got ${embeddings.length}`,
+      );
     }
 
     // Add document chunks to index
@@ -337,7 +368,7 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
     } catch (err: unknown) {
       // Cancel update and raise error
       this.cancelUpdate();
-      throw new Error(`Error adding document "${uri}": ${(err as any).toString()}`);
+      throw new Error(`Error adding document "${uri}": ${errorMessage(err)}`);
     }
 
     // Return document
@@ -410,7 +441,7 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
     try {
       embeddings = await this._embeddings.createEmbeddings(query.replace(/\n/g, " "));
     } catch (err: unknown) {
-      throw new Error(`Error generating embeddings for query: ${(err as any).toString()}`);
+      throw new Error(`Error generating embeddings for query: ${errorMessage(err)}`);
     }
 
     // Check for error
@@ -485,7 +516,7 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
       this._catalog = this._newCatalog;
       this._newCatalog = undefined;
     } catch (err: unknown) {
-      throw new Error(`Error saving document catalog: ${(err as any).toString()}`);
+      throw new Error(`Error saving document catalog: ${errorMessage(err)}`);
     }
   }
 
@@ -497,10 +528,11 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
     }
 
     const catalogPath = path.join(this.folderPath, "catalog.json");
+    dbg(`load catalog %s`, catalogPath);
     if (await this.isCatalogCreated()) {
       // Load catalog
-      const buffer = await fs.readFile(catalogPath);
-      this._catalog = JSON.parse(buffer.toString());
+      const buffer = await readFile(catalogPath, { encoding: "utf8" });
+      this._catalog = JSON.parse(buffer);
     } else {
       try {
         // Initialize catalog
@@ -512,7 +544,7 @@ export class LocalDocumentIndex extends LocalIndex<DocumentChunkMetadata> {
         };
         await fs.writeFile(catalogPath, JSON.stringify(this._catalog));
       } catch (err: unknown) {
-        throw new Error(`Error creating document catalog: ${(err as any).toString()}`);
+        throw new Error(`Error creating document catalog: ${errorMessage(err)}`);
       }
     }
   }

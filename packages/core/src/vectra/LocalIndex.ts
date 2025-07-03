@@ -6,6 +6,8 @@ import * as path from "path";
 import { v4 } from "uuid";
 import { ItemSelector } from "./ItemSelector.js";
 import { IndexItem, IndexStats, MetadataFilter, MetadataTypes, QueryResult } from "./types.js";
+import { genaiscriptDebug } from "../debug.js";
+const dbg = genaiscriptDebug("vector:index");
 
 export interface CreateIndexConfig {
   version: number;
@@ -356,7 +358,8 @@ export class LocalIndex<
   ): Promise<IndexItem> {
     // Ensure vector is provided
     if (!item.vector) {
-      throw new Error("Vector is required");
+      dbg(`item: %O`, item);
+      throw new Error("embeddings vector is required");
     }
 
     // Ensure unique

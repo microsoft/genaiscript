@@ -18,6 +18,8 @@ import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { resolveTokenEncoder } from "./encoders.js";
 import type { VectorIndexOptions, WorkspaceFileWithScore, WorkspaceFileIndex } from "./types.js";
+import { genaiscriptDebug } from "./debug.js";
+const dbg = genaiscriptDebug("vector:api");
 
 /**
  * Class for creating embeddings using the OpenAI API.
@@ -33,11 +35,13 @@ class OpenAIEmbeddings implements EmbeddingsModel {
   public constructor(
     readonly cfg: LanguageModelConfiguration,
     readonly embedder: EmbeddingFunction,
-    readonly options?: TraceOptions & CancellationOptions,
-  ) {}
+    readonly options?: TraceOptions & CancellationOptions & { maxTokens?: number },
+  ) {
+    this.maxTokens = options?.maxTokens || 7000;
+  }
 
   // Maximum number of tokens for embeddings
-  maxTokens = 512;
+  maxTokens: number;
 
   /**
    * Creates embeddings for the given inputs using the OpenAI API.
@@ -45,7 +49,10 @@ class OpenAIEmbeddings implements EmbeddingsModel {
    * @returns A `EmbeddingsResponse` with a status and the generated embeddings or a message when an error occurs.
    */
   public async createEmbeddings(inputs: string | string[]): Promise<EmbeddingsResponse> {
-    const { error, data } = await this.embedder(arrayify(inputs)[0], this.cfg, this.options);
+    if (!inputs.length) return { status: "error", message: "No input provided" };
+    const inputArray = arrayify(inputs);
+    dbg(`embed vectors: %d`, inputArray.length);
+    const { error, data } = await this.embedder(inputArray, this.cfg, this.options);
     if (error) return { status: "error", message: error };
     return {
       status: "success",
@@ -68,6 +75,7 @@ export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
     deleteIfExists,
     trace,
     cancellationToken,
+    maxTokens,
     chunkSize = 512,
     chunkOverlap = 128,
     vectorSize = 1536,
@@ -85,6 +93,7 @@ export const vectraWorkspaceFileIndex: WorkspaceFileIndexCreator = async (
   const embeddings = new OpenAIEmbeddings(cfg, embedder, {
     trace,
     cancellationToken,
+    maxTokens,
   });
 
   // Create a local document index
