@@ -1,0 +1,274 @@
+---
+title: Git Interface
+description: Git interface and worktree functionality for repository operations
+sidebar:
+  order: 52
+---
+
+The Git interface provides comprehensive functionality for repository operations, including support for git worktrees that allow managing multiple working directories from a single repository.
+
+## Core Git Interface
+
+The `git` object provides access to git repository operations through both direct methods and system scripts.
+
+### Worktree Operations
+
+Git worktrees allow you to check out multiple branches of the same repository simultaneously in separate working directories. This is useful for working on multiple features or comparing different branches without switching contexts.
+
+#### worktreeAdd
+
+Creates a new worktree at the specified path.
+
+```typescript
+await git.worktreeAdd(path: string, commitish?: string): Promise<string>
+```
+
+**Parameters:**
+- `path` - Path where the new worktree will be created
+- `commitish` - Optional commit, branch, or tag to checkout in the new worktree
+
+**Example:**
+```javascript
+// Create a worktree for the main branch
+await git.worktreeAdd("/path/to/feature-worktree")
+
+// Create a worktree and checkout a specific branch
+await git.worktreeAdd("/path/to/feature-worktree", "feature-branch")
+
+// Create a worktree from a specific commit
+await git.worktreeAdd("/path/to/hotfix-worktree", "abc123")
+```
+
+#### worktreeList
+
+Lists all worktrees in the repository with their current state.
+
+```typescript
+await git.worktreeList(): Promise<GitWorktree[]>
+```
+
+**Returns:** Array of `GitWorktree` objects with the following properties:
+- `path` - Path to the worktree
+- `head` - Current commit SHA
+- `branch?` - Branch name (if on a branch)
+- `bare?` - Whether the worktree is bare
+- `detached?` - Whether the worktree is in detached HEAD state
+
+**Example:**
+```javascript
+const worktrees = await git.worktreeList()
+for (const wt of worktrees) {
+    console.log(`${wt.path}: ${wt.head}`)
+    if (wt.branch) console.log(`  Branch: ${wt.branch}`)
+    if (wt.bare) console.log("  (bare)")
+    if (wt.detached) console.log("  (detached)")
+}
+```
+
+#### worktreeRemove
+
+Removes a worktree from the repository.
+
+```typescript
+await git.worktreeRemove(path: string, force?: boolean): Promise<string>
+```
+
+**Parameters:**
+- `path` - Path of the worktree to remove
+- `force` - Force removal even if worktree is dirty (default: false)
+
+**Example:**
+```javascript
+// Remove a clean worktree
+await git.worktreeRemove("/path/to/feature-worktree")
+
+// Force remove a dirty worktree
+await git.worktreeRemove("/path/to/feature-worktree", true)
+```
+
+#### worktreePrune
+
+Cleans up stale worktree information for worktrees that have been deleted manually.
+
+```typescript
+await git.worktreePrune(): Promise<string>
+```
+
+**Example:**
+```javascript
+// Clean up stale worktree references
+await git.worktreePrune()
+```
+
+## System Script: git_worktree
+
+The `git_worktree` system script provides LLM-accessible tools for managing git worktrees. Include it in your script to enable AI assistance with worktree operations.
+
+```javascript
+script({
+    title: "Worktree Management",
+    system: ["git_worktree"]
+})
+
+$`List all worktrees and create a new one for the feature branch`
+```
+
+### Available Tools
+
+When the `git_worktree` system script is included, the following tools become available to the LLM:
+
+#### git_worktree_list
+
+Lists all worktrees in a human-readable format.
+
+**Parameters:** None
+
+**Usage:**
+```javascript
+// The LLM can call this tool to see current worktrees
+// Example output:
+// /repo/main (abc123), branch: refs/heads/main
+// /repo/feature (def456), branch: refs/heads/feature-branch
+// /repo/hotfix (ghi789), detached
+```
+
+#### git_worktree_add
+
+Creates a new worktree with optional branch specification.
+
+**Parameters:**
+- `path` (required) - Path where the new worktree will be created
+- `commitish` (optional) - Commit, branch, or tag to checkout
+
+**Usage:**
+```javascript
+// The LLM can create worktrees based on conversation context
+// Examples:
+// - "Create a worktree at /tmp/feature for the feature-branch"
+// - "Set up a worktree for testing the hotfix commit abc123"
+```
+
+#### git_worktree_remove
+
+Removes an existing worktree with safety controls.
+
+**Parameters:**
+- `path` (required) - Path of the worktree to remove
+- `force` (optional) - Force removal even if dirty (default: false)
+
+**Usage:**
+```javascript
+// The LLM can safely remove worktrees
+// Will prompt before force removal if worktree is dirty
+```
+
+#### git_worktree_prune
+
+Cleans up stale worktree information.
+
+**Parameters:** None
+
+**Usage:**
+```javascript
+// The LLM can maintain worktree hygiene
+// Removes references to manually deleted worktrees
+```
+
+### Configuration
+
+The system script supports a `cwd` parameter to operate on repositories other than the current working directory:
+
+```javascript
+script({
+    system: ["git_worktree"],
+    systemVars: {
+        "system.git_worktree.cwd": "/path/to/different/repo"
+    }
+})
+```
+
+## Use Cases
+
+### Feature Development
+
+```javascript
+// Create isolated environments for different features
+await git.worktreeAdd("/workspace/feature-auth", "feature-auth")
+await git.worktreeAdd("/workspace/feature-ui", "feature-ui")
+
+// Work on features independently without context switching
+```
+
+### Release Management
+
+```javascript
+// Maintain multiple release versions simultaneously
+await git.worktreeAdd("/releases/v1.0", "release/v1.0")
+await git.worktreeAdd("/releases/v2.0", "release/v2.0")
+
+// Apply hotfixes to specific versions
+```
+
+### Code Review
+
+```javascript
+// Create worktree for reviewing pull requests
+await git.worktreeAdd("/review/pr-123", "origin/pull/123/head")
+
+// Compare changes side by side with main branch
+const worktrees = await git.worktreeList()
+```
+
+### Testing and CI
+
+```javascript
+script({
+    system: ["git_worktree"]
+})
+
+$`Create separate worktrees for testing each feature branch, 
+  run tests in parallel, and report results for each branch.`
+```
+
+## Integration with Other Tools
+
+Worktrees work seamlessly with other GenAIScript features:
+
+```javascript
+// Use with file operations
+const clone = git.client("/path/to/worktree")
+const files = await clone.listFiles("modified")
+
+// Combine with diff operations
+const diff = await clone.diff({ staged: true })
+
+// Access worktree-specific logs
+const commits = await clone.log()
+```
+
+## Best Practices
+
+1. **Clean up unused worktrees** - Use `worktreeRemove` when done with development
+2. **Use descriptive paths** - Make worktree purposes clear from their paths
+3. **Regular pruning** - Run `worktreePrune` to maintain repository cleanliness
+4. **Force removal sparingly** - Only use force when you're certain data loss is acceptable
+5. **System script integration** - Leverage AI assistance for complex worktree workflows
+
+## Error Handling
+
+Worktree operations may fail for various reasons:
+
+```javascript
+try {
+    await git.worktreeAdd("/existing/path")
+} catch (error) {
+    // Handle path already exists, invalid branch, etc.
+    console.error("Worktree creation failed:", error.message)
+}
+```
+
+Common error scenarios:
+- Path already exists or is not empty
+- Invalid branch or commit reference
+- Insufficient permissions
+- Worktree is locked or in use
