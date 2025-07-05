@@ -1388,20 +1388,26 @@ export class GitHubClient implements GitHub {
         options?: GitHubPaginationOptions
     ): Promise<GitHubArtifact[]> {
         const { client, owner, repo } = await this.api()
-        dbg(`listing all artifacts for repository`)
+        dbg(`listing all artifacts for repository ${owner}/${repo}`)
         const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
-        const ite = client.paginate.iterator(
-            client.rest.actions.listArtifactsForRepo,
-            {
-                owner,
-                repo,
-                per_page: 100,
-                ...rest,
-            }
-        )
-        const res = await paginatorToArray(ite, count, (i) => i.data)
-        dbg(`repository artifacts: %O`, res)
-        return res
+        
+        try {
+            const ite = client.paginate.iterator(
+                client.rest.actions.listArtifactsForRepo,
+                {
+                    owner,
+                    repo,
+                    per_page: 100,
+                    ...rest,
+                }
+            )
+            const res = await paginatorToArray(ite, count, (i) => i.data)
+            dbg(`repository artifacts: ${res.length} found`)
+            return res
+        } catch (error) {
+            dbg(`failed to list artifacts: ${error.message}`)
+            throw new Error(`Failed to list repository artifacts: ${error.message}`)
+        }
     }
 
     async downloadArtifact(
@@ -1418,33 +1424,49 @@ export class GitHubClient implements GitHub {
         }
     ): Promise<WorkspaceFile[]> {
         const { runId, latest = true } = options ?? {}
+        
+        if (!name || typeof name !== 'string') {
+            throw new Error('Artifact name must be a non-empty string')
+        }
+        
         dbg(`reading artifact by name: ${name}`)
 
         let artifacts: GitHubArtifact[]
 
-        if (runId) {
-            // Search within specific workflow run
-            artifacts = await this.listWorkflowRunArtifacts(runId)
-        } else {
-            // Search all artifacts in repository
-            artifacts = await this.listArtifacts()
+        try {
+            if (runId) {
+                // Search within specific workflow run
+                artifacts = await this.listWorkflowRunArtifacts(runId)
+                dbg(`found ${artifacts.length} artifacts in workflow run ${runId}`)
+            } else {
+                // Search all artifacts in repository
+                artifacts = await this.listArtifacts()
+                dbg(`found ${artifacts.length} artifacts in repository`)
+            }
+        } catch (error) {
+            throw new Error(`Failed to list artifacts: ${error.message}`)
         }
 
-        // Filter by name
+        // Filter by name (exact match)
         const matchingArtifacts = artifacts.filter((artifact) =>
             artifact.name === name
         )
 
         if (matchingArtifacts.length === 0) {
-            throw new Error(`No artifact found with name: ${name}`)
+            const location = runId ? `workflow run ${runId}` : 'repository'
+            throw new Error(`No artifact found with name '${name}' in ${location}`)
         }
 
         // Get the artifact to download
         let targetArtifact: GitHubArtifact
-        if (latest) {
-            // Sort by creation date (most recent first) - GitHub API doesn't provide created_at
-            // so we'll use the first one in the list which should be most recent
+        if (latest && matchingArtifacts.length > 1) {
+            // Sort by expires_at date (later expiration = more recent artifact)
+            // This is a reasonable heuristic since newer artifacts typically expire later
+            matchingArtifacts.sort((a, b) => 
+                new Date(b.expires_at).getTime() - new Date(a.expires_at).getTime()
+            )
             targetArtifact = matchingArtifacts[0]
+            dbg(`selected latest artifact from ${matchingArtifacts.length} matches`)
         } else {
             targetArtifact = matchingArtifacts[0]
         }
