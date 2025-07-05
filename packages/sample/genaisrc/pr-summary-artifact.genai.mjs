@@ -83,6 +83,17 @@ You are an expert at writing English technical documentation.
 
 ${metadata ? "Use the PR_METADATA to understand the context of this pull request." : ""}
 
+## Repository Context
+
+This is the GenAIScript repository, which provides:
+- A programmatic way to assemble prompts for LLMs using JavaScript
+- Core functionality in \`packages/core/\`
+- CLI tools in \`packages/cli/\`  
+- Sample scripts in \`packages/sample/\`
+- Documentation in \`docs/\`
+- The public API is defined in "packages/core/src/prompt_template.d.ts" and "packages/core/src/prompt_type.ts"
+- Changes in those files are "user facing"
+
 ## Instructions
 
 - Write a clear, concise summary that explains the purpose of the changes
@@ -93,6 +104,7 @@ ${metadata ? "Use the PR_METADATA to understand the context of this pull request
 - Include the scope of files changed (frontend, backend, docs, tests, etc.)
 - Don't explain what a diff is - focus on what changed and why
 - Ignore routine changes like formatting, imports, or generated files
+- Pay special attention to changes in core API files as these affect users
 
 ## Output Format
 

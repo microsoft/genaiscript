@@ -53,33 +53,43 @@ jobs:
       - name: List downloaded files
         run: |
           echo "Downloaded artifact contents:"
-          ls -la ./temp/pr-diff/
+          ls -la ./temp/pr-diff/ || echo "No artifact directory found"
           echo "PR metadata:"
           cat ./temp/pr-diff/pr-metadata.txt || echo "No metadata file found"
+          echo "Diff status:"
+          cat ./temp/pr-diff/diff-status.txt || echo "No status file found"
           echo "Diff size:"
           wc -l ./temp/pr-diff/pr-diff.patch || echo "No diff file found"
 
       - name: Run PR summary script
         run: |
           if [ -f "./temp/pr-diff/pr-diff.patch" ]; then
-            # Try using the built CLI first, fallback to npx
-            if [ -f "packages/cli/built/genaiscript.cjs" ]; then
-              echo "Using built CLI"
-              node packages/cli/built/genaiscript.cjs run pr-summary-artifact \
-                --out ./temp/genai/pr-summary \
-                --out-trace $GITHUB_STEP_SUMMARY \
-                --vars "diffFile=./temp/pr-diff/pr-diff.patch" \
-                --vars "metadataFile=./temp/pr-diff/pr-metadata.txt"
+            # Check if the diff is not empty
+            if [ -s "./temp/pr-diff/pr-diff.patch" ]; then
+              echo "Processing non-empty diff file"
+              # Try using the built CLI first, fallback to npx
+              if [ -f "packages/cli/built/genaiscript.cjs" ]; then
+                echo "Using built CLI"
+                node packages/cli/built/genaiscript.cjs run pr-summary-artifact \
+                  --out ./temp/genai/pr-summary \
+                  --out-trace $GITHUB_STEP_SUMMARY \
+                  --vars "diffFile=./temp/pr-diff/pr-diff.patch" \
+                  --vars "metadataFile=./temp/pr-diff/pr-metadata.txt"
+              else
+                echo "Using npx CLI"
+                npx --yes genaiscript run pr-summary-artifact \
+                  --out ./temp/genai/pr-summary \
+                  --out-trace $GITHUB_STEP_SUMMARY \
+                  --vars "diffFile=./temp/pr-diff/pr-diff.patch" \
+                  --vars "metadataFile=./temp/pr-diff/pr-metadata.txt"
+              fi
             else
-              echo "Using npx CLI"
-              npx --yes genaiscript run pr-summary-artifact \
-                --out ./temp/genai/pr-summary \
-                --out-trace $GITHUB_STEP_SUMMARY \
-                --vars "diffFile=./temp/pr-diff/pr-diff.patch" \
-                --vars "metadataFile=./temp/pr-diff/pr-metadata.txt"
+              echo "Diff file is empty - no changes to summarize"
+              echo "Empty diff - no summary needed" > ./temp/genai/pr-summary/summary.md
             fi
           else
             echo "No diff file found in artifact"
+            exit 1
           fi
         continue-on-error: true
         env:

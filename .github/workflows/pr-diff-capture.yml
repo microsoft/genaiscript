@@ -56,8 +56,11 @@ jobs:
             echo "Diff captured successfully"
             echo "Lines changed:"
             wc -l artifacts/pr-diff.patch
+            # Create a flag file to indicate success
+            echo "success" > artifacts/diff-status.txt
           else
             echo "Warning: No diff found"
+            echo "empty" > artifacts/diff-status.txt
           fi
 
       - name: Upload diff artifact
