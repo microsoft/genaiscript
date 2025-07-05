@@ -49,10 +49,12 @@ export default function (ctx: ChatGenerationContext) {
                     type: "string",
                     description: "Optional commit, branch, or tag to checkout in the new worktree",
                 },
-                copyEnv: {
-                    type: "boolean",
-                    description: "Copy .env files from source directory to new worktree",
-                    default: false,
+                copyFiles: {
+                    type: "array",
+                    items: {
+                        type: "string"
+                    },
+                    description: "List of files to copy from source directory to new worktree",
                 },
                 setupSteps: {
                     type: "boolean",
@@ -63,9 +65,9 @@ export default function (ctx: ChatGenerationContext) {
             required: ["path"],
         },
         async (args) => {
-            const { context, path, commitish, copyEnv, setupSteps } = args
+            const { context, path, commitish, copyFiles, setupSteps } = args
             const result = await client.worktreeAdd(path, commitish, {
-                copyEnv,
+                copyFiles,
                 setupSteps,
             })
             context.debug(result)

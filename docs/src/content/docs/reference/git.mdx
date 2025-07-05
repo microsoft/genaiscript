@@ -21,7 +21,7 @@ Creates a new worktree at the specified path.
 
 ```typescript
 await git.worktreeAdd(path: string, commitish?: string, options?: {
-    copyEnv?: boolean
+    copyFiles?: string[]
     setupSteps?: boolean
 }): Promise<string>
 ```
@@ -30,7 +30,7 @@ await git.worktreeAdd(path: string, commitish?: string, options?: {
 - `path` - Path where the new worktree will be created
 - `commitish` - Optional commit, branch, or tag to checkout in the new worktree
 - `options` - Optional configuration object with:
-  - `copyEnv` - Copy .env files from source directory to new worktree (default: false)
+  - `copyFiles` - List of files to copy from source directory to new worktree (default: [])
   - `setupSteps` - Run setup steps (e.g., npm install) in the new worktree (default: false)
 
 **Example:**
@@ -44,9 +44,9 @@ await git.worktreeAdd("/path/to/feature-worktree", "feature-branch")
 // Create a worktree from a specific commit
 await git.worktreeAdd("/path/to/hotfix-worktree", "abc123")
 
-// Create a worktree with .env files copied and setup steps run
+// Create a worktree with specific files copied and setup steps run
 await git.worktreeAdd("/path/to/dev-worktree", "develop", {
-    copyEnv: true,
+    copyFiles: [".env", ".env.local", "config.json"],
     setupSteps: true
 })
 ```
@@ -151,7 +151,7 @@ Creates a new worktree with optional branch specification, environment copying, 
 **Parameters:**
 - `path` (required) - Path where the new worktree will be created
 - `commitish` (optional) - Commit, branch, or tag to checkout
-- `copyEnv` (optional) - Copy .env files from source directory to new worktree (default: false)
+- `copyFiles` (optional) - List of files to copy from source directory to new worktree (default: [])
 - `setupSteps` (optional) - Run setup steps (e.g., npm install) in the new worktree (default: false)
 
 **Usage:**
@@ -160,7 +160,7 @@ Creates a new worktree with optional branch specification, environment copying, 
 // Examples:
 // - "Create a worktree at /tmp/feature for the feature-branch"
 // - "Set up a worktree for testing the hotfix commit abc123"
-// - "Create a development worktree with environment files and run npm install"
+// - "Create a development worktree with specific config files and run npm install"
 // - "Set up a complete development environment in a new worktree"
 ```
 

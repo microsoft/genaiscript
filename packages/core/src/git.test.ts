@@ -192,10 +192,10 @@ bare
             client.exec = originalExec
         })
         
-        test("handles copyEnv and setupSteps options", async () => {
+        test("handles copyFiles and setupSteps options", async () => {
             const client = new GitClient(".")
             let capturedArgs: string[] = []
-            let copyEnvCalled = false
+            let copyFilesCalled = false
             let setupStepsCalled = false
             
             // Mock exec to capture arguments
@@ -206,35 +206,35 @@ bare
             }
             
             // Mock the private methods by replacing them on the prototype
-            const originalCopyEnvFiles = (client as any).copyEnvFiles
+            const originalCopyFiles = (client as any).copyFiles
             const originalRunSetupSteps = (client as any).runSetupSteps
             
-            ;(client as any).copyEnvFiles = async () => {
-                copyEnvCalled = true
+            ;(client as any).copyFiles = async () => {
+                copyFilesCalled = true
             }
             ;(client as any).runSetupSteps = async () => {
                 setupStepsCalled = true
             }
             
             await client.worktreeAdd("/path/to/worktree", "feature-branch", {
-                copyEnv: true,
+                copyFiles: [".env", ".env.local"],
                 setupSteps: true
             })
             
             assert.deepEqual(capturedArgs, ["worktree", "add", "/path/to/worktree", "feature-branch"])
-            assert.equal(copyEnvCalled, true)
+            assert.equal(copyFilesCalled, true)
             assert.equal(setupStepsCalled, true)
             
             // Restore original methods
             client.exec = originalExec
-            ;(client as any).copyEnvFiles = originalCopyEnvFiles
+            ;(client as any).copyFiles = originalCopyFiles
             ;(client as any).runSetupSteps = originalRunSetupSteps
         })
         
-        test("skips copyEnv and setupSteps when options are false", async () => {
+        test("skips copyFiles and setupSteps when options are not provided", async () => {
             const client = new GitClient(".")
             let capturedArgs: string[] = []
-            let copyEnvCalled = false
+            let copyFilesCalled = false
             let setupStepsCalled = false
             
             // Mock exec to capture arguments
@@ -245,28 +245,28 @@ bare
             }
             
             // Mock the private methods by replacing them on the prototype
-            const originalCopyEnvFiles = (client as any).copyEnvFiles
+            const originalCopyFiles = (client as any).copyFiles
             const originalRunSetupSteps = (client as any).runSetupSteps
             
-            ;(client as any).copyEnvFiles = async () => {
-                copyEnvCalled = true
+            ;(client as any).copyFiles = async () => {
+                copyFilesCalled = true
             }
             ;(client as any).runSetupSteps = async () => {
                 setupStepsCalled = true
             }
             
             await client.worktreeAdd("/path/to/worktree", "feature-branch", {
-                copyEnv: false,
+                copyFiles: [],
                 setupSteps: false
             })
             
             assert.deepEqual(capturedArgs, ["worktree", "add", "/path/to/worktree", "feature-branch"])
-            assert.equal(copyEnvCalled, false)
+            assert.equal(copyFilesCalled, false)
             assert.equal(setupStepsCalled, false)
             
             // Restore original methods
             client.exec = originalExec
-            ;(client as any).copyEnvFiles = originalCopyEnvFiles
+            ;(client as any).copyFiles = originalCopyFiles
             ;(client as any).runSetupSteps = originalRunSetupSteps
         })
     })

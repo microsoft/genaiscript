@@ -600,9 +600,9 @@ ${await this.diff({ ...options, nameOnly: true })}
      */
     async worktreeAdd(path: string, commitish?: string, options?: {
         /**
-         * Copy .env files from source directory to new worktree
+         * List of files to copy from source directory to new worktree
          */
-        copyEnv?: boolean
+        copyFiles?: string[]
         /**
          * Run setup steps (e.g., npm install) in the new worktree
          */
@@ -616,9 +616,9 @@ ${await this.diff({ ...options, nameOnly: true })}
         }
         const result = await this.exec(args)
         
-        // Copy .env files if requested
-        if (options?.copyEnv) {
-            await this.copyEnvFiles(path)
+        // Copy specified files if requested
+        if (options?.copyFiles && options.copyFiles.length > 0) {
+            await this.copyFiles(path, options.copyFiles)
         }
         
         // Run setup steps if requested
@@ -693,29 +693,34 @@ ${await this.diff({ ...options, nameOnly: true })}
     }
 
     /**
-     * Copy .env files from source directory to target worktree
+     * Copy specified files from source directory to target worktree
      * @param targetPath path to the new worktree
+     * @param filesToCopy list of files to copy
      */
-    private async copyEnvFiles(targetPath: string): Promise<void> {
-        dbg(`copying .env files to worktree: ${targetPath}`)
+    private async copyFiles(targetPath: string, filesToCopy: string[]): Promise<void> {
+        dbg(`copying files to worktree: ${targetPath}`)
         
         try {
             const sourceDir = this.cwd || process.cwd()
-            const files = await readdir(sourceDir)
-            const envFiles = files.filter(file => file.startsWith('.env'))
+            let copiedCount = 0
             
-            for (const envFile of envFiles) {
-                const sourcePath = join(sourceDir, envFile)
-                const destPath = join(targetPath, envFile)
+            for (const fileName of filesToCopy) {
+                const sourcePath = join(sourceDir, fileName)
+                const destPath = join(targetPath, fileName)
                 
                 if (await fileExists(sourcePath)) {
-                    dbg(`copying ${envFile} to worktree`)
+                    dbg(`copying ${fileName} to worktree`)
                     await copyFile(sourcePath, destPath)
+                    copiedCount++
+                } else {
+                    dbg(`file ${fileName} not found in source directory`)
                 }
             }
             
-            if (envFiles.length > 0) {
-                dbg(`copied ${envFiles.length} .env file(s) to worktree`)
+            if (copiedCount > 0) {
+                dbg(`copied ${copiedCount} file(s) to worktree`)
+            } else {
+                dbg(`no files were copied to worktree`)
             }
         } catch (error) {
             dbg(`error copying .env files: ${error}`)

@@ -3309,9 +3309,9 @@ interface Git {
      */
     worktreeAdd(path: string, commitish?: string, options?: {
         /**
-         * Copy .env files from source directory to new worktree
+         * List of files to copy from source directory to new worktree
          */
-        copyEnv?: boolean
+        copyFiles?: string[]
         /**
          * Run setup steps (e.g., npm install) in the new worktree
          */
