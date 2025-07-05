@@ -1384,6 +1384,75 @@ export class GitHubClient implements GitHub {
         return files
     }
 
+    async listArtifacts(
+        options?: GitHubPaginationOptions
+    ): Promise<GitHubArtifact[]> {
+        const { client, owner, repo } = await this.api()
+        dbg(`listing all artifacts for repository`)
+        const { count = GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {}
+        const ite = client.paginate.iterator(
+            client.rest.actions.listArtifactsForRepo,
+            {
+                owner,
+                repo,
+                per_page: 100,
+                ...rest,
+            }
+        )
+        const res = await paginatorToArray(ite, count, (i) => i.data)
+        dbg(`repository artifacts: %O`, res)
+        return res
+    }
+
+    async downloadArtifact(
+        artifactId: number | string
+    ): Promise<WorkspaceFile[]> {
+        return this.downloadArtifactFiles(artifactId)
+    }
+
+    async readArtifact(
+        name: string,
+        options?: {
+            runId?: number | string
+            latest?: boolean
+        }
+    ): Promise<WorkspaceFile[]> {
+        const { runId, latest = true } = options ?? {}
+        dbg(`reading artifact by name: ${name}`)
+
+        let artifacts: GitHubArtifact[]
+
+        if (runId) {
+            // Search within specific workflow run
+            artifacts = await this.listWorkflowRunArtifacts(runId)
+        } else {
+            // Search all artifacts in repository
+            artifacts = await this.listArtifacts()
+        }
+
+        // Filter by name
+        const matchingArtifacts = artifacts.filter((artifact) =>
+            artifact.name === name
+        )
+
+        if (matchingArtifacts.length === 0) {
+            throw new Error(`No artifact found with name: ${name}`)
+        }
+
+        // Get the artifact to download
+        let targetArtifact: GitHubArtifact
+        if (latest) {
+            // Sort by creation date (most recent first) - GitHub API doesn't provide created_at
+            // so we'll use the first one in the list which should be most recent
+            targetArtifact = matchingArtifacts[0]
+        } else {
+            targetArtifact = matchingArtifacts[0]
+        }
+
+        dbg(`downloading artifact: ${targetArtifact.name} (ID: ${targetArtifact.id})`)
+        return this.downloadArtifactFiles(targetArtifact.id)
+    }
+
     async listWorkflowJobs(
         run_id: number,
         options?: { filter?: "all" | "latest" } & GitHubPaginationOptions

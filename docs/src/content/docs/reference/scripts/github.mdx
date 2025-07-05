@@ -114,7 +114,9 @@ In GitHub Actions, grant the `actions: read` permission.
 ### Artifacts
 
 Workflows can create and attach artifacts to the workflow run.
-You can list and download these artifacts using `listWorkflowArtifacts` and `downloadArtifact`.
+You can list and download these artifacts using various methods.
+
+**List artifacts for a specific workflow run:**
 
 ```js
 const artifacts = await github.listWorkflowArtifacts(runs[0].id)
@@ -124,6 +126,25 @@ const artifact = artifacts[0]
 // genaiscript automatically unzips the artifact
 const files = await github.downloadArtifact(artifact.id)
 console.log(files)
+```
+
+**List all artifacts in the repository:**
+
+```js
+const allArtifacts = await github.listArtifacts()
+console.log(allArtifacts)
+```
+
+**Read artifact by name (finds latest artifact with matching name):**
+
+```js
+// Find and download artifact by name
+const files = await github.readArtifact("my-build-artifacts")
+console.log(files)
+
+// Search within a specific workflow run
+const files2 = await github.readArtifact("test-results", { runId: runs[0].id })
+console.log(files2)
 ```
 
 ### Assets

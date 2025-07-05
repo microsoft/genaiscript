@@ -64,7 +64,29 @@ describe("GitHubClient", async () => {
         if (artifacts.length) {
             const files = await client.downloadArtifactFiles(artifacts[0].id)
             assert(files.length)
+            
+            // Test downloadArtifact alias
+            const aliasFiles = await client.downloadArtifact(artifacts[0].id)
+            assert(Array.isArray(aliasFiles))
+            assert(aliasFiles.length === files.length)
         }
+    })
+
+    await test("listArtifacts() returns array of artifacts", async () => {
+        if (isCI) return
+        const artifacts = await client.listArtifacts({ count: 10 })
+        assert(Array.isArray(artifacts))
+    })
+
+    await test("readArtifact() finds and downloads artifact by name", async () => {
+        if (isCI) return
+        const artifacts = await client.listArtifacts({ count: 5 })
+        if (artifacts.length > 0) {
+            const artifactName = artifacts[0].name
+            const files = await client.readArtifact(artifactName)
+            assert(Array.isArray(files))
+        }
+    })
     })
 
     await test("getFile() returns file content", async () => {

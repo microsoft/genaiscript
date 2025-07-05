@@ -3682,6 +3682,37 @@ interface GitHub {
     downloadArtifactFiles(artifactId: number | string): Promise<WorkspaceFile[]>
 
     /**
+     * Lists all artifacts in the repository
+     * @param options
+     */
+    listArtifacts(options?: GitHubPaginationOptions): Promise<GitHubArtifact[]>
+
+    /**
+     * Downloads and unzips archive files from a GitHub Action Artifact (alias for downloadArtifactFiles)
+     * @param artifactId
+     */
+    downloadArtifact(artifactId: number | string): Promise<WorkspaceFile[]>
+
+    /**
+     * Finds and downloads an artifact by name, optionally filtered by workflow run
+     * @param name artifact name to search for
+     * @param options search options
+     */
+    readArtifact(
+        name: string,
+        options?: {
+            /**
+             * Specific workflow run ID to search within
+             */
+            runId?: number | string
+            /**
+             * Whether to download latest artifact if multiple found (default: true)
+             */
+            latest?: boolean
+        }
+    ): Promise<WorkspaceFile[]>
+
+    /**
      * Downloads a GitHub Action workflow run log
      * @param runId
      */
