@@ -9,15 +9,16 @@ import {
 } from "./constants"
 import { llmifyDiff } from "./llmdiff"
 import { resolveFileContents } from "./file"
-import { tryReadText, tryStat } from "./fs"
+import { tryReadText, tryStat, fileExists } from "./fs"
 import { runtimeHost } from "./host"
 import { shellParse, shellQuote } from "./shell"
 import { arrayify, ellipse, logVerbose } from "./util"
 import { approximateTokens } from "./tokens"
 import { underscore } from "inflection"
-import { rm } from "node:fs/promises"
+import { rm, copyFile, readdir } from "node:fs/promises"
 import { packageResolveInstall } from "./packagemanagers"
 import { normalizeInt } from "./cleaners"
+import { join, basename } from "node:path"
 import { dotGenaiscriptPath } from "./workdir"
 import { join } from "node:path"
 import { genaiscriptDebug } from "./debug"
@@ -595,15 +596,37 @@ ${await this.diff({ ...options, nameOnly: true })}
      * Add a new worktree
      * @param path path to the new worktree
      * @param commitish optional commit, branch, or tag to checkout
+     * @param options optional configuration for worktree creation
      */
-    async worktreeAdd(path: string, commitish?: string): Promise<string> {
+    async worktreeAdd(path: string, commitish?: string, options?: {
+        /**
+         * Copy .env files from source directory to new worktree
+         */
+        copyEnv?: boolean
+        /**
+         * Run setup steps (e.g., npm install) in the new worktree
+         */
+        setupSteps?: boolean
+    }): Promise<string> {
         dbg(`adding worktree: ${path}`)
         const args = ["worktree", "add"]
         args.push(path)
         if (commitish) {
             args.push(commitish)
         }
-        return await this.exec(args)
+        const result = await this.exec(args)
+        
+        // Copy .env files if requested
+        if (options?.copyEnv) {
+            await this.copyEnvFiles(path)
+        }
+        
+        // Run setup steps if requested
+        if (options?.setupSteps) {
+            await this.runSetupSteps(path)
+        }
+        
+        return result
     }
 
     /**
@@ -667,6 +690,67 @@ ${await this.diff({ ...options, nameOnly: true })}
         dbg(`pruning worktree information`)
         const args = ["worktree", "prune"]
         return await this.exec(args)
+    }
+
+    /**
+     * Copy .env files from source directory to target worktree
+     * @param targetPath path to the new worktree
+     */
+    private async copyEnvFiles(targetPath: string): Promise<void> {
+        dbg(`copying .env files to worktree: ${targetPath}`)
+        
+        try {
+            const sourceDir = this.cwd || process.cwd()
+            const files = await readdir(sourceDir)
+            const envFiles = files.filter(file => file.startsWith('.env'))
+            
+            for (const envFile of envFiles) {
+                const sourcePath = join(sourceDir, envFile)
+                const destPath = join(targetPath, envFile)
+                
+                if (await fileExists(sourcePath)) {
+                    dbg(`copying ${envFile} to worktree`)
+                    await copyFile(sourcePath, destPath)
+                }
+            }
+            
+            if (envFiles.length > 0) {
+                dbg(`copied ${envFiles.length} .env file(s) to worktree`)
+            }
+        } catch (error) {
+            dbg(`error copying .env files: ${error}`)
+            // Don't fail the worktree creation if .env copying fails
+            logVerbose(`Warning: Failed to copy .env files to worktree: ${error}`)
+        }
+    }
+
+    /**
+     * Run setup steps in the new worktree
+     * @param targetPath path to the new worktree
+     */
+    private async runSetupSteps(targetPath: string): Promise<void> {
+        dbg(`running setup steps in worktree: ${targetPath}`)
+        
+        try {
+            const { command, args } = await packageResolveInstall(targetPath)
+            if (command) {
+                dbg(`running setup command: ${command} ${args?.join(' ') || ''}`)
+                const res = await runtimeHost.exec(undefined, command, args, {
+                    cwd: targetPath,
+                })
+                if (res.exitCode !== 0) {
+                    logVerbose(`Warning: Setup command failed with exit code ${res.exitCode}: ${res.stderr}`)
+                } else {
+                    dbg(`setup steps completed successfully`)
+                }
+            } else {
+                dbg(`no package manager detected, skipping setup steps`)
+            }
+        } catch (error) {
+            dbg(`error running setup steps: ${error}`)
+            // Don't fail the worktree creation if setup fails
+            logVerbose(`Warning: Failed to run setup steps in worktree: ${error}`)
+        }
     }
 
     client(cwd: string) {

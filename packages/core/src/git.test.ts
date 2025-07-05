@@ -154,4 +154,120 @@ bare
             client.exec = originalExec
         })
     })
+    
+    describe("worktreeAdd with options", () => {
+        test("calls basic worktreeAdd without options", async () => {
+            const client = new GitClient(".")
+            let capturedArgs: string[] = []
+            
+            // Mock exec to capture arguments
+            const originalExec = client.exec
+            client.exec = async (args: string[]) => {
+                capturedArgs = args
+                return "Mock response"
+            }
+            
+            await client.worktreeAdd("/path/to/worktree")
+            assert.deepEqual(capturedArgs, ["worktree", "add", "/path/to/worktree"])
+            
+            // Restore original exec
+            client.exec = originalExec
+        })
+        
+        test("calls worktreeAdd with commitish", async () => {
+            const client = new GitClient(".")
+            let capturedArgs: string[] = []
+            
+            // Mock exec to capture arguments
+            const originalExec = client.exec
+            client.exec = async (args: string[]) => {
+                capturedArgs = args
+                return "Mock response"
+            }
+            
+            await client.worktreeAdd("/path/to/worktree", "feature-branch")
+            assert.deepEqual(capturedArgs, ["worktree", "add", "/path/to/worktree", "feature-branch"])
+            
+            // Restore original exec
+            client.exec = originalExec
+        })
+        
+        test("handles copyEnv and setupSteps options", async () => {
+            const client = new GitClient(".")
+            let capturedArgs: string[] = []
+            let copyEnvCalled = false
+            let setupStepsCalled = false
+            
+            // Mock exec to capture arguments
+            const originalExec = client.exec
+            client.exec = async (args: string[]) => {
+                capturedArgs = args
+                return "Mock response"
+            }
+            
+            // Mock the private methods by replacing them on the prototype
+            const originalCopyEnvFiles = (client as any).copyEnvFiles
+            const originalRunSetupSteps = (client as any).runSetupSteps
+            
+            ;(client as any).copyEnvFiles = async () => {
+                copyEnvCalled = true
+            }
+            ;(client as any).runSetupSteps = async () => {
+                setupStepsCalled = true
+            }
+            
+            await client.worktreeAdd("/path/to/worktree", "feature-branch", {
+                copyEnv: true,
+                setupSteps: true
+            })
+            
+            assert.deepEqual(capturedArgs, ["worktree", "add", "/path/to/worktree", "feature-branch"])
+            assert.equal(copyEnvCalled, true)
+            assert.equal(setupStepsCalled, true)
+            
+            // Restore original methods
+            client.exec = originalExec
+            ;(client as any).copyEnvFiles = originalCopyEnvFiles
+            ;(client as any).runSetupSteps = originalRunSetupSteps
+        })
+        
+        test("skips copyEnv and setupSteps when options are false", async () => {
+            const client = new GitClient(".")
+            let capturedArgs: string[] = []
+            let copyEnvCalled = false
+            let setupStepsCalled = false
+            
+            // Mock exec to capture arguments
+            const originalExec = client.exec
+            client.exec = async (args: string[]) => {
+                capturedArgs = args
+                return "Mock response"
+            }
+            
+            // Mock the private methods by replacing them on the prototype
+            const originalCopyEnvFiles = (client as any).copyEnvFiles
+            const originalRunSetupSteps = (client as any).runSetupSteps
+            
+            ;(client as any).copyEnvFiles = async () => {
+                copyEnvCalled = true
+            }
+            ;(client as any).runSetupSteps = async () => {
+                setupStepsCalled = true
+            }
+            
+            await client.worktreeAdd("/path/to/worktree", "feature-branch", {
+                copyEnv: false,
+                setupSteps: false
+            })
+            
+            assert.deepEqual(capturedArgs, ["worktree", "add", "/path/to/worktree", "feature-branch"])
+            assert.equal(copyEnvCalled, false)
+            assert.equal(setupStepsCalled, false)
+            
+            // Restore original methods
+            client.exec = originalExec
+            ;(client as any).copyEnvFiles = originalCopyEnvFiles
+            ;(client as any).runSetupSteps = originalRunSetupSteps
+        })
+    })
 })

@@ -3305,8 +3305,18 @@ interface Git {
      * Add a new worktree
      * @param path path to the new worktree
      * @param commitish optional commit, branch, or tag to checkout
+     * @param options optional configuration for worktree creation
      */
-    worktreeAdd(path: string, commitish?: string): Promise<string>
+    worktreeAdd(path: string, commitish?: string, options?: {
+        /**
+         * Copy .env files from source directory to new worktree
+         */
+        copyEnv?: boolean
+        /**
+         * Run setup steps (e.g., npm install) in the new worktree
+         */
+        setupSteps?: boolean
+    }): Promise<string>
 
     /**
      * List all worktrees
