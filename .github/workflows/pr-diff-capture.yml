@@ -1,0 +1,68 @@
+name: PR Diff Capture
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "packages/**/*"
+      - "genaisrc/**/*"
+      - "docs/**/*"
+
+concurrency:
+  group: pr-diff-capture-${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
+# Security: This workflow runs in the context of the base repository
+# It only captures the diff and stores it as an artifact for later processing
+jobs:
+  capture-diff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout base repository
+        uses: actions/checkout@v4
+        with:
+          # Checkout the base branch first
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+
+      - name: Fetch PR branch
+        run: |
+          git fetch origin ${{ github.event.pull_request.head.ref }}:pr-branch
+          git fetch origin ${{ github.event.pull_request.base.ref }}:base-branch
+
+      - name: Generate diff
+        run: |
+          mkdir -p artifacts
+          
+          # Create diff between base and PR branch
+          git diff base-branch..pr-branch > artifacts/pr-diff.patch
+          
+          # Also create a unified diff with more context
+          git diff --unified=3 base-branch..pr-branch > artifacts/pr-diff-context.patch
+          
+          # Get PR metadata
+          echo "PR Number: ${{ github.event.number }}" > artifacts/pr-metadata.txt
+          echo "Title: ${{ github.event.pull_request.title }}" >> artifacts/pr-metadata.txt
+          echo "Author: ${{ github.event.pull_request.user.login }}" >> artifacts/pr-metadata.txt
+          echo "Base: ${{ github.event.pull_request.base.ref }}" >> artifacts/pr-metadata.txt
+          echo "Head: ${{ github.event.pull_request.head.ref }}" >> artifacts/pr-metadata.txt
+          echo "Head SHA: ${{ github.event.pull_request.head.sha }}" >> artifacts/pr-metadata.txt
+          echo "Base SHA: ${{ github.event.pull_request.base.sha }}" >> artifacts/pr-metadata.txt
+          
+          # Check if diff is not empty
+          if [ -s artifacts/pr-diff.patch ]; then
+            echo "Diff captured successfully"
+            echo "Lines changed:"
+            wc -l artifacts/pr-diff.patch
+          else
+            echo "Warning: No diff found"
+          fi
+
+      - name: Upload diff artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-diff-${{ github.event.number }}
+          path: artifacts/
+          retention-days: 30

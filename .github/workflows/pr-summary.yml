@@ -1,0 +1,94 @@
+name: PR Summary
+on:
+  workflow_run:
+    workflows: ["PR Diff Capture"]
+    types:
+      - completed
+
+concurrency:
+  group: pr-summary-${{ github.workflow }}-${{ github.event.workflow_run.id }}
+  cancel-in-progress: true
+
+# This workflow runs after the diff capture is complete
+# It downloads the artifact and runs GenAIScript summarization
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request_target' && github.event.workflow_run.pull_requests[0] }}
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    env:
+      GENAISCRIPT_MODEL: ${{ vars.GENAISCRIPT_MODEL || 'small' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          fetch-depth: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+        continue-on-error: true
+
+      - name: Compile GenAIScript
+        run: yarn compile:cli
+        continue-on-error: true
+
+      - name: Download PR diff artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-diff-${{ github.event.workflow_run.pull_requests[0].number }}
+          path: ./temp/pr-diff
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: List downloaded files
+        run: |
+          echo "Downloaded artifact contents:"
+          ls -la ./temp/pr-diff/
+          echo "PR metadata:"
+          cat ./temp/pr-diff/pr-metadata.txt || echo "No metadata file found"
+          echo "Diff size:"
+          wc -l ./temp/pr-diff/pr-diff.patch || echo "No diff file found"
+
+      - name: Run PR summary script
+        run: |
+          if [ -f "./temp/pr-diff/pr-diff.patch" ]; then
+            # Try using the built CLI first, fallback to npx
+            if [ -f "packages/cli/built/genaiscript.cjs" ]; then
+              echo "Using built CLI"
+              node packages/cli/built/genaiscript.cjs run pr-summary-artifact \
+                --out ./temp/genai/pr-summary \
+                --out-trace $GITHUB_STEP_SUMMARY \
+                --vars "diffFile=./temp/pr-diff/pr-diff.patch" \
+                --vars "metadataFile=./temp/pr-diff/pr-metadata.txt"
+            else
+              echo "Using npx CLI"
+              npx --yes genaiscript run pr-summary-artifact \
+                --out ./temp/genai/pr-summary \
+                --out-trace $GITHUB_STEP_SUMMARY \
+                --vars "diffFile=./temp/pr-diff/pr-diff.patch" \
+                --vars "metadataFile=./temp/pr-diff/pr-metadata.txt"
+            fi
+          else
+            echo "No diff file found in artifact"
+          fi
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Archive summary results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-summary-results-${{ github.event.workflow_run.pull_requests[0].number }}
+          path: ./temp/genai/**
+          retention-days: 30
