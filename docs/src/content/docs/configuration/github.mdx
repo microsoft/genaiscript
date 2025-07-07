@@ -127,6 +127,17 @@ script({
 If you are already using `GITHUB_TOKEN` variable in your script and need a different one
 for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 
+### Organization Inference Point
+
+By default, GitHub Models uses the current actor to run inference. You can specify an organization
+in the `GITHUB_MODELS_ORG` environment to run inference on behalf of that organization instead.
+
+```txt title=".env"
+GITHUB_MODELS_ORG=my-org
+```
+
+The actor must be a member of the organization and have enabled models in the organization (see [documentation](https://docs.github.com/en/rest/models/embeddings#run-an-embedding-request-attributed-to-an-organization)).
+
 ### `o1-preview` and `o1-mini` models
 
 Currently these models do not support streaming and

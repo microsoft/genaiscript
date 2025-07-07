@@ -282,8 +282,10 @@ export async function parseTokenFromEnv(
           "GITHUB_MODELS_TOKEN, GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set",
         );
     }
+    const org = findEnvVar(env, "", ["GITHUB_MODELS_ORG"]);
     const type = "github";
-    const base = GITHUB_MODELS_BASE;
+    const base = org ? `https://models.github.ai/orgs/${org}/inference/` : GITHUB_MODELS_BASE;
+    dbg(`base: %s`, base);
     return {
       provider,
       model,
