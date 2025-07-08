@@ -751,6 +751,7 @@ And here's a JSX code block:
       expect(blockquote.data?.githubAlert?.type).toBe("NOTE");
       
       // Check stringify output contains escaped brackets (current behavior)
+      console.log(api.inspect(ast))
       const output = api.stringify(ast);
       expect(output).toContain("> [!NOTE]");
       expect(output).toContain("> This is a note alert with **bold** text.");

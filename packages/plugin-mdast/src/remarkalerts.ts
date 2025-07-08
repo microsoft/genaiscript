@@ -78,8 +78,8 @@ const remarkGitHubAlerts: Plugin<[RemarkGitHubAlertsOptions?], Root> = (options 
       const paragraph = firstChild as Paragraph;
 
       // Check if the first text node contains GitHub alert syntax
-      const firstTextNode = paragraph.children.find((child) => child.type === "text") as Text;
-      if (!firstTextNode) {
+      const firstTextNode = paragraph.children?.[0] as Text;
+      if (!firstTextNode || firstTextNode.type !== "text") {
         dbg("No text node found");
         return;
       }
@@ -99,7 +99,7 @@ const remarkGitHubAlerts: Plugin<[RemarkGitHubAlertsOptions?], Root> = (options 
       // Split the content
       const originalText = firstTextNode.value;
       const alertSyntax = match[0];
-      const remainingContent = originalText.substring(alertSyntax.length).trim();
+      const remainingContent = originalText.substring(alertSyntax.length);
 
       // Create new text nodes - always preserve syntax
       const newNodes: Text[] = [];
