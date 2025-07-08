@@ -1,8 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import "./html-escaper.js"
-import "./turndown-plugin-gfm.js"
+// This module provides functions to convert HTML content into different formats such as JSON, plain text, and Markdown.
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="./html-escaper.d.ts" />
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="./turndown-plugin-gfm.d.ts" />
+
 import type { CancellationOptions } from "./cancellation.js";
 import { checkCancelled } from "./cancellation.js";
 import type { TraceOptions } from "./trace.js"; // Import TraceOptions for optional logging features

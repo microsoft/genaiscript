@@ -7,7 +7,7 @@ import { checkRuntime, filenameOrFileToContent, genaiscriptDebug } from "@genais
 import type { Processor } from "unified";
 import remarkGitHubAlerts from "./remarkalerts.js";
 import type { GitHubAlertMarker } from "./remarkalerts.js";
-import remarkDetails from "./remarkdetails.js";
+import remarkDetails, { DetailsElement, SummaryElement } from "./remarkdetails.js";
 const dbg = genaiscriptDebug("mdast");
 
 export interface MdAstOptions {
@@ -51,7 +51,7 @@ export async function mdast(options?: MdAstOptions) {
   const { visitParents } = await import("unist-util-visit-parents");
   await import("mdast-util-mdxjs-esm");
 
-  const mdastParse = async (file: string | WorkspaceFile): Promise<Root> => {
+  const mdastParse = (file: string | WorkspaceFile): Root => {
     const content = filenameOrFileToContent(file);
     if (!content) return { type: "root", children: [] };
 
@@ -60,20 +60,27 @@ export async function mdast(options?: MdAstOptions) {
     const processor = unified().use(parse);
     usePlugins(processor, "parse");
     const ast = processor.parse(content);
-    const processed = await processor.run(ast);
+    const processed = processor.runSync(ast);
     return processed as Root;
   };
 
-  const mdastStringify = (root: Root): string => {
+  const mdastStringify = (root: Root, options?: {}): string => {
     if (!root) return "";
 
     dbg(`stringify`);
     const processor = unified();
     usePlugins(processor, "stringify");
     processor.use(stringify, {
+      ...(options || {}),
       handlers: {
         githubAlertMarker(node: GitHubAlertMarker) {
           return node.value;
+        },
+        detailsElement(node: DetailsElement) {
+          return `<details ${node.attributes || ""}>${node.children.map((child) => processor.stringify(child)).join("")}</details>`;
+        },
+        summaryElement(node: SummaryElement) {
+          return `<summary>${node.children.map((child) => processor.stringify(child)).join("")}</summary>`;
         },
       },
     } as any);

@@ -36,7 +36,7 @@ const { parse, visit, stringify } = await mdast();
 - parsing to mdast tree
 
 ```typescript
-const root = await parse("# Hello World");
+const root = parse("# Hello World");
 ```
 
 - visiting the tree (see [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))
@@ -61,7 +61,7 @@ You can use `inspect` to pretty print a MDAST tree.
 
 ```typescript
 const { parse, inspect } = await mdast();
-const root = await parse("# Hello World");
+const root = parse("# Hello World");
 console.log(inspect(root));
 ```
 
