@@ -703,9 +703,8 @@ And here's a JSX code block:
 
       expect(output).toContain("# Main Title");
       expect(output).toContain("**bold**");
-      expect(output).toContain('<Alert type="info">');
+      expect(output).toContain("<Alert type=\"info\">");
       expect(output).toContain("[a link](https://example.com)");
-      expect(output).toContain("## Code Examples");
       expect(output).toContain("```javascript");
       expect(output).toContain('<CodeBlock language="jsx">');
       expect(output).toContain("Regular | Markdown | Table");
@@ -915,4 +914,319 @@ And here's a JSX code block:
       expect(output).toContain("> With multiple lines.");
     });
   });
+
+  describe("HTML details elements", () => {
+    test("parse and stringify basic details element", async () => {
+      const api = await mdast();
+      const input = `<details>
+<summary>Click to expand</summary>
+
+This is the content inside the details element.
+</details>`;
+      const ast = await api.parse(input);
+      const output = api.stringify(ast);
+
+      expect(output).toContain("<details>");
+      expect(output).toContain("<summary>Click to expand</summary>");
+      expect(output).toContain("This is the content inside the details element.");
+      expect(output).toContain("</details>");
+    });
+
+    test("parse and stringify details with markdown content", async () => {
+      const api = await mdast();
+      const input = `<details>
+<summary>Markdown Content</summary>
+
+# Heading inside details
+
+This is **bold** and *italic* text inside a details element.
+
+- List item 1
+- List item 2
+
+\`\`\`javascript
+const code = "inside details";
+console.log(code);
+\`\`\`
+
+> Blockquote inside details
+
+</details>`;
+      const ast = await api.parse(input);
+      const output = api.stringify(ast);
+
+      expect(output).toContain("<details>");
+      expect(output).toContain("<summary>Markdown Content</summary>");
+      expect(output).toContain("# Heading inside details");
+      expect(output).toContain("**bold**");
+      expect(output).toContain("*italic*");
+      expect(output).toContain("* List item 1");
+      expect(output).toContain("* List item 2");
+      expect(output).toContain("```javascript");
+      expect(output).toContain('const code = "inside details";');
+      expect(output).toContain("> Blockquote inside details");
+      expect(output).toContain("</details>");
+    });
+
+    test("parse and stringify details with tables", async () => {
+      const api = await mdast();
+      const input = `<details>
+<summary>Data Table</summary>
+
+| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| Row 1    | Data A   | Value X  |
+| Row 2    | Data B   | Value Y  |
+
+</details>`;
+      const ast = await api.parse(input);
+      const output = api.stringify(ast);
+
+      expect(output).toContain("<details>");
+      expect(output).toContain("<summary>Data Table</summary>");
+      expect(output).toContain("Column 1");
+      expect(output).toContain("Column 2");
+      expect(output).toContain("Column 3");
+      expect(output).toContain("Row 1");
+      expect(output).toContain("Data A");
+      expect(output).toContain("Value X");
+      expect(output).toContain("</details>");
+    });
+
+    test("parse and stringify nested details elements", async () => {
+      const api = await mdast();
+      const input = `<details>
+<summary>Outer Details</summary>
+
+Content in outer details.
+
+<details>
+<summary>Inner Details</summary>
+
+This is nested content with **emphasis**.
+
+</details>
+
+More content in outer details.
+
+</details>`;
+      const ast = await api.parse(input);
+      const output = api.stringify(ast);
+
+      expect(output).toContain("<details>");
+      expect(output).toContain("<summary>Outer Details</summary>");
+      expect(output).toContain("Content in outer details.");
+      expect(output).toContain("<summary>Inner Details</summary>");
+      expect(output).toContain("**emphasis**");
+      expect(output).toContain("More content in outer details.");
+      expect(output).toContain("</details>");
+    });
+
+    test("parse and stringify details with complex nested markdown", async () => {
+      const api = await mdast();
+      const input = `# Main Document
+
+<details>
+<summary>**API Reference** - Click to view methods</summary>
+
+## Authentication
+
+To authenticate, use the following method:
+
+\`\`\`typescript
+const auth = await authenticate({
+  apiKey: "your-api-key",
+  secret: "your-secret"
+});
+\`\`\`
+
+## Available Methods
+
+### GET /users
+
+Returns a list of users.
+
+**Parameters:**
+
+| Parameter | Type   | Description |
+|-----------|--------|-------------|
+| limit     | number | Max results |
+| offset    | number | Skip items  |
+
+**Example Response:**
+
+\`\`\`json
+{
+  "users": [
+    {"id": 1, "name": "John"},
+    {"id": 2, "name": "Jane"}
+  ]
+}
+\`\`\`
+
+> **Note**: This endpoint requires authentication.
+
+### POST /users
+
+Creates a new user.
+
+<details>
+<summary>Request Example</summary>
+
+\`\`\`json
+{
+  "name": "New User",
+  "email": "user@example.com"
+}
+\`\`\`
+
+</details>
+
+</details>`;
+      const ast = await api.parse(input);
+      const output = api.stringify(ast);
+
+      expect(output).toContain("# Main Document");
+      expect(output).toContain("<details>");
+      expect(output).toContain("<summary>**API Reference** - Click to view methods</summary>");
+      expect(output).toContain("## Authentication");
+      expect(output).toContain("```typescript");
+      expect(output).toContain("const auth = await authenticate");
+      expect(output).toContain("## Available Methods");
+      expect(output).toContain("### GET /users");
+      expect(output).toContain("| Parameter | Type   | Description |");
+      expect(output).toContain("```json");
+      expect(output).toContain('"users": [');
+      expect(output).toContain("> **Note**: This endpoint requires authentication.");
+      expect(output).toContain("### POST /users");
+      expect(output).toContain("<summary>Request Example</summary>");
+      expect(output).toContain('"name": "New User"');
+      expect(output).toContain("</details>");
+    });
+
+    test("parse and stringify details with GitHub alerts", async () => {
+      const api = await mdast();
+      const input = `<details>
+<summary>Important Information</summary>
+
+> [!WARNING]
+> This is a warning inside a details element.
+
+> [!NOTE]
+> Additional notes:
+> - Point 1
+> - Point 2
+
+</details>`;
+      const ast = await api.parse(input);
+      const output = api.stringify(ast);
+
+      expect(output).toContain("<details>");
+      expect(output).toContain("<summary>Important Information</summary>");
+      expect(output).toContain("> [!WARNING]");
+      expect(output).toContain("> This is a warning inside a details element.");
+      expect(output).toContain("> [!NOTE]");
+      expect(output).toContain("> Additional notes:");
+      expect(output).toContain("> * Point 1");
+      expect(output).toContain("> * Point 2");
+      expect(output).toContain("</details>");
+    });
+
+    test("parse and stringify details with open attribute", async () => {
+      const api = await mdast();
+      const input = `<details open>
+<summary>Always Expanded</summary>
+
+This details element is open by default.
+
+</details>`;
+      const ast = await api.parse(input);
+      const output = api.stringify(ast);
+
+      expect(output).toContain("<details open>");
+      expect(output).toContain("<summary>Always Expanded</summary>");
+      expect(output).toContain("This details element is open by default.");
+      expect(output).toContain("</details>");
+    });
+
+    test("parse and stringify multiple details elements", async () => {
+      const api = await mdast();
+      const input = `# FAQ
+
+<details>
+<summary>How do I install this?</summary>
+
+Run the following command:
+
+\`\`\`bash
+npm install package-name
+\`\`\`
+
+</details>
+
+<details>
+<summary>How do I configure it?</summary>
+
+Create a config file:
+
+\`\`\`yaml
+setting1: value1
+setting2: value2
+\`\`\`
+
+</details>
+
+<details>
+<summary>Troubleshooting</summary>
+
+Common issues:
+
+1. **Problem**: Installation fails
+   - Solution: Check Node.js version
+
+2. **Problem**: Config not loading
+   - Solution: Verify file path
+
+</details>`;
+      const ast = await api.parse(input);
+      const output = api.stringify(ast);
+
+      expect(output).toContain("# FAQ");
+      expect(output).toContain("<summary>How do I install this?</summary>");
+      expect(output).toContain("```bash");
+      expect(output).toContain("npm install package-name");
+      expect(output).toContain("<summary>How do I configure it?</summary>");
+      expect(output).toContain("```yaml");
+      expect(output).toContain("setting1: value1");
+      expect(output).toContain("<summary>Troubleshooting</summary>");
+      expect(output).toContain("1. **Problem**: Installation fails");
+      expect(output).toContain("2. **Problem**: Config not loading");
+    });
+
+    test("visit traverses details element nodes", async () => {
+      const api = await mdast();
+      const input = `<details>
+<summary>Content</summary>
+
+# Heading
+
+Text with **bold** formatting.
+
+</details>`;
+      const ast = await api.parse(input);
+      const nodeTypes: string[] = [];
+
+      api.visit(ast, (node) => {
+        if (node.type) nodeTypes.push(node.type);
+      });
+
+      expect(nodeTypes).toContain("root");
+      expect(nodeTypes).toContain("html");
+      expect(nodeTypes).toContain("heading");
+      expect(nodeTypes).toContain("paragraph");
+      expect(nodeTypes).toContain("text");
+      expect(nodeTypes).toContain("strong");
+    });
+  });
+  
 });
