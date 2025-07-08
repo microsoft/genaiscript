@@ -74,8 +74,13 @@ export async function mdast(options?: MdAstOptions) {
     dbg(`stringify`);
     const processor = unified();
     usePlugins(processor, "stringify");
-    const ast = processor.use(stringify).stringify(root);
-    return String(ast);
+    const result = processor.use(stringify).stringify(root);
+    
+    // Post-process to unescape GitHub alert syntax
+    // TODO better
+    const unescapedResult = String(result).replace(/^> \\(\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\])/gm, '> $1');
+    
+    return unescapedResult;
   };
 
   return Object.freeze({
