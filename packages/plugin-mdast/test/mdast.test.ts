@@ -4,6 +4,7 @@
 import { describe, test, expect, beforeEach } from "vitest";
 import { mdast } from "../src/unified.js";
 import { initialize } from "@genaiscript/runtime";
+import type { Blockquote } from "mdast";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -734,6 +735,198 @@ And here's a JSX code block:
       expect(nodeTypes).toContain("text");
       // MDX-specific nodes might include mdxJsxFlowElement, mdxJsxTextElement, etc.
       // The exact node types depend on the MDX parser implementation
+    });
+  });
+
+  describe("GitHub alerts", () => {
+    test("parse NOTE alerts and detect alert metadata", async () => {
+      const api = await mdast();
+      const input = `> [!NOTE]
+> This is a note alert with **bold** text.`;
+      const ast = await api.parse(input);
+      
+      // Check that the alert is properly detected in the AST
+      const blockquote = ast.children[0] as Blockquote & { data?: { githubAlert?: { type: string } } };
+      expect(blockquote.type).toBe("blockquote");
+      expect(blockquote.data?.githubAlert?.type).toBe("NOTE");
+      
+      // Check stringify output contains escaped brackets (current behavior)
+      const output = api.stringify(ast);
+      expect(output).toContain("> [!NOTE]");
+      expect(output).toContain("> This is a note alert with **bold** text.");
+    });
+
+    test("parse WARNING alerts and detect alert metadata", async () => {
+      const api = await mdast();
+      const input = `> [!WARNING]
+> This is a warning alert.`;
+      const ast = await api.parse(input);
+      
+      const blockquote = ast.children[0] as any;
+      expect(blockquote.type).toBe("blockquote");
+      expect(blockquote.data?.githubAlert?.type).toBe("WARNING");
+      
+      const output = api.stringify(ast);
+      expect(output).toContain("> [!WARNING]");
+      expect(output).toContain("> This is a warning alert.");
+    });
+
+    test("parse IMPORTANT alerts and detect alert metadata", async () => {
+      const api = await mdast();
+      const input = `> [!IMPORTANT]
+> This is an important alert.`;
+      const ast = await api.parse(input);
+      
+      const blockquote = ast.children[0] as any;
+      expect(blockquote.type).toBe("blockquote");
+      expect(blockquote.data?.githubAlert?.type).toBe("IMPORTANT");
+      
+      const output = api.stringify(ast);
+      expect(output).toContain("> [!IMPORTANT]");
+      expect(output).toContain("> This is an important alert.");
+    });
+
+    test("parse TIP alerts and detect alert metadata", async () => {
+      const api = await mdast();
+      const input = `> [!TIP]
+> Here's a useful tip for you.`;
+      const ast = await api.parse(input);
+      
+      const blockquote = ast.children[0] as any;
+      expect(blockquote.type).toBe("blockquote");
+      expect(blockquote.data?.githubAlert?.type).toBe("TIP");
+      
+      const output = api.stringify(ast);
+      expect(output).toContain("> [!TIP]");
+      expect(output).toContain("> Here's a useful tip for you.");
+    });
+
+    test("parse CAUTION alerts and detect alert metadata", async () => {
+      const api = await mdast();
+      const input = `> [!CAUTION]
+> Be careful with this operation.`;
+      const ast = await api.parse(input);
+      
+      const blockquote = ast.children[0] as any;
+      expect(blockquote.type).toBe("blockquote");
+      expect(blockquote.data?.githubAlert?.type).toBe("CAUTION");
+      
+      const output = api.stringify(ast);
+      expect(output).toContain("> [!CAUTION]");
+      expect(output).toContain("> Be careful with this operation.");
+    });
+
+    test("parse alerts with complex content", async () => {
+      const api = await mdast();
+      const input = `> [!NOTE]
+> This alert contains:
+> 
+> - A list item
+> - Another item with [a link](https://example.com)`;
+      const ast = await api.parse(input);
+      
+      const blockquote = ast.children[0] as any;
+      expect(blockquote.type).toBe("blockquote");
+      expect(blockquote.data?.githubAlert?.type).toBe("NOTE");
+      
+      const output = api.stringify(ast);
+      expect(output).toContain("> [!NOTE]");
+      expect(output).toContain("> This alert contains:");
+      expect(output).toContain("> * A list item");
+      expect(output).toContain("> * Another item with [a link](https://example.com)");
+    });
+
+    test("parse multiple alerts in document", async () => {
+      const api = await mdast();
+      const input = `# Document with Alerts
+
+> [!NOTE]
+> First alert.
+
+> [!WARNING]
+> Second alert.`;
+      const ast = await api.parse(input);
+      
+      // Check both alerts are detected
+      const noteBlockquote = ast.children[1] as any;
+      const warningBlockquote = ast.children[2] as any;
+      
+      expect(noteBlockquote.data?.githubAlert?.type).toBe("NOTE");
+      expect(warningBlockquote.data?.githubAlert?.type).toBe("WARNING");
+      
+      const output = api.stringify(ast);
+      expect(output).toContain("# Document with Alerts");
+      expect(output).toContain("> [!NOTE]");
+      expect(output).toContain("> First alert.");
+      expect(output).toContain("> [!WARNING]");
+      expect(output).toContain("> Second alert.");
+    });
+
+    test("parse alerts with custom titles", async () => {
+      const api = await mdast();
+      const input = `> [!NOTE] Custom Note Title
+> This note has a custom title.`;
+      const ast = await api.parse(input);
+      
+      const blockquote = ast.children[0] as any;
+      expect(blockquote.type).toBe("blockquote");
+      expect(blockquote.data?.githubAlert?.type).toBe("NOTE");
+      
+      const output = api.stringify(ast);
+      expect(output).toContain("> [!NOTE]Custom Note Title");
+      expect(output).toContain("> This note has a custom title.");
+    });
+
+    test("parse alerts with case variations", async () => {
+      const api = await mdast();
+      const input = `> [!note]
+> Lowercase note.`;
+      const ast = await api.parse(input);
+      
+      const blockquote = ast.children[0] as any;
+      expect(blockquote.type).toBe("blockquote");
+      expect(blockquote.data?.githubAlert?.type).toBe("NOTE"); // Normalized to uppercase
+      
+      const output = api.stringify(ast);
+      expect(output).toContain("> [!note]");
+      expect(output).toContain("> Lowercase note.");
+    });
+
+    test("visit traverses alert nodes", async () => {
+      const api = await mdast();
+      const input = `> [!NOTE]
+> This is an alert with **bold** text.`;
+      const ast = await api.parse(input);
+      const nodeTypes: string[] = [];
+
+      api.visit(ast, (node) => {
+        if (node.type) nodeTypes.push(node.type);
+      });
+
+      expect(nodeTypes).toContain("root");
+      expect(nodeTypes).toContain("blockquote");
+      expect(nodeTypes).toContain("paragraph");
+      expect(nodeTypes).toContain("text");
+      expect(nodeTypes).toContain("strong");
+    });
+
+    test("parse mixed blockquotes and alerts", async () => {
+      const api = await mdast();
+      const input = `> Regular blockquote text.
+
+> [!NOTE]
+> This is an alert.
+
+> Another regular blockquote.
+> With multiple lines.`;
+      const ast = await api.parse(input);
+      const output = api.stringify(ast);
+
+      expect(output).toContain("> Regular blockquote text.");
+      expect(output).toContain("> [!NOTE]");
+      expect(output).toContain("> This is an alert.");
+      expect(output).toContain("> Another regular blockquote.");
+      expect(output).toContain("> With multiple lines.");
     });
   });
 });

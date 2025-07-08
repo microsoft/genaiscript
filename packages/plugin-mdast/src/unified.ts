@@ -75,7 +75,7 @@ export async function mdast(options?: MdAstOptions) {
     const processor = unified();
     usePlugins(processor, "stringify");
     const ast = processor.use(stringify).stringify(root);
-    return ast;
+    return String(ast);
   };
 
   return Object.freeze({
@@ -91,8 +91,10 @@ export async function mdast(options?: MdAstOptions) {
 
   function usePlugins(p: Processor<Root>, phase: "parse" | "stringify"): void {
     p.use(frontmatter);
-    if (phase === "parse") p.use(remarkGitHubAlerts);
-    if (_options.gfm !== false) p.use(gfm);
+    if (_options.gfm !== false) {
+      p.use(remarkGitHubAlerts);
+      p.use(gfm);
+    }
     if (_options.github !== false && phase === "stringify") {
       p.use(github);
     }
