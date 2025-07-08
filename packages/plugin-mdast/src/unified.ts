@@ -55,16 +55,17 @@ export async function mdast(options?: MdAstOptions) {
   const { visitParents } = await import("unist-util-visit-parents");
   await import("mdast-util-mdxjs-esm");
 
-  const mdastParse = (file: string | WorkspaceFile): Root => {
+  const mdastParse = async (file: string | WorkspaceFile): Promise<Root> => {
     const content = filenameOrFileToContent(file);
     if (!content) return { type: "root", children: [] };
 
     dbg(`parse`);
 
     const processor = unified().use(parse);
-    usePlugins(processor);
+    usePlugins(processor, "parse");
     const ast = processor.parse(content);
-    return ast;
+    const processed = await processor.run(ast);
+    return processed as Root;
   };
 
   const mdastStringify = (root: Root): string => {
@@ -72,7 +73,7 @@ export async function mdast(options?: MdAstOptions) {
 
     dbg(`stringify`);
     const processor = unified();
-    usePlugins(processor);
+    usePlugins(processor, "stringify");
     const ast = processor.use(stringify).stringify(root);
     return ast;
   };
@@ -88,12 +89,12 @@ export async function mdast(options?: MdAstOptions) {
     SKIP,
   });
 
-  function usePlugins(p: Processor<Root>): void {
+  function usePlugins(p: Processor<Root>, phase: "parse" | "stringify"): void {
     p.use(frontmatter);
+    if (phase === "parse") p.use(remarkGitHubAlerts);
     if (_options.gfm !== false) p.use(gfm);
-    if (_options.github !== false) {
+    if (_options.github !== false && phase === "stringify") {
       p.use(github);
-      p.use(remarkGitHubAlerts);
     }
     if (_options.directive !== false) p.use(directive);
     if (_options.math !== false) p.use(math);

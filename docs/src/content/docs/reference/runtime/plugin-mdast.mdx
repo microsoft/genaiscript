@@ -36,7 +36,7 @@ const { parse, visit, stringify } = await mdast();
 - parsing to mdast tree
 
 ```typescript
-const root = parse("# Hello World");
+const root = await parse("# Hello World");
 ```
 
 - visiting the tree (see [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))
@@ -54,6 +54,16 @@ const markdown = await stringify(updated);
 ```
 
 In order to get type completion, you will need to install the `@types/mdast` package as a development dependency.
+
+## Debugging trees
+
+You can use `inspect` to pretty print a MDAST tree.
+
+```typescript
+const { parse, inspect } = await mdast();
+const root = await parse("# Hello World");
+console.log(inspect(root));
+```
 
 ## MDX
 

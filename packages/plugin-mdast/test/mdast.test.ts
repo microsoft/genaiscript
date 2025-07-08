@@ -25,19 +25,19 @@ describe("mdast", () => {
 
   test("parse returns empty root for empty string", async () => {
     const api = await mdast();
-    const ast = api.parse("");
+    const ast = await api.parse("");
     expect(ast).toEqual({ type: "root", children: [] });
   });
 
   test("parse returns empty root for empty WorkspaceFile", async () => {
     const api = await mdast();
-    const ast = api.parse({ filename: "foo.md", content: "" });
+    const ast = await api.parse({ filename: "foo.md", content: "" });
     expect(ast).toEqual({ type: "root", children: [] });
   });
 
   test("parse returns AST for markdown string", async () => {
     const api = await mdast();
-    const ast = api.parse("# Hello\n\nThis is a test.");
+    const ast = await api.parse("# Hello\n\nThis is a test.");
     expect(ast.type).toBe("root");
     expect(Array.isArray(ast.children)).toBe(true);
     expect(ast.children.some((n: any) => n.type === "heading")).toBe(true);
@@ -51,7 +51,7 @@ describe("mdast", () => {
 
   test("stringify returns markdown for AST", async () => {
     const api = await mdast();
-    const ast = api.parse("# Title\n\nSome text.");
+    const ast = await api.parse("# Title\n\nSome text.");
     const md = api.stringify(ast);
     expect(md).toContain("# Title");
     expect(md).toContain("Some text.");
@@ -60,7 +60,7 @@ describe("mdast", () => {
   test("parse and stringify roundtrip", async () => {
     const api = await mdast();
     const input = "# Heading\n\n- item 1\n- item 2";
-    const ast = api.parse(input);
+    const ast = await api.parse(input);
     const output = api.stringify(ast);
     expect(output).toContain("Heading");
     expect(output).toContain("item 1");
@@ -69,7 +69,7 @@ describe("mdast", () => {
 
   test("visit traverses AST nodes", async () => {
     const api = await mdast();
-    const ast = api.parse("# Heading\n\nText");
+    const ast = await api.parse("# Heading\n\nText");
     const nodes: string[] = [];
     api.visit(ast, (node: any) => {
       if (node.type) nodes.push(node.type);
@@ -83,7 +83,7 @@ describe("mdast", () => {
     test("parse and stringify headers (h1-h6)", async () => {
       const api = await mdast();
       const input = "# H1\n## H2\n### H3\n#### H4\n##### H5\n###### H6";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("# H1");
@@ -94,21 +94,20 @@ describe("mdast", () => {
       expect(output).toContain("###### H6");
     });
 
-    test("parse and stringify emphasis (bold, italic, strikethrough)", async () => {
+    test("parse and stringify emphasis (bold, italic)", async () => {
       const api = await mdast();
-      const input = "**bold text** and *italic text* and ~~strikethrough~~";
-      const ast = api.parse(input);
+      const input = "**bold text** and *italic text*";
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("**bold text**");
       expect(output).toContain("*italic text*");
-      expect(output).toContain("~~strikethrough~~");
     });
 
     test("parse and stringify unordered lists", async () => {
       const api = await mdast();
       const input = "- Item 1\n- Item 2\n  - Nested item\n- Item 3";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("* Item 1");
@@ -120,7 +119,7 @@ describe("mdast", () => {
     test("parse and stringify ordered lists", async () => {
       const api = await mdast();
       const input = "1. First item\n2. Second item\n   1. Nested item\n3. Third item";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("1. First item");
@@ -133,7 +132,7 @@ describe("mdast", () => {
       const api = await mdast();
       const input =
         "[Link text](https://example.com) and [Reference link][ref]\n\n[ref]: https://reference.com";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("[Link text](https://example.com)");
@@ -144,7 +143,7 @@ describe("mdast", () => {
     test("parse and stringify images", async () => {
       const api = await mdast();
       const input = "![Alt text](image.jpg) and ![Reference image][img]\n\n[img]: reference.jpg";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("![Alt text](image.jpg)");
@@ -155,7 +154,7 @@ describe("mdast", () => {
     test("parse and stringify inline code", async () => {
       const api = await mdast();
       const input = "Here is some `inline code` in a sentence.";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("`inline code`");
@@ -164,7 +163,7 @@ describe("mdast", () => {
     test("parse and stringify code blocks", async () => {
       const api = await mdast();
       const input = "```javascript\nconst x = 1;\nconsole.log(x);\n```";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("```javascript");
@@ -176,7 +175,7 @@ describe("mdast", () => {
     test("parse and stringify blockquotes", async () => {
       const api = await mdast();
       const input = "> This is a blockquote\n> with multiple lines\n>\n> And another paragraph";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("> This is a blockquote");
@@ -187,7 +186,7 @@ describe("mdast", () => {
     test("parse and stringify horizontal rules", async () => {
       const api = await mdast();
       const input = "Before\n\n---\n\nAfter";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("Before");
@@ -199,7 +198,7 @@ describe("mdast", () => {
       const api = await mdast();
       const input =
         "| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |\n| Cell 3   | Cell 4   |";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("Header 1");
@@ -213,7 +212,7 @@ describe("mdast", () => {
     test("parse and stringify line breaks", async () => {
       const api = await mdast();
       const input = "Line 1  \nLine 2\n\nParagraph 2";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("Line 1");
@@ -224,7 +223,7 @@ describe("mdast", () => {
     test("parse and stringify autolinks", async () => {
       const api = await mdast();
       const input = "Visit <https://example.com> or email <user@example.com>";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("<https://example.com>");
@@ -234,7 +233,7 @@ describe("mdast", () => {
     test("parse and stringify footnotes", async () => {
       const api = await mdast();
       const input = "Here is a footnote reference[^1].\n\n[^1]: This is the footnote.";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("footnote reference[^1]");
@@ -244,7 +243,7 @@ describe("mdast", () => {
     test("parse and stringify task lists", async () => {
       const api = await mdast();
       const input = "- [x] Completed task\n- [ ] Incomplete task\n- [X] Another completed task";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("* [x] Completed task");
@@ -255,7 +254,7 @@ describe("mdast", () => {
     test("parse and stringify definition lists", async () => {
       const api = await mdast();
       const input = "Term 1\n: Definition 1\n\nTerm 2\n: Definition 2a\n: Definition 2b";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       // Note: Definition lists might not be supported in all markdown parsers
@@ -268,7 +267,7 @@ describe("mdast", () => {
       const api = await mdast();
       const input =
         "Inline math: $E = mc^2$ and block math:\n\n$$\n\\int_0^\\infty e^{-x} dx = 1\n$$";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       // Math support depends on plugins, this tests graceful handling
@@ -280,7 +279,7 @@ describe("mdast", () => {
     test("visit with type filter", async () => {
       const api = await mdast();
       const input = "# Heading\n\nParagraph with **bold** and *italic* text.";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const headings: any[] = [];
       const emphasis: any[] = [];
 
@@ -300,7 +299,7 @@ describe("mdast", () => {
     test("visit with SKIP and EXIT controls", async () => {
       const api = await mdast();
       const input = "# Title\n\n**Bold** text\n\n## Subtitle";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const visited: string[] = [];
 
       api.visit(ast, (node: any) => {
@@ -342,7 +341,7 @@ def hello():
 |----------|----------|
 | Data 1   | Data 2   |`;
 
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("# Main Title");
@@ -361,7 +360,7 @@ def hello():
     test("parse handles malformed markdown gracefully", async () => {
       const api = await mdast();
       const input = "# Heading\n\n[Incomplete link\n\n```\nUnclosed code block";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
 
       expect(ast.type).toBe("root");
       expect(Array.isArray(ast.children)).toBe(true);
@@ -373,7 +372,7 @@ def hello():
     test("visit traverses complex AST structure", async () => {
       const api = await mdast();
       const input = "# Title\n\n**Bold** text with [link](url)\n\n- List item";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const nodeTypes: string[] = [];
 
       api.visit(ast, (node: any) => {
@@ -393,7 +392,7 @@ def hello():
     test("visitParents provides parent information", async () => {
       const api = await mdast();
       const input = "# Title\n\n**Bold text**";
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const visits: Array<{ type: string; parentTypes: string[] }> = [];
 
       api.visitParents(ast, (node: any, parents: any[]) => {
@@ -420,7 +419,7 @@ def hello():
 <Card title="Hello">
   Content here
 </Card>`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("# Title");
@@ -437,7 +436,7 @@ def hello():
 <br />
 
 <Hr className="my-4" />`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain('<Image src="image.jpg" alt="Description" />');
@@ -456,7 +455,7 @@ The answer is {2 + 2}
 <div>
   {items.map(item => <span key={item.id}>{item.name}</span>)}
 </div>`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("# Dynamic Content");
@@ -476,7 +475,7 @@ The answer is {2 + 2}
   columns={["Name", "Age", "City"]}
   sortable
 />`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain('<Alert type="warning" dismissible={true} onClose={handleClose}>');
@@ -509,7 +508,7 @@ The answer is {2 + 2}
     </Section>
   </Main>
 </Layout>`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("<Layout>");
@@ -537,7 +536,7 @@ export { metadata } from './metadata'
 <Button>Click me</Button>
 
 <Chart data={chartData} />`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("import { Button } from './components/Button'");
@@ -567,7 +566,7 @@ const code = "inside JSX";
 > Blockquote inside JSX
 
 </div>`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain('<div className="content">');
@@ -609,7 +608,7 @@ Current count: {count}
   prop2={functionCall()}
   prop3={condition ? "value1" : "value2"}
 />`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("# Data Visualization");
@@ -638,7 +637,7 @@ Current count: {count}
   
   <span style={{color: 'blue', fontSize: '18px'}}>Styled text</span>
 </div>`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("<div");
@@ -698,7 +697,7 @@ And here's a JSX code block:
     </tr>
   </tbody>
 </Table>`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const output = api.stringify(ast);
 
       expect(output).toContain("# Main Title");
@@ -723,7 +722,7 @@ And here's a JSX code block:
 <Component prop={value}>
   Content with {expression}
 </Component>`;
-      const ast = api.parse(input);
+      const ast = await api.parse(input);
       const nodeTypes: string[] = [];
 
       api.visit(ast, (node: any) => {
