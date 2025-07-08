@@ -5,6 +5,7 @@ import type { Root } from "mdast";
 import type { WorkspaceFile } from "@genaiscript/core";
 import { checkRuntime, filenameOrFileToContent, genaiscriptDebug } from "@genaiscript/core";
 import type { Processor } from "unified";
+import remarkGitHubAlerts from "./remarkalerts.js";
 const dbg = genaiscriptDebug("mdast");
 
 export interface MdAstOptions {
@@ -88,7 +89,10 @@ export async function mdast(options?: MdAstOptions) {
   function usePlugins(p: Processor<Root>): void {
     p.use(frontmatter);
     if (_options.gfm !== false) p.use(gfm);
-    if (_options.github !== false) p.use(github);
+    if (_options.github !== false) {
+      p.use(github);
+      p.use(remarkGitHubAlerts);
+    }
     if (_options.directive !== false) p.use(directive);
     if (_options.math !== false) p.use(math);
     // no comments in MDX files
