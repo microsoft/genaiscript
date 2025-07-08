@@ -1,0 +1,32 @@
+{
+  "name": "genaiscript-plugin-mdast",
+  "version": "1.140.0",
+  "description": "MDAST plugin for GenAIScript with details element support",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "directory": "packages/plugin-mdast",
+    "url": "https://github.com/microsoft/genaiscript"
+  },
+  "scripts": {
+    "test": "node --import tsx --test src/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.2",
+    "tsx": "^4.19.4",
+    "typescript": "5.8.3"
+  },
+  "dependencies": {
+    "remark": "^15.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.0",
+    "rehype-parse": "^9.0.0",
+    "rehype-remark": "^10.0.0",
+    "unified": "^11.0.4",
+    "unist-util-visit": "^5.0.0",
+    "mdast-util-from-markdown": "^2.0.0",
+    "mdast-util-to-markdown": "^2.1.0"
+  }
+}
