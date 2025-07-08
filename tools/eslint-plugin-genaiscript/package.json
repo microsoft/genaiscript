@@ -22,16 +22,16 @@
   "dependencies": {
     "@eslint/js": "catalog:",
     "eslint-config-prettier": "^10.1.5",
+    "tslib": "catalog:",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:",
-    "tslib": "catalog:"
+    "typescript-eslint": "catalog:"
   },
   "devDependencies": {
-    "@types/eslint": "^9.6.0",
+    "@types/eslint": "^9.6.1",
     "@types/eslint-config-prettier": "^6.11.3",
-    "@types/node": "^22.0.0",
-    "@typescript-eslint/rule-tester": "^8.35.1",
-    "@typescript-eslint/utils": "^8.35.1",
+    "@types/node": "^22.16.0",
+    "@typescript-eslint/rule-tester": "^8.36.0",
+    "@typescript-eslint/utils": "^8.36.0",
     "@vitest/coverage-istanbul": "catalog:",
     "prettier": "catalog:",
     "rimraf": "catalog:",

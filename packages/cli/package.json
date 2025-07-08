@@ -40,7 +40,7 @@
     "@genaiscript/core": "workspace:*",
     "@genaiscript/runtime": "workspace:*",
     "@inquirer/prompts": "catalog:",
-    "@modelcontextprotocol/sdk": "^1.13.3",
+    "@modelcontextprotocol/sdk": "^1.15.0",
     "chokidar": "^4.0.3",
     "commander": "^14.0.0",
     "debug": "catalog:",

@@ -71,17 +71,35 @@ dev-proxy-ca.crt
 
 # START Ruler Generated Files
 .aider.conf.yml
+.aider.conf.yml.bak
 .clinerules
+.clinerules.bak
+.cursor/mcp.json.bak
 .cursor/rules/ruler_cursor_instructions.mdc
+.cursor/rules/ruler_cursor_instructions.mdc.bak
+.gemini/settings.json.bak
 .github/copilot-instructions.md
+.github/copilot-instructions.md.bak
 .idx/airules.md
+.idx/airules.md.bak
+.mcp.json.bak
 .openhands/config.toml
+.openhands/config.toml.bak
 .openhands/microagents/repo.md
+.openhands/microagents/repo.md.bak
+.vscode/mcp.json
+.vscode/mcp.json.bak
 .windsurf/rules/ruler_windsurf_instructions.md
+.windsurf/rules/ruler_windsurf_instructions.md.bak
 AGENTS.md
+AGENTS.md.bak
 CLAUDE.md
+CLAUDE.md.bak
 GEMINI.md
+GEMINI.md.bak
+claude_desktop_config.json.bak
 ruler_aider_instructions.md
+ruler_aider_instructions.md.bak
 # END Ruler Generated Files
 
 packages/*/src/package.json
