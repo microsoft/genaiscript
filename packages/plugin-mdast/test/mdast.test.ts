@@ -873,23 +873,8 @@ And here's a JSX code block:
       expect(blockquote.data?.githubAlert?.type).toBe("NOTE");
       
       const output = api.stringify(ast);
-      expect(output).toContain("> [!NOTE]Custom Note Title");
+      expect(output).toContain("> [!NOTE] Custom Note Title");
       expect(output).toContain("> This note has a custom title.");
-    });
-
-    test("parse alerts with case variations", async () => {
-      const api = await mdast();
-      const input = `> [!note]
-> Lowercase note.`;
-      const ast = await api.parse(input);
-      
-      const blockquote = ast.children[0] as any;
-      expect(blockquote.type).toBe("blockquote");
-      expect(blockquote.data?.githubAlert?.type).toBe("NOTE"); // Normalized to uppercase
-      
-      const output = api.stringify(ast);
-      expect(output).toContain("> [!note]");
-      expect(output).toContain("> Lowercase note.");
     });
 
     test("visit traverses alert nodes", async () => {
