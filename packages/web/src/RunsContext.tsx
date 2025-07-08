@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type React from "react";
+import React from "react";
 import { createContext, useState, useMemo, use, useContext } from "react";
 import type { RunResultListResponse } from "../../core/src/server/messages";
 import { fetchRuns } from "./api";

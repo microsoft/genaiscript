@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type React from "react";
+import React from "react";
 import { createContext, useState, useMemo, use } from "react";
 import type { ChatModels } from "../../core/src/chattypes";
 import type { Project, ServerEnvResponse } from "../../core/src/server/messages";

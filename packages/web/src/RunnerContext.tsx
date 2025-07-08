@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type React from "react";
+import React from "react";
 import { createContext, startTransition, use, useCallback, useEffect, useState } from "react";
 import type { GenerationResult, PromptScriptRunOptions } from "../../core/src/server/messages";
 import { toBase64 } from "../../core/src/base64";

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type React from "react";
+import React from "react";
 import { createContext, use } from "react";
 import { useLocationHashValue } from "./useLocationHashValue";
 

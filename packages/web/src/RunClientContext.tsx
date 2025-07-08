@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type React from "react";
+import React from "react";
 import { createContext, useMemo, useEffect, use, startTransition, useState } from "react";
 import { base, apiKey } from "./configuration";
 import { RunClient } from "./RunClient";
