@@ -328,6 +328,11 @@
                         "default": true,
                         "description": "Add custom instructions.md in .genaiscript/instructions folder to support GenAIScript script generation."
                     },
+                    "genaiscript.disableTrace": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Disable trace view. This is useful for performance reasons when you don't need to see the trace of the requests."
+                    },
                     "genaiscript.hideServerTerminal": {
                         "type": "boolean",
                         "default": true,

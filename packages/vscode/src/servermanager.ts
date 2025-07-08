@@ -196,6 +196,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     const diagnostics = this.state.diagnostics;
     const debug = diagnostics ? "*" : this.state.debug;
     const hideFromUser = !diagnostics && !!config.get("hideServerTerminal");
+    const disableTrace = config.get("disableTrace") ? "--no-run-trace " : "";
     const cwd = host.projectFolder();
     await this.allocatePort();
     logVerbose(`starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`);
@@ -220,7 +221,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     });
     if (cliPath) {
       this._terminal.sendText(
-        `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" ${githubCopilotChatClient}`,
+        `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" ${githubCopilotChatClient} ${disableTrace}`,
       );
     } else {
       const pkg = await packageResolveExecute(
@@ -234,6 +235,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
           `--cors`,
           `"*"`,
           githubCopilotChatClient,
+          disableTrace,
         ],
         { agent: packageManager },
       );

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 
 import { WebSocketServer } from "ws";
 import { runPromptScriptTests } from "./test.js";
@@ -105,8 +106,9 @@ export async function startServer(
     chat?: boolean;
     dispatchProgress?: boolean;
     githubCopilotChatClient?: boolean;
+    runTrace?: boolean;
   } & RemoteOptions,
-) {
+): Promise<void> {
   // Parse and set the server port, using a default if not specified.
   const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN;
   const apiKey = options.apiKey || process.env.GENAISCRIPT_API_KEY;
@@ -114,6 +116,7 @@ export async function startServer(
   const remote = options.remote;
   const dispatchProgress = !!options.dispatchProgress;
   const openAIChatCompletions = !!options.chat;
+  const runTrace = !!options.runTrace;
 
   const port = await findOpenPort(SERVER_PORT, options);
 
@@ -240,7 +243,7 @@ export async function startServer(
     }) satisfies ServerEnvResponse;
   };
 
-  const scriptList = async () => {
+  const scriptList = async (): Promise<PromptScriptListResponse> => {
     logVerbose(`project: list scripts`);
     const project = await watcher.project();
     const scripts = project?.scripts || [];
@@ -255,7 +258,7 @@ export async function startServer(
   };
 
   // Configures the client language model with a completer function.
-  if (options?.githubCopilotChatClient)
+  if (options?.githubCopilotChatClient) {
     runtimeHost.clientLanguageModel = Object.freeze<LanguageModel>({
       id: MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
       completer: async (
@@ -320,6 +323,7 @@ export async function startServer(
         });
       },
     });
+  }
 
   // Handle server shutdown by cancelling all activities.
   wss.on("close", () => {
@@ -354,12 +358,13 @@ export async function startServer(
     const sendLastRunResult = () => {
       if (!lastRunResult) return;
       if (JSON.stringify(lastRunResult).length < WS_MAX_FRAME_LENGTH - 200) send(lastRunResult);
-      else
+      else {
         send({
           type: "script.end",
           runId: lastRunResult.runId,
           exitCode: lastRunResult.exitCode,
         } satisfies PromptScriptEndResponseEvent);
+      }
     };
     const sendProgress = (
       runId: string,
@@ -452,7 +457,6 @@ export async function startServer(
             await runtimeHost.readConfig();
             response = await runPromptScriptTests(data.scripts, {
               ...(data.options || {}),
-              //cache: true,
               verbose: true,
               promptfooVersion: PROMPTFOO_VERSION,
             });
@@ -461,7 +465,7 @@ export async function startServer(
           // Handle script start request
           case "script.start": {
             // Cancel any active scripts
-            const { script, files = [], options = {}, runId } = data;
+            const { script, files = [], options: runOptions = {}, runId } = data;
             if (!script) throw new Error("missing script");
             if (files.some((f) => !f)) throw new Error("invalid file");
             cancelAll();
@@ -471,15 +475,17 @@ export async function startServer(
             const outputTrace = new MarkdownTrace({
               cancellationToken,
             });
-            trace.addEventListener(TRACE_CHUNK, (ev) => {
-              const tev = ev as TraceChunkEvent;
-              chunkString(tev.chunk, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
-                sendProgress(runId, {
-                  trace: c,
-                  inner: tev.inner,
-                }),
-              );
-            });
+            if (runTrace) {
+              trace.addEventListener(TRACE_CHUNK, (ev) => {
+                const tev = ev as TraceChunkEvent;
+                chunkString(tev.chunk, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
+                  sendProgress(runId, {
+                    trace: c,
+                    inner: tev.inner,
+                  }),
+                );
+              });
+            }
             outputTrace.addEventListener(TRACE_CHUNK, (ev) => {
               const tev = ev as TraceChunkEvent;
               chunkString(tev.chunk, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
@@ -492,7 +498,7 @@ export async function startServer(
             logVerbose(`run ${runId}: starting ${script}`);
             await runtimeHost.readConfig();
             const runner = runScriptInternal(script, files, {
-              ...options,
+              ...runOptions,
               runId,
               trace,
               runOutputTrace: outputTrace,
@@ -601,7 +607,7 @@ export async function startServer(
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept");
   };
 
-  const runRx = /^\/api\/runs\/(?<runId>[A-Za-z0-9_\-]{12,256})$/;
+  const runRx = /^\/api\/runs\/(?<runId>[A-Za-z0-9_-]{12,256})$/;
   const imageRx = /^\/\.genaiscript\/(images|runs\/.*?)\/[a-z0-9]{12,128}\.(png|jpg|jpeg|gif|svg)$/;
   const ROOT = process.cwd();
 

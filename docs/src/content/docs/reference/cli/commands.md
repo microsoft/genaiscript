@@ -573,6 +573,7 @@ Options:
   --dispatch-progress            Dispatch progress events to all clients
   --github-copilot-chat-client   Allow github_copilot_chat provider to connect
                                  to connected Visual Studio Code
+  --no-run-trace                 Emit run trace events
   --remote <string>              Remote repository URL to serve
   --remote-branch <string>       Branch to serve from the remote
   --remote-force                 Force pull from remote repository
