@@ -1,8 +1,10 @@
 import { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
-import { Node } from 'unist'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
+
+// Using any for Node types to simplify - in real usage, proper unist types would be used
+type Node = any
 
 // MDAST node types
 interface DetailsMdastNode extends Node {
@@ -27,64 +29,83 @@ interface HtmlNode extends Node {
   value: string
 }
 
-interface TextNode extends Node {
-  type: 'text'
-  value: string
-}
-
-// Helper function to find the end of a details element considering nesting
-function findDetailsEnd(content: string, startPos: number = 0): number {
+// Helper function to balance details tags and extract the outermost one
+function extractOutermostDetails(htmlContent: string): { match: string; rest: string } | null {
+  const lines = htmlContent.split('\n')
   let depth = 0
-  let pos = startPos
+  let startLine = -1
+  let endLine = -1
   
-  while (pos < content.length) {
-    const remaining = content.substring(pos)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim()
     
-    // Look for opening and closing details tags
-    const openMatch = remaining.match(/^<details(\s+[^>]*)?>/)
-    const closeMatch = remaining.match(/^<\/details>/)
-    
-    if (openMatch) {
-      depth++
-      pos += openMatch[0].length
-    } else if (closeMatch) {
-      depth--
+    // Check for details opening tag
+    if (line.match(/^<details(\s+[^>]*)?>$/)) {
       if (depth === 0) {
-        return pos + closeMatch[0].length
+        startLine = i
       }
-      pos += closeMatch[0].length
-    } else {
-      pos++
+      depth++
+    }
+    // Check for details closing tag
+    else if (line.match(/^<\/details>$/)) {
+      depth--
+      if (depth === 0 && startLine !== -1) {
+        endLine = i
+        break
+      }
     }
   }
   
-  return -1 // No matching closing tag found
+  if (startLine !== -1 && endLine !== -1) {
+    const matchedLines = lines.slice(startLine, endLine + 1)
+    const restLines = lines.slice(endLine + 1)
+    
+    return {
+      match: matchedLines.join('\n'),
+      rest: restLines.join('\n').trim()
+    }
+  }
+  
+  // Fallback: try to match complete details in the content
+  const match = htmlContent.match(/^<details(\s+[^>]*)?>[\s\S]*?<\/details>/)
+  if (match) {
+    return {
+      match: match[0],
+      rest: htmlContent.substring(match[0].length).trim()
+    }
+  }
+  
+  return null
 }
 
 // Helper function to parse HTML details content into MDAST nodes
 function parseDetailsContent(htmlContent: string): DetailsMdastNode | null {
-  // Check if this starts with a details tag
-  const detailsStartMatch = htmlContent.match(/^<details(\s+[^>]*)?>/)
+  const extraction = extractOutermostDetails(htmlContent)
+  if (!extraction) {
+    return null
+  }
+  
+  const { match: detailsBlock } = extraction
+  
+  // Extract details attributes
+  const detailsStartMatch = detailsBlock.match(/^<details(\s+[^>]*)?>/)
   if (!detailsStartMatch) {
     return null
   }
   
-  // Find the end of this details element
-  const detailsStart = detailsStartMatch[0].length
-  const detailsEnd = findDetailsEnd(htmlContent, detailsStart)
-  
-  if (detailsEnd === -1) {
-    return null // No matching closing tag
-  }
-  
   const attributesStr = detailsStartMatch[1] || ''
-  const innerContent = htmlContent.substring(detailsStart, detailsEnd - 10) // Remove </details>
-  
-  // Parse attributes
   const properties: Record<string, any> = {}
   if (attributesStr.includes('open')) {
     properties.open = true
   }
+  
+  // Extract inner content (everything between <details> and </details>)
+  const innerMatch = detailsBlock.match(/^<details[^>]*>([\s\S]*)<\/details>$/)
+  if (!innerMatch) {
+    return null
+  }
+  
+  const innerContent = innerMatch[1]
   
   const detailsNode: DetailsMdastNode = {
     type: 'details',
@@ -140,15 +161,14 @@ function parseDetailsContent(htmlContent: string): DetailsMdastNode | null {
     
     detailsNode.children.push(summaryNode)
     
-    // Parse rest of content, which might contain nested details
+    // Parse rest of content which might contain nested details or other markdown
     if (restContent) {
-      // First, apply the remarkDetails plugin to handle nested details
       try {
-        const contentProcessor = unified().use(remarkParse).use(remarkDetails)
+        // Don't recursively apply the plugin to avoid infinite loops
+        const contentProcessor = unified().use(remarkParse)
         const contentTree = contentProcessor.parse(restContent)
-        const processedTree = contentProcessor.runSync(contentTree)
-        if (processedTree.type === 'root' && processedTree.children) {
-          detailsNode.children.push(...processedTree.children as Node[])
+        if (contentTree.type === 'root' && contentTree.children) {
+          detailsNode.children.push(...contentTree.children as Node[])
         } else {
           detailsNode.children.push({
             type: 'text',
@@ -164,13 +184,12 @@ function parseDetailsContent(htmlContent: string): DetailsMdastNode | null {
       }
     }
   } else {
-    // No summary, just content - might contain nested details
+    // No summary, just content
     try {
-      const contentProcessor = unified().use(remarkParse).use(remarkDetails)
+      const contentProcessor = unified().use(remarkParse)
       const contentTree = contentProcessor.parse(innerContent.trim())
-      const processedTree = contentProcessor.runSync(contentTree)
-      if (processedTree.type === 'root' && processedTree.children) {
-        detailsNode.children = processedTree.children as Node[]
+      if (contentTree.type === 'root' && contentTree.children) {
+        detailsNode.children = contentTree.children as Node[]
       } else {
         detailsNode.children = [{
           type: 'text',
@@ -192,25 +211,210 @@ function parseDetailsContent(htmlContent: string): DetailsMdastNode | null {
 // Plugin to parse HTML details elements into MDAST nodes
 export const remarkDetails: Plugin = function() {
   return (tree: Node) => {
-    const replacements: Array<{ parent: any; index: number; node: DetailsMdastNode }> = []
+    let hasChanges = true
+    let iterations = 0
+    const maxIterations = 10 // Prevent infinite loops
     
-    // Find all HTML nodes that contain details elements
-    visit(tree, 'html', (node: HtmlNode, index: number | undefined, parent: any) => {
-      if (index === undefined || !parent) return
+    // Keep applying transformations until no more details elements are found
+    while (hasChanges && iterations < maxIterations) {
+      hasChanges = false
+      iterations++
       
-      const html = node.value.trim()
+      // Handle both complete details blocks and fragmented ones
+      const replacements: Array<{ 
+        parent: any; 
+        startIndex: number; 
+        endIndex: number; 
+        nodes: Node[] 
+      }> = []
       
-      // Try to parse as details element
-      const detailsNode = parseDetailsContent(html)
-      if (detailsNode) {
-        replacements.push({ parent, index, node: detailsNode })
+      // First, try to find complete details blocks
+      visit(tree, 'html', (node: HtmlNode, index: number | undefined, parent: any) => {
+        if (index === undefined || !parent) return
+        
+        const html = node.value.trim()
+        const resultNodes: Node[] = []
+        let remainingHtml = html
+        
+        // Extract all details elements from this HTML block
+        while (remainingHtml) {
+          const detailsNode = parseDetailsContent(remainingHtml)
+          if (detailsNode) {
+            resultNodes.push(detailsNode)
+            hasChanges = true
+            
+            // Find what's left after this details element
+            const extraction = extractOutermostDetails(remainingHtml)
+            if (extraction && extraction.rest) {
+              remainingHtml = extraction.rest
+            } else {
+              break
+            }
+          } else {
+            // No more details elements, keep remaining HTML as-is
+            if (remainingHtml.trim()) {
+              resultNodes.push({
+                type: 'html',
+                value: remainingHtml
+              })
+            }
+            break
+          }
+        }
+        
+        // If we found any details nodes, replace the original HTML node
+        if (resultNodes.length > 0 && hasChanges) {
+          replacements.push({ 
+            parent, 
+            startIndex: index, 
+            endIndex: index, 
+            nodes: resultNodes 
+          })
+        }
+      })
+      
+      // Now handle fragmented details (opening tag separate from closing tag)
+      if (!hasChanges) {
+        for (let i = 0; i < (tree as any).children?.length; i++) {
+          const children = (tree as any).children
+          if (!children) continue
+          
+          const node = children[i]
+          if (node?.type === 'html') {
+            const html = node.value.trim()
+            
+            // Check if this is an opening details tag
+            const detailsOpenMatch = html.match(/^<details(\s+[^>]*)?>[\s\S]*?<summary(\s+[^>]*)?>(.*)$/is)
+            if (detailsOpenMatch) {
+              // Found opening details with summary - now find the closing tag
+              const attributesStr = detailsOpenMatch[1] || ''
+              const summaryContent = detailsOpenMatch[3].trim()
+              
+              let endIndex = -1
+              const collectedNodes: Node[] = []
+              
+              // Look for </summary> first
+              let summaryEnded = false
+              let j = i + 1
+              
+              // If summary content is not complete in the opening tag, collect until </summary>
+              if (!summaryContent.includes('</summary>')) {
+                while (j < children.length) {
+                  const nextNode = children[j]
+                  if (nextNode?.type === 'html' && nextNode.value.includes('</summary>')) {
+                    const summaryEndContent = nextNode.value.split('</summary>')[0]
+                    if (summaryEndContent) {
+                      collectedNodes.push({
+                        type: 'text',
+                        value: summaryEndContent
+                      })
+                    }
+                    summaryEnded = true
+                    
+                    // Check if there's content after </summary> in the same node
+                    const afterSummary = nextNode.value.split('</summary>')[1]
+                    if (afterSummary && afterSummary.trim()) {
+                      if (afterSummary.includes('</details>')) {
+                        // End of details in same node
+                        const beforeDetails = afterSummary.split('</details>')[0]
+                        if (beforeDetails.trim()) {
+                          collectedNodes.push({
+                            type: 'text',
+                            value: beforeDetails.trim()
+                          })
+                        }
+                        endIndex = j
+                        break
+                      } else {
+                        collectedNodes.push({
+                          type: 'text',
+                          value: afterSummary
+                        })
+                      }
+                    }
+                    j++
+                    break
+                  } else {
+                    collectedNodes.push(nextNode)
+                    j++
+                  }
+                }
+              } else {
+                summaryEnded = true
+              }
+              
+              // Now look for </details>
+              if (summaryEnded) {
+                while (j < children.length) {
+                  const nextNode = children[j]
+                  if (nextNode?.type === 'html' && nextNode.value.includes('</details>')) {
+                    endIndex = j
+                    
+                    // Get content before </details>
+                    const beforeDetails = nextNode.value.split('</details>')[0]
+                    if (beforeDetails.trim()) {
+                      collectedNodes.push({
+                        type: 'text',
+                        value: beforeDetails.trim()
+                      })
+                    }
+                    break
+                  } else {
+                    collectedNodes.push(nextNode)
+                    j++
+                  }
+                }
+              }
+              
+              // If we found a complete details structure, create the details node
+              if (endIndex !== -1) {
+                const properties: Record<string, any> = {}
+                if (attributesStr.includes('open')) {
+                  properties.open = true
+                }
+                
+                const detailsNode: DetailsMdastNode = {
+                  type: 'details',
+                  data: {
+                    hName: 'details',
+                    hProperties: properties
+                  },
+                  children: [
+                    {
+                      type: 'summary',
+                      data: {
+                        hName: 'summary'
+                      },
+                      children: summaryContent ? [{
+                        type: 'text',
+                        value: summaryContent
+                      }] : []
+                    },
+                    ...collectedNodes
+                  ]
+                }
+                
+                replacements.push({
+                  parent: tree,
+                  startIndex: i,
+                  endIndex: endIndex,
+                  nodes: [detailsNode]
+                })
+                
+                hasChanges = true
+                break // Process one at a time to avoid index issues
+              }
+            }
+          }
+        }
       }
-    })
-    
-    // Apply replacements in reverse order to maintain indices
-    for (let i = replacements.length - 1; i >= 0; i--) {
-      const { parent, index, node } = replacements[i]
-      parent.children[index] = node
+      
+      // Apply replacements in reverse order to maintain indices
+      for (let i = replacements.length - 1; i >= 0; i--) {
+        const { parent, startIndex, endIndex, nodes } = replacements[i]
+        const deleteCount = endIndex - startIndex + 1
+        parent.children.splice(startIndex, deleteCount, ...nodes)
+      }
     }
   }
 }

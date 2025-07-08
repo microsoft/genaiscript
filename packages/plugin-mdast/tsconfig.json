@@ -2,7 +2,11 @@
   "extends": "../tsconfig-base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "lib": ["ES2022"]
   },
   "include": [
     "src/**/*"

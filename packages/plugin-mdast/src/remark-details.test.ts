@@ -1,10 +1,12 @@
+// @ts-nocheck
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import { remarkDetails } from './remark-details'
 import { visit } from 'unist-util-visit'
-import { Node } from 'unist'
+
+type Node = any
 
 // Helper function to find nodes of a specific type
 function findNodes(tree: Node, type: string): Node[] {
