@@ -42,7 +42,7 @@ This is the hidden content.
     expect(detailsNode.type).toBe("detailsElement");
     expect(detailsNode.data?.detailsElement?.summary).toBe("Click to expand");
     expect(detailsNode.data?.detailsElement?.content).toContain("This is the hidden content");
-    
+
     // Should have summary node and content nodes as children
     expect(detailsNode.children.length).toBeGreaterThan(0);
     const summaryChild = detailsNode.children[0];
@@ -65,7 +65,7 @@ This is the hidden content.
     const result = processor.parse(input);
     const tree = processor.runSync(result) as Root;
 
-    console.log(inspect(tree))
+    console.log(inspect(tree));
     expect(tree.children).toHaveLength(5);
     const detailsNode = tree.children[0] as unknown as DetailsElement;
     expect(detailsNode.type).toBe("html");
@@ -114,6 +114,21 @@ Content here
     const detailsNode = tree.children[0] as unknown as DetailsElement;
     expect(detailsNode.type).toBe("detailsElement");
     expect(detailsNode.data?.detailsElement?.summary).toBe(undefined);
-    expect(detailsNode.data?.detailsElement?.content).toBe('');
+    expect(detailsNode.data?.detailsElement?.content).toBe("");
+  });
+
+  it("should handle lists", async () => {
+    const input = `<details>
+<summary>🎒 Other Courses</summary>
+
+- [Generative AI for Beginners](https://aka.ms/genai-beginners)
+- [Generative AI for Beginners .NET](https://github.com/microsoft/Generative-AI-for-beginners-dotnet)
+</details>`;
+
+    const processor = createProcessor();
+    const result = processor.parse(input);
+    const tree = processor.runSync(result) as Root;
+
+    console.log(inspect(tree));
   });
 });
