@@ -8,6 +8,8 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGitHubAlerts from "../src/remarkalerts.js";
 import type { Root } from "mdast";
+import { inspect } from "unist-util-inspect";
+
 
 describe("remarkGitHubAlerts", () => {
   const parseWithPlugin = (markdown: string): Root => {
@@ -22,7 +24,7 @@ describe("remarkGitHubAlerts", () => {
 > This is a note alert`;
 
     const ast = parseWithPlugin(markdown);
-    console.log(JSON.stringify(ast, null, 2))
+    console.log(inspect(ast));
     const blockquote = ast.children[0] as any;
 
     expect(blockquote.type).toBe("blockquote");

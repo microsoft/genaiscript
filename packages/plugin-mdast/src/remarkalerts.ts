@@ -64,6 +64,7 @@ const GITHUB_ALERT_REGEX = /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i;
  * @returns Unified plugin transformer
  */
 const remarkGitHubAlerts: Plugin<[RemarkGitHubAlertsOptions?], Root> = (options = {}) => {
+  dbg(`registering`);
   return (tree: Root) => {
     visit(tree, "blockquote", (node: GitHubAlertBlockquote) => {
       dbg("blockquote: %O", node);

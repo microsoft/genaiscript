@@ -31,7 +31,8 @@
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
-    "unist-util-visit-parents": "^6.0.1"
+    "unist-util-visit-parents": "^6.0.1",
+    "unist-util-inspect": "^8.1.0"
   },
   "devDependencies": {
     "@genaiscript/eslint-plugin-genaiscript": "workspace:*",

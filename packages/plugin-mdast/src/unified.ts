@@ -42,6 +42,7 @@ export async function mdast(options?: MdAstOptions) {
   dbg(`mdast: %o`, _options);
   const { unified } = await import("unified");
   const { default: parse } = await import("remark-parse");
+  const { inspect } = await import("unist-util-inspect");
   const { default: directive } = await import("remark-directive");
   const { default: gfm } = await import("remark-gfm");
   const { default: github } = await import("remark-github");
@@ -81,6 +82,7 @@ export async function mdast(options?: MdAstOptions) {
     stringify: mdastStringify,
     visit,
     visitParents,
+    inspect,
     CONTINUE,
     EXIT,
     SKIP,
