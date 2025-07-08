@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// This module provides functions to convert HTML content into different formats such as JSON, plain text, and Markdown.
-/// <reference path="./html-escaper.d.ts" />
-/// <reference path="./turndown-plugin-gfm.d.ts" />
-
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
-import { TraceOptions } from "./trace.js"; // Import TraceOptions for optional logging features
+import "./html-escaper.js"
+import "./turndown-plugin-gfm.js"
+import type { CancellationOptions } from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
+import type { TraceOptions } from "./trace.js"; // Import TraceOptions for optional logging features
 import type { HTMLToMarkdownOptions, HTMLToTextOptions } from "./types.js"; // Import HTMLToTextOptions for configuring HTML to text conversion
 
 /**

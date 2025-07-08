@@ -5,7 +5,7 @@ import type { Plugin } from "unified";
 import type { Node, Root, Paragraph, Text, Blockquote, Data } from "mdast";
 import { visit } from "unist-util-visit";
 import { genaiscriptDebug } from "@genaiscript/core";
-const dbg = genaiscriptDebug("mdast:gh-alerts");
+const dbg = genaiscriptDebug("mdast:gfm:alerts");
 
 /**
  * GitHub alert types supported by the plugin

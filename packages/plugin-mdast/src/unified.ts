@@ -7,6 +7,7 @@ import { checkRuntime, filenameOrFileToContent, genaiscriptDebug } from "@genais
 import type { Processor } from "unified";
 import remarkGitHubAlerts from "./remarkalerts.js";
 import type { GitHubAlertMarker } from "./remarkalerts.js";
+import remarkDetails from "./remarkdetails.js";
 const dbg = genaiscriptDebug("mdast");
 
 export interface MdAstOptions {
@@ -94,6 +95,7 @@ export async function mdast(options?: MdAstOptions) {
 
   function usePlugins(p: Processor<Root>, phase: "parse" | "stringify"): void {
     p.use(frontmatter);
+    p.use(remarkDetails);
     if (_options.gfm !== false) {
       p.use(remarkGitHubAlerts);
       p.use(gfm);

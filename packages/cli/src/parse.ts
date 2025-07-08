@@ -104,7 +104,7 @@ export async function parsePDF(file: string, options: { images: boolean; out: st
  * @param file - The path to the DOCX file to parse.
  * @param options - Options for parsing the DOCX file.
  */
-export async function parseDOCX(file: string, options: DocxParseOptions) {
+export async function parseDOCX(file: string, options: DocxParseOptions): Promise<void> {
   // Uses DOCXTryParse to extract text from the DOCX file
   const res = await DOCXTryParse(file, options);
   if (res.error) console.error(res.error);
@@ -119,7 +119,7 @@ export async function parseDOCX(file: string, options: DocxParseOptions) {
 export async function parseHTMLToText(
   fileOrUrl: string,
   options: { format?: "markdown" | "text"; out?: string },
-) {
+): Promise<void> {
   const { format = "markdown", out } = options || {};
   const file: WorkspaceFile = { filename: fileOrUrl };
   await resolveFileContent(file);
