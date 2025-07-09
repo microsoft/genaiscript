@@ -52,6 +52,7 @@ import {
   GITHUB_TOKENS,
   MODEL_PROVIDER_DOCKER_MODEL_RUNNER,
   DOCKER_MODEL_RUNNER_API_BASE,
+  MODEL_PROVIDER_MCP,
 } from "./constants.js";
 import { runtimeHost } from "./host.js";
 import { parseModelIdentifier } from "./models.js";
@@ -821,6 +822,20 @@ export async function parseTokenFromEnv(
       modelId,
       base: undefined,
       token: MODEL_PROVIDER_GITHUB_COPILOT_CHAT,
+    };
+  }
+
+  if (provider === MODEL_PROVIDER_MCP) {
+    dbg(`processing MODEL_PROVIDER_MCP`);
+    if (!runtimeHost.clientLanguageModel) {
+      throw new Error(`${MODEL_PROVIDER_MCP} requires MCP Client with Sampling.`);
+    }
+    return {
+      provider,
+      model,
+      modelId,
+      base: undefined,
+      token: MODEL_PROVIDER_MCP,
     };
   }
 

@@ -729,6 +729,21 @@ export default {
       env: {},
     },
     {
+      id: "mcp",
+      detail: "MCP Client Sampling",
+      hidden: true,
+      tools: false,
+      prediction: false,
+      tokenless: true,
+      aliases: {
+        large: "gpt-4o",
+        small: "gpt-4o-mini",
+        reasoning: "o3-mini",
+        reasoning_small: "o1-mini",
+      },
+      env: {},
+    },
+    {
       id: "echo",
       detail: "A fake LLM provider that responds with the input messages.",
       tools: true,

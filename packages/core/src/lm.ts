@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { AnthropicBedrockModel, AnthropicModel } from "./anthropic.js";
-import { LanguageModel } from "./chat.js";
+import type { LanguageModel } from "./chat.js";
 import {
   MODEL_PROVIDER_ANTHROPIC,
   MODEL_PROVIDER_ANTHROPIC_BEDROCK,
@@ -15,6 +15,7 @@ import {
   MODEL_PROVIDER_ECHO,
   MODEL_PROVIDER_NONE,
   MODEL_PROVIDER_AZURE_AI_INFERENCE,
+  MODEL_PROVIDER_MCP,
 } from "./constants.js";
 import { runtimeHost } from "./host.js";
 import { OllamaModel } from "./ollama.js";
@@ -44,6 +45,11 @@ export function resolveLanguageModel(provider: string): LanguageModel {
   if (provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT) {
     const m = runtimeHost.clientLanguageModel;
     if (!m) throw new Error("Github Copilot Chat Models not available");
+    return m;
+  }
+  if (provider === MODEL_PROVIDER_MCP) {
+    const m = runtimeHost.clientLanguageModel;
+    if (!m) throw new Error("MCP Client Sampling not available");
     return m;
   }
   if (provider === MODEL_PROVIDER_AZURE_OPENAI) return AzureOpenAIModel;
