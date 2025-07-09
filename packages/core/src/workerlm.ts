@@ -43,7 +43,7 @@ export function createWorkerLanguageModel() {
       return new Promise<ChatCompletionResponse>((resolve, reject) => {
         // eslint-disable-next-line n/no-unsupported-features/node-builtins
         const handler = (ev: any) => {
-          dbg(`%O`, ev);
+          dbg(`message: %O`, ev);
           const { detail } = ev as { detail: ChatCompletionResponseMessage };
           if (detail?.type !== "chatCompletion" || detail?.id !== id) {
             return;

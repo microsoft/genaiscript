@@ -109,8 +109,9 @@ export async function startMcpServer(
       dbg(`chatCompletion message received: %O`, data);
       const { request, ...rest } = data;
       const response = await mcpRequestSample(server, data.request);
-      dbg(`chatCompletion response: %O`, response);
-      postMessage({ ...rest, response });
+      const msg = { ...rest, response };
+      dbg(`chatCompletion response: %O`, msg);
+      postMessage(msg);
     } else {
       dbg(`unknown message type: ${data.type}`);
     }
