@@ -18,6 +18,7 @@ import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 const dbgs = genaiscriptDebug("mcp:server:sampling");
 
 export function mcpCreateLanguageModel(server: Server): LanguageModel {
+  dbgs(`creating mcp sampling language model`);
   return Object.freeze<LanguageModel>({
     id: MODEL_PROVIDER_MCP,
     completer: async (

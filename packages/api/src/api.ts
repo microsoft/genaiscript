@@ -56,6 +56,10 @@ export async function run(
      * Handles messages
      */
     onMessage?: (data: { type: "resourceChange" } & Resource) => Awaitable<void>;
+    /**
+     * Enable client language model as parent.
+     */
+    parentLanguageModel?: boolean;
   },
 ): Promise<GenerationResult> {
   if (!scriptId) throw new Error("scriptId is required");

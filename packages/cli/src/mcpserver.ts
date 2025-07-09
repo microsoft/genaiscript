@@ -148,6 +148,7 @@ export async function startMcpServer(
         vars: vars as Record<string, string | number | boolean | object>,
         runTrace: false,
         outputTrace: false,
+        parentLanguageModel: true,
         onMessage: async (data) => {
           if (data.type === RESOURCE_CHANGE) {
             dbg(`updating resource: %O`, data.reference);
@@ -213,7 +214,7 @@ export async function startMcpServer(
     });
   });
 
-  server.oninitialized = () => {
+  server.oninitialized = async () => {
     dbg(`server/client connection initialized`);
     // Check if client supports sampling
     const clientCapabilities = server.getClientCapabilities();
@@ -222,23 +223,24 @@ export async function startMcpServer(
       dbg(`registering client sampling`);
       runtimeHost.clientLanguageModel = mcpCreateLanguageModel(server);
     }
+
+    if (startup) {
+      logVerbose(`startup script: ${startup}`);
+      await run(startup, [], {
+        vars: {},
+        parentLanguageModel: true,
+        onMessage: async (data) => {
+          if (data.type === RESOURCE_CHANGE) {
+            await runtimeHost.resources.upsertResource(data.reference, data.content);
+          } else {
+            dbg(`unknown message type: ${data.type}`);
+          }
+        },
+      });
+    }
   };
 
   const transport = new StdioServerTransport();
   dbg(`connecting server with transport`);
   await server.connect(transport);
-
-  if (startup) {
-    logVerbose(`startup script: ${startup}`);
-    await run(startup, [], {
-      vars: {},
-      onMessage: async (data) => {
-        if (data.type === RESOURCE_CHANGE) {
-          await runtimeHost.resources.upsertResource(data.reference, data.content);
-        } else {
-          dbg(`unknown message type: ${data.type}`);
-        }
-      },
-    });
-  }
 }

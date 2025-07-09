@@ -189,6 +189,7 @@ export * from "./version.js";
 export * from "./websearch.js";
 export * from "./whisperasr.js";
 export * from "./workdir.js";
+export * from "./workerlm.js";
 export * from "./workspace.js";
 export * from "./xlsx.js";
 export * from "./xml.js";
