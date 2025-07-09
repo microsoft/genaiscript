@@ -160,6 +160,14 @@ export async function startMcpServer(
         vars: vars as Record<string, string | number | boolean | object>,
         runTrace: false,
         outputTrace: false,
+        onMessage: async (data) => {
+          if (data.type === RESOURCE_CHANGE) {
+            dbg(`updating resource: %O`, data.reference);
+            await runtimeHost.resources.upsertResource(data.reference, data.content);
+          } else {
+            dbg(`unknown message type: %s`, data.type);
+          }
+        }
       })) || { status: "error", error: { message: "run failed" } };
       dbg(`res: %s`, res.status);
       if (res.error) dbg(`error: %O`, res.error);
@@ -306,7 +314,7 @@ export async function startMcpServer(
       vars: {},
       onMessage: async (data) => {
         if (data.type === RESOURCE_CHANGE) {
-          await runtimeHost.resources.upsetResource(data.reference, data.content);
+          await runtimeHost.resources.upsertResource(data.reference, data.content);
         } else {
           dbg(`unknown message type: ${data.type}`);
         }

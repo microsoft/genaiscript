@@ -57,12 +57,12 @@ export class ResourceManager extends EventTarget {
   ) {
     dbg(`publishing ${typeof body}`);
     const res = await createResource(name, body, options);
-    await this.upsetResource(res.reference, res.content);
+    await this.upsertResource(res.reference, res.content);
     const { reference } = res;
     return reference.uri;
   }
 
-  async upsetResource(
+  async upsertResource(
     reference: ResourceReference,
     content: ResourceContents | undefined,
   ): Promise<void> {

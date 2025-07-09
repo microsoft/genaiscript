@@ -60,6 +60,7 @@ export async function run(
 ): Promise<GenerationResult> {
   if (!scriptId) throw new Error("scriptId is required");
   dbg(`run ${scriptId}`);
+  // eslint-disable-next-line no-param-reassign
   if (typeof files === "string") files = [files];
 
   const { signal, onMessage, ...rest } = options || {};
@@ -77,7 +78,7 @@ export async function run(
   dbg(`start ${workerJs}`);
   const worker = new Worker(workerJs, { workerData, name: options?.label });
   return new Promise((resolve, reject) => {
-    const abort = () => {
+    const abort = (): void => {
       if (worker) {
         dbg(`abort`);
         reject(new Error("aborted")); // fail early
@@ -97,7 +98,7 @@ export async function run(
         dbg(`unknown message type ${type}`);
       }
     });
-    worker.on("error", (reason) => {
+    worker.on("error", (reason: string) => {
       dbg(`error ${reason}`);
       signal?.removeEventListener("abort", abort);
       reject(reason);
