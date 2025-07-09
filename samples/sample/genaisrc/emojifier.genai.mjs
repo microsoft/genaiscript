@@ -1,4 +1,5 @@
 script({
+  model: "mcp",
   group: "mcp",
   parameters: {
     text: "the text to emojify",
