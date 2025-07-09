@@ -40,11 +40,11 @@ export function createWorkerLanguageModel() {
     ): Promise<ChatCompletionResponse> => {
       const id = generateId();
       dbg(`request %s`, id);
+      const { partialCb, inner } = completerOptions || {};
       return new Promise<ChatCompletionResponse>((resolve, reject) => {
         // eslint-disable-next-line n/no-unsupported-features/node-builtins
-        const handler = (ev: any) => {
-          dbg(`message: %O`, ev);
-          const { detail } = ev as { detail: ChatCompletionResponseMessage };
+        const handler = (detail: ChatCompletionResponseMessage) => {
+          dbg(`message: %O`, detail);
           if (detail?.type !== "chatCompletion" || detail?.id !== id) {
             return;
           }
@@ -54,9 +54,17 @@ export function createWorkerLanguageModel() {
             reject(error.message);
           } else if (!result) {
             reject("No result returned from worker");
-          } else resolve(result);
+          } else {
+            partialCb?.({
+              responseSoFar: result.text,
+              responseChunk: result.text,
+              tokensSoFar: result.usage?.total_tokens,
+              inner,
+            });
+            resolve(result);
+          }
         };
-        parentPort.addEventListener("message", handler, { once: true });
+        parentPort.once("message", handler);
         parentPort.postMessage({
           type: "chatCompletion",
           id,
