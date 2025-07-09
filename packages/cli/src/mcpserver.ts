@@ -167,7 +167,7 @@ export async function startMcpServer(
       const text = res?.error?.message || (res.json ? JSON.stringify(res.json) : res.text) || "";
       dbg(`inlining images`);
       const parts = await splitMarkdownTextImageParts(text, {
-        dir: res.env.runDir,
+        dir: res.env?.runDir,
         convertToDataUri: true,
       });
       dbg(`parts: %O`, parts);
@@ -217,84 +217,88 @@ export async function startMcpServer(
     });
   });
 
+  server.oninitialized = () => {
+    dbg(`server/client connection initialized`);
+    // Check if client supports sampling
+    const clientCapabilities = server.getClientCapabilities();
+    dbg(`client capabilities: %O`, clientCapabilities);
+    if (clientCapabilities?.sampling) {
+      dbg(`registering client sampling`);
+      runtimeHost.clientLanguageModel = Object.freeze<LanguageModel>({
+        id: MODEL_PROVIDER_MCP,
+        completer: async (
+          req: CreateChatCompletionRequest,
+          connection: LanguageModelConfiguration,
+          completerOptions: ChatCompletionsOptions,
+          trace: MarkdownTrace,
+        ): Promise<ChatCompletionResponse> => {
+          // Implement the completer logic here
+          dbgs(`sampling ${req.model}`);
+          const { model } = parseModelIdentifier(req.model);
+          const { partialCb, inner } = completerOptions || {};
+
+          const maxTokens = req.max_completion_tokens;
+          const systemMessages = req.messages.filter(({ role }) => role === "system");
+          const systemPrompt = systemMessages.map(({ content }) => content).join(SYSTEM_FENCE);
+          const otherMessages = req.messages.filter(({ role }) => role !== "system");
+
+          const body = deleteUndefinedValues({
+            method: "sampling/createMessage",
+            params: deleteUndefinedValues({
+              messages: otherMessages,
+              temperature: req.temperature,
+              metadata: req.metadata,
+              modelPreferences: {
+                hints: [
+                  {
+                    name: model,
+                  },
+                ].filter(({ name }) => !!name),
+                intelligencePriority: 0.8,
+                speedPriority: 0.5,
+              },
+              systemPrompt,
+              maxTokens,
+            }),
+          });
+
+          trace.detailsFenced(`🧪 mcp sampling`, body, "json");
+
+          let responseSoFar = "";
+          const res = await server.request(body, CreateMessageResultSchema, {
+            onprogress: (data) => {
+              dbgs(`%d/%d %s`, data.progress, data.total, data.message);
+              responseSoFar += data.message;
+              partialCb?.({
+                responseSoFar,
+                responseChunk: data.message,
+                tokensSoFar: data.progress,
+                inner,
+              });
+            },
+          });
+
+          trace.detailsFenced(`🧪 sampling result`, res, "json");
+          // "endTurn", "stopSequence", "maxTokens"
+          const finishReason: "stop" | "length" | "fail" =
+            {
+              ["endTurn"]: "stop",
+              ["stopSequence"]: "stop",
+              ["maxTokens"]: "length",
+            }[res.stopReason] ?? ("fail" as any);
+          return {
+            model: res.model,
+            text: res.content?.type === "text" ? res.content.text : "",
+            finishReason,
+          } satisfies ChatCompletionResponse;
+        },
+      } satisfies LanguageModel);
+    }
+  };
+
   const transport = new StdioServerTransport();
   dbg(`connecting server with transport`);
   await server.connect(transport);
-  // Check if client supports sampling
-  const clientCapabilities = server.getClientCapabilities();
-  dbg(`client capabilities: %O`, clientCapabilities);
-  if (clientCapabilities?.sampling) {
-    dbg(`registering client sampling`);
-    runtimeHost.clientLanguageModel = {
-      id: MODEL_PROVIDER_MCP,
-      completer: async (
-        req: CreateChatCompletionRequest,
-        connection: LanguageModelConfiguration,
-        completerOptions: ChatCompletionsOptions,
-        trace: MarkdownTrace,
-      ): Promise<ChatCompletionResponse> => {
-        // Implement the completer logic here
-        dbgs(`sampling ${req.model}`);
-        const { model } = parseModelIdentifier(req.model);
-        const { partialCb, inner } = completerOptions || {};
-
-        const maxTokens = req.max_completion_tokens;
-        const systemMessages = req.messages.filter(({ role }) => role === "system");
-        const systemPrompt = systemMessages.map(({ content }) => content).join(SYSTEM_FENCE);
-        const otherMessages = req.messages.filter(({ role }) => role !== "system");
-
-        const body = deleteUndefinedValues({
-          method: "sampling/createMessage",
-          params: deleteUndefinedValues({
-            messages: otherMessages,
-            temperature: req.temperature,
-            metadata: req.metadata,
-            modelPreferences: {
-              hints: [
-                {
-                  name: model,
-                },
-              ].filter(({ name }) => !!name),
-              intelligencePriority: 0.8,
-              speedPriority: 0.5,
-            },
-            systemPrompt,
-            maxTokens,
-          }),
-        });
-
-        trace.detailsFenced(`🧪 mcp sampling`, body, "json");
-
-        let responseSoFar = "";
-        const res = await server.request(body, CreateMessageResultSchema, {
-          onprogress: (data) => {
-            dbgs(`%d/%d %s`, data.progress, data.total, data.message);
-            responseSoFar += data.message;
-            partialCb?.({
-              responseSoFar,
-              responseChunk: data.message,
-              tokensSoFar: data.progress,
-              inner,
-            });
-          },
-        });
-
-        trace.detailsFenced(`🧪 sampling result`, res, "json");
-        // "endTurn", "stopSequence", "maxTokens"
-        const finishReason: "stop" | "length" | "fail" =
-          {
-            ["endTurn"]: "stop",
-            ["stopSequence"]: "stop",
-            ["maxTokens"]: "length",
-          }[res.stopReason] ?? ("fail" as any);
-        return {
-          model: res.model,
-          text: res.content?.type === "text" ? res.content.text : "",
-          finishReason,
-        } satisfies ChatCompletionResponse;
-      },
-    } satisfies LanguageModel;
-  }
 
   if (startup) {
     logVerbose(`startup script: ${startup}`);
