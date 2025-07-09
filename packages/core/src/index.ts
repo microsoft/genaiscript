@@ -106,6 +106,7 @@ export * from "./markdown.js";
 export * from "./math.js";
 export * from "./mcpclient.js";
 export * from "./mcpresource.js";
+export * from "./mcpsampling.js";
 export * from "./mdchunk.js";
 export * from "./mddiff.js";
 export * from "./mdstringify.js";

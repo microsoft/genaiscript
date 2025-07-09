@@ -5,7 +5,7 @@ import { resolveBufferLike } from "./bufferlike.js";
 import { CHANGE, MCP_RESOURCE_PROTOCOL, RESOURCE_CHANGE } from "./constants.js";
 import debug from "debug";
 import { fileTypeFromBuffer } from "./filetype.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { hash } from "./crypto.js";
 import { resolveFileContent } from "./file.js";
 import { redactSecrets } from "./secretscanner.js";

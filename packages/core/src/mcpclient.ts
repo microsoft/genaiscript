@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { arrayify } from "./cleaners.js";
 import { logError, logVerbose } from "./util.js";
 import type {
@@ -10,7 +10,8 @@ import type {
   EmbeddedResource,
 } from "@modelcontextprotocol/sdk/types.js";
 import { errorMessage } from "./error.js";
-import { CancellationOptions, toSignal } from "./cancellation.js";
+import type { CancellationOptions } from "./cancellation.js";
+import { toSignal } from "./cancellation.js";
 import type { ProgressCallback } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { hash } from "./crypto.js";
@@ -91,9 +92,6 @@ function patchInputSchema(inputSchema: any): any {
 
 export class McpClientManager extends EventTarget implements AsyncDisposable {
   private _clients: McpClient[] = [];
-  constructor() {
-    super();
-  }
 
   async startMcpServer(
     serverConfig: McpServerConfig,
@@ -144,6 +142,8 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
           stderr: "inherit",
         }),
       );
+      // eslint-disable-next-line prefer-const
+      let mcpClient: McpClient;
       let client = new Client({ name: id, version }, { capabilities });
       dbgc(`connecting stdio transport`);
       await client.connect(transport);
@@ -224,7 +224,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         }
 
         const tools = toolDefinitions.map(({ name, description, inputSchema }) => {
-          const toolSpec = toolSpecs.find(({ id }) => id === name);
+          const toolSpec = toolSpecs.find(({ id: tid }) => tid === name);
           const toolOptions = {
             ...commonToolOptions,
             ...(toolSpec || {}),
@@ -301,7 +301,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
 
       const dispose = async () => {
         dbgc(`disposing`);
-        const i = this._clients.indexOf(res);
+        const i = this._clients.indexOf(mcpClient);
         if (i >= 0) this._clients.splice(i, 1);
         try {
           await client.close();
@@ -339,7 +339,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         } satisfies McpServerToolResult);
       };
 
-      const res = Object.freeze({
+      mcpClient = Object.freeze({
         config: Object.freeze({ ...serverConfig }),
         ping,
         listTools,
@@ -350,8 +350,8 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
         dispose,
         [Symbol.asyncDispose]: dispose,
       } satisfies McpClient);
-      this._clients.push(res);
-      return res;
+      this._clients.push(mcpClient);
+      return mcpClient;
     } finally {
       trace?.endDetails();
     }
