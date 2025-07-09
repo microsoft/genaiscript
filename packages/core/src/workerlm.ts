@@ -24,7 +24,7 @@ export interface ChatCompletionRequestMessage {
 export interface ChatCompletionResponseMessage {
   type: "chatCompletion";
   id: string;
-  result: ChatCompletionResponse;
+  response?: ChatCompletionResponse;
   error?: SerializedError;
 }
 
@@ -42,20 +42,21 @@ export function createWorkerLanguageModel() {
       dbg(`request %s`, id);
       return new Promise<ChatCompletionResponse>((resolve, reject) => {
         // eslint-disable-next-line n/no-unsupported-features/node-builtins
-        parentPort.addEventListener("message", (ev: any) => {
+        const handler = (ev: any) => {
           dbg(`%O`, ev);
           const { detail } = ev as { detail: ChatCompletionResponseMessage };
-          if (detail.type !== "chatCompletion" || detail.id !== id) {
+          if (detail?.type !== "chatCompletion" || detail?.id !== id) {
             return;
           }
           dbg(`response %s`, id);
-          const { result, error } = detail;
+          const { response: result, error } = detail;
           if (error) {
             reject(error.message);
           } else if (!result) {
             reject("No result returned from worker");
           } else resolve(result);
-        });
+        };
+        parentPort.addEventListener("message", handler, { once: true });
         parentPort.postMessage({
           type: "chatCompletion",
           id,

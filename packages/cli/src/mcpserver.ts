@@ -16,7 +16,7 @@ import {
   setConsoleColors,
   splitMarkdownTextImageParts,
   toStrictJSONSchema,
-  mcpCreateLanguageModel,
+  mcpRequestSample,
 } from "@genaiscript/core";
 import type {
   GenerationResult,
@@ -41,6 +41,7 @@ import type {
 import { applyRemoteOptions } from "./remote.js";
 import type { RemoteOptions } from "./remote.js";
 import { startProjectWatcher } from "./watch.js";
+import { workerData } from "worker_threads";
 const dbg = genaiscriptDebug("mcp:server");
 
 /**
@@ -65,6 +66,7 @@ export async function startMcpServer(
   await ensureDotGenaiscriptPath();
   await applyRemoteOptions(options);
   const { startup } = options || {};
+  let samplingSupported = false;
 
   const watcher = await startProjectWatcher(options);
   logVerbose(`mcp server: watching ${watcher.cwd}`);
@@ -90,10 +92,29 @@ export async function startMcpServer(
       },
     },
   );
-  watcher.addEventListener("change", async () => {
-    logVerbose(`mcp server: tools changed`);
-    await server.sendToolListChanged();
-  });
+  watcher.addEventListener(
+    "change",
+    async () => {
+      logVerbose(`mcp server: tools changed`);
+      await server.sendToolListChanged();
+    },
+    false,
+  );
+  const onMessage = async (data: any, postMessage: (data: any) => void) => {
+    if (data.type === RESOURCE_CHANGE) {
+      await runtimeHost.resources.upsertResource(data.reference, data.content);
+    } else if (data.type === "chatCompletion") {
+      if (!samplingSupported) throw new Error("Sampling not supported by client");
+      // Handle chat completion messages if needed
+      dbg(`chatCompletion message received: %O`, data);
+      const { request, ...rest } = data;
+      const response = await mcpRequestSample(server, data.request);
+      dbg(`chatCompletion response: %O`, response);
+      postMessage({ ...rest, response });
+    } else {
+      dbg(`unknown message type: ${data.type}`);
+    }
+  };
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     dbg(`fetching scripts from watcher`);
     const scripts = await watcher.scripts();
@@ -148,15 +169,8 @@ export async function startMcpServer(
         vars: vars as Record<string, string | number | boolean | object>,
         runTrace: false,
         outputTrace: false,
-        parentLanguageModel: true,
-        onMessage: async (data) => {
-          if (data.type === RESOURCE_CHANGE) {
-            dbg(`updating resource: %O`, data.reference);
-            await runtimeHost.resources.upsertResource(data.reference, data.content);
-          } else {
-            dbg(`unknown message type: %s`, data.type);
-          }
-        },
+        parentLanguageModel: samplingSupported,
+        onMessage,
       })) || { status: "error", error: { message: "run failed" } };
       dbg(`res: %s`, res.status);
       if (res.error) dbg(`error: %O`, res.error);
@@ -204,38 +218,37 @@ export async function startMcpServer(
     if (!resource) dbg(`resource not found: ${uri}`);
     return resource as ReadResourceResult;
   });
-  runtimeHost.resources.addEventListener(CHANGE, async () => {
-    await server.sendResourceListChanged();
-  });
-  runtimeHost.resources.addEventListener(RESOURCE_CHANGE, async (e) => {
-    const ev = e as CustomEvent<Resource>;
-    await server.sendResourceUpdated({
-      uri: ev.detail.reference.uri,
-    });
-  });
+  runtimeHost.resources.addEventListener(
+    CHANGE,
+    async () => {
+      await server.sendResourceListChanged();
+    },
+    false,
+  );
+  runtimeHost.resources.addEventListener(
+    RESOURCE_CHANGE,
+    async (e) => {
+      const ev = e as CustomEvent<Resource>;
+      await server.sendResourceUpdated({
+        uri: ev.detail.reference.uri,
+      });
+    },
+    false,
+  );
 
   server.oninitialized = async () => {
     dbg(`server/client connection initialized`);
     // Check if client supports sampling
     const clientCapabilities = server.getClientCapabilities();
     dbg(`client capabilities: %O`, clientCapabilities);
-    if (clientCapabilities?.sampling) {
-      dbg(`registering client sampling`);
-      runtimeHost.clientLanguageModel = mcpCreateLanguageModel(server);
-    }
+    samplingSupported = !!clientCapabilities?.sampling;
 
     if (startup) {
       logVerbose(`startup script: ${startup}`);
       await run(startup, [], {
         vars: {},
-        parentLanguageModel: true,
-        onMessage: async (data) => {
-          if (data.type === RESOURCE_CHANGE) {
-            await runtimeHost.resources.upsertResource(data.reference, data.content);
-          } else {
-            dbg(`unknown message type: ${data.type}`);
-          }
-        },
+        parentLanguageModel: samplingSupported,
+        onMessage,
       });
     }
   };

@@ -55,7 +55,10 @@ export async function run(
     /**
      * Handles messages
      */
-    onMessage?: (data: { type: "resourceChange" } & Resource) => Awaitable<void>;
+    onMessage?: (
+      data: { type: "resourceChange" } & Resource,
+      postMessage: (data: any) => void,
+    ) => Awaitable<void>;
     /**
      * Enable client language model as parent.
      */
@@ -97,7 +100,10 @@ export async function run(
         signal?.removeEventListener("abort", abort);
         resolve(res.result);
       } else if (onMessage) {
-        await onMessage(res);
+        await onMessage(res, (data) => {
+          dbg(`postMessage %O`, data);
+          worker.postMessage(data);
+        });
       } else {
         dbg(`unknown message type ${type}`);
       }

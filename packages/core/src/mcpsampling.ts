@@ -2,90 +2,77 @@
 // Licensed under the MIT License.
 
 import { CreateMessageResultSchema } from "@modelcontextprotocol/sdk/types.js";
-import type { LanguageModel } from "./chat.js";
-import type {
-  ChatCompletionResponse,
-  ChatCompletionsOptions,
-  CreateChatCompletionRequest,
-} from "./chattypes.js";
+import type { ChatCompletionResponse, CreateChatCompletionRequest } from "./chattypes.js";
 import { deleteUndefinedValues } from "./cleaners.js";
-import { MODEL_PROVIDER_MCP, SYSTEM_FENCE } from "./constants.js";
+import { SYSTEM_FENCE } from "./constants.js";
 import { genaiscriptDebug } from "./debug.js";
 import { parseModelIdentifier } from "./models.js";
-import type { LanguageModelConfiguration } from "./server/messages.js";
-import type { MarkdownTrace } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { toSignal } from "./cancellation.js";
+import type { CancellationOptions } from "./cancellation.js";
 const dbgs = genaiscriptDebug("mcp:server:sampling");
 
-export function mcpCreateLanguageModel(server: Server): LanguageModel {
-  dbgs(`creating mcp sampling language model`);
-  return Object.freeze<LanguageModel>({
-    id: MODEL_PROVIDER_MCP,
-    completer: async (
-      req: CreateChatCompletionRequest,
-      connection: LanguageModelConfiguration,
-      completerOptions: ChatCompletionsOptions,
-      trace: MarkdownTrace,
-    ): Promise<ChatCompletionResponse> => {
-      // Implement the completer logic here
-      dbgs(`sampling ${req.model}`);
-      const { model } = parseModelIdentifier(req.model);
-      const { partialCb, inner } = completerOptions || {};
+export async function mcpRequestSample(
+  server: Server,
+  req: CreateChatCompletionRequest,
+  options?: TraceOptions & CancellationOptions,
+): Promise<ChatCompletionResponse> {
+  // Implement the completer logic here
+  dbgs(`sampling ${req.model}`);
+  const { trace, cancellationToken } = options ?? {};
+  const { model } = parseModelIdentifier(req.model);
+  const signal = toSignal(cancellationToken);
 
-      const maxTokens = req.max_completion_tokens;
-      const systemMessages = req.messages.filter(({ role }) => role === "system");
-      const systemPrompt = systemMessages.map(({ content }) => content).join(SYSTEM_FENCE);
-      const otherMessages = req.messages.filter(({ role }) => role !== "system");
+  const maxTokens = req.max_completion_tokens;
+  const systemMessages = req.messages.filter(({ role }) => role === "system");
+  const systemPrompt = systemMessages.map(({ content }) => content).join(SYSTEM_FENCE);
+  const otherMessages = req.messages.filter(({ role }) => role !== "system");
 
-      const body = deleteUndefinedValues({
-        method: "sampling/createMessage",
-        params: deleteUndefinedValues({
-          messages: otherMessages,
-          temperature: req.temperature,
-          metadata: req.metadata,
-          modelPreferences: {
-            hints: [
-              {
-                name: model,
-              },
-            ].filter(({ name }) => !!name),
-            intelligencePriority: 0.8,
-            speedPriority: 0.5,
+  const body = deleteUndefinedValues({
+    method: "sampling/createMessage",
+    params: deleteUndefinedValues({
+      messages: otherMessages,
+      temperature: req.temperature,
+      metadata: req.metadata,
+      modelPreferences: {
+        hints: [
+          {
+            name: model,
           },
-          systemPrompt,
-          maxTokens,
-        }),
-      });
+        ].filter(({ name }) => !!name),
+        intelligencePriority: 0.8,
+        speedPriority: 0.5,
+      },
+      systemPrompt,
+      maxTokens,
+      signal,
+    }),
+  });
 
-      trace.detailsFenced(`🧪 mcp sampling`, body, "json");
+  trace?.detailsFenced(`🧪 mcp sampling`, body, "json");
 
-      let responseSoFar = "";
-      const res = await server.request(body, CreateMessageResultSchema, {
-        onprogress: (data) => {
-          dbgs(`%d/%d %s`, data.progress, data.total, data.message);
-          responseSoFar += data.message;
-          partialCb?.({
-            responseSoFar,
-            responseChunk: data.message,
-            tokensSoFar: data.progress,
-            inner,
-          });
-        },
-      });
-
-      trace.detailsFenced(`🧪 sampling result`, res, "json");
-      // "endTurn", "stopSequence", "maxTokens"
-      const finishReason: "stop" | "length" | "fail" =
-        {
-          ["endTurn"]: "stop",
-          ["stopSequence"]: "stop",
-          ["maxTokens"]: "length",
-        }[res.stopReason] ?? ("fail" as any);
-      return {
-        model: res.model,
-        text: res.content?.type === "text" ? res.content.text : "",
-        finishReason,
-      } satisfies ChatCompletionResponse;
+  let responseSoFar = "";
+  const res = await server.request(body, CreateMessageResultSchema, {
+    onprogress: (data) => {
+      dbgs(`%d/%d %s`, data.progress, data.total, data.message);
+      responseSoFar += data.message;
     },
-  } satisfies LanguageModel);
+  });
+  dbgs(`sampling result: %O`, res);
+  trace?.detailsFenced(`🧪 sampling result`, res, "json");
+  // "endTurn", "stopSequence", "maxTokens"
+  const finishReason: "stop" | "length" | "fail" =
+    {
+      ["endTurn"]: "stop",
+      ["stopSequence"]: "stop",
+      ["maxTokens"]: "length",
+    }[res.stopReason] ?? ("stop" as any);
+  const response = {
+    model: res.model,
+    text: res.content?.type === "text" ? res.content.text : "",
+    finishReason,
+  } satisfies ChatCompletionResponse;
+  dbgs(`response: %O`, response);
+  return response;
 }
