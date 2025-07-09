@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { FSWatcher, watch } from "chokidar";
+import { watch } from "chokidar";
+import type { FSWatcher } from "chokidar";
 import { basename, resolve } from "node:path";
 import {
   CHANGE,
@@ -40,11 +41,11 @@ export class ProjectWatcher extends EventTarget {
     signal?.addEventListener("abort", this.close.bind(this));
   }
 
-  get cwd() {
+  get cwd(): string {
     return this.options.cwd;
   }
 
-  async open() {
+  async open(): Promise<void> {
     if (this._watcher) return;
 
     dbg(`starting`);
@@ -77,7 +78,7 @@ export class ProjectWatcher extends EventTarget {
       depth: 30,
       cwd,
     });
-    const changed = () => {
+    const changed = (): void => {
       dbg(`changed`);
       this.dispatchEvent(new Event(CHANGE));
     };
@@ -90,11 +91,11 @@ export class ProjectWatcher extends EventTarget {
     this.dispatchEvent(new Event(OPEN));
   }
 
-  private async refresh() {
+  private async refresh(): Promise<void> {
     this._project = undefined;
   }
 
-  async project() {
+  async project(): Promise<Project> {
     if (!this._project) {
       dbg(`building project`);
       this._project = await buildProject();
@@ -102,7 +103,7 @@ export class ProjectWatcher extends EventTarget {
     return this._project;
   }
 
-  async scripts() {
+  async scripts(): Promise<PromptScript[]> {
     if (!this._scripts) {
       const project = await this.project();
       this._scripts = filterScripts(project.scripts, this.options);
@@ -110,7 +111,7 @@ export class ProjectWatcher extends EventTarget {
     return this._scripts?.slice(0);
   }
 
-  async close() {
+  async close(): Promise<void> {
     dbg(`closing`);
     await this._watcher?.close();
     this._watcher = undefined;
@@ -133,7 +134,7 @@ export async function startProjectWatcher(
     paths?: ElementOrArray<string>;
     cwd?: string;
   } & CancellationOptions,
-) {
+): Promise<ProjectWatcher> {
   const { paths = ".", cwd = resolve("."), ...rest } = options || {};
   const watcher = new ProjectWatcher({ paths, cwd, ...rest });
   await watcher.open();

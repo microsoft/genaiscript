@@ -205,6 +205,7 @@ export const MODEL_PROVIDER_WINDOWS_AI = "windows";
 export const MODEL_PROVIDER_DOCKER_MODEL_RUNNER = "docker";
 export const MODEL_PROVIDER_ECHO = "echo";
 export const MODEL_PROVIDER_NONE = "none";
+export const MODEL_PROVIDER_MCP = "mcp";
 
 export const MODEL_GITHUB_COPILOT_CHAT_CURRENT = MODEL_PROVIDER_GITHUB_COPILOT_CHAT + ":current";
 

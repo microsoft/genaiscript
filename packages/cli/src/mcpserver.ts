@@ -4,21 +4,31 @@
 import {
   CHANGE,
   CORE_VERSION,
+  MODEL_PROVIDER_MCP,
   RESOURCE_CHANGE,
+  SYSTEM_FENCE,
   TOOL_ID,
   deleteUndefinedValues,
   ensureDotGenaiscriptPath,
   errorMessage,
+  genaiscriptDebug,
   logVerbose,
   logWarn,
+  parseModelIdentifier,
   runtimeHost,
   setConsoleColors,
   splitMarkdownTextImageParts,
   toStrictJSONSchema,
 } from "@genaiscript/core";
 import type {
+  ChatCompletionResponse,
+  ChatCompletionsOptions,
+  CreateChatCompletionRequest,
   GenerationResult,
   JSONSchemaObject,
+  LanguageModel,
+  LanguageModelConfiguration,
+  MarkdownTrace,
   Resource,
   ResourceContents,
   ScriptFilterOptions,
@@ -28,6 +38,8 @@ import {
   ListResourcesRequestSchema,
   ListResourceTemplatesRequestSchema,
   ReadResourceRequestSchema,
+  CreateMessageRequestSchema,
+  CreateMessageResultSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import type {
   CallToolResult,
@@ -39,8 +51,9 @@ import type {
 import { applyRemoteOptions } from "./remote.js";
 import type { RemoteOptions } from "./remote.js";
 import { startProjectWatcher } from "./watch.js";
-import debug from "debug";
-const dbg = debug("genaiscript:mcp:server");
+import { stderr } from "@genaiscript/core";
+const dbg = genaiscriptDebug("mcp:server");
+const dbgs = genaiscriptDebug("mcp:server:sampling");
 
 /**
  * Starts the MCP server.
@@ -57,7 +70,7 @@ export async function startMcpServer(
     RemoteOptions & {
       startup?: string;
     },
-) {
+): Promise<void> {
   setConsoleColors(false);
   logVerbose(`mcp server: starting...`);
 
@@ -112,7 +125,7 @@ export async function startMcpServer(
           properties: {},
         };
         const outputSchema = responseSchema ? toStrictJSONSchema(responseSchema) : undefined;
-        if (accept !== "none")
+        if (accept !== "none") {
           scriptSchema.properties.files = {
             type: "array",
             items: {
@@ -120,6 +133,7 @@ export async function startMcpServer(
               description: `Filename or globs relative to the workspace used by the script.${accept ? ` Accepts: ${accept}` : ""}`,
             },
           };
+        }
         if (!description) logWarn(`script ${id} has no description`);
         return deleteUndefinedValues({
           name: id,
@@ -206,6 +220,81 @@ export async function startMcpServer(
   const transport = new StdioServerTransport();
   dbg(`connecting server with transport`);
   await server.connect(transport);
+  // Check if client supports sampling
+  const clientCapabilities = server.getClientCapabilities();
+  dbg(`client capabilities: %O`, clientCapabilities);
+  if (clientCapabilities?.sampling) {
+    dbg(`registering client sampling`);
+    runtimeHost.clientLanguageModel = {
+      id: MODEL_PROVIDER_MCP,
+      completer: async (
+        req: CreateChatCompletionRequest,
+        connection: LanguageModelConfiguration,
+        completerOptions: ChatCompletionsOptions,
+        trace: MarkdownTrace,
+      ): Promise<ChatCompletionResponse> => {
+        // Implement the completer logic here
+        dbgs(`sampling ${req.model}`);
+        const { model } = parseModelIdentifier(req.model);
+        const { partialCb, inner } = completerOptions || {};
+
+        const maxTokens = req.max_completion_tokens;
+        const systemMessages = req.messages.filter(({ role }) => role === "system");
+        const systemPrompt = systemMessages.map(({ content }) => content).join(SYSTEM_FENCE);
+        const otherMessages = req.messages.filter(({ role }) => role !== "system");
+
+        const body = deleteUndefinedValues({
+          method: "sampling/createMessage",
+          params: deleteUndefinedValues({
+            messages: otherMessages,
+            temperature: req.temperature,
+            metadata: req.metadata,
+            modelPreferences: {
+              hints: [
+                {
+                  name: model,
+                },
+              ].filter(({ name }) => !!name),
+              intelligencePriority: 0.8,
+              speedPriority: 0.5,
+            },
+            systemPrompt,
+            maxTokens,
+          }),
+        });
+
+        trace.detailsFenced(`🧪 mcp sampling`, body, "json");
+
+        let responseSoFar = "";
+        const res = await server.request(body, CreateMessageResultSchema, {
+          onprogress: (data) => {
+            dbgs(`%d/%d %s`, data.progress, data.total, data.message);
+            responseSoFar += data.message;
+            partialCb?.({
+              responseSoFar,
+              responseChunk: data.message,
+              tokensSoFar: data.progress,
+              inner,
+            });
+          },
+        });
+
+        trace.detailsFenced(`🧪 sampling result`, res, "json");
+        // "endTurn", "stopSequence", "maxTokens"
+        const finishReason: "stop" | "length" | "fail" =
+          {
+            ["endTurn"]: "stop",
+            ["stopSequence"]: "stop",
+            ["maxTokens"]: "length",
+          }[res.stopReason] ?? ("fail" as any);
+        return {
+          model: res.model,
+          text: res.content?.type === "text" ? res.content.text : "",
+          finishReason,
+        } satisfies ChatCompletionResponse;
+      },
+    } satisfies LanguageModel;
+  }
 
   if (startup) {
     logVerbose(`startup script: ${startup}`);

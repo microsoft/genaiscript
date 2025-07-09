@@ -85,7 +85,7 @@ export function collectFolders(
  * @returns The script with the matching ID, or undefined if no match is found.
  */
 export function resolveScript(prj: Project, system: SystemPromptInstance) {
-  return prj?.scripts?.find((t) => t.id == system.id); // Find and return the template with the matching ID
+  return prj?.scripts?.find((t) => t.id === system.id); // Find and return the template with the matching ID
 }
 
 export interface ScriptFilterOptions {
