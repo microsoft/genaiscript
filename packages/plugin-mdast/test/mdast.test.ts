@@ -703,7 +703,7 @@ And here's a JSX code block:
 
       expect(output).toContain("# Main Title");
       expect(output).toContain("**bold**");
-      expect(output).toContain("<Alert type=\"info\">");
+      expect(output).toContain('<Alert type="info">');
       expect(output).toContain("[a link](https://example.com)");
       expect(output).toContain("```javascript");
       expect(output).toContain('<CodeBlock language="jsx">');
@@ -743,14 +743,16 @@ And here's a JSX code block:
       const input = `> [!NOTE]
 > This is a note alert with **bold** text.`;
       const ast = await api.parse(input);
-      
+
       // Check that the alert is properly detected in the AST
-      const blockquote = ast.children[0] as Blockquote & { data?: { githubAlert?: { type: string } } };
+      const blockquote = ast.children[0] as Blockquote & {
+        data?: { githubAlert?: { type: string } };
+      };
       expect(blockquote.type).toBe("blockquote");
       expect(blockquote.data?.githubAlert?.type).toBe("NOTE");
-      
+
       // Check stringify output contains escaped brackets (current behavior)
-      console.log(api.inspect(ast))
+      console.log(api.inspect(ast));
       const output = api.stringify(ast);
       expect(output).toContain("> [!NOTE]");
       expect(output).toContain("> This is a note alert with **bold** text.");
@@ -761,11 +763,11 @@ And here's a JSX code block:
       const input = `> [!WARNING]
 > This is a warning alert.`;
       const ast = await api.parse(input);
-      
+
       const blockquote = ast.children[0] as any;
       expect(blockquote.type).toBe("blockquote");
       expect(blockquote.data?.githubAlert?.type).toBe("WARNING");
-      
+
       const output = api.stringify(ast);
       expect(output).toContain("> [!WARNING]");
       expect(output).toContain("> This is a warning alert.");
@@ -776,11 +778,11 @@ And here's a JSX code block:
       const input = `> [!IMPORTANT]
 > This is an important alert.`;
       const ast = await api.parse(input);
-      
+
       const blockquote = ast.children[0] as any;
       expect(blockquote.type).toBe("blockquote");
       expect(blockquote.data?.githubAlert?.type).toBe("IMPORTANT");
-      
+
       const output = api.stringify(ast);
       expect(output).toContain("> [!IMPORTANT]");
       expect(output).toContain("> This is an important alert.");
@@ -791,11 +793,11 @@ And here's a JSX code block:
       const input = `> [!TIP]
 > Here's a useful tip for you.`;
       const ast = await api.parse(input);
-      
+
       const blockquote = ast.children[0] as any;
       expect(blockquote.type).toBe("blockquote");
       expect(blockquote.data?.githubAlert?.type).toBe("TIP");
-      
+
       const output = api.stringify(ast);
       expect(output).toContain("> [!TIP]");
       expect(output).toContain("> Here's a useful tip for you.");
@@ -806,11 +808,11 @@ And here's a JSX code block:
       const input = `> [!CAUTION]
 > Be careful with this operation.`;
       const ast = await api.parse(input);
-      
+
       const blockquote = ast.children[0] as any;
       expect(blockquote.type).toBe("blockquote");
       expect(blockquote.data?.githubAlert?.type).toBe("CAUTION");
-      
+
       const output = api.stringify(ast);
       expect(output).toContain("> [!CAUTION]");
       expect(output).toContain("> Be careful with this operation.");
@@ -824,11 +826,11 @@ And here's a JSX code block:
 > - A list item
 > - Another item with [a link](https://example.com)`;
       const ast = await api.parse(input);
-      
+
       const blockquote = ast.children[0] as any;
       expect(blockquote.type).toBe("blockquote");
       expect(blockquote.data?.githubAlert?.type).toBe("NOTE");
-      
+
       const output = api.stringify(ast);
       expect(output).toContain("> [!NOTE]");
       expect(output).toContain("> This alert contains:");
@@ -846,14 +848,14 @@ And here's a JSX code block:
 > [!WARNING]
 > Second alert.`;
       const ast = await api.parse(input);
-      
+
       // Check both alerts are detected
       const noteBlockquote = ast.children[1] as any;
       const warningBlockquote = ast.children[2] as any;
-      
+
       expect(noteBlockquote.data?.githubAlert?.type).toBe("NOTE");
       expect(warningBlockquote.data?.githubAlert?.type).toBe("WARNING");
-      
+
       const output = api.stringify(ast);
       expect(output).toContain("# Document with Alerts");
       expect(output).toContain("> [!NOTE]");
@@ -867,11 +869,11 @@ And here's a JSX code block:
       const input = `> [!NOTE] Custom Note Title
 > This note has a custom title.`;
       const ast = await api.parse(input);
-      
+
       const blockquote = ast.children[0] as any;
       expect(blockquote.type).toBe("blockquote");
       expect(blockquote.data?.githubAlert?.type).toBe("NOTE");
-      
+
       const output = api.stringify(ast);
       expect(output).toContain("> [!NOTE] Custom Note Title");
       expect(output).toContain("> This note has a custom title.");
@@ -1228,5 +1230,38 @@ Text with **bold** formatting.
       expect(nodeTypes).toContain("strong");
     });
   });
-  
+});
+
+describe("chunk", () => {
+  test("should group nodes by heading", async () => {
+    const markdown = `# Heading 1
+
+This is content under heading 1.
+
+## Heading 2
+
+This is content under heading 2.
+
+### Heading 3
+
+This is content under heading 3.
+
+## Another Heading 2
+
+More content here.`;
+
+    const api = await mdast();
+    const ast = api.parse(markdown);
+    const chunks = api.chunk(ast.children, 10);
+
+    // Should create chunks based on heading structure
+    expect(chunks.length).toBeGreaterThan(1);
+
+    // Check that headings are preserved in chunks
+    const allContent = api.stringify({ type: "root", children: chunks.flat(1) });
+    expect(allContent).toContain("# Heading 1");
+    expect(allContent).toContain("## Heading 2");
+    expect(allContent).toContain("### Heading 3");
+    expect(allContent).toContain("## Another Heading 2");
+  });
 });
