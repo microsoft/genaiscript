@@ -1293,7 +1293,7 @@ Another paragraph with **bold text** and *italic text*.
     const chunks = api.chunk(ast.children, 2);
 
     expect(chunks.length).toBeGreaterThan(1);
-    
+
     // Verify all content is preserved
     const allContent = api.stringify({ type: "root", children: chunks.flat(1) });
     expect(allContent).toContain("This is a paragraph without any headings.");
@@ -1320,7 +1320,7 @@ Paragraph 5`;
     const chunks = api.chunk(ast.children, 3);
 
     // Each chunk should not exceed the size limit (except for headings)
-    chunks.forEach(chunk => {
+    chunks.forEach((chunk) => {
       if (chunk.length > 3) {
         // If chunk exceeds limit, it should contain a heading
         const hasHeading = chunk.some((node: any) => node.type === "heading");
@@ -1354,7 +1354,7 @@ Content for section 3.`;
 
     // Verify that all content is preserved across chunks
     const allContent = api.stringify({ type: "root", children: chunks.flat(1) });
-    
+
     // Check that all sections and their content are present
     expect(allContent).toContain("# Section 1");
     expect(allContent).toContain("Content for section 1");
@@ -1659,16 +1659,25 @@ Content 5`;
     const ast = api.parse(markdown);
     const chunks = api.chunk(ast.children, 3);
 
+    expect(api.stringify(ast)).toEqual(api.stringify(chunks.flat(1)));
+
     // Reconstruct content from chunks and verify order
     const reconstructed = chunks.flat(1);
     const reconstructedContent = api.stringify({ type: "root", children: reconstructed });
-    const originalContent = api.stringify(ast);
 
     // Content should be in the same order
-    expect(reconstructedContent.indexOf("# First")).toBeLessThan(reconstructedContent.indexOf("## Second"));
-    expect(reconstructedContent.indexOf("## Second")).toBeLessThan(reconstructedContent.indexOf("### Third"));
-    expect(reconstructedContent.indexOf("### Third")).toBeLessThan(reconstructedContent.indexOf("## Fourth"));
-    expect(reconstructedContent.indexOf("## Fourth")).toBeLessThan(reconstructedContent.indexOf("# Fifth"));
+    expect(reconstructedContent.indexOf("# First")).toBeLessThan(
+      reconstructedContent.indexOf("## Second"),
+    );
+    expect(reconstructedContent.indexOf("## Second")).toBeLessThan(
+      reconstructedContent.indexOf("### Third"),
+    );
+    expect(reconstructedContent.indexOf("### Third")).toBeLessThan(
+      reconstructedContent.indexOf("## Fourth"),
+    );
+    expect(reconstructedContent.indexOf("## Fourth")).toBeLessThan(
+      reconstructedContent.indexOf("# Fifth"),
+    );
   });
 
   test("should handle single node input", async () => {
@@ -1694,7 +1703,7 @@ Content here.`;
 
     // Should still create chunks, likely treating 0 as minimal chunking
     expect(Array.isArray(chunks)).toBe(true);
-    
+
     const allContent = api.stringify({ type: "root", children: chunks.flat(1) });
     expect(allContent).toContain("# Test");
     expect(allContent).toContain("Content here.");
@@ -1711,6 +1720,8 @@ Content here.`;
     const api = await mdast();
     const ast = api.parse(markdown);
     const chunks = api.chunk(ast.children, 2);
+
+    expect(api.stringify(ast)).toEqual(api.stringify(chunks.flat(1)));
 
     // Should chunk list items appropriately
     const allContent = api.stringify({ type: "root", children: chunks.flat(1) });
@@ -1754,6 +1765,8 @@ More content`;
     const api = await mdast();
     const ast = api.parse(markdown);
     const chunks = api.chunk(ast.children, 3);
+
+    expect(api.stringify(ast)).toEqual(api.stringify(chunks.flat(1)));
 
     expect(chunks.length).toBeGreaterThan(1);
 
