@@ -53,6 +53,17 @@ const updated = visit(root, `code`, (node) => {
 const markdown = await stringify(updated);
 ```
 
+- chunk the tree into sections
+
+```typescript
+const { parse, chunk } = await mdast();
+const root = parse(
+  "# Section 1\n\nContent 1\n\n## Subsection 1.1\n\nContent 1.1\n\n# Section 2\n\nContent 2",
+);
+const sections = chunk(root);
+console.log(sections);
+```
+
 In order to get type completion, you will need to install the `@types/mdast` package as a development dependency.
 
 ## Debugging trees
