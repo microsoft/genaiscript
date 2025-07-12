@@ -5,6 +5,7 @@ import { describe, test, expect, beforeEach } from "vitest";
 import { mdast } from "../src/unified.js";
 import { initialize } from "@genaiscript/runtime";
 import type { Blockquote } from "mdast";
+import { readFile } from "fs/promises";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -1707,6 +1708,18 @@ Content here.`;
     const allContent = api.stringify({ type: "root", children: chunks.flat(1) });
     expect(allContent).toContain("# Test");
     expect(allContent).toContain("Content here.");
+  });
+
+  test("long", async () => {
+    const markdown = await readFile("./test/long.md", { encoding: "utf-8" });
+
+    const api = await mdast();
+    const ast = api.parse(markdown);
+    for (let tokens = 100; tokens < 10000; tokens += 500) {
+      console.log(`Chunking with ${tokens} tokens`);
+      const chunks = api.chunk(ast.children, tokens);
+      expect(api.stringify(ast)).toEqual(api.stringify(chunks.flat(1)));
+    }
   });
 
   test("should handle content with only list items", async () => {

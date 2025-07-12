@@ -105,34 +105,35 @@ export async function mdast(options?: MdAstOptions) {
 
     // Group nodes by heading sections
     const sections: { heading?: RootContent; content: RootContent[]; level: number }[] = [];
-    let currentSection: { heading?: RootContent; content: RootContent[]; level: number } | null =
-      null;
-
-    for (const node of nodes) {
-      if (node.type === "heading") {
-        // Start a new section
-        if (currentSection) {
-          sections.push(currentSection);
-        }
-        currentSection = {
-          heading: node,
-          content: [],
-          level: node.depth || 1,
-        };
-      } else {
-        // Add to current section or create a default section
-        if (!currentSection) {
+    {
+      let currentSection: { heading?: RootContent; content: RootContent[]; level: number } | null =
+        null;
+      for (const node of nodes) {
+        if (node.type === "heading") {
+          // Start a new section
+          if (currentSection) {
+            sections.push(currentSection);
+          }
           currentSection = {
+            heading: node,
             content: [],
-            level: 0,
+            level: node.depth || 1,
           };
+        } else {
+          // Add to current section or create a default section
+          if (!currentSection) {
+            currentSection = {
+              content: [],
+              level: 0,
+            };
+          }
+          currentSection.content.push(node);
         }
-        currentSection.content.push(node);
       }
-    }
 
-    if (currentSection) {
-      sections.push(currentSection);
+      if (currentSection) {
+        sections.push(currentSection);
+      }
     }
 
     // Now chunk sections based on token limits
@@ -140,17 +141,13 @@ export async function mdast(options?: MdAstOptions) {
     let currentChunk: RootContent[] = [];
     let currentTokenCount = 0;
 
-    const getNodeTokens = (ns: RootContent[]): number => {
-      const text = mdastStringify({ type: "root", children: ns });
-      return tokenize(text);
-    };
-
+    const measure = (ns: RootContent[]): number => tokenize(mdastStringify(ns));
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i];
       const sectionNodes = section.heading
         ? [section.heading, ...section.content]
         : section.content;
-      const sectionTokens = getNodeTokens(sectionNodes);
+      const sectionTokens = measure(sectionNodes);
 
       // If section is too large, put it in its own chunk(s)
       if (sectionTokens > maxTokens) {
@@ -163,10 +160,10 @@ export async function mdast(options?: MdAstOptions) {
 
         // Handle oversized section by splitting it node by node
         if (section.heading) {
-          const headingTokens = getNodeTokens([section.heading]);
-          if (headingTokens <= maxTokens) {
+          const headingTokens = measure([section.heading]);
+          if (currentTokenCount + headingTokens <= maxTokens) {
             currentChunk.push(section.heading);
-            currentTokenCount = headingTokens;
+            currentTokenCount += headingTokens;
           } else {
             // Even heading is too large, put it alone
             chunks.push([section.heading]);
@@ -175,7 +172,7 @@ export async function mdast(options?: MdAstOptions) {
 
         // Add content nodes one by one
         for (const contentNode of section.content) {
-          const nodeTokens = getNodeTokens([contentNode]);
+          const nodeTokens = measure([contentNode]);
 
           if (currentTokenCount + nodeTokens > maxTokens) {
             if (currentChunk.length > 0) {
@@ -205,7 +202,7 @@ export async function mdast(options?: MdAstOptions) {
               const lastLevel = lastNode.depth || 1;
               if (lastLevel > section.level) {
                 // Remove this heading and subsequent content until next heading of same or higher level
-                let k = j;
+                const k = j;
                 while (k < currentChunk.length) {
                   const removedNode = currentChunk.splice(k, 1)[0];
                   removedSections.unshift(removedNode);
@@ -214,7 +211,7 @@ export async function mdast(options?: MdAstOptions) {
                     if (nextLevel <= section.level) break;
                   }
                 }
-                currentTokenCount = getNodeTokens(currentChunk);
+                currentTokenCount = measure(currentChunk);
               } else {
                 break;
               }
@@ -227,11 +224,11 @@ export async function mdast(options?: MdAstOptions) {
           if (currentTokenCount + sectionTokens > maxTokens && currentChunk.length > 0) {
             chunks.push(currentChunk);
             currentChunk = [...removedSections];
-            currentTokenCount = getNodeTokens(currentChunk);
+            currentTokenCount = measure(currentChunk);
           } else if (removedSections.length > 0) {
             // Add back removed sections to current chunk
             currentChunk.push(...removedSections);
-            currentTokenCount = getNodeTokens(currentChunk);
+            currentTokenCount = measure(currentChunk);
           }
         }
 
