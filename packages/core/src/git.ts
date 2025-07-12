@@ -532,6 +532,7 @@ ${await this.diff({ ...options, nameOnly: true })}
     },
   ): Promise<GitClient> {
     dbg(`cloning repository: ${repository}`);
+    // eslint-disable-next-line prefer-const
     let { branch, force, install, depth, directory, ...rest } = options || {};
     depth = normalizeInt(depth);
     if (isNaN(depth)) depth = 1;
@@ -539,6 +540,7 @@ ${await this.diff({ ...options, nameOnly: true })}
     // normalize short github url
     // check if the repository is in the form of `owner/repo`
     if (/^(\w|-)+\/(\w|-)+$/.test(repository)) {
+      // eslint-disable-next-line no-param-reassign
       repository = `https://github.com/${repository}`;
     }
     const url = new URL(repository);
@@ -568,9 +570,9 @@ ${await this.diff({ ...options, nameOnly: true })}
 
     if (install) {
       dbg(`running install command after cloning`);
-      const { command, args } = await packageResolveInstall(directory);
+      const { command, args: installArgs } = await packageResolveInstall(directory);
       if (command) {
-        const res = await runtimeHost.exec(undefined, command, args, {
+        const res = await runtimeHost.exec(undefined, command, installArgs, {
           cwd: directory,
         });
         if (res.exitCode !== 0) {

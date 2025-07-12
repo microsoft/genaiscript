@@ -28,9 +28,9 @@ export interface RemoteOptions {
  */
 export async function applyRemoteOptions(options: RemoteOptions): Promise<string> {
   const { remote } = options || {};
-  dbg(`%O`, options);
   if (!remote) return undefined;
 
+  dbg(`%O`, options);
   const git = new GitClient(".");
   const res = await git.shallowClone(remote, {
     branch: options.remoteBranch,

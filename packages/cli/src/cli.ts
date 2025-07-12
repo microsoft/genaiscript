@@ -101,6 +101,7 @@ export async function cli(): Promise<void> {
   }
 
   program.hook("preAction", async (cmd) => {
+    dbg(`opts: %O`, cmd.opts());
     let { cwd }: { cwd: string } = cmd.opts();
     const {
       env,
@@ -165,6 +166,7 @@ export async function cli(): Promise<void> {
     .option("-q, --quiet", "disable verbose output")
     .option("--perf", "enable performance logging")
     .option("--github-workspace", "Use GitHub Actions workspace directory as cwd");
+  addRemoteOptions(program); // Add remote options to the program
 
   program.on("option:no-colors", () => setConsoleColors(false));
   program.on("option:quiet", () => setQuiet(true));
@@ -250,9 +252,8 @@ export async function cli(): Promise<void> {
     )
     .option("--run-retry <number>", "number of retries for the entire run")
     .option("--no-run-trace", "disable automatic trace generation")
-    .option("--no-output-trace", "disable automatic output generation");
-  addRemoteOptions(run); // Add remote options to the command
-  run.action(runScriptWithExitCode); // Action to execute the script with exit code
+    .option("--no-output-trace", "disable automatic output generation")
+    .action(runScriptWithExitCode); // Action to execute the script with exit code
 
   // runs commands
   const runs = program.command("runs").description("Commands to open previous runs");
@@ -333,9 +334,8 @@ export async function cli(): Promise<void> {
     .option("--cache-name <name>", "custom cache file name")
     .option("--concurrency <number>", "number of concurrent conversions")
     .option("--no-run-trace", "disable automatic trace generation")
-    .option("--no-output-trace", "disable automatic output generation");
-  addRemoteOptions(convert); // Add remote options to the command
-  convert.action(convertFiles);
+    .option("--no-output-trace", "disable automatic output generation")
+    .action(convertFiles);
 
   // Define 'scripts' command group for script management tasks
   const scripts = program
@@ -472,7 +472,6 @@ export async function cli(): Promise<void> {
     )
     .option("--no-run-trace", "Emit run trace events")
     .action(startServer); // Action to start the server
-  addRemoteOptions(serve); // Add remote options to the command
   addModelOptions(serve);
 
   const mcp = program.command("mcp").option("--ids <string...>", "Filter script by ids");
@@ -481,7 +480,6 @@ export async function cli(): Promise<void> {
     .alias("mcps")
     .description("Starts a Model Context Protocol server that exposes scripts as tools")
     .action(startMcpServer);
-  addRemoteOptions(mcp);
   addModelOptions(mcp);
 
   const openapi = program
@@ -499,7 +497,6 @@ export async function cli(): Promise<void> {
       "Starts an Web API server that exposes scripts as REST endpoints (OpenAPI 3.1 compatible)",
     )
     .action(startOpenAPIServer);
-  addRemoteOptions(openapi);
   addModelOptions(openapi);
   addGroupsOptions(openapi);
 
