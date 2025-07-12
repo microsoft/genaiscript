@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/dev-proxy/main/schemas/v1.0.0/openaitelemetryplugin.pricesfile.schema.json",
+  "prices": {
+    "llama-3.2-7b": {
+      "input": 2.5,
+      "output": 10
+    },
+    "gpt-4.1-2025-04-14": {
+      "input": 2.5,
+      "output": 10
+    }
+  }
+}
