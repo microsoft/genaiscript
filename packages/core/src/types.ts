@@ -635,71 +635,12 @@ export interface PromptRedteam {
    * Red team plugin list
    * @link https://www.promptfoo.dev/docs/red-team/owasp-llm-top-10/
    */
-  plugins?: ElementOrArray<
-    OptionsOrString<
-      | "default"
-      | "nist:ai:measure"
-      | "owasp:llm"
-      | "owasp:api"
-      | "mitre:atlas"
-      | "owasp:llm:01"
-      | "owasp:llm:02"
-      | "owasp:llm:04"
-      | "owasp:llm:06"
-      | "owasp:llm:09"
-      | "contracts"
-      | "divergent-repetition"
-      | "excessive-agency"
-      | "hallucination"
-      | "harmful:chemical-biological-weapons"
-      | "harmful:child-exploitation"
-      | "harmful:copyright-violations"
-      | "harmful:cybercrime"
-      | "harmful:cybercrime:malicious-code"
-      | "harmful:graphic-content"
-      | "harmful:harassment-bullying"
-      | "harmful:hate"
-      | "harmful:illegal-activities"
-      | "harmful:illegal-drugs"
-      | "harmful:illegal-drugs:meth"
-      | "harmful:indiscriminate-weapons"
-      | "harmful:insults"
-      | "harmful:intellectual-property"
-      | "harmful:misinformation-disinformation"
-      | "harmful:non-violent-crime"
-      | "harmful:privacy"
-      | "harmful:profanity"
-      | "harmful:radicalization"
-      | "harmful:self-harm"
-      | "harmful:sex-crime"
-      | "harmful:sexual-content"
-      | "harmful:specialized-advice"
-      | "harmful:unsafe-practices"
-      | "harmful:violent-crime"
-      | "harmful:weapons:ied"
-      | "hijacking"
-      | "pii:api-db"
-      | "pii:direct"
-      | "pii:session"
-      | "pii:social"
-      | "politics"
-    >
-  >;
+  plugins?: ElementOrArray<string>;
 
   /**
    * Adversary prompt generation strategies
    */
-  strategies?: ElementOrArray<
-    OptionsOrString<
-      | "default"
-      | "basic"
-      | "jailbreak"
-      | "jailbreak:composite"
-      | "base64"
-      | "jailbreak"
-      | "prompt-injection"
-    >
-  >;
+  strategies?: ElementOrArray<string>;
 }
 
 /**
@@ -3516,6 +3457,10 @@ export interface GitHubIssueUpdateOptions {
   labels?: string[];
 }
 
+export interface GitHubIssueCreateOptions {
+  labels?: string[];
+}
+
 export interface GitHubLabel {
   name: string;
   color?: string;
@@ -3643,6 +3588,15 @@ export interface GitHub {
     issue_number: number | string,
     options?: { bot?: string },
   ): Promise<{ id: string; title: string }>;
+
+  /**
+   * Creates a new issue or pull request on GitHub
+   */
+  createIssue(
+    title: string,
+    body: string,
+    options?: GitHubIssueCreateOptions,
+  ): Promise<GitHubIssue>;
 
   /**
    * Updates an issue or pull request on GitHub

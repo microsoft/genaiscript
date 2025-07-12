@@ -66,6 +66,7 @@ import type {
   GitHubWorkflowRunStatus,
   PromptScript,
   WorkspaceFile,
+  GitHubIssueCreateOptions,
 } from "./types.js";
 import { Octokit } from "@octokit/rest";
 import type { Octokit as OctokitCore } from "@octokit/core";
@@ -1127,6 +1128,23 @@ export class GitHubClient implements GitHub {
     }
   }
 
+  async createIssue(
+    title: string,
+    body: string,
+    options?: GitHubIssueCreateOptions,
+  ): Promise<GitHubIssue> {
+    const { client, owner, repo } = await this.api();
+    dbg(`create issue`);
+    const { data } = await client.rest.issues.create({
+      ...(options || {}),
+      owner,
+      repo,
+      title,
+      body: prettifyMarkdown(dedent(body)),
+    });
+    return data;
+  }
+
   async updateIssue(
     issueNumber: number | string,
     options?: GitHubIssueUpdateOptions,
@@ -1646,7 +1664,7 @@ export class GitHubClient implements GitHub {
     });
     const workflows = await paginatorToArray(ite, count, (i) => i.data);
     dbg(`workflows: %O`, workflows);
-    return workflows
+    return workflows;
   }
 
   async listBranches(options?: GitHubPaginationOptions): Promise<string[]> {

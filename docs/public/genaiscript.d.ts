@@ -3516,6 +3516,10 @@
   labels?: string[];
 }
 
+ interface GitHubIssueCreateOptions {
+  labels?: string[];
+}
+
  interface GitHubLabel {
   name: string;
   color?: string;
@@ -3643,6 +3647,15 @@
     issue_number: number | string,
     options?: { bot?: string },
   ): Promise<{ id: string; title: string }>;
+
+  /**
+   * Creates a new issue or pull request on GitHub
+   */
+  createIssue(
+    title: string,
+    body: string,
+    options?: GitHubIssueCreateOptions,
+  ): Promise<GitHubIssue>;
 
   /**
    * Updates an issue or pull request on GitHub
