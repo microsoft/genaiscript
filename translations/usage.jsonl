@@ -1,0 +1,3 @@
+{"filename":"README.md","lang":"fr","tokens":2837,"stage":"translate","model":"github:openai/gpt-4o","date":"2025-07-12T08:03:31.895Z","cost":0.0423475,"duration":29848.020685999996,"total":9580,"prompt":7127,"completion":2453}
+{"filename":"README.md","lang":"fr","tokens":2837,"stage":"validate","model":"github:openai/gpt-4o","date":"2025-07-12T08:03:33.269Z","cost":0.0159625,"duration":1231.448213999989,"total":6310,"prompt":6285,"completion":25}
+{"filename":"README.md","lang":"fr","tokens":2837,"stage":"validate","model":"github:openai/gpt-4o","date":"2025-07-12T08:04:29.339Z","cost":0,"duration":7.780729000001884,"total":0,"prompt":0,"completion":0}
