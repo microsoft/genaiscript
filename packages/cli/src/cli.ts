@@ -136,7 +136,7 @@ export async function cli(): Promise<void> {
       // clone repo
       const remoteDir = await applyRemoteOptions(cmd.opts());
       if (!remoteDir) throw new Error("Failed to configure remote repository");
-      includes.push(resolve(remoteDir, "**", "*.genai.mts"));
+      includes.push(resolve(remoteDir, "**", "*.genai.*"));
       ignoreCurrentWorkspace = true;
       dbg(`remote workspace: %s`, remoteDir);
     }

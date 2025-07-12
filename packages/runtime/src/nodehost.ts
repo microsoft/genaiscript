@@ -488,13 +488,16 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       .filter((p) => NEGATIVE_GLOB_REGEX.test(p))
       .map((p) => p.replace(NEGATIVE_GLOB_REGEX, ""));
     const positives = paths.filter((p) => !NEGATIVE_GLOB_REGEX.test(p));
-    let files = await glob(positives, {
+    const globOptions = {
       nodir: true,
       windowsPathsNoEscape: true,
       ignore: uniq([...arrayify(ignore), ...negatives]),
       dot: true,
-    });
+    }
+    dbg(`glob: %O`, globOptions);
+    let files = await glob(positives, globOptions);
     if (applyGitIgnore !== false) {
+      dbg(`applying .gitignore`);
       files = await filterGitIgnore(files);
     }
     const res = uniq(files);

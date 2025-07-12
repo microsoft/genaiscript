@@ -63,7 +63,7 @@ export async function buildProject(options?: {
     for (const tp of tps) {
       dbg(`searching %s .gitignore: %s`, tp.pattern, tp.applyGitIgnore);
       const fs = await runtimeHost.findFiles(tp.pattern, {
-        ignore: `**/${GENAISCRIPT_FOLDER}/**`,
+        ignore: tp.applyGitIgnore ? `**/${GENAISCRIPT_FOLDER}/**` : undefined,
         applyGitIgnore: tp.applyGitIgnore,
       });
       if (!fs?.length) {
