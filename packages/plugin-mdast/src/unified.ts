@@ -72,6 +72,7 @@ export async function mdast(options?: MdAstOptions) {
     dbg(`stringify`);
     const processor = unified();
     usePlugins(processor, "stringify");
+    // @ts-expect-error - TypeScript doesn't recognize the handlers option
     processor.use(stringify, {
       ...(stringifyOptions || {}),
       handlers: {
@@ -85,7 +86,7 @@ export async function mdast(options?: MdAstOptions) {
           return `<summary>${node.children.map((child) => processor.stringify(child)).join("")}</summary>`;
         },
       },
-    } as any);
+    });
 
     const n = Array.isArray(root) ? ({ type: "root", children: root } satisfies Root) : root;
     const result = processor.stringify(n);
@@ -103,138 +104,64 @@ export async function mdast(options?: MdAstOptions) {
 
     if (nodes.length === 0) return [];
 
-    // Group nodes by heading sections
-    const sections: { heading?: RootContent; content: RootContent[]; level: number }[] = [];
-    {
-      let currentSection: { heading?: RootContent; content: RootContent[]; level: number } | null =
-        null;
-      for (const node of nodes) {
-        if (node.type === "heading") {
-          // Start a new section
-          if (currentSection) {
-            sections.push(currentSection);
-          }
-          currentSection = {
-            heading: node,
-            content: [],
-            level: node.depth || 1,
-          };
-        } else {
-          // Add to current section or create a default section
-          if (!currentSection) {
-            currentSection = {
-              content: [],
-              level: 0,
-            };
-          }
-          currentSection.content.push(node);
-        }
-      }
-
-      if (currentSection) {
-        sections.push(currentSection);
-      }
-    }
-
-    // Now chunk sections based on token limits
     const chunks: RootContent[][] = [];
     let currentChunk: RootContent[] = [];
     let currentTokenCount = 0;
 
     const measure = (ns: RootContent[]): number => tokenize(mdastStringify(ns));
-    for (let i = 0; i < sections.length; i++) {
-      const section = sections[i];
-      const sectionNodes = section.heading
-        ? [section.heading, ...section.content]
-        : section.content;
-      const sectionTokens = measure(sectionNodes);
 
-      // If section is too large, put it in its own chunk(s)
-      if (sectionTokens > maxTokens) {
-        // Finalize current chunk if it has content
-        if (currentChunk.length > 0) {
+    // Process nodes in order, never reordering them
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      const nodeTokens = measure([node]);
+
+      // If adding this node would exceed the limit and we have content in current chunk
+      if (currentTokenCount + nodeTokens > maxTokens && currentChunk.length > 0) {
+        // For headings, try to keep them with their content by looking ahead
+        if (node.type === "heading") {
+          // Look ahead to see how much content follows this heading
+          let headingContentSize = nodeTokens;
+          let nextHeadingIndex = i + 1;
+          
+          // Find content that belongs to this heading (until next heading of same or higher level)
+          while (nextHeadingIndex < nodes.length) {
+            const nextNode = nodes[nextHeadingIndex];
+            if (nextNode.type === "heading" && nextNode.depth <= node.depth) {
+              break; // Found a heading of same or higher level
+            }
+            headingContentSize += measure([nextNode]);
+            nextHeadingIndex++;
+          }
+
+          // If the heading + its content can fit in a new chunk, start a new chunk
+          if (headingContentSize <= maxTokens) {
+            chunks.push(currentChunk);
+            currentChunk = [];
+            currentTokenCount = 0;
+          }
+          // Otherwise, just finalize current chunk and continue
+          else if (currentChunk.length > 0) {
+            chunks.push(currentChunk);
+            currentChunk = [];
+            currentTokenCount = 0;
+          }
+        } else {
+          // For non-heading nodes, just start a new chunk
           chunks.push(currentChunk);
           currentChunk = [];
           currentTokenCount = 0;
         }
+      }
 
-        // Handle oversized section by splitting it node by node
-        if (section.heading) {
-          const headingTokens = measure([section.heading]);
-          if (currentTokenCount + headingTokens <= maxTokens) {
-            currentChunk.push(section.heading);
-            currentTokenCount += headingTokens;
-          } else {
-            // Even heading is too large, put it alone
-            chunks.push([section.heading]);
-          }
-        }
+      // Add the current node to the chunk
+      currentChunk.push(node);
+      currentTokenCount += nodeTokens;
 
-        // Add content nodes one by one
-        for (const contentNode of section.content) {
-          const nodeTokens = measure([contentNode]);
-
-          if (currentTokenCount + nodeTokens > maxTokens) {
-            if (currentChunk.length > 0) {
-              chunks.push(currentChunk);
-              currentChunk = [];
-              currentTokenCount = 0;
-            }
-          }
-
-          currentChunk.push(contentNode);
-          currentTokenCount += nodeTokens;
-        }
-      } else {
-        // Check if adding this section would exceed limit
-        if (currentTokenCount + sectionTokens > maxTokens) {
-          // Try to backtrack nested sections if current section is at deeper level
-          const removedSections: RootContent[] = [];
-          let j = currentChunk.length - 1;
-
-          while (
-            j >= 0 &&
-            currentTokenCount + sectionTokens > maxTokens &&
-            currentChunk.length > 0
-          ) {
-            const lastNode = currentChunk[j];
-            if (lastNode.type === "heading") {
-              const lastLevel = lastNode.depth || 1;
-              if (lastLevel > section.level) {
-                // Remove this heading and subsequent content until next heading of same or higher level
-                const k = j;
-                while (k < currentChunk.length) {
-                  const removedNode = currentChunk.splice(k, 1)[0];
-                  removedSections.unshift(removedNode);
-                  if (k < currentChunk.length && currentChunk[k]?.type === "heading") {
-                    const nextLevel = currentChunk[k].depth || 1;
-                    if (nextLevel <= section.level) break;
-                  }
-                }
-                currentTokenCount = measure(currentChunk);
-              } else {
-                break;
-              }
-            } else {
-              j--;
-            }
-          }
-
-          // If we still can't fit, finalize current chunk
-          if (currentTokenCount + sectionTokens > maxTokens && currentChunk.length > 0) {
-            chunks.push(currentChunk);
-            currentChunk = [...removedSections];
-            currentTokenCount = measure(currentChunk);
-          } else if (removedSections.length > 0) {
-            // Add back removed sections to current chunk
-            currentChunk.push(...removedSections);
-            currentTokenCount = measure(currentChunk);
-          }
-        }
-
-        // Add the section to current chunk
-        currentChunk.push(...sectionNodes);
-        currentTokenCount += sectionTokens;
+      // If this single node exceeds maxTokens, put it in its own chunk
+      if (nodeTokens > maxTokens && currentChunk.length === 1) {
+        chunks.push(currentChunk);
+        currentChunk = [];
+        currentTokenCount = 0;
       }
     }
 
