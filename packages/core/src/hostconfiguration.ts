@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ModelConfiguration } from "./host.js";
+import type { ModelConfiguration } from "./host.js";
 
 /**
  * Schema for a global configuration file

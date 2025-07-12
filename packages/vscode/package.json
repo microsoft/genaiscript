@@ -328,6 +328,11 @@
                         "default": true,
                         "description": "Add custom instructions.md in .genaiscript/instructions folder to support GenAIScript script generation."
                     },
+                    "genaiscript.quiet": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Suppresses all output from the GenAIScript server. Useful for performance reasons when you don't need to see the output."
+                    },
                     "genaiscript.disableTrace": {
                         "type": "boolean",
                         "default": false,
