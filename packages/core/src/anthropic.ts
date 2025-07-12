@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ChatCompletionHandler, LanguageModel, ListModelsFunction } from "./chat.js";
+import type { ChatCompletionHandler, LanguageModel, ListModelsFunction } from "./chat.js";
 import {
   ANTHROPIC_MAX_TOKEN,
   MODEL_PROVIDER_ANTHROPIC,
@@ -13,7 +13,7 @@ import { approximateTokens } from "./tokens.js";
 import { resolveTokenEncoder } from "./encoders.js";
 import type Anthropic from "@anthropic-ai/sdk";
 import type AnthropicBedrock from "@anthropic-ai/bedrock-sdk";
-import {
+import type {
   ChatCompletionResponse,
   ChatCompletionToolCall,
   ChatCompletionUsage,
@@ -33,14 +33,15 @@ import {
 import { logError } from "./util.js";
 import { resolveUndiciProxyAgent } from "./proxy.js";
 import type { ProxyAgent } from "undici";
-import { MarkdownTrace } from "./trace.js";
-import { createFetch, FetchType } from "./fetch.js";
+import type { MarkdownTrace } from "./trace.js";
+import { createFetch } from "./fetch.js";
+import type { FetchType } from "./fetch.js";
 import { JSONLLMTryParse } from "./json5.js";
-import { LanguageModelConfiguration } from "./server/messages.js";
+import type { LanguageModelConfiguration } from "./server/messages.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import debug from "debug";
 import { providerFeatures } from "./features.js";
-import { LanguageModelInfo } from "./types.js";
+import type { LanguageModelInfo } from "./types.js";
 const dbg = debug("genaiscript:anthropic");
 const dbgMessages = debug("genaiscript:anthropic:msg");
 

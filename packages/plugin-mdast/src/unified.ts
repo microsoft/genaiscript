@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Root } from "mdast";
+import type { Root, RootContent } from "mdast";
 import type { WorkspaceFile } from "@genaiscript/core";
 import { checkRuntime, filenameOrFileToContent, genaiscriptDebug } from "@genaiscript/core";
 import type { Processor } from "unified";
 import remarkGitHubAlerts from "./remarkalerts.js";
 import type { GitHubAlertMarker } from "./remarkalerts.js";
-import remarkDetails, { DetailsElement, SummaryElement } from "./remarkdetails.js";
+import remarkDetails from "./remarkdetails.js";
+import type { DetailsElement, SummaryElement } from "./remarkdetails.js";
+import { approximateTokens } from "@genaiscript/core";
 const dbg = genaiscriptDebug("mdast");
 
 export interface MdAstOptions {
@@ -64,14 +66,14 @@ export async function mdast(options?: MdAstOptions) {
     return processed as Root;
   };
 
-  const mdastStringify = (root: Root, options?: {}): string => {
+  const mdastStringify = (root: Root, stringifyOptions?: object): string => {
     if (!root) return "";
 
     dbg(`stringify`);
     const processor = unified();
     usePlugins(processor, "stringify");
     processor.use(stringify, {
-      ...(options || {}),
+      ...(stringifyOptions || {}),
       handlers: {
         githubAlertMarker(node: GitHubAlertMarker) {
           return node.value;
@@ -89,9 +91,43 @@ export async function mdast(options?: MdAstOptions) {
     return String(result);
   };
 
+  const mdChunk = (
+    nodes: RootContent[],
+    maxTokens: number,
+    chunkOptions?: {
+      tokenize: (text: string) => number;
+    },
+  ): RootContent[][] => {
+    const { tokenize = approximateTokens } = chunkOptions || {};
+    const res: RootContent[][] = [];
+    let currentChunk: RootContent[] = [];
+    let currentTokenCount = 0;
+
+    for (const node of nodes) {
+      const nodeText = mdastStringify({ type: "root", children: [node] });
+      const nodeTokenCount = tokenize(nodeText);
+
+      if (currentTokenCount + nodeTokenCount > maxTokens) {
+        res.push(currentChunk);
+        currentChunk = [];
+        currentTokenCount = 0;
+      }
+
+      currentChunk.push(node);
+      currentTokenCount += nodeTokenCount;
+    }
+
+    if (currentChunk.length > 0) {
+      res.push(currentChunk);
+    }
+
+    return res;
+  };
+
   return Object.freeze({
     parse: mdastParse,
     stringify: mdastStringify,
+    chunk: mdChunk,
     visit,
     visitParents,
     inspect,

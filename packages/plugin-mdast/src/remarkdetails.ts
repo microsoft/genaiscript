@@ -8,6 +8,12 @@ import { remark } from "remark";
 import { genaiscriptDebug } from "@genaiscript/core";
 const dbg = genaiscriptDebug("mdast:html:details");
 
+declare module "mdast" {
+  interface RootContentMap {
+    details: DetailsElement;
+  }
+}
+
 export interface RemarkDetailsOptions {}
 
 export interface DetailsElement extends Parent {
