@@ -1182,17 +1182,11 @@ export class GitHubClient implements GitHub {
     return data;
   }
 
-  private async resolveIssueNumber(issue_number: number | string): Promise<number> {
-    issue_number = normalizeInt(issue_number);
-    if (isNaN(issue_number)) {
-      issue_number = (await this._connection).issue;
-    }
-    dbg(`issue: %d`, issue_number);
-    return !isNaN(issue_number) ? issue_number : undefined;
-  }
-
   // https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/agents/copilot-coding-agent/using-copilot-to-work-on-an-issue#assigning-an-issue-to-copilot-via-the-github-api
-  private async listSuggestedActors() {
+  async listSuggestedActors(): Promise<{ login: string; id: string }[]> {
+    const { client, owner, repo } = await this.api();
+    dbg(`listing suggested actors for repository %s/%s`, owner, repo);
+    // https://docs.github.com/en/enterprise-cloud@latest/graphql/reference/objects#
     const res = await this.graphql<{
       repository: {
         suggestedActors: { nodes: Array<{ login: string; id: string; __typename: string }> };
@@ -1226,7 +1220,7 @@ export class GitHubClient implements GitHub {
   async assignIssueToBot(
     issue_number: number | string,
     options?: { bot?: string },
-  ): Promise<unknown> {
+  ): Promise<{ id: string; title: string }> {
     // https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/agents/copilot-coding-agent/using-copilot-to-work-on-an-issue#assigning-an-issue-to-copilot-via-the-github-api
     dbg(`assign issue to bot %O`, options);
     // resolve issue
@@ -1244,12 +1238,18 @@ export class GitHubClient implements GitHub {
       dbg(`bot %s not found in suggested actors`, bot);
       return undefined;
     }
-    dbg(`assigning issue #%d (%d) to bot @%s (%s)`, issue.number, issue.id, actor.login, actor.id);
+    dbg(
+      `assigning issue #%d (%s) to bot @%s (%s)`,
+      issue.number,
+      issue.node_id,
+      actor.login,
+      actor.id,
+    );
 
     // assign
     const updated = await this.graphql(
-      dedent`mutation($owner: String!, $repo: String!, $issueId: String!, $botId: String!) {
-  replaceActorsForAssignable(input: {assignableId: $issueId, assigneeIds: [$botId]}) {
+      dedent`mutation {
+  replaceActorsForAssignable(input: {assignableId: "${issue.node_id}" actorIds: ["${actor.id}"]}) {
     assignable {
       ... on Issue {
         id
@@ -1263,10 +1263,10 @@ export class GitHubClient implements GitHub {
     }
   }
 }`,
-      { issueId: issue.id, botId: actor.id },
     );
-    dbg(`issue assigned: %O`, updated);
-    return updated;
+    const assignable = updated.replaceActorsForAssignable.assignable;
+    dbg(`assigned: %O`, assignable);
+    return assignable;
   }
 
   async listPullRequests(
@@ -1357,7 +1357,8 @@ export class GitHubClient implements GitHub {
   async graphql<T = any>(query: string, variables?: Record<string, any>): Promise<T> {
     const { client, owner, repo, ref } = await this.api();
     query = dedent(query).trim();
-    dbgql(`query: ${query.slice(0, 100)}...`);
+    dbgql(`query: %s`, query);
+    if (!query) throw new Error("GraphQL query is required");
 
     // Automatically inject current repository context if requested
     const finalVariables = deleteUndefinedValues({

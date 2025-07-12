@@ -3348,8 +3348,12 @@ export type GitHubWorkflowRunStatus =
   | "waiting"
   | "pending";
 
-export interface GitHubWorkflowRun {
+export interface GitHubNode {
   id: number;
+  node_id: string;
+}
+
+export interface GitHubWorkflowRun extends GitHubNode {
   run_number: number;
   name?: string;
   display_title: string;
@@ -3363,8 +3367,7 @@ export interface GitHubWorkflowRun {
   run_started_at?: string;
 }
 
-export interface GitHubWorkflowJob {
-  id: number;
+export interface GitHubWorkflowJob extends GitHubNode {
   run_id: number;
   status: string;
   conclusion: string;
@@ -3377,8 +3380,7 @@ export interface GitHubWorkflowJob {
   content: string;
 }
 
-export interface GitHubIssue {
-  id: number;
+export interface GitHubIssue extends GitHubNode {
   body?: string;
   title: string;
   number: number;
@@ -3430,8 +3432,7 @@ export interface GitHubReaction {
   created_at: string;
 }
 
-export interface GitHubComment {
-  id: number;
+export interface GitHubComment extends GitHubNode {
   body?: string;
   user: GitHubUser;
   created_at: string;
@@ -3458,8 +3459,7 @@ export interface GitHubCodeSearchResult {
   repository: string;
 }
 
-export interface GitHubWorkflow {
-  id: number;
+export interface GitHubWorkflow extends GitHubNode {
   name: string;
   path: string;
 }
@@ -3635,6 +3635,14 @@ export interface GitHub {
    * @param issueNumber issue number (not the issue id!). If undefined, reads value from GITHUB_ISSUE environment variable.
    */
   getIssue(issueNumber?: number | string): Promise<GitHubIssue>;
+
+  /**
+   * Assigns an existing issue to a bot user. Defaults to copilot user.
+   */
+  assignIssueToBot(
+    issue_number: number | string,
+    options?: { bot?: string },
+  ): Promise<{ id: string; title: string }>;
 
   /**
    * Updates an issue or pull request on GitHub

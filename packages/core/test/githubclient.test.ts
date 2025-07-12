@@ -144,7 +144,7 @@ describe("GitHubClient", async () => {
     assert(labels[0].description !== undefined);
   });
 
-  test("assignIssueToBot()", async () => {
+  test("assignIssueToBot", async () => {
     if (isCI) return; // Skip in CI to avoid making actual API calls
 
     const issueNumber = 1729;

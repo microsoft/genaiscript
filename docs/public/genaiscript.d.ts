@@ -3348,8 +3348,12 @@
   | "waiting"
   | "pending";
 
- interface GitHubWorkflowRun {
+ interface GitHubNode {
   id: number;
+  node_id: string;
+}
+
+ interface GitHubWorkflowRun extends GitHubNode {
   run_number: number;
   name?: string;
   display_title: string;
@@ -3363,8 +3367,7 @@
   run_started_at?: string;
 }
 
- interface GitHubWorkflowJob {
-  id: number;
+ interface GitHubWorkflowJob extends GitHubNode {
   run_id: number;
   status: string;
   conclusion: string;
@@ -3377,8 +3380,7 @@
   content: string;
 }
 
- interface GitHubIssue {
-  id: number;
+ interface GitHubIssue extends GitHubNode {
   body?: string;
   title: string;
   number: number;
@@ -3430,8 +3432,7 @@
   created_at: string;
 }
 
- interface GitHubComment {
-  id: number;
+ interface GitHubComment extends GitHubNode {
   body?: string;
   user: GitHubUser;
   created_at: string;
@@ -3458,8 +3459,7 @@
   repository: string;
 }
 
- interface GitHubWorkflow {
-  id: number;
+ interface GitHubWorkflow extends GitHubNode {
   name: string;
   path: string;
 }
