@@ -72,6 +72,7 @@ import debug from "debug";
 import { githubActionConfigure } from "./githubaction.js";
 import { uniq } from "es-toolkit";
 import { compileScript } from "./typescript.js";
+import { addRemoteOptions, applyRemoteOptions } from "./remote.js";
 const dbg = genaiscriptDebug("cli");
 
 /**
@@ -105,7 +106,9 @@ export async function cli(): Promise<void> {
       env,
       include,
       githubWorkspace,
+      remote,
     }: {
+      remote: string;
       env: string[];
       include: string;
       githubWorkspace: boolean;
@@ -114,6 +117,7 @@ export async function cli(): Promise<void> {
     let ignoreCurrentWorkspace = false;
     if (include) includes.push(resolve(include));
     if (githubWorkspace) {
+      if (remote) throw new Error("Cannot use --github-workspace with --remote");
       const { workspaceDir } = githubActionConfigure();
       if (workspaceDir && resolve(workspaceDir) !== resolve(process.cwd())) {
         includes.push(resolve(process.cwd(), "genaisrc", "*.genai.mts"));
@@ -122,6 +126,14 @@ export async function cli(): Promise<void> {
         dbg(`github action workspace: %s`, cwd);
         GitClient.default().setGitHubWorkspace(cwd);
       }
+    }
+    const remoteDir = await applyRemoteOptions(cmd.opts());
+    if (remoteDir) {
+      includes.push(resolve(remoteDir, "**", "*.genai.mts"));
+      ignoreCurrentWorkspace = true;
+      cwd = resolve(remoteDir);
+      dbg(`remote workspace: %s`, cwd);
+      GitClient.default().setGitHubWorkspace(cwd);
     }
     if (cwd) {
       dbg(`chdir %s`, cwd);
@@ -238,8 +250,9 @@ export async function cli(): Promise<void> {
     )
     .option("--run-retry <number>", "number of retries for the entire run")
     .option("--no-run-trace", "disable automatic trace generation")
-    .option("--no-output-trace", "disable automatic output generation")
-    .action(runScriptWithExitCode); // Action to execute the script with exit code
+    .option("--no-output-trace", "disable automatic output generation");
+  addRemoteOptions(run); // Add remote options to the command
+  run.action(runScriptWithExitCode); // Action to execute the script with exit code
 
   // runs commands
   const runs = program.command("runs").description("Commands to open previous runs");
@@ -320,8 +333,9 @@ export async function cli(): Promise<void> {
     .option("--cache-name <name>", "custom cache file name")
     .option("--concurrency <number>", "number of concurrent conversions")
     .option("--no-run-trace", "disable automatic trace generation")
-    .option("--no-output-trace", "disable automatic output generation")
-    .action(convertFiles);
+    .option("--no-output-trace", "disable automatic output generation");
+  addRemoteOptions(convert); // Add remote options to the command
+  convert.action(convertFiles);
 
   // Define 'scripts' command group for script management tasks
   const scripts = program
@@ -620,14 +634,6 @@ export async function cli(): Promise<void> {
   models.command("alias").description("Show model alias mapping").action(modelAliasesInfo);
 
   program.parse(); // Parse command-line arguments
-
-  function addRemoteOptions(command: Command): Command {
-    return command
-      .option("--remote <string>", "Remote repository URL to serve")
-      .option("--remote-branch <string>", "Branch to serve from the remote")
-      .option("--remote-force", "Force pull from remote repository")
-      .option("--remote-install", "Install dependencies from remote repository");
-  }
 
   function addGroupsOptions(command: Command): Command {
     return command.option(

@@ -116,6 +116,10 @@ Options:
   --run-retry <number>                     number of retries for the entire run
   --no-run-trace                           disable automatic trace generation
   --no-output-trace                        disable automatic output generation
+  --remote <string>                        Remote repository URL with scripts
+  --remote-branch <string>                 Branch from the remote
+  --remote-force                           Force pull from remote repository
+  --remote-install                         Install dependencies from remote repository
   -h, --help                               display help for command
 ```
 
@@ -283,6 +287,10 @@ Options:
   --concurrency <number>            number of concurrent conversions
   --no-run-trace                    disable automatic trace generation
   --no-output-trace                 disable automatic output generation
+  --remote <string>                 Remote repository URL with scripts
+  --remote-branch <string>          Branch from the remote
+  --remote-force                    Force pull from remote repository
+  --remote-install                  Install dependencies from remote repository
   -h, --help                        display help for command
 ```
 
@@ -574,8 +582,8 @@ Options:
   --github-copilot-chat-client   Allow github_copilot_chat provider to connect
                                  to connected Visual Studio Code
   --no-run-trace                 Emit run trace events
-  --remote <string>              Remote repository URL to serve
-  --remote-branch <string>       Branch to serve from the remote
+  --remote <string>              Remote repository URL with scripts
+  --remote-branch <string>       Branch from the remote
   --remote-force                 Force pull from remote repository
   --remote-install               Install dependencies from remote repository
   -p, --provider <string>        Preferred LLM provider aliases (choices:
@@ -609,8 +617,8 @@ Options:
                                  exclude
   --startup <string>             Startup script id, executed after the server is
                                  started
-  --remote <string>              Remote repository URL to serve
-  --remote-branch <string>       Branch to serve from the remote
+  --remote <string>              Remote repository URL with scripts
+  --remote-branch <string>       Branch from the remote
   --remote-force                 Force pull from remote repository
   --remote-install               Install dependencies from remote repository
   -p, --provider <string>        Preferred LLM provider aliases (choices:
@@ -649,8 +657,8 @@ Options:
   --ids <string...>              Filter script by ids
   --startup <string>             Startup script id, executed after the server is
                                  started
-  --remote <string>              Remote repository URL to serve
-  --remote-branch <string>       Branch to serve from the remote
+  --remote <string>              Remote repository URL with scripts
+  --remote-branch <string>       Branch from the remote
   --remote-force                 Force pull from remote repository
   --remote-install               Install dependencies from remote repository
   -p, --provider <string>        Preferred LLM provider aliases (choices:
