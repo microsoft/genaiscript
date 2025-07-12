@@ -138,9 +138,7 @@ export async function cli(): Promise<void> {
       if (!remoteDir) throw new Error("Failed to configure remote repository");
       includes.push(resolve(remoteDir, "**", "*.genai.mts"));
       ignoreCurrentWorkspace = true;
-      cwd = resolve(remoteDir);
-      dbg(`remote workspace: %s`, cwd);
-      GitClient.default().setGitHubWorkspace(cwd);
+      dbg(`remote workspace: %s`, remoteDir);
     }
     if (cwd) {
       dbg(`chdir %s`, cwd);
