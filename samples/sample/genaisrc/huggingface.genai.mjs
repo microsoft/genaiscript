@@ -1,3 +1,3 @@
-script({ model: "huggingface:microsoft/Phi-3-mini-4k-instruct" });
+script({ model: "huggingface:HuggingFaceTB/SmolLM3-3B" });
 
 $`Write a 2 word poem.`;

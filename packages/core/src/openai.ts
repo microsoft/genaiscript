@@ -25,7 +25,7 @@ import {
   TOOL_URL,
 } from "./constants.js";
 import { approximateTokens } from "./tokens.js";
-import {
+import type {
   ChatCompletionHandler,
   CreateImageRequest,
   CreateImageResult,
@@ -39,7 +39,7 @@ import { RequestError, errorMessage, isCancelError, serializeError } from "./err
 import { createFetch } from "./fetch.js";
 import { parseModelIdentifier } from "./models.js";
 import { JSON5TryParse } from "./json5.js";
-import {
+import type {
   ChatCompletionToolCall,
   ChatCompletionResponse,
   ChatCompletionChunk,
@@ -55,11 +55,12 @@ import {
   ImageGenerationResponse,
 } from "./chattypes.js";
 import { resolveTokenEncoder } from "./encoders.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import type { CancellationOptions } from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
 import { INITryParse } from "./ini.js";
 import { serializeChunkChoiceToLogProbs } from "./logprob.js";
-import { TraceOptions } from "./trace.js";
-import { LanguageModelConfiguration } from "./server/messages.js";
+import type { TraceOptions } from "./trace.js";
+import type { LanguageModelConfiguration } from "./server/messages.js";
 import prettyBytes from "pretty-bytes";
 import {
   deleteUndefinedValues,
@@ -203,7 +204,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
   if (
     cfg.type === MODEL_PROVIDER_OPENAI ||
     cfg.type === "localai" ||
-    cfg.type === MODEL_PROVIDER_ALIBABA
+    cfg.type === MODEL_PROVIDER_ALIBABA || 
+    cfg.type === MODEL_PROVIDER_HUGGINGFACE
   ) {
     url = trimTrailingSlash(cfg.base) + "/chat/completions";
     if (url === OPENROUTER_API_CHAT_URL) {
@@ -256,14 +258,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
       postReq.model = `${patch}/${postReq.model}`;
       dbg(`updated model to ${postReq.model}`);
     }
-  } else if (cfg.type === MODEL_PROVIDER_HUGGINGFACE) {
-    // https://github.com/huggingface/text-generation-inference/issues/2946
-    delete postReq.model;
-    url =
-      trimTrailingSlash(cfg.base).replace(/\/v1$/, "") +
-      "/models/" +
-      family +
-      `/v1/chat/completions`;
   } else throw new Error(`api type ${cfg.type} not supported`);
 
   trace?.itemValue(`url`, `[${url}](${url})`);
