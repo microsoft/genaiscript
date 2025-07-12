@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+/* eslint-disable no-param-reassign */
 
 import type { PaginateInterface } from "@octokit/plugin-paginate-rest";
 import {
@@ -73,6 +74,7 @@ import { paginateRest } from "@octokit/plugin-paginate-rest";
 import { tryReadJSON } from "./fs.js";
 
 const dbg = genaiscriptDebug("github");
+const dbgql = dbg.extend("graphql");
 
 export interface GithubConnectionInfo {
   token: string;
@@ -1180,6 +1182,93 @@ export class GitHubClient implements GitHub {
     return data;
   }
 
+  private async resolveIssueNumber(issue_number: number | string): Promise<number> {
+    issue_number = normalizeInt(issue_number);
+    if (isNaN(issue_number)) {
+      issue_number = (await this._connection).issue;
+    }
+    dbg(`issue: %d`, issue_number);
+    return !isNaN(issue_number) ? issue_number : undefined;
+  }
+
+  // https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/agents/copilot-coding-agent/using-copilot-to-work-on-an-issue#assigning-an-issue-to-copilot-via-the-github-api
+  private async listSuggestedActors() {
+    const res = await this.graphql<{
+      repository: {
+        suggestedActors: { nodes: Array<{ login: string; id: string; __typename: string }> };
+      };
+    }>(`query($owner: String!, $repo: String!) {
+    repository(owner: $owner, name: $repo) {
+    suggestedActors(capabilities: [CAN_BE_ASSIGNED], first: 100) {
+      nodes {
+      login
+      __typename
+
+      ... on Bot {
+        id
+      }
+
+      ... on User {
+        id
+      }
+      }
+    }
+    }
+  }`);
+    const actors = res.repository.suggestedActors.nodes;
+    dbg(`suggested actors: %O`, actors);
+    return actors.map((a) => ({
+      login: a.login,
+      id: a.id,
+    }));
+  }
+
+  async assignIssueToBot(
+    issue_number: number | string,
+    options?: { bot?: string },
+  ): Promise<unknown> {
+    // https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/agents/copilot-coding-agent/using-copilot-to-work-on-an-issue#assigning-an-issue-to-copilot-via-the-github-api
+    dbg(`assign issue to bot %O`, options);
+    // resolve issue
+    const issue = await this.getIssue(issue_number);
+    if (!issue) {
+      dbg(`issue %d not found`, issue_number);
+      return undefined;
+    }
+
+    // resolve bot
+    const { bot = "copilot-swe-agent" } = options ?? {};
+    const bots = await this.listSuggestedActors();
+    const actor = bots.find((b) => b.login === bot || b.id === bot);
+    if (!actor) {
+      dbg(`bot %s not found in suggested actors`, bot);
+      return undefined;
+    }
+    dbg(`assigning issue #%d (%d) to bot @%s (%s)`, issue.number, issue.id, actor.login, actor.id);
+
+    // assign
+    const updated = await this.graphql(
+      dedent`mutation($owner: String!, $repo: String!, $issueId: String!, $botId: String!) {
+  replaceActorsForAssignable(input: {assignableId: $issueId, assigneeIds: [$botId]}) {
+    assignable {
+      ... on Issue {
+        id
+        title
+        assignees(first: 10) {
+          nodes {
+            login
+          }
+        }
+      }
+    }
+  }
+}`,
+      { issueId: issue.id, botId: actor.id },
+    );
+    dbg(`issue assigned: %O`, updated);
+    return updated;
+  }
+
   async listPullRequests(
     options?: {
       state?: "open" | "closed" | "all";
@@ -1267,7 +1356,8 @@ export class GitHubClient implements GitHub {
 
   async graphql<T = any>(query: string, variables?: Record<string, any>): Promise<T> {
     const { client, owner, repo, ref } = await this.api();
-    dbg(`gql query: ${query.slice(0, 100)}...`);
+    query = dedent(query).trim();
+    dbgql(`query: ${query.slice(0, 100)}...`);
 
     // Automatically inject current repository context if requested
     const finalVariables = deleteUndefinedValues({
@@ -1276,9 +1366,9 @@ export class GitHubClient implements GitHub {
       ref,
       ...(variables || {}),
     });
-    dbg(`gql variables: %O`, finalVariables);
+    dbgql(`variables: %O`, finalVariables);
     const result = await client.graphql<T>(query, finalVariables);
-    dbg(`gql success`);
+    dbgql(`result: %O`, result);
     return result;
   }
 

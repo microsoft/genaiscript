@@ -95,7 +95,6 @@ describe("GitHubClient", async () => {
     assert(Array.isArray(files));
   });
   test("getOrCreateRef()", async () => {
-    const client = GitHubClient.default();
     const existingRef = await client.getOrCreateRef("test-ignore", {
       orphaned: true,
     });
@@ -105,7 +104,6 @@ describe("GitHubClient", async () => {
   test("uploadAsset()", async () => {
     if (isCI) return;
     const buffer = await readFile(fileURLToPath(import.meta.url));
-    const client = GitHubClient.default();
     const url = await client.uploadAsset(buffer);
     assert(url);
     const parsedUrl = new URL(url);
@@ -144,5 +142,14 @@ describe("GitHubClient", async () => {
     assert(labels[0].name);
     assert(labels[0].color);
     assert(labels[0].description !== undefined);
+  });
+
+  test("assignIssueToBot()", async () => {
+    if (isCI) return; // Skip in CI to avoid making actual API calls
+
+    const issueNumber = 1729;
+    // Test assigning issue to bot (default copilot-swe-agent)
+    const result = await client.assignIssueToBot(issueNumber);
+    console.log(result)
   });
 });
