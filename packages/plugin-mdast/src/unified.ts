@@ -66,7 +66,7 @@ export async function mdast(options?: MdAstOptions) {
     return processed as Root;
   };
 
-  const mdastStringify = (root: Root, stringifyOptions?: object): string => {
+  const mdastStringify = (root: Root | Node[], stringifyOptions?: object): string => {
     if (!root) return "";
 
     dbg(`stringify`);
@@ -87,7 +87,8 @@ export async function mdast(options?: MdAstOptions) {
       },
     } as any);
 
-    const result = processor.stringify(root);
+    const n = Array.isArray(root) ? { type: "root", children: root } : root;
+    const result = processor.stringify(n);
     return String(result);
   };
 
