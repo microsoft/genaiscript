@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+/* eslint-disable n/no-process-exit */
 
 /**
  * CLI entry point for the GenAIScript tool, providing various commands and options
  * for interacting with scripts, parsing files, testing, and managing cache.
  */
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION, NodeHost } from "@genaiscript/runtime";
-import { Command, Option, program } from "commander";
+import { Option, program } from "commander";
+import type { Command } from "commander";
 import {
   CORE_VERSION,
   DEBUG_SCRIPT_CATEGORY,
@@ -75,7 +77,7 @@ const dbg = genaiscriptDebug("cli");
 /**
  * /NOП/
  */
-export async function cli() {
+export async function cli(): Promise<void> {
   let nodeHost: NodeHost; // Variable to hold NodeHost instance
 
   // Handle uncaught exceptions globally
@@ -619,7 +621,7 @@ export async function cli() {
 
   program.parse(); // Parse command-line arguments
 
-  function addRemoteOptions(command: Command) {
+  function addRemoteOptions(command: Command): Command {
     return command
       .option("--remote <string>", "Remote repository URL to serve")
       .option("--remote-branch <string>", "Branch to serve from the remote")
@@ -627,14 +629,14 @@ export async function cli() {
       .option("--remote-install", "Install dependencies from remote repository");
   }
 
-  function addGroupsOptions(command: Command) {
+  function addGroupsOptions(command: Command): Command {
     return command.option(
       "-g, --groups <groups...>",
       "groups to include or exclude. Use :! prefix to exclude",
     );
   }
 
-  function addPullRequestOptions(command: Command) {
+  function addPullRequestOptions(command: Command): Command {
     return command
       .option(
         "-n, --pull-request-comment [string]",
@@ -647,13 +649,13 @@ export async function cli() {
       .option("-r, --pull-request-reviews", "create pull request reviews from annotations");
   }
 
-  function addLogProbsOptions(command: Command) {
+  function addLogProbsOptions(command: Command): Command {
     return command
       .option("--logprobs", "enable reporting token probabilities")
       .option("--top-logprobs <number>", "number of top logprobs (1 to 5)");
   }
 
-  function addProviderOptions(command: Command) {
+  function addProviderOptions(command: Command): Command {
     return command.addOption(
       new Option("-p, --provider <string>", "Preferred LLM provider aliases").choices(
         MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map(({ id }) => id),
@@ -661,7 +663,7 @@ export async function cli() {
     );
   }
 
-  function addModelOptions(command: Command) {
+  function addModelOptions(command: Command): Command {
     return addProviderOptions(command)
       .option("-m, --model <string>", "'large' model alias (default)")
       .option("-s, --small-model <string>", "'small' alias model")
