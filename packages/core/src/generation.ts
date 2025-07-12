@@ -39,9 +39,6 @@ export interface GenerationOptions
   maxCachedTemperature?: number; // Maximum temperature for caching purposes
   maxCachedTopP?: number; // Maximum top-p value for caching
   label?: string; // Optional label for the operation
-  cliInfo?: {
-    files: string[]; // Information about files in the CLI context
-  };
   vars?: PromptParameters; // Variables for prompt customization
   stats: GenerationStats; // Statistics of the generation
   userState: Record<string, unknown>;

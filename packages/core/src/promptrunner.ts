@@ -3,7 +3,7 @@
 
 // Import necessary modules and functions for handling chat sessions, templates, file management, etc.
 import { executeChatSession, tracePromptResult } from "./chat.js";
-import { GenerationStatus, Project } from "./server/messages.js";
+import type { GenerationStatus, Project } from "./server/messages.js";
 import { arrayify } from "./cleaners.js";
 import { relativePath } from "./util.js";
 import { assert } from "./assert.js";
@@ -11,9 +11,8 @@ import { runtimeHost } from "./host.js";
 import { CORE_VERSION } from "./version.js";
 import { expandFiles } from "./fs.js";
 import { dataToMarkdownTable } from "./csv.js";
-import { Fragment, GenerationOptions } from "./generation.js";
-import { traceCliArgs } from "./clihelp.js";
-import { GenerationResult } from "./server/messages.js";
+import type { Fragment, GenerationOptions } from "./generation.js";
+import type { GenerationResult } from "./server/messages.js";
 import { resolveModelConnectionInfo } from "./models.js";
 import { RequestError, errorMessage } from "./error.js";
 import { renderFencedVariables } from "./fence.js";
@@ -151,18 +150,13 @@ export async function runTemplate(
   assert(options !== undefined);
   assert(options.trace !== undefined);
   assert(options.outputTrace !== undefined);
-  const { label, cliInfo, trace, outputTrace, cancellationToken, model, runId } = options;
+  const { label, trace, outputTrace, cancellationToken, model, runId } = options;
   const version = CORE_VERSION;
   assert(model !== undefined);
 
   runtimeHost.project = prj;
 
   try {
-    if (cliInfo) {
-      trace.heading(3, `🤖 ${template.id}`);
-      traceCliArgs(trace, template, options);
-    }
-
     // Resolve expansion variables for the template
     const env = await resolveExpansionVars(prj, template, fragment, outputTrace, options);
     const {

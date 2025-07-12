@@ -28,7 +28,6 @@ export * from "./chattypes.js";
 export * from "./chunkers.js";
 export * from "./ci.js";
 export * from "./cleaners.js";
-export * from "./clihelp.js";
 export * from "./clone.js";
 export * from "./concurrency.js";
 export * from "./config.js";

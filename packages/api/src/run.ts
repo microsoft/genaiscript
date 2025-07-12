@@ -524,11 +524,6 @@ export async function runScriptInternal(
       fenceFormat,
       runDir,
       applyGitIgnore,
-      cliInfo: options.cli
-        ? {
-            files,
-          }
-        : undefined,
       stats,
       userState,
     });
