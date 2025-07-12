@@ -1715,9 +1715,10 @@ Content here.`;
 
     const api = await mdast();
     const ast = api.parse(markdown);
-    for (let tokens = 100; tokens < 10000; tokens += 500) {
+    for (let tokens = 10; tokens < 10000; tokens += 250) {
       console.log(`Chunking with ${tokens} tokens`);
-      const chunks = api.chunk(ast.children, tokens);
+      const chunks = api.chunk(ast, tokens);
+      console.log(`Chunks created: ${chunks.length}`);
       expect(api.stringify(ast)).toEqual(api.stringify(chunks.flat(1)));
     }
   });

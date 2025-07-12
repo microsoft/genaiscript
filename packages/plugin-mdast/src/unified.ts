@@ -94,14 +94,18 @@ export async function mdast(options?: MdAstOptions) {
   };
 
   const mdChunk = (
-    nodes: RootContent[],
+    nodes: Root | RootContent[],
     maxTokens: number,
     chunkOptions?: {
       tokenize: (text: string) => number;
     },
   ): RootContent[][] => {
     const { tokenize = approximateTokens } = chunkOptions || {};
-
+    if (!nodes) return [];
+    if (!Array.isArray(nodes)) {
+      if (nodes.type !== "root") throw new Error("Expected nodes to be an array or a Root type");
+      nodes = nodes.children || [];
+    }
     if (nodes.length === 0) return [];
 
     const chunks: RootContent[][] = [];
@@ -122,7 +126,7 @@ export async function mdast(options?: MdAstOptions) {
           // Look ahead to see how much content follows this heading
           let headingContentSize = nodeTokens;
           let nextHeadingIndex = i + 1;
-          
+
           // Find content that belongs to this heading (until next heading of same or higher level)
           while (nextHeadingIndex < nodes.length) {
             const nextNode = nodes[nextHeadingIndex];
