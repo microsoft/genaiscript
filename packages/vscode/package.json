@@ -331,7 +331,7 @@
                     "genaiscript.disableTrace": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Disable trace view. This is useful for performance reasons when you don't need to see the trace of the requests."
+                        "description": "Disable trace view and reduces verbosity of the output. This is useful for performance reasons when you don't need to see the trace of the requests."
                     },
                     "genaiscript.hideServerTerminal": {
                         "type": "boolean",

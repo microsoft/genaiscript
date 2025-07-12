@@ -78,6 +78,7 @@ dev-proxy-ca.crt
 .cursor/rules/ruler_cursor_instructions.mdc
 .cursor/rules/ruler_cursor_instructions.mdc.bak
 .gemini/settings.json.bak
+.github/copilot-instructions.md
 .github/copilot-instructions.md.bak
 .idx/airules.md
 .idx/airules.md.bak

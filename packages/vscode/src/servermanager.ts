@@ -171,7 +171,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     }
   }
 
-  private startTerminalStartWatcher() {
+  private startTerminalStartWatcher(): void {
     this.clearTerminalStartWatcher();
     this._terminalStartWatcher = setTimeout(() => {
       this.clearTerminalStartWatcher();
@@ -179,7 +179,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     }, VSCODE_STARTUP_TIMEOUT);
   }
 
-  private async showStartupInformation() {
+  private async showStartupInformation(): Promise<void> {
     const cmd = "Show Terminal";
     const res = await vscode.window.showInformationMessage(
       `${TOOL_NAME} - Server starting. This might take a while on the first run.`,
@@ -188,7 +188,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     if (res === cmd) this._terminal?.show(true);
   }
 
-  async start() {
+  async start(): Promise<void> {
     if (this._terminal) return;
 
     this.status = "starting";
@@ -196,7 +196,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     const diagnostics = this.state.diagnostics;
     const debug = diagnostics ? "*" : this.state.debug;
     const hideFromUser = !diagnostics && !!config.get("hideServerTerminal");
-    const disableTrace = config.get("disableTrace") ? "--no-run-trace " : "";
+    const disableTrace = config.get("disableTrace") ? "--no-run-trace --quiet " : "";
     const cwd = host.projectFolder();
     await this.allocatePort();
     logVerbose(`starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`);
