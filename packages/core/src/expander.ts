@@ -155,6 +155,14 @@ export async function callExpander(
 }
 
 function traceEnv(model: string, trace: MarkdownTrace, env: Partial<ExpansionVariables>) {
+  // nothing to show
+  if (
+    !env.files?.length &&
+    !Object.keys(env.vars || {}).length &&
+    !Object.keys(env.secrets || {}).length
+  )
+    return;
+
   trace?.startDetails("🏡 env");
   trace?.files(env.files, {
     title: "💾 files",
@@ -264,6 +272,7 @@ export async function expandTemplate(
   traceEnv(model, trace, env);
 
   trace?.startDetails("🧬 prompt", { expanded: true });
+  if (template.filename) trace?.item(template.filename);
   trace?.detailsFenced("💻 script source", template.jsSource, "js");
 
   const prompt = await callExpander(
