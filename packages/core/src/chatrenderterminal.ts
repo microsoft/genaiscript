@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {
+import type {
   ChatCompletionAssistantMessageParam,
   ChatCompletionMessageParam,
   ChatCompletionMessageToolCall,
@@ -28,7 +28,8 @@ import {
   CONTROL_CHAT_EXPANDED,
   CONTROL_CHAT_LAST,
 } from "./constants.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
+import type { CancellationOptions } from "./cancellation.js";
 import { prettyTemperature } from "./pretty.js";
 import { genaiscriptDebug } from "./debug.js";
 import { JSONSchemaToFunctionParameters } from "./schema.js";
@@ -154,6 +155,7 @@ function renderMetadata(call: CreateChatCompletionRequest) {
 export async function renderMessagesToTerminal(
   request: CreateChatCompletionRequest,
   options?: {
+    preview?: boolean;
     system?: boolean;
     user?: boolean;
     assistant?: boolean;
@@ -163,6 +165,7 @@ export async function renderMessagesToTerminal(
   const { model, temperature, metadata, response_format } = request;
   let messages = request.messages.slice(0);
   const {
+    preview,
     system = undefined, // Include system messages unless explicitly set to false.
     user = undefined, // Include user messages unless explicitly set to false.
     assistant = true, // Include assistant messages by default.
@@ -180,6 +183,7 @@ export async function renderMessagesToTerminal(
         : CONTROL_CHAT_COLLAPSED;
 
   messages = messages.filter((msg) => {
+    if (!preview) return false; // If preview is not enabled, filter out all messages.
     // Filter messages based on their roles.
     switch (msg.role) {
       case "system":
@@ -201,7 +205,7 @@ export async function renderMessagesToTerminal(
       ),
     );
   }
-  if (response_format) {
+  if (response_format && preview) {
     const { type } = response_format;
     res.push(wrapColor(CONSOLE_COLOR_DEBUG, `${BOX_DOWN_UP_AND_RIGHT}${BOX_RIGHT}📦 ${type}\n`));
     if (type === "json_schema") {
@@ -214,7 +218,7 @@ export async function renderMessagesToTerminal(
       );
     }
   }
-  if (tools?.length) {
+  if (tools?.length && preview) {
     res.push(
       wrapColor(
         CONSOLE_COLOR_DEBUG,
@@ -228,7 +232,7 @@ export async function renderMessagesToTerminal(
     );
   }
 
-  if (metadata) res.push(renderMetadata(request));
+  if (metadata && preview) res.push(renderMetadata(request));
 
   for (const msg of messages) {
     const { role } = msg;

@@ -252,6 +252,8 @@ export async function expandTemplate(
   if (seed !== undefined) seed = seed >> 0;
   let logprobs = options.logprobs || template.logprobs;
   let topLogprobs = Math.max(options.topLogprobs || 0, template.topLogprobs || 0);
+  const renderChatMessages =
+    options.renderChatMessages === true || template.disableChatPreview !== true;
 
   // finalize options
   env.meta.model = model;
@@ -431,5 +433,6 @@ export async function expandTemplate(
     disposables,
     metadata,
     fallbackTools: options.fallbackTools,
+    renderChatMessages,
   };
 }

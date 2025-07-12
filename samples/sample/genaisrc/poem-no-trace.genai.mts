@@ -1,5 +1,6 @@
 script({
-  disableTrace: true
+  disableTrace: true,
+  disableChatPreview: true,
 })
 
 $`Write a short poem.`

@@ -701,6 +701,11 @@
    * Disable generation of run trace.
    */
   disableTrace?: boolean;
+
+  /**
+   * Disables rendering a preview of the chat messages
+   */
+  disableChatPreview?: boolean;
 }
 
  interface PromptScript

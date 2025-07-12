@@ -64,9 +64,10 @@ import {
 } from "./logprob.js";
 import { uniq } from "es-toolkit";
 import { renderWithPrecision } from "./precision.js";
-import { LanguageModelConfiguration, ResponseStatus } from "./server/messages.js";
+import type { LanguageModelConfiguration, ResponseStatus } from "./server/messages.js";
 import { fenceMD } from "./mkmd.js";
-import { ChatCompletionRequestCacheKey, getChatCompletionCache } from "./chatcache.js";
+import type { ChatCompletionRequestCacheKey } from "./chatcache.js";
+import { getChatCompletionCache } from "./chatcache.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { splitThink } from "./think.js";
 import { measure } from "./performance.js";
@@ -1109,6 +1110,7 @@ export async function executeChatSession(
     inner,
     metadata,
     partialCb,
+    renderChatMessages,
   } = genOptions;
   assert(!!model, "model is required");
 
@@ -1240,6 +1242,7 @@ export async function executeChatSession(
               await renderMessagesToTerminal(req, {
                 user: true,
                 tools,
+                preview: renderChatMessages,
               }),
             );
 

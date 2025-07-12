@@ -701,6 +701,11 @@ export interface TerminalOptions {
    * Disable generation of run trace.
    */
   disableTrace?: boolean;
+
+  /**
+   * Disables rendering a preview of the chat messages
+   */
+  disableChatPreview?: boolean;
 }
 
 export interface PromptScript
