@@ -84,10 +84,10 @@ Select the most impacted 8 tests.
 # Task 4
 
 Report the selected tests as a line-separated list of filenames 
-in file "packages/sample/temp/commit-tests.txt".
+in file "samples/sample/temp/commit-tests.txt".
 Remove the .genai.js extension, do not include folder names.
 
-    File packages/sample/temp/commit-tests.txt:
+    File samples/sample/temp/commit-tests.txt:
     \`\`\`text
     test filename 1
     test filename 2
@@ -96,4 +96,4 @@ Remove the .genai.js extension, do not include folder names.
 
 `;
 
-defFileOutput("packages/sample/temp/commit-tests.txt");
+defFileOutput("samples/sample/temp/commit-tests.txt");

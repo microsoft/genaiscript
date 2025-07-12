@@ -7,7 +7,7 @@ on:
             - yarn.lock
             - "packages/core/**/*"
             - "packages/cli/**/*"
-            - "packages/samples/**/*"
+            - "samples/samples/**/*"
 concurrency:
     group: pr-review-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true

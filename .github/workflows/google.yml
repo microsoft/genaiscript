@@ -12,7 +12,7 @@ on:
             - ".github/workflows/google.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
-            - "packages/samples/**/*"
+            - "samples/samples/**/*"
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}-google
     cancel-in-progress: true

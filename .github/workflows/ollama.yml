@@ -12,7 +12,7 @@ on:
       - ".github/workflows/ollama.yml"
       - "packages/core/**/*"
       - "packages/cli/**/*"
-      - "packages/samples/**/*"
+      - "samples/samples/**/*"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-ollama
   cancel-in-progress: true

@@ -8,7 +8,7 @@ on:
             - "genaisrc/**"
             - "packages/core/**/*"
             - "packages/cli/**/*"
-            - "packages/samples/**/*"
+            - "samples/samples/**/*"
             - "packages/vscode/**/*"
 concurrency:
     group: linters-${{ github.workflow }}-${{ github.ref }}

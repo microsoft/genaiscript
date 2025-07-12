@@ -5,7 +5,7 @@ async function main() {
   {
     const res = await api.run("poem");
     if (res.error) throw new Error(res.error);
-    await api.run("summarize", "packages/sample/src/rag/markdown.md");
+    await api.run("summarize", "samples/sample/src/rag/markdown.md");
     await api.run("parameters", [], {
       vars: {
         string: "abc",
@@ -20,7 +20,7 @@ async function main() {
 
   process.chdir("..");
   {
-    await api.run("summarize", "genaiscript/packages/sample/src/rag/markdown.md");
+    await api.run("summarize", "genaiscript/samples/sample/src/rag/markdown.md");
   }
 }
 

@@ -12,7 +12,7 @@ on:
             - ".github/workflows/huggingface.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
-            - "packages/samples/**/*"
+            - "samples/samples/**/*"
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}-huggingface
     cancel-in-progress: true

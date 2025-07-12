@@ -150,6 +150,6 @@ describe("GitHubClient", async () => {
     const issueNumber = 1729;
     // Test assigning issue to bot (default copilot-swe-agent)
     const result = await client.assignIssueToBot(issueNumber);
-    console.log(result)
+    console.log(result);
   });
 });

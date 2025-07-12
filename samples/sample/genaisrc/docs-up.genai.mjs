@@ -15,7 +15,7 @@ if (branch === defaultBranch) cancel("you are already on the default branch");
 // compute diff
 const changes = await git.diff({
   base: defaultBranch,
-  excludedPaths: ["packages/sample/**"],
+  excludedPaths: ["samples/sample/**"],
 });
 console.log(changes);
 

@@ -1,5 +1,5 @@
 script({
-  files: "packages/sample/genaisrc/readme-updater.genai.mts",
+  files: "samples/sample/genaisrc/readme-updater.genai.mts",
   system: ["system", "system.assistant", "system.files"],
   tools: ["fs"],
   model: "large",
@@ -59,7 +59,7 @@ $`Create a blog post file that explains the GenAIScript source code in FILE.
 - getting started: docs/src/content/docs/getting-started/*.md*
 - reference documentation: docs/src/content/docs/reference/*.md*
 - type definition: genaisrc/genaiscript.d.ts
-- samples: packages/sample/genaisrc/*.genai.*s
+- samples: samples/sample/genaisrc/*.genai.*s
 - online documentation: https://microsoft.github.io/genaiscript/ . The routing is docs/src/content/docs/**/<route>.md* becomes https://microsoft.github.io/genaiscript/<route>.
 - use links to online documentation
 - github repository: https://github.com/microsoft/genaiscript . "main" is the default branch.

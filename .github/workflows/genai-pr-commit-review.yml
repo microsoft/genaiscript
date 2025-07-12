@@ -6,7 +6,7 @@ on:
             - ".github/workflows/ollama.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
-            - "packages/samples/**/*"
+            - "samples/samples/**/*"
 jobs:
     build:
         runs-on: ubuntu-latest

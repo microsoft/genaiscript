@@ -25,7 +25,7 @@ Generate a meta-prompt that will teach an LLM how to use the library in this rep
 
 ## File structure
 
-- samples: javascript/typescript files under packages/sample/src/**/*.m*s
+- samples: javascript/typescript files under samples/sample/src/**/*.m*s
 - documentation: markdown files under docs/src/content/docs/**/*.md*
 
 `;

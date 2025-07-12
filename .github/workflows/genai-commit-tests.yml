@@ -34,17 +34,17 @@ jobs:
       - name: compile
         run: pnpm build:cli
       - name: generate dummy result
-        working-directory: packages/sample
+        working-directory: samples/sample
         run: mkdir -p temp && touch temp/commit-tests.txt
       - name: select llm tests to run
         run: node packages/cli/dist/src/index.js run test-commit --out-trace $GITHUB_STEP_SUMMARY -p github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: show test file
-        working-directory: packages/sample
+        working-directory: samples/sample
         run: cat temp/commit-tests.txt
       - name: run llm tests
-        working-directory: packages/sample
+        working-directory: samples/sample
         run: xargs -r -a temp/commit-tests.txt node ../cli/dist/src/index.js test --out-summary $GITHUB_STEP_SUMMARY --test-delay 10 -p github
         env:
           DEBUG: "genaiscript:*"
