@@ -1037,7 +1037,7 @@ export class GitHubClient implements GitHub {
       owner,
     });
     const { files, id, description, created_at } = data;
-    if (Object.values(files || {}).some((f) => f.encoding !== "utf-8" && f.encoding != "base64")) {
+    if (Object.values(files || {}).some((f) => f.encoding !== "utf-8" && f.encoding !== "base64")) {
       dbg(`unsupported encoding for gist files`);
       return undefined;
     }
@@ -1646,11 +1646,7 @@ export class GitHubClient implements GitHub {
     });
     const workflows = await paginatorToArray(ite, count, (i) => i.data);
     dbg(`workflows: %O`, workflows);
-    return workflows.map(({ id, name, path }) => ({
-      id,
-      name,
-      path,
-    }));
+    return workflows
   }
 
   async listBranches(options?: GitHubPaginationOptions): Promise<string[]> {

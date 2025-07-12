@@ -2,22 +2,22 @@
 title: GitHub
 description: Support for querying GitHub
 sidebar:
-    order: 50
+  order: 50
 hero:
-    image:
-        alt:
-            "A geometric 8-bit style image shows the GitHub Octocat logo in the center,
-            with basic icons arranged around it: a speech bubble for issues and
-            comments, a pull request symbol, a gear for workflow, a magnifying glass
-            for code search, a file icon for file content, a branch for branching, a
-            tag for releases, and colored squares representing different repository
-            languages. All elements are flat, use five GitHub corporate colors, are
-            minimally detailed, and set in a 128x128 pixel layout without background,
-            shadows, gradients, text, or human figures."
-        file: ./github.png
+  image:
+    alt:
+      "A geometric 8-bit style image shows the GitHub Octocat logo in the center,
+      with basic icons arranged around it: a speech bubble for issues and
+      comments, a pull request symbol, a gear for workflow, a magnifying glass
+      for code search, a file icon for file content, a branch for branching, a
+      tag for releases, and colored squares representing different repository
+      languages. All elements are flat, use five GitHub corporate colors, are
+      minimally detailed, and set in a 128x128 pixel layout without background,
+      shadows, gradients, text, or human figures."
+    file: ./github.png
 ---
 
-import { PackageManagers } from "starlight-package-managers"
+import { PackageManagers } from "starlight-package-managers";
 
 The `github` module provides several helper functions to query GitHub, along with the connection information for more advanced usage.
 
@@ -59,41 +59,43 @@ permissions:
 You can query issues and issue comments using `listIssues` and `listIssueComments`.
 
 ```js
-const issues = await github.listIssues({ per_page: 5 })
-console.log(issues.map((i) => i.title))
+const issues = await github.listIssues({ per_page: 5 });
+console.log(issues.map((i) => i.title));
 
 // Use issue number!
-const issueComments = await github.listIssueComments(issues[0].number)
-console.log(issueComments)
+const issueComments = await github.listIssueComments(
+  issues[0].number,
+);
+console.log(issueComments);
 ```
 
 - update issue:
 
 ```js
 await github.updateIssue(issues[0].number, {
-    title: "New title",
-    body: "New body",
-})
+  title: "New title",
+  body: "New body",
+});
 ```
 
 - create issue comments:
 
 ```js
 // Use issue number!
-await github.createIssueComment(issueNumber, "Hello, world!")
+await github.createIssueComment(issueNumber, "Hello, world!");
 ```
 
 - list issue labels
 
 ```js
-const labels = await github.listIssueLabels(issueNumber)
-console.log(labels.map((i) => i.name))
+const labels = await github.listIssueLabels(issueNumber);
+console.log(labels.map((i) => i.name));
 ```
 
 - list issue labels for the repository
 
 ```js
-const labels = await github.listIssueLabels()
+const labels = await github.listIssueLabels();
 ```
 
 ### Pull Requests
@@ -101,12 +103,14 @@ const labels = await github.listIssueLabels()
 Query pull requests and pull request review comments using `listPullRequests` and `listPullRequestReviewComments`.
 
 ```js
-const prs = await github.listPullRequests({ per_page: 5 })
-console.log(prs.map((i) => i.title))
+const prs = await github.listPullRequests({ per_page: 5 });
+console.log(prs.map((i) => i.title));
 
 // Use pull request number!
-const prcs = await github.listPullRequestReviewComments(prs[0].number)
-console.log(prcs.map((i) => i.body))
+const prcs = await github.listPullRequestReviewComments(
+  prs[0].number,
+);
+console.log(prcs.map((i) => i.body));
 ```
 
 In GitHub Actions, ensure the `pull-request: read` permission is granted.
@@ -117,15 +121,26 @@ Access the log of workflow runs to analyze failures with `listWorkflowRuns`.
 
 ```js
 // List runs
-const runs = await github.listWorkflowRuns("build.yml", { per_page: 5 })
-console.log(runs.map((i) => i.status))
+const runs = await github.listWorkflowRuns("build.yml", {
+  per_page: 5,
+});
+console.log(runs.map((i) => i.status));
 
-const jobs = await github.listWorkflowJobs(runs[0].id)
+const jobs = await github.listWorkflowJobs(runs[0].id);
 // Redacted job log
-console.log(jobs[0].content)
+console.log(jobs[0].content);
 ```
 
 In GitHub Actions, grant the `actions: read` permission.
+
+### Bots
+
+You can assign a bot to an existing issue or pull request using `assignIssueToBot`.
+
+```js
+// Test assigning issue to bot (default copilot-swe-agent)
+const result = await github.assignIssueToBot(issueNumber);
+```
 
 ### Artifacts
 
@@ -133,13 +148,15 @@ Workflows can create and attach artifacts to the workflow run.
 You can list and download these artifacts using `listWorkflowArtifacts` and `downloadArtifact`.
 
 ```js
-const artifacts = await github.listWorkflowArtifacts(runs[0].id)
-console.log(artifacts)
+const artifacts = await github.listWorkflowArtifacts(
+  runs[0].id,
+);
+console.log(artifacts);
 
-const artifact = artifacts[0]
+const artifact = artifacts[0];
 // genaiscript automatically unzips the artifact
-const files = await github.downloadArtifact(artifact.id)
-console.log(files)
+const files = await github.downloadArtifact(artifact.id);
+console.log(files);
 ```
 
 ### Assets
@@ -150,9 +167,9 @@ access token to download the asset.
 
 ```js
 const url = await github.resolveAssetUrl(
-    "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
-)
-console.log(url)
+  "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace",
+);
+console.log(url);
 ```
 
 ### Search Code
@@ -160,8 +177,8 @@ console.log(url)
 Use `searchCode` for a code search on the default branch in the same repository.
 
 ```js
-const res = await github.searchCode("HTMLToText")
-console.log(res)
+const res = await github.searchCode("HTMLToText");
+console.log(res);
 ```
 
 ### Get File Content
@@ -169,8 +186,8 @@ console.log(res)
 Retrieve file content for a given ref, tag, or commit SHA using `getFile`.
 
 ```js
-const pkg = await github.getFile("package.json", "main")
-console.log(pkg.content.slice(0, 50) + "...")
+const pkg = await github.getFile("package.json", "main");
+console.log(pkg.content.slice(0, 50) + "...");
 ```
 
 ### Get Repository Content
@@ -180,11 +197,11 @@ List files or directories at a path in a remote repository. By default, file con
 ```js
 // Get top-level markdown files
 const files = await github.getRepositoryContent("", {
-    type: "file",
-    glob: "*.md",
-    downloadContent: true,
-    maxDownloadSize: 2_000,
-})
+  type: "file",
+  glob: "*.md",
+  downloadContent: true,
+  maxDownloadSize: 2_000,
+});
 ```
 
 ### Upload asset
@@ -194,8 +211,8 @@ It uploads data into an orphaned branch in the Repository
 and returns the URL to the uploaded asset.
 
 ```js
-const url = await github.uploadAsset(file)
-console.log(url)
+const url = await github.uploadAsset(file);
+console.log(url);
 ```
 
 The URL can be used in markdown in comments or issues.
@@ -211,7 +228,7 @@ It takes a few minutes for the asset to be available at this URL.
 Query the list of programming languages that GitHub computed for the repository using `listRepositoryLanguages`.
 
 ```js
-const languages = await github.listRepositoryLanguages()
+const languages = await github.listRepositoryLanguages();
 ```
 
 ### Branches
@@ -219,8 +236,8 @@ const languages = await github.listRepositoryLanguages()
 List the branches on the repository using `listBranches`.
 
 ```js
-const branches = await github.listBranches()
-console.log(branches)
+const branches = await github.listBranches();
+console.log(branches);
 ```
 
 ### Releases
@@ -228,8 +245,8 @@ console.log(branches)
 List the releases on the repository using `listReleases`.
 
 ```js
-const releases = await github.listReleases()
-console.log(releases)
+const releases = await github.listReleases();
+console.log(releases);
 ```
 
 ## Octokit access
@@ -252,5 +269,5 @@ Install octokit in your list of packages:
 Use `client` to open a github client on a different repository using the same secrets.
 
 ```js
-const client = github.client("owner", "repo")
+const client = github.client("owner", "repo");
 ```

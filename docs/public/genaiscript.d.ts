@@ -3637,6 +3637,14 @@
   getIssue(issueNumber?: number | string): Promise<GitHubIssue>;
 
   /**
+   * Assigns an existing issue to a bot user. Defaults to copilot user.
+   */
+  assignIssueToBot(
+    issue_number: number | string,
+    options?: { bot?: string },
+  ): Promise<{ id: string; title: string }>;
+
+  /**
    * Updates an issue or pull request on GitHub
    * @param issueNumber
    * @param options

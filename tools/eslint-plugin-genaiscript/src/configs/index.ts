@@ -70,7 +70,7 @@ const configExport: (plugin: FlatConfig.Plugin) => ConfigExport = (plugin) => ({
     {
       rules: {
         "@typescript-eslint/no-unused-vars": "off",
-        "@azure/azure-sdk/github-source-headers": "warn",
+        "@azure/azure-sdk/github-source-headers": "off",
       },
     },
   ),

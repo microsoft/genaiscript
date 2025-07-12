@@ -48,7 +48,7 @@ const tsEslintCustomization: Record<string, SharedConfig.RuleEntry> = {
 };
 
 const genaiscriptDefault: Record<string, SharedConfig.RuleEntry> = {
-  "@azure/azure-sdk/github-source-headers": "error",
+  "@azure/azure-sdk/github-source-headers": "off",
   "@azure/azure-sdk/ts-package-json-author": "error",
   "@azure/azure-sdk/ts-package-json-bugs": "error",
   "@azure/azure-sdk/ts-package-json-engine-is-present": "error",
