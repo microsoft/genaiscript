@@ -38,7 +38,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
   private _version: string;
 
   private _status: "stopped" | "stopping" | "starting" | "running" = "stopped";
-  get status() {
+  get status(): "stopped" | "stopping" | "starting" | "running" {
     return this._status;
   }
   private set status(value: "stopped" | "stopping" | "starting" | "running") {

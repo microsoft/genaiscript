@@ -25,21 +25,13 @@ const dbg = genaiscriptDebug("cli:run");
  * @param files - A list of file paths to use as input for the script.
  * @param options - Configuration options for running the script. Includes retry parameters, trace configuration, cancellation token, and other execution-related settings.
  *
- * @property options.runRetry - The maximum number of retries on script failure.
- * @property options.cancellationToken - Token to monitor if the operation is cancelled.
- * @property options.cli - Indicates the script runs in CLI mode (set to true).
- * @property options.out - Directory for output trace and result files.
- * @property options.runTrace - Controls whether to enable trace writing for the run.
- * @property options.model - Model configuration for the script execution.
- * @property options.vars - Variables to pass to the script.
- *
  * Exits with a success code if the script completes successfully, or with an appropriate error code if it fails, is cancelled, or encounters an unrecoverable error.
  */
 export async function runScriptWithExitCode(
   scriptId: string,
   files: string[],
   options: Partial<PromptScriptRunOptions> & TraceOptions,
-) {
+): Promise<void> {
   dbg(`run %s`, scriptId);
   await ensureDotGenaiscriptPath();
   const canceller = createCancellationController();
@@ -52,6 +44,7 @@ export async function runScriptWithExitCode(
   const inputFiles = process.env.INPUT_FILES;
   if (inputFiles) {
     dbg(`input files from env: %s`, inputFiles);
+    // eslint-disable-next-line no-param-reassign
     files = [
       ...(files || []),
       ...inputFiles
@@ -81,8 +74,8 @@ export async function runScriptWithExitCode(
       await delay(delayMs);
     }
   }
-  if (cancellationToken.isCancellationRequested) exitCode = USER_CANCELLED_ERROR_CODE;
-
   await githubActionSetOutputs(result);
+  if (cancellationToken.isCancellationRequested) exitCode = USER_CANCELLED_ERROR_CODE;
+  // eslint-disable-next-line n/no-process-exit
   process.exit(exitCode);
 }

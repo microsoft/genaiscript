@@ -234,7 +234,11 @@ export async function runScriptInternal(
   if (options.json) overrideStdoutWithStdErr();
   applyModelOptions(options, "cli");
 
-  const fail = (msg: string, exitCode: number, url?: string) => {
+  const fail = (
+    msg: string,
+    exitCode: number,
+    url?: string,
+  ): { exitCode: number; result: GenerationResult | undefined } => {
     logError(url ? `${msg} (see ${url})` : msg);
     trace?.error(msg);
     return { exitCode, result };
@@ -247,23 +251,6 @@ export async function runScriptInternal(
   // manage out folder
   if (removeOut) await rmDir(runDir);
   await ensureDir(runDir);
-
-  const outTraceFilename =
-    options.runTrace === false || (isCI && !options.runTrace)
-      ? undefined
-      : await setupTraceWriting(trace, "trace", join(runDir, TRACE_FILENAME));
-  const outputFilename =
-    options.outputTrace === false || (isCI && !options.outputTrace)
-      ? undefined
-      : await setupTraceWriting(runOutputTrace, "output", join(runDir, OUTPUT_FILENAME), {
-          ignoreInner: true,
-        });
-  if (outTrace && !/^false$/i.test(outTrace)) await setupTraceWriting(trace, " trace", outTrace);
-  if (outOutput && !/^false$/i.test(outOutput)) {
-    await setupTraceWriting(runOutputTrace, " output", outOutput, {
-      ignoreInner: true,
-    });
-  }
 
   const toolFiles: string[] = [];
   const resourceScript = await tryResolveScript(scriptId, {
@@ -299,6 +286,24 @@ export async function runScriptInternal(
     );
     throw new Error(`script ${scriptId} not found`);
   }
+
+  const outTraceFilename =
+    options.runTrace === false || (isCI && !options.runTrace) || script.disableTrace
+      ? undefined
+      : await setupTraceWriting(trace, "trace", join(runDir, TRACE_FILENAME));
+  const outputFilename =
+    options.outputTrace === false || (isCI && !options.outputTrace)
+      ? undefined
+      : await setupTraceWriting(runOutputTrace, "output", join(runDir, OUTPUT_FILENAME), {
+          ignoreInner: true,
+        });
+  if (outTrace && !/^false$/i.test(outTrace)) await setupTraceWriting(trace, " trace", outTrace);
+  if (outOutput && !/^false$/i.test(outOutput)) {
+    await setupTraceWriting(runOutputTrace, " output", outOutput, {
+      ignoreInner: true,
+    });
+  }
+
   const applyGitIgnore = options.ignoreGitIgnore !== true && script.ignoreGitIgnore !== true;
   dbg(`apply gitignore: ${applyGitIgnore}`);
   const ignorer = applyGitIgnore ? await createGitIgnorer() : undefined;
@@ -766,7 +771,7 @@ async function aggregateResults(
   outTrace: string,
   stats: GenerationStats,
   result: GenerationResult,
-) {
+): Promise<void> {
   const statsDir = await createStatsDir();
   const statsFile = host.path.join(statsDir, "runs.csv");
   if (!(await tryStat(statsFile))) {
