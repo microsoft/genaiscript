@@ -127,6 +127,36 @@ script({
 If you are already using `GITHUB_TOKEN` variable in your script and need a different one
 for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 
+### GitHub CLI authentication
+
+If you don't have environment variables configured, GenAIScript will attempt to use the GitHub CLI (`gh`) to retrieve your authentication token.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install the GitHub CLI from [https://cli.github.com/](https://cli.github.com/) and ensure it's available in your PATH.
+
+</li>
+
+<li>
+
+Authenticate with GitHub using the CLI:
+
+```bash
+gh auth login
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+This approach is convenient for local development but requires that you have the GitHub CLI installed and authenticated.
+
 ### Organization Inference Point
 
 By default, GitHub Models uses the current actor to run inference. You can specify an organization

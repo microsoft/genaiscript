@@ -268,19 +268,30 @@ export async function parseTokenFromEnv(
     };
     if (!res?.value) {
       if (resolveToken) {
-        const { exitCode, stdout } = await runtimeHost.exec(
+        const { exitCode, stdout, stderr } = await runtimeHost.exec(
           undefined,
           "gh",
           ["auth", "token"],
           options,
         );
-        if (exitCode !== 0) throw new Error("Failed to resolve GitHub token");
+        if (exitCode !== 0) {
+          // Check if the error is due to gh command not found
+          if (stderr.includes("command not found") || stderr.includes("not found") || stderr.includes("ENOENT")) {
+            throw new Error("GitHub CLI (gh) is not installed. Please install it from https://cli.github.com/ and ensure it's in your PATH.");
+          }
+          // Check if the error is due to authentication
+          if (stderr.includes("no oauth token") || stderr.includes("not authenticated") || stderr.includes("auth token")) {
+            throw new Error("GitHub CLI is not authenticated. Please run 'gh auth login' to authenticate with GitHub.");
+          }
+          // Generic error for other cases
+          throw new Error(`Failed to resolve GitHub token: ${stderr || 'Unknown error'}`);
+        }
         res.name = "gh auth token";
         res.value = stdout.trim();
       }
       if (!res?.value)
         throw new Error(
-          "GITHUB_MODELS_TOKEN, GITHUB_MODELS_TOKEN, GITHUB_TOKEN or GH_TOKEN must be set",
+          "GitHub authentication required. Please set GITHUB_MODELS_TOKEN, GITHUB_TOKEN, or GH_TOKEN environment variable, or run 'gh auth login' to authenticate with GitHub CLI.",
         );
     }
     const org = findEnvVar(env, "", ["GITHUB_MODELS_ORG"]);
