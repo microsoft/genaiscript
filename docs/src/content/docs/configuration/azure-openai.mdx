@@ -1,27 +1,26 @@
 ---
 title: Azure OpenAI
 sidebar:
-    order: 3
+  order: 3
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 import {
-    AZURE_OPENAI_API_VERSION,
-    AZURE_AI_INFERENCE_VERSION,
-} from "../../../../../packages/core/src/constants"
-
+  AZURE_OPENAI_API_VERSION,
+  AZURE_AI_INFERENCE_VERSION,
+} from "../../../../../packages/core/src/constants";
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
 You can use a managed identity (recommended) or an API key to authenticate with the Azure OpenAI service.
 You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
 
 ```js "azure:"
-script({ model: "azure:deployment-id" })
+script({ model: "azure:deployment-id" });
 ```
 
 :::tip
@@ -248,4 +247,3 @@ The rest of the steps are the same: Find the deployment name and use it in your 
 </Steps>
 
 <LLMProviderFeatures provider="azure" />
-

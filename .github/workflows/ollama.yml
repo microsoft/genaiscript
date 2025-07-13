@@ -1,57 +1,56 @@
 name: ollama smoke tests
 permissions:
-    contents: read
+  contents: read
 on:
-    workflow_dispatch:
-    release:
-        types:
-            - published
-    pull_request:
-        paths:
-            - yarn.lock
-            - ".github/workflows/ollama.yml"
-            - "packages/core/**/*"
-            - "packages/cli/**/*"
-            - "packages/samples/**/*"
+  workflow_dispatch:
+  release:
+    types:
+      - published
+  pull_request:
+    paths:
+      - yarn.lock
+      - ".github/workflows/ollama.yml"
+      - "packages/core/**/*"
+      - "packages/cli/**/*"
+      - "samples/samples/**/*"
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}-ollama
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}-ollama
+  cancel-in-progress: true
 env:
-    GENAISCRIPT_DEFAULT_REASONING_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_MODEL }}
-    GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_MODEL }}
-    GENAISCRIPT_DEFAULT_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_SMALL_MODEL }}
-    GENAISCRIPT_DEFAULT_VISION_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_VISION_MODEL }}
+  GENAISCRIPT_DEFAULT_REASONING_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_MODEL }}
+  GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_REASONING_SMALL_MODEL }}
+  GENAISCRIPT_DEFAULT_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_MODEL }}
+  GENAISCRIPT_DEFAULT_SMALL_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_SMALL_MODEL }}
+  GENAISCRIPT_DEFAULT_VISION_MODEL: ${{ vars.GENAISCRIPT_DEFAULT_VISION_MODEL }}
 jobs:
-    tests:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-                  fetch-depth: 0
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
-            - name: compile
-              run: yarn compile:action
-            - name: install ffmpeg
-              run: yarn ffmpeg:install
-            - name: start ollama
-              run: yarn ollama:start
-            - name: start whisper
-              run: yarn whisper:start
-            - name: run summarize-ollama-phi3
-              run: yarn test:summarize --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3
-              env:
-                  OLLAMA_HOST: "http://localhost:11434"
-            - name: run convert-ollama-phi3
-              run: yarn cli convert summarize --model ollama:llama3.2:1b "packages/sample/src/rag/*.md" --cache-name sum
-              env:
-                  OLLAMA_HOST: "http://localhost:11434"
-            - name: run transcribe
-              run: yarn run:script video-transcript --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3 --out-output $GITHUB_STEP_SUMMARY
-              env:
-                  OLLAMA_HOST: "http://localhost:11434"
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      OLLAMA_HOST: "http://localhost:11434"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - uses: dev-proxy-tools/actions/install@v1
+      - uses: dev-proxy-tools/actions/start@v1
+      - uses: dev-proxy-tools/actions/record-start@v1
+      - run: cat ./devproxy/devproxyrc.json
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:cli
+      - run: pnpm install:ffmpeg
+      - run: pnpm ollama:start
+      - run: pnpm whisper:start
+      - run: pnpm test:ci --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3
+      - name: run convert-ollama-phi3
+        run: pnpm cli convert summarize --model ollama:llama3.2:1b "samples/sample/src/rag/*.md" --cache-name sum
+      - name: run transcribe
+        run: pnpm run:script video-transcript --model ollama:llama3.2:1b --out ./temp/summarize-ollama-phi3 --out-output $GITHUB_STEP_SUMMARY
+      - uses: dev-proxy-tools/actions/record-stop@v1
+      - run: cat devproxy.log
+        if: always()

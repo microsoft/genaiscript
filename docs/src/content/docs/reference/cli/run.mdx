@@ -1,30 +1,32 @@
 ---
 title: Run
-description: Learn how to execute genai scripts on files with streaming output
-    to stdout, including usage of glob patterns, environment variables, and output
-    options.
+description:
+  Learn how to execute genai scripts on files with streaming output
+  to stdout, including usage of glob patterns, environment variables, and output
+  options.
 sidebar:
-    order: 1
-keywords: CLI tool execution, genai script running, stdout streaming, file
-    globing, environment configuration
+  order: 1
+keywords:
+  CLI tool execution, genai script running, stdout streaming, file
+  globing, environment configuration
 hero:
-    image:
-        alt:
-            An abstract 8-bit style illustration depicts a colorful terminal window
-            featuring a simple gear, a cloud, and a document icon, all rendered in
-            bold, flat geometric shapes. Multiple file icons with glowing outlines
-            overlap each other, accompanied by a small branching arrow symbolizing a
-            pipeline, and a stylized folder icon. The color palette uses five
-            distinct, bold corporate colors, and the image is strictly 2D, without
-            background, text, shadows, or gradients. The layout is compact, sized at
-            128 by 128 pixels.
-        file: ./run.png
+  image:
+    alt:
+      An abstract 8-bit style illustration depicts a colorful terminal window
+      featuring a simple gear, a cloud, and a document icon, all rendered in
+      bold, flat geometric shapes. Multiple file icons with glowing outlines
+      overlap each other, accompanied by a small branching arrow symbolizing a
+      pipeline, and a stylized folder icon. The color palette uses five
+      distinct, bold corporate colors, and the image is strictly 2D, without
+      background, text, shadows, or gradients. The layout is compact, sized at
+      128 by 128 pixels.
+    file: ./run.png
 ---
 
 Runs a script on files and streams the LLM output to stdout or a folder from the workspace root.
 
 ```bash
-npx genaiscript run <script> "<files...>"
+genaiscript run <script> "<files...>"
 ```
 
 where `<script>` is the id or file path of the tool to run, and `<files...>` is the name of the spec file to run it on.
@@ -32,13 +34,13 @@ where `<script>` is the id or file path of the tool to run, and `<files...>` is 
 Files can also include [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) pattern.
 
 ```sh
-npx genaiscript run code-annotator "src/*.ts"
+genaiscript run code-annotator "src/*.ts"
 ```
 
 If multiple files are specified, all files are included in `env.files`.
 
 ```sh
-npx genaiscript run <script> "src/*.bicep" "src/*.ts"
+genaiscript run <script> "src/*.bicep" "src/*.ts"
 ```
 
 ## Files
@@ -46,7 +48,7 @@ npx genaiscript run <script> "src/*.bicep" "src/*.ts"
 `run` takes one or more [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) patterns to match files in the workspace.
 
 ```bash
-npx genaiscript run <script> "**/*.md" "**/*.ts"
+genaiscript run <script> "**/*.md" "**/*.ts"
 ```
 
 ### Resource resolutions
@@ -69,66 +71,62 @@ The LLM output is sent to `stdout`, while the rest of the logging is sent to `st
 cat README.md | genaiscript run summarize > summary.md
 ```
 
-### --excluded-files &lt;files...&gt;
+### `--excluded-files` _files..._
 
 Excludes the specified files from the file set.
 
 ```sh "--excluded-files <excluded-files...>"
-npx genaiscript run <script> <files> --excluded-files <excluded-files...>
+genaiscript run <script> <files> --excluded-files <excluded-files...>
 ```
 
-### --exclude-git-ignore
+### `--exclude-git-ignore`
 
 Exclude files ignored by the `.gitignore` file at the workspace root.
 
 ```sh "--exclude-git-ignore"
-npx genaiscript run <script> <files> --exclude-git-ignore
+genaiscript run <script> <files> --exclude-git-ignore
 ```
 
 ## Configuration
 
-### --model ...
+### `--model` ...
 
 Configure the default or `large` model alias. Use `echo` to do a dry run and return the messages instead of calling a LLM provider.
 
-## --provider ...
+### `--provider` ...
 
 Loads a set of model aliases for the given LLM provider.
 
-### --vars name=value name2=value2 ...
+### `--vars` name=value name2=value2 ...
 
 Populate values in the `env.vars` map that can be used when running the prompt.
 
 ## Output
 
-### --out &lt;file|directory&gt;
+### `--out` _file|directory_
 
 Saves the results in a JSON file, along with markdown files of the output and the trace.
 
 ```sh "--out tmp"
-npx genaiscript run <script> <files> --out out/res.json
+genaiscript run <script> <files> --out out/res.json
 ```
 
 If `file` does not end with `.json`, the path is treated as a directory path.
 
 ```sh "--out tmp"
-npx genaiscript run <script> <files> --out tmp
+genaiscript run <script> <files> --out tmp
 ```
 
-### --json
+### `--json`
 
 Output the entire response as JSON to the stdout.
 
-### --yaml
+### `--out-trace` _file_
 
-Output the entire response as YAML to the stdout.
-
-### --out-trace &lt;file&gt;
-
-Save the markdown trace to the specified file.
+Save the markdown trace to the specified file. Use `--no-out-trace` to disable the trace output.
 
 ```sh wrap
-npx genaiscript run <script> <files> --out-trace &lt;file&gt;
+genaiscript run <script> <files> --out-trace file
 ```
 
 In a GitHub Actions workflow, you can use this feature to save the trace as a step summary (`GITHUB_STEP_SUMMARY`):
@@ -136,49 +134,58 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
 ```yaml title=".github/workflows/genaiscript.yml" wrap
 - name: Run GenAIScript tool on spec
   run: |
-      genaiscript run <script> <files> --out-trace $GITHUB_STEP_SUMMARY
+    genaiscript run <script> <files> --out-trace $GITHUB_STEP_SUMMARY
 ```
 
 In Azure Dev Ops, you can use the [task.uploadSummary](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#uploadsummary-add-some-markdown-content-to-the-build-summary)
 in your pipeline to upload the trace as a summary.
 
 ```yaml title="genaiscript.pipeline.yml" "##vso[task.uploadsummary]" wrap
-- script: npx --yes genaiscript run poem --out-trace $(System.DefaultWorkingDirectory)/trace.md
+- script: --yes genaiscript run poem --out-trace $(System.DefaultWorkingDirectory)/trace.md
   displayName: "Run GenAIScript tool"
   continueOnError: true
 - script: echo "##vso[task.uploadsummary]$(System.DefaultWorkingDirectory)/trace.md"
   displayName: "append readme to pipeline report"
 ```
 
-### --out-annotations &lt;file&gt;
+### `--out-annotations` _file_
 
 Emit annotations in the specified file as a JSON array, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) or a CSV file if the file ends with `.csv`.
 
 ```sh wrap
-npx genaiscript run <script> <files> --out-annotations diags.csv
+genaiscript run <script> <files> --out-annotations diags.csv
 ```
 
 Use JSON lines (`.jsonl`) to aggregate annotations from multiple runs in a single file.
 
 ```sh wrap
-npx genaiscript run <script> <files> --out-annotations diags.jsonl
+genaiscript run <script> <files> --out-annotations diags.jsonl
 ```
 
-### --out-data &lt;file&gt;
+### `--out-data` _file_
 
 Emits parsed data as JSON, YAML or JSONL. If a JSON schema is specified
-and availabe, the JSON validation result is also stored.
+and available, the JSON validation result is also stored.
 
 ```sh
-npx genaiscript run <script> <files> --out-data data.jsonl
+genaiscript run <script> <files> --out-data data.jsonl
 ```
 
-### --out-changelogs &lt;file&gt;
+### `--out-changelogs` _file_
 
 Emit changelogs in the specified file as text.
 
 ```sh
-npx genaiscript run <script> <files> --out-changelogs changelogs.txt
+genaiscript run <script> <files> --out-changelogs changelogs.txt
+```
+
+## Remote scripts
+
+You can specify a repository, branch to run a script from a remote repository. In that mode,
+the scripts from the current repository are ignored.
+
+```sh
+genaiscript run --remote <owner>/<repo>
 ```
 
 ## Pull Requests and Issues <a href="" id="pull-requests" />
@@ -193,13 +200,13 @@ Update your workflow configuration to include the following:
 
 ```yaml
 permissions:
-    pull-requests: write
+  pull-requests: write
 ```
 
 - set the `GITHUB_TOKEN` secret in the `env` when running the cli
 
 ```yaml
-    - run: npx --yes genaiscript run ... -prc --out-trace $GITHUB_STEP_SUMMARY
+    - run: --yes genaiscript run ... --pull-request-comment --out-trace $GITHUB_STEP_SUMMARY
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ... # LLM secrets
@@ -211,40 +218,40 @@ permissions:
 - pass secrets to scripts, including `System.AccessToken`
 
 ```yaml
-- script: npx genaiscript run ... -prd
+- script: genaiscript run ... --pull-request-description
   env:
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
     ... # LLM secrets
 ```
 
-### --pull-request-description \[tag\]
+### `--pull-request-description` \[tag\]
 
 When running within a GitHub Action or Azure DevOps pipeline on a pull request,
 the CLI inserts the LLM output in the description of the pull request ([example](https://github.com/microsoft/genaiscript/pull/564))
 
 ```sh
-npx genaiscript run ... -prd
+genaiscript run ... --pull-request-description
 ```
 
 The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
 
-### --pull-request-comment \[tag\];
+### `--pull-request-comment` \[tag\];
 
 Upserts a comment on the pull request/issue with the LLM output ([example](https://github.com/microsoft/genaiscript/pull/564#issuecomment-2200474305))
 
 ```sh
-npx genaiscript run ... -prc
+genaiscript run ... --pull-request-comment
 ```
 
 The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
 
-### --pull-request-reviews
+### `--pull-request-reviews` <a href="" id="pull-request-reviews" />
 
 Create pull request review comments from each [annotations](/genaiscript/reference/scripts/annotations)
 ([example](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).
 
 ```sh
-npx genaiscript run ... -prr
+genaiscript run ... --pull-request-reviews
 ```
 
 ## Read more

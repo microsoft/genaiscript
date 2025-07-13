@@ -1,0 +1,74 @@
+---
+title: Validation des outils MCP
+date: 2025-04-10
+description: Apprenez à configurer la validation du contenu pour les outils du
+  protocole Model Context (MCP) dans GenAI Script.
+tags:
+  - mcp
+  - validation
+  - tools
+cover:
+  alt: An 8-bit style corporate-tech illustration featuring a glowing digital lock
+    icon symbolizing security through "tools signature hash" on one side, and a
+    scanner emitting wave-like patterns to represent a "content safety scanner"
+    on the other. Abstract geometric shapes symbolize interconnected servers and
+    tools, all depicted in a muted 5-color palette, creating a clean, structured
+    visual. No people or text are present in the image.
+  image: ../../blog/mcp-tool-validation.png
+excerpt: GenAIScript a introduit des mises à jour pour renforcer la sécurité des
+  outils du Model Context Protocol (MCP), en traitant des vulnérabilités telles
+  que les attaques de type "rug pull", l’empoisonnement des outils et
+  l’injection de prompts. Avec des options comme le hachage de signature des
+  outils et la détection d’injection de prompt via des scanners de sécurité du
+  contenu, ces fonctionnalités offrent des garanties supplémentaires pour
+  préserver l’intégrité des définitions et des sorties des outils. Assurez-vous
+  que vos configurations sont à jour pour une protection complète.
+
+---
+
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+GenAIScript a ajouté plusieurs fonctionnalités pour sécuriser les outils du protocole Model Context (MCP) et atténuer des attaques spécifiques telles que le rug pull, l’empoisonnement d’outils ou l’injection de prompt.
+
+À partir de la `v1.127`, vous pouvez configurer les options suivantes comme [documenté ici](../../reference/scripts/mcp-tools#security/) :
+
+* hachage de la signature des outils pour prévenir les attaques de rug pull, où la liste des outils est modifiée sans que vous le sachiez.
+
+```js 'toolsSha: "..."'
+script({
+    mcpServers: {
+        playwright: {
+            ...,
+            toolsSha: "..."
+        }
+    }
+})
+```
+
+* détection d’injection de prompt utilisant un [scanner de sécurité du contenu](../../reference/scripts/content-safety/). Cela analysera à la fois le fichier de définition des outils, pour éviter **l’empoisonnement d’outils**, et chaque sortie d’outil, pour prévenir **l’injection de prompt**.
+
+```js 'detectPromptInjection: "always"'
+script({
+    mcpServers: {
+        playwright: {
+            ...,
+            detectPromptInjection: "always"
+        }
+    }
+})
+```
+
+* en fait, chaque outil peut être instrumenté avec une analyse de sécurité du contenu.
+
+```js 'detectPromptInjection: "always"'
+defTool("fetch", "Fetch a URL", { url: { type: "string" }, },
+    async args => ..., {
+    detectPromptInjection: "always"
+})
+```
+
+### Avons-nous terminé ?
+
+Il reste encore de nombreux autres aspects de sécurité à considérer lors de l’utilisation des outils MCP, ces fonctionnalités n’en sont que quelques-unes.

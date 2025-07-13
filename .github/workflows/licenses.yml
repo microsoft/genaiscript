@@ -20,13 +20,14 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 0
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
-            - run: yarn compile
-            - run: yarn gen:licenses
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm compile
+            - run: pnpm gen:licenses
             - uses: stefanzweifel/git-auto-commit-action@v5
               with:
                   file_pattern: "THIRD_PARTY_LICENSES.md"

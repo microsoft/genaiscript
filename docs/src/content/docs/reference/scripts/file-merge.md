@@ -24,7 +24,7 @@ The function is called for all files; return the merged content or `undefined` t
 
 ```js
 defFileMerge((filename, label, before, generated) => {
-    ...
+    // ...
 })
 ```
 
@@ -42,6 +42,6 @@ defFileMerge((filename, label, before, generated) => {
     // if content already existing, append generated content
     if (before) return `${before}\n${generated}`
     // otherwise return generated content
-    else return generated
+    return generated
 })
 ```

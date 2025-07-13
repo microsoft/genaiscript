@@ -9,7 +9,7 @@
             "request": "launch",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-                "${workspaceFolder}/packages/sample"
+                "${workspaceFolder}/samples/sample"
             ],
             "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile",

@@ -1,0 +1,21 @@
+{
+  "extends": "../../packages/tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "target": "es2024",
+    "lib": [
+      "es2024"
+    ],
+    "types": ["node"]
+  },
+  "include": [
+    "${configDir}/src/**/*.ts",
+    "${configDir}/src/**/*.mts",
+    "${configDir}/src/**/*.cts",
+    "${configDir}/src/**/*.json",
+    "${configDir}/package.json"
+  ]
+}

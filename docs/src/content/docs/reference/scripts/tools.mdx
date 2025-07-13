@@ -17,8 +17,8 @@ hero:
 
 import { Code } from "@astrojs/starlight/components"
 import { Content as BuiltinTools } from "../../../../components/BuiltinTools.mdx"
-import weatherScriptSource from "../../../../../../packages/sample/genaisrc/weather.genai.js?raw"
-import mathScriptSource from "../../../../../../packages/sample/genaisrc/math-agent.genai.mjs?raw"
+import weatherScriptSource from "../../../../../../samples/sample/genaisrc/weather.genai.js?raw"
+import mathScriptSource from "../../../../../../samples/sample/genaisrc/math-agent.genai.mjs?raw"
 import { YouTube } from "astro-embed"
 
 You can register **tools** (also known as **functions**) that the LLM may decide to call as part of assembling the answer.
@@ -115,7 +115,7 @@ script({
         "system.agent_git", // git operations on current repository
         {
             id: "system.agent_git", // same system script
-            parameters: { repo: "microsoft/genaiscript" } // but with new parameters
+            parameters: { repo: "microsoft/genaiscript" }, // but with new parameters
             variant: "genaiscript" // appended to the identifier to keep tool identifiers unique
         }
     ]

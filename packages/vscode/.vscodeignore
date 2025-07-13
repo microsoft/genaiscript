@@ -23,3 +23,6 @@ genaisrc/.gitattributes
 built/metafile.json
 built/stats.txt
 build.mjs
+.turbo/
+dist/metafile.json
+dist/stats.txt

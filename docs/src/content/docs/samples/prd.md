@@ -155,7 +155,7 @@ you can automate the execution of the script and creation of the comments.
 
 - Add the following workflow in your GitHub repository.
 
-```yaml title=".github/workflows/genai-prd.yml" wrap
+```yaml title=".github/workflows/genai--pull-request-description.yml" wrap
 name: genai pull request description
 on:
     pull_request:

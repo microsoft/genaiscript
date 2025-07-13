@@ -1,0 +1,5 @@
+.env
+temp
+genaisrc/foobar_*
+*.log
+.genaiscript/

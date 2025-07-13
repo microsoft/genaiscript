@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "genaiscript": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/packages/cli/dist/src/index.js",
+        "mcp",
+        "--cwd",
+        "${workspaceFolder}",
+        "--groups",
+        "mcp"
+      ],
+      "envFile": "${workspaceFolder}/.env"
+    }
+  }
+}

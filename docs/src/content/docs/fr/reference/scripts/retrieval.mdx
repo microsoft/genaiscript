@@ -1,0 +1,63 @@
+---
+title: Recherche
+sidebar:
+  order: 10
+description: Apprenez à utiliser les utilitaires de récupération de contenu de
+  GenAIScript pour la recherche et l'augmentation de prompts avec les techniques
+  RAG.
+keywords: RAG, content retrieval, search augmentation, indexing, web search,
+  Azure AI Search
+hero:
+  image:
+    alt: "A minimalist 8-bit illustration features three evenly spaced icons: the
+      first is a grid made of colored squares representing vector search; the
+      second is a magnifying glass above horizontal rectangles symbolizing fuzzy
+      search; the third is a globe next to a browser window indicating web
+      search. Only five flat colors are used, set against a plain white
+      background with clear separation and symmetry, all in a clean 128x128
+      layout."
+    file: ../../../reference/scripts/retrieval.png
+
+---
+
+import { YouTube } from "astro-embed"
+
+GenAIScript fournit divers outils pour récupérer du contenu et enrichir le prompt.
+Cette technique est généralement appelée **RAG** (Retrieval-Augmentation-Generation) dans la littérature.
+
+## Recherche par vecteurs
+
+GenAIScript propose diverses bases de données vectorielles pour prendre en charge la recherche par embeddings (vecteurs).
+
+```js
+// index creation
+const index = await retrieval.index("animals")
+// indexing
+await index.insertOrUpdate(env.files)
+// search
+const res = await index.search("cat dog")
+def("RAG", res)
+```
+
+* Lisez-en plus sur la [recherche par vecteurs](../../../reference/reference/scripts/vector-search/) et comment l'utiliser.
+
+## Recherche floue
+
+La fonction `retrieve.fuzzSearch` effectue une recherche floue "traditionnelle" pour trouver les documents les plus similaires au prompt.
+
+```js
+const files = await retrieval.fuzzSearch("cat dog", env.files)
+```
+
+## Recherche sur le Web
+
+La fonction `retrieval.webSearch` lance une recherche sur le Web en utilisant une API de moteur de recherche. Vous devez fournir des clés API pour le moteur de recherche que vous souhaitez utiliser.
+
+```js
+const { webPages } = await retrieval.webSearch("cat dog")
+def("RAG", webPages)
+```
+
+### Bing
+
+Pour activer la recherche Bing, configurez le secret `BING_SEARCH_API_KEY` dans votre fichier `.env`. En savoir plus sur [la configuration de l'API Bing Search](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api).

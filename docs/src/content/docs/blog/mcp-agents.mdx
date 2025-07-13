@@ -5,7 +5,8 @@ date: 2025-04-04
 author: pelikhan
 canonical_url: https://microsoft.github.io/genaiscript/blog/mcp-agents
 cover:
-  alt: A pixelated, geometric graphic depicting interconnected computer servers,
+  alt:
+    A pixelated, geometric graphic depicting interconnected computer servers,
     each surrounded by angular shield-like shapes. One server displays a browser
     icon linked to "Playwright MCP tools," while a network grid above shows data
     flow, emphasizing a connection to a "https://azure.microsoft.com" website
@@ -27,13 +28,13 @@ tags:
   - Playwright MCP server
   - Agent abstraction for MCP
   - Browser automation tools
-excerpt: Configure and run multiple MCP servers in parallel with agent support.
+excerpt:
+  Configure and run multiple MCP servers in parallel with agent support.
   Use the `mcpAgentServers` for seamless agent integration or streamline
   directly via the `mcpServers` field to fit your automation needs.
-
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -42,20 +43,20 @@ As a result, you can now run multiple MCP servers in parallel, each with its own
 
 ```js "mcpAgentServers" wrap
 script({
-    title: "Wraps the playwright MCP server with an agent.",
-    mcpAgentServers: {
-        playwright: {
-            description:
-                "An agent that uses playwright to run browser commands.",
-            command: "npx",
-            args: ["--yes", "@playwright/mcp@latest", "--headless"],
-            instructions:
-                "Use the playwright tools as the Browser Automation Tools.",
-        },
+  title: "Wraps the playwright MCP server with an agent.",
+  mcpAgentServers: {
+    playwright: {
+      description:
+        "An agent that uses playwright to run browser commands.",
+      command: "npx",
+      args: ["--yes", "@playwright/mcp@latest", "--headless"],
+      instructions:
+        "Use the playwright tools as the Browser Automation Tools.",
     },
-})
+  },
+});
 
-$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`
+$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`;
 ```
 
 ## Just want servers?
@@ -64,14 +65,14 @@ Don't want to go through the agent abstraction? You can also inject the MCP serv
 
 ```js title="mcpServers" wrap
 script({
-    title: "Uses playwright MCP tools.",
-    mcpServers: {
-        playwright: {
-            command: "npx",
-            args: ["--yes", "@playwright/mcp@latest", "--headless"],
-        },
+  title: "Uses playwright MCP tools.",
+  mcpServers: {
+    playwright: {
+      command: "npx",
+      args: ["--yes", "@playwright/mcp@latest", "--headless"],
     },
-})
+  },
+});
 
-$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`
+$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`;
 ```
