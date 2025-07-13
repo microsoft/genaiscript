@@ -1,5 +1,7 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
+import { readFile } from "fs/promises"
+import { join } from "path"
 import { ChatCompletionMessageParam } from "./chattypes"
 import { collapseChatMessages } from "./chatrender"
 import { CreateImageRequest } from "./chat"
@@ -71,8 +73,9 @@ describe("chat", () => {
     })
     
     describe("CreateImageRequest", () => {
-        test("should accept image input", () => {
-            const mockImageBuffer = Buffer.from('mock image data')
+        test("should accept image input", async () => {
+            const robotsImagePath = join(__dirname, '../../sample/src/robots.jpg')
+            const mockImageBuffer = await readFile(robotsImagePath)
             
             const request: CreateImageRequest = {
                 model: 'gpt-image-1',
@@ -104,9 +107,10 @@ describe("chat", () => {
             assert.strictEqual(request.size, '1024x1024')
         })
         
-        test("should support multiple images", () => {
-            const mockImageBuffer1 = Buffer.from('mock image data 1')
-            const mockImageBuffer2 = Buffer.from('mock image data 2')
+        test("should support multiple images", async () => {
+            const robotsImagePath = join(__dirname, '../../sample/src/robots.jpg')
+            const mockImageBuffer1 = await readFile(robotsImagePath)
+            const mockImageBuffer2 = await readFile(robotsImagePath) // Using same file for both
             
             const request: CreateImageRequest = {
                 model: 'gpt-image-1',

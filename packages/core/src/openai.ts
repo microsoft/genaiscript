@@ -60,6 +60,7 @@ import { LanguageModelConfiguration } from "./server/messages"
 import prettyBytes from "pretty-bytes"
 import { resolveBufferLike } from "./bufferlike"
 import {
+    arrayify,
     deleteUndefinedValues,
     isEmptyString,
     normalizeInt,
@@ -867,26 +868,23 @@ export async function OpenAIImageGeneration(
         let freq: any
         if (hasImageInput) {
             // Handle image editing/variations request using FormData
-            const images = Array.isArray(image) ? image : [image]
+            const images = arrayify(image)
             
-            // Process multiple images - each image needs its own request
-            if (images.length > 1) {
-                // TODO: For now, we'll process the first image and log a warning
-                // In the future, we could make multiple API calls and combine results
-                logVerbose(`Multiple images provided (${images.length}), processing first image only`)
-            }
-            
-            const firstImage = images[0]
-            const imageBuffer = await resolveBufferLike(firstImage)
-            if (!imageBuffer) {
-                return {
-                    image: undefined,
-                    error: "Failed to resolve image buffer",
-                }
-            }
-            
+            // Process multiple images - append all images with the same field name
             const formData = new FormData()
-            formData.append('image', new Blob([imageBuffer], { type: 'image/png' }), 'image.png')
+            
+            // Add all images to the form data
+            for (let i = 0; i < images.length; i++) {
+                const imageBuffer = await resolveBufferLike(images[i])
+                if (!imageBuffer) {
+                    return {
+                        image: undefined,
+                        error: `Failed to resolve image buffer for image ${i + 1}`,
+                    }
+                }
+                // OpenAI API expects multiple images to use the same field name
+                formData.append('image', new Blob([imageBuffer], { type: 'image/png' }), `image_${i}.png`)
+            }
             
             // For variations, prompt is optional; for edits, prompt is required
             if (endpoint === "variations") {
