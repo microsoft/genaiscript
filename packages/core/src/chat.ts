@@ -169,7 +169,8 @@ export type CreateImageRequest = {
     size?: string
     style?: string
     outputFormat?: "png" | "jpeg" | "webp"
-    image?: BufferLike // Optional image input for editing/modification
+    image?: BufferLike | BufferLike[] // Optional image input for editing/modification - supports single image or array
+    type?: "edit" | "variation" // Type of operation - edit (default) or variation
 }
 
 export interface ImageGenerationUsage {

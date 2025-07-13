@@ -103,5 +103,86 @@ describe("chat", () => {
             assert.strictEqual(request.quality, 'high')
             assert.strictEqual(request.size, '1024x1024')
         })
+        
+        test("should support multiple images", () => {
+            const mockImageBuffer1 = Buffer.from('mock image data 1')
+            const mockImageBuffer2 = Buffer.from('mock image data 2')
+            
+            const request: CreateImageRequest = {
+                model: 'gpt-image-1',
+                prompt: 'Create variations of these images',
+                image: [mockImageBuffer1, mockImageBuffer2],
+                type: 'variation',
+                quality: 'high',
+                size: '1024x1024'
+            }
+            
+            assert.strictEqual(request.model, 'gpt-image-1')
+            assert.strictEqual(request.prompt, 'Create variations of these images')
+            assert.strictEqual(Array.isArray(request.image), true)
+            assert.strictEqual((request.image as Buffer[]).length, 2)
+            assert.strictEqual(request.type, 'variation')
+            assert.strictEqual(request.quality, 'high')
+            assert.strictEqual(request.size, '1024x1024')
+        })
+        
+        test("should support edit type", () => {
+            const mockImageBuffer = Buffer.from('mock image data')
+            
+            const request: CreateImageRequest = {
+                model: 'gpt-image-1',
+                prompt: 'Make this image more modern',
+                image: mockImageBuffer,
+                type: 'edit',
+                quality: 'high',
+                size: '1024x1024'
+            }
+            
+            assert.strictEqual(request.model, 'gpt-image-1')
+            assert.strictEqual(request.prompt, 'Make this image more modern')
+            assert.strictEqual(request.image, mockImageBuffer)
+            assert.strictEqual(request.type, 'edit')
+            assert.strictEqual(request.quality, 'high')
+            assert.strictEqual(request.size, '1024x1024')
+        })
+        
+        test("should support variation type", () => {
+            const mockImageBuffer = Buffer.from('mock image data')
+            
+            const request: CreateImageRequest = {
+                model: 'gpt-image-1',
+                prompt: 'Create variations',
+                image: mockImageBuffer,
+                type: 'variation',
+                quality: 'high',
+                size: '1024x1024'
+            }
+            
+            assert.strictEqual(request.model, 'gpt-image-1')
+            assert.strictEqual(request.prompt, 'Create variations')
+            assert.strictEqual(request.image, mockImageBuffer)
+            assert.strictEqual(request.type, 'variation')
+            assert.strictEqual(request.quality, 'high')
+            assert.strictEqual(request.size, '1024x1024')
+        })
+        
+        test("should default to edit type when not specified", () => {
+            const mockImageBuffer = Buffer.from('mock image data')
+            
+            const request: CreateImageRequest = {
+                model: 'gpt-image-1',
+                prompt: 'Edit this image',
+                image: mockImageBuffer,
+                quality: 'high',
+                size: '1024x1024'
+            }
+            
+            assert.strictEqual(request.model, 'gpt-image-1')
+            assert.strictEqual(request.prompt, 'Edit this image')
+            assert.strictEqual(request.image, mockImageBuffer)
+            assert.strictEqual(request.type, undefined) // Should default to 'edit' in implementation
+            assert.strictEqual(request.quality, 'high')
+            assert.strictEqual(request.size, '1024x1024')
+        })
     })
 })

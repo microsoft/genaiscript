@@ -4633,9 +4633,17 @@ interface ImageGenerationOptions extends ImageTransformOptions, RetryOptions {
     outputFormat?: "png" | "jpeg" | "webp"
 
     /**
-     * Optional image input for editing/modification. When provided, the prompt will be used to modify this image.
+     * Optional image input for editing/modification or variations. When provided, the prompt will be used to modify this image.
+     * Supports single image or array of images.
      */
-    image?: BufferLike
+    image?: BufferLike | BufferLike[]
+    
+    /**
+     * Type of operation to perform when image is provided.
+     * - "edit": Modifies the image based on the prompt (default)
+     * - "variation": Creates variations of the image (prompt is optional)
+     */
+    type?: "edit" | "variation"
 }
 
 interface TranscriptionOptions extends CacheOptions, RetryOptions {

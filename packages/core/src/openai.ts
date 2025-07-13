@@ -789,11 +789,23 @@ export async function OpenAIImageGeneration(
         style,
         outputFormat,
         image,
+        type = "edit", // default to edit for backward compatibility
         ...rest
     } = req
     const { trace } = options || {}
-    const isImageEdit = !!image
-    let url = `${cfg.base}/images/${isImageEdit ? "edits" : "generations"}`
+    
+    // Determine the operation type and endpoint
+    let endpoint: string
+    let hasImageInput = false
+    
+    if (image) {
+        hasImageInput = true
+        endpoint = type === "variation" ? "variations" : "edits"
+    } else {
+        endpoint = "generations"
+    }
+    
+    let url = `${cfg.base}/images/${endpoint}`
 
     const isDallE = /^dall-e/i.test(model)
     const isDallE2 = /^dall-e-2/i.test(model)
@@ -853,9 +865,19 @@ export async function OpenAIImageGeneration(
         )
         
         let freq: any
-        if (isImageEdit) {
-            // Handle image editing request using FormData
-            const imageBuffer = await resolveBufferLike(image)
+        if (hasImageInput) {
+            // Handle image editing/variations request using FormData
+            const images = Array.isArray(image) ? image : [image]
+            
+            // Process multiple images - each image needs its own request
+            if (images.length > 1) {
+                // TODO: For now, we'll process the first image and log a warning
+                // In the future, we could make multiple API calls and combine results
+                logVerbose(`Multiple images provided (${images.length}), processing first image only`)
+            }
+            
+            const firstImage = images[0]
+            const imageBuffer = await resolveBufferLike(firstImage)
             if (!imageBuffer) {
                 return {
                     image: undefined,
@@ -865,7 +887,16 @@ export async function OpenAIImageGeneration(
             
             const formData = new FormData()
             formData.append('image', new Blob([imageBuffer], { type: 'image/png' }), 'image.png')
-            formData.append('prompt', prompt)
+            
+            // For variations, prompt is optional; for edits, prompt is required
+            if (endpoint === "variations") {
+                // Variations endpoint doesn't require prompt, but we can provide it if given
+                if (prompt) formData.append('prompt', prompt)
+            } else {
+                // Edits endpoint requires prompt
+                formData.append('prompt', prompt)
+            }
+            
             if (body.size) formData.append('size', body.size)
             if (body.quality) formData.append('quality', body.quality)
             if (body.style) formData.append('style', body.style)
@@ -876,7 +907,7 @@ export async function OpenAIImageGeneration(
             if (cfg.type === "azure") {
                 const version = cfg.version || AZURE_OPENAI_API_VERSION
                 trace?.itemValue(`version`, version)
-                url = `${trimTrailingSlash(cfg.base)}/${model}/images/edits?api-version=${version}`
+                url = `${trimTrailingSlash(cfg.base)}/${model}/images/${endpoint}?api-version=${version}`
             } else {
                 formData.append('model', model)
             }
@@ -913,13 +944,14 @@ export async function OpenAIImageGeneration(
         }
         // TODO: switch back to cross-fetch in the future
         trace?.itemValue(`url`, `[${url}](${url})`)
-        if (isImageEdit) {
+        if (hasImageInput) {
             traceFetchPost(trace, url, freq.headers, { 
                 image: '<image data>', 
-                prompt, 
+                prompt: endpoint === "variations" ? prompt || "<optional>" : prompt,
                 size: body.size, 
                 quality: body.quality, 
-                style: body.style 
+                style: body.style,
+                endpoint: endpoint
             })
         } else {
             traceFetchPost(trace, url, freq.headers, body)
