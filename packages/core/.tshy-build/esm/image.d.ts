@@ -34,7 +34,7 @@ export declare function imageEncodeForLLM(url: BufferLike, options: DefImagesOpt
     height: number;
     type: any;
     url: string;
-    detail: "low" | "high";
+    detail: "high" | "low";
 }>;
 /**
  * Combines multiple images into a single tiled image and encodes it for use in Language Learning Models (LLMs).
@@ -57,7 +57,7 @@ export declare function imageTileEncodeForLLM(urls: BufferLike[], options: DefIm
     height: number;
     type: any;
     url: string;
-    detail: "low" | "high";
+    detail: "high" | "low";
 }>;
 /**
  * Renders an image to the terminal within specified dimensions, adding an optional label and usage information.

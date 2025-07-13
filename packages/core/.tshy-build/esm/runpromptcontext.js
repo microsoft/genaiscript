@@ -30,7 +30,7 @@ import { agentAddMemory, agentCreateCache, agentQueryMemory } from "./agent.js";
 import { YAMLStringify } from "./yaml.js";
 import { mergeEnvVarsWithSystem, parametersToVars } from "./vars.js";
 import { FFmepgClient } from "./ffmpeg.js";
-import { BufferToBlob } from "./bufferlike.js";
+import { BufferToBlob, resolveBufferLike } from "./bufferlike.js";
 import { host } from "./host.js";
 import { srtVttRender } from "./transcription.js";
 import { hash } from "./crypto.js";
@@ -786,12 +786,41 @@ export function createChatGenerationContext(options, trace, projectOptions) {
             runTrace?.endDetails();
         }
     };
-    const generateImage = async (prompt, imageOptions) => {
+    const generateImage = async (prompt, imagesOrOptions, maybeOptions) => {
         if (!prompt)
             throw new Error("prompt is missing");
+        // Handle overloaded parameters
+        let images;
+        let imageOptions;
+        if (imagesOrOptions) {
+            // Check if first parameter is ImageGenerationOptions (no images provided)
+            if (typeof imagesOrOptions === 'object' && !Array.isArray(imagesOrOptions) &&
+                ('model' in imagesOrOptions || 'quality' in imagesOrOptions || 'size' in imagesOrOptions ||
+                    'style' in imagesOrOptions || 'outputFormat' in imagesOrOptions || 'operation' in imagesOrOptions)) {
+                imageOptions = imagesOrOptions;
+                images = undefined;
+            }
+            else {
+                // First parameter is images
+                images = imagesOrOptions;
+                imageOptions = maybeOptions;
+            }
+        }
+        else {
+            imageOptions = maybeOptions;
+        }
         const imgTrace = trace?.startTraceDetails("🖼️ generate image");
         try {
-            const { style, quality, size, outputFormat, mime, ...rest } = imageOptions || {};
+            const { style, quality, size, outputFormat, mime, operation, ...rest } = imageOptions || {};
+            // Convert images to Uint8Array if provided
+            let imageBytes;
+            if (images) {
+                const imageArray = Array.isArray(images) ? images : [images];
+                imageBytes = await Promise.all(imageArray.map(async (img) => {
+                    const buffer = await resolveBufferLike(img, { trace: imgTrace });
+                    return new Uint8Array(buffer);
+                }));
+            }
             const conn = {
                 model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
             };
@@ -825,6 +854,8 @@ export function createChatGenerationContext(options, trace, projectOptions) {
                 quality,
                 style,
                 outputFormat,
+                operation: operation || (imageBytes ? "edit" : "generate"),
+                images: imageBytes,
             });
             const m = measure("img.generate", `${req.model} -> image`);
             const res = await imageGenerator(req, configuration, {

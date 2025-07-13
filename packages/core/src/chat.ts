@@ -182,6 +182,14 @@ export type CreateImageRequest = {
   size?: string;
   style?: string;
   outputFormat?: "png" | "jpeg" | "webp";
+  /**
+   * Operation type for image generation
+   */
+  operation?: "generate" | "edit" | "variations";
+  /**
+   * Images to use as input for edit or variations operations
+   */
+  images?: Uint8Array[];
 };
 
 export interface ImageGenerationUsage {

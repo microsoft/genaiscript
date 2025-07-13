@@ -7,7 +7,7 @@ import type { SerializedError } from "./types.js";
  * @returns 0 if the strings are equal, -1 if the first string is less than the second,
  *          and 1 if the first string is greater than the second.
  */
-export declare function strcmp(a: string, b: string): 1 | 0 | -1;
+export declare function strcmp(a: string, b: string): 0 | 1 | -1;
 /**
  * Converts an array-like object into an array.
  *

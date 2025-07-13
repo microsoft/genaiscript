@@ -84,7 +84,7 @@ import { YAMLStringify } from "./yaml.js";
 import { Project } from "./server/messages.js";
 import { mergeEnvVarsWithSystem, parametersToVars } from "./vars.js";
 import { FFmepgClient } from "./ffmpeg.js";
-import { BufferToBlob } from "./bufferlike.js";
+import { BufferToBlob, resolveBufferLike } from "./bufferlike.js";
 import { host } from "./host.js";
 import { srtVttRender } from "./transcription.js";
 import { hash } from "./crypto.js";
@@ -102,6 +102,7 @@ import { measure } from "./performance.js";
 import { genaiscriptDebug } from "./debug.js";
 import debug from "debug";
 import type {
+  BufferLike,
   ChatFunctionArgs,
   ChatFunctionHandler,
   ChatGenerationContext,
@@ -1020,13 +1021,47 @@ export function createChatGenerationContext(
 
   const generateImage = async (
     prompt: string,
-    imageOptions?: ImageGenerationOptions,
+    imagesOrOptions?: ElementOrArray<BufferLike> | ImageGenerationOptions,
+    maybeOptions?: ImageGenerationOptions,
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }> => {
     if (!prompt) throw new Error("prompt is missing");
 
+    // Handle overloaded parameters
+    let images: ElementOrArray<BufferLike> | undefined;
+    let imageOptions: ImageGenerationOptions | undefined;
+    
+    if (imagesOrOptions) {
+      // Check if first parameter is ImageGenerationOptions (no images provided)
+      if (typeof imagesOrOptions === 'object' && !Array.isArray(imagesOrOptions) && 
+          ('model' in imagesOrOptions || 'quality' in imagesOrOptions || 'size' in imagesOrOptions || 
+           'style' in imagesOrOptions || 'outputFormat' in imagesOrOptions || 'operation' in imagesOrOptions)) {
+        imageOptions = imagesOrOptions as ImageGenerationOptions;
+        images = undefined;
+      } else {
+        // First parameter is images
+        images = imagesOrOptions as ElementOrArray<BufferLike>;
+        imageOptions = maybeOptions;
+      }
+    } else {
+      imageOptions = maybeOptions;
+    }
+
     const imgTrace = trace?.startTraceDetails("🖼️ generate image");
     try {
-      const { style, quality, size, outputFormat, mime, ...rest } = imageOptions || {};
+      const { style, quality, size, outputFormat, mime, operation, ...rest } = imageOptions || {};
+      
+      // Convert images to Uint8Array if provided
+      let imageBytes: Uint8Array[] | undefined;
+      if (images) {
+        const imageArray = Array.isArray(images) ? images : [images];
+        imageBytes = await Promise.all(
+          imageArray.map(async (img) => {
+            const buffer = await resolveBufferLike(img, { trace: imgTrace });
+            return new Uint8Array(buffer);
+          })
+        );
+      }
+
       const conn: ModelConnectionOptions = {
         model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
       };
@@ -1056,6 +1091,8 @@ export function createChatGenerationContext(
         quality,
         style,
         outputFormat,
+        operation: operation || (imageBytes ? "edit" : "generate"),
+        images: imageBytes,
       }) satisfies CreateImageRequest;
       const m = measure("img.generate", `${req.model} -> image`);
       const res = await imageGenerator(req, configuration, {

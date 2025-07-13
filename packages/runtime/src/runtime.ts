@@ -129,6 +129,17 @@ declare global {
     prompt: string,
     options?: ImageGenerationOptions,
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+  /**
+   * Generate an image with input images and return the workspace file.
+   * @param prompt
+   * @param images
+   * @param options
+   */
+  function generateImage(
+    prompt: string,
+    images: ElementOrArray<BufferLike>,
+    options?: ImageGenerationOptions,
+  ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
 }
 
 /**

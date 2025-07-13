@@ -4496,6 +4496,11 @@
    * For gpt-image-1 only, the type of image format to generate.
    */
   outputFormat?: "png" | "jpeg" | "webp";
+
+  /**
+   * Operation type for image generation
+   */
+  operation?: "generate" | "edit" | "variations";
 }
 
  interface TranscriptionOptions extends CacheOptions, RetryOptions {
@@ -4643,6 +4648,11 @@
   speak(text: string, options?: SpeechOptions): Promise<SpeechResult>;
   generateImage(
     prompt: string,
+    options?: ImageGenerationOptions,
+  ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+  generateImage(
+    prompt: string,
+    images: ElementOrArray<BufferLike>,
     options?: ImageGenerationOptions,
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
 }
