@@ -10,14 +10,16 @@ tags:
 canonical_url: https://microsoft.github.io/genaiscript/blog/blog-images
 description: We added images to the blog, this is how we did it.
 cover:
-  alt: "A retro-style 8-bit illustration features a computer screen with a visible
+  alt:
+    "A retro-style 8-bit illustration features a computer screen with a visible
     code script. Surrounding it are symbolic representations of image
     generation: a markdown document, an image prompt morphing into abstract art,
     and a fading alt-text bubble. The design uses corporate colors, simple
     geometric shapes, and is limited to five colors, without including people or
     text."
   image: ./blog-images.png
-excerpt: Automatically generating blog post cover images may sound mundane, but
+excerpt:
+  Automatically generating blog post cover images may sound mundane, but
   the script behind the process showcases some interesting automation
   techniques. By transforming the markdown content into an image prompt,
   generating visuals and alt text, and seamlessly updating metadata, this
@@ -25,13 +27,12 @@ excerpt: Automatically generating blog post cover images may sound mundane, but
   efficiently. The result? Abstract, content-driven images that hint at
   optimization potential. Thought-provoking for content creators considering
   automation workflows.
-
 ---
 
-import { Code } from "@astrojs/starlight/components"
-import code from "../../../../genaisrc/blog-image.genai.mts?raw"
+import { Code } from "@astrojs/starlight/components";
+import code from "../../../../genaisrc/blog-image.genai.mts?raw";
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 

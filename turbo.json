@@ -1,0 +1,36 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "format:check": {
+      "dependsOn": ["^format:check"],
+      "cache": false
+    },
+    "format:fix": {
+      "dependsOn": ["^format:fix"],
+      "cache": false
+    },
+    "lint:check": {
+      "dependsOn": ["^lint:check"],
+      "cache": false
+    },
+    "lint:fix": {
+      "dependsOn": ["^lint:fix"],
+      "cache": false
+    },
+    "pack": {
+      "dependsOn": ["^pack"],
+      "cache": false
+    },
+    "prepack": {
+      "dependsOn": ["^prepack"]
+    },
+    "test": {
+      "dependsOn": ["^test"],
+      "cache": false
+    }
+  }
+}

@@ -8,23 +8,24 @@ tags:
 canonical_url: https://microsoft.github.io/genaiscript/blog/fallback-tools
 description: Support for Tools.
 cover:
-  alt: An image in retro 8-bit style showing a digital workspace. On the left,
+  alt:
+    An image in retro 8-bit style showing a digital workspace. On the left,
     there are icons with lines connecting them, symbolizing the idea of
     "fallback tools." On the right, geometrical shapes represent binary code
     processing related to tool-enabled LLMs. The background consists of basic
     geometric shapes that give a corporate and tech-focused feel, using a
     consistent 5-color scheme without any human figures or text.
   image: ./fallback-tools.png
-excerpt: Enhance your LLM's capabilities with fallback tools. When your chosen
+excerpt:
+  Enhance your LLM's capabilities with fallback tools. When your chosen
   model lacks native tool support, fallback tools step in, teaching the model
   how to utilize external resources for better problem-solving. Automatically
   enabled for recognized models, this feature ensures efficient workflows and
   can be manually configured for broader compatibility. Stay ahead by
   integrating smarter solutions.
-
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -66,8 +67,10 @@ The performance of this feature will vary greatly based on the LLM model you dec
 Here is an example of a tool that generates a random number between 0 and 1.
 
 ```js
-defTool("random", "Generate a random number", {}, () => Math.random())
-$`Generate a random number between 0 and 1.`
+defTool("random", "Generate a random number", {}, () =>
+  Math.random(),
+);
+$`Generate a random number between 0 and 1.`;
 ```
 
 - o1-mini trace (using GitHub Models)
@@ -107,8 +110,8 @@ It can be activated manually by setting the `fallbackTools` option to `true` in 
 
 ```js
 script({
-    fallbackTools: true,
-})
+  fallbackTools: true,
+});
 ```
 
 or by setting the `--fallback-tools` flag in the CLI.

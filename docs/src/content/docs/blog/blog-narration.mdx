@@ -12,7 +12,8 @@ tags:
   - ai
 canonical_url: https://microsoft.github.io/genaiscript/blog/blog-narration
 cover:
-  alt: "A clean, corporate workspace scene showing a stylized open laptop on a
+  alt:
+    "A clean, corporate workspace scene showing a stylized open laptop on a
     desk. From the laptop’s screen, a colorful geometric blog post splits into
     two paths: one morphs into a text document symbol and the other into a bold,
     wavy audio waveform. Clear, simple arrows and icons show the transformation,
@@ -20,7 +21,8 @@ cover:
     8-bit style with a striking five-color palette. No people, text, or clutter
     are present."
   image: ./blog-narration.png
-excerpt: Transform your blog workflow with AI-driven narration and
+excerpt:
+  Transform your blog workflow with AI-driven narration and
   summarization. This solution takes your markdown files, creates a concise
   summary, and generates an audio narration using advanced text-to-speech
   models. The script reads blog content, prompts an AI to extract key points,
@@ -29,9 +31,9 @@ excerpt: Transform your blog workflow with AI-driven narration and
   guide the narration. By integrating functions like runPrompt and speak, you
   can turn written posts into engaging audio content, broadening accessibility
   and reach for your audience.
-
 ---
-import BlogNarration from "../../../components/BlogNarration.astro"
+
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -45,16 +47,16 @@ Let's go through the script step by step, explaining what each part does.
 
 ```ts
 script({
-    title: "Blog Post Narrator",
-    description: "Creates narrated summaries of blog posts",
-    accept: ".mdx,.md",
-    model: "large",
-    system: ["system.annotations"],
-    files: "docs/src/content/docs/blog/azure-ai-search.mdx",
-    parameters: {
-        force: false,
-    },
-})
+  title: "Blog Post Narrator",
+  description: "Creates narrated summaries of blog posts",
+  accept: ".mdx,.md",
+  model: "large",
+  system: ["system.annotations"],
+  files: "docs/src/content/docs/blog/azure-ai-search.mdx",
+  parameters: {
+    force: false,
+  },
+});
 ```
 
 - defines the script metadata: title, description, which file types it processes (`.mdx`, `.md`), and which AI model to use.
@@ -62,19 +64,21 @@ script({
 - `"parameters"` set optional script flags.
 
 ```ts
-const { force } = env.vars
-const file = env.files[0]
-if (!file) cancel("No file provided")
+const { force } = env.vars;
+const file = env.files[0];
+if (!file) cancel("No file provided");
 ```
 
 - reads input parameters from environment variables and files.
 - If no file is provided, the script cancels immediately.
 
 ```ts
-const targetName = path.basename(path.changeext(file.filename, ".mp3"))
-const target = path.join(`./docs/public/blog`, targetName)
+const targetName = path.basename(
+  path.changeext(file.filename, ".mp3"),
+);
+const target = path.join(`./docs/public/blog`, targetName);
 if (!force && (await workspace.stat(target))) {
-    cancel(`File already exists: ${target}`)
+  cancel(`File already exists: ${target}`);
 }
 ```
 
@@ -142,24 +146,24 @@ AND a voice description for a text-to-speech model AND a voice type.
 ```
 
 - Runs an AI-powered prompt to generate:
-    - A summary of the blog post
-    - A narration style description
-    - A voice type (from OpenAI TTS voices)
+  - A summary of the blog post
+  - A narration style description
+  - A voice type (from OpenAI TTS voices)
 - The prompt details every requirement for the AI model, including instructions and example outputs.
 
 ```ts
 const { filename } = await speak(summary, {
-    model: "openai:gpt-4o-mini-tts", // High quality speech model
-    voice, // Use a natural-sounding voice
-    instructions,
-})
+  model: "openai:gpt-4o-mini-tts", // High quality speech model
+  voice, // Use a natural-sounding voice
+  instructions,
+});
 ```
 
 - Calls the `speak` function to generate an audio narration of the summary using the chosen voice type and narration style.
 
 ```ts
-if (!filename) cancel("failed to generate speech")
-console.log(`audio file: ${filename}`)
+if (!filename) cancel("failed to generate speech");
+console.log(`audio file: ${filename}`);
 ```
 
 - If audio file generation fails, the script stops.

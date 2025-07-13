@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/dev-proxy/main/schemas/v0.29.2/rc.schema.json",
+  "plugins": [
+    {
+      "name": "RetryAfterPlugin",
+      "enabled": true,
+      "pluginPath": "~appFolder/plugins/DevProxy.Plugins.dll"
+    },
+    {
+      "name": "GenericRandomErrorPlugin",
+      "enabled": true,
+      "pluginPath": "~appFolder/plugins/DevProxy.Plugins.dll",
+      "configSection": "gitHubModelsApi"
+    }
+  ],
+  "urlsToWatch": [
+    "https://models.github.ai/inference/*"
+  ],
+  "gitHubModelsApi": {
+    "errorsFile": "github-models-errors.json"
+  },
+  "rate": 99,
+  "logLevel": "information"
+}

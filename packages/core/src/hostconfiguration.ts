@@ -1,31 +1,45 @@
-import { ModelConfiguration } from "./host"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import type { ModelConfiguration } from "./host.js";
 
 /**
  * Schema for a global configuration file
  */
 export interface HostConfiguration {
-    /**
-     * Path to the .env file
-     */
-    envFile?: string | string[]
+  /**
+   * Path to the .env file
+   */
+  envFile?: string | string[];
 
-    /**
-     * List of glob paths to scan for genai scripts
-     */
-    include?: string[]
+  /**
+   * List of glob paths to scan for genai scripts
+   */
+  include?: (
+    | string
+    | {
+        pattern: string;
+        ignoreGitIgnore?: boolean;
+      }
+  )[];
 
-    /**
-     * Configures a list of known aliases. Overridden by environment variables and CLI arguments
-     */
-    modelAliases?: Record<string, string | ModelConfiguration>
+  /**
+   * Ignore scripts in the current workspace.
+   */
+  ignoreCurrentWorkspace?: boolean;
 
-    /**
-     * Model identifier to encoding mapping
-     */
-    modelEncodings?: Record<string, string>
+  /**
+   * Configures a list of known aliases. Overridden by environment variables and CLI arguments
+   */
+  modelAliases?: Record<string, string | ModelConfiguration>;
 
-    /**
-     * A map of secret name and their respective regex pattern
-     */
-    secretPatterns?: Record<string, string>
+  /**
+   * Model identifier to encoding mapping
+   */
+  modelEncodings?: Record<string, string>;
+
+  /**
+   * A map of secret name and their respective regex pattern
+   */
+  secretPatterns?: Record<string, string>;
 }

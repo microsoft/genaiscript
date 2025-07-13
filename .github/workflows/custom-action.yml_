@@ -1,0 +1,21 @@
+name: "Custom Action Example"
+on:
+    workflow_dispatch:
+    push:
+permissions:
+    contents: read
+    models: read
+concurrency:
+    group: custom-action-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+jobs:
+    custom_action:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - uses: ./examples/action
+              id: genai
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  debug: "genaiscript:*"

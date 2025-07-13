@@ -1,0 +1,253 @@
+---
+title: GitHub
+description: Prise en charge de l'interrogation de GitHub
+sidebar:
+  order: 50
+hero:
+  image:
+    alt: "A geometric 8-bit style image shows the GitHub Octocat logo in the center,
+      with basic icons arranged around it: a speech bubble for issues and
+      comments, a pull request symbol, a gear for workflow, a magnifying glass
+      for code search, a file icon for file content, a branch for branching, a
+      tag for releases, and colored squares representing different repository
+      languages. All elements are flat, use five GitHub corporate colors, are
+      minimally detailed, and set in a 128x128 pixel layout without background,
+      shadows, gradients, text, or human figures."
+    file: ../../../reference/scripts/github.png
+
+---
+
+import { PackageManagers } from "starlight-package-managers"
+
+Le module `github` fournit plusieurs fonctions utilitaires pour interroger GitHub, ainsi que les informations de connexion pour un usage plus avancé.
+
+## Configuration
+
+La configuration de `github` est automatiquement détectée à partir de l'environnement et de git.
+
+* Le jeton GitHub est lu à partir de la variable d'environnement `GITHUB_TOKEN`. Certaines requêtes peuvent fonctionner sans authentification pour les dépôts publics.
+* Le numéro du ticket ou de la pull request en cours est automatiquement détecté à partir de la variable d'environnement `GITHUB_ISSUE`. Il est défini lors d'une action de pull request, mais vous pouvez aussi le définir manuellement.
+
+### GitHub CodeSpaces
+
+Dans un CodeSpace GitHub, le `GITHUB_TOKEN` est automatiquement fourni.
+
+### GitHub Actions
+
+Dans GitHub Actions, vous devrez peut-être ajouter des autorisations à l'espace de travail pour accéder aux journaux de workflow, aux pull requests ou aux modèles Marketplace.
+De plus, vous devez transmettre le `secret.GITHUB_TOKEN` lors de l'exécution du script GenAIScript.
+
+Lisez le [guide sur GitHub Actions](../../../reference/reference/github-actions/) pour plus de détails.
+
+```yml title="genai.yml" 'actions: read' 'GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}'
+permissions:
+    contents: read
+    actions: read
+    pull-requests: read # or write if you plan to create comments
+    models: read # access to GitHub Marketplace Models
+...
+    - run: npx --yes genaiscript ...
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ...
+```
+
+## Fonctions
+
+### Tickets (Issues)
+
+Vous pouvez interroger les tickets et leurs commentaires en utilisant `listIssues` et `listIssueComments`.
+
+```js
+const issues = await github.listIssues({ per_page: 5 })
+console.log(issues.map((i) => i.title))
+
+// Use issue number!
+const issueComments = await github.listIssueComments(issues[0].number)
+console.log(issueComments)
+```
+
+* mettre à jour un ticket :
+
+```js
+await github.updateIssue(issues[0].number, {
+    title: "New title",
+    body: "New body",
+})
+```
+
+* créer des commentaires sur un ticket :
+
+```js
+// Use issue number!
+await github.createIssueComment(issueNumber, "Hello, world!")
+```
+
+* lister les labels d'un ticket
+
+```js
+const labels = await github.listIssueLabels(issueNumber)
+console.log(labels.map((i) => i.name))
+```
+
+* lister les labels des tickets pour le dépôt
+
+```js
+const labels = await github.listIssueLabels()
+```
+
+### Pull Requests
+
+Interrogez les pull requests et les commentaires de revue de pull request à l'aide de `listPullRequests` et `listPullRequestReviewComments`.
+
+```js
+const prs = await github.listPullRequests({ per_page: 5 })
+console.log(prs.map((i) => i.title))
+
+// Use pull request number!
+const prcs = await github.listPullRequestReviewComments(prs[0].number)
+console.log(prcs.map((i) => i.body))
+```
+
+Dans GitHub Actions, assurez-vous que l’autorisation `pull-request: read` est accordée.
+
+### Exécutions de workflow
+
+Accédez au journal des exécutions de workflow pour analyser les échecs avec `listWorkflowRuns`.
+
+```js
+// List runs
+const runs = await github.listWorkflowRuns("build.yml", { per_page: 5 })
+console.log(runs.map((i) => i.status))
+
+const jobs = await github.listWorkflowJobs(runs[0].id)
+// Redacted job log
+console.log(jobs[0].content)
+```
+
+Dans GitHub Actions, accordez l’autorisation `actions: read`.
+
+### Artifacts
+
+Les workflows peuvent créer et attacher des artefacts lors de l’exécution du workflow.
+Vous pouvez lister et télécharger ces artefacts à l’aide de `listWorkflowArtifacts` et `downloadArtifact`.
+
+```js
+const artifacts = await github.listWorkflowArtifacts(runs[0].id)
+console.log(artifacts)
+
+const artifact = artifacts[0]
+// genaiscript automatically unzips the artifact
+const files = await github.downloadArtifact(artifact.id)
+console.log(files)
+```
+
+### Assets
+
+Les URL d’assets image ou vidéo téléversées via l’interface GitHub peuvent être résolues via `resolveAssetUrl`.
+Elles sont typiquement sous la forme `https://github.com/.../assets/<uuid>`. La fonction retourne une URL à durée de vie limitée contenant un jeton d'accès intégré pour télécharger l’asset.
+
+```js
+const url = await github.resolveAssetUrl(
+    "https://github.com/user-attachments/assets/a6e1935a-868e-4cca-9531-ad0ccdb9eace"
+)
+console.log(url)
+```
+
+### Recherche de code
+
+Utilisez `searchCode` pour effectuer une recherche de code sur la branche par défaut dans le même dépôt.
+
+```js
+const res = await github.searchCode("HTMLToText")
+console.log(res)
+```
+
+### Récupérer le contenu d'un fichier
+
+Récupérez le contenu d’un fichier pour une référence, un tag ou un SHA de commit donné à l’aide de `getFile`.
+
+```js
+const pkg = await github.getFile("package.json", "main")
+console.log(pkg.content.slice(0, 50) + "...")
+```
+
+### Récupérer le contenu d’un dépôt
+
+Listez les fichiers ou dossiers à un chemin donné dans un dépôt distant. Par défaut, le contenu des fichiers d’un répertoire n’est pas chargé. Utilisez `downloadContent: true`.
+
+```js
+// Get top-level markdown files
+const files = await github.getRepositoryContent("", {
+    type: "file",
+    glob: "*.md",
+    downloadContent: true,
+    maxDownloadSize: 2_000,
+})
+```
+
+### Téléverser un asset
+
+Cette API nécessite l’autorisation `contents: write` dans GitHub Actions.
+Elle téléverse les données dans une branche orpheline du dépôt
+et retourne l’URL de l’asset téléversé.
+
+```js
+const url = await github.uploadAsset(file)
+console.log(url)
+```
+
+L’URL peut être utilisée dans le markdown dans les commentaires ou les tickets.
+
+:::note
+Il faut quelques minutes avant que l’asset soit disponible à cette URL.
+:::
+
+### Langages
+
+Interrogez la liste des langages de programmation que GitHub a détectés pour le dépôt à l’aide de `listRepositoryLanguages`.
+
+```js
+const languages = await github.listRepositoryLanguages()
+```
+
+### Branches
+
+Listez les branches du dépôt avec `listBranches`.
+
+```js
+const branches = await github.listBranches()
+console.log(branches)
+```
+
+### Releases
+
+Listez les releases du dépôt avec `listReleases`.
+
+```js
+const releases = await github.listReleases()
+console.log(releases)
+```
+
+## Accès Octokit
+
+Utilisez [octokit](https://www.npmjs.com/package/octokit) pour accéder à l’ensemble des API GitHub.
+
+```js
+import { Octokit } from "@octokit/core"
+
+const { client }: { client: Octokit } = await github.api()
+...
+```
+
+Installez octokit dans votre liste de paquets :
+
+<PackageManagers pkg="octokit" dev />
+
+## Travailler sur un autre dépôt
+
+Utilisez `client` pour ouvrir un client GitHub sur un autre dépôt en utilisant les mêmes secrets.
+
+```js
+const client = github.client("owner", "repo")
+```

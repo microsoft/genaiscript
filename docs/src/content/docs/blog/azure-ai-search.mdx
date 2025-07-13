@@ -9,7 +9,8 @@ tags:
 canonical_url: https://microsoft.github.io/genaiscript/blog/azure-ai-search
 description: Support for Azure AI Search.
 cover:
-  alt: The image shows a cartoon-like computer interface featuring a "retrieval
+  alt:
+    The image shows a cartoon-like computer interface featuring a "retrieval
     index" with a magnifying glass icon and several files, which are illustrated
     with animal icons of cats and dogs. This represents the process of indexing
     in a vector database. There is a visual flow from the files to the database,
@@ -18,16 +19,16 @@ cover:
     corporate color palette of five colors, and maintaining a simple 8-bit
     aesthetic.
   image: ./azure-ai-search.png
-excerpt: Discover how GenAIScript simplifies interaction with Azure AI Search
+excerpt:
+  Discover how GenAIScript simplifies interaction with Azure AI Search
   for building vector-based search systems. With built-in support for chunking,
   vectorization, and indexing, you can efficiently implement Retrieval Augmented
   Generation (RAG) workflows, leveraging embeddings for similarity searches
   across your data. Learn how to streamline file indexing and query execution
   using straightforward functions and enhance your AI toolset.
-
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -37,12 +38,14 @@ This is commonly referred to as Retrieval Augmented Generation (RAG).
 
 ```js wrap '{ type: "azure_ai_search" }'
 // index creation
-const index = retrieval.index("animals", { type: "azure_ai_search" })
+const index = retrieval.index("animals", {
+  type: "azure_ai_search",
+});
 // indexing
-await index.insertOrUpdate(env.files)
+await index.insertOrUpdate(env.files);
 // search
-const res = await index.search("cat dog")
-def("RAG", res)
+const res = await index.search("cat dog");
+def("RAG", res);
 ```
 
 GenAIScript provides a simple and efficient way to interact with Azure AI Search. It will handle

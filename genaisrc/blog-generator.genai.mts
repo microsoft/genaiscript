@@ -74,7 +74,7 @@ let snippet: string | Fenced
                         source
                     )
                     return await host.exec(
-                        "node packages/cli/built/genaiscript.cjs scripts compile temp/blog-post"
+                        "node packages/cli/dist/src/index.js scripts compile temp/blog-post"
                     )
                 }
             )

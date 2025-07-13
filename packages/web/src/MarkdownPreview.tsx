@@ -1,15 +1,15 @@
-import React from "react"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-import "@vscode-elements/elements/dist/vscode-tabs"
-import MarkdownPreviewTabs from "./MarkdownPreviewTabs"
+import React from "react";
 
-export default function MarkdownWithPreview(props: {
-    className?: string
-    children: any
-}) {
-    return (
-        <vscode-tabs>
-            <MarkdownPreviewTabs {...props} />
-        </vscode-tabs>
-    )
+import "@vscode-elements/elements/dist/vscode-tabs";
+import MarkdownPreviewTabs from "./MarkdownPreviewTabs";
+
+export default function MarkdownWithPreview(props: { className?: string; children: any }) {
+  return (
+    <vscode-tabs>
+      <MarkdownPreviewTabs {...props} />
+    </vscode-tabs>
+  );
 }
