@@ -9,7 +9,8 @@ tags:
 canonical_url: https://microsoft.github.io/genaiscript/blog/video
 description: Add videos to your LLMs calls.
 cover:
-  alt: A colorful, simplified illustration shows a futuristic desk setup. There's
+  alt:
+    A colorful, simplified illustration shows a futuristic desk setup. There's
     a large computer screen with visual representations of video and audio, like
     frames and waveforms. Surrounding the screen are stylized geometric symbols
     for video and audio tools. The design uses abstract shapes in the background
@@ -17,25 +18,27 @@ cover:
     from 8-bit style. It employs just five bold colors to keep the look clear
     and corporate, with no people or language visible.
   image: ./video.png
-excerpt: Analyze videos with ease. Traditional LLMs require timestamp-based
+excerpt:
+  Analyze videos with ease. Traditional LLMs require timestamp-based
   screenshots, often leading to context window issues. GenAIScript simplifies
   video and audio analysis by enabling automated frame extraction and transcript
   integration. Learn how tools and agents streamline these tasks for your
   scripts in the documentation.
-
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
 The latest release includes support for including videos and audio transcripts in your scripts.
 
 ```js wrap
-const frames = await ffmpeg.extractFrames("demo.mp4", { transcription: true })
-def("DEMO", frames)
+const frames = await ffmpeg.extractFrames("demo.mp4", {
+  transcription: true,
+});
+def("DEMO", frames);
 
-$`Describe what happens in the <DEMO>.`
+$`Describe what happens in the <DEMO>.`;
 ```
 
 Say you want to analyze a video file. For most LLMs that support images, you would have to extract screenshots at particular timestamps then send them as a sequence of images.
@@ -51,14 +54,14 @@ For example, to include the frame extraction tool so that the LLM is able to cal
 
 ```js wrap
 script({
-    tools: "video_extract_frames",
-})
+  tools: "video_extract_frames",
+});
 ```
 
 Or just let the agent work on the video for you.
 
 ```js wrap
 script({
-    tools: "agent_video",
-})
+  tools: "agent_video",
+});
 ```

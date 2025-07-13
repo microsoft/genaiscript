@@ -4,7 +4,8 @@ description: Learn how to publish MCP resources seamlessly using GenAIScript.
 keywords: MCP, GenAIScript, resources, publishing
 date: 2025-03-30
 cover:
-  alt: A colorful 2D illustration in an 8-bit retro style, depicting a stylized
+  alt:
+    A colorful 2D illustration in an 8-bit retro style, depicting a stylized
     server setup with abstract data nodes linked by lines. The design uses five
     corporate colors, forming a geometric pattern that symbolizes data and
     resource exchange. The interconnected nodes illustrate a protocol for
@@ -17,17 +18,17 @@ tags:
   - MCP tools
   - publishResource method
   - GenAIScript framework
-excerpt: The Model Context Protocol (MCP) introduces a powerful way for scripts
+excerpt:
+  The Model Context Protocol (MCP) introduces a powerful way for scripts
   to provide context to large language models (LLMs) by exposing data through
   MCP resources. These resources enable servers to share structured content that
   clients can access and utilize efficiently. By integrating `publishResource`
   into your workflows, you can streamline how your applications interact with
   MCP clients, enhancing context discovery and resolution. Dive deeper into how
   MCP tools and resources can elevate your systems today.
-
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -60,7 +61,7 @@ The `publishResource` method allows you to publish a resource with a unique iden
 The rest of the MCP resource publishing process is handled by the GenAIScript framework.
 
 ```js
-const uri = await host.publishResource("unique-id", file)
+const uri = await host.publishResource("unique-id", file);
 ```
 
 ## Next steps

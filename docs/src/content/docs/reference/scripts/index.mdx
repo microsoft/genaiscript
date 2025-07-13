@@ -2,13 +2,16 @@
 title: Overview
 sidebar:
   order: 0
-description: Learn how to use and customize GenAIScript templates for efficient
+description:
+  Learn how to use and customize GenAIScript templates for efficient
   AI prompt expansion.
-keywords: script templates, AI prompts, prompt expansion, OpenAI integration,
+keywords:
+  script templates, AI prompts, prompt expansion, OpenAI integration,
   template customization
 hero:
   image:
-    alt: 'A small, flat, square illustration shows a plain file folder with three
+    alt:
+      'A small, flat, square illustration shows a plain file folder with three
       simple geometric icons rising from it: a rectangle marked ".js," another
       marked ".ts," and a third icon featuring a basic gear shape. The design
       uses five bold, contrasting corporate colors and is composed of only
@@ -17,53 +20,52 @@ hero:
       128x128 pixel size and is designed to be immediately recognizable and
       iconic.'
     file: ./index.png
-
 ---
-import { FileTree } from "@astrojs/starlight/components"
-import DirectoryLinks from '../../../../components/DirectoryLinks.astro';
+
+import { FileTree } from "@astrojs/starlight/components";
+import DirectoryLinks from "../../../../components/DirectoryLinks.astro";
 
 GenAIScript are JavaScript files named as `*.genai.mjs`, or TypeScript files named as `*.genai.mts`,
 with a prompt creation engine designed by LLM prompting.
 
 ```js title="shorten.genai.mjs"
 script({
-    title: "Shorten", // displayed in UI and Copilot Chat
-    // also displayed but grayed out:
-    description:
-        "A prompt that shrinks the size of text without losing meaning",
-})
+  title: "Shorten", // displayed in UI and Copilot Chat
+  // also displayed but grayed out:
+  description:
+    "A prompt that shrinks the size of text without losing meaning",
+});
 
 // but the variable is appropriately delimited
-const file = def("FILE", env.files)
+const file = def("FILE", env.files);
 
 // this appends text to the prompt
-$`Shorten ${file}. Limit changes to minimum.`
+$`Shorten ${file}. Limit changes to minimum.`;
 ```
 
 ## Script files
 
--   GenAIScript will detect any file matching `*.genai.mjs`, `*.genai.js`, 
-    `*.genai.mts` in your workspace.
--   GenAIScript files can be placed anywhere in your workspace; 
-    but the extension will place them in a `genaisrc` folder by default.
--   `.genai.mjs` use module JavaScript syntax and support [imports](/genaiscript/reference/scripts/imports). 
--   `.genai.js` are eval-ed and do not support imports.
--   `.genai.mts` are [TypeScript module files](/genaiscript/reference/scripts/typescript) and support [imports](/genaiscript/reference/scripts/imports), 
-    including dynamic imports of other TypeScript files.
+- GenAIScript will detect any file matching `*.genai.mjs`, `*.genai.js`,
+  `*.genai.mts` in your workspace.
+- GenAIScript files can be placed anywhere in your workspace;
+  but the extension will place them in a `genaisrc` folder by default.
+- `.genai.mjs` use module JavaScript syntax and support [imports](/genaiscript/reference/scripts/imports).
+- `.genai.js` are eval-ed and do not support imports.
+- `.genai.mts` are [TypeScript module files](/genaiscript/reference/scripts/typescript) and support [imports](/genaiscript/reference/scripts/imports),
+  including dynamic imports of other TypeScript files.
 
 <FileTree>
 
 - /genaisrc
-  - jsconfig.json     // TypeScript compiler configuration
-  - genaiscript.d.ts  // TypeScript definitions 
+  - jsconfig.json // TypeScript compiler configuration
+  - genaiscript.d.ts // TypeScript definitions
   - myscript.genai.mjs // your script!
   - ...
 
 </FileTree>
 
--   `system.*.genai.mjs` are considered [system prompt templates](/genaiscript/reference/scripts/system)
-    and are unlisted by default.
-
+- `system.*.genai.mjs` are considered [system prompt templates](/genaiscript/reference/scripts/system)
+  and are unlisted by default.
 
 ## Topics
 

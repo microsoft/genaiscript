@@ -1,0 +1,51 @@
+---
+title: Search and Transform
+date: 2024-09-24
+authors: genaiscript
+tags:
+  - search
+  - transform
+  - automation
+  - scripting
+  - productivity
+canonical_url: https://microsoft.github.io/genaiscript/blog/search-transform-genai
+description: |-
+  Explore how GenAIScript automates the search and
+   transformation of patterns across multiple files, enhancing efficiency in
+   development tasks.
+cover:
+  alt: An array of vibrant 8-bit style rectangles symbolizes computer files, each
+    with distinct geometric designs. Playful arrows connect these files,
+    depicting a transformation sequence of patterns. At the center is a detailed
+    rectangle, indicating the use of a GenAIScript transformation. The backdrop
+    is a plain, corporate hue.
+  image: ../../blog/search-transform-genai.png
+excerpt: Vous est-il déjà arrivé de devoir parcourir manuellement des fichiers
+  afin d’identifier des motifs et de mettre à jour une syntaxe obsolète ? Ce
+  guide présente une méthode automatisée pour rationaliser ces transformations,
+  améliorant ainsi l’efficacité et la précision. Qu’il s’agisse d’identifier des
+  usages hérités ou d’adopter de nouvelles conventions, c’est un pas vers des
+  bases de code plus faciles à maintenir.
+
+---
+
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+Avez-vous déjà été confronté à une situation où vous devez rechercher dans plusieurs fichiers de votre projet, trouver un motif spécifique, puis lui appliquer une transformation ? Cela peut être une tâche fastidieuse, mais ne vous inquiétez pas ! Dans cet article de blog, je vais vous présenter un script GenAIScript qui fait exactement cela, automatisant le processus et vous faisant gagner du temps. 🕒💡
+
+Par exemple, lorsque GenAIScript a ajouté la possibilité d'utiliser une chaîne de commande sous forme de chaîne de caractères dans
+le commande `exec`, nous avons dû convertir tout script utilisant
+
+```js
+host.exec("cmd", ["arg0", "arg1", "arg2"]);
+```
+
+en
+
+```js
+host.exec(`cmd arg0 arg1 arg2`)`
+```
+
+Le guide [Search And Transform](../../guides/search-and-transform/) couvre les détails de cette nouvelle approche...

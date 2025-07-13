@@ -1,19 +1,21 @@
 ---
 title: Hugging Face
 sidebar:
-    order: 9
+  order: 9
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 The `huggingface` provider allows you to use [Hugging Face Models](https://huggingface.co/models?other=text-generation-inference) using [Text Generation Inference](https://huggingface.co/docs/text-generation-inference/index).
 
 ```js "huggingface:"
-script({ model: "huggingface:microsoft/Phi-3-mini-4k-instruct" })
+script({
+  model: "huggingface:microsoft/Phi-3-mini-4k-instruct",
+});
 ```
 
 To use Hugging Face models with GenAIScript, follow these steps:

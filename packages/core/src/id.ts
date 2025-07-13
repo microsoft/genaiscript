@@ -1,4 +1,7 @@
-import { nanoid } from "nanoid"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { nanoid } from "nanoid";
 
 /**
  * Generates a unique identifier.
@@ -6,5 +9,5 @@ import { nanoid } from "nanoid"
  * @returns A unique identifier string.
  */
 export function generateId(): string {
-    return nanoid()
+  return nanoid();
 }

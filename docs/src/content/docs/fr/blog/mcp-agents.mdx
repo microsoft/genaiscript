@@ -1,0 +1,77 @@
+---
+title: Agents MCP
+description: Découvrez comment augmenter le nombre de serveurs MCP avec des agents.
+date: 2025-04-04
+author: pelikhan
+canonical_url: https://microsoft.github.io/genaiscript/blog/mcp-agents
+cover:
+  alt: A pixelated, geometric graphic depicting interconnected computer servers,
+    each surrounded by angular shield-like shapes. One server displays a browser
+    icon linked to "Playwright MCP tools," while a network grid above shows data
+    flow, emphasizing a connection to a "https://azure.microsoft.com" website
+    icon. The design uses five corporate-style colors in a minimalist layout
+    without text or human figures.
+  image: ../../blog/mcp-agents.png
+keywords:
+  - MCP
+  - agents
+  - servers
+  - tools
+  - Playwright
+  - automation
+  - browser
+  - GenAI
+tags:
+  - MCP server configuration
+  - Parallel MCP servers
+  - Playwright MCP server
+  - Agent abstraction for MCP
+  - Browser automation tools
+excerpt: Configurez et exécutez plusieurs serveurs MCP en parallèle avec la
+  prise en charge des agents. Utilisez le champ `mcpAgentServers` pour une
+  intégration fluide des agents ou simplifiez directement via le champ
+  `mcpServers` afin d'adapter l'automatisation à vos besoins.
+
+---
+
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+Nous avons ajouté la prise en charge de la configuration des serveurs MCP dans les métadonnées des scripts et leur encapsulation avec des agents. Par conséquent, vous pouvez désormais exécuter plusieurs serveurs MCP en parallèle, chacun avec son propre agent.
+
+```js "mcpAgentServers" wrap
+script({
+  title: "Wraps the playwright MCP server with an agent.",
+  mcpAgentServers: {
+    playwright: {
+      description:
+        "An agent that uses playwright to run browser commands.",
+      command: "npx",
+      args: ["--yes", "@playwright/mcp@latest", "--headless"],
+      instructions:
+        "Use the playwright tools as the Browser Automation Tools.",
+    },
+  },
+});
+
+$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`;
+```
+
+## Vous voulez simplement des serveurs ?
+
+Vous ne voulez pas utiliser l'abstraction des agents ? Vous pouvez également injecter directement le serveur MCP dans l'invite en utilisant le champ `mcpServers`.
+
+```js title="mcpServers" wrap
+script({
+  title: "Uses playwright MCP tools.",
+  mcpServers: {
+    playwright: {
+      command: "npx",
+      args: ["--yes", "@playwright/mcp@latest", "--headless"],
+    },
+  },
+});
+
+$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`;
+```

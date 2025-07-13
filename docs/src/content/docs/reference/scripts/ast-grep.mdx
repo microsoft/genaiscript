@@ -5,7 +5,8 @@ sidebar:
   order: 20
 hero:
   image:
-    alt: An abstract, 8-bit style image featuring several bold, geometric code block
+    alt:
+      An abstract, 8-bit style image featuring several bold, geometric code block
       shapes overlapping within a 128x128 pixel space, each shape in one of five
       distinct colors. Select blocks contain minimal, branching line patterns
       evoking nodes of an abstract syntax tree. Thin connectors link some
@@ -14,8 +15,9 @@ hero:
       diamond for SQL—are embedded within some shapes. The scene is entirely
       flat, 2D, with sharp, clean edges, no background, and no human figures.
     file: ./ast-grep.png
-
 ---
+
+import { PackageManagers } from "starlight-package-managers";
 
 [ast-grep](https://ast-grep.github.io/) is a fast and polyglot tool for code structural search, lint, rewriting at large scale.
 
@@ -23,10 +25,17 @@ GenAIScript provides a wrapper around `ast-grep` to search for patterns in the A
 and transform the AST! This is a very efficient way to create scripts that modify source code as one is able
 to surgically target specific parts of the code.
 
+## Installation
+
+The ast-grep functionality is packaged in a plugin so you need to install it first:
+
+<PackageManagers pkg="@genaiscript/plugin-ast-grep" />
+
 - load the `ast-grep` module
 
 ```ts
-const sg = await host.astGrep()
+import { astGrep } from "@genaiscript/plugin-ast-grep";
+const sg = await astGrep();
 ```
 
 ## Search for patterns
@@ -38,40 +47,44 @@ The first argument is the language, the second argument is the file globs, and t
 
 ```ts
 // matches is an array of AST (immutable) nodes
-const { matches } = await sg.search("ts", "src/*.ts", "console.log($META)")
+const { matches } = await sg.search(
+  "ts",
+  "src/*.ts",
+  "console.log($META)",
+);
 ```
 
 - find all TypeScript functions without comments. This example uses the [rule syntax](https://ast-grep.github.io/reference/rule.html).
 
 ```ts
 const { matches } = await sg.search("ts", "src/fib.ts", {
-    rule: {
-        kind: "function_declaration",
-        not: {
-            precedes: {
-                kind: "comment",
-                stopBy: "neighbor",
-            },
-        },
+  rule: {
+    kind: "function_declaration",
+    not: {
+      precedes: {
+        kind: "comment",
+        stopBy: "neighbor",
+      },
     },
-})
+  },
+});
 ```
 
 or if you copy the rules from the [ast-grep playground](https://ast-grep.github.io/playground.html) using YAML,
 
 ```ts
 const { matches } = await sg.search(
-    "ts",
-    "src/fib.ts",
-    YAML`
+  "ts",
+  "src/fib.ts",
+  YAML`
 rule:
     kind: function_declaration
     not:
         precedes: 
             kind: comment
             stopBy: neighbor
-`
-)
+`,
+);
 ```
 
 :::tip
@@ -99,25 +112,26 @@ A common use case is to search for a pattern and replace it with another pattern
 This can be done with the `replace` method.
 
 ```js
-const edits = sg.changeset()
+const edits = sg.changeset();
 ```
 
 The `replace` method creates an edit that replaces the content of a node with new text.
 The edit is stored internally but not applied until `commit` is called.
 
 ```js
-edits.replace(matches[0], "console.log('replaced')")
+edits.replace(matches[0], "console.log('replaced')");
 ```
 
 Of course, things get more interesting when you use inline prompts to generate the replacement text.
 
 ```js wrap
-for(const match of matches) {
-  const updated = await prompt`... ${match.text()} ...`
+for (const match of matches) {
+  const updated = await prompt`... ${match.text()} ...`;
   edits.replace(
     match.node,
     `console.log
-  ('${updated.text}')`)
+  ('${updated.text}')`,
+  );
 }
 ```
 
@@ -125,13 +139,13 @@ Next, you can commit the edits to create a set of in-memory files. The changes a
 to the file system yet.
 
 ```js
-const newFiles = edits.commit()
+const newFiles = edits.commit();
 ```
 
 If you wish to apply the changes to the file system, you can use the `writeFiles` function.
 
 ```js
-await workspace.writeFiles(newFiles)
+await workspace.writeFiles(newFiles);
 ```
 
 :::caution

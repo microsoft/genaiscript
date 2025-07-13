@@ -72,7 +72,7 @@ const textName = def("TEXT", ":)", { fenceFormat: "xml" })
 $`Summarize ${textName}` // Summarize <TEXT>
 ```
 
-## Configuriation
+## Configuration
 
 GenAIScript will automatically pick a format based on the model. However, you can override the format at the script level.
 

@@ -1,3 +1,6 @@
-import mergeDescriptors from "merge-descriptors"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-export const structuralMerge = mergeDescriptors
+import mergeDescriptors from "merge-descriptors";
+
+export const structuralMerge = mergeDescriptors;

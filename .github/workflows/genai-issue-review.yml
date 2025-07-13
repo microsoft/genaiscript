@@ -10,22 +10,23 @@ concurrency:
     group: issues-${{ github.event.issue.number }}
     cancel-in-progress: true
 jobs:
-    build:
+    issue-review:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
             - name: compile
-              run: yarn compile
+              run: pnpm compile
             - name: genaiscript issue-review
-              run: node packages/cli/built/genaiscript.cjs run issue-reviewer -p github -prc --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/dist/src/index.js run issue-reviewer -p github --pull-request-comment --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_ISSUE: ${{ github.event.issue.number }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

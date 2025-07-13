@@ -1,0 +1,55 @@
+---
+title: Hugging Face Transformers.js
+date: 2024-12-02
+authors: pelikhan
+tags:
+  - LLM
+  - SLM
+  - transformers
+  - Hugging Face
+  - JavaScript
+canonical_url: https://microsoft.github.io/genaiscript/blog/hugging-face-transformers
+description: Découvrez comment exécuter des LLMs localement en utilisant Hugging
+  Face Transformers.js dans GenAIScript, vous permettant de tirer parti de
+  modèles de langage puissants dans vos projets JavaScript.
+cover:
+  alt: An 8-bit style image displays various technology icons symbolizing
+    JavaScript, transformers, and AI. These icons are integrated into an
+    arrangement of abstract geometric shapes that represent a browser and server
+    environment. The image is simplified using a 5-color palette, maintaining a
+    consistent and coherent aesthetic. No people or text are present.
+  image: ../../blog/hugging-face-transformers.png
+excerpt: Hugging Face Transformers.js apporte les grands modèles de langage dans
+  votre navigateur ou environnement Node.js, vous permettant d'effectuer des
+  tâches de génération de texte entièrement en local. Grâce à l'intégration avec
+  GenAIScript, la configuration et la mise en cache des modèles sont
+  simplifiées, vous permettant d'accéder à une large gamme d'options ou
+  d'affiner vos propres modèles. Découvrez de nouvelles façons d'exploiter les
+  LLMs de manière efficace et transparente.
+
+---
+
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+<p style="text-align:center">
+  <span style="font-size: 12rem;">🤗</span>
+</p>
+
+:::caution
+Nous avons temporairement supprimé la prise en charge du fournisseur de modèles `transformers` dans GenAIScript afin de réduire l'empreinte d'installation.
+:::
+
+[Hugging Face Transformers.js](https://huggingface.co/docs/transformers.js/index) est une bibliothèque JavaScript qui offre un moyen simple d'exécuter des LLMs dans le navigateur ou dans node.js (ou Bun, Deno, ...).
+
+```js 'model: "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"'
+script({
+  model:
+    "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16",
+});
+```
+
+GenAIScript téléchargera et mettra en cache le modèle pour vous, et vous pourrez commencer à l'utiliser immédiatement **complètement localement**.
+
+Il existe [de nombreux modèles](https://huggingface.co/models?pipeline_tag=text-generation\&library=transformers.js) parmi lesquels choisir, et vous pouvez également suivre la documentation de Hugging Face pour affiner le vôtre.

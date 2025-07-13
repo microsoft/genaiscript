@@ -1,14 +1,14 @@
 ---
 title: Windows AI
 sidebar:
-    order: 50
+  order: 50
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 The `windows` provider support [AI for Windows Apps](https://learn.microsoft.com/en-us/windows/ai/) which provides state-of-the-art local models, with NPU hardware support.
 
@@ -40,8 +40,8 @@ Set the model name in your script to the model name you copied.
 
 ```js "windows:"
 script({
-    model: "windows:Phi-4-mini-gpu-int4-rtn-block-32",
-})
+  model: "windows:Phi-4-mini-gpu-int4-rtn-block-32",
+});
 ```
 
 </li>

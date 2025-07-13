@@ -4,22 +4,22 @@
  *--------------------------------------------------------------------------------------------*/
 
 .markdown-body {
-    font-family: var(
-        --markdown-font-family,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe WPC",
-        "Segoe UI",
-        system-ui,
-        "Ubuntu",
-        "Droid Sans",
-        sans-serif
-    );
-    font-size: var(--markdown-font-size, 14px);
-    line-height: var(--markdown-line-height, 22px);
-    word-wrap: break-word;
-    margin: 1em;
-    text-wrap: auto;
+  font-family: var(
+    --markdown-font-family,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe WPC",
+    "Segoe UI",
+    system-ui,
+    "Ubuntu",
+    "Droid Sans",
+    sans-serif
+  );
+  font-size: var(--markdown-font-size, 14px);
+  line-height: var(--markdown-line-height, 22px);
+  word-wrap: break-word;
+  margin: 1em;
+  text-wrap: auto;
 }
 
 /* Reset margin top for elements */
@@ -33,7 +33,7 @@
 .markdown-body ol,
 .markdown-body ul,
 .markdown-body pre {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .markdown-body h1,
@@ -42,192 +42,192 @@
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-    font-weight: 600;
-    margin-top: 24px;
-    margin-bottom: 16px;
-    line-height: 1.25;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  line-height: 1.25;
 }
 
 .markdown-body .scrollBeyondLastLine {
-    margin-bottom: calc(100vh - 22px);
+  margin-bottom: calc(100vh - 22px);
 }
 
 /* Prevent `sub` and `sup` elements from affecting line height */
 .markdown-body sub,
 .markdown-body sup {
-    line-height: 0;
+  line-height: 0;
 }
 
 .markdown-body ul ul:first-child,
 .markdown-body ul ol:first-child,
 .markdown-body ol ul:first-child,
 .markdown-body ol ol:first-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .markdown-body img,
 video {
-    max-width: 100%;
-    max-height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .markdown-body a {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .markdown-body a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .markdown-body a:focus,
 .markdown-body input:focus,
 .markdown-body select:focus,
 .markdown-body textarea:focus {
-    outline: 1px solid -webkit-focus-ring-color;
-    outline-offset: -1px;
+  outline: 1px solid -webkit-focus-ring-color;
+  outline-offset: -1px;
 }
 
 .markdown-body p {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .markdown-body li p {
-    margin-bottom: 0.7em;
+  margin-bottom: 0.7em;
 }
 
 .markdown-body ul,
 .markdown-body ol {
-    margin-bottom: 0.7em;
+  margin-bottom: 0.7em;
 }
 
 .markdown-body hr {
-    border: 0;
-    height: 1px;
-    border-bottom: 1px solid;
+  border: 0;
+  height: 1px;
+  border-bottom: 1px solid;
 }
 
 .markdown-body h1 {
-    font-size: 2em;
-    margin-top: 0;
-    padding-bottom: 0.3em;
+  font-size: 2em;
+  margin-top: 0;
+  padding-bottom: 0.3em;
 }
 
 .markdown-body h2 {
-    font-size: 1.5em;
-    padding-bottom: 0.3em;
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
 }
 
 .markdown-body h3 {
-    font-size: 1.25em;
+  font-size: 1.25em;
 }
 
 .markdown-body h4 {
-    font-size: 1em;
+  font-size: 1em;
 }
 
 .markdown-body h5 {
-    font-size: 0.875em;
+  font-size: 0.875em;
 }
 
 .markdown-body h6 {
-    font-size: 0.85em;
+  font-size: 0.85em;
 }
 
 .markdown-body table {
-    border-collapse: collapse;
-    margin-bottom: 0.7em;
+  border-collapse: collapse;
+  margin-bottom: 0.7em;
 }
 
 .markdown-body th {
-    text-align: left;
-    border-bottom: 1px solid;
+  text-align: left;
+  border-bottom: 1px solid;
 }
 
 .markdown-body th,
 .markdown-body td {
-    padding: 5px 10px;
+  padding: 5px 10px;
 }
 
 .markdown-body table > tbody > tr + tr > td {
-    border-top: 1px solid;
+  border-top: 1px solid;
 }
 
 .markdown-body blockquote {
-    margin: 0;
-    padding: 0px 16px 0 10px;
-    border-left-width: 5px;
-    border-left-style: solid;
-    border-radius: 2px;
+  margin: 0;
+  padding: 0px 16px 0 10px;
+  border-left-width: 5px;
+  border-left-style: solid;
+  border-radius: 2px;
 }
 
 .markdown-body code {
-    font-family: var(
-        --vscode-editor-font-family,
-        "SF Mono",
-        Monaco,
-        Menlo,
-        Consolas,
-        "Ubuntu Mono",
-        "Liberation Mono",
-        "DejaVu Sans Mono",
-        "Courier New",
-        monospace
-    );
-    font-size: 1em;
-    line-height: 1.357em;
+  font-family: var(
+    --vscode-editor-font-family,
+    "SF Mono",
+    Monaco,
+    Menlo,
+    Consolas,
+    "Ubuntu Mono",
+    "Liberation Mono",
+    "DejaVu Sans Mono",
+    "Courier New",
+    monospace
+  );
+  font-size: 1em;
+  line-height: 1.357em;
 }
 
 .markdown-body pre {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
 .markdown-body pre:not(.hljs),
 .markdown-body pre.hljs code > div {
-    padding: 16px;
-    border-radius: 3px;
-    overflow: auto;
+  padding: 16px;
+  border-radius: 3px;
+  overflow: auto;
 }
 
 .markdown-body pre code {
-    display: inline-block;
-    color: var(--vscode-editor-foreground);
-    tab-size: 4;
-    background: none;
-    max-width: 100%;
+  display: inline-block;
+  color: var(--vscode-editor-foreground);
+  tab-size: 4;
+  background: none;
+  max-width: 100%;
 }
 
 /** Theming */
 .markdown-body pre {
-    background-color: var(--vscode-textCodeBlock-background);
-    border: 1px solid var(--vscode-widget-border);
+  background-color: var(--vscode-textCodeBlock-background);
+  border: 1px solid var(--vscode-widget-border);
 }
 
 .markdown-body .vscode-high-contrast h1 {
-    border-color: rgb(0, 0, 0);
+  border-color: rgb(0, 0, 0);
 }
 
 .markdown-body .vscode-light th {
-    border-color: rgba(0, 0, 0, 0.69);
+  border-color: rgba(0, 0, 0, 0.69);
 }
 
 .markdown-body .vscode-dark th {
-    border-color: rgba(255, 255, 255, 0.69);
+  border-color: rgba(255, 255, 255, 0.69);
 }
 
 .markdown-body .vscode-light h1,
 .markdown-body .vscode-light h2,
 .markdown-body .vscode-light hr,
 .markdown-body .vscode-light td {
-    border-color: rgba(0, 0, 0, 0.18);
+  border-color: rgba(0, 0, 0, 0.18);
 }
 
 .markdown-body .vscode-dark h1,
 .markdown-body .vscode-dark h2,
 .markdown-body .vscode-dark hr,
 .markdown-body .vscode-dark td {
-    border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .markdown-body pre code.language-mermaid {
-    font-family: "trebuchet ms", verdana, arial;
+  font-family: "trebuchet ms", verdana, arial;
 }
