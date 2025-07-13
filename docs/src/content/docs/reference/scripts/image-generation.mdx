@@ -44,3 +44,78 @@ The `image` object is an image file that can be passed around for further proces
 ```js
 env.output.image(image.filename)
 ```
+
+## Image editing and variations
+
+For models that support it (like `gpt-image-1`), you can also provide input images for editing or creating variations:
+
+### Edit existing images
+
+```js "generateImage" wrap
+const robotsImage = await workspace.readFile("src/robots.jpg")
+
+const { image, revisedPrompt } = await generateImage(
+    "Transform this image into a modern banner with blue gradient background",
+    robotsImage,
+    {
+        model: "openai:gpt-image-1",
+        operation: "edit",
+        size: "1792x1024",
+        quality: "high"
+    }
+)
+```
+
+### Create image variations
+
+```js "generateImage" wrap
+const robotsImage = await workspace.readFile("src/robots.jpg")
+
+const { image, revisedPrompt } = await generateImage(
+    "Create an artistic variation of this image",
+    robotsImage,
+    {
+        model: "openai:gpt-image-1",
+        operation: "variations",
+        size: "1024x1024",
+        quality: "high"
+    }
+)
+```
+
+### Multiple image inputs
+
+You can provide multiple images as input:
+
+```js "generateImage" wrap
+const image1 = await workspace.readFile("src/image1.jpg")
+const image2 = await workspace.readFile("src/image2.jpg")
+
+const { image, revisedPrompt } = await generateImage(
+    "Combine these images into a creative collage",
+    [image1, image2],
+    {
+        model: "openai:gpt-image-1",
+        operation: "edit",
+        size: "1024x1024",
+        quality: "high"
+    }
+)
+```
+
+### Auto-operation detection
+
+If you provide images without specifying an operation, the system will automatically use "edit" mode:
+
+```js "generateImage" wrap
+const robotsImage = await workspace.readFile("src/robots.jpg")
+
+const { image, revisedPrompt } = await generateImage(
+    "Make this image more colorful",
+    robotsImage,
+    {
+        model: "openai:gpt-image-1",
+        size: "1024x1024"
+    }
+)
+```

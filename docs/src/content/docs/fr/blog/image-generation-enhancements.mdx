@@ -1,0 +1,151 @@
+---
+title: "Génération d'Images Améliorée : Édition et Création de Variations avec Images d'Entrée"
+description: "GenAIScript supporte maintenant l'édition d'images existantes et la création de variations avec des modèles comme gpt-image-1"
+date: 2024-12-13
+authors: 
+  - genaiscript
+tags:
+  - image-generation
+  - gpt-image-1
+  - image-editing
+  - variations
+sidebar:
+  order: 100
+---
+
+Nous sommes ravis d'annoncer une amélioration majeure des capacités de génération d'images de GenAIScript ! Vous pouvez maintenant fournir des images existantes comme entrée pour créer des versions éditées ou des variations, facilitant ainsi la transformation et l'amélioration de votre contenu visuel.
+
+## Nouveautés
+
+La fonction `generateImage` supporte maintenant :
+- **Édition d'images** : Transformer des images existantes avec des commandes textuelles
+- **Variations d'images** : Créer des variations artistiques d'images existantes
+- **Entrées d'images multiples** : Combiner plusieurs images en nouvelles créations
+- **Détection automatique d'opération** : Choisit automatiquement la bonne opération quand des images sont fournies
+
+## Comment ça marche
+
+### Édition d'images de base
+
+Transformez n'importe quelle image en la fournissant comme entrée avec une description de ce que vous voulez changer :
+
+```js
+const robotsImage = await workspace.readFile("src/robots.jpg")
+
+const { image, revisedPrompt } = await generateImage(
+    "Transformer cette image en une bannière moderne avec un arrière-plan dégradé bleu",
+    robotsImage,
+    {
+        model: "openai:gpt-image-1",
+        operation: "edit",
+        size: "1792x1024",
+        quality: "high"
+    }
+)
+```
+
+### Création de variations
+
+Générez des variations artistiques d'images existantes :
+
+```js
+const { image, revisedPrompt } = await generateImage(
+    "Créer une variation artistique de cette image",
+    robotsImage,
+    {
+        model: "openai:gpt-image-1",
+        operation: "variations",
+        size: "1024x1024",
+        quality: "high"
+    }
+)
+```
+
+### Entrées d'images multiples
+
+Combinez plusieurs images en nouvelles créations :
+
+```js
+const image1 = await workspace.readFile("src/image1.jpg")
+const image2 = await workspace.readFile("src/image2.jpg")
+
+const { image, revisedPrompt } = await generateImage(
+    "Combiner ces images en un collage créatif",
+    [image1, image2],
+    {
+        model: "openai:gpt-image-1",
+        operation: "edit",
+        size: "1024x1024",
+        quality: "high"
+    }
+)
+```
+
+## Support des modèles
+
+Cette fonctionnalité fonctionne avec les modèles qui supportent les entrées d'images, particulièrement :
+- **gpt-image-1** : Le dernier modèle de génération d'images d'OpenAI avec capacités d'édition
+- Les futurs modèles qui supportent des fonctionnalités similaires
+
+## Rétrocompatibilité
+
+Ne vous inquiétez pas - tout le code existant continue de fonctionner sans aucun changement. La signature originale de la fonction `generateImage` reste entièrement supportée :
+
+```js
+// Ceci fonctionne toujours exactement comme avant
+const { image, revisedPrompt } = await generateImage(
+    "Un chat robot mignon",
+    {
+        model: "openai:dall-e-3",
+        size: "1024x1024"
+    }
+)
+```
+
+## Cas d'usage
+
+Cette amélioration ouvre de nombreuses possibilités excitantes :
+
+1. **Création de bannières** : Transformer des logos ou icônes en bannières
+2. **Transfert de style** : Appliquer des styles artistiques à des images existantes
+3. **Amélioration d'images** : Améliorer la qualité d'image ou ajouter des éléments
+4. **Collages** : Combiner plusieurs images en nouvelles compositions
+5. **Branding** : Adapter des visuels existants pour différents contextes
+
+## Commencer
+
+Pour utiliser les nouvelles fonctionnalités d'édition d'images :
+
+1. Assurez-vous d'avoir un modèle qui supporte les entrées d'images (comme `gpt-image-1`) configuré
+2. Utilisez la fonction `generateImage` mise à jour avec vos images d'entrée
+3. Spécifiez le type d'opération (`edit` ou `variations`) ou laissez le système auto-détecter
+
+```js
+// Exemple d'auto-détection - utilisera le mode "edit"
+const { image } = await generateImage(
+    "Rendre cette image plus colorée",
+    robotsImage,
+    {
+        model: "openai:gpt-image-1",
+        size: "1024x1024"
+    }
+)
+```
+
+## Détails techniques
+
+L'implémentation ajoute deux nouveaux paramètres au type `CreateImageRequest` :
+- `operation` : Spécifie le type d'opération ("generate", "edit", ou "variations")
+- `images` : Tableau d'images d'entrée en tant que `Uint8Array`
+
+La signature de fonction supporte à la fois le format original et le nouveau format d'entrée d'image par surcharge de méthode, assurant une rétrocompatibilité parfaite.
+
+## Essayez-le
+
+Consultez les nouveaux scripts d'exemple dans le répertoire `samples/sample/genaisrc` :
+- `image-edit.genai.mjs` - Exemple d'édition d'image
+- `image-variations.genai.mjs` - Exemple de variations
+- `image-multiple.genai.mjs` - Entrées d'images multiples
+- `image-backward-compat.genai.mjs` - Tests de rétrocompatibilité
+
+Nous sommes impatients de voir ce que vous créerez avec ces capacités améliorées de génération d'images !

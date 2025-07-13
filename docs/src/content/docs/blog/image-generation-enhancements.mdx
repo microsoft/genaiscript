@@ -1,0 +1,151 @@
+---
+title: "Enhanced Image Generation: Edit and Create Variations with Input Images"
+description: "GenAIScript now supports editing existing images and creating variations using models like gpt-image-1"
+date: 2024-12-13
+authors: 
+  - genaiscript
+tags:
+  - image-generation
+  - gpt-image-1
+  - image-editing
+  - variations
+sidebar:
+  order: 100
+---
+
+We're excited to announce a major enhancement to GenAIScript's image generation capabilities! You can now provide existing images as input to create edited versions or variations, making it easier to transform and enhance your visual content.
+
+## What's New
+
+The `generateImage` function now supports:
+- **Image editing**: Transform existing images with text prompts
+- **Image variations**: Create artistic variations of existing images
+- **Multiple image inputs**: Combine multiple images into new creations
+- **Auto-operation detection**: Automatically chooses the right operation when images are provided
+
+## How It Works
+
+### Basic Image Editing
+
+Transform any image by providing it as input along with a description of what you want to change:
+
+```js
+const robotsImage = await workspace.readFile("src/robots.jpg")
+
+const { image, revisedPrompt } = await generateImage(
+    "Transform this image into a modern banner with blue gradient background",
+    robotsImage,
+    {
+        model: "openai:gpt-image-1",
+        operation: "edit",
+        size: "1792x1024",
+        quality: "high"
+    }
+)
+```
+
+### Creating Variations
+
+Generate artistic variations of existing images:
+
+```js
+const { image, revisedPrompt } = await generateImage(
+    "Create an artistic variation of this image",
+    robotsImage,
+    {
+        model: "openai:gpt-image-1",
+        operation: "variations",
+        size: "1024x1024",
+        quality: "high"
+    }
+)
+```
+
+### Multiple Image Inputs
+
+Combine multiple images into new creations:
+
+```js
+const image1 = await workspace.readFile("src/image1.jpg")
+const image2 = await workspace.readFile("src/image2.jpg")
+
+const { image, revisedPrompt } = await generateImage(
+    "Combine these images into a creative collage",
+    [image1, image2],
+    {
+        model: "openai:gpt-image-1",
+        operation: "edit",
+        size: "1024x1024",
+        quality: "high"
+    }
+)
+```
+
+## Model Support
+
+This feature works with models that support image inputs, particularly:
+- **gpt-image-1**: OpenAI's latest image generation model with editing capabilities
+- Future models that support similar functionality
+
+## Backward Compatibility
+
+Don't worry - all existing code continues to work without any changes. The original `generateImage` function signature remains fully supported:
+
+```js
+// This still works exactly as before
+const { image, revisedPrompt } = await generateImage(
+    "A cute robot cat",
+    {
+        model: "openai:dall-e-3",
+        size: "1024x1024"
+    }
+)
+```
+
+## Use Cases
+
+This enhancement opens up many exciting possibilities:
+
+1. **Banner Creation**: Transform logos or icons into banners
+2. **Style Transfer**: Apply artistic styles to existing images
+3. **Image Enhancement**: Improve image quality or add elements
+4. **Collages**: Combine multiple images into new compositions
+5. **Branding**: Adapt existing visuals for different contexts
+
+## Getting Started
+
+To use the new image editing features:
+
+1. Make sure you have a model that supports image inputs (like `gpt-image-1`) configured
+2. Use the updated `generateImage` function with your input images
+3. Specify the operation type (`edit` or `variations`) or let the system auto-detect
+
+```js
+// Auto-detection example - will use "edit" mode
+const { image } = await generateImage(
+    "Make this image more colorful",
+    robotsImage,
+    {
+        model: "openai:gpt-image-1",
+        size: "1024x1024"
+    }
+)
+```
+
+## Technical Details
+
+The implementation adds two new parameters to the `CreateImageRequest` type:
+- `operation`: Specifies the type of operation ("generate", "edit", or "variations")
+- `images`: Array of input images as `Uint8Array`
+
+The function signature supports both the original format and the new image-input format through method overloading, ensuring perfect backward compatibility.
+
+## Try It Out
+
+Check out the new sample scripts in the `samples/sample/genaisrc` directory:
+- `image-edit.genai.mjs` - Image editing example
+- `image-variations.genai.mjs` - Variations example
+- `image-multiple.genai.mjs` - Multiple image inputs
+- `image-backward-compat.genai.mjs` - Backward compatibility tests
+
+We're excited to see what you create with these enhanced image generation capabilities!
