@@ -10,7 +10,7 @@ import {
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
-import { BufferLike } from "./bufferlike"
+
 import {
     arrayify,
     assert,
