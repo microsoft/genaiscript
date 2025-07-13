@@ -1267,7 +1267,7 @@ export async function executeChatSession(
               ...cfgNoToken,
             }) satisfies ChatCompletionRequestCacheKey;
             const validator = (value: ChatCompletionResponse) => {
-              const ok = value?.finishReason === "stop";
+              const ok = value?.finishReason === "stop" || value?.finishReason === "length";
               return ok;
             };
             const cacheRes = await cacheStore.getOrUpdate(cachedKey, infer, validator);
