@@ -1,0 +1,3 @@
+declare const _default: import("@typescript-eslint/utils/ts-eslint").RuleModule<"outerMostNotExist" | "notMemberOf" | "notALiteral" | "actualNotExpected" | "notArray" | "arrayContainsNonLiteral" | "notContain" | "versionNotString" | "versionNotSemver" | "majorNotZero" | "unrecognizedPrerelease" | "prereleaseBadFormat", [], unknown, import("@typescript-eslint/utils/ts-eslint").RuleListener>;
+export default _default;
+//# sourceMappingURL=ts-versioning-semver.d.ts.map

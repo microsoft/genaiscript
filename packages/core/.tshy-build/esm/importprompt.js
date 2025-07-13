@@ -1,0 +1,89 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import { host } from "./host.js";
+import { logError } from "./util.js";
+import { pathToFileURL } from "node:url";
+import { mark } from "./performance.js";
+import { getModulePaths } from "./pathUtils.js";
+import { tsImport, register } from "tsx/esm/api";
+import { genaiscriptDebug } from "./debug.js";
+import { errorMessage } from "./error.js";
+const dbg = genaiscriptDebug("tsx");
+const dbgi = genaiscriptDebug("tsx:import");
+const { __filename } = typeof module !== "undefined" && module.filename
+    ? getModulePaths(module)
+    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        getModulePaths(import.meta);
+/**
+ * Dynamically imports a JavaScript module from a specified file.
+ *
+ * @param filename - The path of the file to be imported. Must be a valid string.
+ * @param options - Optional parameters:
+ *   - onImported: A callback executed after the module is imported. Receives the module as an argument.
+ *   - logCb: A callback for logging messages.
+ *   - trace: Optional tracing utility for debugging and error tracking.
+ * @returns A promise that resolves to the value returned by the `onImported` callback, if provided.
+ *
+ * @throws An error if the `filename` is not provided or if the module import fails.
+ */
+export async function importFile(filename, options) {
+    const { trace, onImported } = options || {};
+    if (!filename) {
+        throw new Error("filename is required");
+    }
+    let unregister = undefined;
+    try {
+        const modulePath = pathToFileURL(host.path.isAbsolute(filename) ? filename : host.path.join(host.projectFolder(), filename)).toString();
+        const parentURL = pathToFileURL(__filename).toString();
+        const onImport = (_file) => dbgi(`%s`, _file);
+        dbg(`import %s, parent %s`, modulePath, parentURL);
+        unregister = register({ onImport });
+        const module = await tsImport(modulePath, {
+            parentURL,
+            //tsconfig: false,
+            onImport,
+        });
+        const result = await onImported?.(module);
+        unregister?.();
+        return result;
+    }
+    catch (err) {
+        dbg(`error %s`, errorMessage(err));
+        unregister?.();
+        logError(err);
+        trace?.error(err);
+        throw err;
+    }
+}
+/**
+ * Imports and executes the default export of a given file as a function.
+ *
+ * @param ctx0 - The prompt context to pass to the imported function.
+ * @param r - The prompt script object containing the filename and system prompt information.
+ * @param options - Optional configuration:
+ *   - logCb: A callback for logging messages.
+ *   - TraceOptions: Additional tracing options.
+ *
+ * @throws Error if the imported file is a system prompt and does not export a default function.
+ * @returns A promise that resolves when the function execution is complete.
+ */
+export async function importPrompt(ctx0, r, options) {
+    mark("prompt.import");
+    const { filename } = r;
+    dbg(`importing file: ${filename}`);
+    return await importFile(filename, {
+        ...(options || {}),
+        onImported: async (module) => {
+            const main = module.default;
+            if (typeof main === "function") {
+                dbg(`found default export as function, calling`);
+                await main(ctx0);
+            }
+            else if (r.isSystem) {
+                throw new Error("system prompt using esm JavaScript (mjs, mts) must have a default function.");
+            }
+        },
+    });
+}
+//# sourceMappingURL=importprompt.js.map

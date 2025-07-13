@@ -1,0 +1,9 @@
+
+
+> @genaiscript/eslint-plugin-genaiscript@2.2.1 build /home/runner/work/genaiscript/genaiscript/tools/eslint-plugin-genaiscript
+> npm run clean && tshy
+
+
+> @genaiscript/eslint-plugin-genaiscript@2.2.1 clean
+> rimraf dist
+

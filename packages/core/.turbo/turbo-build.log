@@ -1,0 +1,77 @@
+
+
+> @genaiscript/core@2.2.16 build /home/runner/work/genaiscript/genaiscript/packages/core
+> npm run clean && npm run build:prompts && tshy
+
+
+> @genaiscript/core@2.2.16 clean
+> rimraf dist
+
+
+> @genaiscript/core@2.2.16 build:prompts
+> node bundleprompts.mjs
+
+found 58 tools
+[96msrc/grep.ts[0m:[93m22[0m:[93m37[0m - [91merror[0m[90m TS2307: [0mCannot find module '@lvce-editor/ripgrep' or its corresponding type declarations.
+
+[7m22[0m     const { rgPath } = await import("@lvce-editor/ripgrep");
+[7m  [0m [91m                                    ~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/xlsx.ts[0m:[93m22[0m:[93m40[0m - [91merror[0m[90m TS2307: [0mCannot find module 'xlsx' or its corresponding type declarations.
+
+[7m22[0m   const { read, utils } = await import("xlsx");
+[7m  [0m [91m                                       ~~~~~~[0m
+
+[96msrc/xlsx.ts[0m:[93m26[0m:[93m38[0m - [91merror[0m[90m TS7006: [0mParameter 'n' implicitly has an 'any' type.
+
+[7m26[0m   return workbook.SheetNames.filter((n) => !sheet || n === sheet).map((name) => {
+[7m  [0m [91m                                     ~[0m
+
+[96msrc/xlsx.ts[0m:[93m26[0m:[93m72[0m - [91merror[0m[90m TS7006: [0mParameter 'name' implicitly has an 'any' type.
+
+[7m26[0m   return workbook.SheetNames.filter((n) => !sheet || n === sheet).map((name) => {
+[7m  [0m [91m                                                                       ~~~~[0m
+
+
+Found 4 errors in 2 files.
+
+Errors  Files
+     1  src/grep.ts[90m:22[0m
+     3  src/xlsx.ts[90m:22[0m
+polyfills detected Map(1) {
+  'browser' => [
+    'browser',
+    Map(2) {
+      './src/base64-browser.mts' => './src/base64.ts',
+      './src/index-browser.mts' => './src/index.ts'
+    }
+  ]
+}
+writing tsconfig files...
+using existing tsconfig.json
+building /home/runner/work/genaiscript/genaiscript/packages/core
+tshy config {
+  esmDialects: [ 'browser' ],
+  dialects: [ 'esm', 'commonjs' ],
+  project: './tsconfig.src.json',
+  exports: { '.': './src/index.ts', './package.json': './package.json' },
+  selfLink: false
+}
+exports {
+  '.': {
+    browser: {
+      types: './dist/browser/index.d.ts',
+      default: './dist/browser/index.js'
+    },
+    import: { types: './dist/esm/index.d.ts', default: './dist/esm/index.js' },
+    require: {
+      types: './dist/commonjs/index.d.ts',
+      default: './dist/commonjs/index.js'
+    }
+  },
+  './package.json': './package.json'
+}
+set dialect { where: 'src', mode: 'esm' }
+building esm
+build failed
+ ELIFECYCLE  Command failed with exit code 1.

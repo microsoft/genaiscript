@@ -1,0 +1,901 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+// cspell: disable
+import { appendChild, createAssistantNode, createChatParticipant, createDefData, createDefDiff, createDef, createFileOutput, createToolNode, createImageNode, createImportTemplate, createSchemaNode, createStringTemplateNode, createTextNode, renderPromptNode, createOutputProcessor, createFileMerge, createSystemNode, finalizeMessages, createMcpServer, toDefRefName, resolveFenceFormat, createFileImageNodes, createMcpClient, } from "./promptdom.js";
+import { promptParametersSchemaToJSONSchema } from "./parameters.js";
+import { consoleLogFormat } from "./logging.js";
+import { isGlobMatch } from "./glob.js";
+import { assert } from "./assert.js";
+import { arrayify } from "./cleaners.js";
+import { ellipse, logError, logVerbose, logWarn } from "./util.js";
+import { lastAssistantReasoning, renderShellOutput } from "./chatrender.js";
+import { jinjaRender } from "./jinja.js";
+import { mustacheRender } from "./mustache.js";
+import { imageEncodeForLLM, imageTileEncodeForLLM, imageTransform, renderImageToTerminal, } from "./image.js";
+import { delay, uniq } from "es-toolkit";
+import { addToolDefinitionsMessage, appendSystemMessage, executeChatSession, mergeGenerationOptions, tracePromptResult, } from "./chat.js";
+import { checkCancelled } from "./cancellation.js";
+import { resolveModelConnectionInfo } from "./models.js";
+import { CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT, TOKEN_MISSING_INFO, TOKEN_NO_ANSWER, DOCS_DEF_FILES_IS_EMPTY_URL, TRANSCRIPTION_CACHE_NAME, TRANSCRIPTION_MODEL_ID, SPEECH_MODEL_ID, IMAGE_GENERATION_MODEL_ID, LARGE_MODEL_ID, } from "./constants.js";
+import { addFallbackToolSystems, resolveSystems, resolveTools } from "./systems.js";
+import { callExpander } from "./expander.js";
+import { errorMessage, isCancelError, NotSupportedError, serializeError } from "./error.js";
+import { resolveLanguageModel } from "./lm.js";
+import { concurrentLimit } from "./concurrency.js";
+import { resolveScript } from "./ast.js";
+import { dedent } from "./indent.js";
+import { runtimeHost } from "./host.js";
+import { writeFileEdits } from "./fileedits.js";
+import { agentAddMemory, agentCreateCache, agentQueryMemory } from "./agent.js";
+import { YAMLStringify } from "./yaml.js";
+import { mergeEnvVarsWithSystem, parametersToVars } from "./vars.js";
+import { FFmepgClient } from "./ffmpeg.js";
+import { BufferToBlob } from "./bufferlike.js";
+import { host } from "./host.js";
+import { srtVttRender } from "./transcription.js";
+import { hash } from "./crypto.js";
+import { fileTypeFromBuffer } from "./filetype.js";
+import { deleteUndefinedValues } from "./cleaners.js";
+import { sliceData } from "./tidy.js";
+import { toBase64 } from "./base64.js";
+import { consoleColors } from "./consolecolor.js";
+import { terminalSize } from "./terminal.js";
+import { stderr, stdout } from "./stdio.js";
+import { dotGenaiscriptPath } from "./workdir.js";
+import { prettyBytes } from "./pretty.js";
+import { createCache } from "./cache.js";
+import { measure } from "./performance.js";
+import { genaiscriptDebug } from "./debug.js";
+import debug from "debug";
+const dbg = genaiscriptDebug("prompt:context");
+/**
+ * Creates a chat turn generation context object for building prompt nodes and utilities in a chat session.
+ *
+ * @param options - Generation options that configure prompt and model behaviors.
+ * @param trace - Trace logger for output and debugging; collects logs and tracing information for the turn.
+ * @param cancellationToken - Token used for supporting cancellation of asynchronous operations within this context.
+ *
+ * @returns Chat turn generation context with a prompt node for composition and methods:
+ *   - node: The root prompt node for this chat turn.
+ *   - writeText: Adds a text (or assistant/system) message node, with optional configuration.
+ *   - assistant: Shortcut for adding a message as assistant.
+ *   - $: Tagged template for string templates. Returns a PromptTemplateString for further configuration (setting priority, jinja/mustache transforms, roles, caching, etc.).
+ *   - def: Defines a named prompt artifact (text, file, etc.) in the prompt context.
+ *   - defImages: Defines image input(s) as prompt nodes, supports tiling and various source types.
+ *   - defData: Defines structured data input as a prompt node.
+ *   - defDiff: Defines a diff between two items and appends as a prompt node.
+ *   - fence: Wraps body in a code fence and defines as a prompt artifact.
+ *   - importTemplate: Imports and expands a prompt template.
+ *   - console: Logging interface for messages, warnings, errors, and debugging within the context.
+ *
+ * This context is generally used by higher-level orchestration to build structured prompt data,
+ * images, and system messages suitable for multi-turn chat generations.
+ */
+export function createChatTurnGenerationContext(options, trace, cancellationToken) {
+    const node = { children: [] };
+    const fenceFormat = options.fenceFormat || resolveFenceFormat(options.model);
+    const lineNumbers = options.lineNumbers;
+    const console = Object.freeze({
+        log: (...args) => {
+            const line = consoleLogFormat(...args);
+            if (line) {
+                trace?.log(line);
+                stdout.write(line + "\n");
+            }
+        },
+        debug: (...args) => {
+            const line = consoleLogFormat(...args);
+            if (line) {
+                trace?.log(line);
+                logVerbose(line);
+            }
+        },
+        warn: (...args) => {
+            const line = consoleLogFormat(...args);
+            if (line) {
+                trace?.warn(line);
+                logWarn(line);
+            }
+        },
+        error: (...args) => {
+            const line = consoleLogFormat(...args);
+            if (line) {
+                trace?.error(line);
+                logError(line);
+            }
+        },
+    });
+    const defImages = (files, defOptions) => {
+        checkCancelled(cancellationToken);
+        if (files === undefined || files === null) {
+            if (defOptions?.ignoreEmpty)
+                return;
+            throw new Error("no images provided");
+        }
+        if (Array.isArray(files)) {
+            if (!files.length) {
+                if (defOptions?.ignoreEmpty)
+                    return;
+                throw new Error("no images provided");
+            }
+            const sliced = sliceData(files, defOptions);
+            if (!defOptions?.tiled)
+                sliced.forEach((file) => defImages(file, defOptions));
+            else {
+                appendChild(node, createImageNode((async () => {
+                    if (!files.length)
+                        return undefined;
+                    const encoded = await imageTileEncodeForLLM(files, {
+                        ...defOptions,
+                        cancellationToken,
+                        trace,
+                    });
+                    return encoded;
+                })()));
+            }
+        }
+        else if (typeof files === "string" || files instanceof Blob || files instanceof Buffer) {
+            const img = files;
+            appendChild(node, createImageNode((async () => {
+                const encoded = await imageEncodeForLLM(img, {
+                    ...defOptions,
+                    cancellationToken,
+                    trace,
+                });
+                return encoded;
+            })()));
+        }
+        else {
+            const file = files;
+            appendChild(node, ...createFileImageNodes(undefined, file, defOptions, {
+                trace,
+                cancellationToken,
+            }));
+        }
+    };
+    const ctx = {
+        node,
+        writeText: (body, options) => {
+            if (body !== undefined && body !== null) {
+                const { priority, maxTokens } = options || {};
+                const role = options?.assistant ? "assistant" : options?.role || "user";
+                appendChild(node, role === "assistant"
+                    ? createAssistantNode(body, { priority, maxTokens })
+                    : role === "system"
+                        ? createSystemNode(body, { priority, maxTokens })
+                        : createTextNode(body, { priority, maxTokens }));
+            }
+        },
+        assistant: (body, options) => ctx.writeText(body, {
+            ...options,
+            role: "assistant",
+        }),
+        $: (strings, ...args) => {
+            const current = createStringTemplateNode(strings, args);
+            appendChild(node, current);
+            const res = Object.freeze({
+                priority: (priority) => {
+                    current.priority = priority;
+                    return res;
+                },
+                flex: (value) => {
+                    current.flex = value;
+                    return res;
+                },
+                jinja: (data) => {
+                    current.transforms.push((t) => jinjaRender(t, data));
+                    return res;
+                },
+                mustache: (data) => {
+                    current.transforms.push((t) => mustacheRender(t, data));
+                    return res;
+                },
+                maxTokens: (tokens) => {
+                    current.maxTokens = tokens;
+                    return res;
+                },
+                role: (r) => {
+                    current.role = r;
+                    return res;
+                },
+                cacheControl: (cc) => {
+                    current.cacheControl = cc;
+                    return res;
+                },
+            });
+            return res;
+        },
+        def: (name, body, defOptions) => {
+            name = name ?? "";
+            const doptions = { ...(defOptions || {}), trace };
+            doptions.lineNumbers = doptions.lineNumbers ?? lineNumbers;
+            doptions.fenceFormat = doptions.fenceFormat ?? fenceFormat;
+            // shortcuts
+            if (body === undefined || body === null) {
+                if (!doptions.ignoreEmpty)
+                    throw new Error(`def ${name} is ${body}. See ${DOCS_DEF_FILES_IS_EMPTY_URL}`);
+                return undefined;
+            }
+            else if (Array.isArray(body)) {
+                if (body.length === 0 && !doptions.ignoreEmpty)
+                    throw new Error(`def ${name} is empty. See ${DOCS_DEF_FILES_IS_EMPTY_URL}`);
+                body.forEach((f) => ctx.def(name, f, defOptions));
+            }
+            else if (typeof body === "string") {
+                if (body.trim() === "" && !doptions.ignoreEmpty)
+                    throw new Error(`def ${name} is empty. See ${DOCS_DEF_FILES_IS_EMPTY_URL}`);
+                appendChild(node, createDef(name, { filename: "", content: body }, doptions));
+            }
+            else if (typeof body === "object" && body.filename) {
+                const file = body;
+                const { glob } = defOptions || {};
+                const endsWith = arrayify(defOptions?.endsWith);
+                const { filename } = file;
+                if (glob && filename) {
+                    if (!isGlobMatch(filename, glob))
+                        return undefined;
+                }
+                if (endsWith.length && !endsWith.some((ext) => filename.endsWith(ext)))
+                    return undefined;
+                // more robust check
+                if (/\.(png|jpeg|jpg|gif|webp)$/i.test(filename)) {
+                    appendChild(node, ...createFileImageNodes(name, file, doptions, {
+                        trace,
+                        cancellationToken,
+                    }));
+                }
+                else
+                    appendChild(node, createDef(name, file, doptions));
+            }
+            else if (typeof body === "object" && body.exitCode !== undefined) {
+                appendChild(node, createDef(name, {
+                    filename: "",
+                    content: renderShellOutput(body),
+                }, { ...doptions, lineNumbers: false }));
+            }
+            else if (typeof body === "object" && body.content) {
+                const fenced = body;
+                appendChild(node, createDef(name, { filename: "", content: fenced.content }, { language: fenced.language, ...(doptions || {}) }));
+            }
+            else if (typeof body === "object" && body.text) {
+                const res = body;
+                const fence = res.fences?.length === 1 ? res.fences[0] : undefined;
+                appendChild(node, createDef(name, { filename: "", content: fence?.content ?? res.text }, { language: fence?.language, ...(doptions || {}) }));
+            }
+            return toDefRefName(name, doptions);
+        },
+        defImages,
+        defData: (name, data, defOptions) => {
+            name = name ?? "";
+            const doptions = { ...(defOptions || {}), trace };
+            doptions.fenceFormat = doptions.fenceFormat ?? fenceFormat;
+            appendChild(node, createDefData(name, data, doptions));
+            return toDefRefName(name, doptions);
+        },
+        defDiff: (name, left, right, defDiffOptions) => {
+            name = name ?? "";
+            const doptions = { ...(defDiffOptions || {}), trace };
+            doptions.fenceFormat = doptions.fenceFormat ?? fenceFormat;
+            appendChild(node, createDefDiff(name, left, right, doptions));
+            return toDefRefName(name, doptions);
+        },
+        fence(body, options) {
+            const doptions = { ...(options || {}), trace };
+            doptions.fenceFormat = doptions.fenceFormat ?? fenceFormat;
+            ctx.def("", body, doptions);
+            return undefined;
+        },
+        importTemplate: (template, data, options) => {
+            appendChild(node, createImportTemplate(template, data, options));
+            return undefined;
+        },
+        console,
+    };
+    return ctx;
+}
+export function createChatGenerationContext(options, trace, projectOptions) {
+    const { cancellationToken, infoCb, userState } = options || {};
+    const { prj, env } = projectOptions;
+    assert(!!env.output, "output missing");
+    const turnCtx = createChatTurnGenerationContext(options, trace, cancellationToken);
+    const node = turnCtx.node;
+    // Default output processor for the prompt
+    const defOutputProcessor = (fn) => {
+        checkCancelled(cancellationToken);
+        if (fn)
+            appendChild(node, createOutputProcessor(fn));
+    };
+    const defTool = (name, description, parameters, fn, defOptions) => {
+        checkCancelled(cancellationToken);
+        if (name === undefined || name === null)
+            throw new Error("tool name is missing");
+        dbg(`tool %s`, name);
+        if (typeof name === "string") {
+            if (typeof description !== "string")
+                throw new Error("tool description is missing");
+            const parameterSchema = promptParametersSchemaToJSONSchema(parameters);
+            appendChild(node, createToolNode(name, description, parameterSchema, fn, defOptions, ctx));
+        }
+        else if (typeof name === "object" && name.impl) {
+            const tool = name;
+            appendChild(node, createToolNode(tool.spec.name, tool.spec.description, 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            tool.spec.parameters, tool.impl, defOptions, ctx));
+        }
+        else if (typeof name === "object" && name.config) {
+            const client = name;
+            appendChild(node, createMcpClient(client));
+        }
+        else if (typeof name === "object") {
+            dbg(`mcp: %o`, Object.keys(name));
+            for (const kv of Object.entries(name)) {
+                const [id, def] = kv;
+                const serverConfig = def;
+                appendChild(node, createMcpServer(id, serverConfig, defOptions, ctx));
+            }
+        }
+    };
+    const adbgm = debug(`agent:memory`);
+    const defAgent = (name, description, fn, options) => {
+        checkCancelled(cancellationToken);
+        const { variant, tools, system, disableMemory, disableMemoryQuery, ...rest } = options || {};
+        const memory = disableMemory ? undefined : agentCreateCache({ userState });
+        name = name.replace(/^agent_/i, "");
+        const adbg = debug(`agent:${name}`);
+        adbg(`created ${variant || ""}`);
+        const agentName = `agent_${name}${variant ? "_" + variant : ""}`;
+        const agentLabel = `agent ${name}${variant ? " " + variant : ""}`;
+        const agentSystem = uniq([
+            "system.assistant",
+            "system.tools",
+            "system.explanations",
+            "system.safety_jailbreak",
+            "system.safety_harmful_content",
+            "system.safety_protected_material",
+            ...arrayify(system),
+        ]);
+        const agentTools = resolveTools(runtimeHost.project, agentSystem, arrayify(tools));
+        const agentDescription = ellipse(`Agent that uses an LLM to ${description}.\nAvailable tools:${agentTools.map((t) => `- ${t.description}`).join("\n")}`, 1020); // DO NOT LEAK TOOL ID HERE
+        dbg(`description: ${agentDescription}`);
+        defTool(agentName, agentDescription, {
+            type: "object",
+            properties: {
+                query: {
+                    type: "string",
+                    description: "Query to answer by the LLM agent.",
+                },
+            },
+            required: ["query"],
+        }, async (args) => {
+            // the LLM automatically adds extract arguments to the context
+            checkCancelled(cancellationToken);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { context, ...argsRest } = args;
+            const { query, ...argsNoQuery } = argsRest;
+            infoCb?.({
+                text: `${agentLabel}: ${query} ${parametersToVars(argsNoQuery)}`,
+            });
+            adbg(`query: ${query}`);
+            const hasExtraArgs = Object.keys(argsNoQuery).length > 0;
+            if (hasExtraArgs)
+                adbg(`extra args: %O`, argsNoQuery);
+            let memoryAnswer;
+            if (memory && query && !disableMemoryQuery) {
+                memoryAnswer = await agentQueryMemory(memory, ctx, query + (hasExtraArgs ? `\n${YAMLStringify(argsNoQuery)}` : ""));
+                if (memoryAnswer)
+                    adbgm(`found ${memoryAnswer}`);
+            }
+            const res = await ctx.runPrompt(async (_) => {
+                if (typeof fn === "string")
+                    _.writeText(dedent(fn), { role: "system" });
+                else
+                    await fn(_, args);
+                _.$ `Make a plan and solve the task described in <QUERY>.
+                        
+                        - Assume that your answer will be analyzed by an LLM, not a human.
+                        - If you are missing information, reply "${TOKEN_MISSING_INFO}: <what is missing>".
+                        - If you cannot answer the query, return "${TOKEN_NO_ANSWER}: <reason>".
+                        - Be concise. Minimize output to the most relevant information to save context tokens.
+                        `.role("system");
+                if (memoryAnswer)
+                    _.$ `- The <QUERY> applied to the agent memory is in <MEMORY>.`.role("system");
+                _.def("QUERY", query);
+                if (Object.keys(argsNoQuery).length)
+                    _.defData("QUERY_CONTEXT", argsNoQuery, {
+                        format: "yaml",
+                    });
+                if (memoryAnswer)
+                    _.def("MEMORY", memoryAnswer);
+                if (memory)
+                    _.defOutputProcessor(async ({ text }) => {
+                        if (text &&
+                            !(text.startsWith(TOKEN_MISSING_INFO) || text.startsWith(TOKEN_NO_ANSWER))) {
+                            adbgm(`add ${text}`);
+                            await agentAddMemory(memory, agentName, query, text, {
+                                trace,
+                            });
+                        }
+                    });
+            }, {
+                model: "agent",
+                label: agentLabel,
+                system: agentSystem,
+                tools: agentTools.map(({ id }) => id),
+                ...rest,
+            });
+            if (res.error) {
+                adbg(`error: ${res.error}`);
+                throw res.error;
+            }
+            const response = res.text;
+            adbgm(`response: %O`, response);
+            return response;
+        });
+    };
+    const defSchema = (name, schema, defOptions) => {
+        checkCancelled(cancellationToken);
+        appendChild(node, createSchemaNode(name, schema, defOptions));
+        return name;
+    };
+    const defChatParticipant = (generator, options) => {
+        checkCancelled(cancellationToken);
+        if (generator)
+            appendChild(node, createChatParticipant({ generator, options }));
+    };
+    const defFileOutput = (pattern, description, options) => {
+        checkCancelled(cancellationToken);
+        if (pattern)
+            appendChild(node, createFileOutput({
+                pattern: arrayify(pattern).map((p) => (typeof p === "string" ? p : p.filename)),
+                description,
+                options,
+            }));
+    };
+    const prompt = (strings, 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...args) => {
+        checkCancelled(cancellationToken);
+        const options = {};
+        const p = new Promise(async (resolve, reject) => {
+            try {
+                await delay(0);
+                // data race for options
+                const res = await ctx.runPrompt(async (_) => {
+                    _.$(strings, ...args);
+                }, options);
+                resolve(res);
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
+        p.options = (v) => {
+            if (v !== undefined)
+                Object.assign(options, v);
+            return p;
+        };
+        return p;
+    };
+    const transcribe = async (audio, options) => {
+        checkCancelled(cancellationToken);
+        const { cache, ...rest } = options || {};
+        const transcriptionTrace = trace?.startTraceDetails("🎤 transcribe");
+        try {
+            const conn = {
+                model: options?.model,
+            };
+            const { info, configuration } = await resolveModelConnectionInfo(conn, {
+                trace: transcriptionTrace,
+                defaultModel: TRANSCRIPTION_MODEL_ID,
+                cancellationToken,
+                token: true,
+            });
+            if (info.error)
+                throw new Error(info.error);
+            if (!configuration)
+                throw new Error("model configuration not found");
+            checkCancelled(cancellationToken);
+            const { ok } = await runtimeHost.pullModel(configuration, {
+                trace: transcriptionTrace,
+                cancellationToken,
+            });
+            if (!ok)
+                throw new Error(`failed to pull model ${conn}`);
+            checkCancelled(cancellationToken);
+            const { transcriber } = await resolveLanguageModel(configuration.provider);
+            if (!transcriber)
+                throw new Error("audio transcribe not found for " + info.model);
+            const ffmpeg = new FFmepgClient();
+            const audioFile = await ffmpeg.extractAudio(audio, {
+                transcription: true,
+                cache,
+            });
+            const file = await BufferToBlob(await host.readFile(audioFile), "audio/ogg");
+            const update = async () => {
+                transcriptionTrace?.itemValue(`model`, configuration.model);
+                transcriptionTrace?.itemValue(`file size`, prettyBytes(file.size));
+                transcriptionTrace?.itemValue(`file type`, file.type);
+                const res = await transcriber({
+                    file,
+                    model: configuration.model,
+                    language: options?.language,
+                    translate: options?.translate,
+                }, configuration, {
+                    trace: transcriptionTrace,
+                    cancellationToken,
+                });
+                srtVttRender(res);
+                return res;
+            };
+            let res;
+            const _cache = createCache(cache === true ? TRANSCRIPTION_CACHE_NAME : typeof cache === "string" ? cache : undefined, { type: "fs" });
+            if (cache) {
+                const hit = await _cache.getOrUpdate({ file, ...rest }, update, (res) => !res.error);
+                transcriptionTrace?.itemValue(`cache ${hit.cached ? "hit" : "miss"}`, hit.key);
+                res = hit.value;
+            }
+            else
+                res = await update();
+            transcriptionTrace?.fence(res.text, "markdown");
+            if (res.error)
+                transcriptionTrace?.error(errorMessage(res.error));
+            if (res.segments)
+                transcriptionTrace?.fence(res.segments, "yaml");
+            return res;
+        }
+        catch (e) {
+            logError(e);
+            transcriptionTrace?.error(e);
+            return {
+                text: undefined,
+                error: serializeError(e),
+            };
+        }
+        finally {
+            transcriptionTrace?.endDetails();
+        }
+    };
+    const speak = async (input, options) => {
+        checkCancelled(cancellationToken);
+        const { cache, voice, instructions, ...rest } = options || {};
+        const speechTrace = trace?.startTraceDetails("🦜 speak");
+        try {
+            const conn = {
+                model: options?.model || SPEECH_MODEL_ID,
+            };
+            const { info, configuration } = await resolveModelConnectionInfo(conn, {
+                trace: speechTrace,
+                defaultModel: SPEECH_MODEL_ID,
+                cancellationToken,
+                token: true,
+            });
+            if (info.error)
+                throw new Error(info.error);
+            if (!configuration)
+                throw new Error("model configuration not found");
+            checkCancelled(cancellationToken);
+            const { ok } = await runtimeHost.pullModel(configuration, {
+                trace: speechTrace,
+                cancellationToken,
+            });
+            if (!ok)
+                throw new Error(`failed to pull model ${conn}`);
+            checkCancelled(cancellationToken);
+            const { speaker } = await resolveLanguageModel(configuration.provider);
+            if (!speaker)
+                throw new Error("speech converter not found for " + info.model);
+            speechTrace?.itemValue(`model`, configuration.model);
+            const req = deleteUndefinedValues({
+                input,
+                model: configuration.model,
+                voice,
+                instructions: dedent(instructions),
+            });
+            const res = await speaker(req, configuration, {
+                trace: speechTrace,
+                cancellationToken,
+            });
+            if (res.error) {
+                speechTrace?.error(errorMessage(res.error));
+                return { error: res.error };
+            }
+            const h = await hash(res.audio, { length: 20 });
+            const { ext } = (await fileTypeFromBuffer(res.audio)) || {};
+            const filename = dotGenaiscriptPath("speech", h + "." + ext);
+            await host.writeFile(filename, res.audio);
+            return {
+                filename,
+            };
+        }
+        catch (e) {
+            logError(e);
+            speechTrace?.error(e);
+            return {
+                filename: undefined,
+                error: serializeError(e),
+            };
+        }
+        finally {
+            speechTrace?.endDetails();
+        }
+    };
+    const defFileMerge = (fn) => {
+        checkCancelled(cancellationToken);
+        appendChild(node, createFileMerge(fn));
+    };
+    const runPrompt = async (generator, runOptions) => {
+        checkCancelled(cancellationToken);
+        Object.freeze(runOptions);
+        const { label, applyEdits, throwOnError } = runOptions || {};
+        const runTrace = trace?.startTraceDetails(`🎁 ${label || "prompt"}`);
+        const messages = [];
+        try {
+            infoCb?.({ text: label || "prompt" });
+            const genOptions = mergeGenerationOptions(options, runOptions);
+            genOptions.inner = true;
+            genOptions.trace = runTrace;
+            const { info, configuration } = await resolveModelConnectionInfo(genOptions, {
+                trace: runTrace,
+                defaultModel: LARGE_MODEL_ID,
+                cancellationToken,
+                token: true,
+            });
+            if (info.error)
+                throw new Error(info.error);
+            if (!configuration)
+                throw new Error("model configuration not found");
+            genOptions.model = info.model;
+            genOptions.stats = genOptions.stats.createChild(genOptions.model, label);
+            const { ok } = await runtimeHost.pullModel(configuration, {
+                trace: runTrace,
+                cancellationToken,
+            });
+            if (!ok)
+                throw new Error(`failed to pull model ${genOptions.model}`);
+            const runCtx = createChatGenerationContext(genOptions, runTrace, projectOptions);
+            if (typeof generator === "string")
+                runCtx.node.children.push(createTextNode(generator));
+            else
+                await generator(runCtx);
+            const node = runCtx.node;
+            checkCancelled(cancellationToken);
+            let tools = undefined;
+            let schemas = undefined;
+            let chatParticipants = undefined;
+            const images = [];
+            const fileMerges = [];
+            const outputProcessors = [];
+            const fileOutputs = [];
+            const disposables = [];
+            // expand template
+            const { errors, schemas: scs, tools: fns, messages: msgs, chatParticipants: cps, fileMerges: fms, outputProcessors: ops, fileOutputs: fos, images: imgs, prediction, disposables: dps, } = await renderPromptNode(genOptions.model, node, {
+                flexTokens: genOptions.flexTokens,
+                fenceFormat: genOptions.fenceFormat,
+                trace: runTrace,
+                cancellationToken,
+            });
+            schemas = scs;
+            tools = fns;
+            chatParticipants = cps;
+            messages.push(...msgs);
+            fileMerges.push(...fms);
+            outputProcessors.push(...ops);
+            fileOutputs.push(...fos);
+            images.push(...imgs);
+            disposables.push(...dps);
+            if (errors?.length) {
+                logError(errors.map((err) => errorMessage(err)).join("\n"));
+                throw new Error("errors while running prompt");
+            }
+            const systemScripts = resolveSystems(prj, runOptions ?? {}, tools);
+            if (addFallbackToolSystems(systemScripts, tools, runOptions, genOptions)) {
+                assert(!Object.isFrozen(genOptions));
+                genOptions.fallbackTools = true;
+                dbg(`fallback tools added ${genOptions.fallbackTools}`);
+            }
+            if (systemScripts.length)
+                try {
+                    runTrace?.startDetails("👾 systems");
+                    for (const systemId of systemScripts) {
+                        checkCancelled(cancellationToken);
+                        dbg(`system ${systemId.id}`, {
+                            fallbackTools: genOptions.fallbackTools,
+                        });
+                        const system = resolveScript(prj, systemId);
+                        if (!system)
+                            throw new Error(`system template ${systemId.id} not found`);
+                        runTrace?.startDetails(`👾 ${system.id}`);
+                        if (systemId.parameters)
+                            runTrace?.detailsFenced(`parameters`, YAMLStringify(systemId.parameters));
+                        const sysr = await callExpander(prj, system, mergeEnvVarsWithSystem(env, systemId), genOptions, false);
+                        if (sysr.images?.length)
+                            throw new NotSupportedError("images");
+                        if (sysr.schemas)
+                            Object.assign(schemas, sysr.schemas);
+                        if (sysr.functions)
+                            tools.push(...sysr.functions);
+                        if (sysr.fileMerges?.length)
+                            fileMerges.push(...sysr.fileMerges);
+                        if (sysr.outputProcessors?.length)
+                            outputProcessors.push(...sysr.outputProcessors);
+                        if (sysr.chatParticipants)
+                            chatParticipants.push(...sysr.chatParticipants);
+                        if (sysr.fileOutputs?.length)
+                            fileOutputs.push(...sysr.fileOutputs);
+                        if (sysr.disposables?.length)
+                            disposables.push(...sysr.disposables);
+                        if (sysr.logs?.length)
+                            runTrace?.details("📝 console.log", sysr.logs);
+                        for (const smsg of sysr.messages) {
+                            if (smsg.role === "user" && typeof smsg.content === "string") {
+                                appendSystemMessage(messages, smsg.content);
+                                runTrace?.fence(smsg.content, "markdown");
+                            }
+                            else
+                                throw new NotSupportedError("only string user messages supported in system");
+                        }
+                        genOptions.logprobs = genOptions.logprobs || system.logprobs;
+                        runTrace?.detailsFenced("💻 script source", system.jsSource, "js");
+                        runTrace?.endDetails();
+                        if (sysr.status !== "success")
+                            throw new Error(`system ${system.id} failed ${sysr.status} ${sysr.statusText}`);
+                    }
+                }
+                finally {
+                    runTrace?.endDetails();
+                }
+            if (genOptions.fallbackTools) {
+                dbg(`fallback tools definitions added`);
+                addToolDefinitionsMessage(messages, tools);
+            }
+            finalizeMessages(genOptions.model, messages, {
+                ...genOptions,
+                fileOutputs,
+                trace: runTrace,
+            });
+            const { completer } = await resolveLanguageModel(configuration.provider);
+            if (!completer)
+                throw new Error("model driver not found for " + info.model);
+            checkCancelled(cancellationToken);
+            const modelConcurrency = options.modelConcurrency?.[genOptions.model] ?? CHAT_REQUEST_PER_MODEL_CONCURRENT_LIMIT;
+            const modelLimit = concurrentLimit("model:" + genOptions.model, modelConcurrency);
+            dbg(`run ${genOptions.model}`);
+            const resp = await modelLimit(() => executeChatSession(configuration, cancellationToken, messages, tools, schemas, fileOutputs, outputProcessors, fileMerges, prediction, completer, chatParticipants, disposables, genOptions));
+            tracePromptResult(runTrace, resp);
+            await writeFileEdits(resp.fileEdits, {
+                applyEdits,
+                trace: runTrace,
+            });
+            if (resp.error && throwOnError)
+                throw new Error(errorMessage(resp.error));
+            return resp;
+        }
+        catch (e) {
+            runTrace?.error(e);
+            if (throwOnError)
+                throw e;
+            return {
+                messages,
+                text: "",
+                reasoning: lastAssistantReasoning(messages),
+                finishReason: isCancelError(e) ? "cancel" : "fail",
+                error: serializeError(e),
+            };
+        }
+        finally {
+            runTrace?.endDetails();
+        }
+    };
+    const generateImage = async (prompt, imageOptions) => {
+        if (!prompt)
+            throw new Error("prompt is missing");
+        const imgTrace = trace?.startTraceDetails("🖼️ generate image");
+        try {
+            const { style, quality, size, outputFormat, mime, ...rest } = imageOptions || {};
+            const conn = {
+                model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
+            };
+            const { info, configuration } = await resolveModelConnectionInfo(conn, {
+                trace: imgTrace,
+                defaultModel: IMAGE_GENERATION_MODEL_ID,
+                cancellationToken,
+                token: true,
+            });
+            if (info.error)
+                throw new Error(info.error);
+            if (!configuration)
+                throw new Error(`model configuration not found for ${conn.model}`);
+            const stats = options.stats.createChild(info.model, "generate image");
+            checkCancelled(cancellationToken);
+            const { ok } = await runtimeHost.pullModel(configuration, {
+                trace: imgTrace,
+                cancellationToken,
+            });
+            if (!ok)
+                throw new Error(`failed to pull model '${conn}'`);
+            checkCancelled(cancellationToken);
+            const { imageGenerator } = await resolveLanguageModel(configuration.provider);
+            if (!imageGenerator)
+                throw new Error("image generator not found for " + info.model);
+            imgTrace?.itemValue(`model`, configuration.model);
+            const req = deleteUndefinedValues({
+                model: configuration.model,
+                prompt: dedent(prompt),
+                size,
+                quality,
+                style,
+                outputFormat,
+            });
+            const m = measure("img.generate", `${req.model} -> image`);
+            const res = await imageGenerator(req, configuration, {
+                trace: imgTrace,
+                cancellationToken,
+                ...rest,
+            });
+            const duration = m();
+            if (res.error) {
+                imgTrace?.error(errorMessage(res.error));
+                return undefined;
+            }
+            dbg(`usage: %o`, res.usage);
+            stats.addImageGenerationUsage(res.usage, duration);
+            const h = await hash(res.image, { length: 20 });
+            const buf = await imageTransform(res.image, {
+                ...(imageOptions || {}),
+                mime: mime ??
+                    (outputFormat === "jpeg" || outputFormat === "webp"
+                        ? `image/jpeg`
+                        : outputFormat === "png"
+                            ? `image/png`
+                            : undefined),
+                cancellationToken,
+                trace: imgTrace,
+            });
+            const { ext } = (await fileTypeFromBuffer(buf)) || {};
+            const filename = dotGenaiscriptPath("image", h + "." + ext);
+            await host.writeFile(filename, buf);
+            if (consoleColors) {
+                const size = terminalSize();
+                stderr.write(await renderImageToTerminal(buf, {
+                    ...size,
+                    label: filename,
+                    usage: res.usage,
+                    modelId: info.model,
+                }));
+            }
+            else
+                logVerbose(`image: ${filename}`);
+            imgTrace?.image(filename, `generated image`);
+            imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
+            return {
+                image: {
+                    filename,
+                    encoding: "base64",
+                    content: toBase64(res.image),
+                },
+                revisedPrompt: res.revisedPrompt,
+            };
+        }
+        finally {
+            imgTrace?.endDetails();
+        }
+    };
+    const ctx = Object.freeze({
+        ...turnCtx,
+        defAgent,
+        defTool,
+        defSchema,
+        defChatParticipant,
+        defFileOutput,
+        defOutputProcessor,
+        defFileMerge,
+        prompt,
+        runPrompt,
+        transcribe,
+        speak,
+        generateImage,
+        env,
+    });
+    return ctx;
+}
+//# sourceMappingURL=runpromptcontext.js.map
