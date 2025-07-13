@@ -1,8 +1,0 @@
-{
-  "name": "test-exports",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "genaiscript": "file:./packages/cli"
-  }
-}
