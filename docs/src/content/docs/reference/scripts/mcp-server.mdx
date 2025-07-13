@@ -1,24 +1,24 @@
 ---
 title: Model Context Protocol Server
 sidebar:
-    order: 5.1
+  order: 5.1
 description: Turns scripts into Model Context Protocol Tools
 hero:
-    image:
-        alt:
-            An 8-bit style icon shows two interlocking shapes—a script file with
-            brackets and prompt arrow on one side and a server block on the other,
-            connected by lines signifying protocols. Five vivid colored circles and
-            squares represent resource blocks and parameters between the shapes. A
-            cloud and gear icon suggest remote access and configurable tools. All
-            elements are geometric, with no background, text, or people, and use only
-            five bold corporate colors.
-        file: ./mcp-server.png
+  image:
+    alt:
+      An 8-bit style icon shows two interlocking shapes—a script file with
+      brackets and prompt arrow on one side and a server block on the other,
+      connected by lines signifying protocols. Five vivid colored circles and
+      squares represent resource blocks and parameters between the shapes. A
+      cloud and gear icon suggest remote access and configurable tools. All
+      elements are geometric, with no background, text, or people, and use only
+      five bold corporate colors.
+    file: ./mcp-server.png
 ---
 
-import { Image } from "astro:assets"
-import logoPng from "../../../../assets/mcp.png"
-import logoPngTxt from "../../../../assets/mcp.png.txt?raw"
+import { Image } from "astro:assets";
+import logoPng from "../../../../assets/mcp.png";
+import logoPngTxt from "../../../../assets/mcp.png.txt?raw";
 
 <Image src={logoPng} alt={logoPngTxt} />
 
@@ -96,6 +96,20 @@ const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the promp
 output.fence(`The result is ${res.text}`)
 ```
 
+### Sampling
+
+Clients that support [Sampling](https://modelcontextprotocol.io/docs/concepts/sampling) will allow servers to request completions from LLMs.
+Recently, Visual Studio Code Copilot Chat has added support for MCP tools sampling.
+
+In GenAIScript script, you can use the `mcp` llm provider to explicitly use the MCP tool sampling.
+
+```js title="task.genai.mjs"
+script({ model: "mcp:claude" });
+```
+
+The model name (`claude`) is a hint for the client which LLM to use for sampling. It is just a hint and the client may decide to use a different LLM.
+This provider is only available when the script is run as a MCP tool with a client that supports sampling.
+
 ### Annotations
 
 [Tool annotations](https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations) provide additional metadata about a tool’s behavior,
@@ -132,7 +146,7 @@ In GenAIScript, you can create a resource using `host.publishResource` and
 it will automatically be exposed as a MCP resource.
 
 ```js title="task.genai.mjs"
-const id = await host.publishResource("important data", file)
+const id = await host.publishResource("important data", file);
 ```
 
 The return value is the resource uri which can be used in the prompt output.
@@ -145,7 +159,7 @@ The resource will be available for the lifetime of the MCP server.
 Using `env.output.image`, script can output images that will be part of the tool response.
 
 ```js
-await env.output.image("...filename.png")
+await env.output.image("...filename.png");
 ```
 
 ### Secret scanning
@@ -156,8 +170,8 @@ you can set the `secretScanning` option to `false` in `publishResource`.
 
 ```js
 const id = await host.publishResource("important data", file, {
-    secretScanning: false,
-})
+  secretScanning: false,
+});
 ```
 
 ## Startup script
@@ -188,14 +202,20 @@ You will need Visual Studio Code v1.99 or higher and the [GitHub Copilot Chat](h
 
 ```json title=".vscode/mcp.json"
 {
-    "servers": {
-        "genaiscript": {
-            "type": "stdio",
-            "command": "npx",
-            "args": ["-y", "genaiscript", "mcp", "--cwd", "${workspaceFolder}"],
-            "envFile": "${workspaceFolder}/.env"
-        }
+  "servers": {
+    "genaiscript": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "genaiscript",
+        "mcp",
+        "--cwd",
+        "${workspaceFolder}"
+      ],
+      "envFile": "${workspaceFolder}/.env"
     }
+  }
 }
 ```
 
@@ -203,12 +223,12 @@ You will need Visual Studio Code v1.99 or higher and the [GitHub Copilot Chat](h
 
 ```json
 {
-    "mcpServers": {
-        "genaiscript": {
-            "command": "npx",
-            "args": ["-y", "genaiscript", "mcp"]
-        }
+  "mcpServers": {
+    "genaiscript": {
+      "command": "npx",
+      "args": ["-y", "genaiscript", "mcp"]
     }
+  }
 }
 ```
 
@@ -219,28 +239,28 @@ set the `mcp` group in your scripts.
 
 ```js 'group: "mcp"'
 script({
-    group: "mcp",
-})
+  group: "mcp",
+});
 ```
 
 ```json title=".vscode/mcp.json" ', "--groups", "mcp"'
 {
-    "servers": {
-        "genaiscript": {
-            "type": "stdio",
-            "command": "npx",
-            "args": [
-                "-y",
-                "genaiscript",
-                "mcp",
-                "--cwd",
-                "${workspaceFolder}",
-                "--groups",
-                "mcp"
-            ],
-            "envFile": "${workspaceFolder}/.env"
-        }
+  "servers": {
+    "genaiscript": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "genaiscript",
+        "mcp",
+        "--cwd",
+        "${workspaceFolder}",
+        "--groups",
+        "mcp"
+      ],
+      "envFile": "${workspaceFolder}/.env"
     }
+  }
 }
 ```
 

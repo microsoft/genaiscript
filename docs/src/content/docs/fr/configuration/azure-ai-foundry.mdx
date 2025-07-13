@@ -1,0 +1,309 @@
+---
+title: Azure AI Foundry
+sidebar:
+  order: 3
+
+---
+
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+import { YouTube } from "astro-embed";
+
+import {
+  AZURE_OPENAI_API_VERSION,
+  AZURE_AI_INFERENCE_VERSION,
+} from "../../../../../../packages/core/src/constants";
+
+Azure AI Foundry fournit un accès à des modèles sans serveur et déployés, tant pour OpenAI que pour d'autres fournisseurs. Plusieurs moyens d'accéder à ces serveurs sont pris en charge dans GenAIScript :
+
+* sans aucun déploiement, en utilisant le fournisseur [Azure AI Model Inference](#azure_ai_inference),
+* avec déploiement pour les modèles OpenAI, en utilisant le fournisseur [Azure AI OpenAI Serverless](#azure_serverless),
+* avec des déploiements pour les modèles non-OpenAI, utilisez le fournisseur [Azure AI Serverless Models](#azure_serverless_models).
+
+Vous pouvez déployer des modèles "sans serveur" via [Azure AI Foundry](https://ai.azure.com/) et payer à l'usage par jeton.
+Vous pouvez parcourir le [catalogue des modèles Azure AI Foundry](https://ai.azure.com/explore/models)
+et utiliser le filtre [Serverless API](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models-serverless-availability) pour voir les modèles disponibles.
+
+Il existe deux types de déploiements sans serveur qui nécessitent des configurations différentes : les modèles OpenAI et tous les autres modèles.
+Les modèles OpenAI, comme `gpt-4o`, sont déployés sur des points de terminaison `.openai.azure.com`,
+tandis que les modèles Azure AI, comme `Meta-Llama-3.1-405B-Instruct`, sont déployés sur des points de terminaison `.models.ai.azure.com`.
+
+Ils sont configurés de manière légèrement différente.
+
+### Azure AI Inference <a href="" id="azure_ai_inference" />
+
+L'[API Azure AI Model Inference](https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/reference/reference-model-inference-api?tabs=javascript)
+fournit un point de terminaison unique pour accéder à plusieurs LLM. C'est une excellente façon d'expérimenter car il n'est pas nécessaire de créer des déploiements pour accéder aux modèles.
+Elle prend en charge l'authentification Entra ID et par clé.
+
+```js "azure_ai_inference:gpt-4o"
+script({ model: "azure_ai_inference:gpt-4o" });
+```
+
+<YouTube id="https://www.youtube.com/watch?v=kh670Bxe_1E" posterQuality="high" />
+
+#### Identité gérée (Entra ID)
+
+<Steps>
+  <ol>
+    <li>
+      **Suivez attentivement [ces étapes](https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/how-to/configure-entra-id?tabs=rest\&pivots=ai-foundry-portal)** pour configurer les rôles nécessaires pour votre utilisateur.
+    </li>
+
+    <li>
+      Ouvrez [https://ai.azure.com/](https://ai.azure.com/) et ouvrez votre projet
+    </li>
+
+    <li>
+      Configurez l'**URL cible du point de terminaison** en tant que `AZURE_AI_INFERENCE_API_ENDPOINT`.
+
+      ```txt title=".env"
+      AZURE_AI_INFERENCE_API_ENDPOINT=https://<resource-name>.services.ai.azure.com/models
+      ```
+    </li>
+
+    <li>
+      Trouvez le nom du modèle dans le catalogue avec le filtre **Options de déploiement = Serverless API** et utilisez-le dans votre script,
+      `model: "azure_id_inference:model-id"`.
+
+      ```js
+      script({ model: "azure_ai_inference:model-id" });
+      ```
+    </li>
+  </ol>
+</Steps>
+
+#### Clé API
+
+<Steps>
+  <ol>
+    <li>
+      Ouvrez [https://ai.azure.com/](https://ai.azure.com/), ouvrez votre projet et allez à la page **Présentation**.
+    </li>
+
+    <li>
+      Configurez l'**URL cible du point de terminaison** en tant que variable `AZURE_AI_INFERENCE_API_ENDPOINT` et la clé dans
+      `AZURE_AI_INFERENCE_API_KEY` dans le fichier `.env`\***\*.\*\***
+
+      ```txt title=".env"
+      AZURE_AI_INFERENCE_API_ENDPOINT=https://<resourcename>.services.ai.azure.com/models
+      AZURE_AI_INFERENCE_API_KEY=...
+      ```
+    </li>
+
+    <li>
+      Trouvez le nom du modèle dans le catalogue avec le filtre **Options de déploiement = Serverless API** et utilisez-le dans votre script,
+      `model: "azure_id_inference:model-id"`.
+
+      ```js
+      script({ model: "azure_ai_inference:model-id" });
+      ```
+    </li>
+  </ol>
+</Steps>
+
+#### Version de l'API
+
+La version API par défaut pour Azure AI Inference est {AZURE_AI_INFERENCE_VERSION}.
+Vous pouvez la modifier en définissant la variable d'environnement `AZURE_AI_INFERENCE_API_VERSION`
+(voir [la documentation Azure AI](https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation))
+
+```txt title=".env"
+AZURE_AI_INFERENCE_API_VERSION=2025-01-01-preview
+```
+
+<LLMProviderFeatures provider="azure_ai_inference" />
+
+### Azure AI OpenAI Serverless <a href="" id="azure_serverless" />
+
+Le fournisseur `azure_serverless` prend en charge les modèles OpenAI déployés via les déploiements sans serveur Azure AI Foundry.
+Il supporte l'authentification Entra ID ainsi que par clé.
+
+```js "azure_serverless:"
+script({ model: "azure_serverless:deployment-id" });
+```
+
+:::note
+Ce type de déploiement est différent des déploiements **Azure OpenAI** (fournisseur `azure`).
+:::
+
+#### Identité gérée (Entra ID)
+
+<Steps>
+  <ol>
+    <li>
+      Ouvrez [https://ai.azure.com/](https://ai.azure.com/), ouvrez votre projet et allez à la page **Déploiements**.
+    </li>
+
+    <li>
+      Déployez un **modèle de base** depuis le catalogue.
+      Vous pouvez utiliser l'option `Options de déploiement` -> `Serverless API` pour déployer un modèle en tant qu'API sans serveur.
+    </li>
+
+    <li>
+      Déployez un modèle de base OpenAI.
+      Cela créera également une nouvelle ressource Azure OpenAI dans votre abonnement (qui peut être invisible pour vous, plus d'informations plus tard).
+    </li>
+
+    <li>
+      Mettez à jour le fichier `.env` avec le point de terminaison du déploiement dans la variable `AZURE_SERVERLESS_OPENAI_API_ENDPOINT`.
+
+      ```txt title=".env"
+      AZURE_SERVERLESS_OPENAI_API_ENDPOINT=https://....openai.azure.com
+      ```
+    </li>
+
+    <li>
+      Retournez à l'onglet **Présentation** dans votre projet Azure AI Foundry et
+      cliquez sur **Ouvrir dans le centre de gestion**.
+    </li>
+
+    <li>
+      Cliquez sur la ressource **Azure OpenAI Service**, puis cliquez sur le lien externe **Ressource** qui vous ramènera vers le service Azure OpenAI (sous-jacent)
+      dans le portail Azure.
+    </li>
+
+    <li>
+      Naviguez vers **Contrôle d'accès (IAM)**, puis **Afficher mon accès**. Assurez-vous que votre utilisateur ou principal de service dispose du rôle **Cognitive Services OpenAI User/Contributor**.
+      Si vous obtenez une erreur `401`, cliquez sur **Ajouter**, **Ajouter une attribution de rôle** et ajoutez le rôle **Cognitive Services OpenAI User** à votre utilisateur.
+    </li>
+  </ol>
+</Steps>
+
+À ce stade, vous êtes prêt à vous connecter avec Azure CLI et à utiliser l'identité managée.
+
+:::note
+Les ressources créées par Azure AI Foundry ne sont pas visibles par défaut dans le portail Azure.
+Pour les rendre visibles, ouvrez [Toutes les ressources](https://portal.azure.com/#browse/all), cliquez sur **Gérer la vue**
+et sélectionnez **Afficher les types masqués**.
+:::
+
+<Steps>
+  <ol>
+    <li>
+      Installez l'[Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+    </li>
+
+    <li>
+      Ouvrez un terminal et connectez-vous
+
+      ```sh
+      az login
+      ```
+    </li>
+  </ol>
+</Steps>
+
+#### Clé API
+
+<Steps>
+  <ol>
+    <li>
+      Ouvrez votre [ressource Azure OpenAI](https://portal.azure.com) et naviguez vers **Gestion des ressources**, puis **Clés et point de terminaison**.
+    </li>
+
+    <li>
+      Mettez à jour le fichier `.env` avec le point de terminaison et la clé secrète (**Clé 1** ou **Clé 2**) ainsi que le point de terminaison.
+
+      ```txt title=".env"
+      AZURE_SERVERLESS_OPENAI_API_ENDPOINT=https://....openai.azure.com
+      AZURE_SERVERLESS_OPENAI_API_KEY=...
+      ```
+    </li>
+  </ol>
+</Steps>
+
+<LLMProviderFeatures provider="azure_serverless" />
+
+### Azure AI Serverless Models <a href="" id="azure_serverless_models" />
+
+Le fournisseur `azure_serverless_models` prend en charge les modèles non-OpenAI, tels que DeepSeek R1/v3, déployés via les déploiements sans serveur Azure AI Foundry.
+
+```js "azure_serverless_models:"
+script({ model: "azure_serverless_models:deployment-id" });
+```
+
+#### Identité gérée (Entra ID)
+
+<Steps>
+  <ol>
+    <li>
+      Ouvrez votre ressource **Projet Azure AI** dans le [portail Azure](https://portal.azure.com)
+    </li>
+
+    <li>
+      Naviguez vers **Contrôle d'accès (IAM)**, puis **Voir mes accès**. Assurez-vous que votre
+      utilisateur ou principal de service dispose du rôle **Développeur Azure AI**.
+      Si vous recevez une erreur `401`, cliquez sur **Ajouter**, **Ajouter une attribution de rôle** et ajoutez le rôle **Développeur Azure AI** à votre utilisateur.
+    </li>
+
+    <li>
+      Configurez l'**URL cible du point de terminaison** en tant que `AZURE_SERVERLESS_MODELS_API_ENDPOINT`.
+
+      ```txt title=".env"
+      AZURE_SERVERLESS_MODELS_API_ENDPOINT=https://...models.ai.azure.com
+      ```
+    </li>
+
+    <li>
+      Naviguez vers **déploiements** et assurez-vous que votre LLM est déployé, puis copiez le nom des informations de déploiement, vous en aurez besoin dans le script.
+    </li>
+
+    <li>
+      Mettez à jour le champ `model` dans la fonction `script` pour correspondre au nom du modèle déployé dans votre ressource Azure.
+
+      ```js 'model: "azure_serverless:deployment-info-name"'
+      script({
+          model: "azure_serverless:deployment-info-name",
+          ...
+      })
+      ```
+    </li>
+  </ol>
+</Steps>
+
+#### Clé API
+
+<Steps>
+  <ol>
+    <li>
+      Ouvrez [https://ai.azure.com/](https://ai.azure.com/) et ouvrez la page **Déploiements**.
+    </li>
+
+    <li>
+      Déployez un **modèle de base** depuis le catalogue.
+      Vous pouvez utiliser l'option `Options de déploiement` -> `Serverless API` pour déployer un modèle en tant qu'API sans serveur.
+    </li>
+
+    <li>
+      Configurez l'**URL cible du point de terminaison** en tant que variable `AZURE_SERVERLESS_MODELS_API_ENDPOINT` et la clé dans
+      `AZURE_SERVERLESS_MODELS_API_KEY` dans le fichier `.env`\***\*.\*\***
+
+      ```txt title=".env"
+      AZURE_SERVERLESS_MODELS_API_ENDPOINT=https://...models.ai.azure.com
+      AZURE_SERVERLESS_MODELS_API_KEY=...
+      ```
+    </li>
+
+    <li>
+      Trouvez le nom du déploiement et utilisez-le dans votre script, `model: "azure_serverless_models:deployment-id"`.
+    </li>
+  </ol>
+</Steps>
+
+#### Prise en charge de plusieurs déploiements d'inférence
+
+Vous pouvez mettre à jour la variable `AZURE_SERVERLESS_MODELS_API_KEY` avec une liste de paires `deploymentid=key` pour prendre en charge plusieurs déploiements (chaque déploiement ayant une clé différente).
+
+```txt title=".env"
+AZURE_SERVERLESS_MODELS_API_KEY="
+model1=key1
+model2=key2
+model3=key3
+"
+```
+
+<LLMProviderFeatures provider="azure_serverless_models" />

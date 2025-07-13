@@ -21,3 +21,5 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 src/content/docs/glossary.temp.json
+
+public/genaiscript.d.ts

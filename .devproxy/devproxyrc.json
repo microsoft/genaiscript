@@ -1,0 +1,56 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/dev-proxy/main/schemas/v1.0.0/rc.schema.json",
+  "plugins": [
+    {
+      "name": "LatencyPlugin",
+      "enabled": true,
+      "pluginPath": "~appFolder/plugins/DevProxy.Plugins.dll",
+      "configSection": "apiLatencyPlugin",
+      "urlsToWatch": [
+        "http://api.ecs.eu/*"
+      ]
+    },
+    {
+      "name": "OpenAITelemetryPlugin",
+      "enabled": true,
+      "pluginPath": "~appFolder/plugins/DevProxy.Plugins.dll",
+      "configSection": "openAITelemetryPlugin"
+    },
+    {
+      "name": "CrudApiPlugin",
+      "enabled": true,
+      "pluginPath": "~appFolder/plugins/DevProxy.Plugins.dll",
+      "configSection": "feedbackApi",
+      "urlsToWatch": [
+        "http://api.ecs.eu/feedback"
+      ]
+    },
+    {
+      "name": "MarkdownReporter",
+      "enabled": true,
+      "pluginPath": "~appFolder/plugins/DevProxy.Plugins.dll"
+    }
+  ],
+  "urlsToWatch": [
+    "https://models.github.ai/inference/chat/completions*",
+    "http://localhost:11434"
+  ],
+  "feedbackApi": {
+    "$schema": "https://raw.githubusercontent.com/dotnet/dev-proxy/main/schemas/v1.0.0/crudapiplugin.schema.json",
+    "apiFile": "feedback-api.json"
+  },
+  "apiLatencyPlugin": {
+    "$schema": "https://raw.githubusercontent.com/dotnet/dev-proxy/main/schemas/v1.0.0/latencyplugin.schema.json",
+    "minMs": 200,
+    "maxMs": 500
+  },
+  "openAITelemetryPlugin": {
+    "$schema": "https://raw.githubusercontent.com/dotnet/dev-proxy/main/schemas/v1.0.0/openaitelemetryplugin.schema.json",
+    "currency": "USD",
+    "includeCosts": true,
+    "pricesFile": "prices.json"
+  },
+  "logLevel": "trace",
+  "newVersionNotification": "stable",
+  "showSkipMessages": true
+}

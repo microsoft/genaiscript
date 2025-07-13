@@ -1,14 +1,14 @@
 ---
 title: LM Studio
 sidebar:
-    order: 50
+  order: 50
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 The `lmstudio` provider connects to the [LMStudio](https://lmstudio.ai/) headless server.
 and allows to run local LLMs.
@@ -61,8 +61,8 @@ Find the model **API identifier** in the dialog of loaded models then use that i
 
 ```js '"lmstudio:llama-3.2-1b"'
 script({
-    model: "lmstudio:llama-3.2-1b-instruct",
-})
+  model: "lmstudio:llama-3.2-1b-instruct",
+});
 ```
 
 - GenAIScript uses the [LMStudio CLI](https://lmstudio.ai/docs/cli)

@@ -10,24 +10,25 @@ canonical_url: https://microsoft.github.io/genaiscript/blog/playground
 authors:
   - pelikhan
 cover:
-  alt: An 8-bit style image shows a sleek, futuristic web application interface on
+  alt:
+    An 8-bit style image shows a sleek, futuristic web application interface on
     a computer screen. It features icons for AI models like OpenAI o1 and
     DeepSeek V3 against a user-friendly backdrop. The corporate 5-color palette
     incorporates geometric shapes to create a digital playground theme, focusing
     on simplicity and iconic design without people or text.
   image: ./playground.png
-excerpt: The latest GenAIScript update introduces a self-hosted Playground app,
+excerpt:
+  The latest GenAIScript update introduces a self-hosted Playground app,
   making it easier to experiment with scripts via a user-friendly interface. It
   bridges the CLI and Visual Studio Code tools seamlessly. Additionally, support
   has expanded to include OpenAI's o1 models and DeepSeek V3, empowering users
   with versatile integrations for advanced scripting.
-
 ---
 
-import { Image } from "astro:assets"
-import src from "../../../assets/playground.png"
-import alt from "../../../assets/playground.png.txt?raw"
-import BlogNarration from "../../../components/BlogNarration.astro"
+import { Image } from "astro:assets";
+import src from "../../../assets/playground.png";
+import alt from "../../../assets/playground.png.txt?raw";
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -48,8 +49,8 @@ GenAIScript supports the various flavors of the [OpenAI o1](https://openai.com/o
 o1 is also available on [GitHub Models](https://github.com/marketplace/models/azure-openai/o1/playground)!
 
 ```js
-script({ model: "github:openai/o1" })
-$`Prove that the sum of the angles of a triangle is 180 degrees.`
+script({ model: "github:openai/o1" });
+$`Prove that the sum of the angles of a triangle is 180 degrees.`;
 ```
 
 ## DeepSeek
@@ -57,6 +58,6 @@ $`Prove that the sum of the angles of a triangle is 180 degrees.`
 GenAIScript supports [DeepSeek V3](https://www.deepseek.com/) through their OpenAI API.
 
 ```js
-script({ model: "deepseek:deepseek-chat" })
-$`Prove that the sum of the angles of a triangle is 180 degrees.`
+script({ model: "deepseek:deepseek-chat" });
+$`Prove that the sum of the angles of a triangle is 180 degrees.`;
 ```

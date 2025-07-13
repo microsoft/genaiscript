@@ -1,34 +1,36 @@
 ---
 title: Zine Meets Pull Requests (and more)
-description: A reflection about the influence of new image generator and their
-    impacts on the software development assets like pull requests.
+description:
+  A reflection about the influence of new image generator and their
+  impacts on the software development assets like pull requests.
 date: 2025-04-29
 cover:
-    alt: A screenshot of a pull request in github with a zine image.
-    image: ./zine-prs.png
+  alt: A screenshot of a pull request in github with a zine image.
+  image: ./zine-prs.png
 tags:
-    - image generators
-    - pull request visualization
-    - zines
-    - gpt-image-1
-    - software annotation
-    - sketchnotes
-excerpt: Recent progress in AI image generation offers new possibilities for
-    documenting and reviewing code changes. By using a two-step process—first
-    converting a pull request diff into a visual prompt through a language model
-    and then generating images from that prompt—developers can enhance their PRs
-    with engaging visual summaries. This approach borrows from the "zine" format,
-    blending technical detail with illustration. The workflow can streamline the
-    review process by making changes easier to grasp at a glance, potentially
-    increasing participation and understanding across teams. With continued
-    improvements in generative models, expect even richer ways to present and
-    discuss code in the near future.
+  - image generators
+  - pull request visualization
+  - zines
+  - gpt-image-1
+  - software annotation
+  - sketchnotes
+excerpt:
+  Recent progress in AI image generation offers new possibilities for
+  documenting and reviewing code changes. By using a two-step process—first
+  converting a pull request diff into a visual prompt through a language model
+  and then generating images from that prompt—developers can enhance their PRs
+  with engaging visual summaries. This approach borrows from the "zine" format,
+  blending technical detail with illustration. The workflow can streamline the
+  review process by making changes easier to grasp at a glance, potentially
+  increasing participation and understanding across teams. With continued
+  improvements in generative models, expect even richer ways to present and
+  discuss code in the near future.
 ---
 
-import { Code } from "@astrojs/starlight/components"
-import code from "../../../../../packages/sample/genaisrc/samples/prd-zine.genai.mts?raw"
-import sketchCode from "../../../../../packages/sample/genaisrc/samples/prd-sketch.genai.mts?raw"
-import BlogNarration from "../../../components/BlogNarration.astro"
+import { Code } from "@astrojs/starlight/components";
+import code from "../../../../../samples/sample/genaisrc/samples/prd-zine.genai.mts?raw";
+import sketchCode from "../../../../../samples/sample/genaisrc/samples/prd-sketch.genai.mts?raw";
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -50,7 +52,7 @@ The script below is a 2 step LLM transformation of the pull request into a zine:
 
 - use `gpt-4.1-mini` to transform the diff into a image generation prompt
 - use `gpt-image-1` to generate the image from the prompt
--   - a bit of plumbing to upload the generated image into a branch and add it to the pull request description
+- - a bit of plumbing to upload the generated image into a branch and add it to the pull request description
 
 <Code code={code} lang="ts" wrap title="prd-zine.genai.mts" />
 
@@ -75,7 +77,12 @@ The script below is a 2 step LLM transformation of the pull request into a zine:
 ["Sketchnotes"](https://sketchyideas.co/sketchnotes/) is another style of visual note-taking that combines hand-drawn elements with text to convey information.
 It is a great way to summarize a pull request and make it more engaging.
 
-<Code code={sketchCode} lang="ts" wrap title="prd-sketch.genai.mts" />
+<Code
+  code={sketchCode}
+  lang="ts"
+  wrap
+  title="prd-sketch.genai.mts"
+/>
 
 - https://github.com/microsoft/genaiscript/pull/1510
 

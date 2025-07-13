@@ -26,7 +26,7 @@ This allows you to interact with web pages, scrape data, and automate tasks.
 
 ```js
 const page = await host.browse(
-    "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv"
+    "https://github.com/microsoft/genaiscript/blob/main/samples/sample/src/penguins.csv"
 )
 const table = page.locator('table[data-testid="csv-table"]')
 const csv = parsers.HTMLToMarkdown(await table.innerHTML())
@@ -101,7 +101,7 @@ The video file can be further processed using video tools.
 
 ### `connectOverCDP`
 
-You can provide an enpoint that uses the [Chrome DevTools Protocol](https://playwright.dev/docs/api/class-browsertype#browser-type-connect-over-cdp) using the `connectOverCDP`.
+You can provide an endpoint that uses the [Chrome DevTools Protocol](https://playwright.dev/docs/api/class-browsertype#browser-type-connect-over-cdp) using the `connectOverCDP`.
 
 ```js
 const page = await host.browse(url, { connectOverCDP: "endpointurl" })

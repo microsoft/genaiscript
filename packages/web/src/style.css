@@ -1,116 +1,116 @@
 body {
-    height: 100%;
-    margin: 0 !important;
-    padding: 0 !important;
+  height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 .markdown-body pre div.snippet code.hljs {
-    display: block;
-    white-space: pre-wrap;
+  display: block;
+  white-space: pre-wrap;
 }
 
 vscode-form-helper .markdown-body {
-    margin: 0;
+  margin: 0;
 }
 
 vscode-form-helper .markdown-body p {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 div.readme {
-    margin: 0.5rem;
+  margin: 0.5rem;
 }
 
 div.snippet {
-    position: relative;
+  position: relative;
 }
 div.snippet .buttons {
-    position: absolute;
-    top: 0;
-    right: 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    margin-bottom: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  margin-bottom: 0;
 }
 div.snippet:hover .buttons {
-    opacity: 1;
+  opacity: 1;
 }
 .buttons vscode-button {
-    margin-left: 0.2rem;
-    cursor: pointer;
+  margin-left: 0.2rem;
+  cursor: pointer;
 }
 .buttons .ai-disclaimer {
-    vertical-align: top;
+  vertical-align: top;
 }
 span.logprobs {
-    color: white;
-    white-space: pre;
-    font-family: monospace;
-    margin-right: 0.2rem;
-    border-radius: 0.2rem;
-    cursor: pointer;
+  color: white;
+  white-space: pre;
+  font-family: monospace;
+  margin-right: 0.2rem;
+  border-radius: 0.2rem;
+  cursor: pointer;
 }
 table.toplogprobs {
-    display: inline-block;
-    padding: 0;
-    margin: 0;
-    border: solid 1px grey;
-    border-radius: 0.2rem;
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+  border: solid 1px grey;
+  border-radius: 0.2rem;
 }
 table.toplogprobs span.logprobs {
-    display: block;
-    margin-bottom: 0.2rem;
+  display: block;
+  margin-bottom: 0.2rem;
 }
 table.toplogprobs td {
-    border: none;
-    padding: 0;
+  border: none;
+  padding: 0;
 }
 .centered {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .dropzone {
-    cursor: pointer;
+  cursor: pointer;
 }
 .no-margins {
-    margin: 0 !important;
+  margin: 0 !important;
 }
 
 .vscode-body .markdown-body {
-    font-size: var(--vscode-font-size);
+  font-size: var(--vscode-font-size);
 }
 
 .vscode-form-wide {
-    height: unset;
-    min-width: min(100vw - 1.5rem, 65rem);
-    max-width: 100vw;
-    min-height: 16rem;
+  height: unset;
+  min-width: min(100vw - 1.5rem, 65rem);
+  max-width: 100vw;
+  min-height: 16rem;
 }
 
 .vscode-body span.ai-disclaimer {
-    font-size: 80%;
-    margin: 1rem;
-    margin-bottom: 1rem;
-    opacity: 0.8;
-    font-family: var(--vscode-font-family);
+  font-size: 80%;
+  margin: 1rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+  font-family: var(--vscode-font-family);
 }
 
 vscode-split-layout.trace-split-panel {
-    height: 80vh;
+  height: 80vh;
 }
 vscode-split-layout.trace-split-panel vscode-scrollable {
-    height: 80vh;
+  height: 80vh;
 }
 
 .vscode-body details.reasoning {
-    border: 1px dashed var(--vscode-editor-foreground);
-    padding: 0.5rem;
-    border-radius: 0.2rem;
-    margin-left: 0;
-    margin-bottom: 1.5rem;
+  border: 1px dashed var(--vscode-editor-foreground);
+  padding: 0.5rem;
+  border-radius: 0.2rem;
+  margin-left: 0;
+  margin-bottom: 1.5rem;
 }
 
 vscode-tabs.output {
-    min-height: 50vh;
+  min-height: 50vh;
 }

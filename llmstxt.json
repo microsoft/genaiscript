@@ -1,0 +1,8 @@
+{
+  "docs": {
+    "genaiscript": [
+      "https://microsoft.github.io/genaiscript/llms-full.txt",
+      "genaisrc/genaiscript.d.ts"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+name: genai translate docs
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - docs/src/content/docs/**/*.md
+      - docs/src/content/docs/**/*.mdx
+      - "!docs/src/content/docs/fr/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      models: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: build
+        run: pnpm build
+      - name: translate
+        run: node packages/cli/dist/src/index.js run mdtranslator "docs/src/content/docs/**/*" --out-output $GITHUB_STEP_SUMMARY -p github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: build
+        run: pnpm build
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: "docs/src/content/docs/**.md* docs/translations/*.json"
+          commit_message: "[genai] translated docs"
+          commit_user_name: "genaiscript"

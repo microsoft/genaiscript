@@ -1,8 +1,8 @@
-import * as vscode from "vscode"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import * as vscode from "vscode";
 
 export async function openUrlInTab(url: string) {
-    await vscode.commands.executeCommand(
-        "simpleBrowser.show",
-        vscode.Uri.parse(url, true)
-    )
+  await vscode.commands.executeCommand("simpleBrowser.show", vscode.Uri.parse(url, true));
 }

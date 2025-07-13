@@ -1,38 +1,34 @@
 name: GitHub Pages
 on:
-    workflow_dispatch:
-    push:
-        branches:
-            - main
-            - dev
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - dev
 #        tags:
 #            - "[0-9]+.[0-9]+.[0-9]+"
 permissions:
-    contents: write
+  contents: write
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-                  fetch-depth: 10
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
-            - run: yarn playwright install
-            - name: compile
-              run: yarn compile:action
-            - name: Build slides
-              run: yarn build:slides
-            - name: Build docs
-              run: yarn build:docs
-            - name: no jekyll
-              run: touch docs/dist/.nojekyll
-            - name: Deploy 🚀
-              uses: JamesIves/github-pages-deploy-action@v4.6.4
-              with:
-                  folder: docs/dist
-                  single-commit: true
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          fetch-depth: 10
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm install:playwright
+      - run: pnpm build
+      - name: no jekyll
+        run: touch docs/dist/.nojekyll
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.6.4
+        with:
+          folder: docs/dist
+          single-commit: true

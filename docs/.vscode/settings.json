@@ -1,6 +1,6 @@
 {
     "cSpell.words": ["genaiscript", "openai"],
-    "genaiscript.cli.path": "../packages/cli/built/genaiscript.cjs",
+    "genaiscript.cli.path": "../packages/cli/dist/src/index.js",
     // https://hideoo.dev/notes/starlight-paste-images-with-visual-studio-code
     // Enable pasting files into a Markdown editor to create Markdown links.
     "markdown.editor.filePaste.enabled": "smart",

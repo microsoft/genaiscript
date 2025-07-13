@@ -6,17 +6,22 @@ description: Learn how to automate the creation of SEO-optimized front matter fo
 keywords: SEO automation, front matter generation, markdown SEO, content optimization, metadata management
 ---
 
-import { Code, Steps } from '@astrojs/starlight/components';
-import importedCode from "../../../../genaisrc/frontmatter.genai.mjs?raw"
+import { Code, Steps } from "@astrojs/starlight/components";
+import importedCode from "../../../../genaisrc/frontmatter.genai.mjs?raw";
 
-Generating and maintaining good SEO front matter fields can be a tedious task. 
+Generating and maintaining good SEO front matter fields can be a tedious task.
 GenAIScript can help you automate this process.
 
 The script below will generate SEO information
-and update the existing file. The script uses a custom merge strategy 
+and update the existing file. The script uses a custom merge strategy
 to merge the new front matter with the existing front matter.
 
-<Code code={importedCode} wrap={true} lang="js" title="slides.genai.mjs" />
+<Code
+  code={importedCode}
+  wrap={true}
+  lang="js"
+  title="slides.genai.mjs"
+/>
 
 ## Batching over all files
 

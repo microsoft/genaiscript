@@ -1,3 +1,6 @@
-import _sanitize from "sanitize-filename"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-export const sanitizeFilename = _sanitize
+import _sanitize from "sanitize-filename";
+
+export const sanitizeFilename = _sanitize;

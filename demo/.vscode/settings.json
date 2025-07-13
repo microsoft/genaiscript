@@ -1,6 +1,6 @@
 {
     "cSpell.enabled": false,
-    "genaiscript.cli.path": "../packages/cli/built/genaiscript.cjs",
+    "genaiscript.cli.path": "../packages/cli/dist/src/index.js",
     "genaiscript.languageChatModels.preferred": true,
     "genaiscript.languageChatModelsProvider": true
 }
