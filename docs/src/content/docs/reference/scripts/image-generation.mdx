@@ -44,3 +44,77 @@ The `image` object is an image file that can be passed around for further proces
 ```js
 env.output.image(image.filename)
 ```
+
+## Image editing and variations
+
+**New:** `generateImage` now supports image editing and variations by providing an existing image along with a text prompt. This enables you to modify existing images or create variations.
+
+### Edit an existing image
+
+Use the `image` parameter with `type: "edit"` to modify an existing image:
+
+```js "generateImage" wrap
+const imageFile = env.files[0] // or load from file
+const { image, revisedPrompt } = await generateImage(
+    "Transform this into a futuristic cyberpunk scene",
+    {
+        image: imageFile,
+        type: "edit",
+        model: "gpt-image-1",
+        quality: "high",
+        size: "1024x1024"
+    }
+)
+```
+
+### Create image variations
+
+Use `type: "variation"` to create variations of an existing image:
+
+```js "generateImage" wrap
+const imageFile = env.files[0]
+const { image, revisedPrompt } = await generateImage(
+    "Make this more artistic and stylized", // Optional prompt
+    {
+        image: imageFile,
+        type: "variation",
+        model: "gpt-image-1",
+        quality: "high"
+    }
+)
+```
+
+For variations, the prompt is optional. When omitted, creates pure algorithmic variations:
+
+```js "generateImage" wrap
+const { image } = await generateImage("", {
+    image: imageFile,
+    type: "variation",
+    model: "gpt-image-1"
+})
+```
+
+### Multiple images
+
+You can provide multiple images as input:
+
+```js "generateImage" wrap
+const images = [env.files[0], env.files[1]]
+const { image, revisedPrompt } = await generateImage(
+    "Combine these images into one composition",
+    {
+        image: images,
+        type: "edit",
+        model: "gpt-image-1"
+    }
+)
+```
+
+### Supported image formats
+
+The `image` parameter accepts various formats:
+- `WorkspaceFile` objects (from `env.files`)
+- `Buffer` objects
+- `Uint8Array` data
+- Data URI strings
+- Arrays of any of the above

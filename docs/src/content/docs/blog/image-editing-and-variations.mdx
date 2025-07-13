@@ -1,0 +1,200 @@
+---
+title: Image Editing and Variations with GenAI
+description: Enhanced generateImage function now supports image editing and variations with OpenAI's gpt-image-1 model
+author: pelikhan
+date: 2025-01-13
+cover:
+  alt: A stylized 8-bit graphic showing image transformation process with three stages - an original image, an arrow indicating transformation, and a modified result. The design uses geometric shapes and flat corporate colors, representing the new image editing capabilities in GenAI.
+  image: ./image-editing-and-variations.png
+tags:
+  - image editing
+  - image variations
+  - gpt-image-1
+  - openai
+  - azure ai foundry
+excerpt: The generateImage function now supports image editing and variations! You can now provide an existing image along with a text prompt to edit, modify, or create variations of images using OpenAI's gpt-image-1 model. This opens up powerful new workflows for image transformation and creative exploration.
+
+---
+import BlogNarration from "../../../components/BlogNarration.astro"
+
+<BlogNarration />
+
+We've significantly enhanced the `generateImage` function to support image editing and variations! You can now provide an existing image along with a text prompt to edit, modify, or create variations of images using OpenAI's `gpt-image-1` model.
+
+## What's New
+
+The `generateImage` function now accepts an optional `image` parameter that enables three powerful workflows:
+
+### 1. **Text-to-Image Generation** (existing)
+The original functionality remains unchanged - generate images from text prompts:
+
+```js wrap
+const { image, revisedPrompt } = await generateImage(
+    "A beautiful sunset over mountains",
+    {
+        model: "gpt-image-1",
+        quality: "high",
+        size: "1024x1024"
+    }
+)
+```
+
+### 2. **Image Editing** (new)
+Transform existing images with descriptive prompts:
+
+```js wrap
+const imageFile = env.files[0]
+const { image, revisedPrompt } = await generateImage(
+    "Transform this into a futuristic cyberpunk scene with neon lights",
+    {
+        image: imageFile,
+        type: "edit",
+        model: "gpt-image-1",
+        quality: "high",
+        size: "1024x1024"
+    }
+)
+```
+
+### 3. **Image Variations** (new)
+Create variations of existing images with optional guidance:
+
+```js wrap
+// Guided variation
+const { image } = await generateImage(
+    "Make this more artistic and stylized",
+    {
+        image: imageFile,
+        type: "variation",
+        model: "gpt-image-1",
+        quality: "high"
+    }
+)
+
+// Pure algorithmic variation (no prompt)
+const { image } = await generateImage("", {
+    image: imageFile,
+    type: "variation",
+    model: "gpt-image-1"
+})
+```
+
+## Example Scripts
+
+Here are two complete examples demonstrating the new capabilities:
+
+### Image Editing Script
+
+```js title="editimage.genai.mts" wrap
+script({
+    title: "Edit Image with GenAI",
+    description: "Transform images with descriptive prompts",
+    model: "gpt-image-1",
+    files: "src/robots.jpg",
+})
+
+const { output } = env
+const imageFile = env.files[0]
+
+const { image, revisedPrompt } = await generateImage(
+    "Transform this image into a futuristic cyberpunk scene with neon lights and a dark cityscape background",
+    {
+        image: imageFile,
+        type: "edit",
+        model: "gpt-image-1",
+        quality: "high",
+        size: "1024x1024"
+    }
+)
+
+await output.image(image.filename)
+if (revisedPrompt) {
+    output.fence(revisedPrompt, "markdown")
+}
+```
+
+### Image Variations Script
+
+```js title="variationimage.genai.mts" wrap
+script({
+    title: "Create Image Variations",
+    description: "Generate multiple variations of an image",
+    model: "gpt-image-1",
+    files: "src/robots.jpg",
+})
+
+const { output } = env
+const imageFile = env.files[0]
+
+// Guided variation
+const { image: variation1 } = await generateImage(
+    "Make this image more artistic and stylized",
+    {
+        image: imageFile,
+        type: "variation",
+        model: "gpt-image-1",
+        quality: "high"
+    }
+)
+
+// Pure algorithmic variation
+const { image: variation2 } = await generateImage("", {
+    image: imageFile,
+    type: "variation",
+    model: "gpt-image-1"
+})
+
+await output.image(variation1.filename)
+await output.image(variation2.filename)
+```
+
+## Multiple Images Support
+
+The function now supports multiple images as input, allowing for complex composition and editing workflows:
+
+```js wrap
+const images = [env.files[0], env.files[1]]
+const { image, revisedPrompt } = await generateImage(
+    "Combine these images into a single artistic composition",
+    {
+        image: images,
+        type: "edit",
+        model: "gpt-image-1",
+        quality: "high"
+    }
+)
+```
+
+## Supported Image Formats
+
+The `image` parameter accepts various formats:
+- `WorkspaceFile` objects (from `env.files`)
+- `Buffer` objects
+- `Uint8Array` data
+- Data URI strings
+- Arrays of any of the above
+
+## Technical Implementation
+
+Under the hood, the function intelligently routes requests to the appropriate OpenAI endpoints:
+- **Image editing**: Uses `/images/edits` endpoint with FormData
+- **Image variations**: Uses `/images/variations` endpoint  
+- **Text-to-image**: Uses `/images/generations` endpoint (unchanged)
+
+This works with both OpenAI's API and Azure OpenAI services, maintaining full compatibility across platforms.
+
+## Use Cases
+
+This enhancement opens up exciting new possibilities:
+
+- **Design iteration**: Transform logos, icons, and graphics
+- **Creative exploration**: Generate artistic variations of existing images
+- **Content adaptation**: Modify images for different contexts or styles
+- **Asset transformation**: Convert between different artistic styles
+- **Rapid prototyping**: Quickly explore visual concepts
+
+## Backward Compatibility
+
+All existing `generateImage` calls continue to work without any changes. The new image editing and variation features are opt-in through the optional `image` and `type` parameters.
+
+Try out these new capabilities in your GenAI scripts and discover new creative workflows!
