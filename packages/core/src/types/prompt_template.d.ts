@@ -4631,6 +4631,11 @@ interface ImageGenerationOptions extends ImageTransformOptions, RetryOptions {
      * For gpt-image-1 only, the type of image format to generate.
      */
     outputFormat?: "png" | "jpeg" | "webp"
+
+    /**
+     * Optional image input for editing/modification. When provided, the prompt will be used to modify this image.
+     */
+    image?: BufferLike
 }
 
 interface TranscriptionOptions extends CacheOptions, RetryOptions {

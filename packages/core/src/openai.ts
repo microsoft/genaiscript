@@ -58,6 +58,7 @@ import { serializeChunkChoiceToLogProbs } from "./logprob"
 import { TraceOptions } from "./trace"
 import { LanguageModelConfiguration } from "./server/messages"
 import prettyBytes from "pretty-bytes"
+import { resolveBufferLike } from "./bufferlike"
 import {
     deleteUndefinedValues,
     isEmptyString,
@@ -787,10 +788,12 @@ export async function OpenAIImageGeneration(
         quality,
         style,
         outputFormat,
+        image,
         ...rest
     } = req
     const { trace } = options || {}
-    let url = `${cfg.base}/images/generations`
+    const isImageEdit = !!image
+    let url = `${cfg.base}/images/${isImageEdit ? "edits" : "generations"}`
 
     const isDallE = /^dall-e/i.test(model)
     const isDallE2 = /^dall-e-2/i.test(model)
@@ -843,33 +846,84 @@ export async function OpenAIImageGeneration(
         size: body.size,
     })
 
-    if (cfg.type === "azure") {
-        const version = cfg.version || AZURE_OPENAI_API_VERSION
-        trace?.itemValue(`version`, version)
-        url =
-            trimTrailingSlash(cfg.base) +
-            "/" +
-            body.model +
-            `/images/generations?api-version=${version}`
-        delete body.model
-    }
-
     const fetch = await createFetch(options)
     try {
         logInfo(
             `generate image with ${cfg.provider}:${cfg.model} (this may take a while)`
         )
-        const freq = {
-            method: "POST",
-            headers: {
-                ...getConfigHeaders(cfg),
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
+        
+        let freq: any
+        if (isImageEdit) {
+            // Handle image editing request using FormData
+            const imageBuffer = await resolveBufferLike(image)
+            if (!imageBuffer) {
+                return {
+                    image: undefined,
+                    error: "Failed to resolve image buffer",
+                }
+            }
+            
+            const formData = new FormData()
+            formData.append('image', new Blob([imageBuffer], { type: 'image/png' }), 'image.png')
+            formData.append('prompt', prompt)
+            if (body.size) formData.append('size', body.size)
+            if (body.quality) formData.append('quality', body.quality)
+            if (body.style) formData.append('style', body.style)
+            if (body.output_format) formData.append('output_format', body.output_format)
+            formData.append('response_format', 'b64_json')
+            
+            // For Azure OpenAI, we need to handle the model in the URL
+            if (cfg.type === "azure") {
+                const version = cfg.version || AZURE_OPENAI_API_VERSION
+                trace?.itemValue(`version`, version)
+                url = `${trimTrailingSlash(cfg.base)}/${model}/images/edits?api-version=${version}`
+            } else {
+                formData.append('model', model)
+            }
+            
+            freq = {
+                method: "POST",
+                headers: {
+                    ...getConfigHeaders(cfg),
+                    // Don't set Content-Type for FormData - browser will set it automatically
+                },
+                body: formData,
+            }
+        } else {
+            // Handle image generation request using JSON
+            if (cfg.type === "azure") {
+                const version = cfg.version || AZURE_OPENAI_API_VERSION
+                trace?.itemValue(`version`, version)
+                url =
+                    trimTrailingSlash(cfg.base) +
+                    "/" +
+                    body.model +
+                    `/images/generations?api-version=${version}`
+                delete body.model
+            }
+            
+            freq = {
+                method: "POST",
+                headers: {
+                    ...getConfigHeaders(cfg),
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            }
         }
         // TODO: switch back to cross-fetch in the future
         trace?.itemValue(`url`, `[${url}](${url})`)
-        traceFetchPost(trace, url, freq.headers, body)
+        if (isImageEdit) {
+            traceFetchPost(trace, url, freq.headers, { 
+                image: '<image data>', 
+                prompt, 
+                size: body.size, 
+                quality: body.quality, 
+                style: body.style 
+            })
+        } else {
+            traceFetchPost(trace, url, freq.headers, body)
+        }
         const res = await fetch(url, freq as any)
         dbg(`response: %d %s`, res.status, res.statusText)
         trace?.itemValue(`status`, `${res.status} ${res.statusText}`)

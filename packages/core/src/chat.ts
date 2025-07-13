@@ -10,6 +10,7 @@ import {
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
+import { BufferLike } from "./bufferlike"
 import {
     arrayify,
     assert,
@@ -168,6 +169,7 @@ export type CreateImageRequest = {
     size?: string
     style?: string
     outputFormat?: "png" | "jpeg" | "webp"
+    image?: BufferLike // Optional image input for editing/modification
 }
 
 export interface ImageGenerationUsage {
