@@ -6,5 +6,11 @@
 import { installGlobals } from "@genaiscript/core";
 import { cli } from "./cli.js";
 
-installGlobals();
-await cli();
+// Export the global functions for import support
+export { script, $, def } from "@genaiscript/runtime";
+
+// Run CLI if this is the main entry point
+if (import.meta.url === `file://${process.argv[1]}`) {
+    installGlobals();
+    await cli();
+}
