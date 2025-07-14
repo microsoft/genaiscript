@@ -284,6 +284,12 @@ export function setHost(h: Host) {
   host = h;
 }
 export let runtimeHost: RuntimeHost;
+
+export function resolveRuntimeHost(): RuntimeHost {
+  checkRuntime();
+  return runtimeHost
+}
+
 /**
  * Sets the runtime host instance and updates the global host reference.
  *
