@@ -5871,6 +5871,25 @@
   | "transcribe"
   | "speak"
 >;
+
+ type PromptAmbientScript = (options: PromptArgs) => void;
+
+ type PromptAmbientImportTemplate = (
+  files: ElementOrArray<string | WorkspaceFile>,
+  args?: Record<string, ImportTemplateArgumentType>,
+  options?: ImportTemplateOptions,
+) => void;
+
+ type PromptAmbientMessage = (
+  strings: TemplateStringsArray,
+  ...args: any[]
+) => PromptTemplateString;
+
+ type PromptAmbientDef = (
+  name: string,
+  body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput | Fenced | RunPromptResult,
+  options?: DefOptions,
+) => string;
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 

@@ -5871,3 +5871,22 @@ export type RuntimePromptContext = Pick<
   | "transcribe"
   | "speak"
 >;
+
+export type PromptAmbientScript = (options: PromptArgs) => void;
+
+export type PromptAmbientImportTemplate = (
+  files: ElementOrArray<string | WorkspaceFile>,
+  args?: Record<string, ImportTemplateArgumentType>,
+  options?: ImportTemplateOptions,
+) => void;
+
+export type PromptAmbientMessage = (
+  strings: TemplateStringsArray,
+  ...args: any[]
+) => PromptTemplateString;
+
+export type PromptAmbientDef = (
+  name: string,
+  body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput | Fenced | RunPromptResult,
+  options?: DefOptions,
+) => string;

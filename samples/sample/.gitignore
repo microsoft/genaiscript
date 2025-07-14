@@ -3,3 +3,6 @@ temp
 genaisrc/foobar_*
 *.log
 .genaiscript/
+genaiscript.d.ts
+tsconfig.json
+jsconfig.json
