@@ -38,7 +38,8 @@ In this blog post, we'll dive into a practical example showcasing how to leverag
 The following snippet provides a concise and effective way to analyze a web page's content using GenAIScript:
 
 ```javascript
-const page = await host.browse("https://bing.com");
+import { browse } from "@genaiscript/plugin-playwright";
+const page = await browse("https://bing.com");
 const screenshot = await page.screenshot();
 defImages(screenshot, { maxWidth: 800 });
 const text = parsers.HTMLtoMarkdown(await page.content());

@@ -1,3 +1,4 @@
+import { browse } from "@genaiscript/plugin-playwright";
 script({
   responseSchema: {
     type: "array",
@@ -18,7 +19,7 @@ script({
   },
 });
 
-const page = await host.browse(
+const page = await browse(
   "https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/concepts/models",
   { waitUntil: "networkidle" },
 );

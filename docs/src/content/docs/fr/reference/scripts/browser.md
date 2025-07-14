@@ -25,7 +25,9 @@ GenAIScript fournit une API simplifiée pour interagir avec un navigateur sans i
 Cela vous permet d'interagir avec des pages Web, d'extraire des données et d'automatiser des tâches.
 
 ```js
-const page = await host.browse(
+import { browse } from "@genaiscript/plugin-playwright"
+
+const page = await browse(
     "https://github.com/microsoft/genaiscript/blob/main/samples/sample/src/penguins.csv"
 )
 const table = page.locator('table[data-testid="csv-table"]')
@@ -56,12 +58,12 @@ Si vous voyez ce message d'erreur, vous devrez peut-être installer les dépenda
 ╚═════════════════════════════════════════════════════════════════════════╝
 ```
 
-## `host.browse`
+## `browse`
 
 Cette fonction lance une nouvelle instance de navigateur et ouvre éventuellement une page. Les pages sont automatiquement fermées à la fin du script.
 
 ```js
-const page = await host.browse(url)
+const page = await browse(url)
 ```
 
 ### `incognito`
@@ -69,7 +71,7 @@ const page = await host.browse(url)
 Le paramètre `incognito: true` créerait un contexte de navigateur isolé et non persistant. Les contextes de navigateur non persistants n'écrivent aucune donnée de navigation sur le disque.
 
 ```js
-const page = await host.browse(url, { incognito: true })
+const page = await browse(url, { incognito: true })
 ```
 
 ### `recordVideo`
@@ -78,13 +80,13 @@ Playwright peut enregistrer une vidéo de chaque page de la session de navigatio
 L'enregistrement vidéo active également le mode `incognito`, car cela nécessite la création d'un nouveau contexte de navigation.
 
 ```js
-const page = await host.browse(url, { recordVideo: true })
+const page = await browse(url, { recordVideo: true })
 ```
 
 Par défaut, la taille de la vidéo sera de 800x600, mais vous pouvez la modifier en fournissant les dimensions dans l'option `recordVideo`.
 
 ```js
-const page = await host.browse(url, {
+const page = await browse(url, {
     recordVideo: { width: 500, height: 500 },
 })
 ```
@@ -104,7 +106,7 @@ Le fichier vidéo peut être traité ultérieurement à l'aide d'outils vidéo.
 Vous pouvez fournir un point de terminaison qui utilise le [Chrome DevTools Protocol](https://playwright.dev/docs/api/class-browsertype#browser-type-connect-over-cdp) en utilisant `connectOverCDP`.
 
 ```js
-const page = await host.browse(url, { connectOverCDP: "endpointurl" })
+const page = await browse(url, { connectOverCDP: "endpointurl" })
 ```
 
 ## Locateurs
@@ -154,5 +156,5 @@ Vous pouvez importer `playwright` et caster l'instance pour revenir à l'objet P
 ```js
 import { Page } from "playwright"
 
-const page = await host.browse(url) as Page
+const page = await browse(url) as Page
 ```

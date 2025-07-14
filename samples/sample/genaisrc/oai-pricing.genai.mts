@@ -1,3 +1,4 @@
+import { browse } from "@genaiscript/plugin-playwright";
 const urls = {
   openai: {
     url: "https://openai.com/api/pricing/",
@@ -16,7 +17,7 @@ for (const [provider, { url, text }] of Object.entries(urls)) {
   console.log(url);
   let md = text;
   if (!md) {
-    const page = await host.browse(url, {});
+    const page = await browse(url, {});
     await delay(1000);
     const html = await page.content();
     const tables = await HTML.convertTablesToJSON(html, {

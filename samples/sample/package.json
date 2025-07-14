@@ -16,6 +16,7 @@
     "@genaiscript/plugin-mermaid": "workspace:*",
     "@genaiscript/plugin-z3": "workspace:*",
     "@genaiscript/runtime": "workspace:*",
+    "@genaiscript/plugin-playwright": "workspace:*",
     "ini": "^5.0.0",
     "uuid": "^11.1.0"
   },

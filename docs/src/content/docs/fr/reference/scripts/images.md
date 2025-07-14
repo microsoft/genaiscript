@@ -38,7 +38,7 @@ La fonction `defImages` prend également en charge [Buffer](https://nodejs.org/a
 Cet exemple prend une capture d'écran de bing.com et l'ajoute aux images.
 
 ```js wrap
-const page = await host.browse("https://bing.com")
+const page = await browse("https://bing.com")
 const screenshot = await page.screenshot() // returns a node.js Buffer
 defImages(screenshot)
 ```

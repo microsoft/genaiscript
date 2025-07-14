@@ -1,3 +1,4 @@
+import { browse } from "@genaiscript/plugin-playwright";
 script({
   model: "small",
   group: "browser",
@@ -10,7 +11,7 @@ script({
   },
 });
 const { headless, recordVideo } = env.vars;
-const page = await host.browse(
+const page = await browse(
   "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv",
   { headless },
 );

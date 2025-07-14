@@ -1,4 +1,4 @@
-const page = await host.browse("https://bing.com");
+const page = await browse("https://bing.com");
 const screenshot = await page.screenshot();
 defImages(screenshot);
 const text = await parsers.HTMLToMarkdown(await page.content());

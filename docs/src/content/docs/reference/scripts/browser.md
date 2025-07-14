@@ -25,7 +25,9 @@ GenAIScript provides a simplified API to interact with a headless browser using 
 This allows you to interact with web pages, scrape data, and automate tasks.
 
 ```js
-const page = await host.browse(
+import { browse } from "@genaiscript/plugin-playwright"
+
+const page = await browse(
     "https://github.com/microsoft/genaiscript/blob/main/samples/sample/src/penguins.csv"
 )
 const table = page.locator('table[data-testid="csv-table"]')
@@ -33,6 +35,12 @@ const csv = parsers.HTMLToMarkdown(await table.innerHTML())
 def("DATA", csv)
 $`Analyze DATA.`
 ```
+
+:::note
+
+The Playwright integration was moved to a separate package `@genaiscript/plugin-playwright` in version 2.3.0.
+
+:::
 
 ## Installation
 
@@ -56,12 +64,13 @@ If you see this error message, you might have to install the dependencies manual
 ╚═════════════════════════════════════════════════════════════════════════╝
 ```
 
-## `host.browse`
+## `browse`
 
 This function launches a new browser instance and optionally navigates to a page. The pages are automatically closed when the script ends.
 
 ```js
-const page = await host.browse(url)
+import { browse } from "@genaiscript/plugin-playwright"
+const page = await browse(url)
 ```
 
 ### `incognito``
@@ -69,7 +78,7 @@ const page = await host.browse(url)
 Setting `incognito: true` will create a isolated non-persistent browser context. Non-persistent browser contexts don't write any browsing data to disk.
 
 ```js
-const page = await host.browse(url, { incognito: true })
+const page = await browse(url, { incognito: true })
 ```
 
 ### `recordVideo`
@@ -78,13 +87,13 @@ Playwright can record a video of each page in the browser session. You can enabl
 Recording video also implies `incognito` mode as it requires creating a new browsing context.
 
 ```js
-const page = await host.browse(url, { recordVideo: true })
+const page = await browse(url, { recordVideo: true })
 ```
 
 By default, the video size will be 800x600 but you can change it by passing the sizes as the `recordVideo` option.
 
 ```js
-const page = await host.browse(url, {
+const page = await browse(url, {
     recordVideo: { width: 500, height: 500 },
 })
 ```
@@ -104,7 +113,7 @@ The video file can be further processed using video tools.
 You can provide an endpoint that uses the [Chrome DevTools Protocol](https://playwright.dev/docs/api/class-browsertype#browser-type-connect-over-cdp) using the `connectOverCDP`.
 
 ```js
-const page = await host.browse(url, { connectOverCDP: "endpointurl" })
+const page = await browse(url, { connectOverCDP: "endpointurl" })
 ```
 
 ## Locators
@@ -154,5 +163,5 @@ You can import `playwright` and cast the instance back to the native Playwright 
 ```js
 import { Page } from "playwright"
 
-const page = await host.browse(url) as Page
+const page = await browse(url) as Page
 ```

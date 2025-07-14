@@ -1,4 +1,5 @@
 import { delay, uniq } from "@genaiscript/runtime";
+import { browse } from "@genaiscript/plugin-playwright";
 
 /**
  * In order to run this script, you will need the following:
@@ -47,7 +48,7 @@ const hashtags = [
 ];
 
 // get some shows description
-const listPage = await host.browse(
+const listPage = await browse(
   "https://learn.microsoft.com/en-us/shows/mr-maedas-cozy-ai-kitchen/",
   { incognito: true },
 );

@@ -1,9 +1,10 @@
+import { browse } from "@genaiscript/plugin-playwright";
 const url =
   env.vars.url ||
   "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv";
 
 // open a webpage with data
-const page = await host.browse(url);
+const page = await browse(url);
 // locate the HTML table with data
 const table = page.getByTestId("csv-table");
 // take a screenshot

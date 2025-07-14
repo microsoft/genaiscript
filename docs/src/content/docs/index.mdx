@@ -357,7 +357,8 @@ const pages = await retrieval.webSearch("what are the latest news about AI?");
 Browse and scrape the web with [Playwright](./reference/scripts/browse/).
 
 ```js
-const page = await host.browse("https://...");
+import { browse } from "@genaiscript/plugin-playwright";
+const page = await browse("https://...");
 const table = await page.locator("table[...]").innerHTML();
 def("TABLE", await HTML.convertToMarkdown(table));
 ```

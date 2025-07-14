@@ -1194,6 +1194,9 @@ importers:
       '@genaiscript/plugin-mermaid':
         specifier: workspace:*
         version: link:../../packages/plugin-mermaid
+      '@genaiscript/plugin-playwright':
+        specifier: workspace:*
+        version: link:../../packages/plugin-playwright
       '@genaiscript/plugin-z3':
         specifier: workspace:*
         version: link:../../packages/plugin-z3
