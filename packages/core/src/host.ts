@@ -287,6 +287,7 @@ export let runtimeHost: RuntimeHost;
 
 export function resolveRuntimeHost(): RuntimeHost {
   checkRuntime();
+  if (!runtimeHost) throw new Error("Runtime host not initialized");
   return runtimeHost
 }
 
