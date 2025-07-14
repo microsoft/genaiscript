@@ -18,8 +18,6 @@ import type { TokenCredential } from "@azure/identity";
 import type { McpClientManager } from "./mcpclient.js";
 import type { ResourceManager } from "./mcpresource.js";
 import type {
-  BrowserPage,
-  BrowseSessionOptions,
   ContainerHost,
   ContainerOptions,
   ContentSafety,
@@ -238,21 +236,9 @@ export interface RuntimeHost extends Host {
   ): Promise<PythonRuntime>;
 
   /**
-   * Launches a browser page
-   * @param url
-   * @param options
-   */
-  browse(url: string, options?: BrowseSessionOptions & TraceOptions): Promise<BrowserPage>;
-
-  /**
    * Cleanup all temporary containers.
    */
   removeContainers(): Promise<void>;
-
-  /**
-   * Cleanup all temporary browsers.
-   */
-  removeBrowsers(): Promise<void>;
 
   /**
    * Asks the user to select between options

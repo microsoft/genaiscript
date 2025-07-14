@@ -9,13 +9,13 @@ import { assert } from "./assert.js";
 import { arrayify } from "./cleaners.js";
 import { runtimeHost } from "./host.js";
 import { bingSearch, tavilySearch } from "./websearch.js";
-import { RunPromptContextNode, createChatGenerationContext } from "./runpromptcontext.js";
-import { GenerationOptions } from "./generation.js";
+import { type RunPromptContextNode, createChatGenerationContext } from "./runpromptcontext.js";
+import type { GenerationOptions } from "./generation.js";
 import { fuzzSearch } from "./fuzzsearch.js";
 import { grepSearch } from "./grep.js";
 import { resolveFileContents, toWorkspaceFile } from "./file.js";
 import { vectorCreateIndex, vectorSearch } from "./vectorsearch.js";
-import { Project } from "./server/messages.js";
+import type { Project } from "./server/messages.js";
 import { shellParse } from "./shell.js";
 import { PLimitPromiseQueue } from "./concurrency.js";
 import { proxifyEnvVars } from "./vars.js";
@@ -326,14 +326,6 @@ export async function createPromptContext(
       const res = await runtimeHost.exec(undefined, command, args, {
         ...(options || {}),
         trace,
-      });
-      return res;
-    },
-    browse: async (url, options) => {
-      // Browse a URL and return the result
-      const res = await runtimeHost.browse(url, {
-        trace,
-        ...(options || {}),
       });
       return res;
     },

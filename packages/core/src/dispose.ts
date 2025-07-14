@@ -14,10 +14,10 @@ import type { ElementOrArray } from "./types.js";
  *
  * Logs errors encountered during disposal using `logError` and the provided trace's error method.
  */
-export async function dispose(disposables: ElementOrArray<AsyncDisposable>, options: TraceOptions) {
+export async function dispose(disposables: ElementOrArray<AsyncDisposable>, options?: TraceOptions) {
   const { trace } = options || {};
   for (const disposable of arrayify(disposables)) {
-    if (disposable !== undefined && disposable[Symbol.asyncDispose]) {
+    if (typeof disposable === "object" && disposable[Symbol.asyncDispose]) {
       try {
         await disposable[Symbol.asyncDispose]();
       } catch (e) {

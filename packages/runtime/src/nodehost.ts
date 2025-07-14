@@ -49,8 +49,6 @@ import {
   isAzureContentSafetyClientConfigured,
 } from "@genaiscript/core";
 import type {
-  BrowserPage,
-  BrowseSessionOptions,
   CancellationOptions,
   ContainerHost,
   ContainerOptions,
@@ -75,7 +73,6 @@ import type {
   LanguageModel,
 } from "@genaiscript/core";
 import { DockerManager } from "./docker.js";
-import { BrowserManager } from "./playwright.js";
 import { uniq } from "es-toolkit";
 import { shellConfirm, shellInput, shellSelect } from "./input.js";
 import { areModelsSame } from "@genaiscript/core";
@@ -108,7 +105,6 @@ export class NodeHost extends EventTarget implements RuntimeHost {
   readonly server = new NodeServerManager();
   readonly workspace = createWorkspaceFileSystem();
   readonly containers = new DockerManager();
-  readonly browsers = new BrowserManager();
   private readonly _modelAliases: Record<
     "default" | "cli" | "env" | "config" | "script",
     Omit<ModelConfigurations, "large" | "small" | "vision" | "embeddings">
@@ -183,7 +179,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     this._config = undefined;
   }
 
-  clearModelAlias(source: "cli" | "env" | "config" | "script") {
+  clearModelAlias(source: "cli" | "env" | "config" | "script"): void {
     dbg(`clearing modelAlias for source: ${source}`);
     this._modelAliases[source] = {};
   }
@@ -493,7 +489,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       windowsPathsNoEscape: true,
       ignore: uniq([...arrayify(ignore), ...negatives]),
       dot: true,
-    }
+    };
     dbg(`glob: %O`, globOptions);
     let files = await glob(positives, globOptions);
     if (applyGitIgnore !== false) {
@@ -532,10 +528,6 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       throw new NotSupportedError(`content safety ${id} not supported`);
     }
     return undefined;
-  }
-
-  async browse(url: string, options?: BrowseSessionOptions & TraceOptions): Promise<BrowserPage> {
-    return this.browsers.browse(url, options);
   }
 
   /**
@@ -625,17 +617,12 @@ export class NodeHost extends EventTarget implements RuntimeHost {
    * @param options
    */
   async container(options: ContainerOptions & TraceOptions): Promise<ContainerHost> {
-    return await this.containers.startContainer(options);
+    return this.containers.startContainer(options);
   }
 
   async removeContainers(): Promise<void> {
     dbg(`removing all containers`);
     await this.containers.stopAndRemove();
-  }
-
-  async removeBrowsers(): Promise<void> {
-    dbg(`removing all browsers`);
-    await this.browsers.stopAndRemove();
   }
 
   /**

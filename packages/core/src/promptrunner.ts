@@ -36,6 +36,7 @@ import type {
 } from "./types.js";
 import { genaiscriptDebug } from "./debug.js";
 import debug from "debug";
+import { dispose } from "./dispose.js";
 const runnerDbg = genaiscriptDebug("promptrunner");
 const dbg = genaiscriptDebug("env");
 
@@ -265,7 +266,7 @@ export async function runTemplate(
       fallbackTools,
       metadata,
       stats: runStats,
-      renderChatMessages
+      renderChatMessages,
     };
     const chatResult = await executeChatSession(
       connection.configuration,
@@ -350,8 +351,8 @@ export async function runTemplate(
     return res;
   } finally {
     // Cleanup any resources like running containers or browsers
+    await dispose(Object.values(runtimeHost.userState) as AsyncDisposable[], options);
     runtimeHost.userState = {};
     await runtimeHost.removeContainers();
-    await runtimeHost.removeBrowsers();
   }
 }

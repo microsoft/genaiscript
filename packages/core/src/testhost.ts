@@ -10,29 +10,29 @@
 // Import necessary modules and functions from various files
 import { readFile, writeFile } from "fs/promises";
 import { ensureDir } from "./fs.js";
-import {
+import type {
   ServerManager,
   UTF8Decoder,
   UTF8Encoder,
-  setRuntimeHost,
   RuntimeHost,
   ModelConfigurations,
   ModelConfiguration,
 } from "./host.js";
-import { TraceOptions } from "./trace.js";
+import { setRuntimeHost } from "./host.js";
+import type { TraceOptions } from "./trace.js";
 import { resolve } from "node:path";
-import { LanguageModel } from "./chat.js";
+import type { LanguageModel } from "./chat.js";
 import { errorMessage, NotSupportedError } from "./error.js";
-import {
+import type {
   LanguageModelConfiguration,
   LogLevel,
   Project,
   ResponseStatus,
 } from "./server/messages.js";
 import { defaultModelConfigurations } from "./llms.js";
-import { CancellationToken } from "./cancellation.js";
+import type { CancellationToken } from "./cancellation.js";
 import { createNodePath } from "./path.js";
-import { McpClientManager } from "./mcpclient.js";
+import type { McpClientManager } from "./mcpclient.js";
 import { ResourceManager } from "./mcpresource.js";
 import { execSync } from "node:child_process";
 import { shellQuote } from "./shell.js";
@@ -40,8 +40,6 @@ import { genaiscriptDebug } from "./debug.js";
 import type {
   WorkspaceFileSystem,
   ContentSafety,
-  BrowseSessionOptions,
-  BrowserPage,
   ShellOptions,
   ShellOutput,
   ContainerOptions,
@@ -136,11 +134,6 @@ export class TestHost implements RuntimeHost {
     throw new Error("Method not implemented.");
   }
 
-  // Placeholder for browsing a URL
-  browse(url: string, options?: BrowseSessionOptions): Promise<BrowserPage> {
-    throw new Error("Method not implemented.");
-  }
-
   // Placeholder for getting language model configuration
   getLanguageModelConfiguration(modelId: string): Promise<LanguageModelConfiguration> {
     throw new Error("Method not implemented.");
@@ -231,9 +224,6 @@ export class TestHost implements RuntimeHost {
 
   // Async method to remove containers
   async removeContainers(): Promise<void> {}
-
-  // Async method to remove browsers
-  async removeBrowsers(): Promise<void> {}
 
   // Placeholder for selecting an option from a list
   select(message: string, options: string[]): Promise<string> {
