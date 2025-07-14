@@ -24,13 +24,12 @@ import {
   logInfo,
   logVerbose,
   nodeTryReadPackage,
-  runtimeHost,
   templateIdFromFileName,
   titleize,
-  toStringList,
   tryReadText,
   tryStat,
   writeText,
+  resolveRuntimeHost,
 } from "@genaiscript/core";
 import { buildProject } from "@genaiscript/core";
 import type { JSONSchemaDescribed, JSONSchemaObject, JSONSchemaString } from "@genaiscript/core";
@@ -659,6 +658,7 @@ jobs:
   }
 
   // upgrade dependencies
+  const runtimeHost = resolveRuntimeHost();
   await runtimeHost.exec(undefined, "node", ["run", "upgrade"], {
     cwd: out,
   });

@@ -11,7 +11,7 @@ import {
   logVerbose,
   logWarn,
   resolveLanguageModelConfigurations,
-  runtimeHost,
+  resolveRuntimeHost,
   stderr,
   tryReadText,
 } from "@genaiscript/core";
@@ -36,16 +36,17 @@ const YAML = createYAML();
  * - Editing environment variables interactively. Supports secret values, enumerations, and basic validation.
  * - Patching the environment file with updated values.
  */
-export async function configure(options: { provider?: string }) {
+export async function configure(options: { provider?: string }): Promise<void> {
+  const runtimeHost = resolveRuntimeHost();
   while (true) {
     const provider = options?.provider
       ? MODEL_PROVIDERS.find(({ id }) => options.provider === id)
       : await select({
           message: "Select a LLM provider to configure",
-          choices: MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map((provider) => ({
-            name: provider.detail,
-            value: provider,
-            description: `'${provider.id}': https://microsoft.github.io/genaiscript/configuration/${provider.id}`,
+          choices: MODEL_PROVIDERS.filter(({ hidden }) => !hidden).map((p) => ({
+            name: p.detail,
+            value: p,
+            description: `'${p.id}': https://microsoft.github.io/genaiscript/configuration/${p.id}`,
           })),
         });
     if (!provider) break;
@@ -167,7 +168,7 @@ $\`Write a one-word poem in code.\`
   }
 }
 
-async function patchEnvFile(filePath: string, key: string, value: string) {
+async function patchEnvFile(filePath: string, key: string, value: string): Promise<void> {
   logVerbose(`patching ${filePath}, ${key}`);
 
   const fileContent = (await tryReadText(filePath)) || "";

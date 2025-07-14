@@ -53,18 +53,18 @@ import {
   nodeTryReadPackage,
   randomHex,
   resolveLanguageModelConfigurations,
-  runtimeHost,
   serializeError,
   tryReadJSON,
   tryReadText,
   unthink,
   getModulePaths,
   sanitizeFilename,
+  resolveRuntimeHost
 } from "@genaiscript/core";
 import { createReadStream } from "node:fs";
 import { URL } from "node:url";
 import { findOpenPort } from "./port.js";
-import { applyRemoteOptions, RemoteOptions } from "./remote.js";
+import { applyRemoteOptions, type RemoteOptions } from "./remote.js";
 import * as http from "node:http";
 import { startProjectWatcher } from "./watch.js";
 import { extname, join, resolve } from "node:path";
@@ -109,6 +109,7 @@ export async function startServer(
     runTrace?: boolean;
   } & RemoteOptions,
 ): Promise<void> {
+  const runtimeHost = resolveRuntimeHost();
   // Parse and set the server port, using a default if not specified.
   const corsOrigin = options.cors || process.env.GENAISCRIPT_CORS_ORIGIN;
   const apiKey = options.apiKey || process.env.GENAISCRIPT_API_KEY;

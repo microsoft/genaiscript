@@ -84,7 +84,6 @@ import {
   prettifyMarkdown,
   resolveModelConnectionInfo,
   runTemplate,
-  runtimeHost,
   stderr,
   stdout,
   traceAgentMemory,
@@ -105,6 +104,7 @@ import {
   OPENAI_MAX_RETRY_AFTER_DEFAULT,
   OPENAI_MAX_RETRY_DELAY,
   OPENAI_MAX_RETRY_COUNT,
+  resolveRuntimeHost,
 } from "@genaiscript/core";
 
 const dbg = genaiscriptDebug("run");
@@ -190,7 +190,7 @@ export async function runScriptInternal(
     infoCb,
     partialCb,
   } = options || {};
-
+  const runtimeHost = resolveRuntimeHost()
   runtimeHost.clearModelAlias("script");
   let result: GenerationResult;
   let workspaceFiles = options.workspaceFiles || [];

@@ -60,7 +60,7 @@ import {
   promptFooDriver,
   resolveModelConnectionInfo,
   roundWithPrecision,
-  runtimeHost,
+  resolveRuntimeHost,
   serializeError,
   toStringList,
   getModulePaths,
@@ -396,6 +396,7 @@ async function promptFooRunPromptScriptTests(
     promptfoo?: boolean;
   } & CancellationOptions,
 ): Promise<PromptScriptTestRunResponse> {
+  const runtimeHost = resolveRuntimeHost();
   applyModelOptions(options, "cli");
   const { cancellationToken, redteam } = options || {};
   const scripts = await listTests({ ids, ...(options || {}) });

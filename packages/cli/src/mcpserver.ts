@@ -12,7 +12,7 @@ import {
   genaiscriptDebug,
   logVerbose,
   logWarn,
-  runtimeHost,
+  resolveRuntimeHost,
   setConsoleColors,
   splitMarkdownTextImageParts,
   toStrictJSONSchema,
@@ -63,6 +63,7 @@ export async function startMcpServer(
   setConsoleColors(false);
   logVerbose(`mcp server: starting...`);
 
+  const runtimeHost = resolveRuntimeHost();
   await ensureDotGenaiscriptPath();
   await applyRemoteOptions(options);
   const { startup } = options || {};

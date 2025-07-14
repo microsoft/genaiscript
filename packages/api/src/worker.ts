@@ -9,8 +9,8 @@ import {
   genaiscriptDebug,
   installGlobals,
   overrideStdoutWithStdErr,
-  runtimeHost,
   createWorkerLanguageModel,
+  resolveRuntimeHost,
 } from "@genaiscript/core";
 import type { Resource } from "@genaiscript/core";
 import { runScriptInternal } from "./run.js";
@@ -44,6 +44,7 @@ export async function worker(): Promise<void> {
     process.env.SystemRoot = process.env.SYSTEMROOT;
   }
 
+  const runtimeHost = resolveRuntimeHost()
   runtimeHost.resources.addEventListener(RESOURCE_CHANGE, (ev) => {
     const cev = ev as CustomEvent<Resource>;
     const { reference, content } = cev.detail;

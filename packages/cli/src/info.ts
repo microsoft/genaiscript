@@ -10,22 +10,22 @@
 import {
   LARGE_MODEL_ID,
   CORE_VERSION,
-  ModelConnectionInfo,
-  ModelConnectionOptions,
+  type ModelConnectionInfo,
+  type ModelConnectionOptions,
   YAMLStringify,
   deleteUndefinedValues,
   host,
   resolveLanguageModelConfigurations,
   resolveModelAlias,
   resolveModelConnectionInfo,
-  runtimeHost,
+  resolveRuntimeHost,
 } from "@genaiscript/core";
 import { buildProject } from "@genaiscript/core";
 
 /**
  * Outputs basic system information including node version, platform, architecture, and process ID.
  */
-export async function systemInfo() {
+export async function systemInfo(): Promise<void> {
   console.log(`node: ${process.version}`);
   console.log(`genaiscript: ${CORE_VERSION}`);
   console.log(`platform: ${process.platform}`);
@@ -41,7 +41,8 @@ export async function systemInfo() {
 export async function envInfo(
   provider: string,
   options: { token?: boolean; error?: boolean; models?: boolean },
-) {
+): Promise<void> {
+  const runtimeHost = resolveRuntimeHost();
   const config = await runtimeHost.readConfig();
   const res: Record<string, unknown> = {};
   res[".env"] = config.envFile ?? "";
@@ -62,6 +63,7 @@ async function resolveScriptsConnectionInfo(
   scripts: ModelConnectionOptions[],
   options?: { token?: boolean },
 ): Promise<ModelConnectionInfo[]> {
+  const runtimeHost = resolveRuntimeHost()
   const models: Record<string, ModelConnectionOptions> = {};
 
   // Deduplicate model connection options
@@ -112,6 +114,7 @@ export async function scriptModelInfo(script: string, options?: { token?: boolea
  * @param none This function does not require any parameters.
  */
 export async function modelAliasesInfo() {
+  const runtimeHost = resolveRuntimeHost()
   const res = Object.fromEntries(
     Object.entries(runtimeHost.modelAliases).map(([k, v]) => [
       k,
@@ -133,6 +136,7 @@ export async function modelList(
   provider: string,
   options?: { error?: boolean; format?: "json" | "yaml" },
 ) {
+  const runtimeHost = resolveRuntimeHost()
   await runtimeHost.readConfig();
   const providers = await resolveLanguageModelConfigurations(provider, {
     ...(options || {}),

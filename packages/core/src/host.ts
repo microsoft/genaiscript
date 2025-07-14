@@ -283,11 +283,10 @@ export let host: Host;
 export function setHost(h: Host) {
   host = h;
 }
-export let runtimeHost: RuntimeHost;
 
 export function resolveRuntimeHost(): RuntimeHost {
   checkRuntime();
-  const h = (globalThis as any).genaiscriptHost as RuntimeHost;
+  const h = (globalThis as any).genaiscript as RuntimeHost;
   return h;
 }
 
@@ -300,8 +299,7 @@ export function resolveRuntimeHost(): RuntimeHost {
 export function setRuntimeHost(h: RuntimeHost) {
   dbg(`set runtime host`);
   setHost(h);
-  runtimeHost = h;
-  (globalThis as any).genaiscriptHost = h;
+  (globalThis as any).genaiscript = h;
 }
 
 export function checkRuntime(): void {

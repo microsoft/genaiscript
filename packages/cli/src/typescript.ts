@@ -10,7 +10,7 @@ import {
   collectFolders,
   fixPromptDefinitions,
   logInfo,
-  runtimeHost,
+  resolveRuntimeHost,
   logVerbose,
 } from "@genaiscript/core";
 const dbg = genaiscriptDebug("compile");
@@ -24,7 +24,8 @@ const dbg = genaiscriptDebug("compile");
  *
  * @param folders - An array of folder names to compile. If empty, compiles all available script folders.
  */
-export async function compileScript(folders: string[]) {
+export async function compileScript(folders: string[]): Promise<void> {
+  const runtimeHost = resolveRuntimeHost()
   const project = await buildProject();
   await fixPromptDefinitions(project);
 
