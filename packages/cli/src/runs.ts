@@ -9,6 +9,7 @@ import {
   TRACE_FILENAME,
   dotGenaiscriptPath,
   groupBy,
+  resolveRuntimeHost,
   setRuntimeHost,
 } from "@genaiscript/core";
 
