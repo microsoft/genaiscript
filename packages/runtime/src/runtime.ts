@@ -24,7 +24,7 @@ import type {
   MDObject,
   ModelConnectionOptions,
 } from "@genaiscript/core";
-import { runtimeHost, TestHost } from "@genaiscript/core";
+import { resolveRuntimeHost, TestHost } from "@genaiscript/core";
 import type {
   ElementOrArray,
   ExpansionVariables,
@@ -152,7 +152,7 @@ export async function initialize(
     dbg(`test host install`);
     await TestHost.install();
   } else {
-    if (runtimeHost) throw new Error("Runtime already configured. Call `initialize` only once.");
+    resolveRuntimeHost();
     dbg(`config %o`, dotEnvPaths);
     dbg(`host config %O`, hostConfig);
     await NodeHost.install(dotEnvPaths, hostConfig);
