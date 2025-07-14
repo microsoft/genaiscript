@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { Browser, BrowserContext, BrowserContextOptions, Page } from "playwright";
-import type { BrowserPage, BrowseSessionOptions, TraceOptions } from "@genaiscript/core";
+import type { TraceOptions } from "@genaiscript/core";
 import {
   PLAYWRIGHT_DEFAULT_BROWSER,
   createVideoDir,
@@ -11,6 +11,7 @@ import {
   logVerbose,
   uriRedact,
 } from "@genaiscript/core";
+import type { BrowserPage, BrowseSessionOptions } from "./types.js";
 const dbg = genaiscriptDebug("playwright");
 
 /**
