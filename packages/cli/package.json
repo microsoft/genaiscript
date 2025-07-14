@@ -88,8 +88,8 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/esm/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/src/index.d.ts",
+        "default": "./dist/src/index.js"
       }
     },
     "./package.json": "./package.json"

@@ -34,6 +34,7 @@ import {
   serializeError,
   setConsoleColors,
   setQuiet,
+  installGlobals,
 } from "@genaiscript/core";
 import type { RequestError } from "@genaiscript/core";
 import { startServer } from "./server.js";
@@ -75,11 +76,13 @@ import { compileScript } from "./typescript.js";
 import { addRemoteOptions, applyRemoteOptions } from "./remote.js";
 const dbg = genaiscriptDebug("cli");
 
-/**
- * /NOП/
- */
+  
+let nodeHost: NodeHost; // Variable to hold NodeHost instance
+
 export async function cli(): Promise<void> {
-  let nodeHost: NodeHost; // Variable to hold NodeHost instance
+  if (nodeHost) return; // If NodeHost is already installed, return early
+
+  installGlobals()
 
   // Handle uncaught exceptions globally
   process.on("uncaughtException", (err) => {

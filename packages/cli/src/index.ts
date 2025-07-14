@@ -2,11 +2,7 @@
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
-import { installGlobals } from "@genaiscript/core";
 import { cli } from "./cli.js";
-
-installGlobals();
-await cli();
-
 export * from "./ambient.js";
+
+await cli();
