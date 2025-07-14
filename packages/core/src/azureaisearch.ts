@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CancellationOptions, checkCancelled, toSignal } from "./cancellation.js";
-import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
+import { type CancellationOptions, checkCancelled, toSignal } from "./cancellation.js";
+import type { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
 import { arrayify } from "./cleaners.js";
-import { runtimeHost } from "./host.js";
-import { TraceOptions } from "./trace.js";
+import { resolveRuntimeHost } from "./host.js";
+import type { TraceOptions } from "./trace.js";
 import { logVerbose } from "./util.js";
 import type { TokenCredential, KeyCredential } from "@azure/core-auth";
 import { resolveFileContent } from "./file.js";
 import { hash } from "./crypto.js";
-import { LanguageModelConfiguration } from "./server/messages.js";
+import type { LanguageModelConfiguration } from "./server/messages.js";
 import { chunk } from "./encoders.js";
 import { genaiscriptDebug } from "./debug.js";
 import { SearchClient, SearchIndexClient, AzureKeyCredential } from "@azure/search-documents";
@@ -33,6 +33,7 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
   embedder: EmbeddingFunction,
   options?: VectorIndexOptions & TraceOptions & CancellationOptions,
 ) => {
+  const runtimeHost = resolveRuntimeHost();
   // https://learn.microsoft.com/en-us/azure/search/search-security-rbac?tabs=roles-portal-admin%2Croles-portal%2Croles-portal-query%2Ctest-portal%2Ccustom-role-portal
   const {
     trace,

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { genaiscriptDebug } from "./debug.js";
-import { runtimeHost } from "./host.js";
-import { TraceOptions } from "./trace.js";
+import { resolveRuntimeHost } from "./host.js";
+import type { TraceOptions } from "./trace.js";
 import { logWarn } from "./util.js";
 const dbg = genaiscriptDebug("secrets");
 
@@ -22,6 +22,7 @@ const cachedSecretScanners: Record<string, RegExp> = {};
  */
 export function redactSecrets(text: string, options?: TraceOptions) {
   const { trace } = options ?? {};
+  const runtimeHost = resolveRuntimeHost();
   const { secretPatterns = {} } = runtimeHost.config;
   const found: Record<string, number> = {};
   const res = Object.entries(secretPatterns).reduce((acc, [name, pattern]) => {

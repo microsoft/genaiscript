@@ -8,7 +8,7 @@ import {
   AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
   DOCS_CONFIGURATION_CONTENT_SAFETY_URL,
 } from "./constants.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { CancellationOptions } from "./cancellation.js";
 import { YAMLStringify } from "./yaml.js";
 import { AzureCredentialsType } from "./server/messages.js";
@@ -202,6 +202,7 @@ class AzureContentSafetyClient implements ContentSafety {
 
   private async createClient(route: string, options?: CancellationOptions) {
     const { trace } = this.options || {};
+    const runtimeHost = resolveRuntimeHost();
     const endpoint = trimTrailingSlash(
       process.env.AZURE_CONTENT_SAFETY_ENDPOINT || process.env.AZURE_CONTENT_SAFETY_API_ENDPOINT,
     );

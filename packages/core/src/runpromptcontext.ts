@@ -77,7 +77,7 @@ import { resolveLanguageModel } from "./lm.js";
 import { concurrentLimit } from "./concurrency.js";
 import { resolveScript } from "./ast.js";
 import { dedent } from "./indent.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { writeFileEdits } from "./fileedits.js";
 import { agentAddMemory, agentCreateCache, agentQueryMemory } from "./agent.js";
 import { YAMLStringify } from "./yaml.js";
@@ -175,6 +175,7 @@ export function createChatTurnGenerationContext(
   trace: MarkdownTrace,
   cancellationToken: CancellationToken,
 ): ChatTurnGenerationContext & { node: PromptNode } {
+  const runtimeHost = resolveRuntimeHost();
   const node: PromptNode = { children: [] };
   const fenceFormat = options.fenceFormat || resolveFenceFormat(options.model);
   const lineNumbers = options.lineNumbers;

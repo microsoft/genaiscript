@@ -6,7 +6,7 @@ const dbg = debug("genaiscript:encoders");
 
 // Import the function to parse model identifiers
 import { parseModelIdentifier } from "./models.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import path from "node:path";
 import { addLineNumbers, indexToLineNumber } from "./liner.js";
 import { resolveFileContent } from "./file.js";
@@ -27,6 +27,7 @@ export async function resolveTokenEncoder(
   options?: { disableFallback?: boolean },
 ): Promise<Tokenizer> {
   const { disableFallback } = options || {};
+  const runtimeHost = resolveRuntimeHost();
 
   // Parse the model identifier to extract the model information
   if (!modelId) {

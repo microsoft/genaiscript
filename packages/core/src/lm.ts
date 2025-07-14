@@ -17,7 +17,7 @@ import {
   MODEL_PROVIDER_AZURE_AI_INFERENCE,
   MODEL_PROVIDER_MCP,
 } from "./constants.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { OllamaModel } from "./ollama.js";
 import { LocalOpenAICompatibleModel } from "./openai.js";
 import { GitHubModel } from "./github.js";
@@ -42,6 +42,7 @@ import { providerFeatures } from "./features.js";
  *         features derived from the MODEL_PROVIDERS configuration.
  */
 export function resolveLanguageModel(provider: string): LanguageModel {
+  const runtimeHost = resolveRuntimeHost();
   if (provider === MODEL_PROVIDER_GITHUB_COPILOT_CHAT) {
     const m = runtimeHost.clientLanguageModel;
     if (!m) throw new Error("Github Copilot Chat Models not available");

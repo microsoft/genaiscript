@@ -8,11 +8,11 @@ import { errorMessage, isCancelError } from "./error.js";
 import { unquote } from "./unwrappers.js";
 import { fileExists, readText } from "./fs.js";
 import { isGlobMatch } from "./glob.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { JSON5parse } from "./json5.js";
 import { stringToPos } from "./parser.js";
 import { validateJSONWithSchema } from "./schema.js";
-import { MarkdownTrace, TraceOptions } from "./trace.js";
+import type { MarkdownTrace, TraceOptions } from "./trace.js";
 import { logError, logVerbose, relativePath } from "./util.js";
 import { YAMLParse } from "./yaml.js";
 import { writeText } from "./fs.js";
@@ -60,6 +60,7 @@ export async function computeFileEdits(
     outputProcessors?: PromptOutputProcessorHandler[];
   },
 ): Promise<void> {
+  const runtimeHost = resolveRuntimeHost();
   const { trace, fileOutputs, fileMerges, outputProcessors, schemas } = options || {};
   const { fences, frames, messages, usage } = res;
   let text = res.text;

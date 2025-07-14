@@ -34,7 +34,7 @@ import { interpolateVariables } from "./mustache.js";
 import { diffCreatePatch } from "./diff.js";
 import { promptyParse } from "./prompty.js";
 import { jinjaRenderChatMessage } from "./jinja.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { hash } from "./crypto.js";
 import { tryZodToJsonSchema } from "./zod.js";
 import { GROQEvaluate } from "./groq.js";
@@ -358,7 +358,7 @@ function renderDefNode(def: PromptDefNode): string {
   }
   body = norm(body, dtype);
   const diffFormat = "";
-  //body.length > 500 && !prediction
+  // body.length > 500 && !prediction
   //  ? " preferred_output_format=CHANGELOG"
   //    : ""
 
@@ -1167,6 +1167,7 @@ async function tracePromptNode(
 }
 
 async function validateSafetyPromptNode(trace: MarkdownTrace, root: PromptNode) {
+  const runtimeHost = resolveRuntimeHost();
   let mod = false;
   let _contentSafety: ContentSafety;
 

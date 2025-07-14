@@ -2,8 +2,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TraceOptions } from "./trace.js";
-import { runtimeHost } from "./host.js";
+import type { TraceOptions } from "./trace.js";
 import { JSONLTryParse } from "./jsonl.js";
 import { resolveFileContents } from "./file.js";
 import { uniq } from "es-toolkit";
@@ -12,7 +11,7 @@ import { arrayify } from "./cleaners.js";
 import { filterGitIgnore } from "./gitignore.js";
 import { genaiscriptDebug } from "./debug.js";
 import { tryStat } from "./fs.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import { type CancellationOptions, checkCancelled } from "./cancellation.js";
 import type { WorkspaceFile, WorkspaceGrepOptions } from "./types.js";
 
 const dbg = genaiscriptDebug("grep");

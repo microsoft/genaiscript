@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { RESOURCE_HASH_LENGTH } from "./constants.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { join } from "node:path";
 import { CancellationOptions } from "./cancellation.js";
@@ -29,6 +29,7 @@ export async function tryResolveScript(
   url: string,
   options?: TraceOptions & CancellationOptions,
 ): Promise<string> {
+  const runtimeHost = resolveRuntimeHost();
   const resource = await tryResolveResource(url, options);
   if (!resource) return undefined;
 

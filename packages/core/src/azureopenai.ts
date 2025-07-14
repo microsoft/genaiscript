@@ -15,7 +15,7 @@ import {
   OpenAISpeech,
   OpenAITranscribe,
 } from "./openai.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 
 const azureManagementOrOpenAIListModels: ListModelsFunction = async (cfg, options) => {
   const modelsApi = process.env.AZURE_OPENAI_API_MODELS_TYPE;
@@ -29,6 +29,7 @@ const azureManagementOrOpenAIListModels: ListModelsFunction = async (cfg, option
 };
 
 const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
+  const runtimeHost = resolveRuntimeHost();
   try {
     // Create a fetch instance to make HTTP requests
     const { base } = cfg;

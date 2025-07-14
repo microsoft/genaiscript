@@ -7,7 +7,7 @@ import type { GenerationStatus, Project } from "./server/messages.js";
 import { arrayify } from "./cleaners.js";
 import { relativePath } from "./util.js";
 import { assert } from "./assert.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { CORE_VERSION } from "./version.js";
 import { expandFiles } from "./fs.js";
 import { dataToMarkdownTable } from "./csv.js";
@@ -58,6 +58,7 @@ async function resolveExpansionVars(
   options: GenerationOptions,
 ): Promise<ExpansionVariables> {
   const { vars, runDir, runId, trace, applyGitIgnore } = options;
+  const runtimeHost = resolveRuntimeHost();
   const root = runtimeHost.projectFolder();
 
   assert(!!vars);
@@ -151,6 +152,7 @@ export async function runTemplate(
   assert(options !== undefined);
   assert(options.trace !== undefined);
   assert(options.outputTrace !== undefined);
+  const runtimeHost = resolveRuntimeHost();
   const { label, trace, outputTrace, cancellationToken, model, runId } = options;
   const version = CORE_VERSION;
   assert(model !== undefined);

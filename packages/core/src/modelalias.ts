@@ -4,7 +4,7 @@
 import debug from "debug";
 const dbg = debug("genaiscript:modelalias");
 import { parseKeyValuePair } from "./fence.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import type { PromptScriptRunOptions } from "./server/messages.js";
 import { providerFeatures } from "./features.js";
 import type { PromptScript } from "./types.js";
@@ -21,6 +21,7 @@ import { LARGE_MODEL_ID, SMALL_MODEL_ID, VISION_MODEL_ID } from "./constants.js"
  * the provider contains alias definitions, they are mapped and stored.
  */
 export function applyModelProviderAliases(id: string, source: "cli" | "env" | "config" | "script") {
+  const runtimeHost = resolveRuntimeHost();
   dbg(`apply provider ${id} from ${source}`);
   if (!id) return;
   const provider = providerFeatures(id);
@@ -48,6 +49,7 @@ export function applyModelOptions(
   >,
   source: "cli" | "env" | "config" | "script",
 ) {
+  const runtimeHost = resolveRuntimeHost();
   dbg(`apply model options from ${source}`, options);
   if (options.provider) applyModelProviderAliases(options.provider, source);
   if (options.model) runtimeHost.setModelAlias(source, LARGE_MODEL_ID, options.model);
@@ -73,6 +75,7 @@ export function applyModelOptions(
  *    environment using `runtimeHost.setModelAlias`, where the alias name and value are registered.
  */
 export function applyScriptModelAliases(script: PromptScript) {
+  const runtimeHost = resolveRuntimeHost();
   applyModelOptions(script, "script");
   if (script.modelAliases)
     Object.entries(script.modelAliases).forEach(([name, alias]) => {
@@ -87,6 +90,7 @@ export function applyScriptModelAliases(script: PromptScript) {
  * @param options.all - If true, logs all aliases, including those with the "default" source.
  */
 export function logModelAliases(options?: { all?: boolean }) {
+  const runtimeHost = resolveRuntimeHost();
   const { all } = options || {};
   let aliases = Object.entries(runtimeHost.modelAliases);
   if (!all) aliases = aliases.filter(([, value]) => value.source !== "default");

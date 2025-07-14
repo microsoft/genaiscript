@@ -12,7 +12,7 @@ import {
   TAVILY_ENDPOINT,
 } from "./constants.js";
 import { createFetch } from "./fetch.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { TraceOptions } from "./trace.js";
 import { logVerbose } from "./util.js";
 import type { WorkspaceFile } from "./types.js";

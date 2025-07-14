@@ -7,7 +7,7 @@ const dbg = debug("genaiscript:models");
 import { uniq } from "es-toolkit";
 import { errorMessage } from "./error.js";
 import type { ModelConfiguration } from "./host.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import type { MarkdownTrace, TraceOptions } from "./trace.js";
 import { arrayify } from "./cleaners.js";
 import { toStringList } from "./util.js";
@@ -126,6 +126,7 @@ export function traceLanguageModelConnection(
   connectionToken: LanguageModelConfiguration,
 ) {
   if (!trace) return;
+  const runtimeHost = resolveRuntimeHost();
   const {
     model,
     temperature,

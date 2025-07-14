@@ -14,7 +14,7 @@ import { createPromptContext } from "./promptcontext.js";
 import { evalPrompt } from "./evalprompt.js";
 import { addToolDefinitionsMessage, appendSystemMessage } from "./chat.js";
 import { importPrompt } from "./importprompt.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { addFallbackToolSystems, resolveSystems } from "./systems.js";
 import { GenerationOptions } from "./generation.js";
 import { ChatCompletionMessageParam, ChatCompletionReasoningEffort } from "./chattypes.js";
@@ -212,6 +212,7 @@ export async function expandTemplate(
   env: ExpansionVariables,
 ) {
   mark("prompt.expand.script");
+  const runtimeHost = resolveRuntimeHost();
   const trace = options.trace;
   const model = options.model;
   assert(!!trace);

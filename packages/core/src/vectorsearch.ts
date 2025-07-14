@@ -14,7 +14,7 @@ import { azureAISearchIndex } from "./azureaisearch.js";
 import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
 import { resolveModelConnectionInfo } from "./models.js";
 import { EMBEDDINGS_MODEL_ID } from "./constants.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { resolveLanguageModel } from "./lm.js";
 import { assert } from "./assert.js";
 import { createCache } from "./cache.js";

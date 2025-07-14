@@ -9,7 +9,7 @@ import { GENAISCRIPTIGNORE, GIT_DIFF_MAX_TOKENS, GIT_IGNORE_GENAI } from "./cons
 import { llmifyDiff } from "./llmdiff.js";
 import { resolveFileContents } from "./file.js";
 import { tryReadText, tryStat } from "./fs.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { shellParse, shellQuote } from "./shell.js";
 import { arrayify } from "./cleaners.js";
 import { ellipse, logVerbose } from "./util.js";
@@ -190,6 +190,7 @@ export class GitClient implements Git {
   ): Promise<string> {
     const { valueOnError } = options || {};
 
+    const runtimeHost = resolveRuntimeHost();
     await this.configGlobalAddSafeDirectory();
 
     const opts: ShellOptions = {

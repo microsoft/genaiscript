@@ -7,7 +7,7 @@
 import debug from "debug";
 import { assert } from "./assert.js";
 import { arrayify } from "./cleaners.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { bingSearch, tavilySearch } from "./websearch.js";
 import { type RunPromptContextNode, createChatGenerationContext } from "./runpromptcontext.js";
 import type { GenerationOptions } from "./generation.js";

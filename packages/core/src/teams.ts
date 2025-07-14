@@ -5,7 +5,7 @@ import { fileTypeFromBuffer } from "./filetype.js";
 import { CancellationOptions } from "./cancellation.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { createFetch } from "./fetch.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { HTMLEscape } from "./htmlescape.js";
 import { TraceOptions } from "./trace.js";
 import { logError, logVerbose } from "./util.js";

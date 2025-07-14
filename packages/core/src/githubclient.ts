@@ -14,7 +14,7 @@ import {
   TOOL_ID,
 } from "./constants.js";
 import { createFetch } from "./fetch.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { prettifyMarkdown } from "./pretty.js";
 import { arrayify } from "./cleaners.js";
 import { assert } from "./assert.js";
@@ -150,6 +150,7 @@ async function githubFromEnv(env: Record<string, string>): Promise<GithubConnect
 }
 
 async function githubGetPullRequestNumber() {
+  const runtimeHost = resolveRuntimeHost();
   const res = await runtimeHost.exec(undefined, "gh", ["pr", "view", "--json", "number"], {
     label: "github: resolve current pull request number",
   });
@@ -190,6 +191,7 @@ export async function githubParseEnv(
     TraceOptions &
     CancellationOptions,
 ): Promise<GithubConnectionInfo> {
+  const runtimeHost = resolveRuntimeHost();
   dbg(`resolving connection info`);
   const res = await githubFromEnv(env);
   dbg(`found %O`, Object.keys(res).join(","));

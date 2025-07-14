@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CancellationOptions } from "./cancellation.js";
+import type { CancellationOptions } from "./cancellation.js";
 import { genaiscriptDebug } from "./debug.js";
-import { runtimeHost } from "./host.js";
-import { TraceOptions } from "./trace.js";
+import { resolveRuntimeHost } from "./host.js";
+import type { TraceOptions } from "./trace.js";
 import type { ContentSafety, ContentSafetyOptions } from "./types.js";
 
 const dbg = genaiscriptDebug("contentsafety");
@@ -25,6 +25,7 @@ export async function resolveContentSafety(
   if (!detectPromptInjection) {
     return {};
   }
+  const runtimeHost = resolveRuntimeHost();
   dbg(`resolving %s`, contentSafety);
   const services = await runtimeHost.contentSafety(contentSafety, options);
   if (!services && (detectPromptInjection === true || detectPromptInjection === "always"))

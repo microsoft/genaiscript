@@ -18,7 +18,7 @@ import {
 } from "./constants.js";
 import { logWarn } from "./util.js";
 import { arrayify } from "./cleaners.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { ModelConnectionInfo, parseModelIdentifier } from "./models.js";
 import { deleteEmptyValues, deleteUndefinedValues } from "./cleaners.js";
 import testSchema from "./testschema.js";
@@ -133,6 +133,7 @@ export async function generatePromptFooConfiguration(
     CancellationOptions,
 ) {
   // Destructure options with default values
+  const runtimeHost = resolveRuntimeHost();
   const { provider = "provider.mjs", chatInfo, embeddingsInfo, trace } = options || {};
   const { title, id } = script;
   const description = dedent(script.description);

@@ -6,7 +6,7 @@ import { dirname } from "node:path";
 import { arrayify } from "./cleaners.js";
 import { GENAI_ANYJS_GLOB, GENAISCRIPT_FOLDER, GENAI_ANY_REGEX } from "./constants.js";
 import { genaiscriptDebug } from "./debug.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { parseProject } from "./parser.js";
 import { getModulePaths } from "./pathUtils.js";
 
@@ -31,6 +31,7 @@ export async function buildProject(options?: {
   toolFiles?: string[];
   toolsPath?: string | string[];
 }) {
+  const runtimeHost = resolveRuntimeHost();
   const installDir = dirname(dirname(__dirname)); // Use __dirname to resolve the installation directory
   const { toolFiles, toolsPath } = options || {};
   let scriptFiles: string[] = [];

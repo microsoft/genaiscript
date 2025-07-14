@@ -54,7 +54,7 @@ import {
   DOCKER_MODEL_RUNNER_API_BASE,
   MODEL_PROVIDER_MCP,
 } from "./constants.js";
-import { runtimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { parseModelIdentifier } from "./models.js";
 import type {
   AzureCredentialsType,
@@ -135,6 +135,7 @@ export function findEnvVar(
  *   - GENAISCRIPT_DEFAULT_[ID]_MODEL or GENAISCRIPT_MODEL_[ID]: Configures aliases for specific model IDs.
  */
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
+  const runtimeHost = resolveRuntimeHost();
   dbg(`parsing process.env`);
   // legacy
   if (env.GENAISCRIPT_DEFAULT_MODEL) {
