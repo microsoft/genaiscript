@@ -6,7 +6,6 @@ export * from "./docker.js";
 export * from "./input.js";
 export * from "./log.js";
 export * from "./nodehost.js";
-export * from "./playwright.js";
 export * from "./classify.js";
 export * from "./makeitbetter.js";
 export * from "./cast.js";

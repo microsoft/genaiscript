@@ -1,5 +1,5 @@
 {
-  "name": "@genaiscript/runtime",
+  "name": "@genaiscript/plugin-playwright",
   "private": false,
   "version": "2.2.16",
   "main": "./dist/commonjs/index.js",
@@ -15,21 +15,12 @@
   ],
   "dependencies": {
     "@genaiscript/core": "workspace:*",
-    "@inquirer/prompts": "catalog:",
-    "debug": "catalog:",
-    "dockerode": "^4.0.7",
-    "es-toolkit": "catalog:",
-    "execa": "catalog:",
-    "glob": "^11.0.3",
-    "memorystream": "^0.3.1",
-    "tslib": "catalog:",
-    "zod": "catalog:"
+    "@genaiscript/runtime": "workspace:*",
+    "playwright": "^1.54.1"
   },
   "devDependencies": {
     "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
     "@types/debug": "catalog:",
-    "@types/dockerode": "^3.3.42",
-    "@types/memorystream": "^0.3.4",
     "@types/node": "catalog:",
     "@vitest/coverage-istanbul": "catalog:",
     "eslint": "catalog:",
@@ -42,10 +33,10 @@
   "scripts": {
     "build": "npm run clean && tshy",
     "clean": "rimraf dist",
-    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
-    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
-    "lint:check": "eslint src",
-    "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\"  \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\"  \"test/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+    "lint:check": "eslint src test",
+    "lint:fix": "eslint src test --fix --fix-type [problem,suggestion]",
     "pack": "npm pack 2>&1",
     "prepack": "npm run build",
     "test": "vitest --run"

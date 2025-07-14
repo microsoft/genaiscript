@@ -818,6 +818,49 @@ importers:
         specifier: 'catalog:'
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jiti@2.4.2)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.20.3)(yaml@2.8.0)
 
+  packages/plugin-playwright:
+    dependencies:
+      '@genaiscript/core':
+        specifier: workspace:*
+        version: link:../core
+      '@genaiscript/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      playwright:
+        specifier: ^1.54.1
+        version: 1.54.1
+    devDependencies:
+      '@genaiscript/eslint-plugin-genaiscript':
+        specifier: workspace:*
+        version: link:../../tools/eslint-plugin-genaiscript
+      '@types/debug':
+        specifier: 'catalog:'
+        version: 4.1.12
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.28
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jiti@2.4.2)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.20.3)(yaml@2.8.0))
+      eslint:
+        specifier: 'catalog:'
+        version: 9.31.0(jiti@2.4.2)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.2
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      tshy:
+        specifier: 'catalog:'
+        version: 3.0.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jiti@2.4.2)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.20.3)(yaml@2.8.0)
+
   packages/plugin-z3:
     dependencies:
       '@genaiscript/core':
@@ -887,9 +930,6 @@ importers:
       memorystream:
         specifier: ^0.3.1
         version: 0.3.1
-      playwright:
-        specifier: ^1.54.1
-        version: 1.54.1
       tslib:
         specifier: 'catalog:'
         version: 2.8.1
@@ -12865,13 +12905,13 @@ snapshots:
 
   '@types/docker-modem@3.0.6':
     dependencies:
-      '@types/node': 22.15.28
+      '@types/node': 22.16.3
       '@types/ssh2': 1.15.5
 
   '@types/dockerode@3.3.42':
     dependencies:
       '@types/docker-modem': 3.0.6
-      '@types/node': 22.15.28
+      '@types/node': 22.16.3
       '@types/ssh2': 1.15.5
 
   '@types/eslint-config-prettier@6.11.3': {}
@@ -12899,7 +12939,7 @@ snapshots:
 
   '@types/fontkit@2.0.8':
     dependencies:
-      '@types/node': 24.0.13
+      '@types/node': 22.16.3
 
   '@types/geojson@7946.0.16': {}
 
@@ -12951,7 +12991,7 @@ snapshots:
 
   '@types/memorystream@0.3.4':
     dependencies:
-      '@types/node': 22.15.28
+      '@types/node': 22.16.3
 
   '@types/micromatch@4.0.9':
     dependencies:
@@ -12986,6 +13026,7 @@ snapshots:
   '@types/node@24.0.13':
     dependencies:
       undici-types: 7.8.0
+    optional: true
 
   '@types/normalize-package-data@2.4.4': {}
 
@@ -13054,7 +13095,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 22.15.28
+      '@types/node': 22.16.3
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.36.0(@typescript-eslint/parser@8.36.0(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3)':
@@ -17904,7 +17945,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 22.15.28
+      '@types/node': 22.16.3
       long: 5.3.2
 
   protocols@2.0.2: {}
@@ -19389,7 +19430,8 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  undici-types@7.8.0: {}
+  undici-types@7.8.0:
+    optional: true
 
   undici@5.29.0:
     dependencies:
