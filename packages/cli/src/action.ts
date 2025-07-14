@@ -154,7 +154,7 @@ export async function actionConfigure(
     }
     options.playwright =
       options.playwright === undefined
-        ? await shellConfirm("Will you use Playwright? (host.browser...)", {
+        ? await shellConfirm("Will you use Playwright? (browse(...)", {
             default: false,
           })
         : options.playwright;
@@ -626,10 +626,11 @@ jobs:
           author: pkg?.author,
           license: pkg?.license,
           description: script.description,
-          dependencies: {
+          dependencies: deleteUndefinedValues({
             ...(pkg?.dependencies || {}),
             genaiscript: CORE_VERSION,
-          },
+            ...(playwright ? { "@genaiscript/plugin-playwright": CORE_VERSION } : {}),
+          }),
           scripts: {
             upgrade: "npx -y npm-check-updates -u && npm install && npm run fix",
             "docker:build": `docker build -t ${owner}-${repo} .`,

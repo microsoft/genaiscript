@@ -52,10 +52,11 @@ Let's break down what each line of this script does:
 #### 1. Navigating to a Web Page
 
 ```javascript
-const page = await host.browse("https://example.com");
+import { browse } from "@genaiscript/plugin-playwright";
+const page = await browse("https://example.com");
 ```
 
-This line automatically navigates to the specified URL (`https://example.com`). The `host.browse` function is a powerful feature of GenAIScript that initializes a browser session and returns a page object for further interactions.
+This line automatically navigates to the specified URL (`https://example.com`). The `browse` function is a powerful feature of GenAIScript that initializes a browser session and returns a page object for further interactions.
 
 #### 2. Taking a Screenshot
 

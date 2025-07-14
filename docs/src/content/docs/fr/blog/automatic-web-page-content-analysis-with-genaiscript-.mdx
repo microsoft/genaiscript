@@ -10,22 +10,24 @@ tags:
   - automation
   - GenAIScript
   - web
-description: Découvrez comment GenAIScript exploite la bibliothèque
+description:
+  Découvrez comment GenAIScript exploite la bibliothèque
   d’automatisation des navigateurs Playwright pour une analyse efficace et
   automatisée du contenu des pages web.
 cover:
-  alt: An 8-bit style image of an old computer screen shows a simple web browser
+  alt:
+    An 8-bit style image of an old computer screen shows a simple web browser
     with icons, such as a camera and document symbols, against a backdrop of
     abstract geometric shapes representing data analysis. The design
     incorporates five distinct colors arranged in an orderly pattern.
   image: ../../blog/automatic-web-page-content-analysis-with-genaiscript-.png
-excerpt: L’automatisation de l’analyse du contenu des pages web est simplifiée
+excerpt:
+  L’automatisation de l’analyse du contenu des pages web est simplifiée
   avec GenAIScript et Playwright. De l’extraction du texte à l’analyse des
   informations de la page, cette méthode élimine les tâches manuelles tout en
   optimisant les flux de travail. Découvrez des cas d’utilisation concrets pour
   les audits concurrentiels et l’automatisation évolutive dans votre boîte à
   outils.
-
 ---
 
 import BlogNarration from "../../../../components/BlogNarration.astro";
@@ -39,7 +41,8 @@ Dans cet article de blog, nous allons explorer un exemple pratique montrant comm
 Le fragment suivant offre une méthode concise et efficace pour analyser le contenu d’une page web avec GenAIScript :
 
 ```javascript
-const page = await host.browse("https://bing.com");
+import { browse } from "@genaiscript/plugin-playwright";
+const page = await browse("https://bing.com");
 const screenshot = await page.screenshot();
 defImages(screenshot, { maxWidth: 800 });
 const text = parsers.HTMLtoMarkdown(await page.content());
@@ -52,10 +55,11 @@ Décomposons ce que fait chaque ligne de ce script :
 #### 1. Navigation vers une page web
 
 ```javascript
-const page = await host.browse("https://example.com");
+import { browse } from "@genaiscript/plugin-playwright";
+const page = await browse("https://example.com");
 ```
 
-Cette ligne navigue automatiquement vers l’URL spécifiée (`https://example.com`). La fonction `host.browse` est une fonctionnalité puissante de GenAIScript qui initialise une session de navigateur et renvoie un objet page pour d’autres interactions.
+Cette ligne navigue automatiquement vers l’URL spécifiée (`https://example.com`). La fonction `browse` est une fonctionnalité puissante de GenAIScript qui initialise une session de navigateur et renvoie un objet page pour d’autres interactions.
 
 #### 2. Capture d'écran
 

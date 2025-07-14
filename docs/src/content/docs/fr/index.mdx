@@ -313,7 +313,8 @@ GenAIScript apporte les outils essentiels de prompts pour LLM dans un environnem
     Naviguez et scrapez le web avec [Playwright](./reference/scripts/browse/).
 
     ```js
-    const page = await host.browse("https://...");
+    import { browse } from "@genaiscript/plugin-playwright";
+    const page = await browse("https://...");
     const table = await page.locator("table[...]").innerHTML();
     def("TABLE", await HTML.convertToMarkdown(table));
     ```
