@@ -287,8 +287,8 @@ export let runtimeHost: RuntimeHost;
 
 export function resolveRuntimeHost(): RuntimeHost {
   checkRuntime();
-  if (!runtimeHost) throw new Error("Runtime host not initialized");
-  return runtimeHost
+  const h = (globalThis as any).genaiscriptHost as RuntimeHost;
+  return h;
 }
 
 /**
@@ -301,6 +301,7 @@ export function setRuntimeHost(h: RuntimeHost) {
   dbg(`set runtime host`);
   setHost(h);
   runtimeHost = h;
+  (globalThis as any).genaiscriptHost = h;
 }
 
 export function checkRuntime(): void {

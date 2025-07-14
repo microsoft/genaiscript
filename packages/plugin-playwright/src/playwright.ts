@@ -7,8 +7,6 @@ import {
   PLAYWRIGHT_DEFAULT_BROWSER,
   createVideoDir,
   genaiscriptDebug,
-  logError,
-  logVerbose,
   uriRedact,
 } from "@genaiscript/core";
 import type { BrowserPage, BrowseSessionOptions } from "./types.js";
@@ -76,7 +74,7 @@ export class BrowserManager {
           await page.close();
         }
       } catch (e) {
-        logError(e);
+        dbg(`browsers: error closing page: ${e}`);
       }
     }
 
@@ -85,7 +83,7 @@ export class BrowserManager {
         dbg(`browsers: closing context`);
         await context.close();
       } catch (e) {
-        logError(e);
+        dbg(`browsers: error closing context: ${e}`);
       }
     }
 
@@ -95,7 +93,7 @@ export class BrowserManager {
         dbg(`browsers: closing browser`);
         await browser.close();
       } catch (e) {
-        logError(e);
+        dbg(`browsers: error closing browser: ${e}`);
       }
     }
   }
@@ -111,7 +109,7 @@ export class BrowserManager {
     const { trace, incognito, timeout, recordVideo, waitUntil, referer, connectOverCDP, ...rest } =
       options || {};
 
-    logVerbose(`browsing ${uriRedact(url)}`);
+    dbg(`browsing ${uriRedact(url)}`);
     const browser = await this.launchBrowser(options);
     let page: Page;
 
