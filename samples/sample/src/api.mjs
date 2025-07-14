@@ -4,7 +4,7 @@ async function main() {
   console.log(api);
   {
     const res = await api.run("poem");
-    if (res.error) throw new Error(res.error);
+    if (res.error) throw new Error(res.error?.message);
     await api.run("summarize", "samples/sample/src/rag/markdown.md");
     await api.run("parameters", [], {
       vars: {

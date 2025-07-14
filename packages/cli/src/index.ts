@@ -8,3 +8,5 @@ import { cli } from "./cli.js";
 
 installGlobals();
 await cli();
+
+export * from "./ambient.js";

@@ -1160,6 +1160,9 @@ importers:
       '@genaiscript/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
+      genaiscript:
+        specifier: workspace:*
+        version: link:../../packages/cli
       ini:
         specifier: ^5.0.0
         version: 5.0.0

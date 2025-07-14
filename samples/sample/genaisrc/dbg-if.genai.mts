@@ -1,47 +1,47 @@
-import { prettier } from "../../../genaisrc/src/prettier.mts"
-import { astGrep } from "@genaiscript/plugin-ast-grep"
+import { prettier } from "../../../genaisrc/src/prettier.mts";
+import { astGrep, type SgNode } from "@genaiscript/plugin-ast-grep";
 
 script({
-    title: "Add debug logging statements to if statements",
-    description: "Add debug logging statements to if statements",
-    group: "dev",
-    parameters: {
-        applyEdits: {
-            type: "boolean",
-            default: true,
-            description: "If true, the script will not modify the files.",
-        },
+  title: "Add debug logging statements to if statements",
+  description: "Add debug logging statements to if statements",
+  group: "dev",
+  parameters: {
+    applyEdits: {
+      type: "boolean",
+      default: true,
+      description: "If true, the script will not modify the files.",
     },
-})
+  },
+});
 
-const { output, dbg, vars } = env
+const { output, dbg, vars } = env;
 const { applyEdits } = vars as {
-    applyEdits?: boolean
-}
+  applyEdits?: boolean;
+};
 
-const sg = await astGrep()
+const sg = await astGrep();
 for (const file of env.files) {
-    dbg(file.filename)
+  dbg(file.filename);
 
-    const ns = `genaiscript:${path.changeext(path.basename(file.filename), "")}`
-    // add import
-    const { matches: imports } = await sg.search(
-        "ts",
-        file.filename,
-        "const dbg = debug($NAMESPACE)"
-    )
-    if (imports.length === 0) {
-        file.content = `import debug from "debug";
+  const ns = `genaiscript:${path.changeext(path.basename(file.filename), "")}`;
+  // add import
+  const { matches: imports } = await sg.search(
+    "ts",
+    file.filename,
+    "const dbg = debug($NAMESPACE)",
+  );
+  if (imports.length === 0) {
+    file.content = `import debug from "debug";
         const dbg = debug("${ns}");
-        ${file.content}`
-        await workspace.writeFiles([file])
-    }
+        ${file.content}`;
+    await workspace.writeFiles([file]);
+  }
 
-    await prettier(file, { curly: true })
-    const { matches } = await sg.search(
-        "ts",
-        file.filename,
-        YAML`
+  await prettier(file, { curly: true });
+  const { matches } = await sg.search(
+    "ts",
+    file.filename,
+    YAML`
 rule:
     kind: statement_block
     not:
@@ -51,25 +51,25 @@ rule:
         any:
             - kind: if_statement
             - kind: else_clause
-`
-    )
-    dbg("found %d matches", matches.length)
-    const edits = sg.changeset()
-    const logs: Record<string, SgNode> = {}
-    for (const match of matches) {
-        const expr = match.child(1)
-        dbg(`expr: %s %s`, expr.kind(), expr.text())
-        const msg = `DEBUG_MSG_${Object.keys(logs).length}`
-        logs[msg] = expr
-        edits.replace(expr, `dbg("<${msg}>")\n${expr.text()}`)
-    }
-    const updated = await edits.commit()
-    output.diff(file, updated[0])
+`,
+  );
+  dbg("found %d matches", matches.length);
+  const edits = sg.changeset();
+  const logs: Record<string, SgNode> = {};
+  for (const match of matches) {
+    const expr = match.child(1);
+    dbg(`expr: %s %s`, expr.kind(), expr.text());
+    const msg = `DEBUG_MSG_${Object.keys(logs).length}`;
+    logs[msg] = expr;
+    edits.replace(expr, `dbg("<${msg}>")\n${expr.text()}`);
+  }
+  const updated = await edits.commit();
+  output.diff(file, updated[0]);
 
-    const res = await runPrompt(
-        (_) => {
-            const vfile = _.def("FILE", updated)
-            _.$`## Task
+  const res = await runPrompt(
+    (_) => {
+      const vfile = _.def("FILE", updated);
+      _.$`## Task
 
         Your task is to generate debug log messages in the TypeScript code in file ${vfile}.
 
@@ -106,29 +106,29 @@ rule:
         - Do not use the word 'logging' or 'debug' in the message, just do it.
         - Do not capitalize the first letter of the message.
 
-        `
-        },
-        { systemSafety: false, system: [], responseType: "text" }
-    )
+        `;
+    },
+    { systemSafety: false, system: [], responseType: "text" },
+  );
 
-    output.fence(res.text, "ini")
-    const rx = /^(?<id>DEBUG_MSG_\d+): (?<msg>.*)$/gm
-    const updates = res.text.matchAll(rx)
-    const logEdits = sg.changeset()
-    for (const update of updates) {
-        const id = update.groups.id
-        const msg = update.groups.msg
-        const expr = logs[id]
-        if (!expr) {
-            output.warn(`missing ${id} in ${file.filename}`)
-            continue
-        }
-        logEdits.replace(expr, `dbg(${msg});\n${expr.text()}`)
+  output.fence(res.text, "ini");
+  const rx = /^(?<id>DEBUG_MSG_\d+): (?<msg>.*)$/gm;
+  const updates = res.text.matchAll(rx);
+  const logEdits = sg.changeset();
+  for (const update of updates) {
+    const id = update.groups.id;
+    const msg = update.groups.msg;
+    const expr = logs[id];
+    if (!expr) {
+      output.warn(`missing ${id} in ${file.filename}`);
+      continue;
     }
-    const updatedLogs = await logEdits.commit()
-    if (applyEdits) {
-        await workspace.writeFiles(updatedLogs)
-        await prettier(file)
-        // compile and repair
-    } else output.diff(file, updatedLogs[0])
+    logEdits.replace(expr, `dbg(${msg});\n${expr.text()}`);
+  }
+  const updatedLogs = await logEdits.commit();
+  if (applyEdits) {
+    await workspace.writeFiles(updatedLogs);
+    await prettier(file);
+    // compile and repair
+  } else output.diff(file, updatedLogs[0]);
 }
