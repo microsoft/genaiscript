@@ -1,5 +1,6 @@
-import { runtimeHost, type BrowserPage, type BrowseSessionOptions } from "@genaiscript/core";
+import { runtimeHost } from "@genaiscript/core";
 import { BrowserManager } from "./playwright.js";
+import type { BrowserPage, BrowseSessionOptions } from "./types.js";
 
 const ID = "plugin-playwright-browser";
 
