@@ -285,8 +285,8 @@ export function setHost(h: Host) {
 }
 
 export function resolveRuntimeHost(): RuntimeHost {
-  checkRuntime();
   const h = (globalThis as any).genaiscript as RuntimeHost;
+  if (!h) throw new Error("GenAIScript runtime not initialized");
   return h;
 }
 

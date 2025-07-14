@@ -229,6 +229,7 @@ export class GitClient implements Git {
     },
   ): Promise<WorkspaceFile[]> {
     dbg(`listing files with scope: ${scope}`);
+    const runtimeHost = resolveRuntimeHost();
     scope = scope || "modified";
     const { askStageOnEmpty } = options || {};
     const paths = arrayify(options?.paths, { filterEmpty: true });
@@ -421,6 +422,7 @@ export class GitClient implements Git {
      */
     maxTokensFullDiff?: number;
   }): Promise<string> {
+    const runtimeHost = resolveRuntimeHost();
     const paths = arrayify(options?.paths, { filterEmpty: true });
     const excludedPaths = await this.resolveExcludedPaths(options);
     const {
@@ -532,6 +534,7 @@ ${await this.diff({ ...options, nameOnly: true })}
       directory?: string;
     },
   ): Promise<GitClient> {
+    const runtimeHost = resolveRuntimeHost();
     dbg(`cloning repository: ${repository}`);
     // eslint-disable-next-line prefer-const
     let { branch, force, install, depth, directory, ...rest } = options || {};

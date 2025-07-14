@@ -175,7 +175,6 @@ export function createChatTurnGenerationContext(
   trace: MarkdownTrace,
   cancellationToken: CancellationToken,
 ): ChatTurnGenerationContext & { node: PromptNode } {
-  const runtimeHost = resolveRuntimeHost();
   const node: PromptNode = { children: [] };
   const fenceFormat = options.fenceFormat || resolveFenceFormat(options.model);
   const lineNumbers = options.lineNumbers;
@@ -447,6 +446,7 @@ export function createChatGenerationContext(
     env: ExpansionVariables;
   },
 ): RunPromptContextNode {
+  const runtimeHost = resolveRuntimeHost();
   const { cancellationToken, infoCb, userState } = options || {};
   const { prj, env } = projectOptions;
   assert(!!env.output, "output missing");

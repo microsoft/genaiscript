@@ -13,6 +13,7 @@ import { genaiscriptDebug } from "./debug.js";
 import { tryStat } from "./fs.js";
 import { type CancellationOptions, checkCancelled } from "./cancellation.js";
 import type { WorkspaceFile, WorkspaceGrepOptions } from "./types.js";
+import { resolveRuntimeHost } from "./host.js";
 
 const dbg = genaiscriptDebug("grep");
 
@@ -63,6 +64,7 @@ export async function grepSearch(
   files: WorkspaceFile[];
   matches: WorkspaceFile[];
 }> {
+  const runtimeHost = resolveRuntimeHost();
   const { cancellationToken, trace } = options || {};
   const rgPath = await importRipGrep();
   let { path: paths, glob: globs, readText, applyGitIgnore, debug } = options || {};

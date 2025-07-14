@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import { fileTypeFromBuffer } from "./filetype.js";
-import { CancellationOptions } from "./cancellation.js";
+import type { CancellationOptions } from "./cancellation.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { createFetch } from "./fetch.js";
 import { resolveRuntimeHost } from "./host.js";
 import { HTMLEscape } from "./htmlescape.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { logError, logVerbose } from "./util.js";
 import { dedent } from "./indent.js";
 import { TOOL_ID } from "./constants.js";
@@ -42,7 +42,7 @@ export function convertMarkdownToTeamsHTML(markdown: string) {
       .replace(/^#### (.*$)/gim, "<h3>$1</h3>")
       .replace(/^### (.*$)/gim, "<h2>$1</h2>")
       .replace(/^## (.*$)/gim, "<h1>$1</h1>")
-      .replace(/^\> (.*$)/gim, "<blockquote>$1</blockquote>\n")
+      .replace(/^> (.*$)/gim, "<blockquote>$1</blockquote>\n")
       .replace(/\*\*(.*)\*\*/gim, "<b>$1</b>")
       .replace(/\*(.*)\*/gim, "<i>$1</i>")
       .replace(/__(.*)__/gim, "<u>$1</u>")
@@ -55,7 +55,7 @@ export function convertMarkdownToTeamsHTML(markdown: string) {
 
 function parseTeamsChannelUrl(url: string) {
   const m =
-    /^https:\/\/teams.microsoft.com\/[^\/]{1,32}\/channel\/(?<channelId>.+)\/.*\?groupId=(?<teamId>([a-z0-9\-])+)$/.exec(
+    /^https:\/\/teams.microsoft.com\/[^/]{1,32}\/channel\/(?<channelId>.+)\/.*\?groupId=(?<teamId>([a-z0-9-])+)$/.exec(
       url,
     );
   if (!m) throw new Error("Invalid Teams channel URL");
@@ -188,6 +188,7 @@ export async function microsoftTeamsChannelPostMessage(
 
   const { files = [] } = options || {};
   const { teamId, channelId } = parseTeamsChannelUrl(channelUrl);
+  const runtimeHost = resolveRuntimeHost();
   const authToken = await runtimeHost.microsoftGraphToken.token("default");
   const token = authToken?.token?.token;
   if (!token) {
@@ -219,7 +220,7 @@ export async function microsoftTeamsChannelPostMessage(
       disclaimer,
     });
     const guid = crypto.randomUUID();
-    body.body.content += "\n" + `<attachment id=\"${guid}\"></attachment>`;
+    body.body.content += "\n" + `<attachment id="${guid}"></attachment>`;
     body.attachments.push({
       id: guid,
       contentType: "reference",

@@ -199,6 +199,7 @@ export async function parseTokenFromEnv(
   options: TraceOptions & CancellationOptions & { resolveToken?: boolean },
 ): Promise<LanguageModelConfiguration> {
   const { resolveToken } = options || {};
+  const runtimeHost = resolveRuntimeHost();
   const { provider, model, tag } = parseModelIdentifier(
     modelId ?? runtimeHost.modelAliases.large.model,
   );

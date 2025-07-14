@@ -1274,6 +1274,7 @@ export async function renderPromptNode(
   options?: ModelTemplateOptions & TraceOptions & CancellationOptions,
 ): Promise<PromptNodeRender> {
   const { trace, flexTokens } = options || {};
+  const runtimeHost = resolveRuntimeHost();
   const { encode: encoder } = await resolveTokenEncoder(modelId);
 
   let m = measure("prompt.dom.resolve");

@@ -13,7 +13,7 @@ import {
 } from "./constants.js";
 import { createFetch } from "./fetch.js";
 import { resolveRuntimeHost } from "./host.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { logVerbose } from "./util.js";
 import type { WorkspaceFile } from "./types.js";
 
@@ -65,6 +65,7 @@ export async function bingSearch(
     responseFilter = "Webpages",
     safeSearch = "strict",
   } = options || {};
+  const runtimeHost = resolveRuntimeHost();
 
   // Return an empty response if the query is empty.
   dbg(`checking if query is empty`);
@@ -176,6 +177,7 @@ export async function tavilySearch(
 
   // Retrieve the API key from the runtime host.
   dbg(`retrieving TAVILY_API_KEY from runtime host`);
+  const runtimeHost = resolveRuntimeHost();
   const apiKey = await runtimeHost.readSecret("TAVILY_API_KEY");
   if (!apiKey) {
     dbg(`TAVILY_API_KEY not found, checking ignoreMissingApiKey option`);

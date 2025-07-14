@@ -2,17 +2,12 @@
 // Licensed under the MIT License.
 
 import { AZURE_TOKEN_EXPIRATION } from "./constants.js";
-import {
-  AuthenticationToken,
-  AzureTokenResolver,
-  isAzureTokenExpired,
-  runtimeHost,
-} from "./host.js";
+import { type AuthenticationToken, type AzureTokenResolver, isAzureTokenExpired, resolveRuntimeHost } from "./host.js";
 import { logError } from "./util.js";
 import type { TokenCredential } from "@azure/identity";
 import { serializeError } from "./error.js";
-import { CancellationOptions, CancellationToken, toSignal } from "./cancellation.js";
-import { AzureCredentialsType } from "./server/messages.js";
+import { type CancellationOptions, type CancellationToken, toSignal } from "./cancellation.js";
+import type { AzureCredentialsType } from "./server/messages.js";
 import {
   AzureCliCredential,
   AzureDeveloperCliCredential,
@@ -150,6 +145,7 @@ class AzureTokenResolverImpl implements AzureTokenResolver {
       return { token: this._token, error: this._error };
     }
     if (!this._resolver) {
+      const runtimeHost = resolveRuntimeHost();
       const scope = await runtimeHost.readSecret(this.envName);
       dbg(`reading secret for envName: ${this.envName}`);
       const scopes = scope ? scope.split(",") : this.scopes;

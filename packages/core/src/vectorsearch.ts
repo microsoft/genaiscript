@@ -6,12 +6,12 @@
  * and performing vector search on documents.
  */
 
-import { TraceOptions } from "./trace.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import { type TraceOptions } from "./trace.js";
+import { type CancellationOptions, checkCancelled } from "./cancellation.js";
 import { resolveFileContent } from "./file.js";
 import { vectraWorkspaceFileIndex } from "./vectra.js";
 import { azureAISearchIndex } from "./azureaisearch.js";
-import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
+import type { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
 import { resolveModelConnectionInfo } from "./models.js";
 import { EMBEDDINGS_MODEL_ID } from "./constants.js";
 import { resolveRuntimeHost } from "./host.js";
@@ -153,6 +153,7 @@ export async function vectorCreateIndex(
 
   const cachedEmbedder = createCachedEmbedder(embedder);
   // Pull the model
+  const runtimeHost = resolveRuntimeHost();
   await runtimeHost.pullModel(configuration, { trace, cancellationToken });
   checkCancelled(cancellationToken);
 

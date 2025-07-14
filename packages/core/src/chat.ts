@@ -5,7 +5,7 @@
 import type { MarkdownTrace, TraceOptions } from "./trace.js";
 import type { PromptImage, PromptPrediction } from "./promptdom.js";
 import { renderPromptNode } from "./promptdom.js";
-import { host, runtimeHost } from "./host.js";
+import { host, resolveRuntimeHost } from "./host.js";
 import type { GenerationOptions } from "./generation.js";
 import { dispose } from "./dispose.js";
 import { JSON5TryParse, JSONLLMTryParse, isJSONObjectOrArray } from "./json5.js";
@@ -1009,6 +1009,7 @@ export function mergeGenerationOptions(
   options: GenerationOptions,
   runOptions: ModelOptions & EmbeddingsModelOptions,
 ): GenerationOptions {
+  const runtimeHost = resolveRuntimeHost();
   const res = {
     ...options,
     ...(runOptions || {}),

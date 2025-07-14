@@ -66,6 +66,7 @@ export async function createPromptContext(
 ) {
   const { trace, cancellationToken } = options;
   const { generator, vars, dbg, output, ...varsNoGenerator } = ev;
+  const runtimeHost = resolveRuntimeHost();
 
   dbgc(`create`);
   // Clone variables to prevent modification of the original object
