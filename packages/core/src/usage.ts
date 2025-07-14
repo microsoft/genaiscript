@@ -432,4 +432,23 @@ export class GenerationStats {
         }
         this.chatTurns.push(chatTurn)
     }
+
+    /**
+     * Formats the generation statistics as a markdown table.
+     * 
+     * @returns A markdown table string with token usage and cost information.
+     */
+    toMarkdownTable(): string {
+        const au = this.accumulatedUsage()
+        const cost = this.cost()
+        const costStr = prettyCost(cost) || 'N/A'
+        
+        return `| Metric | Value |
+|--------|--------|
+| Model | ${this.resolvedModel} |
+| Prompt Tokens | ${au.prompt_tokens?.toLocaleString() || 0} |
+| Completion Tokens | ${au.completion_tokens?.toLocaleString() || 0} |
+| Total Tokens | ${au.total_tokens?.toLocaleString() || 0} |
+| Cost | ${costStr} |`
+    }
 }

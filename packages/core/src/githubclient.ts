@@ -34,6 +34,7 @@ import { diagnosticToGitHubMarkdown } from "./annotations"
 import { TraceOptions } from "./trace"
 import { unzip } from "./zip"
 import { uriRedact, uriTryParse } from "./url"
+import { GenerationStats } from "./usage"
 const dbg = genaiscriptDebug("github")
 
 export interface GithubConnectionInfo {
@@ -234,9 +235,9 @@ export async function githubUpdatePullRequestDescription(
     info: GithubConnectionInfo,
     text: string,
     commentTag: string,
-    options?: CancellationOptions
+    options?: CancellationOptions & { stats?: GenerationStats }
 ) {
-    const { cancellationToken } = options ?? {}
+    const { cancellationToken, stats } = options ?? {}
     const { apiUrl, repository, issue, token } = info
     assert(!!commentTag)
 
@@ -250,7 +251,7 @@ export async function githubUpdatePullRequestDescription(
     }
 
     text = prettifyMarkdown(text)
-    text += generatedByFooter(script, info)
+    text += generatedByFooter(script, info, undefined, stats)
 
     const fetch = await createFetch({ retryOn: [], cancellationToken })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}`
@@ -334,20 +335,36 @@ export function mergeDescription(
 }
 
 /**
- * Generates a footer indicating the content was AI-generated.
+ * Generates a footer indicating the content was AI-generated, with optional cost information.
  *
  * @param script - The script instance responsible for generating the content.
  * @param info - An object containing metadata, such as the URL to the workflow run.
  *   - runUrl - Optional URL to the current workflow or run.
  * @param code - Optional identifier code to be appended to the footer.
+ * @param stats - Optional generation statistics for including cost information.
  * @returns A formatted string serving as a footer, warning readers about the AI-generated content.
  */
 export function generatedByFooter(
     script: PromptScript,
     info: { runUrl?: string },
-    code?: string
+    code?: string,
+    stats?: GenerationStats
 ) {
-    return `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect. Use reactions to eval.\n\n`
+    let footer = `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect. Use reactions to eval.`
+    
+    if (stats) {
+        const au = stats.accumulatedUsage()
+        const cost = stats.cost()
+        if (au.total_tokens > 0) {
+            footer += `\n>\n> **Token Usage:** ${au.prompt_tokens?.toLocaleString()} prompt + ${au.completion_tokens?.toLocaleString()} completion = ${au.total_tokens?.toLocaleString()} tokens`
+            if (cost && cost > 0) {
+                const costStr = cost < 0.01 ? `~$${cost.toFixed(4)}` : `$${cost.toFixed(2)}`
+                footer += ` (~${costStr})`
+            }
+        }
+    }
+    
+    return footer + '\n\n'
 }
 
 /**
@@ -365,13 +382,14 @@ export function generatedByFooter(
 export function appendGeneratedComment(
     script: PromptScript,
     info: { runUrl?: string; owner: string; repo: string },
-    annotation: Diagnostic
+    annotation: Diagnostic,
+    stats?: GenerationStats
 ) {
     const { message, code, severity, suggestion } = annotation
     const text = prettifyMarkdown(message)
     return `<!-- genaiscript ${severity} ${code || ""} -->
 ${text}${suggestion ? `\n\n\`\`\`suggestion\n${suggestion}\n\`\`\`\n` : ""}
-${generatedByFooter(script, info, code)}`
+${generatedByFooter(script, info, code, stats)}`
 }
 
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
@@ -380,9 +398,9 @@ export async function githubCreateIssueComment(
     info: GithubConnectionInfo,
     body: string,
     commentTag: string,
-    options?: CancellationOptions
+    options?: CancellationOptions & { stats?: GenerationStats }
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
-    const { cancellationToken } = options ?? {}
+    const { cancellationToken, stats } = options ?? {}
     const { apiUrl, repository, issue, token } = info
 
     if (!issue) {
@@ -399,7 +417,7 @@ export async function githubCreateIssueComment(
     dbg(`creating issue comment at %s`, url)
 
     body = prettifyMarkdown(body)
-    body += generatedByFooter(script, info)
+    body += generatedByFooter(script, info, undefined, stats)
 
     dbg(`body:\n%s`, body)
 

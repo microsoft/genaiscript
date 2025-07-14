@@ -271,6 +271,7 @@ export async function runScriptInternal(
     const pullRequestDescription = options.pullRequestDescription
     const pullRequestReviews = options.pullRequestReviews
     const teamsMessage = options.teamsMessage
+    const outputCosts = options.outputCosts
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
@@ -723,6 +724,26 @@ export async function runScriptInternal(
             )
     }
 
+    // Output cost summary if requested
+    if (outputCosts && stats) {
+        const costTable = stats.toMarkdownTable()
+        if (!options.json && !options.yaml) {
+            console.log('\n## Cost Summary\n')
+            console.log(costTable)
+        }
+        
+        // GitHub Actions output
+        if (process.env.GITHUB_ACTIONS) {
+            const cost = stats.cost()
+            const au = stats.accumulatedUsage()
+            const costStr = cost && cost > 0 ? (cost < 0.01 ? `~$${cost.toFixed(4)}` : `$${cost.toFixed(2)}`) : 'N/A'
+            console.log(`::set-output name=cost::${costStr}`)
+            console.log(`::set-output name=prompt_tokens::${au.prompt_tokens || 0}`)
+            console.log(`::set-output name=completion_tokens::${au.completion_tokens || 0}`)
+            console.log(`::set-output name=total_tokens::${au.total_tokens || 0}`)
+        }
+    }
+
     if (options.json && result !== undefined)
         // needs to go to process.stdout
         stdout.write(JSON.stringify(result, null, 2))
@@ -787,7 +808,7 @@ export async function runScriptInternal(
                 typeof pullRequestComment === "string"
                     ? pullRequestComment
                     : script.id,
-                { cancellationToken }
+                { cancellationToken, stats }
             )
         } else {
             adoInfo = adoInfo ?? (await azureDevOpsParseEnv(process.env))
@@ -835,7 +856,7 @@ export async function runScriptInternal(
                 typeof pullRequestDescription === "string"
                     ? pullRequestDescription
                     : script.id,
-                { cancellationToken }
+                { cancellationToken, stats }
             )
         } else {
             // azure devops pipeline
