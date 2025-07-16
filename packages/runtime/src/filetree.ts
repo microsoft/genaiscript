@@ -6,13 +6,13 @@
  * This module provides core functionality for text classification, data transformation,
  * PDF processing, and file system operations in the GenAIScript environment.
  */
-import type {
-  Awaitable,
-  ElementOrArray,
-  FileStats,
-  OptionsOrString,
-  WorkspaceFile,
-  WorkspaceGrepOptions,
+import {
+  type Awaitable,
+  type ElementOrArray,
+  type FileStats,
+  type OptionsOrString,
+  type WorkspaceFile,
+  type WorkspaceGrepOptions,
 } from "@genaiscript/core";
 
 /**
@@ -39,14 +39,13 @@ export async function fileTree(
 ): Promise<string> {
   const { frontmatter, preview, query, size, ignore, ...rest } = options || {};
   const readText = !!(frontmatter || preview);
-  // TODO
-  const files = query
+  const allFiles = query
     ? (await workspace.grep(query, glob, { ...rest, readText })).files
     : await workspace.findFiles(glob, {
         ignore,
         readText,
       });
-  const tree = await buildTree(files);
+  const tree = await buildTree(allFiles);
   return renderTree(tree);
 
   type TreeNode = {

@@ -152,11 +152,11 @@ export async function initialize(
     dbg(`test host install`);
     await TestHost.install();
   } else {
-    resolveRuntimeHost();
     dbg(`config %o`, dotEnvPaths);
     dbg(`host config %O`, hostConfig);
     await NodeHost.install(dotEnvPaths, hostConfig);
   }
+  resolveRuntimeHost();
   const prj = await buildProject();
   const runId = generateId();
   const runDir = getRunDir("runtime", runId);

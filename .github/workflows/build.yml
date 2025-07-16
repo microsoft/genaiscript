@@ -29,19 +29,7 @@ jobs:
         continue-on-error: true
       - name: compile system scripts
         run: pnpm run test:system
-      - name: core tests
-        run: pnpm run test:core
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: compile tests
-        run: pnpm run test:compile
-      - name: runtime tests
-        run: pnpm run test:runtime
-      - name: unit tests
-        run: pnpm run test:samples
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: unit test:modulesamples
-        run: pnpm run test:modulesamples
+      - name: tests
+        run: pnpm -r test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
