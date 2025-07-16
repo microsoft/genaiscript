@@ -302,6 +302,7 @@
         "Smol",
         "smsg",
         "smtlib",
+        "snowballstemmer",
         "socketserver",
         "sourcepath",
         "spinbutton",

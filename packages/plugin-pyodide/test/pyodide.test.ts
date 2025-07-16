@@ -3,7 +3,8 @@
 
 import { describe, test, assert, beforeAll } from "vitest";
 import { createPythonRuntime } from "../src/pyodide.js";
-import { TestHost } from "./testhost.js";
+import { TestHost } from "@genaiscript/core";
+import type { PythonRuntime } from "../src/types.js";
 
 describe("PyodideRuntime", async () => {
   let runtime: PythonRuntime;
