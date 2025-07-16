@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { basename, resolve } from "node:path";
 import {
   CONVERTS_DIR_NAME,
   GENAI_ANYTS_REGEX,
@@ -12,7 +13,7 @@ import { randomHex } from "./crypto.js";
 import { genaiscriptDebug } from "./debug.js";
 import { ensureDir } from "./fs.js";
 import { gitIgnoreEnsure } from "./gitignore.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { sanitizeFilename } from "./sanitize.js";
 const dbg = genaiscriptDebug("dirs");
 
@@ -23,8 +24,9 @@ const dbg = genaiscriptDebug("dirs");
  * @returns The resolved path as a string.
  */
 export function dotGenaiscriptPath(...segments: string[]) {
-  return host.resolvePath(
-    host.projectFolder(),
+  const runtimeHost = resolveRuntimeHost();
+  return resolve(
+    runtimeHost.projectFolder(),
     GENAISCRIPT_FOLDER,
     ...segments.map((s) => sanitizeFilename(s)),
   );
@@ -67,7 +69,7 @@ export function getRunDir(scriptId: string, runId: string) {
   const name = createDatedFolder(runId);
   const out = dotGenaiscriptPath(
     RUNS_DIR_NAME,
-    host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+    basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
     name,
   );
   dbg("run dir: %s", out);
@@ -97,7 +99,7 @@ export function getConvertDir(scriptId: string) {
   const name = createDatedFolder(runId);
   const out = dotGenaiscriptPath(
     CONVERTS_DIR_NAME,
-    host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+    basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
     name,
   );
   dbg("convert dir: %s", out);

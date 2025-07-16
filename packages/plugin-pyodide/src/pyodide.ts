@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
+import process from "node:process";
 import type { PyodideInterface } from "pyodide";
 import {
   dedent,
@@ -15,7 +15,6 @@ import {
 } from "@genaiscript/core";
 import type { PythonProxy, PythonRuntime, PythonRuntimeOptions } from "./types.js";
 import { dirname } from "node:path";
-import { loadPyodide, version } from "pyodide";
 
 const dbg = genaiscriptDebug("pyodide");
 
@@ -94,16 +93,16 @@ export async function createPythonRuntime(
 ): Promise<PythonRuntime> {
   const { cache } = options ?? {};
   dbg(`creating runtime`);
+  const { loadPyodide, version } = await import("pyodide");
   dbg(`version: %s`, version);
   const sha = await hash({ cache, version: true, pyodide: version });
-  const installDir = dirname(moduleResolve("pyodide"));
+  //const installDir = dirname(moduleResolve("pyodide"));
   const packageCacheDir = dotGenaiscriptPath("cache", "python", sha);
   dbg("package cache dir: %s", packageCacheDir);
-  dbg("install dir: %s", installDir);
+  //dbg("install dir: %s", installDir);
   const pyodide = await loadPyodide(
     deleteUndefinedValues({
       packageCacheDir,
-      
       stdout: (msg: string) => stderr.write(msg),
       stderr: (msg: string) => stderr.write(msg),
       checkAPIVersion: true,
