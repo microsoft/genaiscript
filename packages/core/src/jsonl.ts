@@ -6,6 +6,7 @@ import { JSON5TryParse } from "./json5.js";
 import { concatBuffers } from "./util.js";
 import type { JSONLObject } from "./types.js";
 import { arrayify } from "./cleaners.js";
+import { createUTF8Encoder } from "./utf8.js";
 
 function tryReadFile(fn: string) {
   return host.readFile(fn).then<Uint8Array>(
@@ -67,7 +68,7 @@ export function JSONLStringify(objs: any[]) {
 
 function serialize(objs: any[]) {
   const acc = JSONLStringify(objs);
-  const buf = host.createUTF8Encoder().encode(acc);
+  const buf = createUTF8Encoder().encode(acc);
   return buf;
 }
 

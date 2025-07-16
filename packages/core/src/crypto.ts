@@ -1,11 +1,13 @@
+/* eslint-disable n/no-unsupported-features/node-builtins */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 import { createHash, getRandomValues as cryptoGetRandomValues, subtle } from "node:crypto";
 import type { HashOptions } from "./types.js";
-import { concatBuffers, toHex, utf8Encode } from "./util.js";
+import { concatBuffers, toHex } from "./util.js";
 import { createReadStream } from "node:fs";
 import { CORE_VERSION } from "./version.js";
+import { utf8Encode } from "./utf8.js";
 
 function getRandomValues(bytes: Uint8Array) {
   if (globalThis.crypto) {

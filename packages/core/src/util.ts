@@ -105,26 +105,6 @@ export function fromHex(hex: string) {
 }
 
 /**
- * Encodes a given string into a UTF-8 encoded byte sequence.
- *
- * @param s - The string to be encoded.
- * @returns A Uint8Array containing the UTF-8 encoded byte sequence of the input string.
- */
-export function utf8Encode(s: string) {
-  return host.createUTF8Encoder().encode(s);
-}
-
-/**
- * Decodes a UTF-8 encoded buffer into a string.
- *
- * @param buf - The buffer containing UTF-8 encoded data to decode.
- * @returns Decoded string representation of the buffer.
- */
-export function utf8Decode(buf: Uint8Array) {
-  return host.createUTF8Decoder().decode(buf);
-}
-
-/**
  * Resolves a file path relative to a specified root path.
  *
  * @param root The root directory to resolve the relative path against.

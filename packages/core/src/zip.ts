@@ -8,6 +8,7 @@ import { host } from "./host.js";
 import { isGlobMatch } from "./glob.js";
 import { toBase64 } from "./base64.js";
 import type { ParseZipOptions, WorkspaceFile } from "./types.js";
+import { createUTF8Decoder } from "./utf8.js";
 
 /**
  * Unzips a given byte array representing a ZIP file and extracts its contents into WorkspaceFile objects.
@@ -26,7 +27,7 @@ export async function unzip(data: Uint8Array, options?: ParseZipOptions): Promis
       return true;
     },
   });
-  const decoder = host.createUTF8Decoder();
+  const decoder = createUTF8Decoder();
   return Object.entries(res).map(([filename, data]) => {
     const mime = lookupMime(filename);
     if (isBinaryMimeType(mime))

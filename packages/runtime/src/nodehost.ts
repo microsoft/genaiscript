@@ -420,12 +420,6 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         break;
     }
   }
-  createUTF8Decoder(): UTF8Decoder {
-    return new TextDecoder("utf-8");
-  }
-  createUTF8Encoder(): UTF8Encoder {
-    return new TextEncoder();
-  }
   projectFolder(): string {
     return this.path.resolve(".");
   }

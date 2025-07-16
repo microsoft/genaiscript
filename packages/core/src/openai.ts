@@ -79,6 +79,7 @@ import type {
   SerializedError,
   TranscriptionResult,
 } from "./types.js";
+import { createUTF8Decoder } from "./utf8.js";
 
 const dbg = genaiscriptDebug("openai");
 const dbgMessages = dbg.extend("msg");
@@ -204,7 +205,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
   if (
     cfg.type === MODEL_PROVIDER_OPENAI ||
     cfg.type === "localai" ||
-    cfg.type === MODEL_PROVIDER_ALIBABA || 
+    cfg.type === MODEL_PROVIDER_ALIBABA ||
     cfg.type === MODEL_PROVIDER_HUGGINGFACE
   ) {
     url = trimTrailingSlash(cfg.base) + "/chat/completions";
@@ -451,7 +452,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
     const responseBody = await r.text();
     doChoices(responseBody, [], []);
   } else {
-    const decoder = host.createUTF8Decoder();
+    const decoder = createUTF8Decoder();
     const doChunk = (value: Uint8Array) => {
       // Massage and parse the chunk of data
       const tokens: Logprob[] = [];

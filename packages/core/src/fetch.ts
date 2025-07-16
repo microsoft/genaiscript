@@ -21,6 +21,7 @@ import { prettyDuration, prettyStrings } from "./pretty.js";
 import type { FetchOptions, RetryOptions } from "./types.js";
 import { genaiscriptDebug } from "./debug.js";
 import { deleteUndefinedValues } from "./cleaners.js";
+import { createUTF8Decoder } from "./utf8.js";
 
 const dbg = genaiscriptDebug("fetch");
 const dbgr = dbg.extend("retry");
@@ -63,9 +64,9 @@ export function parseRetryAfter(retryAfterHeader: string): number | null {
 }
 
 function parseRetryAfterHeader(response: Response) {
-  const { headers} = response || {}
+  const { headers } = response || {};
   if (!headers) return undefined;
-  
+
   const retryAfterHeader =
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     headers.get?.("retry-after") || (headers as any)["retry-after"];
@@ -146,7 +147,7 @@ export async function createFetch(
     retries,
     retryOn: (attempt, error, response) => {
       const code: string = (error as { code?: string })?.code as string;
-      const { ok, status, } = response || {}
+      const { ok, status } = response || {};
 
       if (ok) {
         dbgr("status %d is success, not retrying", status);
@@ -268,7 +269,7 @@ export async function* iterateBody(
   options?: CancellationOptions,
 ): AsyncGenerator<string> {
   const { cancellationToken } = options || {};
-  const decoder = host.createUTF8Decoder(); // UTF-8 decoder for processing data
+  const decoder = createUTF8Decoder(); // UTF-8 decoder for processing data
   if (r.body.getReader) {
     const reader = r.body.getReader();
     while (!cancellationToken?.isCancellationRequested) {

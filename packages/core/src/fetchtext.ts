@@ -15,6 +15,7 @@ import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html.js";
 import { createFetch } from "./fetch.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { FetchTextOptions, WorkspaceFile } from "./types.js";
+import { createUTF8Decoder } from "./utf8.js";
 
 const dbg = genaiscriptDebug("fetch:text");
 
@@ -93,7 +94,7 @@ export async function fetchText(
     content = toBase64(bytes);
   } else {
     dbg("text mime type detected, decoding content as UTF-8, mime: %o", mime);
-    content = host.createUTF8Decoder().decode(bytes);
+    content = createUTF8Decoder().decode(bytes);
     if (convert === "markdown")
       content = await HTMLToMarkdown(content, {
         trace,

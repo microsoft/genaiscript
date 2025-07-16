@@ -42,6 +42,7 @@ import {
   WorkspaceFile,
   WorkspaceFileWithScore,
 } from "./types.js";
+import { createUTF8Encoder } from "./utf8.js";
 
 export class TraceChunkEvent extends Event {
   constructor(
@@ -431,7 +432,7 @@ ${this.toResultIcon(success, "")}${title}
       try {
         if (title) this.startDetails(title);
         if (model) this.itemValue("model", model);
-        const encoder = host.createUTF8Encoder();
+        const encoder = createUTF8Encoder();
         for (const file of files) {
           const score = !isNaN(file.score)
             ? `score: ${renderWithPrecision(file.score || 0, 2)}`

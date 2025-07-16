@@ -139,8 +139,6 @@ export interface Host {
   server: ServerManager;
   path: Path;
 
-  createUTF8Decoder(): UTF8Decoder;
-  createUTF8Encoder(): UTF8Encoder;
   projectFolder(): string;
   resolvePath(...segments: string[]): string;
 

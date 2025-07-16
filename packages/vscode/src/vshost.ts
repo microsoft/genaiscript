@@ -37,13 +37,6 @@ export class VSCodeHost extends EventTarget implements Host {
   dispose() {
     setHost(undefined);
   }
-
-  createUTF8Decoder() {
-    return new TextDecoder("utf-8");
-  }
-  createUTF8Encoder() {
-    return new TextEncoder();
-  }
   get projectUri() {
     return vscode.workspace.workspaceFolders[0]?.uri;
   }
