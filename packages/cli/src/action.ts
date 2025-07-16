@@ -87,7 +87,7 @@ export async function actionConfigure(
     event?: string;
     interactive?: boolean;
   },
-) {
+): Promise<void> {
   options = options || {};
   const { owner, repo } = (await github.info()) || {};
   if (!owner || !repo) throw new Error("GitHub repository information not found.");

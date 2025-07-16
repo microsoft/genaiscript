@@ -5115,43 +5115,6 @@
   convert?: "markdown" | "text" | "tables";
 };
 
- interface PythonRuntimeOptions {
-  cache?: string;
-}
-
- interface PythonRuntime {
-  /**
-   * Runs python code and returns the result
-   * @param code python code
-   */
-  run(code: string): Promise<any>;
-
-  /**
-   * Imports a package using micropip
-   * @param pkg name and version
-   */
-  import(pkg: string): Promise<void>;
-
-  /**
-   * Access to python global variables
-   */
-  globals: PythonProxy;
-}
-
- interface PythonProxy {
-  /**
-   * Reads a value from the python object
-   * @param name
-   */
-  get<T>(name: string): T;
-  /**
-   * Copy a value into the python object
-   * @param name
-   * @param value
-   */
-  set<T>(name: string, value: T): void;
-}
-
  interface PromptHost
   extends ShellHost,
     LoggerHost,
@@ -5196,11 +5159,6 @@
    * Create a new promise queue to run async functions with limited concurrency
    */
   promiseQueue(concurrency: number): PromiseQueue;
-
-  /**
-   * Instantiates a python evaluation environment powered by pyodide (https://pyodide.org/)
-   */
-  python(options?: PythonRuntimeOptions): Promise<PythonRuntime>;
 
   /**
    * Gets a client to a Microsoft Teams channel from a share link URL;

@@ -607,9 +607,6 @@ importers:
       pdfjs-dist:
         specifier: 5.3.31
         version: 5.3.31
-      pyodide:
-        specifier: ^0.27.7
-        version: 0.27.7(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       xlsx:
         specifier: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz
         version: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz
@@ -829,6 +826,49 @@ importers:
       playwright:
         specifier: ^1.54.1
         version: 1.54.1
+    devDependencies:
+      '@genaiscript/eslint-plugin-genaiscript':
+        specifier: workspace:*
+        version: link:../../tools/eslint-plugin-genaiscript
+      '@types/debug':
+        specifier: 'catalog:'
+        version: 4.1.12
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.28
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jiti@2.4.2)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.20.3)(yaml@2.8.0))
+      eslint:
+        specifier: 'catalog:'
+        version: 9.31.0(jiti@2.4.2)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.2
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      tshy:
+        specifier: 'catalog:'
+        version: 3.0.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.28)(jiti@2.4.2)(jsdom@26.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(tsx@4.20.3)(yaml@2.8.0)
+
+  packages/plugin-pyodide:
+    dependencies:
+      '@genaiscript/core':
+        specifier: workspace:*
+        version: link:../core
+      '@genaiscript/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      pyodide:
+        specifier: ^0.27.7
+        version: 0.27.7(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     devDependencies:
       '@genaiscript/eslint-plugin-genaiscript':
         specifier: workspace:*
@@ -17988,7 +18028,6 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
-    optional: true
 
   qs@6.14.0:
     dependencies:

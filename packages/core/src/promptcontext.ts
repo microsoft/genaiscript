@@ -347,12 +347,6 @@ export async function createPromptContext(
       await runtimeHost.contentSafety(id || options?.contentSafety, {
         trace,
       }),
-    python: async (pyOptions) =>
-      await runtimeHost.python({
-        trace,
-        cancellationToken,
-        ...(pyOptions || {}),
-      }),
     teamsChannel: async (url) => createMicrosoftTeamsChannelClient(url),
   });
 

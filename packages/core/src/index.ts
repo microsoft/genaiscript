@@ -149,7 +149,6 @@ export * from "./promptfoo.js";
 export * from "./promptrunner.js";
 export * from "./prompty.js";
 export * from "./proxy.js";
-export * from "./pyodide.js";
 export * from "./quiet.js";
 export * from "./resources.js";
 export * from "./runpromptcontext.js";

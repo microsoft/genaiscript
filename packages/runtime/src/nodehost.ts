@@ -60,8 +60,6 @@ import type {
   ModelConfiguration,
   ModelConfigurations,
   Project,
-  PythonRuntime,
-  PythonRuntimeOptions,
   ResponseStatus,
   ShellOptions,
   TraceOptions,
@@ -528,13 +526,6 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       throw new NotSupportedError(`content safety ${id} not supported`);
     }
     return undefined;
-  }
-
-  /**
-   * Instantiates a python evaluation environment
-   */
-  python(options?: PythonRuntimeOptions & TraceOptions): Promise<PythonRuntime> {
-    return createPythonRuntime(options);
   }
 
   async exec(

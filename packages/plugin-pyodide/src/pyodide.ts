@@ -2,16 +2,18 @@
 // Licensed under the MIT License.
 
 import type { PyodideInterface } from "pyodide";
-import { dotGenaiscriptPath } from "./workdir.js";
-import { TraceOptions } from "./trace.js";
-import { hash } from "./crypto.js";
-import { deleteUndefinedValues } from "./cleaners.js";
-import { dedent } from "./indent.js";
-import { PLimitPromiseQueue } from "./concurrency.js";
-import { stderr } from "./stdio.js";
+import {
+  dedent,
+  deleteUndefinedValues,
+  dotGenaiscriptPath,
+  genaiscriptDebug,
+  hash,
+  moduleResolve,
+  PLimitPromiseQueue,
+  stderr,
+  type TraceOptions,
+} from "@genaiscript/core";
 import type { PythonProxy, PythonRuntime, PythonRuntimeOptions } from "./types.js";
-import { moduleResolve } from "./pathUtils.js";
-import { genaiscriptDebug } from "./debug.js";
 import { dirname } from "node:path";
 const dbg = genaiscriptDebug("pyodide");
 
