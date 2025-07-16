@@ -17,7 +17,7 @@ const rules: Record<string, SharedConfig.RuleEntry> = {
   "no-undef": "off",
   "no-unsafe-finally": "error",
   "no-unused-vars": "off",
-  "no-unused-expressions": "error",
+  "no-unused-expressions": "off",
   "no-useless-constructor": "off",
   "no-use-before-define": "off",
   "no-var": "error",
