@@ -867,8 +867,8 @@ importers:
         specifier: workspace:*
         version: link:../runtime
       pyodide:
-        specifier: ^0.27.7
-        version: 0.27.7(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        specifier: ^0.28.0
+        version: 0.28.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     devDependencies:
       '@genaiscript/eslint-plugin-genaiscript':
         specifier: workspace:*
@@ -7654,8 +7654,8 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  pyodide@0.27.7:
-    resolution: {integrity: sha512-RUSVJlhQdfWfgO9hVHCiXoG+nVZQRS5D9FzgpLJ/VcgGBLSAKoPL8kTiOikxbHQm1kRISeWUBdulEgO26qpSRA==}
+  pyodide@0.28.0:
+    resolution: {integrity: sha512-QML/Gh8eu50q5zZKLNpW6rgS0XUdK+94OSL54AUSKV8eJAxgwZrMebqj+CyM0EbF3EUX8JFJU3ryaxBViHammQ==}
     engines: {node: '>=18.0.0'}
 
   qs@6.14.0:
@@ -18025,7 +18025,7 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  pyodide@0.27.7(bufferutil@4.0.9)(utf-8-validate@5.0.10):
+  pyodide@0.28.0(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
       ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:

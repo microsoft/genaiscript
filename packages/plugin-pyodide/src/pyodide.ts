@@ -15,6 +15,8 @@ import {
 } from "@genaiscript/core";
 import type { PythonProxy, PythonRuntime, PythonRuntimeOptions } from "./types.js";
 import { dirname } from "node:path";
+import { loadPyodide, version } from "pyodide";
+
 const dbg = genaiscriptDebug("pyodide");
 
 class PyProxy implements PythonProxy {
@@ -92,7 +94,7 @@ export async function createPythonRuntime(
 ): Promise<PythonRuntime> {
   const { cache } = options ?? {};
   dbg(`creating runtime`);
-  const { loadPyodide, version } = await import("pyodide");
+  dbg(`version: %s`, version);
   const sha = await hash({ cache, version: true, pyodide: version });
   const installDir = dirname(moduleResolve("pyodide"));
   const packageCacheDir = dotGenaiscriptPath("cache", "python", sha);
@@ -101,6 +103,7 @@ export async function createPythonRuntime(
   const pyodide = await loadPyodide(
     deleteUndefinedValues({
       packageCacheDir,
+      
       stdout: (msg: string) => stderr.write(msg),
       stderr: (msg: string) => stderr.write(msg),
       checkAPIVersion: true,
