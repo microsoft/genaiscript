@@ -24,8 +24,6 @@ import type {
   ContentSafetyProvider,
   ModelOptions,
   Path,
-  PythonRuntime,
-  PythonRuntimeOptions,
   SerializedError,
   ShellOutput,
   ShellSelectChoice,
@@ -227,13 +225,6 @@ export interface RuntimeHost extends Host {
    * @param options
    */
   container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>;
-
-  /**
-   * Instantiates a python evaluation environment
-   */
-  python(
-    options?: PythonRuntimeOptions & TraceOptions & CancellationOptions,
-  ): Promise<PythonRuntime>;
 
   /**
    * Cleanup all temporary containers.

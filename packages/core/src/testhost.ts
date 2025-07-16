@@ -44,8 +44,6 @@ import type {
   ShellOutput,
   ContainerOptions,
   ContainerHost,
-  PythonRuntimeOptions,
-  PythonRuntime,
   Path,
 } from "./types.js";
 import { installGlobals } from "./globals.js";
@@ -213,13 +211,6 @@ export class TestHost implements RuntimeHost {
   // Placeholder for creating a container host
   container(options: ContainerOptions & TraceOptions): Promise<ContainerHost> {
     throw new Error("Method not implemented.");
-  }
-
-  /**
-   * Instantiates a python evaluation environment
-   */
-  python(options?: PythonRuntimeOptions): Promise<PythonRuntime> {
-    throw new Error("python");
   }
 
   // Async method to remove containers

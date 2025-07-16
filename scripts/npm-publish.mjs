@@ -13,6 +13,7 @@ for (const d of [
   "plugin-mdast",
   "plugin-mermaid",
   "plugin-playwright",
+  "plugin-pyodide",
   "plugin-z3",
   "cli",
 ]) {

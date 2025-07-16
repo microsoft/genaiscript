@@ -1237,6 +1237,9 @@ importers:
       '@genaiscript/plugin-playwright':
         specifier: workspace:*
         version: link:../../packages/plugin-playwright
+      '@genaiscript/plugin-pyodide':
+        specifier: workspace:*
+        version: link:../../packages/plugin-pyodide
       '@genaiscript/plugin-z3':
         specifier: workspace:*
         version: link:../../packages/plugin-z3
