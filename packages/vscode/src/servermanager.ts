@@ -275,6 +275,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
 
     async function checkNodeCommand(terminal: vscode.Terminal): Promise<boolean> {
       if (!terminal) throw new Error("terminal not started");
+      if (!terminal.shellIntegration) return true;
       // Log all data written to the terminal for a command
       const command = terminal.shellIntegration.executeCommand("node -v");
       let output = "";
