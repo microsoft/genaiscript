@@ -329,6 +329,7 @@
         "SYSTEMROOT",
         "tabletojson",
         "taskprovider",
+        "tavily",
         "TAVILY",
         "templ",
         "testcontroller",
