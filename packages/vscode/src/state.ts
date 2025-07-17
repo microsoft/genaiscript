@@ -89,6 +89,7 @@ export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
   const { response, error, creationTime, trace } = r;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { env, ...responseWithoutVars } = response || {};
+  // eslint-disable-next-line n/no-unsupported-features/node-builtins
   const snapshot = structuredClone({
     creationTime,
     cacheTime: new Date().toISOString(),
@@ -106,7 +107,7 @@ export class ExtensionState extends EventTarget {
   private _diagColl: vscode.DiagnosticCollection;
   readonly output: vscode.LogOutputChannel;
   readonly sessionApiKey: string;
-  private panel: vscode.WebviewPanel;
+  private _panelPromise: Promise<vscode.WebviewPanel>;
 
   constructor(public readonly context: ExtensionContext) {
     super();
@@ -137,20 +138,33 @@ export class ExtensionState extends EventTarget {
     );
   }
 
-  async showWebview(options?: { reveal?: boolean }) {
+  async showWebview(options?: { reveal?: boolean }): Promise<void> {
     const { reveal } = options || {};
-    if (!this.panel) {
-      this.panel = await createWebview(this);
-      this.panel.onDidDispose(() => (this.panel = undefined));
-    } else if (reveal) this.panel.reveal();
+    if (!this._panelPromise) {
+      logVerbose(`webview: create`);
+      const p = (this._panelPromise = createWebview(this));
+      const panel = await this._panelPromise;
+      if (panel) {
+        panel.onDidDispose(() => {
+          if (p === this._panelPromise) {
+            this._panelPromise = undefined;
+            logVerbose(`webview: disposed`);
+          }
+        });
+      }
+    } else if (reveal) {
+      logVerbose(`webview: reveal`);
+      const panel = await this._panelPromise;
+      panel?.reveal();
+    }
   }
 
-  getConfiguration() {
+  getConfiguration(): vscode.WorkspaceConfiguration {
     const config = vscode.workspace.getConfiguration(TOOL_ID);
     return config;
   }
 
-  async updateLanguageChatModels(model: string, chatModel: string) {
+  async updateLanguageChatModels(model: string, chatModel: string): Promise<void> {
     const res = await this.languageChatModels();
     if (res[model] !== chatModel) {
       if (chatModel === undefined) delete res[model];
@@ -160,13 +174,13 @@ export class ExtensionState extends EventTarget {
     }
   }
 
-  async languageChatModels() {
+  async languageChatModels(): Promise<Record<string, string>> {
     const config = this.getConfiguration();
     const res = (config.get("languageChatModels") as Record<string, string>) || {};
     return res;
   }
 
-  async applyEdits() {
+  async applyEdits(): Promise<void> {
     const req = this.aiRequest;
     if (!req) return;
     const edits = req.response?.edits?.filter(({ validated }) => !validated);
@@ -203,7 +217,7 @@ export class ExtensionState extends EventTarget {
       this.setDiagnostics();
       this.dispatchChange();
 
-      if (edits?.length && options.mode != "notebook") this.applyEdits();
+      if (edits?.length && options.mode !== "notebook") this.applyEdits();
       return res;
     } catch (e) {
       if (isCancelError(e)) return undefined;
@@ -211,7 +225,7 @@ export class ExtensionState extends EventTarget {
     }
   }
 
-  dispatchAIRequestChange() {
+  dispatchAIRequestChange(): void {
     this.dispatchEvent(new Event(AI_REQUEST_CHANGE));
   }
 
@@ -298,16 +312,16 @@ export class ExtensionState extends EventTarget {
     return r;
   }
 
-  get aiRequest() {
+  get aiRequest(): AIRequest {
     return this._aiRequest;
   }
 
-  get diagnostics() {
+  get diagnostics(): boolean {
     const diagnostics = !!this.getConfiguration().get("diagnostics");
     return diagnostics;
   }
 
-  get debug() {
+  get debug(): string {
     const res = this.getConfiguration().get("debug") as string;
     if (isEmptyString(res)) return undefined;
     return res;
@@ -321,7 +335,7 @@ export class ExtensionState extends EventTarget {
     }
   }
 
-  async cancelAiRequest() {
+  async cancelAiRequest(): Promise<void> {
     const a = this.aiRequest;
     if (a && a.computing) {
       a.computing = false;
@@ -333,31 +347,31 @@ export class ExtensionState extends EventTarget {
     }
   }
 
-  get project() {
+  get project(): Project {
     return this._project;
   }
 
-  private async setProject(prj: Project) {
+  private async setProject(prj: Project): Promise<void> {
     this._project = prj;
     await this.fixPromptDefinitions();
     this.dispatchFragments();
   }
 
-  private dispatchChange() {
+  private dispatchChange(): void {
     this.dispatchEvent(new Event(CHANGE));
   }
 
-  private dispatchFragments(fragments?: Fragment[]) {
+  private dispatchFragments(fragments?: Fragment[]): void {
     this.dispatchEvent(new FragmentsEvent(fragments));
     this.dispatchChange();
   }
 
-  async activate() {
+  async activate(): Promise<void> {
     await this.host.activate();
     logInfo("genaiscript extension activated");
   }
 
-  async fixPromptDefinitions() {
+  async fixPromptDefinitions(): Promise<void> {
     const project = this.project;
     if (!project) return;
 
