@@ -6,7 +6,7 @@ import type { ExtensionState } from "./state";
 import { registerCommand } from "./commands";
 import { GENAI_ANY_REGEX, TOOL_ID, TOOL_NAME } from "../../core/src/constants";
 import type { PromptParameters, PromptScript } from "../../core/src/types";
-import { logInfo, logVerbose } from "../../core/src/util";
+import { logInfo, logVerbose } from "../../core/src/log";
 import { YAMLStringify } from "../../core/src/yaml";
 import { dotGenaiscriptPath } from "../../core/src/workdir";
 import type { TemplateQuickPickItem } from "./parameterquickpick";

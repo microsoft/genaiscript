@@ -23,7 +23,7 @@ import type { ServerManager } from "../../core/src/host";
 import { packageResolveExecute } from "../../core/src/packagemanagers";
 import { VsCodeClient } from "../../core/src/server/client";
 import { shellQuote } from "../../core/src/shell";
-import { logError, logInfo, logVerbose } from "../../core/src/util";
+import { logError, logInfo, logVerbose } from "../../core/src/log";
 import { CORE_VERSION } from "../../core/src/version";
 import { findRandomOpenPort } from "../../core/src/net";
 

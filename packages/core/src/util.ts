@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { HTTPS_REGEX } from "./constants.js";
-import { resolve } from "node:path";
+import { resolveRuntimeHost } from "./host.js";
 export * from "./log.js";
 
 /**
@@ -112,7 +112,8 @@ export function fromHex(hex: string) {
 export function relativePath(root: string, fn: string) {
   // ignore empty path or urls
   if (!fn || HTTPS_REGEX.test(fn)) return fn;
-  const afn = resolve(fn);
+  const runtimeHost = resolveRuntimeHost();
+  const afn = runtimeHost.path.resolve(fn);
   if (afn.startsWith(root)) {
     return afn.slice(root.length).replace(/^[/\\]+/, "");
   }

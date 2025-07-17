@@ -7,7 +7,7 @@ import type { ChatCompletionMessageParam } from "../../core/src/chattypes";
 import type { LanguageModelChatRequest } from "../../core/src/server/client";
 import type { ChatStart } from "../../core/src/server/messages";
 import { serializeError } from "../../core/src/error";
-import { logVerbose } from "../../core/src/util";
+import { logVerbose } from "../../core/src/log";
 import { renderMessageContent } from "../../core/src/chatrender";
 import { parseModelIdentifier } from "../../core/src/models";
 import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "../../core/src/constants";

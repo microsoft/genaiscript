@@ -30,7 +30,7 @@ import type {
   Project,
 } from "../../core/src/server/messages";
 import { MarkdownTrace } from "../../core/src/trace";
-import { logInfo, logVerbose } from "../../core/src/util";
+import { logInfo, logVerbose } from "../../core/src/log";
 import { logMeasure } from "../../core/src/perf";
 import type { DiagnosticSeverity, PromptParameters } from "../../core/src/types";
 
