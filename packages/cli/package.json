@@ -51,7 +51,7 @@
     "execa": "catalog:",
     "fastify": "^5.4.0",
     "inflection": "catalog:",
-    "openai": "^5.9.0",
+    "openai": "^5.10.1",
     "replace-ext": "^2.0.0",
     "tslib": "catalog:",
     "typescript": "catalog:",

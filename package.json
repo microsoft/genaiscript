@@ -127,9 +127,9 @@
     "playwright": "^1.54.1",
     "prettier": "catalog:",
     "prettier-plugin-curly": "^0.3.2",
-    "release-it": "^19.0.3",
+    "release-it": "^19.0.4",
     "tsx": "catalog:",
-    "turbo": "^2.5.4",
+    "turbo": "^2.5.5",
     "zx": "catalog:"
   }
 }
