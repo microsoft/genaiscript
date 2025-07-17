@@ -20,10 +20,6 @@ jobs:
         with:
           node-version: "${{ matrix.node-version }}"
           cache: "pnpm"
-      - uses: dev-proxy-tools/actions/setup@v1
-        with:
-          auto-record: true
-          report-job-summary: $GITHUB_STEP_SUMMARY
       - run: sudo apt-get update && sudo apt-get install ffmpeg
       - run: pnpm install --frozen-lockfile
       - name: build

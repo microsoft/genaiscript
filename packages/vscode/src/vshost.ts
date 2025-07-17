@@ -9,7 +9,7 @@ import type { ExtensionState } from "./state";
 import { Utils } from "vscode-uri";
 import { uniq } from "es-toolkit";
 import type { Host, RuntimeHost } from "../../core/src/host";
-import { setRuntimeHost } from "../../core/src/host";
+import { resolveRuntimeHost, setRuntimeHost } from "../../core/src/host";
 import { arrayify } from "../../core/src/cleaners";
 import { filterGitIgnore } from "../../core/src/gitignore";
 import type { CancellationOptions } from "../../core/src/cancellation";
@@ -25,6 +25,7 @@ export class VSCodeHost extends EventTarget implements Host {
   constructor(readonly state: ExtensionState) {
     super();
     setRuntimeHost(this as any as RuntimeHost);
+    resolveRuntimeHost();
     this.server = new TerminalServerManager(state);
     this.state.context.subscriptions.push(this);
   }

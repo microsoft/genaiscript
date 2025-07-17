@@ -114,8 +114,8 @@ export class ExtensionState extends EventTarget {
     this.output = vscode.window.createOutputChannel(TOOL_NAME, {
       log: true,
     });
-    if (this.sessionApiKey) this.output.info(`session api key: ${this.sessionApiKey}`);
     this.host = new VSCodeHost(this);
+    if (this.sessionApiKey) this.output.info(`session api key: ${this.sessionApiKey}`);
     this.host.addEventListener(CHANGE, this.dispatchChange.bind(this));
     const { subscriptions } = context;
     subscriptions.push(this);

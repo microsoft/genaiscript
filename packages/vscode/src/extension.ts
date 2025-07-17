@@ -22,7 +22,7 @@ import { activateChatParticipant } from "./chatparticipant";
 import { activeWebview } from "./webview";
 import { activateFixCommand } from "./fixcommand";
 
-export async function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext): Promise<unknown> {
   const state = new ExtensionState(context);
   activatePromptCommands(state);
   activateFragmentCommands(state);
