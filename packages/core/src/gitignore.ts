@@ -10,6 +10,7 @@ import { logVerbose } from "./util.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { GitIgnorer, WorkspaceFile } from "./types.js";
 import { filenameOrFileToFilename } from "./unwrappers.js";
+import { join } from "node:path";
 const dbg = genaiscriptDebug("files:gitignore");
 
 /**
@@ -66,7 +67,7 @@ export async function filterGitIgnore(files: string[]) {
  */
 export async function gitIgnoreEnsure(dir: string, entries: string[]) {
   const runtimeHost = resolveRuntimeHost();
-  const fn = runtimeHost.path.join(dir, GIT_IGNORE);
+  const fn = join(dir, GIT_IGNORE);
   dbg(`reading file ${fn}`);
   let src = (await tryReadText(fn)) || "";
   const oldsrc = src;

@@ -10,6 +10,7 @@ import type { Awaitable, PromptContext, PromptScript } from "./types.js";
 import { tsImport, register } from "tsx/esm/api";
 import { genaiscriptDebug } from "./debug.js";
 import { errorMessage } from "./error.js";
+import { isAbsolute, join } from "node:path";
 const dbg = genaiscriptDebug("tsx");
 const dbgi = genaiscriptDebug("tsx:import");
 
@@ -48,9 +49,7 @@ export async function importFile<T = void>(
   let unregister: () => void = undefined;
   try {
     const modulePath = pathToFileURL(
-      runtimeHost.path.isAbsolute(filename)
-        ? filename
-        : runtimeHost.path.join(runtimeHost.projectFolder(), filename),
+      isAbsolute(filename) ? filename : join(runtimeHost.projectFolder(), filename),
     ).toString();
     const parentURL = pathToFileURL(__filename).toString();
     const onImport = (_file: string) => dbgi(`%s`, _file);

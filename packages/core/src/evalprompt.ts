@@ -7,6 +7,7 @@ const dbg = debug("genaiscript:evalprompt");
 import { resolveRuntimeHost } from "./host.js";
 import type { PromptContext, PromptScript } from "./types.js";
 import MagicString from "magic-string";
+import { resolve } from "node:path";
 
 /**
  * Evaluates a JavaScript prompt script with the provided context.
@@ -45,7 +46,7 @@ export async function evalPrompt(
     s.prepend(prefix);
     s.append(suffix);
     dbg(`resolving path for ${r.filename}`);
-    const source = runtimeHost.path.resolve(r.filename);
+    const source = resolve(r.filename);
     const map = s.generateMap({
       source,
       includeContent: true,

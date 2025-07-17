@@ -15,7 +15,7 @@ import { scriptsToQuickPickItems } from "./scriptquickpick";
 import { getSelectedText } from "./selection";
 import { resolveCli } from "./config";
 
-export function activateFragmentCommands(state: ExtensionState) {
+export function activateFragmentCommands(state: ExtensionState): void {
   const { context, host } = state;
   const { subscriptions } = context;
 

@@ -26,7 +26,7 @@ import { DOCS_WEB_SEARCH_URL, VECTOR_INDEX_HASH_LENGTH } from "./constants.js";
 import { fetch } from "./fetch.js";
 import { fetchText } from "./fetchtext.js";
 import { fileWriteCached } from "./filecache.js";
-import { join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { createMicrosoftTeamsChannelClient } from "./teams.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { createCache } from "./cache.js";
@@ -117,8 +117,8 @@ export async function createPromptContext(
       grepOptions2?: WorkspaceGrepOptions,
     ) => {
       if (typeof grepOptions === "string") {
-        const p = runtimeHost.path.dirname(grepOptions).replace(/(^|\/)\*\*$/, "");
-        const g = runtimeHost.path.basename(grepOptions);
+        const p = dirname(grepOptions).replace(/(^|\/)\*\*$/, "");
+        const g = basename(grepOptions);
         grepOptions = {
           path: p || undefined,
           glob: g || undefined,

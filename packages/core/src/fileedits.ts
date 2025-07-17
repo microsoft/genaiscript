@@ -27,6 +27,7 @@ import type {
   ReplaceEdit,
   RunPromptResult,
 } from "./types.js";
+import { isAbsolute } from "node:path";
 
 /**
  * Computes file edits based on the specified runtime prompt result and processing options.
@@ -169,7 +170,7 @@ export async function computeFileEdits(
 
         if (files)
           for (const [n, content] of Object.entries(files)) {
-            const fn = runtimeHost.path.isAbsolute(n) ? n : runtimeHost.resolvePath(projFolder, n);
+            const fn = isAbsolute(n) ? n : runtimeHost.resolvePath(projFolder, n);
             opTrace?.detailsFenced(`📁 file ${fn}`, content);
             const fileEdit = await getFileEdit(fn);
             fileEdit.after = content;

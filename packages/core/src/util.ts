@@ -6,6 +6,7 @@ import { isCancelError, serializeError } from "./error.js";
 import { resolveRuntimeHost } from "./host.js";
 import { YAMLStringify } from "./yaml.js";
 import type { SerializedError } from "./types.js";
+import { resolve } from "node:path";
 
 /**
  * Compares two strings lexicographically.
@@ -114,8 +115,7 @@ export function fromHex(hex: string) {
 export function relativePath(root: string, fn: string) {
   // ignore empty path or urls
   if (!fn || HTTPS_REGEX.test(fn)) return fn;
-  const runtimeHost = resolveRuntimeHost();
-  const afn = runtimeHost.path.resolve(fn);
+  const afn = resolve(fn);
   if (afn.startsWith(root)) {
     return afn.slice(root.length).replace(/^[/\\]+/, "");
   }

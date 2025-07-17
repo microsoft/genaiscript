@@ -13,6 +13,7 @@ import {
   resolveRuntimeHost,
   logVerbose,
 } from "@genaiscript/core";
+import { resolve } from "node:path";
 const dbg = genaiscriptDebug("compile");
 
 /**
@@ -25,7 +26,7 @@ const dbg = genaiscriptDebug("compile");
  * @param folders - An array of folder names to compile. If empty, compiles all available script folders.
  */
 export async function compileScript(folders: string[]): Promise<void> {
-  const runtimeHost = resolveRuntimeHost()
+  const runtimeHost = resolveRuntimeHost();
   const project = await buildProject();
   await fixPromptDefinitions(project);
 
@@ -42,7 +43,7 @@ export async function compileScript(folders: string[]): Promise<void> {
     const { dirname, js, ts: isTypeScript } = folder;
     if (js) {
       logInfo(`compiling ${dirname}/*.js`);
-      const configPath = runtimeHost.path.resolve(dirname, "jsconfig.json");
+      const configPath = resolve(dirname, "jsconfig.json");
       const config = ts.readConfigFile(configPath, ts.sys.readFile);
       if (config.error) {
         logInfo(config.error.messageText.toString());
@@ -82,7 +83,7 @@ export async function compileScript(folders: string[]): Promise<void> {
     }
     if (isTypeScript) {
       logInfo(`compiling ${dirname}/*.{mjs,.mts}`);
-      const configPath = runtimeHost.path.resolve(dirname, "tsconfig.json");
+      const configPath = resolve(dirname, "tsconfig.json");
       const config = ts.readConfigFile(configPath, ts.sys.readFile);
       if (config.error) {
         logVerbose(config.error.messageText.toString());

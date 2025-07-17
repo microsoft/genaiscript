@@ -20,7 +20,7 @@ import { ellipse, toStringList } from "./util.js";
 import { renderWithPrecision } from "./precision.js";
 import { fenceMD } from "./mkmd.js";
 import { HTMLEscape } from "./htmlescape.js";
-import { resolve } from "node:path";
+import { extname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { dedent } from "./indent.js";
 import { CSVStringify, dataToMarkdownTable } from "./csv.js";
@@ -212,7 +212,7 @@ ${this.toResultIcon(success, "")}${title}
       this.itemValue(filename, "no content");
     } else {
       this.item(filename);
-      const ext = runtimeHost.path.extname(filename).slice(1);
+      const ext = extname(filename).slice(1);
       this.fence(ellipse(content, TRACE_MAX_FILE_SIZE), ext);
     }
   }
