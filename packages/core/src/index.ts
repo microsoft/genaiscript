@@ -199,6 +199,7 @@ export * from "./build.js";
 export * from "./sarif.js";
 export * from "./tracefile.js";
 export * from "./stdin.js";
+export * from "./log.js";
 
 // Messages
 export * from "./server/client.js";

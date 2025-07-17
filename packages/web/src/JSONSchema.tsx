@@ -3,6 +3,11 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import React, { startTransition, useEffect, useState } from "react";
+import type {
+  JSONSchemaSimpleType,
+  JSONSchemaString,
+  JSONSchemaNumber,
+} from "../../core/src/types";
 
 import { underscore } from "inflection";
 import "@vscode-elements/elements/dist/vscode-textarea";
@@ -17,7 +22,7 @@ import "@vscode-elements/elements/dist/vscode-form-helper";
 import "@vscode-elements/elements/dist/vscode-label";
 import Markdown from "./Markdown";
 
-function JSONSchemaString(props: {
+function JSONSchemaStringView(props: {
   field: JSONSchemaString;
   value: string;
   required?: boolean;
@@ -141,7 +146,7 @@ function JSONSchemaStringEnum(props: {
   );
 }
 
-function JSONSchemaNumber(props: {
+function JSONSchemaNumberView(props: {
   schema: JSONSchemaNumber;
   value: number;
   required: boolean;
@@ -186,7 +191,7 @@ function JSONSchemaSimpleTypeFormField(props: {
     case "number":
     case "integer":
       return (
-        <JSONSchemaNumber
+        <JSONSchemaNumberView
           schema={field}
           value={Number(value)}
           onChange={onChange}
@@ -195,7 +200,7 @@ function JSONSchemaSimpleTypeFormField(props: {
       );
     case "string": {
       return (
-        <JSONSchemaString
+        <JSONSchemaStringView
           field={field}
           value={value as string}
           required={required}

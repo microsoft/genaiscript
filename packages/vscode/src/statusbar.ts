@@ -7,7 +7,7 @@ import { toMarkdownString } from "./markdown";
 import { ICON_LOGO_NAME, CHANGE } from "../../core/src/constants";
 import { toStringList } from "../../core/src/util";
 
-export function activateStatusBar(state: ExtensionState) {
+export function activateStatusBar(state: ExtensionState): void {
   const { context } = state;
 
   const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 120);

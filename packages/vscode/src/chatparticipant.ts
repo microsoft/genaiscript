@@ -17,7 +17,7 @@ import { convertAnnotationsToItems } from "../../core/src/annotations";
 import { patchCachedImages } from "../../core/src/filecache";
 import { deleteUndefinedValues } from "../../core/src/cleaners";
 
-export async function activateChatParticipant(state: ExtensionState) {
+export async function activateChatParticipant(state: ExtensionState): Promise<void> {
   const { context } = state;
   const { subscriptions } = context;
 
