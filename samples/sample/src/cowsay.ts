@@ -22,6 +22,7 @@ export function cowsay(options: CowsayOptions | string): string {
   const cow = createCow(eyes, tongue, mode);
 
   // Combine the bubble and cow
+  console.log("moo")
   return bubble + cow;
 }
 
