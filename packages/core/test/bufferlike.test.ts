@@ -1,11 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test, assert } from "vitest";
+import { beforeEach, describe, test, assert } from "vitest";
 import { resolveBufferLike, BufferToBlob } from "../src/bufferlike.js";
+// eslint-disable-next-line n/no-unsupported-features/node-builtins
 import { ReadableStream } from "node:stream/web";
+import { TestHost } from "../src/testhost.js";
 
 describe("resolveBufferLike", () => {
+  beforeEach(async () => {
+    TestHost.install();
+  });
+
   test("should resolve a string URL to a Buffer", async () => {
     const url = "data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==";
     const buffer = await resolveBufferLike(url);
