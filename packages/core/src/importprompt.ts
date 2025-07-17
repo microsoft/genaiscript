@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { logError } from "./util.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { pathToFileURL } from "node:url";
 import { mark } from "./performance.js";
 import { getModulePaths } from "./pathUtils.js";
@@ -43,11 +43,14 @@ export async function importFile<T = void>(
   if (!filename) {
     throw new Error("filename is required");
   }
+  const runtimeHost = resolveRuntimeHost();
 
   let unregister: () => void = undefined;
   try {
     const modulePath = pathToFileURL(
-      host.path.isAbsolute(filename) ? filename : host.path.join(host.projectFolder(), filename),
+      runtimeHost.path.isAbsolute(filename)
+        ? filename
+        : runtimeHost.path.join(runtimeHost.projectFolder(), filename),
     ).toString();
     const parentURL = pathToFileURL(__filename).toString();
     const onImport = (_file: string) => dbgi(`%s`, _file);

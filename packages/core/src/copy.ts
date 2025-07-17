@@ -6,8 +6,8 @@
 // with optional forking functionality.
 
 import { GENAI_MJS_EXT, GENAI_MTS_EXT, GENAI_SRC } from "./constants.js"; // Import constants for file extensions and source directory
-import { host } from "./host.js"; // Import host module for file operations
 import { fileExists, writeText } from "./fs.js"; // Import file system utilities
+import { resolveRuntimeHost } from "./host.js";
 import type { PromptScript } from "./types.js"; // Import type definitions for prompt scripts
 
 /**
@@ -20,10 +20,11 @@ import type { PromptScript } from "./types.js"; // Import type definitions for p
  */
 function promptPath(id: string, options?: { javascript?: boolean }) {
   const { javascript } = options || {};
-  const prompts = host.resolvePath(host.projectFolder(), GENAI_SRC); // Resolve base prompt directory
+  const runtimeHost = resolveRuntimeHost();
+  const prompts = runtimeHost.resolvePath(runtimeHost.projectFolder(), GENAI_SRC); // Resolve base prompt directory
   if (id === null) return prompts; // Return base path if id is not provided
   const ext = javascript ? GENAI_MJS_EXT : GENAI_MTS_EXT;
-  return host.resolvePath(prompts, id + ext); // Construct full path if id is provided
+  return runtimeHost.resolvePath(prompts, id + ext); // Construct full path if id is provided
 }
 
 /**
@@ -43,7 +44,8 @@ export async function copyPrompt(
   options: { fork: boolean; name?: string; javascript?: boolean },
 ) {
   // Ensure the prompt directory exists
-  await host.createDirectory(promptPath(null));
+  const runtimeHost = resolveRuntimeHost();
+  await runtimeHost.createDirectory(promptPath(null));
 
   // Determine the name for the new prompt file
   const n = options?.name || t.id; // Use provided name or default to script id

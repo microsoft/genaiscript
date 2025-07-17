@@ -13,7 +13,7 @@ import { isBinaryMimeType } from "./binary.js";
 import { createFetch } from "./fetch.js";
 import { fileTypeFromBuffer } from "./filetype.js";
 import { fromBase64, toBase64 } from "./base64.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { TraceOptions } from "./trace.js";
 import { parsePdf } from "./pdf.js";
 import { XLSXParse } from "./xlsx.js";
@@ -54,6 +54,7 @@ export async function resolveFileContent(
   const { trace, cancellationToken, maxFileSize = MAX_FILE_CONTENT_SIZE } = options || {};
   if (!file) return file;
 
+  const runtimeHost = resolveRuntimeHost();
   checkCancelled(cancellationToken);
 
   const stats = await tryStat(file.filename);
@@ -124,7 +125,7 @@ export async function resolveFileContent(
   else if (XLSX_REGEX.test(filename)) {
     dbg(`file is xlsx`);
     const stat = await tryStat(filename);
-    const bytes = await host.readFile(filename);
+    const bytes = await runtimeHost.readFile(filename);
     const sheets = await XLSXParse(bytes);
     file.type = XLSX_MIME_TYPE;
     file.content = JSON.stringify(sheets, null, 2);
@@ -152,7 +153,7 @@ export async function resolveFileContent(
     } else {
       dbg(`binary ${prettyBytes(info?.size)}`);
       if (!maxFileSize || info.size < maxFileSize) {
-        const bytes: Uint8Array = await host.readFile(filename);
+        const bytes: Uint8Array = await runtimeHost.readFile(filename);
         file.encoding = "base64";
         file.content = toBase64(bytes);
         file.size = bytes.length;

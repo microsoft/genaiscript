@@ -25,7 +25,7 @@ import { errorMessage } from "./error.js";
 import schema from "./configschema.js";
 import defaultConfig from "./configjson.js";
 import type { CancellationOptions } from "./cancellation.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { uniq } from "es-toolkit";
 import { expandHomeDir, tryReadText, tryStat } from "./fs.js";
 import { parseDefaultsFromEnv } from "./env.js";
@@ -198,6 +198,7 @@ export async function resolveLanguageModelConfigurations(
   const { token, error, models, hide } = options || {};
   const res: ResolvedLanguageModelConfiguration[] = [];
   dbg("starting to resolve language model configurations");
+  const runtimeHost = resolveRuntimeHost();
 
   for (const modelProvider of MODEL_PROVIDERS.filter(
     (mp) => (!provider || mp.id === provider) && (!hide || !mp.hidden),
@@ -206,7 +207,7 @@ export async function resolveLanguageModelConfigurations(
     try {
       const conn: LanguageModelConfiguration & {
         models?: LanguageModelInfo[];
-      } = await host.getLanguageModelConfiguration(modelProvider.id + ":*", options);
+      } = await runtimeHost.getLanguageModelConfiguration(modelProvider.id + ":*", options);
       if (conn) {
         dbg(`retrieved connection configuration for provider: ${modelProvider.id}`);
         let listError = "";

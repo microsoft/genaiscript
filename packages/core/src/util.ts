@@ -3,7 +3,7 @@
 
 import { HTTPS_REGEX } from "./constants.js";
 import { isCancelError, serializeError } from "./error.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { YAMLStringify } from "./yaml.js";
 import type { SerializedError } from "./types.js";
 
@@ -114,7 +114,8 @@ export function fromHex(hex: string) {
 export function relativePath(root: string, fn: string) {
   // ignore empty path or urls
   if (!fn || HTTPS_REGEX.test(fn)) return fn;
-  const afn = host.path.resolve(fn);
+  const runtimeHost = resolveRuntimeHost();
+  const afn = runtimeHost.path.resolve(fn);
   if (afn.startsWith(root)) {
     return afn.slice(root.length).replace(/^[/\\]+/, "");
   }
@@ -127,7 +128,8 @@ export function relativePath(root: string, fn: string) {
  * @param msg - The message to log. Must be a string containing the information to log.
  */
 export function logInfo(msg: string) {
-  host.log("info", msg);
+  const runtimeHost = resolveRuntimeHost();
+  runtimeHost.log("info", msg);
 }
 
 /**
@@ -136,7 +138,8 @@ export function logInfo(msg: string) {
  * @param msg - The message to be logged at debug level.
  */
 export function logVerbose(msg: string) {
-  host.log("debug", msg);
+  const runtimeHost = resolveRuntimeHost();
+  runtimeHost.log("debug", msg);
 }
 
 /**
@@ -145,7 +148,8 @@ export function logVerbose(msg: string) {
  * @param msg - The warning message to log. Should be a descriptive string providing details about the warning.
  */
 export function logWarn(msg: string) {
-  host.log("warn", msg);
+  const runtimeHost = resolveRuntimeHost();
+  runtimeHost.log("warn", msg);
 }
 
 /**
@@ -161,17 +165,18 @@ export function logWarn(msg: string) {
  * - If the error is a cancellation, logs the message at "warn" severity instead.
  */
 export function logError(msg: string | Error | SerializedError) {
+  const runtimeHost = resolveRuntimeHost();
   const err = serializeError(msg);
   const { message, name, stack, ...e } = err || {};
   if (isCancelError(err)) {
-    host.log("warn", message || "cancelled");
+    runtimeHost.log("warn", message || "cancelled");
     return;
   }
-  host.log("error", message ?? name ?? "error");
-  if (stack) host.log("debug", stack);
+  runtimeHost.log("error", message ?? name ?? "error");
+  if (stack) runtimeHost.log("debug", stack);
   if (Object.keys(e).length) {
     const se = YAMLStringify(e);
-    host.log("debug", se);
+    runtimeHost.log("debug", se);
   }
 }
 
@@ -182,7 +187,7 @@ export function logError(msg: string | Error | SerializedError) {
  * @returns A single array containing all elements from the input arrays in order.
  */
 export function concatArrays<T>(...arrays: T[][]): T[] {
-  if (arrays.length == 0) return [];
+  if (arrays.length === 0) return [];
   return arrays[0].concat(...arrays.slice(1));
 }
 

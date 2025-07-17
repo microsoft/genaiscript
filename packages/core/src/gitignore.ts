@@ -5,10 +5,10 @@
 import ignorer from "ignore";
 import { tryReadText, writeText } from "./fs.js";
 import { GENAISCRIPTIGNORE, GIT_IGNORE, GIT_IGNORE_GENAI } from "./constants.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { logVerbose } from "./util.js";
 import { genaiscriptDebug } from "./debug.js";
-import { GitIgnorer, WorkspaceFile } from "./types.js";
+import type { GitIgnorer, WorkspaceFile } from "./types.js";
 import { filenameOrFileToFilename } from "./unwrappers.js";
 const dbg = genaiscriptDebug("files:gitignore");
 
@@ -65,7 +65,8 @@ export async function filterGitIgnore(files: string[]) {
  * @param entries - List of patterns or file paths to ensure are included in the .gitignore file.
  */
 export async function gitIgnoreEnsure(dir: string, entries: string[]) {
-  const fn = host.path.join(dir, GIT_IGNORE);
+  const runtimeHost = resolveRuntimeHost();
+  const fn = runtimeHost.path.join(dir, GIT_IGNORE);
   dbg(`reading file ${fn}`);
   let src = (await tryReadText(fn)) || "";
   const oldsrc = src;

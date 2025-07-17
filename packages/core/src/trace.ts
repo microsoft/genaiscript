@@ -15,7 +15,7 @@ import {
 import { stringify as yamlStringify } from "yaml";
 import { YAMLStringify } from "./yaml.js";
 import { errorMessage, serializeError } from "./error.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { ellipse, toStringList } from "./util.js";
 import { renderWithPrecision } from "./precision.js";
 import { fenceMD } from "./mkmd.js";
@@ -25,15 +25,15 @@ import { pathToFileURL } from "node:url";
 import { dedent } from "./indent.js";
 import { CSVStringify, dataToMarkdownTable } from "./csv.js";
 import { INIStringify } from "./ini.js";
-import { ChatCompletionsProgressReport } from "./chattypes.js";
-import { parseTraceTree, TraceTree } from "./traceparser.js";
+import type { ChatCompletionsProgressReport } from "./chattypes.js";
+import { parseTraceTree, type TraceTree } from "./traceparser.js";
 import { fileCacheImage } from "./filecache.js";
-import { CancellationOptions } from "./cancellation.js";
+import type { CancellationOptions } from "./cancellation.js";
 import { generateId } from "./id.js";
 import { diffCreatePatch } from "./diff.js";
 import { prettyBytes } from "./pretty.js";
 import assert from "node:assert/strict";
-import {
+import type {
   BufferLike,
   ElementOrArray,
   OptionsOrString,
@@ -206,12 +206,13 @@ ${this.toResultIcon(success, "")}${title}
   }
 
   file(file: WorkspaceFile) {
+    const runtimeHost = resolveRuntimeHost();
     const { content, filename } = file;
     if (!content) {
       this.itemValue(filename, "no content");
     } else {
       this.item(filename);
-      const ext = host.path.extname(filename).slice(1);
+      const ext = runtimeHost.path.extname(filename).slice(1);
       this.fence(ellipse(content, TRACE_MAX_FILE_SIZE), ext);
     }
   }

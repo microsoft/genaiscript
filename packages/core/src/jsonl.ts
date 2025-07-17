@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { JSON5TryParse } from "./json5.js";
 import { concatBuffers } from "./util.js";
 import type { JSONLObject } from "./types.js";
@@ -9,7 +9,8 @@ import { arrayify } from "./cleaners.js";
 import { createUTF8Encoder } from "./utf8.js";
 
 function tryReadFile(fn: string) {
-  return host.readFile(fn).then<Uint8Array>(
+  const runtimeHost = resolveRuntimeHost()
+  return runtimeHost.readFile(fn).then<Uint8Array>(
     (r) => r,
     (_) => null,
   );
@@ -78,7 +79,8 @@ async function writeJSONLCore(fn: string, objs: any[], append: boolean) {
     const curr = await tryReadFile(fn);
     if (curr) buf = concatBuffers(curr, buf);
   }
-  await host.writeFile(fn, buf);
+  const runtimeHost = resolveRuntimeHost()
+  await runtimeHost.writeFile(fn, buf);
 }
 
 /**

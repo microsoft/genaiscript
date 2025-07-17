@@ -14,13 +14,13 @@ import {
   type ModelConnectionOptions,
   YAMLStringify,
   deleteUndefinedValues,
-  host,
   resolveLanguageModelConfigurations,
   resolveModelAlias,
   resolveModelConnectionInfo,
   resolveRuntimeHost,
 } from "@genaiscript/core";
 import { buildProject } from "@genaiscript/core";
+import { resolve } from "node:path";
 
 /**
  * Outputs basic system information including node version, platform, architecture, and process ID.
@@ -63,7 +63,7 @@ async function resolveScriptsConnectionInfo(
   scripts: ModelConnectionOptions[],
   options?: { token?: boolean },
 ): Promise<ModelConnectionInfo[]> {
-  const runtimeHost = resolveRuntimeHost()
+  const runtimeHost = resolveRuntimeHost();
   const models: Record<string, ModelConnectionOptions> = {};
 
   // Deduplicate model connection options
@@ -81,7 +81,7 @@ async function resolveScriptsConnectionInfo(
       resolveModelConnectionInfo(conn, {
         ...(options || {}),
         defaultModel: LARGE_MODEL_ID,
-      }).then((res) => res.info),
+      }).then((r) => r.info),
     ),
   );
   return res;
@@ -93,11 +93,13 @@ async function resolveScriptsConnectionInfo(
  * @param script - The specific script ID or filename to filter by. If not provided, all scripts are included.
  * @param options - Configuration options, including whether to show tokens.
  */
-export async function scriptModelInfo(script: string, options?: { token?: boolean }) {
+export async function scriptModelInfo(
+  script: string,
+  options?: { token?: boolean },
+): Promise<void> {
   const prj = await buildProject();
   const templates = prj.scripts.filter(
-    (t) =>
-      !script || t.id === script || host.path.resolve(t.filename) === host.path.resolve(script),
+    (t) => !script || t.id === script || resolve(t.filename) === resolve(script),
   );
   const info = await resolveScriptsConnectionInfo(templates, options);
   console.log(YAMLStringify(info));
@@ -113,8 +115,8 @@ export async function scriptModelInfo(script: string, options?: { token?: boolea
  *
  * @param none This function does not require any parameters.
  */
-export async function modelAliasesInfo() {
-  const runtimeHost = resolveRuntimeHost()
+export async function modelAliasesInfo(): Promise<void> {
+  const runtimeHost = resolveRuntimeHost();
   const res = Object.fromEntries(
     Object.entries(runtimeHost.modelAliases).map(([k, v]) => [
       k,
@@ -135,8 +137,8 @@ export async function modelAliasesInfo() {
 export async function modelList(
   provider: string,
   options?: { error?: boolean; format?: "json" | "yaml" },
-) {
-  const runtimeHost = resolveRuntimeHost()
+): Promise<void> {
+  const runtimeHost = resolveRuntimeHost();
   await runtimeHost.readConfig();
   const providers = await resolveLanguageModelConfigurations(provider, {
     ...(options || {}),
@@ -147,7 +149,7 @@ export async function modelList(
   });
 
   if (options?.format === "json") console.log(JSON.stringify(providers, null, 2));
-  else
+  else {
     console.log(
       YAMLStringify(
         deleteUndefinedValues(
@@ -155,4 +157,5 @@ export async function modelList(
         ),
       ),
     );
+  }
 }

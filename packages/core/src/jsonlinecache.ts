@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import { appendJSONL, JSONLTryParse, writeJSONL } from "./jsonl.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { tryReadText } from "./fs.js";
 import { dotGenaiscriptPath } from "./workdir.js";
-import { CacheEntry } from "./cache.js";
+import type { CacheEntry } from "./cache.js";
 import { MemoryCache } from "./memcache.js";
 
 /**
@@ -27,7 +27,8 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
 
   // Get the full path to the cache file
   private path() {
-    return host.resolvePath(this.folder(), "db.jsonl");
+    const runtimeHost = resolveRuntimeHost();
+    return runtimeHost.resolvePath(this.folder(), "db.jsonl");
   }
 
   private _initializePromise: Promise<void>;
@@ -40,7 +41,8 @@ export class JSONLineCache<K, V> extends MemoryCache<K, V> {
     if (this._initializePromise) return await this._initializePromise;
 
     this._initializePromise = (async () => {
-      await host.createDirectory(this.folder()); // Ensure directory exists
+      const runtimeHost = resolveRuntimeHost();
+      await runtimeHost.createDirectory(this.folder()); // Ensure directory exists
       const content = await tryReadText(this.path());
       const entries: Record<string, CacheEntry<V>> = {};
       const objs: CacheEntry<V>[] = (await JSONLTryParse(content)) ?? [];

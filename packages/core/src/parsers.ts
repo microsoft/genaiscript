@@ -18,7 +18,7 @@ import { HTMLToMarkdown, HTMLToText } from "./html.js";
 import { MathTryEvaluate } from "./math.js";
 import { tryValidateJSONWithSchema, validateJSONWithSchema } from "./schema.js";
 import { XLSXTryParse } from "./xlsx.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { unzip } from "./zip.js";
 import { JSONLTryParse } from "./jsonl.js";
 import { resolveFileContent } from "./file.js";
@@ -111,8 +111,10 @@ export function createParsers(): Parsers {
       ),
     CSV: (text, options) =>
       tryValidateJSONWithSchema(CSVTryParse(filenameOrFileToContent(text), options), options),
-    XLSX: async (file, options) =>
-      await XLSXTryParse(await host.readFile(filenameOrFileToFilename(file)), options),
+    XLSX: async (file, options) => {
+      const runtimeHost = resolveRuntimeHost();
+      return XLSXTryParse(await runtimeHost.readFile(filenameOrFileToFilename(file)), options);
+    },
     dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
     INI: (text, options) =>
       tryValidateJSONWithSchema(
@@ -120,7 +122,10 @@ export function createParsers(): Parsers {
         options,
       ),
     transcription: (text) => vttSrtParse(filenameOrFileToContent(text)),
-    unzip: async (file, options) => await unzip(await host.readFile(file.filename), options),
+    unzip: async (file, options) => {
+      const runtimeHost = resolveRuntimeHost();
+      return unzip(await runtimeHost.readFile(file.filename), options);
+    },
     fences: (text) => extractFenced(filenameOrFileToContent(text)),
     annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
     HTMLToText: (text, options) => HTMLToText(filenameOrFileToContent(text), options),

@@ -5,7 +5,7 @@
 import type { MarkdownTrace, TraceOptions } from "./trace.js";
 import type { PromptImage, PromptPrediction } from "./promptdom.js";
 import { renderPromptNode } from "./promptdom.js";
-import { host, resolveRuntimeHost } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import type { GenerationOptions } from "./generation.js";
 import { dispose } from "./dispose.js";
 import { JSON5TryParse, JSONLLMTryParse, isJSONObjectOrArray } from "./json5.js";
@@ -239,7 +239,8 @@ async function runToolCalls(
   tools: ToolCallback[],
   options: GenerationOptions,
 ) {
-  const projFolder = host.projectFolder();
+  const runtimeHost = resolveRuntimeHost();
+  const projFolder = runtimeHost.projectFolder();
   const { cancellationToken, trace, model } = options || {};
   const { encode: encoder } = await resolveTokenEncoder(model);
   assert(!!trace);
@@ -414,11 +415,12 @@ ${fenceMD(content, " ")}
 
     if (toolEdits?.length) {
       trace?.fence(toolEdits);
+      const runtimeHost = resolveRuntimeHost();
       edits.push(
         ...toolEdits.map((e) => {
           const { filename, ...rest } = e;
           const n = e.filename;
-          const fn = /^[^/]/.test(n) ? host.resolvePath(projFolder, n) : n;
+          const fn = /^[^/]/.test(n) ? runtimeHost.resolvePath(projFolder, n) : n;
           return { filename: fn, ...rest };
         }),
       );

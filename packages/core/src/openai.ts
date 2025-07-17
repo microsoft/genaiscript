@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 import { ellipse, logError, logInfo, logVerbose } from "./util.js";
-import { host } from "./host.js";
 import {
   AZURE_AI_INFERENCE_VERSION,
   AZURE_OPENAI_API_VERSION,

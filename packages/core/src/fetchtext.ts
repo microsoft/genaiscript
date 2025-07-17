@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { MarkdownTrace, TraceOptions } from "./trace.js";
+import type { MarkdownTrace, TraceOptions } from "./trace.js";
 import { logVerbose } from "./util.js";
-import { CancellationOptions } from "./cancellation.js";
-import { host } from "./host.js";
+import type { CancellationOptions } from "./cancellation.js";
+import { resolveRuntimeHost } from "./host.js";
 import { fileTypeFromBuffer } from "./filetype.js";
 import { isBinaryMimeType } from "./binary.js";
 import { toBase64 } from "./base64.js";
@@ -48,6 +48,7 @@ export async function fetchText(
       content: "",
     };
   }
+  const runtimeHost = resolveRuntimeHost();
   const url = urlOrFile.filename;
   let ok = false;
   let status = 404;
@@ -75,7 +76,7 @@ export async function fetchText(
   } else {
     dbg("reading file from local path: %s", url);
     try {
-      bytes = await host.readFile(url);
+      bytes = await runtimeHost.readFile(url);
     } catch (e) {
       logVerbose(e);
       ok = false;

@@ -8,9 +8,9 @@ import {
   promptDefinitions,
 } from "./default_prompts.js";
 import { tryReadText, writeText } from "./fs.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { logVerbose } from "./util.js";
-import { Project } from "./server/messages.js";
+import type { Project } from "./server/messages.js";
 import { collapseNewlines } from "./cleaners.js";
 import { gitIgnoreEnsure } from "./gitignore.js";
 import { dotGenaiscriptPath } from "./workdir.js";
@@ -55,6 +55,7 @@ export function createScript(name: string, options?: { template: PromptScript; t
  *   - `project.folders`: A set of folder data collected with relevant directory and file details.
  */
 export async function fixPromptDefinitions(project: Project, options?: { force?: boolean }) {
+  const runtimeHost = resolveRuntimeHost();
   const folders = collectFolders(project, options);
   const systems = project.scripts.filter((t) => t.isSystem);
   const tools = systems.map(({ defTools }) => defTools || []).flat();
@@ -107,7 +108,7 @@ ${tools.map((s) => `* - \`${s.id}\`: ${s.description}`).join("\n")}
       if (defName === "tsconfig.json" && !ts) continue;
       if (defName === "jsconfig.json" && !js) continue;
 
-      const fn = host.path.join(dirname, defName);
+      const fn = runtimeHost.path.join(dirname, defName);
       const current = await tryReadText(fn);
       if (current !== defContent) {
         logVerbose(`updating ${fn}`);
@@ -137,22 +138,23 @@ export async function fixGitHubCopilotInstructions(options?: {
 }) {
   const { githubCopilotInstructions, docs } = options || {};
   // write genaiscript.d.ts
+  const runtimeHost = resolveRuntimeHost();
   const gdir = dotGenaiscriptPath();
   await writeText(host.path.join(gdir, ".gitignore"), "*");
   await writeText(
-    host.path.join(gdir, TYPE_DEFINITION_BASENAME),
+    runtimeHost.path.join(gdir, TYPE_DEFINITION_BASENAME),
     promptDefinitions[TYPE_DEFINITION_BASENAME],
   ); // Write the TypeScript definition file
   if (githubCopilotInstructions) {
     const pdir = ".github/instructions";
-    const pn = host.path.join(pdir, "genaiscript.instructions.md");
+    const pn = runtimeHost.path.join(pdir, "genaiscript.instructions.md");
     await writeText(pn, ghInstructions); // Write the GitHub Copilot instructions file
   }
   if (githubCopilotInstructions || docs) {
     const ddir = dotGenaiscriptPath("instructions");
     const route = "llms-full.txt";
     const url = `${DOCS_URL}/${route}`;
-    const dn = host.path.join(ddir, route);
+    const dn = runtimeHost.path.join(ddir, route);
     let text = _fullDocsText;
     if (!text) {
       const content = await fetch(url);

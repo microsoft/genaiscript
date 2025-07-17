@@ -8,7 +8,7 @@
  */
 
 import { GENAI_ANY_REGEX } from "./constants.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { JSON5TryParse } from "./json5.js";
 import { humanize } from "./inflection.js";
 import { metadataValidate } from "./metadata.js";
@@ -77,12 +77,13 @@ function parsePromptScriptTools(jsSource: string) {
  * @returns The parsed PromptScript or undefined in case of errors.
  */
 async function parsePromptTemplateCore(filename: string, content: string) {
+  const runtimeHost = resolveRuntimeHost();
   const r = {
     id: templateIdFromFileName(filename),
     title: humanize(host.path.basename(filename).replace(GENAI_ANY_REGEX, "")),
     jsSource: content,
   } as PromptScript;
-  r.filename = host.path.resolve(filename);
+  r.filename = runtimeHost.path.resolve(filename);
   const meta = parsePromptScriptMeta(r.jsSource);
   Object.assign(r, meta);
   return r;

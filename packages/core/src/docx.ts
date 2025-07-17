@@ -4,9 +4,9 @@
 import { join } from "node:path";
 import { DOCX_HASH_LENGTH } from "./constants.js";
 import { hash } from "./crypto.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { HTMLToMarkdown } from "./html.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { logVerbose } from "./util.js";
 import { readFile, writeFile } from "node:fs/promises";
 import { YAMLStringify } from "./yaml.js";
@@ -44,6 +44,7 @@ export async function DOCXTryParse(
   options?: TraceOptions & DocxParseOptions,
 ): Promise<{ file?: WorkspaceFile; error?: string }> {
   const { trace, cache, format = "markdown" } = options || {};
+  const runtimeHost = resolveRuntimeHost();
   const filename = filenameOrFileToFilename(file);
   const content = await resolveFileBytes(file, options);
   const folder = await computeHashFolder(filename, content, options);
@@ -71,7 +72,9 @@ export async function DOCXTryParse(
 
   const m = measure("parsers.docx");
   try {
-    const input = content ? { buffer: Buffer.from(content) } : { path: host.resolvePath(filename) };
+    const input = content
+      ? { buffer: Buffer.from(content) }
+      : { path: runtimeHost.resolvePath(filename) };
 
     const { extractRawText, convertToHtml } = await import("mammoth");
 

@@ -4,7 +4,6 @@
 import { unzipSync } from "fflate";
 import { lookupMime } from "./mime.js";
 import { isBinaryMimeType } from "./binary.js";
-import { host } from "./host.js";
 import { isGlobMatch } from "./glob.js";
 import { toBase64 } from "./base64.js";
 import type { ParseZipOptions, WorkspaceFile } from "./types.js";

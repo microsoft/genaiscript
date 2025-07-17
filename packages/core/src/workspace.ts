@@ -11,7 +11,7 @@ import { dataTryParse } from "./data.js";
 import { NotSupportedError, errorMessage } from "./error.js";
 import { resolveFileContent, toWorkspaceFile } from "./file.js";
 import { appendText, readText, tryStat, writeText } from "./fs.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { INITryParse } from "./ini.js";
 import { JSON5TryParse } from "./json5.js";
 import { arrayify } from "./cleaners.js";
@@ -67,8 +67,9 @@ export function createWorkspaceFileSystem(): Omit<WorkspaceFileSystem, "grep" | 
     findFiles: async (glob: string, options: FindFilesOptions) => {
       dbg(`findFiles: ${JSON.stringify(options)}`);
       const { readText, ignore, applyGitIgnore } = options || {};
+      const runtimeHost = resolveRuntimeHost();
       const names = (
-        await host.findFiles(glob, {
+        await runtimeHost.findFiles(glob, {
           ignore: ["**/.env", ...arrayify(ignore)],
           applyGitIgnore: applyGitIgnore !== false,
         })

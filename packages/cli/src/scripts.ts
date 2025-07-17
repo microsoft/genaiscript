@@ -40,7 +40,7 @@ export async function listScripts(
   const prj = await buildProject(); // Build the project to get script templates
   const scripts = filterScripts(prj.scripts, { ids, ...(options || {}) }); // Filter scripts based on options
   if (!json) console.log(scripts.map(({ id, filename }) => `${id} - ${filename}`).join("\n"));
-  else
+  else {
     console.log(
       JSON.stringify(
         scripts.map(({ id, title, group, filename, inputSchema, isSystem }) =>
@@ -57,6 +57,7 @@ export async function listScripts(
         2,
       ),
     );
+  }
 }
 
 /**
@@ -69,7 +70,7 @@ export async function listScripts(
  * The function checks if the script exists in the project. If found, it prints
  * metadata and the script's function signature. If not found, it logs an error message.
  */
-export async function scriptInfo(scriptId: string) {
+export async function scriptInfo(scriptId: string): Promise<void> {
   const prj = await buildProject();
   const script = prj.scripts.find((t) => t.id === scriptId);
   if (!script) {
@@ -105,7 +106,7 @@ export async function scriptInfo(scriptId: string) {
  * @param name - The name of the script to be created. If not provided, the user will be prompted to enter it.
  * @param options - Options for script creation, including whether to use TypeScript.
  */
-export async function createScript(name: string, options: { typescript: boolean }) {
+export async function createScript(name: string, options: { typescript: boolean }): Promise<void> {
   const { typescript } = options;
   if (!name) {
     name = await shellInput("Enter the name of the script"); // Prompt user for script name if not provided
@@ -133,7 +134,7 @@ export async function fixScripts(options?: {
   githubCopilotInstructions?: boolean;
   docs?: boolean;
   force?: boolean;
-}) {
+}): Promise<void> {
   const project = await buildProject(); // Build the project to access information
   await fixPromptDefinitions(project, options); // Fix any issues in prompt definitions
   await fixGitHubCopilotInstructions(options);

@@ -8,8 +8,8 @@ import {
   diffResolve,
   errorMessage,
   genaiscriptDebug,
-  host,
   resolveFileContent,
+  resolveRuntimeHost,
 } from "@genaiscript/core";
 import type { CancellationOptions, ElementOrArray, WorkspaceFile } from "@genaiscript/core";
 import type {
@@ -30,7 +30,7 @@ const dbgLang = dbg.extend("lang");
 class SgChangeSetImpl implements SgChangeSet {
   private pending: Record<string, { root: SgRoot; edits: SgEdit[] }> = {};
 
-  toString() {
+  toString(): string {
     return `changeset ${this.count} edits`;
   }
 
@@ -107,13 +107,14 @@ async function astGrepFindFiles(
     throw new Error("matcher is required");
   }
   const diffFiles = diffResolve(diff);
+  const runtimeHost = resolveRuntimeHost()
 
   dbg(`search %O`, matcher);
   if (diffFiles?.length) dbg(`diff files: ${diffFiles.length}`);
 
   checkCancelled(cancellationToken);
 
-  let paths = await host.findFiles(glob, options);
+  let paths = await runtimeHost.findFiles(glob, options);
   if (!paths?.length) {
     dbg(`no files found for glob`, glob);
     return {
@@ -280,7 +281,7 @@ async function resolveLang(lang: SgLang | Record<string, SgLang>, filename?: str
     dbgLang(`resolving language ${lang}`);
     const builtin = builtins[lang];
     if (builtin) return builtin;
-    else return await loadDynamicLanguage(lang);
+    else return loadDynamicLanguage(lang);
   }
 
   if (!filename) {
@@ -298,12 +299,12 @@ async function resolveLang(lang: SgLang | Record<string, SgLang>, filename?: str
 
     // known dynamics
     const dynamic = dynamics[ext];
-    if (dynamic) return await loadDynamicLanguage(dynamic);
+    if (dynamic) return loadDynamicLanguage(dynamic);
 
     if (forbidden.includes(ext)) return undefined;
 
     // try our luck
-    return await loadDynamicLanguage(ext);
+    return loadDynamicLanguage(ext);
   }
 
   dbgLang(`language not resolved`, { lang, filename });

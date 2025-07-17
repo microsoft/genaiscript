@@ -3,8 +3,8 @@
 
 import { lstat, mkdir, writeFile, readFile, appendFile, rm } from "node:fs/promises";
 import { HTTPS_REGEX } from "./constants.js";
-import { host } from "./host.js";
-import { dirname } from "node:path";
+import { resolveRuntimeHost } from "./host.js";
+import { dirname, join, resolve } from "node:path";
 import { JSON5TryParse } from "./json5.js";
 import { homedir } from "node:os";
 import { genaiscriptDebug } from "./debug.js";
@@ -70,7 +70,7 @@ export async function ensureDir(dir: string) {
 export function expandHomeDir(dir: string) {
   if (dir?.startsWith("~/")) {
     const home = homedir();
-    dir = host.path.join(home, dir.slice(2));
+    dir = join(home, dir.slice(2));
   }
   return dir;
 }
@@ -211,10 +211,11 @@ export async function expandFiles(
     return [];
   }
 
+  const runtimeHost = resolveRuntimeHost();
   dbg(`filtering URLs from files`);
   const urls = files.filter((f) => HTTPS_REGEX.test(f)).filter((f) => !excludedFiles.includes(f));
   dbg(`finding other files`);
-  const others = await host.findFiles(
+  const others = await runtimeHost.findFiles(
     files.filter((f) => !HTTPS_REGEX.test(f)),
     {
       ignore: excludedFiles.filter((f) => !HTTPS_REGEX.test(f)),
@@ -281,5 +282,5 @@ export async function expandFileOrWorkspaceFiles(
  */
 export function filePathOrUrlToWorkspaceFile(f: string) {
   dbg(`converting file path or URL to workspace file ${f}`);
-  return HTTPS_REGEX.test(f) || host.path.resolve(f) === f ? f : `./${f}`;
+  return HTTPS_REGEX.test(f) || resolve(f) === f ? f : `./${f}`;
 }

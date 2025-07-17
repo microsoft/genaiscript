@@ -8,38 +8,12 @@ import { TOOL_ID, CHANGE, EMOJI_SUCCESS, EMOJI_FAIL } from "../../core/src/const
 import { errorMessage } from "../../core/src/error";
 import type { PromptScript } from "../../core/src/types";
 
-export async function activateTestController(state: ExtensionState) {
+export async function activateTestController(state: ExtensionState): Promise<void> {
   const { context, host } = state;
   const { subscriptions } = context;
 
   const ctrl = vscode.tests.createTestController(TOOL_ID, "GenAIScript");
   subscriptions.push(ctrl);
-
-  // UI button
-  ctrl.refreshHandler = async (token) => {
-    await state.parseWorkspace();
-    if (token?.isCancellationRequested) return;
-    refreshTests(token);
-  };
-
-  // First, create the `resolveHandler`. This may initially be called with
-  // "undefined" to ask for all tests in the workspace to be discovered, usually
-  // when the user opens the Test Explorer for the first time.
-  ctrl.resolveHandler = async (testToResolve) => {
-    if (!vscode.workspace.workspaceFolders) return; // handle the case of no open folders
-
-    if (testToResolve) {
-      const script = state.project.scripts.find(
-        (script) =>
-          vscode.workspace.asRelativePath(script.filename) ===
-          vscode.workspace.asRelativePath(testToResolve.uri),
-      );
-      await getOrCreateFile(script);
-    } else {
-      await refreshTests();
-      state.addEventListener(CHANGE, () => refreshTests());
-    }
-  };
 
   const refreshTests = async (token?: vscode.CancellationToken) => {
     if (!state.project) await state.parseWorkspace();
@@ -115,7 +89,33 @@ export async function activateTestController(state: ExtensionState) {
   );
   subscriptions.push(runProfile);
 
-  function getOrCreateFile(script: PromptScript) {
+  // UI button
+  ctrl.refreshHandler = async (token) => {
+    await state.parseWorkspace();
+    if (token?.isCancellationRequested) return;
+    refreshTests(token);
+  };
+
+  // First, create the `resolveHandler`. This may initially be called with
+  // "undefined" to ask for all tests in the workspace to be discovered, usually
+  // when the user opens the Test Explorer for the first time.
+  ctrl.resolveHandler = async (testToResolve) => {
+    if (!vscode.workspace.workspaceFolders) return; // handle the case of no open folders
+
+    if (testToResolve) {
+      const script = state.project.scripts.find(
+        (sc) =>
+          vscode.workspace.asRelativePath(sc.filename) ===
+          vscode.workspace.asRelativePath(testToResolve.uri),
+      );
+      await getOrCreateFile(script);
+    } else {
+      await refreshTests();
+      state.addEventListener(CHANGE, () => refreshTests());
+    }
+  };
+
+  function getOrCreateFile(script: PromptScript): vscode.TestItem | undefined {
     const existing = ctrl.items.get(script.id);
     if (existing) return existing;
 

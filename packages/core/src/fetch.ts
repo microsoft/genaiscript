@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import wrapFetch from "fetch-retry";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import {
   FETCH_RETRY_DEFAULT,
   FETCH_RETRY_DEFAULT_DEFAULT,
@@ -13,9 +13,9 @@ import {
 } from "./constants.js";
 import { errorMessage } from "./error.js";
 import { logVerbose } from "./util.js";
-import { CancellationOptions, toSignal } from "./cancellation.js";
+import { type CancellationOptions, toSignal } from "./cancellation.js";
 import { resolveHttpsProxyAgent } from "./proxy.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import crossFetch from "cross-fetch";
 import { prettyDuration, prettyStrings } from "./pretty.js";
 import type { FetchOptions, RetryOptions } from "./types.js";
@@ -116,6 +116,7 @@ export async function createFetch(
     cancellationToken,
   } = options;
 
+  const runtimeHost = resolveRuntimeHost();
   dbg(`create fetch`);
   // We create a proxy based on Node.js environment variables.
   const agent = await resolveHttpsProxyAgent();

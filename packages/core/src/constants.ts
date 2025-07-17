@@ -90,7 +90,6 @@ export const EXTENSION_ID = "genaiscript.genaiscript-vscode";
 export const COPILOT_CHAT_PARTICIPANT_ID = TOOL_ID;
 export const COPILOT_CHAT_PARTICIPANT_SCRIPT_ID = "copilotchat";
 
-export const BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search";
 export const TAVILY_ENDPOINT = "https://api.tavily.com/search";
 
 export const SYSTEM_FENCE = "\n";

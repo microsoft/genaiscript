@@ -77,7 +77,6 @@ import { resolveLanguageModel } from "./lm.js";
 import { concurrentLimit } from "./concurrency.js";
 import { resolveScript } from "./ast.js";
 import { dedent } from "./indent.js";
-import { resolveRuntimeHost } from "./host.js";
 import { writeFileEdits } from "./fileedits.js";
 import { agentAddMemory, agentCreateCache, agentQueryMemory } from "./agent.js";
 import { YAMLStringify } from "./yaml.js";
@@ -85,7 +84,7 @@ import type { Project } from "./server/messages.js";
 import { mergeEnvVarsWithSystem, parametersToVars } from "./vars.js";
 import { FFmepgClient } from "./ffmpeg.js";
 import { BufferToBlob } from "./bufferlike.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import { srtVttRender } from "./transcription.js";
 import { hash } from "./crypto.js";
 import { fileTypeFromBuffer } from "./filetype.js";
@@ -716,7 +715,7 @@ export function createChatGenerationContext(
         transcription: true,
         cache,
       });
-      const file = await BufferToBlob(await host.readFile(audioFile), "audio/ogg");
+      const file = await BufferToBlob(await runtimeHost.readFile(audioFile), "audio/ogg");
       const update: () => Promise<TranscriptionResult> = async () => {
         transcriptionTrace?.itemValue(`model`, configuration.model);
         transcriptionTrace?.itemValue(`file size`, prettyBytes(file.size));
@@ -807,7 +806,7 @@ export function createChatGenerationContext(
       const h = await hash(res.audio, { length: 20 });
       const { ext } = (await fileTypeFromBuffer(res.audio)) || {};
       const filename = dotGenaiscriptPath("speech", h + "." + ext);
-      await host.writeFile(filename, res.audio);
+      await runtimeHost.writeFile(filename, res.audio);
       return {
         filename,
       } satisfies SpeechResult;
@@ -1087,7 +1086,7 @@ export function createChatGenerationContext(
       });
       const { ext } = (await fileTypeFromBuffer(buf)) || {};
       const filename = dotGenaiscriptPath("image", h + "." + ext);
-      await host.writeFile(filename, buf);
+      await runtimeHost.writeFile(filename, buf);
 
       if (consoleColors) {
         const size = terminalSize();

@@ -1,4 +1,3 @@
-import { RootSchema } from "@modelcontextprotocol/sdk/types.js";
 import { astGrep } from "@genaiscript/plugin-ast-grep";
 
 script({

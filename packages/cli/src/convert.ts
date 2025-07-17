@@ -19,7 +19,6 @@ import {
   filePathOrUrlToWorkspaceFile,
   getConvertDir,
   hash,
-  host,
   link,
   logError,
   logInfo,
@@ -31,11 +30,12 @@ import {
   tryReadText,
   unfence,
   writeText,
+  resolveRuntimeHost,
 } from "@genaiscript/core";
 import { buildProject } from "@genaiscript/core";
 import { run } from "@genaiscript/api";
 import { setupTraceWriting } from "@genaiscript/core";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { createCancellationController } from "@genaiscript/core";
 
 /**
@@ -73,6 +73,7 @@ export async function convertFiles(
     options || {};
 
   await ensureDotGenaiscriptPath();
+  const runtimeHost = resolveRuntimeHost();
   const canceller = createCancellationController();
   const cancellationToken = canceller.token;
   const signal = toSignal(cancellationToken);
@@ -93,8 +94,6 @@ export async function convertFiles(
   const fail = (msg: string, _exitCode: number, _url?: string) => {
     throw new Error(msg);
   };
-  const { resolve } = host.path;
-
   const toolFiles: string[] = [];
   if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId);
   const prj = await buildProject({
@@ -130,9 +129,9 @@ export async function convertFiles(
       resolvedFiles.add(arg);
       continue;
     }
-    const stats = await host.statFile(arg);
-    if (stats?.type === "directory") arg = host.path.join(arg, "**", "*");
-    const ffs = await host.findFiles(arg, {
+    const stats = await runtimeHost.statFile(arg);
+    if (stats?.type === "directory") arg = join(arg, "**", "*");
+    const ffs = await runtimeHost.findFiles(arg, {
       applyGitIgnore,
     });
     if (!ffs?.length) {
@@ -148,7 +147,7 @@ export async function convertFiles(
   }
   if (excludedFiles?.length) {
     for (const arg of excludedFiles) {
-      const ffs = await host.findFiles(arg);
+      const ffs = await runtimeHost.findFiles(arg);
       for (const f of ffs) resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f));
     }
   }

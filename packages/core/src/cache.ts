@@ -4,11 +4,11 @@
 import { FsCache } from "./fscache.js";
 import { JSONLineCache } from "./jsonlinecache.js";
 import { MemoryCache } from "./memcache.js";
-import { host } from "./host.js";
-import { CancellationOptions } from "./cancellation.js";
+import type { CancellationOptions } from "./cancellation.js";
 import debug from "debug";
 import { sanitizeFilename } from "./sanitize.js";
 import type { WorkspaceFileCache } from "./types.js";
+import { resolveRuntimeHost } from "./host.js";
 
 const dbg = debug("genaiscript:cache");
 
@@ -42,9 +42,10 @@ export function createCache<K, V>(
     return undefined;
   }
 
+  const runtimeHost = resolveRuntimeHost()
   const type = options?.type || "fs";
   const key = `cache:${type}:${name}`;
-  const userState = options?.userState || host.userState;
+  const userState = options?.userState || runtimeHost.userState;
   if (userState[key]) return userState[key] as WorkspaceFileCache<K, V>; // Return if exists
   if (options?.lookupOnly) return undefined;
 

@@ -7,9 +7,9 @@
  * PDF, DOCX, XLSX, and CSV.
  */
 import { createFetch } from "./fetch.js";
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import type { TraceOptions } from "./trace.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import { type CancellationOptions, checkCancelled } from "./cancellation.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { WorkspaceFile } from "./types.js";
 import { fromBase64, toBase64 } from "./base64.js";
@@ -48,6 +48,7 @@ export async function resolveFileBytes(
   filename: string | WorkspaceFile,
   options?: TraceOptions & CancellationOptions,
 ): Promise<Uint8Array> {
+  const runtimeHost = resolveRuntimeHost();
   if (typeof filename === "object") {
     if (filename.encoding && filename.content) {
       dbg(`resolving file bytes`);
@@ -72,9 +73,9 @@ export async function resolveFileBytes(
   // Read file from local storage
   else {
     dbg(`reading file %s`, filename);
-    const stat = await host.statFile(filename);
+    const stat = await runtimeHost.statFile(filename);
     if (stat?.type !== "file") return undefined;
-    const buf = await host.readFile(filename);
+    const buf = await runtimeHost.readFile(filename);
     return new Uint8Array(buf);
   }
 }

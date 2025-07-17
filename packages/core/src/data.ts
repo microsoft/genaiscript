@@ -22,12 +22,12 @@ import { XLSXParse } from "./xlsx.js";
 import { XMLTryParse } from "./xml.js";
 import { YAMLTryParse } from "./yaml.js";
 import { resolveFileContent } from "./file.js";
-import { TraceOptions } from "./trace.js";
-import { host } from "./host.js";
+import type { TraceOptions } from "./trace.js";
 import { fromBase64 } from "./base64.js";
 import { JSONLTryParse } from "./jsonl.js";
 import { tryValidateJSONWithSchema } from "./schema.js";
 import type { CSVParseOptions, INIParseOptions, WorkspaceFile, XMLParseOptions } from "./types.js";
+import { resolveRuntimeHost } from "./host.js";
 
 /**
  * Attempts to parse the provided file's content based on its detected format.
@@ -45,12 +45,13 @@ export async function dataTryParse(
   options?: TraceOptions & XMLParseOptions & INIParseOptions & CSVParseOptions,
 ) {
   await resolveFileContent(file);
+  const runtimeHost = resolveRuntimeHost();
 
   const { filename, content, encoding } = file;
   let data: any;
   if (XLSX_REGEX.test(filename))
     data = await XLSXParse(
-      encoding === "base64" ? fromBase64(content) : await host.readFile(filename),
+      encoding === "base64" ? fromBase64(content) : await runtimeHost.readFile(filename),
     );
   else {
     if (CSV_REGEX.test(filename)) data = CSVTryParse(content, options);

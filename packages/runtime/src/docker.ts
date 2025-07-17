@@ -20,10 +20,10 @@ import {
   genaiscriptDebug,
   generateId,
   hash,
-  host,
   isQuiet,
   logError,
   logVerbose,
+  resolveRuntimeHost,
   shellParse,
   shellQuote,
 } from "@genaiscript/core";
@@ -35,6 +35,7 @@ import type {
   ShellOutput,
   TraceOptions,
 } from "@genaiscript/core";
+import { basename, dirname, join, resolve } from "node:path";
 const dbg = genaiscriptDebug("docker");
 
 type DockerodeType = import("dockerode");
@@ -267,7 +268,7 @@ export class DockerManager {
     } else {
       name += `_${generateId()}`;
     }
-    const hostPath = host.path.resolve(dotGenaiscriptPath(DOCKER_VOLUMES_DIR, name));
+    const hostPath = resolve(dotGenaiscriptPath(DOCKER_VOLUMES_DIR, name));
     return { name, hostPath };
   }
 
@@ -369,6 +370,7 @@ export class DockerManager {
   ): Promise<ContainerHost> {
     const { trace, persistent } = options;
     const dbgc = name ? dbg.extend(name) : dbg;
+    const runtimeHost = resolveRuntimeHost();
 
     const stop: () => Promise<void> = async () => {
       dbgc(`stopping`);
@@ -377,8 +379,8 @@ export class DockerManager {
 
     const resolveContainerPath = (to: string) => {
       const res = /^\//.test(to)
-        ? host.path.resolve(hostPath, to.replace(/^\//, ""))
-        : host.path.resolve(hostPath, to || "");
+        ? resolve(hostPath, to.replace(/^\//, ""))
+        : resolve(hostPath, to || "");
       return res;
     };
 
@@ -434,7 +436,7 @@ export class DockerManager {
       }
 
       const { cwd: userCwd, label } = options || {};
-      const cwd = "/" + host.path.join(DOCKER_CONTAINER_VOLUME, userCwd || ".");
+      const cwd = "/" + join(DOCKER_CONTAINER_VOLUME, userCwd || ".");
 
       try {
         trace?.startDetails(`📦 ▶️ container exec: ${userCwd || ""}> ${label || command}`);
@@ -499,8 +501,8 @@ export class DockerManager {
 
     const writeText = async (filename: string, content: string) => {
       dbgc(`write %s`, filename);
-      const hostFilename = host.path.resolve(hostPath, resolveContainerPath(filename));
-      await ensureDir(host.path.dirname(hostFilename));
+      const hostFilename = resolve(hostPath, resolveContainerPath(filename));
+      await ensureDir(dirname(hostFilename));
       await writeFile(hostFilename, content ?? "", {
         encoding: "utf8",
       });
@@ -508,7 +510,7 @@ export class DockerManager {
 
     const readText = async (filename: string) => {
       dbgc(`read %s`, filename);
-      const hostFilename = host.path.resolve(hostPath, resolveContainerPath(filename));
+      const hostFilename = resolve(hostPath, resolveContainerPath(filename));
       try {
         return await readFile(hostFilename, { encoding: "utf8" });
       } catch {
@@ -523,21 +525,21 @@ export class DockerManager {
     ): Promise<string[]> => {
       dbgc(`copy %o to %s %o`, from, to, options);
       const cto = resolveContainerPath(to);
-      const files = await host.findFiles(from, options);
+      const files = await runtimeHost.findFiles(from, options);
       const res: string[] = [];
       for (const file of files) {
-        const source = host.path.resolve(file);
-        const target = host.path.resolve(cto, host.path.basename(file));
-        await ensureDir(host.path.dirname(target));
+        const source = resolve(file);
+        const target = resolve(cto, basename(file));
+        await ensureDir(dirname(target));
         await copyFile(source, target);
-        res.push(host.path.join(to, host.path.basename(file)));
+        res.push(join(to, basename(file)));
       }
       return res;
     };
 
     const listFiles = async (to: string) => {
       dbgc(`list files %s`, to);
-      const source = host.path.resolve(hostPath, resolveContainerPath(to));
+      const source = resolve(hostPath, resolveContainerPath(to));
       try {
         const files = await readdir(source);
         return files;

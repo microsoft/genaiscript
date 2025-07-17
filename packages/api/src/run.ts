@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { resolve, join, relative } from "node:path";
+import { resolve, join, relative, basename } from "node:path";
 import { writeFile, appendFile } from "node:fs/promises";
 import { confirmOrSkipInCI } from "@genaiscript/runtime";
 import type {
@@ -65,7 +65,6 @@ import {
   githubCreatePullRequestReviews,
   githubParseEnv,
   githubUpdatePullRequestDescription,
-  host,
   isCI,
   isCancelError,
   isJSONLFilename,
@@ -190,7 +189,7 @@ export async function runScriptInternal(
     infoCb,
     partialCb,
   } = options || {};
-  const runtimeHost = resolveRuntimeHost()
+  const runtimeHost = resolveRuntimeHost();
   runtimeHost.clearModelAlias("script");
   let result: GenerationResult;
   let workspaceFiles = options.workspaceFiles || [];
@@ -319,7 +318,7 @@ export async function runScriptInternal(
   for (let arg of files) {
     checkCancelled(cancellationToken);
     dbg(`resolving ${arg}`);
-    const stat = await host.statFile(arg);
+    const stat = await runtimeHost.statFile(arg);
     if (stat?.type === "file") {
       dbg(`file found %s`, arg);
       if (!ignorer?.([arg])?.length) {
@@ -344,11 +343,11 @@ export async function runScriptInternal(
     }
 
     if (stat?.type === "directory") {
-      arg = host.path.join(arg, "**", "*");
+      arg = join(arg, "**", "*");
       dbg(`directory, updating to %s`, arg);
     }
     dbg(`expand ${arg} (apply .gitignore: ${applyGitIgnore})`);
-    const ffs = await host.findFiles(arg, {
+    const ffs = await runtimeHost.findFiles(arg, {
       applyGitIgnore,
     });
     if (!ffs?.length && arg.includes("*")) {
@@ -365,7 +364,7 @@ export async function runScriptInternal(
 
   if (excludedFiles.length) {
     for (const arg of excludedFiles) {
-      const ffs = await host.findFiles(arg);
+      const ffs = await runtimeHost.findFiles(arg);
       for (const f of ffs) {
         dbg(`removing excluded file %s`, f);
         resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f));
@@ -768,7 +767,7 @@ async function aggregateResults(
   result: GenerationResult,
 ): Promise<void> {
   const statsDir = await createStatsDir();
-  const statsFile = host.path.join(statsDir, "runs.csv");
+  const statsFile = join(statsDir, "runs.csv");
   if (!(await tryStat(statsFile))) {
     await writeFile(
       statsFile,
@@ -795,7 +794,7 @@ async function aggregateResults(
       acc.total_tokens,
       acc.prompt_tokens,
       acc.completion_tokens,
-      outTrace ? host.path.basename(outTrace) : "",
+      outTrace ? basename(outTrace) : "",
       result.version,
     ]
       .map((s) => String(s))

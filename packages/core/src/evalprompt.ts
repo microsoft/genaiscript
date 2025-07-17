@@ -4,7 +4,7 @@
 import debug from "debug";
 const dbg = debug("genaiscript:evalprompt");
 
-import { host } from "./host.js";
+import { resolveRuntimeHost } from "./host.js";
 import type { PromptContext, PromptScript } from "./types.js";
 import MagicString from "magic-string";
 
@@ -28,6 +28,7 @@ export async function evalPrompt(
   },
 ) {
   const { sourceMaps } = options || {};
+  const runtimeHost = resolveRuntimeHost();
   const ctx = Object.freeze<PromptContext>({
     ...ctx0,
   });
@@ -44,7 +45,7 @@ export async function evalPrompt(
     s.prepend(prefix);
     s.append(suffix);
     dbg(`resolving path for ${r.filename}`);
-    const source = host.path.resolve(r.filename);
+    const source = runtimeHost.path.resolve(r.filename);
     const map = s.generateMap({
       source,
       includeContent: true,

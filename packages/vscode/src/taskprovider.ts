@@ -7,7 +7,7 @@ import { resolveCli } from "./config";
 import { shellQuote } from "../../core/src/shell";
 import { TOOL_ID } from "../../core/src/constants";
 
-export async function activeTaskProvider(state: ExtensionState) {
+export async function activeTaskProvider(state: ExtensionState): Promise<void> {
   const { context, host } = state;
   const { subscriptions } = context;
 
@@ -23,7 +23,7 @@ export async function activeTaskProvider(state: ExtensionState) {
           (t) => !t.isSystem && t.group !== "infrastructure",
         );
         const tasks = scripts.map((script) => {
-          const scriptName = host.path.relative(host.projectFolder(), script.filename);
+          const scriptName = this.state.host.path.relative(host.projectFolder(), script.filename);
           const args = [...exeArgs, "run", scriptName];
           if (vscode.window.activeTextEditor) args.push("${relativeFile}");
           const task = new vscode.Task(

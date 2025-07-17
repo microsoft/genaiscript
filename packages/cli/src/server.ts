@@ -46,7 +46,6 @@ import {
   deleteUndefinedValues,
   generateId,
   genaiscriptDebug,
-  host,
   isCancelError,
   logError,
   logVerbose,
@@ -436,7 +435,7 @@ export async function startServer(
             const { model, token } = data;
             logVerbose(`model: lookup configuration ${model}`);
             try {
-              const info = await host.getLanguageModelConfiguration(model, { token });
+              const info = await runtimeHost.getLanguageModelConfiguration(model, { token });
               response = <LanguageModelConfigurationResponse>{
                 ok: true,
                 info,

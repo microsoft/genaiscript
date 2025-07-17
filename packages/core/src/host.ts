@@ -262,17 +262,6 @@ export interface RuntimeHost extends Host {
   ): Promise<ContentSafety>;
 }
 
-export let host: Host;
-/**
- * Assigns a Host implementation to the global `host` variable.
- *
- * @param h - The Host instance to set as the global host. This allows integration
- *            with the provided Host functionality for further operations and services.
- */
-export function setHost(h: Host) {
-  host = h;
-}
-
 export function resolveRuntimeHost(): RuntimeHost {
   const h = (globalThis as any).genaiscript as RuntimeHost;
   if (!h) throw new Error("GenAIScript runtime not initialized");
@@ -287,7 +276,6 @@ export function resolveRuntimeHost(): RuntimeHost {
  */
 export function setRuntimeHost(h: RuntimeHost) {
   dbg(`set runtime host`);
-  setHost(h);
   (globalThis as any).genaiscript = h;
 }
 

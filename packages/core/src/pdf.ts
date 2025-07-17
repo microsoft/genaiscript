@@ -3,8 +3,8 @@
 // Licensed under the MIT License.
 
 import type { TextItem } from "pdfjs-dist/types/src/display/api.js";
-import { host } from "./host.js";
-import { TraceOptions } from "./trace.js";
+import { resolveRuntimeHost } from "./host.js";
+import type { TraceOptions } from "./trace.js";
 import os from "node:os";
 import { serializeError } from "./error.js";
 import { logVerbose, logWarn } from "./util.js";
@@ -17,7 +17,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { ensureDir } from "./fs.js";
 import { YAMLStringify } from "./yaml.js";
 import { deleteUndefinedValues } from "./cleaners.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import { type CancellationOptions, checkCancelled } from "./cancellation.js";
 import { measure } from "./performance.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { genaiscriptDebug } from "./debug.js";
@@ -193,6 +193,7 @@ async function PDFTryParse(
     useSystemFonts,
   } = options || {};
 
+  const runtimeHost = resolveRuntimeHost();
   const folder = await computeHashFolder(fileOrUrl, {
     content,
     ...(options || {}),
@@ -234,7 +235,7 @@ async function PDFTryParse(
     const pdfjs = await tryImportPdfjs();
     checkCancelled(cancellationToken);
     const { getDocument } = pdfjs;
-    const data = content || (await host.readFile(fileOrUrl));
+    const data = content || (await runtimeHost.readFile(fileOrUrl));
     // Check if we're running on Windows
     const isWindows = os.platform() === "win32";
     const loader = await getDocument({

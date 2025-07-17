@@ -8,7 +8,7 @@ import debug from "debug";
 import { assert } from "./assert.js";
 import { arrayify } from "./cleaners.js";
 import { resolveRuntimeHost } from "./host.js";
-import { bingSearch, tavilySearch } from "./websearch.js";
+import { tavilySearch } from "./websearch.js";
 import { type RunPromptContextNode, createChatGenerationContext } from "./runpromptcontext.js";
 import type { GenerationOptions } from "./generation.js";
 import { fuzzSearch } from "./fuzzsearch.js";
@@ -157,10 +157,10 @@ export async function createPromptContext(
       const webTrace = trace?.startTraceDetails(`🌐 web search <code>${HTMLEscape(q)}</code>`);
       try {
         let files: WorkspaceFile[];
-        if (provider === "bing") files = await bingSearch(q, { trace: webTrace, count });
+        if (provider === "bing") throw new Error("Bing search is deprecated.");
         else if (provider === "tavily") files = await tavilySearch(q, { trace: webTrace, count });
         else {
-          for (const f of [bingSearch, tavilySearch]) {
+          for (const f of [tavilySearch]) {
             files = await f(q, {
               ignoreMissingApiKey: true,
               trace: webTrace,
