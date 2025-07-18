@@ -26,7 +26,7 @@ export function templateIdFromFileName(filename: string) {
   return filename
     .replace(/\.(mjs|ts|js|mts|prompty)$/i, "")
     .replace(/\.genai$/i, "")
-    .replace(/.*[\/\\]/, "");
+    .replace(/.*[/\\]/, "");
 }
 
 /**

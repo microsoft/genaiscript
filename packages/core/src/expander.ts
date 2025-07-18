@@ -8,7 +8,7 @@ import { resolveScript } from "./ast.js";
 import { assert } from "./assert.js";
 import { MarkdownTrace } from "./trace.js";
 import { errorMessage, isCancelError, NotSupportedError } from "./error.js";
-import { JS_REGEX, MAX_TOOL_CALLS } from "./constants.js";
+import { JS_REGEX, MAX_TOOL_CALLS, GENAI_MDX_REGEX } from "./constants.js";
 import { finalizeMessages, PromptImage, PromptPrediction, renderPromptNode } from "./promptdom.js";
 import { createPromptContext } from "./promptcontext.js";
 import { evalPrompt } from "./evalprompt.js";
@@ -16,6 +16,9 @@ import { addToolDefinitionsMessage, appendSystemMessage } from "./chat.js";
 import { importPrompt } from "./importprompt.js";
 import { resolveRuntimeHost } from "./host.js";
 import { addFallbackToolSystems, resolveSystems } from "./systems.js";
+import { dotGenaiscriptPath } from "./workdir.js";
+import { writeText } from "./fs.js";
+import { join } from "node:path";
 import { GenerationOptions } from "./generation.js";
 import { ChatCompletionMessageParam, ChatCompletionReasoningEffort } from "./chattypes.js";
 import { GenerationStatus, Project } from "./server/messages.js";
@@ -83,9 +86,19 @@ export async function callExpander(
   // package.json { type: "module" }
   const isModule = await nodeIsPackageTypeModule();
   try {
-    if (r.filename && (isModule || !JS_REGEX.test(r.filename)))
+    // Handle MDX files by generating a temporary JavaScript file
+    if (r.filename && GENAI_MDX_REGEX.test(r.filename) && r.jsSource) {
+      // Create a temporary JavaScript file from the compiled MDX
+      const mdxTempDir = dotGenaiscriptPath("mdx");
+      const tempFilename = join(mdxTempDir, `${r.id}.mjs`);
+      await writeText(tempFilename, r.jsSource);
+      
+      // Create a temporary script object with the JavaScript file
+      const tempScript = { ...r, filename: tempFilename };
+      await importPrompt(ctx, tempScript, { logCb, trace });
+    } else if (r.filename && (isModule || !JS_REGEX.test(r.filename))) {
       await importPrompt(ctx, r, { logCb, trace });
-    else {
+    } else {
       await evalPrompt(ctx, r, {
         sourceMaps: true,
         logCb,
