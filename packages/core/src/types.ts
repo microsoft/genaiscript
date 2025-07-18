@@ -120,6 +120,11 @@ export interface PromptLike extends PromptDefinition {
   jsSource?: string;
 
   /**
+   * The text of the MDX source code (for MDX-based prompts).
+   */
+  mdxSource?: string;
+
+  /**
    * Resolved system ids
    */
   resolvedSystem?: SystemPromptInstance[];

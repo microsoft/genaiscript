@@ -1,0 +1,52 @@
+---
+title: "Test MDX GenAI Script"
+description: "A test script to verify MDX integration"
+---
+
+# Test MDX Script
+
+This is a GenAI script written in MDX format! 🎉
+
+## Script Configuration
+
+```js
+script({
+    title: "Test MDX Script",
+    description: "Testing MDX integration in GenAIScript",
+    parameters: {
+        text: "The text to analyze"
+    }
+})
+```
+
+## System Prompt
+
+```js
+system`You are a helpful assistant that analyzes text.`
+```
+
+## Main Prompt
+
+The user wants to analyze this text:
+
+```js
+def("TEXT", env.vars.text || "Hello, World!")
+```
+
+**Text to analyze**: {TEXT}
+
+Please provide:
+- Word count
+- Character count  
+- A brief summary
+
+```js
+$`Analyze the TEXT: ${TEXT}`
+```
+
+## Footer
+
+This script demonstrates MDX support in GenAIScript with:
+- Markdown content ✓
+- JSX components (if needed) ✓  
+- Embedded JavaScript ✓

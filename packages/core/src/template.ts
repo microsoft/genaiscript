@@ -7,7 +7,7 @@
  * data types and formats.
  */
 
-import { GENAI_ANY_REGEX } from "./constants.js";
+import { GENAI_ANY_REGEX, GENAI_MDX_REGEX } from "./constants.js";
 import { JSON5TryParse } from "./json5.js";
 import { humanize } from "./inflection.js";
 import { metadataValidate } from "./metadata.js";
@@ -80,9 +80,29 @@ async function parsePromptTemplateCore(filename: string, content: string) {
   const r = {
     id: templateIdFromFileName(filename),
     title: humanize(basename(filename).replace(GENAI_ANY_REGEX, "")),
-    jsSource: content,
   } as PromptScript;
   r.filename = resolve(filename);
+  
+  // Check if this is an MDX file
+  if (GENAI_MDX_REGEX.test(filename)) {
+    // Store MDX source and compile to JSX
+    r.mdxSource = content;
+    try {
+      // Import MDX compiler from local module
+      const { MdxCompiler } = await import("./mdx/index.js");
+      const compiler = new MdxCompiler();
+      const result = await compiler.compile(content);
+      r.jsSource = result.content;
+    } catch (error) {
+      console.warn(`Failed to compile MDX file ${filename}: ${error instanceof Error ? error.message : String(error)}`);
+      // Fallback to storing as regular content
+      r.jsSource = content;
+    }
+  } else {
+    // Regular JS/TS script
+    r.jsSource = content;
+  }
+  
   const meta = parsePromptScriptMeta(r.jsSource);
   Object.assign(r, meta);
   return r;

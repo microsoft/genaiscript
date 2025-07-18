@@ -1,0 +1,26 @@
+status: error
+statusText: Unknown file extension ".mdx" for /workspaces/genaiscript/test.genai.mdx
+messages: []
+env:
+  dir: .
+  files: []
+  meta:
+    id: test.genai.mdx
+    title: Test MDX GenAI Script
+    description: A test script to verify MDX integration
+    model: github:openai/gpt-4.1
+    defTools: []
+  vars: {}
+  runDir: test-output
+  runId: 4QavW0FVqC-edcHkB12QS
+version: 2.3.6
+text: ""
+reasoning: false
+edits: []
+annotations: []
+changelogs: []
+fileEdits: {}
+fences: []
+frames: []
+schemas: {}
+runId: 4QavW0FVqC-edcHkB12QS
