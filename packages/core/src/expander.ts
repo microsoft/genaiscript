@@ -88,13 +88,13 @@ export async function callExpander(
   const isModule = await nodeIsPackageTypeModule();
   try {
     // Handle MDX files by generating a temporary JavaScript file
-    if (r.filename && GENAI_MDX_REGEX.test(r.filename) && r.jsSource) {
-      const jsSource = await mdxTransform(r.mdxSource, env);
-
+    if (r.filename && r.mdxSource && !r.jsSource) {
+      const compiledScript = await mdxTransform(r.mdxSource, env);
       // Create a temporary JavaScript file from the compiled MDX
       const mdxTempDir = dotGenaiscriptPath("mdx");
       const tempFilename = join(mdxTempDir, `${r.id}.mjs`);
-      await writeText(tempFilename, r.jsSource);
+      dbg(`mdx.js: %s`, tempFilename);
+      await writeText(tempFilename, compiledScript.jsSource);
       const tempScript = { ...r, filename: tempFilename };
       await importPrompt(ctx, tempScript, { logCb, trace });
     } else if (r.filename && (isModule || !JS_REGEX.test(r.filename))) {

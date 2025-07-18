@@ -14,6 +14,7 @@ import { metadataValidate } from "./metadata.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import type { PromptArgs, PromptScript } from "./types.js";
 import { basename, resolve } from "node:path";
+import { frontmatterTryParse } from "./frontmatter.js";
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions
@@ -87,13 +88,15 @@ async function parsePromptTemplateCore(filename: string, content: string) {
   if (GENAI_MDX_REGEX.test(filename)) {
     // Store MDX source and compile to JSX
     r.mdxSource = content;
+    const meta = frontmatterTryParse(r.mdxSource);
+    Object.assign(r, meta);
   } else {
     // Regular JS/TS script
     r.jsSource = content;
+    const meta = parsePromptScriptMeta(r.jsSource);
+    Object.assign(r, meta);
   }
 
-  const meta = parsePromptScriptMeta(r.jsSource);
-  Object.assign(r, meta);
   return r;
 }
 
