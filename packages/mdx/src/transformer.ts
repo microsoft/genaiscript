@@ -68,49 +68,14 @@ export class MdxTransformer {
    * Generate GenAIScript preamble from frontmatter
    */
   private generatePreamble(frontmatter: any): string {
-    const lines: string[] = [];
-
-    if (frontmatter.title) {
-      lines.push(`// ${frontmatter.title}`);
+    if (!frontmatter || Object.keys(frontmatter).length === 0) {
+      return "";
     }
 
-    if (frontmatter.description) {
-      lines.push(`// ${frontmatter.description}`);
-    }
-
-    if (frontmatter.model) {
-      lines.push(`model: "${frontmatter.model}"`);
-    }
-
-    if (frontmatter.temperature !== undefined) {
-      lines.push(`temperature: ${frontmatter.temperature}`);
-    }
-
-    if (frontmatter.maxTokens) {
-      lines.push(`maxTokens: ${frontmatter.maxTokens}`);
-    }
-
-    if (frontmatter.system) {
-      lines.push(`system: \`${frontmatter.system}\``);
-    }
-
-    if (frontmatter.files && Array.isArray(frontmatter.files)) {
-      frontmatter.files.forEach((file: string) => {
-        lines.push(`def("file_${file.replace(/[^a-zA-Z0-9]/g, "_")}", () => file("${file}"));`);
-      });
-    }
-
-    if (frontmatter.images && Array.isArray(frontmatter.images)) {
-      frontmatter.images.forEach((image: string) => {
-        lines.push(`defImages("${image}");`);
-      });
-    }
-
-    if (lines.length > 0) {
-      lines.push(""); // Add empty line after preamble
-    }
-
-    return lines.join("\n");
+    // Convert frontmatter object to JavaScript object string
+    const scriptContent = JSON.stringify(frontmatter, null, 2);
+    
+    return `script(${scriptContent})\n\n`;
   }
 
   /**
