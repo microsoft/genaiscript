@@ -12,11 +12,9 @@ import { MdxCompilerOptions, MdxCompilerResult } from "./types.js";
  * Transforms MDX content into GenAIScript format
  */
 export class MdxTransformer {
-  private dom: PromptDom;
   private runtime: MdxRuntime;
 
   constructor() {
-    this.dom = new PromptDom();
     this.runtime = new MdxRuntime();
   }
 
@@ -151,7 +149,7 @@ export class MdxTransformer {
           type: "warning",
           message: `Runtime execution failed, falling back to simple conversion: ${runtimeError instanceof Error ? runtimeError.message : String(runtimeError)}`,
         });
-        
+
         // Fall back to simple conversion if runtime execution fails
         executedContent = this.convertMdxToGenaiScript(mdxContent);
       }

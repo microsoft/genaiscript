@@ -1,4 +1,4 @@
-import { WorkspaceFile } from "@genaiscript/core";
+import { PromptScript, WorkspaceFile } from "@genaiscript/core";
 import { MdxTransformer } from "./transformer.js";
 import { MdxCompilerOptions, MdxCompilerResult } from "./types.js";
 
@@ -51,7 +51,7 @@ export class MdxCompiler {
       title?: string;
       description?: string;
     } = {},
-  ): any {
+  ): PromptScript {
     // Extract any script configuration from the compiled content
     const lines = result.content.split("\n");
     const config: any = {};
@@ -83,7 +83,7 @@ export class MdxCompiler {
       temperature: config.temperature,
       maxTokens: config.maxTokens,
       system: config.system,
-      script: scriptLines.join("\n").trim(),
+      jsSource: scriptLines.join("\n").trim(),
     };
   }
 }

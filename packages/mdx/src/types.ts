@@ -81,8 +81,3 @@ export interface DefProps {
   name: string;
   children?: any;
 }
-
-export interface FileProps {
-  name: string;
-  children?: any;
-}

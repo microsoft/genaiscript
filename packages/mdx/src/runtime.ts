@@ -128,7 +128,7 @@ export class MdxRuntime {
       
       const executorFunction = new Function(
         ...contextKeys,
-        `var exports = {};\n${wrappedCode}`
+        `const exports = {};\n${wrappedCode}`
       );
 
       // Execute the function with the context values
