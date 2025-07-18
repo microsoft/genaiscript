@@ -33,12 +33,9 @@ export async function mdxTransform(
   dbg(`file: %O`, compiledFile);
   const compiledMdx = compiledFile.toString();
   dbg(`js: %s`, compiledMdx);
-  // Execute the compiled MDX using our runtime
-  const executedContent = await runtime.execute(compiledMdx, scope);
-  dbg(`genai: %s`, executedContent);
 
   // Combine preamble with executed content
-  const jsSource = `${preamble}${executedContent}`;
+  const jsSource = `${preamble}${compiledMdx}`;
 
   return {
     ...(fm || {}),
