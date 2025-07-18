@@ -3,11 +3,6 @@ import type { WorkspaceFile, PromptScript } from "@genaiscript/core";
 
 export interface MdxCompilerOptions {
   /**
-   * Whether to generate TypeScript files (.genai.mts) instead of JavaScript (.genai.mjs)
-   */
-  typescript?: boolean;
-
-  /**
    * Output directory for compiled files
    */
   outputDir?: string;
@@ -71,23 +66,23 @@ export { WorkspaceFile, PromptScript };
 
 // React naming conventions for GenAIScript components
 export interface SystemProps {
-    children?: any;
+  children?: any;
 }
 
 export interface UserProps {
-    children?: any;
+  children?: any;
 }
 
 export interface AssistantProps {
-    children?: any;
+  children?: any;
 }
 
 export interface DefProps {
-    name: string;
-    children?: any;
+  name: string;
+  children?: any;
 }
 
 export interface FileProps {
-    name: string;
-    children?: any;
+  name: string;
+  children?: any;
 }

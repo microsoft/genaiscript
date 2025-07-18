@@ -30,7 +30,7 @@ This is an example definition.
 This is some regular markdown content that should be preserved.
 `;
 
-  const createMockFile = (filename: string, content: string) =>
+  const toFile = (filename: string, content: string) =>
     ({
       filename,
       content,
@@ -40,8 +40,8 @@ This is some regular markdown content that should be preserved.
 
   describe("compileFile", () => {
     it("should compile MDX content successfully", async () => {
-      const mockFile = createMockFile("test.mdx", testMdxContent);
-      const result = await compiler.compileFile(mockFile);
+      const file = toFile("test.mdx", testMdxContent);
+      const result = await compiler.compileFile(file);
 
       expect(result).toBeDefined();
       expect(result.content).toBeDefined();
@@ -51,8 +51,8 @@ This is some regular markdown content that should be preserved.
     });
 
     it("should handle empty MDX content", async () => {
-      const mockFile = createMockFile("empty.mdx", "");
-      const result = await compiler.compileFile(mockFile);
+      const file = toFile("empty.mdx", "");
+      const result = await compiler.compileFile(file);
 
       expect(result).toBeDefined();
       expect(result.content).toBe("");
@@ -62,8 +62,8 @@ This is some regular markdown content that should be preserved.
       const content = `---
 title: "Only Frontmatter"
 ---`;
-      const mockFile = createMockFile("frontmatter.mdx", content);
-      const result = await compiler.compileFile(mockFile);
+      const file = toFile("frontmatter.mdx", content);
+      const result = await compiler.compileFile(file);
 
       expect(result).toBeDefined();
       expect(result.content).toBeDefined();
@@ -71,7 +71,7 @@ title: "Only Frontmatter"
 
     it("should handle MDX with only markdown content", async () => {
       const content = "# Simple Markdown\n\nThis is just markdown content.";
-      const mockFile = createMockFile("markdown.mdx", content);
+      const mockFile = toFile("markdown.mdx", content);
       const result = await compiler.compileFile(mockFile);
 
       expect(result).toBeDefined();
@@ -92,7 +92,7 @@ interface Test {
 }
 </File>
 </User>`;
-      const mockFile = createMockFile("complex.mdx", content);
+      const mockFile = toFile("complex.mdx", content);
       const result = await compiler.compileFile(mockFile);
 
       expect(result).toBeDefined();
@@ -133,7 +133,7 @@ title: "Malformed
 model: gpt-4
 ---
 # Content`;
-      const mockFile = createMockFile("malformed.mdx", content);
+      const mockFile = toFile("malformed.mdx", content);
 
       await expect(async () => {
         await compiler.compileFile(mockFile);
@@ -146,7 +146,7 @@ model: gpt-4
 <System
 Invalid JSX syntax
 </System>`;
-      const mockFile = createMockFile("invalid.mdx", content);
+      const mockFile = toFile("invalid.mdx", content);
 
       await expect(async () => {
         await compiler.compileFile(mockFile);
@@ -156,7 +156,7 @@ Invalid JSX syntax
 
   describe("message handling", () => {
     it("should collect messages during compilation", async () => {
-      const mockFile = createMockFile("test.mdx", testMdxContent);
+      const mockFile = toFile("test.mdx", testMdxContent);
       const result = await compiler.compileFile(mockFile);
 
       expect(result.messages).toBeDefined();
