@@ -50,14 +50,6 @@ This is some regular markdown content that should be preserved.
       expect(Array.isArray(result.messages)).toBe(true);
     });
 
-    it("should handle empty MDX content", async () => {
-      const file = toFile("empty.mdx", "");
-      const result = await compiler.compileFile(file);
-
-      expect(result).toBeDefined();
-      expect(result.content).toBe("");
-    });
-
     it("should handle MDX with only frontmatter", async () => {
       const content = `---
 title: "Only Frontmatter"

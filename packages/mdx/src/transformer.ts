@@ -2,9 +2,10 @@ import { VFile } from "vfile";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkFrontmatter from "remark-frontmatter";
-import { compile } from "@mdx-js/mdx";
+import { compile, type CompileOptions } from "@mdx-js/mdx";
 import { parse as parseYaml } from "yaml";
 import { PromptDom } from "./dom.js";
+import { MdxRuntime } from "./runtime.js";
 import { MdxCompilerOptions, MdxCompilerResult } from "./types.js";
 
 /**
@@ -12,9 +13,11 @@ import { MdxCompilerOptions, MdxCompilerResult } from "./types.js";
  */
 export class MdxTransformer {
   private dom: PromptDom;
+  private runtime: MdxRuntime;
 
   constructor() {
     this.dom = new PromptDom();
+    this.runtime = new MdxRuntime();
   }
 
   /**
@@ -125,26 +128,36 @@ export class MdxTransformer {
       // Generate preamble from frontmatter
       const preamble = this.generatePreamble(frontmatter);
 
-      // Prepare MDX compilation options
-      const compileOptions = {
-        jsxImportSource: "@mdx-js/react",
-        ...options.mdxOptions,
+      // Prepare MDX compilation options with our custom JSX runtime
+      const compileOptions: CompileOptions = {
+        jsxImportSource: undefined, // Don't use external JSX import
+        jsx: true,
         development: false,
+        ...options.mdxOptions,
       };
 
-      // Create a compiled version
+      // Compile MDX to JavaScript
       const compiledMdx = String(await compile(mdxContent, compileOptions));
 
-      // For now, generate a simple GenAIScript structure
-      // In a real implementation, we would need to execute the MDX runtime
-      // and capture the resulting virtual DOM structure
-      // TODO: implement actual MDX execution and DOM capture
+      // Execute the compiled MDX using our runtime
+      let executedContent: string;
+      try {
+        executedContent = await this.runtime.execute(compiledMdx, {
+          // Pass any additional scope variables if needed
+          ...frontmatter,
+        });
+      } catch (runtimeError) {
+        messages.push({
+          type: "warning",
+          message: `Runtime execution failed, falling back to simple conversion: ${runtimeError instanceof Error ? runtimeError.message : String(runtimeError)}`,
+        });
+        
+        // Fall back to simple conversion if runtime execution fails
+        executedContent = this.convertMdxToGenaiScript(mdxContent);
+      }
 
-      const genaiContent = `${preamble}
-// Generated from MDX
-
-${this.convertMdxToGenaiScript(mdxContent)}
-`;
+      // Combine preamble with executed content
+      const genaiContent = `${preamble}${executedContent}`;
 
       return {
         content: genaiContent,
