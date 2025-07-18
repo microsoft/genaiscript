@@ -8,7 +8,7 @@ import { resolveScript } from "./ast.js";
 import { assert } from "./assert.js";
 import { MarkdownTrace } from "./trace.js";
 import { errorMessage, isCancelError, NotSupportedError } from "./error.js";
-import { JS_REGEX, MAX_TOOL_CALLS, GENAI_MDX_REGEX } from "./constants.js";
+import { JS_REGEX, MAX_TOOL_CALLS } from "./constants.js";
 import { finalizeMessages, PromptImage, PromptPrediction, renderPromptNode } from "./promptdom.js";
 import { createPromptContext } from "./promptcontext.js";
 import { evalPrompt } from "./evalprompt.js";
@@ -92,8 +92,8 @@ export async function callExpander(
       const compiledScript = await mdxTransform(r.mdxSource, env);
       // Create a temporary JavaScript file from the compiled MDX
       const mdxTempDir = dotGenaiscriptPath("mdx");
-      const tempFilename = join(mdxTempDir, `${r.id}.mjs`);
-      dbg(`mdx.js: %s`, tempFilename);
+      const tempFilename = join(mdxTempDir, `${r.id}.tsx`);
+      dbg(`tsx: %s`, tempFilename);
       await writeText(tempFilename, compiledScript.jsSource);
       const tempScript = { ...r, filename: tempFilename };
       await importPrompt(ctx, tempScript, { logCb, trace });
