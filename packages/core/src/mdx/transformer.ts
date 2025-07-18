@@ -4,7 +4,6 @@ import remarkParse from "remark-parse";
 import remarkFrontmatter from "remark-frontmatter";
 import { compile, type CompileOptions } from "@mdx-js/mdx";
 import { parse as parseYaml } from "yaml";
-import { PromptDom } from "./dom.js";
 import { MdxRuntime } from "./runtime.js";
 import type { MdxCompilerOptions, MdxCompilerResult } from "./types.js";
 
