@@ -1,0 +1,55 @@
+{
+  "name": "@genaiscript/mdx-compiler",
+  "version": "1.0.0",
+  "description": "MDX document compiler for GenAIScript framework",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "lint": "eslint src/**/*.ts",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "mdx",
+    "genaiscript",
+    "compiler",
+    "prompts",
+    "llm"
+  ],
+  "author": "GenAIScript Team",
+  "license": "MIT",
+  "dependencies": {
+    "@genaiscript/core": "workspace:*",
+    "@mdx-js/mdx": "^3.0.1",
+    "yaml": "^2.3.4",
+    "unified": "^11.0.4",
+    "remark-parse": "^11.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-stringify": "^11.0.0",
+    "vfile": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.6.0",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
+}
