@@ -10,11 +10,9 @@ export async function mdxTransform(
   content: string,
   scope: Record<string, unknown> = {},
   options: MdxCompilerOptions = {},
-): Promise<PromptScript> {
-  const { MdxRuntime } = await import("./runtime.js");
+): Promise<string> {
   const { compile } = await import("@mdx-js/mdx");
 
-  const runtime = new MdxRuntime();
   // Extract frontmatter
   const { frontmatter, content: mdxContent } = splitMarkdown(content);
   const fm = frontmatterTryParse(frontmatter);
@@ -25,7 +23,7 @@ export async function mdxTransform(
 
   // Compile MDX to JavaScript
   const compiledFile = await compile(mdxContent, {
-    jsxImportSource: undefined,
+    jsxImportSource: "@genaiscript/core",    
     jsx: true,
     development: false,
     ...options.mdxOptions,
@@ -36,10 +34,5 @@ export async function mdxTransform(
 
   // Combine preamble with executed content
   const jsSource = `${preamble}${compiledMdx}`;
-
-  return {
-    ...(fm || {}),
-    mdxSource: content,
-    jsSource,
-  } as PromptScript;
+  return jsSource;
 }

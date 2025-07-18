@@ -89,12 +89,12 @@ export async function callExpander(
   try {
     // Handle MDX files by generating a temporary JavaScript file
     if (r.filename && r.mdxSource && !r.jsSource) {
-      const compiledScript = await mdxTransform(r.mdxSource, env);
+      const compiledScript = await mdxTransform(r.mdxSource, ev.vars || {});
       // Create a temporary JavaScript file from the compiled MDX
       const mdxTempDir = dotGenaiscriptPath("mdx");
       const tempFilename = join(mdxTempDir, `${r.id}.tsx`);
       dbg(`tsx: %s`, tempFilename);
-      await writeText(tempFilename, compiledScript.jsSource);
+      await writeText(tempFilename, compiledScript);
       const tempScript = { ...r, filename: tempFilename };
       await importPrompt(ctx, tempScript, { logCb, trace });
     } else if (r.filename && (isModule || !JS_REGEX.test(r.filename))) {

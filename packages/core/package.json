@@ -158,6 +158,7 @@
     "project": "./tsconfig.src.json",
     "exports": {
       ".": "./src/index.ts",
+      "./jsx-runtime": "./src/mdx/jsx-runtime.ts",
       "./package.json": "./package.json"
     },
     "selfLink": false
@@ -175,6 +176,20 @@
       "require": {
         "types": "./dist/commonjs/index.d.ts",
         "default": "./dist/commonjs/index.js"
+      }
+    },
+    "./jsx-runtime": {
+      "browser": {
+        "types": "./dist/browser/mdx/jsx-runtime.d.ts",
+        "default": "./dist/browser/mdx/jsx-runtime.js"
+      },
+      "import": {
+        "types": "./dist/esm/mdx/jsx-runtime.d.ts",
+        "default": "./dist/esm/mdx/jsx-runtime.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/mdx/jsx-runtime.d.ts",
+        "default": "./dist/commonjs/mdx/jsx-runtime.js"
       }
     },
     "./package.json": "./package.json"

@@ -116,3 +116,7 @@ claude_desktop_config.json
 .mcp.json
 
 .pnpm-store/
+
+genaiscript.d.ts
+tsconfig.json
+jsconfig.json
