@@ -39,6 +39,7 @@ import type {
   PromptScript,
   ToolCallback,
 } from "./types.js";
+import { mdxTransform } from "./mdx/transformer.js";
 
 /**
  * Executes a prompt expansion process based on the provided prompt script, variables, and options.
@@ -88,12 +89,12 @@ export async function callExpander(
   try {
     // Handle MDX files by generating a temporary JavaScript file
     if (r.filename && GENAI_MDX_REGEX.test(r.filename) && r.jsSource) {
+      const jsSource = await mdxTransform(r.mdxSource, env);
+
       // Create a temporary JavaScript file from the compiled MDX
       const mdxTempDir = dotGenaiscriptPath("mdx");
       const tempFilename = join(mdxTempDir, `${r.id}.mjs`);
       await writeText(tempFilename, r.jsSource);
-      
-      // Create a temporary script object with the JavaScript file
       const tempScript = { ...r, filename: tempFilename };
       await importPrompt(ctx, tempScript, { logCb, trace });
     } else if (r.filename && (isModule || !JS_REGEX.test(r.filename))) {

@@ -3,29 +3,9 @@ import type { WorkspaceFile, PromptScript } from "../types.js";
 
 export interface MdxCompilerOptions {
   /**
-   * Output directory for compiled files
-   */
-  outputDir?: string;
-
-  /**
    * MDX compilation options
    */
   mdxOptions?: CompileOptions;
-}
-
-export interface MdxCompilerResult {
-  /**
-   * Generated GenAIScript content
-   */
-  content: string;
-
-  /**
-   * Any compilation messages
-   */
-  messages: Array<{
-    type: "error" | "warning" | "info";
-    message: string;
-  }>;
 }
 
 /**
