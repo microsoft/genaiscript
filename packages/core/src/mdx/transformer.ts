@@ -1,7 +1,16 @@
-import type { MdxCompilerOptions, PromptScript } from "./types.js";
+import type { MdxCompilerOptions } from "./types.js";
 import { frontmatterTryParse, splitMarkdown } from "../frontmatter.js";
 import { genaiscriptDebug } from "../debug.js";
-const dbg = genaiscriptDebug("mdx:transformer");
+import { getModulePaths } from "../pathUtils.js";
+import { dirname, join } from "node:path";
+const dbg = genaiscriptDebug("mdx");
+
+const { __filename } =
+  typeof module !== "undefined" && module.filename
+    ? getModulePaths(module)
+    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      getModulePaths(import.meta);
 
 /**
  * Transforms MDX content into GenAIScript format
@@ -21,9 +30,11 @@ export async function mdxTransform(
   const preamble = fm ? `script(${JSON.stringify(fm.value, null, 2)});\n` : "";
   dbg(`script: %s`, preamble);
 
+  const core = `genaiscript`;
+  dbg(`core: %s`, core);
   // Compile MDX to JavaScript
   const compiledFile = await compile(mdxContent, {
-    jsxImportSource: "@genaiscript/core",    
+    jsxImportSource: core,
     jsx: true,
     development: false,
     ...options.mdxOptions,

@@ -1,5 +1,5 @@
 import type { PromptDomNode } from "./types.js";
-import { JSXElement, jsxToPromptDom } from "./jsx-runtime.js";
+import { type JSXElement, jsxToPromptDom } from "./jsx-runtime.js";
 import { PromptDom } from "./dom.js";
 
 /**
