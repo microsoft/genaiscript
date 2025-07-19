@@ -5,13 +5,6 @@ import { getModulePaths } from "../pathUtils.js";
 import { dirname, join } from "node:path";
 const dbg = genaiscriptDebug("mdx");
 
-const { __filename } =
-  typeof module !== "undefined" && module.filename
-    ? getModulePaths(module)
-    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      getModulePaths(import.meta);
-
 /**
  * Transforms MDX content into GenAIScript format
  */

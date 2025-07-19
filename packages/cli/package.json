@@ -92,6 +92,20 @@
         "default": "./dist/esm/index.js"
       }
     },
+    "./jsx-runtime": {
+      "browser": {
+        "types": "./dist/browser/jsx-runtime.d.ts",
+        "default": "./dist/browser/jsx-runtime.js"
+      },
+      "import": {
+        "types": "./dist/esm/jsx-runtime.d.ts",
+        "default": "./dist/esm/jsx-runtime.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/jsx-runtime.d.ts",
+        "default": "./dist/commonjs/jsx-runtime.js"
+      }
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/src/index.js",
