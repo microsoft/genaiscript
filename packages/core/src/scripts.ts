@@ -56,7 +56,6 @@ export function createScript(name: string, options?: { template: PromptScript; t
  *   - `project.folders`: A set of folder data collected with relevant directory and file details.
  */
 export async function fixPromptDefinitions(project: Project, options?: { force?: boolean }) {
-  const runtimeHost = resolveRuntimeHost();
   const folders = collectFolders(project, options);
   const systems = project.scripts.filter((t) => t.isSystem);
   const tools = systems.map(({ defTools }) => defTools || []).flat();
@@ -152,7 +151,7 @@ export async function fixGitHubCopilotInstructions(options?: {
     try {
       await writeText(pn, ghInstructions); // Write the GitHub Copilot instructions file
     } catch (e) {
-      // If the directory does not exist, ignore
+      dbg(`failed to write instructions`);
     }
   }
   if (githubCopilotInstructions || docs) {
