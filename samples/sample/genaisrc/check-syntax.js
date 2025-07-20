@@ -1,3 +1,5 @@
+import process from "node:process";
+
 process.stdin.setEncoding('utf8');
 process.stdin.on('readable', () => {
     let chunk;

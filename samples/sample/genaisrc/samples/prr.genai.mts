@@ -1,3 +1,4 @@
+import process from "node:process";
 script({
   title: "Pull Request Reviewer",
   description: "Review the current pull request",
