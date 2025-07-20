@@ -41,6 +41,7 @@ import {
   tryReadText,
   wrapColor,
   writeText,
+  normalizeFloat,
 } from "@genaiscript/core";
 import type { DocxParseOptions, WorkspaceFile } from "@genaiscript/core";
 import { basename, join } from "node:path";
@@ -150,14 +151,14 @@ export async function parseJinja2(
   options: {
     vars: string[];
   },
-) {
+): Promise<void> {
   let src = await readFile(file, { encoding: "utf-8" });
   if (PROMPTY_REGEX.test(file)) src = promptyParse(file, src).content;
   else if (MD_REGEX.test(file)) src = splitMarkdown(src).content;
 
-  const vars: Record<string, any> = parseOptionsVars(options.vars, process.env);
+  const vars: Record<string, string | number> = parseOptionsVars(options.vars, process.env);
   for (const k in vars) {
-    const i = parseFloat(vars[k]);
+    const i = parseFloat(vars[k] as string);
     if (!isNaN(i)) vars[k] = i;
   }
   const res: string = jinjaRender(src, vars);
@@ -300,7 +301,10 @@ export async function parseTokenize(file: string, options: { model: string }) {
  *
  * Logs the conversion process and writes the output files to the specified directory or replaces the extension in place if no directory is provided.
  */
-export async function prompty2genaiscript(files: string[], options: { out: string }) {
+export async function prompty2genaiscript(
+  files: string[],
+  options: { out: string },
+): Promise<void> {
   const { out } = options;
   const fs = await expandFiles(files);
   for (const f of fs) {
@@ -322,7 +326,7 @@ export async function prompty2genaiscript(files: string[], options: { out: strin
  * Logs the file name and the types of secrets found in each file.
  * Warns if secrets are found in any of the scanned files.
  */
-export async function parseSecrets(files: string[]) {
+export async function parseSecrets(files: string[]): Promise<void> {
   const fs = await expandFiles(files);
   let n = 0;
   for (const f of fs) {

@@ -48,7 +48,7 @@ export const GENAI_MTS_EXT = ".genai.mts";
 export const GENAI_MD_EXT = ".genai.md";
 export const GENAI_ANYJS_GLOB = "**/*{.genai.js,.genai.mjs,.genai.ts,.genai.mts}";
 export const NEGATIVE_GLOB_REGEX = /^!/;
-export const GENAI_ANY_REGEX = /\.(genai\.(ts|mts|mjs|js)|prompty)$/i;
+export const GENAI_ANY_REGEX = /\.genai\.(ts|mts|mjs|js)$/i;
 export const GENAI_ANYJS_REGEX = /\.genai\.js$/i;
 export const GENAI_ANYTS_REGEX = /\.genai\.(ts|mts|mjs)$/i;
 export const HTTP_OR_S_REGEX = /^https?:\/\//i;
@@ -295,7 +295,7 @@ export const CONSOLE_COLOR_PERFORMANCE = "38;5;17";
 export const CONSOLE_COLOR_WARNING = 95;
 export const CONSOLE_COLOR_ERROR = 91;
 export const CONSOLE_TOKEN_COLORS = [90, 37];
-//export const CONSOLE_TOKEN_COLORS = [97, 93]
+// export const CONSOLE_TOKEN_COLORS = [97, 93]
 export const CONSOLE_TOKEN_INNER_COLORS = [90, 37];
 
 export const PLAYWRIGHT_DEFAULT_BROWSER = "chromium";
