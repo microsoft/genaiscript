@@ -1,5 +1,5 @@
 import { prettier } from "../../../genaisrc/src/prettier.mts"
-import { astGrep } from "@genaiscript/plugin-ast-grep"
+import { astGrep, type SgNode } from "@genaiscript/plugin-ast-grep"
 
 script({
     title: "Add debug logging statements to if statements",

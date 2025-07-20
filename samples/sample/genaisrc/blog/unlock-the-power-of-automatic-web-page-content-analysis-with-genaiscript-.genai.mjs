@@ -1,3 +1,4 @@
+import { browse } from "@genaiscript/plugin-playwright";
 const page = await browse("https://bing.com");
 const screenshot = await page.screenshot();
 defImages(screenshot);

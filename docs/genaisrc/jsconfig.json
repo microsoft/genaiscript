@@ -6,6 +6,7 @@
         "target": "ES2024",
         "module": "ES2022",
         "moduleDetection": "force",
+        "moduleResolution": "nodenext",
         "checkJs": true,
         "allowJs": true,
         "skipLibCheck": true
