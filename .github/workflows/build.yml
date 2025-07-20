@@ -29,6 +29,8 @@ jobs:
         continue-on-error: true
       - name: compile system scripts
         run: pnpm run test:system
+      - name: compile tests
+        run: pnpm run test:compile
       - name: tests
         run: pnpm -r test
         env:

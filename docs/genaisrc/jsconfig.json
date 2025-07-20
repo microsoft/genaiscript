@@ -8,9 +8,7 @@
         "moduleDetection": "force",
         "checkJs": true,
         "allowJs": true,
-        "skipLibCheck": true,
-        "allowImportingTsExtensions": true,
-        "resolveJsonModule": true
+        "skipLibCheck": true
     },
     "include": [
         "*.js",

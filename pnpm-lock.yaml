@@ -1192,12 +1192,6 @@ importers:
         specifier: ^2.8.0
         version: 2.8.0
 
-  samples/modulesample:
-    devDependencies:
-      ini:
-        specifier: ^5.0.0
-        version: 5.0.0
-
   samples/runtime-sample:
     dependencies:
       '@genaiscript/plugin-mdast':

@@ -58,8 +58,6 @@ async function main() {
           checkJs: true,
           allowJs: true,
           skipLibCheck: true,
-          allowImportingTsExtensions: true,
-          resolveJsonModule: true,
         },
         include: ["*.js", "./genaiscript.d.ts"],
       },
