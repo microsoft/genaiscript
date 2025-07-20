@@ -184,6 +184,69 @@ export async function startOpenAPIServer(
                 type: "object",
                 properties: deleteUndefinedValues({
                     ...(scriptSchema?.properties || {}),
+                    // Model parameters that can override script defaults
+                    model: {
+                        type: "string",
+                        description: "Override the main model (e.g., 'gpt-4', 'claude-3-sonnet')",
+                    },
+                    smallModel: {
+                        type: "string",
+                        description: "Override the small model alias",
+                    },
+                    visionModel: {
+                        type: "string", 
+                        description: "Override the vision model alias",
+                    },
+                    embeddingsModel: {
+                        type: "string",
+                        description: "Override the embeddings model alias",
+                    },
+                    provider: {
+                        type: "string",
+                        description: "Override the LLM provider (e.g., 'openai', 'anthropic', 'azure')",
+                    },
+                    temperature: {
+                        type: "number",
+                        description: "Override model temperature (0-2)",
+                        minimum: 0,
+                        maximum: 2,
+                    },
+                    reasoningEffort: {
+                        type: "string",
+                        enum: ["high", "medium", "low"],
+                        description: "Override reasoning effort for o* models",
+                    },
+                    topP: {
+                        type: "number", 
+                        description: "Override top-p sampling parameter (0-1)",
+                        minimum: 0,
+                        maximum: 1,
+                    },
+                    maxTokens: {
+                        type: "number",
+                        description: "Override maximum tokens to generate",
+                        minimum: 1,
+                    },
+                    maxToolCalls: {
+                        type: "number",
+                        description: "Override maximum tool calls allowed",
+                        minimum: 0,
+                    },
+                    seed: {
+                        type: "number",
+                        description: "Override random seed for reproducible results",
+                    },
+                    modelAlias: {
+                        type: "array",
+                        items: {
+                            type: "string",
+                        },
+                        description: "Override model aliases as name=modelid pairs",
+                    },
+                    toolChoice: {
+                        type: "string",
+                        description: "Override tool choice strategy",
+                    },
                     files:
                         accept !== "none"
                             ? {
@@ -224,11 +287,64 @@ export async function startOpenAPIServer(
             if (!group) logWarn(`${id}: operation must have a group`)
 
             const operationId = `${operationPrefix}${id}`
+            // Query parameters schema - same model parameters as body
+            const querySchema = {
+                type: "object",
+                properties: {
+                    model: {
+                        type: "string",
+                        description: "Override the main model (e.g., 'gpt-4', 'claude-3-sonnet')",
+                    },
+                    smallModel: {
+                        type: "string",
+                        description: "Override the small model alias",
+                    },
+                    visionModel: {
+                        type: "string", 
+                        description: "Override the vision model alias",
+                    },
+                    embeddingsModel: {
+                        type: "string",
+                        description: "Override the embeddings model alias",
+                    },
+                    provider: {
+                        type: "string",
+                        description: "Override the LLM provider (e.g., 'openai', 'anthropic', 'azure')",
+                    },
+                    temperature: {
+                        type: "number",
+                        description: "Override model temperature (0-2)",
+                    },
+                    reasoningEffort: {
+                        type: "string",
+                        enum: ["high", "medium", "low"],
+                        description: "Override reasoning effort for o* models",
+                    },
+                    topP: {
+                        type: "number", 
+                        description: "Override top-p sampling parameter (0-1)",
+                    },
+                    maxTokens: {
+                        type: "number",
+                        description: "Override maximum tokens to generate",
+                    },
+                    maxToolCalls: {
+                        type: "number",
+                        description: "Override maximum tool calls allowed",
+                    },
+                    seed: {
+                        type: "number",
+                        description: "Override random seed for reproducible results",
+                    },
+                },
+            }
+
             const schema = deleteUndefinedValues({
                 operationId,
                 summary,
                 description,
                 tags: [tool.group || "default"].filter(Boolean),
+                querystring: toStrictJSONSchema(querySchema, { defaultOptional: true }),
                 body: toStrictJSONSchema(bodySchema, { defaultOptional: true }),
                 response: {
                     200: toStrictJSONSchema(
@@ -295,15 +411,47 @@ export async function startOpenAPIServer(
                 const { files = [], ...bodyRest } = (request.body || {}) as any
                 dbgHandlers(`query: %O`, request.query)
                 dbgHandlers(`body: %O`, bodyRest)
-                const vars = { ...((request.query as any) || {}), ...bodyRest }
-                dbgHandlers(`vars: %O`, vars)
-                // TODO: parse query params?
+                const allParams = { ...((request.query as any) || {}), ...bodyRest }
+                dbgHandlers(`params: %O`, allParams)
+                
+                // Extract model parameters from HTTP request
+                const {
+                    model,
+                    smallModel,
+                    visionModel,
+                    embeddingsModel,
+                    modelAlias,
+                    provider,
+                    temperature,
+                    reasoningEffort,
+                    topP,
+                    maxTokens,
+                    maxToolCalls,
+                    seed,
+                    toolChoice,
+                    ...vars
+                } = allParams
+                
                 const res = await run(tool.id, [], {
                     ...runOptions,
                     workspaceFiles: files || [],
                     vars: vars,
                     runTrace: false,
                     outputTrace: false,
+                    // Pass model parameters as direct options
+                    ...(model && { model }),
+                    ...(smallModel && { smallModel }),
+                    ...(visionModel && { visionModel }),
+                    ...(embeddingsModel && { embeddingsModel }),
+                    ...(modelAlias && { modelAlias }),
+                    ...(provider && { provider }),
+                    ...(temperature && { temperature }),
+                    ...(reasoningEffort && { reasoningEffort }),
+                    ...(topP && { topP }),
+                    ...(maxTokens && { maxTokens }),
+                    ...(maxToolCalls && { maxToolCalls }),
+                    ...(seed && { seed }),
+                    ...(toolChoice && { toolChoice }),
                 })
                 if (!res) throw new Error("Internal Server Error")
                 dbgHandlers(`res: %s`, res.status)
