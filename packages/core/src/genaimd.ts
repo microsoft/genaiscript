@@ -3,13 +3,20 @@ import { deleteUndefinedValues } from "./cleaners"
 import { JSON5Stringify } from "./json5"
 
 /**
+ * Interface representing a content segment (either text or code)
+ */
+interface ContentSegment {
+    type: 'text' | 'code'
+    content: string
+}
+
+/**
  * Interface representing a parsed .genai.md document
  */
 interface GenaiMdDocument {
     meta: PromptArgs
     frontmatter: any
-    content: string
-    codeBlocks: string[]
+    segments: ContentSegment[]
 }
 
 /**
@@ -47,25 +54,41 @@ function genaiMdFrontmatterToMeta(frontmatter: any): PromptArgs {
 }
 
 /**
- * Extracts TypeScript code blocks from markdown content
+ * Parses markdown content into alternating text and code segments
  * @param content - The markdown content to parse
- * @returns Array of extracted code strings
+ * @returns Array of content segments in order
  */
-function extractGenaiCodeBlocks(content: string): string[] {
-    const codeBlocks: string[] = []
+function parseContentSegments(content: string): ContentSegment[] {
+    const segments: ContentSegment[] = []
     
-    // Match ```ts genai or ```typescript genai code blocks
+    // Split content by genai code blocks while preserving the split positions
     const regex = /```(?:ts|typescript)\s+genai\s*\n([\s\S]*?)\n```/gi
+    let lastIndex = 0
     let match: RegExpExecArray | null
     
     while ((match = regex.exec(content)) !== null) {
+        // Add text segment before the code block (if any)
+        const textBefore = content.slice(lastIndex, match.index).trim()
+        if (textBefore) {
+            segments.push({ type: 'text', content: textBefore })
+        }
+        
+        // Add code segment
         const code = match[1].trim()
         if (code) {
-            codeBlocks.push(code)
+            segments.push({ type: 'code', content: code })
         }
+        
+        lastIndex = match.index + match[0].length
     }
     
-    return codeBlocks
+    // Add remaining text after the last code block (if any)
+    const textAfter = content.slice(lastIndex).trim()
+    if (textAfter) {
+        segments.push({ type: 'text', content: textAfter })
+    }
+    
+    return segments
 }
 
 /**
@@ -83,14 +106,13 @@ export function genaiMdParse(filename: string, text: string): GenaiMdDocument {
     
     if (filename) meta.filename = filename
     
-    // Extract genai code blocks
-    const codeBlocks = extractGenaiCodeBlocks(content)
+    // Parse content into segments
+    const segments = parseContentSegments(content)
     
     return { 
         meta, 
         frontmatter: frontmatterObj, 
-        content, 
-        codeBlocks 
+        segments
     }
 }
 
@@ -100,7 +122,7 @@ export function genaiMdParse(filename: string, text: string): GenaiMdDocument {
  * @returns String containing the generated GenAIScript
  */
 export function genaiMdToGenAIScript(doc: GenaiMdDocument): string {
-    const { meta, content, codeBlocks } = doc
+    const { meta, segments } = doc
     
     let src = ''
     
@@ -109,22 +131,17 @@ export function genaiMdToGenAIScript(doc: GenaiMdDocument): string {
         src += `script(${JSON5Stringify(meta, null, 2)})\n\n`
     }
     
-    // Add extracted code blocks inline
-    if (codeBlocks.length > 0) {
-        src += codeBlocks.join('\n\n') + '\n\n'
+    // Process segments in order, interleaving text and code
+    for (const segment of segments) {
+        if (segment.type === 'code') {
+            // Add code block directly
+            src += segment.content + '\n\n'
+        } else if (segment.type === 'text') {
+            // Add text as template literal
+            const escapedContent = segment.content.replace(/`/g, '\\`')
+            src += `$\`${escapedContent}\`\n\n`
+        }
     }
     
-    // Add the remaining markdown content as a template string
-    // Remove the genai code blocks from content since they're already extracted
-    let cleanContent = content
-    cleanContent = cleanContent.replace(/```(?:ts|typescript)\s+genai\s*\n[\s\S]*?\n```/gi, '')
-    cleanContent = cleanContent.trim()
-    
-    if (cleanContent) {
-        // Escape backticks in the content and add as template literal
-        const escapedContent = cleanContent.replace(/`/g, '\\`')
-        src += `$\`${escapedContent}\``
-    }
-    
-    return src
+    return src.trim()
 }

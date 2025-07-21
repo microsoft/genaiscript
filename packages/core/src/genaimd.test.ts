@@ -8,8 +8,7 @@ describe("genaiMdParse", () => {
         assert.deepStrictEqual(result, {
             meta: {},
             frontmatter: undefined,
-            content: "",
-            codeBlocks: [],
+            segments: [],
         })
     })
 
@@ -19,8 +18,7 @@ describe("genaiMdParse", () => {
         assert.deepStrictEqual(result, {
             meta: {},
             frontmatter: undefined,
-            content: content,
-            codeBlocks: [],
+            segments: [{ type: 'text', content: content }],
         })
     })
 
@@ -45,7 +43,9 @@ Content below heading.`
                 input: "string"
             }
         })
-        assert.strictEqual(result.content, "# Heading\nContent below heading.")
+        assert.deepStrictEqual(result.segments, [
+            { type: 'text', content: "# Heading\nContent below heading." }
+        ])
         assert.deepStrictEqual(result.meta, {
             title: "Test Script",
             description: "A test description", 
@@ -57,7 +57,7 @@ Content below heading.`
         })
     })
 
-    test("correctly extracts genai code blocks", () => {
+    test("correctly parses content with interleaved text and code blocks", () => {
         const markdownContent = `# Test Script
 
 Some intro text.
@@ -75,9 +75,12 @@ env.vars.count = 5
 
 Final content.`
         const result = genaiMdParse(undefined, markdownContent)
-        assert.deepStrictEqual(result.codeBlocks, [
-            'const name = "world"\n$`Hello ${name}!`',
-            'env.vars.count = 5'
+        assert.deepStrictEqual(result.segments, [
+            { type: 'text', content: '# Test Script\n\nSome intro text.' },
+            { type: 'code', content: 'const name = "world"\n$`Hello ${name}!`' },
+            { type: 'text', content: 'More content here.' },
+            { type: 'code', content: 'env.vars.count = 5' },
+            { type: 'text', content: 'Final content.' }
         ])
     })
 
@@ -100,8 +103,20 @@ const another = "regular"
 
 Final content.`
         const result = genaiMdParse(undefined, markdownContent)
-        assert.deepStrictEqual(result.codeBlocks, [
-            'const genai = "code"'
+        assert.deepStrictEqual(result.segments, [
+            { type: 'text', content: `# Test Script
+
+Some intro text.
+
+\`\`\`ts
+const regular = "code"
+\`\`\`` },
+            { type: 'code', content: 'const genai = "code"' },
+            { type: 'text', content: `\`\`\`javascript
+const another = "regular"
+\`\`\`
+
+Final content.` }
         ])
     })
 })
@@ -115,8 +130,9 @@ describe("genaiMdToGenAIScript", () => {
                 model: "gpt-4"
             },
             frontmatter: {},
-            content: "Hello world!",
-            codeBlocks: []
+            segments: [
+                { type: 'text' as const, content: 'Hello world!' }
+            ]
         }
         const result = genaiMdToGenAIScript(doc)
         assert.ok(result.includes('script({'))
@@ -125,48 +141,42 @@ describe("genaiMdToGenAIScript", () => {
         assert.ok(result.includes('$`Hello world!`'))
     })
 
-    test("generates script with code blocks", () => {
+    test("generates script with interleaved code and text", () => {
         const doc = {
             meta: {},
             frontmatter: {},
-            content: "Hello world!",
-            codeBlocks: [
-                'const name = "test"',
-                '$`Hello ${name}!`'
+            segments: [
+                { type: 'text' as const, content: 'First text section' },
+                { type: 'code' as const, content: 'const name = "test"' },
+                { type: 'text' as const, content: 'Second text section' },
+                { type: 'code' as const, content: '$`Hello ${name}!`' }
             ]
         }
         const result = genaiMdToGenAIScript(doc)
+        
+        // Check order and structure
+        const lines = result.split('\n').filter(line => line.trim())
+        assert.ok(result.includes('$`First text section`'))
         assert.ok(result.includes('const name = "test"'))
+        assert.ok(result.includes('$`Second text section`'))
         assert.ok(result.includes('$`Hello ${name}!`'))
-        assert.ok(result.includes('$`Hello world!`'))
-    })
-
-    test("removes genai code blocks from content", () => {
-        const doc = {
-            meta: {},
-            frontmatter: {},
-            content: `Some text
-
-\`\`\`ts genai
-const code = "block"
-\`\`\`
-
-More text here.`,
-            codeBlocks: ['const code = "block"']
-        }
-        const result = genaiMdToGenAIScript(doc)
-        assert.ok(result.includes('const code = "block"'))
-        assert.ok(result.includes('$`Some text'))
-        assert.ok(result.includes('More text here.`'))
-        assert.ok(!result.includes('```ts genai'))
+        
+        // Verify interleaving - text should come before code in output
+        const firstTextIndex = result.indexOf('$`First text section`')
+        const firstCodeIndex = result.indexOf('const name = "test"')
+        const secondTextIndex = result.indexOf('$`Second text section`')
+        const secondCodeIndex = result.indexOf('$`Hello ${name}!`')
+        
+        assert.ok(firstTextIndex < firstCodeIndex)
+        assert.ok(firstCodeIndex < secondTextIndex)
+        assert.ok(secondTextIndex < secondCodeIndex)
     })
 
     test("handles empty content", () => {
         const doc = {
             meta: { title: "Test" },
             frontmatter: {},
-            content: "",
-            codeBlocks: []
+            segments: []
         }
         const result = genaiMdToGenAIScript(doc)
         assert.ok(result.includes('script({'))
@@ -178,10 +188,39 @@ More text here.`,
         const doc = {
             meta: {},
             frontmatter: {},
-            content: "Use `backticks` in your code.",
-            codeBlocks: []
+            segments: [
+                { type: 'text' as const, content: "Use `backticks` in your code." }
+            ]
         }
         const result = genaiMdToGenAIScript(doc)
         assert.ok(result.includes('$`Use \\`backticks\\` in your code.`'))
     })
-})
+
+    test("handles only code blocks", () => {
+        const doc = {
+            meta: {},
+            frontmatter: {},
+            segments: [
+                { type: 'code' as const, content: 'const hello = "world"' },
+                { type: 'code' as const, content: 'console.log(hello)' }
+            ]
+        }
+        const result = genaiMdToGenAIScript(doc)
+        assert.ok(result.includes('const hello = "world"'))
+        assert.ok(result.includes('console.log(hello)'))
+        assert.ok(!result.includes('$`'))
+    })
+
+    test("handles only text content", () => {
+        const doc = {
+            meta: {},
+            frontmatter: {},
+            segments: [
+                { type: 'text' as const, content: 'Only text here' }
+            ]
+        }
+        const result = genaiMdToGenAIScript(doc)
+        assert.ok(result.includes('$`Only text here`'))
+        assert.ok(!result.includes('const'))
+    })
+}))
