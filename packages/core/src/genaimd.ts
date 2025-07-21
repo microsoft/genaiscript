@@ -60,34 +60,34 @@ function genaiMdFrontmatterToMeta(frontmatter: any): PromptArgs {
  */
 function parseContentSegments(content: string): ContentSegment[] {
     const segments: ContentSegment[] = []
-    
+
     // Split content by genai code blocks while preserving the split positions
     const regex = /```(?:ts|typescript)\s+genai\s*\n([\s\S]*?)\n```/gi
     let lastIndex = 0
     let match: RegExpExecArray | null
-    
+
     while ((match = regex.exec(content)) !== null) {
         // Add text segment before the code block (if any)
         const textBefore = content.slice(lastIndex, match.index).trim()
         if (textBefore) {
             segments.push({ type: 'text', content: textBefore })
         }
-        
+
         // Add code segment
         const code = match[1].trim()
         if (code) {
             segments.push({ type: 'code', content: code })
         }
-        
+
         lastIndex = match.index + match[0].length
     }
-    
+
     // Add remaining text after the last code block (if any)
     const textAfter = content.slice(lastIndex).trim()
     if (textAfter) {
         segments.push({ type: 'text', content: textAfter })
     }
-    
+
     return segments
 }
 
@@ -99,19 +99,19 @@ function parseContentSegments(content: string): ContentSegment[] {
  */
 export function genaiMdParse(filename: string, text: string): GenaiMdDocument {
     const { frontmatter = "", content = "" } = splitMarkdown(text)
-    
+
     // Parse frontmatter using frontmatterTryParse
     const frontmatterObj = frontmatter ? frontmatterTryParse(text)?.value : {}
     const meta: PromptArgs = genaiMdFrontmatterToMeta(frontmatterObj)
-    
+
     if (filename) meta.filename = filename
-    
+
     // Parse content into segments
     const segments = parseContentSegments(content)
-    
-    return { 
-        meta, 
-        frontmatter: frontmatterObj, 
+
+    return {
+        meta,
+        frontmatter: frontmatterObj,
         segments
     }
 }
@@ -123,14 +123,14 @@ export function genaiMdParse(filename: string, text: string): GenaiMdDocument {
  */
 export function genaiMdToGenAIScript(doc: GenaiMdDocument): string {
     const { meta, segments } = doc
-    
+
     let src = ''
-    
+
     // Add script configuration if metadata exists
     if (Object.keys(meta).length > 0) {
         src += `script(${JSON5Stringify(meta, null, 2)})\n\n`
     }
-    
+
     // Process segments in order, interleaving text and code
     for (const segment of segments) {
         if (segment.type === 'code') {
@@ -142,6 +142,6 @@ export function genaiMdToGenAIScript(doc: GenaiMdDocument): string {
             src += `$\`${escapedContent}\`\n\n`
         }
     }
-    
+
     return src.trim()
 }

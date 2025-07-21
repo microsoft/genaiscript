@@ -48,7 +48,7 @@ Content below heading.`
         ])
         assert.deepStrictEqual(result.meta, {
             title: "Test Script",
-            description: "A test description", 
+            description: "A test description",
             model: "gpt-4",
             temperature: 0.5,
             parameters: {
@@ -153,20 +153,20 @@ describe("genaiMdToGenAIScript", () => {
             ]
         }
         const result = genaiMdToGenAIScript(doc)
-        
+
         // Check order and structure
         const lines = result.split('\n').filter(line => line.trim())
         assert.ok(result.includes('$`First text section`'))
         assert.ok(result.includes('const name = "test"'))
         assert.ok(result.includes('$`Second text section`'))
         assert.ok(result.includes('$`Hello ${name}!`'))
-        
+
         // Verify interleaving - text should come before code in output
         const firstTextIndex = result.indexOf('$`First text section`')
         const firstCodeIndex = result.indexOf('const name = "test"')
         const secondTextIndex = result.indexOf('$`Second text section`')
         const secondCodeIndex = result.indexOf('$`Hello ${name}!`')
-        
+
         assert.ok(firstTextIndex < firstCodeIndex)
         assert.ok(firstCodeIndex < secondTextIndex)
         assert.ok(secondTextIndex < secondCodeIndex)

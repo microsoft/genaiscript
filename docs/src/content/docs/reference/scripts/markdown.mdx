@@ -12,7 +12,7 @@ GenAIScript supports writing scripts in Markdown format using `.genai.md` files.
 
 A `.genai.md` file consists of:
 1. **YAML frontmatter** for script configuration
-2. **Markdown content** for documentation and prompts  
+2. **Markdown content** for documentation and prompts
 3. **TypeScript code blocks** marked with `genai` for executable code
 
 ## Example
@@ -42,11 +42,11 @@ defImages(file)
 
 ## Instructions
 
-You are an expert in assistive technology. You will analyze each image 
+You are an expert in assistive technology. You will analyze each image
 and generate a description alt text for the image and save it to a file.
 
 \`\`\`ts genai
-// output  
+// output
 defFileOutput(file.filename + ".txt", `Alt text for image ${file.filename}`)
 \`\`\`
 
@@ -122,7 +122,7 @@ For the example above, the generated script would be:
 
 ```typescript
 script({
-  title: "Image Alt Text generator", 
+  title: "Image Alt Text generator",
   description: "Generate alt text for images",
   model: "vision",
   group: "docs",
@@ -132,7 +132,7 @@ script({
 
 // input
 const file = env.files[0]
-// context  
+// context
 defImages(file)
 
 // output
@@ -144,7 +144,7 @@ This script analyzes images and generates alt text descriptions.
 
 ## Instructions
 
-You are an expert in assistive technology. You will analyze each image 
+You are an expert in assistive technology. You will analyze each image
 and generate a description alt text for the image and save it to a file.
 
 Additional notes:
