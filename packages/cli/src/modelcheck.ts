@@ -12,6 +12,13 @@ import {
 /**
  * Checks each known model alias by making LLM requests and reports the results.
  * Tests if each alias works, what provider it uses, token usage, etc.
+ * 
+ * This function:
+ * 1. Gets all known model aliases (core + configured)
+ * 2. For each alias, resolves it to an actual model
+ * 3. Makes a simple test LLM request
+ * 4. Reports success/failure with detailed metrics
+ * 5. Outputs a summary in YAML format
  */
 export async function checkModelAliases() {
     await runtimeHost.readConfig()
@@ -34,6 +41,12 @@ export async function checkModelAliases() {
     const allAliases = [...new Set([...coreAliases, ...configuredAliases])].sort()
 
     logInfo(`Testing ${allAliases.length} model aliases...`)
+    
+    if (allAliases.length === 0) {
+        logWarn("No model aliases found to test")
+        return
+    }
+    
     logVerbose("")
 
     const results: Record<string, any> = {}
@@ -61,14 +74,15 @@ export async function checkModelAliases() {
                 jsSource: `script({
     unlisted: true,
     system: [],
-    systemSafety: false,
-    model: "${alias}"
+    systemSafety: false
 })
 $\`Write the word "hello" in lowercase.\`
 `,
+                model: alias, // Use the alias as the model parameter
                 runTrace: false,
                 temperature: 0,
                 maxTokens: 10,
+                timeout: 30000,
             })
             const duration = Date.now() - startTime
 
