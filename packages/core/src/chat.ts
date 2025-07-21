@@ -1389,7 +1389,7 @@ function updateChatFeatures(
     trace?.itemValue(`top_logprobs`, `disabled`);
     delete req.top_logprobs;
   }
-  if (/^o1/i.test(model) && !req.max_completion_tokens) {
+  if (/^(openai\/)?o(1|3|4)/i.test(model) && !req.max_completion_tokens) {
     dbg(`max_tokens: renamed to max_completion_tokens`);
     req.max_completion_tokens = req.max_tokens;
     delete req.max_tokens;

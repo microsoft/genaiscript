@@ -7,6 +7,7 @@
  * and resolving model connection info for specific scripts.
  */
 
+import { run } from "@genaiscript/api";
 import {
   LARGE_MODEL_ID,
   CORE_VERSION,
@@ -18,6 +19,7 @@ import {
   resolveModelAlias,
   resolveModelConnectionInfo,
   resolveRuntimeHost,
+  EMBEDDINGS_MODEL_ID,
 } from "@genaiscript/core";
 import { buildProject } from "@genaiscript/core";
 import { resolve } from "node:path";
@@ -115,7 +117,8 @@ export async function scriptModelInfo(
  *
  * @param none This function does not require any parameters.
  */
-export async function modelAliasesInfo(): Promise<void> {
+export async function modelAliasesInfo(options?: { check?: boolean }): Promise<void> {
+  const { check } = options || {};
   const runtimeHost = resolveRuntimeHost();
   const res = Object.fromEntries(
     Object.entries(runtimeHost.modelAliases).map(([k, v]) => [
@@ -126,6 +129,27 @@ export async function modelAliasesInfo(): Promise<void> {
       },
     ]),
   );
+
+  if (check) {
+    for (const [alias, config] of Object.entries(res)) {
+      if (alias === EMBEDDINGS_MODEL_ID) continue;
+      const inference = await run(alias, [], {
+        jsSource: `script({
+    unlisted: true,
+    system: [],
+    systemSafety: false
+})
+$\`Write the word "hello" in lowercase.\`
+`,
+        model: alias,
+        runTrace: false,
+        outputTrace: false,
+        temperature: 0,
+        maxTokens: 10,
+      });
+      (config as any).inference = inference?.error?.message || inference?.status || "error";
+    }
+  }
   console.log(YAMLStringify(res));
 }
 

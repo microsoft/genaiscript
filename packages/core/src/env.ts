@@ -68,7 +68,6 @@ import type { TraceOptions } from "./trace.js";
 import type { CancellationOptions } from "./cancellation.js";
 import { genaiscriptDebug } from "./debug.js";
 import { YAMLTryParse } from "./yaml.js";
-import { INITryParse } from "./ini.js";
 const dbg = genaiscriptDebug("config:env");
 
 /**
@@ -178,6 +177,12 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
   }
 }
 
+function parseModelApiVersion(provider: string, model: string): string | undefined {
+  const name = `GENAISCRIPT_API_VERSION_${provider.toUpperCase()}_${model.toUpperCase()}`;
+  const inputName = `INPUT_API_VERSION_${provider.toUpperCase()}_${model.toUpperCase()}`;
+  return process.env[name] ?? process.env[inputName];
+}
+
 /**
  * Parses the environment variables to retrieve the necessary token, base URL, and configuration details
  * for a specified model identifier based on its provider.
@@ -213,7 +218,10 @@ export async function parseTokenFromEnv(
     const token = env.OPENAI_API_KEY ?? "";
     let base = env.OPENAI_API_BASE;
     const type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai";
-    const version = env.OPENAI_API_VERSION || parseAzureVersionFromUrl(base);
+    const version =
+      parseModelApiVersion(provider, model) ||
+      env.OPENAI_API_VERSION ||
+      parseAzureVersionFromUrl(base);
     if (
       type !== "azure" &&
       type !== "openai" &&
@@ -327,6 +335,7 @@ export async function parseTokenFromEnv(
       throw new Error("AZURE_OPENAI_API_ENDPOINT not configured");
     }
     const version =
+      parseModelApiVersion(provider, model) ||
       env[`AZURE_OPENAI_API_VERSION_${model.toLocaleUpperCase()}`] ||
       env.AZURE_OPENAI_API_VERSION ||
       env.AZURE_API_VERSION ||

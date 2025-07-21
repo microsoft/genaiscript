@@ -75,9 +75,6 @@ import { compileScript } from "./typescript.js";
 import { addRemoteOptions, applyRemoteOptions } from "./remote.js";
 const dbg = genaiscriptDebug("cli");
 
-/**
- * /NOП/
- */
 export async function cli(): Promise<void> {
   let nodeHost: NodeHost; // Variable to hold NodeHost instance
 
@@ -633,7 +630,11 @@ export async function cli(): Promise<void> {
   modelsList
     .addOption(new Option("-f, --format <string>", "output format").choices(["json", "yaml"]))
     .action(modelList);
-  models.command("alias").description("Show model alias mapping").action(modelAliasesInfo);
+  models
+    .command("alias")
+    .option("--check", "Check model aliases configuration by running an inference test")
+    .description("Show model alias mapping")
+    .action(modelAliasesInfo);
 
   program.parse(); // Parse command-line arguments
 

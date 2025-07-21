@@ -777,6 +777,7 @@ export default {
     classify: "small",
     summarize: "small",
     cast: "small",
+    vision_small: "vision",
     ocr: "vision_small",
     think: "reasoning_small",
     intent: "small",

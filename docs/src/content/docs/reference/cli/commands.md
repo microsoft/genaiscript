@@ -918,7 +918,7 @@ Options:
 
 Commands:
   list [options] [provider]  List all available models
-  alias                      Show model alias mapping
+  alias [options]            Show model alias mapping
   help [command]             display help for command
 ```
 
@@ -942,5 +942,6 @@ Usage: genaiscript models alias [options]
 Show model alias mapping
 
 Options:
+  --check     Check model aliases configuration by running an inference test
   -h, --help  display help for command
 ```
