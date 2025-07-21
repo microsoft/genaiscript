@@ -153,7 +153,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
   }
 
   if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
-    if (/^(openai\/)o\d|gpt-4\.1/.test(family)) {
+    if (/^(openai\/)?o\d|gpt-4\.1/.test(family)) {
       dbg(`changing max_tokens to max_completion_tokens`);
       if (postReq.max_tokens) {
         postReq.max_completion_tokens = postReq.max_tokens;
@@ -176,7 +176,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
       }
     }
 
-    if (/^(openai\/)o1/.test(family)) {
+    if (/^(openai\/)?o1/.test(family)) {
       dbg(`removing options to support o1`);
       const preview = /^o1-(preview|mini)/i.test(family);
       delete postReq.stream;
@@ -186,7 +186,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
           (msg as any).role = preview ? "user" : "developer";
         }
       }
-    } else if (/^(openai\/)o3/i.test(family)) {
+    } else if (/^(openai\/)?o3/i.test(family)) {
       for (const msg of postReq.messages) {
         if (msg.role === "system") {
           (msg as any).role = "developer";
