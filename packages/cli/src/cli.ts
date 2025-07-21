@@ -68,6 +68,7 @@ import { semverSatisfies } from "../../core/src/semver" // Semantic version chec
 import { convertFiles } from "./convert"
 import { extractAudio, extractVideoFrames, probeVideo } from "./video"
 import { configure } from "./configure"
+import { checkModelAliases } from "./modelcheck"
 import { logPerformance } from "../../core/src/performance"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { listRuns } from "./runs"
@@ -134,9 +135,13 @@ export async function cli() {
         debug.enable(c === DEBUG_SCRIPT_CATEGORY ? c : `genaiscript:${c}`)
     )
 
-    program
+    // Define 'configure' command group for configuration tasks
+    const configure_cmd = program
         .command("configure")
         .description("Interactive help to configure providers")
+    configure_cmd
+        .command("providers", { isDefault: true })
+        .description("Configure LLM providers")
         .addOption(
             new Option(
                 "-p, --provider <string>",
@@ -148,6 +153,10 @@ export async function cli() {
             )
         )
         .action(configure)
+    configure_cmd
+        .command("check")
+        .description("Check model aliases by making test requests")
+        .action(checkModelAliases)
 
     // Define 'run' command for executing scripts
     const run = program
