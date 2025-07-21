@@ -1,0 +1,175 @@
+---
+title: Markdown Scripts
+description: Learn how to create GenAI scripts using Markdown with embedded TypeScript code blocks
+sidebar:
+  order: 15
+keywords: markdown scripts, genai.md, frontmatter, code blocks, scripting
+---
+
+GenAIScript supports writing scripts in Markdown format using `.genai.md` files. This allows you to combine natural language documentation with TypeScript code in a readable, literate programming style.
+
+## Basic Structure
+
+A `.genai.md` file consists of:
+1. **YAML frontmatter** for script configuration
+2. **Markdown content** for documentation and prompts  
+3. **TypeScript code blocks** marked with `genai` for executable code
+
+## Example
+
+Here's a complete example of a `.genai.md` script:
+
+```markdown title="image-alt-text.genai.md"
+---
+title: Image Alt Text generator
+description: Generate alt text for images
+model: vision
+group: docs
+maxTokens: 4000
+temperature: 0
+---
+
+# Image Alt Text Generator
+
+This script analyzes images and generates alt text descriptions.
+
+\`\`\`ts genai
+// input
+const file = env.files[0]
+// context
+defImages(file)
+\`\`\`
+
+## Instructions
+
+You are an expert in assistive technology. You will analyze each image 
+and generate a description alt text for the image and save it to a file.
+
+\`\`\`ts genai
+// output  
+defFileOutput(file.filename + ".txt", `Alt text for image ${file.filename}`)
+\`\`\`
+
+Additional notes:
+- Do not include "Alt text" in the description
+- Keep descriptions concise but informative
+```
+
+## Frontmatter Configuration
+
+The YAML frontmatter supports all the same configuration options as the `script()` function:
+
+```yaml
+---
+title: Script Title
+description: Script description
+model: gpt-4
+temperature: 0.5
+maxTokens: 2000
+group: mygroup
+parameters:
+  input: string
+  count: number
+files: "**/*.ts"
+tests:
+  - files: "sample.txt"
+    expected: "expected output"
+---
+```
+
+## TypeScript Code Blocks
+
+Mark TypeScript code blocks with `genai` to have them executed as part of the script:
+
+````markdown
+\`\`\`ts genai
+const greeting = "Hello"
+$`${greeting} world!`
+\`\`\`
+````
+
+You can also use `typescript genai`:
+
+````markdown
+\`\`\`typescript genai
+defTool("calculate", "Performs calculations", {
+    type: "object",
+    properties: {
+        expression: { type: "string" }
+    }
+}, ({ expression }) => {
+    return eval(expression)
+})
+\`\`\`
+````
+
+## Code Block Processing
+
+- Code blocks marked with `genai` are extracted and inlined in the generated script
+- Regular code blocks (without `genai`) are preserved in the markdown content
+- Multiple code blocks are concatenated in order
+- The remaining markdown content becomes a template string in the final script
+
+## Generated Output
+
+The markdown script is converted to a standard GenAI script:
+
+1. Frontmatter becomes the `script()` configuration
+2. TypeScript `genai` code blocks are inlined
+3. Remaining markdown content becomes a template literal
+
+For the example above, the generated script would be:
+
+```typescript
+script({
+  title: "Image Alt Text generator", 
+  description: "Generate alt text for images",
+  model: "vision",
+  group: "docs",
+  maxTokens: 4000,
+  temperature: 0
+})
+
+// input
+const file = env.files[0]
+// context  
+defImages(file)
+
+// output
+defFileOutput(file.filename + ".txt", `Alt text for image ${file.filename}`)
+
+$`# Image Alt Text Generator
+
+This script analyzes images and generates alt text descriptions.
+
+## Instructions
+
+You are an expert in assistive technology. You will analyze each image 
+and generate a description alt text for the image and save it to a file.
+
+Additional notes:
+- Do not include "Alt text" in the description
+- Keep descriptions concise but informative`
+```
+
+## Benefits
+
+Markdown scripts offer several advantages:
+
+- **Readability**: Natural language documentation alongside code
+- **Maintainability**: Self-documenting scripts with embedded instructions
+- **Collaboration**: Non-technical team members can read and understand the logic
+- **Flexibility**: Mix documentation, prompts, and code naturally
+- **Familiarity**: Uses standard Markdown syntax developers already know
+
+## Best Practices
+
+1. **Use descriptive headings** to organize your script logic
+2. **Include context and instructions** in the markdown content
+3. **Keep code blocks focused** on specific tasks
+4. **Document your frontmatter** configuration choices
+5. **Use comments** in code blocks to explain complex logic
+
+## File Discovery
+
+GenAIScript automatically discovers `.genai.md` files in your workspace, just like other script types. Place them anywhere in your project, though the extension defaults to the `genaisrc/` folder.

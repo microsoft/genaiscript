@@ -22,7 +22,7 @@ hero:
 import { FileTree } from "@astrojs/starlight/components"
 import DirectoryLinks from '../../../../components/DirectoryLinks.astro';
 
-GenAIScript are JavaScript files named as `*.genai.mjs`, or TypeScript files named as `*.genai.mts`,
+GenAIScript are JavaScript files named as `*.genai.mjs`, TypeScript files named as `*.genai.mts`, or Markdown files named as `*.genai.md`,
 with a prompt creation engine designed by LLM prompting.
 
 ```js title="shorten.genai.mjs"
@@ -40,16 +40,42 @@ const file = def("FILE", env.files)
 $`Shorten ${file}. Limit changes to minimum.`
 ```
 
+The same script can also be written as a Markdown file:
+
+```markdown title="shorten.genai.md"
+---
+title: Shorten
+description: A prompt that shrinks the size of text without losing meaning
+---
+
+# Text Shortening Script
+
+This script shortens text while preserving meaning.
+
+\`\`\`ts genai
+const file = def("FILE", env.files)
+\`\`\`
+
+## Task
+
+Shorten the provided text. Limit changes to minimum while preserving all important information.
+
+\`\`\`ts genai
+$`Shorten ${file}. Limit changes to minimum.`
+\`\`\`
+```
+
 ## Script files
 
 -   GenAIScript will detect any file matching `*.genai.mjs`, `*.genai.js`, 
-    `*.genai.mts` in your workspace.
+    `*.genai.mts`, or `*.genai.md` in your workspace.
 -   GenAIScript files can be placed anywhere in your workspace; 
     but the extension will place them in a `genaisrc` folder by default.
 -   `.genai.mjs` use module JavaScript syntax and support [imports](/genaiscript/reference/scripts/imports). 
 -   `.genai.js` are eval-ed and do not support imports.
 -   `.genai.mts` are [TypeScript module files](/genaiscript/reference/scripts/typescript) and support [imports](/genaiscript/reference/scripts/imports), 
     including dynamic imports of other TypeScript files.
+-   `.genai.md` are [Markdown files](/genaiscript/reference/scripts/markdown) with YAML frontmatter for configuration and TypeScript code blocks for scripting.
 
 <FileTree>
 
@@ -57,6 +83,7 @@ $`Shorten ${file}. Limit changes to minimum.`
   - jsconfig.json     // TypeScript compiler configuration
   - genaiscript.d.ts  // TypeScript definitions 
   - myscript.genai.mjs // your script!
+  - analyze.genai.md  // markdown script!
   - ...
 
 </FileTree>
