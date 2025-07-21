@@ -4,11 +4,12 @@
  * data types and formats.
  */
 
-import { GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
+import { GENAI_ANY_REGEX, GENAI_MD_REGEX, PROMPTY_REGEX } from "./constants"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
 import { humanize } from "./inflection"
 import { promptyParse, promptyToGenAIScript } from "./prompty"
+import { genaiMdParse, genaiMdToGenAIScript } from "./genaimd"
 import { metadataValidate } from "./metadata"
 import { deleteUndefinedValues } from "./cleaners"
 
@@ -21,7 +22,7 @@ import { deleteUndefinedValues } from "./cleaners"
  */
 function templateIdFromFileName(filename: string) {
     return filename
-        .replace(/\.(mjs|ts|js|mts|prompty)$/i, "")
+        .replace(/\.(mjs|ts|js|mts|md|prompty)$/i, "")
         .replace(/\.genai$/i, "")
         .replace(/.*[\/\\]/, "")
 }
@@ -104,6 +105,10 @@ export async function parsePromptScript(filename: string, content: string) {
         text = content
         const doc = await promptyParse(filename, content)
         content = await promptyToGenAIScript(doc)
+    } else if (GENAI_MD_REGEX.test(filename)) {
+        text = content
+        const doc = genaiMdParse(filename, content)
+        content = genaiMdToGenAIScript(doc)
     }
 
     const script = await parsePromptTemplateCore(filename, content)
