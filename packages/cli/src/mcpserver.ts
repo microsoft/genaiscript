@@ -310,9 +310,11 @@ export async function startMcpServer(
             const transport = new StreamableHTTPServerTransport(req, res);
             
             // Add error handling for transport
-            transport.on?.('error', (error) => {
-              dbg(`transport error: ${errorMessage(error)}`);
-            });
+            if (transport.on) {
+              transport.on('error', (error) => {
+                dbg(`transport error: ${errorMessage(error)}`);
+              });
+            }
             
             // Store transport for session management  
             if ('sessionId' in transport) {
