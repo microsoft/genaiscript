@@ -62,7 +62,7 @@ describe("MCP Transport Configuration Validation", () => {
 
     const wsConfig: McpServerConfig = {
       id: "auto-ws",
-      url: "wss://ws.example.com/mcp", 
+      url: "wss://ws.example.com/mcp",
       // type should be auto-detected
     };
 
@@ -82,13 +82,13 @@ describe("MCP Transport Configuration Validation", () => {
   it("should support mixed configuration scenarios", () => {
     // Configuration similar to VSCode Copilot + existing GenAIScript usage
     const configs: Record<string, Omit<McpServerConfig, "id">> = {
-      "genaiscript": {
+      genaiscript: {
         type: "stdio",
         command: "node",
         args: ["./dist/src/index.js", "mcp"],
       },
       "remote-api": {
-        type: "http", 
+        type: "http",
         url: "https://mcp-api.company.com/v1",
       },
       "streaming-service": {
@@ -98,12 +98,12 @@ describe("MCP Transport Configuration Validation", () => {
       "websocket-service": {
         type: "websocket",
         url: "wss://mcp-ws.company.com/socket",
-      }
+      },
     };
 
     Object.entries(configs).forEach(([id, config]) => {
       const fullConfig = { ...config, id };
-      
+
       // Validate each configuration type
       if (fullConfig.type === "stdio") {
         expect(fullConfig.command).toBeDefined();

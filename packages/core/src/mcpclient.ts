@@ -101,7 +101,7 @@ function determineTransportType(config: McpServerConfig): "stdio" | "http" | "ss
   if (config.type) {
     return config.type;
   }
-  
+
   // If URL is provided, default to HTTP transport
   if (config.url) {
     const url = new URL(config.url);
@@ -111,12 +111,12 @@ function determineTransportType(config: McpServerConfig): "stdio" | "http" | "ss
     // Default to streamable HTTP for HTTP URLs
     return "http";
   }
-  
+
   // If command/args are provided, use stdio
   if (config.command && config.args) {
     return "stdio";
   }
-  
+
   // Default fallback to stdio for backward compatibility
   return "stdio";
 }
@@ -126,7 +126,7 @@ function determineTransportType(config: McpServerConfig): "stdio" | "http" | "ss
  */
 function createTransport(config: McpServerConfig, mcpEnv: Record<string, string> | undefined): any {
   const transportType = determineTransportType(config);
-  
+
   switch (transportType) {
     case "stdio": {
       if (!config.command || !config.args) {
@@ -140,31 +140,31 @@ function createTransport(config: McpServerConfig, mcpEnv: Record<string, string>
           cwd,
           env: mcpEnv,
           stderr: "inherit",
-        })
+        }),
       );
     }
-    
+
     case "http": {
       if (!config.url) {
         throw new Error("HTTP transport requires url");
       }
       return new StreamableHTTPClientTransport(new URL(config.url));
     }
-    
+
     case "sse": {
       if (!config.url) {
         throw new Error("SSE transport requires url");
       }
       return new SSEClientTransport(new URL(config.url));
     }
-    
+
     case "websocket": {
       if (!config.url) {
         throw new Error("WebSocket transport requires url");
       }
       return new WebSocketClientTransport(new URL(config.url));
     }
-    
+
     default:
       throw new Error(`Unsupported transport type: ${transportType}`);
   }
@@ -208,7 +208,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
       const progress: (msg: string) => ProgressCallback = (msg) => (ev) =>
         dbgc(msg + " ", `${ev.progress || ""}/${ev.total || ""}`);
       const capabilities = { tools: {} };
-      
+
       const transportType = determineTransportType(serverConfig);
       dbgc(
         `creating ${transportType} transport %O`,
@@ -220,7 +220,7 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
           env: mcpEnv ? Object.keys(mcpEnv) : undefined,
         }),
       );
-      
+
       let transport = createTransport(serverConfig, mcpEnv);
       // eslint-disable-next-line prefer-const
       let mcpClient: McpClient;

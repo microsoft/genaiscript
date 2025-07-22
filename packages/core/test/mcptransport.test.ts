@@ -134,7 +134,7 @@ describe("MCP Transport Support", () => {
       expect.objectContaining({
         command: "node",
         args: ["./server.js"],
-      })
+      }),
     );
   });
 
@@ -162,9 +162,7 @@ describe("MCP Transport Support", () => {
       // Expected to fail due to mocking limitations
     }
 
-    expect(StreamableHTTPClientTransport).toHaveBeenCalledWith(
-      expect.any(URL)
-    );
+    expect(StreamableHTTPClientTransport).toHaveBeenCalledWith(expect.any(URL));
   });
 
   it("should create SSE transport for SSE config", async () => {
@@ -304,7 +302,7 @@ describe("MCP Transport Support", () => {
       expect.objectContaining({
         command: "python",
         args: ["-m", "server"],
-      })
+      }),
     );
   });
 });
