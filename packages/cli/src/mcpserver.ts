@@ -263,7 +263,7 @@ export async function startMcpServer(
 
   // Set up transport based on options
   if (http) {
-    dbg(`setting up HTTP transport`);
+    dbg(`setting up HTTP transport with Fastify`);
     // HTTP transport setup
     const port = await findOpenPort(portStr ? normalizeInt(portStr) : SERVER_PORT, options);
     const host = network ? "0.0.0.0" : "127.0.0.1";
@@ -272,9 +272,9 @@ export async function startMcpServer(
     logVerbose(`mcp server: starting HTTP server on ${host}:${port}`);
     
     try {
-      dbg(`importing HTTP modules`);
-      const httpModule = await import("node:http");
-      const { URL } = await import("node:url");
+      dbg(`importing Fastify modules`);
+      const createFastify = (await import("fastify")).default;
+      const fastifyCors = (await import("@fastify/cors")).default;
       
       // Import HTTP transport
       dbg(`importing StreamableHTTPServerTransport`);
@@ -285,99 +285,108 @@ export async function startMcpServer(
       // Store transports for session management
       const transports = {} as Record<string, StreamableHTTPServerTransport>;
       
-      dbg(`creating HTTP server`);
-      // Create HTTP server
-      const httpServer = httpModule.createServer(async (req, res) => {
-        dbg(`received HTTP request: ${req.method} ${req.url}`);
-        // Enable CORS
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      dbg(`creating Fastify server`);
+      // Create Fastify server
+      const fastify = createFastify({ logger: false });
+      
+      // Register CORS support
+      dbg(`registering CORS support`);
+      await fastify.register(fastifyCors, {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+      });
+      
+      // MCP endpoint handler
+      dbg(`registering MCP endpoint handler`);
+      fastify.all('/mcp', async (request, reply) => {
+        dbg(`received HTTP request: ${request.method} ${request.url}`);
         
-        if (req.method === 'OPTIONS') {
+        // Handle OPTIONS preflight requests
+        if (request.method === 'OPTIONS') {
           dbg(`handling OPTIONS request`);
-          res.writeHead(200);
-          res.end();
+          reply.status(200).send();
           return;
         }
         
-        const url = new URL(req.url || '/', `http://${req.headers.host}`);
-        dbg(`parsed URL pathname: ${url.pathname}`);
-        
-        if (url.pathname === '/mcp') {
-          dbg(`handling MCP endpoint request`);
-          try {
-            const transport = new StreamableHTTPServerTransport(req, res);
-            
-            // Add error handling for transport
-            if (transport.on) {
-              transport.on('error', (error) => {
-                dbg(`transport error: ${errorMessage(error)}`);
-              });
-            }
-            
-            // Store transport for session management  
-            if ('sessionId' in transport) {
-              dbg(`storing transport with sessionId: ${transport.sessionId}`);
-              transports[transport.sessionId] = transport;
-              
-              res.on("close", () => {
-                dbg(`transport session closed: ${transport.sessionId}`);
-                delete transports[transport.sessionId];
-              });
-              
-              res.on("error", (error) => {
-                dbg(`response error for session ${transport.sessionId}: ${errorMessage(error)}`);
-                delete transports[transport.sessionId];
-              });
-            }
-            
-            dbg(`connecting server with HTTP transport`);
-            await server.connect(transport);
-          } catch (error) {
-            dbg(`HTTP transport error: ${errorMessage(error)}`);
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: errorMessage(error) }));
+        dbg(`handling MCP endpoint request`);
+        try {
+          // Get raw Node.js request and response objects for MCP transport
+          const req = request.raw;
+          const res = reply.raw;
+          
+          const transport = new StreamableHTTPServerTransport(req, res);
+          
+          // Add error handling for transport
+          if (transport.on) {
+            transport.on('error', (error) => {
+              dbg(`transport error: ${errorMessage(error)}`);
+            });
           }
-        } else {
-          dbg(`request to unknown path: ${url.pathname}`);
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Not found. Use /mcp endpoint.' }));
+          
+          // Store transport for session management  
+          if ('sessionId' in transport) {
+            dbg(`storing transport with sessionId: ${transport.sessionId}`);
+            transports[transport.sessionId] = transport;
+            
+            res.on("close", () => {
+              dbg(`transport session closed: ${transport.sessionId}`);
+              delete transports[transport.sessionId];
+            });
+            
+            res.on("error", (error) => {
+              dbg(`response error for session ${transport.sessionId}: ${errorMessage(error)}`);
+              delete transports[transport.sessionId];
+            });
+          }
+          
+          dbg(`connecting server with HTTP transport`);
+          await server.connect(transport);
+        } catch (error) {
+          dbg(`HTTP transport error: ${errorMessage(error)}`);
+          reply.status(500).send({ error: errorMessage(error) });
         }
       });
       
-      // Handle server errors
-      httpServer.on('error', (error) => {
-        dbg(`HTTP server error: ${errorMessage(error)}`);
+      // 404 handler for other paths
+      fastify.setNotFoundHandler((request, reply) => {
+        dbg(`request to unknown path: ${request.url}`);
+        reply.status(404).send({ error: 'Not found. Use /mcp endpoint.' });
+      });
+      
+      // Global error handler
+      fastify.setErrorHandler((error, request, reply) => {
+        dbg(`Fastify error: ${errorMessage(error)}`);
         logVerbose(`HTTP server error: ${errorMessage(error)}`);
+        reply.status(error.statusCode || 500).send({ 
+          error: errorMessage(error) 
+        });
       });
       
-      // Handle server close event
-      httpServer.on('close', () => {
-        dbg(`HTTP server closed`);
+      // Start Fastify server
+      dbg(`starting Fastify server on ${host}:${port}`);
+      await fastify.listen({
+        port,
+        host,
       });
       
-      // Start HTTP server
-      dbg(`starting HTTP server on ${host}:${port}`);
-      httpServer.listen(port, host, () => {
-        dbg(`HTTP server listening on ${host}:${port}`);
-        console.log(`GenAIScript MCP server v${CORE_VERSION}`);
-        console.log(`│ Transport: HTTP`);
-        console.log(`│ Endpoint: http://${host}:${port}/mcp`);
-        console.log(`│ Access: ${network ? 'Network (0.0.0.0)' : 'Local (127.0.0.1)'}`);
-        
-        if (startup) {
-          dbg(`running startup script: ${startup}`);
-          logVerbose(`startup script: ${startup}`);
-          run(startup, [], {
-            vars: {},
-            parentLanguageModel: samplingSupported,
-            onMessage,
-          }).catch((err) => {
-            dbg(`startup script error: ${errorMessage(err)}`);
-          });
-        }
-      });
+      dbg(`Fastify server listening on ${host}:${port}`);
+      console.log(`GenAIScript MCP server v${CORE_VERSION}`);
+      console.log(`│ Transport: HTTP`);
+      console.log(`│ Endpoint: http://${host}:${port}/mcp`);
+      console.log(`│ Access: ${network ? 'Network (0.0.0.0)' : 'Local (127.0.0.1)'}`);
+      
+      if (startup) {
+        dbg(`running startup script: ${startup}`);
+        logVerbose(`startup script: ${startup}`);
+        run(startup, [], {
+          vars: {},
+          parentLanguageModel: samplingSupported,
+          onMessage,
+        }).catch((err) => {
+          dbg(`startup script error: ${errorMessage(err)}`);
+        });
+      }
     } catch (importError) {
       dbg(`Failed to import HTTP transport: ${errorMessage(importError)}`);
       console.error(`Failed to start HTTP transport: ${errorMessage(importError)}`);
