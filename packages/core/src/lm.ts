@@ -16,6 +16,7 @@ import {
   MODEL_PROVIDER_NONE,
   MODEL_PROVIDER_AZURE_AI_INFERENCE,
   MODEL_PROVIDER_MCP,
+  MODEL_PROVIDER_OPENAI_RESPONSES,
 } from "./constants.js";
 import { resolveRuntimeHost } from "./host.js";
 import { OllamaModel } from "./ollama.js";
@@ -27,6 +28,7 @@ import { AzureOpenAIModel } from "./azureopenai.js";
 import { EchoModel } from "./echomodel.js";
 import { NoneModel } from "./nonemodel.js";
 import { AzureAIInferenceModel } from "./azureaiinference.js";
+import { OpenAIResponsesModel } from "./openai-responses.js";
 import { providerFeatures } from "./features.js";
 
 /**
@@ -55,6 +57,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
   }
   if (provider === MODEL_PROVIDER_AZURE_OPENAI) return AzureOpenAIModel;
   if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE) return AzureAIInferenceModel;
+  if (provider === MODEL_PROVIDER_OPENAI_RESPONSES) return OpenAIResponsesModel;
   if (provider === MODEL_PROVIDER_GITHUB) return GitHubModel;
   if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel;
   if (provider === MODEL_PROVIDER_ANTHROPIC) return AnthropicModel;
