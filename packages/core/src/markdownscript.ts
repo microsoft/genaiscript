@@ -49,22 +49,39 @@ export async function markdownScriptParse(text: string) {
       bullet: "-",
       fence: "`",
       fences: true,
-      incrementListMarker: false,
+      incrementListMarker: true,
     });
     const tree = parse.parse(content);
 
+    let contents: string[] = [];
+
+    const flush = () => {
+      if (contents.length) jsSource += `$\`${contents.join("\n")}\`\n\n`;
+      contents = [];
+    };
+
     for (const child of tree.children) {
-      if (child.type === "code" && /^(ts|js|typescript|javascript)\s+genai/.test(child.lang)) {
+      console.log(child);
+      if (
+        child.type === "code" &&
+        /^(ts|js|typescript|javascript)$/i.test(child.lang) &&
+        /genai/i.test(child.meta)
+      ) {
+        flush();
         dbg(`js block`);
-        jsSource += child.value + "\n";
+        jsSource += `// ${child.lang} ${child.meta} line${child.position?.start?.line || "--"}\n`;
+        jsSource += child.value + "\n\n";
       } else {
         const tempTree = { type: "root", children: [child] } as Root;
         const result = stringify.stringify(tempTree);
         const escapedContent = result.replace(/`/g, "\\`");
-        jsSource += `$\`${escapedContent}\`\n\n`;
+        contents.push(escapedContent);
       }
     }
+    flush();
   }
 
+  dbg(`meta: %O`, meta);
+  dbg(`js: %s`, jsSource);
   return { jsSource, meta };
 }

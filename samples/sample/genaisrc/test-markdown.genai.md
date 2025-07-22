@@ -5,8 +5,13 @@ model: "small"
 temperature: 0.7
 ---
 
+```ts genai
+console.log(env.files)
+const file = def("FILE", env.files)
+```
+
 # Test Markdown Script
 
 This is a test markdown script that should be transpiled to a GenAIScript.
 
-Write a short poem about programming.
+Write a short poem about ${file}.
