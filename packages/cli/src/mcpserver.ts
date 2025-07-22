@@ -13,6 +13,7 @@ import {
   genaiscriptDebug,
   logVerbose,
   logWarn,
+  normalizeInt,
   resolveRuntimeHost,
   setConsoleColors,
   splitMarkdownTextImageParts,
@@ -262,48 +263,69 @@ export async function startMcpServer(
 
   // Set up transport based on options
   if (http) {
+    dbg(`setting up HTTP transport`);
     // HTTP transport setup
-    const port = await findOpenPort(portStr ? parseInt(portStr) : SERVER_PORT, options);
+    const port = await findOpenPort(portStr ? normalizeInt(portStr) : SERVER_PORT, options);
     const host = network ? "0.0.0.0" : "127.0.0.1";
     
+    dbg(`resolved HTTP server config: host=${host}, port=${port}, network=${network}`);
     logVerbose(`mcp server: starting HTTP server on ${host}:${port}`);
     
     try {
+      dbg(`importing HTTP modules`);
       const httpModule = await import("node:http");
       const { URL } = await import("node:url");
       
       // Import HTTP transport
+      dbg(`importing StreamableHTTPServerTransport`);
       const { StreamableHTTPServerTransport } = await import(
         "@modelcontextprotocol/sdk/server/streamableHttp.js"
       );
       
       // Store transports for session management
-      const transports = {} as Record<string, any>;
+      const transports = {} as Record<string, StreamableHTTPServerTransport>;
       
+      dbg(`creating HTTP server`);
       // Create HTTP server
       const httpServer = httpModule.createServer(async (req, res) => {
+        dbg(`received HTTP request: ${req.method} ${req.url}`);
         // Enable CORS
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         
         if (req.method === 'OPTIONS') {
+          dbg(`handling OPTIONS request`);
           res.writeHead(200);
           res.end();
           return;
         }
         
         const url = new URL(req.url || '/', `http://${req.headers.host}`);
+        dbg(`parsed URL pathname: ${url.pathname}`);
         
         if (url.pathname === '/mcp') {
+          dbg(`handling MCP endpoint request`);
           try {
             const transport = new StreamableHTTPServerTransport(req, res);
             
+            // Add error handling for transport
+            transport.on?.('error', (error) => {
+              dbg(`transport error: ${errorMessage(error)}`);
+            });
+            
             // Store transport for session management  
             if ('sessionId' in transport) {
+              dbg(`storing transport with sessionId: ${transport.sessionId}`);
               transports[transport.sessionId] = transport;
               
               res.on("close", () => {
+                dbg(`transport session closed: ${transport.sessionId}`);
+                delete transports[transport.sessionId];
+              });
+              
+              res.on("error", (error) => {
+                dbg(`response error for session ${transport.sessionId}: ${errorMessage(error)}`);
                 delete transports[transport.sessionId];
               });
             }
@@ -316,6 +338,7 @@ export async function startMcpServer(
             res.end(JSON.stringify({ error: errorMessage(error) }));
           }
         } else {
+          dbg(`request to unknown path: ${url.pathname}`);
           res.writeHead(404, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'Not found. Use /mcp endpoint.' }));
         }
@@ -323,17 +346,26 @@ export async function startMcpServer(
       
       // Handle server errors
       httpServer.on('error', (error) => {
+        dbg(`HTTP server error: ${errorMessage(error)}`);
         logVerbose(`HTTP server error: ${errorMessage(error)}`);
       });
       
+      // Handle server close event
+      httpServer.on('close', () => {
+        dbg(`HTTP server closed`);
+      });
+      
       // Start HTTP server
+      dbg(`starting HTTP server on ${host}:${port}`);
       httpServer.listen(port, host, () => {
+        dbg(`HTTP server listening on ${host}:${port}`);
         console.log(`GenAIScript MCP server v${CORE_VERSION}`);
         console.log(`│ Transport: HTTP`);
         console.log(`│ Endpoint: http://${host}:${port}/mcp`);
         console.log(`│ Access: ${network ? 'Network (0.0.0.0)' : 'Local (127.0.0.1)'}`);
         
         if (startup) {
+          dbg(`running startup script: ${startup}`);
           logVerbose(`startup script: ${startup}`);
           run(startup, [], {
             vars: {},
@@ -351,6 +383,7 @@ export async function startMcpServer(
       process.exit(1);
     }
   } else {
+    dbg(`using stdio transport`);
     // Stdio transport (default)
     logVerbose(`mcp server: using stdio transport`);
     const transport = new StdioServerTransport();
@@ -358,6 +391,7 @@ export async function startMcpServer(
     await server.connect(transport);
     
     if (startup) {
+      dbg(`running startup script: ${startup}`);
       logVerbose(`startup script: ${startup}`);
       await run(startup, [], {
         vars: {},
