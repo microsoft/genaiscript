@@ -736,11 +736,12 @@ export async function OpenAIImageGeneration(
   cfg: LanguageModelConfiguration,
   options: TraceOptions & CancellationOptions & RetryOptions,
 ): Promise<CreateImageResult> {
-  const { model, prompt, size = "1024x1024", quality, style, outputFormat, image, ...rest } = req;
+  const { model, prompt, size = "1024x1024", quality, style, outputFormat, image, images, ...rest } = req;
   const { trace } = options || {};
   
-  // Determine if this is a variation request
-  const isVariation = !!image;
+  // Determine if this is a variation request (support both single image and multiple images)
+  const inputImages = images || (image ? [image] : []);
+  const isVariation = inputImages.length > 0;
   let url = `${cfg.base}/images/${isVariation ? 'variations' : 'generations'}`;
 
   const isDallE = /^dall-e/i.test(model);
@@ -758,13 +759,20 @@ export async function OpenAIImageGeneration(
       };
     }
     
+    // Validate number of images - OpenAI typically supports only one image for variations
+    if (inputImages.length > 1) {
+      // For now, use the first image and log a warning
+      trace?.itemValue(`warning`, `Multiple images provided but OpenAI variations endpoint supports only one. Using the first image.`);
+    }
+    
     // For variations endpoint, we use multipart form data
     const formData = new FormData();
     
-    // Convert base64 image to blob for form data
-    const imageData = image.startsWith('data:') 
-      ? image.split(',')[1] 
-      : image;
+    // Convert base64 image to blob for form data (use first image)
+    const firstImage = inputImages[0];
+    const imageData = firstImage.startsWith('data:') 
+      ? firstImage.split(',')[1] 
+      : firstImage;
     const imageBuffer = Buffer.from(imageData, 'base64');
     const blob = new Blob([imageBuffer], { type: 'image/png' });
     

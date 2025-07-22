@@ -189,8 +189,16 @@ export type CreateImageRequest = {
    * Base64-encoded image data for creating variations.
    * When provided, the API will create variations of this image.
    * Only supported by DALL-E 2 and some other models.
+   * @deprecated Use `images` array for multiple images or future-proof single image support.
    */
   image?: string;
+  
+  /**
+   * Array of base64-encoded image data for creating variations.
+   * When provided, the API will create variations of these images.
+   * Only supported by DALL-E 2 and some other models.
+   */
+  images?: string[];
 };
 
 export interface ImageGenerationUsage {

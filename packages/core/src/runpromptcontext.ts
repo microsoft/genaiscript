@@ -1023,31 +1023,48 @@ export function createChatGenerationContext(
     imageOptions?: ImageGenerationOptions,
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }> => {
     // Allow empty prompt for image variations
-    if (!prompt && !imageOptions?.image) throw new Error("prompt or image is required");
+    const hasInputImages = !!(imageOptions?.image || imageOptions?.images?.length);
+    if (!prompt && !hasInputImages) throw new Error("prompt or image(s) is required");
 
-    const imgTrace = trace?.startTraceDetails(imageOptions?.image ? "🖼️ generate image variations" : "🖼️ generate image");
+    const imgTrace = trace?.startTraceDetails(hasInputImages ? "🖼️ generate image variations" : "🖼️ generate image");
     try {
-      const { style, quality, size, outputFormat, mime, image: inputImage, ...rest } = imageOptions || {};
+      const { style, quality, size, outputFormat, mime, image: inputImage, images: inputImages, ...rest } = imageOptions || {};
       
-      // Convert input image to base64 if provided
-      let imageData: string | undefined;
-      if (inputImage) {
-        if (typeof inputImage === 'string') {
-          imageData = inputImage;
+      // Helper function to convert image to base64
+      const convertImageToBase64 = async (image: string | WorkspaceFile): Promise<string> => {
+        if (typeof image === 'string') {
+          return image;
         } else {
           // WorkspaceFile - read and convert to base64
-          const content = inputImage.content;
-          if (inputImage.encoding === 'base64') {
-            imageData = content;
+          const content = image.content;
+          if (image.encoding === 'base64') {
+            return content;
           } else {
             // Assume it's a buffer or string that needs to be converted to base64
             const buffer = typeof content === 'string' 
               ? Buffer.from(content, 'utf8')
               : content;
-            imageData = Buffer.from(buffer).toString('base64');
+            return Buffer.from(buffer).toString('base64');
           }
         }
+      };
+      
+      // Convert input images to base64 array
+      let imageDataArray: string[] = [];
+      
+      // Handle both single image (backward compatibility) and multiple images
+      if (inputImage) {
+        const imageData = await convertImageToBase64(inputImage);
+        imageDataArray.push(imageData);
         imgTrace?.itemValue(`input_image`, typeof inputImage === 'string' ? 'inline image' : (inputImage.filename || 'inline image'));
+      }
+      
+      if (inputImages && inputImages.length > 0) {
+        for (let i = 0; i < inputImages.length; i++) {
+          const imageData = await convertImageToBase64(inputImages[i]);
+          imageDataArray.push(imageData);
+          imgTrace?.itemValue(`input_image_${i + 1}`, typeof inputImages[i] === 'string' ? 'inline image' : (inputImages[i] as any).filename || 'inline image');
+        }
       }
       
       const conn: ModelConnectionOptions = {
@@ -1079,7 +1096,9 @@ export function createChatGenerationContext(
         quality,
         style,
         outputFormat,
-        image: imageData,
+        // For backward compatibility, set both image and images
+        image: imageDataArray.length > 0 ? imageDataArray[0] : undefined,
+        images: imageDataArray.length > 0 ? imageDataArray : undefined,
       }) satisfies CreateImageRequest;
       const m = measure("img.generate", `${req.model} -> image`);
       const res = await imageGenerator(req, configuration, {

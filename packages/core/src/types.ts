@@ -4476,8 +4476,16 @@ export interface ImageGenerationOptions extends ImageTransformOptions, RetryOpti
    * Input image for creating variations. When provided, the API will create variations
    * of the input image instead of generating a new image from the text prompt.
    * Only supported by DALL-E 2 and some other models.
+   * @deprecated Use `images` array for multiple images or future-proof single image support.
    */
   image?: string | WorkspaceFile;
+  
+  /**
+   * Input images for creating variations. When provided, the API will create variations
+   * of the input images instead of generating a new image from the text prompt.
+   * Only supported by DALL-E 2 and some other models.
+   */
+  images?: (string | WorkspaceFile)[];
   
   /**
    * The quality of the image that will be generated.
