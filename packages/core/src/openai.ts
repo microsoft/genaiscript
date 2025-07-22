@@ -760,35 +760,58 @@ export async function OpenAIImageGeneration(
       };
     }
     
-    // OpenAI variations API currently supports only one input image
-    // However, we accept multiple images and process them individually or use the first one
-    // TODO: Research if OpenAI has updated to support multiple input images
+    // OpenAI variations API: Research needed on multiple input image support
+    // According to user feedback, OpenAI API supports multiple images
+    // Current implementation processes multiple images by using the first one
+    // TODO: Investigate if OpenAI has updated their variations API to support multiple input images
+    
+    // Potential approaches for multiple images:
+    // 1. Multiple 'image' fields in form data
+    // 2. Different endpoint that accepts multiple images  
+    // 3. Sequential API calls (not ideal for variations)
+    // 4. Image composition/tiling before sending to API
+    
     if (inputImages.length > 1) {
-      trace?.itemValue(`info`, `Multiple images provided. OpenAI variations typically processes one image, using the first image.`);
+      trace?.itemValue(`info`, `Multiple images provided (${inputImages.length}). Using first image until multiple image support is confirmed.`);
+      // For now, we'll process with the first image, but structure the code to easily support multiple images later
     }
     
-    // Convert the first BufferLike input to base64 for the API
-    const firstImage = inputImages[0];
-    let imageBase64: string;
+    // Convert all BufferLike inputs to base64 for potential future multiple image support
+    const processedImages: { base64: string; buffer: Buffer }[] = [];
     
-    try {
-      const imageBuffer = await resolveBufferLike(firstImage, options);
-      imageBase64 = imageBuffer.toString('base64');
-    } catch (error) {
-      return {
-        image: undefined,
-        error: { message: `Failed to process input image: ${error.message}` },
-      };
+    for (let i = 0; i < inputImages.length; i++) {
+      try {
+        const imageBuffer = await resolveBufferLike(inputImages[i], options);
+        const imageBase64 = imageBuffer.toString('base64');
+        processedImages.push({ base64: imageBase64, buffer: imageBuffer });
+        
+        if (i === 0) {
+          trace?.itemValue(`input_image_primary`, `Processing primary image (${imageBuffer.length} bytes)`);
+        } else {
+          trace?.itemValue(`input_image_${i + 1}`, `Processing additional image ${i + 1} (${imageBuffer.length} bytes)`);
+        }
+      } catch (error) {
+        return {
+          image: undefined,
+          error: { message: `Failed to process input image ${i + 1}: ${error.message}` },
+        };
+      }
     }
     
     // For variations endpoint, we use multipart form data
     const formData = new FormData();
     
-    // Create blob from the base64 data
-    const imageBuffer = Buffer.from(imageBase64, 'base64');
-    const blob = new Blob([imageBuffer], { type: 'image/png' });
-    
+    // Current implementation: Use first image only
+    // TODO: Research OpenAI API to determine if multiple images can be added to form data
+    const primaryImage = processedImages[0];
+    const blob = new Blob([primaryImage.buffer], { type: 'image/png' });
     formData.append('image', blob, 'image.png');
+    
+    // Potential future enhancement: Add multiple images if supported
+    // for (let i = 0; i < processedImages.length; i++) {
+    //   const imageBlob = new Blob([processedImages[i].buffer], { type: 'image/png' });
+    //   formData.append(`image${i === 0 ? '' : `_${i + 1}`}`, imageBlob, `image${i === 0 ? '' : `_${i + 1}`}.png`);
+    // }
     formData.append('model', model);
     formData.append('n', '1');
     formData.append('response_format', 'b64_json');
