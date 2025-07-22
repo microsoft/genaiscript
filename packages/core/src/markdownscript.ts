@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkStringify from "remark-stringify";
+import { visit } from "unist-util-visit";
+import type { Root } from "mdast";
 import { splitMarkdown } from "./frontmatter.js";
 import { YAMLParse } from "./yaml.js";
 import { deleteUndefinedValues } from "./cleaners.js";
@@ -17,7 +22,7 @@ import type { PromptArgs } from "./types.js";
  * The parsing process:
  * - Splits the document into frontmatter and content using splitMarkdown
  * - Converts frontmatter to PromptArgs metadata
- * - Converts content body to $ calls for the prompt
+ * - Converts content body to $ calls for the prompt using unified/remark AST processing
  */
 export function markdownScriptParse(text: string) {
   const { frontmatter = "", content = "" } = splitMarkdown(text);
@@ -34,10 +39,33 @@ export function markdownScriptParse(text: string) {
     jsSource += `script(${JSON5Stringify(meta, null, 2)})\n\n`;
   }
 
-  // Convert markdown content to $ call
+  // Convert markdown content to $ call using unified/remark
   if (content.trim()) {
-    // Escape backticks in the content
-    const escapedContent = content.replace(/`/g, "\\`");
+    // Parse the markdown content into an AST
+    const processor = unified()
+      .use(remarkParse)
+      .use(() => (tree: Root) => {
+        // Optional: Visit and transform nodes if needed in the future
+        // For now, we just parse and stringify to ensure proper handling
+        visit(tree, (node) => {
+          // This is where we could add custom transformations
+          // Currently just preserving the original behavior
+        });
+      })
+      .use(remarkStringify, {
+        // Configure stringify options to preserve formatting
+        bullet: "-",
+        fence: "`",
+        fences: true,
+        incrementListMarker: false,
+      });
+
+    // Process the content through the unified pipeline
+    const result = processor.processSync(content);
+    const processedContent = String(result);
+
+    // Escape backticks in the processed content
+    const escapedContent = processedContent.replace(/`/g, "\\`");
     jsSource += `$\`${escapedContent}\``;
   }
 

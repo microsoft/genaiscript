@@ -482,6 +482,12 @@ importers:
       proxy-agent:
         specifier: ^6.5.0
         version: 6.5.0
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      remark-stringify:
+        specifier: ^11.0.0
+        version: 11.0.0
       sanitize-filename:
         specifier: ^1.6.3
         version: 1.6.3
@@ -521,6 +527,12 @@ importers:
       undici:
         specifier: ^7.11.0
         version: 7.11.0
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
+      unist-util-visit:
+        specifier: ^5.0.0
+        version: 5.0.0
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -555,6 +567,9 @@ importers:
       '@types/ini':
         specifier: ^4.1.1
         version: 4.1.1
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/mime-types':
         specifier: ^3.0.1
         version: 3.0.1
