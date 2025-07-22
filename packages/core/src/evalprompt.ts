@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import debug from "debug";
-const dbg = debug("genaiscript:evalprompt");
-
 import { resolveRuntimeHost } from "./host.js";
 import type { PromptContext, PromptScript } from "./types.js";
 import MagicString from "magic-string";
 import { resolve } from "node:path";
+import { genaiscriptDebug } from "./debug.js";
+const dbg = genaiscriptDebug("eval");
 
 /**
  * Evaluates a JavaScript prompt script with the provided context.
@@ -29,7 +28,7 @@ export async function evalPrompt(
   },
 ) {
   const { sourceMaps } = options || {};
-  const runtimeHost = resolveRuntimeHost();
+  dbg(`eval %s`, r.id);
   const ctx = Object.freeze<PromptContext>({
     ...ctx0,
   });

@@ -78,22 +78,24 @@ function parsePromptScriptTools(jsSource: string) {
 async function parsePromptTemplateCore(filename: string, content: string) {
   // Check if this is a markdown script file
   let jsSource: string;
+  let meta: ReturnType<typeof parsePromptScriptMeta>;
   if (GENAI_MD_REGEX.test(filename)) {
-    // Transpile markdown to JavaScript
-    jsSource = markdownScriptParse(filename, content);
+    const res = markdownScriptParse(content);
+    meta = res.meta;
+    jsSource = res.jsSource;
   } else {
     // Use content as-is for JavaScript/TypeScript files
     jsSource = content;
+    meta = parsePromptScriptMeta(jsSource);
   }
 
   const r = {
     id: templateIdFromFileName(filename),
     title: humanize(basename(filename).replace(GENAI_ANY_REGEX, "")),
     jsSource,
+    ...meta,
   } as PromptScript;
   r.filename = resolve(filename);
-  const meta = parsePromptScriptMeta(r.jsSource);
-  Object.assign(r, meta);
   return r;
 }
 

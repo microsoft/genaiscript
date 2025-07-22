@@ -57,7 +57,7 @@ export async function importFile<T = void>(
     unregister = register({ onImport });
     const module = await tsImport(modulePath, {
       parentURL,
-      //tsconfig: false,
+      // tsconfig: false,
       onImport,
     });
     const result = await onImported?.(module);
