@@ -345,6 +345,7 @@
         "tracefile",
         "traceparser",
         "tracetree",
+        "transpiles",
         "treegrid",
         "treesitter",
         "tvly",

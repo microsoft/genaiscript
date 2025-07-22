@@ -260,6 +260,7 @@ export async function cli(): Promise<void> {
   const runs = program.command("runs").description("Commands to open previous runs");
   runs
     .command("list")
+    .alias("ls")
     .description("List all available run reports in workspace")
     .argument("[script]", "Script id")
     .action(listRuns);
@@ -294,6 +295,7 @@ export async function cli(): Promise<void> {
   // List available tests
   const testList = test
     .command("list")
+    .alias("ls")
     .description("List available tests in workspace")
     .option("--redteam", "list red team tests");
   addGroupsOptions(testList).action(scriptTestList); // Action to list the tests
@@ -345,6 +347,7 @@ export async function cli(): Promise<void> {
     .description("Utility tasks for scripts");
   const scriptList = scripts
     .command("list", { isDefault: true })
+    .alias("ls")
     .description("List all available scripts in workspace")
     .argument("[script...]", "Script ids")
     .option("--unlisted", "show unlisted scripts")
@@ -625,6 +628,7 @@ export async function cli(): Promise<void> {
   const models = program.command("models");
   const modelsList = models
     .command("list", { isDefault: true })
+    .alias("ls")
     .description("List all available models")
     .arguments("[provider]");
   modelsList

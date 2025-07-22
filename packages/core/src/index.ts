@@ -148,6 +148,7 @@ export * from "./promptdom.js";
 export * from "./promptfoo.js";
 export * from "./promptrunner.js";
 export * from "./prompty.js";
+export * from "./markdownscript.js";
 export * from "./proxy.js";
 export * from "./quiet.js";
 export * from "./resources.js";
