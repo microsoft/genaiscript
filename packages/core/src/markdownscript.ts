@@ -11,6 +11,8 @@ import { YAMLParse } from "./yaml.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { JSON5Stringify } from "./json5.js";
 import type { PromptArgs } from "./types.js";
+import { genaiscriptDebug } from "./debug.js";
+const dbg = genaiscriptDebug("md");
 
 /**
  * Parses a markdown script file with frontmatter and transpiles it to GenAIScript.
@@ -42,31 +44,26 @@ export function markdownScriptParse(text: string) {
   // Convert markdown content to $ call using unified/remark
   if (content.trim()) {
     // Parse the markdown content into an AST
-    const processor = unified()
-      .use(remarkParse)
-      .use(() => (tree: Root) => {
-        // Optional: Visit and transform nodes if needed in the future
-        // For now, we just parse and stringify to ensure proper handling
-        visit(tree, (node) => {
-          // This is where we could add custom transformations
-          // Currently just preserving the original behavior
-        });
-      })
-      .use(remarkStringify, {
-        // Configure stringify options to preserve formatting
-        bullet: "-",
-        fence: "`",
-        fences: true,
-        incrementListMarker: false,
-      });
+    const parse = unified().use(remarkParse);
+    const stringify = unified().use(remarkStringify, {
+      bullet: "-",
+      fence: "`",
+      fences: true,
+      incrementListMarker: false,
+    });
+    const tree = parse.parse(content);
 
-    // Process the content through the unified pipeline
-    const result = processor.processSync(content);
-    const processedContent = String(result);
-
-    // Escape backticks in the processed content
-    const escapedContent = processedContent.replace(/`/g, "\\`");
-    jsSource += `$\`${escapedContent}\``;
+    for (const child of tree.children) {
+      if (child.type === "code" && /^(ts|js|typescript|javascript)\s+genai/.test(child.lang)) {
+        dbg(`js block`);
+        jsSource += child.value + "\n";
+      } else {
+        const tempTree = { type: "root", children: [child] } as Root;
+        const result = stringify.stringify(tempTree);
+        const escapedContent = result.replace(/`/g, "\\`");
+        jsSource += `$\`${escapedContent}\`\n\n`;
+      }
+    }
   }
 
   return { jsSource, meta };
