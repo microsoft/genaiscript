@@ -65,6 +65,7 @@ import {
   githubCreatePullRequestReviews,
   githubParseEnv,
   githubUpdatePullRequestDescription,
+  GitHubClient,
   isCI,
   isCancelError,
   isJSONLFilename,
@@ -207,6 +208,9 @@ export async function runScriptInternal(
   const pullRequestComment = options.pullRequestComment;
   const pullRequestDescription = options.pullRequestDescription;
   const pullRequestReviews = options.pullRequestReviews;
+  const issue = options.issue;
+  const issueComment = options.issueComment;
+  const assignToCopilot = options.assignToCopilot;
   const teamsMessage = options.teamsMessage;
   const outData = options.outData;
   const label = options.label;
@@ -738,6 +742,53 @@ export async function runScriptInternal(
           cancellationToken,
         });
       }
+    }
+  }
+
+  // Handle GitHub issue creation or commenting
+  if ((issue || issueComment) && result.text) {
+    dbg(`handling github issue`);
+    const ghInfo = await resolveGitHubInfo();
+    if (ghInfo.repository) {
+      let createdIssue: any = undefined;
+      
+      if (issueComment && typeof issueComment === "string" && /^\d+$/.test(issueComment)) {
+        // Add comment to existing issue
+        dbg(`adding comment to existing issue #${issueComment}`);
+        if (await confirmOrSkipInCI("Would you like to add a comment to the GitHub issue?", {
+          preview: result.text,
+        })) {
+          const github = await GitHubClient.create();
+          await github.createIssueComment(
+            parseInt(issueComment),
+            result.text
+          );
+        }
+      } else if (issue || (issueComment && typeof issueComment !== "string")) {
+        // Create new issue (either --issue flag or --issue-comment without number)
+        dbg(`creating new github issue`);
+        if (await confirmOrSkipInCI("Would you like to create a GitHub issue?", {
+          preview: result.text,
+        })) {
+          const github = await GitHubClient.create();
+          const title = typeof issue === "string" && issue ? issue : `GenAIScript: ${script.id}`;
+          createdIssue = await github.createIssue(
+            title,
+            result.text
+          );
+          
+          if (createdIssue && assignToCopilot) {
+            dbg(`assigning issue #${createdIssue.number} to copilot`);
+            try {
+              await github.assignIssueToBot(createdIssue.number);
+            } catch (error) {
+              logError(`failed to assign issue to copilot: ${errorMessage(error)}`);
+            }
+          }
+        }
+      }
+    } else {
+      logError("github issue: no repository information found");
     }
   }
 

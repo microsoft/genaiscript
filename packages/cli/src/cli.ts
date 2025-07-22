@@ -655,7 +655,19 @@ export async function cli(): Promise<void> {
         "-d, --pull-request-description [string]",
         "create comment on a pull request description with a unique id (defaults to script id)",
       )
-      .option("-r, --pull-request-reviews", "create pull request reviews from annotations");
+      .option("-r, --pull-request-reviews", "create pull request reviews from annotations")
+      .option(
+        "--issue [string]", 
+        "create a GitHub issue with the output"
+      )
+      .option(
+        "--issue-comment [string]",
+        "add a comment to an existing GitHub issue (provide issue number) or create new issue if no number provided"
+      )
+      .option(
+        "--assign-to-copilot",
+        "assign the created GitHub issue to copilot"
+      );
   }
 
   function addLogProbsOptions(command: Command): Command {

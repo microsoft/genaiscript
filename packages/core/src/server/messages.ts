@@ -164,6 +164,9 @@ export interface PromptScriptRunOptions {
   pullRequestComment: string | boolean;
   pullRequestDescription: string | boolean;
   pullRequestReviews: boolean;
+  issue: string | boolean;
+  issueComment: string | boolean;
+  assignToCopilot: boolean;
   teamsMessage: boolean;
   outData: string;
   label: string;
