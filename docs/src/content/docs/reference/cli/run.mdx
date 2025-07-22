@@ -190,7 +190,7 @@ genaiscript run --remote <owner>/<repo>
 
 ## Pull Requests and Issues <a href="" id="pull-requests" />
 
-The CLI can update a pull request/issue description and comments when running in a GitHub Action or Azure DevOps pipeline.
+The CLI can update pull request/issue descriptions and comments, and create GitHub issues when running in a GitHub Action or Azure DevOps pipeline.
 
 ### GitHub Action workflow configuration
 
@@ -252,6 +252,40 @@ Create pull request review comments from each [annotations](/genaiscript/referen
 
 ```sh
 genaiscript run ... --pull-request-reviews
+```
+
+### `--issue` <a href="" id="issue" />
+
+Creates a new GitHub issue with the LLM output as the issue body.
+
+```sh
+genaiscript run ... --issue
+```
+
+You can specify a custom title for the issue:
+
+```sh
+genaiscript run ... --issue "Custom Issue Title"
+```
+
+### `--issue-comment` <a href="" id="issue-comment" />
+
+Adds a comment to an existing GitHub issue or creates a new issue if no issue number is provided.
+
+```sh
+# Add comment to existing issue #123
+genaiscript run ... --issue-comment 123
+
+# Create new issue (same as --issue)
+genaiscript run ... --issue-comment
+```
+
+### `--assign-to-copilot` <a href="" id="assign-to-copilot" />
+
+Automatically assigns the created GitHub issue to the GitHub Copilot bot. This option only works when creating new issues (with `--issue` or `--issue-comment` without a number).
+
+```sh
+genaiscript run ... --issue --assign-to-copilot
 ```
 
 ## Read more
