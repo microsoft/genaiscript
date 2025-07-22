@@ -80,7 +80,7 @@ async function parsePromptTemplateCore(filename: string, content: string) {
   let jsSource: string;
   let meta: ReturnType<typeof parsePromptScriptMeta>;
   if (GENAI_MD_REGEX.test(filename)) {
-    const res = markdownScriptParse(content);
+    const res = await markdownScriptParse(content);
     meta = res.meta;
     jsSource = res.jsSource;
   } else {

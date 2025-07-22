@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import remarkStringify from "remark-stringify";
-import { visit } from "unist-util-visit";
 import type { Root } from "mdast";
 import { splitMarkdown } from "./frontmatter.js";
 import { YAMLParse } from "./yaml.js";
@@ -26,7 +22,7 @@ const dbg = genaiscriptDebug("md");
  * - Converts frontmatter to PromptArgs metadata
  * - Converts content body to $ calls for the prompt using unified/remark AST processing
  */
-export function markdownScriptParse(text: string) {
+export async function markdownScriptParse(text: string) {
   const { frontmatter = "", content = "" } = splitMarkdown(text);
 
   // Parse frontmatter as YAML and convert to PromptArgs
@@ -43,6 +39,10 @@ export function markdownScriptParse(text: string) {
 
   // Convert markdown content to $ call using unified/remark
   if (content.trim()) {
+    const { unified } = await import("unified");
+    const { default: remarkParse } = await import("remark-parse");
+    const { default: remarkStringify } = await import("remark-stringify");
+
     // Parse the markdown content into an AST
     const parse = unified().use(remarkParse);
     const stringify = unified().use(remarkStringify, {

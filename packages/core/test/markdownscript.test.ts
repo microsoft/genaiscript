@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 import { markdownScriptParse } from "../src/markdownscript.js";
 
 describe("markdownScriptParse", () => {
-  test("basic markdown content", () => {
+  test("basic markdown content", async () => {
     const text = `# Hello World
 
 This is a simple markdown document.
@@ -15,7 +15,7 @@ console.log("Hello");
 \`\`\`
 `;
 
-    const result = markdownScriptParse(text);
+    const result = await markdownScriptParse(text);
     
     expect(result.jsSource).toContain("$`");
     expect(result.jsSource).toContain("# Hello World");
@@ -24,7 +24,7 @@ console.log("Hello");
     expect(result.meta).toEqual({});
   });
 
-  test("markdown with frontmatter", () => {
+  test("markdown with frontmatter", async () => {
     const text = `---
 title: "Test Script"
 description: "A test script"
@@ -34,7 +34,7 @@ description: "A test script"
 
 This is a test.`;
 
-    const result = markdownScriptParse(text);
+    const result = await markdownScriptParse(text);
     
     expect(result.jsSource).toContain("script({");
     expect(result.jsSource).toContain("title: 'Test Script'");
@@ -47,21 +47,21 @@ This is a test.`;
     });
   });
 
-  test("empty content", () => {
+  test("empty content", async () => {
     const text = "";
     
-    const result = markdownScriptParse(text);
+    const result = await markdownScriptParse(text);
     
     expect(result.jsSource).toBe("");
     expect(result.meta).toEqual({});
   });
 
-  test("only frontmatter", () => {
+  test("only frontmatter", async () => {
     const text = `---
 title: "Only frontmatter"
 ---`;
     
-    const result = markdownScriptParse(text);
+    const result = await markdownScriptParse(text);
     
     expect(result.jsSource).toContain("script({");
     expect(result.jsSource).toContain("title: 'Only frontmatter'");
@@ -71,15 +71,15 @@ title: "Only frontmatter"
     });
   });
 
-  test("escapes backticks", () => {
+  test("escapes backticks", async () => {
     const text = "This has `backticks` in it.";
     
-    const result = markdownScriptParse(text);
+    const result = await markdownScriptParse(text);
     
     expect(result.jsSource).toContain("\\`backticks\\`");
   });
 
-  test("preserves markdown formatting", () => {
+  test("preserves markdown formatting", async () => {
     const text = `## Section
 
 *Emphasis* and **strong** text.
@@ -89,7 +89,7 @@ title: "Only frontmatter"
 [Link](https://example.com)
 `;
     
-    const result = markdownScriptParse(text);
+    const result = await markdownScriptParse(text);
     
     expect(result.jsSource).toContain("## Section");
     expect(result.jsSource).toContain("*Emphasis*");
