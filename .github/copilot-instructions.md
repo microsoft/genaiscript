@@ -20,6 +20,7 @@ Source: .ruler/instructions.md
 - Use `pnpm build:cli` to build the cli only
 - Use `pnpm -r test` to run all tests
 - Use `pnpm test:core` for fast unit tests. It uses `vitest` to run tests.
+- Use `pnpm build:docs` to build the documentation
 
 NEVER try to run `genaiscript` using `npx`. Always using
 the local cli

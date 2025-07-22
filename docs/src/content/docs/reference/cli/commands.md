@@ -66,7 +66,13 @@ Options:
 ```
 Usage: genaiscript run [options] <script> [files...]
 
-Runs a GenAIScript against files.
+Runs a GenAIScript against files. Scripts can be JavaScript (.genai.mjs, .genai.js), TypeScript (.genai.mts), or Markdown (.genai.md) files.
+
+Examples:
+  genaiscript run summarize document.txt         # Run a script on a specific file
+  genaiscript run code-review src/               # Run on all files in directory
+  genaiscript run translate --vars lang=spanish # Run with variables
+  genaiscript run my-prompt.genai.md             # Run a markdown script
 
 Options:
   --accept <string>                        comma separated list of accepted file extensions
