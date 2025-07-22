@@ -1022,11 +1022,34 @@ export function createChatGenerationContext(
     prompt: string,
     imageOptions?: ImageGenerationOptions,
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }> => {
-    if (!prompt) throw new Error("prompt is missing");
+    // Allow empty prompt for image variations
+    if (!prompt && !imageOptions?.image) throw new Error("prompt or image is required");
 
-    const imgTrace = trace?.startTraceDetails("🖼️ generate image");
+    const imgTrace = trace?.startTraceDetails(imageOptions?.image ? "🖼️ generate image variations" : "🖼️ generate image");
     try {
-      const { style, quality, size, outputFormat, mime, ...rest } = imageOptions || {};
+      const { style, quality, size, outputFormat, mime, image: inputImage, ...rest } = imageOptions || {};
+      
+      // Convert input image to base64 if provided
+      let imageData: string | undefined;
+      if (inputImage) {
+        if (typeof inputImage === 'string') {
+          imageData = inputImage;
+        } else {
+          // WorkspaceFile - read and convert to base64
+          const content = inputImage.content;
+          if (inputImage.encoding === 'base64') {
+            imageData = content;
+          } else {
+            // Assume it's a buffer or string that needs to be converted to base64
+            const buffer = typeof content === 'string' 
+              ? Buffer.from(content, 'utf8')
+              : content;
+            imageData = Buffer.from(buffer).toString('base64');
+          }
+        }
+        imgTrace?.itemValue(`input_image`, typeof inputImage === 'string' ? 'inline image' : (inputImage.filename || 'inline image'));
+      }
+      
       const conn: ModelConnectionOptions = {
         model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
       };
@@ -1038,7 +1061,7 @@ export function createChatGenerationContext(
       });
       if (info.error) throw new Error(info.error);
       if (!configuration) throw new Error(`model configuration not found for ${conn.model}`);
-      const stats = options.stats.createChild(info.model, "generate image");
+      const stats = options.stats.createChild(info.model, inputImage ? "generate image variations" : "generate image");
       checkCancelled(cancellationToken);
       const { ok } = await runtimeHost.pullModel(configuration, {
         trace: imgTrace,
@@ -1056,6 +1079,7 @@ export function createChatGenerationContext(
         quality,
         style,
         outputFormat,
+        image: imageData,
       }) satisfies CreateImageRequest;
       const m = measure("img.generate", `${req.model} -> image`);
       const res = await imageGenerator(req, configuration, {

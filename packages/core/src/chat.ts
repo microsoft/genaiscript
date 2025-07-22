@@ -184,6 +184,13 @@ export type CreateImageRequest = {
   size?: string;
   style?: string;
   outputFormat?: "png" | "jpeg" | "webp";
+  
+  /**
+   * Base64-encoded image data for creating variations.
+   * When provided, the API will create variations of this image.
+   * Only supported by DALL-E 2 and some other models.
+   */
+  image?: string;
 };
 
 export interface ImageGenerationUsage {

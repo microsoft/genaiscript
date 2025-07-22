@@ -4471,6 +4471,14 @@
 
  interface ImageGenerationOptions extends ImageTransformOptions, RetryOptions {
   model?: OptionsOrString<ModelImageGenerationType>;
+  
+  /**
+   * Input image for creating variations. When provided, the API will create variations
+   * of the input image instead of generating a new image from the text prompt.
+   * Only supported by DALL-E 2 and some other models.
+   */
+  image?: string | WorkspaceFile;
+  
   /**
    * The quality of the image that will be generated.
    * auto (default value) will automatically select the best quality for the given model.

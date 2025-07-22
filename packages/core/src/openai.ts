@@ -736,15 +736,99 @@ export async function OpenAIImageGeneration(
   cfg: LanguageModelConfiguration,
   options: TraceOptions & CancellationOptions & RetryOptions,
 ): Promise<CreateImageResult> {
-  const { model, prompt, size = "1024x1024", quality, style, outputFormat, ...rest } = req;
+  const { model, prompt, size = "1024x1024", quality, style, outputFormat, image, ...rest } = req;
   const { trace } = options || {};
-  let url = `${cfg.base}/images/generations`;
+  
+  // Determine if this is a variation request
+  const isVariation = !!image;
+  let url = `${cfg.base}/images/${isVariation ? 'variations' : 'generations'}`;
 
   const isDallE = /^dall-e/i.test(model);
   const isDallE2 = /^dall-e-2/i.test(model);
   const isDallE3 = /^dall-e-3/i.test(model);
   const isGpt = /^gpt-image/i.test(model);
 
+  // For variations, we need different logic
+  if (isVariation) {
+    // DALL-E 3 doesn't support variations
+    if (isDallE3) {
+      return {
+        image: undefined,
+        error: { message: "DALL-E 3 does not support image variations. Please use DALL-E 2 instead." },
+      };
+    }
+    
+    // For variations endpoint, we use multipart form data
+    const formData = new FormData();
+    
+    // Convert base64 image to blob for form data
+    const imageData = image.startsWith('data:') 
+      ? image.split(',')[1] 
+      : image;
+    const imageBuffer = Buffer.from(imageData, 'base64');
+    const blob = new Blob([imageBuffer], { type: 'image/png' });
+    
+    formData.append('image', blob, 'image.png');
+    formData.append('model', model);
+    formData.append('n', '1');
+    formData.append('response_format', 'b64_json');
+    
+    if (size !== "auto") {
+      formData.append('size', size);
+    }
+    
+    if (cfg.type === "azure") {
+      const version = cfg.version || AZURE_OPENAI_API_VERSION;
+      trace?.itemValue(`version`, version);
+      url = trimTrailingSlash(cfg.base) + "/" + model + `/images/variations?api-version=${version}`;
+    }
+
+    const fetch = await createFetch(options);
+    try {
+      logInfo(`generate image variations with ${cfg.provider}:${cfg.model} (this may take a while)`);
+      const freq = {
+        method: "POST",
+        headers: {
+          ...getConfigHeaders(cfg),
+          // Don't set Content-Type for multipart/form-data - let browser set it with boundary
+        },
+        body: formData,
+      };
+      
+      // Remove Content-Type header to let FormData set it properly
+      delete freq.headers["Content-Type"];
+      
+      trace?.itemValue(`url`, `[${url}](${url})`);
+      trace?.itemValue(`mode`, "variations");
+      const res = await fetch(url, freq as any);
+      dbg(`response: %d %s`, res.status, res.statusText);
+      trace?.itemValue(`status`, `${res.status} ${res.statusText}`);
+      
+      if (!res.ok) {
+        return {
+          image: undefined,
+          error: (await res.json())?.error || res.statusText,
+        };
+      }
+      
+      const j: ImageGenerationResponse = await res.json();
+      dbg(`%O`, j);
+      const usage = j.usage;
+      const buffer = fromBase64(j.data[0].b64_json);
+      return {
+        image: new Uint8Array(buffer),
+        usage,
+      } satisfies CreateImageResult;
+    } catch (error) {
+      dbg(`error: %O`, error);
+      return {
+        image: undefined,
+        error: { message: `Failed to generate image variations: ${error.message}` },
+      };
+    }
+  }
+
+  // Original generation logic for non-variation requests
   const body: any = {
     model,
     prompt,
