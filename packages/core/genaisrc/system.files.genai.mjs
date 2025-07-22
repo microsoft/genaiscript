@@ -1,0 +1,20 @@
+var __makeTemplateObject = (this && this.__makeTemplateObject) || function (cooked, raw) {
+    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
+    return cooked;
+};
+system({
+    title: "File generation",
+    description: "Teaches the file format supported by GenAIScripts",
+});
+export default function (ctx) {
+    var $ = ctx.$, env = ctx.env;
+    var folder = env.vars["outputFolder"] || ".";
+    $(templateObject_1 || (templateObject_1 = __makeTemplateObject(["## FILE file format\n\nWhen generating, saving or updating files you should use the FILE file syntax preferably:\n\nFile ", "/file1.ts:\n````typescript\nWhat goes in\n", "/file1.ts.\n````\n\nFile ", "/file1.js:\n````javascript\nWhat goes in\n", "/file1.js.\n````\n\n\nFile ", "/file1.py: \n````python\nWhat goes in\n", "/file1.py.\n````\n\n\nFile /path/to/file/file2.md: \n````markdown\nWhat goes in\n/path/to/file/file2.md.\n````\n"], ["## FILE file format\n\nWhen generating, saving or updating files you should use the FILE file syntax preferably:\n\nFile ", "/file1.ts:\n\\`\\`\\`\\`typescript\nWhat goes in\\n", "/file1.ts.\n\\`\\`\\`\\`\n\nFile ", "/file1.js:\n\\`\\`\\`\\`javascript\nWhat goes in\\n", "/file1.js.\n\\`\\`\\`\\`\n\n\nFile ", "/file1.py: \n\\`\\`\\`\\`python\nWhat goes in\\n", "/file1.py.\n\\`\\`\\`\\`\n\n\nFile /path/to/file/file2.md: \n\\`\\`\\`\\`markdown\nWhat goes in\\n/path/to/file/file2.md.\n\\`\\`\\`\\`\n"])), folder, folder, folder, folder, folder, folder);
+    $(templateObject_2 || (templateObject_2 = __makeTemplateObject(["If you need to save a file and there are no tools available, use the FILE file format. The output of the LLM will parsed \nand saved. It is important to use the proper syntax."], ["If you need to save a file and there are no tools available, use the FILE file format. The output of the LLM will parsed \nand saved. It is important to use the proper syntax."])));
+    $(templateObject_3 || (templateObject_3 = __makeTemplateObject(["You MUST specify a start_line and end_line to only update a specific part of a file:\n\nFILE ", "/file1.py:\n````python start_line=15 end_line=20\nReplace line range 15-20 in \n", "/file1.py\n````\n\nFILE ", "/file1.py:\n````python start_line=30 end_line=35\nReplace line range 30-35 in \n", "/file1.py\n````\n\n"], ["You MUST specify a start_line and end_line to only update a specific part of a file:\n\nFILE ", "/file1.py:\n\\`\\`\\`\\`python start_line=15 end_line=20\nReplace line range 15-20 in \\n", "/file1.py\n\\`\\`\\`\\`\n\nFILE ", "/file1.py:\n\\`\\`\\`\\`python start_line=30 end_line=35\nReplace line range 30-35 in \\n", "/file1.py\n\\`\\`\\`\\`\n\n"])), folder, folder, folder, folder);
+    $(templateObject_4 || (templateObject_4 = __makeTemplateObject(["- Make sure to use precisely ```` to guard file code sections.\n- Always sure to use precisely ````` to guard file markdown sections.\n- Use full path of filename in code section header.\n- Use start_line, end_line for large files with small updates"], ["- Make sure to use precisely \\`\\`\\`\\` to guard file code sections.\n- Always sure to use precisely \\`\\`\\`\\`\\` to guard file markdown sections.\n- Use full path of filename in code section header.\n- Use start_line, end_line for large files with small updates"])));
+    if (folder !== ".")
+        $(templateObject_5 || (templateObject_5 = __makeTemplateObject(["When generating new files, place files in folder \"", "\"."], ["When generating new files, place files in folder \"", "\"."])), folder);
+    $(templateObject_6 || (templateObject_6 = __makeTemplateObject(["- If a file does not have changes, do not regenerate.\n- Do NOT emit line numbers in file.\n- CSV files are inlined as markdown tables."], ["- If a file does not have changes, do not regenerate.\n- Do NOT emit line numbers in file.\n- CSV files are inlined as markdown tables."])));
+}
+var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6;

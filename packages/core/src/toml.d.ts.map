@@ -1,0 +1,1 @@
+{"version":3,"file":"toml.d.ts","sourceRoot":"","sources":["toml.ts"],"names":[],"mappings":"AAMA,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,YAAY,CAAC;AAEhD;;;;;;;;;;GAUG;AACH,wBAAgB,SAAS,CAAC,IAAI,EAAE,MAAM,GAAG,aAAa,OAUrD;AAKD,wBAAgB,YAAY,CAAC,IAAI,EAAE,MAAM,GAAG,aAAa,EAAE,OAAO,CAAC,EAAE;IAAE,YAAY,CAAC,EAAE,GAAG,CAAA;CAAE,OAQ1F"}

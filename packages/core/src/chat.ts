@@ -111,6 +111,7 @@ import type {
   ToolCallContext,
   ToolCallOutput,
   WorkspaceFile,
+  BufferLike,
 } from "./types.js";
 
 const dbg = genaiscriptDebug("chat");
@@ -186,19 +187,19 @@ export type CreateImageRequest = {
   outputFormat?: "png" | "jpeg" | "webp";
   
   /**
-   * Base64-encoded image data for creating variations.
-   * When provided, the API will create variations of this image.
+   * Input image for creating variations. When provided, the API will create variations
+   * of the input image instead of generating a new image from the text prompt.
    * Only supported by DALL-E 2 and some other models.
    * @deprecated Use `images` array for multiple images or future-proof single image support.
    */
-  image?: string;
+  image?: BufferLike;
   
   /**
-   * Array of base64-encoded image data for creating variations.
-   * When provided, the API will create variations of these images.
-   * Only supported by DALL-E 2 and some other models.
+   * Input images for creating variations. When provided, the API will create variations
+   * of the input images instead of generating a new image from the text prompt.
+   * Multiple images are supported by some providers and models.
    */
-  images?: string[];
+  images?: BufferLike[];
 };
 
 export interface ImageGenerationUsage {

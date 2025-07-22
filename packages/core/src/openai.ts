@@ -71,6 +71,7 @@ import { fromBase64 } from "./base64.js";
 import { traceFetchPost } from "./fetchtext.js";
 import { providerFeatures } from "./features.js";
 import { genaiscriptDebug } from "./debug.js";
+import { resolveBufferLike } from "./bufferlike.js";
 import type {
   LanguageModelInfo,
   Logprob,
@@ -759,21 +760,32 @@ export async function OpenAIImageGeneration(
       };
     }
     
-    // Validate number of images - OpenAI typically supports only one image for variations
+    // OpenAI variations API currently supports only one input image
+    // However, we accept multiple images and process them individually or use the first one
+    // TODO: Research if OpenAI has updated to support multiple input images
     if (inputImages.length > 1) {
-      // For now, use the first image and log a warning
-      trace?.itemValue(`warning`, `Multiple images provided but OpenAI variations endpoint supports only one. Using the first image.`);
+      trace?.itemValue(`info`, `Multiple images provided. OpenAI variations typically processes one image, using the first image.`);
+    }
+    
+    // Convert the first BufferLike input to base64 for the API
+    const firstImage = inputImages[0];
+    let imageBase64: string;
+    
+    try {
+      const imageBuffer = await resolveBufferLike(firstImage, options);
+      imageBase64 = imageBuffer.toString('base64');
+    } catch (error) {
+      return {
+        image: undefined,
+        error: { message: `Failed to process input image: ${error.message}` },
+      };
     }
     
     // For variations endpoint, we use multipart form data
     const formData = new FormData();
     
-    // Convert base64 image to blob for form data (use first image)
-    const firstImage = inputImages[0];
-    const imageData = firstImage.startsWith('data:') 
-      ? firstImage.split(',')[1] 
-      : firstImage;
-    const imageBuffer = Buffer.from(imageData, 'base64');
+    // Create blob from the base64 data
+    const imageBuffer = Buffer.from(imageBase64, 'base64');
     const blob = new Blob([imageBuffer], { type: 'image/png' });
     
     formData.append('image', blob, 'image.png');
