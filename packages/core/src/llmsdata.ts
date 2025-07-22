@@ -104,6 +104,35 @@ export default {
       },
     },
     {
+      id: "openai_responses",
+      detail: "OpenAI with Responses API (Node.js SDK)",
+      url: "https://platform.openai.com/docs/api-reference/responses",
+      bearerToken: true,
+      listModels: false,
+      transcribe: false,
+      speech: false,
+      imageGeneration: false,
+      responseType: "json_schema",
+      metadata: true,
+      aliases: {
+        large: "gpt-4o",
+        small: "gpt-4o-mini",
+        vision: "gpt-4o",
+        vision_small: "gpt-4o-mini",
+        embeddings: "text-embedding-3-small",
+      },
+      env: {
+        OPENAI_API_KEY: {
+          description: "OpenAI API key",
+          required: true,
+          secret: true,
+        },
+        OPENAI_API_BASE: {
+          description: "OpenAI API base URL",
+        },
+      },
+    },
+    {
       id: "azure",
       detail: "Azure OpenAI deployment",
       url: "https://azure.microsoft.com/en-us/products/ai-services/openai-service",

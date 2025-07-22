@@ -1,0 +1,113 @@
+---
+title: OpenAI Responses API
+sidebar:
+    order: 2
+---
+
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+
+`openai_responses` is a provider that uses the Node.js OpenAI package specifically with the OpenAI Responses API.
+This provider offers structured response generation capabilities using OpenAI's models with enhanced response handling.
+
+## Configuration
+
+The `openai_responses` provider uses the same configuration as the standard OpenAI provider,
+but is optimized for structured responses and non-streaming interactions.
+
+<Steps>
+
+<ol>
+
+<li>
+
+[Upgrade your account](https://platform.openai.com/settings/organization/billing/overview) to get access to the models.
+You will get 404s if you do not have a paying account.
+
+</li>
+
+<li>
+    Create a new secret key from the [OpenAI API Keys
+    portal](https://platform.openai.com/api-keys).
+</li>
+
+<li>
+
+Update the `.env` file with the secret key.
+
+```txt title=".env"
+OPENAI_API_KEY=sk_...
+```
+
+</li>
+
+<li>
+
+Set the `model` field in `script` to use the `openai_responses` provider.
+
+```js 'model: "openai_responses:gpt-4o"'
+script({
+    model: "openai_responses:gpt-4o",
+    ...
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+:::tip[Default Model Configuration]
+
+Use `GENAISCRIPT_MODEL_LARGE` and `GENAISCRIPT_MODEL_SMALL` in your `.env` file to set the default model and small model.
+
+```txt
+GENAISCRIPT_MODEL_LARGE=openai_responses:gpt-4o
+GENAISCRIPT_MODEL_SMALL=openai_responses:gpt-4o-mini
+```
+
+:::
+
+## Features
+
+- **Structured Responses**: Optimized for structured output and response formatting
+- **Non-streaming**: Uses synchronous completion for better response handling
+- **Node.js OpenAI SDK**: Leverages the official OpenAI Node.js package
+- **Enhanced Error Handling**: Improved error reporting and debugging capabilities
+
+## Differences from Standard OpenAI Provider
+
+The `openai_responses` provider differs from the standard `openai` provider in several ways:
+
+- **Response Format**: Optimized for structured responses and JSON output
+- **Streaming**: Disabled by default for better compatibility with response formats
+- **SDK Integration**: Uses the Node.js OpenAI SDK directly for enhanced features
+- **Error Handling**: Enhanced error reporting specific to responses API
+
+## Usage Example
+
+```js
+script({
+    model: "openai_responses:gpt-4o",
+    temperature: 0.1, // Lower temperature for more consistent structured output
+})
+
+$`Generate a JSON response with the following structure:
+{
+  "summary": "Brief summary",
+  "key_points": ["point1", "point2", "point3"],
+  "confidence": 0.95
+}`
+```
+
+## Logging
+
+You can enable the `genaiscript:openai_responses` [logging namespace](/genaiscript/reference/scripts/logging) for detailed information about requests and responses:
+
+```bash
+DEBUG=genaiscript:openai_responses npm run ...
+```
+
+<LLMProviderFeatures provider="openai_responses" />
