@@ -285,31 +285,40 @@ export async function startMcpServer(
       // Store transports for session management
       const transports = {} as Record<string, StreamableHTTPServerTransport>;
       
-      dbg(`creating Fastify server`);
-      // Create Fastify server
-      const fastify = createFastify({ logger: false });
-      
-      // Register CORS support
-      dbg(`registering CORS support`);
-      await fastify.register(fastifyCors, {
-        origin: '*',
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
+      dbg(`creating Fastify server with proxy support`);
+      // Create Fastify server with proxy trust configuration
+      const fastify = createFastify({ 
+        logger: false,
+        trustProxy: true, // Enable proxy support for X-Forwarded-* headers
       });
       
-      // MCP endpoint handler
-      dbg(`registering MCP endpoint handler`);
+      // Register CORS support with proxy-aware configuration
+      dbg(`registering CORS support with proxy awareness`);
+      await fastify.register(fastifyCors, {
+        origin: true, // Allow dynamic origin based on request headers (proxy-friendly)
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Forwarded-For', 'X-Forwarded-Proto', 'X-Forwarded-Host'],
+        credentials: false, // Keep false for security when using dynamic origin
+      });
+      
+      // MCP endpoint handler with proxy support
+      dbg(`registering MCP endpoint handler with proxy awareness`);
       fastify.all('/mcp', async (request, reply) => {
-        dbg(`received HTTP request: ${request.method} ${request.url}`);
+        // Log client information (proxy-aware)
+        const clientIP = request.ip; // Fastify automatically uses X-Forwarded-For when trustProxy is enabled
+        const protocol = request.protocol; // Respects X-Forwarded-Proto
+        const host = request.hostname; // Respects X-Forwarded-Host
+        
+        dbg(`received HTTP request: ${request.method} ${request.url} from ${clientIP} (${protocol}://${host})`);
         
         // Handle OPTIONS preflight requests
         if (request.method === 'OPTIONS') {
-          dbg(`handling OPTIONS request`);
+          dbg(`handling OPTIONS request from ${clientIP}`);
           reply.status(200).send();
           return;
         }
         
-        dbg(`handling MCP endpoint request`);
+        dbg(`handling MCP endpoint request from ${clientIP}`);
         try {
           // Get raw Node.js request and response objects for MCP transport
           const req = request.raw;
@@ -320,38 +329,52 @@ export async function startMcpServer(
           // Add error handling for transport
           if (transport.on) {
             transport.on('error', (error) => {
-              dbg(`transport error: ${errorMessage(error)}`);
+              dbg(`transport error for client ${clientIP}: ${errorMessage(error)}`);
             });
           }
           
           // Store transport for session management  
           if ('sessionId' in transport) {
-            dbg(`storing transport with sessionId: ${transport.sessionId}`);
+            dbg(`storing transport with sessionId: ${transport.sessionId} for client ${clientIP}`);
             transports[transport.sessionId] = transport;
             
             res.on("close", () => {
-              dbg(`transport session closed: ${transport.sessionId}`);
+              dbg(`transport session closed: ${transport.sessionId} (client: ${clientIP})`);
               delete transports[transport.sessionId];
             });
             
             res.on("error", (error) => {
-              dbg(`response error for session ${transport.sessionId}: ${errorMessage(error)}`);
+              dbg(`response error for session ${transport.sessionId} (client: ${clientIP}): ${errorMessage(error)}`);
               delete transports[transport.sessionId];
             });
           }
           
-          dbg(`connecting server with HTTP transport`);
+          dbg(`connecting server with HTTP transport for client ${clientIP}`);
           await server.connect(transport);
         } catch (error) {
-          dbg(`HTTP transport error: ${errorMessage(error)}`);
+          dbg(`HTTP transport error for client ${clientIP}: ${errorMessage(error)}`);
           reply.status(500).send({ error: errorMessage(error) });
         }
       });
       
+      // Health check endpoint for proxies and load balancers
+      dbg(`registering health check endpoint`);
+      fastify.get('/health', async (request, reply) => {
+        const clientIP = request.ip;
+        dbg(`health check request from ${clientIP}`);
+        reply.status(200).send({ 
+          status: 'ok', 
+          service: 'genaiscript-mcp-server',
+          version: CORE_VERSION,
+          transport: 'http'
+        });
+      });
+      
       // 404 handler for other paths
       fastify.setNotFoundHandler((request, reply) => {
-        dbg(`request to unknown path: ${request.url}`);
-        reply.status(404).send({ error: 'Not found. Use /mcp endpoint.' });
+        const clientIP = request.ip;
+        dbg(`request to unknown path: ${request.url} from ${clientIP}`);
+        reply.status(404).send({ error: 'Not found. Use /mcp endpoint for MCP protocol or /health for health checks.' });
       });
       
       // Global error handler
@@ -370,11 +393,13 @@ export async function startMcpServer(
         host,
       });
       
-      dbg(`Fastify server listening on ${host}:${port}`);
+      dbg(`Fastify server listening on ${host}:${port} with proxy support`);
       console.log(`GenAIScript MCP server v${CORE_VERSION}`);
-      console.log(`│ Transport: HTTP`);
+      console.log(`│ Transport: HTTP (proxy-aware)`);
       console.log(`│ Endpoint: http://${host}:${port}/mcp`);
+      console.log(`│ Health: http://${host}:${port}/health`);
       console.log(`│ Access: ${network ? 'Network (0.0.0.0)' : 'Local (127.0.0.1)'}`);
+      console.log(`│ Proxy: Trusted (X-Forwarded-* headers supported)`);
       
       if (startup) {
         dbg(`running startup script: ${startup}`);
