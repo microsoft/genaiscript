@@ -18,6 +18,13 @@
 - Use `pnpm -r test` to run all tests
 - Use `pnpm test:core` for fast unit tests. It uses `vitest` to run tests.
 
+NEVER try to run `genaiscript` using `npx`. Always using
+the local cli
+
+```sh
+node packages/cli/dist/src/index.js run
+```
+
 ## Debug logging
 
 If you need to add debug logging, use `genaiscriptDebug("category")` to instantiate a new debug logger in a file
