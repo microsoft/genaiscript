@@ -268,71 +268,91 @@ export async function startMcpServer(
     
     logVerbose(`mcp server: starting HTTP server on ${host}:${port}`);
     
-    const httpModule = await import("node:http");
-    const { URL } = await import("node:url");
-    
-    // Import HTTP transport
-    const { StreamableHTTPServerTransport } = await import(
-      "@modelcontextprotocol/sdk/server/streamableHttp.js"
-    );
-    
-    // Store transports for session management
-    const transports = {} as Record<string, any>;
-    
-    // Create HTTP server
-    const httpServer = httpModule.createServer(async (req, res) => {
-      // Enable CORS
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    try {
+      const httpModule = await import("node:http");
+      const { URL } = await import("node:url");
       
-      if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-      }
+      // Import HTTP transport
+      const { StreamableHTTPServerTransport } = await import(
+        "@modelcontextprotocol/sdk/server/streamableHttp.js"
+      );
       
-      const url = new URL(req.url || '/', `http://${req.headers.host}`);
+      // Store transports for session management
+      const transports = {} as Record<string, any>;
       
-      if (url.pathname === '/mcp') {
-        try {
-          const transport = new StreamableHTTPServerTransport(req, res);
-          transports[transport.sessionId] = transport;
-          
-          res.on("close", () => {
-            delete transports[transport.sessionId];
-          });
-          
-          dbg(`connecting server with HTTP transport`);
-          await server.connect(transport);
-        } catch (error) {
-          dbg(`HTTP transport error: ${errorMessage(error)}`);
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: errorMessage(error) }));
+      // Create HTTP server
+      const httpServer = httpModule.createServer(async (req, res) => {
+        // Enable CORS
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        
+        if (req.method === 'OPTIONS') {
+          res.writeHead(200);
+          res.end();
+          return;
         }
-      } else {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Not found. Use /mcp endpoint.' }));
-      }
-    });
-    
-    // Start HTTP server
-    httpServer.listen(port, host, () => {
-      console.log(`GenAIScript MCP server v${CORE_VERSION}`);
-      console.log(`│ HTTP: http://${host}:${port}/mcp`);
-      if (startup) {
-        logVerbose(`startup script: ${startup}`);
-        run(startup, [], {
-          vars: {},
-          parentLanguageModel: samplingSupported,
-          onMessage,
-        }).catch((err) => {
-          dbg(`startup script error: ${errorMessage(err)}`);
-        });
-      }
-    });
+        
+        const url = new URL(req.url || '/', `http://${req.headers.host}`);
+        
+        if (url.pathname === '/mcp') {
+          try {
+            const transport = new StreamableHTTPServerTransport(req, res);
+            
+            // Store transport for session management  
+            if ('sessionId' in transport) {
+              transports[transport.sessionId] = transport;
+              
+              res.on("close", () => {
+                delete transports[transport.sessionId];
+              });
+            }
+            
+            dbg(`connecting server with HTTP transport`);
+            await server.connect(transport);
+          } catch (error) {
+            dbg(`HTTP transport error: ${errorMessage(error)}`);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: errorMessage(error) }));
+          }
+        } else {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Not found. Use /mcp endpoint.' }));
+        }
+      });
+      
+      // Handle server errors
+      httpServer.on('error', (error) => {
+        logVerbose(`HTTP server error: ${errorMessage(error)}`);
+      });
+      
+      // Start HTTP server
+      httpServer.listen(port, host, () => {
+        console.log(`GenAIScript MCP server v${CORE_VERSION}`);
+        console.log(`│ Transport: HTTP`);
+        console.log(`│ Endpoint: http://${host}:${port}/mcp`);
+        console.log(`│ Access: ${network ? 'Network (0.0.0.0)' : 'Local (127.0.0.1)'}`);
+        
+        if (startup) {
+          logVerbose(`startup script: ${startup}`);
+          run(startup, [], {
+            vars: {},
+            parentLanguageModel: samplingSupported,
+            onMessage,
+          }).catch((err) => {
+            dbg(`startup script error: ${errorMessage(err)}`);
+          });
+        }
+      });
+    } catch (importError) {
+      dbg(`Failed to import HTTP transport: ${errorMessage(importError)}`);
+      console.error(`Failed to start HTTP transport: ${errorMessage(importError)}`);
+      console.error(`Make sure @modelcontextprotocol/sdk supports StreamableHTTPServerTransport`);
+      process.exit(1);
+    }
   } else {
     // Stdio transport (default)
+    logVerbose(`mcp server: using stdio transport`);
     const transport = new StdioServerTransport();
     dbg(`connecting server with stdio transport`);
     await server.connect(transport);

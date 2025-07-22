@@ -482,7 +482,7 @@ export async function cli(): Promise<void> {
     .option("--port <number>", `HTTP port number, default: ${SERVER_PORT}`)
     .option("-n, --network", "Opens HTTP server on 0.0.0.0 to make it accessible on the network")
     .alias("mcps")
-    .description("Starts a Model Context Protocol server that exposes scripts as tools")
+    .description("Starts a Model Context Protocol server that exposes scripts as tools. Use --http for HTTP transport.")
     .action(startMcpServer);
   addModelOptions(mcp);
 
