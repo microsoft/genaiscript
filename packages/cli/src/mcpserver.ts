@@ -6,6 +6,7 @@ import {
   CORE_VERSION,
   RESOURCE_CHANGE,
   TOOL_ID,
+  SERVER_PORT,
   deleteUndefinedValues,
   ensureDotGenaiscriptPath,
   errorMessage,
@@ -41,6 +42,7 @@ import type {
 import { applyRemoteOptions } from "./remote.js";
 import type { RemoteOptions } from "./remote.js";
 import { startProjectWatcher } from "./watch.js";
+import { findOpenPort } from "./port.js";
 import { workerData } from "worker_threads";
 const dbg = genaiscriptDebug("mcp:server");
 
@@ -58,6 +60,9 @@ export async function startMcpServer(
   options?: ScriptFilterOptions &
     RemoteOptions & {
       startup?: string;
+      http?: boolean;
+      port?: string;
+      network?: boolean;
     },
 ): Promise<void> {
   setConsoleColors(false);
@@ -66,7 +71,7 @@ export async function startMcpServer(
   const runtimeHost = resolveRuntimeHost();
   await ensureDotGenaiscriptPath();
   await applyRemoteOptions(options);
-  const { startup } = options || {};
+  const { startup, http, port: portStr, network } = options || {};
   let samplingSupported = false;
 
   const watcher = await startProjectWatcher(options);
@@ -255,7 +260,90 @@ export async function startMcpServer(
     }
   };
 
-  const transport = new StdioServerTransport();
-  dbg(`connecting server with transport`);
-  await server.connect(transport);
+  // Set up transport based on options
+  if (http) {
+    // HTTP transport setup
+    const port = await findOpenPort(portStr ? parseInt(portStr) : SERVER_PORT, options);
+    const host = network ? "0.0.0.0" : "127.0.0.1";
+    
+    logVerbose(`mcp server: starting HTTP server on ${host}:${port}`);
+    
+    const httpModule = await import("node:http");
+    const { URL } = await import("node:url");
+    
+    // Import HTTP transport
+    const { StreamableHTTPServerTransport } = await import(
+      "@modelcontextprotocol/sdk/server/streamableHttp.js"
+    );
+    
+    // Store transports for session management
+    const transports = {} as Record<string, any>;
+    
+    // Create HTTP server
+    const httpServer = httpModule.createServer(async (req, res) => {
+      // Enable CORS
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      
+      if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
+      }
+      
+      const url = new URL(req.url || '/', `http://${req.headers.host}`);
+      
+      if (url.pathname === '/mcp') {
+        try {
+          const transport = new StreamableHTTPServerTransport(req, res);
+          transports[transport.sessionId] = transport;
+          
+          res.on("close", () => {
+            delete transports[transport.sessionId];
+          });
+          
+          dbg(`connecting server with HTTP transport`);
+          await server.connect(transport);
+        } catch (error) {
+          dbg(`HTTP transport error: ${errorMessage(error)}`);
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: errorMessage(error) }));
+        }
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Not found. Use /mcp endpoint.' }));
+      }
+    });
+    
+    // Start HTTP server
+    httpServer.listen(port, host, () => {
+      console.log(`GenAIScript MCP server v${CORE_VERSION}`);
+      console.log(`│ HTTP: http://${host}:${port}/mcp`);
+      if (startup) {
+        logVerbose(`startup script: ${startup}`);
+        run(startup, [], {
+          vars: {},
+          parentLanguageModel: samplingSupported,
+          onMessage,
+        }).catch((err) => {
+          dbg(`startup script error: ${errorMessage(err)}`);
+        });
+      }
+    });
+  } else {
+    // Stdio transport (default)
+    const transport = new StdioServerTransport();
+    dbg(`connecting server with stdio transport`);
+    await server.connect(transport);
+    
+    if (startup) {
+      logVerbose(`startup script: ${startup}`);
+      await run(startup, [], {
+        vars: {},
+        parentLanguageModel: samplingSupported,
+        onMessage,
+      });
+    }
+  }
 }

@@ -478,6 +478,9 @@ export async function cli(): Promise<void> {
   const mcp = program.command("mcp").option("--ids <string...>", "Filter script by ids");
   addGroupsOptions(mcp)
     .option("--startup <string>", "Startup script id, executed after the server is started")
+    .option("--http", "Use HTTP transport instead of stdio")
+    .option("--port <number>", `HTTP port number, default: ${SERVER_PORT}`)
+    .option("-n, --network", "Opens HTTP server on 0.0.0.0 to make it accessible on the network")
     .alias("mcps")
     .description("Starts a Model Context Protocol server that exposes scripts as tools")
     .action(startMcpServer);
