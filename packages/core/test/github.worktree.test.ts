@@ -21,12 +21,12 @@ describe("github worktree", () => {
   beforeEach(async () => {
     testDir = join(process.cwd(), "test-tmp-github");
     worktreePath = join(testDir, "test-github-worktree");
-    
+
     // Create test directory
     if (!existsSync(testDir)) {
       await mkdir(testDir, { recursive: true });
     }
-    
+
     githubClient = GitHubClient.default();
   });
 
@@ -44,7 +44,7 @@ describe("github worktree", () => {
   test("should handle PR worktree creation (mocked)", async () => {
     // This test mainly verifies the method exists and handles error cases
     // We can't easily test actual PR worktree creation without a real PR
-    
+
     try {
       const worktreeClient = await githubClient.addWorktreeForPullRequest(999999, worktreePath);
       // If this doesn't throw, something unexpected happened

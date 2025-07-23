@@ -28,7 +28,7 @@ import type {
   GitWorktree,
   GitWorktreeAddOptions,
   OptionsOrString,
-  ShellOptions,  
+  ShellOptions,
   WorkspaceFile,
 } from "./types.js";
 
@@ -322,7 +322,7 @@ export class GitClient implements Git {
     const res = await this.exec(["worktree", "list", "--porcelain"], {
       valueOnError: "",
     });
-    
+
     if (!res.trim()) return [];
 
     const worktrees: GitWorktree[] = [];
@@ -364,32 +364,29 @@ export class GitClient implements Git {
   ): Promise<Git> {
     dbg(`adding worktree at ${path}`);
     const args = ["worktree", "add"];
-    
+
     if (options?.force) args.push("-f");
     if (options?.detach) args.push("--detach");
     if (!options?.checkout) args.push("--no-checkout");
     if (options?.orphan) args.push("--orphan");
-    
+
     if (options?.branch) {
       args.push("-b", options.branch);
     }
-    
+
     args.push(path);
     if (commitish) args.push(commitish);
 
     await this.exec(args);
-    
+
     // Return a GitClient opened at the worktree path
     return this.client(path);
   }
 
-  async removeWorktree(
-    path: string,
-    options?: { force?: boolean },
-  ): Promise<void> {
+  async removeWorktree(path: string, options?: { force?: boolean }): Promise<void> {
     dbg(`removing worktree at ${path}`);
     const args = ["worktree", "remove"];
-    
+
     if (options?.force) args.push("-f");
     args.push(path);
 

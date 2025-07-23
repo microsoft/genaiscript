@@ -3199,11 +3199,7 @@ export interface Git {
    * @param options additional options for worktree creation
    * @returns Git client opened at the worktree path
    */
-  addWorktree(
-    path: string,
-    commitish?: string,
-    options?: GitWorktreeAddOptions,
-  ): Promise<Git>;
+  addWorktree(path: string, commitish?: string, options?: GitWorktreeAddOptions): Promise<Git>;
 
   /**
    * Remove a git worktree

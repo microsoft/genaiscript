@@ -1775,7 +1775,7 @@ export class GitHubClient implements GitHub {
     options?: GitWorktreeAddOptions,
   ): Promise<Git> {
     dbg(`adding worktree for pull request ${pullNumber}`);
-    
+
     // Get pull request details
     const pr = await this.getPullRequest(pullNumber);
     if (!pr) {
@@ -1784,11 +1784,11 @@ export class GitHubClient implements GitHub {
 
     // Default path based on PR info
     const defaultPath = path || `worktree-pr-${pullNumber}`;
-    
+
     // Fetch the PR branch
     const gitClient = GitClient.default();
     const branchName = `pr-${pullNumber}/${pr.head.ref}`;
-    
+
     try {
       // Try to fetch the PR branch first
       await gitClient.fetch("origin", `pull/${pullNumber}/head:${branchName}`);
