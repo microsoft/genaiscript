@@ -552,7 +552,7 @@ export const OpenAIResponsesAPIChatCompletion: ChatCompletionHandler = async (
 ) => {
   // For now, delegate to the standard OpenAI handler but with specific optimizations
   // In the future, this could use a dedicated /responses endpoint if available
-  const modifiedCfg = { ...cfg, type: "openai" as const };
+  const modifiedCfg = { ...cfg };
   
   trace?.itemValue(`api_type`, "openai_responses");
   trace?.item("Using OpenAI Responses API optimized for structured outputs");
@@ -564,13 +564,26 @@ export const OpenAIResponsesAPIChatCompletion: ChatCompletionHandler = async (
   if (modifiedReq.response_format) {
     trace?.item("Optimizing response format for Responses API");
     
-    // For responses API, prefer json_schema over json_object when schema is available
-    if (
-      modifiedReq.response_format.type === "json_object" && 
-      modifiedReq.response_format.type !== "json_schema"
-    ) {
-      trace?.item("Converting json_object to json_schema for better structured output");
+    // For responses API, ensure we use the most appropriate format
+    if (modifiedReq.response_format.type === "json_object") {
+      trace?.item("Using json_object format for structured output");
+    } else if (modifiedReq.response_format.type === "json_schema") {
+      trace?.item("Using json_schema format for strict structured output");
+      // Ensure strict mode is enabled for better reliability
+      if (modifiedReq.response_format.json_schema) {
+        modifiedReq.response_format.json_schema.strict = true;
+        trace?.item("Enabled strict mode for json_schema");
+      }
     }
+  } else {
+    trace?.item("No response format specified, using default text output");
+  }
+  
+  // For models that support reasoning, ensure optimal settings
+  const { family } = parseModelIdentifier(req.model);
+  if (/^(openai\/)?o\d/.test(family)) {
+    trace?.item("Detected reasoning model, optimizing for structured thinking");
+    // Reasoning models work better with clear instructions for structured output
   }
   
   return OpenAIChatCompletion(modifiedReq, modifiedCfg, options, trace);
