@@ -400,6 +400,42 @@ export function createChatTurnGenerationContext(
       return toDefRefName(name, doptions);
     },
     defImages,
+    defAudio: (
+        files: ElementOrArray<string | WorkspaceFile>,
+        defOptions?: { ignoreEmpty?: boolean }
+      ) => {
+        checkCancelled(cancellationToken);
+        if (files === undefined || files === null) {
+          if (defOptions?.ignoreEmpty) return;
+          throw new Error("no audio files provided");
+        }
+        
+        const audioFiles = Array.isArray(files) ? files : [files];
+        if (!audioFiles.length) {
+          if (defOptions?.ignoreEmpty) return;
+          throw new Error("no audio files provided");
+        }
+        
+        // For now, transcribe audio files and add them as text content
+        // This follows the pattern of processing audio content for LLM consumption
+        for (const audioFile of audioFiles) {
+          appendChild(
+            node,
+            createTextNode(
+              (async () => {
+                try {
+                  const result = await transcribe(audioFile);
+                  return `// Audio transcription from: ${typeof audioFile === 'string' ? audioFile : audioFile.filename}
+${result.text}`;
+                } catch (error) {
+                  return `// Audio transcription failed for: ${typeof audioFile === 'string' ? audioFile : audioFile.filename}
+// Error: ${error.message}`;
+                }
+              })()
+            )
+          );
+        }
+      },
     defData: (name, data, defOptions) => {
       name = name ?? "";
       const doptions = { ...(defOptions || {}), trace };

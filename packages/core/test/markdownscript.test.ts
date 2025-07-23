@@ -97,4 +97,73 @@ title: "Only frontmatter"
     expect(result.jsSource).toContain("> Blockquote");
     expect(result.jsSource).toContain("[Link](https://example.com)");
   });
+
+  test("handles HTML audio tags", async () => {
+    const text = `# Test
+
+<audio src="./test.mp3" />
+
+Some text after audio.`;
+    
+    const result = await markdownScriptParse(text);
+    
+    expect(result.jsSource).toContain("defAudio");
+    expect(result.jsSource).toContain('"./test.mp3"');
+    expect(result.jsSource).toContain("// audio ./test.mp3");
+    expect(result.jsSource).toContain("Some text after audio.");
+  });
+
+  test("handles mixed image and audio content", async () => {
+    const text = `# Test
+
+![image](./test.jpg)
+
+<audio src="./test.mp3" />
+
+Some text.`;
+    
+    const result = await markdownScriptParse(text);
+    
+    expect(result.jsSource).toContain("defImages");
+    expect(result.jsSource).toContain('"./test.jpg"');
+    expect(result.jsSource).toContain("defAudio");
+    expect(result.jsSource).toContain('"./test.mp3"');
+    expect(result.jsSource).toContain("Some text.");
+  });
+
+  test("handles multiple audio files", async () => {
+    const text = `# Test
+
+<audio src="./test1.mp3" />
+
+Some text.
+
+<audio src="./test2.wav" />
+
+More text.`;
+    
+    const result = await markdownScriptParse(text);
+    
+    expect(result.jsSource).toContain("defAudio");
+    expect(result.jsSource).toContain('"./test1.mp3"');
+    expect(result.jsSource).toContain('"./test2.wav"');
+    expect(result.jsSource).toContain("// audio ./test1.mp3");
+    expect(result.jsSource).toContain("// audio ./test2.wav");
+  });
+
+  test("ignores non-audio HTML tags", async () => {
+    const text = `# Test
+
+<video src="./test.mp4" />
+
+<div>Some content</div>
+
+Some text.`;
+    
+    const result = await markdownScriptParse(text);
+    
+    expect(result.jsSource).not.toContain("defAudio");
+    expect(result.jsSource).toContain("<video src=");
+    expect(result.jsSource).toContain("<div>Some content</div>");
+  });
 });

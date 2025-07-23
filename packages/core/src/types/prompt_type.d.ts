@@ -252,6 +252,13 @@ declare function defSchema(
 declare function defImages(files: ElementOrArray<BufferLike>, options?: DefImagesOptions): void;
 
 /**
+ * Adds audio files to the prompt (transcribed to text)
+ * @param files
+ * @param options
+ */
+declare function defAudio(files: ElementOrArray<string | WorkspaceFile>, options?: { ignoreEmpty?: boolean }): void;
+
+/**
  * Renders a table or object in the prompt
  * @param name
  * @param data

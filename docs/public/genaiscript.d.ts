@@ -4390,6 +4390,7 @@
     options?: DefOptions,
   ): string;
   defImages(files: ElementOrArray<BufferLike>, options?: DefImagesOptions): void;
+  defAudio(files: ElementOrArray<string | WorkspaceFile>, options?: { ignoreEmpty?: boolean }): void;
   defData(name: string, data: Awaitable<object[] | object>, options?: DefDataOptions): string;
   defDiff<T extends string | WorkspaceFile>(
     name: string,
@@ -4491,9 +4492,8 @@
    * - "stdio": Use StdioClientTransport (requires command and args)
    * - "http": Use StreamableHTTPClientTransport (requires url)
    * - "sse": Use SSEClientTransport (requires url)
-   * - "websocket": Use WebSocketClientTransport (requires url)
    */
-  type?: "stdio" | "http" | "sse" | "websocket";
+  type?: "stdio" | "http" | "sse";
   /**
    * The server version
    */
@@ -5662,6 +5662,13 @@ declare function defSchema(
  * @param options
  */
 declare function defImages(files: ElementOrArray<BufferLike>, options?: DefImagesOptions): void;
+
+/**
+ * Adds audio files to the prompt (transcribed to text)
+ * @param files
+ * @param options
+ */
+declare function defAudio(files: ElementOrArray<string | WorkspaceFile>, options?: { ignoreEmpty?: boolean }): void;
 
 /**
  * Renders a table or object in the prompt

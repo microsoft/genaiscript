@@ -80,6 +80,23 @@ export async function markdownScriptParse(text: string) {
         const img = child.children[0];
         jsSource += `// image ${img.alt || "no alt"} (${img.position?.start?.line || "--"})\n`;
         jsSource += `defImages(${JSON.stringify(img.url)});\n\n`;
+      } else if (child.type === "html") {
+        // Handle HTML audio tags
+        const htmlContent = child.value as string;
+        const audioMatch = htmlContent.match(/<audio\s+src\s*=\s*["']([^"']+)["'][^>]*\/?>/i);
+        if (audioMatch) {
+          dbg(`audio`);
+          flush();
+          const audioSrc = audioMatch[1];
+          jsSource += `// audio ${audioSrc} (${child.position?.start?.line || "--"})\n`;
+          jsSource += `defAudio(${JSON.stringify(audioSrc)});\n\n`;
+        } else {
+          // Not an audio tag, include as regular content
+          const tempTree = { type: "root", children: [child] } as Root;
+          const result = stringify.stringify(tempTree);
+          const escapedContent = result.replace(/`/g, "\\`");
+          contents.push(escapedContent);
+        }
       } else {
         const tempTree = { type: "root", children: [child] } as Root;
         const result = stringify.stringify(tempTree);

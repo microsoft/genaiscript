@@ -4390,6 +4390,7 @@ export interface ChatTurnGenerationContext {
     options?: DefOptions,
   ): string;
   defImages(files: ElementOrArray<BufferLike>, options?: DefImagesOptions): void;
+  defAudio(files: ElementOrArray<string | WorkspaceFile>, options?: { ignoreEmpty?: boolean }): void;
   defData(name: string, data: Awaitable<object[] | object>, options?: DefDataOptions): string;
   defDiff<T extends string | WorkspaceFile>(
     name: string,
