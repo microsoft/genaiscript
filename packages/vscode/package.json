@@ -260,7 +260,7 @@
             "editor/title/run": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.(genai\\.(js|mjs|mts))$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.(genai\\.(js|mjs|mts|md))$/",
                     "group": "genaiscript@1"
                 },
                 {
@@ -331,7 +331,7 @@
             "explorer/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts)$/)",
+                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts|md)$/)",
                     "group": "genaiscript@1"
                 }
             ]
