@@ -4491,9 +4491,8 @@
    * - "stdio": Use StdioClientTransport (requires command and args)
    * - "http": Use StreamableHTTPClientTransport (requires url)
    * - "sse": Use SSEClientTransport (requires url)
-   * - "websocket": Use WebSocketClientTransport (requires url)
    */
-  type?: "stdio" | "http" | "sse" | "websocket";
+  type?: "stdio" | "http" | "sse";
   /**
    * The server version
    */
