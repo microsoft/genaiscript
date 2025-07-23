@@ -68,8 +68,8 @@ describe("git worktree", () => {
     const mainBranch = "refs/heads/copilot/fix-b6156011-731d-47e4-8aaf-d0eff9d9594a";
     
     // Add worktree
-    const worktree = await gitClient.addWorktree(worktreePath, mainBranch);
-    expect(worktree.path).toBe(worktreePath);
+    const worktreeClient = await gitClient.addWorktree(worktreePath, mainBranch);
+    expect(worktreeClient.cwd).toBe(worktreePath);
     expect(existsSync(worktreePath)).toBe(true);
     
     // Verify it appears in the list
@@ -91,13 +91,18 @@ describe("git worktree", () => {
     
     try {
       // Add worktree with new branch
-      const worktree = await gitClient.addWorktree(worktreePath, undefined, {
+      const worktreeClient = await gitClient.addWorktree(worktreePath, undefined, {
         branch: newBranchName,
         checkout: false, // Don't checkout to avoid file system operations
       });
       
-      expect(worktree.path).toBe(worktreePath);
-      expect(worktree.branch).toContain(newBranchName);
+      expect(worktreeClient.cwd).toBe(worktreePath);
+      
+      // Verify worktree was created correctly by checking the worktree list
+      const worktrees = await gitClient.listWorktrees();
+      const foundWorktree = worktrees.find(w => w.path === worktreePath);
+      expect(foundWorktree).toBeDefined();
+      expect(foundWorktree?.branch).toContain(newBranchName);
       
       // Clean up
       await gitClient.removeWorktree(worktreePath, { force: true });

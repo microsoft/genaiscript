@@ -3197,12 +3197,13 @@ export interface Git {
    * @param path path where the worktree should be created
    * @param commitish commit, branch, or tag to checkout
    * @param options additional options for worktree creation
+   * @returns Git client opened at the worktree path
    */
   addWorktree(
     path: string,
     commitish?: string,
     options?: GitWorktreeAddOptions,
-  ): Promise<GitWorktree>;
+  ): Promise<Git>;
 
   /**
    * Remove a git worktree
@@ -3858,12 +3859,13 @@ export interface GitHub {
    * @param pullNumber pull request number
    * @param path path where the worktree should be created
    * @param options additional options
+   * @returns Git client opened at the worktree path
    */
   addWorktreeForPullRequest(
     pullNumber: number | string,
     path?: string,
     options?: GitWorktreeAddOptions,
-  ): Promise<GitWorktree>;
+  ): Promise<Git>;
 }
 
 export interface MDObject {

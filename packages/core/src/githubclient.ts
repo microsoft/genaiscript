@@ -44,6 +44,7 @@ import { dedent } from "./indent.js";
 import type {
   BufferLike,
   Diagnostic,
+  Git,
   GitHub,
   GitHubArtifact,
   GitHubCodeSearchResult,
@@ -1772,7 +1773,7 @@ export class GitHubClient implements GitHub {
     pullNumber: number | string,
     path?: string,
     options?: GitWorktreeAddOptions,
-  ): Promise<GitWorktree> {
+  ): Promise<Git> {
     dbg(`adding worktree for pull request ${pullNumber}`);
     
     // Get pull request details
@@ -1797,7 +1798,7 @@ export class GitHubClient implements GitHub {
     }
 
     // Create worktree with the PR branch or head ref
-    const commitish = branchName || pr.head.sha;
+    const commitish = branchName || pr.head.ref;
     return await gitClient.addWorktree(defaultPath, commitish, {
       ...options,
       branch: options?.branch || branchName,

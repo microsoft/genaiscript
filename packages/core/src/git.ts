@@ -361,7 +361,7 @@ export class GitClient implements Git {
     path: string,
     commitish?: string,
     options?: GitWorktreeAddOptions,
-  ): Promise<GitWorktree> {
+  ): Promise<Git> {
     dbg(`adding worktree at ${path}`);
     const args = ["worktree", "add"];
     
@@ -379,14 +379,8 @@ export class GitClient implements Git {
 
     await this.exec(args);
     
-    // Get the created worktree info
-    const worktrees = await this.listWorktrees();
-    const created = worktrees.find(w => w.path === path);
-    if (!created) {
-      throw new Error(`Failed to create worktree at ${path}`);
-    }
-    
-    return created;
+    // Return a GitClient opened at the worktree path
+    return this.client(path);
   }
 
   async removeWorktree(

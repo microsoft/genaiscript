@@ -46,7 +46,7 @@ describe("github worktree", () => {
     // We can't easily test actual PR worktree creation without a real PR
     
     try {
-      await githubClient.addWorktreeForPullRequest(999999, worktreePath);
+      const worktreeClient = await githubClient.addWorktreeForPullRequest(999999, worktreePath);
       // If this doesn't throw, something unexpected happened
       expect(false).toBe(true);
     } catch (error) {
