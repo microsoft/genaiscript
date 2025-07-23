@@ -14,10 +14,6 @@ vi.mock("@modelcontextprotocol/sdk/client/sse.js", () => ({
   SSEClientTransport: vi.fn().mockImplementation(() => ({})),
 }));
 
-vi.mock("@modelcontextprotocol/sdk/client/websocket.js", () => ({
-  WebSocketClientTransport: vi.fn().mockImplementation(() => ({})),
-}));
-
 vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
   Client: vi.fn().mockImplementation(() => ({
     connect: vi.fn().mockResolvedValue(undefined),
@@ -80,7 +76,6 @@ describe("MCP Transport Support", () => {
   let StdioClientTransport: any;
   let StreamableHTTPClientTransport: any;
   let SSEClientTransport: any;
-  let WebSocketClientTransport: any;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -94,9 +89,6 @@ describe("MCP Transport Support", () => {
 
     const sseModule = await import("@modelcontextprotocol/sdk/client/sse.js");
     SSEClientTransport = sseModule.SSEClientTransport;
-
-    const wsModule = await import("@modelcontextprotocol/sdk/client/websocket.js");
-    WebSocketClientTransport = wsModule.WebSocketClientTransport;
 
     // Import the actual implementation
     const clientModule = await import("../src/mcpclient.js");
@@ -118,6 +110,7 @@ describe("MCP Transport Support", () => {
       startTraceDetails: vi.fn(() => ({
         fence: vi.fn(),
         appendContent: vi.fn(),
+        endDetails: vi.fn(),
       })),
     };
 
@@ -150,6 +143,7 @@ describe("MCP Transport Support", () => {
       startTraceDetails: vi.fn(() => ({
         fence: vi.fn(),
         appendContent: vi.fn(),
+        endDetails: vi.fn(),
       })),
     };
 
@@ -177,6 +171,7 @@ describe("MCP Transport Support", () => {
       startTraceDetails: vi.fn(() => ({
         fence: vi.fn(),
         appendContent: vi.fn(),
+        endDetails: vi.fn(),
       })),
     };
 
@@ -192,11 +187,11 @@ describe("MCP Transport Support", () => {
     expect(SSEClientTransport).toHaveBeenCalledWith(expect.any(URL));
   });
 
-  it("should create WebSocket transport for WebSocket config", async () => {
+  it("should reject WebSocket URLs with error message", async () => {
     const config: McpServerConfig = {
-      id: "test-ws",
+      id: "test-ws-rejected",
       url: "wss://example.com/ws",
-      type: "websocket",
+      // type not specified, should auto-detect and reject
     };
 
     const manager = new McpClientManager();
@@ -204,46 +199,14 @@ describe("MCP Transport Support", () => {
       startTraceDetails: vi.fn(() => ({
         fence: vi.fn(),
         appendContent: vi.fn(),
+        endDetails: vi.fn(),
       })),
     };
 
-    try {
-      await manager.startMcpServer(config, {
-        trace: mockTrace,
-        cancellationToken: undefined,
-      });
-    } catch (e) {
-      // Expected to fail due to mocking limitations
-    }
-
-    expect(WebSocketClientTransport).toHaveBeenCalledWith(expect.any(URL));
-  });
-
-  it("should auto-detect WebSocket transport from ws:// URL", async () => {
-    const config: McpServerConfig = {
-      id: "test-ws-auto",
-      url: "ws://localhost:3000",
-      // type not specified, should auto-detect
-    };
-
-    const manager = new McpClientManager();
-    const mockTrace = {
-      startTraceDetails: vi.fn(() => ({
-        fence: vi.fn(),
-        appendContent: vi.fn(),
-      })),
-    };
-
-    try {
-      await manager.startMcpServer(config, {
-        trace: mockTrace,
-        cancellationToken: undefined,
-      });
-    } catch (e) {
-      // Expected to fail due to mocking limitations
-    }
-
-    expect(WebSocketClientTransport).toHaveBeenCalledWith(expect.any(URL));
+    await expect(manager.startMcpServer(config, {
+      trace: mockTrace,
+      cancellationToken: undefined,
+    })).rejects.toThrow("WebSocket transport is not supported");
   });
 
   it("should auto-detect HTTP transport from https:// URL", async () => {
@@ -258,6 +221,7 @@ describe("MCP Transport Support", () => {
       startTraceDetails: vi.fn(() => ({
         fence: vi.fn(),
         appendContent: vi.fn(),
+        endDetails: vi.fn(),
       })),
     };
 
@@ -286,6 +250,7 @@ describe("MCP Transport Support", () => {
       startTraceDetails: vi.fn(() => ({
         fence: vi.fn(),
         appendContent: vi.fn(),
+        endDetails: vi.fn(),
       })),
     };
 
