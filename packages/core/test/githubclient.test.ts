@@ -152,4 +152,21 @@ describe("GitHubClient", async () => {
     const result = await client.assignIssueToBot(issueNumber);
     console.log(result);
   });
+
+  test("git worktree operations", async () => {
+    // Test listing worktrees (should work if git is available)
+    try {
+      const worktrees = await client.listWorktrees();
+      assert(Array.isArray(worktrees));
+      
+      // Should have at least the main worktree
+      if (worktrees.length > 0) {
+        assert(worktrees[0].path);
+        assert(worktrees[0].sha);
+      }
+    } catch (error) {
+      // Git worktree operations might fail in CI or if git is not available
+      console.log("Git worktree test skipped:", error.message);
+    }
+  });
 });

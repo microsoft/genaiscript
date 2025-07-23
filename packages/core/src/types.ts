@@ -2983,6 +2983,60 @@ export interface GitLogOptions {
   excludedPaths?: ElementOrArray<string>;
 }
 
+export interface GitWorktree {
+  /**
+   * Path to the worktree directory
+   */
+  path: string;
+  /**
+   * Branch name associated with the worktree
+   */
+  branch: string;
+  /**
+   * Commit SHA of the worktree
+   */
+  sha: string;
+  /**
+   * Whether the worktree is bare
+   */
+  bare?: boolean;
+  /**
+   * Whether the worktree is detached (not on a branch)
+   */
+  detached?: boolean;
+  /**
+   * Whether the worktree is locked
+   */
+  locked?: boolean;
+  /**
+   * Reason for locking the worktree
+   */
+  lockReason?: string;
+}
+
+export interface GitWorktreeAddOptions {
+  /**
+   * Create a new branch for the worktree
+   */
+  branch?: string;
+  /**
+   * Force creation even if directory exists
+   */
+  force?: boolean;
+  /**
+   * Create a detached HEAD at the specified commit
+   */
+  detach?: boolean;
+  /**
+   * Checkout the branch even if it already exists in another worktree
+   */
+  checkout?: boolean;
+  /**
+   * Track the upstream branch
+   */
+  track?: boolean;
+}
+
 export interface Git {
   /**
    * Current working directory
@@ -3140,6 +3194,65 @@ export interface Git {
    * @param cwd working directory
    */
   client(cwd: string): Git;
+
+  /**
+   * Lists all worktrees in the repository
+   */
+  listWorktrees(): Promise<GitWorktree[]>;
+
+  /**
+   * Adds a new worktree to the repository
+   * @param path Path where the worktree should be created
+   * @param commitish Branch or commit to checkout in the worktree
+   * @param options Additional options for worktree creation
+   */
+  addWorktree(
+    path: string,
+    commitish?: string,
+    options?: GitWorktreeAddOptions,
+  ): Promise<GitWorktree>;
+
+  /**
+   * Removes a worktree from the repository
+   * @param path Path to the worktree to remove
+   * @param options Options for worktree removal
+   */
+  removeWorktree(
+    path: string,
+    options?: {
+      force?: boolean;
+    },
+  ): Promise<void>;
+
+  /**
+   * Moves a worktree to a new location
+   * @param currentPath Current path of the worktree
+   * @param newPath New path for the worktree
+   */
+  moveWorktree(currentPath: string, newPath: string): Promise<void>;
+
+  /**
+   * Locks a worktree to prevent it from being removed
+   * @param path Path to the worktree to lock
+   * @param reason Optional reason for locking
+   */
+  lockWorktree(path: string, reason?: string): Promise<void>;
+
+  /**
+   * Unlocks a previously locked worktree
+   * @param path Path to the worktree to unlock
+   */
+  unlockWorktree(path: string): Promise<void>;
+
+  /**
+   * Prunes worktree administrative information
+   * @param options Options for pruning
+   */
+  pruneWorktrees(options?: {
+    dryRun?: boolean;
+    verbose?: boolean;
+    expireTime?: string;
+  }): Promise<string[]>;
 }
 
 /**
@@ -3777,6 +3890,65 @@ export interface GitHub {
    * @param repo
    */
   client(owner: string, repo: string): GitHub;
+
+  /**
+   * Lists all worktrees in the repository (requires Git client access)
+   */
+  listWorktrees(): Promise<GitWorktree[]>;
+
+  /**
+   * Adds a new worktree to the repository (requires Git client access)
+   * @param path Path where the worktree should be created
+   * @param commitish Branch or commit to checkout in the worktree
+   * @param options Additional options for worktree creation
+   */
+  addWorktree(
+    path: string,
+    commitish?: string,
+    options?: GitWorktreeAddOptions,
+  ): Promise<GitWorktree>;
+
+  /**
+   * Removes a worktree from the repository (requires Git client access)
+   * @param path Path to the worktree to remove
+   * @param options Options for worktree removal
+   */
+  removeWorktree(
+    path: string,
+    options?: {
+      force?: boolean;
+    },
+  ): Promise<void>;
+
+  /**
+   * Moves a worktree to a new location (requires Git client access)
+   * @param currentPath Current path of the worktree
+   * @param newPath New path for the worktree
+   */
+  moveWorktree(currentPath: string, newPath: string): Promise<void>;
+
+  /**
+   * Locks a worktree to prevent it from being removed (requires Git client access)
+   * @param path Path to the worktree to lock
+   * @param reason Optional reason for locking
+   */
+  lockWorktree(path: string, reason?: string): Promise<void>;
+
+  /**
+   * Unlocks a previously locked worktree (requires Git client access)
+   * @param path Path to the worktree to unlock
+   */
+  unlockWorktree(path: string): Promise<void>;
+
+  /**
+   * Prunes worktree administrative information (requires Git client access)
+   * @param options Options for pruning
+   */
+  pruneWorktrees(options?: {
+    dryRun?: boolean;
+    verbose?: boolean;
+    expireTime?: string;
+  }): Promise<string[]>;
 }
 
 export interface MDObject {

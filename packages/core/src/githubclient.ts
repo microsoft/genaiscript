@@ -64,6 +64,8 @@ import type {
   GitHubWorkflowJob,
   GitHubWorkflowRun,
   GitHubWorkflowRunStatus,
+  GitWorktree,
+  GitWorktreeAddOptions,
   PromptScript,
   WorkspaceFile,
   GitHubIssueCreateOptions,
@@ -1764,6 +1766,61 @@ export class GitHubClient implements GitHub {
       );
     }
     return res;
+  }
+
+  async listWorktrees(): Promise<GitWorktree[]> {
+    dbg("listing worktrees via git client");
+    const gitClient = GitClient.default();
+    return await gitClient.listWorktrees();
+  }
+
+  async addWorktree(
+    path: string,
+    commitish?: string,
+    options?: GitWorktreeAddOptions,
+  ): Promise<GitWorktree> {
+    dbg(`adding worktree at ${path}`);
+    const gitClient = GitClient.default();
+    return await gitClient.addWorktree(path, commitish, options);
+  }
+
+  async removeWorktree(
+    path: string,
+    options?: {
+      force?: boolean;
+    },
+  ): Promise<void> {
+    dbg(`removing worktree at ${path}`);
+    const gitClient = GitClient.default();
+    await gitClient.removeWorktree(path, options);
+  }
+
+  async moveWorktree(currentPath: string, newPath: string): Promise<void> {
+    dbg(`moving worktree from ${currentPath} to ${newPath}`);
+    const gitClient = GitClient.default();
+    await gitClient.moveWorktree(currentPath, newPath);
+  }
+
+  async lockWorktree(path: string, reason?: string): Promise<void> {
+    dbg(`locking worktree at ${path}`);
+    const gitClient = GitClient.default();
+    await gitClient.lockWorktree(path, reason);
+  }
+
+  async unlockWorktree(path: string): Promise<void> {
+    dbg(`unlocking worktree at ${path}`);
+    const gitClient = GitClient.default();
+    await gitClient.unlockWorktree(path);
+  }
+
+  async pruneWorktrees(options?: {
+    dryRun?: boolean;
+    verbose?: boolean;
+    expireTime?: string;
+  }): Promise<string[]> {
+    dbg("pruning worktrees");
+    const gitClient = GitClient.default();
+    return await gitClient.pruneWorktrees(options);
   }
 }
 

@@ -25,6 +25,8 @@ import type {
   Git,
   GitCommit,
   GitLogOptions,
+  GitWorktree,
+  GitWorktreeAddOptions,
   OptionsOrString,
   ShellOptions,
   WorkspaceFile,
@@ -586,6 +588,161 @@ ${await this.diff({ ...options, nameOnly: true })}
     }
 
     return new GitClient(directory);
+  }
+
+  async listWorktrees(): Promise<
+    Array<{
+      path: string;
+      branch: string;
+      sha: string;
+      bare?: boolean;
+      detached?: boolean;
+      locked?: boolean;
+      lockReason?: string;
+    }>
+  > {
+    dbg("listing worktrees");
+    const output = await this.exec(["worktree", "list", "--porcelain"]);
+    const worktrees: any[] = [];
+    let current: any = {};
+
+    for (const line of output.split("\n")) {
+      if (line.startsWith("worktree ")) {
+        if (current.path) {
+          worktrees.push(current);
+        }
+        current = { path: line.substring(9) };
+      } else if (line.startsWith("HEAD ")) {
+        current.sha = line.substring(5);
+      } else if (line.startsWith("branch ")) {
+        current.branch = line.substring(7);
+      } else if (line === "bare") {
+        current.bare = true;
+      } else if (line === "detached") {
+        current.detached = true;
+      } else if (line.startsWith("locked")) {
+        current.locked = true;
+        if (line.length > 6) {
+          current.lockReason = line.substring(7);
+        }
+      }
+    }
+
+    if (current.path) {
+      worktrees.push(current);
+    }
+
+    return worktrees;
+  }
+
+  async addWorktree(
+    path: string,
+    commitish?: string,
+    options?: {
+      branch?: string;
+      force?: boolean;
+      detach?: boolean;
+      checkout?: boolean;
+      track?: boolean;
+    },
+  ): Promise<{
+    path: string;
+    branch: string;
+    sha: string;
+    bare?: boolean;
+    detached?: boolean;
+    locked?: boolean;
+    lockReason?: string;
+  }> {
+    dbg(`adding worktree at ${path}`);
+    const args = ["worktree", "add"];
+
+    if (options?.force) {
+      args.push("--force");
+    }
+    if (options?.detach) {
+      args.push("--detach");
+    }
+    if (options?.checkout === false) {
+      args.push("--no-checkout");
+    }
+    if (options?.track === false) {
+      args.push("--no-track");
+    }
+    if (options?.branch) {
+      args.push("-b", options.branch);
+    }
+
+    args.push(path);
+    if (commitish) {
+      args.push(commitish);
+    }
+
+    await this.exec(args);
+    
+    // Return information about the created worktree
+    const worktrees = await this.listWorktrees();
+    const worktree = worktrees.find((w) => w.path === path);
+    if (!worktree) {
+      throw new Error(`Failed to create worktree at ${path}`);
+    }
+    return worktree;
+  }
+
+  async removeWorktree(path: string, options?: { force?: boolean }): Promise<void> {
+    dbg(`removing worktree at ${path}`);
+    const args = ["worktree", "remove"];
+    
+    if (options?.force) {
+      args.push("--force");
+    }
+    
+    args.push(path);
+    await this.exec(args);
+  }
+
+  async moveWorktree(currentPath: string, newPath: string): Promise<void> {
+    dbg(`moving worktree from ${currentPath} to ${newPath}`);
+    await this.exec(["worktree", "move", currentPath, newPath]);
+  }
+
+  async lockWorktree(path: string, reason?: string): Promise<void> {
+    dbg(`locking worktree at ${path}`);
+    const args = ["worktree", "lock"];
+    
+    if (reason) {
+      args.push("--reason", reason);
+    }
+    
+    args.push(path);
+    await this.exec(args);
+  }
+
+  async unlockWorktree(path: string): Promise<void> {
+    dbg(`unlocking worktree at ${path}`);
+    await this.exec(["worktree", "unlock", path]);
+  }
+
+  async pruneWorktrees(options?: {
+    dryRun?: boolean;
+    verbose?: boolean;
+    expireTime?: string;
+  }): Promise<string[]> {
+    dbg("pruning worktrees");
+    const args = ["worktree", "prune"];
+    
+    if (options?.dryRun) {
+      args.push("--dry-run");
+    }
+    if (options?.verbose) {
+      args.push("--verbose");
+    }
+    if (options?.expireTime) {
+      args.push("--expire", options.expireTime);
+    }
+    
+    const output = await this.exec(args);
+    return output.trim() ? output.split("\n") : [];
   }
 
   client(cwd: string) {
