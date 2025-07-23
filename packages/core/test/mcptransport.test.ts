@@ -14,10 +14,6 @@ vi.mock("@modelcontextprotocol/sdk/client/sse.js", () => ({
   SSEClientTransport: vi.fn().mockImplementation(() => ({})),
 }));
 
-vi.mock("@modelcontextprotocol/sdk/client/websocket.js", () => ({
-  WebSocketClientTransport: vi.fn().mockImplementation(() => ({})),
-}));
-
 vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
   Client: vi.fn().mockImplementation(() => ({
     connect: vi.fn().mockResolvedValue(undefined),
@@ -80,7 +76,6 @@ describe("MCP Transport Support", () => {
   let StdioClientTransport: any;
   let StreamableHTTPClientTransport: any;
   let SSEClientTransport: any;
-  let WebSocketClientTransport: any;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -94,9 +89,6 @@ describe("MCP Transport Support", () => {
 
     const sseModule = await import("@modelcontextprotocol/sdk/client/sse.js");
     SSEClientTransport = sseModule.SSEClientTransport;
-
-    const wsModule = await import("@modelcontextprotocol/sdk/client/websocket.js");
-    WebSocketClientTransport = wsModule.WebSocketClientTransport;
 
     // Import the actual implementation
     const clientModule = await import("../src/mcpclient.js");
@@ -192,65 +184,38 @@ describe("MCP Transport Support", () => {
     expect(SSEClientTransport).toHaveBeenCalledWith(expect.any(URL));
   });
 
-  it("should create WebSocket transport for WebSocket config", async () => {
-    const config: McpServerConfig = {
-      id: "test-ws",
-      url: "wss://example.com/ws",
-      type: "websocket",
-    };
-
-    const manager = new McpClientManager();
-    const mockTrace = {
-      startTraceDetails: vi.fn(() => ({
-        fence: vi.fn(),
-        appendContent: vi.fn(),
-      })),
-    };
-
-    try {
-      await manager.startMcpServer(config, {
-        trace: mockTrace,
-        cancellationToken: undefined,
-      });
-    } catch (e) {
-      // Expected to fail due to mocking limitations
-    }
-
-    expect(WebSocketClientTransport).toHaveBeenCalledWith(expect.any(URL));
-  });
-
-  it("should auto-detect WebSocket transport from ws:// URL", async () => {
-    const config: McpServerConfig = {
-      id: "test-ws-auto",
-      url: "ws://localhost:3000",
-      // type not specified, should auto-detect
-    };
-
-    const manager = new McpClientManager();
-    const mockTrace = {
-      startTraceDetails: vi.fn(() => ({
-        fence: vi.fn(),
-        appendContent: vi.fn(),
-      })),
-    };
-
-    try {
-      await manager.startMcpServer(config, {
-        trace: mockTrace,
-        cancellationToken: undefined,
-      });
-    } catch (e) {
-      // Expected to fail due to mocking limitations
-    }
-
-    expect(WebSocketClientTransport).toHaveBeenCalledWith(expect.any(URL));
-  });
-
   it("should auto-detect HTTP transport from https:// URL", async () => {
     const config: McpServerConfig = {
       id: "test-http-auto",
       url: "https://api.example.com/mcp",
       // type not specified, should auto-detect to HTTP
+    };
+
+    const manager = new McpClientManager();
+    const mockTrace = {
+      startTraceDetails: vi.fn(() => ({
+        fence: vi.fn(),
+        appendContent: vi.fn(),
+      })),
+    };
+
+    try {
+      await manager.startMcpServer(config, {
+        trace: mockTrace,
+        cancellationToken: undefined,
+      });
+    } catch (e) {
+      // Expected to fail due to mocking limitations
+    }
+
+    expect(StreamableHTTPClientTransport).toHaveBeenCalledWith(expect.any(URL));
+  });
+
+  it("should default WebSocket URLs to HTTP transport", async () => {
+    const config: McpServerConfig = {
+      id: "test-ws-fallback",
+      url: "ws://localhost:3000",
+      // type not specified, should now default to HTTP instead of WebSocket
     };
 
     const manager = new McpClientManager();

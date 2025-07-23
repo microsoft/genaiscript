@@ -36,7 +36,6 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import { WebSocketClientTransport } from "@modelcontextprotocol/sdk/client/websocket.js";
 
 const dbg = genaiscriptDebug("mcp:client");
 
@@ -96,7 +95,7 @@ function patchInputSchema(inputSchema: any): any {
 /**
  * Determine the transport type from the server configuration
  */
-function determineTransportType(config: McpServerConfig): "stdio" | "http" | "sse" | "websocket" {
+function determineTransportType(config: McpServerConfig): "stdio" | "http" | "sse" {
   // If type is explicitly specified, use it
   if (config.type) {
     return config.type;
@@ -104,10 +103,6 @@ function determineTransportType(config: McpServerConfig): "stdio" | "http" | "ss
 
   // If URL is provided, default to HTTP transport
   if (config.url) {
-    const url = new URL(config.url);
-    if (url.protocol === "ws:" || url.protocol === "wss:") {
-      return "websocket";
-    }
     // Default to streamable HTTP for HTTP URLs
     return "http";
   }
@@ -156,13 +151,6 @@ function createTransport(config: McpServerConfig, mcpEnv: Record<string, string>
         throw new Error("SSE transport requires url");
       }
       return new SSEClientTransport(new URL(config.url));
-    }
-
-    case "websocket": {
-      if (!config.url) {
-        throw new Error("WebSocket transport requires url");
-      }
-      return new WebSocketClientTransport(new URL(config.url));
     }
 
     default:

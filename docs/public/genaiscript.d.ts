@@ -4482,7 +4482,7 @@
    */
   args?: string[];
   /**
-   * The URL to connect to for HTTP/WebSocket/SSE transports.
+   * The URL to connect to for HTTP/SSE transports.
    * When provided, command and args are ignored.
    */
   url?: string;
@@ -4491,9 +4491,8 @@
    * - "stdio": Use StdioClientTransport (requires command and args)
    * - "http": Use StreamableHTTPClientTransport (requires url)
    * - "sse": Use SSEClientTransport (requires url)
-   * - "websocket": Use WebSocketClientTransport (requires url)
    */
-  type?: "stdio" | "http" | "sse" | "websocket";
+  type?: "stdio" | "http" | "sse";
   /**
    * The server version
    */
