@@ -433,8 +433,8 @@ export class GenerationStats {
    * // Returns:
    * // <details>
    * // <summary>💰 Usage Report 450t 3000ms</summary>
-   * // |Model|Label|Prompt Tokens|Completion Tokens|Total Tokens|Cost|Duration|
-   * // |-----|-----|-------------|-----------------|------------|----| -------|
+   * // |Model|Label|↑|↓|⇅|Cost|Duration|
+   * // |-----|-----|--|--|--|----| -------|
    * // |openai:gpt-4|main|100t|50t|150t|0.60¢|1000ms|
    * // |openai:gpt-3.5-turbo|helper|200t|100t|300t|0.30¢|2000ms|
    * // </details>
@@ -458,9 +458,9 @@ export class GenerationStats {
     const usageData: Array<{
       Model: string;
       Label: string;
-      [`${CHAR_UP_ARROW}Prompt Tokens`]: string;
-      [`${CHAR_DOWN_ARROW}Completion Tokens`]: string;
-      [`${CHAR_UP_DOWN_ARROWS}Total Tokens`]: string;
+      [`${CHAR_UP_ARROW}`]: string;
+      [`${CHAR_DOWN_ARROW}`]: string;
+      [`${CHAR_UP_DOWN_ARROWS}`]: string;
       Cost: string;
       Duration: string;
     }> = [];
@@ -478,9 +478,9 @@ export class GenerationStats {
       usageData.push({
         Model: this.resolvedModel,
         Label: this.label || "-",
-        [`${CHAR_UP_ARROW}Prompt Tokens`]: prettyTokens(this.usage.prompt_tokens) || "0t",
-        [`${CHAR_DOWN_ARROW}Completion Tokens`]: prettyTokens(this.usage.completion_tokens) || "0t", 
-        [`${CHAR_UP_DOWN_ARROWS}Total Tokens`]: prettyTokens(this.usage.total_tokens) || "0t",
+        [`${CHAR_UP_ARROW}`]: prettyTokens(this.usage.prompt_tokens) || "0t",
+        [`${CHAR_DOWN_ARROW}`]: prettyTokens(this.usage.completion_tokens) || "0t", 
+        [`${CHAR_UP_DOWN_ARROWS}`]: prettyTokens(this.usage.total_tokens) || "0t",
         Cost: prettyCost(parentCost) || "-",
         Duration: prettyDuration(this.usage.duration) || "-",
       });
@@ -497,9 +497,9 @@ export class GenerationStats {
       usageData.push({
         Model: child.resolvedModel,
         Label: child.label || "-",
-        [`${CHAR_UP_ARROW}Prompt Tokens`]: prettyTokens(childUsage.prompt_tokens) || "0t",
-        [`${CHAR_DOWN_ARROW}Completion Tokens`]: prettyTokens(childUsage.completion_tokens) || "0t",
-        [`${CHAR_UP_DOWN_ARROWS}Total Tokens`]: prettyTokens(childUsage.total_tokens) || "0t", 
+        [`${CHAR_UP_ARROW}`]: prettyTokens(childUsage.prompt_tokens) || "0t",
+        [`${CHAR_DOWN_ARROW}`]: prettyTokens(childUsage.completion_tokens) || "0t",
+        [`${CHAR_UP_DOWN_ARROWS}`]: prettyTokens(childUsage.total_tokens) || "0t", 
         Cost: prettyCost(childCost) || "-",
         Duration: prettyDuration(childUsage.duration) || "-",
       });
@@ -510,9 +510,9 @@ export class GenerationStats {
       usageData.push({
         Model: this.model,
         Label: this.label || "-",
-        [`${CHAR_UP_ARROW}Prompt Tokens`]: "0t",
-        [`${CHAR_DOWN_ARROW}Completion Tokens`]: "0t",
-        [`${CHAR_UP_DOWN_ARROWS}Total Tokens`]: "0t",
+        [`${CHAR_UP_ARROW}`]: "0t",
+        [`${CHAR_DOWN_ARROW}`]: "0t",
+        [`${CHAR_UP_DOWN_ARROWS}`]: "0t",
         Cost: "-",
         Duration: "-",
       });
