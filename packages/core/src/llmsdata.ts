@@ -23,6 +23,7 @@ export interface LanguageModelProviderInformation {
   metadata?: boolean;
   limitations?: string;
   responseType?: "json" | "json_object" | "json_schema";
+  openaiapitype?: "chat" | "responses";
   reasoningEfforts?: Record<string, number>;
   aliases?: Record<string, string>;
   latestTag?: boolean;
@@ -66,6 +67,7 @@ export default {
       listModels: true,
       imageGeneration: true,
       responseType: "json_schema",
+      openaiapitype: "responses",
       metadata: true,
       aliases: {
         large: "gpt-4.1",

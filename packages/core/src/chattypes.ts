@@ -194,3 +194,9 @@ export interface ChatCompletionsOptions extends RetryOptions {
   cache?: boolean | string; // Cache setting or cache name
   inner: boolean; // Indicates if the option is for inner processing
 }
+
+// OpenAI Responses API types
+export type OpenAIResponse = OpenAI.Responses.Response;
+export type OpenAIResponseCreateParams = OpenAI.Responses.ResponseCreateParams;
+export type OpenAIResponseCreateParamsNonStreaming = OpenAI.Responses.ResponseCreateParamsNonStreaming;
+export type OpenAIResponseCreateParamsStreaming = OpenAI.Responses.ResponseCreateParamsStreaming;
