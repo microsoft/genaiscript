@@ -30,7 +30,8 @@ export async function worker() {
     await NodeHost.install(undefined) // Install NodeHost with environment options
     if (process.platform === "win32") {
         // https://github.com/Azure/azure-sdk-for-js/issues/32374
-        process.env.SystemRoot = process.env.SYSTEMROOT
+        // Ensure SystemRoot is set to prevent buffer overflow issues
+        process.env.SystemRoot = process.env.SYSTEMROOT || process.env.SystemRoot || "C:\\Windows"
     }
 
     runtimeHost.resources.addEventListener(RESOURCE_CHANGE, (ev) => {
