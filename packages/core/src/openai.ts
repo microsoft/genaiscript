@@ -209,9 +209,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
     cfg.type === MODEL_PROVIDER_HUGGINGFACE
   ) {
     if (cfg.type === "openai_responses") {
-      // OpenAI Responses API - might use a different endpoint or additional headers
+      // OpenAI Responses API mode - allows configuration via OPENAI_API_TYPE=openai_responses
+      // or by setting OPENAI_DEFAULT_RESPONSES_API=true to default the OpenAI provider
+      // For now, using the same endpoint but could be changed to /responses or similar
       url = trimTrailingSlash(cfg.base) + "/chat/completions";
       // Add any specific headers or modifications for responses API
+      // TODO: Update endpoint when OpenAI Responses API specification is available
       dbg(`using OpenAI Responses API mode`);
     } else {
       url = trimTrailingSlash(cfg.base) + "/chat/completions";
