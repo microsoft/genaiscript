@@ -43,8 +43,8 @@
         "publish": false
     },
     "activationEvents": [
-        "workspaceContains:*.genai.{js,mjs,mts}",
-        "workspaceContains:**/*.genai.{js,mjs,mts}",
+        "workspaceContains:*.genai.{js,mjs,mts,md}",
+        "workspaceContains:**/*.genai.{js,mjs,mts,md}",
         "onNotebook:genaiscript"
     ],
     "main": "dist/extension.js",
@@ -55,8 +55,29 @@
         "url": "https://github.com/microsoft/genaiscript"
     },
     "contributes": {
+        "languages": [
+            {
+                "id": "genaiscript-markdown",
+                "aliases": [
+                    "GenAIScript Markdown",
+                    "genaiscript-markdown"
+                ],
+                "extensions": [
+                    ".genai.md"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "genaiscript-markdown",
+                "scopeName": "source.genaiscript-markdown",
+                "path": "./syntaxes/genaiscript-markdown.tmLanguage.json"
+            }
+        ],
         "files.associations": {
-            "*.genai.nb.md": "genaiscript"
+            "*.genai.nb.md": "genaiscript",
+            "*.genai.md": "genaiscript-markdown"
         },
         "chatParticipants": [
             {
