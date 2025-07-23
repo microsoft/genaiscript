@@ -27,6 +27,8 @@ import {
 import { prettyCost, prettyTokensPerSecond, prettyDuration, prettyTokens } from "./pretty.js";
 import { genaiscriptDebug } from "./debug.js";
 import { ImageGenerationUsage } from "./chat.js";
+import { details } from "./mkmd.js";
+import { dataToMarkdownTable } from "./csv.js";
 const dbg = genaiscriptDebug("usage");
 
 /**
@@ -403,5 +405,89 @@ export class GenerationStats {
       cached,
     };
     this.chatTurns.push(chatTurn);
+  }
+
+  /**
+   * Generates a compact markdown report suitable for GitHub comments.
+   * 
+   * @returns A markdown string with a details section containing aggregate results 
+   *          as summary and a table with individual LLM call usage, tokens, and costs.
+   */
+  toGitHubReport(): string {
+    const accumulated = this.accumulatedUsage();
+    const totalCost = this.cost();
+    
+    // Create summary with aggregate statistics
+    const summaryParts = [
+      `💰 Usage Report`,
+      prettyTokens(accumulated.total_tokens) || "0t",
+      prettyCost(totalCost),
+      prettyDuration(accumulated.duration),
+    ].filter(part => !!part);
+    
+    const summary = summaryParts.join(" ");
+    
+    // Collect all usage data (parent + children)
+    const usageData: Array<{
+      Model: string;
+      Label: string;
+      "Prompt Tokens": string;
+      "Completion Tokens": string;
+      "Total Tokens": string;
+      Cost: string;
+      Duration: string;
+    }> = [];
+    
+    // Add parent stats if it has usage
+    if (this.usage.total_tokens > 0) {
+      const parentCost = this.chatTurns
+        .filter(turn => !turn.cached)
+        .map(turn => estimateCost(turn.model, turn.usage) ?? estimateCost(this.model, turn.usage))
+        .reduce((a, b) => (a ?? 0) + (b ?? 0), 0);
+        
+      usageData.push({
+        Model: this.resolvedModel,
+        Label: this.label || "-",
+        "Prompt Tokens": prettyTokens(this.usage.prompt_tokens) || "0t",
+        "Completion Tokens": prettyTokens(this.usage.completion_tokens) || "0t", 
+        "Total Tokens": prettyTokens(this.usage.total_tokens) || "0t",
+        Cost: prettyCost(parentCost) || "-",
+        Duration: prettyDuration(this.usage.duration) || "-",
+      });
+    }
+    
+    // Add children stats
+    for (const child of this.children) {
+      const childCost = child.cost();
+      const childUsage = child.accumulatedUsage();
+      
+      usageData.push({
+        Model: child.resolvedModel,
+        Label: child.label || "-",
+        "Prompt Tokens": prettyTokens(childUsage.prompt_tokens) || "0t",
+        "Completion Tokens": prettyTokens(childUsage.completion_tokens) || "0t",
+        "Total Tokens": prettyTokens(childUsage.total_tokens) || "0t", 
+        Cost: prettyCost(childCost) || "-",
+        Duration: prettyDuration(childUsage.duration) || "-",
+      });
+    }
+    
+    // If no usage data, add a placeholder row
+    if (usageData.length === 0) {
+      usageData.push({
+        Model: this.model,
+        Label: this.label || "-",
+        "Prompt Tokens": "0t",
+        "Completion Tokens": "0t",
+        "Total Tokens": "0t",
+        Cost: "-",
+        Duration: "-",
+      });
+    }
+    
+    // Generate markdown table
+    const table = dataToMarkdownTable(usageData);
+    
+    return details(summary, table);
   }
 }
