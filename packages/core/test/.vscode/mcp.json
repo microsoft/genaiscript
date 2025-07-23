@@ -1,0 +1,22 @@
+{
+  "servers": {
+    "test-memory-server": {
+      "type": "stdio", 
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "env": {
+        "MCP_LOG_LEVEL": "info"
+      }
+    },
+    "filesystem-server": {
+      "type": "stdio",
+      "command": "npx", 
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+    },
+    "genaiscript-server": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "genaiscript", "mcp", "--cwd", "${workspaceFolder}"]
+    }
+  }
+}

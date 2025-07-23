@@ -2707,7 +2707,7 @@ export default function (ctx: ChatGenerationContext) {
 
 Loads tools from Model Context Protocol server
 
-This system script should be configured with a MCP server configuration.
+This system script can be configured with a MCP server configuration or reference a server by ID from mcp.json files.
 
 
 
@@ -2715,17 +2715,17 @@ This system script should be configured with a MCP server configuration.
 system({
     title: "Loads tools from Model Context Protocol server",
     description:
-        "This system script should be configured with a MCP server configuration.",
+        "This system script can be configured with a MCP server configuration or reference a server by ID from mcp.json files.",
     parameters: {
         id: {
             type: "string",
-            description: "The unique identifier for the MCP server.",
+            description: "The unique identifier for the MCP server. If only this is provided, the server configuration will be resolved from mcp.json files.",
             required: true,
         },
         command: {
             type: "string",
-            description: "The command to run the MCP server.",
-            required: true,
+            description: "The command to run the MCP server. If not provided, the configuration will be resolved from mcp.json files using the server ID.",
+            required: false,
         },
         args: {
             type: "array",
@@ -2785,18 +2785,45 @@ export default function (ctx: ChatGenerationContext) {
     ] as ContentSafetyOptions["detectPromptInjection"]
     const intent = vars["system.mcp.intent"]
     const _env = vars["system.mcp.env"] as Record<string, string> | undefined
+    
     if (!id) throw new Error("Missing required parameter: id")
-    if (!command) throw new Error("Missing required parameter: command")
+
+    let resolvedCommand = command
+    let resolvedArgs = args
+    let resolvedEnv = _env
+
+    // If command is not provided, try to resolve from mcp.json files
+    if (!command) {
+        dbg(`resolving server configuration for id: ${id}`)
+        const { resolveMcpServerById, listAvailableMcpServers } = await import("../src/mcpresolver.js")
+        
+        const resolved = resolveMcpServerById(id)
+        if (!resolved) {
+            const available = listAvailableMcpServers()
+            const availableText = available.length > 0 
+                ? `Available servers: ${available.join(", ")}`
+                : "No servers found in mcp.json files"
+            throw new Error(`MCP server "${id}" not found in mcp.json files. ${availableText}`)
+        }
+        
+        resolvedCommand = resolved.command
+        resolvedArgs = resolved.args || []
+        resolvedEnv = { ...resolved.env, ..._env } // Allow override from vars
+        
+        dbg(`resolved server "${id}": command=${resolvedCommand}, args=${JSON.stringify(resolvedArgs)}`)
+    }
+
+    if (!resolvedCommand) throw new Error(`Missing command for MCP server "${id}"`)
 
     const config = {
-        command,
-        args,
+        command: resolvedCommand,
+        args: resolvedArgs,
         version,
         toolsSha,
         contentSafety,
         detectPromptInjection,
         intent,
-        env: _env,
+        env: resolvedEnv,
     } satisfies Omit<McpServerConfig, "id">
     const toolOptions = {
         maxTokens,
