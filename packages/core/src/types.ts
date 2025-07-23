@@ -3004,18 +3004,6 @@ export interface GitWorktree {
    * Whether the worktree is detached (not on a branch)
    */
   detached?: boolean;
-  /**
-   * Whether the worktree is locked
-   */
-  locked?: boolean;
-  /**
-   * Reason for locking the worktree
-   */
-  lockReason?: string;
-  /**
-   * Whether the worktree is prunable
-   */
-  prunable?: boolean;
 }
 
 export interface GitWorktreeAddOptions {
@@ -3031,14 +3019,6 @@ export interface GitWorktreeAddOptions {
    * Checkout the branch into the worktree
    */
   checkout?: boolean;
-  /**
-   * Lock the worktree after creation
-   */
-  lock?: boolean;
-  /**
-   * Reason for locking the worktree
-   */
-  lockReason?: string;
   /**
    * Create an orphan branch
    */
@@ -3235,42 +3215,6 @@ export interface Git {
       force?: boolean;
     },
   ): Promise<void>;
-
-  /**
-   * Move a git worktree to a new location
-   * @param worktree current path of the worktree
-   * @param newPath new path for the worktree
-   */
-  moveWorktree(worktree: string, newPath: string): Promise<void>;
-
-  /**
-   * Lock a git worktree
-   * @param path path to the worktree to lock
-   * @param reason optional reason for locking
-   */
-  lockWorktree(path: string, reason?: string): Promise<void>;
-
-  /**
-   * Unlock a git worktree
-   * @param path path to the worktree to unlock
-   */
-  unlockWorktree(path: string): Promise<void>;
-
-  /**
-   * Prune worktree information
-   * @param options pruning options
-   */
-  pruneWorktrees(options?: {
-    dryRun?: boolean;
-    verbose?: boolean;
-    expire?: string;
-  }): Promise<string>;
-
-  /**
-   * Repair worktree administrative files
-   * @param paths optional paths to repair, repairs all if not provided
-   */
-  repairWorktrees(paths?: string[]): Promise<void>;
 }
 
 /**

@@ -107,43 +107,4 @@ describe("git worktree", () => {
       console.warn("Branch creation test skipped:", error.message);
     }
   });
-
-  test("should handle worktree locking", async () => {
-    const mainBranch = "refs/heads/copilot/fix-b6156011-731d-47e4-8aaf-d0eff9d9594a";
-    
-    // Add worktree
-    const worktree = await gitClient.addWorktree(worktreePath, mainBranch);
-    
-    // Lock worktree
-    const lockReason = "Testing lock functionality";
-    await gitClient.lockWorktree(worktreePath, lockReason);
-    
-    // Verify it's locked
-    const worktrees = await gitClient.listWorktrees();
-    const lockedWorktree = worktrees.find(w => w.path === worktreePath);
-    expect(lockedWorktree?.locked).toBe(true);
-    expect(lockedWorktree?.lockReason).toBe(lockReason);
-    
-    // Unlock worktree
-    await gitClient.unlockWorktree(worktreePath);
-    
-    // Verify it's unlocked
-    const worktreesAfter = await gitClient.listWorktrees();
-    const unlockedWorktree = worktreesAfter.find(w => w.path === worktreePath);
-    expect(unlockedWorktree?.locked).toBeFalsy();
-    
-    // Clean up
-    await gitClient.removeWorktree(worktreePath, { force: true });
-  });
-
-  test("should prune worktrees", async () => {
-    // Test dry run
-    const pruneResult = await gitClient.pruneWorktrees({ dryRun: true });
-    expect(typeof pruneResult).toBe("string");
-  });
-
-  test("should repair worktrees", async () => {
-    // This mainly tests that the command doesn't throw
-    await expect(gitClient.repairWorktrees()).resolves.not.toThrow();
-  });
 });

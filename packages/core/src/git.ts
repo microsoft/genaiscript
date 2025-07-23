@@ -340,12 +340,6 @@ export class GitClient implements Git {
         current.bare = true;
       } else if (line === "detached") {
         current.detached = true;
-      } else if (line.startsWith("locked")) {
-        current.locked = true;
-        const reasonMatch = line.match(/locked (.+)/);
-        if (reasonMatch) current.lockReason = reasonMatch[1];
-      } else if (line === "prunable") {
-        current.prunable = true;
       } else if (line === "") {
         // Empty line indicates end of worktree entry
         if (current.path) {
@@ -374,8 +368,6 @@ export class GitClient implements Git {
     if (options?.force) args.push("-f");
     if (options?.detach) args.push("--detach");
     if (!options?.checkout) args.push("--no-checkout");
-    if (options?.lock) args.push("--lock");
-    if (options?.lockReason) args.push("--reason", options.lockReason);
     if (options?.orphan) args.push("--orphan");
     
     if (options?.branch) {
@@ -407,46 +399,6 @@ export class GitClient implements Git {
     if (options?.force) args.push("-f");
     args.push(path);
 
-    await this.exec(args);
-  }
-
-  async moveWorktree(worktree: string, newPath: string): Promise<void> {
-    dbg(`moving worktree from ${worktree} to ${newPath}`);
-    await this.exec(["worktree", "move", worktree, newPath]);
-  }
-
-  async lockWorktree(path: string, reason?: string): Promise<void> {
-    dbg(`locking worktree at ${path}`);
-    const args = ["worktree", "lock"];
-    if (reason) args.push("--reason", reason);
-    args.push(path);
-    await this.exec(args);
-  }
-
-  async unlockWorktree(path: string): Promise<void> {
-    dbg(`unlocking worktree at ${path}`);
-    await this.exec(["worktree", "unlock", path]);
-  }
-
-  async pruneWorktrees(options?: {
-    dryRun?: boolean;
-    verbose?: boolean;
-    expire?: string;
-  }): Promise<string> {
-    dbg(`pruning worktrees`);
-    const args = ["worktree", "prune"];
-    
-    if (options?.dryRun) args.push("-n");
-    if (options?.verbose) args.push("-v");
-    if (options?.expire) args.push("--expire", options.expire);
-
-    return await this.exec(args);
-  }
-
-  async repairWorktrees(paths?: string[]): Promise<void> {
-    dbg(`repairing worktrees`);
-    const args = ["worktree", "repair"];
-    if (paths?.length) args.push(...paths);
     await this.exec(args);
   }
 
