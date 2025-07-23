@@ -166,4 +166,42 @@ Some text.`;
     expect(result.jsSource).toContain("<video src=");
     expect(result.jsSource).toContain("<div>Some content</div>");
   });
+
+  test("handles audio tags with various quote styles", async () => {
+    const text = `# Test
+
+<audio src='./test1.mp3' />
+
+<audio src="./test2.mp3" />
+
+<audio src = "./test3.mp3" />`;
+    
+    const result = await markdownScriptParse(text);
+    
+    expect(result.jsSource).toContain('defAudio("./test1.mp3")');
+    expect(result.jsSource).toContain('defAudio("./test2.mp3")');
+    expect(result.jsSource).toContain('defAudio("./test3.mp3")');
+  });
+
+  test("handles audio tags with additional attributes", async () => {
+    const text = `<audio src="./test.mp3" controls autoplay />`;
+    
+    const result = await markdownScriptParse(text);
+    
+    expect(result.jsSource).toContain('defAudio("./test.mp3")');
+    expect(result.jsSource).toContain("// audio ./test.mp3");
+  });
+
+  test("handles case-insensitive audio tags", async () => {
+    const text = `# Test
+
+<Audio src="./test1.mp3" />
+
+<AUDIO SRC="./test2.mp3" />`;
+    
+    const result = await markdownScriptParse(text);
+    
+    expect(result.jsSource).toContain('defAudio("./test1.mp3")');
+    expect(result.jsSource).toContain('defAudio("./test2.mp3")');
+  });
 });

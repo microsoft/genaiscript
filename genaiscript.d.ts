@@ -4451,6 +4451,7 @@
     options?: DefOptions,
   ): string;
   defImages(files: ElementOrArray<BufferLike>, options?: DefImagesOptions): void;
+  defAudio(files: ElementOrArray<string | WorkspaceFile>, options?: { ignoreEmpty?: boolean }): void;
   defData(name: string, data: Awaitable<object[] | object>, options?: DefDataOptions): string;
   defDiff<T extends string | WorkspaceFile>(
     name: string,
@@ -5706,6 +5707,13 @@ declare function defSchema(
  * @param options
  */
 declare function defImages(files: ElementOrArray<BufferLike>, options?: DefImagesOptions): void;
+
+/**
+ * Adds audio files to the prompt (transcribed to text)
+ * @param files
+ * @param options
+ */
+declare function defAudio(files: ElementOrArray<string | WorkspaceFile>, options?: { ignoreEmpty?: boolean }): void;
 
 /**
  * Renders a table or object in the prompt
