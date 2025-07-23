@@ -25,8 +25,10 @@ import type {
   Git,
   GitCommit,
   GitLogOptions,
+  GitWorktree,
+  GitWorktreeAddOptions,
   OptionsOrString,
-  ShellOptions,
+  ShellOptions,  
   WorkspaceFile,
 } from "./types.js";
 
@@ -315,7 +317,7 @@ export class GitClient implements Git {
     return res.split("\n")[0];
   }
 
-  async listWorktrees(): Promise<import("./types.js").GitWorktree[]> {
+  async listWorktrees(): Promise<GitWorktree[]> {
     dbg(`listing worktrees`);
     const res = await this.exec(["worktree", "list", "--porcelain"], {
       valueOnError: "",
@@ -323,9 +325,9 @@ export class GitClient implements Git {
     
     if (!res.trim()) return [];
 
-    const worktrees: import("./types.js").GitWorktree[] = [];
+    const worktrees: GitWorktree[] = [];
     const lines = res.trim().split("\n");
-    let current: Partial<import("./types.js").GitWorktree> = {};
+    let current: Partial<GitWorktree> = {};
 
     for (const line of lines) {
       if (line.startsWith("worktree ")) {
@@ -347,7 +349,7 @@ export class GitClient implements Git {
       } else if (line === "") {
         // Empty line indicates end of worktree entry
         if (current.path) {
-          worktrees.push(current as import("./types.js").GitWorktree);
+          worktrees.push(current as GitWorktree);
           current = {};
         }
       }
@@ -355,7 +357,7 @@ export class GitClient implements Git {
 
     // Handle last entry if no trailing empty line
     if (current.path) {
-      worktrees.push(current as import("./types.js").GitWorktree);
+      worktrees.push(current as GitWorktree);
     }
 
     return worktrees;
@@ -364,8 +366,8 @@ export class GitClient implements Git {
   async addWorktree(
     path: string,
     commitish?: string,
-    options?: import("./types.js").GitWorktreeAddOptions,
-  ): Promise<import("./types.js").GitWorktree> {
+    options?: GitWorktreeAddOptions,
+  ): Promise<GitWorktree> {
     dbg(`adding worktree at ${path}`);
     const args = ["worktree", "add"];
     
