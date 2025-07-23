@@ -23,6 +23,7 @@ import {
   TOOL_NAME,
   TOOL_URL,
 } from "./constants.js";
+import OpenAI from "openai";
 import { approximateTokens } from "./tokens.js";
 import type {
   ChatCompletionHandler,
@@ -86,6 +87,60 @@ import { createUTF8Decoder } from "./utf8.js";
 const dbg = genaiscriptDebug("openai");
 const dbgMessages = dbg.extend("msg");
 dbgMessages.enabled = false;
+
+/**
+ * Creates an OpenAI client instance based on the provided configuration.
+ *
+ * @param cfg - The configuration object containing details for API access.
+ * @param modelId - The model identifier to parse for Azure deployments.
+ * @returns An OpenAI client instance configured for the specified provider.
+ */
+function createOpenAIClient(cfg: LanguageModelConfiguration, modelId?: string): OpenAI {
+  const { token, type, base, provider, model } = cfg;
+  let apiKey = token;
+  let baseURL = base;
+
+  // Handle different authentication formats
+  if (type === "azure_serverless_models") {
+    const keys = INITryParse(token);
+    if (keys && Object.keys(keys).length > 1) apiKey = keys[model];
+  }
+  
+  const features = providerFeatures(provider);
+  const useBearer = features?.bearerToken !== false;
+  const isBearer = /^Bearer /i.test(token);
+  
+  // Handle Azure OpenAI specific configuration
+  if (cfg.type === MODEL_PROVIDER_AZURE_OPENAI) {
+    const { family } = parseModelIdentifier(modelId || model);
+    const version = cfg.version || AZURE_OPENAI_API_VERSION;
+    return new OpenAI({
+      apiKey: token,
+      baseURL: `${trimTrailingSlash(baseURL)}/${family}`,
+      defaultQuery: { 'api-version': version },
+      defaultHeaders: {
+        'api-key': token,
+        'User-Agent': TOOL_ID,
+      },
+    });
+  }
+
+  // Standard OpenAI or compatible API configuration
+  if (!isBearer && (useBearer || base === OPENROUTER_API_CHAT_URL)) {
+    // Add Bearer prefix if needed
+    if (!apiKey.startsWith('Bearer ')) {
+      apiKey = `Bearer ${apiKey}`;
+    }
+  }
+
+  return new OpenAI({
+    apiKey: apiKey.replace(/^Bearer\s+/i, ''), // Remove Bearer prefix for SDK
+    baseURL: baseURL,
+    defaultHeaders: {
+      'User-Agent': TOOL_ID,
+    },
+  });
+}
 
 /**
  * Generates configuration headers for API requests based on the provided configuration object.
@@ -543,7 +598,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
 };
 
 /**
- * OpenAI Responses API completion handler
+ * OpenAI Responses API completion handler using the official OpenAI SDK
  * Uses the newer /responses endpoint for structured outputs and better tool support
  */
 export const OpenAIResponsesCompletion: ChatCompletionHandler = async (
@@ -562,10 +617,23 @@ export const OpenAIResponsesCompletion: ChatCompletionHandler = async (
     cancellationToken,
     inner,
   } = options;
-  const { headers = {}, ...rest } = requestOptions || {};
   const { provider, model, family, reasoningEffort } = parseModelIdentifier(req.model);
   const features = providerFeatures(provider);
   const { encode: encoder } = await resolveTokenEncoder(family);
+
+  // Check if provider supports responses API, fall back to chat completions if not
+  if (
+    !(cfg.type === MODEL_PROVIDER_OPENAI ||
+      cfg.type === "localai" ||
+      cfg.type === MODEL_PROVIDER_ALIBABA ||
+      cfg.type === MODEL_PROVIDER_HUGGINGFACE ||
+      cfg.type === MODEL_PROVIDER_AZURE_OPENAI)
+  ) {
+    dbg("responses API not supported for provider, falling back to chat completions");
+    return OpenAIChatCompletion(req, cfg, options, trace);
+  }
+
+  trace?.itemValue(`api`, "responses");
 
   // Convert chat completion request to responses API format
   const instructions = req.messages
@@ -603,154 +671,100 @@ export const OpenAIResponsesCompletion: ChatCompletionHandler = async (
     }
   });
 
-  trace?.itemValue(`api`, "responses");
-  
-  let url = "";
-  if (
-    cfg.type === MODEL_PROVIDER_OPENAI ||
-    cfg.type === "localai" ||
-    cfg.type === MODEL_PROVIDER_ALIBABA ||
-    cfg.type === MODEL_PROVIDER_HUGGINGFACE
-  ) {
-    url = trimTrailingSlash(cfg.base) + "/responses";
-  } else if (cfg.type === MODEL_PROVIDER_AZURE_OPENAI) {
-    delete (postReq as any).model;
-    const version = cfg.version || AZURE_OPENAI_API_VERSION;
-    trace?.itemValue(`version`, version);
-    url = trimTrailingSlash(cfg.base) + "/" + family + `/responses?api-version=${version}`;
-  } else {
-    // Fall back to chat completions for other providers
-    dbg("responses API not supported for provider, falling back to chat completions");
-    return OpenAIChatCompletion(req, cfg, options, trace);
-  }
-
-  trace?.itemValue(`url`, `[${url}](${url})`);
-  dbg(`responses api url: ${url}`);
-
-  const fetchRetry = await createFetch({
-    trace,
-    retries,
-    retryDelay,
-    maxDelay,
-    maxRetryAfter,
-    cancellationToken,
-  });
-
-  const fetchHeaders: HeadersInit = {
-    "Content-Type": "application/json",
-    ...getConfigHeaders(cfg),
-    ...(headers || {}),
-  };
-  
-  traceFetchPost(trace, url, fetchHeaders as any, postReq);
-  const body = JSON.stringify(postReq);
-  
-  let r: Response;
   try {
-    r = await fetchRetry(url, {
-      headers: fetchHeaders,
-      body,
-      method: "POST",
-      ...(rest || {}),
-    });
-  } catch (e) {
-    trace?.error(errorMessage(e), e);
-    throw e;
-  }
+    // Create OpenAI client
+    const client = createOpenAIClient(cfg, req.model);
+    
+    // Special handling for Azure OpenAI
+    if (cfg.type === MODEL_PROVIDER_AZURE_OPENAI) {
+      delete (postReq as any).model;
+      // For Azure, we need to set the deployment name in the URL which is handled by the client creation
+    }
 
-  trace?.itemValue(`status`, `${r.status} ${r.statusText}`);
-  dbg(`response: ${r.status} ${r.statusText}`);
-  
-  if (r.status !== 200) {
-    let responseBody: string;
-    try {
-      responseBody = await r.text();
-    } catch (e) {}
-    if (!responseBody) responseBody = "";
-    trace?.fence(responseBody, "json");
-    const errors = JSON5TryParse(responseBody, {}) as
-      | { error: any; message: string }
-      | { error: { message: string } }[]
-      | { error: { message: string } };
-    const error = Array.isArray(errors) ? errors[0]?.error : errors;
-    throw new RequestError(
-      r.status,
-      errorMessage(error) || r.statusText,
-      errors,
-      responseBody,
-      normalizeInt(r.headers.get("retry-after"))
-    );
-  }
+    dbg(`responses api request: %O`, postReq);
+    
+    // Make the responses API call using the OpenAI SDK
+    const openaiResponse = await client.responses.create(postReq);
+    
+    trace?.fence(JSON.stringify(openaiResponse, null, 2), "json");
 
-  const responseText = await r.text();
-  trace?.fence(responseText, "json");
-  
-  const openaiResponse = JSON5TryParse(responseText, undefined) as OpenAIResponse;
-  if (!openaiResponse) {
-    throw new Error("Failed to parse response");
-  }
+    // Convert OpenAI Response to ChatCompletionResponse
+    const toolCalls: ChatCompletionToolCall[] = [];
+    let chatResp = "";
+    let reasoningChatResp = "";
 
-  // Convert OpenAI Response to ChatCompletionResponse
-  const toolCalls: ChatCompletionToolCall[] = [];
-  let chatResp = "";
-  let reasoningChatResp = "";
-
-  // Extract text and tool calls from response output
-  if (openaiResponse.output) {
-    for (const item of openaiResponse.output) {
-      if (item.type === "message" && "content" in item) {
-        const content = Array.isArray(item.content) ? item.content : [item.content];
-        for (const contentItem of content) {
-          if (contentItem.type === "output_text") {
-            chatResp += (contentItem as any).output_text || "";
+    // Extract text and tool calls from response output
+    if (openaiResponse.output) {
+      for (const item of openaiResponse.output) {
+        if (item.type === "message" && "content" in item) {
+          const content = Array.isArray(item.content) ? item.content : [item.content];
+          for (const contentItem of content) {
+            if (contentItem.type === "output_text") {
+              chatResp += (contentItem as any).output_text || "";
+            }
           }
+        } else if (item.type === "function_call" && "function" in item) {
+          const func = (item as any).function;
+          toolCalls.push({
+            id: (item as any).id || `call_${Date.now()}`,
+            name: func?.name || "unknown",
+            arguments: JSON.stringify(func?.arguments || {}),
+          });
+        } else if (item.type === "reasoning" && "content" in item) {
+          reasoningChatResp += (item as any).content || "";
         }
-      } else if (item.type === "function_call" && "function" in item) {
-        const func = (item as any).function;
-        toolCalls.push({
-          id: (item as any).id || `call_${Date.now()}`,
-          name: func?.name || "unknown",
-          arguments: JSON.stringify(func?.arguments || {}),
-        });
-      } else if (item.type === "reasoning" && "content" in item) {
-        reasoningChatResp += (item as any).content || "";
       }
     }
+
+    // Use output_text as fallback if available
+    if (!chatResp && openaiResponse.output_text) {
+      chatResp = openaiResponse.output_text;
+    }
+
+    const usage: ChatCompletionUsage = {
+      prompt_tokens: 0, // Not provided in responses API
+      completion_tokens: 0, // Not provided in responses API  
+      total_tokens: approximateTokens(chatResp + reasoningChatResp, { encoder }),
+    };
+
+    const finishReason: ChatCompletionResponse["finishReason"] = 
+      openaiResponse.error ? "fail" : "stop";
+
+    const numTokens = usage?.total_tokens ?? approximateTokens(chatResp, { encoder });
+    partialCb?.(deleteUndefinedValues({
+      responseSoFar: chatResp,
+      reasoningSoFar: reasoningChatResp,
+      tokensSoFar: numTokens,
+      responseChunk: chatResp,
+      reasoningChunk: reasoningChatResp,
+      inner,
+    }));
+
+    return deleteUndefinedValues({
+      text: chatResp,
+      reasoning: reasoningChatResp,
+      toolCalls,
+      finishReason,
+      usage,
+      error: openaiResponse.error ? serializeError(new Error(JSON.stringify(openaiResponse.error))) : undefined,
+      model: openaiResponse.model,
+    }) satisfies ChatCompletionResponse;
+
+  } catch (error) {
+    trace?.error(errorMessage(error), error);
+    
+    // If responses API fails, try to fall back to chat completions
+    if (error instanceof Error && (
+      error.message.includes("not found") || 
+      error.message.includes("404") ||
+      error.message.includes("responses")
+    )) {
+      dbg("responses API failed, falling back to chat completions");
+      return OpenAIChatCompletion(req, cfg, options, trace);
+    }
+    
+    throw error;
   }
-
-  // Use output_text as fallback if available
-  if (!chatResp && openaiResponse.output_text) {
-    chatResp = openaiResponse.output_text;
-  }
-
-  const usage: ChatCompletionUsage = {
-    prompt_tokens: 0, // Not provided in responses API
-    completion_tokens: 0, // Not provided in responses API  
-    total_tokens: approximateTokens(chatResp + reasoningChatResp, { encoder }),
-  };
-
-  const finishReason: ChatCompletionResponse["finishReason"] = 
-    openaiResponse.error ? "fail" : "stop";
-
-  const numTokens = usage?.total_tokens ?? approximateTokens(chatResp, { encoder });
-  partialCb?.({
-    responseSoFar: chatResp,
-    reasoningSoFar: reasoningChatResp,
-    tokensSoFar: numTokens,
-    responseChunk: chatResp,
-    reasoningChunk: reasoningChatResp,
-    inner,
-  });
-
-  return deleteUndefinedValues({
-    text: chatResp,
-    reasoning: reasoningChatResp,
-    toolCalls,
-    finishReason,
-    usage,
-    error: openaiResponse.error ? serializeError(new Error(JSON.stringify(openaiResponse.error))) : undefined,
-    model: openaiResponse.model,
-  }) satisfies ChatCompletionResponse;
 };
 
 export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
