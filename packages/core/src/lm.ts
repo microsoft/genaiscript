@@ -70,5 +70,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
     transcribe: features?.transcribe,
     speech: features?.speech,
     imageGeneration: features?.imageGeneration,
+    imageVariation: features?.imageVariation,
+    imageEdit: features?.imageEdit,
   });
 }

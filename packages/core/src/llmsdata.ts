@@ -19,6 +19,8 @@ export interface LanguageModelProviderInformation {
   tokenless?: boolean;
   hidden?: boolean;
   imageGeneration?: boolean;
+  imageVariation?: boolean;
+  imageEdit?: boolean;
   singleModel?: boolean;
   metadata?: boolean;
   limitations?: string;
@@ -65,6 +67,8 @@ export default {
       speech: true,
       listModels: true,
       imageGeneration: true,
+      imageVariation: true,
+      imageEdit: true,
       responseType: "json_schema",
       metadata: true,
       aliases: {
@@ -113,6 +117,8 @@ export default {
       transcribe: true,
       speech: true,
       imageGeneration: true,
+      imageVariation: true,
+      imageEdit: true,
       aliases: {},
       metadata: true,
       models: {

@@ -11,6 +11,8 @@ import {
   OpenAIChatCompletion,
   OpenAIEmbedder,
   OpenAIImageGeneration,
+  OpenAIImageVariation,
+  OpenAIImageEdit,
   OpenAIListModels,
   OpenAISpeech,
   OpenAITranscribe,
@@ -125,5 +127,7 @@ export const AzureOpenAIModel = Object.freeze<LanguageModel>({
   transcriber: OpenAITranscribe,
   speaker: OpenAISpeech,
   imageGenerator: OpenAIImageGeneration,
+  imageVariation: OpenAIImageVariation,
+  imageEdit: OpenAIImageEdit,
   embedder: OpenAIEmbedder,
 });

@@ -4757,6 +4757,15 @@
     prompt: string,
     options?: ImageGenerationOptions,
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+  generateImageVariation(
+    image: string | WorkspaceFile,
+    options?: ImageGenerationOptions & { n?: number },
+  ): Promise<{ images: WorkspaceFile[] }>;
+  generateImageEdit(
+    image: string | WorkspaceFile,
+    prompt: string,
+    options?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+  ): Promise<{ images: WorkspaceFile[]; revisedPrompt?: string }>;
 }
 
  interface ChatGenerationContextOptions {
@@ -5407,6 +5416,8 @@
   | "prompt"
   | "runPrompt"
   | "generateImage"
+  | "generateImageVariation"
+  | "generateImageEdit"
   | "transcribe"
   | "speak"
 >;
@@ -5753,3 +5764,25 @@ declare function generateImage(
   prompt: string,
   options?: ImageGenerationOptions,
 ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+
+/**
+ * Generate image variations from an existing image.
+ * @param image
+ * @param options
+ */
+declare function generateImageVariation(
+  image: string | WorkspaceFile,
+  options?: ImageGenerationOptions & { n?: number },
+): Promise<{ images: WorkspaceFile[] }>;
+
+/**
+ * Edit an image with a text prompt and optional mask.
+ * @param image
+ * @param prompt
+ * @param options
+ */
+declare function generateImageEdit(
+  image: string | WorkspaceFile,
+  prompt: string,
+  options?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+): Promise<{ images: WorkspaceFile[]; revisedPrompt?: string }>;

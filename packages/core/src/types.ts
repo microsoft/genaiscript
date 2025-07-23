@@ -4757,6 +4757,15 @@ export interface ChatGenerationContext extends ChatTurnGenerationContext {
     prompt: string,
     options?: ImageGenerationOptions,
   ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+  generateImageVariation(
+    image: string | WorkspaceFile,
+    options?: ImageGenerationOptions & { n?: number },
+  ): Promise<{ images: WorkspaceFile[] }>;
+  generateImageEdit(
+    image: string | WorkspaceFile,
+    prompt: string,
+    options?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+  ): Promise<{ images: WorkspaceFile[]; revisedPrompt?: string }>;
 }
 
 export interface ChatGenerationContextOptions {
@@ -5407,6 +5416,8 @@ export type RuntimePromptContext = Pick<
   | "prompt"
   | "runPrompt"
   | "generateImage"
+  | "generateImageVariation"
+  | "generateImageEdit"
   | "transcribe"
   | "speak"
 >;

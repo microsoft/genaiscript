@@ -1211,6 +1211,8 @@ export function LocalOpenAICompatibleModel(
     transcribe?: boolean;
     speech?: boolean;
     imageGeneration?: boolean;
+    imageVariation?: boolean;
+    imageEdit?: boolean;
   },
 ) {
   return Object.freeze<LanguageModel>(
@@ -1221,6 +1223,8 @@ export function LocalOpenAICompatibleModel(
       transcriber: options?.transcribe ? OpenAITranscribe : undefined,
       speaker: options?.speech ? OpenAISpeech : undefined,
       imageGenerator: options?.imageGeneration ? OpenAIImageGeneration : undefined,
+      imageVariation: options?.imageVariation ? OpenAIImageVariation : undefined,
+      imageEdit: options?.imageEdit ? OpenAIImageEdit : undefined,
       embedder: OpenAIEmbedder,
     }),
   );

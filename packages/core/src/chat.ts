@@ -281,6 +281,8 @@ export interface LanguageModel {
   transcriber?: TranscribeFunction;
   speaker?: SpeechFunction;
   imageGenerator?: ImageGenerationFunction;
+  imageVariation?: ImageVariationFunction;
+  imageEdit?: ImageEditFunction;
   embedder?: EmbeddingFunction;
 }
 
