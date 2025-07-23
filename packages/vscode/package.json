@@ -265,7 +265,7 @@
                 },
                 {
                     "command": "genaiscript.fragment.debug",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts|md)$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
                     "group": "genaiscript@2"
                 },
                 {
