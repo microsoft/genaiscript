@@ -9,7 +9,7 @@
   },
   "repository": {
     "directory": "packages/core",
-    "url": "https://github.com/microsoft/genaiscript"
+    "url": "git+https://github.com/microsoft/genaiscript.git"
   },
   "optionalDependencies": {
     "@lvce-editor/ripgrep": "^1.6.0",
@@ -118,5 +118,12 @@
     "pyodide": "^0.27.6",
     "turndown": "^7.2.0",
     "turndown-plugin-gfm": "^1.0.2"
-  }
+  },
+  "keywords": [],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/microsoft/genaiscript/issues"
+  },
+  "homepage": "https://github.com/microsoft/genaiscript#readme",
+  "description": ""
 }
