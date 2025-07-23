@@ -4754,9 +4754,14 @@ export interface ChatGenerationContext extends ChatTurnGenerationContext {
   ): Promise<TranscriptionResult>;
   speak(text: string, options?: SpeechOptions): Promise<SpeechResult>;
   generateImage(
-    prompt: string,
-    options?: ImageGenerationOptions,
-  ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+    promptOrImage: string | WorkspaceFile,
+    promptOrOptions?: string | ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+    imageOptions?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+  ): Promise<{ 
+    image?: WorkspaceFile; 
+    images?: WorkspaceFile[]; 
+    revisedPrompt?: string 
+  }>;
   generateImageVariation(
     image: string | WorkspaceFile,
     options?: ImageGenerationOptions & { n?: number },

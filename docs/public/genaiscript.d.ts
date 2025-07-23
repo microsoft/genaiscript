@@ -4754,9 +4754,14 @@
   ): Promise<TranscriptionResult>;
   speak(text: string, options?: SpeechOptions): Promise<SpeechResult>;
   generateImage(
-    prompt: string,
-    options?: ImageGenerationOptions,
-  ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+    promptOrImage: string | WorkspaceFile,
+    promptOrOptions?: string | ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+    imageOptions?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+  ): Promise<{ 
+    image?: WorkspaceFile; 
+    images?: WorkspaceFile[]; 
+    revisedPrompt?: string 
+  }>;
   generateImageVariation(
     image: string | WorkspaceFile,
     options?: ImageGenerationOptions & { n?: number },
@@ -5760,10 +5765,27 @@ declare function speak(text: string, options?: SpeechOptions): Promise<SpeechRes
  * @param prompt
  * @param options
  */
+/**
+ * Generate an image from text, create variations of an existing image, or edit an image with text.
+ * 
+ * Usage modes:
+ * - Generate: generateImage("a cat") -> { image, revisedPrompt }
+ * - Variation: generateImage(imageFile) -> { images }  
+ * - Edit: generateImage(imageFile, "add sunglasses") -> { images, revisedPrompt }
+ * 
+ * @param promptOrImage Text prompt for generation, or image file for variation/edit
+ * @param promptOrOptions For generation: options object. For variation: options object. For edit: text prompt.
+ * @param imageOptions For edit mode: options object with mask and other parameters
+ */
 declare function generateImage(
-  prompt: string,
-  options?: ImageGenerationOptions,
-): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+  promptOrImage: string | WorkspaceFile,
+  promptOrOptions?: string | ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+  imageOptions?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+): Promise<{ 
+  image?: WorkspaceFile; 
+  images?: WorkspaceFile[]; 
+  revisedPrompt?: string 
+}>;
 
 /**
  * Generate image variations from an existing image.
