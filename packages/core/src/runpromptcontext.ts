@@ -1078,7 +1078,7 @@ export function createChatGenerationContext(
           const duration = m();
           if (res.error) {
             imgTrace?.error(errorMessage(res.error));
-            return {};
+            return { image: undefined, images: [], revisedPrompt: undefined };
           }
           dbg(`usage: %o`, res.usage);
           statsChild?.addImageGenerationUsage(res.usage, duration);
@@ -1120,6 +1120,11 @@ export function createChatGenerationContext(
               encoding: "base64",
               content: toBase64(res.image),
             } satisfies WorkspaceFile,
+            images: [{
+              filename,
+              encoding: "base64",
+              content: toBase64(res.image),
+            } satisfies WorkspaceFile],
             revisedPrompt: res.revisedPrompt,
           };
         } finally {
@@ -1186,7 +1191,7 @@ export function createChatGenerationContext(
           const duration = m();
           if (res.error) {
             imgTrace?.error(errorMessage(res.error));
-            return { images: [] };
+            return { image: undefined, images: [] };
           }
           dbg(`usage: %o`, res.usage);
           statsChild?.addImageGenerationUsage(res.usage, duration);
@@ -1213,7 +1218,10 @@ export function createChatGenerationContext(
             imgTrace?.image(filename, `variation ${i + 1}`);
           }
 
-          return { images: workspaceFiles };
+          return { 
+            image: workspaceFiles.length > 0 ? workspaceFiles[0] : undefined,
+            images: workspaceFiles 
+          };
         } finally {
           imgTrace?.endDetails();
         }
@@ -1229,9 +1237,6 @@ export function createChatGenerationContext(
         if (imageArray.length === 0) {
           throw new Error("at least one image is required for edit mode");
         }
-        
-        // Use the first image for editing (OpenAI API supports only one input image for edits)
-        const sourceImage = imageArray[0];
 
         const imgTrace = trace?.startTraceDetails("🖼️ generate image edit");
         try {
@@ -1258,9 +1263,13 @@ export function createChatGenerationContext(
           if (!imageEdit) throw new Error("image edit not supported for " + info.model);
           imgTrace?.itemValue(`model`, configuration.model);
           
-          // Convert input image to buffer
-          const imageData = typeof sourceImage === "string" ? await workspace.readText(sourceImage) : sourceImage;
-          const imageBuffer = Buffer.from(imageData.content || "", imageData.encoding === "base64" ? "base64" : "utf8");
+          // Convert input images to buffers
+          const imageBuffers: BufferLike[] = [];
+          for (const sourceImage of imageArray) {
+            const imageData = typeof sourceImage === "string" ? await workspace.readText(sourceImage) : sourceImage;
+            const imageBuffer = Buffer.from(imageData.content || "", imageData.encoding === "base64" ? "base64" : "utf8");
+            imageBuffers.push(imageBuffer);
+          }
 
           // Convert mask to buffer if provided
           let maskBuffer: BufferLike | undefined;
@@ -1271,7 +1280,7 @@ export function createChatGenerationContext(
 
           const req = deleteUndefinedValues({
             model: configuration.model,
-            image: imageBuffer,
+            image: imageBuffers.length === 1 ? imageBuffers[0] : imageBuffers, // Use single image or array
             mask: maskBuffer,
             prompt: dedent(prompt),
             n,
@@ -1288,7 +1297,7 @@ export function createChatGenerationContext(
           const duration = m();
           if (res.error) {
             imgTrace?.error(errorMessage(res.error));
-            return { images: [], revisedPrompt: undefined };
+            return { image: undefined, images: [], revisedPrompt: undefined };
           }
           dbg(`usage: %o`, res.usage);
           statsChild?.addImageGenerationUsage(res.usage, duration);
@@ -1317,6 +1326,7 @@ export function createChatGenerationContext(
 
           imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
           return { 
+            image: workspaceFiles.length > 0 ? workspaceFiles[0] : undefined,
             images: workspaceFiles,
             revisedPrompt: res.revisedPrompt,
           };

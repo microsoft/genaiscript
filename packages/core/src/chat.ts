@@ -198,7 +198,7 @@ export type CreateImageVariationRequest = {
 
 export type CreateImageEditRequest = {
   model: string;
-  image: BufferLike;
+  image: BufferLike | BufferLike[]; // Support multiple images for GPT-Image-1
   mask?: BufferLike;
   prompt: string;
   n?: number;

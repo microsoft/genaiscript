@@ -993,21 +993,35 @@ export async function OpenAIImageEdit(
   let url = `${cfg.base}/images/edits`;
 
   try {
-    // Resolve the image buffer
-    const imageBuffer = await resolveBufferLike(image);
-    if (!imageBuffer) {
-      return {
-        images: [],
-        error: { message: "Failed to resolve image buffer" },
-      };
+    // Handle multiple images (GPT-Image-1 supports up to 16 images)
+    const images = Array.isArray(image) ? image : [image];
+    const imageBuffers: Uint8Array[] = [];
+    
+    for (const img of images) {
+      const imageBuffer = await resolveBufferLike(img);
+      if (!imageBuffer) {
+        return {
+          images: [],
+          error: { message: "Failed to resolve image buffer" },
+        };
+      }
+      imageBuffers.push(imageBuffer);
     }
 
     // Create FormData for multipart request
     const body = new FormData();
     
-    // Create a Blob from the image buffer
-    const imageBlob = new Blob([imageBuffer], { type: "image/png" });
-    body.append("image", imageBlob, "image.png");
+    // Add all images to the form data
+    for (let i = 0; i < imageBuffers.length; i++) {
+      const imageBlob = new Blob([imageBuffers[i]], { type: "image/png" });
+      if (i === 0) {
+        // First image uses "image" field for compatibility
+        body.append("image", imageBlob, "image.png");
+      } else {
+        // Additional images use indexed field names for GPT-Image-1
+        body.append(`image_${i}`, imageBlob, `image_${i}.png`);
+      }
+    }
     
     // Add mask if provided
     if (mask) {
