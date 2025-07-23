@@ -10,6 +10,7 @@ import {
   MODEL_PROVIDER_GITHUB,
   MODEL_PROVIDER_LMSTUDIO,
   MODEL_PROVIDER_OLLAMA,
+  MODEL_PROVIDER_OPENAI,
   MODEL_PROVIDER_WHISPERASR,
   MODEL_PROVIDER_AZURE_OPENAI,
   MODEL_PROVIDER_ECHO,
@@ -19,7 +20,7 @@ import {
 } from "./constants.js";
 import { resolveRuntimeHost } from "./host.js";
 import { OllamaModel } from "./ollama.js";
-import { LocalOpenAICompatibleModel } from "./openai.js";
+import { LocalOpenAICompatibleModel, OpenAIResponsesAPIModel } from "./openai.js";
 import { GitHubModel } from "./github.js";
 import { LMStudioModel } from "./lmstudio.js";
 import { WhisperAsrModel } from "./whisperasr.js";
@@ -28,6 +29,16 @@ import { EchoModel } from "./echomodel.js";
 import { NoneModel } from "./nonemodel.js";
 import { AzureAIInferenceModel } from "./azureaiinference.js";
 import { providerFeatures } from "./features.js";
+
+/**
+ * OpenAI language model using the standard OpenAI API
+ */
+export const OpenAIModel = OpenAIResponsesAPIModel(MODEL_PROVIDER_OPENAI, {
+  listModels: true,
+  transcribe: true,
+  speech: true,
+  imageGeneration: true,
+});
 
 /**
  * Resolves and returns a language model based on the provided model provider identifier.
@@ -55,6 +66,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
   }
   if (provider === MODEL_PROVIDER_AZURE_OPENAI) return AzureOpenAIModel;
   if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE) return AzureAIInferenceModel;
+  if (provider === MODEL_PROVIDER_OPENAI) return OpenAIModel;
   if (provider === MODEL_PROVIDER_GITHUB) return GitHubModel;
   if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel;
   if (provider === MODEL_PROVIDER_ANTHROPIC) return AnthropicModel;

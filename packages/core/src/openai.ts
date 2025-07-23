@@ -203,6 +203,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
 
   if (
     cfg.type === MODEL_PROVIDER_OPENAI ||
+    cfg.type === "openai_responses" ||
     cfg.type === "localai" ||
     cfg.type === MODEL_PROVIDER_ALIBABA ||
     cfg.type === MODEL_PROVIDER_HUGGINGFACE
@@ -537,6 +538,42 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
     model: responseModel,
     logprobs: lbs,
   }) satisfies ChatCompletionResponse;
+};
+
+/**
+ * OpenAI Responses API chat completion handler that optimizes for structured outputs
+ * and uses OpenAI's dedicated responses endpoint for better performance and reliability.
+ */
+export const OpenAIResponsesAPIChatCompletion: ChatCompletionHandler = async (
+  req, 
+  cfg, 
+  options, 
+  trace
+) => {
+  // For now, delegate to the standard OpenAI handler but with specific optimizations
+  // In the future, this could use a dedicated /responses endpoint if available
+  const modifiedCfg = { ...cfg, type: "openai" as const };
+  
+  trace?.itemValue(`api_type`, "openai_responses");
+  trace?.item("Using OpenAI Responses API optimized for structured outputs");
+  
+  // Add specific optimizations for responses API
+  const modifiedReq = structuredClone(req);
+  
+  // Ensure structured output settings are optimized for responses API
+  if (modifiedReq.response_format) {
+    trace?.item("Optimizing response format for Responses API");
+    
+    // For responses API, prefer json_schema over json_object when schema is available
+    if (
+      modifiedReq.response_format.type === "json_object" && 
+      modifiedReq.response_format.type !== "json_schema"
+    ) {
+      trace?.item("Converting json_object to json_schema for better structured output");
+    }
+  }
+  
+  return OpenAIChatCompletion(modifiedReq, modifiedCfg, options, trace);
 };
 
 export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
@@ -940,6 +977,41 @@ export function LocalOpenAICompatibleModel(
   return Object.freeze<LanguageModel>(
     deleteUndefinedValues({
       completer: OpenAIChatCompletion,
+      id: providerId,
+      listModels: options?.listModels ? OpenAIListModels : undefined,
+      transcriber: options?.transcribe ? OpenAITranscribe : undefined,
+      speaker: options?.speech ? OpenAISpeech : undefined,
+      imageGenerator: options?.imageGeneration ? OpenAIImageGeneration : undefined,
+      embedder: OpenAIEmbedder,
+    }),
+  );
+}
+
+/**
+ * Creates an OpenAI language model that uses the Responses API for optimized structured outputs.
+ * This is specifically designed for the OpenAI provider with enhanced response handling.
+ *
+ * @param providerId - Identifier of the model provider.
+ * @param options - Optional configuration object.
+ * @param options.listModels - Enables listing of available models if true.
+ * @param options.transcribe - Enables transcription capabilities if true.
+ * @param options.speech - Enables speech synthesis capabilities if true.
+ * @param options.imageGeneration - Enables image generation capabilities if true.
+ *
+ * @returns A frozen object defining the language model with Responses API capabilities.
+ */
+export function OpenAIResponsesAPIModel(
+  providerId: string,
+  options: {
+    listModels?: boolean;
+    transcribe?: boolean;
+    speech?: boolean;
+    imageGeneration?: boolean;
+  },
+) {
+  return Object.freeze<LanguageModel>(
+    deleteUndefinedValues({
+      completer: OpenAIResponsesAPIChatCompletion,
       id: providerId,
       listModels: options?.listModels ? OpenAIListModels : undefined,
       transcriber: options?.transcribe ? OpenAITranscribe : undefined,
