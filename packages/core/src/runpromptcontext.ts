@@ -1022,140 +1022,132 @@ export function createChatGenerationContext(
   };
 
   const generateImage = async (
-    promptOrImage: string | WorkspaceFile,
-    promptOrOptions?: string | ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
-    imageOptions?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+    prompt: string,
+    options?: ImageGenerationOptions,
   ): Promise<{ 
     image?: WorkspaceFile; 
     images?: WorkspaceFile[]; 
     revisedPrompt?: string 
   }> => {
-    // Determine the mode based on parameters
-    const isImage = typeof promptOrImage === 'object' || 
-                   (typeof promptOrImage === 'string' && 
-                    (promptOrImage.includes('/') || promptOrImage.endsWith('.png') || 
-                     promptOrImage.endsWith('.jpg') || promptOrImage.endsWith('.jpeg') || 
-                     promptOrImage.endsWith('.webp')));
-    
-    // Mode 1: Generate from text prompt (original behavior)
-    if (!isImage && typeof promptOrOptions !== 'string') {
-      const prompt = promptOrImage as string;
-      const options = promptOrOptions as ImageGenerationOptions;
-      
-      if (!prompt) throw new Error("prompt is missing");
+    const mode = options?.mode || "generation";
+    const { images: inputImages, mask, n = 1, ...rest } = options || {};
 
-      const imgTrace = trace?.startTraceDetails("🖼️ generate image");
-      try {
-        const { style, quality, size, outputFormat, mime, ...rest } = options || {};
-        const conn: ModelConnectionOptions = {
-          model: options?.model || IMAGE_GENERATION_MODEL_ID,
-        };
-        const { info, configuration } = await resolveModelConnectionInfo(conn, {
-          trace: imgTrace,
-          defaultModel: IMAGE_GENERATION_MODEL_ID,
-          cancellationToken,
-          token: true,
-        });
-        if (info.error) throw new Error(info.error);
-        if (!configuration) throw new Error(`model configuration not found for ${conn.model}`);
-        const stats = options.stats.createChild(info.model, "generate image");
-        checkCancelled(cancellationToken);
-        const { ok } = await runtimeHost.pullModel(configuration, {
-          trace: imgTrace,
-          cancellationToken,
-        });
-        if (!ok) throw new Error(`failed to pull model '${conn}'`);
-        checkCancelled(cancellationToken);
-        const { imageGenerator } = await resolveLanguageModel(configuration.provider);
-        if (!imageGenerator) throw new Error("image generator not found for " + info.model);
-        imgTrace?.itemValue(`model`, configuration.model);
-        const req = deleteUndefinedValues({
-          model: configuration.model,
-          prompt: dedent(prompt),
-          size,
-          quality,
-          style,
-          outputFormat,
-        }) satisfies CreateImageRequest;
-        const m = measure("img.generate", `${req.model} -> image`);
-        const res = await imageGenerator(req, configuration, {
-          trace: imgTrace,
-          cancellationToken,
-          ...rest,
-        });
-        const duration = m();
-        if (res.error) {
-          imgTrace?.error(errorMessage(res.error));
-          return {};
+    switch (mode) {
+      case "generation": {
+        if (!prompt) throw new Error("prompt is missing");
+
+        const imgTrace = trace?.startTraceDetails("🖼️ generate image");
+        try {
+          const { style, quality, size, outputFormat, mime, stats, ...restOptions } = rest;
+          const conn: ModelConnectionOptions = {
+            model: options?.model || IMAGE_GENERATION_MODEL_ID,
+          };
+          const { info, configuration } = await resolveModelConnectionInfo(conn, {
+            trace: imgTrace,
+            defaultModel: IMAGE_GENERATION_MODEL_ID,
+            cancellationToken,
+            token: true,
+          });
+          if (info.error) throw new Error(info.error);
+          if (!configuration) throw new Error(`model configuration not found for ${conn.model}`);
+          const statsChild = stats?.createChild(info.model, "generate image");
+          checkCancelled(cancellationToken);
+          const { ok } = await runtimeHost.pullModel(configuration, {
+            trace: imgTrace,
+            cancellationToken,
+          });
+          if (!ok) throw new Error(`failed to pull model '${conn}'`);
+          checkCancelled(cancellationToken);
+          const { imageGenerator } = await resolveLanguageModel(configuration.provider);
+          if (!imageGenerator) throw new Error("image generator not found for " + info.model);
+          imgTrace?.itemValue(`model`, configuration.model);
+          const req = deleteUndefinedValues({
+            model: configuration.model,
+            prompt: dedent(prompt),
+            size,
+            quality,
+            style,
+            outputFormat,
+          }) satisfies CreateImageRequest;
+          const m = measure("img.generate", `${req.model} -> image`);
+          const res = await imageGenerator(req, configuration, {
+            trace: imgTrace,
+            cancellationToken,
+            ...restOptions,
+          });
+          const duration = m();
+          if (res.error) {
+            imgTrace?.error(errorMessage(res.error));
+            return {};
+          }
+          dbg(`usage: %o`, res.usage);
+          statsChild?.addImageGenerationUsage(res.usage, duration);
+
+          const h = await hash(res.image, { length: 20 });
+          const buf = await imageTransform(res.image, {
+            ...(options || {}),
+            mime:
+              mime ??
+              (outputFormat === "jpeg" || outputFormat === "webp"
+                ? `image/jpeg`
+                : outputFormat === "png"
+                  ? `image/png`
+                  : undefined),
+            cancellationToken,
+            trace: imgTrace,
+          });
+          const { ext } = (await fileTypeFromBuffer(buf)) || {};
+          const filename = dotGenaiscriptPath("image", h + "." + ext);
+          await runtimeHost.writeFile(filename, buf);
+
+          if (consoleColors) {
+            const size = terminalSize();
+            stderr.write(
+              await renderImageToTerminal(buf, {
+                ...size,
+                label: filename,
+                usage: res.usage,
+                modelId: info.model,
+              }),
+            );
+          } else logVerbose(`image: ${filename}`);
+
+          imgTrace?.image(filename, `generated image`);
+          imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
+          return {
+            image: {
+              filename,
+              encoding: "base64",
+              content: toBase64(res.image),
+            } satisfies WorkspaceFile,
+            revisedPrompt: res.revisedPrompt,
+          };
+        } finally {
+          imgTrace?.endDetails();
         }
-        dbg(`usage: %o`, res.usage);
-        stats.addImageGenerationUsage(res.usage, duration);
-
-        const h = await hash(res.image, { length: 20 });
-        const buf = await imageTransform(res.image, {
-          ...(options || {}),
-          mime:
-            mime ??
-            (outputFormat === "jpeg" || outputFormat === "webp"
-              ? `image/jpeg`
-              : outputFormat === "png"
-                ? `image/png`
-                : undefined),
-          cancellationToken,
-          trace: imgTrace,
-        });
-        const { ext } = (await fileTypeFromBuffer(buf)) || {};
-        const filename = dotGenaiscriptPath("image", h + "." + ext);
-        await runtimeHost.writeFile(filename, buf);
-
-        if (consoleColors) {
-          const size = terminalSize();
-          stderr.write(
-            await renderImageToTerminal(buf, {
-              ...size,
-              label: filename,
-              usage: res.usage,
-              modelId: info.model,
-            }),
-          );
-        } else logVerbose(`image: ${filename}`);
-
-        imgTrace?.image(filename, `generated image`);
-        imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
-        return {
-          image: {
-            filename,
-            encoding: "base64",
-            content: toBase64(res.image),
-          } satisfies WorkspaceFile,
-          revisedPrompt: res.revisedPrompt,
-        };
-      } finally {
-        imgTrace?.endDetails();
       }
-    }
-    
-    // Mode 2: Generate variation (image provided, no text prompt)
-    else if (isImage && typeof promptOrOptions !== 'string') {
-      const image = promptOrImage as string | WorkspaceFile;
-      const options = promptOrOptions as ImageGenerationOptions & { n?: number };
       
-      const result = await generateImageVariation(image, options);
-      return { images: result.images };
-    }
-    
-    // Mode 3: Edit image (image and text prompt provided)
-    else if (isImage && typeof promptOrOptions === 'string') {
-      const image = promptOrImage as string | WorkspaceFile;
-      const prompt = promptOrOptions;
-      const options = imageOptions;
+      case "variation": {
+        if (!inputImages || inputImages.length === 0) {
+          throw new Error("images are required for variation mode");
+        }
+        
+        const result = await generateImageVariation(inputImages[0], { n, ...rest });
+        return { images: result.images };
+      }
       
-      const result = await generateImageEdit(image, prompt, options);
-      return { images: result.images, revisedPrompt: result.revisedPrompt };
-    }
-    
-    else {
-      throw new Error("Invalid parameters: provide either a text prompt for generation, an image for variation, or both image and prompt for editing");
+      case "edit": {
+        if (!inputImages || inputImages.length === 0) {
+          throw new Error("images are required for edit mode");
+        }
+        if (!prompt) throw new Error("prompt is required for edit mode");
+        
+        const result = await generateImageEdit(inputImages[0], prompt, { mask, n, ...rest });
+        return { images: result.images, revisedPrompt: result.revisedPrompt };
+      }
+      
+      default:
+        throw new Error(`Unsupported mode: ${mode}`);
     }
   };
 
