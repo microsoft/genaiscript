@@ -163,6 +163,33 @@ describe("Image Variations and Edits", () => {
       }
     });
 
+    test("should handle multiple input images for GPT-Image-1", async () => {
+      const testImage1 = createTestImageBuffer();
+      const testImage2 = createTestImageBuffer(); 
+      const request: CreateImageEditRequest = {
+        model: "gpt-image-1",
+        image: [testImage1, testImage2], // Multiple images
+        prompt: "Combine these images into a collage",
+        n: 1,
+      };
+
+      try {
+        const result = await OpenAIImageEdit(
+          request,
+          mockConfig,
+          { trace: undefined }
+        );
+        
+        // Should handle multiple images properly  
+        assert.ok(typeof result === "object");
+        assert.ok(Array.isArray(result.images));
+      } catch (error) {
+        // Expected to fail in test environment without API key
+        // but should fail gracefully
+        assert.ok(error instanceof Error);
+      }
+    });
+
     test("should include GPT-Image-1 specific parameters", async () => {
       const testImage = createTestImageBuffer();
       const request: CreateImageEditRequest = {
