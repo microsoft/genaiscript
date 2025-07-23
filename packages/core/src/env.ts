@@ -217,7 +217,13 @@ export async function parseTokenFromEnv(
     dbg(`processing ${MODEL_PROVIDER_OPENAI}`);
     const token = env.OPENAI_API_KEY ?? "";
     let base = env.OPENAI_API_BASE;
-    const type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai";
+    let type = (env.OPENAI_API_TYPE as OpenAIAPIType) || "openai";
+    
+    // Allow defaulting to responses API mode
+    if (type === "openai" && env.OPENAI_DEFAULT_RESPONSES_API === "true") {
+      type = "openai_responses";
+      dbg(`defaulting to OpenAI Responses API mode`);
+    }
     const version =
       parseModelApiVersion(provider, model) ||
       env.OPENAI_API_VERSION ||
@@ -225,16 +231,17 @@ export async function parseTokenFromEnv(
     if (
       type !== "azure" &&
       type !== "openai" &&
+      type !== "openai_responses" &&
       type !== "localai" &&
       type !== "azure_serverless" &&
       type !== "azure_serverless_models"
     ) {
       throw new Error(
-        "OPENAI_API_TYPE must be 'azure', 'azure_serverless', 'azure_serverless_models' or 'openai' or 'localai'",
+        "OPENAI_API_TYPE must be 'azure', 'azure_serverless', 'azure_serverless_models', 'openai', 'openai_responses', or 'localai'",
       );
     }
-    if (type === "openai" && !base) {
-      dbg(`setting default base for OPENAI_API_TYPE openai`);
+    if ((type === "openai" || type === "openai_responses") && !base) {
+      dbg(`setting default base for OPENAI_API_TYPE ${type}`);
       base = OPENAI_API_BASE;
     }
     if (type === "localai" && !base) {

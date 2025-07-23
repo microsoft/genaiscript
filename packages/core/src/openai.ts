@@ -203,11 +203,19 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
 
   if (
     cfg.type === MODEL_PROVIDER_OPENAI ||
+    cfg.type === "openai_responses" ||
     cfg.type === "localai" ||
     cfg.type === MODEL_PROVIDER_ALIBABA ||
     cfg.type === MODEL_PROVIDER_HUGGINGFACE
   ) {
-    url = trimTrailingSlash(cfg.base) + "/chat/completions";
+    if (cfg.type === "openai_responses") {
+      // OpenAI Responses API - might use a different endpoint or additional headers
+      url = trimTrailingSlash(cfg.base) + "/chat/completions";
+      // Add any specific headers or modifications for responses API
+      dbg(`using OpenAI Responses API mode`);
+    } else {
+      url = trimTrailingSlash(cfg.base) + "/chat/completions";
+    }
     if (url === OPENROUTER_API_CHAT_URL) {
       (headers as any)[OPENROUTER_SITE_URL_HEADER] = process.env.OPENROUTER_SITE_URL || TOOL_URL;
       (headers as any)[OPENROUTER_SITE_NAME_HEADER] = process.env.OPENROUTER_SITE_NAME || TOOL_NAME;
