@@ -252,6 +252,8 @@
         "olmo",
         "oninitialized",
         "onnx",
+        "onsessionclosed",
+        "onsessioninitialized",
         "onvsc",
         "openai",
         "openaiapi",
@@ -326,6 +328,8 @@
         "startlight",
         "stefanzweifel",
         "strcmp",
+        "streamable",
+        "Streamable",
         "stringifying",
         "structurify",
         "suffixext",
@@ -437,6 +441,9 @@
                     "--groups",
                     "mcp"
                 ]
+            },
+            {
+                "name": "genaiscript-http"
             }
         ]
     }

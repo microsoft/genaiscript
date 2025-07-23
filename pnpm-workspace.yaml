@@ -6,7 +6,7 @@ packages:
 
 catalog:
   '@eslint/js': ^9.31.0
-  '@inquirer/prompts': ^7.6.0
+  '@inquirer/prompts': ^7.7.1
   '@types/debug': ^4.1.12
   '@types/mdast': 4.0.4
   '@types/node': 22.15.28

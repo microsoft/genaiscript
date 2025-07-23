@@ -15,8 +15,7 @@
     },
     "genaiscript-http": {
       "type": "http",
-      "url": "http://127.0.0.1:8003/mcp",
-      "description": "GenAIScript MCP server via HTTP transport for testing HTTP connectivity"
+      "url": "http://127.0.0.1:8003/mcp"
     }
   }
 }

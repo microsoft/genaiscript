@@ -597,7 +597,8 @@ Options:
 ```
 Usage: genaiscript mcp|mcps [options]
 
-Starts a Model Context Protocol server that exposes scripts as tools
+Starts a Model Context Protocol server that exposes scripts as tools. Use --http
+for HTTP transport.
 
 Options:
   --ids <string...>              Filter script by ids
@@ -605,6 +606,10 @@ Options:
                                  exclude
   --startup <string>             Startup script id, executed after the server is
                                  started
+  --http                         Use HTTP transport instead of stdio
+  --port <number>                HTTP port number, default: 8003
+  -n, --network                  Opens HTTP server on 0.0.0.0 to make it
+                                 accessible on the network
   -p, --provider <string>        Preferred LLM provider aliases (choices:
                                  "openai", "azure", "azure_ai_inference",
                                  "azure_serverless", "azure_serverless_models",

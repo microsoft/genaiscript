@@ -85,6 +85,10 @@ dev-proxy-ca.crt
 .idx/airules.md.bak
 .junie/guidelines.md
 .junie/guidelines.md.bak
+.kilocode/mcp.json
+.kilocode/mcp.json.bak
+.kilocode/rules/ruler_kilocode_instructions.md
+.kilocode/rules/ruler_kilocode_instructions.md.bak
 .mcp.json.bak
 .openhands/config.toml
 .openhands/config.toml.bak
