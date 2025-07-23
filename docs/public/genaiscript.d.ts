@@ -4388,12 +4388,27 @@
  interface McpServerConfig extends ContentSafetyOptions {
   /**
    * The executable to run to start the server.
+   * Required for stdio transport, not used for URL-based transports.
    */
-  command: OptionsOrString<"npx" | "uv" | "uvx" | "dotnet" | "docker" | "cargo">;
+  command?: OptionsOrString<"npx" | "uv" | "uvx" | "dotnet" | "docker" | "cargo">;
   /**
    * Command line arguments to pass to the executable.
+   * Required for stdio transport, not used for URL-based transports.
    */
-  args: string[];
+  args?: string[];
+  /**
+   * The URL to connect to for HTTP/WebSocket/SSE transports.
+   * When provided, command and args are ignored.
+   */
+  url?: string;
+  /**
+   * The transport type to use. If not specified, will be inferred from the configuration.
+   * - "stdio": Use StdioClientTransport (requires command and args)
+   * - "http": Use StreamableHTTPClientTransport (requires url)
+   * - "sse": Use SSEClientTransport (requires url)  
+   * - "websocket": Use WebSocketClientTransport (requires url)
+   */
+  type?: "stdio" | "http" | "sse" | "websocket";
   /**
    * The server version
    */
@@ -4402,12 +4417,14 @@
    * The environment to use when spawning the process.
    *
    * If not specified, the result of getDefaultEnvironment() will be used.
+   * Only used for stdio transport.
    */
   env?: Record<string, string>;
   /**
    * The working directory to use when spawning the process.
    *
    * If not specified, the current working directory will be inherited.
+   * Only used for stdio transport.
    */
   cwd?: string;
 

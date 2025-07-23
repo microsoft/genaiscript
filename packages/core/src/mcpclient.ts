@@ -34,6 +34,9 @@ import type {
 } from "./types.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { WebSocketClientTransport } from "@modelcontextprotocol/sdk/client/websocket.js";
 
 const dbg = genaiscriptDebug("mcp:client");
 
@@ -90,6 +93,83 @@ function patchInputSchema(inputSchema: any): any {
   return res;
 }
 
+/**
+ * Determine the transport type from the server configuration
+ */
+function determineTransportType(config: McpServerConfig): "stdio" | "http" | "sse" | "websocket" {
+  // If type is explicitly specified, use it
+  if (config.type) {
+    return config.type;
+  }
+
+  // If URL is provided, default to HTTP transport
+  if (config.url) {
+    const url = new URL(config.url);
+    if (url.protocol === "ws:" || url.protocol === "wss:") {
+      return "websocket";
+    }
+    // Default to streamable HTTP for HTTP URLs
+    return "http";
+  }
+
+  // If command/args are provided, use stdio
+  if (config.command && config.args) {
+    return "stdio";
+  }
+
+  // Default fallback to stdio for backward compatibility
+  return "stdio";
+}
+
+/**
+ * Create the appropriate transport based on the server configuration
+ */
+function createTransport(config: McpServerConfig, mcpEnv: Record<string, string> | undefined): any {
+  const transportType = determineTransportType(config);
+
+  switch (transportType) {
+    case "stdio": {
+      if (!config.command || !config.args) {
+        throw new Error("stdio transport requires command and args");
+      }
+      const { command, args, cwd, ...rest } = config;
+      return new StdioClientTransport(
+        deleteUndefinedValues({
+          command,
+          args,
+          cwd,
+          env: mcpEnv,
+          stderr: "inherit",
+        }),
+      );
+    }
+
+    case "http": {
+      if (!config.url) {
+        throw new Error("HTTP transport requires url");
+      }
+      return new StreamableHTTPClientTransport(new URL(config.url));
+    }
+
+    case "sse": {
+      if (!config.url) {
+        throw new Error("SSE transport requires url");
+      }
+      return new SSEClientTransport(new URL(config.url));
+    }
+
+    case "websocket": {
+      if (!config.url) {
+        throw new Error("WebSocket transport requires url");
+      }
+      return new WebSocketClientTransport(new URL(config.url));
+    }
+
+    default:
+      throw new Error(`Unsupported transport type: ${transportType}`);
+  }
+}
+
 export class McpClientManager extends EventTarget implements AsyncDisposable {
   private _clients: McpClient[] = [];
 
@@ -128,24 +208,24 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
       const progress: (msg: string) => ProgressCallback = (msg) => (ev) =>
         dbgc(msg + " ", `${ev.progress || ""}/${ev.total || ""}`);
       const capabilities = { tools: {} };
+
+      const transportType = determineTransportType(serverConfig);
       dbgc(
-        `creating transport %O`,
+        `creating ${transportType} transport %O`,
         deleteUndefinedValues({
-          ...rest,
+          url: serverConfig.url,
+          command: serverConfig.command,
+          args: serverConfig.args,
+          type: transportType,
           env: mcpEnv ? Object.keys(mcpEnv) : undefined,
         }),
       );
-      let transport = new StdioClientTransport(
-        deleteUndefinedValues({
-          ...rest,
-          env: mcpEnv,
-          stderr: "inherit",
-        }),
-      );
+
+      let transport = createTransport(serverConfig, mcpEnv);
       // eslint-disable-next-line prefer-const
       let mcpClient: McpClient;
       let client = new Client({ name: id, version }, { capabilities });
-      dbgc(`connecting stdio transport`);
+      dbgc(`connecting ${transportType} transport`);
       await client.connect(transport);
 
       const ping: McpClient["ping"] = async () => {
