@@ -1,24 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import debug from "debug";
-const dbg = debug("genaiscript:expander");
-
 import { resolveScript } from "./ast.js";
 import { assert } from "./assert.js";
-import { MarkdownTrace } from "./trace.js";
+import type { MarkdownTrace } from "./trace.js";
 import { errorMessage, isCancelError, NotSupportedError } from "./error.js";
-import { JS_REGEX, MAX_TOOL_CALLS } from "./constants.js";
-import { finalizeMessages, PromptImage, PromptPrediction, renderPromptNode } from "./promptdom.js";
+import { JS_REGEX, MAX_TOOL_CALLS, TS_IMPORT_REGEX } from "./constants.js";
+import {
+  finalizeMessages,
+  type PromptImage,
+  type PromptPrediction,
+  renderPromptNode,
+} from "./promptdom.js";
 import { createPromptContext } from "./promptcontext.js";
 import { evalPrompt } from "./evalprompt.js";
 import { addToolDefinitionsMessage, appendSystemMessage } from "./chat.js";
 import { importPrompt } from "./importprompt.js";
 import { resolveRuntimeHost } from "./host.js";
 import { addFallbackToolSystems, resolveSystems } from "./systems.js";
-import { GenerationOptions } from "./generation.js";
-import { ChatCompletionMessageParam, ChatCompletionReasoningEffort } from "./chattypes.js";
-import { GenerationStatus, Project } from "./server/messages.js";
+import type { GenerationOptions } from "./generation.js";
+import type { ChatCompletionMessageParam, ChatCompletionReasoningEffort } from "./chattypes.js";
+import type { GenerationStatus, Project } from "./server/messages.js";
 import { dispose } from "./dispose.js";
 import { normalizeFloat, normalizeInt } from "./cleaners.js";
 import { mergeEnvVarsWithSystem } from "./vars.js";
@@ -36,6 +38,8 @@ import type {
   PromptScript,
   ToolCallback,
 } from "./types.js";
+import { genaiscriptDebug } from "./debug.js";
+const dbg = genaiscriptDebug("expander");
 
 /**
  * Executes a prompt expansion process based on the provided prompt script, variables, and options.
@@ -82,10 +86,15 @@ export async function callExpander(
 
   // package.json { type: "module" }
   const isModule = await nodeIsPackageTypeModule();
+  const isJs = JS_REGEX.test(r.filename);
+  const isTs = TS_IMPORT_REGEX.test(r.filename);
+  dbg(`module: %s`, isModule);
+  dbg(`js: %s`, isJs);
+  dbg(`ts: %s`, isTs);
   try {
-    if (r.filename && (isModule || !JS_REGEX.test(r.filename)))
+    if (r.filename && (isTs || (isModule && isJs))) {
       await importPrompt(ctx, r, { logCb, trace });
-    else {
+    } else {
       await evalPrompt(ctx, r, {
         sourceMaps: true,
         logCb,

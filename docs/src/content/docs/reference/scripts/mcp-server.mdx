@@ -183,7 +183,38 @@ It will run after the server is started.
 genaiscript mcp --startup load-resources
 ```
 
-You can use this script to load resources or do any other setup you need.
+## Transport Options
+
+The MCP server supports two transport methods:
+
+### Stdio Transport (Default)
+
+The default transport uses stdio (standard input/output) for communication. This is the standard way to run MCP servers with most clients.
+
+```sh
+genaiscript mcp
+```
+
+### HTTP Transport
+
+You can also run the MCP server with HTTP transport using the `--http` flag:
+
+```sh
+# Basic HTTP server on localhost:8003
+genaiscript mcp --http
+
+# Custom port
+genaiscript mcp --http --port 3000
+
+# Network accessible (0.0.0.0)
+genaiscript mcp --http --network --port 8080
+```
+
+When using HTTP transport, the server will be available at `http://host:port/mcp`. For example:
+- `http://localhost:8003/mcp` (default)
+- `http://0.0.0.0:8080/mcp` (network accessible on port 8080)
+
+The HTTP transport uses the [Streamable HTTP transport](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http) from the MCP specification.
 
 ## IDE configuration
 

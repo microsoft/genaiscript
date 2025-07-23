@@ -50,7 +50,7 @@ const NOTEBOOK_MARKERS: Record<string, { startMarker: string; endMarker: string 
   },
 };
 
-export async function activateDocsNotebook(state: ExtensionState) {
+export async function activateDocsNotebook(state: ExtensionState): Promise<void> {
   activateNotebookSerializer(state);
   activateNotebookExecutor(state);
 }
@@ -64,7 +64,7 @@ interface NotebookFrontMatter {
   files?: string | string[];
 }
 
-function activateNotebookExecutor(state: ExtensionState) {
+function activateNotebookExecutor(state: ExtensionState): void {
   const { context } = state;
   const { subscriptions } = context;
 
@@ -199,7 +199,7 @@ function activateNotebookExecutor(state: ExtensionState) {
   };
 }
 
-function activateNotebookSerializer(state: ExtensionState) {
+function activateNotebookSerializer(state: ExtensionState): void {
   const { context } = state;
   const { subscriptions } = context;
 
@@ -282,7 +282,7 @@ function activateNotebookSerializer(state: ExtensionState) {
 
   subscriptions.push(
     registerCommand("genaiscript.notebook.create", async (uri?: vscode.Uri) => {
-      uri = uri || Utils.joinPath(context.extensionUri, "tutorial.md");
+      uri = uri || Utils.joinPath(context.extensionUri, "tutorial.genai.nb.md");
       const canceller = new vscode.CancellationTokenSource();
       const bytes = await vscode.workspace.fs.readFile(uri);
       const data = deserializeNotebook(bytes, canceller.token);
@@ -408,7 +408,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
     return "\n".repeat(numWhitespaceLines);
   }
 
-  function resolveLanguage(langId: string) {
+  function resolveLanguage(langId: string): string {
     return NOTEBOOK_LANG_IDS.get(langId) || langId;
   }
 

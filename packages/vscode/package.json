@@ -55,6 +55,9 @@
         "url": "https://github.com/microsoft/genaiscript"
     },
     "contributes": {
+        "files.associations": {
+            "*.genai.nb.md": "genaiscript"
+        },
         "chatParticipants": [
             {
                 "id": "genaiscript",

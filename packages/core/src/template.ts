@@ -7,11 +7,12 @@
  * data types and formats.
  */
 
-import { GENAI_ANY_REGEX } from "./constants.js";
+import { GENAI_ANY_REGEX, GENAI_MD_REGEX } from "./constants.js";
 import { JSON5TryParse } from "./json5.js";
 import { humanize } from "./inflection.js";
 import { metadataValidate } from "./metadata.js";
 import { deleteUndefinedValues } from "./cleaners.js";
+import { markdownScriptParse } from "./markdownscript.js";
 import type { PromptArgs, PromptScript } from "./types.js";
 import { basename, resolve } from "node:path";
 
@@ -24,7 +25,7 @@ import { basename, resolve } from "node:path";
  */
 export function templateIdFromFileName(filename: string) {
   return filename
-    .replace(/\.(mjs|ts|js|mts|prompty)$/i, "")
+    .replace(/\.(mjs|ts|js|mts|prompty|md)$/i, "")
     .replace(/\.genai$/i, "")
     .replace(/.*[/\\]/, "");
 }
@@ -72,19 +73,29 @@ function parsePromptScriptTools(jsSource: string) {
  *
  * @param filename - The filename of the template.
  * @param content - The content of the template.
- * @param prj - The Project object containing diagnostics and other data.
- * @param finalizer - Finalizer function to perform additional validation.
  * @returns The parsed PromptScript or undefined in case of errors.
  */
 async function parsePromptTemplateCore(filename: string, content: string) {
+  // Check if this is a markdown script file
+  let jsSource: string;
+  let meta: ReturnType<typeof parsePromptScriptMeta>;
+  if (GENAI_MD_REGEX.test(filename)) {
+    const res = await markdownScriptParse(content);
+    meta = res.meta;
+    jsSource = res.jsSource;
+  } else {
+    // Use content as-is for JavaScript/TypeScript files
+    jsSource = content;
+    meta = parsePromptScriptMeta(jsSource);
+  }
+
   const r = {
     id: templateIdFromFileName(filename),
     title: humanize(basename(filename).replace(GENAI_ANY_REGEX, "")),
-    jsSource: content,
+    jsSource,
+    ...meta,
   } as PromptScript;
   r.filename = resolve(filename);
-  const meta = parsePromptScriptMeta(r.jsSource);
-  Object.assign(r, meta);
   return r;
 }
 

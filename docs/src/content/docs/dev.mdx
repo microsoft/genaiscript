@@ -205,3 +205,110 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+## MCP Server Testing
+
+### Testing HTTP Transport Locally
+
+To test the HTTP transport locally, follow these steps:
+
+1. **Start the HTTP MCP server** in one terminal:
+
+```sh
+# Build the CLI first (if working from source)
+pnpm build:cli
+
+# Start HTTP server on default port 8003
+node packages/cli/dist/src/index.js mcp --http --groups mcp
+
+# Or use the global genaiscript if installed
+genaiscript mcp --http --groups mcp
+```
+
+The server will display status information:
+```
+GenAIScript MCP server v2.3.9
+│ Transport: HTTP (proxy-aware)
+│ Endpoint: http://127.0.0.1:8003/mcp
+│ Health: http://127.0.0.1:8003/health
+│ Access: Local (127.0.0.1)
+│ Proxy: Trusted (X-Forwarded-* headers supported)
+```
+
+2. **Test the health endpoint** to verify the server is running:
+
+```sh
+curl http://127.0.0.1:8003/health
+```
+
+You should see a response like:
+```json
+{
+  "status": "ok",
+  "service": "genaiscript-mcp-server", 
+  "version": "2.3.9",
+  "transport": "http"
+}
+```
+
+3. **Use the MCP Inspector** to test the server functionality:
+
+```sh
+# Install and run the MCP inspector
+npx @modelcontextprotocol/inspector http://127.0.0.1:8003/mcp
+```
+
+4. **Configure a dual-transport setup** for comprehensive testing by updating your `.vscode/mcp.json`:
+
+```json title=".vscode/mcp.json"
+{
+  "servers": {
+    "genaiscript": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/packages/cli/dist/src/index.js",
+        "mcp",
+        "--cwd",
+        "${workspaceFolder}",
+        "--groups",
+        "mcp"
+      ],
+      "envFile": "${workspaceFolder}/.env"
+    },
+    "genaiscript-http": {
+      "type": "http",
+      "url": "http://127.0.0.1:8003/mcp",
+      "description": "GenAIScript MCP server via HTTP transport for testing HTTP connectivity"
+    }
+  }
+}
+```
+
+This configuration allows you to test both stdio and HTTP transports side by side in MCP clients that support multiple servers.
+
+5. **Test with different ports and network configurations**:
+
+```sh
+# Custom port
+genaiscript mcp --http --port 3000
+
+# Network accessible (use with caution)
+genaiscript mcp --http --network --port 8080
+
+# With startup script
+genaiscript mcp --http --startup load-resources
+```
+
+### HTTP Transport Features
+
+The HTTP implementation includes:
+
+- **CORS support** for web-based MCP clients
+- **Proxy awareness** with X-Forwarded-* header support
+- **Session management** for multiple concurrent connections
+- **Health check endpoint** at `/health` for monitoring
+- **Error handling** with graceful fallbacks
+- **Debug logging** (enable with `DEBUG=genaiscript:mcp:server`)
+
+You can use this script to load resources or do any other setup you need.

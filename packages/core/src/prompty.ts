@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ChatCompletionContentPart, ChatCompletionMessageParam } from "./chattypes.js";
+import type { ChatCompletionContentPart, ChatCompletionMessageParam } from "./chattypes.js";
 import { splitMarkdown } from "./frontmatter.js";
 import { YAMLParse } from "./yaml.js";
 import { deleteUndefinedValues } from "./cleaners.js";

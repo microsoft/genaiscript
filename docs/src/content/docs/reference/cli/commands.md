@@ -127,17 +127,17 @@ Usage: genaiscript runs [options] [command]
 Commands to open previous runs
 
 Options:
-  -h, --help      display help for command
+  -h, --help        display help for command
 
 Commands:
-  list [script]   List all available run reports in workspace
-  help [command]  display help for command
+  list|ls [script]  List all available run reports in workspace
+  help [command]    display help for command
 ```
 
 ### `runs list`
 
 ```
-Usage: genaiscript runs list [options] [script]
+Usage: genaiscript runs list|ls [options] [script]
 
 List all available run reports in workspace
 
@@ -158,7 +158,7 @@ Options:
 
 Commands:
   run [options] [script...]  Runs the tests for scripts
-  list [options]             List available tests in workspace
+  list|ls [options]          List available tests in workspace
   view                       Launch test viewer
   help [command]             display help for command
 ```
@@ -213,7 +213,7 @@ Options:
 ### `test list`
 
 ```
-Usage: genaiscript test list [options]
+Usage: genaiscript test list|ls [options]
 
 List available tests in workspace
 
@@ -294,22 +294,22 @@ Usage: genaiscript scripts|script [options] [command]
 Utility tasks for scripts
 
 Options:
-  -h, --help                  display help for command
+  -h, --help                     display help for command
 
 Commands:
-  list [options] [script...]  List all available scripts in workspace
-  create [options] [name]     Create a new script
-  fix [options]               Write TypeScript definition files in the script
-                              folder to enable type checking.
-  compile [folders...]        Compile all scripts in workspace
-  model [options] [script]    List model connection information for scripts
-  help|info <script>          Show help information for a script
+  list|ls [options] [script...]  List all available scripts in workspace
+  create [options] [name]        Create a new script
+  fix [options]                  Write TypeScript definition files in the script
+                                 folder to enable type checking.
+  compile [folders...]           Compile all scripts in workspace
+  model [options] [script]       List model connection information for scripts
+  help|info <script>             Show help information for a script
 ```
 
 ### `scripts list`
 
 ```
-Usage: genaiscript scripts list [options] [script...]
+Usage: genaiscript scripts list|ls [options] [script...]
 
 List all available scripts in workspace
 
@@ -914,18 +914,18 @@ Options:
 Usage: genaiscript models [options] [command]
 
 Options:
-  -h, --help                 display help for command
+  -h, --help                    display help for command
 
 Commands:
-  list [options] [provider]  List all available models
-  alias [options]            Show model alias mapping
-  help [command]             display help for command
+  list|ls [options] [provider]  List all available models
+  alias [options]               Show model alias mapping
+  help [command]                display help for command
 ```
 
 ### `models list`
 
 ```
-Usage: genaiscript models list [options] [provider]
+Usage: genaiscript models list|ls [options] [provider]
 
 List all available models
 

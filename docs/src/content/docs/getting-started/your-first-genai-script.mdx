@@ -101,6 +101,59 @@ Roses bloom, hearts swoon, under the silver moon.
 
 {/* genaiscript output end */}
 
+## Alternative: Markdown Scripts
+
+For simpler prompts, you can also use Markdown files with YAML frontmatter instead of JavaScript/TypeScript. These are easier to write and maintain for basic prompts.
+
+Create a file named `poem.genai.md`:
+
+```markdown title="poem.genai.md"
+---
+title: "Simple Poem Generator"
+description: "Generates a one sentence poem"
+model: "small"
+---
+
+# Poem Generation
+
+Write a one sentence poem about nature.
+```
+
+This markdown script produces the same result as the JavaScript version but with simpler syntax. The YAML frontmatter configures the script, and the markdown content becomes the prompt.
+
+<Tabs>
+<TabItem label="Markdown Script">
+
+```markdown title="poem.genai.md"
+---
+title: "Simple Poem Generator" 
+description: "Generates a one sentence poem"
+model: "small"
+---
+
+# Poem Generation
+
+Write a one sentence poem about nature.
+```
+
+</TabItem>
+<TabItem label="JavaScript Equivalent">
+
+```js title="poem.genai.mts"
+script({
+  title: "Simple Poem Generator",
+  description: "Generates a one sentence poem", 
+  model: "small"
+})
+
+$`# Poem Generation
+
+Write a one sentence poem about nature.`
+```
+
+</TabItem>
+</Tabs>
+
 ## the Context
 
 GenAIScript exposes the context through the `env` variable. The context is implicitly defined by the location you start executing the script.

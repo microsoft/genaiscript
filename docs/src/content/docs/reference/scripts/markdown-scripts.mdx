@@ -1,0 +1,318 @@
+---
+title: Markdown Scripts
+description: Learn how to write GenAIScript templates using Markdown syntax
+keywords: markdown scripts, genai.md, frontmatter, YAML configuration
+sidebar:
+  order: 15
+---
+
+import { Code } from "@astrojs/starlight/components";
+import { FileTree } from "@astrojs/starlight/components";
+
+GenAIScript supports writing scripts using Markdown syntax with YAML frontmatter, providing a more accessible way to create AI prompts without needing to know JavaScript or TypeScript.
+
+## File Extension
+
+Markdown scripts use the `.genai.md` file extension and are automatically detected and processed by GenAIScript.
+
+<FileTree>
+- genaisrc/
+  - **summarize.genai.md**
+  - **analyze.genai.md**
+  - translate.genai.mts
+</FileTree>
+
+## Basic Structure
+
+A markdown script consists of two parts:
+1. **YAML frontmatter** (optional) - contains script configuration
+2. **Markdown content** - the actual prompt text
+
+<Code code={`---
+title: "Summarize Text"
+description: "Creates a concise summary of the input text"
+model: "small"
+temperature: 0.3
+---
+
+# Text Summarization
+
+Please provide a concise summary of the following text, highlighting the key points and main ideas.
+
+Focus on:
+- Main arguments or themes
+- Important facts or data
+- Conclusions or recommendations
+
+Keep the summary under 200 words.`} lang="markdown" title="summarize.genai.md" />
+
+## Frontmatter Configuration
+
+The YAML frontmatter supports all the same configuration options as the `script()` function in JavaScript/TypeScript scripts:
+
+### Common Options
+
+```yaml
+---
+title: "Script Title"           # Display name in UI
+description: "What this does"   # Description shown in lists
+model: "large"                  # Model size: small, large, vision
+temperature: 0.7                # Creativity level (0-2)
+maxTokens: 1000                # Maximum response length
+---
+```
+
+### Advanced Options
+
+```yaml
+---
+title: "Advanced Script"
+description: "Example with advanced settings"
+model: "gpt-4"
+temperature: 0.5
+maxTokens: 2000
+cache: true                     # Enable caching
+system: |                       # Custom system message
+  You are a helpful assistant specialized in code analysis.
+  Always provide detailed explanations.
+parameters:                     # Script parameters
+  language:
+    type: "string"
+    description: "Programming language"
+    default: "typescript"
+  style:
+    type: "string" 
+    description: "Code style preference"
+    enum: ["concise", "detailed"]
+---
+```
+
+## Content Processing
+
+The markdown content is automatically converted to a `$` template string in the generated JavaScript. This means:
+
+- The entire markdown content becomes the prompt
+- Backticks (`) in the content are automatically escaped
+- The content preserves formatting and structure
+
+### Example Conversion
+
+This markdown script:
+
+<Code code={`---
+title: "Code Review"
+model: "large"
+---
+
+# Code Review
+
+Please review the following code and provide feedback on:
+
+1. **Code Quality**: Is the code well-structured and readable?
+2. **Best Practices**: Does it follow language conventions?
+3. **Performance**: Are there any optimization opportunities?
+4. **Security**: Are there any security concerns?
+
+## Instructions
+
+- Be specific in your feedback
+- Suggest concrete improvements
+- Explain the reasoning behind your suggestions`} lang="markdown" title="review.genai.md" />
+
+Gets transpiled to this JavaScript:
+
+<Code code={`script({
+  title: "Code Review",
+  model: "large"
+})
+
+\`# Code Review
+
+Please review the following code and provide feedback on:
+
+1. **Code Quality**: Is the code well-structured and readable?
+2. **Best Practices**: Does it follow language conventions?
+3. **Performance**: Are there any optimization opportunities?
+4. **Security**: Are there any security concerns?
+
+## Instructions
+
+- Be specific in your feedback
+- Suggest concrete improvements
+- Explain the reasoning behind your suggestions\``} lang="javascript" title="Generated JavaScript" />
+
+## Working with Files
+
+Markdown scripts can work with files just like regular GenAIScript files. Use the frontmatter to configure file handling:
+
+<Code code={`---
+title: "File Analyzer"
+description: "Analyzes uploaded files"
+parameters:
+  files:
+    type: "array"
+    description: "Files to analyze"
+---
+
+# File Analysis
+
+Please analyze the uploaded files and provide:
+
+- **File type and structure**
+- **Content summary** 
+- **Key findings or patterns**
+- **Recommendations for improvement**
+
+Focus on technical aspects and provide actionable insights.`} lang="markdown" title="analyze-files.genai.md" />
+
+## Parameters and Variables
+
+You can define script parameters in the frontmatter and reference them in the content:
+
+<Code code={`---
+title: "Language Translator"
+description: "Translates text to specified language"
+parameters:
+  targetLanguage:
+    type: "string"
+    description: "Target language for translation"
+    default: "Spanish"
+  tone:
+    type: "string"
+    description: "Translation tone"
+    enum: ["formal", "casual", "technical"]
+    default: "formal"
+---
+
+# Translation Request
+
+Please translate the following text to {{ targetLanguage }} using a {{ tone }} tone.
+
+Ensure the translation:
+- Maintains the original meaning
+- Uses appropriate cultural context
+- Follows {{ tone }} language conventions`} lang="markdown" title="translate.genai.md" />
+
+Note: Variable interpolation in markdown content is not yet supported. Variables would need to be handled through file processing or other GenAIScript mechanisms.
+
+## Best Practices
+
+### 1. Use Clear Structure
+
+Organize your markdown with clear headings and sections:
+
+```markdown
+# Main Task
+
+Brief description of what you want the AI to do.
+
+## Requirements
+
+- Specific requirement 1
+- Specific requirement 2
+
+## Output Format
+
+Describe the expected output format.
+```
+
+### 2. Leverage Markdown Features
+
+Use markdown formatting to improve prompt clarity:
+
+- **Bold** for emphasis
+- `code blocks` for technical terms
+- Lists for requirements
+- Tables for structured data
+- Blockquotes for examples
+
+### 3. Configure Appropriately
+
+Choose appropriate model and temperature settings:
+
+```yaml
+# For creative tasks
+temperature: 0.8
+model: "large"
+
+# For analytical tasks  
+temperature: 0.2
+model: "large"
+
+# For simple tasks
+temperature: 0.5
+model: "small"
+```
+
+### 4. Add Helpful Metadata
+
+Include descriptive titles and descriptions:
+
+```yaml
+title: "Clear, Action-Oriented Title"
+description: "Specific description of what this script does and when to use it"
+```
+
+## Running Markdown Scripts
+
+Markdown scripts are executed the same way as other GenAIScript files:
+
+```bash
+# Run with CLI
+genaiscript run summarize
+
+# Run with specific files
+genaiscript run analyze README.md package.json
+
+# Run with options
+genaiscript run translate --vars targetLanguage=French
+```
+
+## Limitations
+
+- No direct JavaScript/TypeScript code execution
+- Limited dynamic content generation
+- Variable interpolation requires external processing
+- Cannot use GenAIScript functions directly (like `def()`, `env.files`, etc.)
+
+## When to Use Markdown Scripts
+
+Markdown scripts are ideal for:
+
+✅ **Simple prompts** with static content  
+✅ **Non-technical users** who prefer markdown  
+✅ **Documentation-heavy** prompts  
+✅ **Template-based** interactions  
+✅ **Quick prototyping** of prompt ideas  
+
+For complex logic, file processing, or dynamic content generation, use JavaScript/TypeScript `.genai.mts` files instead.
+
+## Migration from JavaScript
+
+You can easily convert simple JavaScript scripts to markdown:
+
+**Before** (JavaScript):
+<Code code={`script({
+  title: "Code Explainer",
+  description: "Explains code functionality"
+})
+
+$\`# Code Explanation
+
+Please explain the following code:
+- What does it do?
+- How does it work?
+- Are there any potential issues?\``} lang="javascript" title="explain.genai.mts" />
+
+**After** (Markdown):
+<Code code={`---
+title: "Code Explainer" 
+description: "Explains code functionality"
+---
+
+# Code Explanation
+
+Please explain the following code:
+- What does it do?
+- How does it work?
+- Are there any potential issues?`} lang="markdown" title="explain.genai.md" />
