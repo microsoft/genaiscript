@@ -2983,6 +2983,52 @@ export interface GitLogOptions {
   excludedPaths?: ElementOrArray<string>;
 }
 
+export interface GitWorktree {
+  /**
+   * Path to the worktree
+   */
+  path: string;
+  /**
+   * Branch name associated with the worktree
+   */
+  branch: string;
+  /**
+   * Commit SHA the worktree is checked out to
+   */
+  head: string;
+  /**
+   * Whether the worktree is bare
+   */
+  bare?: boolean;
+  /**
+   * Whether the worktree is detached (not on a branch)
+   */
+  detached?: boolean;
+}
+
+export interface GitWorktreeAddOptions {
+  /**
+   * Create a new branch with the worktree
+   */
+  branch?: string;
+  /**
+   * Force creation even if target exists
+   */
+  force?: boolean;
+  /**
+   * Checkout the branch into the worktree
+   */
+  checkout?: boolean;
+  /**
+   * Create an orphan branch
+   */
+  orphan?: boolean;
+  /**
+   * Detach HEAD at the commit
+   */
+  detach?: boolean;
+}
+
 export interface Git {
   /**
    * Current working directory
@@ -3140,6 +3186,32 @@ export interface Git {
    * @param cwd working directory
    */
   client(cwd: string): Git;
+
+  /**
+   * List all git worktrees
+   */
+  listWorktrees(): Promise<GitWorktree[]>;
+
+  /**
+   * Add a new git worktree
+   * @param path path where the worktree should be created
+   * @param commitish commit, branch, or tag to checkout
+   * @param options additional options for worktree creation
+   * @returns Git client opened at the worktree path
+   */
+  addWorktree(path: string, commitish?: string, options?: GitWorktreeAddOptions): Promise<Git>;
+
+  /**
+   * Remove a git worktree
+   * @param path path to the worktree to remove
+   * @param options removal options
+   */
+  removeWorktree(
+    path: string,
+    options?: {
+      force?: boolean;
+    },
+  ): Promise<void>;
 }
 
 /**
@@ -3777,6 +3849,19 @@ export interface GitHub {
    * @param repo
    */
   client(owner: string, repo: string): GitHub;
+
+  /**
+   * Create a worktree for a specific GitHub pull request
+   * @param pullNumber pull request number
+   * @param path path where the worktree should be created
+   * @param options additional options
+   * @returns Git client opened at the worktree path
+   */
+  addWorktreeForPullRequest(
+    pullNumber: number | string,
+    path?: string,
+    options?: GitWorktreeAddOptions,
+  ): Promise<Git>;
 }
 
 export interface MDObject {

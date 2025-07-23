@@ -44,6 +44,7 @@ import { dedent } from "./indent.js";
 import type {
   BufferLike,
   Diagnostic,
+  Git,
   GitHub,
   GitHubArtifact,
   GitHubCodeSearchResult,
@@ -67,6 +68,8 @@ import type {
   PromptScript,
   WorkspaceFile,
   GitHubIssueCreateOptions,
+  GitWorktree,
+  GitWorktreeAddOptions,
 } from "./types.js";
 import { Octokit } from "@octokit/rest";
 import type { Octokit as OctokitCore } from "@octokit/core";
@@ -1764,6 +1767,42 @@ export class GitHubClient implements GitHub {
       );
     }
     return res;
+  }
+
+  async addWorktreeForPullRequest(
+    pullNumber: number | string,
+    path?: string,
+    options?: GitWorktreeAddOptions,
+  ): Promise<Git> {
+    dbg(`adding worktree for pull request ${pullNumber}`);
+
+    // Get pull request details
+    const pr = await this.getPullRequest(pullNumber);
+    if (!pr) {
+      throw new Error(`Pull request ${pullNumber} not found`);
+    }
+
+    // Default path based on PR info
+    const defaultPath = path || `worktree-pr-${pullNumber}`;
+
+    // Fetch the PR branch
+    const gitClient = GitClient.default();
+    const branchName = `pr-${pullNumber}/${pr.head.ref}`;
+
+    try {
+      // Try to fetch the PR branch first
+      await gitClient.fetch("origin", `pull/${pullNumber}/head:${branchName}`);
+    } catch (error) {
+      dbg(`Failed to fetch PR branch: ${error}`);
+      // Continue with the head ref directly
+    }
+
+    // Create worktree with the PR branch or head ref
+    const commitish = branchName || pr.head.ref;
+    return await gitClient.addWorktree(defaultPath, commitish, {
+      ...options,
+      branch: options?.branch || branchName,
+    });
   }
 }
 
