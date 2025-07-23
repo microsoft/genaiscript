@@ -410,8 +410,33 @@ export class GenerationStats {
   /**
    * Generates a compact markdown report suitable for GitHub comments.
    * 
+   * The report contains:
+   * - A collapsible `<details>` section with aggregate usage statistics in the summary
+   * - A table showing individual LLM call details including model, tokens, costs, and duration
+   * - Proper formatting for tokens (t, kt, Mt) and costs (¢, $)
+   * - Duration formatting (ms, s, m, h)
+   * 
    * @returns A markdown string with a details section containing aggregate results 
    *          as summary and a table with individual LLM call usage, tokens, and costs.
+   * 
+   * @example
+   * ```typescript
+   * const stats = new GenerationStats("openai:gpt-4", "main");
+   * stats.addUsage({ prompt_tokens: 100, completion_tokens: 50, total_tokens: 150, duration: 1000 }, 1000);
+   * 
+   * const child = stats.createChild("openai:gpt-3.5-turbo", "helper");
+   * child.addUsage({ prompt_tokens: 200, completion_tokens: 100, total_tokens: 300, duration: 2000 }, 2000);
+   * 
+   * const report = stats.toGitHubReport();
+   * // Returns:
+   * // <details>
+   * // <summary>💰 Usage Report 450t 3000ms</summary>
+   * // |Model|Label|Prompt Tokens|Completion Tokens|Total Tokens|Cost|Duration|
+   * // |-----|-----|-------------|-----------------|------------|----| -------|
+   * // |openai:gpt-4|main|100t|50t|150t|0.60¢|1000ms|
+   * // |openai:gpt-3.5-turbo|helper|200t|100t|300t|0.30¢|2000ms|
+   * // </details>
+   * ```
    */
   toGitHubReport(): string {
     const accumulated = this.accumulatedUsage();
