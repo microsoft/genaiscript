@@ -325,9 +325,26 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             | { error: { message: string } }[]
             | { error: { message: string } }
         const error = Array.isArray(errors) ? errors[0]?.error : errors
+        
+        // For rate limiting errors, ensure the error message contains "rate_limited"
+        let errorMsg = errorMessage(error) || r.statusText
+        if (r.status === 429) {
+            // Ensure rate limiting is clearly indicated in the error message
+            if (!errorMsg.toLowerCase().includes("rate_limited")) {
+                // First try to replace existing rate limit variations
+                const rateLimitPattern = /(rate[\s\-_]*limit[ed]*)/gi
+                if (rateLimitPattern.test(errorMsg)) {
+                    errorMsg = errorMsg.replace(rateLimitPattern, "rate_limited")
+                } else {
+                    // If no rate limit text found, prepend rate_limited
+                    errorMsg = `rate_limited: ${errorMsg}`
+                }
+            }
+        }
+        
         throw new RequestError(
             r.status,
-            errorMessage(error) || r.statusText,
+            errorMsg,
             errors,
             responseBody,
             normalizeInt(r.headers.get("retry-after"))
@@ -549,8 +566,26 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             else if (toolCalls?.length) finishReason = "tool_calls"
             finishReason = finishReason || "stop" // some provider do not implement this final mesage
         } catch (e) {
-            finishReason = "fail"
-            error = serializeError(e)
+            // Check if this is a rate limiting error
+            if (e instanceof RequestError && e.status === 429) {
+                finishReason = "fail"
+                // Ensure the serialized error message contains rate_limited for easy detection
+                const serialized = serializeError(e)
+                if (serialized?.message && !serialized.message.toLowerCase().includes("rate_limited")) {
+                    // First try to replace existing rate limit variations
+                    const rateLimitPattern = /(rate[\s\-_]*limit[ed]*)/gi
+                    if (rateLimitPattern.test(serialized.message)) {
+                        serialized.message = serialized.message.replace(rateLimitPattern, "rate_limited")
+                    } else {
+                        // If no rate limit text found, prepend rate_limited
+                        serialized.message = `rate_limited: ${serialized.message}`
+                    }
+                }
+                error = serialized
+            } else {
+                finishReason = "fail"
+                error = serializeError(e)
+            }
         }
     }
 

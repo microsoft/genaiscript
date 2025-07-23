@@ -341,6 +341,7 @@ const completerFactory = (
         let signature = ""
         let finishReason: ChatCompletionResponse["finishReason"]
         let usage: ChatCompletionResponse["usage"] | undefined
+        let error: ChatCompletionResponse["error"] | undefined
         const toolCalls: ChatCompletionToolCall[] = []
         const tools = convertTools(req.tools)
 
@@ -487,7 +488,23 @@ const completerFactory = (
         } catch (e) {
             finishReason = "fail"
             logError(e)
-            trace.error("error while processing event", serializeError(e))
+            // Check if this might be a rate limiting error and preserve that information
+            const serialized = serializeError(e)
+            if ((e as any)?.status === 429 || 
+                (e as any)?.response?.status === 429 ||
+                (serialized?.message && /rate.{0,10}limit/i.test(serialized.message))) {
+                // Ensure rate limiting is clearly indicated in the error message
+                if (serialized?.message && !serialized.message.toLowerCase().includes("rate_limited")) {
+                    const rateLimitPattern = /(rate[\s\-_]*limit[ed]*)/gi
+                    if (rateLimitPattern.test(serialized.message)) {
+                        serialized.message = serialized.message.replace(rateLimitPattern, "rate_limited")
+                    } else {
+                        serialized.message = `rate_limited: ${serialized.message}`
+                    }
+                }
+            }
+            error = serialized
+            trace.error("error while processing event", serialized)
         }
 
         trace.appendContent("\n\n")
@@ -505,6 +522,7 @@ const completerFactory = (
             finishReason,
             usage,
             model,
+            error,
             toolCalls: toolCalls.filter((x) => x !== undefined),
         } satisfies ChatCompletionResponse
     }
