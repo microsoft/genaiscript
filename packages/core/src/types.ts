@@ -3562,6 +3562,57 @@ export interface GitHubLabel {
   description?: string;
 }
 
+export interface GitHubProjectV2 extends GitHubNode {
+  title: string;
+  shortDescription?: string;
+  readme?: string;
+  url: string;
+  closed: boolean;
+  public: boolean;
+  owner: {
+    login: string;
+  };
+}
+
+export interface GitHubProjectV2Item extends GitHubNode {
+  content?: {
+    id: string;
+    title: string;
+    url: string;
+  };
+  project: {
+    id: string;
+    title: string;
+  };
+  fieldValues: {
+    nodes: GitHubProjectV2ItemFieldValue[];
+  };
+}
+
+export interface GitHubProjectV2ItemFieldValue {
+  field: {
+    id: string;
+    name: string;
+  };
+  value?: string;
+}
+
+export interface GitHubProjectV2CreateOptions {
+  repositoryId?: string;
+  ownerId?: string;
+  title: string;
+  shortDescription?: string;
+  readme?: string;
+  template?: "AUTOMATED_KANBAN_V2" | "AUTOMATED_KANBAN" | "BUG_TRIAGE" | "FEATURE_PLANNING" | "ROADMAPS";
+}
+
+export interface GitHubProjectV2UpdateItemOptions {
+  projectId: string;
+  itemId: string;
+  fieldId: string;
+  value: string;
+}
+
 export interface GitHub {
   /**
    * Gets connection information for octokit
@@ -3862,6 +3913,31 @@ export interface GitHub {
     path?: string,
     options?: GitWorktreeAddOptions,
   ): Promise<Git>;
+
+  /**
+   * Creates a new GitHub Projects v2 project
+   * @param options project creation options
+   */
+  createProject(options: GitHubProjectV2CreateOptions): Promise<GitHubProjectV2>;
+
+  /**
+   * Adds an issue to a GitHub Projects v2 project
+   * @param projectId the project ID
+   * @param contentId the issue or pull request ID
+   */
+  addIssueToProject(projectId: string, contentId: string): Promise<GitHubProjectV2Item>;
+
+  /**
+   * Moves an issue to a different column/status in a GitHub Projects v2 project
+   * @param options the update options including project ID, item ID, field ID and value
+   */  
+  moveIssueToColumn(options: GitHubProjectV2UpdateItemOptions): Promise<GitHubProjectV2Item>;
+
+  /**
+   * Adds a status update to a project item
+   * @param options the update options including project ID, item ID, field ID and value
+   */
+  addStatusUpdate(options: GitHubProjectV2UpdateItemOptions): Promise<GitHubProjectV2Item>;
 }
 
 export interface MDObject {

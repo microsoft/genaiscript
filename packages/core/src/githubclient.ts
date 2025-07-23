@@ -56,6 +56,10 @@ import type {
   GitHubLabel,
   GitHubOptions,
   GitHubPaginationOptions,
+  GitHubProjectV2,
+  GitHubProjectV2CreateOptions,
+  GitHubProjectV2Item,
+  GitHubProjectV2UpdateItemOptions,
   GitHubPullRequest,
   GitHubReaction,
   GitHubReactionType,
@@ -1803,6 +1807,251 @@ export class GitHubClient implements GitHub {
       ...options,
       branch: options?.branch || branchName,
     });
+  }
+
+  async createProject(options: GitHubProjectV2CreateOptions): Promise<GitHubProjectV2> {
+    const { title, shortDescription, readme, template, repositoryId, ownerId } = options;
+    dbg(`creating project: ${title}`);
+    
+    const mutation = `
+      mutation($input: CreateProjectV2Input!) {
+        createProjectV2(input: $input) {
+          projectV2 {
+            id
+            title
+            shortDescription
+            readme
+            url
+            closed
+            public
+            owner {
+              login
+            }
+          }
+        }
+      }
+    `;
+
+    const input: any = {
+      title,
+      shortDescription,
+      readme,
+      template,
+    };
+
+    if (repositoryId) {
+      input.repositoryId = repositoryId;
+    } else if (ownerId) {
+      input.ownerId = ownerId;
+    } else {
+      // Default to repository owner if no specific owner is provided
+      const { owner } = await this.api();
+      const ownerQuery = `
+        query($login: String!) {
+          user(login: $login) {
+            id
+          }
+        }
+      `;
+      const ownerResult = await this.graphql<{ user: { id: string } }>(ownerQuery, { login: owner });
+      input.ownerId = ownerResult.user.id;
+    }
+
+    const result = await this.graphql<{ createProjectV2: { projectV2: GitHubProjectV2 } }>(mutation, { input });
+    return result.createProjectV2.projectV2;
+  }
+
+  async addIssueToProject(projectId: string, contentId: string): Promise<GitHubProjectV2Item> {
+    dbg(`adding issue ${contentId} to project ${projectId}`);
+    
+    const mutation = `
+      mutation($input: AddProjectV2ItemByIdInput!) {
+        addProjectV2ItemById(input: $input) {
+          item {
+            id
+            content {
+              ... on Issue {
+                id
+                title
+                url
+              }
+              ... on PullRequest {
+                id
+                title
+                url
+              }
+            }
+            project {
+              id
+              title
+            }
+            fieldValues(first: 20) {
+              nodes {
+                ... on ProjectV2ItemFieldSingleSelectValue {
+                  field {
+                    ... on ProjectV2SingleSelectField {
+                      id
+                      name
+                    }
+                  }
+                  optionId
+                  name
+                }
+                ... on ProjectV2ItemFieldTextValue {
+                  field {
+                    ... on ProjectV2Field {
+                      id
+                      name
+                    }
+                  }
+                  text
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const input = {
+      projectId,
+      contentId,
+    };
+
+    const result = await this.graphql<{ addProjectV2ItemById: { item: GitHubProjectV2Item } }>(mutation, { input });
+    return result.addProjectV2ItemById.item;
+  }
+
+  async moveIssueToColumn(options: GitHubProjectV2UpdateItemOptions): Promise<GitHubProjectV2Item> {
+    const { projectId, itemId, fieldId, value } = options;
+    dbg(`moving item ${itemId} in project ${projectId} to ${value}`);
+    
+    const mutation = `
+      mutation($input: UpdateProjectV2ItemFieldValueInput!) {
+        updateProjectV2ItemFieldValue(input: $input) {
+          projectV2Item {
+            id
+            content {
+              ... on Issue {
+                id
+                title
+                url
+              }
+              ... on PullRequest {
+                id
+                title
+                url
+              }
+            }
+            project {
+              id
+              title
+            }
+            fieldValues(first: 20) {
+              nodes {
+                ... on ProjectV2ItemFieldSingleSelectValue {
+                  field {
+                    ... on ProjectV2SingleSelectField {
+                      id
+                      name
+                    }
+                  }
+                  optionId
+                  name
+                }
+                ... on ProjectV2ItemFieldTextValue {
+                  field {
+                    ... on ProjectV2Field {
+                      id
+                      name
+                    }
+                  }
+                  text
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const input = {
+      projectId,
+      itemId,
+      fieldId,
+      value: {
+        singleSelectOptionId: value // Assuming column moves use single select fields
+      },
+    };
+
+    const result = await this.graphql<{ updateProjectV2ItemFieldValue: { projectV2Item: GitHubProjectV2Item } }>(mutation, { input });
+    return result.updateProjectV2ItemFieldValue.projectV2Item;
+  }
+
+  async addStatusUpdate(options: GitHubProjectV2UpdateItemOptions): Promise<GitHubProjectV2Item> {
+    const { projectId, itemId, fieldId, value } = options;
+    dbg(`adding status update to item ${itemId} in project ${projectId}: ${value}`);
+    
+    const mutation = `
+      mutation($input: UpdateProjectV2ItemFieldValueInput!) {
+        updateProjectV2ItemFieldValue(input: $input) {
+          projectV2Item {
+            id
+            content {
+              ... on Issue {
+                id
+                title
+                url
+              }
+              ... on PullRequest {
+                id
+                title
+                url
+              }
+            }
+            project {
+              id
+              title
+            }
+            fieldValues(first: 20) {
+              nodes {
+                ... on ProjectV2ItemFieldSingleSelectValue {
+                  field {
+                    ... on ProjectV2SingleSelectField {
+                      id
+                      name
+                    }
+                  }
+                  optionId
+                  name
+                }
+                ... on ProjectV2ItemFieldTextValue {
+                  field {
+                    ... on ProjectV2Field {
+                      id
+                      name
+                    }
+                  }
+                  text
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const input = {
+      projectId,
+      itemId,
+      fieldId,
+      value: {
+        text: value // Assuming status updates use text fields
+      },
+    };
+
+    const result = await this.graphql<{ updateProjectV2ItemFieldValue: { projectV2Item: GitHubProjectV2Item } }>(mutation, { input });
+    return result.updateProjectV2ItemFieldValue.projectV2Item;
   }
 }
 
