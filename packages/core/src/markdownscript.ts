@@ -67,10 +67,20 @@ export async function markdownScriptParse(text: string) {
         /^(ts|js|typescript|javascript)$/i.test(child.lang) &&
         /genai/i.test(child.meta)
       ) {
-        flush();
         dbg(`js block`);
-        jsSource += `// ${child.lang} ${child.meta} line${child.position?.start?.line || "--"}\n`;
+        flush();
+        jsSource += `// ${child.lang} ${child.meta} (${child.position?.start?.line || "--"})\n`;
         jsSource += child.value + "\n\n";
+      } else if (
+        child.type === "paragraph" &&
+        child.children.length === 1 &&
+        child.children[0].type === "image"
+      ) {
+        dbg(`image`);
+        flush();
+        const img = child.children[0];
+        jsSource += `// image ${img.alt || "no alt"} (${img.position?.start?.line || "--"})\n`;
+        jsSource += `defImages(${JSON.stringify(img.url)});\n\n`;
       } else {
         const tempTree = { type: "root", children: [child] } as Root;
         const result = stringify.stringify(tempTree);

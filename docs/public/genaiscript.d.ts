@@ -4405,7 +4405,7 @@
    * The transport type to use. If not specified, will be inferred from the configuration.
    * - "stdio": Use StdioClientTransport (requires command and args)
    * - "http": Use StreamableHTTPClientTransport (requires url)
-   * - "sse": Use SSEClientTransport (requires url)  
+   * - "sse": Use SSEClientTransport (requires url)
    * - "websocket": Use WebSocketClientTransport (requires url)
    */
   type?: "stdio" | "http" | "sse" | "websocket";
