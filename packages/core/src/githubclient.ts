@@ -1924,7 +1924,7 @@ export class GitHubClient implements GitHub {
 
   async moveIssueToColumn(options: GitHubProjectV2UpdateItemOptions): Promise<GitHubProjectV2Item> {
     const { projectId, itemId, fieldId, value } = options;
-    dbg(`moving item ${itemId} in project ${projectId} to ${value}`);
+    dbg(`moving item ${itemId} in project ${projectId} to ${JSON.stringify(value)}`);
     
     const mutation = `
       mutation($input: UpdateProjectV2ItemFieldValueInput!) {
@@ -1968,6 +1968,24 @@ export class GitHubClient implements GitHub {
                   }
                   text
                 }
+                ... on ProjectV2ItemFieldNumberValue {
+                  field {
+                    ... on ProjectV2Field {
+                      id
+                      name
+                    }
+                  }
+                  number
+                }
+                ... on ProjectV2ItemFieldDateValue {
+                  field {
+                    ... on ProjectV2Field {
+                      id
+                      name
+                    }
+                  }
+                  date
+                }
               }
             }
           }
@@ -1975,13 +1993,34 @@ export class GitHubClient implements GitHub {
       }
     `;
 
+    // Prepare the input value based on the type
+    let fieldValue: any;
+    if (typeof value === 'string') {
+      // Assume it's an option ID for single select fields
+      fieldValue = { singleSelectOptionId: value };
+    } else if (typeof value === 'object') {
+      if ('optionId' in value) {
+        fieldValue = { singleSelectOptionId: value.optionId };
+      } else if ('text' in value) {
+        fieldValue = { text: value.text };
+      } else if ('number' in value) {
+        fieldValue = { number: value.number };
+      } else if ('date' in value) {
+        fieldValue = { date: value.date };
+      } else {
+        throw new Error(`Unsupported value type: ${JSON.stringify(value)}`);
+      }
+    } else if (typeof value === 'number') {
+      fieldValue = { number: value };
+    } else {
+      throw new Error(`Unsupported value type: ${typeof value}`);
+    }
+
     const input = {
       projectId,
       itemId,
       fieldId,
-      value: {
-        singleSelectOptionId: value // Assuming column moves use single select fields
-      },
+      value: fieldValue,
     };
 
     const result = await this.graphql<{ updateProjectV2ItemFieldValue: { projectV2Item: GitHubProjectV2Item } }>(mutation, { input });
@@ -1990,49 +2029,55 @@ export class GitHubClient implements GitHub {
 
   async addStatusUpdate(options: GitHubProjectV2UpdateItemOptions): Promise<GitHubProjectV2Item> {
     const { projectId, itemId, fieldId, value } = options;
-    dbg(`adding status update to item ${itemId} in project ${projectId}: ${value}`);
+    dbg(`adding status update to item ${itemId} in project ${projectId}: ${JSON.stringify(value)}`);
     
-    const mutation = `
-      mutation($input: UpdateProjectV2ItemFieldValueInput!) {
-        updateProjectV2ItemFieldValue(input: $input) {
-          projectV2Item {
-            id
-            content {
-              ... on Issue {
-                id
-                title
-                url
-              }
-              ... on PullRequest {
-                id
-                title
-                url
-              }
-            }
-            project {
-              id
-              title
-            }
-            fieldValues(first: 20) {
+    // For status updates, we'll use the same logic as moveIssueToColumn
+    // since it's essentially updating a field value
+    return this.moveIssueToColumn(options);
+  }
+
+  /**
+   * Helper method to get project fields for easier field ID discovery
+   * @param projectId the project ID
+   */
+  async getProjectFields(projectId: string): Promise<Array<{
+    id: string;
+    name: string;
+    dataType: string;
+    options?: Array<{ id: string; name: string }>;
+  }>> {
+    dbg(`getting fields for project ${projectId}`);
+    
+    const query = `
+      query($projectId: ID!) {
+        node(id: $projectId) {
+          ... on ProjectV2 {
+            fields(first: 20) {
               nodes {
-                ... on ProjectV2ItemFieldSingleSelectValue {
-                  field {
-                    ... on ProjectV2SingleSelectField {
-                      id
-                      name
-                    }
-                  }
-                  optionId
+                ... on ProjectV2Field {
+                  id
                   name
+                  dataType
                 }
-                ... on ProjectV2ItemFieldTextValue {
-                  field {
-                    ... on ProjectV2Field {
+                ... on ProjectV2SingleSelectField {
+                  id
+                  name
+                  dataType
+                  options {
+                    id
+                    name
+                  }
+                }
+                ... on ProjectV2IterationField {
+                  id
+                  name
+                  dataType
+                  configuration {
+                    iterations {
                       id
-                      name
+                      title
                     }
                   }
-                  text
                 }
               }
             }
@@ -2041,17 +2086,28 @@ export class GitHubClient implements GitHub {
       }
     `;
 
-    const input = {
-      projectId,
-      itemId,
-      fieldId,
-      value: {
-        text: value // Assuming status updates use text fields
-      },
-    };
+    const result = await this.graphql<{
+      node: {
+        fields: {
+          nodes: Array<{
+            id: string;
+            name: string;
+            dataType: string;
+            options?: Array<{ id: string; name: string }>;
+            configuration?: {
+              iterations: Array<{ id: string; title: string }>;
+            };
+          }>;
+        };
+      };
+    }>(query, { projectId });
 
-    const result = await this.graphql<{ updateProjectV2ItemFieldValue: { projectV2Item: GitHubProjectV2Item } }>(mutation, { input });
-    return result.updateProjectV2ItemFieldValue.projectV2Item;
+    return result.node.fields.nodes.map(field => ({
+      id: field.id,
+      name: field.name,
+      dataType: field.dataType,
+      options: field.options || (field.configuration?.iterations.map(iter => ({ id: iter.id, name: iter.title })))
+    }));
   }
 }
 

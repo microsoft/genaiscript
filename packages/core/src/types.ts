@@ -3610,7 +3610,7 @@ export interface GitHubProjectV2UpdateItemOptions {
   projectId: string;
   itemId: string;
   fieldId: string;
-  value: string;
+  value: string | number | { optionId: string } | { text: string } | { date: string } | { number: number };
 }
 
 export interface GitHub {
@@ -3938,6 +3938,17 @@ export interface GitHub {
    * @param options the update options including project ID, item ID, field ID and value
    */
   addStatusUpdate(options: GitHubProjectV2UpdateItemOptions): Promise<GitHubProjectV2Item>;
+
+  /**
+   * Helper method to get project fields for easier field ID discovery
+   * @param projectId the project ID
+   */
+  getProjectFields(projectId: string): Promise<Array<{
+    id: string;
+    name: string;
+    dataType: string;
+    options?: Array<{ id: string; name: string }>;
+  }>>;
 }
 
 export interface MDObject {

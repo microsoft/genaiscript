@@ -249,6 +249,132 @@ const releases = await github.listReleases();
 console.log(releases);
 ```
 
+## GitHub Projects v2
+
+GitHub Projects v2 provides a powerful way to track and organize issues and pull requests. The GenAIScript GitHub client includes helper methods to interact with Projects v2.
+
+### Create a new project
+
+Create a new GitHub Projects v2 project using `createProject`:
+
+```js
+const project = await github.createProject({
+  title: "GenAIScript Development",
+  shortDescription: "Track development tasks for GenAIScript",
+  template: "AUTOMATED_KANBAN_V2" // or "AUTOMATED_KANBAN", "BUG_TRIAGE", "FEATURE_PLANNING", "ROADMAPS"
+});
+console.log(project.id, project.url);
+```
+
+### Add issue to project
+
+Add an existing issue or pull request to a project using `addIssueToProject`:
+
+```js
+const issue = await github.getIssue(123);
+const item = await github.addIssueToProject(project.id, issue.node_id);
+console.log(`Added issue ${issue.title} to project`);
+```
+
+### Get project fields
+
+Before moving items or updating statuses, you need to know the available fields and their options:
+
+```js
+const fields = await github.getProjectFields(project.id);
+const statusField = fields.find(f => f.name === "Status");
+console.log("Available status options:", statusField.options);
+```
+
+### Move issue to different column
+
+Move an issue to a different status column using `moveIssueToColumn`:
+
+```js
+const inProgressOption = statusField.options.find(o => o.name === "In Progress");
+await github.moveIssueToColumn({
+  projectId: project.id,
+  itemId: item.id,
+  fieldId: statusField.id,
+  value: { optionId: inProgressOption.id }
+});
+```
+
+### Add status update
+
+Update any field on a project item using `addStatusUpdate`. This works for text fields, number fields, dates, etc.:
+
+```js
+// Update a text field
+await github.addStatusUpdate({
+  projectId: project.id,
+  itemId: item.id,
+  fieldId: "text-field-id",
+  value: { text: "Started working on this issue" }
+});
+
+// Update a number field
+await github.addStatusUpdate({
+  projectId: project.id,
+  itemId: item.id,
+  fieldId: "priority-field-id",
+  value: { number: 5 }
+});
+
+// Update a date field
+await github.addStatusUpdate({
+  projectId: project.id,
+  itemId: item.id,
+  fieldId: "due-date-field-id",
+  value: { date: "2024-12-31" }
+});
+```
+
+### Complete workflow example
+
+Here's a complete example that demonstrates the GitHub Projects v2 workflow:
+
+```js
+// Create a new project
+const project = await github.createProject({
+  title: "Bug Triage Board",
+  shortDescription: "Track and triage reported bugs",
+  template: "BUG_TRIAGE"
+});
+
+// Get an issue to add to the project
+const issues = await github.listIssues({ labels: "bug", count: 1 });
+const issue = issues[0];
+
+// Add the issue to the project
+const item = await github.addIssueToProject(project.id, issue.node_id);
+
+// Get project fields to understand available options
+const fields = await github.getProjectFields(project.id);
+const statusField = fields.find(f => f.name === "Status");
+const priorityField = fields.find(f => f.name === "Priority");
+
+// Move to "In Review" status
+const inReviewOption = statusField.options.find(o => o.name === "In Review");
+await github.moveIssueToColumn({
+  projectId: project.id,
+  itemId: item.id,
+  fieldId: statusField.id,
+  value: { optionId: inReviewOption.id }
+});
+
+// Set priority to "High"
+const highPriorityOption = priorityField.options.find(o => o.name === "High");
+await github.addStatusUpdate({
+  projectId: project.id,
+  itemId: item.id,
+  fieldId: priorityField.id,
+  value: { optionId: highPriorityOption.id }
+});
+
+console.log(`Successfully triaged issue ${issue.title} in project ${project.title}`);
+```
+
 ## Octokit access
 
 Utilize [octokit](https://www.npmjs.com/package/octokit) to access the full GitHub APIs.

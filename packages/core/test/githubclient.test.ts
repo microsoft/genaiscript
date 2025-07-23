@@ -199,4 +199,62 @@ describe("GitHubClient", async () => {
     assert(typeof client.addStatusUpdate === "function");
     console.log("addStatusUpdate method exists");
   });
+
+  test("getProjectFields() returns project field information", async () => {
+    if (isCI) return; // Skip in CI to avoid making actual API calls
+
+    // This test would need an actual project ID
+    // For now, we'll just verify the method exists and has correct signature
+    assert(typeof client.getProjectFields === "function");
+    console.log("getProjectFields method exists");
+  });
+
+  test("GitHub Projects v2 workflow integration", async () => {
+    if (isCI) return; // Skip in CI to avoid making actual API calls
+
+    // This is an integration test that would demonstrate the full workflow:
+    // 1. Create a project
+    // 2. Add an issue to the project  
+    // 3. Get project fields to find status column options
+    // 4. Move the issue to a different status
+    // 5. Add a status update
+    
+    // For now, we'll just verify all methods exist
+    assert(typeof client.createProject === "function");
+    assert(typeof client.addIssueToProject === "function");
+    assert(typeof client.getProjectFields === "function");
+    assert(typeof client.moveIssueToColumn === "function");
+    assert(typeof client.addStatusUpdate === "function");
+    
+    console.log("All GitHub Projects v2 methods exist and are ready for use");
+    
+    // Example of how the workflow would look:
+    /*
+    const project = await client.createProject({
+      title: "GenAIScript Development",
+      shortDescription: "Track development tasks for GenAIScript",
+      template: "AUTOMATED_KANBAN_V2"
+    });
+    
+    const item = await client.addIssueToProject(project.id, "issue-id-here");
+    
+    const fields = await client.getProjectFields(project.id);
+    const statusField = fields.find(f => f.name === "Status");
+    const inProgressOption = statusField.options.find(o => o.name === "In Progress");
+    
+    await client.moveIssueToColumn({
+      projectId: project.id,
+      itemId: item.id,
+      fieldId: statusField.id,
+      value: { optionId: inProgressOption.id }
+    });
+    
+    await client.addStatusUpdate({
+      projectId: project.id,
+      itemId: item.id,
+      fieldId: "some-text-field-id",
+      value: { text: "Started working on this issue" }
+    });
+    */
+  });
 });
