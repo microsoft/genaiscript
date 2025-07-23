@@ -67,6 +67,8 @@ import type {
   PromptScript,
   WorkspaceFile,
   GitHubIssueCreateOptions,
+  GitWorktree,
+  GitWorktreeAddOptions,
 } from "./types.js";
 import { Octokit } from "@octokit/rest";
 import type { Octokit as OctokitCore } from "@octokit/core";
@@ -1764,6 +1766,64 @@ export class GitHubClient implements GitHub {
       );
     }
     return res;
+  }
+
+  async listWorktrees(): Promise<GitWorktree[]> {
+    const gitClient = GitClient.default();
+    return await gitClient.listWorktrees();
+  }
+
+  async addWorktree(
+    path: string,
+    commitish?: string,
+    options?: GitWorktreeAddOptions,
+  ): Promise<GitWorktree> {
+    const gitClient = GitClient.default();
+    return await gitClient.addWorktree(path, commitish, options);
+  }
+
+  async removeWorktree(
+    path: string,
+    options?: { force?: boolean },
+  ): Promise<void> {
+    const gitClient = GitClient.default();
+    return await gitClient.removeWorktree(path, options);
+  }
+
+  async addWorktreeForPullRequest(
+    pullNumber: number | string,
+    path?: string,
+    options?: GitWorktreeAddOptions,
+  ): Promise<GitWorktree> {
+    dbg(`adding worktree for pull request ${pullNumber}`);
+    
+    // Get pull request details
+    const pr = await this.getPullRequest(pullNumber);
+    if (!pr) {
+      throw new Error(`Pull request ${pullNumber} not found`);
+    }
+
+    // Default path based on PR info
+    const defaultPath = path || `worktree-pr-${pullNumber}`;
+    
+    // Fetch the PR branch
+    const gitClient = GitClient.default();
+    const branchName = `pr-${pullNumber}/${pr.head.ref}`;
+    
+    try {
+      // Try to fetch the PR branch first
+      await gitClient.fetch("origin", `pull/${pullNumber}/head:${branchName}`);
+    } catch (error) {
+      dbg(`Failed to fetch PR branch: ${error}`);
+      // Continue with the head ref directly
+    }
+
+    // Create worktree with the PR branch or head ref
+    const commitish = branchName || pr.head.sha;
+    return await gitClient.addWorktree(defaultPath, commitish, {
+      ...options,
+      branch: options?.branch || branchName,
+    });
   }
 }
 

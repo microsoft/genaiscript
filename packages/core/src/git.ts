@@ -315,6 +315,139 @@ export class GitClient implements Git {
     return res.split("\n")[0];
   }
 
+  async listWorktrees(): Promise<import("./types.js").GitWorktree[]> {
+    dbg(`listing worktrees`);
+    const res = await this.exec(["worktree", "list", "--porcelain"], {
+      valueOnError: "",
+    });
+    
+    if (!res.trim()) return [];
+
+    const worktrees: import("./types.js").GitWorktree[] = [];
+    const lines = res.trim().split("\n");
+    let current: Partial<import("./types.js").GitWorktree> = {};
+
+    for (const line of lines) {
+      if (line.startsWith("worktree ")) {
+        current.path = line.substring(9);
+      } else if (line.startsWith("HEAD ")) {
+        current.head = line.substring(5);
+      } else if (line.startsWith("branch ")) {
+        current.branch = line.substring(7);
+      } else if (line === "bare") {
+        current.bare = true;
+      } else if (line === "detached") {
+        current.detached = true;
+      } else if (line.startsWith("locked")) {
+        current.locked = true;
+        const reasonMatch = line.match(/locked (.+)/);
+        if (reasonMatch) current.lockReason = reasonMatch[1];
+      } else if (line === "prunable") {
+        current.prunable = true;
+      } else if (line === "") {
+        // Empty line indicates end of worktree entry
+        if (current.path) {
+          worktrees.push(current as import("./types.js").GitWorktree);
+          current = {};
+        }
+      }
+    }
+
+    // Handle last entry if no trailing empty line
+    if (current.path) {
+      worktrees.push(current as import("./types.js").GitWorktree);
+    }
+
+    return worktrees;
+  }
+
+  async addWorktree(
+    path: string,
+    commitish?: string,
+    options?: import("./types.js").GitWorktreeAddOptions,
+  ): Promise<import("./types.js").GitWorktree> {
+    dbg(`adding worktree at ${path}`);
+    const args = ["worktree", "add"];
+    
+    if (options?.force) args.push("-f");
+    if (options?.detach) args.push("--detach");
+    if (!options?.checkout) args.push("--no-checkout");
+    if (options?.lock) args.push("--lock");
+    if (options?.lockReason) args.push("--reason", options.lockReason);
+    if (options?.orphan) args.push("--orphan");
+    
+    if (options?.branch) {
+      args.push("-b", options.branch);
+    }
+    
+    args.push(path);
+    if (commitish) args.push(commitish);
+
+    await this.exec(args);
+    
+    // Get the created worktree info
+    const worktrees = await this.listWorktrees();
+    const created = worktrees.find(w => w.path === path);
+    if (!created) {
+      throw new Error(`Failed to create worktree at ${path}`);
+    }
+    
+    return created;
+  }
+
+  async removeWorktree(
+    path: string,
+    options?: { force?: boolean },
+  ): Promise<void> {
+    dbg(`removing worktree at ${path}`);
+    const args = ["worktree", "remove"];
+    
+    if (options?.force) args.push("-f");
+    args.push(path);
+
+    await this.exec(args);
+  }
+
+  async moveWorktree(worktree: string, newPath: string): Promise<void> {
+    dbg(`moving worktree from ${worktree} to ${newPath}`);
+    await this.exec(["worktree", "move", worktree, newPath]);
+  }
+
+  async lockWorktree(path: string, reason?: string): Promise<void> {
+    dbg(`locking worktree at ${path}`);
+    const args = ["worktree", "lock"];
+    if (reason) args.push("--reason", reason);
+    args.push(path);
+    await this.exec(args);
+  }
+
+  async unlockWorktree(path: string): Promise<void> {
+    dbg(`unlocking worktree at ${path}`);
+    await this.exec(["worktree", "unlock", path]);
+  }
+
+  async pruneWorktrees(options?: {
+    dryRun?: boolean;
+    verbose?: boolean;
+    expire?: string;
+  }): Promise<string> {
+    dbg(`pruning worktrees`);
+    const args = ["worktree", "prune"];
+    
+    if (options?.dryRun) args.push("-n");
+    if (options?.verbose) args.push("-v");
+    if (options?.expire) args.push("--expire", options.expire);
+
+    return await this.exec(args);
+  }
+
+  async repairWorktrees(paths?: string[]): Promise<void> {
+    dbg(`repairing worktrees`);
+    const args = ["worktree", "repair"];
+    if (paths?.length) args.push(...paths);
+    await this.exec(args);
+  }
+
   async log(options?: GitLogOptions): Promise<GitCommit[]> {
     const { base, head, merges, excludedGrep, count, author, until, after } = options || {};
     const paths = arrayify(options?.paths, { filterEmpty: true });
