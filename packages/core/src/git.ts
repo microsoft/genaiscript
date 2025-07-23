@@ -590,17 +590,7 @@ ${await this.diff({ ...options, nameOnly: true })}
     return new GitClient(directory);
   }
 
-  async listWorktrees(): Promise<
-    Array<{
-      path: string;
-      branch: string;
-      sha: string;
-      bare?: boolean;
-      detached?: boolean;
-      locked?: boolean;
-      lockReason?: string;
-    }>
-  > {
+  async listWorktrees(): Promise<GitWorktree[]> {
     dbg("listing worktrees");
     const output = await this.exec(["worktree", "list", "--porcelain"]);
     const worktrees: any[] = [];
@@ -638,22 +628,8 @@ ${await this.diff({ ...options, nameOnly: true })}
   async addWorktree(
     path: string,
     commitish?: string,
-    options?: {
-      branch?: string;
-      force?: boolean;
-      detach?: boolean;
-      checkout?: boolean;
-      track?: boolean;
-    },
-  ): Promise<{
-    path: string;
-    branch: string;
-    sha: string;
-    bare?: boolean;
-    detached?: boolean;
-    locked?: boolean;
-    lockReason?: string;
-  }> {
+    options?: GitWorktreeAddOptions,
+  ): Promise<GitWorktree> {
     dbg(`adding worktree at ${path}`);
     const args = ["worktree", "add"];
 
