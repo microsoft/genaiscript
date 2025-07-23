@@ -1131,6 +1131,7 @@ export function createChatGenerationContext(
         if (!inputImages || inputImages.length === 0) {
           throw new Error("images are required for variation mode");
         }
+        // Note: prompt is ignored for variation mode
         
         const result = await generateImageVariation(inputImages[0], { n, ...rest });
         return { images: result.images };

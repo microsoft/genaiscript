@@ -336,11 +336,11 @@ declare function speak(text: string, options?: SpeechOptions): Promise<SpeechRes
  * Generate, edit, or create variations of images using AI models.
  * 
  * The function supports three modes:
- * - Generation: generateImage("a cat", { mode: "generation" }) -> { image, revisedPrompt }
+ * - Generation: generateImage("a cat") -> { image, revisedPrompt }
  * - Variation: generateImage("", { mode: "variation", images: [imageFile] }) -> { images }  
  * - Edit: generateImage("add sunglasses", { mode: "edit", images: [imageFile] }) -> { images, revisedPrompt }
  * 
- * @param prompt Text prompt for generation or edit. Can be empty for variation mode.
+ * @param prompt Text prompt for generation or edit. For variation mode, use empty string or any text (ignored).
  * @param options Options including mode, input images, and generation parameters
  */
 declare function generateImage(
