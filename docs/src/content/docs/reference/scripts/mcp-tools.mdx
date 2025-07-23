@@ -51,6 +51,8 @@ See [MCP server](/genaiscript/reference/scripts/mcp-server) for more details.
 You can declare the MCP server configuration in the `script` function (as tools or agents)
 or load them dynamically using `defTool`.
 
+You can also reference servers by ID from `mcp.json` files using the [system.mcp](#system-mcp) system script.
+
 ### `mcpServers`
 
 You can declare the MCP server configuration in the `mcpServers` field of `script` or `runPrompt`.
@@ -182,6 +184,42 @@ defTool({
 ```
 
 :::
+
+### `system.mcp`
+
+The `system.mcp` system script allows you to reference MCP servers by ID from `mcp.json` files,
+following GitHub Copilot Chat conventions.
+
+```js
+script({
+    system: ["system.mcp"],
+    vars: {
+        "system.mcp.id": "memory-server", // Reference server by ID
+    },
+})
+```
+
+GenAIScript will automatically resolve the server configuration from:
+- `.vscode/mcp.json` (GitHub Copilot Chat format)
+- `.ruler/mcp.json` (Ruler format) 
+- `mcp.json` (root level)
+
+Example `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "memory-server": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  }
+}
+```
+
+This approach allows centralized MCP server management and consistent configuration
+across different AI coding assistants.
 
 ## Lifecycle of servers
 
