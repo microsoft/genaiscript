@@ -42,6 +42,7 @@ import type {
   CreateChatCompletionRequest,
   EmbeddingResult,
 } from "./chattypes.js";
+import type { BufferLike } from "./types.js";
 import {
   assistantText,
   collapseChatMessages,
@@ -186,6 +187,31 @@ export type CreateImageRequest = {
   outputFormat?: "png" | "jpeg" | "webp";
 };
 
+export type CreateImageVariationRequest = {
+  model: string;
+  image: BufferLike;
+  n?: number;
+  size?: string;
+  responseFormat?: "url" | "b64_json";
+  user?: string;
+};
+
+export type CreateImageEditRequest = {
+  model: string;
+  image: BufferLike;
+  mask?: BufferLike;
+  prompt: string;
+  n?: number;
+  size?: string;
+  responseFormat?: "url" | "b64_json";
+  user?: string;
+  // GPT-Image-1 specific parameters
+  moderation?: "auto" | "low";
+  background?: "transparent" | "opaque";
+  outputFormat?: "png" | "jpeg" | "webp";
+  quality?: "auto" | "low" | "medium" | "high";
+};
+
 export interface ImageGenerationUsage {
   total_tokens: number;
   input_tokens: number;
@@ -203,11 +229,36 @@ export interface CreateImageResult {
   usage?: ImageGenerationUsage;
 }
 
+export interface CreateImageVariationResult {
+  images: Uint8Array[];
+  error?: SerializedError;
+  usage?: ImageGenerationUsage;
+}
+
+export interface CreateImageEditResult {
+  images: Uint8Array[];
+  error?: SerializedError;
+  revisedPrompt?: string;
+  usage?: ImageGenerationUsage;
+}
+
 export type ImageGenerationFunction = (
   req: CreateImageRequest,
   cfg: LanguageModelConfiguration,
   options: TraceOptions & CancellationOptions & RetryOptions,
 ) => Promise<CreateImageResult>;
+
+export type ImageVariationFunction = (
+  req: CreateImageVariationRequest,
+  cfg: LanguageModelConfiguration,
+  options: TraceOptions & CancellationOptions & RetryOptions,
+) => Promise<CreateImageVariationResult>;
+
+export type ImageEditFunction = (
+  req: CreateImageEditRequest,
+  cfg: LanguageModelConfiguration,
+  options: TraceOptions & CancellationOptions & RetryOptions,
+) => Promise<CreateImageEditResult>;
 
 export type EmbeddingFunction = (
   input: string | string[],

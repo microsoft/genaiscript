@@ -28,6 +28,10 @@ import type {
   ChatCompletionHandler,
   CreateImageRequest,
   CreateImageResult,
+  CreateImageVariationRequest,
+  CreateImageVariationResult,
+  CreateImageEditRequest,
+  CreateImageEditResult,
   CreateSpeechRequest,
   CreateSpeechResult,
   CreateTranscriptionRequest,
@@ -38,6 +42,7 @@ import { RequestError, errorMessage, isCancelError, serializeError } from "./err
 import { createFetch } from "./fetch.js";
 import { parseModelIdentifier } from "./models.js";
 import { JSON5TryParse } from "./json5.js";
+import { resolveBufferLike } from "./bufferlike.js";
 import type {
   ChatCompletionToolCall,
   ChatCompletionResponse,
@@ -835,6 +840,277 @@ export async function OpenAIImageGeneration(
       image: undefined,
       error: serializeError(e),
     } satisfies CreateImageResult;
+  }
+}
+
+/**
+ * Generates image variations using OpenAI's image variations API
+ */
+export async function OpenAIImageVariation(
+  req: CreateImageVariationRequest,
+  cfg: LanguageModelConfiguration,
+  options: TraceOptions & CancellationOptions & RetryOptions
+): Promise<CreateImageVariationResult> {
+  const { trace } = options || {};
+  const { model, image, n = 1, size, responseFormat = "b64_json", user } = req;
+
+  dbg(`image variation request: %o`, { model, n, size, responseFormat });
+  
+  const isDallE = /^dall-e/i.test(model);
+  const isDallE2 = /^dall-e-2/i.test(model);
+  const isGpt = /^gpt-image/i.test(model);
+
+  let url = `${cfg.base}/images/variations`;
+
+  try {
+    // Resolve the image buffer
+    const imageBuffer = await resolveBufferLike(image);
+    if (!imageBuffer) {
+      return {
+        images: [],
+        error: { message: "Failed to resolve image buffer" },
+      };
+    }
+
+    // Create FormData for multipart request
+    const body = new FormData();
+    
+    // Create a Blob from the buffer with appropriate MIME type
+    const imageBlob = new Blob([imageBuffer], { type: "image/png" });
+    body.append("image", imageBlob, "image.png");
+    
+    body.append("model", model);
+    body.append("n", n.toString());
+    if (size) body.append("size", size);
+    body.append("response_format", responseFormat);
+    if (user) body.append("user", user);
+
+    // Handle Azure configuration
+    if (cfg.type === "azure") {
+      const version = cfg.version || AZURE_OPENAI_API_VERSION;
+      trace?.itemValue(`version`, version);
+      url = trimTrailingSlash(cfg.base) + "/" + model + `/images/variations?api-version=${version}`;
+      // Azure doesn't need model in body for this endpoint
+    }
+
+    const fetch = await createFetch(options);
+    logInfo(`generate image variations with ${cfg.provider}:${cfg.model} (this may take a while)`);
+    
+    const freq = {
+      method: "POST",
+      headers: {
+        ...getConfigHeaders(cfg),
+        // Don't set Content-Type, let the browser set it with boundary
+      },
+      body: body,
+    };
+
+    trace?.itemValue(`url`, `[${url}](${url})`);
+    traceFetchPost(trace, url, freq.headers, body);
+    
+    const res = await fetch(url, freq as any);
+    dbg(`response: %d %s`, res.status, res.statusText);
+    trace?.itemValue(`status`, `${res.status} ${res.statusText}`);
+    
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      return {
+        images: [],
+        error: errorData?.error || res.statusText,
+      };
+    }
+
+    const j: ImageGenerationResponse = await res.json();
+    dbg(`%O`, j);
+    
+    const usage = j.usage;
+    const images: Uint8Array[] = [];
+    
+    // Process all returned images
+    for (const item of j.data) {
+      if (responseFormat === "b64_json" && item.b64_json) {
+        const buffer = fromBase64(item.b64_json);
+        images.push(new Uint8Array(buffer));
+      } else if (responseFormat === "url" && item.url) {
+        // For URL responses, we should download the image
+        try {
+          const imageRes = await fetch(item.url);
+          if (imageRes.ok) {
+            const imageBuffer = await imageRes.arrayBuffer();
+            images.push(new Uint8Array(imageBuffer));
+          }
+        } catch (e) {
+          dbg(`failed to download image from URL: %s`, e);
+        }
+      }
+    }
+
+    return {
+      images,
+      usage,
+    } satisfies CreateImageVariationResult;
+    
+  } catch (e) {
+    logError(e);
+    trace?.error(e);
+    return {
+      images: [],
+      error: serializeError(e),
+    } satisfies CreateImageVariationResult;
+  }
+}
+
+/**
+ * Edits images using OpenAI's image edits API
+ */
+export async function OpenAIImageEdit(
+  req: CreateImageEditRequest,
+  cfg: LanguageModelConfiguration,
+  options: TraceOptions & CancellationOptions & RetryOptions
+): Promise<CreateImageEditResult> {
+  const { trace } = options || {};
+  const {
+    model,
+    image,
+    mask,
+    prompt,
+    n = 1,
+    size,
+    responseFormat = "b64_json",
+    user,
+    moderation,
+    background,
+    outputFormat,
+    quality,
+  } = req;
+
+  dbg(`image edit request: %o`, { model, prompt, n, size, responseFormat });
+  
+  const isDallE = /^dall-e/i.test(model);
+  const isDallE2 = /^dall-e-2/i.test(model);
+  const isGpt = /^gpt-image/i.test(model);
+
+  let url = `${cfg.base}/images/edits`;
+
+  try {
+    // Resolve the image buffer
+    const imageBuffer = await resolveBufferLike(image);
+    if (!imageBuffer) {
+      return {
+        images: [],
+        error: { message: "Failed to resolve image buffer" },
+      };
+    }
+
+    // Create FormData for multipart request
+    const body = new FormData();
+    
+    // Create a Blob from the image buffer
+    const imageBlob = new Blob([imageBuffer], { type: "image/png" });
+    body.append("image", imageBlob, "image.png");
+    
+    // Add mask if provided
+    if (mask) {
+      const maskBuffer = await resolveBufferLike(mask);
+      if (maskBuffer) {
+        const maskBlob = new Blob([maskBuffer], { type: "image/png" });
+        body.append("mask", maskBlob, "mask.png");
+      }
+    }
+    
+    body.append("model", model);
+    body.append("prompt", prompt);
+    body.append("n", n.toString());
+    if (size) body.append("size", size);
+    body.append("response_format", responseFormat);
+    if (user) body.append("user", user);
+    
+    // GPT-Image-1 specific parameters
+    if (isGpt) {
+      if (moderation) body.append("moderation", moderation);
+      if (background) body.append("background", background);
+      if (outputFormat) body.append("output_format", outputFormat);
+      if (quality) body.append("quality", quality);
+    }
+
+    // Handle Azure configuration
+    if (cfg.type === "azure") {
+      const version = cfg.version || AZURE_OPENAI_API_VERSION;
+      trace?.itemValue(`version`, version);
+      url = trimTrailingSlash(cfg.base) + "/" + model + `/images/edits?api-version=${version}`;
+      // Azure doesn't need model in body for this endpoint
+    }
+
+    const fetch = await createFetch(options);
+    logInfo(`edit image with ${cfg.provider}:${cfg.model} (this may take a while)`);
+    
+    const freq = {
+      method: "POST",
+      headers: {
+        ...getConfigHeaders(cfg),
+        // Don't set Content-Type, let the browser set it with boundary
+      },
+      body: body,
+    };
+
+    trace?.itemValue(`url`, `[${url}](${url})`);
+    traceFetchPost(trace, url, freq.headers, body);
+    
+    const res = await fetch(url, freq as any);
+    dbg(`response: %d %s`, res.status, res.statusText);
+    trace?.itemValue(`status`, `${res.status} ${res.statusText}`);
+    
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      return {
+        images: [],
+        error: errorData?.error || res.statusText,
+      };
+    }
+
+    const j: ImageGenerationResponse = await res.json();
+    dbg(`%O`, j);
+    
+    const revisedPrompt = j.data[0]?.revised_prompt;
+    if (revisedPrompt) {
+      trace?.details(`📷 revised prompt`, revisedPrompt);
+    }
+    
+    const usage = j.usage;
+    const images: Uint8Array[] = [];
+    
+    // Process all returned images
+    for (const item of j.data) {
+      if (responseFormat === "b64_json" && item.b64_json) {
+        const buffer = fromBase64(item.b64_json);
+        images.push(new Uint8Array(buffer));
+      } else if (responseFormat === "url" && item.url) {
+        // For URL responses, we should download the image
+        try {
+          const imageRes = await fetch(item.url);
+          if (imageRes.ok) {
+            const imageBuffer = await imageRes.arrayBuffer();
+            images.push(new Uint8Array(imageBuffer));
+          }
+        } catch (e) {
+          dbg(`failed to download image from URL: %s`, e);
+        }
+      }
+    }
+
+    return {
+      images,
+      revisedPrompt,
+      usage,
+    } satisfies CreateImageEditResult;
+    
+  } catch (e) {
+    logError(e);
+    trace?.error(e);
+    return {
+      images: [],
+      error: serializeError(e),
+    } satisfies CreateImageEditResult;
   }
 }
 
