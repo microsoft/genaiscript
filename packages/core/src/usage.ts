@@ -18,8 +18,10 @@ import { parseModelIdentifier } from "./models.js";
 import {
   BOX_RIGHT,
   BOX_UP_AND_RIGHT,
+  CHAR_DOWN_ARROW,
   CHAR_ENVELOPE,
   CHAR_FLOPPY_DISK,
+  CHAR_UP_ARROW,
   CHAR_UP_DOWN_ARROWS,
   MODEL_PRICINGS,
   MODEL_PROVIDER_GITHUB,
@@ -456,9 +458,9 @@ export class GenerationStats {
     const usageData: Array<{
       Model: string;
       Label: string;
-      "Prompt Tokens": string;
-      "Completion Tokens": string;
-      "Total Tokens": string;
+      [`${CHAR_UP_ARROW}Prompt Tokens`]: string;
+      [`${CHAR_DOWN_ARROW}Completion Tokens`]: string;
+      [`${CHAR_UP_DOWN_ARROWS}Total Tokens`]: string;
       Cost: string;
       Duration: string;
     }> = [];
@@ -476,9 +478,9 @@ export class GenerationStats {
       usageData.push({
         Model: this.resolvedModel,
         Label: this.label || "-",
-        "Prompt Tokens": prettyTokens(this.usage.prompt_tokens) || "0t",
-        "Completion Tokens": prettyTokens(this.usage.completion_tokens) || "0t", 
-        "Total Tokens": prettyTokens(this.usage.total_tokens) || "0t",
+        [`${CHAR_UP_ARROW}Prompt Tokens`]: prettyTokens(this.usage.prompt_tokens) || "0t",
+        [`${CHAR_DOWN_ARROW}Completion Tokens`]: prettyTokens(this.usage.completion_tokens) || "0t", 
+        [`${CHAR_UP_DOWN_ARROWS}Total Tokens`]: prettyTokens(this.usage.total_tokens) || "0t",
         Cost: prettyCost(parentCost) || "-",
         Duration: prettyDuration(this.usage.duration) || "-",
       });
@@ -495,9 +497,9 @@ export class GenerationStats {
       usageData.push({
         Model: child.resolvedModel,
         Label: child.label || "-",
-        "Prompt Tokens": prettyTokens(childUsage.prompt_tokens) || "0t",
-        "Completion Tokens": prettyTokens(childUsage.completion_tokens) || "0t",
-        "Total Tokens": prettyTokens(childUsage.total_tokens) || "0t", 
+        [`${CHAR_UP_ARROW}Prompt Tokens`]: prettyTokens(childUsage.prompt_tokens) || "0t",
+        [`${CHAR_DOWN_ARROW}Completion Tokens`]: prettyTokens(childUsage.completion_tokens) || "0t",
+        [`${CHAR_UP_DOWN_ARROWS}Total Tokens`]: prettyTokens(childUsage.total_tokens) || "0t", 
         Cost: prettyCost(childCost) || "-",
         Duration: prettyDuration(childUsage.duration) || "-",
       });
@@ -508,9 +510,9 @@ export class GenerationStats {
       usageData.push({
         Model: this.model,
         Label: this.label || "-",
-        "Prompt Tokens": "0t",
-        "Completion Tokens": "0t",
-        "Total Tokens": "0t",
+        [`${CHAR_UP_ARROW}Prompt Tokens`]: "0t",
+        [`${CHAR_DOWN_ARROW}Completion Tokens`]: "0t",
+        [`${CHAR_UP_DOWN_ARROWS}Total Tokens`]: "0t",
         Cost: "-",
         Duration: "-",
       });
