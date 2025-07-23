@@ -4618,6 +4618,28 @@
  interface ImageGenerationOptions extends ImageTransformOptions, RetryOptions {
   model?: OptionsOrString<ModelImageGenerationType>;
   /**
+   * The mode of image generation.
+   * - "generation": Generate image from text prompt (default)
+   * - "variation": Generate variations of existing image(s)
+   * - "edit": Edit image with text prompt and optional mask
+   */
+  mode?: "generation" | "variation" | "edit";
+  /**
+   * Input images for variation or edit modes.
+   * Required for "variation" and "edit" modes.
+   */
+  images?: (string | WorkspaceFile)[];
+  /**
+   * Mask image for edit mode (optional).
+   * Used for inpainting specific areas of the image.
+   */
+  mask?: string | WorkspaceFile;
+  /**
+   * Number of images to generate.
+   * Default is 1.
+   */
+  n?: number;
+  /**
    * The quality of the image that will be generated.
    * auto (default value) will automatically select the best quality for the given model.
    * high, medium and low are supported for gpt-image-1.
@@ -4800,7 +4822,11 @@
   generateImage(
     prompt: string,
     options?: ImageGenerationOptions,
-  ): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+  ): Promise<{ 
+    image?: WorkspaceFile; 
+    images?: WorkspaceFile[]; 
+    revisedPrompt?: string 
+  }>;
 }
 
  interface ChatGenerationContextOptions {
@@ -5796,4 +5822,8 @@ declare function speak(text: string, options?: SpeechOptions): Promise<SpeechRes
 declare function generateImage(
   prompt: string,
   options?: ImageGenerationOptions,
-): Promise<{ image: WorkspaceFile; revisedPrompt?: string }>;
+): Promise<{ 
+  image?: WorkspaceFile; 
+  images?: WorkspaceFile[]; 
+  revisedPrompt?: string 
+}>;
