@@ -3910,35 +3910,6 @@ export interface GitHub {
   client(owner: string, repo: string): GitHub;
 
   /**
-   * List all git worktrees in the repository
-   */
-  listWorktrees(): Promise<GitWorktree[]>;
-
-  /**
-   * Add a new git worktree for a GitHub branch or commit
-   * @param path path where the worktree should be created
-   * @param commitish commit, branch, or tag to checkout (can be GitHub branch)
-   * @param options additional options for worktree creation
-   */
-  addWorktree(
-    path: string,
-    commitish?: string,
-    options?: GitWorktreeAddOptions,
-  ): Promise<GitWorktree>;
-
-  /**
-   * Remove a git worktree
-   * @param path path to the worktree to remove
-   * @param options removal options
-   */
-  removeWorktree(
-    path: string,
-    options?: {
-      force?: boolean;
-    },
-  ): Promise<void>;
-
-  /**
    * Create a worktree for a specific GitHub pull request
    * @param pullNumber pull request number
    * @param path path where the worktree should be created
@@ -3949,7 +3920,6 @@ export interface GitHub {
     path?: string,
     options?: GitWorktreeAddOptions,
   ): Promise<GitWorktree>;
-}
 }
 
 export interface MDObject {

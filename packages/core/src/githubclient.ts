@@ -1768,28 +1768,6 @@ export class GitHubClient implements GitHub {
     return res;
   }
 
-  async listWorktrees(): Promise<GitWorktree[]> {
-    const gitClient = GitClient.default();
-    return await gitClient.listWorktrees();
-  }
-
-  async addWorktree(
-    path: string,
-    commitish?: string,
-    options?: GitWorktreeAddOptions,
-  ): Promise<GitWorktree> {
-    const gitClient = GitClient.default();
-    return await gitClient.addWorktree(path, commitish, options);
-  }
-
-  async removeWorktree(
-    path: string,
-    options?: { force?: boolean },
-  ): Promise<void> {
-    const gitClient = GitClient.default();
-    return await gitClient.removeWorktree(path, options);
-  }
-
   async addWorktreeForPullRequest(
     pullNumber: number | string,
     path?: string,
