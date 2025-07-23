@@ -440,10 +440,13 @@ export class GenerationStats {
     
     // Add parent stats if it has usage
     if (this.usage.total_tokens > 0) {
-      const parentCost = this.chatTurns
-        .filter(turn => !turn.cached)
-        .map(turn => estimateCost(turn.model, turn.usage) ?? estimateCost(this.model, turn.usage))
-        .reduce((a, b) => (a ?? 0) + (b ?? 0), 0);
+      // For parent, calculate cost from actual usage or use existing cost calculation
+      const parentCost = this.chatTurns.length > 0 
+        ? this.chatTurns
+            .filter(turn => !turn.cached)
+            .map(turn => estimateCost(turn.model, turn.usage) ?? estimateCost(this.model, turn.usage))
+            .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
+        : estimateCost(this.model, this.usage);
         
       usageData.push({
         Model: this.resolvedModel,
@@ -458,8 +461,11 @@ export class GenerationStats {
     
     // Add children stats
     for (const child of this.children) {
-      const childCost = child.cost();
       const childUsage = child.accumulatedUsage();
+      // Calculate cost for child - try existing cost calculation first, then estimate from usage
+      const childCost = child.chatTurns.length > 0 
+        ? child.cost() 
+        : estimateCost(child.model, childUsage);
       
       usageData.push({
         Model: child.resolvedModel,

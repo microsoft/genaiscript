@@ -203,5 +203,36 @@ describe("usage", () => {
       // Should show zero usage
       assert(report.includes("0t"));
     });
+
+    test("should handle stats with costs available", () => {
+      const stats = new GenerationStats("openai:gpt-4o", "test");
+      stats.addUsage({
+        prompt_tokens: 100,
+        completion_tokens: 50,  
+        total_tokens: 150,
+        duration: 1000,
+      }, 1000);
+
+      const report = stats.toGitHubReport();
+      
+      // Should contain cost information for models with known pricing
+      assert(report.includes("¢") || report.includes("$"));
+    });
+
+    test("should format large token counts properly", () => {
+      const stats = new GenerationStats("openai:gpt-4", "large-test");
+      stats.addUsage({
+        prompt_tokens: 1500000, // 1.5M tokens  
+        completion_tokens: 500000, // 500k tokens
+        total_tokens: 2000000, // 2M tokens
+        duration: 60000, // 1 minute
+      }, 60000);
+
+      const report = stats.toGitHubReport();
+      
+      // Should format large numbers with appropriate units
+      assert(report.includes("Mt") || report.includes("kt"));
+      assert(report.includes("1.0m") || report.includes("60.0s"));
+    });
   });
 });
