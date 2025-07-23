@@ -18,15 +18,7 @@ describe("MCP Transport Creation Integration", () => {
         config: { id: "sse1", type: "sse", url: "https://events.example.com" },
         expectedType: "sse",
       },
-      {
-        config: { id: "ws1", type: "websocket", url: "wss://ws.example.com" },
-        expectedType: "websocket",
-      },
       // Auto-detection tests
-      {
-        config: { id: "auto-ws", url: "ws://localhost:8080" },
-        expectedType: "websocket",
-      },
       {
         config: { id: "auto-http", url: "http://localhost:3000/mcp" },
         expectedType: "http",
@@ -45,7 +37,7 @@ describe("MCP Transport Creation Integration", () => {
         expect(config.command || config.type === "stdio").toBeTruthy();
       } else {
         expect(config.url).toBeDefined();
-        expect(config.url).toMatch(/^(https?|wss?):/);
+        expect(config.url).toMatch(/^https?:/);
       }
     });
   });
@@ -56,7 +48,6 @@ describe("MCP Transport Creation Integration", () => {
       { id: "invalid1", type: "stdio" as const }, // Missing command/args
       { id: "invalid2", type: "http" as const }, // Missing URL
       { id: "invalid3", type: "sse" as const }, // Missing URL
-      { id: "invalid4", type: "websocket" as const }, // Missing URL
     ];
 
     invalidConfigs.forEach((config) => {
@@ -73,8 +64,6 @@ describe("MCP Transport Creation Integration", () => {
     const urls = [
       { url: "https://api.example.com/mcp", expectedProtocol: "https:" },
       { url: "http://localhost:3000/mcp", expectedProtocol: "http:" },
-      { url: "wss://ws.example.com/socket", expectedProtocol: "wss:" },
-      { url: "ws://localhost:8080/ws", expectedProtocol: "ws:" },
     ];
 
     urls.forEach(({ url, expectedProtocol }) => {

@@ -41,28 +41,10 @@ describe("MCP Transport Configuration Validation", () => {
     expect(config.url).toBe("https://events.example.com/mcp");
   });
 
-  it("should validate WebSocket transport configuration", () => {
-    const config: McpServerConfig = {
-      id: "test-ws",
-      type: "websocket",
-      url: "wss://ws.example.com/mcp",
-    };
-
-    expect(config.id).toBe("test-ws");
-    expect(config.type).toBe("websocket");
-    expect(config.url).toBe("wss://ws.example.com/mcp");
-  });
-
   it("should validate auto-detected configurations", () => {
     const httpConfig: McpServerConfig = {
       id: "auto-http",
       url: "https://api.example.com/mcp",
-      // type should be auto-detected
-    };
-
-    const wsConfig: McpServerConfig = {
-      id: "auto-ws",
-      url: "wss://ws.example.com/mcp",
       // type should be auto-detected
     };
 
@@ -74,7 +56,6 @@ describe("MCP Transport Configuration Validation", () => {
     };
 
     expect(httpConfig.url).toMatch(/^https?:/);
-    expect(wsConfig.url).toMatch(/^wss?:/);
     expect(stdioConfig.command).toBeDefined();
     expect(stdioConfig.args).toBeDefined();
   });
@@ -95,10 +76,6 @@ describe("MCP Transport Configuration Validation", () => {
         type: "sse",
         url: "https://mcp-stream.company.com/events",
       },
-      "websocket-service": {
-        type: "websocket",
-        url: "wss://mcp-ws.company.com/socket",
-      },
     };
 
     Object.entries(configs).forEach(([id, config]) => {
@@ -110,7 +87,7 @@ describe("MCP Transport Configuration Validation", () => {
         expect(fullConfig.args).toBeDefined();
       } else {
         expect(fullConfig.url).toBeDefined();
-        expect(fullConfig.url).toMatch(/^(https?|wss?):/);
+        expect(fullConfig.url).toMatch(/^https?:/);
       }
     });
   });
