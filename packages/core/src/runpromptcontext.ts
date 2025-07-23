@@ -1023,14 +1023,14 @@ export function createChatGenerationContext(
 
   const generateImage = async (
     prompt: string,
-    options?: ImageGenerationOptions,
+    imageOptions?: ImageGenerationOptions,
   ): Promise<{ 
     image?: WorkspaceFile; 
     images?: WorkspaceFile[]; 
     revisedPrompt?: string 
   }> => {
-    const mode = options?.mode || "generation";
-    const { images: inputImages, mask, n = 1, ...rest } = options || {};
+    const mode = imageOptions?.mode || "generation";
+    const { images: inputImages, mask, n = 1, ...rest } = imageOptions || {};
 
     switch (mode) {
       case "generation": {
@@ -1038,9 +1038,9 @@ export function createChatGenerationContext(
 
         const imgTrace = trace?.startTraceDetails("🖼️ generate image");
         try {
-          const { style, quality, size, outputFormat, mime, stats, ...restOptions } = rest;
+          const { style, quality, size, outputFormat, mime, ...restOptions } = rest;
           const conn: ModelConnectionOptions = {
-            model: options?.model || IMAGE_GENERATION_MODEL_ID,
+            model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
           };
           const { info, configuration } = await resolveModelConnectionInfo(conn, {
             trace: imgTrace,
@@ -1050,7 +1050,7 @@ export function createChatGenerationContext(
           });
           if (info.error) throw new Error(info.error);
           if (!configuration) throw new Error(`model configuration not found for ${conn.model}`);
-          const statsChild = stats?.createChild(info.model, "generate image");
+          const statsChild = options.stats?.createChild(info.model, "generate image");
           checkCancelled(cancellationToken);
           const { ok } = await runtimeHost.pullModel(configuration, {
             trace: imgTrace,
@@ -1085,7 +1085,7 @@ export function createChatGenerationContext(
 
           const h = await hash(res.image, { length: 20 });
           const buf = await imageTransform(res.image, {
-            ...(options || {}),
+            ...(imageOptions || {}),
             mime:
               mime ??
               (outputFormat === "jpeg" || outputFormat === "webp"
@@ -1128,214 +1128,205 @@ export function createChatGenerationContext(
       }
       
       case "variation": {
-        if (!inputImages || inputImages.length === 0) {
+        if (!inputImages) {
           throw new Error("images are required for variation mode");
         }
-        // Note: prompt is ignored for variation mode
         
-        const result = await generateImageVariation(inputImages[0], { n, ...rest });
-        return { images: result.images };
+        const imageArray = arrayify(inputImages);
+        if (imageArray.length === 0) {
+          throw new Error("at least one image is required for variation mode");
+        }
+        
+        // Use the first image for variation (OpenAI API supports only one input image for variations)
+        const sourceImage = imageArray[0];
+
+        const imgTrace = trace?.startTraceDetails("🖼️ generate image variation");
+        try {
+          const conn: ModelConnectionOptions = {
+            model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
+          };
+          const { info, configuration } = await resolveModelConnectionInfo(conn, {
+            trace: imgTrace,
+            defaultModel: IMAGE_GENERATION_MODEL_ID,
+            cancellationToken,
+            token: true,
+          });
+          if (info.error) throw new Error(info.error);
+          if (!configuration) throw new Error(`model configuration not found for ${conn.model}`);
+          const statsChild = options.stats?.createChild(info.model, "generate image variation");
+          checkCancelled(cancellationToken);
+          const { ok } = await runtimeHost.pullModel(configuration, {
+            trace: imgTrace,
+            cancellationToken,
+          });
+          if (!ok) throw new Error(`failed to pull model '${conn}'`);
+          checkCancelled(cancellationToken);
+          const { imageVariation } = await resolveLanguageModel(configuration.provider);
+          if (!imageVariation) throw new Error("image variation not supported for " + info.model);
+          imgTrace?.itemValue(`model`, configuration.model);
+          
+          // Convert input image to buffer
+          const imageData = typeof sourceImage === "string" ? await workspace.readText(sourceImage) : sourceImage;
+          const imageBuffer = Buffer.from(imageData.content || "", imageData.encoding === "base64" ? "base64" : "utf8");
+
+          const req = deleteUndefinedValues({
+            model: configuration.model,
+            image: imageBuffer,
+            n,
+            size: imageOptions?.size,
+            responseFormat: "b64_json",
+          }) satisfies CreateImageVariationRequest;
+          
+          const m = measure("img.variation", `${req.model} -> ${n} variations`);
+          const res = await imageVariation(req, configuration, {
+            trace: imgTrace,
+            cancellationToken,
+            ...rest,
+          });
+          const duration = m();
+          if (res.error) {
+            imgTrace?.error(errorMessage(res.error));
+            return { images: [] };
+          }
+          dbg(`usage: %o`, res.usage);
+          statsChild?.addImageGenerationUsage(res.usage, duration);
+
+          const workspaceFiles: WorkspaceFile[] = [];
+          for (let i = 0; i < res.images.length; i++) {
+            const imageData = res.images[i];
+            const h = await hash(imageData, { length: 20 });
+            const buf = await imageTransform(imageData, {
+              ...(imageOptions || {}),
+              cancellationToken,
+              trace: imgTrace,
+            });
+            const { ext } = (await fileTypeFromBuffer(buf)) || {};
+            const filename = dotGenaiscriptPath("image", h + "." + ext);
+            await runtimeHost.writeFile(filename, buf);
+
+            workspaceFiles.push({
+              filename,
+              encoding: "base64",
+              content: toBase64(imageData),
+            } satisfies WorkspaceFile);
+
+            imgTrace?.image(filename, `variation ${i + 1}`);
+          }
+
+          return { images: workspaceFiles };
+        } finally {
+          imgTrace?.endDetails();
+        }
       }
       
       case "edit": {
-        if (!inputImages || inputImages.length === 0) {
+        if (!inputImages) {
           throw new Error("images are required for edit mode");
         }
         if (!prompt) throw new Error("prompt is required for edit mode");
         
-        const result = await generateImageEdit(inputImages[0], prompt, { mask, n, ...rest });
-        return { images: result.images, revisedPrompt: result.revisedPrompt };
+        const imageArray = arrayify(inputImages);
+        if (imageArray.length === 0) {
+          throw new Error("at least one image is required for edit mode");
+        }
+        
+        // Use the first image for editing (OpenAI API supports only one input image for edits)
+        const sourceImage = imageArray[0];
+
+        const imgTrace = trace?.startTraceDetails("🖼️ generate image edit");
+        try {
+          const conn: ModelConnectionOptions = {
+            model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
+          };
+          const { info, configuration } = await resolveModelConnectionInfo(conn, {
+            trace: imgTrace,
+            defaultModel: IMAGE_GENERATION_MODEL_ID,
+            cancellationToken,
+            token: true,
+          });
+          if (info.error) throw new Error(info.error);
+          if (!configuration) throw new Error(`model configuration not found for ${conn.model}`);
+          const statsChild = options.stats?.createChild(info.model, "generate image edit");
+          checkCancelled(cancellationToken);
+          const { ok } = await runtimeHost.pullModel(configuration, {
+            trace: imgTrace,
+            cancellationToken,
+          });
+          if (!ok) throw new Error(`failed to pull model '${conn}'`);
+          checkCancelled(cancellationToken);
+          const { imageEdit } = await resolveLanguageModel(configuration.provider);
+          if (!imageEdit) throw new Error("image edit not supported for " + info.model);
+          imgTrace?.itemValue(`model`, configuration.model);
+          
+          // Convert input image to buffer
+          const imageData = typeof sourceImage === "string" ? await workspace.readText(sourceImage) : sourceImage;
+          const imageBuffer = Buffer.from(imageData.content || "", imageData.encoding === "base64" ? "base64" : "utf8");
+
+          // Convert mask to buffer if provided
+          let maskBuffer: BufferLike | undefined;
+          if (mask) {
+            const maskData = typeof mask === "string" ? await workspace.readText(mask) : mask;
+            maskBuffer = Buffer.from(maskData.content || "", maskData.encoding === "base64" ? "base64" : "utf8");
+          }
+
+          const req = deleteUndefinedValues({
+            model: configuration.model,
+            image: imageBuffer,
+            mask: maskBuffer,
+            prompt: dedent(prompt),
+            n,
+            size: imageOptions?.size,
+            responseFormat: "b64_json",
+          }) satisfies CreateImageEditRequest;
+          
+          const m = measure("img.edit", `${req.model} -> ${n} edits`);
+          const res = await imageEdit(req, configuration, {
+            trace: imgTrace,
+            cancellationToken,
+            ...rest,
+          });
+          const duration = m();
+          if (res.error) {
+            imgTrace?.error(errorMessage(res.error));
+            return { images: [], revisedPrompt: undefined };
+          }
+          dbg(`usage: %o`, res.usage);
+          statsChild?.addImageGenerationUsage(res.usage, duration);
+
+          const workspaceFiles: WorkspaceFile[] = [];
+          for (let i = 0; i < res.images.length; i++) {
+            const imageData = res.images[i];
+            const h = await hash(imageData, { length: 20 });
+            const buf = await imageTransform(imageData, {
+              ...(imageOptions || {}),
+              cancellationToken,
+              trace: imgTrace,
+            });
+            const { ext } = (await fileTypeFromBuffer(buf)) || {};
+            const filename = dotGenaiscriptPath("image", h + "." + ext);
+            await runtimeHost.writeFile(filename, buf);
+
+            workspaceFiles.push({
+              filename,
+              encoding: "base64",
+              content: toBase64(imageData),
+            } satisfies WorkspaceFile);
+
+            imgTrace?.image(filename, `edit ${i + 1}`);
+          }
+
+          imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
+          return { 
+            images: workspaceFiles,
+            revisedPrompt: res.revisedPrompt,
+          };
+        } finally {
+          imgTrace?.endDetails();
+        }
       }
       
       default:
         throw new Error(`Unsupported mode: ${mode}`);
-    }
-  };
-
-  const generateImageVariation = async (
-    image: string | WorkspaceFile,
-    imageOptions?: ImageGenerationOptions & { n?: number },
-  ): Promise<{ images: WorkspaceFile[] }> => {
-    if (!image) throw new Error("image is missing");
-
-    const imgTrace = trace?.startTraceDetails("🖼️ generate image variation");
-    try {
-      const { n = 1, ...rest } = imageOptions || {};
-      const conn: ModelConnectionOptions = {
-        model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
-      };
-      const { info, configuration } = await resolveModelConnectionInfo(conn, {
-        trace: imgTrace,
-        defaultModel: IMAGE_GENERATION_MODEL_ID,
-        cancellationToken,
-        token: true,
-      });
-      if (info.error) throw new Error(info.error);
-      if (!configuration) throw new Error(`model configuration not found for ${conn.model}`);
-      const stats = options.stats.createChild(info.model, "generate image variation");
-      checkCancelled(cancellationToken);
-      const { ok } = await runtimeHost.pullModel(configuration, {
-        trace: imgTrace,
-        cancellationToken,
-      });
-      if (!ok) throw new Error(`failed to pull model '${conn}'`);
-      checkCancelled(cancellationToken);
-      const { imageVariation } = await resolveLanguageModel(configuration.provider);
-      if (!imageVariation) throw new Error("image variation not supported for " + info.model);
-      imgTrace?.itemValue(`model`, configuration.model);
-      
-      // Convert input image to buffer
-      const imageData = typeof image === "string" ? await workspace.readText(image) : image;
-      const imageBuffer = Buffer.from(imageData.content || "", imageData.encoding === "base64" ? "base64" : "utf8");
-
-      const req = deleteUndefinedValues({
-        model: configuration.model,
-        image: imageBuffer,
-        n,
-        size: imageOptions?.size,
-        responseFormat: "b64_json",
-      }) satisfies CreateImageVariationRequest;
-      
-      const m = measure("img.variation", `${req.model} -> ${n} variations`);
-      const res = await imageVariation(req, configuration, {
-        trace: imgTrace,
-        cancellationToken,
-        ...rest,
-      });
-      const duration = m();
-      if (res.error) {
-        imgTrace?.error(errorMessage(res.error));
-        return { images: [] };
-      }
-      dbg(`usage: %o`, res.usage);
-      stats.addImageGenerationUsage(res.usage, duration);
-
-      const workspaceFiles: WorkspaceFile[] = [];
-      for (let i = 0; i < res.images.length; i++) {
-        const imageData = res.images[i];
-        const h = await hash(imageData, { length: 20 });
-        const buf = await imageTransform(imageData, {
-          ...(imageOptions || {}),
-          cancellationToken,
-          trace: imgTrace,
-        });
-        const { ext } = (await fileTypeFromBuffer(buf)) || {};
-        const filename = dotGenaiscriptPath("image", h + "." + ext);
-        await runtimeHost.writeFile(filename, buf);
-
-        workspaceFiles.push({
-          filename,
-          encoding: "base64",
-          content: toBase64(imageData),
-        } satisfies WorkspaceFile);
-
-        imgTrace?.image(filename, `variation ${i + 1}`);
-      }
-
-      return { images: workspaceFiles };
-    } finally {
-      imgTrace?.endDetails();
-    }
-  };
-
-  const generateImageEdit = async (
-    image: string | WorkspaceFile,
-    prompt: string,
-    imageOptions?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
-  ): Promise<{ images: WorkspaceFile[]; revisedPrompt?: string }> => {
-    if (!image) throw new Error("image is missing");
-    if (!prompt) throw new Error("prompt is missing");
-
-    const imgTrace = trace?.startTraceDetails("🖼️ generate image edit");
-    try {
-      const { mask, n = 1, ...rest } = imageOptions || {};
-      const conn: ModelConnectionOptions = {
-        model: imageOptions?.model || IMAGE_GENERATION_MODEL_ID,
-      };
-      const { info, configuration } = await resolveModelConnectionInfo(conn, {
-        trace: imgTrace,
-        defaultModel: IMAGE_GENERATION_MODEL_ID,
-        cancellationToken,
-        token: true,
-      });
-      if (info.error) throw new Error(info.error);
-      if (!configuration) throw new Error(`model configuration not found for ${conn.model}`);
-      const stats = options.stats.createChild(info.model, "generate image edit");
-      checkCancelled(cancellationToken);
-      const { ok } = await runtimeHost.pullModel(configuration, {
-        trace: imgTrace,
-        cancellationToken,
-      });
-      if (!ok) throw new Error(`failed to pull model '${conn}'`);
-      checkCancelled(cancellationToken);
-      const { imageEdit } = await resolveLanguageModel(configuration.provider);
-      if (!imageEdit) throw new Error("image edit not supported for " + info.model);
-      imgTrace?.itemValue(`model`, configuration.model);
-      
-      // Convert input image to buffer
-      const imageData = typeof image === "string" ? await workspace.readText(image) : image;
-      const imageBuffer = Buffer.from(imageData.content || "", imageData.encoding === "base64" ? "base64" : "utf8");
-
-      // Convert mask to buffer if provided
-      let maskBuffer: BufferLike | undefined;
-      if (mask) {
-        const maskData = typeof mask === "string" ? await workspace.readText(mask) : mask;
-        maskBuffer = Buffer.from(maskData.content || "", maskData.encoding === "base64" ? "base64" : "utf8");
-      }
-
-      const req = deleteUndefinedValues({
-        model: configuration.model,
-        image: imageBuffer,
-        mask: maskBuffer,
-        prompt: dedent(prompt),
-        n,
-        size: imageOptions?.size,
-        responseFormat: "b64_json",
-      }) satisfies CreateImageEditRequest;
-      
-      const m = measure("img.edit", `${req.model} -> ${n} edits`);
-      const res = await imageEdit(req, configuration, {
-        trace: imgTrace,
-        cancellationToken,
-        ...rest,
-      });
-      const duration = m();
-      if (res.error) {
-        imgTrace?.error(errorMessage(res.error));
-        return { images: [], revisedPrompt: undefined };
-      }
-      dbg(`usage: %o`, res.usage);
-      stats.addImageGenerationUsage(res.usage, duration);
-
-      const workspaceFiles: WorkspaceFile[] = [];
-      for (let i = 0; i < res.images.length; i++) {
-        const imageData = res.images[i];
-        const h = await hash(imageData, { length: 20 });
-        const buf = await imageTransform(imageData, {
-          ...(imageOptions || {}),
-          cancellationToken,
-          trace: imgTrace,
-        });
-        const { ext } = (await fileTypeFromBuffer(buf)) || {};
-        const filename = dotGenaiscriptPath("image", h + "." + ext);
-        await runtimeHost.writeFile(filename, buf);
-
-        workspaceFiles.push({
-          filename,
-          encoding: "base64",
-          content: toBase64(imageData),
-        } satisfies WorkspaceFile);
-
-        imgTrace?.image(filename, `edit ${i + 1}`);
-      }
-
-      imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
-      return { 
-        images: workspaceFiles,
-        revisedPrompt: res.revisedPrompt,
-      };
-    } finally {
-      imgTrace?.endDetails();
     }
   };
 
@@ -1353,8 +1344,6 @@ export function createChatGenerationContext(
     transcribe,
     speak,
     generateImage,
-    generateImageVariation,
-    generateImageEdit,
     env,
   });
 

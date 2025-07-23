@@ -351,25 +351,3 @@ declare function generateImage(
   images?: WorkspaceFile[]; 
   revisedPrompt?: string 
 }>;
-
-/**
- * Generate image variations from an existing image.
- * @param image
- * @param options
- */
-declare function generateImageVariation(
-  image: string | WorkspaceFile,
-  options?: ImageGenerationOptions & { n?: number },
-): Promise<{ images: WorkspaceFile[] }>;
-
-/**
- * Edit an image with a text prompt and optional mask.
- * @param image
- * @param prompt
- * @param options
- */
-declare function generateImageEdit(
-  image: string | WorkspaceFile,
-  prompt: string,
-  options?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
-): Promise<{ images: WorkspaceFile[]; revisedPrompt?: string }>;

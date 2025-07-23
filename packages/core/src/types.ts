@@ -4583,8 +4583,9 @@ export interface ImageGenerationOptions extends ImageTransformOptions, RetryOpti
   /**
    * Input images for variation or edit modes.
    * Required for "variation" and "edit" modes.
+   * Can be a single image or an array of images.
    */
-  images?: (string | WorkspaceFile)[];
+  images?: ElementOrArray<string | WorkspaceFile>;
   /**
    * Mask image for edit mode (optional).
    * Used for inpainting specific areas of the image.
@@ -4783,15 +4784,6 @@ export interface ChatGenerationContext extends ChatTurnGenerationContext {
     images?: WorkspaceFile[]; 
     revisedPrompt?: string 
   }>;
-  generateImageVariation(
-    image: string | WorkspaceFile,
-    options?: ImageGenerationOptions & { n?: number },
-  ): Promise<{ images: WorkspaceFile[] }>;
-  generateImageEdit(
-    image: string | WorkspaceFile,
-    prompt: string,
-    options?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
-  ): Promise<{ images: WorkspaceFile[]; revisedPrompt?: string }>;
 }
 
 export interface ChatGenerationContextOptions {
@@ -5442,8 +5434,6 @@ export type RuntimePromptContext = Pick<
   | "prompt"
   | "runPrompt"
   | "generateImage"
-  | "generateImageVariation"
-  | "generateImageEdit"
   | "transcribe"
   | "speak"
 >;

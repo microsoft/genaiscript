@@ -4574,6 +4574,29 @@
  interface ImageGenerationOptions extends ImageTransformOptions, RetryOptions {
   model?: OptionsOrString<ModelImageGenerationType>;
   /**
+   * The mode of image generation.
+   * - "generation": Generate image from text prompt (default)
+   * - "variation": Generate variations of existing image(s)
+   * - "edit": Edit image with text prompt and optional mask
+   */
+  mode?: "generation" | "variation" | "edit";
+  /**
+   * Input images for variation or edit modes.
+   * Required for "variation" and "edit" modes.
+   * Can be a single image or an array of images.
+   */
+  images?: ElementOrArray<string | WorkspaceFile>;
+  /**
+   * Mask image for edit mode (optional).
+   * Used for inpainting specific areas of the image.
+   */
+  mask?: string | WorkspaceFile;
+  /**
+   * Number of images to generate.
+   * Default is 1.
+   */
+  n?: number;
+  /**
    * The quality of the image that will be generated.
    * auto (default value) will automatically select the best quality for the given model.
    * high, medium and low are supported for gpt-image-1.
@@ -4754,23 +4777,13 @@
   ): Promise<TranscriptionResult>;
   speak(text: string, options?: SpeechOptions): Promise<SpeechResult>;
   generateImage(
-    promptOrImage: string | WorkspaceFile,
-    promptOrOptions?: string | ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
-    imageOptions?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
+    prompt: string,
+    options?: ImageGenerationOptions,
   ): Promise<{ 
     image?: WorkspaceFile; 
     images?: WorkspaceFile[]; 
     revisedPrompt?: string 
   }>;
-  generateImageVariation(
-    image: string | WorkspaceFile,
-    options?: ImageGenerationOptions & { n?: number },
-  ): Promise<{ images: WorkspaceFile[] }>;
-  generateImageEdit(
-    image: string | WorkspaceFile,
-    prompt: string,
-    options?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
-  ): Promise<{ images: WorkspaceFile[]; revisedPrompt?: string }>;
 }
 
  interface ChatGenerationContextOptions {
@@ -5421,8 +5434,6 @@
   | "prompt"
   | "runPrompt"
   | "generateImage"
-  | "generateImageVariation"
-  | "generateImageEdit"
   | "transcribe"
   | "speak"
 >;
@@ -5761,14 +5772,9 @@ declare function transcribe(
 declare function speak(text: string, options?: SpeechOptions): Promise<SpeechResult>;
 
 /**
- * Generate an image and return the workspace file.
- * @param prompt
- * @param options
- */
-/**
  * Generate, edit, or create variations of images using AI models.
  * 
- * Usage modes:
+ * The function supports three modes:
  * - Generation: generateImage("a cat") -> { image, revisedPrompt }
  * - Variation: generateImage("", { mode: "variation", images: [imageFile] }) -> { images }  
  * - Edit: generateImage("add sunglasses", { mode: "edit", images: [imageFile] }) -> { images, revisedPrompt }
@@ -5784,25 +5790,3 @@ declare function generateImage(
   images?: WorkspaceFile[]; 
   revisedPrompt?: string 
 }>;
-
-/**
- * Generate image variations from an existing image.
- * @param image
- * @param options
- */
-declare function generateImageVariation(
-  image: string | WorkspaceFile,
-  options?: ImageGenerationOptions & { n?: number },
-): Promise<{ images: WorkspaceFile[] }>;
-
-/**
- * Edit an image with a text prompt and optional mask.
- * @param image
- * @param prompt
- * @param options
- */
-declare function generateImageEdit(
-  image: string | WorkspaceFile,
-  prompt: string,
-  options?: ImageGenerationOptions & { mask?: string | WorkspaceFile; n?: number },
-): Promise<{ images: WorkspaceFile[]; revisedPrompt?: string }>;
