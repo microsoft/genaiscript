@@ -59,13 +59,11 @@
             {
                 "id": "genaiscript-markdown",
                 "aliases": [
-                    "GenAIScript Markdown",
-                    "genaiscript-markdown"
+                    "GenAIScript Markdown"
                 ],
                 "extensions": [
                     ".genai.md"
-                ],
-                "configuration": "./language-configuration.json"
+                ]
             }
         ],
         "grammars": [
