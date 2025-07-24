@@ -1,0 +1,124 @@
+# Chain of Debate - GenAIScript Sample
+
+This sample implements a **chain of debate** pattern where multiple LLM models engage in structured, iterative debate on a given topic. The implementation allows multiple AI agents to present initial positions, then respond to each other's arguments over several rounds, culminating in a synthesized conclusion.
+
+## Files
+
+- `chain-of-debate.genai.mts` - Main implementation with full functionality
+- `chain-of-debate-simple.genai.mts` - Simplified example for quick testing
+
+## Features
+
+### Core Functionality
+- **Multi-Agent Debate**: Support for any number of LLM models as debate participants
+- **Iterative Rounds**: Models provide initial positions, then engage in multiple rounds of responses
+- **Structured Arguments**: Each round follows a clear format with positions, reasoning, and rebuttals
+- **Final Synthesis**: Optional synthesis phase that combines insights from all participants
+- **Configurable**: Customizable topics, models, rounds, and options
+
+### Technical Features
+- **Caching**: Uses GenAIScript caching for efficient execution
+- **Error Handling**: Robust implementation with proper async/await patterns
+- **Type Safety**: Full TypeScript interfaces for configuration options
+- **Logging**: Comprehensive console output showing debate progress
+- **Formatted Output**: Professional markdown output with structured results
+
+## Usage
+
+### Basic Usage (Simple Example)
+
+```typescript
+// Run the simple example
+node packages/cli/dist/src/index.js run chain-of-debate-simple
+```
+
+The simple example demonstrates a basic 2-model, 2-round debate on work-from-home vs office work.
+
+### Advanced Usage (Full Implementation)
+
+```typescript
+// Use the chainOfDebate function with custom options
+const result = await chainOfDebate({
+    topic: "Should artificial intelligence development be regulated by governments?",
+    models: ["openai:gpt-4o", "openai:gpt-4o-mini", "openai:gpt-35-turbo"],
+    rounds: 3,
+    synthesize: true,
+})
+```
+
+### Configuration Options
+
+```typescript
+interface ChainOfDebateOptions {
+    /** The topic or question to debate */
+    topic: string
+    /** List of models to participate in the debate (default: 3 OpenAI models) */
+    models?: string[]
+    /** Number of debate rounds (default: 3) */
+    rounds?: number
+    /** Whether to include a final synthesis (default: true) */
+    synthesize?: boolean
+}
+```
+
+## How It Works
+
+### 1. Initial Positions (Round 1)
+Each model provides their initial stance on the topic with:
+- Clear position statement
+- Key supporting arguments
+- Reasoning and evidence
+
+### 2. Iterative Rounds (Rounds 2-N)
+In each subsequent round, models:
+- Review other participants' latest positions
+- Address specific points raised by others
+- Present counter-arguments where appropriate
+- Refine and strengthen their own position
+- Acknowledge valid points from opponents
+
+### 3. Final Synthesis (Optional)
+An impartial analysis that:
+- Summarizes how positions evolved
+- Identifies areas of convergence and disagreement
+- Evaluates argument strengths
+- Provides a balanced conclusion
+- Suggests areas for further exploration
+
+## Output Format
+
+The script generates a comprehensive markdown report including:
+
+- **Topic and Participants**: Clear identification of the debate subject and models
+- **Debate Evolution**: Round-by-round breakdown of all positions and responses
+- **Final Synthesis**: Balanced analysis of the entire debate (if enabled)
+- **Summary**: Overview of the debate process and outcomes
+
+## Example Topics
+
+The implementation works well with various debate topics:
+
+- **Technology**: "Should AI development be regulated?", "Is social media beneficial for society?"
+- **Policy**: "Should universal basic income be implemented?", "Is nuclear energy safe and necessary?"
+- **Philosophy**: "Is free will an illusion?", "What makes a life meaningful?"
+- **Science**: "Should we prioritize Mars colonization?", "Is genetic engineering ethical?"
+
+## Inspired By
+
+This implementation is inspired by the [Chain of Debate](https://github.com/sukeesh/chain-of-debate) concept, which demonstrates how multiple AI agents can engage in productive argumentation to explore complex topics more thoroughly than single-agent approaches.
+
+## Benefits
+
+1. **Multiple Perspectives**: Different models may emphasize different aspects of an issue
+2. **Argument Refinement**: Iterative responses help strengthen weak arguments and address counterpoints
+3. **Comprehensive Coverage**: Multiple rounds ensure thorough exploration of the topic
+4. **Bias Mitigation**: Multiple viewpoints can help identify and balance individual model biases
+5. **Educational Value**: The debate format makes the reasoning process transparent and educational
+
+## Technical Implementation Notes
+
+- Uses `runPrompt` with proper caching for efficient model interactions
+- Implements proper async/await patterns for concurrent and sequential operations
+- Follows GenAIScript best practices for script configuration and output
+- Uses TypeScript for type safety and better development experience
+- Structured to be easily extensible for additional features (voting, scoring, etc.)
