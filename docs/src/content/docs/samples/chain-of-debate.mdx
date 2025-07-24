@@ -1,4 +1,13 @@
-# Chain of Debate - GenAIScript Sample
+---
+title: Chain of Debate
+description: Multi-agent debate system where LLM models engage in structured, iterative debates
+sidebar:
+    order: 15
+---
+
+import { Code } from "@astrojs/starlight/components"
+import source from "../../../../../samples/sample/genaisrc/chain-of-debate.genai.mts?raw"
+import sourceSimple from "../../../../../samples/sample/genaisrc/chain-of-debate-simple.genai.mts?raw"
 
 This sample implements a **chain of debate** pattern where multiple LLM models engage in structured, iterative debate on a given topic. The implementation allows multiple AI agents to present initial positions, then respond to each other's arguments over several rounds, culminating in a synthesized conclusion.
 
@@ -20,15 +29,14 @@ This sample implements a **chain of debate** pattern where multiple LLM models e
 - **Caching**: Uses GenAIScript caching for efficient execution
 - **Error Handling**: Robust implementation with proper async/await patterns
 - **Type Safety**: Full TypeScript interfaces for configuration options
-- **Logging**: Comprehensive console output showing debate progress
+- **Logging**: Comprehensive debug output showing debate progress
 - **Formatted Output**: Professional markdown output with structured results
 
 ## Usage
 
 ### Basic Usage (Simple Example)
 
-```typescript
-// Run the simple example
+```bash
 node packages/cli/dist/src/index.js run chain-of-debate-simple
 ```
 
@@ -40,7 +48,7 @@ The simple example demonstrates a basic 2-model, 2-round debate on work-from-hom
 // Use the chainOfDebate function with custom options
 const result = await chainOfDebate({
     topic: "Should artificial intelligence development be regulated by governments?",
-    models: ["openai:gpt-4o", "openai:gpt-4o-mini", "openai:gpt-35-turbo"],
+    models: ["openai:gpt-4o", "openai:gpt-4o-mini"],
     rounds: 3,
     synthesize: true,
 })
@@ -52,7 +60,7 @@ const result = await chainOfDebate({
 interface ChainOfDebateOptions {
     /** The topic or question to debate */
     topic: string
-    /** List of models to participate in the debate (default: 3 OpenAI models) */
+    /** List of models to participate in the debate (default: 2 OpenAI models) */
     models?: string[]
     /** Number of debate rounds (default: 3) */
     rounds?: number
@@ -122,3 +130,13 @@ This implementation is inspired by the [Chain of Debate](https://github.com/suke
 - Follows GenAIScript best practices for script configuration and output
 - Uses TypeScript for type safety and better development experience
 - Structured to be easily extensible for additional features (voting, scoring, etc.)
+
+## Source Code
+
+### Main Implementation
+
+<Code code={source} lang="ts" title="chain-of-debate.genai.mts" />
+
+### Simple Example
+
+<Code code={sourceSimple} lang="ts" title="chain-of-debate-simple.genai.mts" />
