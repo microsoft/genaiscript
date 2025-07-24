@@ -31,41 +31,16 @@ Keep labels short and simple to minimize syntax errors.
   dbg(`registering mermaid repair`);
   const repaired = new Set<string>();
   defChatParticipant(async (ctx, messages, assistantText) => {
-    if (repaired.size > repair) {
-      dbg(`too many diagram repairs, skipping`);
-      return;
-    }
-    
-    const fences = parsers.fences(assistantText);
-    const diagrams = fences.filter((f) => f.language === "mermaid");
-    const errors: string[] = [];
-    
-    for (const diagram of diagrams) {
-      if (!repaired.has(diagram.content)) {
-        repaired.add(diagram.content);
-        dbg(`validating %s`, diagram.content);
-        
-        try {
-          // Import the mermaid parser dynamically
-          const { mermaidParse } = await import("@genaiscript/plugin-mermaid");
-          const res = await mermaidParse(diagram.content);
-          
-          if (res?.error) {
-            dbg(`error: %s`, res.error);
-            errors.push(res.error);
-          } else {
-            dbg(`parsed %s`, res.diagramType);
-          }
-        } catch (e) {
-          dbg(`failed to parse mermaid: %s`, e);
-          errors.push(`Failed to parse mermaid diagram: ${e}`);
-        }
+    try {
+      // Import the mermaid repair helper dynamically
+      const { validateAndRepairMermaidDiagrams } = await import("@genaiscript/plugin-mermaid");
+      const result = await validateAndRepairMermaidDiagrams(assistantText, repaired, repair, parsers);
+      
+      if (result.needsRepair && result.repairMessage) {
+        ctx.$`${result.repairMessage}`;
       }
-    }
-    
-    if (errors.length > 0) {
-      ctx.$`I found syntax errors in the mermaid diagram. Please repair the parse error and replay with the full response:
-${errors.join("\n")}`;
+    } catch (e) {
+      dbg(`failed to load mermaid repair helper: %s`, e);
     }
   });
 }
