@@ -86,7 +86,7 @@ import { YAMLStringify } from "./yaml.js";
 import type { Project } from "./server/messages.js";
 import { mergeEnvVarsWithSystem, parametersToVars } from "./vars.js";
 import { FFmepgClient } from "./ffmpeg.js";
-import { BufferToBlob } from "./bufferlike.js";
+import { BufferToBlob, resolveBufferLike } from "./bufferlike.js";
 import { resolveRuntimeHost } from "./host.js";
 import { srtVttRender } from "./transcription.js";
 import { hash } from "./crypto.js";
@@ -1052,11 +1052,7 @@ export function createChatGenerationContext(
     return { imgTrace, info, configuration, statsChild };
   };
 
-  // Helper function to convert images to buffers
-  const convertImageToBuffer = async (image: string | WorkspaceFile): Promise<BufferLike> => {
-    const imageData = typeof image === "string" ? await workspace.readText(image) : image;
-    return Buffer.from(imageData.content || "", imageData.encoding === "base64" ? "base64" : "utf8");
-  };
+
 
   // Helper function to process image results
   const processImageResults = async (
@@ -1211,7 +1207,7 @@ export function createChatGenerationContext(
           const { imageVariation } = await resolveLanguageModel(configuration.provider);
           if (!imageVariation) throw new Error("image variation not supported for " + info.model);
           
-          const imageBuffer = await convertImageToBuffer(sourceImage);
+          const imageBuffer = await resolveBufferLike(sourceImage);
           const req = deleteUndefinedValues({
             model: configuration.model,
             image: imageBuffer,
@@ -1270,13 +1266,13 @@ export function createChatGenerationContext(
           // Convert input images to buffers
           const imageBuffers: BufferLike[] = [];
           for (const sourceImage of imageArray) {
-            imageBuffers.push(await convertImageToBuffer(sourceImage));
+            imageBuffers.push(await resolveBufferLike(sourceImage));
           }
 
           // Convert mask to buffer if provided
           let maskBuffer: BufferLike | undefined;
           if (mask) {
-            maskBuffer = await convertImageToBuffer(mask);
+            maskBuffer = await resolveBufferLike(mask);
           }
 
           const req = deleteUndefinedValues({
