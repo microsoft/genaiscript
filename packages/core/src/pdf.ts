@@ -464,13 +464,13 @@ function parsePageItems(pdfItems: TextItem[]) {
     const item = pdfItems[i];
     const y = item?.transform[5];
     if (!lineData.hasOwnProperty(y)) {
-      //dbg("grouping text item at y=%d into new line", y)
+      // dbg("grouping text item at y=%d into new line", y)
       lineData[y] = [];
     }
     // Ensure the item is valid before adding
     /* istanbul ignore next */
     if (item) {
-      //dbg("adding item to lineData at y=%d: %o", y, item)
+      // dbg("adding item to lineData at y=%d: %o", y, item)
       lineData[y]?.push(item);
     }
   }

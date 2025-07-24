@@ -3,12 +3,12 @@
 
 import { MODEL_PROVIDER_GITHUB } from "./constants.js";
 import { createFetch } from "./fetch.js";
-import { LanguageModel, ListModelsFunction } from "./chat.js";
+import type { LanguageModel, ListModelsFunction } from "./chat.js";
 import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai.js";
 import { serializeError } from "./error.js";
 import { genaiscriptDebug } from "./debug.js";
 import { deleteUndefinedValues } from "./cleaners.js";
-import { LanguageModelInfo } from "./types.js";
+import type { LanguageModelInfo } from "./types.js";
 const dbg = genaiscriptDebug("github");
 
 interface GitHubMarketplaceModel {

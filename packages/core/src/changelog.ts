@@ -83,7 +83,7 @@ export function parseChangeLogs(source: string): ChangeLog[] {
       }
 
       // each back ticks
-      if (/^[\`\.]{3,}/.test(lines[0])) {
+      if (/^[`.]{3,}/.test(lines[0])) {
         // somehow we have finished this changed
         lines.shift();
         continue;

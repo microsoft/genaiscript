@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 import { describe, test, assert, beforeEach } from "vitest";
+import type {
+  CancellationToken} from "../src/cancellation.js";
 import {
-  CancellationToken,
   AbortSignalCancellationToken,
   toSignal,
   AbortSignalCancellationController,
