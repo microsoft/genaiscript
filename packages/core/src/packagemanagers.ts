@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { resolveCommand, detect, Agent } from "package-manager-detector";
+import type { Agent } from "package-manager-detector";
+import { resolveCommand, detect } from "package-manager-detector";
 import { genaiscriptDebug } from "./debug.js";
 const dbg = genaiscriptDebug("pkg");
 

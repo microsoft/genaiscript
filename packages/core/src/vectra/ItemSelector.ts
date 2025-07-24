@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { MetadataFilter, MetadataTypes } from "./types.js";
+import type { MetadataFilter, MetadataTypes } from "./types.js";
 
 export class ItemSelector {
   /**
@@ -83,7 +83,7 @@ export class ItemSelector {
           const value = filter[key];
           if (value === undefined || value === null) {
             return false;
-          } else if (typeof value == "object") {
+          } else if (typeof value === "object") {
             if (!this.metadataFilter(metadata[key], value as MetadataFilter)) {
               return false;
             }
@@ -128,43 +128,43 @@ export class ItemSelector {
           }
           break;
         case "$gt":
-          if (typeof value != "number" || value <= filter[key]!) {
+          if (typeof value !== "number" || value <= filter[key]!) {
             return false;
           }
           break;
         case "$gte":
-          if (typeof value != "number" || value < filter[key]!) {
+          if (typeof value !== "number" || value < filter[key]!) {
             return false;
           }
           break;
         case "$lt":
-          if (typeof value != "number" || value >= filter[key]!) {
+          if (typeof value !== "number" || value >= filter[key]!) {
             return false;
           }
           break;
         case "$lte":
-          if (typeof value != "number" || value > filter[key]!) {
+          if (typeof value !== "number" || value > filter[key]!) {
             return false;
           }
           break;
         case "$in":
-          if (typeof value == "boolean") {
+          if (typeof value === "boolean") {
             return false;
-          } else if (typeof value == "string" && !filter[key]!.includes(value)) {
+          } else if (typeof value === "string" && !filter[key]!.includes(value)) {
             return false;
           } else if (
-            !filter[key]!.some((val) => typeof val == "string" && val.includes(value as string))
+            !filter[key]!.some((val) => typeof val === "string" && val.includes(value as string))
           ) {
             return false;
           }
           break;
         case "$nin":
-          if (typeof value == "boolean") {
+          if (typeof value === "boolean") {
             return false;
-          } else if (typeof value == "string" && filter[key]!.includes(value)) {
+          } else if (typeof value === "string" && filter[key]!.includes(value)) {
             return false;
           } else if (
-            filter[key]!.some((val) => typeof val == "string" && val.includes(value as string))
+            filter[key]!.some((val) => typeof val === "string" && val.includes(value as string))
           ) {
             return false;
           }

@@ -4,7 +4,8 @@
 import { tryReadJSON, writeText } from "./fs.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { join } from "node:path";
-import debug, { Debugger } from "debug";
+import type { Debugger } from "debug";
+import debug from "debug";
 import { errorMessage } from "./error.js";
 import { rm, readdir } from "fs/promises";
 import {

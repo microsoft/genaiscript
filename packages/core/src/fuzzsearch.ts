@@ -3,9 +3,10 @@
 
 import MiniSearch from "minisearch";
 import { resolveFileContent } from "./file.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { randomHex } from "./crypto.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import type { CancellationOptions} from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
 import type { FuzzSearchOptions, WorkspaceFile, WorkspaceFileWithScore } from "./types.js";
 
 /**
