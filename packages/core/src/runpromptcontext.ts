@@ -1077,7 +1077,7 @@ export function createChatGenerationContext(
       workspaceFiles.push({
         filename,
         encoding: "base64",
-        content: toBase64(imageData),
+        content: toBase64(buf),
       } satisfies WorkspaceFile);
 
       imgTrace?.image(filename, `${labelPrefix} ${i + 1}`);

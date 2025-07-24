@@ -994,10 +994,10 @@ export async function OpenAIImageEdit(
 
   try {
     // Handle multiple images (GPT-Image-1 supports up to 16 images)
-    const images = Array.isArray(image) ? image : [image];
+    const inputImages = Array.isArray(image) ? image : [image];
     const imageBuffers: Uint8Array[] = [];
     
-    for (const img of images) {
+    for (const img of inputImages) {
       const imageBuffer = await resolveBufferLike(img);
       if (!imageBuffer) {
         return {

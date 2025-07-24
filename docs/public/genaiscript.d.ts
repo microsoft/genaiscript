@@ -4779,7 +4779,7 @@
     prompt: string,
     options?: ImageGenerationOptions,
   ): Promise<{ 
-    image?: WorkspaceFile; 
+    image?: WorkspaceFile; // The generated image or images[0] if multiple images are generated
     images?: WorkspaceFile[]; 
     revisedPrompt?: string 
   }>;
