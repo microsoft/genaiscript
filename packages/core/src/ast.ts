@@ -66,7 +66,7 @@ export function collectFolders(
   const folders: Record<string, { dirname: string; js?: boolean; ts?: boolean }> = {};
   for (const t of Object.values(prj.scripts).filter(
     // must have a filename and not prompty
-    (t) => t.filename,
+    (script) => script.filename,
   )) {
     const dir = dirname(t.filename); // Get directory name from the filename
     if (!force && resolve(dir) === systemDir) continue;
