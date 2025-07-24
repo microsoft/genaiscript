@@ -36,7 +36,7 @@
 Add the following to your step in your workflow file:
 
 ```yaml
-uses: sinedied/genaiscript@main
+uses: microsoft/genaiscript@main
 with:
   github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
