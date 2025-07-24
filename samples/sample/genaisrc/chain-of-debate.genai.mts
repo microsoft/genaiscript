@@ -28,16 +28,17 @@ interface ChainOfDebateOptions {
 }
 
 async function chainOfDebate(options: ChainOfDebateOptions) {
+    const dbg = host.logger("chainofdebase")
     const {
         topic,
-        models = ["openai:gpt-4o", "openai:gpt-4o-mini", "openai:gpt-35-turbo"],
+        models = ["openai:gpt-4o", "openai:gpt-4o-mini"],
         rounds = 3,
         synthesize = true,
     } = options
 
-    console.log(`🎯 Starting Chain of Debate on: "${topic}"`)
-    console.log(`🤖 Models: ${models.join(", ")}`)
-    console.log(`🔄 Rounds: ${rounds}`)
+    dbg(`🎯 Starting Chain of Debate on: "${topic}"`)
+    dbg(`🤖 Models: ${models.join(", ")}`)
+    dbg(`🔄 Rounds: ${rounds}`)
 
     // Initialize debate state
     let debateHistory: Array<{
@@ -48,7 +49,7 @@ async function chainOfDebate(options: ChainOfDebateOptions) {
     }> = []
 
     // Round 1: Initial positions
-    console.log("\n🚀 Round 1: Initial Positions")
+    dbg("\n🚀 Round 1: Initial Positions")
     const initialPositions = await Promise.all(
         models.map(async (model, index) => {
             const { text } = await runPrompt(
@@ -84,8 +85,8 @@ Format your response as:
             }
 
             debateHistory.push(position)
-            console.log(`\n📝 ${model}:`)
-            console.log(text.substring(0, 200) + "...")
+            dbg(`\n📝 ${model}:`)
+            dbg(text.substring(0, 200) + "...")
 
             return position
         })
@@ -93,7 +94,7 @@ Format your response as:
 
     // Iterative debate rounds
     for (let round = 2; round <= rounds; round++) {
-        console.log(`\n🔄 Round ${round}: Responses and Rebuttals`)
+        dbg(`\n🔄 Round ${round}: Responses and Rebuttals`)
 
         const roundResponses = await Promise.all(
             models.map(async (model, index) => {
@@ -141,8 +142,8 @@ Format your response as:
                 }
 
                 debateHistory.push(position)
-                console.log(`\n📝 ${model} (Round ${round}):`)
-                console.log(text.substring(0, 200) + "...")
+                dbg(`\n📝 ${model} (Round ${round}):`)
+                dbg(text.substring(0, 200) + "...")
 
                 return position
             })
@@ -152,7 +153,7 @@ Format your response as:
     // Final synthesis (if enabled)
     let synthesis = ""
     if (synthesize) {
-        console.log("\n🎯 Final Synthesis")
+        dbg("\n🎯 Final Synthesis")
 
         const { text } = await runPrompt(
             (_) => {
@@ -187,8 +188,8 @@ Format your response as:
         )
 
         synthesis = text
-        console.log("\n📊 Synthesis:")
-        console.log(text.substring(0, 300) + "...")
+        dbg("\n📊 Synthesis:")
+        dbg(text.substring(0, 300) + "...")
     }
 
     return {
@@ -203,7 +204,7 @@ Format your response as:
 // Example usage
 const debateResult = await chainOfDebate({
     topic: "Should artificial intelligence development be regulated by governments?",
-    models: ["openai:gpt-4o", "openai:gpt-4o-mini", "openai:gpt-35-turbo"],
+    models: ["openai:gpt-4o", "openai:gpt-4o-mini"],
     rounds: 3,
     synthesize: true,
 })
