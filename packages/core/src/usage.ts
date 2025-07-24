@@ -458,9 +458,9 @@ export class GenerationStats {
     const usageData: Array<{
       Model: string;
       Label: string;
-      [`${CHAR_UP_ARROW}`]: string;
-      [`${CHAR_DOWN_ARROW}`]: string;
-      [`${CHAR_UP_DOWN_ARROWS}`]: string;
+      "↑": string;
+      "↓": string;
+      "⇅ ": string;
       $: string;
       "⏱️": string;
     }> = [];
