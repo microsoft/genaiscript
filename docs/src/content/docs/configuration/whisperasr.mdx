@@ -66,7 +66,7 @@ jobs:
       - name: Run transcription script
         run: npx --yes genaiscript run transcript-script audio.wav
         env:
-          WHISPERASR_API_BASE: http://localhost:9000
+          WHISPERASR_API_BASE: http://whisper-asr:9000
           # Add your LLM provider secrets here
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
@@ -77,15 +77,5 @@ Set the `WHISPERASR_API_BASE` environment variable to point to your whisper-asr 
 
 ```yaml
 env:
-  WHISPERASR_API_BASE: http://localhost:9000
+  WHISPERASR_API_BASE: http://whisper-asr:9000
 ```
-
-
-### Security Considerations
-
-When using containers in GitHub Actions:
-
-- Use specific image tags instead of `latest` for reproducible builds
-- The whisper-asr service runs locally within the GitHub Actions runner and is not exposed to the internet
-- Ensure your audio files don't contain sensitive information, as they will be processed by the containerized service
-- Consider using private runners for sensitive workloads
