@@ -5,7 +5,7 @@
 // listing, and viewing results. It handles configuration setup, execution logic,
 // and result processing.
 
-import { PROMPTFOO_VERSION } from "@genaiscript/runtime";
+import { PROMPTFOO_VERSION, classify } from "@genaiscript/runtime";
 import { delay, shuffle } from "es-toolkit";
 import {
   BOX_RIGHT,
@@ -13,6 +13,7 @@ import {
   createCancellationController,
   dataTryParse,
   evaluateTestResult,
+  createClassifyBasedFactEvaluator,
   genaiscriptDebug,
   generateId,
   getTestDir,
@@ -237,6 +238,10 @@ async function apiRunPromptScriptTests(
   // Prepare test configurations for each script
   const optionsModels = Object.freeze(options.models?.map(parseModelSpec));
   dbg(`options models: %o`, optionsModels);
+  
+  // Create fact evaluator using the classify runtime helper
+  const factEvaluationFn = createClassifyBasedFactEvaluator(classify);
+  
   let configurations: PromptTestConfiguration[] = [];
   for (const script of scripts) {
     dbg(`script: %s`, script.id);
@@ -255,7 +260,7 @@ async function apiRunPromptScriptTests(
           out: join(out, `${generateId()}.trace.json`),
           ...model,
         };
-        configurations.push({ script, test, options });
+        configurations.push({ script, test, options, factEvaluationFn });
       }
     }
   }

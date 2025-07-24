@@ -170,6 +170,7 @@ export * from "./testschema.js";
 export * from "./textsplitter.js";
 export * from "./think.js";
 export * from "./testeval.js";
+export * from "./fact-evaluator.js";
 export * from "./tidy.js";
 export * from "./tokens.js";
 export * from "./toml.js";
