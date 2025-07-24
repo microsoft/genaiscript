@@ -1,19 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Determines if a given MIME type is binary.
- * Checks against common binary types and a predefined list of binary MIME types.
- * @param mimeType - The MIME type to evaluate.
- * @returns True if the MIME type is binary, otherwise false.
- */
-export function isBinaryMimeType(mimeType: string) {
-  return (
-    /^(image|audio|video)\//.test(mimeType) || // Common binary types
-    BINARY_MIME_TYPES.includes(mimeType) // Additional specified binary types
-  );
-}
-
 // List of known binary MIME types
 const BINARY_MIME_TYPES = [
   // Documents
@@ -46,3 +33,16 @@ const BINARY_MIME_TYPES = [
   "application/x-iso9660-image", // ISO images
   "application/vnd.apple.installer+xml", // Apple Installer Package (though XML, often handled as binary)
 ];
+
+/**
+ * Determines if a given MIME type is binary.
+ * Checks against common binary types and a predefined list of binary MIME types.
+ * @param mimeType - The MIME type to evaluate.
+ * @returns True if the MIME type is binary, otherwise false.
+ */
+export function isBinaryMimeType(mimeType: string) {
+  return (
+    /^(image|audio|video)\//.test(mimeType) || // Common binary types
+    BINARY_MIME_TYPES.includes(mimeType) // Additional specified binary types
+  );
+}

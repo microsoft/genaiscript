@@ -26,3 +26,56 @@ docker run -d -p 9000:9000 -e ASR_MODEL=base -e ASR_ENGINE=openai_whisper onerah
 ```
 
 You can also override the `transcription` model alias to change the default model used by `transcribe`.
+
+## GitHub Actions
+
+When running GenAIScript with whisper-asr in [GitHub Actions](/genaiscript/getting-started/automating-scripts), you need to set up the whisper-asr container as a service since the whisper-asr provider requires its own containerized service to function.
+
+### Service Container Configuration
+
+Configure the whisper-asr service container in your workflow:
+
+```yaml title=".github/workflows/transcription.yml"
+name: Transcription with Whisper ASR
+on: [push, pull_request]
+
+jobs:
+  transcribe:
+    runs-on: ubuntu-latest
+    
+    services:
+      whisper-asr:
+        image: onerahmet/openai-whisper-asr-webservice:latest
+        ports:
+          - 9000:9000
+        env:
+          ASR_MODEL: base
+          ASR_ENGINE: openai_whisper
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/health || exit 1"
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      
+      - name: Run transcription script
+        run: npx --yes genaiscript run transcript-script audio.wav
+        env:
+          WHISPERASR_API_BASE: http://whisper-asr:9000
+          # Add your LLM provider secrets here
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+```
+
+### Environment Variables
+
+Set the `WHISPERASR_API_BASE` environment variable to point to your whisper-asr service:
+
+```yaml
+env:
+  WHISPERASR_API_BASE: http://whisper-asr:9000
+```

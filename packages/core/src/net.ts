@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { AddressInfo } from "net";
+import type { AddressInfo } from "net";
 
 /**
  * Finds a random open port on the system.

@@ -64,7 +64,9 @@ les traductions sont automatiquement mises à jour pour refléter ces changement
 Dans cet article, nous allons passer en revue certains aspects intéressants du script et son fonctionnement.
 
 :::note
-The script in this blog is packaged as [custom github action](https://github.com/pelikhan/action-continuous-translation).
+
+Le script décrit dans ce blog est maintenant empaqueté comme une [action GitHub personnalisée](https://github.com/pelikhan/action-continuous-translation) pour une réutilisation facile. Ce dépôt utilise l'action GitHub pour ses traductions continues.
+
 :::
 
 ## Le défi de la traduction de la documentation
@@ -77,7 +79,7 @@ Pour réussir, nous avons besoin :
 * d'idempotence : si les traductions sont déjà disponibles, les résultats doivent être mis en cache et le script ne doit effectuer aucune action.
 * d'une exécution automatique via une GitHub Action et de l'utilisation de GitHub Models pour l'inférence.
 
-C'est parti ! Si vous souhaitez consulter le code, [voici le script](https://github.com/microsoft/genaiscript/blob/dev/samples/sample/genaisrc/mdtranslator.genai.mts).
+C'est parti ! La fonctionnalité de traduction décrite dans ce blog est maintenant empaquetée comme une [Action GitHub](https://github.com/pelikhan/action-continuous-translation) réutilisable. Si vous souhaitez consulter le code du script original, [voici le script](https://github.com/microsoft/genaiscript/blob/dev/samples/sample/genaisrc/mdtranslator.genai.mts).
 
 ## Traductions Markdown Itératives
 

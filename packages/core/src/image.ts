@@ -18,14 +18,15 @@ import {
   IMAGE_DETAIL_LOW_HEIGHT,
   IMAGE_DETAIL_LOW_WIDTH,
 } from "./constants.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { ellipse, logVerbose } from "./util.js";
 import pLimit from "p-limit";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import type { CancellationOptions} from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
 import { wrapColor, wrapRgbColor } from "./consolecolor.js";
 import { assert } from "console";
 import { genaiscriptDebug } from "./debug.js";
-import { ImageGenerationUsage } from "./chat.js";
+import type { ImageGenerationUsage } from "./chat.js";
 import { estimateImageCost } from "./usage.js";
 import { prettyCost } from "./pretty.js";
 import type {

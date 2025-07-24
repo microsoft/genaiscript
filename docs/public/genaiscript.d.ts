@@ -3227,7 +3227,7 @@
   audioChannels(channels: number): FfmpegCommandBuilder;
   audioFrequency(freq: number): FfmpegCommandBuilder;
   audioQuality(quality: number): FfmpegCommandBuilder;
-  audioFilters(filters: string | string[] /*| AudioVideoFilter[]*/): FfmpegCommandBuilder;
+  audioFilters(filters: string | string[] /* | AudioVideoFilter[]*/): FfmpegCommandBuilder;
   toFormat(format: string): FfmpegCommandBuilder;
 
   videoCodec(codec: string): FfmpegCommandBuilder;
@@ -4491,9 +4491,8 @@
    * - "stdio": Use StdioClientTransport (requires command and args)
    * - "http": Use StreamableHTTPClientTransport (requires url)
    * - "sse": Use SSEClientTransport (requires url)
-   * - "websocket": Use WebSocketClientTransport (requires url)
    */
-  type?: "stdio" | "http" | "sse" | "websocket";
+  type?: "stdio" | "http" | "sse";
   /**
    * The server version
    */
@@ -4608,6 +4607,26 @@
    * For gpt-image-1 only, the type of image format to generate.
    */
   outputFormat?: "png" | "jpeg" | "webp";
+
+  /**
+   * Generation mode. Defaults to "generate".
+   * - "generate": Create new images from text prompts
+   * - "edit": Edit existing images using text prompts and optional masks
+   */
+  mode?: "generate" | "edit";
+
+  /**
+   * Input image for edit mode.
+   * Required for "edit" mode.
+   */
+  image?: BufferLike;
+
+  /**
+   * Mask image for edit mode (optional).
+   * Used to specify which parts of the image to edit.
+   * Only applicable in "edit" mode.
+   */
+  mask?: BufferLike;
 }
 
  interface TranscriptionOptions extends CacheOptions, RetryOptions {

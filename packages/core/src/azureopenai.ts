@@ -3,7 +3,7 @@
 
 import debug from "debug";
 const dbg = debug("genaiscript:azureopenai");
-import { LanguageModel, ListModelsFunction } from "./chat.js";
+import type { LanguageModel, ListModelsFunction } from "./chat.js";
 import { AZURE_MANAGEMENT_API_VERSION, MODEL_PROVIDER_AZURE_OPENAI } from "./constants.js";
 import { errorMessage, serializeError } from "./error.js";
 import { createFetch } from "./fetch.js";
@@ -16,17 +16,6 @@ import {
   OpenAITranscribe,
 } from "./openai.js";
 import { resolveRuntimeHost } from "./host.js";
-
-const azureManagementOrOpenAIListModels: ListModelsFunction = async (cfg, options) => {
-  const modelsApi = process.env.AZURE_OPENAI_API_MODELS_TYPE;
-  if (modelsApi === "openai") {
-    dbg("using OpenAI API for model listing");
-    return await OpenAIListModels(cfg, options);
-  } else {
-    dbg("using Azure Management API for model listing");
-    return await azureManagementListModels(cfg, options);
-  }
-};
 
 const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
   const runtimeHost = resolveRuntimeHost();
@@ -114,6 +103,17 @@ const azureManagementListModels: ListModelsFunction = async (cfg, options) => {
     };
   } catch (e) {
     return { ok: false, error: serializeError(e) };
+  }
+};
+
+const azureManagementOrOpenAIListModels: ListModelsFunction = async (cfg, options) => {
+  const modelsApi = process.env.AZURE_OPENAI_API_MODELS_TYPE;
+  if (modelsApi === "openai") {
+    dbg("using OpenAI API for model listing");
+    return await OpenAIListModels(cfg, options);
+  } else {
+    dbg("using Azure Management API for model listing");
+    return await azureManagementListModels(cfg, options);
   }
 };
 

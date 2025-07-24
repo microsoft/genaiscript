@@ -3,8 +3,8 @@
 
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { MetadataTypes } from "./types.js";
-import { LocalDocumentIndex } from "./LocalDocumentIndex.js";
+import type { MetadataTypes } from "./types.js";
+import type { LocalDocumentIndex } from "./LocalDocumentIndex.js";
 
 /**
  * Represents an indexed document stored on disk.
