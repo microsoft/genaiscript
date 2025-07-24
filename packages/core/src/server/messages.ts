@@ -28,7 +28,6 @@ export interface ResponseStatus {
 
 export type OpenAIAPIType =
   | "openai"
-  | "openai_responses"
   | "azure"
   | "localai"
   | "azure_ai_inference"

@@ -21,8 +21,9 @@ import type {
 import { errorMessage, isCancelError, RequestError } from "./error.js";
 import { createFetch } from "./fetch.js";
 import { logError, logVerbose } from "./util.js";
+import { checkCancelled } from "./cancellation.js";
 
-const debug = genaiscriptDebug("openai-responses");
+const debug = genaiscriptDebug("openai:responses");
 
 /**
  * Chat completion handler that uses the official OpenAI package
@@ -40,14 +41,17 @@ export const OpenAIResponsesChatCompletion: ChatCompletionHandler = async (
   const { cancellationToken } = options;
 
   try {
+    // Create fetch instance
+    const fetchInstance = await createFetch({
+      userAgent: "genaiscript",
+      ...requestOptions,
+    });
+
     // Create OpenAI client instance
     const openai = new OpenAI({
       apiKey: cfg.token,
       baseURL: cfg.base,
-      fetch: createFetch({
-        userAgent: "genaiscript",
-        ...requestOptions,
-      }),
+      fetch: fetchInstance,
     });
 
     debug(`making request to OpenAI Responses API`);
@@ -93,10 +97,7 @@ export const OpenAIResponsesChatCompletion: ChatCompletionHandler = async (
       };
 
       for await (const chunk of stream) {
-        if (cancellationToken?.isCancelled) {
-          debug(`request cancelled`);
-          throw new RequestError("Request cancelled", "cancelled");
-        }
+        checkCancelled(cancellationToken);
 
         // Update response with chunk data
         if (chunk.choices?.[0]?.delta?.content) {

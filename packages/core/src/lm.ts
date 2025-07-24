@@ -20,7 +20,6 @@ import {
 import { resolveRuntimeHost } from "./host.js";
 import { OllamaModel } from "./ollama.js";
 import { LocalOpenAICompatibleModel } from "./openai.js";
-import { OpenAIResponsesModel } from "./openai-responses.js";
 import { GitHubModel } from "./github.js";
 import { LMStudioModel } from "./lmstudio.js";
 import { WhisperAsrModel } from "./whisperasr.js";
@@ -64,7 +63,6 @@ export function resolveLanguageModel(provider: string): LanguageModel {
   if (provider === MODEL_PROVIDER_WHISPERASR) return WhisperAsrModel;
   if (provider === MODEL_PROVIDER_ECHO) return EchoModel;
   if (provider === MODEL_PROVIDER_NONE) return NoneModel;
-  if (provider === "openai_responses") return OpenAIResponsesModel();
 
   const features = providerFeatures(provider);
   return LocalOpenAICompatibleModel(provider, {
