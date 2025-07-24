@@ -142,7 +142,7 @@ describe("usage", () => {
         1000,
       );
 
-      const report = stats.toGitHubReport();
+      const report = stats.toMarkdownReport();
       
       // Should contain details element
       assert(report.includes("<details>"));
@@ -179,7 +179,7 @@ describe("usage", () => {
         2000,
       );
 
-      const report = parent.toGitHubReport();
+      const report = parent.toMarkdownReport();
       
       // Should contain summary with total aggregate data
       assert(report.includes("450t")); // total tokens (150 + 300)
@@ -193,7 +193,7 @@ describe("usage", () => {
 
     test("should handle empty usage stats", () => {
       const stats = new GenerationStats("openai:gpt-4");
-      const report = stats.toGitHubReport();
+      const report = stats.toMarkdownReport();
       
       // Should still generate valid report structure
       assert(report.includes("<details>"));
@@ -213,7 +213,7 @@ describe("usage", () => {
         duration: 1000,
       }, 1000);
 
-      const report = stats.toGitHubReport();
+      const report = stats.toMarkdownReport();
       
       // Should contain cost information for models with known pricing
       assert(report.includes("¢") || report.includes("$"));
@@ -228,7 +228,7 @@ describe("usage", () => {
         duration: 60000, // 1 minute
       }, 60000);
 
-      const report = stats.toGitHubReport();
+      const report = stats.toMarkdownReport();
       
       // Should format large numbers with appropriate units
       assert(report.includes("Mt") || report.includes("kt"));

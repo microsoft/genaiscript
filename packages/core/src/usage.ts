@@ -429,18 +429,18 @@ export class GenerationStats {
    * const child = stats.createChild("openai:gpt-3.5-turbo", "helper");
    * child.addUsage({ prompt_tokens: 200, completion_tokens: 100, total_tokens: 300, duration: 2000 }, 2000);
    * 
-   * const report = stats.toGitHubReport();
+   * const report = stats.toMarkdownReport();
    * // Returns:
    * // <details>
    * // <summary>💰 Usage Report 450t 3000ms</summary>
-   * // |Model|Label|↑|↓|⇅|Cost|Duration|
+   * // |Model|Label|↑|↓|⇅|$|⏱️|
    * // |-----|-----|--|--|--|----| -------|
    * // |openai:gpt-4|main|100t|50t|150t|0.60¢|1000ms|
    * // |openai:gpt-3.5-turbo|helper|200t|100t|300t|0.30¢|2000ms|
    * // </details>
    * ```
    */
-  toGitHubReport(): string {
+  toMarkdownReport(): string {
     const accumulated = this.accumulatedUsage();
     const totalCost = this.cost();
     
@@ -461,8 +461,8 @@ export class GenerationStats {
       [`${CHAR_UP_ARROW}`]: string;
       [`${CHAR_DOWN_ARROW}`]: string;
       [`${CHAR_UP_DOWN_ARROWS}`]: string;
-      Cost: string;
-      Duration: string;
+      $: string;
+      "⏱️": string;
     }> = [];
     
     // Add parent stats if it has usage
@@ -481,8 +481,8 @@ export class GenerationStats {
         [`${CHAR_UP_ARROW}`]: prettyTokens(this.usage.prompt_tokens) || "0t",
         [`${CHAR_DOWN_ARROW}`]: prettyTokens(this.usage.completion_tokens) || "0t", 
         [`${CHAR_UP_DOWN_ARROWS}`]: prettyTokens(this.usage.total_tokens) || "0t",
-        Cost: prettyCost(parentCost) || "-",
-        Duration: prettyDuration(this.usage.duration) || "-",
+        $: prettyCost(parentCost) || "-",
+        "⏱️": prettyDuration(this.usage.duration) || "-",
       });
     }
     
@@ -500,8 +500,8 @@ export class GenerationStats {
         [`${CHAR_UP_ARROW}`]: prettyTokens(childUsage.prompt_tokens) || "0t",
         [`${CHAR_DOWN_ARROW}`]: prettyTokens(childUsage.completion_tokens) || "0t",
         [`${CHAR_UP_DOWN_ARROWS}`]: prettyTokens(childUsage.total_tokens) || "0t", 
-        Cost: prettyCost(childCost) || "-",
-        Duration: prettyDuration(childUsage.duration) || "-",
+        $: prettyCost(childCost) || "-",
+        "⏱️": prettyDuration(childUsage.duration) || "-",
       });
     }
     
@@ -513,8 +513,8 @@ export class GenerationStats {
         [`${CHAR_UP_ARROW}`]: "0t",
         [`${CHAR_DOWN_ARROW}`]: "0t",
         [`${CHAR_UP_DOWN_ARROWS}`]: "0t",
-        Cost: "-",
-        Duration: "-",
+        $: "-",
+        "⏱️": "-",
       });
     }
     
