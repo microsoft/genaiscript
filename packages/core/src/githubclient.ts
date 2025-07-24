@@ -41,6 +41,7 @@ import type { TraceOptions } from "./trace.js";
 import { unzip } from "./zip.js";
 import { uriRedact, uriTryParse } from "./url.js";
 import { dedent } from "./indent.js";
+import type { GenerationStats } from "./usage.js";
 import type {
   BufferLike,
   Diagnostic,
@@ -372,10 +373,18 @@ export function mergeDescription(commentTag: string, body: string, text: string)
  * @param info - An object containing metadata, such as the URL to the workflow run.
  *   - runUrl - Optional URL to the current workflow or run.
  * @param code - Optional identifier code to be appended to the footer.
+ * @param stats - Optional generation statistics to include usage report.
  * @returns A formatted string serving as a footer, warning readers about the AI-generated content.
  */
-export function generatedByFooter(script: PromptScript, info: { runUrl?: string }, code?: string) {
-  return `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect.\n\n`;
+export function generatedByFooter(script: PromptScript, info: { runUrl?: string }, code?: string, stats?: GenerationStats) {
+  let footer = `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect.`;
+  
+  // Add usage report if stats are available
+  if (stats) {
+    footer += `\n\n${stats.toMarkdownReport()}`;
+  }
+  
+  return footer + `\n\n`;
 }
 
 /**
@@ -408,9 +417,9 @@ export async function githubCreateIssueComment(
   info: GithubConnectionInfo,
   body: string,
   commentTag: string,
-  options?: CancellationOptions,
+  options?: CancellationOptions & { stats?: GenerationStats },
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
-  const { cancellationToken } = options ?? {};
+  const { cancellationToken, stats } = options ?? {};
   const { apiUrl, repository, issue, token } = info;
 
   if (!issue) {
@@ -427,7 +436,7 @@ export async function githubCreateIssueComment(
   dbg(`creating issue comment at %s`, url);
 
   body = prettifyMarkdown(body);
-  body += generatedByFooter(script, info);
+  body += generatedByFooter(script, info, undefined, stats);
 
   dbg(`body:\n%s`, body);
 
