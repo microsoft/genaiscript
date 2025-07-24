@@ -68,7 +68,7 @@ jobs:
           key: genaiscript-${{ github.run_id }}
           restore-keys: |
             genaiscript-
-      - uses: sinedied/genaiscript@v0 # update to the major version you want to use
+      - uses: microsoft/genaiscript@v0 # update to the major version you want to use
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
