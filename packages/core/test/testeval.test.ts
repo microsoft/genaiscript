@@ -1,8 +1,8 @@
 import { describe, test } from "vitest";
 import assert from "node:assert/strict";
 import { evaluateTestResult } from "../src/testeval.js";
-import { PromptTest, PromptScript, PromptAssertion } from "../src/types.js";
-import { GenerationResult } from "../src/server/messages.js";
+import type { PromptTest, PromptScript, PromptAssertion } from "../src/types.js";
+import type { GenerationResult } from "../src/server/messages.js";
 
 describe("evaluateTestResult", () => {
   const mockScript: PromptScript = {

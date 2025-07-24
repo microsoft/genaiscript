@@ -3,7 +3,7 @@
 
 // Import necessary regular expressions for file type detection and host utilities
 import { GENAI_ANYJS_REGEX, GENAI_ANYTS_REGEX } from "./constants.js";
-import { Project } from "./server/messages.js";
+import type { Project } from "./server/messages.js";
 import { arrayify } from "./cleaners.js";
 import { tagFilter } from "./tags.js";
 import { dirname, resolve } from "node:path";

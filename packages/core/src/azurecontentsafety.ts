@@ -2,16 +2,16 @@
 // Licensed under the MIT License.
 
 import { createFetch, statusToMessage } from "./fetch.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { arrayify } from "./cleaners.js";
 import {
   AZURE_CONTENT_SAFETY_PROMPT_SHIELD_MAX_LENGTH,
   DOCS_CONFIGURATION_CONTENT_SAFETY_URL,
 } from "./constants.js";
 import { resolveRuntimeHost } from "./host.js";
-import { CancellationOptions } from "./cancellation.js";
+import type { CancellationOptions } from "./cancellation.js";
 import { YAMLStringify } from "./yaml.js";
-import { AzureCredentialsType } from "./server/messages.js";
+import type { AzureCredentialsType } from "./server/messages.js";
 import { trimTrailingSlash } from "./cleaners.js";
 import { chunkString } from "./chunkers.js";
 import { createCache } from "./cache.js";

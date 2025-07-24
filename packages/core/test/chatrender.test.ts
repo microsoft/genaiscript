@@ -10,11 +10,11 @@ import {
   collapseChatMessages,
   assistantText,
 } from "../src/chatrender.js";
-import {
+import type {
   ChatCompletionAssistantMessageParam,
   ChatCompletionUserMessageParam,
 } from "../src/chattypes.js";
-import { ChatCompletionSystemMessageParam } from "openai/resources/index.mjs";
+import type { ChatCompletionSystemMessageParam } from "openai/resources/index.mjs";
 
 describe("renderShellOutput", () => {
   test("should return stdout if exit code is 0", () => {

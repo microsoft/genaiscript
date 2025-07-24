@@ -3,7 +3,7 @@
 
 import debug from "debug";
 const dbg = debug("genaiscript:azureopenai");
-import { LanguageModel, ListModelsFunction } from "./chat.js";
+import type { LanguageModel, ListModelsFunction } from "./chat.js";
 import { AZURE_MANAGEMENT_API_VERSION, MODEL_PROVIDER_AZURE_OPENAI } from "./constants.js";
 import { errorMessage, serializeError } from "./error.js";
 import { createFetch } from "./fetch.js";

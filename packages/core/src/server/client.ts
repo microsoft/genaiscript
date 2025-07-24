@@ -5,7 +5,7 @@ import type { ChatCompletionsProgressReport } from "../chattypes.js";
 import { CLOSE, MESSAGE } from "../constants.js";
 import { errorMessage } from "../error.js";
 import { generateId } from "../id.js";
-import { MarkdownTrace } from "../trace.js";
+import type { MarkdownTrace } from "../trace.js";
 import { logError } from "../util.js";
 import type {
   PromptScriptTestRun,

@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 import { dirname } from "node:path";
-import { WriteStream, createWriteStream, writeFileSync } from "node:fs";
+import type { WriteStream} from "node:fs";
+import { createWriteStream, writeFileSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import { MarkdownTrace, TraceChunkEvent } from "./trace.js";
+import type { MarkdownTrace, TraceChunkEvent } from "./trace.js";
 import { TRACE_CHUNK, TRACE_DETAILS } from "./constants.js";
 import { measure } from "./performance.js";
 import { logVerbose } from "./util.js";
