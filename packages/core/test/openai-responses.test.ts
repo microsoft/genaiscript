@@ -148,4 +148,77 @@ describe("OpenAIResponsesChatCompletion", () => {
 
     expect(result.finishReason).toBe("cancel");
   });
+
+  test("should handle streaming response", async () => {
+    const mockChunks = [
+      {
+        choices: [
+          {
+            delta: { content: "Hello" },
+            finish_reason: null,
+          },
+        ],
+        model: "gpt-3.5-turbo",
+      },
+      {
+        choices: [
+          {
+            delta: { content: "!" },
+            finish_reason: "stop",
+          },
+        ],
+        usage: {
+          prompt_tokens: 10,
+          completion_tokens: 20,
+          total_tokens: 30,
+        },
+      },
+    ];
+
+    const mockStream = {
+      [Symbol.asyncIterator]: async function* () {
+        for (const chunk of mockChunks) {
+          yield chunk;
+        }
+      },
+    };
+
+    const mockOpenAI = {
+      chat: {
+        completions: {
+          create: vi.fn().mockResolvedValue(mockStream),
+        },
+      },
+    };
+
+    const OpenAI = await import("openai");
+    vi.mocked(OpenAI.default).mockImplementation(() => mockOpenAI as any);
+
+    const mockPartialCb = vi.fn();
+    const streamingRequest = { ...mockRequest, stream: true };
+
+    const result = await OpenAIResponsesChatCompletion(
+      streamingRequest,
+      mockConfig,
+      { requestOptions: {}, partialCb: mockPartialCb },
+      mockTrace as any
+    );
+
+    expect(result).toEqual({
+      text: "Hello!",
+      toolCalls: [],
+      finishReason: "stop",
+      usage: {
+        prompt_tokens: 10,
+        completion_tokens: 20,
+        total_tokens: 30,
+      },
+      model: "gpt-3.5-turbo",
+    });
+
+    expect(mockPartialCb).toHaveBeenCalledWith({ text: "Hello" });
+    expect(mockPartialCb).toHaveBeenCalledWith({ text: "Hello!" });
+    expect(mockTrace.appendContent).toHaveBeenCalledWith("Hello");
+    expect(mockTrace.appendContent).toHaveBeenCalledWith("!");
+  });
 });
