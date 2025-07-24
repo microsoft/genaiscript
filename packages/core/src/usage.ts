@@ -478,9 +478,9 @@ export class GenerationStats {
       usageData.push({
         Model: this.resolvedModel,
         Label: this.label || "-",
-        [`${CHAR_UP_ARROW}`]: prettyTokens(this.usage.prompt_tokens) || "0t",
-        [`${CHAR_DOWN_ARROW}`]: prettyTokens(this.usage.completion_tokens) || "0t", 
-        [`${CHAR_UP_DOWN_ARROWS}`]: prettyTokens(this.usage.total_tokens) || "0t",
+        [CHAR_UP_ARROW]: prettyTokens(this.usage.prompt_tokens) || "0t",
+        [CHAR_DOWN_ARROW]: prettyTokens(this.usage.completion_tokens) || "0t", 
+        [CHAR_UP_DOWN_ARROWS]: prettyTokens(this.usage.total_tokens) || "0t",
         $: prettyCost(parentCost) || "-",
         "⏱️": prettyDuration(this.usage.duration) || "-",
       });
@@ -497,9 +497,9 @@ export class GenerationStats {
       usageData.push({
         Model: child.resolvedModel,
         Label: child.label || "-",
-        [`${CHAR_UP_ARROW}`]: prettyTokens(childUsage.prompt_tokens) || "0t",
-        [`${CHAR_DOWN_ARROW}`]: prettyTokens(childUsage.completion_tokens) || "0t",
-        [`${CHAR_UP_DOWN_ARROWS}`]: prettyTokens(childUsage.total_tokens) || "0t", 
+        [CHAR_UP_ARROW]: prettyTokens(childUsage.prompt_tokens) || "0t",
+        [CHAR_DOWN_ARROW]: prettyTokens(childUsage.completion_tokens) || "0t",
+        [CHAR_UP_DOWN_ARROWS]: prettyTokens(childUsage.total_tokens) || "0t", 
         $: prettyCost(childCost) || "-",
         "⏱️": prettyDuration(childUsage.duration) || "-",
       });
@@ -510,9 +510,9 @@ export class GenerationStats {
       usageData.push({
         Model: this.model,
         Label: this.label || "-",
-        [`${CHAR_UP_ARROW}`]: "0t",
-        [`${CHAR_DOWN_ARROW}`]: "0t",
-        [`${CHAR_UP_DOWN_ARROWS}`]: "0t",
+        [CHAR_UP_ARROW]: "0t",
+        [CHAR_DOWN_ARROW]: "0t",
+        [CHAR_UP_DOWN_ARROWS]: "0t",
         $: "-",
         "⏱️": "-",
       });
