@@ -3,7 +3,7 @@
 
 // Import the Template class from the @huggingface/jinja package
 import { Template } from "@huggingface/jinja";
-import { ChatCompletionMessageParam } from "./chattypes.js";
+import type { ChatCompletionMessageParam } from "./chattypes.js";
 import { collapseEmptyLines } from "./util.js";
 
 /**

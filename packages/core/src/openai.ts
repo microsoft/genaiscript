@@ -79,6 +79,7 @@ import type {
   TranscriptionResult,
 } from "./types.js";
 import { createUTF8Decoder } from "./utf8.js";
+import { resolveBufferLike } from "./bufferlike.js";
 
 const dbg = genaiscriptDebug("openai");
 const dbgMessages = dbg.extend("msg");
@@ -736,79 +737,204 @@ export async function OpenAIImageGeneration(
   cfg: LanguageModelConfiguration,
   options: TraceOptions & CancellationOptions & RetryOptions,
 ): Promise<CreateImageResult> {
-  const { model, prompt, size = "1024x1024", quality, style, outputFormat, ...rest } = req;
+  const {
+    model,
+    prompt,
+    size = "1024x1024",
+    quality,
+    style,
+    outputFormat,
+    mode = "generate",
+    image,
+    mask,
+    ...rest
+  } = req;
   const { trace } = options || {};
-  let url = `${cfg.base}/images/generations`;
+
+  // Determine the API endpoint based on mode
+  let endpoint = "generations";
+  if (mode === "edit") {
+    endpoint = "edits";
+    if (!image) {
+      return {
+        image: undefined,
+        error: serializeError(new Error("Image is required for edit mode")),
+      };
+    }
+  }
+
+  let url = `${cfg.base}/images/${endpoint}`;
 
   const isDallE = /^dall-e/i.test(model);
   const isDallE2 = /^dall-e-2/i.test(model);
   const isDallE3 = /^dall-e-3/i.test(model);
   const isGpt = /^gpt-image/i.test(model);
 
-  const body: any = {
-    model,
-    prompt,
-    size,
-    quality,
-    style,
-    ...rest,
+  // For edit mode, we need to use multipart form data
+  const isMultipart = mode === "edit";
+
+  // Process parameters common to all modes
+  const processedParams = {
+    size: size,
+    quality: quality,
+    style: style,
+    outputFormat: outputFormat,
   };
 
-  // auto is the default quality, so always delete it
-  if (body.quality === "auto" || isDallE2) delete body.quality;
-  if (isDallE3) {
-    if (body.quality === "high") body.quality = "hd";
-    else delete body.quality;
-  }
-  if (isGpt && body.quality === "hd") body.quality = "high";
-  if (!isDallE3) delete body.style;
-  if (isDallE) body.response_format = "b64_json";
-
-  if (isDallE3) {
-    if (body.size === "portrait") body.size = "1024x1792";
-    else if (body.size === "landscape") body.size = "1792x1024";
-    else if (body.size === "square") body.size = "1024x1024";
-  } else if (isDallE2) {
-    if (body.size === "portrait" || body.size === "landscape" || body.size === "square")
-      body.size = "1024x1024";
-  } else if (isGpt) {
-    if (body.size === "portrait") body.size = "1024x1536";
-    else if (body.size === "landscape") body.size = "1536x1024";
-    else if (body.size === "square") body.size = "1024x1024";
-    if (outputFormat) body.output_format = outputFormat;
+  // Transform size parameter based on model
+  if (processedParams.size && processedParams.size !== "auto") {
+    if (isDallE3) {
+      if (processedParams.size === "portrait") processedParams.size = "1024x1792";
+      else if (processedParams.size === "landscape") processedParams.size = "1792x1024";
+      else if (processedParams.size === "square") processedParams.size = "1024x1024";
+    } else if (isDallE2) {
+      if (
+        processedParams.size === "portrait" ||
+        processedParams.size === "landscape" ||
+        processedParams.size === "square"
+      )
+        processedParams.size = "1024x1024";
+    } else if (isGpt) {
+      if (processedParams.size === "portrait") processedParams.size = "1024x1536";
+      else if (processedParams.size === "landscape") processedParams.size = "1536x1024";
+      else if (processedParams.size === "square") processedParams.size = "1024x1024";
+    }
   }
 
-  if (body.size === "auto") delete body.size;
+  // Transform quality parameter based on model
+  if (processedParams.quality && processedParams.quality !== "auto") {
+    if (isDallE3 && processedParams.quality === "high") {
+      processedParams.quality = "hd";
+    } else if (isGpt && processedParams.quality === "hd") {
+      processedParams.quality = "high";
+    }
+  }
+
+  // Filter out parameters that shouldn't be included for certain models
+  const shouldIncludeQuality =
+    processedParams.quality && processedParams.quality !== "auto" && !isDallE2;
+  const shouldIncludeStyle = processedParams.style && isDallE3;
+  const shouldIncludeOutputFormat = processedParams.outputFormat && isGpt;
+  const shouldIncludeSize = processedParams.size && processedParams.size !== "auto";
+
+  let body: any;
+  let headers: any = {
+    ...getConfigHeaders(cfg),
+  };
+
+  if (isMultipart) {
+    // Use FormData for image uploads
+    body = new FormData();
+
+    // Add the image file
+    const imageBuffer = await resolveBufferLike(image);
+    if (!imageBuffer) {
+      return {
+        image: undefined,
+        error: serializeError(new Error("Failed to resolve image buffer")),
+      };
+    }
+    body.append("image", new Blob([imageBuffer], { type: "image/png" }), "image.png");
+
+    // Add mask if provided (only for edit mode)
+    if (mode === "edit" && mask) {
+      const maskBuffer = await resolveBufferLike(mask);
+      if (maskBuffer) {
+        body.append("mask", new Blob([maskBuffer], { type: "image/png" }), "mask.png");
+      }
+    }
+
+    // Add model
+    body.append("model", model);
+
+    // Add prompt (required for edit mode)
+    if (mode === "edit") {
+      body.append("prompt", prompt);
+    }
+
+    // Add processed parameters
+    if (shouldIncludeSize) {
+      body.append("size", processedParams.size);
+    }
+
+    if (shouldIncludeQuality) {
+      body.append("quality", processedParams.quality);
+    }
+
+    if (shouldIncludeStyle) {
+      body.append("style", processedParams.style);
+    }
+
+    if (shouldIncludeOutputFormat) {
+      body.append("output_format", processedParams.outputFormat);
+    }
+
+    // Always request b64_json for response format
+    body.append("response_format", "b64_json");
+
+    // Don't set Content-Type header for FormData, let the browser set it with boundary
+  } else {
+    // JSON body for generation mode
+    body = {
+      model,
+      prompt,
+      ...rest,
+    };
+
+    // Add processed parameters
+    if (shouldIncludeSize) {
+      body.size = processedParams.size;
+    }
+
+    if (shouldIncludeQuality) {
+      body.quality = processedParams.quality;
+    }
+
+    if (shouldIncludeStyle) {
+      body.style = processedParams.style;
+    }
+
+    if (shouldIncludeOutputFormat) {
+      body.output_format = processedParams.outputFormat;
+    }
+
+    if (isDallE) {
+      body.response_format = "b64_json";
+    }
+
+    headers["Content-Type"] = "application/json";
+    body = JSON.stringify(body);
+  }
 
   dbg("%o", {
-    quality: body.quality,
-    style: body.style,
-    response_format: body.response_format,
-    size: body.size,
+    mode,
+    endpoint,
+    quality: isMultipart ? "multipart" : body.quality,
+    style: isMultipart ? "multipart" : body.style,
+    response_format: isMultipart ? "b64_json" : body.response_format,
+    size: isMultipart ? "multipart" : body.size,
   });
 
   if (cfg.type === "azure") {
     const version = cfg.version || AZURE_OPENAI_API_VERSION;
     trace?.itemValue(`version`, version);
-    url =
-      trimTrailingSlash(cfg.base) + "/" + body.model + `/images/generations?api-version=${version}`;
-    delete body.model;
+    url = trimTrailingSlash(cfg.base) + "/" + model + `/images/${endpoint}?api-version=${version}`;
   }
 
   const fetch = await createFetch(options);
   try {
-    logInfo(`generate image with ${cfg.provider}:${cfg.model} (this may take a while)`);
+    logInfo(`${mode} image with ${cfg.provider}:${cfg.model} (this may take a while)`);
     const freq = {
       method: "POST",
-      headers: {
-        ...getConfigHeaders(cfg),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
+      headers,
+      body,
     };
-    // TODO: switch back to cross-fetch in the future
+
     trace?.itemValue(`url`, `[${url}](${url})`);
-    traceFetchPost(trace, url, freq.headers, body);
+    if (!isMultipart) {
+      traceFetchPost(trace, url, freq.headers, JSON.parse(body));
+    }
+
     const res = await fetch(url, freq as any);
     dbg(`response: %d %s`, res.status, res.statusText);
     trace?.itemValue(`status`, `${res.status} ${res.statusText}`);

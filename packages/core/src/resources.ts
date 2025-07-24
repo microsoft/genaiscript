@@ -3,11 +3,12 @@
 
 import { fileURLToPath } from "node:url";
 import { isBinaryMimeType } from "./binary.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import type { CancellationOptions} from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
 import { genaiscriptDebug } from "./debug.js";
 import { createFetch } from "./fetch.js";
 import { GitHubClient } from "./githubclient.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { uriRedact, uriScheme, uriTryParse } from "./url.js";
 import { arrayify } from "./cleaners.js";
 import { URL } from "node:url";

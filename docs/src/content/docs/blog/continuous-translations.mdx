@@ -59,7 +59,7 @@ In this post, we'll go through some of the interesting parts of the script and h
 
 :::note
 
-The script in this blog is packaged as [custom github action](https://github.com/pelikhan/action-continuous-translation).
+The script described in this blog is now packaged as a [custom GitHub action](https://github.com/pelikhan/action-continuous-translation) for easy reuse. This repository uses the GitHub action for its continuous translations.
 
 :::
 
@@ -73,7 +73,7 @@ To be successful, we need:
 - idempotency: if translations are already available, the results should be cached and the script should be a no-op.
 - run automatically in a GitHub Action and use GitHub Models for inference.
 
-Let's get going! If you want to read the code, [here is the script](https://github.com/microsoft/genaiscript/blob/dev/samples/sample/genaisrc/mdtranslator.genai.mts).
+Let's get going! The translation functionality described in this blog post is now packaged as a reusable [GitHub Action](https://github.com/pelikhan/action-continuous-translation). If you want to read the original script code, [here is the script](https://github.com/microsoft/genaiscript/blob/dev/samples/sample/genaisrc/mdtranslator.genai.mts).
 
 ## Iterative Markdown Translations
 

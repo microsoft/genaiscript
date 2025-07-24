@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { arrayify } from "./cleaners.js";
 import { logError } from "./util.js";
 import type { ElementOrArray } from "./types.js";

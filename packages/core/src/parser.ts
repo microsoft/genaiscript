@@ -5,7 +5,7 @@ import { logVerbose, logWarn, strcmp } from "./util.js"; // String comparison fu
 import { parsePromptScript } from "./template.js"; // Function to parse scripts
 import { readText } from "./fs.js"; // Function to read text from a file
 import { GENAI_ANYTS_REGEX } from "./constants.js"; // Constants for MIME types and prefixes
-import { Project } from "./server/messages.js";
+import type { Project } from "./server/messages.js";
 import { resolveSystems } from "./systems.js";
 import { resolveScriptParametersSchema } from "./vars.js";
 import { dirname, join, resolve } from "node:path";

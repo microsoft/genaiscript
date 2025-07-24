@@ -19,12 +19,14 @@ import {
 import { logWarn } from "./util.js";
 import { arrayify } from "./cleaners.js";
 import { resolveRuntimeHost } from "./host.js";
-import { ModelConnectionInfo, parseModelIdentifier } from "./models.js";
+import type { ModelConnectionInfo} from "./models.js";
+import { parseModelIdentifier } from "./models.js";
 import { deleteEmptyValues, deleteUndefinedValues } from "./cleaners.js";
 import testSchema from "./testschema.js";
 import { validateJSONWithSchema } from "./schema.js";
-import { MarkdownTrace, TraceOptions } from "./trace.js";
-import { CancellationOptions } from "./cancellation.js";
+import type { TraceOptions } from "./trace.js";
+import { MarkdownTrace } from "./trace.js";
+import type { CancellationOptions } from "./cancellation.js";
 import { uniq } from "es-toolkit";
 import { dedent } from "./indent.js";
 import { importFile } from "./importprompt.js";

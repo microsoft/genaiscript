@@ -33,7 +33,7 @@ export function wrapColor(n: number | string, message: string) {
   else return message;
 }
 
-//for (let i = 0; i < 255; ++i)
+// for (let i = 0; i < 255; ++i)
 /**
  * Wraps text with RGB ANSI color codes for foreground or background.
  * Converts an RGB integer to its red, green, and blue components and applies the corresponding ANSI escape codes.

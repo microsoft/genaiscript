@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { JSON5parse } from "./json5.js";
-import { MarkdownTrace, TraceOptions } from "./trace.js";
+import type { MarkdownTrace, TraceOptions } from "./trace.js";
 import { Ajv } from "ajv";
 import { YAMLParse } from "./yaml.js";
 import { errorMessage } from "./error.js";
@@ -374,7 +374,7 @@ export function toStrictJSONSchema(
   );
   visit(clone);
 
-  //if (clone.type !== "object")
+  // if (clone.type !== "object")
   //    throw new Error("top level schema must be object")
 
   // Recursive function to make the schema strict

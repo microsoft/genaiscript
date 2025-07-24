@@ -224,7 +224,7 @@ of the city.`,
   test("infer object", async () => {
     const obj = { name: "John", age: 30 };
     const schema = await JSONSchemaInfer(obj);
-    //console.log({ obj, schema })
+    // console.log({ obj, schema })
     assert.strictEqual(schema.type, "object");
     assert.deepStrictEqual(schema.properties, {
       name: { type: "string" },
@@ -235,7 +235,7 @@ of the city.`,
   test("infer array", async () => {
     const obj = { links: [""] };
     const schema = await JSONSchemaInfer(obj);
-    //console.log({ obj, schema })
+    // console.log({ obj, schema })
     assert.strictEqual(schema.type, "object");
     assert.deepStrictEqual(schema.properties, {
       links: { type: "array", items: { type: "string" } },

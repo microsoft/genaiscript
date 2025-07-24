@@ -31,6 +31,7 @@ jobs:
         run: pnpm run test:system
       - name: compile tests
         run: pnpm run test:compile
+      - run: git fetch origin test-ignore
       - name: tests
         run: pnpm -r test
         env:

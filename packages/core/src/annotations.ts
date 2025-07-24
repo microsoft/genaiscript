@@ -74,6 +74,9 @@ const SEV_EMOJI_MAP: Record<string, string> = Object.freeze({
 export function parseAnnotations(text: string): Diagnostic[] {
   if (!text) return [];
 
+  // Set to store unique annotations.
+  const annotations = new Set<Diagnostic>();
+
   // Helper function to add an annotation to the set.
   // Extracts groups from the regex match and constructs a `Diagnostic` object.
   const addAnnotation = (m: RegExpMatchArray) => {
@@ -91,9 +94,6 @@ export function parseAnnotations(text: string): Diagnostic[] {
     };
     annotations.add(annotation); // Add the constructed annotation to the set
   };
-
-  // Set to store unique annotations.
-  const annotations = new Set<Diagnostic>();
 
   // Match against TypeScript, GitHub, and Azure DevOps regex patterns.
   for (const rx of ANNOTATIONS_RX) {
@@ -187,7 +187,6 @@ export function convertGithubMarkdownAnnotationsToItems(text: string) {
  * @returns A formatted string representing the Diagnostic as a list item.
  */
 export function convertAnnotationToItem(d: Diagnostic) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { severity, message, filename, code, range } = d;
   const line = range?.[0]?.[0];
   return `- ${SEV_EMOJI_MAP[severity?.toLowerCase()] ?? "info"} ${message}${filename ? ` (\`${filename}${line ? `#L${line}` : ""}\`)` : ""}`;
@@ -255,12 +254,6 @@ ${suggestion ? `\`\`\`suggestion\n${suggestion}\n\`\`\`\n` : ""}
  * @returns Formatted Markdown string with severity levels mapped to admonitions, including file, line references, and optional codes.
  */
 export function convertAnnotationsToMarkdown(text: string): string {
-  // Maps severity levels to Markdown admonition types.
-  const severities: Record<string, string> = {
-    error: "CAUTION",
-    warning: "WARNING",
-    notice: "NOTE",
-  };
   // Replace GitHub and Azure DevOps annotations with Markdown format.
   return text
     ?.replace(

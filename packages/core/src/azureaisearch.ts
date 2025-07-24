@@ -126,8 +126,8 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
   type TextChunkEntry = TextChunk & { id: string; contentVector: number[] };
   const client = new SearchClient<TextChunkEntry>(endPoint, indexName, credential, {});
 
-  const chunkId = async (chunk: TextChunk) =>
-    await hash([chunk.filename ?? chunk.content, chunk.lineEnd, chunk.lineEnd], {
+  const chunkId = async (textChunk: TextChunk) =>
+    await hash([textChunk.filename ?? textChunk.content, textChunk.lineEnd, textChunk.lineEnd], {
       length: HASH_LENGTH,
     });
 
@@ -137,20 +137,20 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
       const files = arrayify(file);
       const outdated: TextChunkEntry[] = [];
       const docs: TextChunkEntry[] = [];
-      for (const file of files) {
-        dbg(`resolving file content for ${file.filename}`);
-        await resolveFileContent(file, { cancellationToken });
-        if (file.encoding) {
+      for (const currentFile of files) {
+        dbg(`resolving file content for ${currentFile.filename}`);
+        await resolveFileContent(currentFile, { cancellationToken });
+        if (currentFile.encoding) {
           continue;
         }
 
-        dbg(`chunking file ${file.filename}`);
-        const newChunks = await chunk(file, {
+        dbg(`chunking file ${currentFile.filename}`);
+        const newChunks = await chunk(currentFile, {
           chunkSize,
           chunkOverlap,
         });
         const oldChunks = await client.search(undefined, {
-          filter: `filename eq '${file.filename}'`,
+          filter: `filename eq '${currentFile.filename}'`,
         });
         for await (const result of oldChunks.results) {
           const oldChunk = result.document;
@@ -169,17 +169,17 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         }
 
         // new chunks
-        for (const chunk of newChunks) {
+        for (const textChunk of newChunks) {
           dbg(`embedding new chunk content`);
-          const vector = await embedder(chunk.content, cfg, options);
+          const vector = await embedder(textChunk.content, cfg, options);
           checkCancelled(cancellationToken);
           dbg(`validating embedding vector status`);
           if (vector.status !== "success") {
             throw new Error(vector.error || vector.status);
           }
           docs.push({
-            id: await chunkId(chunk),
-            ...chunk,
+            id: await chunkId(textChunk),
+            ...textChunk,
             contentVector: vector.data[0],
           });
         }
@@ -217,9 +217,9 @@ export const azureAISearchIndex: WorkspaceFileIndexCreator = async (
         }
       }
     },
-    search: async (query: string, options?: VectorSearchOptions) => {
+    search: async (query: string, searchOptions?: VectorSearchOptions) => {
       dbg(`embedding search query`);
-      const { topK, minScore = 0 } = options || {};
+      const { topK, minScore = 0 } = searchOptions || {};
 
       const vector = await embedder(query, cfg, {
         trace,

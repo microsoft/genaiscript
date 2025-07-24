@@ -209,8 +209,6 @@
         "mdast",
         "mdchunk",
         "mdstringify",
-        "mdtranslator",
-        "mdtranslatorignore",
         "mdxjs",
         "memorystream",
         "menuitemcheckbox",

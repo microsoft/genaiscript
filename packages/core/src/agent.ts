@@ -4,10 +4,10 @@
 import { createCache } from "./cache.js";
 import { AGENT_MEMORY_CACHE_NAME, AGENT_MEMORY_FLEX_TOKENS, TOKEN_NO_ANSWER } from "./constants.js";
 import { errorMessage } from "./error.js";
-import { GenerationOptions } from "./generation.js";
+import type { GenerationOptions } from "./generation.js";
 import { HTMLEscape } from "./htmlescape.js";
 import { prettifyMarkdown } from "./pretty.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { ellipse } from "./util.js";
 import type {
   ChatGenerationContext,
