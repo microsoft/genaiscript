@@ -5,7 +5,7 @@ import { resolveScript } from "./ast.js";
 import { resolveSystems } from "./systems.js";
 import { logError } from "./util.js";
 import { YAMLStringify } from "./yaml.js";
-import { Project } from "./server/messages.js";
+import type { Project } from "./server/messages.js";
 import {
   promptParametersSchemaToJSONSchema,
   promptParameterTypeToJSONSchema,

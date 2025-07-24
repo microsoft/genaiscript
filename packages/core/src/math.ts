@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 
 /**
  * Asynchronously evaluates a mathematical expression.

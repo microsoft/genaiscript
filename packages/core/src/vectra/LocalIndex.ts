@@ -4,7 +4,7 @@
 import * as fs from "fs/promises";
 import { v4 } from "uuid";
 import { ItemSelector } from "./ItemSelector.js";
-import { IndexItem, IndexStats, MetadataFilter, MetadataTypes, QueryResult } from "./types.js";
+import type { IndexItem, IndexStats, MetadataFilter, MetadataTypes, QueryResult } from "./types.js";
 import { genaiscriptDebug } from "../debug.js";
 import { join } from "path";
 const dbg = genaiscriptDebug("vector:index");

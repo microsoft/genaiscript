@@ -25,6 +25,8 @@ import type {
   Git,
   GitCommit,
   GitLogOptions,
+  GitWorktree,
+  GitWorktreeAddOptions,
   OptionsOrString,
   ShellOptions,
   WorkspaceFile,
@@ -313,6 +315,82 @@ export class GitClient implements Git {
     dbg(`fetching last commit`);
     const res = await this.exec(["rev-parse", "HEAD"]);
     return res.split("\n")[0];
+  }
+
+  async listWorktrees(): Promise<GitWorktree[]> {
+    dbg(`listing worktrees`);
+    const res = await this.exec(["worktree", "list", "--porcelain"], {
+      valueOnError: "",
+    });
+
+    if (!res.trim()) return [];
+
+    const worktrees: GitWorktree[] = [];
+    const lines = res.trim().split("\n");
+    let current: Partial<GitWorktree> = {};
+
+    for (const line of lines) {
+      if (line.startsWith("worktree ")) {
+        current.path = line.substring(9);
+      } else if (line.startsWith("HEAD ")) {
+        current.head = line.substring(5);
+      } else if (line.startsWith("branch ")) {
+        current.branch = line.substring(7);
+      } else if (line === "bare") {
+        current.bare = true;
+      } else if (line === "detached") {
+        current.detached = true;
+      } else if (line === "") {
+        // Empty line indicates end of worktree entry
+        if (current.path) {
+          worktrees.push(current as GitWorktree);
+          current = {};
+        }
+      }
+    }
+
+    // Handle last entry if no trailing empty line
+    if (current.path) {
+      worktrees.push(current as GitWorktree);
+    }
+
+    return worktrees;
+  }
+
+  async addWorktree(
+    path: string,
+    commitish?: string,
+    options?: GitWorktreeAddOptions,
+  ): Promise<Git> {
+    dbg(`adding worktree at ${path}`);
+    const args = ["worktree", "add"];
+
+    if (options?.force) args.push("-f");
+    if (options?.detach) args.push("--detach");
+    if (!options?.checkout) args.push("--no-checkout");
+    if (options?.orphan) args.push("--orphan");
+
+    if (options?.branch) {
+      args.push("-b", options.branch);
+    }
+
+    args.push(path);
+    if (commitish) args.push(commitish);
+
+    await this.exec(args);
+
+    // Return a GitClient opened at the worktree path
+    return this.client(path);
+  }
+
+  async removeWorktree(path: string, options?: { force?: boolean }): Promise<void> {
+    dbg(`removing worktree at ${path}`);
+    const args = ["worktree", "remove"];
+
+    if (options?.force) args.push("-f");
+    args.push(path);
+
+    await this.exec(args);
   }
 
   async log(options?: GitLogOptions): Promise<GitCommit[]> {

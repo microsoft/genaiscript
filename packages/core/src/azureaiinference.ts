@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { LanguageModel } from "./chat.js";
+import type { LanguageModel } from "./chat.js";
 import { MODEL_PROVIDER_AZURE_AI_INFERENCE } from "./constants.js";
 import { OpenAIChatCompletion, OpenAIEmbedder } from "./openai.js";
 

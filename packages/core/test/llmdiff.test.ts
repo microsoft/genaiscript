@@ -23,17 +23,17 @@ describe("llmdiff", () => {
   test("missing line numbers", () => {
     const source = `
 [10] CONSTANT
--     \* @type: XXX;
-+     \* @type: Int;
+-     * @type: XXX;
++     * @type: Int;
 [15] VARIABLES
--     \* @type: [Node -> XXX];
-+     \* @type: [Node -> Bool];
--     \* @type: [Node -> XXX];
-+     \* @type: [Node -> Str];
--     \* @type: XXX;
-+     \* @type: Int;
--     \* @type: XXX;
-+     \* @type: Str;
+-     * @type: [Node -> XXX];
++     * @type: [Node -> Bool];
+-     * @type: [Node -> XXX];
++     * @type: [Node -> Str];
+-     * @type: XXX;
++     * @type: Int;
+-     * @type: XXX;
++     * @type: Str;
 `;
 
     const chunks = parseLLMDiffs(source);
@@ -43,24 +43,24 @@ describe("llmdiff", () => {
   test("missing line numbers 2", () => {
     const source = `
 [17] CONSTANTS
--     \* @type: ???;
-+     \* @type: Int;
+-     * @type: ???;
++     * @type: Int;
 [19]     N,
--     \* @type: ???;
-+     \* @type: Int;
+-     * @type: ???;
++     * @type: Int;
 [21]     T,
--     \* @type: ???;
-+     \* @type: Int;
+-     * @type: ???;
++     * @type: Int;
 [23]     F
 [28] VARIABLE 
--   \* @type: ???;
-+   \* @type: Str -> Str;
+-   * @type: ???;
++   * @type: Str -> Str;
 [30]   pc,
--   \* @type: ???;
-+   \* @type: Str -> Set(<<Int, Str>>);
+-   * @type: ???;
++   * @type: Str -> Set(<<Int, Str>>);
 [32]   rcvd,
--   \* @type: ???;
-+   \* @type: Set(<<Int, Str>>);
+-   * @type: ???;
++   * @type: Set(<<Int, Str>>);
 [34]   sent
 `;
 

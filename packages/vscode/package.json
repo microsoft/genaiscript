@@ -43,8 +43,8 @@
         "publish": false
     },
     "activationEvents": [
-        "workspaceContains:*.genai.{js,mjs,mts}",
-        "workspaceContains:**/*.genai.{js,mjs,mts}",
+        "workspaceContains:*.genai.{js,mjs,mts,md}",
+        "workspaceContains:**/*.genai.{js,mjs,mts,md}",
         "onNotebook:genaiscript"
     ],
     "main": "dist/extension.js",
@@ -55,8 +55,27 @@
         "url": "https://github.com/microsoft/genaiscript"
     },
     "contributes": {
+        "languages": [
+            {
+                "id": "genaiscript-markdown",
+                "aliases": [
+                    "GenAIScript Markdown"
+                ],
+                "extensions": [
+                    ".genai.md"
+                ]
+            }
+        ],
+        "grammars": [
+            {
+                "language": "genaiscript-markdown",
+                "scopeName": "source.genaiscript-markdown",
+                "path": "./syntaxes/genaiscript-markdown.tmLanguage.json"
+            }
+        ],
         "files.associations": {
-            "*.genai.nb.md": "genaiscript"
+            "*.genai.nb.md": "genaiscript",
+            "*.genai.md": "genaiscript-markdown"
         },
         "chatParticipants": [
             {
@@ -241,7 +260,7 @@
             "editor/title/run": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.(genai\\.(js|mjs|mts))$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.(genai\\.(js|mjs|mts|md))$/",
                     "group": "genaiscript@1"
                 },
                 {
@@ -312,7 +331,7 @@
             "explorer/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts)$/)",
+                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts|md)$/)",
                     "group": "genaiscript@1"
                 }
             ]

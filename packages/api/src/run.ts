@@ -670,7 +670,7 @@ export async function runScriptInternal(
         ghInfo,
         result.text,
         typeof pullRequestComment === "string" ? pullRequestComment : script.id,
-        { cancellationToken },
+        { cancellationToken, stats },
       );
     } else {
       adoInfo = adoInfo ?? (await azureDevOpsParseEnv(process.env));

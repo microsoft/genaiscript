@@ -269,160 +269,151 @@ export async function startMcpServer(
     dbg(`resolved HTTP server config: host=${host}, port=${port}, network=${network}`);
     logVerbose(`mcp server: starting HTTP server on ${host}:${port}`);
 
-    try {
-      dbg(`importing Fastify modules`);
-      const createFastify = (await import("fastify")).default;
-      const fastifyCors = (await import("@fastify/cors")).default;
+    const createFastify = (await import("fastify")).default;
+    const fastifyCors = (await import("@fastify/cors")).default;
+    const { StreamableHTTPServerTransport } = await import(
+      "@modelcontextprotocol/sdk/server/streamableHttp.js"
+    );
 
-      // Import HTTP transport
-      dbg(`importing StreamableHTTPServerTransport`);
-      const { StreamableHTTPServerTransport } = await import(
-        "@modelcontextprotocol/sdk/server/streamableHttp.js"
+    // Store transports for session management
+    const transports = {} as Record<string, any>;
+
+    dbg(`creating Fastify server with proxy support`);
+    // Create Fastify server with proxy trust configuration
+    const fastify = createFastify({
+      logger: false,
+      trustProxy: true, // Enable proxy support for X-Forwarded-* headers
+    });
+
+    // Register CORS support with proxy-aware configuration
+    await fastify.register(fastifyCors, {
+      origin: true, // Allow dynamic origin based on request headers (proxy-friendly)
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Forwarded-For",
+        "X-Forwarded-Proto",
+        "X-Forwarded-Host",
+      ],
+      credentials: false, // Keep false for security when using dynamic origin
+    });
+
+    // MCP endpoint handler with proxy support
+    dbg(`registering MCP endpoint handler with proxy awareness`);
+    fastify.all("/mcp", async (request, reply) => {
+      // Log client information (proxy-aware)
+      const clientIP = request.ip; // Fastify automatically uses X-Forwarded-For when trustProxy is enabled
+
+      dbg(
+        `received HTTP request: ${request.method} ${request.url} from ${clientIP} (${request.protocol}://${request.host})`,
       );
 
-      // Store transports for session management
-      const transports = {} as Record<string, any>;
+      // Handle OPTIONS preflight requests
+      if (request.method === "OPTIONS") {
+        dbg(`handling OPTIONS request from ${clientIP}`);
+        reply.status(200).send();
+        return;
+      }
 
-      dbg(`creating Fastify server with proxy support`);
-      // Create Fastify server with proxy trust configuration
-      const fastify = createFastify({
-        logger: false,
-        trustProxy: true, // Enable proxy support for X-Forwarded-* headers
-      });
+      dbg(`handling MCP endpoint request from ${clientIP}`);
+      try {
+        // Get raw Node.js request and response objects for MCP transport
+        const req = request.raw;
+        const res = reply.raw;
 
-      // Register CORS support with proxy-aware configuration
-      dbg(`registering CORS support with proxy awareness`);
-      await fastify.register(fastifyCors, {
-        origin: true, // Allow dynamic origin based on request headers (proxy-friendly)
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowedHeaders: [
-          "Content-Type",
-          "Authorization",
-          "X-Forwarded-For",
-          "X-Forwarded-Proto",
-          "X-Forwarded-Host",
-        ],
-        credentials: false, // Keep false for security when using dynamic origin
-      });
+        // Get or create session ID from headers
+        const existingSessionId = req.headers["mcp-session-id"] as string | undefined;
 
-      // MCP endpoint handler with proxy support
-      dbg(`registering MCP endpoint handler with proxy awareness`);
-      fastify.all("/mcp", async (request, reply) => {
-        // Log client information (proxy-aware)
-        const clientIP = request.ip; // Fastify automatically uses X-Forwarded-For when trustProxy is enabled
-        const protocol = request.protocol; // Respects X-Forwarded-Proto
-        const host = request.hostname; // Respects X-Forwarded-Host
+        let transport: InstanceType<typeof StreamableHTTPServerTransport>;
 
-        dbg(
-          `received HTTP request: ${request.method} ${request.url} from ${clientIP} (${protocol}://${host})`,
-        );
-
-        // Handle OPTIONS preflight requests
-        if (request.method === "OPTIONS") {
-          dbg(`handling OPTIONS request from ${clientIP}`);
-          reply.status(200).send();
-          return;
-        }
-
-        dbg(`handling MCP endpoint request from ${clientIP}`);
-        try {
-          // Get raw Node.js request and response objects for MCP transport
-          const req = request.raw;
-          const res = reply.raw;
-
-          const transport = new StreamableHTTPServerTransport({
-            sessionIdGenerator: undefined,
+        if (existingSessionId && transports[existingSessionId]) {
+          // Reuse existing transport for this session
+          transport = transports[existingSessionId];
+          dbg(`reusing existing transport for session: ${existingSessionId} (client: ${clientIP})`);
+        } else {
+          // Create new transport for new session or initialization
+          transport = new StreamableHTTPServerTransport({
+            sessionIdGenerator: () =>
+              `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            onsessioninitialized: (sessionId: string): void => {
+              dbg(`session initialized: ${sessionId} for client ${clientIP}`);
+              transports[sessionId] = transport;
+            },
+            onsessionclosed: (sessionId: string): void => {
+              dbg(`session closed: ${sessionId} for client ${clientIP}`);
+              delete transports[sessionId];
+            },
           });
 
-          // Store transport for session management
-          if ("sessionId" in transport) {
-            dbg(`storing transport with sessionId: ${transport.sessionId} for client ${clientIP}`);
-            transports[transport.sessionId] = transport;
+          // Set up transport close handler
+          transport.onclose = (): void => {
+            const sessionId = transport.sessionId;
+            if (sessionId && transports[sessionId]) {
+              dbg(`transport closed for session ${sessionId}, cleaning up`);
+              delete transports[sessionId];
+            }
+          };
 
-            res.on("close", () => {
-              dbg(`transport session closed: ${transport.sessionId} (client: ${clientIP})`);
-              delete transports[transport.sessionId];
-            });
-
-            res.on("error", (error) => {
-              dbg(
-                `response error for session ${transport.sessionId} (client: ${clientIP}): ${errorMessage(error)}`,
-              );
-              delete transports[transport.sessionId];
-            });
-          }
-
-          dbg(`connecting server with HTTP transport for client ${clientIP}`);
+          // Connect the transport to the MCP server only for new transports
+          dbg(`connecting new transport to server for client ${clientIP}`);
           await server.connect(transport);
-        } catch (error) {
-          dbg(`HTTP transport error for client ${clientIP}: ${errorMessage(error)}`);
-          reply.status(500).send({ error: errorMessage(error) });
         }
-      });
 
-      // Health check endpoint for proxies and load balancers
-      dbg(`registering health check endpoint`);
-      fastify.get("/health", async (request, reply) => {
-        const clientIP = request.ip;
-        dbg(`health check request from ${clientIP}`);
-        reply.status(200).send({
-          status: "ok",
-          service: "genaiscript-mcp-server",
-          version: CORE_VERSION,
-          transport: "http",
-        });
-      });
-
-      // 404 handler for other paths
-      fastify.setNotFoundHandler((request, reply) => {
-        const clientIP = request.ip;
-        dbg(`request to unknown path: ${request.url} from ${clientIP}`);
-        reply.status(404).send({
-          error: "Not found. Use /mcp endpoint for MCP protocol or /health for health checks.",
-        });
-      });
-
-      // Global error handler
-      fastify.setErrorHandler((error, request, reply) => {
-        dbg(`Fastify error: ${errorMessage(error)}`);
-        logVerbose(`HTTP server error: ${errorMessage(error)}`);
-        reply.status(error.statusCode || 500).send({
-          error: errorMessage(error),
-        });
-      });
-
-      // Start Fastify server
-      dbg(`starting Fastify server on ${host}:${port}`);
-      await fastify.listen({
-        port,
-        host,
-      });
-
-      dbg(`Fastify server listening on ${host}:${port} with proxy support`);
-      console.log(`GenAIScript MCP server v${CORE_VERSION}`);
-      console.log(`│ Transport: HTTP (proxy-aware)`);
-      console.log(`│ Endpoint: http://${host}:${port}/mcp`);
-      console.log(`│ Health: http://${host}:${port}/health`);
-      console.log(`│ Access: ${network ? "Network (0.0.0.0)" : "Local (127.0.0.1)"}`);
-      console.log(`│ Proxy: Trusted (X-Forwarded-* headers supported)`);
-
-      if (startup) {
-        dbg(`running startup script: ${startup}`);
-        logVerbose(`startup script: ${startup}`);
-        run(startup, [], {
-          vars: {},
-          parentLanguageModel: samplingSupported,
-          onMessage,
-        }).catch((err) => {
-          dbg(`startup script error: ${errorMessage(err)}`);
-        });
+        // Handle the HTTP request using the transport
+        dbg(`request from ${clientIP}`);
+        await transport.handleRequest(req, res, request.body);
+      } catch (error) {
+        dbg(`HTTP transport error for client ${clientIP}: ${errorMessage(error)}`);
+        reply.status(500).send({ error: errorMessage(error) });
       }
-    } catch (importError) {
-      dbg(`Failed to import HTTP transport: ${errorMessage(importError)}`);
-      console.error(`Failed to start HTTP transport: ${errorMessage(importError)}`);
-      console.error(`Make sure @modelcontextprotocol/sdk supports StreamableHTTPServerTransport`);
-      process.exit(1);
-    }
+    });
+
+    // Health check endpoint for proxies and load balancers
+    dbg(`registering health check endpoint`);
+    fastify.get("/health", async (request, reply) => {
+      const clientIP = request.ip;
+      dbg(`health check request from ${clientIP}`);
+      reply.status(200).send({
+        status: "ok",
+        service: "genaiscript-mcp-server",
+        version: CORE_VERSION,
+        transport: "http",
+      });
+    });
+
+    // 404 handler for other paths
+    fastify.setNotFoundHandler((request, reply) => {
+      const clientIP = request.ip;
+      dbg(`request to unknown path: ${request.url} from ${clientIP}`);
+      reply.status(404).send({
+        error: "Not found. Use /mcp endpoint for MCP protocol or /health for health checks.",
+      });
+    });
+
+    // Global error handler
+    fastify.setErrorHandler((error, request, reply) => {
+      dbg(`Fastify error: ${errorMessage(error)}`);
+      logVerbose(`HTTP server error: ${errorMessage(error)}`);
+      reply.status(error.statusCode || 500).send({
+        error: errorMessage(error),
+      });
+    });
+
+    // Start Fastify server
+    dbg(`starting Fastify server on ${host}:${port}`);
+    await fastify.listen({
+      port,
+      host,
+    });
+
+    dbg(`Fastify server listening on ${host}:${port} with proxy support`);
+    console.log(`GenAIScript MCP server v${CORE_VERSION}`);
+    console.log(`│ Transport: HTTP (proxy-aware)`);
+    console.log(`│ Endpoint: http://${host}:${port}/mcp`);
+    console.log(`│ Health:   http://${host}:${port}/health`);
+    console.log(`│ Access:   ${network ? "Network (0.0.0.0)" : "Local (127.0.0.1)"}`);
+    console.log(`│ Proxy: Trusted (X-Forwarded-* headers supported)`);
   } else {
     dbg(`using stdio transport`);
     // Stdio transport (default)
@@ -431,15 +422,15 @@ export async function startMcpServer(
     const transport = new StdioServerTransport();
     dbg(`connecting server with stdio transport`);
     await server.connect(transport);
+  }
 
-    if (startup) {
-      dbg(`running startup script: ${startup}`);
-      logVerbose(`startup script: ${startup}`);
-      await run(startup, [], {
-        vars: {},
-        parentLanguageModel: samplingSupported,
-        onMessage,
-      });
-    }
+  if (startup) {
+    dbg(`running startup script: ${startup}`);
+    logVerbose(`startup script: ${startup}`);
+    await run(startup, [], {
+      vars: {},
+      parentLanguageModel: samplingSupported,
+      onMessage,
+    });
   }
 }

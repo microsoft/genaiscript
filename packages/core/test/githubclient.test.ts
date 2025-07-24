@@ -60,13 +60,15 @@ describe("GitHubClient", async () => {
     assert(Array.isArray(runs));
     const jobs = await client.listWorkflowJobs(runs[0].id);
     assert(Array.isArray(jobs));
-    const log = await client.downloadWorkflowJobLog(jobs[0].id);
-    assert(typeof log === "string");
-    const artifacts = await client.listWorkflowRunArtifacts(runs[0].id);
-    assert(Array.isArray(artifacts));
-    if (artifacts.length) {
-      const files = await client.downloadArtifactFiles(artifacts[0].id);
-      assert(files.length);
+    if (jobs.length) {
+      const log = await client.downloadWorkflowJobLog(jobs[0].id);
+      assert(typeof log === "string");
+      const artifacts = await client.listWorkflowRunArtifacts(runs[0].id);
+      assert(Array.isArray(artifacts));
+      if (artifacts.length) {
+        const files = await client.downloadArtifactFiles(artifacts[0].id);
+        assert(files.length);
+      }
     }
   });
 

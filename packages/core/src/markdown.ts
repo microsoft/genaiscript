@@ -7,7 +7,8 @@
 // and working with trace trees.
 
 import { resolveFileDataUri } from "./filebytes.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import type { CancellationOptions} from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
 import { HTTP_OR_S_REGEX } from "./constants.js";
 import { genaiscriptDebug } from "./debug.js";
 import { join, resolve } from "node:path";

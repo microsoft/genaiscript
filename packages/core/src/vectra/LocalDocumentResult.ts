@@ -3,8 +3,8 @@
 
 import type { Tokenizer } from "../types.js";
 import { LocalDocument } from "./LocalDocument.js";
-import { LocalDocumentIndex } from "./LocalDocumentIndex.js";
-import { QueryResult, DocumentChunkMetadata, DocumentTextSection } from "./types.js";
+import type { LocalDocumentIndex } from "./LocalDocumentIndex.js";
+import type { QueryResult, DocumentChunkMetadata, DocumentTextSection } from "./types.js";
 
 /**
  * Represents a search result for a document stored on disk.

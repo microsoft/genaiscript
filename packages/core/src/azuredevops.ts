@@ -181,7 +181,7 @@ export async function azureDevOpsCreateIssueComment(
     };
     const openThreads =
       threads.value?.filter(
-        (c) => c.status === "active" && c.comments?.some((c) => c.content.includes(tag)),
+        (c) => c.status === "active" && c.comments?.some((comment) => comment.content.includes(tag)),
       ) || [];
     for (const thread of openThreads) {
       logVerbose(`pull request closing old comment thread ${thread.id}`);
