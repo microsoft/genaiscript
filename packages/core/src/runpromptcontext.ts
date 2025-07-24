@@ -1085,6 +1085,249 @@ export function createChatGenerationContext(
     return workspaceFiles;
   };
 
+  // Internal function for image generation mode
+  const generateImageFromPrompt = async (
+    prompt: string,
+    imageOptions?: ImageGenerationOptions,
+  ): Promise<{ 
+    image?: WorkspaceFile; 
+    images?: WorkspaceFile[]; 
+    revisedPrompt?: string 
+  }> => {
+    if (!prompt) throw new Error("prompt is missing");
+
+    const { imgTrace, info, configuration, statsChild } = await setupImageModel(
+      imageOptions?.model,
+      "🖼️ generate image",
+      "generate image"
+    );
+    
+    try {
+      const { imageGenerator } = await resolveLanguageModel(configuration.provider);
+      if (!imageGenerator) throw new Error("image generator not found for " + info.model);
+      
+      const { style, quality, size, outputFormat, mime, ...restOptions } = imageOptions || {};
+      const req = deleteUndefinedValues({
+        model: configuration.model,
+        prompt: dedent(prompt),
+        size,
+        quality,
+        style,
+        outputFormat,
+      }) satisfies CreateImageRequest;
+      
+      const m = measure("img.generate", `${req.model} -> image`);
+      const res = await imageGenerator(req, configuration, {
+        trace: imgTrace,
+        cancellationToken,
+        ...restOptions,
+      });
+      const duration = m();
+      
+      if (res.error) {
+        imgTrace?.error(errorMessage(res.error));
+        return { image: undefined, images: [], revisedPrompt: undefined };
+      }
+      
+      dbg(`usage: %o`, res.usage);
+      statsChild?.addImageGenerationUsage(res.usage, duration);
+
+      const h = await hash(res.image, { length: 20 });
+      const buf = await imageTransform(res.image, {
+        ...(imageOptions || {}),
+        mime:
+          mime ??
+          (outputFormat === "jpeg" || outputFormat === "webp"
+            ? `image/jpeg`
+            : outputFormat === "png"
+              ? `image/png`
+              : undefined),
+        cancellationToken,
+        trace: imgTrace,
+      });
+      const { ext } = (await fileTypeFromBuffer(buf)) || {};
+      const filename = dotGenaiscriptPath("image", h + "." + ext);
+      await runtimeHost.writeFile(filename, buf);
+
+      if (consoleColors) {
+        const size = terminalSize();
+        stderr.write(
+          await renderImageToTerminal(buf, {
+            ...size,
+            label: filename,
+            usage: res.usage,
+            modelId: info.model,
+          }),
+        );
+      } else logVerbose(`image: ${filename}`);
+
+      imgTrace?.image(filename, `generated image`);
+      imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
+      
+      const workspaceFile = {
+        filename,
+        encoding: "base64",
+        content: toBase64(res.image),
+      } satisfies WorkspaceFile;
+      
+      return {
+        image: workspaceFile,
+        images: [workspaceFile],
+        revisedPrompt: res.revisedPrompt,
+      };
+    } finally {
+      imgTrace?.endDetails();
+    }
+  };
+
+  // Internal function for image variation mode
+  const generateImageVariationInternal = async (
+    inputImages: ElementOrArray<string | WorkspaceFile>,
+    imageOptions?: ImageGenerationOptions,
+  ): Promise<{ 
+    image?: WorkspaceFile; 
+    images?: WorkspaceFile[]; 
+  }> => {
+    if (!inputImages) {
+      throw new Error("images are required for variation mode");
+    }
+    
+    const imageArray = arrayify(inputImages);
+    if (imageArray.length === 0) {
+      throw new Error("at least one image is required for variation mode");
+    }
+    
+    // Use the first image for variation (OpenAI API supports only one input image for variations)
+    const sourceImage = imageArray[0];
+
+    const { imgTrace, info, configuration, statsChild } = await setupImageModel(
+      imageOptions?.model,
+      "🖼️ generate image variation",
+      "generate image variation"
+    );
+    
+    try {
+      const { imageVariation } = await resolveLanguageModel(configuration.provider);
+      if (!imageVariation) throw new Error("image variation not supported for " + info.model);
+      
+      const imageBuffer = await resolveBufferLike(sourceImage);
+      const { n = 1 } = imageOptions || {};
+      const req = deleteUndefinedValues({
+        model: configuration.model,
+        image: imageBuffer,
+        n,
+        size: imageOptions?.size,
+        responseFormat: "b64_json",
+      }) satisfies CreateImageVariationRequest;
+      
+      const m = measure("img.variation", `${req.model} -> ${n} variations`);
+      const res = await imageVariation(req, configuration, {
+        trace: imgTrace,
+        cancellationToken,
+        ...imageOptions,
+      });
+      const duration = m();
+      
+      if (res.error) {
+        imgTrace?.error(errorMessage(res.error));
+        return { image: undefined, images: [] };
+      }
+      
+      dbg(`usage: %o`, res.usage);
+      statsChild?.addImageGenerationUsage(res.usage, duration);
+
+      const workspaceFiles = await processImageResults(res.images, imgTrace, imageOptions, "variation");
+      return { 
+        image: workspaceFiles.length > 0 ? workspaceFiles[0] : undefined,
+        images: workspaceFiles 
+      };
+    } finally {
+      imgTrace?.endDetails();
+    }
+  };
+
+  // Internal function for image edit mode  
+  const generateImageEditInternal = async (
+    prompt: string,
+    inputImages: ElementOrArray<string | WorkspaceFile>,
+    imageOptions?: ImageGenerationOptions,
+  ): Promise<{ 
+    image?: WorkspaceFile; 
+    images?: WorkspaceFile[]; 
+    revisedPrompt?: string 
+  }> => {
+    if (!inputImages) {
+      throw new Error("images are required for edit mode");
+    }
+    if (!prompt) throw new Error("prompt is required for edit mode");
+    
+    const imageArray = arrayify(inputImages);
+    if (imageArray.length === 0) {
+      throw new Error("at least one image is required for edit mode");
+    }
+
+    const { imgTrace, info, configuration, statsChild } = await setupImageModel(
+      imageOptions?.model,
+      "🖼️ generate image edit",
+      "generate image edit"
+    );
+    
+    try {
+      const { imageEdit } = await resolveLanguageModel(configuration.provider);
+      if (!imageEdit) throw new Error("image edit not supported for " + info.model);
+      
+      // Convert input images to buffers
+      const imageBuffers: BufferLike[] = [];
+      for (const sourceImage of imageArray) {
+        imageBuffers.push(await resolveBufferLike(sourceImage));
+      }
+
+      // Convert mask to buffer if provided
+      let maskBuffer: BufferLike | undefined;
+      if (imageOptions?.mask) {
+        maskBuffer = await resolveBufferLike(imageOptions.mask);
+      }
+
+      const { n = 1 } = imageOptions || {};
+      const req = deleteUndefinedValues({
+        model: configuration.model,
+        image: imageBuffers.length === 1 ? imageBuffers[0] : imageBuffers, // Use single image or array
+        mask: maskBuffer,
+        prompt: dedent(prompt),
+        n,
+        size: imageOptions?.size,
+        responseFormat: "b64_json",
+      }) satisfies CreateImageEditRequest;
+      
+      const m = measure("img.edit", `${req.model} -> ${n} edits`);
+      const res = await imageEdit(req, configuration, {
+        trace: imgTrace,
+        cancellationToken,
+        ...imageOptions,
+      });
+      const duration = m();
+      
+      if (res.error) {
+        imgTrace?.error(errorMessage(res.error));
+        return { image: undefined, images: [], revisedPrompt: undefined };
+      }
+      
+      dbg(`usage: %o`, res.usage);
+      statsChild?.addImageGenerationUsage(res.usage, duration);
+
+      const workspaceFiles = await processImageResults(res.images, imgTrace, imageOptions, "edit");
+      imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
+      
+      return { 
+        image: workspaceFiles.length > 0 ? workspaceFiles[0] : undefined,
+        images: workspaceFiles,
+        revisedPrompt: res.revisedPrompt,
+      };
+    } finally {
+      imgTrace?.endDetails();
+    }
+  };
+
   const generateImage = async (
     prompt: string,
     imageOptions?: ImageGenerationOptions,
@@ -1094,225 +1337,17 @@ export function createChatGenerationContext(
     revisedPrompt?: string 
   }> => {
     const mode = imageOptions?.mode || "generation";
-    const { images: inputImages, mask, n = 1, ...rest } = imageOptions || {};
+    const { images: inputImages } = imageOptions || {};
 
     switch (mode) {
-      case "generation": {
-        if (!prompt) throw new Error("prompt is missing");
-
-        const { imgTrace, info, configuration, statsChild } = await setupImageModel(
-          imageOptions?.model,
-          "🖼️ generate image",
-          "generate image"
-        );
-        
-        try {
-          const { imageGenerator } = await resolveLanguageModel(configuration.provider);
-          if (!imageGenerator) throw new Error("image generator not found for " + info.model);
-          
-          const { style, quality, size, outputFormat, mime, ...restOptions } = rest;
-          const req = deleteUndefinedValues({
-            model: configuration.model,
-            prompt: dedent(prompt),
-            size,
-            quality,
-            style,
-            outputFormat,
-          }) satisfies CreateImageRequest;
-          
-          const m = measure("img.generate", `${req.model} -> image`);
-          const res = await imageGenerator(req, configuration, {
-            trace: imgTrace,
-            cancellationToken,
-            ...restOptions,
-          });
-          const duration = m();
-          
-          if (res.error) {
-            imgTrace?.error(errorMessage(res.error));
-            return { image: undefined, images: [], revisedPrompt: undefined };
-          }
-          
-          dbg(`usage: %o`, res.usage);
-          statsChild?.addImageGenerationUsage(res.usage, duration);
-
-          const h = await hash(res.image, { length: 20 });
-          const buf = await imageTransform(res.image, {
-            ...(imageOptions || {}),
-            mime:
-              mime ??
-              (outputFormat === "jpeg" || outputFormat === "webp"
-                ? `image/jpeg`
-                : outputFormat === "png"
-                  ? `image/png`
-                  : undefined),
-            cancellationToken,
-            trace: imgTrace,
-          });
-          const { ext } = (await fileTypeFromBuffer(buf)) || {};
-          const filename = dotGenaiscriptPath("image", h + "." + ext);
-          await runtimeHost.writeFile(filename, buf);
-
-          if (consoleColors) {
-            const size = terminalSize();
-            stderr.write(
-              await renderImageToTerminal(buf, {
-                ...size,
-                label: filename,
-                usage: res.usage,
-                modelId: info.model,
-              }),
-            );
-          } else logVerbose(`image: ${filename}`);
-
-          imgTrace?.image(filename, `generated image`);
-          imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
-          
-          const workspaceFile = {
-            filename,
-            encoding: "base64",
-            content: toBase64(res.image),
-          } satisfies WorkspaceFile;
-          
-          return {
-            image: workspaceFile,
-            images: [workspaceFile],
-            revisedPrompt: res.revisedPrompt,
-          };
-        } finally {
-          imgTrace?.endDetails();
-        }
-      }
+      case "generation":
+        return await generateImageFromPrompt(prompt, imageOptions);
       
-      case "variation": {
-        if (!inputImages) {
-          throw new Error("images are required for variation mode");
-        }
-        
-        const imageArray = arrayify(inputImages);
-        if (imageArray.length === 0) {
-          throw new Error("at least one image is required for variation mode");
-        }
-        
-        // Use the first image for variation (OpenAI API supports only one input image for variations)
-        const sourceImage = imageArray[0];
-
-        const { imgTrace, info, configuration, statsChild } = await setupImageModel(
-          imageOptions?.model,
-          "🖼️ generate image variation",
-          "generate image variation"
-        );
-        
-        try {
-          const { imageVariation } = await resolveLanguageModel(configuration.provider);
-          if (!imageVariation) throw new Error("image variation not supported for " + info.model);
-          
-          const imageBuffer = await resolveBufferLike(sourceImage);
-          const req = deleteUndefinedValues({
-            model: configuration.model,
-            image: imageBuffer,
-            n,
-            size: imageOptions?.size,
-            responseFormat: "b64_json",
-          }) satisfies CreateImageVariationRequest;
-          
-          const m = measure("img.variation", `${req.model} -> ${n} variations`);
-          const res = await imageVariation(req, configuration, {
-            trace: imgTrace,
-            cancellationToken,
-            ...rest,
-          });
-          const duration = m();
-          
-          if (res.error) {
-            imgTrace?.error(errorMessage(res.error));
-            return { image: undefined, images: [] };
-          }
-          
-          dbg(`usage: %o`, res.usage);
-          statsChild?.addImageGenerationUsage(res.usage, duration);
-
-          const workspaceFiles = await processImageResults(res.images, imgTrace, imageOptions, "variation");
-          return { 
-            image: workspaceFiles.length > 0 ? workspaceFiles[0] : undefined,
-            images: workspaceFiles 
-          };
-        } finally {
-          imgTrace?.endDetails();
-        }
-      }
+      case "variation":
+        return await generateImageVariationInternal(inputImages!, imageOptions);
       
-      case "edit": {
-        if (!inputImages) {
-          throw new Error("images are required for edit mode");
-        }
-        if (!prompt) throw new Error("prompt is required for edit mode");
-        
-        const imageArray = arrayify(inputImages);
-        if (imageArray.length === 0) {
-          throw new Error("at least one image is required for edit mode");
-        }
-
-        const { imgTrace, info, configuration, statsChild } = await setupImageModel(
-          imageOptions?.model,
-          "🖼️ generate image edit",
-          "generate image edit"
-        );
-        
-        try {
-          const { imageEdit } = await resolveLanguageModel(configuration.provider);
-          if (!imageEdit) throw new Error("image edit not supported for " + info.model);
-          
-          // Convert input images to buffers
-          const imageBuffers: BufferLike[] = [];
-          for (const sourceImage of imageArray) {
-            imageBuffers.push(await resolveBufferLike(sourceImage));
-          }
-
-          // Convert mask to buffer if provided
-          let maskBuffer: BufferLike | undefined;
-          if (mask) {
-            maskBuffer = await resolveBufferLike(mask);
-          }
-
-          const req = deleteUndefinedValues({
-            model: configuration.model,
-            image: imageBuffers.length === 1 ? imageBuffers[0] : imageBuffers, // Use single image or array
-            mask: maskBuffer,
-            prompt: dedent(prompt),
-            n,
-            size: imageOptions?.size,
-            responseFormat: "b64_json",
-          }) satisfies CreateImageEditRequest;
-          
-          const m = measure("img.edit", `${req.model} -> ${n} edits`);
-          const res = await imageEdit(req, configuration, {
-            trace: imgTrace,
-            cancellationToken,
-            ...rest,
-          });
-          const duration = m();
-          
-          if (res.error) {
-            imgTrace?.error(errorMessage(res.error));
-            return { image: undefined, images: [], revisedPrompt: undefined };
-          }
-          
-          dbg(`usage: %o`, res.usage);
-          statsChild?.addImageGenerationUsage(res.usage, duration);
-
-          const workspaceFiles = await processImageResults(res.images, imgTrace, imageOptions, "edit");
-          imgTrace?.detailsFenced(`🔀 revised prompt`, res.revisedPrompt);
-          
-          return { 
-            image: workspaceFiles.length > 0 ? workspaceFiles[0] : undefined,
-            images: workspaceFiles,
-            revisedPrompt: res.revisedPrompt,
-          };
-        } finally {
-          imgTrace?.endDetails();
-        }
-      }
+      case "edit":
+        return await generateImageEditInternal(prompt, inputImages!, imageOptions);
       
       default:
         throw new Error(`Unsupported mode: ${mode}`);
