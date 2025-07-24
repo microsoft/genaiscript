@@ -31,7 +31,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: build
         run: pnpm build
-      - uses: pelikhan/action-continuous-translation@v0
+      - uses: pelikhan/action-continuous-translation@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           lang: fr,es        
