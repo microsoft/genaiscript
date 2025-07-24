@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 import { serializeError } from "serialize-error";
-import { CancellationOptions, toSignal } from "./cancellation.js";
-import { CreateTranscriptionRequest, LanguageModel } from "./chat.js";
+import type { CancellationOptions} from "./cancellation.js";
+import { toSignal } from "./cancellation.js";
+import type { CreateTranscriptionRequest, LanguageModel } from "./chat.js";
 import { MODEL_PROVIDER_WHISPERASR } from "./constants.js";
 import { traceFetchPost } from "./fetchtext.js";
 import { getConfigHeaders } from "./openai.js";
-import { LanguageModelConfiguration } from "./server/messages.js";
-import { TraceOptions } from "./trace.js";
+import type { LanguageModelConfiguration } from "./server/messages.js";
+import type { TraceOptions } from "./trace.js";
 import { logVerbose, logError } from "./util.js";
 import { prettyBytes } from "./pretty.js";
 import { genaiscriptDebug } from "./debug.js";

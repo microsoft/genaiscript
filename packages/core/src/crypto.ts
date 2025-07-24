@@ -74,7 +74,7 @@ export async function hash(value: any, options?: HashOptions) {
   const append = async (v: any) => {
     if (v === null) h.push(NU);
     else if (v === undefined) h.push(UN);
-    else if (typeof v == "string" || typeof v === "number" || typeof v === "boolean")
+    else if (typeof v === "string" || typeof v === "number" || typeof v === "boolean")
       h.push(utf8Encode(String(v)));
     else if (Array.isArray(v))
       for (const c of v) {

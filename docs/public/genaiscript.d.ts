@@ -3227,7 +3227,7 @@
   audioChannels(channels: number): FfmpegCommandBuilder;
   audioFrequency(freq: number): FfmpegCommandBuilder;
   audioQuality(quality: number): FfmpegCommandBuilder;
-  audioFilters(filters: string | string[] /*| AudioVideoFilter[]*/): FfmpegCommandBuilder;
+  audioFilters(filters: string | string[] /* | AudioVideoFilter[]*/): FfmpegCommandBuilder;
   toFormat(format: string): FfmpegCommandBuilder;
 
   videoCodec(codec: string): FfmpegCommandBuilder;

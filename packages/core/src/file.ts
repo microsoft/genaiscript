@@ -14,7 +14,7 @@ import { createFetch } from "./fetch.js";
 import { fileTypeFromBuffer } from "./filetype.js";
 import { fromBase64, toBase64 } from "./base64.js";
 import { resolveRuntimeHost } from "./host.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { parsePdf } from "./pdf.js";
 import { XLSXParse } from "./xlsx.js";
 import { dataToMarkdownTable, CSVTryParse } from "./csv.js";
@@ -29,7 +29,8 @@ import {
   XLSX_REGEX,
 } from "./constants.js";
 import { tidyData } from "./tidy.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import type { CancellationOptions} from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
 import { prettyBytes } from "./pretty.js";
 import { tryResolveResource } from "./resources.js";
 import { genaiscriptDebug } from "./debug.js";

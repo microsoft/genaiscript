@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import { describe, test, assert } from "vitest";
-import { parseTraceTree, renderTraceTree, TraceNode } from "../src/traceparser.js";
+import type { TraceNode } from "../src/traceparser.js";
+import { parseTraceTree, renderTraceTree } from "../src/traceparser.js";
 
 describe("traceparser", () => {
   test("parseTraceTree - empty text returns root node", () => {

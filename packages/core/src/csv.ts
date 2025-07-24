@@ -5,7 +5,7 @@
 // including error handling and conversion to Markdown table format.
 
 import { parse } from "csv-parse/sync";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { stringify } from "csv-stringify/sync";
 import { arrayify } from "./cleaners.js";
 import { chunk } from "es-toolkit";
