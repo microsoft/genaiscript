@@ -9,7 +9,7 @@
   "scripts": {
     "upgrade": "npx -y npm-check-updates -u && npm install && npm run fix",
     "docker:build": "docker build -t microsoft-genaiscript .",
-    "docker:start": "docker run -e GITHUB_TOKEN sinedied-genaiscript",
+    "docker:start": "docker run -e GITHUB_TOKEN microsoft-genaiscript",
     "lint": "npx --yes prettier --write genaisrc/",
     "fix": "genaiscript scripts fix",
     "typecheck": "genaiscript scripts compile",
