@@ -130,6 +130,23 @@ export function resolveSystems(
       dbgr(`adding system.today to systems`);
       systems.push("system.today");
     }
+    // Add programming language system prompts based on file extensions or language keywords
+    if (/\.(go)$|golang|go\s/i.test(jsSource)) {
+      dbgr(`Go references found, adding system.go`);
+      systems.push("system.go");
+    }
+    if (/\.(rs)$|rust|cargo/i.test(jsSource)) {
+      dbgr(`Rust references found, adding system.rust`);
+      systems.push("system.rust");
+    }
+    if (/\.(java)$|java\s|maven|gradle/i.test(jsSource)) {
+      dbgr(`Java references found, adding system.java`);
+      systems.push("system.java");
+    }
+    if (/\.(cpp|cxx|cc|c\+\+|h|hpp)$|c\+\+|cpp|cmake/i.test(jsSource)) {
+      dbgr(`C/C++ references found, adding system.cpp`);
+      systems.push("system.cpp");
+    }
   }
 
   // insert safety first
