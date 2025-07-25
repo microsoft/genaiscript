@@ -17,8 +17,7 @@ export type FactEvaluationFunction = (
 
 /**
  * Evaluates factual consistency between output text and a given fact.
- * This function uses LLM-based evaluation to determine if the output
- * is factually consistent with the provided fact.
+ * This function requires LLM-based evaluation via the classify function.
  */
 async function evaluateFactualConsistency(
   outputText: string,
@@ -27,34 +26,12 @@ async function evaluateFactualConsistency(
 ): Promise<{ consistent: boolean; reason?: string }> {
   dbg(`evaluating factual consistency: output length=${outputText.length}, fact='${fact}'`);
   
-  // If a classify function is provided, use it for proper LLM-based evaluation
-  if (classifyFn) {
-    return await classifyFn(outputText, fact);
+  // Require LLM-based evaluation - no fallback heuristics
+  if (!classifyFn) {
+    throw new Error("Fact evaluation requires LLM-based classify function - no fallback available");
   }
   
-  // Fallback heuristic-based check when classify function is not available
-  const outputLower = outputText.toLowerCase();
-  const factLower = fact.toLowerCase();
-  
-  // Simple heuristic: check if there's overlap between content
-  // Split into words and check for common meaningful words
-  const outputWords = outputLower.split(/\s+/).filter(w => w.length > 2);
-  const factWords = factLower.split(/\s+/).filter(w => w.length > 2);
-  
-  // Check if there's significant word overlap (at least 50% of fact words in output)
-  const commonWords = factWords.filter(factWord => 
-    outputWords.some(outputWord => 
-      outputWord.includes(factWord) || factWord.includes(outputWord)
-    )
-  );
-  
-  const overlapRatio = commonWords.length / Math.max(factWords.length, 1);
-  const consistent = overlapRatio >= 0.5;
-  
-  return { 
-    consistent, 
-    reason: consistent ? undefined : `Low word overlap (${overlapRatio.toFixed(2)}) - needs proper LLM evaluation` 
-  };
+  return await classifyFn(outputText, fact);
 }
 
 export interface PromptTestConfiguration {
