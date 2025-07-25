@@ -11,6 +11,7 @@
  */
 
 import type { FactEvaluationFunction } from "./testeval.js";
+import type { StringLike, PromptGenerator } from "./types.js";
 
 /**
  * Creates a fact evaluation function using a classify function.
@@ -22,7 +23,7 @@ import type { FactEvaluationFunction } from "./testeval.js";
  */
 export function createClassifyBasedFactEvaluator(
   classifyFn: (
-    text: string,
+    text: StringLike | PromptGenerator,
     labels: Record<string, string>,
     options?: any
   ) => Promise<{ label: string; answer: string; error?: string }>
@@ -31,7 +32,10 @@ export function createClassifyBasedFactEvaluator(
     try {
       // Use classify to determine if output is factually consistent with the fact
       const result = await classifyFn(
-        `Output: ${outputText}\n\nFact to verify: ${fact}`,
+        async (_) => {
+          _.def("OUTPUT", outputText);
+          _.def("FACT", fact);
+        },
         {
           consistent: "The output is factually consistent with the given fact",
           inconsistent: "The output is factually inconsistent with the given fact or contradicts it"
@@ -75,4 +79,8 @@ export function createClassifyBasedFactEvaluator(
  * 
  * const result = await evaluateTestResult(testConfig, generationResult);
  * ```
+ * 
+ * The classify function will be called with a PromptGenerator that uses 
+ * def("OUTPUT", outputText) and def("FACT", fact) to provide structured
+ * input for more accurate classification.
  */
