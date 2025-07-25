@@ -10,10 +10,8 @@ import type { LanguageModelConfiguration } from "../src/server/messages.js";
 vi.mock("openai", () => {
   return {
     default: vi.fn().mockImplementation(() => ({
-      chat: {
-        completions: {
-          create: vi.fn(),
-        },
+      responses: {
+        create: vi.fn(),
       },
     })),
   };
@@ -56,25 +54,23 @@ describe("OpenAIResponsesChatCompletion", () => {
 
   test("should handle non-streaming response", async () => {
     const mockOpenAI = {
-      chat: {
-        completions: {
-          create: vi.fn().mockResolvedValue({
-            choices: [
-              {
-                message: {
-                  content: "Hello! How can I help you?",
-                },
-                finish_reason: "stop",
+      responses: {
+        create: vi.fn().mockResolvedValue({
+          choices: [
+            {
+              message: {
+                content: "Hello! How can I help you?",
               },
-            ],
-            usage: {
-              prompt_tokens: 10,
-              completion_tokens: 20,
-              total_tokens: 30,
+              finish_reason: "stop",
             },
-            model: "gpt-3.5-turbo",
-          }),
-        },
+          ],
+          usage: {
+            prompt_tokens: 10,
+            completion_tokens: 20,
+            total_tokens: 30,
+          },
+          model: "gpt-3.5-turbo",
+        }),
       },
     };
 
@@ -101,21 +97,19 @@ describe("OpenAIResponsesChatCompletion", () => {
       model: "gpt-3.5-turbo",
     });
 
-    expect(mockOpenAI.chat.completions.create).toHaveBeenCalledWith({
+    expect(mockOpenAI.responses.create).toHaveBeenCalledWith({
       model: "gpt-3.5-turbo",
       messages: mockRequest.messages,
       temperature: 0.7,
-      max_completion_tokens: 100,
+      max_output_tokens: 100,
       stream: false,
     });
   });
 
   test("should handle errors properly", async () => {
     const mockOpenAI = {
-      chat: {
-        completions: {
-          create: vi.fn().mockRejectedValue(new Error("API Error")),
-        },
+      responses: {
+        create: vi.fn().mockRejectedValue(new Error("API Error")),
       },
     };
 
@@ -184,10 +178,8 @@ describe("OpenAIResponsesChatCompletion", () => {
     };
 
     const mockOpenAI = {
-      chat: {
-        completions: {
-          create: vi.fn().mockResolvedValue(mockStream),
-        },
+      responses: {
+        create: vi.fn().mockResolvedValue(mockStream),
       },
     };
 

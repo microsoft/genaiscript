@@ -49,14 +49,14 @@ export const OpenAIResponsesChatCompletion: ChatCompletionHandler = async (
       fetch: fetchInstance,
     });
 
-    debug(`making request to OpenAI API model: ${req.model}`);
+    debug(`making request to OpenAI Responses API model: ${req.model}`);
 
-    // Convert our request format to OpenAI format
-    const openaiRequest: OpenAI.Chat.Completions.ChatCompletionCreateParams = {
+    // Convert our request format to OpenAI Responses format
+    const openaiRequest: OpenAI.Responses.ResponseCreateParams = {
       model: req.model,
       messages: req.messages,
       temperature: req.temperature,
-      max_completion_tokens: req.max_completion_tokens,
+      max_output_tokens: req.max_completion_tokens,
       top_p: req.top_p,
       stream: req.stream,
       ...requestOptions,
@@ -96,11 +96,11 @@ export const OpenAIResponsesChatCompletion: ChatCompletionHandler = async (
 };
 
 /**
- * Handle non-streaming OpenAI response
+ * Handle non-streaming OpenAI Responses API response
  */
 async function handleNonStreamingResponse(
   openai: OpenAI,
-  request: OpenAI.Chat.Completions.ChatCompletionCreateParams,
+  request: OpenAI.Responses.ResponseCreateParams,
   options: any,
   trace: any
 ): Promise<ChatCompletionResponse> {
@@ -108,7 +108,7 @@ async function handleNonStreamingResponse(
   
   checkCancelled(cancellationToken);
   
-  const response = await openai.chat.completions.create({
+  const response = await openai.responses.create({
     ...request,
     stream: false,
   });
@@ -143,11 +143,11 @@ async function handleNonStreamingResponse(
 }
 
 /**
- * Handle streaming OpenAI response
+ * Handle streaming OpenAI Responses API response
  */
 async function handleStreamingResponse(
   openai: OpenAI,
-  request: OpenAI.Chat.Completions.ChatCompletionCreateParams,
+  request: OpenAI.Responses.ResponseCreateParams,
   options: any,
   trace: any
 ): Promise<ChatCompletionResponse> {
@@ -155,7 +155,7 @@ async function handleStreamingResponse(
   
   checkCancelled(cancellationToken);
   
-  const stream = await openai.chat.completions.create({
+  const stream = await openai.responses.create({
     ...request,
     stream: true,
   });
