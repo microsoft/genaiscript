@@ -54,9 +54,10 @@ async function chainOfDebate(options: ChainOfDebateOptions) {
         models.map(async (model, index) => {
             const { text } = await runPrompt(
                 (_) => {
+                    _.def("TOPIC", topic)
                     _.$`You are participating in a structured debate on the following topic:
 
-TOPIC: ${topic}
+TOPIC: ${TOPIC}
 
 Please provide your initial position on this topic. Your response should include:
 1. Your clear stance/position
@@ -106,13 +107,16 @@ Format your response as:
 
                 const { text } = await runPrompt(
                     (_) => {
-                        _.$`You are continuing a structured debate on: ${topic}
+                        _.def("TOPIC", topic)
+                        _.def("PREVIOUS_POSITION", debateHistory.find((entry) => entry.model === model && entry.round === round - 1)?.position)
+                        _.def("OTHER_POSITIONS", otherPositions)
+                        _.$`You are continuing a structured debate on: ${TOPIC}
 
 Your previous position was:
-${debateHistory.find((entry) => entry.model === model && entry.round === round - 1)?.position}
+${PREVIOUS_POSITION}
 
 Here are the other participants' positions from the previous round:
-${otherPositions}
+${OTHER_POSITIONS}
 
 Now provide your response for Round ${round}. You should:
 1. Address key points raised by other participants
@@ -157,13 +161,15 @@ Format your response as:
 
         const { text } = await runPrompt(
             (_) => {
-                _.$`You are an impartial moderator analyzing a structured debate on: ${topic}
+                _.def("TOPIC", topic)
+                _.def("DEBATE_HISTORY", debateHistory
+                    .map((entry) => `**Round ${entry.round} - ${entry.model}:**\n${entry.position}`)
+                    .join("\n\n---\n\n"))
+                _.$`You are an impartial moderator analyzing a structured debate on: ${TOPIC}
 
 The debate involved ${models.length} participants over ${rounds} rounds. Here is the complete debate history:
 
-${debateHistory
-    .map((entry) => `**Round ${entry.round} - ${entry.model}:**\n${entry.position}`)
-    .join("\n\n---\n\n")}
+${DEBATE_HISTORY}
 
 Please provide a comprehensive synthesis that:
 1. Summarizes the key positions and how they evolved
