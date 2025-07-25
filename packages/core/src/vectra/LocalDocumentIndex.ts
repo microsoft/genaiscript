@@ -4,8 +4,9 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import { v4 } from "uuid";
-import { CreateIndexConfig, LocalIndex } from "./LocalIndex.js";
-import {
+import type { CreateIndexConfig} from "./LocalIndex.js";
+import { LocalIndex } from "./LocalIndex.js";
+import type {
   MetadataFilter,
   EmbeddingsModel,
   MetadataTypes,
@@ -16,8 +17,9 @@ import {
 } from "./types.js";
 import { LocalDocumentResult } from "./LocalDocumentResult.js";
 import { LocalDocument } from "./LocalDocument.js";
-import { TextSplitter, TextSplitterConfig } from "../textsplitter.js";
-import { Tokenizer } from "../types.js";
+import type { TextSplitterConfig } from "../textsplitter.js";
+import { TextSplitter } from "../textsplitter.js";
+import type { Tokenizer } from "../types.js";
 import { errorMessage } from "../error.js";
 import { genaiscriptDebug } from "../debug.js";
 import { join } from "path";

@@ -8,13 +8,14 @@
 
 import type { EmbeddingsModel, EmbeddingsResponse } from "./vectra/types.js";
 import { LocalDocumentIndex } from "./vectra/LocalDocumentIndex.js";
-import { LanguageModelConfiguration } from "./server/messages.js";
+import type { LanguageModelConfiguration } from "./server/messages.js";
 import { logVerbose } from "./util.js";
-import { TraceOptions } from "./trace.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import type { TraceOptions } from "./trace.js";
+import type { CancellationOptions} from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
 import { arrayify } from "./cleaners.js";
 import { resolveFileContent } from "./file.js";
-import { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
+import type { EmbeddingFunction, WorkspaceFileIndexCreator } from "./chat.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { resolveTokenEncoder } from "./encoders.js";
 import type { VectorIndexOptions, WorkspaceFileWithScore, WorkspaceFileIndex } from "./types.js";

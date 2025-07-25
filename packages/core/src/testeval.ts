@@ -2,8 +2,8 @@ import { arrayify } from "./cleaners.js";
 import { genaiscriptDebug } from "./debug.js";
 import { GROQEvaluate } from "./groq.js";
 import { levenshteinDistance } from "./levenshtein.js";
-import { PromptScriptRunOptions, GenerationResult } from "./server/messages.js";
-import { PromptScript, PromptTest } from "./types.js";
+import type { PromptScriptRunOptions, GenerationResult } from "./server/messages.js";
+import type { PromptScript, PromptTest } from "./types.js";
 const dbg = genaiscriptDebug("tests:eval");
 
 export interface PromptTestConfiguration {

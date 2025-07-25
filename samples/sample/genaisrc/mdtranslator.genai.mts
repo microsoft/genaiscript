@@ -1,3 +1,9 @@
+/**
+ * @deprecated This script has been packaged as a reusable GitHub Action.
+ * Use https://github.com/pelikhan/action-continuous-translation instead.
+ * This script is kept for reference and educational purposes.
+ */
+
 import { hash } from "crypto";
 import { classify } from "@genaiscript/runtime";
 import { mdast } from "@genaiscript/plugin-mdast";

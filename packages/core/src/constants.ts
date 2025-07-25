@@ -113,7 +113,7 @@ export const FETCH_RETRY_MIN_DELAY_DEFAULT = 2000; // 2s
 export const FETCH_RETRY_MAX_DELAY_DEFAULT = 60000; // 60s
 export const FETCH_RETRY_MAX_RETRY_AFTER_DEFAULT = 300000; // 300s
 export const FETCH_RETRY_GROWTH_FACTOR = 1.5;
-export const FETCH_RETRY_ON_DEFAULT = [408, 429, 500, 504];
+export const FETCH_RETRY_ON_DEFAULT = [408, 429, 500, 502, 504];
 
 export const EXEC_MAX_BUFFER = 64;
 export const DOT_ENV_FILENAME = ".env";

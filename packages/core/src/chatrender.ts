@@ -21,7 +21,8 @@ import type {
 import { JSONLLMTryParse } from "./json5.js";
 import { details, fenceMD } from "./mkmd.js";
 import { stringify as YAMLStringify } from "yaml";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import type { CancellationOptions} from "./cancellation.js";
+import { checkCancelled } from "./cancellation.js";
 import { unthink } from "./think.js";
 import { unfence } from "./unwrappers.js";
 

@@ -6,13 +6,13 @@
  * related to chat completions, including generating detailed reports and logs.
  */
 
-import {
+import type {
   ChatCompletionMessageParam,
   ChatCompletionResponse,
   ChatCompletionUsage,
   CreateChatCompletionRequest,
 } from "./chattypes.js";
-import { MarkdownTrace } from "./trace.js";
+import type { MarkdownTrace } from "./trace.js";
 import { logVerbose, toStringList } from "./util.js";
 import { parseModelIdentifier } from "./models.js";
 import {
@@ -28,7 +28,7 @@ import {
 } from "./constants.js";
 import { prettyCost, prettyTokensPerSecond, prettyDuration, prettyTokens } from "./pretty.js";
 import { genaiscriptDebug } from "./debug.js";
-import { ImageGenerationUsage } from "./chat.js";
+import type { ImageGenerationUsage } from "./chat.js";
 import { details } from "./mkmd.js";
 import { dataToMarkdownTable } from "./csv.js";
 const dbg = genaiscriptDebug("usage");

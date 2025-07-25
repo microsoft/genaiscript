@@ -5,7 +5,7 @@ import debug from "debug";
 const dbg = debug("genaiscript:ffmpeg");
 
 import { logVerbose } from "./util.js";
-import { TraceOptions } from "./trace.js";
+import type { TraceOptions } from "./trace.js";
 import { lookupMime } from "./mime.js";
 import pLimit from "p-limit";
 import { join, basename } from "node:path";
