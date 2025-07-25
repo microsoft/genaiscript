@@ -1,7 +1,7 @@
 ---
 title: Programming Language Personas
 description: Learn how to use expert programming language personas in GenAIScript
-keywords: programming languages, personas, Go, Rust, Java, C++, expert coding
+keywords: programming languages, personas, Go, Rust, Java, C++, TypeScript, Python, expert coding
 sidebar:
     order: 50
 ---
@@ -71,6 +71,35 @@ The C/C++ persona provides expertise in:
 **Auto-activation triggers:**
 - File extensions: `*.cpp`, `*.cxx`, `*.cc`, `*.c++`, `*.h`, `*.hpp`
 - Keywords: `c++`, `cpp`, `cmake`
+
+### TypeScript - `system.typescript`
+
+The TypeScript persona provides expertise in:
+- Modern TypeScript features and syntax
+- Type safety and advanced type system usage
+- Integration with JavaScript ecosystems
+- Best practices for scalable TypeScript applications
+- Proper configuration and tooling setup
+- ESM modules and async/await patterns
+
+**Auto-activation triggers:**
+- File extensions: `*.ts`, `*.tsx`
+- Keywords: `typescript`, `ts ` (with space)
+
+### Python - `system.python`
+
+The Python persona provides expertise in:
+- PEP 8 compliant code style and conventions
+- Pythonic programming patterns and idioms
+- Proper use of Python's standard library
+- Type hints and modern Python features
+- Package management and virtual environments
+- Performance optimization and best practices
+- Clean, readable, and maintainable code structure
+
+**Auto-activation triggers:**
+- File extensions: `*.py`, `*.pyi`
+- Keywords: `python`, `pip`, `conda`, `virtualenv`
 
 ## Automatic Activation
 
@@ -165,6 +194,36 @@ $`Review this C++ code and suggest modernizations:
 - Memory safety with smart pointers
 - Performance optimizations
 - Best practices for headers and includes`
+```
+
+### TypeScript Type Safety
+
+```js title="typescript-types.genai.mts"
+script({
+    title: "TypeScript Type Safety Review",
+    files: "*.ts"
+})
+
+$`Review this TypeScript code focusing on:
+- Type safety and proper type annotations
+- Advanced TypeScript features usage
+- Integration with JavaScript libraries
+- Performance and compilation optimizations`
+```
+
+### Python Code Quality
+
+```js title="python-quality.genai.mts" 
+script({
+    title: "Python Code Quality Review",
+    files: "*.py"
+})
+
+$`Analyze this Python code for:
+- PEP 8 compliance and style
+- Pythonic patterns and idioms
+- Type hints and modern Python features
+- Performance and best practices`
 ```
 
 ## Combining with Other Systems

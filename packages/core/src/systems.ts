@@ -125,11 +125,6 @@ export function resolveSystems(
       dbgr(`GitHub references found, adding system.github_info`);
       systems.push("system.github_info");
     }
-    // Add system.today if "today" is found in jsSource
-    if (/today/i.test(jsSource)) {
-      dbgr(`adding system.today to systems`);
-      systems.push("system.today");
-    }
     // Add programming language system prompts based on file extensions or language keywords
     if (/\.(go)$|golang|go\s/i.test(jsSource)) {
       dbgr(`Go references found, adding system.go`);
@@ -146,6 +141,11 @@ export function resolveSystems(
     if (/\.(cpp|cxx|cc|c\+\+|h|hpp)$|c\+\+|cpp|cmake/i.test(jsSource)) {
       dbgr(`C/C++ references found, adding system.cpp`);
       systems.push("system.cpp");
+    }
+    // Add system.today if "today" is found in jsSource
+    if (/today/i.test(jsSource)) {
+      dbgr(`adding system.today to systems`);
+      systems.push("system.today");
     }
   }
 

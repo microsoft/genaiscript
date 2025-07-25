@@ -4,7 +4,7 @@ script({
     files: "*.rs"
 })
 
-$`Analyze the Rust code and provide suggestions for improvement. Consider:
+$`Analyze the Rust code and provide suggestions for improvement using the annotation format. Consider:
 - Ownership and borrowing best practices
 - Error handling with Result and Option types
 - Memory safety and performance

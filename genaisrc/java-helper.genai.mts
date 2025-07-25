@@ -4,7 +4,7 @@ script({
     files: "*.java"
 })
 
-$`Analyze the Java code and provide suggestions for improvement. Consider:
+$`Analyze the Java code and provide suggestions for improvement using the annotation format. Consider:
 - Object-oriented design patterns
 - Exception handling
 - Generics and type safety

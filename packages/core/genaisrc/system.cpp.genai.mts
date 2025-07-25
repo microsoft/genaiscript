@@ -1,5 +1,6 @@
 system({
     title: "Expert at generating and understanding C/C++ code.",
+    group: "programming",
 })
 
 export default function (ctx: ChatGenerationContext) {

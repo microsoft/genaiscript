@@ -4,7 +4,7 @@ script({
     files: ["*.c", "*.cpp", "*.cxx", "*.cc", "*.h", "*.hpp"]
 })
 
-$`Analyze the C/C++ code and provide suggestions for improvement. Consider:
+$`Analyze the C/C++ code and provide suggestions for improvement using the annotation format. Consider:
 - Memory management and RAII principles
 - Pointer safety and smart pointers
 - Modern C++ features and best practices

@@ -1,5 +1,6 @@
 system({
     title: "Expert at generating and understanding Rust code.",
+    group: "programming",
 })
 
 export default function (ctx: ChatGenerationContext) {
