@@ -379,8 +379,8 @@ export function mergeDescription(commentTag: string, body: string, text: string)
 export function generatedByFooter(script: PromptScript, info: { runUrl?: string }, code?: string, stats?: GenerationStats) {
   let footer = `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect.`;
   
-  // Add usage report if stats are available
-  if (stats) {
+  // Add usage report if stats are available and there are tokens used
+  if (stats && stats.accumulatedUsage().total_tokens > 0) {
     footer += `\n\n${stats.toMarkdownReport()}`;
   }
   
