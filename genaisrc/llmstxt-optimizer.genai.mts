@@ -26,12 +26,15 @@ defFileMerge(function llmstxt(fn, label, before, generated) {
     return updated
 })
 
-def("FILE", env.files, { glob: "**.{md,mdx}" })
+// Filter markdown and MDX files
+const markdownFiles = env.files.filter(f => /\.mdx?$/i.test(f.filename))
+
+def("FILES", markdownFiles)
 
 $`
 You are an expert at optimizing content for Large Language Model (LLM) consumption and understanding.
 
-For each FILE, analyze the markdown content (excluding the frontmatter) and generate a concise, LLM-optimized version that:
+For each file in FILES, analyze the markdown content (excluding the frontmatter) and generate a concise, LLM-optimized version that:
 
 ## Requirements:
 1. **Extract the core concepts and information** from the original content
