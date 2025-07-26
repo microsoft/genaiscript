@@ -17,6 +17,11 @@ export const collections = {
            * of the page content optimized for consumption by language models.
            */
           llmstxt: z.string().optional(),
+          /**
+           * Hash of the content used to determine if the LLM-optimized content needs refreshing.
+           * This helps avoid regenerating the same content when the source hasn't changed.
+           */
+          llmstxtHash: z.string().optional(),
         });
       },
     }),

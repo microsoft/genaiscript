@@ -19,15 +19,36 @@ defFileMerge(function llmstxt(fn, label, before, generated) {
         return undefined
     }
     
-    // Update frontmatter with the new llmstxt field
+    // Calculate hash of the current content (excluding frontmatter)
+    const { content } = MD.parseFrontmatter(before)
+    const contentHash = MD5(content.trim())
+    
+    // Update frontmatter with both the optimized content and content hash
     const updated = MD.updateFrontmatter(before, {
         llmstxt: optimizedContent,
+        llmstxtHash: contentHash,
     })
     return updated
 })
 
-// Filter markdown and MDX files
-const markdownFiles = env.files.filter(f => /\.mdx?$/i.test(f.filename))
+// Filter markdown and MDX files and check if they need updating
+const markdownFiles = env.files.filter(f => {
+    if (!/\.mdx?$/i.test(f.filename)) return false
+    
+    // Parse frontmatter to check existing hash
+    const { frontmatter, content } = MD.parseFrontmatter(f.content)
+    const currentHash = MD5(content.trim())
+    const existingHash = frontmatter?.llmstxtHash
+    
+    // Include file if hash is different or doesn't exist
+    if (!existingHash || existingHash !== currentHash) {
+        console.log(`File ${f.filename} needs LLM optimization (hash changed or missing)`)
+        return true
+    }
+    
+    console.log(`File ${f.filename} skipped (content unchanged)`)
+    return false
+})
 
 def("FILES", markdownFiles)
 
