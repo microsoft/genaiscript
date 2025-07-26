@@ -16,11 +16,12 @@ script({
 const topic = "Is it better to work from home or in an office?"
 const models = ["openai:gpt-4o-mini", "openai:gpt-35-turbo"]
 
-console.log(`🎯 Simple debate: "${topic}"`)
-console.log(`🤖 Models: ${models.join(", ")}`)
+const dbg = host.logger("chainofdebase")
+dbg(`🎯 Simple debate: "${topic}"`)
+dbg(`🤖 Models: ${models.join(", ")}`)
 
 // Round 1: Initial positions
-console.log("\n🚀 Round 1: Initial Positions")
+dbg("\n🚀 Round 1: Initial Positions")
 const positions = await Promise.all(
     models.map(async (model, index) => {
         const { text } = await runPrompt(
@@ -42,14 +43,14 @@ Keep it brief and focused.`
             }
         )
         
-        console.log(`\n📝 ${model}:`)
-        console.log(text)
+        dbg(`\n📝 ${model}:`)
+        dbg(text)
         return { model, text }
     })
 )
 
 // Round 2: Responses
-console.log("\n🔄 Round 2: Responses")
+dbg("\n🔄 Round 2: Responses")
 const responses = await Promise.all(
     models.map(async (model, index) => {
         const otherPosition = positions.find(p => p.model !== model)
@@ -73,28 +74,30 @@ Now provide a brief response (2-3 sentences):
             }
         )
         
-        console.log(`\n📝 ${model} responds:`)
-        console.log(text)
+        dbg(`\n📝 ${model} responds:`)
+        dbg(text)
         return { model, text }
     })
 )
 
-console.log("\n✅ Simple debate completed!")
+dbg("\n✅ Simple debate completed!")
 
-$`# Simple Chain of Debate Results
+// Build markdown output using env.output
+env.output.heading(1, "Simple Chain of Debate Results")
 
-## Topic: ${topic}
+env.output.heading(2, `Topic: ${topic}`)
 
-### Round 1: Initial Positions
+env.output.heading(3, "Round 1: Initial Positions")
+for (const position of positions) {
+    env.output.appendContent(`\n**${position.model}:**\n${position.text}\n`)
+}
 
-${positions.map((p, i) => `**${p.model}:**\n${p.text}`).join("\n\n")}
+env.output.heading(3, "Round 2: Responses")
+for (const response of responses) {
+    env.output.appendContent(`\n**${response.model}:**\n${response.text}\n`)
+}
 
-### Round 2: Responses
+env.output.heading(2, "Summary")
+env.output.appendContent(`This simple example shows how two AI models can engage in a structured debate, with each providing initial positions and then responding to each other's arguments. Even with just two rounds, you can see how the debate evolves and models refine their positions based on the other's input.
 
-${responses.map((r, i) => `**${r.model}:**\n${r.text}`).join("\n\n")}
-
-## Summary
-This simple example shows how two AI models can engage in a structured debate, with each providing initial positions and then responding to each other's arguments. Even with just two rounds, you can see how the debate evolves and models refine their positions based on the other's input.
-
-This demonstrates the core concept of chain of debate: iterative argumentation that leads to more nuanced perspectives.
-`
+This demonstrates the core concept of chain of debate: iterative argumentation that leads to more nuanced perspectives.`)
