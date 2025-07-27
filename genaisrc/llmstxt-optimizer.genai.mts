@@ -8,28 +8,6 @@ script({
 })
 
 defFileOutput("*.{md,mdx}", "Updated markdown files with LLM-optimized content")
-defFileMerge(function llmstxt(fn, label, before, generated) {
-    if (!/\.mdx?$/i.test(fn)) return undefined
-    
-    // Parse the generated LLM-optimized content
-    const optimizedContent = generated.trim()
-    
-    // Skip if no content was generated or if it's too short to be useful
-    if (!optimizedContent || optimizedContent.length < 10) {
-        return undefined
-    }
-    
-    // Calculate hash of the current content (excluding frontmatter)
-    const { content } = MD.parseFrontmatter(before)
-    const contentHash = MD5(content.trim())
-    
-    // Update frontmatter with both the optimized content and content hash
-    const updated = MD.updateFrontmatter(before, {
-        llmstxt: optimizedContent,
-        llmstxtHash: contentHash,
-    })
-    return updated
-})
 
 // Filter markdown and MDX files and check if they need updating
 const markdownFiles = env.files.filter(f => {
@@ -50,12 +28,21 @@ const markdownFiles = env.files.filter(f => {
     return false
 })
 
-def("FILES", markdownFiles)
-
-$`
+// Process each file individually using runPrompt
+for (const file of markdownFiles) {
+    console.log(`Processing ${file.filename}...`)
+    
+    const { content } = MD.parseFrontmatter(file.content)
+    
+    const optimizedContent = await runPrompt(
+        (_) => {
+            _.def("FILE_CONTENT", content)
+            _.$`
 You are an expert at optimizing content for Large Language Model (LLM) consumption and understanding.
 
-For each file in FILES, analyze the markdown content (excluding the frontmatter) and generate a concise, LLM-optimized version that:
+Analyze the following markdown content and generate a concise, LLM-optimized version:
+
+FILE_CONTENT
 
 ## Requirements:
 1. **Extract the core concepts and information** from the original content
@@ -80,4 +67,28 @@ Generate ONLY the optimized content text - do not include frontmatter, markdown 
 The output should be clean, readable text that can be directly inserted into the 'llmstxt' frontmatter field.
 
 Focus on making the content more digestible for LLM processing while retaining all the important information and context.
-`
+            `
+        },
+        { 
+            label: `llmstxt-optimization-${file.filename}`,
+            system: ["system"],
+            temperature: 0.3,
+            model: "large"
+        }
+    )
+    
+    // Process the generated content and update the file
+    if (optimizedContent?.text?.trim() && optimizedContent.text.trim().length > 10) {
+        const contentHash = MD5(content.trim())
+        const updated = MD.updateFrontmatter(file.content, {
+            llmstxt: optimizedContent.text.trim(),
+            llmstxtHash: contentHash,
+        })
+        
+        // Write the updated content back to the file
+        writeText(file.filename, updated)
+        console.log(`Updated ${file.filename} with optimized content`)
+    } else {
+        console.log(`Skipped ${file.filename} - no valid optimized content generated`)
+    }
+}
