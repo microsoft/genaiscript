@@ -5,7 +5,7 @@ script({
     system: ["system", "system.files"],
     temperature: 0.3,
     model: "large",
-    accept: "**/*.{md,mdx}",
+    accept: ".md,.mdx",
 })
 
 // Filter files and check if they need updating
