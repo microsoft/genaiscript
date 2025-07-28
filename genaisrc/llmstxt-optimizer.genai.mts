@@ -5,14 +5,11 @@ script({
     system: ["system", "system.files"],
     temperature: 0.3,
     model: "large",
+    accept: "**/*.{md,mdx}",
 })
 
-defFileOutput("*.{md,mdx}", "Updated markdown files with LLM-optimized content")
-
-// Filter markdown and MDX files and check if they need updating
+// Filter files and check if they need updating
 const markdownFiles = env.files.filter(f => {
-    if (!/\.mdx?$/i.test(f.filename)) return false
-    
     // Parse frontmatter to check existing hash
     const { frontmatter, content } = MD.parseFrontmatter(f.content)
     const currentHash = MD5(content.trim())
@@ -73,7 +70,8 @@ Focus on making the content more digestible for LLM processing while retaining a
             label: `llmstxt-optimization-${file.filename}`,
             system: ["system"],
             temperature: 0.3,
-            model: "large"
+            model: "large",
+            responseType: "text"
         }
     )
     
