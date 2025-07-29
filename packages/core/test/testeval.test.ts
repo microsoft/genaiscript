@@ -207,11 +207,17 @@ describe("evaluateTestResult", () => {
   });
 
   test("should pass for fact assertion with consistent content", async () => {
+    // Mock classify function that returns consistent
+    const mockClassifyFn = async () => {
+      return { label: "consistent", answer: "Content matches fact" };
+    };
+
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["Hello World Test"],
       } as PromptTest,
+      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
@@ -219,11 +225,17 @@ describe("evaluateTestResult", () => {
   });
 
   test("should fail for fact assertion with inconsistent content", async () => {
+    // Mock classify function that returns inconsistent
+    const mockClassifyFn = async () => {
+      return { label: "inconsistent", answer: "Content does not match fact" };
+    };
+
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["This is completely different content"],
       } as PromptTest,
+      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
@@ -231,11 +243,17 @@ describe("evaluateTestResult", () => {
   });
 
   test("should handle multiple fact assertions", async () => {
+    // Mock classify function that always returns consistent
+    const mockClassifyFn = async () => {
+      return { label: "consistent", answer: "Content matches fact" };
+    };
+
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["Hello World Test", "Test content"],
       } as PromptTest,
+      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
@@ -243,21 +261,33 @@ describe("evaluateTestResult", () => {
   });
 
   test("should fail on first inconsistent fact", async () => {
+    let callCount = 0;
+    // Mock classify function that returns consistent first, then inconsistent
+    const mockClassifyFn = async () => {
+      callCount++;
+      if (callCount === 1) {
+        return { label: "consistent", answer: "First fact matches" };
+      } else {
+        return { label: "inconsistent", answer: "Second fact does not match" };
+      }
+    };
+
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["Hello World Test", "Completely different fact"],
       } as PromptTest,
+      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
     assert.equal(result, "fact assertion failed: output is not factually consistent with 'Completely different fact'");
   });
 
-  test("should use provided fact evaluation function", async () => {
+  test("should use provided classify function", async () => {
     // Mock classify function that always returns consistent
-    const mockFactEvaluator = async (outputText: string, fact: string) => {
-      return { consistent: true };
+    const mockClassifyFn = async () => {
+      return { label: "consistent", answer: "Fact is consistent" };
     };
 
     const testConfig = {
@@ -265,16 +295,16 @@ describe("evaluateTestResult", () => {
       test: {
         facts: ["Some complex fact that would normally fail"],
       } as PromptTest,
-      factEvaluationFn: mockFactEvaluator,
+      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
     assert.equal(result, undefined); // Should pass with mock function
   });
 
-  test("should handle fact evaluation function errors", async () => {
+  test("should handle classify function errors", async () => {
     // Mock classify function that throws an error
-    const mockFactEvaluator = async (outputText: string, fact: string) => {
+    const mockClassifyFn = async () => {
       throw new Error("LLM service unavailable");
     };
 
@@ -283,10 +313,23 @@ describe("evaluateTestResult", () => {
       test: {
         facts: ["Some fact"],
       } as PromptTest,
-      factEvaluationFn: mockFactEvaluator,
+      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
     assert.equal(result, "fact evaluation error: LLM service unavailable");
+  });
+
+  test("should require classify function for fact evaluation", async () => {
+    const testConfig = {
+      ...mockConfig,
+      test: {
+        facts: ["Some fact"],
+      } as PromptTest,
+      // No classifyFn provided
+    };
+
+    const result = await evaluateTestResult(testConfig, mockResult);
+    assert.equal(result, "fact evaluation error: Fact evaluation requires classify function");
   });
 });

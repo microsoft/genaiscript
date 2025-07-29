@@ -4,34 +4,56 @@ import { GROQEvaluate } from "./groq.js";
 import { levenshteinDistance } from "./levenshtein.js";
 import { PromptScriptRunOptions, GenerationResult } from "./server/messages.js";
 import { PromptScript, PromptTest } from "./types.js";
+import type { StringLike, PromptGenerator } from "./types.js";
 const dbg = genaiscriptDebug("tests:eval");
 
 /**
- * Function type for LLM-based factual consistency evaluation.
- * This allows the classify runtime helper to be injected from higher layers.
+ * Function type for classify runtime helper.
  */
-export type FactEvaluationFunction = (
-  outputText: string,
-  fact: string,
-) => Promise<{ consistent: boolean; reason?: string }>;
+export type ClassifyFunction = (
+  text: StringLike | PromptGenerator,
+  labels: Record<string, string>,
+  options?: any
+) => Promise<{ label: string; answer: string; error?: string }>;
 
 /**
- * Evaluates factual consistency between output text and a given fact.
- * This function requires LLM-based evaluation via the classify function.
+ * Evaluates factual consistency between output text and a given fact using LLM classification.
  */
 async function evaluateFactualConsistency(
   outputText: string,
   fact: string,
-  classifyFn?: FactEvaluationFunction,
+  classifyFn?: ClassifyFunction,
 ): Promise<{ consistent: boolean; reason?: string }> {
   dbg(`evaluating factual consistency: output length=${outputText.length}, fact='${fact}'`);
   
-  // Require LLM-based evaluation - no fallback heuristics
   if (!classifyFn) {
-    throw new Error("Fact evaluation requires LLM-based classify function - no fallback available");
+    throw new Error("Fact evaluation requires classify function");
   }
   
-  return await classifyFn(outputText, fact);
+  const result = await classifyFn(
+    async (_) => {
+      _.def("OUTPUT", outputText);
+      _.def("FACT", fact);
+    },
+    {
+      consistent: "The output is factually consistent with the given fact",
+      inconsistent: "The output is factually inconsistent with the given fact or contradicts it"
+    },
+    {
+      explanations: true,
+      model: "classify"
+    }
+  );
+
+  if (result.error) {
+    throw new Error(result.error);
+  }
+
+  const consistent = result.label === "consistent";
+  return {
+    consistent,
+    reason: consistent ? undefined : `LLM evaluation: ${result.answer}`
+  };
 }
 
 export interface PromptTestConfiguration {
@@ -39,17 +61,16 @@ export interface PromptTestConfiguration {
   test: PromptTest;
   options: Partial<PromptScriptRunOptions>;
   /**
-   * Optional function for LLM-based factual consistency evaluation.
-   * When provided, this will be used instead of the fallback heuristic.
+   * Optional classify function for fact evaluation.
    */
-  factEvaluationFn?: FactEvaluationFunction;
+  classifyFn?: ClassifyFunction;
 }
 
 export async function evaluateTestResult(
   config: PromptTestConfiguration,
   result: GenerationResult,
 ): Promise<string | undefined> {
-  const { script, test, factEvaluationFn } = config;
+  const { script, test, classifyFn } = config;
   const { id } = script;
   const { status, error, text } = result;
 
@@ -81,7 +102,7 @@ export async function evaluateTestResult(
   // facts - check factual consistency using LLM-based evaluation
   for (const fact of arrayify(facts)) {
     try {
-      const factualConsistency = await evaluateFactualConsistency(text, fact, factEvaluationFn);
+      const factualConsistency = await evaluateFactualConsistency(text, fact, classifyFn);
       if (!factualConsistency.consistent) {
         return `fact assertion failed: output is not factually consistent with '${fact}'`;
       }
