@@ -5,16 +5,8 @@ import { levenshteinDistance } from "./levenshtein.js";
 import { PromptScriptRunOptions, GenerationResult } from "./server/messages.js";
 import { PromptScript, PromptTest } from "./types.js";
 import type { StringLike, PromptGenerator } from "./types.js";
+import { classify } from "@genaiscript/runtime";
 const dbg = genaiscriptDebug("tests:eval");
-
-/**
- * Function type for classify runtime helper.
- */
-export type ClassifyFunction = (
-  text: StringLike | PromptGenerator,
-  labels: Record<string, string>,
-  options?: any
-) => Promise<{ label: string; answer: string; error?: string }>;
 
 /**
  * Evaluates factual consistency between output text and a given fact using LLM classification.
@@ -22,15 +14,10 @@ export type ClassifyFunction = (
 async function evaluateFactualConsistency(
   outputText: string,
   fact: string,
-  classifyFn?: ClassifyFunction,
 ): Promise<{ consistent: boolean; reason?: string }> {
   dbg(`evaluating factual consistency: output length=${outputText.length}, fact='${fact}'`);
   
-  if (!classifyFn) {
-    throw new Error("Fact evaluation requires classify function");
-  }
-  
-  const result = await classifyFn(
+  const result = await classify(
     async (_) => {
       _.def("OUTPUT", outputText);
       _.def("FACT", fact);
@@ -60,17 +47,13 @@ export interface PromptTestConfiguration {
   script: PromptScript;
   test: PromptTest;
   options: Partial<PromptScriptRunOptions>;
-  /**
-   * Optional classify function for fact evaluation.
-   */
-  classifyFn?: ClassifyFunction;
 }
 
 export async function evaluateTestResult(
   config: PromptTestConfiguration,
   result: GenerationResult,
 ): Promise<string | undefined> {
-  const { script, test, classifyFn } = config;
+  const { script, test } = config;
   const { id } = script;
   const { status, error, text } = result;
 
@@ -102,7 +85,7 @@ export async function evaluateTestResult(
   // facts - check factual consistency using LLM-based evaluation
   for (const fact of arrayify(facts)) {
     try {
-      const factualConsistency = await evaluateFactualConsistency(text, fact, classifyFn);
+      const factualConsistency = await evaluateFactualConsistency(text, fact);
       if (!factualConsistency.consistent) {
         return `fact assertion failed: output is not factually consistent with '${fact}'`;
       }

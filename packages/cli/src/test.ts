@@ -5,7 +5,7 @@
 // listing, and viewing results. It handles configuration setup, execution logic,
 // and result processing.
 
-import { PROMPTFOO_VERSION, classify } from "@genaiscript/runtime";
+import { PROMPTFOO_VERSION } from "@genaiscript/runtime";
 import { delay, shuffle } from "es-toolkit";
 import {
   BOX_RIGHT,
@@ -256,7 +256,7 @@ async function apiRunPromptScriptTests(
           out: join(out, `${generateId()}.trace.json`),
           ...model,
         };
-        configurations.push({ script, test, options, classifyFn: classify });
+        configurations.push({ script, test, options });
       }
     }
   }

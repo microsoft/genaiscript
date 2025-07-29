@@ -1,8 +1,15 @@
-import { describe, test } from "vitest";
+import { describe, test, vi, beforeEach } from "vitest";
 import assert from "node:assert/strict";
 import { evaluateTestResult } from "../src/testeval.js";
 import { PromptTest, PromptScript, PromptAssertion } from "../src/types.js";
 import { GenerationResult } from "../src/server/messages.js";
+
+// Mock the classify function from runtime
+vi.mock("@genaiscript/runtime", () => ({
+  classify: vi.fn(),
+}));
+
+import { classify } from "@genaiscript/runtime";
 
 describe("evaluateTestResult", () => {
   const mockScript: PromptScript = {
@@ -22,6 +29,10 @@ describe("evaluateTestResult", () => {
     text: "Hello World Test",
     error: undefined,
   } as GenerationResult;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   test("should pass for icontains assertion", async () => {
     const testConfig = {
@@ -207,17 +218,17 @@ describe("evaluateTestResult", () => {
   });
 
   test("should pass for fact assertion with consistent content", async () => {
-    // Mock classify function that returns consistent
-    const mockClassifyFn = async () => {
-      return { label: "consistent", answer: "Content matches fact" };
-    };
+    // Mock classify function to return consistent
+    vi.mocked(classify).mockResolvedValue({
+      label: "consistent",
+      answer: "Content matches fact",
+    });
 
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["Hello World Test"],
       } as PromptTest,
-      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
@@ -225,17 +236,17 @@ describe("evaluateTestResult", () => {
   });
 
   test("should fail for fact assertion with inconsistent content", async () => {
-    // Mock classify function that returns inconsistent
-    const mockClassifyFn = async () => {
-      return { label: "inconsistent", answer: "Content does not match fact" };
-    };
+    // Mock classify function to return inconsistent
+    vi.mocked(classify).mockResolvedValue({
+      label: "inconsistent",
+      answer: "Content does not match fact",
+    });
 
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["This is completely different content"],
       } as PromptTest,
-      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
@@ -243,17 +254,17 @@ describe("evaluateTestResult", () => {
   });
 
   test("should handle multiple fact assertions", async () => {
-    // Mock classify function that always returns consistent
-    const mockClassifyFn = async () => {
-      return { label: "consistent", answer: "Content matches fact" };
-    };
+    // Mock classify function to always return consistent
+    vi.mocked(classify).mockResolvedValue({
+      label: "consistent",
+      answer: "Content matches fact",
+    });
 
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["Hello World Test", "Test content"],
       } as PromptTest,
-      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
@@ -261,41 +272,40 @@ describe("evaluateTestResult", () => {
   });
 
   test("should fail on first inconsistent fact", async () => {
-    let callCount = 0;
-    // Mock classify function that returns consistent first, then inconsistent
-    const mockClassifyFn = async () => {
-      callCount++;
-      if (callCount === 1) {
-        return { label: "consistent", answer: "First fact matches" };
-      } else {
-        return { label: "inconsistent", answer: "Second fact does not match" };
-      }
-    };
+    // Mock classify function to return consistent first, then inconsistent
+    vi.mocked(classify)
+      .mockResolvedValueOnce({
+        label: "consistent",
+        answer: "First fact matches",
+      })
+      .mockResolvedValueOnce({
+        label: "inconsistent",
+        answer: "Second fact does not match",
+      });
 
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["Hello World Test", "Completely different fact"],
       } as PromptTest,
-      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
     assert.equal(result, "fact assertion failed: output is not factually consistent with 'Completely different fact'");
   });
 
-  test("should use provided classify function", async () => {
-    // Mock classify function that always returns consistent
-    const mockClassifyFn = async () => {
-      return { label: "consistent", answer: "Fact is consistent" };
-    };
+  test("should use classify function for fact evaluation", async () => {
+    // Mock classify function to always return consistent
+    vi.mocked(classify).mockResolvedValue({
+      label: "consistent",
+      answer: "Fact is consistent",
+    });
 
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["Some complex fact that would normally fail"],
       } as PromptTest,
-      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
@@ -303,33 +313,18 @@ describe("evaluateTestResult", () => {
   });
 
   test("should handle classify function errors", async () => {
-    // Mock classify function that throws an error
-    const mockClassifyFn = async () => {
-      throw new Error("LLM service unavailable");
-    };
+    // Mock classify function to throw an error
+    vi.mocked(classify).mockRejectedValue(new Error("LLM service unavailable"));
 
     const testConfig = {
       ...mockConfig,
       test: {
         facts: ["Some fact"],
       } as PromptTest,
-      classifyFn: mockClassifyFn,
     };
 
     const result = await evaluateTestResult(testConfig, mockResult);
     assert.equal(result, "fact evaluation error: LLM service unavailable");
   });
 
-  test("should require classify function for fact evaluation", async () => {
-    const testConfig = {
-      ...mockConfig,
-      test: {
-        facts: ["Some fact"],
-      } as PromptTest,
-      // No classifyFn provided
-    };
-
-    const result = await evaluateTestResult(testConfig, mockResult);
-    assert.equal(result, "fact evaluation error: Fact evaluation requires classify function");
-  });
 });
