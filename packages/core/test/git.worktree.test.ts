@@ -14,8 +14,6 @@ describe("git worktree", () => {
   let testDir: string;
   let worktreePath: string;
 
-  if (isCI) return;
-
   beforeAll(async () => {
     // Initialize test host for the GenAIScript runtime
     TestHost.install();
@@ -56,6 +54,7 @@ describe("git worktree", () => {
   });
 
   test("should list existing worktrees", async () => {
+    if (isCI) return;
     const worktrees = await gitClient.listWorktrees();
     expect(Array.isArray(worktrees)).toBe(true);
 
@@ -67,6 +66,7 @@ describe("git worktree", () => {
   });
 
   test("should add and remove a worktree", async () => {
+    if (isCI) return;
     // Use main branch instead of current branch to avoid conflicts
     const mainBranch = "origin/test-ignore";
 
@@ -90,6 +90,7 @@ describe("git worktree", () => {
   });
 
   test("should add worktree with branch option", async () => {
+    if (isCI) return;
     const newBranchName = `test-worktree-branch-${Date.now()}`;
 
     try {

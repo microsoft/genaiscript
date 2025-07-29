@@ -142,6 +142,14 @@ export function resolveSystems(
       dbgr(`C/C++ references found, adding system.cpp`);
       systems.push("system.cpp");
     }
+    if (/\.(rb|rbw|rake|gemspec)$|ruby|rails|gem|bundle|rake/i.test(jsSource)) {
+      dbgr(`Ruby references found, adding system.ruby`);
+      systems.push("system.ruby");
+    }
+    if (/\.(php|phtml|php[3-8])$|php|composer|laravel|symfony/i.test(jsSource)) {
+      dbgr(`PHP references found, adding system.php`);
+      systems.push("system.php");
+    }
     // Add system.today if "today" is found in jsSource
     if (/today/i.test(jsSource)) {
       dbgr(`adding system.today to systems`);
