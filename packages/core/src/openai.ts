@@ -134,7 +134,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         const result = await executeStreamingCompletion(req, cfg, options, trace)
         
         // Check if this was a streaming failure with partial content
-        const hasPartialContent = result.text && result.text.length > 0
+        const hasPartialContent = !!(result.text && result.text.length > 0)
         const shouldRetry = 
             result.finishReason === "fail" && 
             hasPartialContent && 

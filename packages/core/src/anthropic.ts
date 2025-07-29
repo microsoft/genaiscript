@@ -326,7 +326,7 @@ const completerFactory = (
             const result = await executeAnthropicStreamingCompletion(req, cfg, options, trace)
             
             // Check if this was a streaming failure with partial content
-            const hasPartialContent = result.text && result.text.length > 0
+            const hasPartialContent = !!(result.text && result.text.length > 0)
             const shouldRetry = 
                 result.finishReason === "fail" && 
                 hasPartialContent && 
