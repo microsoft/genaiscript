@@ -10,16 +10,6 @@ script({
             type: "number",
             description: "Request timeout in seconds",
             default: 10
-        },
-        concurrency: {
-            type: "number", 
-            description: "Maximum concurrent requests",
-            default: 5
-        },
-        checkTitles: {
-            type: "boolean",
-            description: "Verify page titles match reference titles",
-            default: true
         }
     }
 })
@@ -48,16 +38,17 @@ interface ValidationReport {
 }
 
 // Cache for URL results to avoid duplicate requests
-const urlCache = new Map<string, LinkValidationResult>()
+interface UrlCache {
+    [url: string]: LinkValidationResult
+}
 
-async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<LinkValidationResult, "label" | "filename">> {
+async function validateUrl(url: string, expectedTitle: string | undefined, cache: UrlCache): Promise<Omit<LinkValidationResult, "label" | "filename">> {
     const { vars } = env
     const timeout = (vars.timeout as number) || 10
-    const checkTitles = vars.checkTitles !== false // Default to true
     
     // Check cache first
-    if (urlCache.has(url)) {
-        const cached = urlCache.get(url)!
+    if (cache[url]) {
+        const cached = cache[url]
         return {
             url: cached.url,
             title: cached.title,
@@ -80,7 +71,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
                 status: "invalid" as const,
                 errorMessage: "Invalid URL format"
             }
-            urlCache.set(url, { ...result, label: "", filename: "" })
+            cache[url] = { ...result, label: "", filename: "" }
             return result
         }
 
@@ -92,7 +83,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
                 status: "valid" as const,
                 errorMessage: "Non-HTTP URL (skipped)"
             }
-            urlCache.set(url, { ...result, label: "", filename: "" })
+            cache[url] = { ...result, label: "", filename: "" }
             return result
         }
 
@@ -119,52 +110,19 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
                     statusCode: response.status,
                     statusText: response.statusText
                 }
-                urlCache.set(url, { ...result, label: "", filename: "" })
+                cache[url] = { ...result, label: "", filename: "" }
                 return result
             }
 
-            // Check content type and extract title if needed
-            let actualTitle: string | undefined
-            const contentType = response.headers.get("content-type")
-            
-            if (checkTitles && expectedTitle && contentType?.includes("text/html")) {
-                try {
-                    const html = await response.text()
-                    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
-                    actualTitle = titleMatch?.[1]?.trim()
-                    
-                    // Check for title mismatch
-                    if (actualTitle && expectedTitle) {
-                        const titleMatches = actualTitle.toLowerCase().includes(expectedTitle.toLowerCase()) ||
-                                           expectedTitle.toLowerCase().includes(actualTitle.toLowerCase())
-                        
-                        if (!titleMatches) {
-                            const result = {
-                                url,
-                                title: expectedTitle,
-                                status: "mismatch" as const,
-                                statusCode: response.status,
-                                statusText: response.statusText,
-                                actualTitle
-                            }
-                            urlCache.set(url, { ...result, label: "", filename: "" })
-                            return result
-                        }
-                    }
-                } catch (error) {
-                    // If we can't parse HTML, that's okay - just mark as valid
-                }
-            }
-
+            // For successful responses, mark as valid
             const result = {
                 url,
                 title: expectedTitle,
                 status: "valid" as const,
                 statusCode: response.status,
-                statusText: response.statusText,
-                actualTitle
+                statusText: response.statusText
             }
-            urlCache.set(url, { ...result, label: "", filename: "" })
+            cache[url] = { ...result, label: "", filename: "" }
             return result
 
         } catch (fetchError: any) {
@@ -177,7 +135,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
                     status: "timeout" as const,
                     errorMessage: `Request timeout (${timeout}s)`
                 }
-                urlCache.set(url, { ...result, label: "", filename: "" })
+                cache[url] = { ...result, label: "", filename: "" }
                 return result
             }
 
@@ -187,7 +145,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
                 status: "broken" as const,
                 errorMessage: fetchError.message
             }
-            urlCache.set(url, { ...result, label: "", filename: "" })
+            cache[url] = { ...result, label: "", filename: "" }
             return result
         }
 
@@ -198,7 +156,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
             status: "broken" as const,
             errorMessage: error.message
         }
-        urlCache.set(url, { ...result, label: "", filename: "" })
+        cache[url] = { ...result, label: "", filename: "" }
         return result
     }
 }
@@ -257,34 +215,22 @@ async function validateMarkdownLinks(): Promise<ValidationReport> {
 
     console.log(`🔗 Found ${allLinks.length} reference links to validate`)
     
-    // Validate each unique URL
+    // Create cache for URL validation results
+    const urlCache: UrlCache = {}
+    
+    // Validate each unique URL sequentially
     const uniqueUrls = new Set(allLinks.map(link => link.url))
     console.log(`🌐 Validating ${uniqueUrls.size} unique URLs...`)
 
-    // Validate URLs with limited concurrency
-    const { vars } = env
-    const concurrencyLimit = (vars.concurrency as number) || 5
-    const urlPromises: Promise<void>[] = []
-    const urls = Array.from(uniqueUrls)
-    
-    for (let i = 0; i < urls.length; i += concurrencyLimit) {
-        const batch = urls.slice(i, i + concurrencyLimit)
-        
-        const batchPromises = batch.map(async (url) => {
-            // Find a link with this URL to get the expected title
-            const linkWithTitle = allLinks.find(link => link.url === url && link.title)
-            await validateUrl(url, linkWithTitle?.title)
-        })
-        
-        urlPromises.push(...batchPromises)
-        
-        // Wait for current batch before processing next
-        await Promise.allSettled(batchPromises)
+    for (const url of uniqueUrls) {
+        // Find a link with this URL to get the expected title
+        const linkWithTitle = allLinks.find(link => link.url === url && link.title)
+        await validateUrl(url, linkWithTitle?.title, urlCache)
     }
 
     // Update all links with validation results
     const validatedLinks = allLinks.map(link => {
-        const cached = urlCache.get(link.url)
+        const cached = urlCache[link.url]
         if (cached) {
             return {
                 ...link,
@@ -327,10 +273,10 @@ function generateReport(report: ValidationReport): string {
     }
 
     // Overall status
-    if (brokenLinks.length === 0 && contentMismatches.length === 0) {
+    if (brokenLinks.length === 0) {
         output += "✅ **All reference links are valid!**\n\n"
     } else {
-        output += `❌ Found ${brokenLinks.length} broken links and ${contentMismatches.length} content mismatches.\n\n`
+        output += `❌ Found ${brokenLinks.length} broken links.\n\n`
     }
 
     // Valid links section
@@ -380,27 +326,6 @@ function generateReport(report: ValidationReport): string {
         }
     }
 
-    // Content mismatches section
-    if (contentMismatches.length > 0) {
-        output += `## ⚠️ Content Mismatches (${contentMismatches.length})\n\n`
-        
-        const mismatchByFile = contentMismatches.reduce((acc, link) => {
-            if (!acc[link.filename]) acc[link.filename] = []
-            acc[link.filename].push(link)
-            return acc
-        }, {} as Record<string, LinkValidationResult[]>)
-
-        for (const [filename, links] of Object.entries(mismatchByFile)) {
-            output += `### ${filename}\n\n`
-            for (const link of links) {
-                output += `- **[${link.label}]** → ${link.url}\n`
-                output += `  - Expected title: "${link.title}"\n`
-                output += `  - Actual title: "${link.actualTitle}"\n`
-            }
-            output += "\n"
-        }
-    }
-
     return output
 }
 
@@ -415,9 +340,6 @@ try {
     if (report.brokenLinks.length > 0) {
         console.error(`\n❌ Validation failed: ${report.brokenLinks.length} broken links found.`)
         process.exit && process.exit(1)
-    } else if (report.contentMismatches.length > 0) {
-        console.warn(`\n⚠️ Validation completed with warnings: ${report.contentMismatches.length} content mismatches found.`)
-        // Exit 0 for mismatches - these are warnings, not hard failures
     } else {
         console.log(`\n✅ Validation successful: All ${report.totalChecked} reference links are valid.`)
     }
