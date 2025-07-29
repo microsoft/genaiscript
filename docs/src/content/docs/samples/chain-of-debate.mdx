@@ -2,14 +2,12 @@
 title: Chain of Debate
 description: Multi-agent debate system where LLM models engage in structured, iterative debates
 sidebar:
-    order: 15
+  order: 15
 ---
 
-import { Code } from "@astrojs/starlight/components"
-import source from "../../../../../samples/sample/genaisrc/chain-of-debate.genai.mts?raw"
-import sourceSimple from "../../../../../samples/sample/genaisrc/chain-of-debate-simple.genai.mts?raw"
+import { Code } from "@astrojs/starlight/components";
 
-Imagine having a roundtable discussion where each participant brings their unique perspective to a complex topic, building on each other's ideas and challenging assumptions. That's exactly what this **chain of debate** implementation does, except the participants are different LLM models engaging in structured, thoughtful argumentation.
+Imagine having a round-table discussion where each participant brings their unique perspective to a complex topic, building on each other's ideas and challenging assumptions. That's exactly what this **chain of debate** implementation does, except the participants are different LLM models engaging in structured, thoughtful argumentation.
 
 The concept emerged from a simple observation: when we ask a single AI model about a complex topic, we get one perspective. But what if we could orchestrate multiple models to debate the topic, each building on the others' arguments? The result is a richer exploration that often reveals nuances that individual models might miss.
 
@@ -34,11 +32,12 @@ For deeper exploration, the full implementation opens up more possibilities. You
 ```typescript
 // Use the chainOfDebate function with custom options
 const result = await chainOfDebate({
-    topic: "Should artificial intelligence development be regulated by governments?",
-    models: ["openai:gpt-4o", "openai:gpt-4o-mini"],
-    rounds: 3,
-    synthesize: true,
-})
+  topic:
+    "Should artificial intelligence development be regulated by governments?",
+  models: ["openai:gpt-4o", "openai:gpt-4o-mini"],
+  rounds: 3,
+  synthesize: true,
+});
 ```
 
 The configuration is straightforward but powerful. You specify your topic, choose which models participate (defaulting to two OpenAI models), set the number of rounds, and decide whether you want that final synthesis. Each parameter shapes how the conversation develops.
@@ -80,13 +79,3 @@ Perhaps most interestingly, the approach helps surface the inherent uncertainty 
 Under the hood, the code follows GenAIScript best practices while handling the complexity of multi-model coordination. The `runPrompt` function with caching ensures efficient execution even when dealing with multiple rounds and models. TypeScript interfaces provide the structure needed for reliable configuration, while async/await patterns manage the conversation flow smoothly.
 
 The implementation is designed for extensibility. The current version focuses on the core debate mechanics, but the foundation supports future enhancements like voting systems, argument scoring, or more sophisticated synthesis approaches.
-
-## Source Code
-
-### Main Implementation
-
-<Code code={source} lang="ts" title="chain-of-debate.genai.mts" />
-
-### Simple Example
-
-<Code code={sourceSimple} lang="ts" title="chain-of-debate-simple.genai.mts" />

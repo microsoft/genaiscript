@@ -11,17 +11,21 @@ export const collections = {
       extend: (context) => {
         const blog = blogSchema(context);
         return blog.extend({
-          /**
-           * LLM-optimized version of the page content.
-           * This field contains a condensed, LLM-friendly representation
-           * of the page content optimized for consumption by language models.
-           */
-          llmstxt: z.string().optional(),
-          /**
-           * Hash of the content used to determine if the LLM-optimized content needs refreshing.
-           * This helps avoid regenerating the same content when the source hasn't changed.
-           */
-          llmstxtHash: z.string().optional(),
+          llmstxt: z
+            .object({
+              /**
+               * LLM-optimized version of the page content.
+               * This field contains a condensed, LLM-friendly representation
+               * of the page content optimized for consumption by language models.
+               */
+              content: z.string(),
+              /**
+               * Hash of the content used to determine if the LLM-optimized content needs refreshing.
+               * This helps avoid regenerating the same content when the source hasn't changed.
+               */
+              hash: z.string(),
+            })
+            .optional(),
         });
       },
     }),
