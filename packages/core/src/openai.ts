@@ -3,6 +3,10 @@ import { host } from "./host"
 import {
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,
+    FETCH_RETRY_DEFAULT,
+    FETCH_RETRY_DEFAULT_DEFAULT,
+    FETCH_RETRY_GROWTH_FACTOR,
+    FETCH_RETRY_MAX_DELAY_DEFAULT,
     MODEL_PROVIDER_AZURE_OPENAI,
     MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
     MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
@@ -115,6 +119,56 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     options,
     trace
 ) => {
+    const {
+        requestOptions,
+        partialCb,
+        retry = FETCH_RETRY_DEFAULT,
+        retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
+        maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
+        cancellationToken,
+        inner,
+    } = options
+
+    // Streaming retry wrapper
+    const executeWithStreamingRetry = async (attempt: number = 0): Promise<ChatCompletionResponse> => {
+        const result = await executeStreamingCompletion(req, cfg, options, trace)
+        
+        // Check if this was a streaming failure with partial content
+        const hasPartialContent = result.text && result.text.length > 0
+        const shouldRetry = 
+            result.finishReason === "fail" && 
+            hasPartialContent && 
+            attempt < retry &&
+            !cancellationToken?.isCancellationRequested
+
+        if (shouldRetry) {
+            // Calculate exponential backoff delay
+            const delay = Math.min(
+                maxDelay,
+                Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
+            ) * (1 + Math.random() / 20) // 5% jitter
+
+            trace?.itemValue(`streaming retry`, `attempt ${attempt + 1}/${retry} in ${Math.floor(delay / 1000)}s`)
+            
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, delay))
+            
+            // Retry the streaming completion
+            return executeWithStreamingRetry(attempt + 1)
+        }
+
+        return result
+    }
+
+    return executeWithStreamingRetry()
+}
+
+async function executeStreamingCompletion(
+    req: CreateChatCompletionRequest,
+    cfg: LanguageModelConfiguration,
+    options: ChatCompletionsOptions & CancellationOptions & RetryOptions,
+    trace: MarkdownTrace
+): Promise<ChatCompletionResponse> {
     const {
         requestOptions,
         partialCb,
