@@ -787,10 +787,15 @@ export async function OpenAIImageGeneration(
         quality,
         style,
         outputFormat,
+        image,
+        mask,
         ...rest
     } = req
     const { trace } = options || {}
-    let url = `${cfg.base}/images/generations`
+    
+    // Detect edit mode based on presence of image parameter
+    const isEditMode = !!image
+    let url = `${cfg.base}/images/${isEditMode ? 'edits' : 'generations'}`
 
     const isDallE = /^dall-e/i.test(model)
     const isDallE2 = /^dall-e-2/i.test(model)
@@ -798,12 +803,20 @@ export async function OpenAIImageGeneration(
     const isGpt = /^gpt-image/i.test(model)
 
     const body: any = {
-        model,
         prompt,
         size,
         quality,
         style,
         ...rest,
+    }
+
+    // Add edit mode parameters if present
+    if (isEditMode) {
+        body.image = image
+        if (mask) body.mask = mask
+        // Model parameter is typically not used in edit mode for OpenAI
+    } else {
+        body.model = model
     }
 
     // auto is the default quality, so always delete it
@@ -846,12 +859,17 @@ export async function OpenAIImageGeneration(
     if (cfg.type === "azure") {
         const version = cfg.version || AZURE_OPENAI_API_VERSION
         trace?.itemValue(`version`, version)
-        url =
-            trimTrailingSlash(cfg.base) +
-            "/" +
-            body.model +
-            `/images/generations?api-version=${version}`
-        delete body.model
+        if (isEditMode) {
+            // Azure doesn't use model in the URL for edit mode
+            url = trimTrailingSlash(cfg.base) + `/images/edits?api-version=${version}`
+        } else {
+            url =
+                trimTrailingSlash(cfg.base) +
+                "/" +
+                body.model +
+                `/images/generations?api-version=${version}`
+            delete body.model
+        }
     }
 
     const fetch = await createFetch(options)

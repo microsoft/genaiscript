@@ -1184,12 +1184,12 @@ export function createChatGenerationContext(
                 quality,
                 style,
                 outputFormat,
+                ...rest,
             }) satisfies CreateImageRequest
             const m = measure("img.generate", `${req.model} -> image`)
             const res = await imageGenerator(req, configuration, {
                 trace: imgTrace,
                 cancellationToken,
-                ...rest,
             })
             const duration = m()
             if (res.error) {

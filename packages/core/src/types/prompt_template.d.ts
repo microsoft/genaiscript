@@ -4631,6 +4631,18 @@ interface ImageGenerationOptions extends ImageTransformOptions, RetryOptions {
      * For gpt-image-1 only, the type of image format to generate.
      */
     outputFormat?: "png" | "jpeg" | "webp"
+
+    /**
+     * Base image for editing (edit mode). When provided, enables image editing instead of generation.
+     * Can be a base64-encoded string, Buffer, Uint8Array, or file path.
+     */
+    image?: string | Uint8Array | Buffer
+
+    /**
+     * Optional mask for editing. Only used in edit mode when `image` is provided.
+     * Specifies which parts of the image to edit. Can be a base64-encoded string, Buffer, Uint8Array, or file path.
+     */
+    mask?: string | Uint8Array | Buffer
 }
 
 interface TranscriptionOptions extends CacheOptions, RetryOptions {

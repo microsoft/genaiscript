@@ -168,6 +168,8 @@ export type CreateImageRequest = {
     size?: string
     style?: string
     outputFormat?: "png" | "jpeg" | "webp"
+    image?: string | Uint8Array | Buffer  // Base image for editing (base64 or binary)
+    mask?: string | Uint8Array | Buffer   // Optional mask for editing (base64 or binary)
 }
 
 export interface ImageGenerationUsage {
