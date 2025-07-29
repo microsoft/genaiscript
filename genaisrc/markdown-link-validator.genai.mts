@@ -4,14 +4,7 @@ script({
     files: ["docs/**/*.md", "README.md", "*.md"],
     systemSafety: false,
     system: ["system"],
-    responseType: "markdown",
-    parameters: {
-        timeout: {
-            type: "number",
-            description: "Request timeout in seconds",
-            default: 10
-        }
-    }
+    responseType: "markdown"
 })
 
 // Import will be handled dynamically to avoid compilation issues
@@ -43,8 +36,7 @@ interface UrlCache {
 }
 
 async function validateUrl(url: string, expectedTitle: string | undefined, cache: UrlCache): Promise<Omit<LinkValidationResult, "label" | "filename">> {
-    const { vars } = env
-    const timeout = (vars.timeout as number) || 10
+    const timeout = 10
     
     // Check cache first
     if (cache[url]) {
