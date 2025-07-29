@@ -5,6 +5,23 @@ script({
     systemSafety: false,
     system: ["system"],
     responseType: "markdown",
+    parameters: {
+        timeout: {
+            type: "number",
+            description: "Request timeout in seconds",
+            default: 10
+        },
+        concurrency: {
+            type: "number", 
+            description: "Maximum concurrent requests",
+            default: 5
+        },
+        checkTitles: {
+            type: "boolean",
+            description: "Verify page titles match reference titles",
+            default: true
+        }
+    }
 })
 
 // Import will be handled dynamically to avoid compilation issues
@@ -34,6 +51,10 @@ interface ValidationReport {
 const urlCache = new Map<string, LinkValidationResult>()
 
 async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<LinkValidationResult, "label" | "filename">> {
+    const { vars } = env
+    const timeout = (vars.timeout as number) || 10
+    const checkTitles = vars.checkTitles !== false // Default to true
+    
     // Check cache first
     if (urlCache.has(url)) {
         const cached = urlCache.get(url)!
@@ -77,7 +98,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
 
         // Create AbortController for timeout
         const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), timeout * 1000)
 
         try {
             const response = await fetch(url, {
@@ -106,7 +127,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
             let actualTitle: string | undefined
             const contentType = response.headers.get("content-type")
             
-            if (expectedTitle && contentType?.includes("text/html")) {
+            if (checkTitles && expectedTitle && contentType?.includes("text/html")) {
                 try {
                     const html = await response.text()
                     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
@@ -146,7 +167,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
             urlCache.set(url, { ...result, label: "", filename: "" })
             return result
 
-        } catch (fetchError) {
+        } catch (fetchError: any) {
             clearTimeout(timeoutId)
             
             if (fetchError.name === "AbortError") {
@@ -154,7 +175,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
                     url,
                     title: expectedTitle,
                     status: "timeout" as const,
-                    errorMessage: "Request timeout (10s)"
+                    errorMessage: `Request timeout (${timeout}s)`
                 }
                 urlCache.set(url, { ...result, label: "", filename: "" })
                 return result
@@ -170,7 +191,7 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
             return result
         }
 
-    } catch (error) {
+    } catch (error: any) {
         const result = {
             url,
             title: expectedTitle,
@@ -183,52 +204,27 @@ async function validateUrl(url: string, expectedTitle?: string): Promise<Omit<Li
 }
 
 async function extractReferenceLinks(file: WorkspaceFile): Promise<LinkValidationResult[]> {
-    try {
-        // Try to dynamically import the mdast plugin
-        const { mdast } = await import("@genaiscript/plugin-mdast")
-        const { parse, visit } = await mdast()
-        
-        const ast = parse(file)
-        const links: LinkValidationResult[] = []
-
-        visit(ast, "definition", (node: any) => {
-            if (node.url && node.identifier) {
-                links.push({
-                    label: node.identifier,
-                    url: node.url,
-                    title: node.title || undefined,
-                    status: "valid", // Will be updated during validation
-                    filename: file.filename
-                })
-            }
+    const content = file.content || ""
+    const links: LinkValidationResult[] = []
+    
+    // Use regex-based parsing for reference definitions
+    // Pattern matches: [label]: url "optional title"
+    // Supports HTTP/HTTPS URLs, relative paths, and domains with extensions
+    const refLinkRegex = /^\s*\[([^\]]+)\]:\s+((?:https?:\/\/|\.?\/)[^\s]+|\S+\.[a-zA-Z]{2,})(?:\s+"([^"]*)")?\s*$/gm
+    let match
+    
+    while ((match = refLinkRegex.exec(content)) !== null) {
+        const [, label, url, title] = match
+        links.push({
+            label: label.toLowerCase(), // Reference labels are case-insensitive in Markdown
+            url: url,
+            title: title || undefined,
+            status: "valid", // Will be updated during validation
+            filename: file.filename
         })
-
-        return links
-    } catch (error: any) {
-        console.warn(`Failed to import mdast or parse ${file.filename}: ${error.message}`)
-        
-        // Fallback: simple regex-based parsing for reference definitions
-        const content = file.content || ""
-        const links: LinkValidationResult[] = []
-        
-        // Match reference link definitions: [label]: url "optional title"
-        // URL should start with http:// or https:// or be a valid relative path
-        const refLinkRegex = /^\s*\[([^\]]+)\]:\s+((?:https?:\/\/|\.?\/)[^\s]+|\S+\.[a-zA-Z]{2,})(?:\s+"([^"]*)")?\s*$/gm
-        let match
-        
-        while ((match = refLinkRegex.exec(content)) !== null) {
-            const [, label, url, title] = match
-            links.push({
-                label: label.toLowerCase(), // Reference labels are case-insensitive
-                url: url,
-                title: title || undefined,
-                status: "valid", // Will be updated during validation
-                filename: file.filename
-            })
-        }
-        
-        return links
     }
+    
+    return links
 }
 
 async function validateMarkdownLinks(): Promise<ValidationReport> {
@@ -266,7 +262,8 @@ async function validateMarkdownLinks(): Promise<ValidationReport> {
     console.log(`🌐 Validating ${uniqueUrls.size} unique URLs...`)
 
     // Validate URLs with limited concurrency
-    const concurrencyLimit = 5
+    const { vars } = env
+    const concurrencyLimit = (vars.concurrency as number) || 5
     const urlPromises: Promise<void>[] = []
     const urls = Array.from(uniqueUrls)
     
