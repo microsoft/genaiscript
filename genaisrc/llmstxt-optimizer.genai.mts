@@ -1,45 +1,38 @@
 script({
-    title: "LLM-optimized content generator",
-    description: "Analyze markdown files and generate LLM-optimized content for the 'llmstxt' frontmatter field",
-    group: "docs",
-    system: ["system", "system.files"],
-    temperature: 0.3,
-    model: "large",
-    accept: ".md,.mdx",
-})
+  title: "LLM-optimized content generator",
+  description:
+    "Analyze markdown files and generate LLM-optimized content for the 'llmstxt' frontmatter field",
+  group: "docs",
+  model: "large",
+  accept: ".md,.mdx",
+});
 
-// Filter files and check if they need updating
-const markdownFiles = env.files.filter(f => {
-    // Parse frontmatter to check existing hash
-    const { frontmatter, content } = MD.parseFrontmatter(f.content)
-    const currentHash = MD5(content.trim())
-    const existingHash = frontmatter?.llmstxtHash
-    
-    // Include file if hash is different or doesn't exist
-    if (!existingHash || existingHash !== currentHash) {
-        console.log(`File ${f.filename} needs LLM optimization (hash changed or missing)`)
-        return true
-    }
-    
-    console.log(`File ${f.filename} skipped (content unchanged)`)
-    return false
-})
+const OPTIMIZER_VERSION = "0.0.2";
+
+interface LlmsFrontmatter {
+  llmstxt?: {
+    content: string;
+    hash: string;
+  };
+}
 
 // Process each file individually using runPrompt
-for (const file of markdownFiles) {
-    console.log(`Processing ${file.filename}...`)
-    
-    const { content } = MD.parseFrontmatter(file.content)
-    
-    const optimizedContent = await runPrompt(
-        (_) => {
-            _.def("FILE_CONTENT", content)
-            _.$`
+for (const file of env.files) {
+  console.log(`processing ${file.filename}...`);
+  const { llmstxt }: LlmsFrontmatter = MD.frontmatter(file.content) || {};
+  const content = MD.content(file.content);
+  const contentHash = await parsers.hash({ version: OPTIMIZER_VERSION, content: content.trim() });
+  if (contentHash === llmstxt?.hash) {
+    continue;
+  }
+
+  const { text: optimizedContent, error } = await runPrompt(
+    (_) => {
+      const fileRef = _.def("CONTENT", content);
+      _.$`
 You are an expert at optimizing content for Large Language Model (LLM) consumption and understanding.
 
-Analyze the following markdown content and generate a concise, LLM-optimized version:
-
-FILE_CONTENT
+Analyze the following markdown content in ${fileRef} and generate a concise, LLM-optimized version.
 
 ## Requirements:
 1. **Extract the core concepts and information** from the original content
@@ -49,6 +42,7 @@ FILE_CONTENT
 5. **Preserve important terminology and concepts** specific to the domain
 6. **Focus on actionable information** and key insights
 7. **Use structured format** with clear sections when applicable
+8. **Avoid bullet points**, Keep it extremely compact
 
 ## Optimization Guidelines:
 - Remove redundant explanations and filler words
@@ -57,36 +51,39 @@ FILE_CONTENT
 - Focus on the "what", "why", and "how" of the content
 - Maintain context that would be important for an LLM to understand the topic
 - Keep technical accuracy but improve clarity
-- Aim for 30-50% reduction in length while preserving essential information
+- Aim for maximum reduction in length while preserving essential information
+- Provide simple examples or code snippets where necessary
 
 ## Output Format:
 Generate ONLY the optimized content text - do not include frontmatter, markdown headers, or any metadata.
 The output should be clean, readable text that can be directly inserted into the 'llmstxt' frontmatter field.
 
 Focus on making the content more digestible for LLM processing while retaining all the important information and context.
-            `
-        },
-        { 
-            label: `llmstxt-optimization-${file.filename}`,
-            system: ["system"],
-            temperature: 0.3,
-            model: "large",
-            responseType: "text"
-        }
-    )
-    
-    // Process the generated content and update the file
-    if (optimizedContent?.text?.trim() && optimizedContent.text.trim().length > 10) {
-        const contentHash = MD5(content.trim())
-        const updated = MD.updateFrontmatter(file.content, {
-            llmstxt: optimizedContent.text.trim(),
-            llmstxtHash: contentHash,
-        })
-        
-        // Write the updated content back to the file
-        writeText(file.filename, updated)
-        console.log(`Updated ${file.filename} with optimized content`)
-    } else {
-        console.log(`Skipped ${file.filename} - no valid optimized content generated`)
-    }
+            `;
+    },
+    {
+      label: file.filename,
+      system: ["system"],
+      temperature: 0.3,
+      model: "large",
+      responseType: "text",
+    },
+  );
+
+  if (error) break;
+
+  // Process the generated content and update the file
+  if (optimizedContent?.trim() && optimizedContent.trim().length > 10) {
+    const updated = MD.updateFrontmatter(file.content, {
+      llmstxt: {
+        content: optimizedContent.trim(),
+        hash: contentHash,
+      },
+    } satisfies LlmsFrontmatter);
+    // Write the updated content back to the file
+    await workspace.writeText(file.filename, updated);
+    console.log(`Updated ${file.filename} with optimized content`);
+  } else {
+    console.log(`Skipped ${file.filename} - no valid optimized content generated`);
+  }
 }
