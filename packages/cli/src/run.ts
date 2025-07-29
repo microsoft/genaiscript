@@ -503,16 +503,18 @@ export async function runScriptInternal(
                                     logprobColor(token),
                                     token.token
                                 )
-                                stdout.write(c)
+                                if (!inner) stdout.write(c)
+                                else if (!isQuiet) stdout.write(c)
                             } else {
                                 tokenColor = (tokenColor + 1) % colors.length
                                 const c = colors[tokenColor]
-                                stdout.write(wrapColor(c, token.token))
+                                if (!inner) stdout.write(wrapColor(c, token.token))
+                                else if (!isQuiet) stdout.write(wrapColor(c, token.token))
                             }
                         }
                     } else {
                         if (!inner) stdout.write(responseChunk)
-                        else {
+                        else if (!isQuiet) {
                             stderr.write(
                                 wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
                             )
