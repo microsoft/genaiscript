@@ -3,6 +3,7 @@
 
 import { describe, test, assert } from "vitest";
 import { estimateCost, isCosteable, GenerationStats } from "../src/usage.js";
+import { generatedByFooter } from "../src/githubclient.js";
 import type { ChatCompletionUsage } from "../src/chattypes.js";
 
 describe("usage", () => {
@@ -233,6 +234,57 @@ describe("usage", () => {
       // Should format large numbers with appropriate units
       assert(report.includes("Mt") || report.includes("kt"));
       assert(report.includes("1.0m") || report.includes("60.0s"));
+    });
+  });
+
+  describe("generatedByFooter", () => {
+    test("should not include usage report when total tokens is 0", () => {
+      const script = { id: "test-script" } as any;
+      const info = { runUrl: "https://example.com/run/123" };
+      
+      // Create stats with zero usage
+      const stats = new GenerationStats("openai:gpt-4", "test");
+      // Don't add any usage, so total_tokens remains 0
+      
+      const footer = generatedByFooter(script, info, undefined, stats);
+      
+      // Should not contain usage report details or the usage report section
+      assert(!footer.includes("Usage Report"));
+      assert(!footer.includes("<details>"));
+      assert(!footer.includes("0t")); // Should not show zero tokens
+    });
+
+    test("should include usage report when total tokens > 0", () => {
+      const script = { id: "test-script" } as any;
+      const info = { runUrl: "https://example.com/run/123" };
+      
+      // Create stats with actual usage
+      const stats = new GenerationStats("openai:gpt-4", "test");
+      stats.addUsage({
+        prompt_tokens: 100,
+        completion_tokens: 50,
+        total_tokens: 150,
+        duration: 1000,
+      }, 1000);
+      
+      const footer = generatedByFooter(script, info, undefined, stats);
+      
+      // Should contain usage report details
+      assert(footer.includes("Usage Report"));
+      assert(footer.includes("<details>"));
+      assert(footer.includes("150t")); // Should show the actual tokens
+    });
+
+    test("should work without stats parameter (existing behavior)", () => {
+      const script = { id: "test-script" } as any;
+      const info = { runUrl: "https://example.com/run/123" };
+      
+      const footer = generatedByFooter(script, info);
+      
+      // Should not contain usage report when no stats provided
+      assert(!footer.includes("Usage Report"));
+      assert(!footer.includes("<details>"));
+      assert(footer.includes("AI-generated content")); // But should have basic footer
     });
   });
 });

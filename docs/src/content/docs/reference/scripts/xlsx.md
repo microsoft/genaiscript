@@ -14,6 +14,21 @@ hero:
       people or text, against a transparent background. The image is small and
       square, 128 by 128 pixels, with no shadows or gradients.
     file: ./xlsx.png
+llmstxt:
+  content: >-
+    The `parsers.XLSX` function processes Excel `.xlsx` files, returning an
+    array of sheets. Each sheet includes its `name` and `rows`, where rows are
+    arrays of objects.
+
+
+    Example:
+
+    ```js
+
+    const sheets = await parsers.XLSX(env.files[0]);
+
+    ```
+  hash: 588f8e2fd226f97b78a1454086dd602c60031ce5fee48c24263d88b87bb5e283
 
 ---
 
