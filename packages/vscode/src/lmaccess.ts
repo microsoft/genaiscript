@@ -30,11 +30,11 @@ async function pickChatModel(
   if (!chatModel) {
     const items: (vscode.QuickPickItem & {
       chatModel?: vscode.LanguageModelChat;
-    })[] = chatModels.map((chatModel) => ({
-      label: chatModel.name,
-      description: `${chatModel.vendor} ${chatModel.family}`,
-      detail: `${chatModel.version}, ${chatModel.maxInputTokens}t.`,
-      chatModel,
+    })[] = chatModels.map((cm) => ({
+      label: cm.name,
+      description: `${cm.vendor} ${cm.family}`,
+      detail: `${cm.version}, ${cm.maxInputTokens}t.`,
+      chatModel: cm,
     }));
     if (items?.length) {
       const res = await vscode.window.showQuickPick(items, {
@@ -51,11 +51,13 @@ async function pickChatModel(
   return chatModel;
 }
 
-export function isLanguageModelsAvailable() {
+export function isLanguageModelsAvailable(): boolean {
   return typeof vscode.lm !== "undefined" && typeof vscode.lm.selectChatModels !== "undefined";
 }
 
-async function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
+async function messagesToChatMessages(
+  messages: ChatCompletionMessageParam[],
+): Promise<vscode.LanguageModelChatMessage[]> {
   const res: vscode.LanguageModelChatMessage[] = [];
   for (const m of messages) {
     switch (m.role) {

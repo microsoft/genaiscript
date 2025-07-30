@@ -119,3 +119,4 @@ claude_desktop_config.json
 .mcp.json
 
 .pnpm-store/
+packages/core/test/test-robot.png

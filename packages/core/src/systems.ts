@@ -125,6 +125,31 @@ export function resolveSystems(
       dbgr(`GitHub references found, adding system.github_info`);
       systems.push("system.github_info");
     }
+    // Add programming language system prompts based on file extensions or language keywords
+    if (/\.(go)$|golang|go\s/i.test(jsSource)) {
+      dbgr(`Go references found, adding system.go`);
+      systems.push("system.go");
+    }
+    if (/\.(rs)$|rust|cargo/i.test(jsSource)) {
+      dbgr(`Rust references found, adding system.rust`);
+      systems.push("system.rust");
+    }
+    if (/\.(java)$|java\s|maven|gradle/i.test(jsSource)) {
+      dbgr(`Java references found, adding system.java`);
+      systems.push("system.java");
+    }
+    if (/\.(cpp|cxx|cc|c\+\+|h|hpp)$|c\+\+|cpp|cmake/i.test(jsSource)) {
+      dbgr(`C/C++ references found, adding system.cpp`);
+      systems.push("system.cpp");
+    }
+    if (/\.(rb|rbw|rake|gemspec)$|ruby|rails|gem|bundle|rake/i.test(jsSource)) {
+      dbgr(`Ruby references found, adding system.ruby`);
+      systems.push("system.ruby");
+    }
+    if (/\.(php|phtml|php[3-8])$|php|composer|laravel|symfony/i.test(jsSource)) {
+      dbgr(`PHP references found, adding system.php`);
+      systems.push("system.php");
+    }
     // Add system.today if "today" is found in jsSource
     if (/today/i.test(jsSource)) {
       dbgr(`adding system.today to systems`);

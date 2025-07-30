@@ -1,0 +1,171 @@
+---
+title: LLM-Optimized Content Generator
+description: Generate LLM-optimized content stored in markdown frontmatter for
+  better AI processing
+sidebar:
+  order: 800
+---
+
+This sample demonstrates how to create a GenAIScript that analyzes markdown files and generates LLM-optimized content stored in the `llmstxt` frontmatter field.
+
+## Overview
+
+The script processes markdown (`.md`) and MDX (`.mdx`) files to:
+1. Analyze the content (excluding frontmatter)
+2. Generate a concise, LLM-optimized version
+3. Store the optimized content in the `llmstxt` frontmatter field
+4. Track content changes with hash-based caching
+5. Update files in-place with intelligent change detection
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Process a single file
+genaiscript run llmstxt-optimizer path/to/file.md
+
+# Process multiple files
+genaiscript run llmstxt-optimizer "docs/**/*.md"
+
+# Apply changes (modify files in-place)
+genaiscript run llmstxt-optimizer "docs/**/*.md" --apply-edits
+```
+
+### Example Input/Output
+
+**Input file:**
+```markdown
+---
+title: My Document
+description: A sample document
+---
+
+# My Document
+
+This is a very long explanation of a concept that could be much more concise. It includes redundant information and verbose descriptions that make it harder for LLMs to extract the key points efficiently.
+
+## Key Points
+
+- Point 1: Important information
+- Point 2: More important information
+```
+
+**Output file:**
+```markdown
+---
+title: My Document
+description: A sample document
+llmstxt: "Document explaining key concepts. Key points: Point 1 covers important information, Point 2 provides additional important information. Concise explanation optimized for LLM consumption."
+llmstxtHash: "a1b2c3d4e5f6"
+---
+
+# My Document
+
+This is a very long explanation of a concept that could be much more concise. It includes redundant information and verbose descriptions that make it harder for LLMs to extract the key points efficiently.
+
+## Key Points
+
+- Point 1: Important information
+- Point 2: More important information
+```
+
+## Implementation
+
+The script demonstrates several key GenAIScript features:
+
+### File Filtering with Accept
+
+```typescript
+script({
+    title: "LLM-optimized content generator",
+    accept: ".md,.mdx",  // Process only markdown files
+    // ...
+})
+```
+
+### Individual File Processing
+
+```typescript
+// Process each file individually using runPrompt
+for (const file of markdownFiles) {
+    const optimizedContent = await runPrompt(
+        (_) => {
+            _.def("FILE_CONTENT", content)
+            _.$`Generate LLM-optimized content for this file...`
+        },
+        { 
+            label: `llmstxt-optimization-${file.filename}`,
+            responseType: "text"
+        }
+    )
+    
+    // Update file with optimized content
+    writeText(file.filename, updated)
+}
+```
+
+### Intelligent Content Caching
+
+```typescript
+// Check if file needs updating based on content hash
+const currentHash = MD5(content.trim())
+const existingHash = frontmatter?.llmstxtHash
+
+if (!existingHash || existingHash !== currentHash) {
+    // Process file
+} else {
+    console.log(`File ${f.filename} skipped (content unchanged)`)
+}
+```
+
+## Schema Extension
+
+For Astro Starlight projects, extend the schema to include the `llmstxt` field:
+
+```typescript
+// docs/src/content.config.ts
+export const collections = {
+  docs: defineCollection({
+    loader: docsLoader(),
+    schema: docsSchema({
+      extend: (context) => {
+        const blog = blogSchema(context);
+        return blog.extend({
+          llmstxt: z.string().optional(),
+          llmstxtHash: z.string().optional(),
+        });
+      },
+    }),
+  }),
+};
+```
+
+## Features
+
+- **Content Optimization**: Reduces content length by 30-50% while preserving essential information
+- **Technical Accuracy**: Maintains technical accuracy and key terminology
+- **Code Preservation**: Includes important code examples in simplified form
+- **Structured Output**: Uses clear, structured format for better LLM comprehension
+- **Hash-based Caching**: Avoids regenerating content when source hasn't changed
+- **Batch Processing**: Can process multiple files efficiently
+- **Individual Processing**: Each file gets its own runPrompt for better error handling
+
+## Configuration
+
+The script uses these optimized settings:
+- **Model**: `large` (configurable)
+- **Temperature**: `0.3` (low temperature for consistent output)
+- **System**: `["system", "system.files"]` (file processing capabilities)
+- **Response Type**: `text` (for clean text output)
+
+## Output Quality
+
+The optimized content:
+- Extracts core concepts and information
+- Uses clear, direct language
+- Simplifies complex explanations
+- Focuses on actionable information
+- Maintains important context
+- Reduces redundancy
+- Preserves technical terminology

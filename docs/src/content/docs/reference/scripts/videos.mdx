@@ -12,6 +12,63 @@ hero:
       8-bit, 5-color palette, all in a geometric, corporate style, with no
       background, people, or text."
     file: ./videos.png
+llmstxt:
+  content: >-
+    GenAIScript simplifies video integration for LLMs using ffmpeg/ffprobe.
+    Ensure these tools are installed and accessible via PATH or environment
+    variables (FFMPEG_PATH/FFPROBE_PATH).
+
+
+    **Extracting Frames**:  
+
+    `ffmpeg.extractFrames` generates frame paths from a video.  
+
+    - Default: Extracts keyframes.  
+      `const frames = await ffmpeg.extractFrames("video_path"); defImages(frames);`  
+    - Limit frames:  
+      `const frames = await ffmpeg.extractFrames("video_path", { count: 10 });`  
+    - Use timestamps:  
+      `const frames = await ffmpeg.extractFrames("video_path", { timestamps: ["00:00", "05:00"] });`  
+    - Use transcript:  
+      `const transcript = await transcribe("video_path"); const frames = await ffmpeg.extractFrames("video_path", { transcript });`  
+    - Scene threshold:  
+      `const frames = await ffmpeg.extractFrames("video_path", { sceneThreshold: 0.3 });`  
+
+    **Extracting Audio**:  
+
+    `ffmpeg.extractAudio` extracts audio as `.wav`.  
+
+    `const audio = await ffmpeg.extractAudio("video_path");`  
+
+
+    **Extracting Clips**:  
+
+    `ffmpeg.extractClip` extracts video segments.  
+
+    `const clip = await ffmpeg.extractClip("video_path", { start: "00:00:10",
+    duration: 5 });`  
+
+
+    **Probing Videos**:  
+
+    `ffmpeg.probe` retrieves metadata.  
+
+    `const info = await ffmpeg.probe("video_path");
+    console.log(info.streams[0].duration);`  
+
+
+    **Custom Options**:  
+
+    Customize ffmpeg with `outputOptions` or command builder.  
+
+    - Example:  
+      `const audio = await ffmpeg.extractAudio("video_path", { outputOptions: "-b:a 16k" });`  
+    - Command builder:  
+      `const custom = await ffmpeg.run("video_path", (cmd) => { cmd.noAudio().size("200x200"); return "out.mp4"; }, { cache: "hash_key" });`  
+
+    Use GenAIScript CLI for video transformations: `genaiscript video probe
+    video.mp4`.
+  hash: 98cb951aebf810fbb2e8ce5153cd6174573ff0eba8de65874171445044d778be
 
 ---
 
