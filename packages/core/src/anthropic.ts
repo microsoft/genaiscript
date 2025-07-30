@@ -5,10 +5,6 @@ import {
 } from "./chat"
 import {
     ANTHROPIC_MAX_TOKEN,
-    FETCH_RETRY_DEFAULT,
-    FETCH_RETRY_DEFAULT_DEFAULT,
-    FETCH_RETRY_GROWTH_FACTOR,
-    FETCH_RETRY_MAX_DELAY_DEFAULT,
     MODEL_PROVIDER_ANTHROPIC,
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
 } from "./constants"
@@ -33,8 +29,6 @@ import {
     ChatCompletionContentPart,
     ChatCompletionContentPartRefusal,
     ChatCompletionsProgressReport,
-    CreateChatCompletionRequest,
-    ChatCompletionsOptions,
 } from "./chattypes"
 
 import { logError } from "./util"
@@ -45,7 +39,6 @@ import { createFetch, FetchType } from "./fetch"
 import { JSONLLMTryParse } from "./json5"
 import { LanguageModelConfiguration } from "./server/messages"
 import { deleteUndefinedValues } from "./cleaners"
-import { CancellationOptions } from "./cancellation"
 import debug from "debug"
 import { providerFeatures } from "./features"
 const dbg = debug("genaiscript:anthropic")
@@ -316,88 +309,38 @@ const completerFactory = (
             partialCb,
             cancellationToken,
             inner,
-            retry = FETCH_RETRY_DEFAULT,
-            maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
-            retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
+            retry,
+            maxDelay,
+            retryDelay,
         } = options
+        const { headers } = requestOptions || {}
+        const { provider, model, reasoningEffort } = parseModelIdentifier(
+            req.model
+        )
+        const { encode: encoder } = await resolveTokenEncoder(model)
 
-        // Streaming retry wrapper
-        const executeWithStreamingRetry = async (attempt: number = 0): Promise<ChatCompletionResponse> => {
-            const result = await executeAnthropicStreamingCompletion(req, cfg, options, trace)
-            
-            // Check if this was a streaming failure with partial content
-            const hasPartialContent = !!(result.text && result.text.length > 0)
-            const shouldRetry = 
-                result.finishReason === "fail" && 
-                hasPartialContent && 
-                attempt < retry &&
-                !cancellationToken?.isCancellationRequested
+        const fetch = await createFetch({
+            trace,
+            retries: retry,
+            retryDelay,
+            maxDelay,
+            cancellationToken,
+        })
+        // https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-to-implement-prompt-caching
+        const caching =
+            /sonnet|haiku|opus/i.test(model) &&
+            req.messages.some((m) => m.cacheControl === "ephemeral")
+        const httpAgent = resolveHttpProxyAgent()
+        const messagesApi = await resolver(trace, cfg, httpAgent, fetch)
+        dbg("caching", caching)
+        trace.itemValue(`caching`, caching)
 
-            if (shouldRetry) {
-                // Calculate exponential backoff delay
-                const delay = Math.min(
-                    maxDelay,
-                    Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
-                ) * (1 + Math.random() / 20) // 5% jitter
-
-                trace?.itemValue(`streaming retry`, `attempt ${attempt + 1}/${retry} in ${Math.floor(delay / 1000)}s`)
-                
-                // Wait before retrying
-                await new Promise(resolve => setTimeout(resolve, delay))
-                
-                // Retry the streaming completion
-                return executeWithStreamingRetry(attempt + 1)
-            }
-
-            return result
-        }
-
-        return executeWithStreamingRetry()
-    }
-
-async function executeAnthropicStreamingCompletion(
-    req: CreateChatCompletionRequest,
-    cfg: LanguageModelConfiguration,
-    options: ChatCompletionsOptions & CancellationOptions & RetryOptions,
-    trace: MarkdownTrace
-): Promise<ChatCompletionResponse> {
-    const {
-        requestOptions,
-        partialCb,
-        cancellationToken,
-        inner,
-        retry,
-        maxDelay,
-        retryDelay,
-    } = options
-    const { headers } = requestOptions || {}
-    const { provider, model, reasoningEffort } = parseModelIdentifier(
-        req.model
-    )
-    const { encode: encoder } = await resolveTokenEncoder(model)
-
-    const fetch = await createFetch({
-        trace,
-        retries: retry,
-        retryDelay,
-        maxDelay,
-        cancellationToken,
-    })
-    // https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-to-implement-prompt-caching
-    const caching =
-        /sonnet|haiku|opus/i.test(model) &&
-        req.messages.some((m) => m.cacheControl === "ephemeral")
-    const httpAgent = resolveHttpProxyAgent()
-    const messagesApi = await resolver(trace, cfg, httpAgent, fetch)
-    dbg("caching", caching)
-    trace.itemValue(`caching`, caching)
-
-    let numTokens = 0
-    let chatResp = ""
-    let reasoningChatResp = ""
-    let signature = ""
-    let finishReason: ChatCompletionResponse["finishReason"]
-    let usage: ChatCompletionResponse["usage"] | undefined
+        let numTokens = 0
+        let chatResp = ""
+        let reasoningChatResp = ""
+        let signature = ""
+        let finishReason: ChatCompletionResponse["finishReason"]
+        let usage: ChatCompletionResponse["usage"] | undefined
         const toolCalls: ChatCompletionToolCall[] = []
         const tools = convertTools(req.tools)
 

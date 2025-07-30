@@ -28,6 +28,10 @@ import {
 } from "./schema"
 import {
     CHOICE_LOGIT_BIAS,
+    FETCH_RETRY_DEFAULT,
+    FETCH_RETRY_DEFAULT_DEFAULT,
+    FETCH_RETRY_GROWTH_FACTOR,
+    FETCH_RETRY_MAX_DELAY_DEFAULT,
     MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
     MAX_TOOL_CONTENT_TOKENS,
@@ -1354,12 +1358,51 @@ export async function executeChatSession(
                                 `response format: %O`,
                                 JSON.stringify(req.response_format, null, 2)
                             )
-                        const cres = await completer(
-                            req,
-                            connectionToken,
-                            genOptions,
-                            reqTrace
-                        )
+
+                        // Streaming retry wrapper
+                        const executeWithStreamingRetry = async (attempt: number = 0): Promise<ChatCompletionResponse> => {
+                            const cres = await completer(
+                                req,
+                                connectionToken,
+                                genOptions,
+                                reqTrace
+                            )
+                            
+                            // Check if this was a streaming failure with partial content
+                            const hasPartialContent = !!(cres.text && cres.text.length > 0)
+                            const {
+                                retry = FETCH_RETRY_DEFAULT,
+                                retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
+                                maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
+                                cancellationToken,
+                            } = genOptions
+                            
+                            const shouldRetry = 
+                                cres.finishReason === "fail" && 
+                                hasPartialContent && 
+                                attempt < retry &&
+                                !cancellationToken?.isCancellationRequested
+
+                            if (shouldRetry) {
+                                // Calculate exponential backoff delay
+                                const delay = Math.min(
+                                    maxDelay,
+                                    Math.pow(FETCH_RETRY_GROWTH_FACTOR, attempt) * retryDelay
+                                ) * (1 + Math.random() / 20) // 5% jitter
+
+                                reqTrace?.itemValue(`streaming retry`, `attempt ${attempt + 1}/${retry} in ${Math.floor(delay / 1000)}s`)
+                                
+                                // Wait before retrying
+                                await new Promise(resolve => setTimeout(resolve, delay))
+                                
+                                // Retry the completion
+                                return executeWithStreamingRetry(attempt + 1)
+                            }
+
+                            return cres
+                        }
+
+                        const cres = await executeWithStreamingRetry()
                         const duration = m()
                         cres.duration = duration
                         return cres
