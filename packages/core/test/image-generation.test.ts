@@ -218,11 +218,11 @@ describe("Image Generation", () => {
           type: "azure",
         };
 
-        const result = await OpenAIImageGeneration(req, cfg, { 
-          trace: undefined, 
-          cancellationToken: undefined 
+        const result = await OpenAIImageGeneration(req, cfg, {
+          trace: undefined,
+          cancellationToken: undefined,
         });
-        
+
         expect(result.image).toBeUndefined();
         expect(result.error).toBeDefined();
         expect(result.error.message).toMatch(/Azure OpenAI does not support image editing/);

@@ -1062,17 +1062,17 @@ export function createChatGenerationContext(
 
       // Validate Azure provider support for edit mode
       if (mode === "edit") {
-        const isAzureProvider = 
+        const isAzureProvider =
           configuration.provider === MODEL_PROVIDER_AZURE_OPENAI ||
           configuration.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE ||
           configuration.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
           configuration.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS;
-        
+
         if (isAzureProvider) {
           throw new Error(
             `Azure OpenAI does not support image editing (edit mode). ` +
-            `Please use OpenAI directly for image editing, or use generation mode instead. ` +
-            `Provider: ${configuration.provider}`
+              `Please use OpenAI directly for image editing, or use generation mode instead. ` +
+              `Provider: ${configuration.provider}`,
           );
         }
       }

@@ -280,23 +280,25 @@ export async function OpenAIImageGeneration(
         error: serializeError(new Error("Image is required for edit mode")),
       };
     }
-    
+
     // Validate Azure provider support for edit mode
-    const isAzureProvider = 
+    const isAzureProvider =
       cfg.provider === MODEL_PROVIDER_AZURE_OPENAI ||
       cfg.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE ||
       cfg.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
       cfg.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
       cfg.type === "azure";
-    
+
     if (isAzureProvider) {
       return {
         image: undefined,
-        error: serializeError(new Error(
-          `Azure OpenAI does not support image editing (edit mode). ` +
-          `Please use OpenAI directly for image editing, or use generation mode instead. ` +
-          `Provider: ${cfg.provider}`
-        )),
+        error: serializeError(
+          new Error(
+            `Azure OpenAI does not support image editing (edit mode). ` +
+              `Please use OpenAI directly for image editing, or use generation mode instead. ` +
+              `Provider: ${cfg.provider}`,
+          ),
+        ),
       };
     }
   }
