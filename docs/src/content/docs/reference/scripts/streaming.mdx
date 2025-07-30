@@ -46,7 +46,9 @@ By default, GenAIScript internally uses streaming for better performance regardl
 - Whether partial responses are accessible in event handlers
 - Token-by-token callback invocation
 
-## Example with streaming callbacks
+## Examples
+
+### Basic streaming usage
 
 ```js title="streaming-example.genai.mts"
 script({
@@ -56,6 +58,34 @@ script({
 
 // The response will be streamed token by token
 $`Write a long story about AI and creativity.`
+```
+
+### Disabling streaming for batch processing
+
+```js title="batch-processing.genai.mts"
+script({
+    model: "openai:gpt-4o", 
+    stream: false, // Disable streaming for batch processing
+})
+
+// Process multiple files without streaming
+files("**/*.md", {glob: true})
+$`Summarize all the markdown files.`
+```
+
+### Streaming with different providers
+
+```js title="provider-examples.genai.mts"
+// Works with all OpenAI-compatible providers
+script({
+    model: "azure:gpt-4o",
+    stream: true, // Azure OpenAI supports streaming
+})
+
+script({
+    model: "github:gpt-4o", 
+    stream: true, // GitHub Copilot supports streaming
+})
 ```
 
 ## Performance considerations
@@ -68,9 +98,35 @@ $`Write a long story about AI and creativity.`
 
 The `stream` option is supported across all OpenAI-compatible providers that support streaming:
 
-- OpenAI
-- Azure OpenAI  
-- GitHub Copilot
-- Local OpenAI-compatible endpoints
+- **OpenAI**: Full streaming support
+- **Azure OpenAI**: Full streaming support
+- **GitHub Copilot**: Full streaming support  
+- **Local OpenAI-compatible endpoints**: Support varies by implementation
 
-Note: Some specialized models (like reasoning models) may not support streaming and will fall back to non-streaming mode automatically.
+### Model-specific behavior
+
+Some specialized models have different streaming behavior:
+
+```js title="reasoning-models.genai.mts"
+script({
+    model: "openai:o1-preview", // Reasoning models
+    stream: true, // May fall back to non-streaming automatically
+})
+```
+
+```js title="vision-models.genai.mts"
+script({
+    model: "openai:gpt-4o", // Vision-capable models
+    stream: true, // Full streaming support with images
+})
+
+defImages("image.png")
+$`Describe this image in detail.`
+```
+
+## Related documentation
+
+- [Model Configuration](/reference/scripts/model-aliases)
+- [OpenAI Provider](/configuration/openai)
+- [Azure OpenAI Provider](/configuration/azure-openai)
+- [Performance Optimization](/guides/performance)
