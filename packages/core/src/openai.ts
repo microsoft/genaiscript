@@ -5,6 +5,7 @@ import { ellipse, logError, logInfo, logVerbose } from "./util.js";
 import {
   AZURE_OPENAI_API_VERSION,
   MODEL_PROVIDER_AZURE_OPENAI,
+  MODEL_PROVIDER_AZURE_AI_INFERENCE,
   MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
   MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "./constants.js";
@@ -226,9 +227,15 @@ export async function OpenAISpeech(
 /**
  * Generates an image using the specified model and prompt.
  *
+ * IMPORTANT: Azure OpenAI does not support image editing (edit mode) via the /images/edits endpoint.
+ * Only generation mode is supported with Azure providers. Use OpenAI directly for image editing functionality.
+ *
  * @param req - An object containing the image generation request, including:
  *              - model: The name of the model to use for image generation.
  *              - prompt: The text prompt to generate the image.
+ *              - mode: Optional; "generate" (default) or "edit". Note: "edit" is not supported with Azure providers.
+ *              - image: Required for edit mode; the image to edit.
+ *              - mask: Optional for edit mode; mask image to specify areas to edit.
  *              - size: Optional; dimensions of the image in "widthxheight" format or keywords like "portrait", "landscape", "square", or "auto". Defaults to "1024x1024".
  *              - quality: Optional; image quality setting ("auto", "high", "hd").
  *              - style: Optional; style attributes for image generation.
@@ -271,6 +278,25 @@ export async function OpenAIImageGeneration(
       return {
         image: undefined,
         error: serializeError(new Error("Image is required for edit mode")),
+      };
+    }
+    
+    // Validate Azure provider support for edit mode
+    const isAzureProvider = 
+      cfg.provider === MODEL_PROVIDER_AZURE_OPENAI ||
+      cfg.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE ||
+      cfg.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
+      cfg.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS ||
+      cfg.type === "azure";
+    
+    if (isAzureProvider) {
+      return {
+        image: undefined,
+        error: serializeError(new Error(
+          `Azure OpenAI does not support image editing (edit mode). ` +
+          `Please use OpenAI directly for image editing, or use generation mode instead. ` +
+          `Provider: ${cfg.provider}`
+        )),
       };
     }
   }

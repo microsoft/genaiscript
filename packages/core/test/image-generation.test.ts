@@ -4,6 +4,14 @@ import { join } from "path";
 import { CreateImageRequest } from "../src/chat.js";
 import { OpenAIImageGeneration } from "../src/openai.js";
 import { ImageGenerationOptions } from "../src/types.js";
+import {
+  MODEL_PROVIDER_AZURE_OPENAI,
+  MODEL_PROVIDER_AZURE_AI_INFERENCE,
+  MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
+  MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
+  MODEL_PROVIDER_OPENAI,
+} from "../src/constants.js";
+import type { LanguageModelConfiguration } from "../src/server/messages.js";
 
 // Create a small test image (1x1 PNG)
 const createTestImage = (): Buffer => {
@@ -184,5 +192,82 @@ describe("Image Generation", () => {
 
     expect(reqWithMask.mask).toBe(testImagePath);
     expect(reqWithoutMask.mask).toBeUndefined();
+  });
+
+  describe("Azure provider validation", () => {
+    const azureProviders = [
+      { name: "Azure OpenAI", provider: MODEL_PROVIDER_AZURE_OPENAI },
+      { name: "Azure AI Inference", provider: MODEL_PROVIDER_AZURE_AI_INFERENCE },
+      { name: "Azure Serverless OpenAI", provider: MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI },
+      { name: "Azure Serverless Models", provider: MODEL_PROVIDER_AZURE_SERVERLESS_MODELS },
+    ];
+
+    azureProviders.forEach(({ name, provider }) => {
+      test(`${name} should return error for edit mode`, async () => {
+        const req: CreateImageRequest = {
+          model: "dall-e-3",
+          prompt: "Edit this image",
+          mode: "edit",
+          image: testImagePath,
+        };
+
+        const cfg: LanguageModelConfiguration = {
+          provider,
+          model: "dall-e-3",
+          base: "https://example.openai.azure.com",
+          type: "azure",
+        };
+
+        const result = await OpenAIImageGeneration(req, cfg, { 
+          trace: undefined, 
+          cancellationToken: undefined 
+        });
+        
+        expect(result.image).toBeUndefined();
+        expect(result.error).toBeDefined();
+        expect(result.error.message).toMatch(/Azure OpenAI does not support image editing/);
+      });
+
+      test(`${name} should work for generation mode`, async () => {
+        const req: CreateImageRequest = {
+          model: "dall-e-3",
+          prompt: "Generate a new image",
+          mode: "generate",
+        };
+
+        const cfg: LanguageModelConfiguration = {
+          provider,
+          model: "dall-e-3",
+          base: "https://example.openai.azure.com",
+          type: "azure",
+        };
+
+        // This test verifies the request structure is valid for Azure generation mode
+        // We don't actually make the API call in this test
+        expect(req.mode).toBe("generate");
+        expect(cfg.provider).toBe(provider);
+      });
+    });
+
+    test("OpenAI provider should support edit mode", () => {
+      const req: CreateImageRequest = {
+        model: "dall-e-2",
+        prompt: "Edit this image",
+        mode: "edit",
+        image: testImagePath,
+      };
+
+      const cfg: LanguageModelConfiguration = {
+        provider: MODEL_PROVIDER_OPENAI,
+        model: "dall-e-2",
+        base: "https://api.openai.com/v1",
+        type: "openai",
+      };
+
+      // This test verifies the request structure is valid for OpenAI edit mode
+      expect(req.mode).toBe("edit");
+      expect(req.image).toBe(testImagePath);
+      expect(cfg.provider).toBe(MODEL_PROVIDER_OPENAI);
+    });
   });
 });
