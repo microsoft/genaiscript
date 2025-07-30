@@ -69,10 +69,6 @@ import {
   SPEECH_MODEL_ID,
   IMAGE_GENERATION_MODEL_ID,
   LARGE_MODEL_ID,
-  MODEL_PROVIDER_AZURE_OPENAI,
-  MODEL_PROVIDER_AZURE_AI_INFERENCE,
-  MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-  MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
 } from "./constants.js";
 import { addFallbackToolSystems, resolveSystems, resolveTools } from "./systems.js";
 import { callExpander } from "./expander.js";
@@ -1058,23 +1054,6 @@ export function createChatGenerationContext(
       // Validate mode-specific requirements
       if (mode === "edit" && !image) {
         throw new Error("Image is required for edit mode");
-      }
-
-      // Validate Azure provider support for edit mode
-      if (mode === "edit") {
-        const isAzureProvider =
-          configuration.provider === MODEL_PROVIDER_AZURE_OPENAI ||
-          configuration.provider === MODEL_PROVIDER_AZURE_AI_INFERENCE ||
-          configuration.provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
-          configuration.provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS;
-
-        if (isAzureProvider) {
-          throw new Error(
-            `Azure OpenAI does not support image editing (edit mode). ` +
-              `Please use OpenAI directly for image editing, or use generation mode instead. ` +
-              `Provider: ${configuration.provider}`,
-          );
-        }
       }
 
       const req = deleteUndefinedValues({
