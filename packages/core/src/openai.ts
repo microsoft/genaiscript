@@ -20,7 +20,6 @@ import type {
 } from "./chat.js";
 import { errorMessage, isCancelError, serializeError } from "./error.js";
 import { createFetch } from "./fetch.js";
-import { parseModelIdentifier } from "./models.js";
 import type {
   EmbeddingCreateResponse,
   EmbeddingCreateParams,
@@ -35,9 +34,8 @@ import prettyBytes from "pretty-bytes";
 import { deleteUndefinedValues, trimTrailingSlash } from "./cleaners.js";
 import { fromBase64 } from "./base64.js";
 import { traceFetchPost } from "./fetchtext.js";
-import { providerFeatures } from "./features.js";
 import { genaiscriptDebug } from "./debug.js";
-import { OpenAIResponsesChatCompletion } from "./openai-responses.js";
+import { OpenAIv2ResponsesChatCompletion } from "./openai-responses.js";
 import type { LanguageModelInfo, RetryOptions, TranscriptionResult } from "./types.js";
 import { resolveBufferLike } from "./bufferlike.js";
 import { getConfigHeaders, OpenAIv1ChatCompletion } from "./openai-chatcompletion.js";
@@ -50,7 +48,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, opti
   //const { provider } = parseModelIdentifier(req.model);
   // const features = providerFeatures(provider);
   const useResponsesApi = !!process.env.OPENAI_RESPONSES; // features?.responsesApi;
-  if (useResponsesApi) return OpenAIResponsesChatCompletion(req, cfg, options, trace);
+  if (useResponsesApi) return OpenAIv2ResponsesChatCompletion(req, cfg, options, trace);
   else return OpenAIv1ChatCompletion(req, cfg, options, trace);
 };
 

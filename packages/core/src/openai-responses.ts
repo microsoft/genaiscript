@@ -19,28 +19,68 @@ import { errorMessage, isCancelError } from "./error.js";
 import { createFetch } from "./fetch.js";
 import { logError } from "./util.js";
 import { checkCancelled } from "./cancellation.js";
+import { deleteUndefinedValues } from "./cleaners.js";
+const dbg = genaiscriptDebug("openai:responses");
 
-const debug = genaiscriptDebug("openai:responses");
+function statusToReason(
+  status: OpenAI.Responses.ResponseStatus,
+): ChatCompletionResponse["finishReason"] {
+  switch (status) {
+    case "completed":
+      return "stop";
+    case "failed":
+      return "fail";
+    case "cancelled":
+      return "cancel";
+    case "incomplete":
+      return "length";
+    default:
+      return undefined;
+  }
+}
+
+function responseToCompletion(response: OpenAI.Responses.Response): ChatCompletionResponse {
+  if (!response) return {};
+  return deleteUndefinedValues({
+    text: response.output_text,
+    toolCalls: response.output
+      .filter((o) => o.type === "function_call")
+      .map((o) => ({
+        id: o.call_id,
+        name: o.name,
+        arguments: o.arguments,
+      })),
+    usage: response.usage
+      ? {
+          prompt_tokens: response.usage.input_tokens,
+          completion_tokens: response.usage.output_tokens,
+          total_tokens: response.usage.total_tokens,
+        }
+      : undefined,
+    model: response.model,
+    error: response.error,
+    finishReason: statusToReason(response.status),
+  });
+}
 
 /**
  * Chat completion handler that uses the official OpenAI package
  * to support the Responses API properly.
  */
-export const OpenAIResponsesChatCompletion: ChatCompletionHandler = async (
+export const OpenAIv2ResponsesChatCompletion: ChatCompletionHandler = async (
   req,
   cfg,
   options,
   trace,
 ) => {
-  debug(`starting OpenAI Responses API request`);
+  dbg(`start %s at %s`, req.model, cfg.base);
 
-  const { requestOptions, partialCb, cancellationToken } = options;
+  const { requestOptions, cancellationToken } = options;
 
   try {
-    checkCancelled(cancellationToken);
-
     // Create fetch instance
     const fetchInstance = await createFetch(options);
+    checkCancelled(cancellationToken);
 
     // Create OpenAI client instance
     const openai = new OpenAI({
@@ -49,10 +89,8 @@ export const OpenAIResponsesChatCompletion: ChatCompletionHandler = async (
       fetch: fetchInstance,
     });
 
-    debug(`making request to OpenAI Responses API model: ${req.model}`);
-
     // Convert our request format to OpenAI Responses format
-    const openaiRequest: OpenAI.Responses.ResponseCreateParams = {
+    const openaiRequest: OpenAI.Responses.ResponseCreateParams = deleteUndefinedValues({
       model: req.model,
       messages: req.messages,
       temperature: req.temperature,
@@ -60,37 +98,28 @@ export const OpenAIResponsesChatCompletion: ChatCompletionHandler = async (
       top_p: req.top_p,
       stream: req.stream,
       ...requestOptions,
-    };
-
-    // Remove undefined values
-    Object.keys(openaiRequest).forEach(key => {
-      if (openaiRequest[key] === undefined) {
-        delete openaiRequest[key];
-      }
     });
 
-    checkCancelled(cancellationToken);
-
-    if (req.stream) {
-      debug(`streaming request`);
+    if (openaiRequest.stream) {
+      dbg(`streaming request`);
       return await handleStreamingResponse(openai, openaiRequest, options, trace);
     } else {
-      debug(`non-streaming request`);
+      dbg(`non-streaming request`);
       return await handleNonStreamingResponse(openai, openaiRequest, options, trace);
     }
   } catch (error) {
     if (isCancelError(error)) {
-      debug(`request cancelled`);
+      dbg(`request cancelled`);
       return { finishReason: "cancel" };
     }
-    
+
     const errorMsg = errorMessage(error);
     logError(`OpenAI Responses API error: ${errorMsg}`);
     trace?.error(error);
-    
-    return { 
+
+    return {
       finishReason: "fail",
-      error: { message: errorMsg, name: "OpenAIError" }
+      error: { message: errorMsg, name: "OpenAIError" },
     };
   }
 };
@@ -102,44 +131,18 @@ async function handleNonStreamingResponse(
   openai: OpenAI,
   request: OpenAI.Responses.ResponseCreateParams,
   options: any,
-  trace: any
+  trace: any,
 ): Promise<ChatCompletionResponse> {
   const { cancellationToken } = options;
-  
-  checkCancelled(cancellationToken);
-  
+
   const response = await openai.responses.create({
     ...request,
     stream: false,
   });
-
   checkCancelled(cancellationToken);
-
   trace?.detailsFenced(`📬 response`, response, "json");
-
-  const choice = response.choices?.[0];
-  if (!choice) {
-    throw new Error("No choices in response");
-  }
-
-  const content = choice.message?.content || "";
-  const toolCalls = choice.message?.tool_calls?.map(tc => ({
-    id: tc.id,
-    name: tc.function.name,
-    arguments: tc.function.arguments,
-  })) || [];
-
-  return {
-    text: content,
-    toolCalls,
-    finishReason: choice.finish_reason as ChatCompletionResponse["finishReason"],
-    usage: response.usage ? {
-      prompt_tokens: response.usage.prompt_tokens,
-      completion_tokens: response.usage.completion_tokens,
-      total_tokens: response.usage.total_tokens,
-    } : undefined,
-    model: response.model,
-  };
+  const res = responseToCompletion(response);
+  return res;
 }
 
 /**
@@ -149,97 +152,53 @@ async function handleStreamingResponse(
   openai: OpenAI,
   request: OpenAI.Responses.ResponseCreateParams,
   options: any,
-  trace: any
+  trace: any,
 ): Promise<ChatCompletionResponse> {
   const { cancellationToken, partialCb } = options;
-  
+
   checkCancelled(cancellationToken);
-  
-  const stream = await openai.responses.create({
-    ...request,
-    stream: true,
-  });
 
-  let text = "";
-  let finishReason: ChatCompletionResponse["finishReason"];
-  let usage: ChatCompletionResponse["usage"];
-  let model: string | undefined;
-  const toolCalls: ChatCompletionToolCall[] = [];
-
+  const res: ChatCompletionResponse = {};
   try {
+    const stream = await openai.responses.create({
+      ...request,
+      stream: true,
+    });
     for await (const chunk of stream) {
       checkCancelled(cancellationToken);
 
-      if (chunk.model && !model) {
-        model = chunk.model;
-      }
-
-      if (chunk.usage) {
-        usage = {
-          prompt_tokens: chunk.usage.prompt_tokens,
-          completion_tokens: chunk.usage.completion_tokens,
-          total_tokens: chunk.usage.total_tokens,
-        };
-      }
-
-      const choice = chunk.choices?.[0];
-      if (!choice) continue;
-
-      if (choice.finish_reason) {
-        finishReason = choice.finish_reason as ChatCompletionResponse["finishReason"];
-      }
-
-      const delta = choice.delta;
-      if (delta?.content) {
-        text += delta.content;
-        
-        // Call partial callback if provided
-        if (partialCb) {
-          partialCb({ text });
-        }
-        
-        // Append to trace
-        trace?.appendContent(delta.content);
-      }
-
-      // Handle tool calls in streaming
-      if (delta?.tool_calls) {
-        for (const toolCall of delta.tool_calls) {
-          if (toolCall.index !== undefined) {
-            // Ensure we have a tool call at this index
-            while (toolCalls.length <= toolCall.index) {
-              toolCalls.push({
-                id: "",
-                name: "",
-                arguments: "",
-              });
-            }
-
-            const existingCall = toolCalls[toolCall.index];
-            if (toolCall.id) existingCall.id = toolCall.id;
-            if (toolCall.function?.name) {
-              existingCall.name = toolCall.function.name;
-            }
-            if (toolCall.function?.arguments) {
-              existingCall.arguments = (existingCall.arguments || "") + toolCall.function.arguments;
-            }
-          }
-        }
+      dbg(`%s %O`, chunk.type, (chunk as any).response);
+      switch (chunk.type) {
+        case "error":
+          res.error = { code: chunk.code, message: chunk.message };
+          break;
+        case "response.completed":
+          Object.assign(res, responseToCompletion(chunk.response));
+          res.finishReason = "stop";
+          break;
+        case "response.failed":
+          Object.assign(res, responseToCompletion(chunk.response));
+          res.finishReason = "fail";
+          break;
+        case "response.created":
+          Object.assign(res, responseToCompletion(chunk.response));
+          break;
+        case "response.output_text.delta":
+          if (partialCb) partialCb({ text: chunk.delta });
+          trace?.appendContent(chunk.delta);
+          break;
+        case "response.refusal.done":
+          res.finishReason = "content_filter";
+          break;
       }
     }
   } catch (error) {
     if (isCancelError(error)) {
-      finishReason = "cancel";
+      res.finishReason = "cancel";
     } else {
       throw error;
     }
   }
 
-  return {
-    text,
-    toolCalls: toolCalls.filter(tc => tc.id), // Only include completed tool calls
-    finishReason: finishReason || "stop",
-    usage,
-    model,
-  };
+  return res;
 }

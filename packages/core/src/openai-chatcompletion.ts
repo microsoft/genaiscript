@@ -52,7 +52,6 @@ import {
 import { traceFetchPost } from "./fetchtext.js";
 import { providerFeatures } from "./features.js";
 import { genaiscriptDebug } from "./debug.js";
-import { OpenAIResponsesChatCompletion } from "./openai-responses.js";
 import type { Logprob, SerializedError } from "./types.js";
 import { createUTF8Decoder } from "./utf8.js";
 
@@ -111,13 +110,6 @@ export const OpenAIv1ChatCompletion: ChatCompletionHandler = async (req, cfg, op
   const { provider, model, family, reasoningEffort } = parseModelIdentifier(req.model);
   const features = providerFeatures(provider);
   const { encode: encoder } = await resolveTokenEncoder(family);
-
-  // Check if we should use OpenAI Responses API
-  const useResponsesApi = features?.responsesApi;
-  if (useResponsesApi) {
-    // Delegate to responses API implementation
-    return OpenAIResponsesChatCompletion(req, cfg, options, trace);
-  }
 
   const postReq = structuredClone({
     ...req,
