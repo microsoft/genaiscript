@@ -10,11 +10,7 @@
 import OpenAI from "openai";
 import { genaiscriptDebug } from "./debug.js";
 import type { ChatCompletionHandler } from "./chat.js";
-import type {
-  ChatCompletionResponse,
-  ChatCompletionToolCall,
-  CreateChatCompletionRequest,
-} from "./chattypes.js";
+import type { ChatCompletionMessageParam, ChatCompletionResponse } from "./chattypes.js";
 import { errorMessage, isCancelError } from "./error.js";
 import { createFetch } from "./fetch.js";
 import { logError } from "./util.js";
@@ -63,6 +59,49 @@ function responseToCompletion(response: OpenAI.Responses.Response): ChatCompleti
   });
 }
 
+function chatMessageContentToResponseInputItem(
+  content: ChatCompletionMessageParam["content"],
+): (OpenAI.Responses.ResponseOutputText | OpenAI.Responses.ResponseOutputRefusal)[] {
+  // TODO
+  return undefined;
+}
+
+function chatCompletionMessageToResponseInput(
+  messages: ChatCompletionMessageParam[],
+): OpenAI.Responses.ResponseInput {
+  // TODO
+  return undefined;
+  /*
+  return messages.map((msg) => {
+    switch (msg.role) {
+      case "assistant":
+        // TODO
+        return {
+          type: "message",
+          status: "completed",
+          role: "assistant",
+          content: chatMessageContentToResponseInputItem(msg.content),
+        } satisfies OpenAI.Responses.ResponseOutputMessage;
+      case "system":
+        return {
+          role: "developer",
+          content: chatMessageContentToResponseInputItem(msg.content),
+        } satisfies OpenAI.Responses.ResponseInputItem.Message;
+      case "user":
+        return {
+          role: "user",
+          content: chatMessageContentToResponseInputItem(msg.content),
+        } satisfies OpenAI.Responses.ResponseInputItem.Message;
+      case "function":
+      case "tool":
+        return {
+          type: "function_call_output",
+        } satisfies OpenAI.Responses.ResponseFunctionToolCallOutputItem;
+    }
+  });
+  */
+}
+
 /**
  * Chat completion handler that uses the official OpenAI package
  * to support the Responses API properly.
@@ -92,13 +131,13 @@ export const OpenAIv2ResponsesChatCompletion: ChatCompletionHandler = async (
     // Convert our request format to OpenAI Responses format
     const openaiRequest: OpenAI.Responses.ResponseCreateParams = deleteUndefinedValues({
       model: req.model,
-      messages: req.messages,
+      input: chatCompletionMessageToResponseInput(req.messages),
       temperature: req.temperature,
       max_output_tokens: req.max_completion_tokens,
       top_p: req.top_p,
       stream: req.stream,
       ...requestOptions,
-    });
+    } satisfies OpenAI.Responses.ResponseCreateParams);
 
     if (openaiRequest.stream) {
       dbg(`streaming request`);
