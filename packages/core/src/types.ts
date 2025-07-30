@@ -453,6 +453,15 @@ export interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptio
   seed?: number;
 
   /**
+   * Enable streaming response from the LLM.
+   * When enabled, the response is returned as it's generated token by token.
+   * This matches the OpenAI chat completion stream option.
+   * 
+   * @default true (internally always uses streaming for better performance)
+   */
+  stream?: boolean;
+
+  /**
    * A list of model ids and their maximum number of concurrent requests.
    */
   modelConcurrency?: Record<string, number>;

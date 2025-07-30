@@ -1,0 +1,76 @@
+---
+title: Streaming
+description: Enable streaming response from the LLM to get real-time token-by-token output.
+sidebar:
+    order: 55
+hero:
+    image:
+        alt:
+            'A flat 8-bit geometric illustration shows a computer screen with lines of text appearing progressively from left to right, with small arrow indicators showing the streaming flow. To the side, there is a simple representation of a chat bubble with dots indicating real-time response generation. The image uses no more than five colors, features no text, shadow, or depth, and appears strictly flat against a white background.'
+        file: ./streaming.png
+---
+
+The `stream` option in GenAIScript controls whether the LLM response is streamed token-by-token or returned as a complete response. This matches the OpenAI chat completion stream option behavior.
+
+## Usage
+
+Enable streaming in the script configuration:
+
+```js "stream: true"
+script({
+    model: "openai:gpt-4o",
+    stream: true,
+})
+```
+
+## How it works
+
+When streaming is enabled:
+
+- The LLM generates response tokens progressively
+- Partial responses are available as they're generated
+- Better perceived performance for longer responses
+- Allows for early cancellation during generation
+
+When streaming is disabled:
+
+- The complete response is returned at once
+- Useful for batch processing scenarios
+- May appear slower for long responses
+
+## Default behavior
+
+By default, GenAIScript internally uses streaming for better performance regardless of the `stream` setting. The `stream` option primarily affects:
+
+- How responses are presented in the UI
+- Whether partial responses are accessible in event handlers
+- Token-by-token callback invocation
+
+## Example with streaming callbacks
+
+```js title="streaming-example.genai.mts"
+script({
+    model: "openai:gpt-4o", 
+    stream: true,
+})
+
+// The response will be streamed token by token
+$`Write a long story about AI and creativity.`
+```
+
+## Performance considerations
+
+- Streaming provides better user experience for interactive applications
+- For batch processing, you may prefer to disable streaming
+- Internal implementation always uses streaming for optimal network utilization
+
+## Compatibility
+
+The `stream` option is supported across all OpenAI-compatible providers that support streaming:
+
+- OpenAI
+- Azure OpenAI  
+- GitHub Copilot
+- Local OpenAI-compatible endpoints
+
+Note: Some specialized models (like reasoning models) may not support streaming and will fall back to non-streaming mode automatically.
