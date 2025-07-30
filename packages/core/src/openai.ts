@@ -803,6 +803,7 @@ export async function OpenAIImageGeneration(
     const isGpt = /^gpt-image/i.test(model)
 
     const body: any = {
+        model,
         prompt,
         size,
         quality,
@@ -814,9 +815,6 @@ export async function OpenAIImageGeneration(
     if (isEditMode) {
         body.image = image
         if (mask) body.mask = mask
-        // Model parameter is typically not used in edit mode for OpenAI
-    } else {
-        body.model = model
     }
 
     // auto is the default quality, so always delete it
@@ -860,16 +858,19 @@ export async function OpenAIImageGeneration(
         const version = cfg.version || AZURE_OPENAI_API_VERSION
         trace?.itemValue(`version`, version)
         if (isEditMode) {
-            // Azure doesn't use model in the URL for edit mode
-            url = trimTrailingSlash(cfg.base) + `/images/edits?api-version=${version}`
+            url =
+                trimTrailingSlash(cfg.base) +
+                "/" +
+                body.model +
+                `/images/edits?api-version=${version}`
         } else {
             url =
                 trimTrailingSlash(cfg.base) +
                 "/" +
                 body.model +
                 `/images/generations?api-version=${version}`
-            delete body.model
         }
+        delete body.model
     }
 
     const fetch = await createFetch(options)
