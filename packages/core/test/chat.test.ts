@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { describe, test, assert } from "vitest";
-import { ChatCompletionMessageParam } from "../src/chattypes.js";
+import type { ChatCompletionMessageParam } from "../src/chattypes.js";
 import { collapseChatMessages } from "../src/chatrender.js";
 
 describe("chat", () => {

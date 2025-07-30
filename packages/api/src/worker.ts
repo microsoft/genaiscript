@@ -29,7 +29,6 @@ const dbg = genaiscriptDebug("worker");
  *     - Redirects stdout to stderr.
  *     - Installs NodeHost with environment options.
  *     - Handles resource change events and communicates them to the parent thread.
- *     - Ensures compatibility with Windows by setting the SystemRoot environment variable.
  */
 export async function worker(): Promise<void> {
   overrideStdoutWithStdErr();
@@ -39,10 +38,6 @@ export async function worker(): Promise<void> {
   };
   dbg(`worker data: %O`, data);
   await NodeHost.install(undefined, undefined); // Install NodeHost with environment options
-  if (process.platform === "win32") {
-    // https://github.com/Azure/azure-sdk-for-js/issues/32374
-    process.env.SystemRoot = process.env.SYSTEMROOT;
-  }
 
   const runtimeHost = resolveRuntimeHost()
   runtimeHost.resources.addEventListener(RESOURCE_CHANGE, (ev) => {

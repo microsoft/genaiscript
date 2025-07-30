@@ -61,7 +61,6 @@ export async function markdownScriptParse(text: string) {
     };
 
     for (const child of tree.children) {
-      console.log(child);
       if (
         child.type === "code" &&
         /^(ts|js|typescript|javascript)$/i.test(child.lang) &&

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { LanguageModel, ListModelsFunction, PullModelFunction } from "./chat.js";
+import type { LanguageModel, ListModelsFunction, PullModelFunction } from "./chat.js";
 import { MODEL_PROVIDER_OLLAMA, TOOL_ID } from "./constants.js";
 import { serializeError } from "./error.js";
 import { createFetch, iterateBody } from "./fetch.js";

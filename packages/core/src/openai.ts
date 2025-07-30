@@ -3,27 +3,11 @@
 
 import { ellipse, logError, logInfo, logVerbose } from "./util.js";
 import {
-  AZURE_AI_INFERENCE_VERSION,
   AZURE_OPENAI_API_VERSION,
-  MODEL_PROVIDER_ALIBABA,
-  MODEL_PROVIDER_AZURE_AI_INFERENCE,
   MODEL_PROVIDER_AZURE_OPENAI,
   MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
   MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
-  MODEL_PROVIDER_GITHUB,
-  MODEL_PROVIDER_HUGGINGFACE,
-  MODEL_PROVIDER_OPENAI,
-  MODEL_PROVIDER_OPENAI_HOSTS,
-  OPENROUTER_API_CHAT_URL,
-  OPENROUTER_SITE_NAME_HEADER,
-  OPENROUTER_SITE_URL_HEADER,
-  THINK_END_TOKEN_REGEX,
-  THINK_START_TOKEN_REGEX,
-  TOOL_ID,
-  TOOL_NAME,
-  TOOL_URL,
 } from "./constants.js";
-import { approximateTokens } from "./tokens.js";
 import type {
   ChatCompletionHandler,
   CreateImageRequest,
@@ -34,509 +18,38 @@ import type {
   LanguageModel,
   ListModelsFunction,
 } from "./chat.js";
-import { RequestError, errorMessage, isCancelError, serializeError } from "./error.js";
+import { errorMessage, isCancelError, serializeError } from "./error.js";
 import { createFetch } from "./fetch.js";
-import { parseModelIdentifier } from "./models.js";
-import { JSON5TryParse } from "./json5.js";
 import type {
-  ChatCompletionToolCall,
-  ChatCompletionResponse,
-  ChatCompletionChunk,
-  ChatCompletionUsage,
-  ChatCompletion,
-  ChatCompletionChunkChoice,
-  ChatCompletionChoice,
-  CreateChatCompletionRequest,
-  ChatCompletionTokenLogprob,
   EmbeddingCreateResponse,
   EmbeddingCreateParams,
   EmbeddingResult,
   ImageGenerationResponse,
 } from "./chattypes.js";
-import { resolveTokenEncoder } from "./encoders.js";
 import type { CancellationOptions } from "./cancellation.js";
 import { checkCancelled } from "./cancellation.js";
-import { INITryParse } from "./ini.js";
-import { serializeChunkChoiceToLogProbs } from "./logprob.js";
 import type { TraceOptions } from "./trace.js";
 import type { LanguageModelConfiguration } from "./server/messages.js";
 import prettyBytes from "pretty-bytes";
-import {
-  deleteUndefinedValues,
-  isEmptyString,
-  normalizeInt,
-  trimTrailingSlash,
-} from "./cleaners.js";
+import { deleteUndefinedValues, trimTrailingSlash } from "./cleaners.js";
 import { fromBase64 } from "./base64.js";
 import { traceFetchPost } from "./fetchtext.js";
-import { providerFeatures } from "./features.js";
 import { genaiscriptDebug } from "./debug.js";
-import type {
-  LanguageModelInfo,
-  Logprob,
-  RetryOptions,
-  SerializedError,
-  TranscriptionResult,
-} from "./types.js";
-import { createUTF8Decoder } from "./utf8.js";
+import { OpenAIv2ResponsesChatCompletion } from "./openai-responses.js";
+import type { LanguageModelInfo, RetryOptions, TranscriptionResult } from "./types.js";
+import { resolveBufferLike } from "./bufferlike.js";
+import { getConfigHeaders, OpenAIv1ChatCompletion } from "./openai-chatcompletion.js";
 
 const dbg = genaiscriptDebug("openai");
 const dbgMessages = dbg.extend("msg");
 dbgMessages.enabled = false;
 
-/**
- * Generates configuration headers for API requests based on the provided configuration object.
- *
- * @param cfg - The configuration object containing details for API access.
- *   - token: Authentication token for the API.
- *   - type: The type of model (e.g., azure_serverless_models, openai, etc.).
- *   - base: Base URL of the API.
- *   - provider: Identifier for the model provider.
- * @returns A record of key-value pairs representing the headers, including:
- *   - Authorization: The formatted authorization header if applicable.
- *   - api-key: API key if Bearer authentication is not used.
- *   - User-Agent: A constant user agent identifier for the tool.
- */
-export function getConfigHeaders(cfg: LanguageModelConfiguration) {
-  let { token, type, base, provider } = cfg;
-  if (type === "azure_serverless_models") {
-    const keys = INITryParse(token);
-    if (keys && Object.keys(keys).length > 1) token = keys[cfg.model];
-  }
-  const features = providerFeatures(provider);
-  const useBearer = features?.bearerToken !== false;
-  const isBearer = /^Bearer /i.test(cfg.token);
-  const Authorization = isBearer
-    ? token
-    : token && (useBearer || base === OPENROUTER_API_CHAT_URL)
-      ? `Bearer ${token}`
-      : undefined;
-  const apiKey = Authorization ? undefined : token;
-  const res: Record<string, string> = deleteUndefinedValues({
-    Authorization,
-    "api-key": apiKey,
-    "User-Agent": TOOL_ID,
-  });
-  return res;
-}
-
 export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, options, trace) => {
-  const {
-    requestOptions,
-    partialCb,
-    retries,
-    retryDelay,
-    maxDelay,
-    maxRetryAfter,
-    cancellationToken,
-    inner,
-  } = options;
-  const { headers = {}, ...rest } = requestOptions || {};
-  const { provider, model, family, reasoningEffort } = parseModelIdentifier(req.model);
-  const features = providerFeatures(provider);
-  const { encode: encoder } = await resolveTokenEncoder(family);
-
-  const postReq = structuredClone({
-    ...req,
-    stream: true,
-    stream_options: { include_usage: true },
-    model,
-    messages: req.messages.map(({ cacheControl, ...rest }) => ({
-      ...rest,
-    })),
-  } satisfies CreateChatCompletionRequest);
-
-  // stream_options fails in some cases
-  if (family === "gpt-4-turbo-v" || /mistral/i.test(family)) {
-    dbg(`removing stream_options`);
-    delete postReq.stream_options;
-  }
-
-  if (MODEL_PROVIDER_OPENAI_HOSTS.includes(provider)) {
-    if (/^(openai\/)?o\d|gpt-4\.1/.test(family)) {
-      dbg(`changing max_tokens to max_completion_tokens`);
-      if (postReq.max_tokens) {
-        postReq.max_completion_tokens = postReq.max_tokens;
-        delete postReq.max_tokens;
-      }
-    }
-
-    if (/^(openai\/)?o\d/.test(family)) {
-      dbg(`removing options to support o1/o3/o4`);
-      delete postReq.temperature;
-      delete postReq.top_p;
-      delete postReq.presence_penalty;
-      delete postReq.frequency_penalty;
-      delete postReq.logprobs;
-      delete postReq.top_logprobs;
-      delete postReq.logit_bias;
-      if (!postReq.reasoning_effort && reasoningEffort) {
-        postReq.model = family;
-        postReq.reasoning_effort = reasoningEffort;
-      }
-    }
-
-    if (/^(openai\/)?o1/.test(family)) {
-      dbg(`removing options to support o1`);
-      const preview = /^o1-(preview|mini)/i.test(family);
-      delete postReq.stream;
-      delete postReq.stream_options;
-      for (const msg of postReq.messages) {
-        if (msg.role === "system") {
-          (msg as any).role = preview ? "user" : "developer";
-        }
-      }
-    } else if (/^(openai\/)?o3/i.test(family)) {
-      for (const msg of postReq.messages) {
-        if (msg.role === "system") {
-          (msg as any).role = "developer";
-        }
-      }
-    }
-  }
-
-  const singleModel = !!features?.singleModel;
-  if (singleModel) delete postReq.model;
-
-  let url = "";
-  const toolCalls: ChatCompletionToolCall[] = [];
-
-  if (
-    cfg.type === MODEL_PROVIDER_OPENAI ||
-    cfg.type === "localai" ||
-    cfg.type === MODEL_PROVIDER_ALIBABA ||
-    cfg.type === MODEL_PROVIDER_HUGGINGFACE
-  ) {
-    url = trimTrailingSlash(cfg.base) + "/chat/completions";
-    if (url === OPENROUTER_API_CHAT_URL) {
-      (headers as any)[OPENROUTER_SITE_URL_HEADER] = process.env.OPENROUTER_SITE_URL || TOOL_URL;
-      (headers as any)[OPENROUTER_SITE_NAME_HEADER] = process.env.OPENROUTER_SITE_NAME || TOOL_NAME;
-    }
-  } else if (cfg.type === MODEL_PROVIDER_AZURE_OPENAI) {
-    delete postReq.model;
-    const version = cfg.version || AZURE_OPENAI_API_VERSION;
-    trace?.itemValue(`version`, version);
-    url = trimTrailingSlash(cfg.base) + "/" + family + `/chat/completions?api-version=${version}`;
-  } else if (cfg.type === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
-    const version = cfg.version;
-    trace?.itemValue(`version`, version);
-    url = trimTrailingSlash(cfg.base) + `/chat/completions`;
-    if (version) url += `?api-version=${version}`;
-    (headers as any)["extra-parameters"] = "pass-through";
-  } else if (cfg.type === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
-    const version = cfg.version || AZURE_AI_INFERENCE_VERSION;
-    trace?.itemValue(`version`, version);
-    url =
-      trimTrailingSlash(cfg.base).replace(
-        /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
-        (m, deployment, region) => `https://${postReq.model}.${region}.models.ai.azure.com`,
-      ) + `/chat/completions?api-version=${version}`;
-    (headers as any)["extra-parameters"] = "pass-through";
-    delete postReq.model;
-    delete postReq.stream_options;
-  } else if (cfg.type === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
-    const version = cfg.version || AZURE_AI_INFERENCE_VERSION;
-    trace?.itemValue(`version`, version);
-    url = trimTrailingSlash(cfg.base) + "/" + family + `/chat/completions?api-version=${version}`;
-    // https://learn.microsoft.com/en-us/azure/machine-learning/reference-model-inference-api?view=azureml-api-2&tabs=javascript#extensibility
-    (headers as any)["extra-parameters"] = "pass-through";
-    delete postReq.model;
-  } else if (cfg.type === MODEL_PROVIDER_GITHUB) {
-    url = trimTrailingSlash(cfg.base) + "/chat/completions";
-    const { prefix } = /^(?<prefix>[^-]+)-([^\/]+)$/.exec(postReq.model)?.groups || {};
-    const patch = {
-      gpt: "openai",
-      o: "openai",
-      "text-embedding": "openai",
-      phi: "microsoft",
-      meta: "meta",
-      llama: "meta",
-      mistral: "mistral-ai",
-      deepseek: "deepseek",
-    }[prefix?.toLowerCase() || ""];
-    if (patch) {
-      postReq.model = `${patch}/${postReq.model}`;
-      dbg(`updated model to ${postReq.model}`);
-    }
-  } else throw new Error(`api type ${cfg.type} not supported`);
-
-  trace?.itemValue(`url`, `[${url}](${url})`);
-  dbg(`url: ${url}`);
-
-  let numTokens = 0;
-  let numReasoningTokens = 0;
-  const fetchRetry = await createFetch({
-    trace,
-    retries,
-    retryDelay,
-    maxDelay,
-    maxRetryAfter,
-    cancellationToken,
-  });
-  trace?.dispatchChange();
-
-  const fetchHeaders: HeadersInit = {
-    "Content-Type": "application/json",
-    ...getConfigHeaders(cfg),
-    ...(headers || {}),
-  };
-  traceFetchPost(trace, url, fetchHeaders as any, postReq);
-  const body = JSON.stringify(postReq);
-  let r: Response;
-  try {
-    r = await fetchRetry(url, {
-      headers: fetchHeaders,
-      body,
-      method: "POST",
-      ...(rest || {}),
-    });
-  } catch (e) {
-    trace?.error(errorMessage(e), e);
-    throw e;
-  }
-
-  trace?.itemValue(`status`, `${r.status} ${r.statusText}`);
-  dbg(`response: ${r.status} ${r.statusText}`);
-  if (r.status !== 200) {
-    let responseBody: string;
-    try {
-      responseBody = await r.text();
-    } catch (e) {}
-    if (!responseBody) responseBody;
-    trace?.fence(responseBody, "json");
-    const errors = JSON5TryParse(responseBody, {}) as
-      | {
-          error: any;
-          message: string;
-        }
-      | { error: { message: string } }[]
-      | { error: { message: string } };
-    const error = Array.isArray(errors) ? errors[0]?.error : errors;
-    throw new RequestError(
-      r.status,
-      errorMessage(error) || r.statusText,
-      errors,
-      responseBody,
-      normalizeInt(r.headers.get("retry-after")),
-    );
-  }
-
-  let done = false;
-  let finishReason: ChatCompletionResponse["finishReason"] = undefined;
-  let chatResp = "";
-  let reasoningChatResp = "";
-  let pref = "";
-  let usage: ChatCompletionUsage;
-  let error: SerializedError;
-  let responseModel: string;
-  const lbs: ChatCompletionTokenLogprob[] = [];
-
-  let reasoning = false;
-
-  const doChoices = (json: string, tokens: Logprob[], reasoningTokens: Logprob[]) => {
-    const obj: ChatCompletionChunk | ChatCompletion = JSON.parse(json);
-
-    if (!postReq.stream) trace?.detailsFenced(`📬 response`, obj, "json");
-    dbgMessages(`%O`, obj);
-
-    if (obj.usage) usage = obj.usage;
-    if (!responseModel && obj.model) {
-      responseModel = obj.model;
-      dbg(`model: ${responseModel}`);
-    }
-    if (!obj.choices?.length) return;
-    else if (obj.choices?.length != 1) throw new Error("too many choices in response");
-    const choice = obj.choices[0];
-    const { finish_reason } = choice;
-    if (finish_reason) {
-      dbg(`finish reason: ${finish_reason}`);
-      finishReason = finish_reason as any;
-    }
-    if ((choice as ChatCompletionChunkChoice).delta) {
-      const { delta, logprobs } = choice as ChatCompletionChunkChoice;
-      if (logprobs?.content) lbs.push(...logprobs.content);
-      if (typeof delta?.content === "string" && delta.content !== "") {
-        let content = delta.content;
-        if (!reasoning && THINK_START_TOKEN_REGEX.test(content)) {
-          dbg(`entering <think>`);
-          reasoning = true;
-          content = content.replace(THINK_START_TOKEN_REGEX, "");
-        } else if (reasoning && THINK_END_TOKEN_REGEX.test(content)) {
-          dbg(`leaving <think>`);
-          reasoning = false;
-          content = content.replace(THINK_END_TOKEN_REGEX, "");
-        }
-
-        if (!isEmptyString(content)) {
-          if (reasoning) {
-            numReasoningTokens += approximateTokens(content, {
-              encoder,
-            });
-            reasoningChatResp += content;
-            reasoningTokens.push(
-              ...serializeChunkChoiceToLogProbs(choice as ChatCompletionChunkChoice),
-            );
-          } else {
-            numTokens += approximateTokens(content, { encoder });
-            chatResp += content;
-            tokens.push(...serializeChunkChoiceToLogProbs(choice as ChatCompletionChunkChoice));
-          }
-          trace?.appendToken(content);
-        }
-      }
-      if (typeof delta?.reasoning_content === "string" && delta.reasoning_content !== "") {
-        numTokens += approximateTokens(delta.reasoning_content, {
-          encoder,
-        });
-        reasoningChatResp += delta.reasoning_content;
-        reasoningTokens.push(
-          ...serializeChunkChoiceToLogProbs(choice as ChatCompletionChunkChoice),
-        );
-        trace?.appendToken(delta.reasoning_content);
-      }
-      if (Array.isArray(delta?.tool_calls)) {
-        const { tool_calls } = delta;
-        for (const call of tool_calls) {
-          const index = call.index ?? toolCalls.length;
-          const tc =
-            toolCalls[index] ||
-            (toolCalls[index] = {
-              id: call.id,
-              name: call.function.name,
-              arguments: "",
-            });
-          if (call.function.arguments) tc.arguments += call.function.arguments;
-        }
-      }
-    } else if ((choice as ChatCompletionChoice).message) {
-      const { message } = choice as ChatCompletionChoice;
-      chatResp = message.content;
-      reasoningChatResp = message.reasoning_content;
-      numTokens = usage?.total_tokens ?? approximateTokens(chatResp, { encoder });
-      if (Array.isArray(message?.tool_calls)) {
-        const { tool_calls } = message;
-        for (let calli = 0; calli < tool_calls.length; calli++) {
-          const call = tool_calls[calli];
-          const tc =
-            toolCalls[calli] ||
-            (toolCalls[calli] = {
-              id: call.id,
-              name: call.function.name,
-              arguments: "",
-            });
-          if (call.function.arguments) tc.arguments += call.function.arguments;
-        }
-      }
-      partialCb?.(
-        deleteUndefinedValues({
-          responseSoFar: chatResp,
-          reasoningSoFar: reasoningChatResp,
-          tokensSoFar: numTokens,
-          responseChunk: chatResp,
-          reasoningChunk: reasoningChatResp,
-          inner,
-        }),
-      );
-    }
-
-    if (finish_reason === "function_call" || toolCalls.length > 0) {
-      finishReason = "tool_calls";
-    } else {
-      finishReason = finish_reason;
-    }
-  };
-
-  trace?.appendContent("\n\n");
-  if (!postReq.stream) {
-    const responseBody = await r.text();
-    doChoices(responseBody, [], []);
-  } else {
-    const decoder = createUTF8Decoder();
-    const doChunk = (value: Uint8Array) => {
-      // Massage and parse the chunk of data
-      const tokens: Logprob[] = [];
-      const reasoningTokens: Logprob[] = [];
-      let chunk = decoder.decode(value, { stream: true });
-
-      chunk = pref + chunk;
-      const ch0 = chatResp;
-      const rch0 = reasoningChatResp;
-      chunk = chunk.replace(/^data:\s*(.*)[\r\n]+/gm, (_, json) => {
-        if (json === "[DONE]") {
-          done = true;
-          return "";
-        }
-        try {
-          doChoices(json, tokens, reasoningTokens);
-        } catch (e) {
-          trace?.error(`error processing chunk`, e);
-        }
-        return "";
-      });
-      // end replace
-      const reasoningProgress = reasoningChatResp.slice(rch0.length);
-      const chatProgress = chatResp.slice(ch0.length);
-      if (!isEmptyString(chatProgress) || !isEmptyString(reasoningProgress)) {
-        // logVerbose(`... ${progress.length} chars`);
-        partialCb?.(
-          deleteUndefinedValues({
-            responseSoFar: chatResp,
-            reasoningSoFar: reasoningChatResp,
-            reasoningChunk: reasoningProgress,
-            tokensSoFar: numTokens,
-            responseChunk: chatProgress,
-            responseTokens: tokens,
-            reasoningTokens,
-            inner,
-          }),
-        );
-      }
-      pref = chunk;
-    };
-
-    try {
-      if (r.body.getReader) {
-        const reader = r.body.getReader();
-        while (!cancellationToken?.isCancellationRequested && !done) {
-          const { done: readerDone, value } = await reader.read();
-          if (readerDone) break;
-          doChunk(value);
-        }
-      } else {
-        for await (const value of r.body as any) {
-          if (cancellationToken?.isCancellationRequested || done) break;
-          doChunk(value);
-        }
-      }
-      if (cancellationToken?.isCancellationRequested) finishReason = "cancel";
-      else if (toolCalls?.length) finishReason = "tool_calls";
-      finishReason = finishReason || "stop"; // some provider do not implement this final mesage
-    } catch (e) {
-      finishReason = "fail";
-      error = serializeError(e);
-    }
-  }
-
-  trace?.appendContent("\n\n");
-  if (responseModel) trace?.itemValue(`model`, responseModel);
-  trace?.itemValue(`🏁 finish reason`, finishReason);
-  if (usage?.total_tokens) {
-    trace?.itemValue(
-      `🪙 tokens`,
-      `${usage.total_tokens} total, ${usage.prompt_tokens} prompt, ${usage.completion_tokens} completion`,
-    );
-  }
-
-  return deleteUndefinedValues({
-    text: chatResp,
-    reasoning: reasoningChatResp,
-    toolCalls,
-    finishReason,
-    usage,
-    error,
-    model: responseModel,
-    logprobs: lbs,
-  }) satisfies ChatCompletionResponse;
+  //const { provider } = parseModelIdentifier(req.model);
+  // const features = providerFeatures(provider);
+  const useResponsesApi = !!process.env.OPENAI_RESPONSES; // features?.responsesApi;
+  if (useResponsesApi) return OpenAIv2ResponsesChatCompletion(req, cfg, options, trace);
+  else return OpenAIv1ChatCompletion(req, cfg, options, trace);
 };
 
 export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
@@ -736,79 +249,204 @@ export async function OpenAIImageGeneration(
   cfg: LanguageModelConfiguration,
   options: TraceOptions & CancellationOptions & RetryOptions,
 ): Promise<CreateImageResult> {
-  const { model, prompt, size = "1024x1024", quality, style, outputFormat, ...rest } = req;
+  const {
+    model,
+    prompt,
+    size = "1024x1024",
+    quality,
+    style,
+    outputFormat,
+    mode = "generate",
+    image,
+    mask,
+    ...rest
+  } = req;
   const { trace } = options || {};
-  let url = `${cfg.base}/images/generations`;
+
+  // Determine the API endpoint based on mode
+  let endpoint = "generations";
+  if (mode === "edit") {
+    endpoint = "edits";
+    if (!image) {
+      return {
+        image: undefined,
+        error: serializeError(new Error("Image is required for edit mode")),
+      };
+    }
+  }
+
+  let url = `${cfg.base}/images/${endpoint}`;
 
   const isDallE = /^dall-e/i.test(model);
   const isDallE2 = /^dall-e-2/i.test(model);
   const isDallE3 = /^dall-e-3/i.test(model);
   const isGpt = /^gpt-image/i.test(model);
 
-  const body: any = {
-    model,
-    prompt,
-    size,
-    quality,
-    style,
-    ...rest,
+  // For edit mode, we need to use multipart form data
+  const isMultipart = mode === "edit";
+
+  // Process parameters common to all modes
+  const processedParams = {
+    size: size,
+    quality: quality,
+    style: style,
+    outputFormat: outputFormat,
   };
 
-  // auto is the default quality, so always delete it
-  if (body.quality === "auto" || isDallE2) delete body.quality;
-  if (isDallE3) {
-    if (body.quality === "high") body.quality = "hd";
-    else delete body.quality;
-  }
-  if (isGpt && body.quality === "hd") body.quality = "high";
-  if (!isDallE3) delete body.style;
-  if (isDallE) body.response_format = "b64_json";
-
-  if (isDallE3) {
-    if (body.size === "portrait") body.size = "1024x1792";
-    else if (body.size === "landscape") body.size = "1792x1024";
-    else if (body.size === "square") body.size = "1024x1024";
-  } else if (isDallE2) {
-    if (body.size === "portrait" || body.size === "landscape" || body.size === "square")
-      body.size = "1024x1024";
-  } else if (isGpt) {
-    if (body.size === "portrait") body.size = "1024x1536";
-    else if (body.size === "landscape") body.size = "1536x1024";
-    else if (body.size === "square") body.size = "1024x1024";
-    if (outputFormat) body.output_format = outputFormat;
+  // Transform size parameter based on model
+  if (processedParams.size && processedParams.size !== "auto") {
+    if (isDallE3) {
+      if (processedParams.size === "portrait") processedParams.size = "1024x1792";
+      else if (processedParams.size === "landscape") processedParams.size = "1792x1024";
+      else if (processedParams.size === "square") processedParams.size = "1024x1024";
+    } else if (isDallE2) {
+      if (
+        processedParams.size === "portrait" ||
+        processedParams.size === "landscape" ||
+        processedParams.size === "square"
+      )
+        processedParams.size = "1024x1024";
+    } else if (isGpt) {
+      if (processedParams.size === "portrait") processedParams.size = "1024x1536";
+      else if (processedParams.size === "landscape") processedParams.size = "1536x1024";
+      else if (processedParams.size === "square") processedParams.size = "1024x1024";
+    }
   }
 
-  if (body.size === "auto") delete body.size;
+  // Transform quality parameter based on model
+  if (processedParams.quality && processedParams.quality !== "auto") {
+    if (isDallE3 && processedParams.quality === "high") {
+      processedParams.quality = "hd";
+    } else if (isGpt && processedParams.quality === "hd") {
+      processedParams.quality = "high";
+    }
+  }
+
+  // Filter out parameters that shouldn't be included for certain models
+  const shouldIncludeQuality =
+    processedParams.quality && processedParams.quality !== "auto" && !isDallE2;
+  const shouldIncludeStyle = processedParams.style && isDallE3;
+  const shouldIncludeOutputFormat = processedParams.outputFormat && isGpt;
+  const shouldIncludeSize = processedParams.size && processedParams.size !== "auto";
+
+  let body: any;
+  let headers: any = {
+    ...getConfigHeaders(cfg),
+  };
+
+  if (isMultipart) {
+    // Use FormData for image uploads
+    body = new FormData();
+
+    // Add the image file
+    const imageBuffer = await resolveBufferLike(image);
+    if (!imageBuffer) {
+      return {
+        image: undefined,
+        error: serializeError(new Error("Failed to resolve image buffer")),
+      };
+    }
+    body.append("image", new Blob([imageBuffer], { type: "image/png" }), "image.png");
+
+    // Add mask if provided (only for edit mode)
+    if (mode === "edit" && mask) {
+      const maskBuffer = await resolveBufferLike(mask);
+      if (maskBuffer) {
+        body.append("mask", new Blob([maskBuffer], { type: "image/png" }), "mask.png");
+      }
+    }
+
+    // Add model
+    body.append("model", model);
+
+    // Add prompt (required for edit mode)
+    if (mode === "edit") {
+      body.append("prompt", prompt);
+    }
+
+    // Add processed parameters
+    if (shouldIncludeSize) {
+      body.append("size", processedParams.size);
+    }
+
+    if (shouldIncludeQuality) {
+      body.append("quality", processedParams.quality);
+    }
+
+    if (shouldIncludeStyle) {
+      body.append("style", processedParams.style);
+    }
+
+    if (shouldIncludeOutputFormat) {
+      body.append("output_format", processedParams.outputFormat);
+    }
+
+    // Always request b64_json for response format
+    body.append("response_format", "b64_json");
+
+    // Don't set Content-Type header for FormData, let the browser set it with boundary
+  } else {
+    // JSON body for generation mode
+    body = {
+      model,
+      prompt,
+      ...rest,
+    };
+
+    // Add processed parameters
+    if (shouldIncludeSize) {
+      body.size = processedParams.size;
+    }
+
+    if (shouldIncludeQuality) {
+      body.quality = processedParams.quality;
+    }
+
+    if (shouldIncludeStyle) {
+      body.style = processedParams.style;
+    }
+
+    if (shouldIncludeOutputFormat) {
+      body.output_format = processedParams.outputFormat;
+    }
+
+    if (isDallE) {
+      body.response_format = "b64_json";
+    }
+
+    headers["Content-Type"] = "application/json";
+    body = JSON.stringify(body);
+  }
 
   dbg("%o", {
-    quality: body.quality,
-    style: body.style,
-    response_format: body.response_format,
-    size: body.size,
+    mode,
+    endpoint,
+    quality: isMultipart ? "multipart" : body.quality,
+    style: isMultipart ? "multipart" : body.style,
+    response_format: isMultipart ? "b64_json" : body.response_format,
+    size: isMultipart ? "multipart" : body.size,
   });
 
   if (cfg.type === "azure") {
     const version = cfg.version || AZURE_OPENAI_API_VERSION;
     trace?.itemValue(`version`, version);
-    url =
-      trimTrailingSlash(cfg.base) + "/" + body.model + `/images/generations?api-version=${version}`;
-    delete body.model;
+    url = trimTrailingSlash(cfg.base) + "/" + model + `/images/${endpoint}?api-version=${version}`;
   }
 
   const fetch = await createFetch(options);
   try {
-    logInfo(`generate image with ${cfg.provider}:${cfg.model} (this may take a while)`);
+    logInfo(`${mode} image with ${cfg.provider}:${cfg.model} (this may take a while)`);
     const freq = {
       method: "POST",
-      headers: {
-        ...getConfigHeaders(cfg),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
+      headers,
+      body,
     };
-    // TODO: switch back to cross-fetch in the future
+
     trace?.itemValue(`url`, `[${url}](${url})`);
-    traceFetchPost(trace, url, freq.headers, body);
+    if (!isMultipart) {
+      traceFetchPost(trace, url, freq.headers, JSON.parse(body));
+    }
+
     const res = await fetch(url, freq as any);
     dbg(`response: %d %s`, res.status, res.statusText);
     trace?.itemValue(`status`, `${res.status} ${res.statusText}`);

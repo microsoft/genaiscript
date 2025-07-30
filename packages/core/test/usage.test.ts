@@ -3,6 +3,7 @@
 
 import { describe, test, assert } from "vitest";
 import { estimateCost, isCosteable, GenerationStats } from "../src/usage.js";
+import { generatedByFooter } from "../src/githubclient.js";
 import type { ChatCompletionUsage } from "../src/chattypes.js";
 
 describe("usage", () => {
@@ -128,6 +129,162 @@ describe("usage", () => {
       assert.equal(accumulated.completion_tokens, 150);
       assert.equal(accumulated.total_tokens, 450);
       assert.equal(accumulated.duration, 3000);
+    });
+
+    test("should generate GitHub report with aggregate summary", () => {
+      const stats = new GenerationStats("openai:gpt-4", "main");
+      stats.addUsage(
+        {
+          prompt_tokens: 100,
+          completion_tokens: 50,
+          total_tokens: 150,
+          duration: 1000,
+        },
+        1000,
+      );
+
+      const report = stats.toMarkdownReport();
+      
+      // Should contain details element
+      assert(report.includes("<details>"));
+      assert(report.includes("</details>"));
+      
+      // Should contain summary with aggregate data
+      assert(report.includes("<summary>"));
+      assert(report.includes("150t")); // total tokens
+      
+      // Should contain a table
+      assert(report.includes("|"));
+    });
+
+    test("should generate GitHub report with child usage", () => {
+      const parent = new GenerationStats("openai:gpt-4", "main");
+      parent.addUsage(
+        {
+          prompt_tokens: 100,
+          completion_tokens: 50,
+          total_tokens: 150,
+          duration: 1000,
+        },
+        1000,
+      );
+
+      const child = parent.createChild("openai:gpt-3.5-turbo", "helper");
+      child.addUsage(
+        {
+          prompt_tokens: 200,
+          completion_tokens: 100,
+          total_tokens: 300,
+          duration: 2000,
+        },
+        2000,
+      );
+
+      const report = parent.toMarkdownReport();
+      
+      // Should contain summary with total aggregate data
+      assert(report.includes("450t")); // total tokens (150 + 300)
+      
+      // Should contain table with individual model entries (accounting for markdown escaping)
+      assert(report.includes("openai:gpt\\-4") || report.includes("openai:gpt-4"));
+      assert(report.includes("openai:gpt\\-3\\.5\\-turbo") || report.includes("openai:gpt-3.5-turbo"));
+      assert(report.includes("main"));
+      assert(report.includes("helper"));
+    });
+
+    test("should handle empty usage stats", () => {
+      const stats = new GenerationStats("openai:gpt-4");
+      const report = stats.toMarkdownReport();
+      
+      // Should still generate valid report structure
+      assert(report.includes("<details>"));
+      assert(report.includes("</details>"));
+      assert(report.includes("<summary>"));
+      
+      // Should show zero usage
+      assert(report.includes("0t"));
+    });
+
+    test("should handle stats with costs available", () => {
+      const stats = new GenerationStats("openai:gpt-4o", "test");
+      stats.addUsage({
+        prompt_tokens: 100,
+        completion_tokens: 50,  
+        total_tokens: 150,
+        duration: 1000,
+      }, 1000);
+
+      const report = stats.toMarkdownReport();
+      
+      // Should contain cost information for models with known pricing
+      assert(report.includes("¢") || report.includes("$"));
+    });
+
+    test("should format large token counts properly", () => {
+      const stats = new GenerationStats("openai:gpt-4", "large-test");
+      stats.addUsage({
+        prompt_tokens: 1500000, // 1.5M tokens  
+        completion_tokens: 500000, // 500k tokens
+        total_tokens: 2000000, // 2M tokens
+        duration: 60000, // 1 minute
+      }, 60000);
+
+      const report = stats.toMarkdownReport();
+      
+      // Should format large numbers with appropriate units
+      assert(report.includes("Mt") || report.includes("kt"));
+      assert(report.includes("1.0m") || report.includes("60.0s"));
+    });
+  });
+
+  describe("generatedByFooter", () => {
+    test("should not include usage report when total tokens is 0", () => {
+      const script = { id: "test-script" } as any;
+      const info = { runUrl: "https://example.com/run/123" };
+      
+      // Create stats with zero usage
+      const stats = new GenerationStats("openai:gpt-4", "test");
+      // Don't add any usage, so total_tokens remains 0
+      
+      const footer = generatedByFooter(script, info, undefined, stats);
+      
+      // Should not contain usage report details or the usage report section
+      assert(!footer.includes("Usage Report"));
+      assert(!footer.includes("<details>"));
+      assert(!footer.includes("0t")); // Should not show zero tokens
+    });
+
+    test("should include usage report when total tokens > 0", () => {
+      const script = { id: "test-script" } as any;
+      const info = { runUrl: "https://example.com/run/123" };
+      
+      // Create stats with actual usage
+      const stats = new GenerationStats("openai:gpt-4", "test");
+      stats.addUsage({
+        prompt_tokens: 100,
+        completion_tokens: 50,
+        total_tokens: 150,
+        duration: 1000,
+      }, 1000);
+      
+      const footer = generatedByFooter(script, info, undefined, stats);
+      
+      // Should contain usage report details
+      assert(footer.includes("Usage Report"));
+      assert(footer.includes("<details>"));
+      assert(footer.includes("150t")); // Should show the actual tokens
+    });
+
+    test("should work without stats parameter (existing behavior)", () => {
+      const script = { id: "test-script" } as any;
+      const info = { runUrl: "https://example.com/run/123" };
+      
+      const footer = generatedByFooter(script, info);
+      
+      // Should not contain usage report when no stats provided
+      assert(!footer.includes("Usage Report"));
+      assert(!footer.includes("<details>"));
+      assert(footer.includes("AI-generated content")); // But should have basic footer
     });
   });
 });

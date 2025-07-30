@@ -3,8 +3,8 @@
 
 import type { CancellationToken } from "./cancellation.js";
 import type { ChatCompletionsOptions } from "./chattypes.js";
-import { MarkdownTrace, TraceOptions } from "./trace.js";
-import { GenerationStats } from "./usage.js";
+import type { MarkdownTrace, TraceOptions } from "./trace.js";
+import type { GenerationStats } from "./usage.js";
 import type {
   ContentSafetyOptions,
   EmbeddingsModelOptions,
