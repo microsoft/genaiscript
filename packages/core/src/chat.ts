@@ -1121,6 +1121,7 @@ export async function executeChatSession(
     metadata,
     partialCb,
     disableChatPreview,
+    stream,
   } = genOptions;
   assert(!!model, "model is required");
 
@@ -1225,7 +1226,7 @@ export async function executeChatSession(
             max_tokens: maxTokens,
             logit_bias,
             seed,
-            stream: true,
+            stream: stream ?? true,
             logprobs,
             top_logprobs,
             tools: fallbackTools ? undefined : tools,

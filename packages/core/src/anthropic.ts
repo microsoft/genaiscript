@@ -366,7 +366,7 @@ const completerFactory = (
       top_p,
       tool_choice,
       thinking,
-      stream: true,
+      stream: req.stream,
     });
     // https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#extended-output-capabilities-beta
     if (/claude-3-7-sonnet/.test(model) && max_tokens >= 128000) {
@@ -379,17 +379,18 @@ const completerFactory = (
     trace?.appendContent("\n");
 
     try {
-      const stream = messagesApi.stream({ ...mreq, ...headers });
-      for await (const chunk of stream) {
-        if (cancellationToken?.isCancellationRequested) {
-          finishReason = "cancel";
-          break;
-        }
-        dbg(chunk.type);
-        dbgMessages(`%O`, chunk);
-        let chunkContent = "";
-        let reasoningContent = "";
-        switch (chunk.type) {
+      if (req.stream) {
+        const stream = messagesApi.stream({ ...mreq, ...headers });
+        for await (const chunk of stream) {
+          if (cancellationToken?.isCancellationRequested) {
+            finishReason = "cancel";
+            break;
+          }
+          dbg(chunk.type);
+          dbgMessages(`%O`, chunk);
+          let chunkContent = "";
+          let reasoningContent = "";
+          switch (chunk.type) {
           case "message_start":
             usage = convertUsage(chunk.message.usage as Anthropic.Usage);
             break;
@@ -456,6 +457,46 @@ const completerFactory = (
           } satisfies ChatCompletionsProgressReport);
           partialCb?.(progress);
         }
+      }
+      } else {
+        // Non-streaming mode
+        const { stream, ...nonStreamReq } = mreq;
+        const response = await (messagesApi as any).create({ ...nonStreamReq, ...headers });
+        
+        dbgMessages(`%O`, response);
+        trace?.detailsFenced("📬 response", response, "json");
+        
+        usage = convertUsage(response.usage as Anthropic.Usage);
+        chatResp = response.content
+          .filter((c: any) => c.type === "text")
+          .map((c: any) => c.text)
+          .join("");
+        reasoningChatResp = response.thinking || "";
+        
+        // Handle tool calls
+        response.content
+          .filter((c: any) => c.type === "tool_use")
+          .forEach((c: any, index: number) => {
+            toolCalls[index] = {
+              id: c.id,
+              name: c.name,
+              arguments: JSON.stringify(c.input),
+            };
+          });
+        
+        finishReason = response.stop_reason as ChatFinishReason;
+        numTokens = usage?.total_tokens ?? approximateTokens(chatResp, { encoder });
+        
+        // Call partialCb for consistency with streaming mode
+        const progress = deleteUndefinedValues({
+          responseSoFar: chatResp,
+          reasoningSoFar: reasoningChatResp,
+          tokensSoFar: numTokens,
+          responseChunk: chatResp,
+          reasoningChunk: reasoningChatResp,
+          inner,
+        } satisfies ChatCompletionsProgressReport);
+        partialCb?.(progress);
       }
     } catch (e) {
       finishReason = "fail";

@@ -121,8 +121,7 @@ export const OpenAIv1ChatCompletion: ChatCompletionHandler = async (req, cfg, op
 
   const postReq = structuredClone({
     ...req,
-    stream: true,
-    stream_options: { include_usage: true },
+    stream_options: req.stream ? { include_usage: true } : undefined,
     model,
     messages: req.messages.map(({ cacheControl, ...rest }) => ({
       ...rest,
