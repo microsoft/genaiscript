@@ -4,7 +4,9 @@
 import { ellipse, logError, logInfo, logVerbose } from "./util.js";
 import {
   AZURE_OPENAI_API_VERSION,
+  AZURE_AI_INFERENCE_VERSION,
   MODEL_PROVIDER_AZURE_OPENAI,
+  MODEL_PROVIDER_AZURE_AI_INFERENCE,
   MODEL_PROVIDER_AZURE_SERVERLESS_MODELS,
   MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI,
 } from "./constants.js";
@@ -39,6 +41,7 @@ import { OpenAIv2ResponsesChatCompletion } from "./openai-responses.js";
 import type { LanguageModelInfo, RetryOptions, TranscriptionResult } from "./types.js";
 import { resolveBufferLike } from "./bufferlike.js";
 import { getConfigHeaders, OpenAIv1ChatCompletion } from "./openai-chatcompletion.js";
+import { parseModelIdentifier } from "./models.js";
 
 const dbg = genaiscriptDebug("openai");
 const dbgMessages = dbg.extend("msg");
@@ -266,6 +269,9 @@ export async function OpenAIImageGeneration(
   } = req;
   const { trace } = options || {};
 
+  // Parse the model identifier to get the family for Azure URLs
+  const { family } = parseModelIdentifier(model);
+
   // Determine the API endpoint based on mode
   let endpoint = "generations";
   if (mode === "edit") {
@@ -430,10 +436,31 @@ export async function OpenAIImageGeneration(
     size: isMultipart ? "multipart" : body.size,
   });
 
-  if (cfg.type === "azure") {
+  if (cfg.type === MODEL_PROVIDER_AZURE_OPENAI) {
     const version = cfg.version || AZURE_OPENAI_API_VERSION;
     trace?.itemValue(`version`, version);
-    url = trimTrailingSlash(cfg.base) + "/" + model + `/images/${endpoint}?api-version=${version}`;
+    url = trimTrailingSlash(cfg.base) + "/" + family + `/images/${endpoint}?api-version=${version}`;
+  } else if (cfg.type === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
+    const version = cfg.version;
+    trace?.itemValue(`version`, version);
+    url = trimTrailingSlash(cfg.base) + `/images/${endpoint}`;
+    if (version) url += `?api-version=${version}`;
+  } else if (cfg.type === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
+    const version = cfg.version || AZURE_AI_INFERENCE_VERSION;
+    trace?.itemValue(`version`, version);
+    url =
+      trimTrailingSlash(cfg.base).replace(
+        /^https?:\/\/(?<deployment>[^\.]+)\.(?<region>[^\.]+)\.models\.ai\.azure\.com/i,
+        (m, deployment, region) => `https://${model}.${region}.models.ai.azure.com`,
+      ) + `/images/${endpoint}?api-version=${version}`;
+  } else if (cfg.type === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
+    const version = cfg.version || AZURE_AI_INFERENCE_VERSION;
+    trace?.itemValue(`version`, version);
+    url = trimTrailingSlash(cfg.base) + "/" + family + `/images/${endpoint}?api-version=${version}`;
+  } else if (cfg.type === "azure") {
+    const version = cfg.version || AZURE_OPENAI_API_VERSION;
+    trace?.itemValue(`version`, version);
+    url = trimTrailingSlash(cfg.base) + "/" + family + `/images/${endpoint}?api-version=${version}`;
   }
 
   const fetch = await createFetch(options);
