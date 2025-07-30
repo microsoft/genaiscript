@@ -23,7 +23,6 @@ export interface LanguageModelProviderInformation {
   metadata?: boolean;
   limitations?: string;
   responseType?: "json" | "json_object" | "json_schema";
-  responsesApi?: boolean;
   reasoningEfforts?: Record<string, number>;
   aliases?: Record<string, string>;
   latestTag?: boolean;
@@ -68,7 +67,6 @@ export default {
       imageGeneration: true,
       responseType: "json_schema",
       metadata: true,
-      responsesApi: true,
       aliases: {
         large: "gpt-4.1",
         small: "gpt-4.1-mini",
