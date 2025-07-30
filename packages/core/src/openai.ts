@@ -271,6 +271,10 @@ export async function OpenAIImageGeneration(
 
   // Parse the model identifier to get the family for Azure URLs
   const { family } = parseModelIdentifier(model);
+  
+  // For Azure providers, if family is "*" (meaning no provider prefix), use the model name directly
+  // This handles the case where the model parameter is just the deployment name (e.g., "dall-e-3")
+  const deploymentName = family === "*" ? model : family;
 
   // Determine the API endpoint based on mode
   let endpoint = "generations";
@@ -439,7 +443,7 @@ export async function OpenAIImageGeneration(
   if (cfg.type === MODEL_PROVIDER_AZURE_OPENAI) {
     const version = cfg.version || AZURE_OPENAI_API_VERSION;
     trace?.itemValue(`version`, version);
-    url = trimTrailingSlash(cfg.base) + "/" + family + `/images/${endpoint}?api-version=${version}`;
+    url = trimTrailingSlash(cfg.base) + "/" + deploymentName + `/images/${endpoint}?api-version=${version}`;
   } else if (cfg.type === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
     const version = cfg.version;
     trace?.itemValue(`version`, version);
@@ -456,11 +460,11 @@ export async function OpenAIImageGeneration(
   } else if (cfg.type === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
     const version = cfg.version || AZURE_AI_INFERENCE_VERSION;
     trace?.itemValue(`version`, version);
-    url = trimTrailingSlash(cfg.base) + "/" + family + `/images/${endpoint}?api-version=${version}`;
+    url = trimTrailingSlash(cfg.base) + "/" + deploymentName + `/images/${endpoint}?api-version=${version}`;
   } else if (cfg.type === "azure") {
     const version = cfg.version || AZURE_OPENAI_API_VERSION;
     trace?.itemValue(`version`, version);
-    url = trimTrailingSlash(cfg.base) + "/" + family + `/images/${endpoint}?api-version=${version}`;
+    url = trimTrailingSlash(cfg.base) + "/" + deploymentName + `/images/${endpoint}?api-version=${version}`;
   }
 
   const fetch = await createFetch(options);
