@@ -1076,7 +1076,7 @@ export function createChatGenerationContext(
       const duration = m();
       if (res.error) {
         imgTrace?.error(errorMessage(res.error));
-        return undefined;
+        throw new Error(errorMessage(res.error));
       }
       dbg(`usage: %o`, res.usage);
       stats.addImageGenerationUsage(res.usage, duration);

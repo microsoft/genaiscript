@@ -385,6 +385,7 @@ export async function OpenAIImageGeneration(
     body.append("response_format", "b64_json");
 
     // Don't set Content-Type header for FormData, let the browser set it with boundary
+    delete headers["Content-Type"];
   } else {
     // JSON body for generation mode
     body = {
