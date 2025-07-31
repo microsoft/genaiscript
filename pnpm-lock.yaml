@@ -1057,7 +1057,7 @@ importers:
         specifier: ^14.1.2
         version: 14.1.2
       '@types/vscode':
-        specifier: ^1.101.0
+        specifier: ^1.100.0
         version: 1.102.0
       '@vscode/vsce':
         specifier: ^3.6.0
