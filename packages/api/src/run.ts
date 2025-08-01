@@ -321,7 +321,7 @@ export async function runScriptInternal(
     const stat = await runtimeHost.statFile(arg);
     if (stat?.type === "file") {
       dbg(`file found %s`, arg);
-      if (!ignorer?.([arg])?.length) {
+      if (ignorer && !ignorer([arg]).length) {
         dbg(`ignored by gitignore`);
         continue;
       }

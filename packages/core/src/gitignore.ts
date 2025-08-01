@@ -5,12 +5,11 @@
 import ignorer from "ignore";
 import { tryReadText, writeText } from "./fs.js";
 import { GENAISCRIPTIGNORE, GIT_IGNORE, GIT_IGNORE_GENAI } from "./constants.js";
-import { resolveRuntimeHost } from "./host.js";
 import { logVerbose } from "./util.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { GitIgnorer, WorkspaceFile } from "./types.js";
 import { filenameOrFileToFilename } from "./unwrappers.js";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 const dbg = genaiscriptDebug("files:gitignore");
 
 /**
@@ -36,12 +35,18 @@ export async function createIgnorer(files: string[]): Promise<GitIgnorer> {
 
   // Create an ignorer instance and add the .gitignore patterns to it
   dbg("creating ignorer instance");
-  const ig = ignorer({ allowRelativePaths: true });
+  const ig = ignorer({ allowRelativePaths: true, ignoreCase: true });
   for (const gitignore of gitignores) {
     ig.add(gitignore);
   }
-  return (files: readonly (string | WorkspaceFile)[]) =>
-    files ? ig.filter(files?.map(filenameOrFileToFilename)) : [];
+  dbg(`ignorer: %O`, ig);
+  return (files: readonly (string | WorkspaceFile)[]) => {
+    if (!files) return [];
+    const fns = files.map(filenameOrFileToFilename).filter(Boolean);
+    const res = ig.filter(fns);
+    dbg(`ignoring files: %O -> %O`, fns, res);
+    return res;
+  };
 }
 
 /**
@@ -66,7 +71,6 @@ export async function filterGitIgnore(files: string[]) {
  * @param entries - List of patterns or file paths to ensure are included in the .gitignore file.
  */
 export async function gitIgnoreEnsure(dir: string, entries: string[]) {
-  const runtimeHost = resolveRuntimeHost();
   const fn = join(dir, GIT_IGNORE);
   dbg(`reading file ${fn}`);
   let src = (await tryReadText(fn)) || "";
