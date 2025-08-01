@@ -66,7 +66,7 @@ export function resolveLanguageModel(provider: string): LanguageModel {
 
   const features = providerFeatures(provider);
   return LocalOpenAICompatibleModel(provider, {
-    listModels: features?.listModels !== false,
+    listModels: features?.listModels,
     transcribe: features?.transcribe,
     speech: features?.speech,
     imageGeneration: features?.imageGeneration,

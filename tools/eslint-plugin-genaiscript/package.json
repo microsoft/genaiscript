@@ -39,7 +39,7 @@
     "vitest": "catalog:"
   },
   "scripts": {
-    "build": "npm run clean && tshy",
+    "build": "tshy",
     "clean": "rimraf dist",
     "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
     "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",

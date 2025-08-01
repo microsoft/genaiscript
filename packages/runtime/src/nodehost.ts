@@ -236,7 +236,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     }
 
     if (listModels) {
-      dbg(`listing models for provider: ${provider}`);
+      dbg(`pull: listing models for provider: ${provider}`);
       const { ok, status, error, models } = await listModels(cfg, options);
       if (!ok) {
         logError(`${provider}: ${errorMessage(error)}`);

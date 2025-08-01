@@ -842,22 +842,35 @@ export async function parseTokenFromEnv(
     .filter((p) => p)
     .map((p) => p.toUpperCase().replace(/[^a-z0-9]+/gi, "_"));
   for (const prefix of prefixes) {
+    dbg(`looking for %s_...`, prefix);
     const modelKey = findEnvVar(env, prefix, TOKEN_SUFFIX);
     const modelBase = findEnvVar(env, prefix, BASE_SUFFIX);
     if (modelKey || modelBase) {
       const token = modelKey?.value || "";
-      const base = trimTrailingSlash(modelBase?.value);
       const version = env[prefix + "_API_VERSION"];
-      const type: OpenAIAPIType = (env[prefix + "API_TYPE"] as OpenAIAPIType) || "openai";
+      let type: OpenAIAPIType = env[prefix + "_API_TYPE"] as OpenAIAPIType;
       const azureCredentialsType = env[prefix + `_API_CREDENTIALS`]
         ?.toLowerCase()
         .trim() as AzureCredentialsType;
+      const customProvider = env[prefix + "_API_PROVIDER"] || provider;
+      const source = `env: ${prefix}_API_...`;
+      let base = trimTrailingSlash(modelBase?.value);
+      if (customProvider === MODEL_PROVIDER_AZURE_OPENAI) {
+        base = cleanAzureBase(base);
+        type = "azure";
+      }
       if (base && !URL.canParse(base)) {
         throw new Error(`${modelBase} must be a valid URL`);
       }
-      const source = `env: ${prefix}_API_...`;
+      dbg(`custom provider: %O`, {
+        provider: customProvider,
+        base,
+        type,
+        azureCredentialsType,
+        version,
+      });
       return deleteUndefinedValues({
-        provider,
+        provider: customProvider,
         model,
         modelId,
         token,

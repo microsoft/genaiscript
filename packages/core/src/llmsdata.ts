@@ -13,7 +13,7 @@ export interface LanguageModelProviderInformation {
   toolChoice?: boolean;
   prediction?: boolean;
   bearerToken?: boolean;
-  listModels?: boolean;
+  listModels: boolean;
   transcribe?: boolean;
   speech?: boolean;
   tokenless?: boolean;
@@ -318,6 +318,7 @@ export default {
       id: "ollama",
       detail: "Ollama local model",
       url: "https://ollama.ai/",
+      listModels: true,
       logitBias: false,
       openaiCompatibility: "https://github.com/ollama/ollama/blob/main/docs/openai.md",
       prediction: false,
@@ -407,6 +408,7 @@ export default {
       id: "anthropic",
       detail: "Anthropic models",
       url: "https://docs.anthropic.com/en/docs/about-claude/models",
+      listModels: true,
       logprobs: false,
       topLogprobs: false,
       prediction: false,
@@ -441,6 +443,7 @@ export default {
       id: "anthropic_bedrock",
       detail: "Anthropic on AWS Bedrock models",
       url: "https://support.anthropic.com/en/articles/7996918-what-is-amazon-bedrock",
+      listModels: true,
       logprobs: false,
       topLogprobs: false,
       prediction: false,
@@ -521,6 +524,7 @@ export default {
       id: "mistral",
       detail: "Mistral AI",
       url: "https://mistral.ai/",
+      listModels: true,
       prediction: false,
       bearerToken: true,
       aliases: {
@@ -571,6 +575,7 @@ export default {
     {
       id: "deepseek",
       detail: "DeepSeek Models",
+      listModels: false,
       bearerToken: true,
       aliases: {
         large: "deepseek-chat",
@@ -593,6 +598,7 @@ export default {
       id: "lmstudio",
       detail: "LM Studio local server",
       url: "https://lmstudio.ai/",
+      listModels: true,
       prediction: false,
       bearerToken: true,
       tokenless: true,
@@ -689,6 +695,7 @@ export default {
     {
       id: "litellm",
       detail: "LiteLLM proxy",
+      listModels: false,
       prediction: false,
       tokenless: true,
       env: {
@@ -702,6 +709,7 @@ export default {
       id: "whisperasr",
       detail: "Whisper ASR Webservice",
       url: "https://github.com/ahmetoner/whisper-asr-webservice",
+      listModels: false,
       tokenless: true,
       aliases: {
         transcription: "default",
@@ -716,6 +724,7 @@ export default {
     {
       id: "github_copilot_chat",
       detail: "GitHub Copilot Chat Models",
+      listModels: true,
       hidden: true,
       tools: false,
       prediction: false,
@@ -757,11 +766,13 @@ export default {
     {
       id: "echo",
       detail: "A fake LLM provider that responds with the input messages.",
+      listModels: false,
       tools: true,
       tokenless: true,
     },
     {
       id: "none",
+      listModels: false,
       tools: true,
       tokenless: true,
       hidden: true,
