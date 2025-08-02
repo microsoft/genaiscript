@@ -5074,12 +5074,10 @@ export interface ResourceHost {
   /**
    * Tries to resolve a resource from a URL.
    * @param url - The URL to resolve.
-   * @param options - Optional trace and cancellation options.
    * @returns A promise that resolves to an object containing the parsed URI and resolved files, or undefined if resolution fails.
    */
   resolveResource(
     url: string,
-    options?: CancellationOptions,
   ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
 }
 

@@ -111,14 +111,6 @@ The function returns an object with:
 - `uri`: The resolved URL as a URL object
 - `files`: An array of resolved files with their content
 
-You can also pass cancellation options:
-
-```ts
-const result = await host.resolveResource(url, { 
-  cancellationToken: /* your token */ 
-})
-```
-
 ## Secrets
 
 If the API you are querying requires an API key, you can use the [secrets](/genaiscript/reference/scripts/secrets) object to store the key.
