@@ -2,6 +2,98 @@
 title: GitHub Models
 sidebar:
   order: 2
+llmstxt:
+  content: >-
+    The GitHub Models provider (`github`) enables running AI models via the
+    GitHub Marketplace, suitable for prototyping and subject to rate limits
+    based on subscription.
+
+
+    To use the provider, specify the model in your script:
+
+    ```js
+
+    script({ model: "github:openai/gpt-4o" });
+
+    ```
+
+
+    **Codespaces**: Tokens are pre-configured.
+
+
+    **GitHub Actions**: Use the `GITHUB_TOKEN` to call models in workflows.
+    Ensure `models: read` permission is enabled:
+
+    ```yaml
+
+    permissions:
+      models: read
+    ```
+
+    Pass the token:
+
+    ```yaml
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    ```
+
+
+    **Personal Token**: Create a GitHub personal access token without scopes,
+    add it to `.env`:
+
+    ```txt
+
+    GITHUB_TOKEN=...
+
+    ```
+
+
+    **Model Configuration**: Find the model in the GitHub Marketplace, copy its
+    name, and configure:
+
+    ```js
+
+    script({ model: "github:microsoft/Phi-3-mini-4k-instruct" });
+
+    ```
+
+    For a separate token, use `GITHUB_MODELS_TOKEN`.
+
+
+    **GitHub CLI**: Install and authenticate with `gh`:
+
+    ```bash
+
+    gh auth login
+
+    ```
+
+    GenAIScript will use the CLI token if environment variables are not set.
+
+
+    **Organization Inference**: To run inference on behalf of an organization,
+    set:
+
+    ```txt
+
+    GITHUB_MODELS_ORG=my-org
+
+    ```
+
+    The actor must be a member with enabled models.
+
+
+    **Model Limitations**: `o1-preview` and `o1-mini` models lack streaming and
+    system prompts, handled internally:
+
+    ```js
+
+    script({ model: "github:openai/o1-mini" });
+
+    ```
+  hash: a74b4520864dcd04f460f4dfa227bb92c0368e169368ae99a9006480d49ddefa
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

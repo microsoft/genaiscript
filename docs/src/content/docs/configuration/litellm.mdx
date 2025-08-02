@@ -2,6 +2,23 @@
 title: LiteLLM
 sidebar:
   order: 50
+llmstxt:
+  content: >-
+    The LiteLLM proxy gateway offers an OpenAI-compatible API for running models
+    locally. Configure the `LITELLM_API_KEY` to set your key and optionally use
+    `LITELLM_API_BASE` for a custom base URL. Use the `litellm` provider.
+
+
+    Example configuration:
+
+
+    .env  
+
+    LITELLM_API_KEY="..."  
+
+    #LITELLM_API_BASE="..."
+  hash: 740829b64f807f7a8c4c189e0c7538783b42c8b4a55f2ccc70c5adfeb762960b
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

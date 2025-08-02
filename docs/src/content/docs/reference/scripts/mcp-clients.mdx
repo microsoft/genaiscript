@@ -11,6 +11,58 @@ hero:
       details include a small play button or gear symbol, symbolizing operations
       or scripting functionality.
     file: ./mcp-clients.png
+llmstxt:
+  content: >-
+    The Model Context Protocol (MCP) standardizes sharing and consuming tools
+    across frameworks and runtimes. GenAIScript provides a lightweight interface
+    over the MCP TypeScript SDK, enabling programmatic interaction with MCP
+    servers, tool invocation, and resource resolution. While APIs are simpler
+    and faster for many tasks, MCPs are tailored for LLM workflows, offering
+    containerized, ready-to-use tools that avoid runtime or versioning issues.
+
+
+    To start an MCP server, define it with an identifier for reference:
+
+
+    const fs = await host.mcpServer({
+      id: "filesystem",
+      command: "npx",
+      args: ["-y", "@modelcontextprotocol/server-filesystem", path.resolve(".")],
+    });
+
+
+    The server stops automatically after the prompt. Tools can be listed or
+    invoked directly:
+
+
+    const tools = await fs.listTools();
+
+    const res = await fs.callTool("get_file_info", { path: "README.md" });
+
+    const info = res.content[0].text;
+
+
+    For example, to extract a YouTube video transcript using the
+    mcp/youtube-transcript server:
+
+
+    const yt = await host.mcpServer({
+      id: "youtube_transcript",
+      command: "docker",
+      args: ["run", "-i", "--rm", "mcp/youtube-transcript"],
+    });
+
+    const transcript = await yt.callTool("get_transcript", { url:
+    "https://youtu.be/ENunZe--7j0" });
+
+    console.log(`transcript: ${transcript.text}`);
+
+
+    MCP servers are not shared between prompts by default but can be reused with
+    `host.mcpClient`. Tools can also be defined for reuse across multiple
+    prompts.
+  hash: 41c874c5955fe716a9e0f0b4286cef7e481e236bfcef5080c5cc625cb0c42818
+
 ---
 
 The [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) defines a protocol for sharing [tools](https://modelcontextprotocol.io/docs/concepts/tools)

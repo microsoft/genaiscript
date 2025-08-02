@@ -1,9 +1,42 @@
 ---
 title: Ask My Image
-description: Learn how to apply GenAIScript to images for data extraction and analysis using AI models.
+description: Learn how to apply GenAIScript to images for data extraction and
+  analysis using AI models.
 keywords: image processing, AI scripting, data extraction, GenAIScript, visual analysis
 sidebar:
   order: 6
+llmstxt:
+  content: >-
+    The quick-start guide explains how to create a GenAIScript for processing
+    image files. 
+
+
+    1. Place the image file in a visible directory in VS Code.  
+
+    2. Use the `> GenAIScript: Create new script...` command to generate a
+    script.  
+
+    3. Set the model in the script header to one that supports image input:  
+       ```js
+       script({
+           title: "Apply a script to an image",
+           model: "openai:gpt-4o",
+       })
+       ```  
+    4. Use `defImages` to load the image into the model context:  
+       ```js
+       defImages(env.files, { detail: "low" })
+       ```  
+    5. Replace the placeholder text with specific instructions for the image:  
+       ```js
+       $`You are a helpful assistant. Analyze the chart in the image and extract its data into a table.`
+       ```  
+    6. Right-click the image file in VS Code, select **Run GenAIScript**, and
+    choose the script.  
+
+    7. The output will appear in a new document tab.
+  hash: 47248b9d836ab69ae6ce2864155892bef3699b3f46fa36f89563a68a8c394ccd
+
 ---
 import { Steps } from '@astrojs/starlight/components';
 

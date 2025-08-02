@@ -15,6 +15,101 @@ hero:
       small dimensions, iconic appearance, no text or human figures, and a plain
       setting.
     file: ./model-aliases.png
+llmstxt:
+  content: >-
+    Model aliases allow you to assign friendly names to models, abstracting
+    specific versions or tags. Instead of hardcoding a model, you can define and
+    use an alias.
+
+
+    Example of using an alias:
+
+    ```js
+
+    script({ model: "large" });
+
+    ```
+
+
+    Aliases can be defined in multiple ways, with the last definition taking
+    precedence:
+
+    1. Configuration file (`genaiscript.config.json`):
+
+    ```json
+
+    {
+      "modelAliases": {
+        "llama32": "ollama:llama3.2:1b"
+      }
+    }
+
+    ```
+
+    2. Environment variables (`.env`):
+
+    ```
+
+    GENAISCRIPT_MODEL_LLAMA32="ollama:llama3.2:1b"
+
+    ```
+
+    3. CLI flag:
+
+    ```sh
+
+    genaiscript run --model-alias llama32=ollama:llama3.2:1b
+
+    ```
+
+    4. Inline in the `script` function:
+
+    ```js
+
+    script({
+      model: "llama32",
+      modelAliases: { llama32: "ollama:llama3.2:1b" },
+    });
+
+    ```
+
+
+    Aliases can reference other aliases, provided no cycles are created:
+
+    ```json
+
+    {
+      "modelAliases": {
+        "llama32": "ollama:llama3.2:1b",
+        "llama": "llama32"
+      }
+    }
+
+    ```
+
+
+    Default aliases include:
+
+    - `large`: GPT-4o-like models
+
+    - `small`: Smaller, faster models like GPT-4o-mini
+
+    - `vision`: Models for image analysis
+
+    - `reasoning`: Models like `o1` or `o1-preview`
+
+    - `reasoning_small`: Smaller reasoning models like `o1-mini`
+
+
+    GenAIScript also uses internal aliases (`agent`, `memory`) for specific
+    tasks. Default aliases can be adjusted by specifying a provider:
+
+    ```sh
+
+    genaiscript run --provider anthropic
+
+    ```
+  hash: 1916e467d33ebbb2f09a5313fe7211fb53fb7b571668e853f1b39b3304a64c5f
 
 ---
 

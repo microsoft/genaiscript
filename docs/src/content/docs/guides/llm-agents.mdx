@@ -2,7 +2,27 @@
 title: LLM Agents
 description: Learn how to use the inline prompts to create a LLM agent.
 sidebar:
-    order: 20
+  order: 20
+llmstxt:
+  content: >-
+    An agent is a specialized tool that uses an inline prompt and other tools to
+    solve tasks. For investigating recent GitHub Actions failures, use these
+    agents: `agent_github` (query GitHub API), `agent_git` (compute git diffs),
+    and `agent_fs` (read/search files). Example script:
+
+
+    script({ tools: ["agent_fs", "agent_git", "agent_github", ...], ... })
+
+
+    Agents call LLMs with specific tools. Full script source is available in the
+    provided code. Multiple instances of agents like `agent_git` can work on
+    different repositories; use a `variant` argument for unique names. Tools can
+    be loaded in a single LLM call, but results may vary:
+
+
+    script({ tools: ["fs", "git", "github", ...], ... })
+  hash: 661442786a02ffd9c1c3b52bbe641dac6b14e5a3701c66c5f8960939888df6be
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

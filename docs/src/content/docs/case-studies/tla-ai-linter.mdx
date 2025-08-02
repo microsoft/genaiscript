@@ -2,8 +2,33 @@
 title: TLA+ AI Linter
 sidebar:
   order: 7
-description: Explore how the TLA+ AI Linter leverages GenAI scripts and LLMs to enhance TLA+ specifications with automated linting and consistent comment verification.
-keywords: TLA+ linting, AI-powered linter, GenAI integration, automated code review, distributed systems modeling
+description: Explore how the TLA+ AI Linter leverages GenAI scripts and LLMs to
+  enhance TLA+ specifications with automated linting and consistent comment
+  verification.
+keywords: TLA+ linting, AI-powered linter, GenAI integration, automated code
+  review, distributed systems modeling
+llmstxt:
+  content: >-
+    TLA+ is a high-level language for modeling programs and systems,
+    particularly concurrent and distributed ones, using simple mathematics. It
+    lacks a traditional linter or formatter. The TLA+ AI Linter is a GenAI
+    script leveraging LLMs to lint TLA+ files.
+
+
+    A TLA+ specification models the termination detection problem in distributed
+    systems. The script checks if prose comments in the spec align with TLA+
+    definitions. It adds line numbers to file content for precise issue
+    identification and uses annotations to generate parseable warnings and
+    errors, integrated into VSCode or CI/CD pipelines. GPT-4's knowledge of
+    logic and math is supplemented with common TLA+ idioms for effective
+    linting.
+
+
+    A GitHub Action runs the linter on modified or added TLA+ specs in PRs. The
+    script outputs annotations formatted as SARIF reports, uploaded to the PR.
+    The linter identifies inconsistent comments, generating warnings in the PR.
+  hash: 3db4f2da25ca8d1e19c3351871c1e747bb70378c0f948102a333155ebd641153
+
 ---
 
 import { Image } from "astro:assets";

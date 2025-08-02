@@ -5,8 +5,7 @@ sidebar:
   order: 50
 hero:
   image:
-    alt:
-      "A geometric 8-bit style image shows the GitHub Octocat logo in the center,
+    alt: "A geometric 8-bit style image shows the GitHub Octocat logo in the center,
       with basic icons arranged around it: a speech bubble for issues and
       comments, a pull request symbol, a gear for workflow, a magnifying glass
       for code search, a file icon for file content, a branch for branching, a
@@ -15,6 +14,68 @@ hero:
       minimally detailed, and set in a 128x128 pixel layout without background,
       shadows, gradients, text, or human figures."
     file: ./github.png
+llmstxt:
+  content: >-
+    The `github` module provides helper functions for GitHub queries and
+    advanced connection handling. Configuration is auto-detected from the
+    environment and git. The `GITHUB_TOKEN` is read from the environment, and
+    the issue or pull request number is detected via `GITHUB_ISSUE`. CodeSpaces
+    auto-provisions `GITHUB_TOKEN`. In GitHub Actions, permissions like
+    `actions: read` and `GITHUB_TOKEN` must be configured.
+
+
+    Key Functions:
+
+
+    1. **Issues**:  
+       - `listIssues({ per_page })` retrieves issues.  
+       - `listIssueComments(issueNumber)` fetches comments.  
+       - `updateIssue(issueNumber, { title, body })` updates issues.  
+       - `createIssueComment(issueNumber, comment)` adds comments.  
+       - `listIssueLabels(issueNumber)` lists labels.
+
+    2. **Pull Requests**:  
+       - `listPullRequests({ per_page })` retrieves PRs.  
+       - `listPullRequestReviewComments(prNumber)` fetches review comments.
+
+    3. **Workflow Runs**:  
+       - `listWorkflowRuns(file, { per_page })` lists runs.  
+       - `listWorkflowJobs(runId)` fetches job logs.
+
+    4. **Bots**:  
+       - `assignIssueToBot(issueNumber)` assigns issues to bots.
+
+    5. **Artifacts**:  
+       - `listWorkflowArtifacts(runId)` lists artifacts.  
+       - `downloadArtifact(artifactId)` downloads and unzips artifacts.
+
+    6. **Assets**:  
+       - `resolveAssetUrl(assetUrl)` generates short-lived download URLs.
+
+    7. **Search Code**:  
+       - `searchCode(query)` searches code in the default branch.
+
+    8. **File Content**:  
+       - `getFile(filePath, ref)` retrieves file content.  
+       - `getRepositoryContent(path, { type, glob, downloadContent })` lists repository files.
+
+    9. **Upload Asset**:  
+       - `uploadAsset(file)` uploads data to an orphaned branch and returns a URL.
+
+    10. **Languages**:  
+        - `listRepositoryLanguages()` lists repository languages.
+
+    11. **Branches**:  
+        - `listBranches()` retrieves repository branches.
+
+    12. **Releases**:  
+        - `listReleases()` lists repository releases.
+
+    For full GitHub API access, use `octokit`. Example: `const { client } =
+    await github.api()`. To work on another repository, use
+    `github.client("owner", "repo")`.
+  hash: fc7f8990df6d251ab1439f6b5e61ac85886d750ea3c2adc13f5cb5aeca46de32
+
 ---
 
 import { PackageManagers } from "starlight-package-managers";

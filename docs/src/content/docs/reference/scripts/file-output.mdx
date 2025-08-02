@@ -17,6 +17,106 @@ hero:
       people, and all elements have a flat, geometric look. The image is 128x128
       pixels.
     file: ./file-output.png
+llmstxt:
+  content: >-
+    Reliable file generation with LLMs is challenging. GenAIScript supports
+    generating or editing files efficiently: regenerate small files entirely,
+    use edits for large files. It adds system messages to guide LLMs on output
+    formatting.
+
+
+    Example: Generating a poem and saving it to a file.
+
+    ```
+
+    $`Generate a 1 sentence poem and save it to a text file.`
+
+    ```
+
+    LLM output:
+
+    ```
+
+    FILE ./poem.txt:
+
+    In twilight's gentle embrace, dreams dance like whispers on the breeze.
+
+    ```
+
+    Edits require user confirmation in VS Code or the `--apply-edits` flag in
+    CLI:
+
+    ```
+
+    npx genaiscript run poet --apply-edits
+
+    ```
+
+
+    For large files, GenAIScript uses a `changelog` format to minimize errors:
+
+    ```
+
+    def("FILE", env.files)
+
+    $`Comment every line of code and update the file. Use the changelog format.`
+
+    ```
+
+    LLM generates a detailed changelog specifying changes:
+
+    ```
+
+    ChangeLog:1@samples/sample/src/greeter.ts
+
+    Description: Added comments to each line of code.
+
+    OriginalCode@1-6:
+
+    [1] class Greeter { ...
+
+    ChangedCode@1-6:
+
+    [1] // Define a class named Greeter ...
+
+    ```
+
+
+    To declare file outputs, use `defFileOutput`:
+
+    ```
+
+    defFileOutput("poem.txt", "the generated poem")
+
+    ```
+
+    This validates file locations and applies changes automatically. GenAIScript
+    adds system rules:
+
+    ```
+
+    poem.txt: the generated poem
+
+    ```
+
+
+    Schema validation ensures content correctness:
+
+    ```
+
+    const schema = defSchema("KEYWORDS", { type: "array", items: { type:
+    "string" } });
+
+    defFileOutput("src/rag/*.keywords.json", "An array of keywords", { schema
+    });
+
+    ```
+
+
+    Post-processing is possible with `defOutputProcessor`. System prompts like
+    `system.files` and `system.changelog` define file generation and editing
+    rules.
+  hash: 9fdd014e3680f113d7c2cfddd8fd3cb4b30d3339f18274720dd894a9d6a78a08
 
 ---
 

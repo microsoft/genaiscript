@@ -13,6 +13,79 @@ hero:
       no characters, background, or shadows, and maintains a small, iconic
       appearance.
     file: ./concurrency.png
+llmstxt:
+  content: >-
+    GenAI programs often idle while waiting for LLM tokens. JavaScript's `async`
+    and `await` enable non-blocking asynchronous execution. For example:
+
+
+    ```js
+
+    async function work() { ... }
+
+    await work()
+
+    ```
+
+
+    Serial execution processes LLM queries one-by-one:
+
+
+    ```js
+
+    const poem = await prompt`write a poem`
+
+    const essay = await prompt`write an essay`
+
+    ```
+
+
+    Concurrent execution speeds up processing:
+
+
+    ```js
+
+    const [poem, essay] = await Promise.all(
+        prompt`write a poem`,
+        prompt`write an essay`
+    )
+
+    ```
+
+
+    However, excessive concurrent requests may hit rate limits. GenAIScript
+    automatically limits concurrent requests per model.
+
+
+    A promise queue ensures controlled concurrency. Wrap promises in functions:
+
+
+    ```js
+
+    const queue = host.promiseQueue(3)
+
+    const res = await queue.all([
+        () => prompt`write a poem`,
+        () => prompt`write an essay`
+    ])
+
+    ```
+
+
+    Use `mapAll` for arrays:
+
+
+    ```js
+
+    const queue = host.promiseQueue(3)
+
+    const summaries = await queue.mapAll(
+        env.files,
+        (file) => prompt`Summarize ${file}`
+    )
+
+    ```
+  hash: 5d95c1aac10a89b5eccafbb880a166e32cca403dd772998dfc02050236ca8c2c
 
 ---
 

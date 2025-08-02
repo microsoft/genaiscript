@@ -5,8 +5,7 @@ sidebar:
 description: Turns scripts into Model Context Protocol Tools
 hero:
   image:
-    alt:
-      An 8-bit style icon shows two interlocking shapes—a script file with
+    alt: An 8-bit style icon shows two interlocking shapes—a script file with
       brackets and prompt arrow on one side and a server block on the other,
       connected by lines signifying protocols. Five vivid colored circles and
       squares represent resource blocks and parameters between the shapes. A
@@ -14,6 +13,129 @@ hero:
       elements are geometric, with no background, text, or people, and use only
       five bold corporate colors.
     file: ./mcp-server.png
+llmstxt:
+  content: >-
+    GenAIScript turns scripts into Model Context Protocol (MCP) tools, enabling
+    tool sharing across frameworks. Each script is exposed as an MCP tool, with
+    its description guiding LLMs in tool selection. Parameters are inferred from
+    script definitions and populate `env.vars`. Outputs are derived from the
+    script's final message or `env.output`.
+
+
+    Example script:
+
+    ```js
+
+    script({
+        description: "You MUST provide a description!",
+        parameters: { task: { type: "string", description: "The task to perform", required: true } }
+    });
+
+    const { task } = env.vars;
+
+    $`... prompt ... ${task}`;
+
+    ```
+
+
+    Advanced example using `env.output`:
+
+    ```js
+
+    script({
+        description: "You MUST provide a description!",
+        accept: "none",
+        parameters: { task: { type: "string", description: "The task to perform", required: true } }
+    });
+
+    const { output } = env;
+
+    const res = runPrompt(_ => `... prompt ... ${task}`);
+
+    output.fence(`The result is ${res.text}`);
+
+    ```
+
+
+    MCP supports sampling for LLM completions. Use the `mcp` provider:
+
+    ```js
+
+    script({ model: "mcp:claude" });
+
+    ```
+
+
+    Annotations add metadata to tools:
+
+    ```js
+
+    script({
+        annotations: { readOnlyHint: true, openWorldHint: true }
+    });
+
+    ```
+
+
+    Resources like files or strings can be exposed via `host.publishResource`,
+    returning a URI:
+
+    ```js
+
+    const id = await host.publishResource("data", file);
+
+    ```
+
+
+    Images can be output with:
+
+    ```js
+
+    await env.output.image("filename.png");
+
+    ```
+
+
+    Secret scanning in `publishResource` can be disabled:
+
+    ```js
+
+    const id = await host.publishResource("data", file, { secretScanning: false
+    });
+
+    ```
+
+
+    The MCP server supports stdio (default) or HTTP transport:
+
+    ```sh
+
+    genaiscript mcp --http --port 3000
+
+    ```
+
+
+    Scripts can be filtered by groups:
+
+    ```js
+
+    script({ group: "mcp" });
+
+    ```
+
+
+    Remote repositories can be used for scripts:
+
+    ```sh
+
+    npx genaiscript mcp --remote https://github.com/... --remote-branch main
+
+    ```
+
+
+    Be cautious with untrusted remote scripts.
+  hash: 74be1efd89bfa493e04bd335cb28273740f9f59b9579ce60ef5cb1bb6f8a4cf1
+
 ---
 
 import { Image } from "astro:assets";

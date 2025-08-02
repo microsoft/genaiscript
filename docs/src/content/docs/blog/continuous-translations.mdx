@@ -47,6 +47,39 @@ excerpt: >-
   open-source plugins for Markdown AST manipulation. Teams benefit from
   localized, up-to-date documentation with minimal friction, driven entirely by
   automation and modern AI tooling.
+llmstxt:
+  content: >-
+    GenAIScript automates continuous translation of Markdown documentation using
+    GitHub Actions and LLMs. The process involves parsing Markdown into an
+    Abstract Syntax Tree (AST), identifying translatable chunks, and replacing
+    them with placeholders like `┌T001┐...└T001┘`. These placeholders are
+    translated by the LLM, and translations are reintegrated into the AST. The
+    script ensures idempotency by caching translations and only processing
+    untranslated content.
+
+
+    Key steps include:
+
+    1. Parsing Markdown into an AST.
+
+    2. Extracting translatable nodes (text, paragraphs, headings, YAML
+    metadata).
+
+    3. Replacing content with unique markers for LLM translation.
+
+    4. Translating marked content via LLM prompts, ensuring structure and URLs
+    remain intact.
+
+    5. Validating translations for Markdown syntax and URL consistency.
+
+    6. Using an LLM to judge translation quality.
+
+
+    The script supports iterative translation, caching results to avoid
+    redundant work. YAML metadata, MDX JSX attributes, and links are patched for
+    compatibility. Translations are committed to the repository after passing
+    validation.
+  hash: a84210c4aa5fcd861d8b4e5643613ebc18bea0f583e791d40f4fba98feecf880
 
 ---
 

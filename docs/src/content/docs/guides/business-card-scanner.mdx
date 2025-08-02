@@ -3,6 +3,60 @@ title: Business card scanner
 description: Using OpenAI Vision to scan business cards.
 sidebar:
   order: 11
+llmstxt:
+  content: >-
+    This guide demonstrates how to use the OpenAI vision model to extract
+    structured data from business cards.
+
+
+    To use the vision model, deploy `gpt-4o` with `maxTokens` set to 4000 for
+    processing entire card details. Use the `defImages` function to handle input
+    files, automatically filtering non-image files. Example:
+    `defImages(env.files)`.
+
+
+    For CSV output, integrate the script:
+
+
+    ```js
+
+    script({
+        model: "openai:gpt-4o",
+        maxTokens: 4000,
+    })
+
+    ```
+
+
+    For data validation, define a schema to structure business data rows:
+
+
+    ```js
+
+    const schema = defSchema("EXPENSE", {
+        type: "array",
+        items: {
+            type: "object",
+            properties: {
+                Date: { type: "string" },
+                Location: { type: "string" },
+                Total: { type: "number" },
+                Tax: { type: "number" },
+                Item: { type: "string" },
+                ExpenseCategory: { type: "string" },
+                Quantity: { type: "number" },
+            },
+            required: ["Date", "Location", "Total", "Tax", "Item", "Quantity"],
+        },
+    })
+
+    ```
+
+
+    Adapt the script to use this schema for structured validation instead of CSV
+    output.
+  hash: 23f56eeec3388bc40b3c96490ade2af2c7851df0965608d521a47bc732a43075
+
 ---
 import { Code } from '@astrojs/starlight/components';
 import importedCode from "../../../../../samples/sample/src/vision/describe-card.genai.js?raw"

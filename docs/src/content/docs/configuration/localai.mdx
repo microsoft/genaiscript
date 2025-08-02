@@ -2,6 +2,32 @@
 title: LocalAI
 sidebar:
   order: 50
+llmstxt:
+  content: >-
+    LocalAI is a REST API compatible with OpenAI API specifications for local
+    inferencing using free Open Source models on CPUs. It maps OpenAI model
+    names (e.g., `gpt-4` to `phi-2`).
+
+
+    To set up LocalAI:
+
+
+    1. Install Docker (refer to LocalAI documentation for prerequisites).
+
+    2. Update `.env` to set the API type:
+       OPENAI_API_TYPE=localai
+
+    Start LocalAI with Docker:
+
+    docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu
+
+    docker start local-ai
+
+    docker stats
+
+    LocalAI runs at http://127.0.0.1:8080
+  hash: 8b41a90cdf685b5d3140d8794bbe861ea70a37fa86df0a34dc6d60f7957adc66
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

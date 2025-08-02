@@ -6,14 +6,56 @@ sidebar:
 keywords: runtime, GenAIScript, JavaScript, TypeScript
 hero:
   image:
-    alt:
-      A simple, flat 2D illustration depicts an open package box with basic
+    alt: A simple, flat 2D illustration depicts an open package box with basic
       digital script symbols, small code blocks, and algorithm icons rising from
       it. Stylized arrows represent data flow around the box. The art uses five
       solid corporate colors in an 8-bit, geometric, pixelated style. The image
       is 128x128 pixels, transparent background, no text, no people, and no
       shading.
     file: ./index.png
+llmstxt:
+  content: >-
+    GenAIScript runtime enables integration with Node.js applications. Install
+    it using `@genaiscript/runtime`.
+
+
+    To initialize the runtime without the CLI or VS Code extension:
+
+    ```js
+
+    import { initialize } from "@genaiscript/runtime";
+
+    await initialize();
+
+    ```
+
+
+    The runtime provides global parsers and inline prompt types but excludes
+    globals like `$` and `def`.
+
+
+    Key helpers include:
+
+    - `cast`: Convert data to structured outputs.
+
+    - `classify`: Categorize text.
+
+    - `makeItBetter`: Enhance LLM results.
+
+
+    Plugins for additional functionality require separate installation:
+
+    - `@genaiscript/plugin-mdast`: Markdown AST manipulation.
+
+    - `@genaiscript/plugin-ast-grep`: Tree-sitter rule matching.
+
+    - `@genaiscript/plugin-mermaid`: MermaidJS diagram parsing.
+
+    - `@genaiscript/plugin-pyodide`: Python execution in the browser.
+
+    - `@genaiscript/plugin-z3`: Z3 Solver execution.
+  hash: b20d6ab87e6e395acf5142610a843e7c23b01edcdc36b840d435f6c06b6f291f
+
 ---
 
 import { PackageManagers } from "starlight-package-managers";

@@ -12,6 +12,39 @@ hero:
       states. The design uses five distinct colors, features bold, basic shapes,
       and has no text, people, or background details.'
     file: ./choices.png
+llmstxt:
+  content: >-
+    Specify preferred words in script metadata to increase their generation
+    probability. Each word must match a single token. For models without a token
+    encoder, pre-encoded tokens can be provided.
+
+
+    Example for preferred words:
+
+    script({ choices: ["OK", "ERR"] })
+
+
+    Custom weights adjust choice probabilities. Default weight is 5. Example:
+
+    script({ choices: ["OK", { token: "ERR", weight: 10 }] })
+
+
+    For models without token encoders, use pre-encoded tokens:
+
+    script({ choices: [{ token: 12345, weight: 10 }] })
+
+
+    GenAIScript uses logit bias to alter token probabilities. Example:
+
+    choices: `OK`, `ERR`
+
+    logit bias: `{"5175":5,"5392":5}`
+
+
+    Enable logprobs to visualize token confidence:
+
+    ERR (100%), . (32.07%)
+  hash: d7ec980c56f7cb1f23791bc878375d7bf2af8117eb97551cbb5fa186c7eb7e9b
 
 ---
 

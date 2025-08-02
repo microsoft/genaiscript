@@ -22,6 +22,115 @@ hero:
       background elements, or visual effects like shadows, gradients, or
       reflections. The overall layout is 128 by 128 pixels.
     file: ./index.png
+llmstxt:
+  content: >-
+    GenAIScript is a JavaScript-based scripting language designed to integrate
+    LLMs into automation and debugging workflows. It uses a simplified syntax
+    and supports the VS Code extension for enhanced functionality.
+
+
+    To begin, configure your environment to access an LLM. GitHub Codespaces
+    users can skip this step as it defaults to GitHub Models.
+
+
+    A basic script, `poem.genai.mjs`, demonstrates the `$` template literal
+    syntax for LLM prompts:
+
+
+    ```js
+
+    $`Write a poem in code.`
+
+    ```
+
+
+    This generates a user message for the LLM, which, combined with system
+    scripts, forms the payload:
+
+
+    ```json
+
+    { "messages": [{ "role": "system", "content": "You are helpful." }, {
+    "role": "user", "content": "Write a poem in code." }] }
+
+    ```
+
+
+    Scripts can be executed via CLI or VS Code. Outputs are processed and
+    returned by the runtime.
+
+
+    Variables can be defined using `def` to include dynamic content in prompts.
+    For example, summarizing a file:
+
+
+    ```js
+
+    def("FILE", workspace.readText("some/relative/markdown.txt"))
+
+    $`Summarize FILE in one sentence.`
+
+    ```
+
+
+    The `def` function supports options like `lineNumbers` and `maxTokens`.
+    Scripts can also use `env.files` to process multiple files dynamically:
+
+
+    ```js
+
+    def("FILE", env.files)
+
+    $`Summarize FILE in one sentence.`
+
+    ```
+
+
+    Outputs can specify file patterns for saving results:
+
+
+    ```js
+
+    def("FILE", env.files)
+
+    $`Summarize each FILE in one sentence. Save each generated summary to
+    "<filename>.summary"`
+
+    ```
+
+
+    Tools like `fs_read_file` enable LLMs to interact with files directly:
+
+
+    ```js
+
+    script({ tools: "fs_read_file" })
+
+    $`- read the file markdown.md - summarize it in one sentence. - save output
+    to markdown.md.txt`
+
+    ```
+
+
+    Agents like `agent_fs` combine LLMs with file system tools for more complex
+    tasks:
+
+
+    ```js
+
+    script({ tools: "agent_fs" })
+
+    $`- read the file src/rag/markdown.md - summarize it in one sentence. - save
+    output to file markdown.md.txt (override existing)`
+
+    ```
+
+
+    GenAIScript supports structured outputs, file creation, and advanced
+    prompting techniques. Use the VS Code extension for enhanced development and
+    debugging. For runtime integration in Node.js projects, refer to the runtime
+    documentation.
+  hash: 394cb43d736e8e13006e199ebbb438a90d43a30feb573039b20a0af59310102f
 
 ---
 

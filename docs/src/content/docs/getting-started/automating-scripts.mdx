@@ -1,19 +1,48 @@
 ---
 title: Automating scripts
 sidebar:
-    order: 5
+  order: 5
 description: Learn how to automate your scripts using the GenAIScript CLI for
-    efficient batch processing and integration into CI/CD pipelines.
+  efficient batch processing and integration into CI/CD pipelines.
 keywords: automation, CLI, batch processing, CI/CD integration, script execution
 hero:
-    image:
-        alt:
-            A simple, flat 8-bit icon displays a geometric laptop alongside a cogwheel
-            and checkmark, a stylized file tree linked by lines, a small cloud with an
-            upload arrow, and a basic shield representing security. All elements use a
-            five-color corporate palette, arranged on a transparent background in a
-            128x128 pixel square, with no people, text, shadows, or 3D effects.
-        file: ./automating-scripts.png
+  image:
+    alt: A simple, flat 8-bit icon displays a geometric laptop alongside a cogwheel
+      and checkmark, a stylized file tree linked by lines, a small cloud with an
+      upload arrow, and a basic shield representing security. All elements use a
+      five-color corporate palette, arranged on a transparent background in a
+      128x128 pixel square, with no people, text, shadows, or 3D effects.
+    file: ./automating-scripts.png
+llmstxt:
+  content: >-
+    Run scripts with GenAIScript CLI using `npx --yes genaiscript run
+    <script_id> <...files>`. `<script_id>` is the script name (without
+    `.genai.mjs`), and `<...files>` are the input files. The CLI uses `.env`
+    secrets, populates `env.files`, executes the script, and outputs results.
+    Add `--apply-edits` to write changes directly to files. Review edits for
+    safety, or use a sandboxed container. In CI/CD pipelines, non-zero exit
+    codes indicate failure.
+
+
+    To integrate with GitHub Actions, configure `models: read` permission, pass
+    `GITHUB_TOKEN`, and set the LLM provider to `github`. Use `--out <path>` to
+    save results and upload as artifacts. Add `--out-trace $GITHUB_STEP_SUMMARY`
+    to include trace in the action summary. Use `git.diff` for branch changes
+    and fetch `origin/main` for accurate diffs.
+
+
+    For Azure OpenAI, create a Service Principal, assign roles, and configure
+    `AZURE_CREDENTIALS` and `AZURE_OPENAI_API_ENDPOINT` in GitHub secrets and
+    variables. Use the Azure login action with these credentials.
+
+
+    For pull requests, use `--pull-request-description` to update the PR
+    description, `--pull-request-comment` for conversation comments, and
+    `--pull-request-reviews` to add review comments. Ensure `pull-requests:
+    write` permission and pass `GITHUB_TOKEN`. Use `git diff HEAD^ HEAD` to
+    collect last commit changes.
+  hash: 57d2544bb28f42209bcd2903d29adc2b0f14dddebfaddf114fbc22971178fed5
+
 ---
 
 import { Steps } from "@astrojs/starlight/components"

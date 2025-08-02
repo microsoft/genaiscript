@@ -1,20 +1,129 @@
 ---
 title: Data Schemas
 sidebar:
-    order: 6
+  order: 6
 description: Learn how to define and use data schemas for structured output in
-    JSON/YAML with LLM, including validation and repair techniques.
+  JSON/YAML with LLM, including validation and repair techniques.
 keywords: data schemas, JSON schema, YAML validation, LLM structured output,
-    schema repair
+  schema repair
 hero:
-    image:
-        alt:
-            A simple 8-bit styled icon features three small colored squares, each
-            depicting a data type symbol (number, string, and web link), linked by
-            thin lines to a larger, rounded central square symbolizing a schema. The
-            image uses five flat corporate colors, omits text and human figures, and
-            is set on a transparent background.
-        file: ./schemas.png
+  image:
+    alt: A simple 8-bit styled icon features three small colored squares, each
+      depicting a data type symbol (number, string, and web link), linked by
+      thin lines to a larger, rounded central square symbolizing a schema. The
+      image uses five flat corporate colors, omits text and human figures, and
+      is set on a transparent background.
+    file: ./schemas.png
+llmstxt:
+  content: >-
+    GenAIScript supports simplified JSON schemas to define and validate the
+    structure of generated data. JSON schemas specify data types, properties,
+    and constraints for JSON objects, ensuring compliance with a defined
+    structure. Use `responseSchema` to define schemas for prompt outputs,
+    specifying `responseType` as either `"json"` (encoded in a system message)
+    or `"json_object"` (leveraging LLM's structured output support). Both
+    options validate outputs automatically.
+
+
+    Example schema:
+
+    ```js
+
+    const schema = {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        population: { type: "number" },
+        url: { type: "string" },
+      },
+      required: ["name", "population", "url"],
+    };
+
+    ```
+
+
+    Apply schemas in prompts:
+
+    ```js
+
+    const { json } = await runPrompt(..., {
+      responseSchema: schema,
+      responseType: "json_object",
+    });
+
+    ```
+
+
+    Define reusable schemas with `defSchema`:
+
+    ```js
+
+    const schema = defSchema("CITY_SCHEMA", {
+      type: "array",
+      description: "A list of cities with population and elevation information.",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          population: { type: "number" },
+          url: { type: "string" },
+        },
+        required: ["name", "population", "url"],
+      },
+    });
+
+    $`Generate data using JSON compliant with ${schema}.`;
+
+    ```
+
+
+    Zod integration allows defining schemas programmatically:
+
+    ```js
+
+    import { z } from "@genaiscript/runtime";
+
+    const CitySchema = z.array(
+      z.object({
+        name: z.string(),
+        population: z.number(),
+        url: z.string(),
+      })
+    );
+
+    const schema = defSchema("CITY_SCHEMA", CitySchema);
+
+    ```
+
+
+    Schemas are converted to TypeScript types for LLM prompts:
+
+    ```ts
+
+    type CITY_SCHEMA = Array<{
+      name: string;
+      population: number;
+      url: string;
+    }>;
+
+    ```
+
+
+    Validation ensures generated data matches the schema:
+
+    ```js
+
+    const validation = parsers.validateJSON(schema, json);
+
+    const data = await workspace.readJSON("data.json", { schema });
+
+    ```
+
+
+    GenAIScript can repair invalid data by re-engaging the LLM. Use schemas to
+    guide and validate structured data generation while minimizing ambiguity.
+  hash: b4ff2333544ef5faf77da20301599015b7a78c9162ae919a4b5818d0777a6c7d
+
 ---
 
 import { Card } from "@astrojs/starlight/components"

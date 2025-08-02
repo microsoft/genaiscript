@@ -18,6 +18,105 @@ hero:
       chevron for data parsing. The image uses five corporate colors, has flat,
       simple shapes, no people or text, and a transparent background.
     file: ./browser.png
+llmstxt:
+  content: >-
+    GenAIScript integrates with Playwright via the
+    `@genaiscript/plugin-playwright` package for headless browser automation,
+    enabling web interaction, data scraping, and task automation.
+
+
+    Install Playwright dependencies using `npx playwright install --with-deps
+    chromium`. If errors occur, manually install dependencies as prompted.
+
+
+    The `browse` function launches a browser instance and navigates to a URL.
+    Use `incognito: true` for isolated sessions. Enable `recordVideo` to capture
+    browser sessions, with optional dimensions (default: 800x600). Videos save
+    to `.genaiscript/videos/<timestamp>/` after closing the page.
+
+
+    Example:
+
+    ```js
+
+    const page = await browse("url", { recordVideo: { width: 500, height: 500 }
+    });
+
+    await page.close();
+
+    const videoPath = await page.video().path();
+
+    ```
+
+
+    Use `connectOverCDP` to connect via Chrome DevTools Protocol:
+
+    ```js
+
+    const page = await browse("url", { connectOverCDP: "endpointurl" });
+
+    ```
+
+
+    Select elements with `page.locator` or `page.get...`:
+
+    ```js
+
+    const button = page.getByRole("button");
+
+    const table = page.getByTestId("csv-table");
+
+    ```
+
+
+    Access element contents:
+
+    ```js
+
+    const html = table.innerHTML();
+
+    const text = table.innerText();
+
+    const value = page.getByRole("input").value();
+
+    ```
+
+
+    Convert HTML to Markdown, plain text, or JSON tables:
+
+    ```js
+
+    const md = await HTML.convertToMarkdown(html);
+
+    const text = await HTML.convertToText(html);
+
+    const tables = await HTML.convertTablesToJSON(html);
+
+    ```
+
+
+    Capture screenshots:
+
+    ```js
+
+    const screenshot = await page.screenshot();
+
+    defImages(screenshot);
+
+    ```
+
+
+    The `page` object is a native Playwright Page instance, allowing full API
+    access:
+
+    ```js
+
+    import { Page } from "playwright";
+
+    const page = await browse("url") as Page;
+
+    ```
+  hash: 8078af7d9dde1fb5b9d693968276b1bc49285ddfd86de32de1a8abb85e48568e
 
 ---
 

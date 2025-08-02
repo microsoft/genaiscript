@@ -4,8 +4,7 @@ description: A new model for generating images from text prompts
 author: pelikhan
 date: 2025-04-25
 cover:
-  alt:
-    Three side-by-side square frames, each showing a uniquely posed 8-bit style
+  alt: Three side-by-side square frames, each showing a uniquely posed 8-bit style
     pixel cat. Each frame visually represents image generation from different AI
     models, using five flat corporate colors and minimalist geometric
     backgrounds. The cats are simple, highly pixelated, and visually distinct
@@ -18,8 +17,7 @@ tags:
   - dall-e comparison
   - azure ai foundry
   - pixel art cat
-excerpt:
-  Our team just launched support for the new OpenAI gpt-image-1 image
+excerpt: Our team just launched support for the new OpenAI gpt-image-1 image
   generation model, now available through both OpenAI’s API and Azure AI
   Foundry. We compared gpt-image-1 to DALL·E 2 and DALL·E 3 by generating 8-bit
   pixel cat images using the same prompt. Each model produces distinct visual
@@ -28,6 +26,41 @@ excerpt:
   tasks while leveraging advances in image synthesis. Try running the same
   workflows you use for existing models to see how output and prompt handling
   differ with gpt-image-1.
+llmstxt:
+  content: >-
+    Support for OpenAI's `gpt-image-1` model has been added, enabling advanced
+    image generation via OpenAI's API or Azure AI Foundry. Example usage:
+
+
+    ```js
+
+    const image = await generateImage("...", { model: "openai:gpt-image-1" });
+
+    ```
+
+
+    A comparison script generates an 8-bit pixelated cat image across models
+    `dall-e-2`, `dall-e-3`, and `gpt-image-1`:
+
+
+    ```js
+
+    for (const model of ["openai:dall-e-2", "openai:dall-e-3",
+    "openai:gpt-image-1"]) {
+      const { image, revisedPrompt } = await generateImage(
+        "a cute cat. only one. iconic, high details. 8-bit resolution.",
+        { maxWidth: 400, mime: "image/png", model, size: "square" }
+      );
+      await env.output.image(image.filename);
+      output.fence(revisedPrompt);
+    }
+
+    ```
+
+
+    Results include generated images and revised prompts for each model.
+  hash: 2fb6bf4bb2631afd15f8934c294a66fac32a21051358907bec7ed64dd7c69c82
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

@@ -1,24 +1,46 @@
 ---
 title: Running scripts
 description: Discover how to run scripts in your development environment, manage
-    script execution, and interpret the results for enhanced productivity.
+  script execution, and interpret the results for enhanced productivity.
 keywords: script execution, script management, result analysis, development
-    automation, script workflow
+  automation, script workflow
 sidebar:
-    order: 4
+  order: 4
 hero:
-    image:
-        alt:
-            "A minimal 8-bit style icon: on the left is a simple file explorer window
-            with stacked rectangles representing folders and a highlighted single
-            file; on the right is a basic command line window, centered with a bright
-            triangle play button. Above these, a plain scroll suggests a code script
-            and a square ticked checkbox suggests a task. A small magnifying glass and
-            a gear icon are present for analysis and settings. The image uses five
-            flat corporate colors, features only basic geometric shapes without
-            background, people, text, gradients, shadows, or 3D effects, and is sized
-            at 128x128 pixels."
-        file: ./running-scripts.png
+  image:
+    alt: "A minimal 8-bit style icon: on the left is a simple file explorer window
+      with stacked rectangles representing folders and a highlighted single
+      file; on the right is a basic command line window, centered with a bright
+      triangle play button. Above these, a plain scroll suggests a code script
+      and a square ticked checkbox suggests a task. A small magnifying glass and
+      a gear icon are present for analysis and settings. The image uses five
+      flat corporate colors, features only basic geometric shapes without
+      background, people, text, gradients, shadows, or 3D effects, and is sized
+      at 128x128 pixels."
+    file: ./running-scripts.png
+llmstxt:
+  content: >-
+    GenAIScript allows running scripts in Visual Studio Code, GitHub Copilot
+    Chat, and the command line. In VS Code, scripts can be executed on single
+    files or folders by right-clicking and selecting "Run GenAIScript...". The
+    `env.files` variable contains the selected files. Default files can be
+    specified in the script configuration. Scripts are also exposed as tasks,
+    accessible via the command palette under "Tasks: Run Task." Results are
+    displayed in the output preview or trace view for detailed analysis.
+
+
+    To create scripts via the command line, use `npx genaiscript scripts create
+    <script-name>` for JavaScript or add `--typescript` for TypeScript.
+    TypeScript definitions (`genaiscript.d.ts`, `tsconfig.json`) are generated
+    for type checking. Run scripts with `npx genaiscript run <script-name>
+    <file-path>` or start an interactive playground using `npx genaiscript
+    serve`. For frequent use, install GenAIScript locally or globally via npm.
+
+
+    Debugging is supported in VS Code. Other integrations include Cursor (manual
+    installation) and Neovim via the `genaiscript-runner.nvim` plugin.
+  hash: e02dc6d04c75eb30f86c0dd205f9d28a38ca8b9bf672855a22b7cd73e7817532
+
 ---
 
 import { YouTube } from "astro-embed"

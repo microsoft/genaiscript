@@ -2,8 +2,31 @@
 title: Blocks Localization
 sidebar:
   order: 6
-description: Learn how to localize MakeCode programming blocks while preserving block properties and variable names for international audiences.
+description: Learn how to localize MakeCode programming blocks while preserving
+  block properties and variable names for international audiences.
 keywords: localization, MakeCode, programming blocks, translation, internationalization
+llmstxt:
+  content: >-
+    MakeCode uses a microformat to define coding blocks, requiring careful
+    handling of properties like argument count, types, and order during
+    translation. Localization strings for blocks, such as the Jacdac buzzer play
+    tone block, include variables (e.g., `%music`) that must remain untranslated
+    to avoid breaking block definitions. Bing Translate incorrectly translates
+    variable names, while GenAIScript preserves them correctly by following
+    prompt guidelines.
+
+
+    To prevent encoding issues in formats like JSON or YAML, translations use a
+    custom `key=value` format. The `defFileMerge` function merges these
+    translations with existing ones by parsing key-value lines into objects and
+    updating JSON files.
+
+
+    The language code for automation defaults to "de" but can be reconfigured
+    via command-line arguments (e.g., `--vars lang=fr`). The full script
+    implementation and results are detailed in the linked pull request.
+  hash: 33dc870a8ebd1d3e018bc6e511144c0f31c66c11b88d1edcb5b206449cad2daa
+
 ---
 
 import { Code } from "@astrojs/starlight/components";

@@ -14,6 +14,70 @@ hero:
       colors, has no human figures, text, shadows, gradients, or background, and
       appears completely flat and two-dimensional.
     file: ./csv.png
+llmstxt:
+  content: >-
+    Parsing and stringifying CSV data involves converting between CSV strings
+    and arrays of objects. The first row of CSV is treated as the header,
+    mapping fields to object keys.
+
+
+    Example:
+
+    CSV:
+
+    name, value  
+
+    A, 10  
+
+    B, 2  
+
+    C, 3  
+
+
+    Maps to:
+
+    [
+      { "name": "A", "value": 10 },
+      { "name": "B", "value": 2 },
+      { "name": "C", "value": 3 }
+    ]
+
+
+    The `def` function parses CSV/XLSX files and converts them to Markdown
+    tables. It supports row filtering:
+
+    def("DATA", env.files[0], { sliceHead: 50, sliceTail: 25, sliceSample: 5 })
+
+
+    The `CSV` class provides `parse` and `stringify` methods. `parse` converts
+    CSV strings to arrays of objects. Options include custom delimiters and
+    headers:
+
+    CSV.parse(csv, { delimiter: "|", headers: ["name", "value"] })
+
+
+    `stringify` converts arrays of objects to CSV strings. `markdownify`
+    converts them to Markdown tables:
+
+    CSV.markdownify(rows)
+
+
+    | name | value |  
+
+    |------|-------|  
+
+    | A    | 10    |  
+
+    | B    | 2     |  
+
+    | C    | 3     |  
+
+
+    `parsers.CSV` parses files and supports repair options for fixing common CSV
+    issues:
+
+    CSV.parse(csv, { repair: true })
+  hash: c8f55e354d2c1ad375b477dbf735d97c894d64552018a0123a4abd19ad390e4f
 
 ---
 

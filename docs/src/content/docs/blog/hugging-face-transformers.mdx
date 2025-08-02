@@ -9,24 +9,45 @@ tags:
   - Hugging Face
   - JavaScript
 canonical_url: https://microsoft.github.io/genaiscript/blog/hugging-face-transformers
-description:
-  Learn how to run LLMs locally using Hugging Face Transformers.js in
+description: Learn how to run LLMs locally using Hugging Face Transformers.js in
   GenAIScript, enabling you to leverage powerful language models in your
   JavaScript projects.
 cover:
-  alt:
-    An 8-bit style image displays various technology icons symbolizing
+  alt: An 8-bit style image displays various technology icons symbolizing
     JavaScript, transformers, and AI. These icons are integrated into an
     arrangement of abstract geometric shapes that represent a browser and server
     environment. The image is simplified using a 5-color palette, maintaining a
     consistent and coherent aesthetic. No people or text are present.
   image: ./hugging-face-transformers.png
-excerpt:
-  Hugging Face Transformers.js brings large language models to your
+excerpt: Hugging Face Transformers.js brings large language models to your
   browser or Node.js environment, enabling text generation tasks entirely
   locally. With GenAIScript integration, configuring and caching models is
   straightforward, letting you tap into a wide range of options or fine-tune
   your own. Explore new ways to harness LLMs efficiently and seamlessly.
+llmstxt:
+  content: >-
+    Hugging Face Transformers.js is a JavaScript library for running LLMs in the
+    browser or Node.js environments. GenAIScript supports downloading and
+    caching models locally for immediate use. 
+
+
+    Example usage:
+
+    ```js
+
+    script({
+      model: "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16",
+    });
+
+    ```
+
+
+    Currently, support for the `transformers` model provider in GenAIScript is
+    temporarily removed to reduce installation size. Hugging Face offers many
+    models for text generation and allows fine-tuning as per their
+    documentation.
+  hash: 71be6fa0344a038b817dd0a8530fadb262176d4c1127a29823472fdd0512d9d5
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";
