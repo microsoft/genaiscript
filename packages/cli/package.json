@@ -74,7 +74,6 @@
     "@octokit/plugin-retry": "^8.0.1",
     "@octokit/plugin-throttling": "^11.0.1",
     "@octokit/rest": "^21.1.1",
-    "cross-fetch": "^4.1.0",
     "debug": "^4.4.1",
     "dockerode": "^4.0.6",
     "dompurify": "^3.2.6",
