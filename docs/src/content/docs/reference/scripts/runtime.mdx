@@ -29,16 +29,395 @@ in your project.
 
 ## Helpers
 
-- [cast](/genaiscript/reference/scripts/cast), cast any data to structured outputs
-- [classify](/genaiscript/reference/scripts/classify), classify text
-- [makeItBetter](/genaiscript/guides/make-it-better), tell the LLM to improve its result
-- [pipeline](/genaiscript/guides/transformers-js), access to HuggingFace transformers
+### AI-Powered Functions
+- [cast](/genaiscript/reference/scripts/cast) - Convert unstructured text/data into structured JSON format
+- [classify](/genaiscript/reference/scripts/classify) - Classify text into predefined categories using AI
+- [makeItBetter](#makeitbetter) - Enhance content generation through iterative improvements
+
+### Data Utilities
+- [delay](#delay) - Introduce time delays in asynchronous operations
+- [uniq](#uniq) - Remove duplicate values from arrays
+- [uniqBy](#uniqby) - Remove duplicates based on a property or function
+- [chunk](#chunk) - Split arrays into chunks of specified size
+- [z](#z) - Schema validation and type safety with Zod
+
+### File Processing
+- [markdownifyPdf](#markdownifypdf) - Convert PDF files to markdown format
+- [fileTree](#filetree) - Create tree representations of workspace files
+
+### Web Content Processing
+- [parseReadableContent](#parsereadablecontent) - Extract structured data from web pages
+
+### Legacy
+- [pipeline](/genaiscript/guides/transformers-js) - Access to HuggingFace transformers
 
 ## Importing the runtime
 
-The runtime is available as a module. You can import it
+The runtime is available as a module. You can import specific functions
 using the following code:
 
 ```js
-import { cast } from "genaiscript/runtime"
+import { cast, classify, delay, uniq } from "genaiscript/runtime"
 ```
+
+## Function Documentation
+
+### delay
+
+Introduces a time delay in asynchronous operations. Useful for rate limiting, testing, or timing control in scripts.
+
+```js
+import { delay } from "genaiscript/runtime"
+
+// Wait 1 second
+await delay(1000)
+
+// Use in loops for rate limiting
+for (const item of items) {
+    await processItem(item)
+    await delay(500) // Wait 500ms between items
+}
+```
+
+**Parameters:**
+- `ms` (number): Time in milliseconds to delay
+
+**Returns:** `Promise<void>` that resolves after the specified delay
+
+### uniq
+
+Removes duplicate values from an array, returning a new array with unique values.
+
+```js
+import { uniq } from "genaiscript/runtime"
+
+const numbers = [1, 2, 2, 3, 1, 4]
+const unique = uniq(numbers) // [1, 2, 3, 4]
+
+const strings = ["apple", "banana", "apple", "cherry"]
+const uniqueStrings = uniq(strings) // ["apple", "banana", "cherry"]
+```
+
+**Parameters:**
+- `array` (T[]): Array to remove duplicates from
+
+**Returns:** `T[]` - New array with unique values
+
+### uniqBy
+
+Removes duplicates from an array based on a given property or function.
+
+```js
+import { uniqBy } from "genaiscript/runtime"
+
+const users = [
+    { id: 1, name: "Alice" },
+    { id: 2, name: "Bob" },
+    { id: 1, name: "Alice Duplicate" }
+]
+
+// Remove duplicates by id
+const uniqueUsers = uniqBy(users, user => user.id)
+// Result: [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }]
+
+// Remove duplicates by name length
+const uniqueByLength = uniqBy(users, user => user.name.length)
+```
+
+**Parameters:**
+- `array` (T[]): Array to remove duplicates from
+- `iteratee` (function): Function to determine uniqueness
+
+**Returns:** `T[]` - New array with unique values based on iteratee
+
+### chunk
+
+Splits an array into chunks of specified size. Useful for batch processing or pagination.
+
+```js
+import { chunk } from "genaiscript/runtime"
+
+const items = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+const batches = chunk(items, 3) // [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+// Process items in batches
+for (const batch of batches) {
+    await processBatch(batch)
+}
+```
+
+**Parameters:**
+- `array` (T[]): Array to chunk
+- `size` (number): Size of each chunk
+
+**Returns:** `T[][]` - Array of chunks
+
+### z
+
+Provides schema validation and type safety using the Zod library. Re-exported for convenience.
+
+```js
+import { z } from "genaiscript/runtime"
+
+// Define a schema
+const UserSchema = z.object({
+    name: z.string().min(1),
+    age: z.number().min(0),
+    email: z.string().email().optional()
+})
+
+// Validate data
+try {
+    const user = UserSchema.parse({
+        name: "Alice",
+        age: 30,
+        email: "alice@example.com"
+    })
+    console.log("Valid user:", user)
+} catch (error) {
+    console.log("Validation error:", error.message)
+}
+```
+
+**Use Cases:**
+- Input validation
+- Type checking
+- Data parsing and transformation
+- API response validation
+
+### cast
+
+See the dedicated [cast](/genaiscript/reference/scripts/cast) documentation page for detailed information.
+
+Converts unstructured text or data into structured JSON format using AI.
+
+```js
+import { cast } from "genaiscript/runtime"
+
+// Simple text to object conversion
+const { data } = await cast("California", {
+    type: "object",
+    properties: {
+        name: { type: "string", description: "The state's abbreviation" },
+    },
+})
+
+// Multiple items extraction
+const { data: results } = await cast(
+    env.files.filter(f => f.filename.endsWith('.txt')),
+    {
+        type: "object",
+        properties: {
+            filename: { type: "string" },
+            topic: { type: "string" },
+            keywords: { type: "array", items: { type: "string" } },
+        },
+    },
+    { multiple: true }
+)
+
+// Image analysis
+await cast(
+    (_) => _.defImages(env.files.filter(f => f.filename.endsWith('.jpg'))),
+    {
+        type: "object",
+        properties: {
+            keywords: {
+                type: "array",
+                items: { type: "string", description: "Keywords describing objects" },
+            },
+        },
+    }
+)
+```
+
+### classify
+
+See the dedicated [classify](/genaiscript/reference/scripts/classify) documentation page for detailed information.
+
+Classifies input text into predefined categories using AI.
+
+```js
+import { classify } from "genaiscript/runtime"
+
+// Text classification with explanations
+const result = await classify(
+    "The app crashes when I try to upload a file.",
+    {
+        bug: "a software defect",
+        feat: "a feature request",
+        qa: "an inquiry about how to use the software",
+    },
+    { other: true, explanations: true }
+)
+
+// Image classification
+const imageClass = await classify(
+    (_) => _.defImages(env.files),
+    {
+        object: "Depicts objects, machines, robots, toys",
+        animal: "Animals, pets, monsters",
+    },
+    { other: true, model: "vision" }
+)
+```
+
+Enhances content generation by applying iterative improvements. This function sets up a chat participant that repeatedly applies improvement instructions.
+
+```js
+import { makeItBetter } from "genaiscript/runtime"
+
+// Basic usage - applies "Make it better!" once
+makeItBetter()
+
+// Custom instructions with multiple iterations
+makeItBetter({
+    repeat: 3,
+    instructions: "Make the content more engaging and add examples",
+    ctx: myCustomContext
+})
+```
+
+**Parameters:**
+- `options.ctx` (ChatGenerationContext): Context to use (defaults to env.generator)
+- `options.repeat` (number): Number of improvement iterations (defaults to 1)
+- `options.instructions` (string): Custom improvement instructions (defaults to "Make it better!")
+
+**Use Cases:**
+- Content refinement
+- Iterative prompt improvement
+- Quality enhancement of generated text
+
+### markdownifyPdf
+
+Converts PDF files to markdown format with intelligent formatting preservation. Combines text extraction with vision analysis for accurate conversion.
+
+```js
+import { markdownifyPdf } from "genaiscript/runtime"
+
+// Basic PDF conversion
+const pdfFile = env.files.find(f => f.filename.endsWith('.pdf'))
+const result = await markdownifyPdf(pdfFile)
+
+// Output each page as markdown
+for (const markdown of result.markdowns) {
+    env.output.appendContent(markdown)
+}
+
+// Advanced usage with custom instructions
+const result2 = await markdownifyPdf(pdfFile, {
+    instructions: "Focus on preserving table structures and code blocks",
+    model: "vision-large"
+})
+```
+
+**Parameters:**
+- `file` (WorkspaceFile): PDF file to convert
+- `options`: Configuration options including instructions, context, and PDF parsing options
+
+**Returns:** Object containing:
+- `pages`: Extracted text from each page
+- `images`: Rendered page images
+- `markdowns`: Converted markdown for each page
+
+**Features:**
+- Intelligent formatting preservation
+- Mixed text and vision processing
+- Custom conversion instructions
+- Image description generation
+
+### fileTree
+
+Creates a tree representation of files in the workspace. Useful for understanding project structure or generating documentation.
+
+```js
+import { fileTree } from "genaiscript/runtime"
+
+// Basic usage - show TypeScript files in src/
+console.log(await fileTree("src/**/*.ts"))
+
+// Advanced usage with frontmatter extraction
+const tree = await fileTree("src/**/*.md", {
+    frontmatter: ["title", "description"]
+})
+console.log(tree)
+
+// Use in prompts for project analysis
+def("FILES", await fileTree("**/*.md*", { frontmatter: ["title"] }))
+$`Summarize the markdown files in the project.`
+
+// Include file sizes and custom preview
+const detailedTree = await fileTree("**/*.js", {
+    size: true,
+    ignore: ["node_modules/**", ".git/**"],
+    preview: async (file, stats) => {
+        return `${stats.size} bytes, modified ${stats.mtime.toDateString()}`
+    }
+})
+```
+
+**Parameters:**
+- `glob` (string): Glob pattern to match files
+- `options`: Configuration options
+
+**Options:**
+- `query` (string|RegExp): Filter files by search query
+- `size` (boolean): Include file sizes in output
+- `ignore` (string[]): Patterns to exclude
+- `frontmatter` (string[]): Frontmatter fields to extract from markdown files
+- `preview` (function): Custom function to generate file previews
+
+**Returns:** Formatted string representing the file tree structure
+
+### parseReadableContent
+
+Extracts structured data from web pages using Mozilla's Readability library. Useful for content analysis and data extraction from articles.
+
+```js
+import { parseReadableContent } from "genaiscript/runtime"
+
+// Assuming you have a browser page instance
+const content = await parseReadableContent(page)
+
+if (content) {
+    console.log("Title:", content.title)
+    console.log("Author:", content.byline)
+    console.log("Content:", content.textContent)
+    console.log("Language:", content.lang)
+    console.log("Published:", content.publishedTime)
+}
+```
+
+**Parameters:**
+- `page` (BrowserPage): Browser page instance to extract content from
+
+**Returns:** Object containing article details or null:
+- `title`: Article title
+- `content`: HTML content of the article
+- `textContent`: Plain text content
+- `length`: Content length in characters
+- `excerpt`: Article description or excerpt
+- `byline`: Author information
+- `dir`: Content direction (ltr/rtl)
+- `siteName`: Name of the website
+- `lang`: Content language
+- `publishedTime`: Publication timestamp
+
+**Use Cases:**
+- Web scraping and content extraction
+- Article analysis and summarization
+- Content curation and processing
+
+## Summary
+
+The GenAIScript runtime provides a comprehensive set of utility functions:
+
+**Core Utilities:** `delay`, `uniq`, `uniqBy`, `chunk`, `z` for basic data operations and validation
+
+**AI Functions:** `classify`, `cast`, `makeItBetter` for intelligent content processing
+
+**File Operations:** `markdownifyPdf`, `fileTree` for document and file system operations
+
+**Web Processing:** `parseReadableContent` for web content extraction
+
+All functions can be imported individually from `genaiscript/runtime` and used within GenAIScript files to enhance your AI workflows.
