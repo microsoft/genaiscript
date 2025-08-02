@@ -308,7 +308,7 @@ export default {
       env: {
         GITHUB_TOKEN: {
           description:
-            "GitHub token with `models: read` permission at least (https://microsoft.github.io/genaiscript/reference/github-actions/#github-models-permissions).",
+            "GitHub token with [models: read](https://microsoft.github.io/genaiscript/reference/github-actions/#github-models-permissions) permission at least.",
           required: true,
           secret: true,
         },
