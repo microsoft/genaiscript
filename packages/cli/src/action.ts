@@ -235,7 +235,7 @@ export async function actionConfigure(
           },
     debug: {
       description:
-        "Enable debug logging (https://microsoft.github.io/genaiscript/reference/scripts/logging/).",
+        "Enable [debug logging](https://microsoft.github.io/genaiscript/reference/scripts/logging/).",
       required: false,
     },
     model_alias: {
@@ -246,7 +246,7 @@ export async function actionConfigure(
     github_issue:
       issue || pullRequest
         ? {
-            description: `GitHub ${issue ? "issue" : "pull request"} number to use when generating comments (https://microsoft.github.io/genaiscript/reference/scripts/github/)`,
+            description: `GitHub ${issue ? "issue" : "pull request"} number to use when [generating comments](https://microsoft.github.io/genaiscript/reference/scripts/github/)`,
             required: false,
           }
         : undefined,
