@@ -33,6 +33,7 @@ import { createCache } from "./cache.js";
 import { genaiscriptDebug } from "./debug.js";
 import { resolveLanguageModelConfigurations } from "./config.js";
 import { deleteUndefinedValues } from "./cleaners.js";
+import { tryResolveResource } from "./resources.js";
 import type {
   ExpansionVariables,
   LanguageModelProviderInfo,
@@ -263,6 +264,7 @@ export async function createPromptContext(
     publishResource: async (name, content, options) =>
       await runtimeHost.resources.publishResource(name, content, options),
     resources: async () => await runtimeHost.resources.resources(),
+    resolveResource: async (url) => await tryResolveResource(url, { trace }),
     fetch: (url, options) => fetch(url, { ...(options || {}), trace }),
     fetchText: (url, options) => fetchText(url, { ...(options || {}), trace }),
     resolveLanguageModel: async (modelId) => {

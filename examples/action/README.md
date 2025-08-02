@@ -9,7 +9,7 @@
 |name|description|required|default|
 |----|-----------|--------|-------|
 | `files` | Files to process, separated by semi columns (;).  | false |  |
-| `debug` | Enable debug logging (https://microsoft.github.io/genaiscript/reference/scripts/logging/). | false |  |
+| `debug` | Enable [debug logging](https://microsoft.github.io/genaiscript/reference/scripts/logging/). | false |  |
 | `model_alias` | A YAML-like list of model aliases and model id: `translation: github:openai/gpt-4o` | false |  |
 | `openai_api_key` | OpenAI API key | false |  |
 | `openai_api_base` | OpenAI API base URL | false |  |
@@ -22,7 +22,7 @@
 | `azure_ai_inference_api_endpoint` | Azure Serverless OpenAI endpoint | false |  |
 | `azure_ai_inference_api_version` | Azure Serverless OpenAI API version | false |  |
 | `azure_ai_inference_api_credentials` | Azure Serverless OpenAI API credentials type | false |  |
-| `github_token` | GitHub token with `models: read` permission at least (https://microsoft.github.io/genaiscript/reference/github-actions/#github-models-permissions). | false |  |
+| `github_token` | GitHub token with [models: read](https://microsoft.github.io/genaiscript/reference/github-actions/#github-models-permissions) permission at least. | false |  |
 
 ## Outputs
 
