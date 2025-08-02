@@ -4,7 +4,7 @@
 import { describe, test, assert, beforeEach, vi } from "vitest";
 import { detectContextWindow } from "../src/contextwindow.js";
 
-// Mock the global context that would be available in the runtime
+// Mock the context and dependencies
 const mockCache = {
   get: vi.fn(),
   set: vi.fn(),
@@ -18,17 +18,22 @@ const mockHost = {
   cache: vi.fn().mockResolvedValue(mockCache)
 };
 
-const mockPrompt = vi.fn();
+const mockRunPrompt = vi.fn();
 
-// Mock globals
-const originalGlobal = global as any;
+const mockContext = {
+  host: mockHost,
+  runPrompt: mockRunPrompt
+};
+
+// Mock the resolveChatGenerationContext function
+vi.mock("@genaiscript/core", () => ({
+  genaiscriptDebug: vi.fn(() => vi.fn()),
+  resolveChatGenerationContext: vi.fn().mockResolvedValue(mockContext)
+}));
+
 beforeEach(() => {
   // Clear all mocks
   vi.clearAllMocks();
-  
-  // Set up global mocks
-  originalGlobal.host = mockHost;
-  originalGlobal.prompt = mockPrompt;
 });
 
 describe("detectContextWindow", () => {
@@ -47,32 +52,15 @@ describe("detectContextWindow", () => {
     assert.ok(mockCache.get.calledWith("test:model"));
   });
 
-  test("returns error when host is not available", async () => {
-    originalGlobal.host = undefined;
-    
-    const result = await detectContextWindow("test:model");
-    
-    assert.strictEqual(result.contextWindow, 0);
-    assert.strictEqual(result.method, "error");
-    assert.ok(result.error?.includes("Host not available"));
-  });
-
   test("massive payload strategy parses error message correctly", async () => {
     mockCache.get.mockResolvedValue(undefined); // No cached value
     
-    // Mock prompt that returns an error with context window info
-    const mockPromptResult = vi.fn().mockResolvedValue({
+    // Mock runPrompt that returns an error with context window info
+    mockRunPrompt.mockResolvedValue({
       error: {
         message: "Max size: 16000 tokens."
       }
     });
-    
-    // Set up prompt mock with options method
-    const promptWithOptions = vi.fn().mockReturnValue({
-      options: mockPromptResult
-    });
-    
-    originalGlobal.prompt = promptWithOptions;
     
     const result = await detectContextWindow("test:model", {
       useBinarySearch: false // Only use massive payload strategy
@@ -105,17 +93,11 @@ describe("detectContextWindow", () => {
     ];
     
     for (const testCase of testCases) {
-      const mockPromptResult = vi.fn().mockResolvedValue({
+      mockRunPrompt.mockResolvedValue({
         error: {
           message: testCase.message
         }
       });
-      
-      const promptWithOptions = vi.fn().mockReturnValue({
-        options: mockPromptResult
-      });
-      
-      originalGlobal.prompt = promptWithOptions;
       
       const result = await detectContextWindow(`test:model:${testCase.expected}`, {
         useBinarySearch: false
@@ -129,16 +111,10 @@ describe("detectContextWindow", () => {
   test("successful massive payload returns conservative estimate", async () => {
     mockCache.get.mockResolvedValue(undefined);
     
-    // Mock successful prompt response (no error)
-    const mockPromptResult = vi.fn().mockResolvedValue({
+    // Mock successful runPrompt response (no error)
+    mockRunPrompt.mockResolvedValue({
       text: "There are 64000 smileys"
     });
-    
-    const promptWithOptions = vi.fn().mockReturnValue({
-      options: mockPromptResult
-    });
-    
-    originalGlobal.prompt = promptWithOptions;
     
     const result = await detectContextWindow("test:model", {
       testPayloadSize: 64000,
@@ -171,17 +147,11 @@ describe("detectContextWindow", () => {
       cacheName: "custom-cache"
     };
     
-    const mockPromptResult = vi.fn().mockResolvedValue({
+    mockRunPrompt.mockResolvedValue({
       error: {
         message: "Max size: 64000 tokens."
       }
     });
-    
-    const promptWithOptions = vi.fn().mockReturnValue({
-      options: mockPromptResult
-    });
-    
-    originalGlobal.prompt = promptWithOptions;
     
     const result = await detectContextWindow("test:model", customOptions);
     
@@ -190,5 +160,30 @@ describe("detectContextWindow", () => {
     
     assert.strictEqual(result.contextWindow, 64000);
     assert.strictEqual(result.method, "massive_payload");
+  });
+
+  test("binary search strategy works correctly", async () => {
+    mockCache.get.mockResolvedValue(undefined);
+    
+    // Mock massive payload failure
+    mockRunPrompt
+      .mockResolvedValueOnce({
+        error: { message: "Could not parse context" }
+      })
+      // Then mock binary search responses - first few succeed, then fail
+      .mockResolvedValueOnce({ text: "success" }) // mid = 128500, success
+      .mockResolvedValueOnce({ text: "success" }) // mid = 192250, success  
+      .mockResolvedValueOnce({ error: { message: "too big" } }) // mid = 224375, fail
+      .mockResolvedValueOnce({ text: "success" }) // mid = 208312, success
+      .mockResolvedValueOnce({ error: { message: "too big" } }); // mid = 216343, fail
+    
+    const result = await detectContextWindow("test:model", {
+      maxContextWindow: 256000,
+      useBinarySearch: true
+    });
+    
+    assert.ok(result.contextWindow > 0);
+    assert.strictEqual(result.method, "binary_search");
+    assert.ok(!result.error);
   });
 });

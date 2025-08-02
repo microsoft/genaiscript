@@ -5,8 +5,8 @@
  * Context window detection utilities for determining available token limits for specific models
  */
 
-import type { WorkspaceFileCache } from "@genaiscript/core";
-import { genaiscriptDebug } from "@genaiscript/core";
+import type { WorkspaceFileCache, ChatGenerationContextOptions } from "@genaiscript/core";
+import { genaiscriptDebug, resolveChatGenerationContext } from "@genaiscript/core";
 
 const debug = genaiscriptDebug("runtime:contextwindow");
 
@@ -27,7 +27,7 @@ export interface ContextWindowResult {
 /**
  * Options for context window detection
  */
-export interface ContextWindowDetectionOptions {
+export interface ContextWindowDetectionOptions extends ChatGenerationContextOptions {
   /** Maximum context window to test (defaults to 256000) */
   maxContextWindow?: number;
   /** Test payload size (defaults to 64000 characters) */
@@ -53,26 +53,18 @@ export async function detectContextWindow(
     maxContextWindow = 256000,
     testPayloadSize = 64000,
     useBinarySearch = true,
-    cacheName = "context-windows"
+    cacheName = "context-windows",
+    ...rest
   } = options || {};
 
   debug(`detecting context window for model ${modelId}`);
 
-  // Access global host from runtime context
-  const globalThis = global as any;
-  const host = globalThis.host;
+  // Resolve the chat generation context 
+  const ctx = await resolveChatGenerationContext({ ...rest, model: modelId });
   
-  if (!host) {
-    return {
-      contextWindow: 0,
-      method: "error",
-      error: "Host not available - ensure runtime is initialized"
-    };
-  }
-
   try {
     // Get cache instance
-    const cache: WorkspaceFileCache<string, number> = await host.cache(cacheName);
+    const cache: WorkspaceFileCache<string, number> = await ctx.host.cache(cacheName);
     
     // Check cache first
     const cachedResult = await cache.get(modelId);
@@ -86,7 +78,7 @@ export async function detectContextWindow(
     }
 
     // Try massive payload strategy first
-    let result = await tryMassivePayloadStrategy(modelId, testPayloadSize, maxContextWindow);
+    let result = await tryMassivePayloadStrategy(ctx, modelId, testPayloadSize, maxContextWindow);
     
     if (result.contextWindow > 0) {
       // Cache the successful result
@@ -97,7 +89,7 @@ export async function detectContextWindow(
 
     // Fallback to binary search if enabled and massive payload failed
     if (useBinarySearch) {
-      result = await tryBinarySearchStrategy(modelId, maxContextWindow);
+      result = await tryBinarySearchStrategy(ctx, modelId, maxContextWindow);
       
       if (result.contextWindow > 0) {
         // Cache the successful result
@@ -128,34 +120,29 @@ export async function detectContextWindow(
  * Strategy that sends a massive payload and parses error messages to detect context window limits
  */
 async function tryMassivePayloadStrategy(
+  ctx: any, // ChatGenerationContext from resolveChatGenerationContext
   modelId: string,
   testPayloadSize: number,
   maxTokens: number
 ): Promise<ContextWindowResult> {
   debug(`trying massive payload strategy for ${modelId}`);
   
-  const globalThis = global as any;
-  const prompt = globalThis.prompt;
-  
-  if (!prompt) {
-    return {
-      contextWindow: 0,
-      method: "error",
-      error: "Prompt function not available"
-    };
-  }
-
   try {
     // Create a large test payload (using emoji as it's consistent token-wise)
     const testText = "😊".repeat(testPayloadSize);
     
-    // Attempt to send the large payload
-    const result = await prompt`Count the number of smileys: ${testText}`.options({
-      system: [],
-      maxTokens,
-      model: modelId,
-      label: `context-window-detection-${modelId}`,
-    });
+    // Attempt to send the large payload using the context
+    const result = await ctx.runPrompt(
+      async (_: any) => {
+        _.$`Count the number of smileys: ${testText}`;
+      },
+      {
+        system: [],
+        maxTokens,
+        model: modelId,
+        label: `context-window-detection-${modelId}`,
+      }
+    );
 
     // If it succeeded, we haven't hit the limit yet
     // Return a conservative estimate
@@ -213,22 +200,12 @@ async function tryMassivePayloadStrategy(
  * Binary search strategy to find the exact context window limit
  */
 async function tryBinarySearchStrategy(
+  ctx: any, // ChatGenerationContext from resolveChatGenerationContext
   modelId: string,
   maxContextWindow: number
 ): Promise<ContextWindowResult> {
   debug(`trying binary search strategy for ${modelId}`);
   
-  const globalThis = global as any;
-  const prompt = globalThis.prompt;
-  
-  if (!prompt) {
-    return {
-      contextWindow: 0,
-      method: "error",
-      error: "Prompt function not available"
-    };
-  }
-
   let low = 1000;  // Start with a reasonable minimum
   let high = maxContextWindow;
   let lastSuccessful = 0;
@@ -242,12 +219,17 @@ async function tryBinarySearchStrategy(
       // Using roughly 4 characters per token as a heuristic
       const testText = "test ".repeat(Math.floor(mid / 4));
       
-      const result = await prompt`Process this text: ${testText}`.options({
-        system: [],
-        maxTokens: 100, // Small response to minimize cost
-        model: modelId,
-        label: `context-window-binary-search-${modelId}`,
-      });
+      const result = await ctx.runPrompt(
+        async (_: any) => {
+          _.$`Process this text: ${testText}`;
+        },
+        {
+          system: [],
+          maxTokens: 100, // Small response to minimize cost
+          model: modelId,
+          label: `context-window-binary-search-${modelId}`,
+        }
+      );
 
       if (result.error) {
         // If it failed, the context window is smaller
