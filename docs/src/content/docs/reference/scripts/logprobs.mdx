@@ -14,6 +14,30 @@ hero:
       sharp edges and no background or extra effects. There are no people, text,
       shadows, gradients, or 3D elements.
     file: ./logprobs.png
+llmstxt:
+  content: >-
+    `logprobs` returns the probability of each token, while `topLogProbs`
+    includes alternate tokens and their probabilities. These features help debug
+    and analyze model behavior. Not all models support `logprobs`.
+
+
+    Enable `logprobs` via:
+
+    - CLI: `npx genaiscript run ... --logprobs`
+
+    - Metadata: `script({ logprobs: true, ... })`
+
+
+    Enable `top-logprobs` via:
+
+    - CLI: `npx genaiscript run ... --top-logprobs 4`
+
+    - Metadata: `script({ topLogProbs: 4, ... })`
+
+
+    With `logprobs`, CLI output colors tokens by probability: blue (high) to red
+    (low). `top-logprobs` colors alternate tokens based on entropy.
+  hash: 3e9daaf59b217b659537bbd336e2e8e5156cd6c6a3d25ed479f950fad886caf6
 
 ---
 

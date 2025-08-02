@@ -1,9 +1,81 @@
 ---
 title: Search and Fetch
 description: Learn how to leverage web search and fetching pages in GenAIScript
-keywords: web search, fetch, web scraping 
+keywords: web search, fetch, web scraping
 sidebar:
   order: 7
+llmstxt:
+  content: >-
+    Use the `> GenAIScript: Create new script...` command to create a script for
+    planning a weekend trip. Define the script with a title, description, and
+    model:
+
+
+    ```js
+
+    script({
+        title: "plan-weekend",
+        description: "Given details about my goals, help plan my weekend",
+        model: "openai:gpt-4o",
+    })
+
+    ```
+
+
+    Search for destination information using `webSearch`:
+
+
+    ```js
+
+    const parkinfo = await retrieval.webSearch("mt rainier things to do")
+
+    const parktext = await host.fetchText(parkinfo.webPages[0])
+
+    ```
+
+
+    Clean the fetched HTML content using `runPrompt`:
+
+
+    ```js
+
+    const cleanInfo = await runPrompt(_ => {
+        _.def("INFO", parktext.text)
+        _.$`Extract the important information from INFO, which contains HTML with CSS tags.`
+    })
+
+    if (cleanInfo) def("PARKINFO", cleanInfo.text)
+
+    ```
+
+
+    Get weather information:
+
+
+    ```js
+
+    const weather = await retrieval.webSearch("mt rainier weather")
+
+    def("WEATHER", weather.webPages)
+
+    ```
+
+
+    Generate the trip plan:
+
+
+    ```js
+
+    $`You are a helpful assistant for planning weekend trips. Using PARKINFO and
+    ${weather}, plan a weekend trip starting tomorrow.`
+
+    ```
+
+
+    Run the script to generate a detailed weekend plan. The output will include
+    an itinerary based on destination details and weather conditions.
+  hash: 3be96df441b27d6ff768e6704df3935cc7ae0863076bf8f1fbccee09a74f9d4f
+
 ---
 import { Steps } from '@astrojs/starlight/components';
 

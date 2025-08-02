@@ -2,6 +2,23 @@
 title: DeepSeek
 sidebar:
   order: 50
+llmstxt:
+  content: >-
+    `deepseek` is a chat model provider using `DEEPSEEK_API_...` environment
+    variables.
+
+
+    1. Create a secret key from the [DeepSeek API Keys
+    portal](https://platform.deepseek.com/usage).
+
+    2. Add the key to `.env`:
+       `DEEPSEEK_API_KEY=sk_...`
+    3. Set the `model` field in `script` to `deepseek:deepseek-chat`:
+       `script({ model: "deepseek:deepseek-chat", ... })`
+
+    This is the only supported model.
+  hash: 0a5a4e7b8538438176de5b97fc368a286cbd64dfde073a6fe44479f4d65c111b
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

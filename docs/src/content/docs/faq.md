@@ -2,8 +2,40 @@
 title: FAQ
 sidebar:
   order: 100
-description: Find answers to common questions about AI script generation, its uses, performance, and best practices for effective application.
+description: Find answers to common questions about AI script generation, its
+  uses, performance, and best practices for effective application.
 keywords: AI, script generation, performance, best practices, limitations
+llmstxt:
+  content: >-
+    GenAIScript is a framework for creating AI-enhanced scripts to automate
+    tasks using simple commands and integrations with AI models. It is
+    accessible to non-developers, though basic scripting knowledge is helpful.
+    Prerequisites include VS Code and Node.js. The VS Code extension provides
+    tools for script creation and debugging, though other IDEs can be used with
+    limited support.
+
+
+    Foundation models and LLMs enable tasks like text generation and processing.
+    Scripts involve defining tasks, invoking LLMs, and handling outputs.
+    Debugging is supported via the VS Code extension. Effective prompts and
+    multi-model integrations can enhance functionality. Outputs can be formatted
+    as JSON, files, or custom schemas. Scripts can read inputs like .pdf or
+    .docx files and run via the command line.
+
+
+    Advanced use cases include document translation, summarization, and dialogue
+    creation. Troubleshooting involves analyzing errors, refining prompts, and
+    reviewing parsing logic. Examples are available in the GenAIScript GitHub
+    repository.
+
+
+    Security features include system prompts to prevent harmful content and
+    integrations with Azure Content Safety. Recommended models include Azure
+    Open AI and open-source LLMs with Responsible AI features. Contributions and
+    updates are managed via the GitHub repository, which also provides the
+    roadmap and community support.
+  hash: 0f41d174ef52829f4b4cf4de80aabe1884161c97317e8b3a2e1f2f2e812d1445
+
 ---
 
 ### Getting Started

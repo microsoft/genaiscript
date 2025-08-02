@@ -1,19 +1,55 @@
 ---
 title: Diagrams
 sidebar:
-    order: 20
+  order: 20
 description: Create diagrams and charts within markdown using GenAIScript and
-    the mermaid extension for visual representation of data and processes.
+  the mermaid extension for visual representation of data and processes.
 keywords: diagrams, charts, mermaid, GenAIScript, data visualization
 hero:
-    image:
-        alt:
-            A flat, minimalistic 8-bit illustration showing two parallel colored lines,
-            each symbolizing a separate branch, that join together into one line,
-            representing a merge in version control. The design is geometric, strictly
-            simple, sized 128x128 pixels, with no background, text, people, shading,
-            or 3D effects, and uses only five distinct corporate colors.
-        file: ./diagrams.png
+  image:
+    alt: A flat, minimalistic 8-bit illustration showing two parallel colored lines,
+      each symbolizing a separate branch, that join together into one line,
+      representing a merge in version control. The design is geometric, strictly
+      simple, sized 128x128 pixels, with no background, text, people, shading,
+      or 3D effects, and uses only five distinct corporate colors.
+    file: ./diagrams.png
+llmstxt:
+  content: >-
+    LLMs can generate diagrams using Mermaid, a Markdown extension for creating
+    charts. Example:
+
+
+    graph LR
+
+    A[Master] --> B((Merge Point))
+
+    C[Feature Branch] --> B
+
+
+    Mermaid syntax errors can be fixed using the `system.diagrams` prompt, which
+    includes a repair feature. The `parsers.mermaid` function in GenAIScript
+    checks syntax validity via `result.error`. If invalid, errors can be
+    repaired with an LLM.
+
+
+    To preview diagrams in VS Code, install the Markdown Preview Mermaid Support
+    extension. Mention `diagram` in your program or add `system.diagram` to the
+    system prompt list.
+
+
+    Example output:
+
+
+    graph LR
+
+    A[Master] --> C[New Commit]
+
+    B[Feature Branch] --> C
+
+
+    Rendered diagrams appear automatically with the extension.
+  hash: 5b27440046ae266e95f10709ff419644a77ef4accaf87c2ceb5c7898eeb5f330
+
 ---
 
 It is often useful to request an LLM to generate a diagram. Fortunately,

@@ -2,9 +2,34 @@
 title: Automated Git Commit Messages
 keywords: Git, commit automation, software development, CLI, husky
 sidebar:
-    order: 15
+  order: 15
 description: Streamline your Git workflow with an automation script for
-    generating commit messages
+  generating commit messages
+llmstxt:
+  content: >-
+    In software development, consistent commit messages are crucial but often
+    tedious. A Node.js script automates generating meaningful Git commit
+    messages using LLMs, saving time. It stages changes, generates a concise
+    commit message from `git diff --cached` output, and lets users confirm,
+    edit, or regenerate the message.
+
+
+    If no changes are staged, the script prompts to stage all changes. The
+    commit message is generated via `runPrompt` with the diff as input, ensuring
+    clarity and relevance. Users can accept, edit, or regenerate the message. On
+    acceptance, the script commits with the generated message.
+
+
+    To run, use `genaiscript run gcm`. Add it to `package.json` for easier
+    execution via `npm run gcm`. For automation, integrate with Git hooks like
+    `commit-msg` using Husky. The hook checks if a message exists; if not, it
+    generates one and writes it to the commit message file.
+
+
+    Inspired by Karpathy’s commit message generator, this script simplifies and
+    enhances the commit process.
+  hash: 2511eb1b2ed2eb8b5764332ece509e89130070a7d1896d5d4675c91a8baf5fd6
+
 ---
 
 In the world of software development, making consistent and informative commit messages is crucial but often overlooked.

@@ -15,6 +15,27 @@ hero:
       successful validation. The design is minimal, flat, uses five corporate
       colors, and has no background. Icon size is 128x128 pixels."
     file: ./ini.png
+llmstxt:
+  content: >-
+    The `INI` class provides methods to parse and stringify `.ini` files,
+    similar to JavaScript's `JSON` class.
+
+
+    Example:
+
+    `const fields = INI.parse('...')`
+
+    `const txt = INI.string(obj)`
+
+
+    The `parsers` module includes a lenient `.env` parser that returns
+    `undefined` for invalid inputs.
+
+
+    Example:
+
+    `const fields = parsers.INI(env.files[0])`
+  hash: 17743760ec3e0a673f0a8cf007d82ff2ac36c115d8a538425b8673d85a7de7e2
 
 ---
 

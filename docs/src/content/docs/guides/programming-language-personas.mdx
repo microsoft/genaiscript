@@ -1,9 +1,71 @@
 ---
 title: Programming Language Personas
 description: Learn how to use expert programming language personas in GenAIScript
-keywords: programming languages, personas, Go, Rust, Java, C++, TypeScript, Python, expert coding
+keywords: programming languages, personas, Go, Rust, Java, C++, TypeScript,
+  Python, expert coding
 sidebar:
-    order: 50
+  order: 50
+llmstxt:
+  content: >-
+    GenAIScript includes specialized programming personas for various languages,
+    automatically activated by file extensions or keywords. These personas
+    provide expert guidance tailored to each language's best practices.
+
+
+    Go Persona (`system.go`): Focuses on error handling, naming conventions,
+    goroutines, package organization, and idiomatic Go code. Triggers: `*.go`,
+    keywords like `golang`.
+
+
+    Rust Persona (`system.rust`): Emphasizes ownership, borrowing, Result/Option
+    types, traits, generics, and performance. Triggers: `*.rs`, keywords like
+    `rust`.
+
+
+    Java Persona (`system.java`): Covers OOP design, type system, exception
+    handling, memory management, and build tools like Maven/Gradle. Triggers:
+    `*.java`, keywords like `java`.
+
+
+    C/C++ Persona (`system.cpp`): Addresses memory management, modern C++
+    features, templates, RAII, and performance. Triggers: `*.cpp`, `*.h`,
+    keywords like `cpp`, `cmake`.
+
+
+    TypeScript Persona (`system.typescript`): Focuses on type safety, modern
+    features, scalable app patterns, and async/await. Triggers: `*.ts`, keywords
+    like `typescript`.
+
+
+    Python Persona (`system.python`): Ensures PEP 8 compliance, Pythonic
+    patterns, type hints, and performance optimization. Triggers: `*.py`,
+    keywords like `python`.
+
+
+    Automatic activation uses file extensions, keywords, or build tools. Manual
+    activation allows combining personas for multi-language reviews.
+
+
+    Examples:
+
+    - Go: Analyze error handling, goroutines, and performance.
+
+    - Rust: Review ownership, memory safety, and Result/Option usage.
+
+    - Java: Evaluate OOP design, exception handling, and memory use.
+
+    - C++: Suggest modernizations like smart pointers and templates.
+
+    - TypeScript: Check type annotations and advanced features.
+
+    - Python: Ensure PEP 8 compliance and Pythonic idioms.
+
+
+    Personas integrate seamlessly with other systems for comprehensive reviews,
+    enhancing GenAIScript's ability to provide expert, language-specific
+    insights.
+  hash: a72f33c3b85602e1bc894f1cbe80beaaa8fbcdc6e2252e73f24886b59da1057d
+
 ---
 
 GenAIScript includes expert programming language personas that provide specialized knowledge and best practices for different programming languages. These personas are automatically activated when your scripts reference specific language keywords or file extensions.

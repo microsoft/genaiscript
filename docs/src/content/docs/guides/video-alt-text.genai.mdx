@@ -1,9 +1,48 @@
 ---
 title: Video Alt Text
 sidebar:
-    order: 50
+  order: 50
 description: Learn how to generate alt text for videos
 keywords: Video
+llmstxt:
+  content: >-
+    GenAIScript enables video analysis by combining speech transcription and
+    video frame extraction. The `transcribe` function generates a transcript
+    using the `transcription` model alias (e.g., OpenAI Whisper). Transcripts
+    reduce LLM hallucinations and provide timestamps for video screenshots.
+
+
+    Frames are extracted using `ffmpeg`, leveraging the transcript for precise
+    rendering. Ensure `ffmpeg` is installed. Both transcript and frames are
+    added to the prompt context. Silent videos are ignored via `ignoreEmpty`,
+    and frames use low detail for performance.
+
+
+    The LLM generates alt text by analyzing the transcript and frames. Example:
+
+
+    ```js
+
+    const file = env.files[0]
+
+    const transcript = await transcribe(file)
+
+    const frames = await ffmpeg.extractFrames(file, { transcript })
+
+    def("TRANSCRIPT", transcript?.srt, { ignoreEmpty: true })
+
+    defImages(frames, { detail: "low" })
+
+    $`You are an expert in assistive technology. Analyze the video and generate
+    a description alt text.`
+
+    ```
+
+
+    Run the script with `genaiscript run video-alt-text path_to_video.mp4` to
+    create high-quality video alt text.
+  hash: 4d2e05262a9ba59a931df87e18bff053a08bbf557b1218a290b24e6dcaf3ad6a
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

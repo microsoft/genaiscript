@@ -2,8 +2,83 @@
 title: Documentation Translations
 sidebar:
   order: 5
-description: Explore the challenges and solutions for localizing MakeCode documentation with custom macros while maintaining rich rendering in multiple languages.
-keywords: localization, MakeCode, translation automation, documentation translation, multilingual support
+description: Explore the challenges and solutions for localizing MakeCode
+  documentation with custom macros while maintaining rich rendering in multiple
+  languages.
+keywords: localization, MakeCode, translation automation, documentation
+  translation, multilingual support
+llmstxt:
+  content: >-
+    Microsoft MakeCode is a web-based platform for teaching computer science
+    through block-based programming, enabling users to create games, animations,
+    and interactive stories. Its documentation uses markdown enhanced with
+    macros and micro-syntaxes for rich rendering, such as
+    `||namespace:annotation||` and code blocks like `blocks`.
+
+
+    Localization is challenging because translation tools often corrupt these
+    macros, breaking the rendering. For example, in the Rock Paper Scissors
+    tutorial, annotations like `||variables:hand||` and `||logic:0 = 0||` must
+    remain intact, and code blocks should not be altered. Traditional
+    translation tools fail to preserve these structures.
+
+
+    A custom script using GenAIScript enables accurate LLM-based translations.
+    Key rules include:
+
+    - Do not translate code in `blocks`, `typescript`, `spy`, or `python`.
+
+    - Preserve macros like `||namespace:annotation||` by translating only the
+    `annotation` part.
+
+    - Translate headers like `## {<text>}` while keeping the syntax intact.
+
+
+    Example: Translating Step 6 of the tutorial to French:
+
+    Original:
+
+    ```
+
+    ## {Step 6}
+
+    Click on the `||variables:Variables||` category. Drag a `||variables:hand||`
+    block into the `||logic:0 = 0||` block, replacing the first **0**. Change
+    the second **0** to **1**.
+
+    ```
+
+    Translated:
+
+    ```
+
+    ## {Étape 6}
+
+    Cliquez sur la catégorie `||variables:Variables||`. Faites glisser un bloc
+    `||variables:main||` dans le bloc `||logic:0 = 0||`, en remplaçant le
+    premier **0**. Changez le deuxième **0** en **1**.
+
+    ```
+
+
+    Automation involves using the `env.vars.lang` variable to specify target
+    languages. The script can be executed via CLI for multiple languages,
+    validated with the MakeCode compiler, and uploaded to a translation
+    database. Example:
+
+    ```js
+
+    const langs = ["French", "German"];
+
+    for (const lang of langs) {
+      await $`genaiscript run translate --vars lang=${lang}`;
+      await $`makecode check-docs`;
+      await $`translation upload`;
+    }
+
+    ```
+  hash: fdf5d144484d07f465660d2c93383016b86219a3c2ff45662cfa9f44ca498e12
+
 ---
 
 [Microsoft MakeCode](https://makecode.com) is a web-based platform

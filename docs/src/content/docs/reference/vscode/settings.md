@@ -1,9 +1,38 @@
 ---
 title: User settings
 sidebar:
-    order: 200
-description: Customize your VSCode experience with GenAIScript user settings for diagnostics, caching, and CLI configurations.
-keywords: VSCode settings, user preferences, CLI path, extension configuration, diagnostics toggle
+  order: 200
+description: Customize your VSCode experience with GenAIScript user settings for
+  diagnostics, caching, and CLI configurations.
+keywords: VSCode settings, user preferences, CLI path, extension configuration,
+  diagnostics toggle
+llmstxt:
+  content: >-
+    Access settings via Preferences: Open User Settings.
+
+
+    CLI: Controls how the GenAIScript server runs. By default, it uses npx and
+    the extension version to execute:
+
+    genaiscript@[extension_version] serve
+
+
+    Path: Set a specific CLI version path if needed.
+
+
+    Version: Override the default version with:
+
+    node cli_path serve
+
+
+    Hide Server Terminal: By default, the server terminal is hidden. Enable this
+    to view server logs.
+
+
+    Diagnostics: Activates additional logging and diagnostic behaviors for
+    troubleshooting.
+  hash: 41703b3f7091785fb47b54efaef3f91922c9e039de3efe6171dc85c279a19d93
+
 ---
 
 The following settings can be accessed through **Preferences: Open User Settings** command.

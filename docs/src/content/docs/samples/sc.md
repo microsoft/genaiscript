@@ -31,6 +31,46 @@ excerpt: >-
   integrated with GitHub Actions, this process becomes fully automated, reducing
   manual effort and ensuring quality control. Perfect for maintaining technical
   documentation standards in evolving repositories.
+llmstxt:
+  content: >-
+    Add a script to automate spell-checking and grammar fixes for `.md` and
+    `.mdx` files in a GitHub repository using GenAIScript and GitHub Actions.
+
+
+    The script filters modified files from the last commit, processes them with
+    a prompt to correct major spelling and grammar errors, and writes changes
+    back to the files. It avoids altering frontmatter, code blocks, URLs, and
+    inline TypeScript code.
+
+
+    Key script logic:
+
+    1. Identify modified `.md`/`.mdx` files using `git.listFiles`.
+
+    2. Use `runPrompt` to process each file, applying corrections only if
+    necessary.
+
+    3. Write updated content back to the file.
+
+
+    Run locally:
+
+    Use `npx genaiscript run sc **/*.md` to execute the script and refine
+    prompts. Outputs include reports on model usage and results.
+
+
+    Automate with GitHub Actions:
+
+    Set up a workflow to trigger on non-`main` branch pushes affecting
+    `.md`/`.mdx` files. The workflow fetches the previous commit, runs the
+    script, and commits changes if any.
+
+
+    Content safety:
+
+    The script includes safeguards against harmful content and prompt injection.
+    Additional safety measures, like content filters, can be applied.
+  hash: 2c9c39427c096be75d35edf1e1243d6c43c1eaa2c99d00d5428b18e852f4b796
 
 ---
 

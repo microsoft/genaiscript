@@ -1,9 +1,58 @@
 ---
 title: Detection of Outdated Descriptions
 sidebar:
-    order: 7
-description: Automate the detection of outdated descriptions in markdown documentation to maintain accuracy and consistency.
-keywords: outdated descriptions, documentation automation, markdown, frontmatter, GenAIScript
+  order: 7
+description: Automate the detection of outdated descriptions in markdown
+  documentation to maintain accuracy and consistency.
+keywords: outdated descriptions, documentation automation, markdown,
+  frontmatter, GenAIScript
+llmstxt:
+  content: >-
+    Developer documentation often includes a `description` field in the
+    frontmatter of markdown files, which can become outdated. Automating the
+    detection of outdated descriptions ensures accuracy.
+
+
+    Markdown files typically include metadata in a frontmatter block. Example:
+
+
+    ---
+
+    title: "My Document"
+
+    description: "This is a sample document."
+
+    ---
+
+
+    GenAIScript can automate outdated description detection. Use `env.files` to
+    analyze markdown files, limiting each file to 2000 tokens:
+
+
+    def("DOCS", env.files, { endsWith: ".md", maxTokens: 2000 })
+
+
+    Task the script to check if the `description` matches the content:
+
+
+    $`Check if the 'description' field in the front matter in DOCS is outdated.`
+
+
+    Enable diagnostics to flag outdated descriptions:
+
+
+    $`Generate an error for each outdated description.`
+
+
+    Run the script in Visual Studio Code or automate it via CLI:
+
+
+    genaiscript run detect-outdated-descriptions **/*.md
+
+
+    Integrate this process into CI/CD pipelines for continuous monitoring.
+  hash: 3db2e8bf23a129b22813407bb2730736f1a514aa462c0f89faa3401202dd8f81
+
 ---
 
 Developer documentation typically includes a description in each file. This descriptions can become outdated, leading to confusion and incorrect information. To prevent this, you can automate the detection of outdated descriptions in your documentation using GenAIScript.

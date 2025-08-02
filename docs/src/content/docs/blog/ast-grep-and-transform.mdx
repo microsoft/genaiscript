@@ -10,16 +10,14 @@ authors: pelikhan
 canonical_url: https://microsoft.github.io/genaiscript/blog/ast-grep-and-transform
 description: Learn how to parse source code using ast-grep and update nodes in the tree.
 cover:
-  alt:
-    The image is an abstract 8-bit style illustration using five colors. It
+  alt: The image is an abstract 8-bit style illustration using five colors. It
     shows a stylized tree with nodes connected in a branching pattern,
     representing an Abstract Syntax Tree (AST) used in code transformation.
     Geometric shapes and lines indicate the ideas of parsing and modifying
     source code. The design is simple and corporate, with no characters or text
     present.
   image: ./ast-grep-and-transform.png
-excerpt:
-  Automating code updates at scale can be tricky, especially when it
+excerpt: Automating code updates at scale can be tricky, especially when it
   comes to maintaining accuracy. Abstract Syntax Trees (AST) offer a powerful
   solution by allowing you to directly manipulate code structures without
   worrying about formatting inconsistencies. With tools like `ast-grep` and
@@ -27,6 +25,37 @@ excerpt:
   ideal for tasks such as generating or updating function documentation in
   TypeScript projects. Curious how this works? Explore how AST-driven strategies
   can streamline your workflow.
+llmstxt:
+  content: >-
+    This content explains using Abstract Syntax Trees (AST) for precise and
+    scalable code transformation in GenAI scripts. ASTs represent code as
+    structured nodes, enabling accurate modifications without breaking
+    functionality. The strategy involves three steps: locating the target node
+    using AST, generating new content with an LLM, and replacing the node
+    content in the AST.
+
+
+    For example, to update outdated documentation in a function, locate the
+    `function_declaration` node following a `comment` node. Use an LLM to
+    generate updated documentation and replace the existing comment in the AST.
+    This ensures only the intended part of the file is modified.
+
+
+    The `ast-grep` tool facilitates this process with its Node.js integration.
+    Use `sg.search` to find nodes based on patterns and `sg.changeset` to apply
+    edits. For instance, to generate missing documentation for TypeScript
+    functions, search for functions without comments, prompt the LLM to create
+    documentation, and replace the comments in the AST. The script can handle
+    large codebases and localized changes efficiently.
+
+
+    A sample script, `docs`, generates or updates documentation for exported
+    TypeScript functions. It uses `ast-grep` for locating nodes, an LLM for
+    generating content, and optionally filters changes based on diffs. This
+    approach is scalable, precise, and adaptable to various file sizes and
+    structures.
+  hash: e615e1e02cc2f27b14b1594e9365f1d06f386eba4f1f6cd35f94a3dcb09afaf9
+
 ---
 
 import { Code } from "@astrojs/starlight/components";

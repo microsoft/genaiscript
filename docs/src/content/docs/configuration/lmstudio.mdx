@@ -2,6 +2,44 @@
 title: LM Studio
 sidebar:
   order: 50
+llmstxt:
+  content: >-
+    The `lmstudio` provider connects to the LMStudio headless server for running
+    local LLMs. 
+
+
+    1. Install LMStudio (v0.3.5+), open it, and download a model via the Model
+    Catalog. 
+
+    2. Enable "Enable Local LLM Service" in settings. 
+
+    3. By default, the server URL is `http://localhost:1234/v1`. To change it,
+    set the `LMSTUDIO_API_BASE` environment variable:
+       ```
+       LMSTUDIO_API_BASE=http://localhost:2345/v1
+       ```
+    4. Use the model API identifier in your script:
+       ```
+       script({ model: "lmstudio:llama-3.2-1b-instruct" });
+       ```
+    GenAIScript uses the LMStudio CLI to pull models. Quantization is not
+    supported. For Hugging Face models, follow the LMStudio integration guide.
+
+
+    The `jan` provider connects to the Jan local server.
+
+
+    1. Install Jan, download models, and note their identifiers. 
+
+    2. Start the Local API Server from the desktop app and keep it running. 
+
+    3. Use the `jan:modelid` syntax in scripts. To change the server URL, set
+    the `JAN_API_BASE` environment variable:
+       ```
+       JAN_API_BASE=http://localhost:1234/v1
+       ```
+  hash: a27833d496c0a5ce2209fba78d40652c19e4e1a63b7eb021fe1b8000e5458498
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

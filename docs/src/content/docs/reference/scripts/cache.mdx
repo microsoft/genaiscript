@@ -15,6 +15,48 @@ hero:
       files to visually represent software caching, with no background or
       additional elements.
     file: ./cache.png
+llmstxt:
+  content: >-
+    LLM requests are not cached by default. Enable caching via `script` metadata
+    (`cache: true`) or CLI (`--cache`). Cached data is stored in
+    `.genaiscript/cache/chat.jsonl`, which is excluded from git. Clear the cache
+    by deleting this file.
+
+
+    To use a custom cache file, set `cacheName` in `script` or `--cache-name` in
+    CLI. This creates a file in `.genaiscript/cache` (e.g., `summary.jsonl`).
+
+
+    Programmatic cache management is possible with `workspace.cache`. Use `set`
+    to write, `get` to read, and `values` to list cache entries.
+
+
+    Examples:
+
+    ```js
+
+    script({ cache: true })
+
+    script({ cache: "summary" })
+
+    const cache = await workspace.cache("custom")
+
+    await cache.set("file.txt", "...")
+
+    const content = await cache.get("file.txt")
+
+    const values = await cache.values()
+
+    ```
+
+    ```sh
+
+    npx genaiscript run ... --cache
+
+    npx genaiscript run ... --cache-name summary
+
+    ```
+  hash: 031c0ce2589658f529a764d1c6a1ca8b38ba75dc26bd7c670e803c2f4fc8e828
 
 ---
 

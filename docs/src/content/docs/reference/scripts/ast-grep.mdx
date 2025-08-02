@@ -5,8 +5,7 @@ sidebar:
   order: 20
 hero:
   image:
-    alt:
-      An abstract, 8-bit style image featuring several bold, geometric code block
+    alt: An abstract, 8-bit style image featuring several bold, geometric code block
       shapes overlapping within a 128x128 pixel space, each shape in one of five
       distinct colors. Select blocks contain minimal, branching line patterns
       evoking nodes of an abstract syntax tree. Thin connectors link some
@@ -15,6 +14,60 @@ hero:
       diamond for SQL—are embedded within some shapes. The scene is entirely
       flat, 2D, with sharp, clean edges, no background, and no human figures.
     file: ./ast-grep.png
+llmstxt:
+  content: >-
+    ast-grep is a fast, polyglot tool for structural code search, linting, and
+    rewriting. GenAIScript integrates ast-grep for efficient AST-based code
+    transformation.
+
+
+    To use ast-grep, install the plugin: `@genaiscript/plugin-ast-grep`.
+    Initialize it with `const sg = await astGrep();`.
+
+
+    Search patterns in ASTs with `sg.search(language, fileGlobs, pattern)`.
+    Example: Find all `console.log` in TypeScript files:
+
+    `const { matches } = await sg.search("ts", "src/*.ts",
+    "console.log($META)");`.
+
+
+    Use rule syntax for advanced queries. Example: Find TypeScript functions
+    without comments:
+
+    `const { matches } = await sg.search("ts", "src/fib.ts", { rule: { kind:
+    "function_declaration", not: { precedes: { kind: "comment", stopBy:
+    "neighbor" } } } });`.
+
+
+    Filter matches by code diffs: `const { matches } = await sg.search("ts",
+    "src/fib.ts", {...}, { diff });`.
+
+
+    To replace patterns, create a changeset: `const edits = sg.changeset();`.
+    Replace content with `edits.replace(matches[0],
+    "console.log('replaced')");`. Use inline prompts for dynamic replacements:
+
+    `for (const match of matches) { const updated = await prompt\`...
+    ${match.text()} ...\`; edits.replace(match.node,
+    \`console.log('${updated.text}')\`); }`. Commit changes with `const newFiles
+    = edits.commit();` and apply them using `await
+    workspace.writeFiles(newFiles);`.
+
+
+    Supported languages include HTML, JavaScript, TypeScript, Python, C#, and
+    more. Install additional language support via npm, e.g., `npm install -D
+    @ast-grep/lang-sql`.
+
+
+    Override language mappings with `sg.search(..., { lang: "ts" })`.
+
+
+    Learn ast-grep via its [documentation](https://ast-grep.github.io/docs/) and
+    [playground](https://ast-grep.github.io/playground.html). Enable logs with
+    `DEBUG=genaiscript:astgrep`.
+  hash: 8a5b33915664c1a43757447808b466741fa1900dba16c5daf3556bc1ee03df72
+
 ---
 
 import { PackageManagers } from "starlight-package-managers";

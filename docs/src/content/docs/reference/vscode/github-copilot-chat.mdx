@@ -2,8 +2,7 @@
 title: GitHub Copilot Chat
 sidebar:
   order: 3
-description:
-  Integrate with GitHub Copilot Chat to run scripts through a chat
+description: Integrate with GitHub Copilot Chat to run scripts through a chat
   participant and custom prompts in Visual Studio Code. Learn how to execute
   scripts, select models, leverage context, and enable more efficient
   AI-assisted coding workflows using chat-based interfaces.
@@ -15,13 +14,76 @@ keywords:
   - chat participants
 hero:
   image:
-    alt:
-      A small, flat, abstract image uses five solid colors and geometric 8-bit
+    alt: A small, flat, abstract image uses five solid colors and geometric 8-bit
       shapes to depict a chat bubble, a sheet of code with bracket symbols, an
       AI chip, and a diagram block connected by thin lines. The icons are
       arranged without backgrounds or text, all in a simple corporate style,
       illustrating AI-driven chat and code integration.
     file: ./github-copilot-chat.png
+llmstxt:
+  content: >-
+    GenAIScript integrates with GitHub Copilot Chat to enable script execution
+    and custom prompt generation within chat conversations. It provides a **chat
+    participant** for running scripts interactively and supports a **custom
+    prompt** for efficient script creation.
+
+
+    The `@genaiscript` chat participant allows script execution using the `/run`
+    command. For example, `/run summarize` runs the `summarize` script, while
+    omitting `/run` defaults to the `copilotchat` script or prompts the user to
+    select one. Scripts can specify models like `github_copilot_chat:current` or
+    `github_copilot_chat:gpt-4o-mini`. Model preferences are stored in
+    `.vscode/settings.json`.
+
+
+    Context variables passed to scripts include:
+
+    - `env.vars.question`: User prompt content.
+
+    - `env.vars["copilot.editor"]`: Current editor text.
+
+    - `env.vars["copilot.selection"]`: Current selection.
+
+    - `env.files`: File references.
+
+    - `env.vars["copilot.history"]`: Chat history.
+
+
+    Examples:
+
+    1. `mermaid`: Generates diagrams from code symbols.
+       ```js
+       def("CODE", env.files);
+       $`Generate a class diagram using mermaid of the code symbols in the CODE.`;
+       ```
+    2. `websearcher`: Searches the web and incorporates context files.
+       ```js
+       const res = await retrieval.webSearch(env.vars.question);
+       def("QUESTION", env.vars.question);
+       def("WEB_SEARCH", res);
+       def("FILE", env.files, { ignoreEmpty: true });
+       $`Answer QUESTION using WEB_SEARCH and FILE.`;
+       ```
+    3. `dataanalyst`: Uses Python tools for data analysis.
+       ```js
+       script({ tools: ["fs_read_file", "python_code_interpreter_run"] });
+       def("DATA", env.files.map(({ filename }) => filename).join("\n"));
+       def("QUESTION", env.vars.question);
+       $`Run python code to answer the data analyst question in QUESTION using DATA.`;
+       ```
+
+    Scripts can continue conversations by placing results back into the chat
+    history. For example, `@genaiscript /run tool` runs the `tool` script, and
+    subsequent prompts analyze the results.
+
+
+    Custom instructions are saved in `.genaiscript/instructions` for generating
+    scripts. Augmented chat sessions can use these instructions by attaching
+    context via the **Attach Context** icon and selecting
+    `genaiscript.instructions.md`. This approach is ideal for detailed, one-shot
+    requests using models with large context windows like Sonnet or Gemini.
+  hash: 2909d2e1b71cfb667dfe5c576f656fcbaf6f8a6761722135f6319b8a77f05b64
+
 ---
 
 import { Image } from "astro:assets";

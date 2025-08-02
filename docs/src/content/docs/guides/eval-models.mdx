@@ -2,7 +2,40 @@
 title: Evals with multiple Models
 description: Evaluating multiple models in a single script
 sidebar:
-    order: 11
+  order: 11
+llmstxt:
+  content: >-
+    GenAIScript enables evaluating multiple models in one script against
+    multiple tests to compare their performance on the same input. It uses
+    PromptFoo for output evaluation.
+
+
+    Example summarizing script:
+
+    `const file = def("FILE", env.files); $`Summarize ${file} in one
+    sentence.`;`
+
+
+    To define tests, use the `tests` field in the `script` function:
+
+    `script({ tests: { files: "markdown.md", keywords: "markdown" }, });`
+
+
+    Add models to test using `testModels`:
+
+    `script({ ..., testModels: ["azure_ai_inference:gpt-4o",
+    "azure_ai_inference:gpt-4o-mini", "azure_ai_inference:deepseek-r1"], });`
+
+
+    Run tests via CLI:
+
+    `genaiscript test summarizer`
+
+    View results in PromptFoo:
+
+    `genaiscript test view`
+  hash: eef77de85c68979511e169cf0d0bc80a88a546128dea8a302b3a02a9171eb609
+
 ---
 
 GenAIScript allows you to [evaluate](/genaiscript/reference/scripts/tests) multiple models in a single script

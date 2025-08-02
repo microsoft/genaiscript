@@ -10,8 +10,7 @@ tags:
 canonical_url: https://microsoft.github.io/genaiscript/blog/webview
 description: Announcing the new GenAIScript view.
 cover:
-  alt:
-    The image illustrates a split screen in an 8-bit style, contrasting two
+  alt: The image illustrates a split screen in an 8-bit style, contrasting two
     environments for the GenAIScript interface. On the left, a computer monitor
     shows the interface with interactive elements like mermaid diagrams and math
     notations. On the right, a standalone web browser presents the same
@@ -19,14 +18,27 @@ cover:
     five accent colors, creating a vibe of technological progress in a corporate
     context.
   image: ./webview.png
-excerpt:
-  We've enhanced the GenAIScript experience by moving beyond Visual
+excerpt: We've enhanced the GenAIScript experience by moving beyond Visual
   Studio Code's default Markdown preview. Our new custom webview not only
   supports additional formats like mermaid diagrams and math but also allows you
   to access and run scripts directly in your browser or other webview-compatible
   apps. The transition is seamless, with options to test this alongside the
   existing features. Explore these updates for a more interactive and flexible
   workflow.
+llmstxt:
+  content: >-
+    Visual Studio Code's built-in Markdown preview was effective but limited in
+    interactivity. To enhance user experience, a custom webview for GenAIScript
+    was developed, allowing better control over rendering markdown subformats
+    like mermaid diagrams, annotations, and math.
+
+
+    The new GenAIScript view can now be accessed outside Visual Studio Code. By
+    running the `genaiscript serve` command, users can launch the view in a
+    browser or any webview-capable application. The old `Output`/`Trace` menu
+    items remain temporarily available during the transition.
+  hash: ae3afa2e80a2c49592633657870ddabce950e3949158e854d01508f78db66823
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

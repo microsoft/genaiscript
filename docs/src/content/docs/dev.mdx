@@ -3,6 +3,47 @@ title: Developer guide
 description: Contribution guidelines for building and adding features to GenAIScript
 sidebar:
   order: 100
+llmstxt:
+  content: >-
+    GenAIScript welcomes contributions. Set up the development environment using
+    GitHub Codespaces or manually by installing Node.js LTS and running `pnpm
+    install --frozen-lockfile --prefer-offline`. Build the project with `pnpm
+    build` or `pnpm build:cli`. Pull requests must target the `dev` branch and
+    adhere to the Microsoft Open Source Code of Conduct. Ensure code is
+    documented, follows style guidelines, and includes tests where possible.
+
+
+    Run local scripts using `pnpm genai <scriptid>` or `pnpm run:script
+    <scriptid>` for samples. Debug scripts with `pnpm genai:debug <scriptid>` or
+    `pnpm run:script:debug <scriptid>`. Enable logging with
+    `DEBUG=genaiscript:*`.
+
+
+    The web viewer (React 19) runs as a VSCode panel or standalone. Start the
+    local server with `pnpm serve`. For VSCode extension development, uninstall
+    the official extension, build with `pnpm build`, and debug using the
+    "Samples" configuration. If debugging fails, rebuild with `pnpm build`.
+
+
+    Generate documentation with `pnpm docs` and check for broken links using
+    `pnpm build:docs`. Compile slides with `pnpm slides [file]`. Use `pnpm gcm`
+    for auto-generated commit messages, `pnpm genai:docs` for API documentation,
+    and `pnpm genai:blog-images` for blog post images.
+
+
+    Package the VSCode extension with `pnpm package`, producing
+    `genaiscript.vsix` in `packages/vscode`. Release updates with `pnpm
+    release`. GitHub Pages updates automatically on release.
+
+
+    To test the MCP server locally, start the HTTP server with `pnpm build:cli`
+    followed by `node packages/cli/dist/src/index.js mcp --http`. Verify the
+    health endpoint with `curl http://127.0.0.1:8003/health`. Use the MCP
+    Inspector for testing or configure `.vscode/mcp.json` for dual-transport
+    setups. HTTP transport supports CORS, proxy awareness, session management,
+    health checks, and debug logging.
+  hash: d3e5a9b13cdea2660e8f64dbb99025203077c8e1eec1ca9f4a77dafd8b935fbd
+
 ---
 
 GenAIScript welcomes contributions from the community. This document provides guidelines for setting up the development environment, building the project, and contributing to the codebase.

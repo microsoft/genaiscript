@@ -2,6 +2,39 @@
 title: Azure OpenAI
 sidebar:
   order: 3
+llmstxt:
+  content: >-
+    The Azure OpenAI provider (`azure`) uses `AZURE_OPENAI_...` environment
+    variables for configuration. Authentication can be done via managed identity
+    (recommended), API key, or service principal. Managed identity setup
+    involves assigning the **Cognitive Services OpenAI User/Contributor** role
+    in the Azure Portal, updating `.env` with the endpoint, and deploying an LLM
+    to retrieve its `deployment-id`. Use `az login` to authenticate via Azure
+    CLI and set `NODE_ENV=development` for `DefaultAzureCredential`.
+
+
+    To list models, provide the Subscription ID in `.env`
+    (`AZURE_OPENAI_SUBSCRIPTION_ID`) and use `npx genaiscript models azure`.
+    Alternatively, configure an OpenAI-compatible `/models` endpoint and set
+    `AZURE_OPENAI_API_MODELS_TYPE=openai`.
+
+
+    Custom credentials can be specified with `AZURE_OPENAI_API_CREDENTIALS`
+    (e.g., `cli`, `env`, `powershell`, etc.). The default token scope is
+    `https://cognitiveservices.azure.com/.default`, configurable via
+    `AZURE_OPENAI_TOKEN_SCOPES`.
+
+
+    The API version defaults to `{AZURE_OPENAI_API_VERSION}` but can be
+    overridden globally (`AZURE_OPENAI_API_VERSION`) or per deployment
+    (`AZURE_OPENAI_API_VERSION_<deployment-id>`).
+
+
+    For API key authentication, update `.env` with `AZURE_OPENAI_API_KEY` and
+    the endpoint. Use the deployment name in the script (`model:
+    "azure:deployment-id"`).
+  hash: 66f17300ab9b9fbc31e03dcb6549e3db593c248273683e078bdf942261645f89
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

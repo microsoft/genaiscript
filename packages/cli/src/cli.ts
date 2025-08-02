@@ -14,10 +14,6 @@ import {
   DEBUG_SCRIPT_CATEGORY,
   GITHUB_REPO,
   MODEL_PROVIDERS,
-  OPENAI_MAX_RETRY_COUNT,
-  OPENAI_MAX_RETRY_DELAY,
-  OPENAI_RETRY_DEFAULT_DEFAULT,
-  OPENAI_MAX_RETRY_AFTER_DEFAULT,
   RUNTIME_ERROR_CODE,
   SERVER_PORT,
   TOOL_ID,
@@ -217,17 +213,12 @@ export async function cli(): Promise<void> {
     .option("--teams-message", "Posts a message to the teams channel")
     .option("-j, --json", "emit full JSON response to output")
     .option(`--fail-on-errors`, `fails on detected annotation error`)
-    .option("--retry <number>", "number of retries", String(OPENAI_MAX_RETRY_COUNT))
-    .option(
-      "--retry-delay <number>",
-      "minimum delay between retries",
-      String(OPENAI_RETRY_DEFAULT_DEFAULT),
-    )
-    .option("--max-delay <number>", "maximum delay between retries", String(OPENAI_MAX_RETRY_DELAY))
+    .option("--retry <number>", "number of retries")
+    .option("--retry-delay <number>", "minimum delay between retries")
+    .option("--max-delay <number>", "maximum delay between retries")
     .option(
       "--max-retry-after <number>",
       "maximum retry-after delay in milliseconds before giving up",
-      String(OPENAI_MAX_RETRY_AFTER_DEFAULT),
     )
     .option("-l, --label <string>", "label for the run")
     .option("-t, --temperature <number>", "temperature for the run")
@@ -485,7 +476,9 @@ export async function cli(): Promise<void> {
     .option("--port <number>", `HTTP port number, default: ${SERVER_PORT}`)
     .option("-n, --network", "Opens HTTP server on 0.0.0.0 to make it accessible on the network")
     .alias("mcps")
-    .description("Starts a Model Context Protocol server that exposes scripts as tools. Use --http for HTTP transport.")
+    .description(
+      "Starts a Model Context Protocol server that exposes scripts as tools. Use --http for HTTP transport.",
+    )
     .action(startMcpServer);
   addModelOptions(mcp);
 

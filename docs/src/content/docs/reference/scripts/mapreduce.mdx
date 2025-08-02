@@ -1,6 +1,56 @@
 ---
 title: Map-Reduce
-description: Learn how to use the map and reduce functions in GenaScript for efficient data processing
+description: Learn how to use the map and reduce functions in GenaScript for
+  efficient data processing
+llmstxt:
+  content: >-
+    The `@genaiscript/runtime` package offers efficient `map` and `reduce`
+    functions for processing data with LLM prompts.
+
+
+    ### Map Function
+
+    `mapPrompt` applies an LLM prompt to each item in a dataset and returns the
+    results. Example:
+
+
+    ```ts
+
+    const chunks = await tokenizers.chunk(env.files[0]);
+
+    const summaries = await mapPrompt(
+      chunks,
+      (ctx, chunk) => ctx.$`Summarize ${chunk}`,
+      (res) => res.text,
+      { cache: true }
+    );
+
+    ```
+
+
+    ### Reduce Function
+
+    `reducePrompt` combines multiple values into one using an LLM prompt.
+    Example:
+
+
+    ```ts
+
+    const summary = await reducePrompt(
+      chunks,
+      (ctx, reduced, chunk) =>
+        ctx.$`Summarize a large document split in chunks. The current chunk is ${chunk} and the rolling summary is ${reduced || ""}.`,
+      (reduced, chunk, res) => res.text,
+      "",
+      { cache: true }
+    );
+
+    ```
+
+
+    Both functions support caching and sequential execution of prompts.
+  hash: 40bb9c560e512f9915439efef95dfbefdf1b40a64cd8b4882f8ba1ecf124055a
+
 ---
 import { PackageManagers } from "starlight-package-managers";
 

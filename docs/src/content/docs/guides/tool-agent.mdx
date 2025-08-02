@@ -1,11 +1,70 @@
 ---
 title: Tool Agent
 sidebar:
-    order: 7
+  order: 7
 description: Learn how to define a built-in agent using functions for
-    decision-making and reasoning in arithmetic operations.
+  decision-making and reasoning in arithmetic operations.
 keywords: tool agent, arithmetic agent, function declaration, script parameters,
-    system.math
+  system.math
+llmstxt:
+  content: >-
+    Define tools to enable an LLM agent to perform arithmetic operations like
+    sum and divide. Tools are declared with a name, description, schema, and
+    implementation. Example:
+
+
+    ```js
+
+    defTool("sum", "Sum two numbers", { a: 1, b: 2 }, ({ a, b }) => `${a + b}`)
+
+    ```
+
+
+    Script parameters allow dynamic input, e.g., an arithmetic question:
+
+
+    ```js
+
+    script({
+        parameters: {
+            question: {
+                type: "string",
+                default: "How much is 11 + 4? then divide by 3?",
+            },
+        },
+    })
+
+    ```
+
+
+    The agent script combines tools and parameters to process the question:
+
+
+    ```js
+
+    defTool("sum", "Sum two numbers", { a: 1, b: 2 }, ({ a, b }) => `${a + b}`)
+
+    defTool("divide", "Divide two numbers", { a: 1, b: 2 }, ({ a, b }) => `${a /
+    b}`)
+
+
+    $`Answer the following arithmetic question: ${env.vars.question}`
+
+    ```
+
+
+    Example output for "How much is 11 + 4? then divide by 3?":
+
+
+    - Tool call: `divide({"a":15,"b":3})`
+
+    - Result: `5`
+
+
+    Alternatively, use `system.math` to simplify by leveraging a built-in math
+    parser tool, removing the need to define tools manually.
+  hash: 6021553f47f6ecbee5e0037dff883b250546ed831b4885632739cd334c0b300a
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

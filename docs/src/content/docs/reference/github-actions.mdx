@@ -1,18 +1,51 @@
 ---
 title: GitHub Actions
 description: Learn how to use GitHub Actions to automate your workflows and
-    improve your development process.
+  improve your development process.
 sidebar:
-    order: 10
+  order: 10
 hero:
-    image:
-        alt: A retro 8-bit depiction shows a geometric computer screen featuring
-            interconnected gears and a branching workflow diagram, representing
-            automation and CI/CD processes. Beside it, a small server icon connects to
-            a cloud through a pipeline, surrounded by abstract AI node designs,
-            symbolizing GitHub Actions and AI model integration. The design uses a
-            simple five-color palette with minimalistic elements.
-        file: ./github-actions.png
+  image:
+    alt: A retro 8-bit depiction shows a geometric computer screen featuring
+      interconnected gears and a branching workflow diagram, representing
+      automation and CI/CD processes. Beside it, a small server icon connects to
+      a cloud through a pipeline, surrounded by abstract AI node designs,
+      symbolizing GitHub Actions and AI model integration. The design uses a
+      simple five-color palette with minimalistic elements.
+    file: ./github-actions.png
+llmstxt:
+  content: >-
+    GitHub Actions is a CI/CD platform for automating build, test, and
+    deployment workflows. It now supports GitHub Models, enabling integration of
+    AI scripts like GenAIScript into CI/CD pipelines.
+
+
+    To use GitHub Models in Actions, set `permissions` to `models: read` in your
+    workflow. GenAIScript supports GitHub Models natively and can be executed
+    via CLI with `npx -y genaiscript run ...`, ensuring `GITHUB_TOKEN` is
+    included in environment variables for authentication.
+
+
+    Custom actions can package AI scripts for reuse. Use `npx -y genaiscript
+    configure action` to generate boilerplate files like `action.yml`,
+    `Dockerfile`, and `README.md`. Metadata such as `name`, `description`, and
+    `inputs` are auto-generated from script parameters. Outputs include `text`
+    (generated content) and `data` (JSON-parsed structure if a schema is
+    provided).
+
+
+    Scripts can specify branding (e.g., icon, color) and customize the container
+    base image or include additional tools like `ffmpeg` or `playwright` via CLI
+    flags. Test locally with `npm run dev` or simulate GitHub Action
+    environments using `INPUT_<parameter>` variables.
+
+
+    The action workspace is structured to differentiate between the action
+    repository (`/github/action`) and the cloned repository
+    (`/github/workspace`). The `Dockerfile` entrypoint adjusts the working
+    directory for seamless execution.
+  hash: e2ce36bbc9ca7d953d373c005a976d49a6badbe2bb45d91a1f7c4228417bdd03
+
 ---
 
 import { Steps } from "@astrojs/starlight/components"

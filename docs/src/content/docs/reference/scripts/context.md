@@ -17,6 +17,47 @@ hero:
       transparent background, with no text, people, shading, or
       three-dimensional effects.
     file: ./context.png
+llmstxt:
+  content: >-
+    The `env` global object provides script execution context information,
+    automatically populated by the GenAIScript runtime.
+
+
+    `env.files` contains all files in the execution context, defined by the
+    `files` option in the script, UI location, or CLI arguments. Examples:
+
+    `script({ files: "**/*.pdf" })` or `script({ files: ["src/*.pdf",
+    "other/*.pdf"] })`. Files can be injected into prompts using `def`, filtered
+    by extension (`{ endsWith: ".md" }`), glob patterns (`{ glob:
+    "**/*.{md,mdx}" }`), or directly in `$` calls.
+
+
+    `env.vars` holds defined variables, e.g., `const locale = env.vars.locale ||
+    "en-US"`.
+
+
+    The `def` function formats data for LLMs, e.g., `def("FILE", file)` outputs
+    a fenced variable. It supports arrays (`def("FILE", env.files)`), language
+    hints (`{ language: "diff" }`), file filters (`{ endsWith: ".md" }`), empty
+    file handling (`{ ignoreEmpty: true }`), token limits (`{ maxTokens: 100
+    }`), and data slicing (`{ sliceHead: 100 }`). Prompt caching can be enabled
+    with `{ cacheControl: "ephemeral" }`. Safety checks for prompt injection can
+    be added with `{ detectPromptInjection: true }`. Predicted output for
+    specific files is enabled with `{ prediction: true }`.
+
+
+    `defData` formats data objects as YAML, JSON, or Markdown tables, with
+    options for slicing rows/columns and applying filters like `distinct` or
+    `query`.
+
+
+    `defDiff` formats differences between files, strings, or objects, e.g.,
+    `defDiff("DIFF", env.files[0], env.files[1])`.
+
+
+    These tools optimize LLM interactions by structuring and filtering input
+    data efficiently.
+  hash: df4d1253ce41da145e3c401b82b11aaeac91e9321a19f6f188eb7d9d31672cad
 
 ---
 

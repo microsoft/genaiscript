@@ -1,7 +1,6 @@
 ---
 title: Zine Meets Pull Requests (and more)
-description:
-  A reflection about the influence of new image generator and their
+description: A reflection about the influence of new image generator and their
   impacts on the software development assets like pull requests.
 date: 2025-04-29
 cover:
@@ -14,8 +13,7 @@ tags:
   - gpt-image-1
   - software annotation
   - sketchnotes
-excerpt:
-  Recent progress in AI image generation offers new possibilities for
+excerpt: Recent progress in AI image generation offers new possibilities for
   documenting and reviewing code changes. By using a two-step process—first
   converting a pull request diff into a visual prompt through a language model
   and then generating images from that prompt—developers can enhance their PRs
@@ -25,6 +23,29 @@ excerpt:
   increasing participation and understanding across teams. With continued
   improvements in generative models, expect even richer ways to present and
   discuss code in the near future.
+llmstxt:
+  content: >-
+    New image generators like OpenAI's `gpt-image-1` enable innovative ways to
+    visualize software artifacts. For example, zines, a graphic art form
+    combining text and images, can be generated from pull request diffs using a
+    two-step LLM process: `gpt-4.1-mini` transforms the diff into an image
+    prompt, and `gpt-image-1` creates the image. These images can be uploaded to
+    a branch and added to the pull request description. Examples include visual
+    workflows, GitHub processes, and code annotations.
+
+
+    Sketchnotes, a visual note-taking style, can summarize pull requests with
+    AI-generated prompts. This approach enhances engagement by combining
+    drawings and text. Examples include Node.js version checks and PR summaries.
+
+
+    LLMs can also generate pull request visuals in various styles, such as
+    collages, murals, or editorial illustrations, showcasing workflows and
+    creativity. These methods make pull requests more inviting and encourage
+    reviews. Future advancements in image generation will further enhance
+    software visualization.
+  hash: 96c2c00e1f7a6e5c71cbe91c6ec471d7bf7fc884267d02083701dfe126d780d5
+
 ---
 
 import { Code } from "@astrojs/starlight/components";

@@ -15,6 +15,28 @@ hero:
       The design uses only five solid corporate colors, is clean and iconic, and
       fits within a small square with no text, background, people, or shadows.
     file: ./secrets.png
+llmstxt:
+  content: >-
+    The `env.secrets` object retrieves secrets from the environment, typically
+    stored in a `.env` file or `process.env`. To use secrets in a script,
+    declare them in `script({ secrets: [...] })`. Access declared secrets via
+    `env.secrets`.
+
+
+    Example `.env` file:
+
+    SECRET_TOKEN="..."
+
+
+    Declare secrets:
+
+    script({ secrets: ["SECRET_TOKEN"] })
+
+
+    Access secrets:
+
+    const token = env.secrets.SECRET_TOKEN
+  hash: 8c38f48e561b30fa89f4d938fded8cbd2f9d7e3443c4b2dfba159bdfc4aeabd5
 
 ---
 

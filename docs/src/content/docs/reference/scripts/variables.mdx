@@ -15,6 +15,71 @@ hero:
       corporate colors, set against a plain, neutral background, without shading
       or decorative effects.
     file: ./variables.png
+llmstxt:
+  content: >-
+    The `env.vars` object stores variable values for parameterizing scripts. Use
+    `env.vars` to set defaults or modify behavior dynamically. Example:
+
+
+    ```js
+
+    const locale = env.vars.locale || "en-US";
+
+    if (env.vars.explain) $`Explain your reasoning`;
+
+    ```
+
+
+    Declare parameters in the `script` function. `env.vars` will hold their
+    values:
+
+
+    ```js
+
+    script({
+        parameters: {
+            string: "default value",
+            number: 42,
+            boolean: true,
+            stringWithDescription: {
+                type: "string",
+                default: "default value",
+                description: "Parameter description",
+            },
+        },
+    });
+
+    ```
+
+
+    In VS Code, users are prompted to provide parameter values.
+
+
+    Override variables via CLI using `--vars`:
+
+
+    ```sh
+
+    npx genaiscript run ... --vars key1=value1 key2=value2
+
+    ```
+
+
+    Specify test-specific variables in the `tests` object:
+
+
+    ```js
+
+    script({
+        tests: {
+            vars: {
+                number: 42,
+            },
+        },
+    });
+
+    ```
+  hash: 2e0bd89065ac1d1101c129c9f5500d4870d851ef79c99dd4dc0311abdb975008
 
 ---
 

@@ -2,7 +2,97 @@
 title: Commenter
 description: Adds comments to your code
 sidebar:
-    order: 50
+  order: 50
+llmstxt:
+  content: >-
+    This script automates adding comments to source code using an LLM and
+    ensures no code modifications are introduced. It uses tools like formatters,
+    compilers, linters, and an LLM for validation.
+
+
+    Algorithm:
+
+    1. For each file:
+       - Add comments via GenAI.
+       - Optionally format the code for consistency.
+       - Build the code to ensure validity.
+       - Use an LLM to confirm only comments were added.
+    2. Perform a final human review.
+
+
+    File Selection:
+
+    If no files are specified, Git identifies modified files.
+
+
+    Processing:
+
+    Each file is processed individually to avoid token context issues. Inline
+    prompts are used for focused queries.
+
+
+    Comment Generation:
+
+    The `addComments` function prompts GenAI twice to improve comment quality.
+    Instructions guide the AI to analyze and comment effectively.
+
+
+    Validation:
+
+    Formatted and compiled code ensures deterministic validation. An additional
+    LLM prompt checks `git diff` to confirm only comments were modified.
+
+
+    Example for modification check:
+
+    ```ts
+
+    async function checkModifications(filename: string): Promise<boolean> {
+        const diff = await host.exec(`git diff ${filename}`);
+        if (!diff.stdout) return false;
+        const res = await runPrompt(
+            (ctx) => {
+                ctx.def("DIFF", diff.stdout);
+                ctx.$`Analyze DIFF. Ensure only comments are modified. Report non-comment changes with "<MODIFIED>".`;
+            },
+            { cache: "cmt-check" }
+        );
+        return res.text?.includes("<MODIFIED>");
+    }
+
+    ```
+
+
+    Execution:
+
+    Install GenAIScript CLI and run the script:
+
+    ```sh
+
+    genaiscript run cmt
+
+    ```
+
+
+    Formatting and Building:
+
+    The user specifies `format` and `build` commands to normalize and validate
+    the generated code:
+
+    ```sh
+
+    genaiscript run cmt --vars "build=npm run build" "format=npm run format"
+
+    ```
+
+
+    Content Safety:
+
+    System prompts prevent harmful content generation. Generated descriptions
+    are saved for manual review. Additional safety includes using models with
+    content filters or external validation services.
+  hash: 74cc569735735d6c52b5d32221f89bb95273f4032d7a6c35e7b03442b9e30d4b
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

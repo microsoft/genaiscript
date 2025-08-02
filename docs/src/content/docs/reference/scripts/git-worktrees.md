@@ -5,15 +5,109 @@ sidebar:
   order: 52
 hero:
   image:
-    alt:
-      An 8-bit style, two-dimensional icon featuring multiple branching
+    alt: An 8-bit style, two-dimensional icon featuring multiple branching
       directories representing git worktrees, with geometric nodes and
       connecting lines to show relationships between working trees. Includes
-      small folder icons with different branch symbols, a pull request icon,
-      and directional arrows indicating workflow. The artwork uses five solid
+      small folder icons with different branch symbols, a pull request icon, and
+      directional arrows indicating workflow. The artwork uses five solid
       corporate colors in a flat, minimalist design with no background or
       gradients, created for a 128x128 size.
     file: ./git-worktrees.png
+llmstxt:
+  content: >-
+    Git worktree allows simultaneous checkout of multiple branches in separate
+    directories, useful for parallel development, pull request reviews, and
+    branch comparisons.
+
+
+    **Core Methods:**
+
+
+    1. **listWorktrees**: Lists all worktrees with metadata (`path`, `branch`,
+    `head`, `bare`, `detached`).
+       Example:
+       ```
+       const worktrees = await git.listWorktrees();
+       console.log(worktrees);
+       ```
+
+    2. **addWorktree**: Creates a new worktree at a specified path. Options
+    include:
+       - `branch`: Create a new branch.
+       - `detach`: Detach HEAD at a commit.
+       - `force`: Overwrite existing paths.
+       Example:
+       ```
+       const newGit = await git.addWorktree("./new-feature", "main", { branch: "feature/awesome-feature" });
+       ```
+
+    3. **removeWorktree**: Removes a worktree and cleans up files. Use `force`
+    to ignore uncommitted changes.
+       Example:
+       ```
+       await git.removeWorktree("./feature-workspace", { force: true });
+       ```
+
+    **GitHub Integration:**
+
+
+    - **addWorktreeForPullRequest**: Creates a worktree for a GitHub PR by
+    fetching its branch. Options include `checkout` and `force`.
+      Example:
+      ```
+      const prGit = await github.addWorktreeForPullRequest(123, "./pr-review");
+      ```
+
+    **Usage Examples:**
+
+
+    - **Multi-branch Development**: Create worktrees for different features or
+    bug fixes, work independently, and clean up after completion.
+      ```
+      const featureGit = await git.addWorktree("../feature-a", "feature/feature-a");
+      await git.removeWorktree("../feature-a");
+      ```
+
+    - **Pull Request Review**: Set up a worktree for a PR, inspect changes, and
+    clean up after review.
+      ```
+      const prGit = await github.addWorktreeForPullRequest(123);
+      const diff = await prGit.diff({ base: "main" });
+      await git.removeWorktree("./pr-review");
+      ```
+
+    - **Parallel Development**: Create multiple worktrees for simultaneous work
+    on different branches.
+      ```
+      const worktrees = await Promise.all([
+        git.addWorktree("./feature-1", "feature/authentication"),
+        git.addWorktree("./feature-2", "feature/api-endpoints")
+      ]);
+      ```
+
+    **Best Practices:**
+
+
+    - Use descriptive paths (e.g., `./pr-123-review`, `./feature-auth`).
+
+    - Always clean up worktrees after use.
+
+    - Check existing worktrees before creating new ones to avoid redundancy.
+
+
+    **Key Notes:**
+
+
+    - Worktrees share Git history, saving disk space.
+
+    - Each worktree has its own index and state.
+
+    - The same branch cannot be checked out in multiple worktrees.
+
+    - Administrative data is stored in `.git/worktrees/`. Worktrees are removed
+    from Git records when directories are deleted.
+  hash: d6b02f65623fedc3a20d6d3633272ef2b28254e583b76d585ad6fb5f22ade03b
+
 ---
 
 The git worktree functionality allows you to check out multiple branches of a repository in separate working directories simultaneously. This is particularly useful for:

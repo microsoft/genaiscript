@@ -2,6 +2,28 @@
 title: Google AI
 sidebar:
   order: 10
+llmstxt:
+  content: >-
+    Google AI provides access to Google AI models via the `google` provider,
+    using the OpenAI compatibility layer. Note that `seed` is unsupported, and
+    fallback tools are enabled as Google finalizes compatibility.
+
+
+    To use:
+
+    1. Create an API key in [Google AI
+    Studio](https://aistudio.google.com/app/apikey) and add it to your `.env`
+    file:
+       `GEMINI_API_KEY=...`
+    2. Find the model identifier in the [Gemini
+    documentation](https://ai.google.dev/gemini-api/docs/models/gemini) and use
+    it in your script:
+       ```js
+       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
+       script({ model: "google:gemini-1.5-pro-latest" });
+       ```
+  hash: 00bf432aabb158c0b9cbada63bdd1830b3b4c443dd2e7d723d396b843cd73bb3
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";
