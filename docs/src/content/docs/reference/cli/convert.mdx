@@ -16,6 +16,61 @@ hero:
       simple, flat design with only five colors on a clean white or transparent
       background, without any human figures or text.
     file: ./convert.png
+llmstxt:
+  content: >-
+    Converts files individually using a specified script.
+
+
+    Command:  
+
+    `npx genaiscript convert <script> "<files...>"`  
+
+    - `<script>`: Tool ID or file path.  
+
+    - `<files...>`: Files or glob patterns to process.  
+
+
+    Unlike `run`, which processes all files together, `convert` handles each
+    file separately.
+
+
+    Options:  
+
+    - `--excluded-files <files...>`: Exclude specific files.  
+      Example: `npx genaiscript convert <script> <files> --excluded-files <excluded-files...>`  
+    - `--exclude-git-ignore`: Ignore files listed in `.gitignore`.  
+      Example: `npx genaiscript convert <script> <files> --exclude-git-ignore`  
+
+    Output:  
+
+    Default output is saved as `<filename>.genai.md`. Customize with:  
+
+    - `--suffix <suffix>`: Set output file suffix.  
+      Example: `npx genaiscript convert <script> <files> --suffix .genai.txt`  
+    - `--rewrite`: Overwrite original files with converted content.  
+      Example: `npx genaiscript convert <script> <files> --rewrite`  
+    - `--cancel-word <word>`: Ignore output containing a specific keyword.  
+      Example: `npx genaiscript convert <script> <files> --cancel-word "<NO>"`  
+
+    GenAIScript automatically processes output matching the suffix. Example:  
+
+    Input:  
+
+    ````markdown
+
+    ```txt
+
+    :)
+
+    ```
+
+    ````  
+
+    Output saved as `<filename>.genai.txt`: `:)`.  
+
+
+    Refer to the CLI reference for more details.
+  hash: 8c933e927654b825c7ae5740372d4576055d67d7c8093353a14cfd23ad480da4
 
 ---
 

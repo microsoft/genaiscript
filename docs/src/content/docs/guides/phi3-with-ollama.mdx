@@ -1,9 +1,42 @@
 ---
 title: Phi-3 Mini with Ollama
 sidebar:
-    order: 10
-description: Learn how to integrate Phi-3 Mini, a powerful 3.8B parameter model by Microsoft, with Ollama for local execution of state-of-the-art AI models.
+  order: 10
+description: Learn how to integrate Phi-3 Mini, a powerful 3.8B parameter model
+  by Microsoft, with Ollama for local execution of state-of-the-art AI models.
 keywords: Phi-3 Mini, Ollama, AI model integration, local AI execution, Microsoft AI
+llmstxt:
+  content: >-
+    Phi-3 Mini is a 3.8B parameter lightweight open model by Microsoft. Use
+    Ollama, a desktop app for local model execution.
+
+
+    1. Launch the Ollama server: `ollama serve`
+
+    2. (Optional) Pull the Phi-3 model: `ollama pull phi3`
+
+    3. Update your script to use the model:
+
+
+    ```js
+
+    script({
+        model: "ollama:phi3",
+        title: "summarize with phi3",
+        system: ["system"],
+    })
+
+
+    const file = def("FILE", env.files)
+
+    $`Summarize ${file} in a single paragraph.`
+
+    ```
+
+
+    Apply the script to files to generate summaries.
+  hash: 8fa6646f9e3884f193e0847eee7bfd405d1f368ab220302b53c1659e8abdd2f7
+
 ---
 import { Steps } from '@astrojs/starlight/components';
 

@@ -3,6 +3,42 @@ title: Markdown AST
 description: Use the mdast helpers to parse and manipulate Markdown documents
 sidebar:
   order: 80
+llmstxt:
+  content: >-
+    These runtime helpers simplify working with the remark, mdast, and unified
+    ecosystems for parsing and manipulating Markdown.
+
+
+    Install the plugin with `@genaiscript/plugin-mdast`. For Node.js
+    environments without a `.genai...` entry file, initialize the runtime using
+    `import { initialize } from "@genaiscript/runtime"; await initialize();`.
+
+
+    To manipulate Markdown:
+
+    1. Load parsers: `const { parse, visit, stringify } = await mdast();`
+
+    2. Parse Markdown to an mdast tree: `const root = parse("# Hello World");`
+
+    3. Traverse and modify the tree: `const updated = visit(root, 'code', (node)
+    => { ...node });`
+
+    4. Serialize the tree back to Markdown: `const markdown = await
+    stringify(updated);`
+
+    5. Chunk the tree into sections: `const sections = chunk(root);`
+
+
+    For type completion, install `@types/mdast`.
+
+
+    Debug trees with `inspect`: `console.log(inspect(root));`.
+
+
+    For MDX support, enable the `mdx` parser: `const { parse } = await mdast({
+    mdx: true });`.
+  hash: 7c71efb23bbef9eb6e9d7e7304a9f7cd95c7dbe923015155310240f00203ca54
+
 ---
 
 import { PackageManagers } from "starlight-package-managers";

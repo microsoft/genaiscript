@@ -9,12 +9,10 @@ tags:
   - AI
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai
-description:
-  Learn how to automate the creation of engaging software release
+description: Learn how to automate the creation of engaging software release
   notes using GenAI and GenAIScript.
 cover:
-  alt:
-    "A retro 8-bit visual scene illustrates an automated release notes process
+  alt: "A retro 8-bit visual scene illustrates an automated release notes process
     using simplified shapes like cogwheels and circuit board patterns to suggest
     AI and automation. The image features an abstract computer screen split into
     two sections: one with software code and the other with a document
@@ -22,14 +20,39 @@ cover:
     product launch efficiency. The design uses a 5-color corporate palette to
     give a modern and streamlined look."
   image: ./creating-release-notes-with-genai.png
-excerpt:
-  Crafting effective release notes can be a time-consuming process, but
+excerpt: Crafting effective release notes can be a time-consuming process, but
   leveraging automation through tools like GenAI simplifies everything. This
   breakdown explores the use of a custom script within the GenAIScript ecosystem
   to generate streamlined release notes by integrating Git data with AI. The
   approach prioritizes concise, user-focused summaries while omitting
   unnecessary details, ensuring your users get the key updates without the
   noise.
+llmstxt:
+  content: >-
+    Bringing a new product version to life is exciting, and clear release notes
+    are essential. This script automates release note generation for GenAI using
+    the GenAIScript CLI.
+
+
+    The script, written in `.genai.mjs`, uses Git and AI to create concise,
+    engaging release notes. It initializes with the `script` function, sets the
+    product name via environment variables, retrieves the previous Git tag,
+    gathers relevant commits (excluding those with 'skip ci'), and generates a
+    diff of changes while ignoring irrelevant files.
+
+
+    Placeholders `COMMITS` and `DIFF` are defined to store commit logs and
+    diffs, which are referenced in the prompt. The prompt instructs GenAI to
+    generate release notes for the specified version, focusing on key changes,
+    storytelling, and conciseness, while excluding unnecessary details like
+    commit overviews.
+
+
+    To run the script, use the GenAIScript CLI with `genaiscript run
+    git-release-notes`. This automates the creation of polished, user-friendly
+    release notes for your project.
+  hash: 5711057521be7e279c41e11b0d36480893a9f4c43eedcdd27260def264526411
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

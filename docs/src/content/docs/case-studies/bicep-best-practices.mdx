@@ -2,8 +2,33 @@
 title: Bicep Best Practices
 sidebar:
   order: 2
-description: Learn how to apply best practices to Azure Bicep files for more efficient and maintainable infrastructure as code.
+description: Learn how to apply best practices to Azure Bicep files for more
+  efficient and maintainable infrastructure as code.
 keywords: Azure Bicep, best practices, infrastructure as code, linter, deployment
+llmstxt:
+  content: >-
+    Azure Bicep is a Domain Specific Language (DSL) for declaratively deploying
+    Azure resources, designed for readability and maintainability. It includes a
+    linter for fault detection but doesn't fully cover best practices.
+
+
+    The "web-app-basic-linux.bicep" file deploys a Linux web app with an app
+    service plan. Improvements can be made using a script to apply best
+    practices. The script:
+
+
+    - Adds line numbers for precise issue identification.
+
+    - Uses annotations to generate parsable warnings/errors, integrated into
+    VSCode or CI/CD pipelines.
+
+    - Supports ignoring false positives with `#disable-next-line genaiscript`.
+
+
+    GPT-4 understands Bicep best practices, eliminating redundancy. The script
+    generates 3 annotations surfaced as squiggly lines in VSCode.
+  hash: b6c64d529a972b673ceada3dfff9eb3ef25c23f0b94b7fc06aa93184a881541b
+
 ---
 
 import { Image } from "astro:assets";

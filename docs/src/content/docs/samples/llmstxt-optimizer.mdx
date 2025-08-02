@@ -4,6 +4,19 @@ description: Generate LLM-optimized content stored in markdown frontmatter for
   better AI processing
 sidebar:
   order: 800
+llmstxt:
+  content: This script processes markdown files to generate concise, LLM-optimized
+    content stored in the `llmstxt` field. It analyzes file content, excluding
+    frontmatter, to extract core concepts, simplify explanations, and reduce
+    redundancy. Optimized content maintains technical accuracy, preserves key
+    terminology, and focuses on actionable insights. Hash-based caching ensures
+    only updated files are reprocessed, while batch and individual file
+    processing improve efficiency. The script is configured for structured
+    output, low temperature for consistency, and includes simplified code
+    examples when relevant. Designed for clarity and brevity, it enhances LLM
+    comprehension and usability.
+  hash: 4daf0cf32de56c3df6ef7d4a5fce022a6f1a7e6444fc7009598dfbd61aa3bd05
+
 ---
 
 This sample demonstrates how to create a GenAIScript that analyzes markdown files and generates LLM-optimized content stored in the `llmstxt` frontmatter field.

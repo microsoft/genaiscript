@@ -14,6 +14,173 @@ hero:
       gear for LLMs and evaluation, and a shield with an exclamation mark
       indicating AI vulnerabilities—all rendered in a five-color, 8-bit style.
     file: ./tests.png
+llmstxt:
+  content: >-
+    Tests for evaluating LLM output quality can be defined using the `script`
+    function. Tests are executed via PromptFoo, which supports detecting AI
+    vulnerabilities like bias, toxicity, and factuality issues.
+
+
+    Tests are declared as arrays in the `tests` field. Example:
+
+
+    ```js
+
+    script({
+      tests: [{
+        files: "src/rag/testcode.ts",
+        rubrics: "is a report with a list of issues",
+        facts: "The report says that the input string should be validated before use.",
+      }],
+    })
+
+    ```
+
+
+    Models to test against can be specified using `testModels`:
+
+
+    ```js
+
+    script({
+      testModels: ["ollama:phi3", "ollama:gpt-4o"],
+    })
+
+    ```
+
+
+    External test files (JSON, YAML, CSV, `.mjs`) can be used. JSON/YAML files
+    must conform to the schema at
+    `https://microsoft.github.io/genaiscript/schemas/tests.json`. CSV files use
+    headers matching `PromptTest` properties. Example:
+
+
+    ```csv
+
+    content,rubrics,facts
+
+    "const x = 1;",is a report with a list of issues,The report says that the
+    input string should be validated before use.
+
+    ```
+
+
+    JavaScript files should export `PromptTest` objects or functions generating
+    them:
+
+
+    ```js
+
+    export default [
+      {
+        content: "const x = 1;",
+        rubrics: "is a report with a list of issues",
+        facts: "The report says that the input string should be validated before use.",
+      },
+    ]
+
+    ```
+
+
+    `files` specifies file paths for the test environment:
+
+
+    ```js
+
+    script({
+      tests: {
+        files: "src/rag/testcode.ts",
+      }
+    })
+
+    ```
+
+
+    `rubrics` grades output based on requirements:
+
+
+    ```js
+
+    script({
+      tests: {
+        rubrics: "is a report with a list of issues",
+      }
+    })
+
+    ```
+
+
+    `facts` checks factual consistency:
+
+
+    ```js
+
+    script({
+      tests: {
+        facts: "The report says that the input string should be validated before use.",
+      }
+    })
+
+    ```
+
+
+    Assertions like `icontains`, `equals`, `contains-all`, and `transform`
+    validate output:
+
+
+    ```js
+
+    script({
+      tests: {
+        asserts: [
+          { type: "icontains", value: "issue" },
+          { type: "icontains-all", value: ["issue", "fix"] },
+        ],
+      }
+    })
+
+    ```
+
+
+    To test raw LLM output, use `format: "json"` and specify `transform`:
+
+
+    ```js
+
+    script({
+      tests: {
+        format: "json",
+        asserts: {
+          type: "equals",
+          value: "cancelled",
+          transform: "output.status",
+        },
+      }
+    })
+
+    ```
+
+
+    Run tests via Visual Studio Code or CLI. In VS Code, right-click the script
+    and select "Run GenAIScript Tests." For CLI, use:
+
+
+    ```sh
+
+    npx genaiscript test <scriptid>
+
+    ```
+
+
+    Add models with `--models`:
+
+
+    ```sh
+
+    npx genaiscript test <scriptid> --models "ollama:phi3"
+
+    ```
+  hash: cb6e2093d230a581b0d73f9f423c476c85b78194409cca8351c53f87494be976
 
 ---
 

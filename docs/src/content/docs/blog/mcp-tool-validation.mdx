@@ -1,30 +1,64 @@
 ---
 title: MCP Tool Validation
 date: 2025-04-10
-description:
-  Learn how to configure content validation for Model Context
+description: Learn how to configure content validation for Model Context
   Protocol (MCP) tools in GenAI Script.
 tags:
   - mcp
   - validation
   - tools
 cover:
-  alt:
-    An 8-bit style corporate-tech illustration featuring a glowing digital lock
+  alt: An 8-bit style corporate-tech illustration featuring a glowing digital lock
     icon symbolizing security through "tools signature hash" on one side, and a
     scanner emitting wave-like patterns to represent a "content safety scanner"
     on the other. Abstract geometric shapes symbolize interconnected servers and
     tools, all depicted in a muted 5-color palette, creating a clean, structured
     visual. No people or text are present in the image.
   image: ./mcp-tool-validation.png
-excerpt:
-  GenAIScript has introduced updates to enhance the security of Model
+excerpt: GenAIScript has introduced updates to enhance the security of Model
   Context Protocol (MCP) tools, addressing vulnerabilities like rug pull
   attacks, tool poisoning, and prompt injection. With options for tools
   signature hashing and prompt injection detection via content scanners, these
   features provide reinforced safeguards to maintain integrity across tool
   definitions and outputs. Ensure your configurations are up to date for
   comprehensive protection.
+llmstxt:
+  content: >-
+    GenAIScript introduced security features in `v1.127` for Model Context
+    Protocol (MCP) tools to mitigate attacks like rug pulls, tool poisoning, and
+    prompt injection.
+
+
+    1. **Tool Signature Hash**: Prevents rug pull attacks by ensuring the tool
+    list remains unaltered.  
+       Example:  
+       script({  
+           mcpServers: {  
+               playwright: {  
+                   ...,  
+                   toolsSha: "..."  
+               }  
+           }  
+       })
+
+    2. **Prompt Injection Detection**: Uses a content safety scanner to secure
+    tool definitions and outputs against tool poisoning and prompt injection.  
+       Example:  
+       script({  
+           mcpServers: {  
+               playwright: {  
+                   ...,  
+                   detectPromptInjection: "always"  
+               }  
+           }  
+       })  
+       Tools can also be instrumented individually:  
+       defTool("fetch", "Fetch a URL", { url: { type: "string" } }, async args => ..., { detectPromptInjection: "always" })
+
+    These features enhance security but do not address all aspects. Further
+    precautions may be necessary.
+  hash: 916d3590273a4a3d42fa6ea5e5d5097b990c5c7fe18c1e95418c9fbb8608854e
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

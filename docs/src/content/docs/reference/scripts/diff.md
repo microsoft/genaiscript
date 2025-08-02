@@ -12,6 +12,50 @@ hero:
       unchanged content. The image uses only five colors, has no text, people,
       background, shadows, or 3D effects, and measures 128 by 128 pixels."
     file: ./diff.png
+llmstxt:
+  content: >-
+    system.diff generates concise file diffs for efficient comparison and
+    updates, highlighting only modified lines with minimal context. 
+
+
+    Diff syntax:
+
+    - Existing lines: Start with original line number.
+
+    - Deleted lines: Prefixed with `-` and line number.
+
+    - Added lines: Prefixed with `+`, no line number.
+
+    - Retain up to 2 unmodified lines for context.
+
+
+    Example:
+
+    [10]  const oldValue = 42;
+
+    - [11]  const removed = 'This line was removed';
+
+    + const added = 'This line was newly added';
+
+    [12]  const unchanged = 'This line remains the same';
+
+
+    Best practices:
+
+    - Exclude unchanged files or identical lines.
+
+    - Focus on concise, efficient changes.
+
+
+    API usage:
+
+    system({ title: "Generate concise diffs" });
+
+    export default function (ctx) { const { $ } = ctx; $`## DIFF file format`; }
+
+
+    Refer to the online documentation for more details.
+  hash: d4fd9ecb9b658a23c254cfd4b6f76e64e1a63cbf945e02793bc1e263958049e9
 
 ---
 

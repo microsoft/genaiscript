@@ -14,6 +14,55 @@ hero:
       just five distinct corporate colors and lacks any background, shadows, or
       gradients.
     file: ./cast.png
+llmstxt:
+  content: >-
+    The `cast` function in GenAIScript converts unstructured text or images into
+    structured data using LLMs. It requires importing from the runtime and takes
+    input text (or files), a JSON schema, and optional instructions. It returns
+    extracted data or an error.
+
+
+    Example:
+
+    ```js
+
+    const { data } = await cast(
+        "The quick brown fox jumps over the lazy dog.; jumps",
+        {
+            type: "object",
+            properties: { partOfSpeech: { type: "string" } },
+        },
+        {
+            instructions: "Determine the part of speech for a given word in a sentence.",
+        }
+    )
+
+    ```
+
+
+    For images, you can define files programmatically:
+
+    ```js
+
+    const res = await cast(_ => {
+        _.defImages('DATA', img)
+    }, ...)
+
+    ```
+
+
+    By default, `cast` uses the `cast` model alias, which can be customized:
+
+    ```js
+
+    const res = await cast("...", { model: "large" })
+
+    ```
+
+
+    Options modify LLM behavior via inline prompts. Inspired by Marvin's text
+    transformation tools.
+  hash: 99256d24bdae4a541e6c95d135ce1de7ab76509ebbc11db852d7b53fa0af7423
 
 ---
 

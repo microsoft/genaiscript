@@ -1,6 +1,42 @@
 ---
 title: MermaidJs
 description: Use the mermaid plugin to parse mermaid diagrams
+llmstxt:
+  content: >-
+    Mermaid.js is a diagramming tool using text syntax. The
+    `@genaiscript/plugin-mermaid` package enables parsing and rendering of
+    Mermaid diagrams in GenAIScript applications, useful for repairing
+    LLM-generated diagrams. 
+
+
+    To install, use `@genaiscript/plugin-mermaid` as a dev dependency. In
+    Node.js environments without a `.genai...` entry file, initialize the
+    runtime with `initialize()` from `@genaiscript/runtime`.
+
+
+    Example usage:
+
+    ```ts
+
+    import { parse } from "@genaiscript/plugin-mermaid";
+
+
+    const res = await parse(`
+      graph TD;
+        A-->B;
+        A-->C;
+        B-->D;
+        C-->D;
+    `);
+
+    ```
+
+
+    This plugin adapts the browser-focused Mermaid toolchain for Node.js and
+    avoids the large size of the standalone Mermaid package. Install only if
+    needed.
+  hash: 274795f4129b7338db2b06e1784a8d375a66d2d9bc7f33adc4db1805f32cdf9e
+
 ---
 
 import { PackageManagers } from "starlight-package-managers";

@@ -7,6 +7,36 @@ sidebar:
   order: 5
 genaiscript:
   files: src/samples/loremipsum.pdf
+llmstxt:
+  content: >-
+    The quick-start guide explains how to create a GenAIScript to process a PDF
+    file. Place the PDF in a visible directory, use the `> GenAIScript: Create
+    new script...` command, and define the PDF as input using `const src =
+    def("PDFSOURCE", env.files, { endsWith: ".pdf" })`. Replace `"TELL THE LLM
+    WHAT TO DO..."` with instructions for the LLM, referencing the PDF file,
+    e.g., `$`Summarize the content of ${src} and critique the document.`.
+    Right-click the PDF in VS Code Explorer, select **Run GenAIScript**, and
+    choose the script. The output appears in a new tab.
+
+
+    Example: To summarize and critique a PDF about Lorem Ipsum, define the input
+    file and provide concise instructions. For instance:
+
+    ```js
+
+    const src = def("PDFSOURCE", env.files, { endsWith: ".pdf" })
+
+    $`Summarize the content of ${src} and critique the document. Only one
+    paragraph.`
+
+    ```
+
+    The script processes the PDF, extracting its content and generating a
+    summary. Example output: "The PDF explains the origins and usage of Lorem
+    Ipsum in printing, its historical roots, and variations, but lacks visual
+    aids to clarify concepts."
+  hash: a3cb6d730824b77a9f27872bfaee799bc28aab7703e67ab4dde72214f8f9e0ea
+
 ---
 import { Steps } from '@astrojs/starlight/components';
 

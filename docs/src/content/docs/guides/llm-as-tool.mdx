@@ -1,9 +1,41 @@
 ---
 title: LLM as a tool
 sidebar:
-    order: 60
+  order: 60
 description: Create tools and inline prompts using LLM models for executing various tasks
 keywords: LLM, inline prompts, tools, task automation
+llmstxt:
+  content: >-
+    It is possible to create tools using LLM models to execute prompts. Below
+    are examples of defining such tools and configuring models.
+
+
+    A tool invoking a smaller LLM can be defined as follows:
+
+
+    defTool("llm-small", "Invokes smaller LLM", { prompt: { type: "string",
+    description: "the prompt to be executed by the LLM" } }, async ({ prompt })
+    => await runPrompt(prompt, { model: "small", label: "llm-small" }));
+
+
+    The "small" model alias can be configured in script metadata:
+
+
+    script({ smallModel: "openai:gpt-4o-mini" });
+
+
+    Inlined prompts can define tools or use system prompts. Example of a file
+    system agent:
+
+
+    defTool("agent_file_system", `An agent using gpt-4o for file system tasks.`,
+    { prompt: { type: "string", description: "the prompt to be executed by the
+    LLM" } }, async ({ prompt }) => await env.generator.runPrompt((_) => {
+    _.$`You are an AI assistant for file system tasks. Answer concisely. Use
+    tools to search and read files. QUESTION:` _.writeText(prompt) }, { model:
+    "openai:gpt-4o", label: `llm-4o agent_fs ${prompt}`, tools: "fs" }));
+  hash: c696877749114f5e889830096d23c6e2e09a690a3df95bfa7b34c678551337f9
+
 ---
 
 It is possible [tools](/genaiscript/reference/scripts/tools)

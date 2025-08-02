@@ -2,6 +2,21 @@
 title: Docker Model Runner
 sidebar:
   order: 50
+llmstxt:
+  content: >-
+    The `docker` provider connects to the Docker Model Runner local server,
+    using `http://model-runner.docker.internal/engines/v1/` as the default
+    endpoint. Ensure Docker is installed. To use models, apply the
+    `docker:modelid` syntax. If the server URL changes, set
+    `DOCKER_MODEL_RUNNER_API_BASE` in the environment file:
+
+
+    DOCKER_MODEL_RUNNER_API_BASE=...
+
+
+    This setup assumes GenAIScript runs in a container.
+  hash: e280ca7e849b80bc0475de5c3867490c7e77f62d5177e77df53189700ce2e741
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

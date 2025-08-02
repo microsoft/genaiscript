@@ -3,7 +3,42 @@ title: Glossary
 description: A glossary of terms used in the GenAI project.
 keywords: glossary, terms, definitions
 sidebar:
-    order: 200
+  order: 200
+llmstxt:
+  content: >-
+    This glossary defines key terms and concepts for using GenAIScript, a
+    scripting language designed to integrate LLMs and foundation models into the
+    scripting process. It supports authoring, debugging, and deploying
+    AI-powered scripts.
+
+
+    GenAIScript CLI enables script execution, debugging, and automation outside
+    VS Code. Scripts are identified by specific file extensions (*.genai.mjs,
+    *.genai.js, *.genai.mts) and can include system prompt templates
+    (system.*.genai.mjs) for defining LLM contexts. The CLI supports environment
+    variable secrets, configuration merging, and remote repository integration
+    for script execution.
+
+
+    Astro is used for building optimized static sites, while Starlight focuses
+    on documentation websites. Azure AI services, including Foundry, Inference,
+    Search, and Content Safety, provide tools for deploying AI models, hybrid
+    search, and content moderation. Azure OpenAI supports serverless LLM
+    inference.
+
+
+    The GenAIScript runtime (GPVM) manages script execution, LLM calls, and
+    result parsing. Scripts can include model aliases, encodings, and debugging
+    configurations. The Playground offers a web-based interface for running
+    scripts, complementing the CLI and VS Code extension.
+
+
+    Key features include TypeScript compilation for error checking, sample
+    scripts for customization, and support for proxies. The VS Code extension
+    facilitates script creation, debugging, and deployment, with integration for
+    Markdown preview and Marketplace updates.
+  hash: a73144bd1123a385c82ebc1a0f840504bc0ae7327dbf21cfee2fa5cd7c9014d7
+
 ---
 
 This glossary provides definitions for terms used in the project.

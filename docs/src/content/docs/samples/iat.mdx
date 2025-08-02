@@ -2,7 +2,35 @@
 title: Image Alt Textify
 description: Generate alt text for images in markdown files
 sidebar:
-    order: 5
+  order: 5
+llmstxt:
+  content: >-
+    This script automates generating alt text for images in Markdown files using
+    OpenAI's GPT-4 model via the GenAIScript CLI. It identifies images without
+    alt text, generates descriptions, and updates the files.
+
+
+    The script is titled "Image Alt Textify" and accepts parameters for Markdown
+    file paths, image asset paths, and a force option to regenerate all
+    descriptions. It uses a regex to locate images in Markdown files,
+    differentiating between those with and without existing alt text. 
+
+
+    For each image, it maps the file path to the asset path, queries the LLM to
+    generate concise alt text, and replaces placeholders in the Markdown content
+    with the generated text. The updated files are saved.
+
+
+    The script can be executed using the GenAIScript CLI with `npx genaiscript
+    run iat`. It can also be automated via a GitHub Action, which triggers on
+    pushes to the `dev` branch, processes Markdown files, and commits changes.
+
+
+    Safety measures include system prompts to prevent harmful content and manual
+    review of generated descriptions. Additional safety can be ensured using
+    content filters or validation services.
+  hash: 336dc8a7e8d29a4eea911cdd5f3418d1d7f14a0a9944f33fcb8c285d66d5d06d
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

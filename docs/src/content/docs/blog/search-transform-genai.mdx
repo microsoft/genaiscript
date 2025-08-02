@@ -9,23 +9,41 @@ tags:
   - scripting
   - productivity
 canonical_url: https://microsoft.github.io/genaiscript/blog/search-transform-genai
-description:
-  Explore how GenAIScript automates the search and transformation of
+description: Explore how GenAIScript automates the search and transformation of
   patterns across multiple files, enhancing efficiency in development tasks.
 cover:
-  alt:
-    An array of vibrant 8-bit style rectangles symbolizes computer files, each
+  alt: An array of vibrant 8-bit style rectangles symbolizes computer files, each
     with distinct geometric designs. Playful arrows connect these files,
     depicting a transformation sequence of patterns. At the center is a detailed
     rectangle, indicating the use of a GenAIScript transformation. The backdrop
     is a plain, corporate hue.
   image: ./search-transform-genai.png
-excerpt:
-  Ever found yourself manually sifting through files to identify patterns
+excerpt: Ever found yourself manually sifting through files to identify patterns
   and update outdated syntax? This guide introduces an automated approach to
   streamline such transformations, enhancing efficiency and accuracy. From
   identifying legacy usage to adopting updated conventions, it's a step toward
   more maintainable codebases.
+llmstxt:
+  content: >-
+    Need to search and transform patterns across multiple files in your project?
+    Automate this tedious task with a GenAIScript. For instance, when updating
+    the `exec` command to support string commands, scripts like:
+
+
+    host.exec("cmd", ["arg0", "arg1", "arg2"]);
+
+
+    needed conversion to:
+
+
+    host.exec(`cmd arg0 arg1 arg2`);
+
+
+    The [Search And Transform guide](/genaiscript/guides/search-and-transform)
+    provides detailed steps for this approach. Save time and streamline updates
+    with automation.
+  hash: 8f76e553c9b45a99600e3b72e76ba2af293272371a67d5c20b898050a4d9c0f0
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

@@ -13,6 +13,80 @@ hero:
       of these files. The design is simple, minimal, uses five flat colors, and
       has no people or background elements."
     file: ./configuration-files.png
+llmstxt:
+  content: >-
+    GenAIScript supports local and global configuration files for reusing
+    settings and secrets across scripts.
+
+
+    `.env` files are resolved in this order: `envFile` property in config,
+    `GENAISCRIPT_ENV_FILE` environment variable, `--env` CLI option. If none are
+    set, it defaults to `~/.env`, `./.env`, or `./.env.genaiscript`.
+
+
+    Config files are resolved and merged in this order:
+    `~/genaiscript.config.yaml`, `~/genaiscript.config.json`,
+    `./genaiscript.config.yaml`, `./genaiscript.config.json`. JSON files can use
+    JSON5 format.
+
+
+    The configuration schema is available at
+    https://microsoft.github.io/genaiscript/schemas/config.json.
+
+
+    `envFile` specifies the location for loading secrets into environment
+    variables.
+
+
+    `include` allows glob paths to include additional scripts, enabling shared
+    configurations across projects. Example:
+
+    ```yaml
+
+    include:
+      - "globalpath/*.genai.mjs"
+    ```
+
+
+    `modelAliases` defines shorthand names for models. Example:
+
+    ```json
+
+    {
+      "modelAliases": {
+        "llama32": "ollama:llama3.2:1b",
+        "llama32hot": {
+          "model": "ollama:llama3.2:1b",
+          "temperature": 2
+        }
+      }
+    }
+
+    ```
+
+
+    `modelEncodings` specifies encoding for models. Example:
+
+    ```json
+
+    {
+      "modelEncodings": {
+        "azure:gpt__4o_random_name": "gpt-4o"
+      }
+    }
+
+    ```
+
+
+    Enable the `config` debug category for detailed configuration resolution
+    logs:
+
+    ```sh
+
+    DEBUG=config genaiscript run ...
+
+    ```
+  hash: e553cbeede8b7be26512f2e5dcbd2cb1fec1f2d98a7dbb2a560194d145d31526
 
 ---
 

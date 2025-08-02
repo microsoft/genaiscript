@@ -18,23 +18,64 @@ hero:
     file: ./vector-search.png
 llmstxt:
   content: >-
-    GenAIScript supports vector database integration for embeddings search and
-    retrieval-augmented generation (RAG). 
+    GenAIScript supports vector databases for embeddings search and
+    retrieval-augmented generation (RAG).
 
 
-    To create or load an index, use `retrieval.index`. Options must remain
-    consistent across executions.
+    To create or load an index, use `retrieval.index`. Options like
+    `embeddingsModel` and `chunkSize` must remain consistent across executions.
+    By default, vectors are stored locally in `.genaiscript/vector` using the
+    `vectra` library. Embeddings are computed via the `embeddings` model alias,
+    configurable as needed.
 
 
     ```js
 
-    const index = await retrieval.index("animals")
+    const index = await retrieval.index("animals", {
+        embeddingsModel: "ollama:nomic-embed-text",
+        chunkSize: 512,
+        chunkOverlap: 0,
+    })
 
     ```
 
 
-    By default, vectors are stored locally in `.genais
-  hash: a8ae796d4b165474d50a783bf9bffee15bccd7222e181a69645d6c81a08b00f3
+    Set `deleteIfExists: true` to reset the index on every execution.
+
+
+    For Azure AI Search, specify `type: "azure_ai_search"` in the index options.
+    Configure it via `AZURE_AI_SEARCH_ENDPOINT` and `AZURE_AI_SEARCH_API_KEY` in
+    `.env`. Refer to Azure's documentation for authentication.
+
+
+    ```js
+
+    const index = retrieval.index("animals", { type: "azure_ai_search" })
+
+    ```
+
+
+    Indexing is done with `index.insertOrUpdate`, which handles chunking,
+    vectorizing, and updating the database.
+
+
+    ```js
+
+    await index.insertOrUpdate(env.files)
+
+    ```
+
+
+    Search the index using `index.search`. Results include files with
+    reconstructed content from matching chunks.
+
+
+    ```js
+
+    const hits = await index.search("keyword")
+
+    ```
+  hash: 2dc2f4aa8b4ee5e0b917c53500469e05da48f5225b407c6c19e58e4a46cd2265
 
 ---
 

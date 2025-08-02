@@ -13,6 +13,73 @@ hero:
       image is small, uses only five bold colors, minimal shapes, and has no
       background, shadows, or people.
     file: ./classify.png
+llmstxt:
+  content: >-
+    The `classify` function in GenAIScript categorizes text using an LLM. It
+    requires importing from "@genaiscript/runtime" and takes input text, labels
+    with descriptions, and optional settings. It returns the most probable label
+    based on the LLM's evaluation.
+
+
+    Example:
+
+    ```js
+
+    const { label } = await classify(
+        "The app crashes when I try to upload a file.",
+        {
+            bug: "a software defect",
+            feat: "a feature request",
+            qa: "an inquiry about how to use the software",
+        }
+    )
+
+    ```
+
+
+    Labels are single-token keys with descriptions to guide the LLM. An optional
+    `other` label can be added for unclassifiable inputs:
+
+    ```js
+
+    const res = await classify("...", { ... }, { other: true })
+
+    ```
+
+
+    Explanations can be enabled to provide reasoning before the label:
+
+    ```js
+
+    const res = await classify("...", { ... }, { explanation: true })
+
+    ```
+
+
+    The default model alias is `classify`, but it can be changed:
+
+    ```js
+
+    const res = await classify("...", { model: "large" })
+
+    ```
+
+
+    Classification quality can be assessed using `logprob` values. A
+    `probPercent` below 80% may indicate uncertainty:
+
+    ```js
+
+    const { label, probPercent } = await classify(...)
+
+    if (probPercent < 80) console.log("classifier confused...")
+
+    ```
+
+
+    Logprobs and topLogprobs can be disabled in the options. Inspired by
+    Marvin's classification system.
+  hash: a06e4ce4037292b20a3946380cb9804ac59686fe624038c53334a08a87eff055
 
 ---
 

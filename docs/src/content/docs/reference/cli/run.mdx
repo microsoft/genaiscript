@@ -1,18 +1,15 @@
 ---
 title: Run
-description:
-  Learn how to execute genai scripts on files with streaming output
+description: Learn how to execute genai scripts on files with streaming output
   to stdout, including usage of glob patterns, environment variables, and output
   options.
 sidebar:
   order: 1
-keywords:
-  CLI tool execution, genai script running, stdout streaming, file
+keywords: CLI tool execution, genai script running, stdout streaming, file
   globing, environment configuration
 hero:
   image:
-    alt:
-      An abstract 8-bit style illustration depicts a colorful terminal window
+    alt: An abstract 8-bit style illustration depicts a colorful terminal window
       featuring a simple gear, a cloud, and a document icon, all rendered in
       bold, flat geometric shapes. Multiple file icons with glowing outlines
       overlap each other, accompanied by a small branching arrow symbolizing a
@@ -21,6 +18,91 @@ hero:
       background, text, shadows, or gradients. The layout is compact, sized at
       128 by 128 pixels.
     file: ./run.png
+llmstxt:
+  content: >-
+    Run scripts on files and stream LLM outputs to stdout or a workspace folder.
+
+
+    Command: `genaiscript run <script> "<files...>"`  
+
+    - `<script>`: Tool ID or file path.  
+
+    - `<files...>`: File(s) or glob patterns.  
+
+
+    Examples:  
+
+    `genaiscript run code-annotator "src/*.ts"`  
+
+    `genaiscript run <script> "src/*.bicep" "src/*.ts"`
+
+
+    Glob patterns supported: `**/*.md`, `**/*.ts`.  
+
+    URI resolutions:  
+
+    - `file://` (local), `https://github.com/...` (GitHub), `gist://id/...`
+    (Gist), `git://...` (Git repo).  
+
+
+    Piping: Use stdin as input, LLM output goes to stdout.  
+
+    Example: `cat README.md | genaiscript run summarize > summary.md`
+
+
+    Exclude files:  
+
+    `--excluded-files <files>`  
+
+    `--exclude-git-ignore` (exclude `.gitignore` files).
+
+
+    Configuration:  
+
+    - `--model`: Set default/large model or dry-run with `echo`.  
+
+    - `--provider`: Load model aliases.  
+
+    - `--vars name=value`: Populate `env.vars`.
+
+
+    Output options:  
+
+    - `--out <file|directory>`: Save results as JSON/markdown.  
+
+    - `--json`: Output full JSON response to stdout.  
+
+    - `--out-trace <file>`: Save markdown trace.  
+
+    - `--out-annotations <file>`: Save annotations (JSON, JSONL, SARIF, CSV).  
+
+    - `--out-data <file>`: Save parsed data (JSON, YAML, JSONL).  
+
+    - `--out-changelogs <file>`: Save changelogs as text.
+
+
+    Remote scripts: Use `--remote <owner>/<repo>` to run scripts from a remote
+    repo.
+
+
+    Pull Requests/Issues:  
+
+    - GitHub Actions: Add `pull-requests: write` permission and set
+    `GITHUB_TOKEN`.  
+
+    - Azure DevOps: Add `<projectname> Build Service` as Collaborator and pass
+    `System.AccessToken`.
+
+
+    PR options:  
+
+    - `--pull-request-description [tag]`: Add LLM output to PR description.  
+
+    - `--pull-request-comment [tag]`: Add LLM output as PR comment.  
+
+    - `--pull-request-reviews`: Create PR review comments from annotations.
+  hash: 69cff6e3cb6b4b267f5b109b97ff05f08f9b668e82f0fc2e1e07912ddaa0c113
+
 ---
 
 Runs a script on files and streams the LLM output to stdout or a folder from the workspace root.

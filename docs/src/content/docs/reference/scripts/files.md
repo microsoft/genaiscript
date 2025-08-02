@@ -1,21 +1,66 @@
 ---
 title: Files
 description: Learn how to perform file system operations using the workspace
-    object in your scripts.
+  object in your scripts.
 keywords: file system, workspace object, readText, findFiles, paths
 sidebar:
-    order: 13
+  order: 13
 hero:
-    image:
-        alt:
-            A clean, flat 2D illustration in retro 8-bit style uses a five-color
-            corporate palette. It displays a folder icon for workspace root,
-            overlapping icons for PDF, DOCX, CSV, JSON, and XML files, along with
-            simple gear and funnel icons symbolizing filtering and searching. A shield
-            icon represents gitignore rules, and a pencil stands for output writing.
-            All icons are geometric, minimalistic, and arranged compactly on a blank
-            background.
-        file: ./files.png
+  image:
+    alt: A clean, flat 2D illustration in retro 8-bit style uses a five-color
+      corporate palette. It displays a folder icon for workspace root,
+      overlapping icons for PDF, DOCX, CSV, JSON, and XML files, along with
+      simple gear and funnel icons symbolizing filtering and searching. A shield
+      icon represents gitignore rules, and a pencil stands for output writing.
+      All icons are geometric, minimalistic, and arranged compactly on a blank
+      background.
+    file: ./files.png
+llmstxt:
+  content: >-
+    GenAIScript allows file system access within the workspace and selected
+    files. File paths are rooted in the project workspace folder (root folder in
+    VS Code or current CLI directory). Multi-root workspaces are unsupported.
+
+
+    `env.files` contains user-selected files. Use it in the `def` function with
+    filters, e.g., `def("PDFS", env.files, { endsWith: ".pdf" })`.
+
+
+    `.gitignore` and `.gitignore.genai` filter files by default. Disable this
+    with `ignoreGitIgnore: true` in the script or CLI (`genaiscript run
+    --ignore-git-ignore`). `.gitignore.genai` is for project-specific
+    exclusions.
+
+
+    `defFileOutput` specifies allowed output paths and descriptions, e.g.,
+    `defFileOutput("src/*.md", "Product documentation in markdown format")`.
+
+
+    The `workspace` object provides file system operations:
+
+    - `findFiles`: Searches files with glob patterns, e.g.,
+    `workspace.findFiles("**/*.md")`.
+
+    - `grep`: Regex search using ripgrep, e.g., `workspace.grep("monkey",
+    "**/*.md")`.
+
+    - `readText`: Reads file content as text, e.g.,
+    `workspace.readText("README.md")`.
+
+    - `readJSON`: Parses JSON files, e.g., `workspace.readJSON("data.json")`.
+
+    - `readXML`, `readCSV`, `readData`: Parse XML, CSV, or auto-detect formats.
+
+    - Schema validation is supported for JSON parsing.
+
+    - `writeText`, `appendText`: Write or append text to files.
+
+
+    The `paths` object manipulates file paths. Files resolve relative to the
+    workspace root. Use globs for pattern matching, e.g., `**/*.js` matches all
+    JavaScript files. Avoid backslashes in glob patterns.
+  hash: b1ca18a91386855ffc13eaff8a891fb34d0bf0cdbfdeccb8dd1721941970d524
+
 ---
 
 GenAIScript provides access to the file system of workspace and to the selected files in the user interface.

@@ -1,9 +1,23 @@
 ---
 title: Generated Knowledge
-description: Explore the technique of generated knowledge in AI prompting to enhance accuracy in answering questions.
-keywords: AI prompting, knowledge generation, GenAIScript, LLM techniques, information integration
+description: Explore the technique of generated knowledge in AI prompting to
+  enhance accuracy in answering questions.
+keywords: AI prompting, knowledge generation, GenAIScript, LLM techniques,
+  information integration
 sidebar:
   order: 10
+llmstxt:
+  content: >-
+    Generated knowledge is a prompting technique involving two steps: knowledge
+    generation, where the LLM generates facts about a question, and knowledge
+    integration, where the generated facts are used to answer the question. This
+    method can be implemented using `runPrompt` to execute an LLM request and
+    incorporate its output into the final prompt.
+
+
+    Example: Using this technique to create a blog post.
+  hash: cc6bb36e8edf97d6cc0775a27315a322da950445c7601f2a038c09097baf1572
+
 ---
 import { Code } from '@astrojs/starlight/components';
 import importedCode from "../../../../../samples/sample/genaisrc/blog-generate-knowledge.genai?raw"

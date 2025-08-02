@@ -7,8 +7,7 @@ tags:
   - cline
   - coding-assistants
 cover:
-  alt:
-    "A pixelated 2D illustration of a computer workstation in a corporate
+  alt: "A pixelated 2D illustration of a computer workstation in a corporate
     theme. The centerpiece is a monitor showing TypeScript code snippets, where
     JSDoc comments stand out clearly above corresponding functions in blocky
     text format. Around the monitor are minimalist, geometric icons: a gear
@@ -17,8 +16,7 @@ cover:
     features a tidy grid pattern, utilizing a muted palette of five professional
     colors. The scene is clean and devoid of human figures or written labels."
   image: ./cline.png
-excerpt:
-  Documenting code can be tedious but remains critical for maintaining
+excerpt: Documenting code can be tedious but remains critical for maintaining
   quality and collaboration. Using GenAIScript, you can automate the generation
   of JSDoc comments in TypeScript projects by leveraging AST grep for precise
   code analysis and LLMs for producing detailed documentation. This approach not
@@ -26,6 +24,69 @@ excerpt:
   codebase. Practical benefits like parallel task execution, cost-efficient
   prompt utilization, and the shareability of workflows make GenAIScript a
   powerful tool for scaling such tasks in development teams.
+llmstxt:
+  content: >-
+    GenAIScript simplifies coding LLM workflows but can be challenging for
+    complex tasks. This post demonstrates how to create a GenAIScript workflow
+    to automatically add JSDoc comments to TypeScript code lacking
+    documentation. The script uses AST grep to locate functions, classes, and
+    methods without JSDoc and employs an LLM to generate and insert comments.
+
+
+    GenAIScript is preferred over coding agents due to its parallel execution,
+    cost-efficiency through optimized prompts, and shareable, self-contained
+    workflows. 
+
+
+    Setup involves installing Cline, configuring credentials, and creating a
+    script file. The provided prompt instructs Cline to generate a script that:
+
+    1. Searches TypeScript files for undocumented declarations using AST grep.
+
+    2. Invokes an LLM to generate JSDoc comments.
+
+    3. Modifies the code to prepend the generated comments.
+
+
+    Example task:
+
+    Before:
+
+    ```ts
+
+    function calculateTotal(price: number, tax: number): number {
+      return price + price * tax;
+    }
+
+    ```
+
+    After:
+
+    ```ts
+
+    /**
+     * Calculates the total amount including tax
+     * @param {number} price - The base price
+     * @param {number} tax - The tax rate as a decimal
+     * @returns {number} The total amount including tax
+     */
+    function calculateTotal(price: number, tax: number): number {
+      return price + price * tax;
+    }
+
+    ```
+
+
+    The script uses AST grep patterns to identify undocumented code, processes
+    matches, generates JSDoc using LLM prompts, and either previews or applies
+    edits. Run the script with `npx genaiscript run
+    jsdoc-commentator.genai.mts`.
+
+
+    This approach demonstrates how coding assistants can accelerate GenAIScript
+    development, making advanced workflows more accessible.
+  hash: 063a5af43149d0467caecd903af675572b4f0b8db56f89401e81a0807f01cae3
+
 ---
 
 ---

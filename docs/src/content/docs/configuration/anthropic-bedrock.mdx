@@ -2,6 +2,20 @@
 title: Anthropic Bedrock
 sidebar:
   order: 6.1
+llmstxt:
+  content: |-
+    The `anthropic_bedrock` provider enables access to Anthropic models via Amazon Bedrock. Model names are listed in the [Anthropic model documentation](https://docs.anthropic.com/en/docs/about-claude/models#model-names).
+
+    To use this provider, ensure AWS credentials are configured as per the [AWS Node SDK guidelines](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html).
+
+    Example usage:
+    ```js
+    script({
+      model: "anthropic_bedrock:anthropic.claude-3-sonnet-20240229-v1:0",
+    });
+    ```
+  hash: 28dd5579b20702a58bc9a0b6b7b8853fc839881e17f46f40f0f3369c80f3bb9d
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

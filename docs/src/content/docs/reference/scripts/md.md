@@ -19,6 +19,23 @@ hero:
       with five solid corporate colors, no people, text, or decorative effects,
       and measures 128 by 128 pixels."
     file: ./md.png
+llmstxt:
+  content: >-
+    The `MD` class offers utilities for handling Markdown, frontmatter, and
+    MDX. 
+
+
+    `frontmatter(text, "yaml")`: Extracts and parses frontmatter from Markdown.
+    Returns `undefined` if absent or invalid. Default format: YAML.
+
+
+    `content(text)`: Retrieves Markdown content excluding frontmatter.
+
+
+    `updateFrontmatter(text, { key: value })`: Updates frontmatter fields. Use
+    `null` to remove fields. Example: `updateFrontmatter(text, { title: "New
+    Title" })`.
+  hash: 6b8bef6bd7910810034495708092d052cd2b1935ad0bc9d75b621fe676c94d81
 
 ---
 

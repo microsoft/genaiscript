@@ -2,6 +2,36 @@
 title: GitHub Copilot Chat
 sidebar:
   order: 2
+llmstxt:
+  content: >-
+    GenAIScript can use GitHub Copilot Chat models in Visual Studio Code if
+    GitHub Copilot Chat is installed and configured. This allows running scripts
+    without separate or local LLM providers, though these models are unavailable
+    from the command line and subject to GitHub Copilot's limitations and rate
+    limits.
+
+
+    To use GitHub Copilot Chat models:
+
+    1. Install GitHub Copilot Chat from the Visual Studio Code Marketplace.
+
+    2. Run your script.
+
+    3. Ensure GenAIScript is allowed to use GitHub Copilot Chat models.
+
+    4. Select the appropriate chat model for your script. This step is skipped
+    if mappings are preconfigured in settings.
+
+
+    To force this model, use `github_copilot_chat:*` as the model name or enable
+    the "GenAIScript > Language Chat Models Provider" setting. Model name
+    mappings are stored in settings.
+
+
+    Check your GitHub Copilot premium request quota in GitHub's Features
+    settings.
+  hash: 1146995936b56b8a8068dc793b4c9d81e87ea71f58652be48f49400de771f783
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

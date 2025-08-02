@@ -18,6 +18,106 @@ hero:
       remain minimal, with no people, text, background designs, or shading
       effects."
     file: ./inline-prompts.png
+llmstxt:
+  content: >-
+    The `prompt` and `runPrompt` functions enable inner LLM invocations,
+    returning the prompt's output. `prompt` is shorthand for `runPrompt` with a
+    template string as input. Example:
+
+
+    ```js
+
+    const { text } = await prompt`Write a short poem.`
+
+    ```
+
+
+    `runPrompt` accepts a function with `_` as the prompt builder, using helpers
+    like `_.def` and `_.$`:
+
+
+    ```js
+
+    const { text } = await runPrompt((_) => {
+        _.def("FILE", file)
+        _.$`Summarize the FILE. Be concise.`
+    })
+
+    ```
+
+
+    Alternatively, pass the prompt text directly:
+
+
+    ```js
+
+    const { text } = await runPrompt(`Select all the image files in
+    ${env.files.map((f) => f.filename)}`)
+
+    ```
+
+
+    Avoid using global helpers (`def`, `$`) inside inner prompts; use `_.def`,
+    `_.$` instead.
+
+
+    Options like `temperature` can modify behavior:
+
+
+    ```js
+
+    const { text } = await prompt`Write a short poem.`.options({ temperature:
+    1.5 })
+
+    ```
+
+
+    Inner prompts can be used in tools:
+
+
+    ```js
+
+    defTool("poet", "Writes 4 line poem about a given theme", { theme: { type:
+    "string" } }, ({ theme }) => prompt`Write a ${4} line ${"poem"} about
+    ${theme}`)
+
+    ```
+
+
+    `prompt` and `runPrompt` are async, supporting concurrency:
+
+
+    ```js
+
+    await Promise.all(env.files, (file) => prompt`Summarize the ${file}`)
+
+    ```
+
+
+    Concurrency limits (default 8) can be adjusted:
+
+
+    ```js
+
+    script({ modelConcurrency: { "openai:gpt-4o": 20 } })
+
+    ```
+
+
+    For inline-only scripts, use the `none` model to disable main prompt
+    generation:
+
+
+    ```js
+
+    script({ model: "none" })
+
+    ```
+
+
+    Example: Summarizing files with Phi-3 via Ollama involves summarizing each
+    file individually before combining them into the main prompt.
+  hash: 6f6d5a7282df8bbf652eebb5e395de123efc96b555e181b5148a40af7a54ee3e
 
 ---
 

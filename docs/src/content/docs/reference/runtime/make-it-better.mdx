@@ -1,8 +1,47 @@
 ---
-title: "Make It Better"
+title: Make It Better
 sidebar:
-    order: 100
-description: "Ask the LLM to make your code better!"
+  order: 100
+description: Ask the LLM to make your code better!
+llmstxt:
+  content: >-
+    The `makeItBetter` function from GenAIScript runtime iteratively improves
+    code by analyzing and enhancing it over multiple rounds. 
+
+
+    1. `makeItBetter` is imported to refine code.  
+
+    2. `def("CODE", env.files)` sets up the code context.  
+
+    3. `$` prompts the AI to analyze and improve the code.  
+
+    4. `makeItBetter({ repeat: 2 })` repeats the improvement process twice,
+    registering a chat participant to inject improvement instructions during
+    each chat turn.  
+
+
+    The function operates as follows:
+
+
+    ```js
+
+    export function makeItBetter(options?: { repeat: ... }) {
+        let round = 0;
+        defChatParticipant((cctx) => {
+            if (round++ < repeat) {
+                cctx.console.log(`make it better (round ${round})`);
+                cctx.$`make it better`;
+            }
+        });
+    }
+
+    ``` 
+
+
+    This enables iterative refinement of code through repeated AI-driven
+    analysis and enhancement.
+  hash: c73d8128e152bb9dc60a01c481265cf7c88b9048fb5abddfbbe8f571bcb2616f
+
 ---
 
 Surprising results happen when you repeatidely ask the LLM to "make it better" (see [blog post](https://minimaxir.com/2025/01/write-better-code/)).

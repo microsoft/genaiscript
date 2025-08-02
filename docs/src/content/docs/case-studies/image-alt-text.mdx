@@ -2,8 +2,64 @@
 title: Image Alt Text
 sidebar:
   order: 10
-description: Learn how to automatically generate descriptive alt text for images using OpenAI Vision model to enhance accessibility and SEO.
-keywords: alt text automation, image accessibility, SEO optimization, OpenAI Vision, Astro integration
+description: Learn how to automatically generate descriptive alt text for images
+  using OpenAI Vision model to enhance accessibility and SEO.
+keywords: alt text automation, image accessibility, SEO optimization, OpenAI
+  Vision, Astro integration
+llmstxt:
+  content: >-
+    Providing an `alt` attribute for images is essential for accessibility and
+    SEO. Developers often skip this or use generic text like "image," which is
+    not ideal. A script using the OpenAI Vision model can automate generating
+    descriptive `alt` text for images.
+
+
+    The script processes a single image file, adds it to the prompt context
+    using `defImages(file)`, and instructs the LLM to generate a descriptive
+    `alt` text:  
+
+    `$You are an expert in assistive technology. Analyze each image and generate
+    a description alt text.`  
+
+    The output is saved using `defFileOutput(file.filename + ".txt", "Alt text
+    for image " + file.filename)`.
+
+
+    In Astro, the generated `alt` text is stored in a separate text file and
+    injected into the HTML. Example usage:  
+
+    ```mdx
+
+    <Image src={src} alt={alt} />
+
+    ```
+
+
+    To automate this for multiple images, use the `run` command:  
+
+    ```sh
+
+    for file in assets/**.png; do
+      npx --yes genaiscript run image-alt-text "$file"
+    done
+
+    ```
+
+    To prevent overwriting existing files:  
+
+    ```sh
+
+    if [ ! -f "$file" ]; then
+      npx --yes genaiscript run image-alt-text "$file"
+    fi
+
+    ```
+
+
+    This approach ensures accessibility and efficiency in generating `alt` text
+    for documentation images.
+  hash: 8d995479b46bdd58b6aabcef830c70a8e593dc71eccf4572f209e866f07709c6
+
 ---
 
 import { Image } from "astro:assets";

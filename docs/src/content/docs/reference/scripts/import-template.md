@@ -16,6 +16,69 @@ hero:
       background, is highly simplified and geometric, and measures 128 by 128
       pixels. There are no people, no words, and no realistic effects.
     file: ./import-template.png
+llmstxt:
+  content: >-
+    Various LLM tools support storing prompts in text or markdown files, which
+    can be imported using `importTemplate`. For example:
+
+
+    `cot.md`: Explain your answer step by step.  
+
+    `tool.genai.mjs`: importTemplate("cot.md")
+
+
+    `importTemplate` supports variable interpolation using Mustache (default),
+    Jinja, or Prompty formats. Variables can be passed directly or as functions
+    for dynamic values:
+
+
+    `time.md`: The current time is {{time}}.  
+
+    `tool.genai.mjs`: importTemplate("time.md", { time: "12:00" })  
+
+    Dynamic example: importTemplate("time.md", { time: () => Date.now() })
+
+
+    Files can also be specified via `workspace.readText` or using arrays/glob
+    patterns:  
+
+    `tool.genai.mjs`: const file = await workspace.readText("time.md")  
+
+    importTemplate(time, { time: "12:00" })  
+
+    importTemplate("*.prompt")
+
+
+    Prompty extends markdown for prompts with role sections. Example:  
+
+    `basic.prompty`:  
+
+    ---  
+
+    name: Basic Prompt  
+
+    description: A basic prompt using the chat API  
+
+    ---  
+
+    inputs:  
+
+    question:  
+
+    type: string  
+
+    sample: "Who is the most famous person in the world?"  
+
+    ---  
+
+    system: You are an AI assistant who answers questions briefly.  
+
+    user: {{question}}
+
+
+    Usage: importTemplate("basic.prompty", { question: "what is the capital of
+    France?" })
+  hash: 62be55b9e03edfbeccfc52d5cbc83837692ea8083d7b4acd19903eaf6f2fedf5
 
 ---
 

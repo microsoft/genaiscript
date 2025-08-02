@@ -4,8 +4,7 @@ description: Learn how to publish MCP resources seamlessly using GenAIScript.
 keywords: MCP, GenAIScript, resources, publishing
 date: 2025-03-30
 cover:
-  alt:
-    A colorful 2D illustration in an 8-bit retro style, depicting a stylized
+  alt: A colorful 2D illustration in an 8-bit retro style, depicting a stylized
     server setup with abstract data nodes linked by lines. The design uses five
     corporate colors, forming a geometric pattern that symbolizes data and
     resource exchange. The interconnected nodes illustrate a protocol for
@@ -18,14 +17,43 @@ tags:
   - MCP tools
   - publishResource method
   - GenAIScript framework
-excerpt:
-  The Model Context Protocol (MCP) introduces a powerful way for scripts
+excerpt: The Model Context Protocol (MCP) introduces a powerful way for scripts
   to provide context to large language models (LLMs) by exposing data through
   MCP resources. These resources enable servers to share structured content that
   clients can access and utilize efficiently. By integrating `publishResource`
   into your workflows, you can streamline how your applications interact with
   MCP clients, enhancing context discovery and resolution. Dive deeper into how
   MCP tools and resources can elevate your systems today.
+llmstxt:
+  content: >-
+    MCP resources extend the Model Context Protocol (MCP) by enabling scripts to
+    publish data or content that can be used as context for LLM interactions.
+    Resources are discoverable and resolvable by MCP clients, allowing seamless
+    integration into workflows.
+
+
+    Scripts can publish resources using the `publishResource` method, which
+    assigns a unique identifier to the resource and handles the rest via the
+    GenAIScript framework.
+
+
+    Example:
+
+    ```js
+
+    const uri = await host.publishResource("unique-id", file);
+
+    ```
+
+
+    MCP ensures that once a resource is published, the client becomes aware of
+    it and can decide to access it. This enhances the utility of scripts as MCP
+    tools by enabling them to expose structured data for broader use.
+
+
+    For implementation details, refer to the documentation.
+  hash: fc30ebd50648a2846ddac15e09cd947be3ff3a0221c03e468128c75826fa6caa
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

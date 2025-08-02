@@ -12,6 +12,55 @@ hero:
       with an arrow signifying a rewrite. No text, people, or decoration, just
       clean 2D shapes on a blank background.
     file: ./chat-participants.png
+llmstxt:
+  content: >-
+    The `defChatParticipant` function registers a handler to modify or add
+    messages in a chat sequence, enabling multi-turn conversations,
+    multi-participant simulations, or dynamic prompt adjustments.
+
+
+    Example: Adding a message on the first turn:
+
+    ```js
+
+    let turn = 0;
+
+    defChatParticipant((_, messages) => {
+      if (++turn === 1) _.$`Are you sure?`;
+    });
+
+    ```
+
+
+    The handler receives the `Chat` object and the message history since the
+    last call. To track turns and prevent infinite loops:
+
+    ```js
+
+    let turn = 0;
+
+    defChatParticipant((_, messages) => {
+      if (++turn === 1) _.$`Are you sure?`;
+    });
+
+    ```
+
+
+    To rewrite the message history:
+
+    ```js
+
+    defChatParticipant((_, messages) => {
+      messages.push({ role: "user", content: "Make it better!" });
+      return { messages };
+    });
+
+    ```
+
+
+    Example use case: A QA generator script uses multi-turn chat to create
+    questions, answers, and validate responses dynamically.
+  hash: 04f559b90e52fe20ca43a6aaa190f41f928233010c05b10fef62987d39c7f69e
 
 ---
 

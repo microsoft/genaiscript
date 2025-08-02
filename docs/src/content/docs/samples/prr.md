@@ -24,6 +24,109 @@ excerpt: Take your pull request reviews to the next level with automation. This
   leverage built-in agents for deeper file analysis, and ultimately automate it
   using GitHub Actions. From metadata configurations to safety measures, you'll
   implement a workflow that's comprehensive, efficient, and secure.
+llmstxt:
+  content: >-
+    Add a script to analyze pull request changes and post comments on GitHub.
+    Save the script as `genaisrc/prr.genai.mts`:
+
+
+    ```ts
+
+    script({
+        title: "Pull Request Reviewer",
+        description: "Review the current pull request",
+        systemSafety: true,
+        parameters: { base: "" },
+    })
+
+    const { dbg, vars } = env
+
+    const base = vars.base || (await git.defaultBranch())
+
+    const changes = await git.diff({ base, llmify: true })
+
+    if (!changes) cancel("No changes found in the pull request")
+
+    dbg(`changes: %s`, changes)
+
+    const gitDiff = def("GIT_DIFF", changes, {
+        language: "diff",
+        maxTokens: 14000,
+        detectPromptInjection: "available",
+    })
+
+    $`Report errors in ${gitDiff} using the annotation format.
+
+
+    - Use best practices for each file's language.
+
+    - Provide official documentation URLs if available, avoid inventing URLs.
+
+    - Analyze all code thoroughly.
+
+    - Use tools to read entire file content for context.
+
+    - Report only errors, not warnings.
+
+    - Add suggestions if confident about fixes.`
+
+    ```
+
+
+    Run locally using `npx --yes genaiscript run prr`. Inspect outputs like
+    trace or markdown reports to refine prompts.
+
+
+    To enhance analysis, enable file reading tools:
+
+    - Add `tools: ["fs_read_file"]` for reading files.
+
+    - Add `tools: ["agent_fs"]` for advanced queries at higher token cost.
+
+
+    Automate with GitHub Actions. Add `.github/workflows/genai-pr-review.yml`:
+
+
+    ```yaml
+
+    name: genai pull request review
+
+    on:
+      pull_request:
+        types: [ready_for_review, review_requested]
+    concurrency:
+      group: genai-pr-review-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      pull-requests: write
+      models: read
+    jobs:
+      review:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-node@v4
+            with:
+              node-version: "22"
+          - name: fetch base branch
+            run: git fetch origin ${{ github.event.pull_request.base.ref }}
+          - name: genaiscript prr
+            run: npx --yes genaiscript run prr --vars base=origin/${{ github.event.pull_request.base.ref }} --pull-request-reviews --pull-request-comment --out-trace $GITHUB_STEP_SUMMARY
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    ```
+
+
+    This script uses `--pull-request-reviews` for review comments and
+    `--pull-request-comment` for summary comments. Test by creating a pull
+    request and triggering the workflow.
+
+
+    Content safety is enforced with system prompts to prevent harmful outputs.
+    Use models with safety filters or validate outputs with content safety
+    services for additional protection.
+  hash: 900d7145030fcc1083d69322e2c7e69e923fcf50e67a64e850e13cbdea1724bd
 
 ---
 

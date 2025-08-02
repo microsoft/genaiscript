@@ -14,6 +14,101 @@ hero:
       color scheme is limited to five bold corporate tones, with no people or
       background, and follows a flat, 8-bit style at small size.
     file: ./tutorial.png
+llmstxt:
+  content: >-
+    GenAIScript is a JavaScript-based framework for writing prompts and
+    interacting with LLMs. It allows you to format and send user messages to LLM
+    APIs, leveraging JavaScript constructs for dynamic and reusable prompts.
+
+
+    The `$` function formats strings into user messages sent to the LLM. For
+    example:
+
+    ```js
+
+    $`Say "hello!" in emojis`
+
+    ```
+
+    produces the response: 👋😃!
+
+
+    You can sequence multiple `$` calls or use loops for dynamic prompts:
+
+    ```js
+
+    for (let i = 1; i <= 3; i++) $`- Say "hello!" in ${i} emojis.`
+
+    $`Respond with a markdown list`
+
+    ```
+
+    produces:
+
+    - 👋
+
+    - 👋😊
+
+    - 👋✨😃
+
+
+    The `def` function assigns variables for LLM context, such as importing
+    files:
+
+    ```js
+
+    def("FILE", env.files)
+
+    $`Summarize FILE in one short sentence. Respond as plain text.`
+
+    ```
+
+    This uses `env.files` to access files in context, which can be filtered by
+    extension or token limits:
+
+    ```js
+
+    def("FILE", env.files, { endsWith: ".md", maxTokens: 1000 })
+
+    $`Summarize FILE in one short sentence. Respond as plain text.`
+
+    ```
+
+
+    You can register tools for LLMs to call:
+
+    ```js
+
+    defTool("fetch", "Download text from a URL", { url: "https://..." }, ({ url
+    }) => host.fetchText(url))
+
+    $`Summarize
+    https://raw.githubusercontent.com/microsoft/genaiscript/main/README.md in 1
+    sentence.`
+
+    ```
+
+
+    Nested prompts allow running smaller LLM tasks:
+
+    ```js
+
+    for (const file of env.files) {
+        const { text } = await runPrompt((_) => {
+            _.def("FILE", file)
+            _.$`Summarize the FILE.`
+        })
+        def("FILE", { ...file, content: text })
+    }
+
+    $`Summarize FILE.`
+
+    ```
+
+
+    GenAIScript simplifies LLM interactions by combining JavaScript logic with
+    prompt generation, enabling dynamic, reusable, and context-aware workflows.
+  hash: d7943a8bd8033f199981b2601f3e3c8f10f9898a0e8d44bb65dd3c36cdcfcf38
 
 ---
 

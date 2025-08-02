@@ -18,31 +18,31 @@ hero:
     file: ./yaml.png
 llmstxt:
   content: >-
-    YAML is a human-readable data format used for configuration and data
-    exchange. It is preferred over JSON in LLMs due to better tokenizer
-    compatibility.
+    YAML is a human-readable data serialization format often used for
+    configuration files and data exchange. It is preferred over JSON in LLM
+    contexts due to its tokenizer-friendly structure.
 
 
-    The `defData` function renders objects to YAML or other formats:  
+    The `defData` function renders objects to YAML or other formats as needed:
+    `defData("DATA", data)`.
 
-    `defData("DATA", data)`
 
+    The `YAML` class in LLM provides methods for parsing and stringifying YAML
+    data:
 
-    The `YAML` class provides methods for parsing and stringifying YAML:  
+    `const obj = YAML\`value: ${x}\``
 
-    `const obj = YAML.parse("...")`  
+    `const obj = YAML.parse("...")`
 
     `const str = YAML.stringify(obj)`
 
 
-    Lenient YAML parsing is available via `parsers.YAML`, which returns
-    `undefined` for invalid inputs:  
-
-    `const res = parsers.YAML("...")`
+    The `parsers.YAML` method is a lenient YAML parser that returns `undefined`
+    for invalid inputs: `const res = parsers.YAML("...")`.
 
 
     JSON schemas defined with `defSchema` can validate YAML data.
-  hash: 2964671b3530aefa39195ea8f32e5d76c91736721b2314b2b5a2d3adb55a7bff
+  hash: a0e4e413e4a9a90289313a87f35283cd06758f32c3c8b0e9cd4e46d8fd0f0ab5
 
 ---
 

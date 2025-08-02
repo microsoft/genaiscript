@@ -15,6 +15,22 @@ hero:
       2D, with no background or gradients, and measures 128x128 pixels. There
       are no people or visible written text.
     file: ./docx.png
+llmstxt:
+  content: >-
+    The `def` function processes DOCX files, extracting text automatically:
+
+
+    def("DOCS", env.files, { endsWith: ".docx" })
+
+
+    The `parsers.DOCX` function converts a DOCX file into a text format suitable
+    for LLMs:
+
+
+    const { file } = await parsers.DOCX(env.files[0])  
+
+    def("FILE", file)
+  hash: d13096330342874053616b87b66af75c3c59f2b03fb0aef87f5fcbed98ee0523
 
 ---
 

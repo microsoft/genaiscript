@@ -9,8 +9,7 @@ tags:
 canonical_url: https://microsoft.github.io/genaiscript/blog/video
 description: Add videos to your LLMs calls.
 cover:
-  alt:
-    A colorful, simplified illustration shows a futuristic desk setup. There's
+  alt: A colorful, simplified illustration shows a futuristic desk setup. There's
     a large computer screen with visual representations of video and audio, like
     frames and waveforms. Surrounding the screen are stylized geometric symbols
     for video and audio tools. The design uses abstract shapes in the background
@@ -18,12 +17,54 @@ cover:
     from 8-bit style. It employs just five bold colors to keep the look clear
     and corporate, with no people or language visible.
   image: ./video.png
-excerpt:
-  Analyze videos with ease. Traditional LLMs require timestamp-based
+excerpt: Analyze videos with ease. Traditional LLMs require timestamp-based
   screenshots, often leading to context window issues. GenAIScript simplifies
   video and audio analysis by enabling automated frame extraction and transcript
   integration. Learn how tools and agents streamline these tasks for your
   scripts in the documentation.
+llmstxt:
+  content: >-
+    The latest release adds support for video and audio transcript analysis in
+    scripts. Use `ffmpeg.extractFrames` to extract frames and transcriptions
+    from a video:
+
+
+    ```js
+
+    const frames = await ffmpeg.extractFrames("demo.mp4", { transcription: true
+    });
+
+    def("DEMO", frames);
+
+    $`Describe what happens in the <DEMO>.`;
+
+    ```
+
+
+    This eliminates the need to manually select timestamps or worry about
+    context window limits. GenAIScript simplifies video analysis with LLMs.
+
+
+    Tools and agents streamline these tasks. To enable frame extraction:
+
+
+    ```js
+
+    script({ tools: "video_extract_frames" });
+
+    ```
+
+
+    For automated video analysis, use:
+
+
+    ```js
+
+    script({ tools: "agent_video" });
+
+    ```
+  hash: 302aefe4c9af2e2f1e92258c3e8f57018bacf90353f44687705f57297ed965b8
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

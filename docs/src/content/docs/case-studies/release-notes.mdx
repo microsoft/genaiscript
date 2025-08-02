@@ -4,6 +4,76 @@ sidebar:
   order: 7
 description: Generate comprehensive release notes combining commit history and code diffs
 keywords: release notes, automation, commit history, code diffs, release management
+llmstxt:
+  content: >-
+    GenAIScript generates release notes using both commit history and code
+    diffs, enhancing traditional commit-based methods. The script retrieves the
+    previous release tag, commits, and diffs via Git commands:
+
+
+    ```js
+
+    const { stdout: tag } = await host.exec(`git describe --tags --abbrev=0
+    HEAD^`);
+
+    const { stdout: commits } = await host.exec(`git log HEAD...${tag}`);
+
+    const { stdout: diff } = await host.exec(`git diff ${tag}..HEAD`);
+
+    ```
+
+
+    Key data is defined with token limits to fit the model's input window:
+
+
+    ```js
+
+    def("COMMITS", commits, { maxTokens: 4000 });
+
+    def("DIFF", diff, { maxTokens: 20000 });
+
+    ```
+
+
+    The script uses a role/task pattern to generate clear, engaging release
+    notes:
+
+
+    ```js
+
+    $`
+
+    You are an expert software developer and release manager.
+
+
+    ## Task
+
+    Generate clear, exciting, relevant release notes for the upcoming release. 
+
+    - COMMITS contain the release commits.
+
+    - DIFF contains the code changes.
+
+    `;
+
+    ```
+
+
+    Integrated with `release-it`, the script automates the release process via
+    the `github.releaseNotes` field in `package.json`:
+
+
+    ```json
+
+    "release-it": {
+      "github": {
+        "releaseNotes": "node packages/cli/dist/src/index.js run git-release-notes --cache --cache-name releases --no-run-trace --no-output-trace"
+      }
+    }
+
+    ```
+  hash: e8bddc11ae4dce64314d018f0525bcfb74bb27cb1cde9b2f5c9590548386c4ab
+
 ---
 
 import { Code } from "@astrojs/starlight/components";

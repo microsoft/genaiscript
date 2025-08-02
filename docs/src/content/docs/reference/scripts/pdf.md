@@ -14,6 +14,29 @@ hero:
       only five corporate colors and has no people, text, background elements,
       shadows, gradients, reflections, or 3D effects.
     file: ./pdf.png
+llmstxt:
+  content: >-
+    The `def` function processes PDF files to extract text for generating
+    prompts. Use `def("PDFS", env.files, { endsWith: ".pdf" })` to target only
+    PDFs.
+
+
+    The `parsers.PDF` function converts PDFs into text and extracts pages.
+    Example: `const { file, pages } = await parsers.PDF(env.files[0])`. Use
+    `file` for the entire document or `pages` for specific sections, e.g.,
+    `pages.slice(0, 2).forEach((page, i) => def(\`PAGE_${i}\`, page))`. If
+    parsing fails, `file` will be `undefined`.
+
+
+    Bitmap images are extracted from PDFs as PNGs via `const { data } = await
+    parsers.PDF(env.files[0])`. To render pages as PNGs, use
+    `parsers.PDF(env.files[0], { renderAsImage: true })`. Adjust quality with
+    the `scale` parameter (default: 3).
+
+
+    PDF text extraction uses `pdf-parse`, which may not handle all PDFs cleanly.
+    For better results, use text-friendly formats like markdown or plain text.
+  hash: 031c1741a8c0682a6e5d943d6b71dace375777b89ec7ab93ba0ee83078c61c6c
 
 ---
 

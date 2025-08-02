@@ -23,6 +23,27 @@ hero:
       backgrounds, shadows, or gradients, and the whole scene is arranged within
       a 128x128 pixel square.
     file: ./prompt-caching.png
+llmstxt:
+  content: >-
+    Prompt caching reduces processing time and costs for repetitive prompts. The
+    `ephemeral` cacheControl setting allows short-term caching by LLM providers.
+
+
+    To enable:
+
+    - `def("FILE", env.files, { cacheControl: "ephemeral" })`
+
+    - `$`Some prompt`.cacheControl("ephemeral")`
+
+
+    LLM provider support:
+
+    - OpenAI/Azure OpenAI: Automatically enables prompt prefix caching.
+    `ephemeral` annotations are ignored.
+
+    - Anthropic: Converts `ephemeral` to `'cache-control': { ... }` in the
+    message object. Prompt caching is beta and not supported in older models.
+  hash: 6524693f810a582fd144fa09afaadf0052f80aec3c541ae0dddd0218fe987770
 
 ---
 
