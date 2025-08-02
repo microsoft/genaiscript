@@ -102,10 +102,7 @@ export const SARIFF_RULEID_PREFIX = "genaiscript/";
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/";
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID;
 
-export const OPENAI_MAX_RETRY_DELAY = 60000; // 60s
-export const OPENAI_MAX_RETRY_COUNT = 10;
-export const OPENAI_RETRY_DEFAULT_DEFAULT = 1000;
-export const OPENAI_MAX_RETRY_AFTER_DEFAULT = 300000; // 300s
+export const CHAT_COMPLETION_RETRY_DEFAULT = 10;
 
 export const FETCH_RETRY_DEFAULT = 6;
 export const FETCH_RETRY_DELAY_DEFAULT = 2000;

@@ -100,6 +100,7 @@ export const OpenAIv1ChatCompletion: ChatCompletionHandler = async (req, cfg, op
     requestOptions,
     partialCb,
     retries,
+    retryOn,
     retryDelay,
     maxDelay,
     maxRetryAfter,
@@ -243,6 +244,7 @@ export const OpenAIv1ChatCompletion: ChatCompletionHandler = async (req, cfg, op
   const fetchRetry = await createFetch({
     trace,
     retries,
+    retryOn,
     retryDelay,
     maxDelay,
     maxRetryAfter,
