@@ -164,6 +164,17 @@ export interface Host {
     },
   ): Promise<string[]>;
 
+  /**
+   * Tries to resolve a resource from a URL.
+   * @param url - The URL to resolve.
+   * @param options - Optional trace and cancellation options.
+   * @returns A promise that resolves to an object containing the parsed URI and resolved files, or undefined if resolution fails.
+   */
+  tryResolveResource(
+    url: string,
+    options?: TraceOptions & CancellationOptions,
+  ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
+
   // This has mkdirp-semantics (parent directories are created and existing ignored)
   createDirectory(name: string): Promise<void>;
   deleteDirectory(name: string): Promise<void>;

@@ -5068,6 +5068,17 @@ export interface ResourceHost {
    * List available resource references
    */
   resources(): Promise<ResourceReference[]>;
+
+  /**
+   * Tries to resolve a resource from a URL.
+   * @param url - The URL to resolve.
+   * @param options - Optional trace and cancellation options.
+   * @returns A promise that resolves to an object containing the parsed URI and resolved files, or undefined if resolution fails.
+   */
+  tryResolveResource(
+    url: string,
+    options?: TraceOptions & CancellationOptions,
+  ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
 }
 
 export interface UserInterfaceHost {
