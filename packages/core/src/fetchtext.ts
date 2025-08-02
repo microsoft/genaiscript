@@ -183,6 +183,8 @@ export function traceFetchPost(
       }
     });
     httpRequest += `--${boundary}--\n`;
+  } else if (body === "string") {
+    httpRequest += "\n" + body;
   } else {
     httpRequest += "\n" + JSON.stringify(body, null, 2);
   }

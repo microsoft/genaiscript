@@ -78,7 +78,7 @@ export default {
         reasoning_small: "o3-mini",
         transcription: "whisper-1",
         speech: "tts-1",
-        image: "dall-e-3",
+        image: "gpt-image-1",
         intent: "gpt-4.1-mini",
       },
       models: {

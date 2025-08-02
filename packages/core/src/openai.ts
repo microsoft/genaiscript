@@ -37,7 +37,7 @@ import { traceFetchPost } from "./fetchtext.js";
 import { genaiscriptDebug } from "./debug.js";
 import { OpenAIv2ResponsesChatCompletion } from "./openai-responses.js";
 import type { LanguageModelInfo, RetryOptions, TranscriptionResult } from "./types.js";
-import { resolveBufferLike } from "./bufferlike.js";
+import { BufferToBlob, resolveBufferLike } from "./bufferlike.js";
 import { getConfigHeaders, OpenAIv1ChatCompletion } from "./openai-chatcompletion.js";
 
 const dbg = genaiscriptDebug("openai");
@@ -336,7 +336,7 @@ export async function OpenAIImageGeneration(
 
   if (isMultipart) {
     // Use FormData for image uploads
-    body = new FormData();
+    const form = (body = new FormData());
 
     // Add the image file
     const imageBuffer = await resolveBufferLike(image);
@@ -346,43 +346,43 @@ export async function OpenAIImageGeneration(
         error: serializeError(new Error("Failed to resolve image buffer")),
       };
     }
-    body.append("image", new Blob([imageBuffer], { type: "image/png" }), "image.png");
+    form.append("image", await BufferToBlob(imageBuffer, "image/png"), "image.png");
 
     // Add mask if provided (only for edit mode)
     if (mode === "edit" && mask) {
       const maskBuffer = await resolveBufferLike(mask);
       if (maskBuffer) {
-        body.append("mask", new Blob([maskBuffer], { type: "image/png" }), "mask.png");
+        form.append("mask", await BufferToBlob(maskBuffer, "image/png"), "mask.png");
       }
     }
 
     // Add model
-    body.append("model", model);
+    form.append("model", model);
 
     // Add prompt (required for edit mode)
     if (mode === "edit") {
-      body.append("prompt", prompt);
+      form.append("prompt", prompt);
     }
 
     // Add processed parameters
     if (shouldIncludeSize) {
-      body.append("size", processedParams.size);
+      form.append("size", processedParams.size);
     }
 
     if (shouldIncludeQuality) {
-      body.append("quality", processedParams.quality);
+      form.append("quality", processedParams.quality);
     }
 
     if (shouldIncludeStyle) {
-      body.append("style", processedParams.style);
+      form.append("style", processedParams.style);
     }
 
     if (shouldIncludeOutputFormat) {
-      body.append("output_format", processedParams.outputFormat);
+      form.append("output_format", processedParams.outputFormat);
     }
 
     // Always request b64_json for response format
-    body.append("response_format", "b64_json");
+    if (isDallE) form.append("response_format", "b64_json");
 
     // Don't set Content-Type header for FormData, let the browser set it with boundary
     delete headers["Content-Type"];
@@ -416,9 +416,7 @@ export async function OpenAIImageGeneration(
     }
 
     headers["Content-Type"] = "application/json";
-    body = JSON.stringify(body);
   }
-
   dbg("%o", {
     mode,
     endpoint,
@@ -440,13 +438,12 @@ export async function OpenAIImageGeneration(
     const freq = {
       method: "POST",
       headers,
-      body,
+      body: isMultipart ? body : JSON.stringify(body),
     };
 
     trace?.itemValue(`url`, `[${url}](${url})`);
-    if (!isMultipart) {
-      traceFetchPost(trace, url, freq.headers, JSON.parse(body));
-    }
+
+    traceFetchPost(trace, url, freq.headers, body);
 
     const res = await fetch(url, freq as any);
     dbg(`response: %d %s`, res.status, res.statusText);

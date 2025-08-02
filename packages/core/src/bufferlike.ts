@@ -78,9 +78,9 @@ export async function resolveBufferLikeAndExt(
  * @param mime - Optional MIME type override. If not provided, the MIME type will be inferred from the buffer, or defaults to "application/octet-stream".
  * @returns A Blob object constructed from the input data.
  */
-export async function BufferToBlob(buffer: Buffer | Uint8Array, mime?: string) {
+export async function BufferToBlob(buffer: Buffer | Uint8Array, mime?: string): Promise<Blob> {
   const type = await fileTypeFromBuffer(buffer);
-  return new Blob([buffer], {
+  return new Blob([buffer as any], {
     type: mime || type?.mime || "application/octet-stream",
   });
 }

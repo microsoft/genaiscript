@@ -126,7 +126,9 @@ export async function createFetch(
   const crossFetchWithProxy: typeof fetch = (url, opts) => {
     const requestInit = deleteUndefinedValues({ signal, agent, ...(opts || {}) });
     dbg(`%s %s`, opts?.method || "GET", url);
-    return crossFetch(url, requestInit);
+    dbg(`content-type: %s`, (opts?.headers as any)?.["Content-Type"] as string);
+    if (opts?.body instanceof FormData) return globalThis.fetch(url, requestInit);
+    else return crossFetch(url, requestInit);
   };
 
   // Return the default fetch if no retry status codes are specified
