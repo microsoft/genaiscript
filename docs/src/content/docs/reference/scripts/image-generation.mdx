@@ -75,29 +75,43 @@ The same transformation options available for [`defImages`](/genaiscript/referen
 - **`greyscale`**: Convert to greyscale
 - **`mime`**: Output format (`"image/jpeg"` or `"image/png"`)
 
-## Post-generation image editing
+## Edit mode
 
-For more complex transformations or editing generated images after creation, use the `imageTransform` function:
+The `generateImage` function supports an "edit" mode that uses OpenAI's image editing capabilities to modify existing images using text prompts. This mode maps directly to OpenAI's image edit API.
 
-```js
-// Generate an image first
-const { image } = await generateImage(`a cute robot`)
+```js "mode: 'edit'" "image: existingImage"
+// First, you need an existing image to edit
+const existingImage = env.files.find(f => f.filename.includes("robot.png"))
 
-// Apply transformations to the generated image
-const transformedImageBuffer = await imageTransform(image, {
-    rotate: 45,
-    scale: 0.8,
-    greyscale: true,
-    crop: { x: 50, y: 50, w: 400, h: 400 }
-})
-
-// Save the transformed result as a new file
-const transformedFile = {
-    filename: "transformed-robot.png",
-    content: transformedImageBuffer.toString("base64"),
-    encoding: "base64"
-}
-await workspace.writeFiles(transformedFile)
+// Edit the image using AI
+const { image } = await generateImage(
+    `Add sunglasses to the robot`,
+    {
+        mode: "edit",
+        image: existingImage,  // Required for edit mode
+        size: "1024x1024"
+    }
+)
 ```
 
-The `imageTransform` function returns a `Buffer` containing the transformed image data.
+### Edit mode with mask
+
+You can optionally provide a mask to specify which parts of the image should be edited:
+
+```js "mask: maskImage"
+const { image } = await generateImage(
+    `Make the background a sunset scene`,
+    {
+        mode: "edit", 
+        image: existingImage,
+        mask: maskImage,  // Optional: specifies areas to edit
+        quality: "high"
+    }
+)
+```
+
+**Requirements for edit mode:**
+- `mode: "edit"` must be specified
+- `image` parameter is required (the image to edit)
+- `mask` parameter is optional (specifies which areas to modify)
+- The edit prompt describes the desired changes
