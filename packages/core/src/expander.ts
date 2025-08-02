@@ -275,10 +275,10 @@ export async function expandTemplate(
   
   // Handle retry options from template
   const retryOn = options.retryOn ?? template.retryOn;
-  const retries = options.retries ?? normalizeInt(env.vars["retries"]) ?? template.retries;
-  const retryDelay = options.retryDelay ?? normalizeInt(env.vars["retryDelay"]) ?? normalizeInt(env.vars["retry_delay"]) ?? template.retryDelay;
-  const maxDelay = options.maxDelay ?? normalizeInt(env.vars["maxDelay"]) ?? normalizeInt(env.vars["max_delay"]) ?? template.maxDelay;
-  const maxRetryAfter = options.maxRetryAfter ?? normalizeInt(env.vars["maxRetryAfter"]) ?? normalizeInt(env.vars["max_retry_after"]) ?? template.maxRetryAfter;
+  const retries = options.retries ?? template.retries;
+  const retryDelay = options.retryDelay ?? template.retryDelay;
+  const maxDelay = options.maxDelay ?? template.maxDelay;
+  const maxRetryAfter = options.maxRetryAfter ?? template.maxRetryAfter;
 
   // finalize options
   env.meta.model = model;
