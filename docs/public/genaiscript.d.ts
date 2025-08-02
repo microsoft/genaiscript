@@ -368,7 +368,7 @@
       name: string;
     };
 
- interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions, CacheOptions {
+ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions, CacheOptions, RetryOptions {
   /**
    * Temperature to use. Higher temperature means more hallucination/creativity.
    * Range 0.0-2.0.

@@ -272,6 +272,13 @@ export async function expandTemplate(
   let topLogprobs = Math.max(options.topLogprobs || 0, template.topLogprobs || 0);
   const disableChatPreview =
     options.disableChatPreview === true || template.disableChatPreview === true;
+  
+  // Handle retry options from template
+  const retryOn = options.retryOn ?? template.retryOn;
+  const retries = options.retries ?? normalizeInt(env.vars["retries"]) ?? template.retries;
+  const retryDelay = options.retryDelay ?? normalizeInt(env.vars["retryDelay"]) ?? normalizeInt(env.vars["retry_delay"]) ?? template.retryDelay;
+  const maxDelay = options.maxDelay ?? normalizeInt(env.vars["maxDelay"]) ?? normalizeInt(env.vars["max_delay"]) ?? template.maxDelay;
+  const maxRetryAfter = options.maxRetryAfter ?? normalizeInt(env.vars["maxRetryAfter"]) ?? normalizeInt(env.vars["max_retry_after"]) ?? template.maxRetryAfter;
 
   // finalize options
   env.meta.model = model;
@@ -453,5 +460,10 @@ export async function expandTemplate(
     metadata,
     fallbackTools: options.fallbackTools,
     disableChatPreview,
+    retryOn,
+    retries,
+    retryDelay,
+    maxDelay,
+    maxRetryAfter,
   };
 }
