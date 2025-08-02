@@ -1,7 +1,7 @@
 {
   "name": "@genaiscript/plugin-mermaid",
   "private": false,
-  "version": "2.3.11",
+  "version": "2.3.12",
   "main": "./dist/commonjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/commonjs/index.d.ts",
