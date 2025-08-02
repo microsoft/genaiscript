@@ -2,6 +2,7 @@ import { serializeError } from "serialize-error"
 import { CancellationOptions, toSignal } from "./cancellation"
 import { CreateTranscriptionRequest, LanguageModel } from "./chat"
 import { MODEL_PROVIDER_WHISPERASR } from "./constants"
+import { createFetch } from "./fetch"
 import { traceFetchPost } from "./fetchtext"
 import { getConfigHeaders } from "./openai"
 import { LanguageModelConfiguration } from "./server/messages"
@@ -18,6 +19,7 @@ async function WhisperASRTranscribe(
     options: TraceOptions & CancellationOptions
 ): Promise<TranscriptionResult> {
     const { trace, cancellationToken } = options || {}
+    const fetch = await createFetch(options)
     try {
         logVerbose(
             `${cfg.provider}: transcribe ${req.file.type} ${prettyBytes(req.file.size)} with ${cfg.model}`
@@ -53,8 +55,7 @@ async function WhisperASRTranscribe(
         }
 
         traceFetchPost(trace, url.toString(), freq.headers, freq.body)
-        // TODO: switch back to cross-fetch in the future
-        const res = await global.fetch(url, freq as any)
+        const res = await fetch(url, freq as any)
         dbg(`res: %d %s`, res.status, res.statusText)
         trace.itemValue(`status`, `${res.status} ${res.statusText}`)
         const j = await res.json()

@@ -13,7 +13,6 @@ import { CancellationOptions, CancellationToken } from "./cancellation"
 import { resolveHttpProxyAgent } from "./proxy"
 import { host } from "./host"
 import { renderWithPrecision } from "./precision"
-import crossFetch from "cross-fetch"
 import debug from "debug"
 import { prettyStrings } from "./pretty"
 const dbg = debug("genaiscript:fetch")
@@ -26,7 +25,7 @@ export type FetchType = (
 /**
  * Creates a fetch function with retry logic.
  *
- * Wraps `crossFetch` with retry capabilities based on the provided options.
+ * Wraps Node.js built-in `fetch` (powered by undici) with retry capabilities based on the provided options.
  * Configures the number of retries, delay between retries, HTTP status codes to retry on,
  * and supports cancellation and proxy configuration.
  *
@@ -54,20 +53,20 @@ export async function createFetch(
     // We create a proxy based on Node.js environment variables.
     const agent = resolveHttpProxyAgent()
 
-    // We enrich crossFetch with the proxy.
-    const crossFetchWithProxy: typeof fetch = agent
+    // We enrich Node.js built-in fetch (powered by undici) with the proxy.
+    const fetchWithProxy: typeof fetch = agent
         ? (url, options) =>
-              crossFetch(url, { ...(options || {}), dispatcher: agent } as any)
-        : crossFetch
+              fetch(url, { ...(options || {}), dispatcher: agent } as any)
+        : fetch
 
     // Return the default fetch if no retry status codes are specified
     if (!retryOn?.length) {
-        dbg("no retry logic applied, using crossFetchWithProxy directly")
-        return crossFetchWithProxy
+        dbg("no retry logic applied, using fetchWithProxy directly")
+        return fetchWithProxy
     }
 
     // Create a fetch function with retry logic
-    const fetchRetry = wrapFetch(crossFetchWithProxy, {
+    const fetchRetry = wrapFetch(fetchWithProxy, {
         retryOn,
         retries,
         retryDelay: (attempt, error, response) => {

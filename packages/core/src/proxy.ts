@@ -7,7 +7,7 @@ const dbg = genaiscriptDebug("proxy")
  *
  * This function checks various environment variables to locate
  * a proxy configuration. If a proxy is found, it returns an
- * instance of `HttpsProxyAgent` configured with the proxy URL;
+ * instance of `ProxyAgent` (from undici) configured with the proxy URL;
  * otherwise, it returns null.
  *
  * Environment variables checked (in order of precedence):
@@ -18,7 +18,7 @@ const dbg = genaiscriptDebug("proxy")
  * - `https_proxy`
  * - `http_proxy`
  *
- * @returns An instance of `HttpsProxyAgent` if a proxy is configured,
+ * @returns An instance of `ProxyAgent` if a proxy is configured,
  *          or null if no proxy is detected.
  */
 export function resolveHttpProxyAgent() {

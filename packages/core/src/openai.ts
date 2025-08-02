@@ -649,6 +649,7 @@ export async function OpenAITranscribe(
     options: TraceOptions & CancellationOptions & RetryOptions
 ): Promise<TranscriptionResult> {
     const { trace } = options || {}
+    const fetch = await createFetch(options)
     try {
         logVerbose(
             `${cfg.provider}: transcribe ${req.file.type} ${prettyBytes(req.file.size)} with ${cfg.model}`
@@ -678,8 +679,7 @@ export async function OpenAITranscribe(
             body: body,
         }
         traceFetchPost(trace, url, freq.headers, freq.body)
-        // TODO: switch back to cross-fetch in the future
-        const res = await global.fetch(url, freq as any)
+        const res = await fetch(url, freq as any)
         trace?.itemValue(`status`, `${res.status} ${res.statusText}`)
         const j = await res.json()
         if (!res.ok) return { text: undefined, error: j?.error }
@@ -737,7 +737,6 @@ export async function OpenAISpeech(
             body: JSON.stringify(body),
         }
         traceFetchPost(trace, url, freq.headers, body)
-        // TODO: switch back to cross-fetch in the future
         const res = await fetch(url, freq as any)
         trace?.itemValue(`status`, `${res.status} ${res.statusText}`)
         if (!res.ok)
@@ -867,7 +866,6 @@ export async function OpenAIImageGeneration(
             },
             body: JSON.stringify(body),
         }
-        // TODO: switch back to cross-fetch in the future
         trace?.itemValue(`url`, `[${url}](${url})`)
         traceFetchPost(trace, url, freq.headers, body)
         const res = await fetch(url, freq as any)
