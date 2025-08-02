@@ -5,8 +5,7 @@ sidebar:
   order: 51
 hero:
   image:
-    alt:
-      An 8-bit style, two-dimensional file directory icon features branching
+    alt: An 8-bit style, two-dimensional file directory icon features branching
       lines with geometric nodes to represent git branches, a small gear for
       settings, and a tag icon for version tags. A directional arrow points
       toward a repository box to indicate shallow cloning, while a dashed
@@ -14,6 +13,60 @@ hero:
       colors in a flat, minimalist design with no background or gradients,
       created for a 128x128 size.
     file: ./git.png
+llmstxt:
+  content: >-
+    The `git` helper is a wrapper for executing repository operations using the
+    `git` command.
+
+
+    Methods:
+
+    - `defaultBranch`: Resolves the default branch (e.g., `main` or `master`).
+    Example: `const df = await git.defaultBranch();`
+
+    - `lastTag`: Retrieves the last tag. Example: `const tag = await
+    git.lastTag();`
+
+    - `branch`: Gets the current branch. Example: `const branchName = await
+    git.branch();`
+
+    - `exec`: Runs a git command and returns stdout. Example: `const output =
+    await git.exec(["status"]);`
+
+    - `listBranches`: Lists all branches. Example: `const branches = await
+    git.listBranches();`
+
+    - `listFiles`: Finds specific files. Example: `const files = await
+    git.listFiles("modified");`
+
+    - `diff`: Gets the repository diff. Example: `const diffOutput = await
+    git.diff({ staged: true });`
+
+    - `log`: Retrieves commit logs with filters. Example: `const commits = await
+    git.log({ ... });`
+
+    - `changedFiles`: Lists files changed in the last commit. Example: `const
+    changedFiles = await git.changedFiles({ ... });`
+
+
+    Git respects `.gitignore` and supports `.gitignore.genai` for additional
+    ignore rules.
+
+
+    Shallow clones can be created and cached under `.genaiscript/git/`. Use
+    `shallowClone` to clone repositories. Example: 
+
+    `const clone = await git.shallowClone("microsoft/genaiscript", { force:
+    true, install: true });`
+
+
+    To operate on other repositories, use `git.client` to create a client for a
+    different directory. Example: 
+
+    `const other = git.client("/path/to/other/repo"); const branch = await
+    other.branch();`
+  hash: fc203ac08e3706cca10752446ba5a3f9919cdf78e5547ab52cbf9e1fce2fd67e
+
 ---
 
 The `git` helper provides a thin wrapper around invoking the [git](https://git-scm.com/) executable for repository operations.

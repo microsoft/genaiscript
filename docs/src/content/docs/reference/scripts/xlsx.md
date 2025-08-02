@@ -16,19 +16,15 @@ hero:
     file: ./xlsx.png
 llmstxt:
   content: >-
-    The `parsers.XLSX` function processes Excel `.xlsx` files, returning an
-    array of sheets. Each sheet includes its `name` and `rows`, where rows are
-    arrays of objects.
+    The `parsers` module supports XLSX file parsing, returning an array of
+    sheets. Each sheet includes its `name` and `rows`, where rows are arrays of
+    objects.
 
 
     Example:
 
-    ```js
-
-    const sheets = await parsers.XLSX(env.files[0]);
-
-    ```
-  hash: 588f8e2fd226f97b78a1454086dd602c60031ce5fee48c24263d88b87bb5e283
+    const sheets = await parsers.XLSX(env.files[0])
+  hash: 3c9dd784c863b5ba814facb9e9ce0ca70b7e9ca183437649d07390112993a672
 
 ---
 

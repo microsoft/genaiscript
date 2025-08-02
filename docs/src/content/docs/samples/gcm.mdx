@@ -2,7 +2,89 @@
 title: Git Commit Message
 description: Generate a commit message for all staged changes
 sidebar:
-    order: 10
+  order: 10
+llmstxt:
+  content: >-
+    The `gcm` script generates commit messages for staged Git changes using an
+    AI model. It computes a diff, generates a message, and allows the user to
+    commit, edit, or regenerate the message. If committed, it can optionally
+    push changes.
+
+
+    To configure, define the script with a title, description, and model:
+
+    ```ts
+
+    script({
+        title: "git commit message",
+        description: "Generate a commit message for all staged changes",
+        model: "openai:gpt-4o",
+    })
+
+    ```
+
+
+    Check for staged changes with `git diff`. If none are staged, the script
+    offers to stage all changes:
+
+    ```ts
+
+    const diff = await git.diff({ staged: true, askStageOnEmpty: true })
+
+    if (!diff) cancel("no staged changes")
+
+    console.log(diff.stdout)
+
+    ```
+
+
+    In a loop, generate a commit message based on the diff. Users can edit,
+    accept, or regenerate:
+
+    ```ts
+
+    let choice, message
+
+    do {
+        const res = await runPrompt((_) => {
+            _.def("GIT_DIFF", diff, { maxTokens: 20000, language: "diff" })
+            _.$`Generate a git conventional commit message for the changes in GIT_DIFF.
+            - do NOT add quotes
+            - maximum 50 characters
+            - use gitmojis`
+        })
+        // Handle response and user choices
+    } while (choice !== "commit")
+
+    ```
+
+
+    If committed, the script runs `git commit` and optionally pushes changes:
+
+    ```ts
+
+    if (choice === "commit" && message) {
+        console.log((await host.exec("git", ["commit", "-m", message, "-n"])).stdout)
+        if (await host.confirm("Push changes?", { default: true }))
+            console.log((await host.exec("git push")).stdout)
+    }
+
+    ```
+
+
+    Run the script with:
+
+    ```shell
+
+    npx genaiscript run gcm
+
+    ```
+
+
+    Safety measures include system prompts to prevent harmful content, user
+    review of messages, and optional use of a content safety filter or service.
+  hash: b3b14cb43ffdce75bbb7992406e32419232c0876b031c8504e4f807aae116b8f
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

@@ -12,8 +12,7 @@ tags:
   - ai
 canonical_url: https://microsoft.github.io/genaiscript/blog/blog-narration
 cover:
-  alt:
-    "A clean, corporate workspace scene showing a stylized open laptop on a
+  alt: "A clean, corporate workspace scene showing a stylized open laptop on a
     desk. From the laptop’s screen, a colorful geometric blog post splits into
     two paths: one morphs into a text document symbol and the other into a bold,
     wavy audio waveform. Clear, simple arrows and icons show the transformation,
@@ -21,8 +20,7 @@ cover:
     8-bit style with a striking five-color palette. No people, text, or clutter
     are present."
   image: ./blog-narration.png
-excerpt:
-  Transform your blog workflow with AI-driven narration and
+excerpt: Transform your blog workflow with AI-driven narration and
   summarization. This solution takes your markdown files, creates a concise
   summary, and generates an audio narration using advanced text-to-speech
   models. The script reads blog content, prompts an AI to extract key points,
@@ -31,6 +29,42 @@ excerpt:
   guide the narration. By integrating functions like runPrompt and speak, you
   can turn written posts into engaging audio content, broadening accessibility
   and reach for your audience.
+llmstxt:
+  content: >-
+    This script generates a narrated summary of a blog post using AI. It
+    processes `.mdx` or `.md` files, extracts key points, and creates an audio
+    narration. The script metadata specifies the title, description, AI model,
+    and input files. It checks if the output `.mp3` file exists and cancels if
+    `force` is not set.
+
+
+    The AI prompt generates:
+
+    1. A blog post summary in conversational language.
+
+    2. Five voice descriptions with distinct styles, selecting one randomly.
+
+    3. A voice type from OpenAI's TTS options based on the content.
+
+
+    The `speak` function converts the summary into audio using the selected
+    voice and style. If audio generation fails, the script stops; otherwise, it
+    logs the output file.
+
+
+    Key functions:
+
+    - `runPrompt`: Sends structured prompts to the AI model.
+
+    - `speak`: Produces audio narration.
+
+    - `workspace`: Manages file operations.
+
+
+    This script simplifies creating accessible, engaging blog content by
+    automating text summarization and voice narration.
+  hash: 664906acec23e44d3d6029433e2131fb8886c38901abc809dfe097cec907691a
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

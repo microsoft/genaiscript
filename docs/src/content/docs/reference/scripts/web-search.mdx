@@ -17,33 +17,39 @@ hero:
 llmstxt:
   content: >-
     The `retrieval.webSearch` function performs web searches using Tavily or
-    Bing Web Search. By default, it returns the first 10 search results in the
-    `webPages` field as an array, with each entry containing a summary snippet.
-    Full web page content can be retrieved using `fetchText`.
+    Bing, returning the top 10 results in the `webPages` array, with each entry
+    containing a summary snippet. Use `fetchText` to retrieve full page content.
 
 
-    To use Tavily, set the `TAVILY_API_KEY` in the `.env` file. Tavily provides
-    a robust search engine API.
-
-
-    For Bing Web Search, create a Bing Web Search resource in Azure and set the
-    `BING_SEARCH_API_KEY` in the `.env` file.
+    To configure Tavily, set `TAVILY_API_KEY` in the `.env` file. Tavily
+    provides a robust search API for LLMs.
 
 
     To enable the tool, add the `system.retrieval_web_search` script to your
-    system configuration.
+    configuration. Example:
+
+
+    ```js
+
+    script({
+        ...,
+        system: ["system.retrieval_web_search"]
+    })
+
+    ```
 
 
     Example usage:
 
+
     ```js
 
-    const webPages = await retrieval.webSearch("microsoft");
+    const webPages = await retrieval.webSearch("microsoft")
 
-    def("PAGES", webPages);
+    def("PAGES", webPages)
 
     ```
-  hash: e1be20c8a09349ac816d239202b3c3b15ccecba90d3d4cbb9aac06c1a5dee92b
+  hash: ed71ea7f4ce5acf1e7e4079924e4f8a6e0a14ecdb9089c4fa6fb459dd852111d
 
 ---
 

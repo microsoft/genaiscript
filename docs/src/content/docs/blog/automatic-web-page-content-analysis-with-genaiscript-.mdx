@@ -10,21 +10,96 @@ tags:
   - automation
   - GenAIScript
   - web
-description:
-  Learn how GenAIScript leverages the Playwright browser automation
+description: Learn how GenAIScript leverages the Playwright browser automation
   library for efficient, automated analysis of web page content.
 cover:
-  alt:
-    An 8-bit style image of an old computer screen shows a simple web browser
+  alt: An 8-bit style image of an old computer screen shows a simple web browser
     with icons, such as a camera and document symbols, against a backdrop of
     abstract geometric shapes representing data analysis. The design
     incorporates five distinct colors arranged in an orderly pattern.
   image: ./automatic-web-page-content-analysis-with-genaiscript-.png
-excerpt:
-  Automating web page content analysis is simplified with GenAIScript and
+excerpt: Automating web page content analysis is simplified with GenAIScript and
   Playwright. From extracting text to analyzing page insights, this method
   eliminates manual effort while streamlining workflows. Explore practical use
   cases for competitive audits and scalable automation in your toolkit.
+llmstxt:
+  content: >-
+    GenAIScript enables automated web page content analysis using the Playwright
+    library for browser automation. Here's a streamlined example:
+
+
+    1. Navigate to a web page:
+
+    ```javascript
+
+    const page = await browse("https://example.com");
+
+    ```
+
+    The `browse` function initializes a browser session and loads the specified
+    URL.
+
+
+    2. Capture a screenshot:
+
+    ```javascript
+
+    const screenshot = await page.screenshot();
+
+    ```
+
+    This captures the current page view for visual reference.
+
+
+    3. Register the screenshot:
+
+    ```javascript
+
+    defImages(screenshot, { maxWidth: 800 });
+
+    ```
+
+    This makes the image available for further analysis.
+
+
+    4. Extract text content:
+
+    ```javascript
+
+    const text = parsers.HTMLtoMarkdown(await page.content());
+
+    ```
+
+    Converts the page's HTML content into Markdown for easier processing.
+
+
+    5. Store extracted text:
+
+    ```javascript
+
+    def("PAGE_TEXT", text);
+
+    ```
+
+    Saves the extracted content for later use.
+
+
+    6. Analyze the content:
+
+    ```javascript
+
+    $`Analyze the content of the page and provide insights.`;
+
+    ```
+
+    Triggers an AI-driven analysis of the page's content.
+
+
+    This script automates tasks like content extraction, visual archiving, and
+    AI analysis, making it ideal for audits, competitive research, or content
+    insights.
+  hash: bca40fa02811e8c55902a8b9e14cea0d673dac991aac642bdb7721a042f7c54b
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

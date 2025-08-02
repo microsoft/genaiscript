@@ -1,9 +1,77 @@
 ---
 title: Images
-description: Learn how to add images to prompts for AI models supporting visual inputs, including image formats and usage.
+description: Learn how to add images to prompts for AI models supporting visual
+  inputs, including image formats and usage.
 keywords: images in prompts, AI model images, visual inputs, image formats, OpenAI Vision
 sidebar:
   order: 10
+llmstxt:
+  content: >-
+    Images can be added to prompts for models supporting this feature (e.g.,
+    `gpt-4o`) using the `defImages` function. Supported formats include PNG,
+    JPEG, WEBP, and GIF. Both local files and URLs are allowed.
+
+
+    To use a URL:
+
+    defImages("https://example.com/image.png");
+
+
+    Local files are encoded as data URIs. The function also supports Buffer,
+    Blob, and ReadableStream. Example:
+
+    const screenshot = await page.screenshot(); 
+
+    defImages(screenshot);
+
+
+    Detail levels can be set to "low" (downsampled to 512x512):
+
+    defImages(img, { detail: "low" });
+
+
+    Cropping:
+
+    defImages(img, { crop: { x: 0, y: 0, w: 512, h: 512 } });
+
+
+    Auto-crop removes uniform edges:
+
+    defImages(img, { autoCrop: true });
+
+
+    Convert to greyscale:
+
+    defImages(img, { greyscale: true });
+
+
+    Rotate:
+
+    defImages(img, { rotate: 90 });
+
+
+    Scale:
+
+    defImages(img, { scale: 0.5 });
+
+
+    Flip:
+
+    defImages(img, { flip: { horizontal: true, vertical: true } });
+
+
+    Set max dimensions:
+
+    defImages(img, { maxWidth: 800 });
+
+    defImages(img, { maxHeight: 800 });
+
+
+    Tile multiple images into one:
+
+    defImages(env.files, { details: "low", tiled: true });
+  hash: 312b76bd9460de7dbac495436c40c076475948d340d94e495627785a41325966
+
 ---
 
 Images can be added to the prompt for models that support this feature (like `gpt-4o`).

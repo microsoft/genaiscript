@@ -16,6 +16,13 @@ hero:
       five distinct corporate colors and is rendered with flat, minimal
       geometric shapes."
     file: ./index.png
+llmstxt:
+  content: GenAIScript is a scripting language integrating LLMs into the scripting
+    process, enabling users to create, debug, and deploy scripts for tasks
+    beyond conventional code. It includes a domain-specific JavaScript framework
+    for building LLM requests, a CLI for automating script execution, and a
+    VSCode extension for streamlined authoring, debugging, and deployment.
+  hash: e108dc39c2facc3d551d3dd07893aeaf2b83e65fc827b062263a74d1ee9e0f03
 
 ---
 

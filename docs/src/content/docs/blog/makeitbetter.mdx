@@ -10,19 +10,40 @@ tags:
   - automation
 canonical_url: https://microsoft.github.io/genaiscript/blog/improve-your-code-twice-with-genai
 cover:
-  alt:
-    A retro 8-bit computer screen displays a vibrant geometric interface.
+  alt: A retro 8-bit computer screen displays a vibrant geometric interface.
     Abstract icons symbolize code snippets, and a glowing button labeled "make
     it better" suggests an enhancement process. The backdrop features a simple,
     five-color geometric pattern, evoking a futuristic corporate environment.
   image: ./makeitbetter.png
-excerpt:
-  Harnessing the power of the `makeItBetter` function in GenAIScript
+excerpt: Harnessing the power of the `makeItBetter` function in GenAIScript
   simplifies code refinement by automating improvement loops. By analyzing and
   enhancing your code in just a few steps, this tool maximizes efficiency
   without the need for manual optimizations. If you're diving into AI-driven
   coding workflows, this approach offers a streamlined way to iterate and
   elevate your results.
+llmstxt:
+  content: >-
+    GenAIScript includes a `makeItBetter` function to improve code by iterating
+    instructions multiple times.
+
+
+    The script works as follows:
+
+
+    1. Import `makeItBetter` from the GenAIScript runtime.
+
+    2. Define "CODE" as the environment's files with `def("CODE", env.files)`.
+
+    3. Use `$` to prompt the AI: `$'Analyze and improve the code.'`
+
+    4. Call `makeItBetter({ repeat: 2 })` to enhance the code twice.
+
+
+    To execute, run `genaiscript run makeitbetter` in the terminal. For setup
+    details, refer to the GenAIScript documentation. This process leverages AI
+    to refine code efficiently.
+  hash: a1413428d3a9cb3f488759481c1a02c4314f240ee627a8c45bbb23559cbe6ba4
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

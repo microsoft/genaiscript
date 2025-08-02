@@ -17,6 +17,77 @@ hero:
       frame, and has a flat, minimalistic pixel art style with no background,
       shadows, humans, or text.
     file: ./index.png
+llmstxt:
+  content: >-
+    The GenAIScript CLI (`genaiscript`) allows running GenAIScript scripts
+    outside Visual Studio, supporting automation workflows. It is a Node.js
+    package available on npm and requires Node.js v22+.
+
+
+    **Installation**:  
+
+    1. Install locally as a devDependency: `npm install genaiscript
+    --save-dev`.  
+
+    2. Install globally: `npm install -g genaiscript`.  
+
+    3. Use `npx` for on-demand execution without installation: `npx genaiscript
+    ...`. Add `--yes` to skip prompts or specify a version: `npx
+    genaiscript@^1.16.0 ...`.
+
+
+    **Helper Scripts**:  
+
+    Add to `package.json` for automatic TypeScript definition updates:  
+
+    ```json
+
+    {
+      "scripts": {
+        "postinstall": "genaiscript scripts fix",
+        "postupdate": "genaiscript scripts fix",
+        "genaiscript": "genaiscript"
+      }
+    }
+
+    ```
+
+    Run with `npm run genaiscript ...`.
+
+
+    **Proxy Support**:  
+
+    Set environment variables like `HTTP_PROXY=http://proxy.acme.com:3128` or
+    use `npm install --omit=optional` for optional package issues.
+
+
+    **Configuration**:  
+
+    Load secrets from `.env` or specify files: `npx genaiscript run <script>
+    --env .env .env.local`.
+
+
+    **Commands**:  
+
+    1. Create a script: `npx genaiscript scripts create <name>`.  
+
+    2. Compile scripts: `npx genaiscript scripts compile`.  
+
+    3. Run a script: `npx genaiscript run <script> [files...]`. Supports piping:
+    `cat README.md | genaiscript run summarize > summary.md`.  
+
+    4. List model configurations: `npx genaiscript scripts model [script]`.
+
+
+    **Mixing Files and `--vars`**:  
+
+    Order matters when combining files and variables: `genaiscript run <script>
+    [files...] --vars key1=value1 key2=value2`.
+
+
+    The CLI can also be used as a Node.js API. For automation, ensure proper
+    ordering of arguments to avoid parsing issues.
+  hash: 4f8d0171a3fdf9c021b91ba5fa5bf1511ff3afcd9abc35e9dbe70819d03de443
 
 ---
 

@@ -9,6 +9,77 @@ hero:
       grouped data. The design uses five flat colors for clean and distinct
       shapes.
     file: ./webapi.png
+llmstxt:
+  content: >-
+    GenAIScript can serve scripts as REST endpoints via a Web API server using
+    Fastify, with OpenAPI 3.1 compatibility. Launch the server with `genaiscript
+    webapi`. Scripts are exposed as endpoints, and OpenAPI parameters are
+    inferred from script parameters and files. The output corresponds to the
+    script's result, typically the last assistant message or content passed to
+    `env.output`.
+
+
+    Example script:
+
+    ```js
+
+    script({
+        description: "Provide a description!",
+        parameters: { task: { type: "string", description: "Task to perform", required: true } }
+    });
+
+    const { task } = env.vars;
+
+    $`... prompt ... ${task}`;
+
+    ```
+
+
+    Advanced example:
+
+    ```js
+
+    script({
+        description: "Provide a description!",
+        accept: "none",
+        parameters: { task: { type: "string", description: "Task to perform", required: true } }
+    });
+
+    const { output } = env;
+
+    const { task } = env.vars;
+
+    const res = runPrompt(_ => `... prompt ... ${task}`);
+
+    output.fence(`The result is ${res.text}`);
+
+    ```
+
+
+    Default route is `/api`, OpenAPI spec at `/api/docs/json`. Use `--route` to
+    change the route and `--port` to set the port. Example: `genaiscript webapi
+    --route /genai --port 4000`.
+
+
+    A startup script can be specified with `--startup`, e.g., `genaiscript
+    openapi --startup load-resources`. Use `--groups` to filter scripts by
+    group, e.g., `genaiscript openapi --groups openapi`.
+
+
+    Scripts can be loaded from remote repositories with `--remote`. Additional
+    options include `--remote-branch`, `--remote-force`, and `--remote-install`.
+    Ensure trust in remote sources before execution.
+
+
+    Lint OpenAPI specs with Spectral:
+
+    1. Save `.spectral.yaml` with `extends: "spectral:oas"`.
+
+    2. Launch the server.
+
+    3. Run `npx -p @stoplight/spectral-cli spectral lint
+    http://localhost:3000/api/docs/json`.
+  hash: cf02a24518d065b10bd641e074ac27f45076969697bd928d79775a4753ea95ff
 
 ---
 

@@ -4,6 +4,60 @@ description: Learn how to write GenAIScript templates using Markdown syntax
 keywords: markdown scripts, genai.md, frontmatter, YAML configuration
 sidebar:
   order: 15
+llmstxt:
+  content: >-
+    GenAIScript allows creating AI prompts using Markdown with YAML frontmatter
+    for configuration. Scripts use the `.genai.md` extension and consist of YAML
+    frontmatter for settings and Markdown content for prompts. YAML options
+    include `title`, `description`, `model`, `temperature`, `maxTokens`, and
+    advanced settings like `cache`, `system`, and `parameters`. Markdown content
+    is converted to a `$` template string in JavaScript, preserving formatting.
+
+
+    Example YAML:
+
+    ---
+
+    title: "Summarize Text"
+
+    description: "Creates a concise summary"
+
+    model: "small"
+
+    temperature: 0.3
+
+    ---
+
+
+    Example Markdown:
+
+    # Text Summarization
+
+    Summarize the text, focusing on key points, main ideas, and conclusions.
+    Limit to 200 words.
+
+
+    Markdown scripts support parameters for dynamic prompts:
+
+    ---
+
+    title: "Language Translator"
+
+    parameters:
+      targetLanguage: { type: "string", default: "Spanish" }
+      tone: { type: "string", enum: ["formal", "casual"], default: "formal" }
+    ---
+
+    Translate text to {{ targetLanguage }} in a {{ tone }} tone.
+
+
+    Markdown scripts are ideal for simple, static prompts, non-technical users,
+    and quick prototyping. For complex logic or dynamic content, use
+    `.genai.mts` files. Markdown scripts run via CLI, e.g., `genaiscript run
+    summarize`. Limitations include no direct JavaScript execution or variable
+    interpolation.
+  hash: f743bdd466a91b3730d73bad7d9aaad43768f3170cf607da6417bbba9b35183f
+
 ---
 
 import { Code } from "@astrojs/starlight/components";

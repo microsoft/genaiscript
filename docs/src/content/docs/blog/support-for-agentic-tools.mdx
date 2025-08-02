@@ -1,7 +1,6 @@
 ---
 title: Support for Agentic tools
-description:
-  Agentic’s standard library of TypeScript AI tools are optimized for
+description: Agentic’s standard library of TypeScript AI tools are optimized for
   both TS-usage as well as LLM-based usage, which is really important for
   testing and debugging.
 date: 2024-08-27
@@ -14,12 +13,33 @@ tags:
   - Ecosystem
   - Integration
   - Tool Integration
-excerpt:
-  Agentic is a TypeScript library designed to streamline AI tool
+excerpt: Agentic is a TypeScript library designed to streamline AI tool
   integration, supporting both local scripts and LLM-based workflows. It
   connects seamlessly with APIs like Bing, Wolfram Alpha, and Wikipedia,
   improving testing and debugging efficiency. If you're working with tools for
   intelligent automation, Agentic offers a flexible foundation to build from.
+llmstxt:
+  content: >-
+    Agentic tools are deprecated. Agentic is a TypeScript AI tools library
+    optimized for TS and LLM usage, useful for testing and debugging. It
+    supports APIs like Bing, Wolfram Alpha, and Wikipedia. Tools can be
+    registered using `defTool`. Example:
+
+
+    ```js
+
+    import { WeatherClient } from "@agentic/weather";
+
+    const weather = new WeatherClient();
+
+    defTool(weather);
+
+    ```
+
+
+    Refer to Agentic and GenAIScript documentation for details.
+  hash: 3961b5934eff157984660bb00406eecf1e230550b262836231801ee33e3aaaa5
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

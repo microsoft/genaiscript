@@ -2,7 +2,31 @@
 title: Search and transform
 description: Search for a pattern in files and apply an LLM transformation to the match
 sidebar:
-    order: 25
+  order: 25
+llmstxt:
+  content: >-
+    Search and Replace automates text substitution using regular expressions.
+    Search and Transform extends this by applying LLM-based transformations.
+
+
+    The script defines parameters: `glob` (file filter), `pattern` (regex to
+    search), and `transform` (LLM transformation). It validates inputs, searches
+    files using `workspace.grep`, and processes matches.
+
+
+    For each match, it generates a transformation prompt with `runPrompt`,
+    specifying the task and context. Transformed results are cached in `patches`
+    to avoid redundancy. File content is updated via `replace`, and changes are
+    saved with `workspace.writeText`.
+
+
+    Run the script using the GenAIScript CLI: `genaiscript run st`.
+
+
+    Safety measures include system prompts to prevent harmful content and
+    optional content safety services.
+  hash: ff751e8888d4a788e7064b77687330efcd4e51704943a73a79a63121afc52918
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

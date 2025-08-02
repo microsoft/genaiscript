@@ -12,6 +12,27 @@ hero:
       flat, in five colors, sized 128x128 pixels, with no background or human
       figures.
     file: ./tokenizers.png
+llmstxt:
+  content: >-
+    The `tokenizers` module splits text into tokens and provides functions for
+    token counting, truncation, and chunking. By default, it uses the `large`
+    tokenizer, but you can specify a model like `gpt-4o-mini`.
+
+
+    `count`: Counts tokens in a string. Example: `const n = await
+    tokenizers.count("hello world")`.
+
+
+    `truncate`: Trims a string to fit within a token limit. Example: `const
+    truncated = await tokenizers.truncate("hello world", 5)`.
+
+
+    `chunk`: Splits text into token-sized chunks, with options for size,
+    overlap, and line numbers. Example: 
+
+    `const chunks = await tokenizers.chunk(env.files[0], { chunkSize: 128,
+    chunkOverlap: 10, lineNumbers: true })`.
+  hash: a61c73d5b426c5b9920dbfcd889ad053dc037c842eddb20cc753f9bb170479bd
 
 ---
 

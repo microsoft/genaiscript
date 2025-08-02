@@ -18,6 +18,59 @@ hero:
     - text: GitHub
       link: https://github.com/microsoft/genaiscript/
       icon: github
+llmstxt:
+  content: >-
+    GenAIScript is a JavaScript framework for building, orchestrating, and
+    automating LLM prompts and workflows. It integrates seamlessly with Visual
+    Studio Code or can be used via CLI, supporting multiple LLMs like OpenAI,
+    Anthropic, Azure AI, and GitHub Copilot.
+
+
+    The `$` function creates prompts, and `def` includes files or data into
+    prompts. Outputs can be parsed and saved automatically. Example: `$`Write a
+    'hello world' poem.`;`.
+
+
+    Scripts support debugging, testing, and running in VS Code or CLI. Tools and
+    agents can be defined for specific tasks, e.g., `defTool("weather", "live
+    weather", { city: "Paris" }, async ({ city }) => "sunny");`. Agents combine
+    tools and prompts for complex workflows.
+
+
+    Features include:
+
+    - File and data ingestion (PDF, DOCX, CSV, XLSX).
+
+    - Speech-to-text transcription and image/video processing.
+
+    - Code execution in Docker containers or sandboxes.
+
+    - Web search, browser automation, and vector search for retrieval-augmented
+    generation.
+
+    - Content safety validation and secret scanning.
+
+    - Support for local and cloud-based models, including Azure AI, Google, and
+    open-source models.
+
+    - Built-in tools for schema validation, prompt testing, and evaluation.
+
+
+    Scripts are shareable, version-controlled files. Examples:
+
+    - Summarizing files: `for (const file of env.files) { const { text } = await
+    runPrompt((_) => { _.def("FILE", file); _.$`Summarize the FILE.`; });
+    def("SUMMARY", text); } $`Summarize all the summaries.`;`.
+
+    - Generating images: `const { image } = await generateImage("a cute cat,
+    high details.");`.
+
+
+    GenAIScript simplifies LLM scripting with reusable components, fast
+    development cycles, and integration into CI/CD pipelines. It supports
+    advanced use cases like pull request reviews, RAG, and pluggable tools.
+  hash: 3ef0322d741244248c45de0c7361137cb751c344a8810c81bceb0a73b52b0214
+
 ---
 
 import { Image } from "astro:assets";

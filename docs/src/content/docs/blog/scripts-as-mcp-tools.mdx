@@ -8,8 +8,7 @@ tags:
   - MCP
 canonical_url: https://microsoft.github.io/genaiscript/blog/scripts-as-mcp-tools
 cover:
-  alt:
-    Imagine an 8-bit style scene showing a futuristic, tech-heavy landscape. In
+  alt: Imagine an 8-bit style scene showing a futuristic, tech-heavy landscape. In
     the center, there's a large, geometric server block labeled "GenAIScript MCP
     Server," connected to two smaller devices tagged as "script A MCP Tool" and
     "script B MCP Tool." A line connects "GitHub Copilot Chat" to the main
@@ -17,13 +16,35 @@ cover:
     colors, emitting a corporate, high-tech feeling without any human figures or
     text.
   image: ./scripts-as-mcp-tools.png
-excerpt:
-  The Model Context Protocol (MCP) is reshaping how we approach
+excerpt: The Model Context Protocol (MCP) is reshaping how we approach
   integration with AI-driven tools. Platforms like GitHub Copilot Chat and
   Copilot Studio are leading adoption efforts, and GenAIScript is now enabling
   you to expose scripts as MCP tools, streamlining workflows with smarter
   decision-making by LLMs. Ready to elevate your development process? Explore
   the details in the documentation.
+llmstxt:
+  content: >-
+    The Model Context Protocol (MCP) is revolutionizing tech, enabling smarter
+    and more efficient development. GenAIScript now supports exposing scripts as
+    MCP tools, allowing seamless integration with AI-driven workflows. MCP tools
+    operate like LLM tools, where the Language Model determines when to invoke
+    them. GitHub Copilot Chat already supports MCP, and Copilot Studio has
+    announced integration.
+
+
+    GenAIScript functions as an MCP server, enabling scripts to act as MCP
+    tools. For example:
+
+
+    graph TD
+        VS[GitHub Copilot Chat] --> MCPServer[GenAIScript = MCP Server]
+        MCPServer --> MCPTools1[script A = MCP Tool]
+        MCPServer --> MCPTools2[script B = MCP Tool]
+
+    Explore the [documentation](/genaiscript/reference/scripts/mcp-server) to
+    start leveraging MCP with GenAIScript.
+  hash: 0a4715675662c53dd74d41173dc4e07ace0b1c83ec2ef2327558a48e3e506aaa
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

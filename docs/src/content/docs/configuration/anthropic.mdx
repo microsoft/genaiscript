@@ -2,6 +2,18 @@
 title: Anthropic
 sidebar:
   order: 6
+llmstxt:
+  content: |-
+    The `anthropic` provider enables access to Anthropic's AI models, including the Claude series. To use these models with GenAIScript:
+
+    1. Obtain an API key by signing up at Anthropic's [console](https://console.anthropic.com/).
+    2. Add the API key to your `.env` file:
+       `ANTHROPIC_API_KEY=sk-ant-api...`
+    3. Refer to the [Anthropic model documentation](https://docs.anthropic.com/en/docs/about-claude/models#model-names) to select an appropriate model.
+    4. Update your script to specify the chosen model:
+       `script({ model: "anthropic:claude-3-5-sonnet-20240620" });`
+  hash: ea4b73cad24b97d2d58959ba13656751566d1e7abace533e5005081c7788aab0
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

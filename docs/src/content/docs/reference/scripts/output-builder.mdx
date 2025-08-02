@@ -12,6 +12,41 @@ hero:
       design uses five corporate colors, is flat without shading, contains no
       people or text, and is set on a transparent 128 by 128 pixel background.
     file: ./output-builder.png
+llmstxt:
+  content: >-
+    The `env.output` object generates markdown output for script execution,
+    allowing text, images, tables, and more. The LLM response is automatically
+    included.
+
+
+    Use `output.heading(level, text)` for headings. Example:
+
+    `output.heading(3, "Analysis report")`
+
+
+    Markdown features:
+
+    - Code blocks: `output.fence("code", "language")`
+
+    - Code in details: `output.detailsFence("title", "code", "language")`
+
+    - Warnings: `output.warn("Message")`
+
+    - Images: `output.image("url", "alt text")`
+
+    - Tables: `output.table([{ Key: "Value" }, { Key: "Value" }])`
+
+    - Results: `output.resultItem(true/false, "Message")`
+
+    - Details: 
+      `output.startDetails("Title", { success: true, expanded: true })`
+      `output.appendContent("Content")`
+      `output.endDetails()`
+
+    Output can be saved using `--out-output` in the CLI:
+
+    `genaiscript run ... --out-output ./output.md`
+  hash: 8625b9a6836546cf8ac399e6fe537bbdc395a231462bc126c1a83abc3f900866
 
 ---
 

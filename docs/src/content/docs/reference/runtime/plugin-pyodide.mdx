@@ -3,6 +3,52 @@ title: Pyodide
 description: Use the Pyodide runtime to execute Python code in the browser
 sidebar:
   order: 80
+llmstxt:
+  content: >-
+    These runtime helpers enable executing Python code in the browser using the
+    Pyodide ecosystem.
+
+
+    Installation: Use the package `@genaiscript/plugin-pyodide`. If running in
+    Node.js without a `.genai...` entry file, initialize the runtime first:
+
+
+    ```ts
+
+    import { initialize } from "@genaiscript/runtime";
+
+    await initialize();
+
+    ```
+
+
+    Python Code Execution: Use the `python` function to run Python code and
+    retrieve results.
+
+
+    Example:
+
+    ```ts
+
+    import { python } from "@genaiscript/plugin-pyodide";
+
+
+    const py = await python();
+
+    const result = await py(`
+
+    def greet(name):
+        return f"Hello, {name}!"
+    greet("World")
+
+    `);
+
+
+    console.log(result); // "Hello, World!"
+
+    ```
+  hash: 71ffdfe512f1b1b74513829ff6b0eb1dc9373935470dc41e2795115810bf1ef2
+
 ---
 
 import { PackageManagers } from "starlight-package-managers";

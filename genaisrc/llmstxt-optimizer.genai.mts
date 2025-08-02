@@ -7,7 +7,7 @@ script({
   accept: ".md,.mdx",
 });
 
-const OPTIMIZER_VERSION = "0.0.2";
+const OPTIMIZER_VERSION = "0.0.3";
 
 interface LlmsFrontmatter {
   llmstxt?: {
@@ -32,7 +32,7 @@ for (const file of env.files) {
       _.$`
 You are an expert at optimizing content for Large Language Model (LLM) consumption and understanding.
 
-Analyze the following markdown content in ${fileRef} and generate a concise, LLM-optimized version.
+Analyze the following markdown or MDX content in ${fileRef} and generate a concise, LLM-optimized version.
 
 ## Requirements:
 1. **Extract the core concepts and information** from the original content
@@ -43,6 +43,7 @@ Analyze the following markdown content in ${fileRef} and generate a concise, LLM
 6. **Focus on actionable information** and key insights
 7. **Use structured format** with clear sections when applicable
 8. **Avoid bullet points**, Keep it extremely compact
+9. Ignore imports from MDX, those are just for rendering purposes and not interesting for the final summary.
 
 ## Optimization Guidelines:
 - Remove redundant explanations and filler words

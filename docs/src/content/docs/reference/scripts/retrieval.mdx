@@ -16,6 +16,49 @@ hero:
       background with clear separation and symmetry, all in a clean 128x128
       layout."
     file: ./retrieval.png
+llmstxt:
+  content: >-
+    GenAIScript supports Retrieval-Augmentation-Generation (RAG) with utilities
+    for content retrieval and prompt enhancement.
+
+
+    Vector Search: Create a vector index with `retrieval.index()`, add data
+    using `insertOrUpdate()`, and search with `index.search()`. Example:
+
+    ```js
+
+    const index = await retrieval.index("animals");
+
+    await index.insertOrUpdate(env.files);
+
+    const res = await index.search("cat dog");
+
+    def("RAG", res);
+
+    ```
+
+
+    Fuzzy Search: Perform similarity-based searches with
+    `retrieval.fuzzSearch()`. Example:
+
+    ```js
+
+    const files = await retrieval.fuzzSearch("cat dog", env.files);
+
+    ```
+
+
+    Web Search: Use `retrieval.webSearch()` for API-based web searches. Requires
+    API keys. Example:
+
+    ```js
+
+    const { webPages } = await retrieval.webSearch("cat dog");
+
+    def("RAG", webPages);
+
+    ```
+  hash: 2d4a19eda4f0a48cd835f76ddaafc05af5fa07175a5b8561bbe844774ff51ae7
 
 ---
 

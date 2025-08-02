@@ -2,7 +2,42 @@
 title: GitHub Action Investigator
 description: Investigate GitHub Actions failures
 sidebar:
-    order: 10
+  order: 10
+llmstxt:
+  content: >-
+    This script analyzes GitHub Action Workflow Job logs to identify root causes
+    of issues using a hybrid approach combining traditional software and
+    LLM/Agent-based reasoning. 
+
+
+    The first part collects and prepares context for the LLM:
+
+    - Gathers details about the failed workflow run (commit, job logs).
+
+    - Retrieves the last successful workflow run, if available, and compares
+    commit/job log differences.
+
+    - Builds an LLM context with this non-hallucinated data, outputted via
+    `env.output`.
+
+
+    The second part uses an LLM-based agent to analyze the context and request
+    additional information if needed.
+
+
+    To use the script:
+
+    1. Add it to your repository as `genaisrc/prr.genai.mts`.
+
+    2. Automate execution and comment creation with GitHub Actions. The agentic
+    mode (enabled by `agent_*` lines) allows iterative reasoning but increases
+    token usage, while non-agentic mode uses a single LLM call.
+
+
+    The script requires customization for repository-specific heuristics. It is
+    a starting point for automated workflow log analysis and debugging.
+  hash: 24cb8bb66082595cb2719d8c4fead094fde92dd972abe2d299c4a9c42bb002e8
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

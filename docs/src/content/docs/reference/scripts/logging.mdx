@@ -15,6 +15,62 @@ hero:
       design is clean, minimal, and uses five corporate-style colors on a plain
       background with no extra details.
     file: ./logging.png
+llmstxt:
+  content: >-
+    GenAIScript uses the `debug` library for flexible logging. The `env.dbg`
+    logger has the `script` namespace and does not send messages to markdown
+    traces. To enable logging, use the `DEBUG` environment variable or `--dbg`
+    flag with namespace patterns.
+
+
+    Example for enabling script logs:
+
+    ```sh
+
+    DEBUG=script genaiscript run poem
+
+    ```
+
+
+    Multiple namespaces can be specified with commas:
+
+    ```sh
+
+    DEBUG=script,file,config genaiscript run poem
+
+    ```
+
+
+    Wildcards (`*`) allow broader matching, e.g., `DEBUG=connect:*` or exclude
+    namespaces with `-`, e.g., `DEBUG=*,-connect:*`.
+
+
+    In Visual Studio Code, enable "Diagnostics" or set the `DEBUG` setting to a
+    specific namespace.
+
+
+    Custom loggers can be created using `host.logger`:
+
+    ```js
+
+    const d = host.logger("sample");
+
+    d("Debug message");
+
+    ```
+
+    Enable with:
+
+    ```sh
+
+    DEBUG=sample genaiscript run debug
+
+    ```
+
+
+    GenAIScript internal logs are prefixed with `genaiscript:`, e.g.,
+    `DEBUG=genaiscript:*`. Agent logs use `agent:name`.
+  hash: 1b9f4560f95c0b7b5fca4d2a129e53aab9d09663d35a567c14973e69da3f7c53
 
 ---
 

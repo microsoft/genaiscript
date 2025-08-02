@@ -15,6 +15,45 @@ hero:
       flat 8-bit style with no background, text, people, gradients, or shadows,
       and sized at 128 by 128 pixels.
     file: ./response-priming.png
+llmstxt:
+  content: >-
+    It is possible to guide an LLM's response format by providing a partial
+    `assistant` message in the script. For example, to generate a JSON array of
+    colors:
+
+
+    ```js
+
+    $`List 5 colors. Answer with a JSON array.`
+
+
+    assistant(`[`)
+
+    ```
+
+
+    This pre-fills the response with the opening bracket, steering the LLM to
+    complete the JSON array. Internally, this adds an `assistant` message to the
+    query:
+
+
+    ```json
+
+    {
+      "messages": [
+        ...,
+        {
+          "role": "assistant",
+          "content": "[\n"
+        }
+      ]
+    }
+
+    ```
+
+
+    This feature may not be supported by all models.
+  hash: 36a0141756a0e2ae5bf4ecfc2b1dd63fed00a907c99f412efc7dab36548ab93a
 
 ---
 

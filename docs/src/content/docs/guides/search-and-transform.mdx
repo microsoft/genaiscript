@@ -2,7 +2,62 @@
 title: Search And Transform
 description: Learn how to search and transform data in your data sources.
 sidebar:
-    order: 20
+  order: 20
+llmstxt:
+  content: >-
+    This script enhances "search and replace" functionality by using an LLM for
+    transformations instead of static replacements, enabling complex text
+    modifications beyond regex capabilities.
+
+
+    **Use Case**: Transform function calls like `host.exec("cmd", ["arg0",
+    "arg1"])` into `host.exec(\`cmd arg0 arg1\`)` by describing the
+    transformation in natural language.
+
+
+    **Steps**:
+
+    1. **Search**: Use `workspace.grep` to locate matches in files:
+       ```js
+       const patternRx = new RegExp(pattern, "g");
+       const { files } = await workspace.grep(patternRx, { globs });
+       ```
+    2. **Compute Transforms**: Apply regex to file content, then use an inline
+    LLM prompt to generate transformations:
+       ```js
+       for (const match of content.matchAll(patternRx)) {
+           const res = await runPrompt((ctx) => {
+               ctx.def("MATCHED", match[0]);
+               ctx.def("TRANSFORM", transform);
+           });
+           patches[match[0]] = res.fences?.[0].content ?? res.text;
+       }
+       ```
+    3. **Apply Transforms**: Replace matches with transformed strings:
+       ```js
+       const newContent = content.replace(patternRx, (match) => patches[match] ?? match);
+       await workspace.writeText(file.filename, newContent);
+       ```
+
+    **Parameters**:
+
+    - `glob`: File filter pattern.
+
+    - `pattern`: Regex to search for.
+
+    - `transform`: LLM transformation description.
+
+
+    **Run Example**:
+
+    ```sh
+
+    genaiscript st --vars 'pattern=host\.exec\s*\([^,]+,\s*\[[^\]]+\]\s*\)'
+    'transform=Convert the call to a single string command shell in TypeScript'
+
+    ```
+  hash: 12cfa2481f6ffb952b2b60cabf4bb6fd005941ebddd5972c128421fc978c6019
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

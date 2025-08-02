@@ -1,9 +1,32 @@
 ---
-title: "Llama Guard your files"
-description: "Automate the process of checking your files for harmful content using Llama-guard3."
-keywords: [GenAI, File Safety, Automation, Scripting]
+title: Llama Guard your files
+description: Automate the process of checking your files for harmful content
+  using Llama-guard3.
+keywords:
+  - GenAI
+  - File Safety
+  - Automation
+  - Scripting
 sidebar:
-    order: 20
+  order: 20
+llmstxt:
+  content: >-
+    Llama-guard3 is an LLM model designed to detect harmful content in text. The
+    provided script automates the process of analyzing files for safety using
+    this model.
+
+
+    The script iterates through files in `env.files`, applying the model
+    `ollama:llama-guard3:8b` to analyze content. The `prompt` function sends
+    each file to the model with options specifying the model, file label, and
+    cache. The response is checked for the presence of "safe" and absence of
+    "unsafe" to determine file safety. Unsafe files are logged to the console.
+
+
+    To execute, use the GenAIScript CLI with the command: `genaiscript run guard
+    **/*.ts`. This checks all `.ts` files for safety.
+  hash: 2cea2afbd4e47d2cb77d0b754b3d45a1dabaeb6ecb6a48f6138ada43ac4ebffb
+
 ---
 
 import { Code } from "@astrojs/starlight/components"

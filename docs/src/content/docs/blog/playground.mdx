@@ -10,19 +10,42 @@ canonical_url: https://microsoft.github.io/genaiscript/blog/playground
 authors:
   - pelikhan
 cover:
-  alt:
-    An 8-bit style image shows a sleek, futuristic web application interface on
+  alt: An 8-bit style image shows a sleek, futuristic web application interface on
     a computer screen. It features icons for AI models like OpenAI o1 and
     DeepSeek V3 against a user-friendly backdrop. The corporate 5-color palette
     incorporates geometric shapes to create a digital playground theme, focusing
     on simplicity and iconic design without people or text.
   image: ./playground.png
-excerpt:
-  The latest GenAIScript update introduces a self-hosted Playground app,
+excerpt: The latest GenAIScript update introduces a self-hosted Playground app,
   making it easier to experiment with scripts via a user-friendly interface. It
   bridges the CLI and Visual Studio Code tools seamlessly. Additionally, support
   has expanded to include OpenAI's o1 models and DeepSeek V3, empowering users
   with versatile integrations for advanced scripting.
+llmstxt:
+  content: >-
+    The 2025 release introduces new features and model support.
+
+
+    The Playground is a self-hosted web app for running GenAIScript scripts with
+    a user-friendly interface, bridging the GenAIScript CLI and Visual Studio
+    Code integration.
+
+
+    GenAIScript supports OpenAI o1 models (e.g., mini, preview) and tools.
+    Example:
+
+    script({ model: "github:openai/o1" });
+
+    $`Prove that the sum of the angles of a triangle is 180 degrees.`;
+
+
+    It also supports DeepSeek V3 via the OpenAI API. Example:
+
+    script({ model: "deepseek:deepseek-chat" });
+
+    $`Prove that the sum of the angles of a triangle is 180 degrees.`;
+  hash: d578ea2613b1a5795401f4374ff8965df1421f641ffde578f57dfaecea266df2
+
 ---
 
 import { Image } from "astro:assets";

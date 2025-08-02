@@ -1,14 +1,12 @@
 ---
 title: Z3
-description:
-  Z3 is a high-performance theorem prover developed at Microsoft
+description: Z3 is a high-performance theorem prover developed at Microsoft
   Research. It is a built-in tool of GenAIScript.
 sidebar:
   order: 200
 hero:
   image:
-    alt:
-      "A small, 8-bit style computer chip labeled as Z3 is centrally positioned,
+    alt: "A small, 8-bit style computer chip labeled as Z3 is centrally positioned,
       with fine lines linking it to three simple shapes: a circle containing a
       checkmark to suggest problem solving, a square featuring an inequality
       sign to indicate logical constraints, and a triangle with tiny gears
@@ -16,6 +14,100 @@ hero:
       black, white, and green, appears flat and geometric with a professional,
       minimalistic look, and has no background or human figures."
     file: ./plugin-z3.png
+llmstxt:
+  content: >-
+    Z3 is a high-performance theorem prover from Microsoft Research, integrated
+    into GenAIScript via the WebAssembly-based `z3-solver` npm package. It
+    supports logical formula solving for tasks like program verification,
+    constraint solving, and symbolic execution.
+
+
+    To use the Z3 plugin in Node.js without a `.genai...` entry file, initialize
+    the runtime with `initialize()`.
+
+
+    The `z3()` method creates a Z3 instance to execute SMTLIB2 formulas.
+    Example:
+
+
+    ```js
+
+    import { z3 } from "@genaiscript/plugin-z3";
+
+
+    const z3 = await z3();
+
+    const res = await z3.run(`
+
+    (declare-const a Int)
+
+    (declare-fun f (Int Bool) Int)
+
+    (assert (< a 10))
+
+    (assert (< (f a true) 100))
+
+    (check-sat)
+
+    `);
+
+    console.log(res); // unsat
+
+    ```
+
+
+    The Z3 tool plugin allows direct SMTLIB2 formula input and output. Example:
+
+
+    ```js
+
+    import z3 from "@genaiscript/plugin-z3";
+
+
+    z3(env);
+
+
+    $`Solve the following problems using Z3:
+
+
+    (declare-const a Int)
+
+    (declare-fun f (Int Bool) Int)
+
+    (assert (< a 10))
+
+    (assert (< (f a true) 100))
+
+    (check-sat)
+
+    ```
+
+
+    The Z3 agent extends the tool by enabling LLMs to formalize arbitrary
+    problems into SMTLIB2. Example:
+
+
+    ```js
+
+    script({
+      tools: ["agent_z3"],
+    });
+
+
+    $`Solve the following problems using Z3:
+
+
+    Imagine we have a number 'a' smaller than 10 and a machine 'f' that takes a
+    number and a true/false answer, returning another number. If 'a' and true
+    are input, the output is smaller than 100.`;
+
+    ```
+
+
+    The agent may produce incorrect formalizations; verify results with the Z3
+    tool. The agent complements but does not replace the tool.
+  hash: 5519a962210dfae659b4ad8f91a0fd25a9b72313ad279a708fe518c71fccf45f
+
 ---
 
 import { PackageManagers } from "starlight-package-managers";
