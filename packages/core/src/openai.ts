@@ -1,5 +1,6 @@
 import { ellipse, logError, logInfo, logVerbose } from "./util"
 import { host } from "./host"
+import { FormData } from "undici"
 import {
     AZURE_AI_INFERENCE_VERSION,
     AZURE_OPENAI_API_VERSION,

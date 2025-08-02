@@ -116,6 +116,7 @@
     "jsdom": "^26.1.0",
     "pyodide": "^0.27.6",
     "turndown": "^7.2.0",
-    "turndown-plugin-gfm": "^1.0.2"
+    "turndown-plugin-gfm": "^1.0.2",
+    "undici": "^6.19.5"
   }
 }

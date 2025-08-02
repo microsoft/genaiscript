@@ -1,4 +1,5 @@
 import { serializeError } from "serialize-error"
+import { FormData } from "undici"
 import { CancellationOptions, toSignal } from "./cancellation"
 import { CreateTranscriptionRequest, LanguageModel } from "./chat"
 import { MODEL_PROVIDER_WHISPERASR } from "./constants"

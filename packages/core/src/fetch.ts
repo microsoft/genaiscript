@@ -1,4 +1,5 @@
 import wrapFetch from "fetch-retry"
+import { fetch } from "undici"
 import { TraceOptions } from "./trace"
 import {
     FETCH_RETRY_DEFAULT,
@@ -25,7 +26,7 @@ export type FetchType = (
 /**
  * Creates a fetch function with retry logic.
  *
- * Wraps Node.js built-in `fetch` (powered by undici) with retry capabilities based on the provided options.
+ * Wraps undici's `fetch` with retry capabilities based on the provided options.
  * Configures the number of retries, delay between retries, HTTP status codes to retry on,
  * and supports cancellation and proxy configuration.
  *
@@ -53,7 +54,7 @@ export async function createFetch(
     // We create a proxy based on Node.js environment variables.
     const agent = resolveHttpProxyAgent()
 
-    // We enrich Node.js built-in fetch (powered by undici) with the proxy.
+    // We enrich undici's fetch with the proxy.
     const fetchWithProxy: typeof fetch = agent
         ? (url, options) =>
               fetch(url, { ...(options || {}), dispatcher: agent } as any)
