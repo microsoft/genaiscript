@@ -100,9 +100,6 @@ import {
   rmDir,
   tryStat,
   createGitIgnorer,
-  OPENAI_MAX_RETRY_AFTER_DEFAULT,
-  OPENAI_MAX_RETRY_DELAY,
-  OPENAI_MAX_RETRY_COUNT,
   resolveRuntimeHost,
 } from "@genaiscript/core";
 
@@ -196,9 +193,9 @@ export async function runScriptInternal(
   const excludedFiles = options.excludedFiles || [];
   const stream = !options.json;
   const retries = normalizeInt(options.retry);
-  const retryDelay = normalizeInt(options.retryDelay) || OPENAI_MAX_RETRY_COUNT;
-  const maxDelay = normalizeInt(options.maxDelay) || OPENAI_MAX_RETRY_DELAY;
-  const maxRetryAfter = normalizeInt(options.maxRetryAfter) || OPENAI_MAX_RETRY_AFTER_DEFAULT;
+  const retryDelay = normalizeInt(options.retryDelay);
+  const maxDelay = normalizeInt(options.maxDelay);
+  const maxRetryAfter = normalizeInt(options.maxRetryAfter);
   const outTrace = options.outTrace;
   const outOutput = options.outOutput;
   const outAnnotations = options.outAnnotations;

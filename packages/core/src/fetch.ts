@@ -107,17 +107,26 @@ export async function createFetch(
   options?: TraceOptions & CancellationOptions & RetryOptions,
 ): Promise<FetchType> {
   const {
+    trace,
+    cancellationToken,
     retries = FETCH_RETRY_DEFAULT,
     retryOn = FETCH_RETRY_ON_DEFAULT,
-    trace,
     retryDelay = FETCH_RETRY_DELAY_DEFAULT,
     maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
     maxRetryAfter = FETCH_RETRY_MAX_RETRY_AFTER_DEFAULT,
-    cancellationToken,
   } = options || {};
   const minDelay = FETCH_RETRY_MIN_DELAY_DEFAULT;
 
-  dbg(`create fetch`);
+  dbg(
+    `create fetch: retries: %d, retry on: %o, retry delay: %d, min delay: %d, max delay: %d, max retry after: %d`,
+    retries,
+    retryOn,
+    retryDelay,
+    minDelay,
+    maxDelay,
+    maxRetryAfter,
+  );
+
   // We create a proxy based on Node.js environment variables.
   const agent = await resolveHttpsProxyAgent();
 
@@ -137,16 +146,6 @@ export async function createFetch(
     return crossFetchWithProxy;
   }
 
-  // Create a fetch function with retry logic
-  dbgr(
-    `retries: %d, retry on: %o, retry delay: %d, min delay: %d, max delay: %d, max retry after: %d`,
-    retries,
-    retryOn,
-    retryDelay,
-    minDelay,
-    maxDelay,
-    maxRetryAfter,
-  );
   const fetchRetry = wrapFetch(crossFetchWithProxy, {
     retries,
     retryOn: (attempt, error, response) => {

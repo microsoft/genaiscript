@@ -10,12 +10,18 @@
 import OpenAI from "openai";
 import { genaiscriptDebug } from "./debug.js";
 import type { ChatCompletionHandler } from "./chat.js";
-import type { ChatCompletionMessageParam, ChatCompletionResponse } from "./chattypes.js";
+import type {
+  ChatCompletionMessageParam,
+  ChatCompletionResponse,
+  ChatCompletionsOptions,
+} from "./chattypes.js";
 import { errorMessage, isCancelError } from "./error.js";
 import { createFetch } from "./fetch.js";
 import { logError } from "./util.js";
-import { checkCancelled } from "./cancellation.js";
+import { CancellationOptions, checkCancelled } from "./cancellation.js";
 import { deleteUndefinedValues } from "./cleaners.js";
+import { RetryOptions } from "./types.js";
+import { MarkdownTrace } from "./trace.js";
 const dbg = genaiscriptDebug("openai:responses");
 
 function statusToReason(
@@ -169,8 +175,8 @@ export const OpenAIv2ResponsesChatCompletion: ChatCompletionHandler = async (
 async function handleNonStreamingResponse(
   openai: OpenAI,
   request: OpenAI.Responses.ResponseCreateParams,
-  options: any,
-  trace: any,
+  options: ChatCompletionsOptions & CancellationOptions & RetryOptions,
+  trace: MarkdownTrace,
 ): Promise<ChatCompletionResponse> {
   const { cancellationToken } = options;
 
@@ -190,13 +196,16 @@ async function handleNonStreamingResponse(
 async function handleStreamingResponse(
   openai: OpenAI,
   request: OpenAI.Responses.ResponseCreateParams,
-  options: any,
-  trace: any,
+  options: ChatCompletionsOptions & CancellationOptions & RetryOptions,
+  trace: MarkdownTrace,
 ): Promise<ChatCompletionResponse> {
   const { cancellationToken, partialCb } = options;
 
   checkCancelled(cancellationToken);
 
+  let reasoningSoFar = "";
+  let responseSoFar = "";
+  let tokensSoFar = 0;
   const res: ChatCompletionResponse = {};
   try {
     const stream = await openai.responses.create({
@@ -222,8 +231,28 @@ async function handleStreamingResponse(
         case "response.created":
           Object.assign(res, responseToCompletion(chunk.response));
           break;
+        case "response.reasoning_summary_text.delta":
+          reasoningSoFar += chunk.delta;
+          if (partialCb)
+            partialCb({
+              reasoningSoFar,
+              tokensSoFar,
+              responseSoFar,
+              reasoningChunk: chunk.delta,
+              responseChunk: undefined,
+              inner: false,
+            });
+          break;
         case "response.output_text.delta":
-          if (partialCb) partialCb({ text: chunk.delta });
+          responseSoFar += chunk.delta;
+          if (partialCb)
+            partialCb({
+              reasoningSoFar,
+              responseChunk: chunk.delta,
+              inner: false,
+              tokensSoFar,
+              responseSoFar,
+            });
           trace?.appendContent(chunk.delta);
           break;
         case "response.refusal.done":

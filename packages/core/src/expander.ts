@@ -5,7 +5,15 @@ import { resolveScript } from "./ast.js";
 import { assert } from "./assert.js";
 import type { MarkdownTrace } from "./trace.js";
 import { errorMessage, isCancelError, NotSupportedError } from "./error.js";
-import { JS_REGEX, MAX_TOOL_CALLS, TS_IMPORT_REGEX } from "./constants.js";
+import {
+  CHAT_COMPLETION_RETRY_DEFAULT,
+  FETCH_RETRY_DELAY_DEFAULT,
+  FETCH_RETRY_MAX_DELAY_DEFAULT,
+  FETCH_RETRY_ON_DEFAULT,
+  JS_REGEX,
+  MAX_TOOL_CALLS,
+  TS_IMPORT_REGEX,
+} from "./constants.js";
 import {
   finalizeMessages,
   type PromptImage,
@@ -272,13 +280,14 @@ export async function expandTemplate(
   let topLogprobs = Math.max(options.topLogprobs || 0, template.topLogprobs || 0);
   const disableChatPreview =
     options.disableChatPreview === true || template.disableChatPreview === true;
-  
+
   // Handle retry options from template
-  const retryOn = options.retryOn ?? template.retryOn;
-  const retries = options.retries ?? template.retries;
-  const retryDelay = options.retryDelay ?? template.retryDelay;
-  const maxDelay = options.maxDelay ?? template.maxDelay;
-  const maxRetryAfter = options.maxRetryAfter ?? template.maxRetryAfter;
+  const retryOn = options.retryOn ?? template.retryOn ?? FETCH_RETRY_ON_DEFAULT;
+  const retries = options.retries ?? template.retries ?? CHAT_COMPLETION_RETRY_DEFAULT;
+  const retryDelay = options.retryDelay ?? template.retryDelay ?? FETCH_RETRY_DELAY_DEFAULT;
+  const maxDelay = options.maxDelay ?? template.maxDelay ?? FETCH_RETRY_MAX_DELAY_DEFAULT;
+  const maxRetryAfter =
+    options.maxRetryAfter ?? template.maxRetryAfter ?? FETCH_RETRY_MAX_DELAY_DEFAULT;
 
   // finalize options
   env.meta.model = model;
