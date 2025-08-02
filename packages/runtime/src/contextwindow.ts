@@ -134,6 +134,7 @@ async function tryMassivePayloadStrategy(
         maxTokens,
         model: modelId,
         label: `detect context window of ${modelId}`,
+        retries: 0,
       },
     );
 
@@ -214,6 +215,7 @@ async function tryBinarySearchStrategy(
           maxTokens: 100, // Small response to minimize cost
           model: modelId,
           label: `detect context window of ${modelId} - ${mid}t`,
+          retries: 0,
         },
       );
 
