@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { CancellationOptions } from "./cancellation.js";
+
 /**
  * GenAIScript Ambient Type Definition File
  * @version 2.3.12
@@ -5077,6 +5079,7 @@
    */
   resolveResource(
     url: string,
+    options?: CancellationOptions,
   ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
 }
 
