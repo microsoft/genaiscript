@@ -44,3 +44,60 @@ The `image` object is an image file that can be passed around for further proces
 ```js
 env.output.image(image.filename)
 ```
+
+## Image transformation options
+
+The `generateImage` function supports transformation options directly in the options parameter.
+You can apply transformations like resizing, cropping, rotating, and more during image generation.
+
+```js "maxWidth: 800" "quality: 'high'"
+const { image } = await generateImage(
+    `a landscape photo of mountains`,
+    {
+        maxWidth: 800,
+        maxHeight: 600,
+        quality: "high",
+        size: "landscape"
+    }
+)
+```
+
+### Available transformation options
+
+The same transformation options available for [`defImages`](/genaiscript/reference/scripts/images) are supported:
+
+- **`maxWidth`**, **`maxHeight`**: Resize image to fit within dimensions
+- **`crop`**: Crop to specific region `{ x: 0, y: 0, w: 512, h: 512 }`
+- **`autoCrop`**: Remove uniform color edges automatically  
+- **`scale`**: Apply scaling factor (e.g., `0.5` for half size)
+- **`rotate`**: Rotate by degrees (e.g., `90`)
+- **`flip`**: Flip horizontally/vertically `{ horizontal: true, vertical: true }`
+- **`greyscale`**: Convert to greyscale
+- **`mime`**: Output format (`"image/jpeg"` or `"image/png"`)
+
+## Post-generation image editing
+
+For more complex transformations or editing generated images after creation, use the `imageTransform` function:
+
+```js
+// Generate an image first
+const { image } = await generateImage(`a cute robot`)
+
+// Apply transformations to the generated image
+const transformedImageBuffer = await imageTransform(image, {
+    rotate: 45,
+    scale: 0.8,
+    greyscale: true,
+    crop: { x: 50, y: 50, w: 400, h: 400 }
+})
+
+// Save the transformed result as a new file
+const transformedFile = {
+    filename: "transformed-robot.png",
+    content: transformedImageBuffer.toString("base64"),
+    encoding: "base64"
+}
+await workspace.writeFiles(transformedFile)
+```
+
+The `imageTransform` function returns a `Buffer` containing the transformed image data.
