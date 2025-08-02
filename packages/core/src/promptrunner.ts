@@ -187,6 +187,11 @@ export async function runTemplate(
       cache,
       metadata,
       disableChatPreview,
+      retryOn,
+      retries,
+      retryDelay,
+      maxDelay,
+      maxRetryAfter,
     } = await expandTemplate(prj, template, options, env);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { output, generator, secrets, dbg: envDbg, ...restEnv } = env;
@@ -269,6 +274,11 @@ export async function runTemplate(
       metadata,
       stats: runStats,
       disableChatPreview,
+      retryOn,
+      retries,
+      retryDelay,
+      maxDelay,
+      maxRetryAfter,
     };
     const chatResult = await executeChatSession(
       connection.configuration,

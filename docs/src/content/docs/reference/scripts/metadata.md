@@ -259,6 +259,40 @@ script({
 })
 ```
 
+### Retry options
+
+You can configure retry behavior for failed LLM requests to improve reliability:
+
+```js
+script({
+    ...,
+    retries: 3,                    // Number of retry attempts (default: 2)
+    retryDelay: 1000,             // Initial delay in ms between retries (default: 1000) 
+    maxDelay: 5000,               // Maximum delay in ms with exponential backoff (default: 10000)
+    maxRetryAfter: 10000,         // Maximum time in ms to respect retry-after headers (default: 10000)
+    retryOn: [429, 500, 502, 503, 504], // HTTP status codes to retry on (default: [429, 500, 502, 503, 504])
+})
+```
+
+These retry options help handle:
+- **Rate limiting** (HTTP 429): Automatically waits for rate limit windows
+- **Server errors** (HTTP 5xx): Retries on temporary server issues
+- **Network failures**: Uses exponential backoff to avoid overwhelming services
+
+Retry options can also be passed to `runPrompt()` calls to override script-level settings:
+
+```js
+const { text } = await runPrompt(
+    (_) => _.$`Summarize this text.`,
+    {
+        model: "small",
+        retries: 2,           // Override script retry settings
+        retryDelay: 500,      // Faster initial retry
+        maxDelay: 3000,       // Lower maximum delay
+    }
+)
+```
+
 ### Other parameters
 
 - `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.

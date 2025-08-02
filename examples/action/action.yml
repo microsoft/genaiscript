@@ -6,8 +6,8 @@ inputs:
     description: "Files to process, separated by semi columns (;). "
     required: false
   debug:
-    description: Enable debug logging
-      (https://microsoft.github.io/genaiscript/reference/scripts/logging/).
+    description: Enable [debug
+      logging](https://microsoft.github.io/genaiscript/reference/scripts/logging/).
     required: false
   model_alias:
     description: "A YAML-like list of model aliases and model id: `translation:
@@ -51,9 +51,9 @@ inputs:
     description: Azure Serverless OpenAI API credentials type
     required: false
   github_token:
-    description: "GitHub token with `models: read` permission at least
-      (https://microsoft.github.io/genaiscript/reference/github-actions/#github\
-      -models-permissions)."
+    description: "GitHub token with [models:
+      read](https://microsoft.github.io/genaiscript/reference/github-actions/#g\
+      ithub-models-permissions) permission at least."
     required: false
 outputs:
   text:

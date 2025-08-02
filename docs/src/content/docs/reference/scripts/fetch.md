@@ -36,6 +36,11 @@ llmstxt:
     - Plain text: `await host.fetch("https://...", { convert: "text" })`
 
 
+    The `host.resolveResource` function resolves URLs to downloadable resources.
+    Example: `const result = await host.resolveResource("https://github.com/user/repo/blob/main/file.txt")`.
+    Returns an object with `uri` and `files` containing resolved content.
+
+
     For APIs requiring keys, store them securely using the `secrets` object.
   hash: f3a5f552bc57beda0a132687a5130a24709d8d15d6a4f40bc962b717210d1351
 
@@ -81,6 +86,30 @@ const md = await host.fetch("https://...", { convert: "markdown" })
 // text
 const md = await host.fetch("https://...", { convert: "text" })
 ```
+
+## `host.resolveResource`
+
+Use `host.resolveResource` to resolve and download resources from URLs. This function handles various URL schemes and protocols, 
+and can resolve GitHub blob URLs to raw content, among other transformations.
+
+```ts
+const result = await host.resolveResource("https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png")
+if (result) {
+  console.log(`Resolved URI: ${result.uri}`)
+  for (const file of result.files) {
+    console.log(`File: ${file.filename}`)
+    if (file.content) {
+      console.log(`Binary content: ${file.content.length} bytes`)
+    } else if (file.text) {
+      console.log(`Text content: ${file.text.length} characters`)
+    }
+  }
+}
+```
+
+The function returns an object with:
+- `uri`: The resolved URL as a URL object
+- `files`: An array of resolved files with their content
 
 ## Secrets
 
