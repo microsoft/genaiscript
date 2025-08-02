@@ -5,7 +5,7 @@
  * Context window detection utilities for determining available token limits for specific models
  */
 
-import type { WorkspaceFileCache, ChatGenerationContextOptions } from "@genaiscript/core";
+import type { WorkspaceFileCache, ChatGenerationContextOptions, RuntimePromptContext } from "@genaiscript/core";
 import { genaiscriptDebug, resolveChatGenerationContext } from "@genaiscript/core";
 
 const debug = genaiscriptDebug("runtime:contextwindow");
@@ -59,12 +59,13 @@ export async function detectContextWindow(
 
   debug(`detecting context window for model ${modelId}`);
 
-  // Resolve the chat generation context 
-  const ctx = await resolveChatGenerationContext({ ...rest, model: modelId });
+  // Get global runtime context for both context generation and workspace access
+  const globalPromptContext: RuntimePromptContext = globalThis as unknown as RuntimePromptContext;
+  const ctx = resolveChatGenerationContext({ ...rest });
   
   try {
-    // Get cache instance
-    const cache: WorkspaceFileCache<string, number> = await ctx.host.cache(cacheName);
+    // Get cache instance from global runtime context
+    const cache: WorkspaceFileCache<string, number> = await globalPromptContext.workspace.cache(cacheName);
     
     // Check cache first
     const cachedResult = await cache.get(modelId);
