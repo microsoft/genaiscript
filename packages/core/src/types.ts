@@ -5077,7 +5077,7 @@ export interface ResourceHost {
    */
   resolveResource(
     url: string,
-    options?: TraceOptions & CancellationOptions,
+    options?: CancellationOptions,
   ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
 }
 
