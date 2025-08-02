@@ -265,7 +265,7 @@ export async function createPromptContext(
       await runtimeHost.resources.publishResource(name, content, options),
     resources: async () => await runtimeHost.resources.resources(),
     resolveResource: async (url, options) =>
-      await tryResolveResource(url, { ...options, trace }),
+      await tryResolveResource(url, { ...(options || {}), trace }),
     fetch: (url, options) => fetch(url, { ...(options || {}), trace }),
     fetchText: (url, options) => fetchText(url, { ...(options || {}), trace }),
     resolveLanguageModel: async (modelId) => {
