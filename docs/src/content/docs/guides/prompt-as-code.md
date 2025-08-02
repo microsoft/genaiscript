@@ -2,10 +2,87 @@
 title: Prompt As Code
 description: Tutorial on using GenAIScript runtime and syntax to assemble prompts
 sidebar:
-    order: 0
+  order: 0
 genaiscript:
-    files: src/samples/markdown.md
-    model: openai:gpt-3.5-turbo
+  files: src/samples/markdown.md
+  model: openai:gpt-3.5-turbo
+llmstxt:
+  content: >-
+    GenAIScript Markdown Notebooks enable writing prompts as JavaScript programs
+    in Visual Studio Code. Each JavaScript code block is a standalone script
+    executed individually, generating user messages sent to an LLM API. The `$`
+    function formats strings as user messages, which are processed by the LLM.
+    For example:
+
+
+    ```js
+
+    $`Say "hello!" in emojis`
+
+    ```
+
+
+    Generates:
+
+    User: Say "hello!" in emojis  
+
+    Assistant: 👋😃!
+
+
+    Loops and dynamic content generation are supported:
+
+
+    ```js
+
+    for (let i = 1; i <= 3; i++) $`- Say "hello!" in ${i} emojis.`
+
+    $`Respond with a markdown list`
+
+    ```
+
+
+    Generates:
+
+    User: - Say "hello!" in 1 emojis. - Say "hello!" in 2 emojis. - Say "hello!"
+    in 3 emojis. Respond with a markdown list  
+
+    Assistant: - 👋 - 👋😊 - 👋✨😃
+
+
+    The `def` function assigns LLM variables, useful for importing context like
+    files. Example:
+
+
+    ```js
+
+    def("FILE", env.files)
+
+    $`Summarize FILE in one short sentence. Respond as plain text.`
+
+    ```
+
+
+    Processes a file and generates a concise summary. `env.files` contains
+    context files, filtered with options like `endsWith` or `maxTokens` to limit
+    content size. Example:
+
+
+    ```js
+
+    script({ files: "src/samples/**" })
+
+    def("FILE", env.files, { endsWith: ".md", maxTokens: 1000 })
+
+    $`Summarize FILE in one short sentence. Respond as plain text.`
+
+    ```
+
+
+    Generates a summary for Markdown files under the specified directory.
+    GenAIScript simplifies prompt creation, enabling dynamic and context-aware
+    interactions with LLMs.
+  hash: 0ec8cba2e2e23b87a392f25dd287339a20b9bd814876f3195e550284579ab56f
+
 ---
 
 This page is a tutorial on creating prompt with GenAIScript. It is designed to be opened in Visual Studio Code as a Notebook.

@@ -16,6 +16,21 @@ hero:
       models. All shapes are flat, iconic, and set on a blank, untextured
       background with no people or written text.
     file: ./best-practices.png
+llmstxt:
+  content: GenAIScript enables users to create reusable, parameterized scripts by
+    embedding prompts within a JavaScript framework. This allows for testing,
+    debugging, and running scripts via the command line. Users can enhance
+    prompts with additional context by referencing documents in standard formats
+    like PDF or DOCX, using the `def` command to load and name these documents
+    for use in the script. Tasks can be divided into smaller, focused
+    subproblems to improve accuracy and debugging, such as writing sections of a
+    white paper individually. Scripts can be interconnected, using the output of
+    one as input for another, enabling complex workflows. GenAIScript supports
+    multiple AI models, configurable based on task requirements, cost, and
+    capabilities. Users must ensure prompts fit within the model's context
+    window and tailor them to the specific LLM being used for optimal
+    performance.
+  hash: 928247e88d6fbf080eb6fa4f8674ec84db5f33886bb4129769314ff7cd2095d1
 
 ---
 

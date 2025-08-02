@@ -8,21 +8,104 @@ tags:
 canonical_url: https://microsoft.github.io/genaiscript/blog/fallback-tools
 description: Support for Tools.
 cover:
-  alt:
-    An image in retro 8-bit style showing a digital workspace. On the left,
+  alt: An image in retro 8-bit style showing a digital workspace. On the left,
     there are icons with lines connecting them, symbolizing the idea of
     "fallback tools." On the right, geometrical shapes represent binary code
     processing related to tool-enabled LLMs. The background consists of basic
     geometric shapes that give a corporate and tech-focused feel, using a
     consistent 5-color scheme without any human figures or text.
   image: ./fallback-tools.png
-excerpt:
-  Enhance your LLM's capabilities with fallback tools. When your chosen
+excerpt: Enhance your LLM's capabilities with fallback tools. When your chosen
   model lacks native tool support, fallback tools step in, teaching the model
   how to utilize external resources for better problem-solving. Automatically
   enabled for recognized models, this feature ensures efficient workflows and
   can be manually configured for broader compatibility. Stay ahead by
   integrating smarter solutions.
+llmstxt:
+  content: >-
+    [Tools] enable LLMs to use external tools for enhanced reasoning. Some
+    models, like OpenAI's o1-preview and o1-mini, lack native tool support.
+
+
+    Fallback tools, introduced in GenAIScript 1.72.0, teach LLMs about available
+    tools and their usage via system scripts. Example:
+
+
+    ```js
+
+    $`## Tool support
+
+    You can call external tools to answer user questions.
+
+    - Tools have an id, description, and JSON schema for arguments.
+
+    \`\`\`tool_calls
+
+    <tool_id>: { <JSON_serialized_tool_call_arguments> }
+
+    \`\`\`
+
+    ```
+
+
+    Performance depends on the LLM used.
+
+
+    Example tool: A random number generator.
+
+
+    ```js
+
+    defTool("random", "Generate a random number", {}, () => Math.random());
+
+    $`Generate a random number between 0 and 1.`;
+
+    ```
+
+
+    o1-mini output:
+
+    ```tool_calls
+
+    random: {}
+
+    ```
+
+    Result: **0.7792901036554349**
+
+
+    gemma2 output:
+
+    ```tool_calls
+
+    random: {}
+
+    ```
+
+    Result: **0.9552638470626966**
+
+
+    Fallback tools activate automatically for unsupported models. To enable
+    manually:
+
+
+    ```js
+
+    script({ fallbackTools: true });
+
+    ```
+
+
+    Or via CLI:
+
+
+    ```sh
+
+    genaiscript run --fallback-tools
+
+    ```
+  hash: a0495dce78b2f17e5a69d1493aaa4b38def2a9651ec30f10ef9f5eb1f9a84b1a
+
 ---
 
 import BlogNarration from "../../../components/BlogNarration.astro";

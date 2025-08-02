@@ -1,15 +1,13 @@
 ---
 title: Images
-description:
-  Learn how to add images to prompts for AI models supporting visual
+description: Learn how to add images to prompts for AI models supporting visual
   inputs, including image formats and usage.
 keywords: images in prompts, AI model images, visual inputs, image formats, OpenAI Vision
 sidebar:
   order: 10
 hero:
   image:
-    alt:
-      "A minimalist 8-bit style image shows five bold, geometric icons: a square
+    alt: "A minimalist 8-bit style image shows five bold, geometric icons: a square
       with marked corners for cropping, a circle representing a greyscale
       filter, a curved arrow for rotation, a handle for scaling, and a flip
       symbol. The elements are arranged together in a flat, corporate design
@@ -17,6 +15,102 @@ hero:
       people, text, shadows, gradients, or 3D effects, and the shapes are simple
       within a small 128 by 128 pixel space."
     file: ./images.png
+llmstxt:
+  content: >-
+    Images can be added to prompts for models supporting this feature (e.g.,
+    `gpt-4o`). Use `defImages` to declare images, supporting formats like PNG,
+    JPEG, WEBP, and GIF. Both URLs and local files are allowed.
+
+
+    ```js
+
+    defImages(env.files);
+
+    ```
+
+
+    YouTube embeds are supported:
+
+
+    ```js
+
+    <YouTube id="https://youtu.be/XbWgDn7NdTg" posterQuality="high" />
+
+    ```
+
+
+    Public URLs are directly passed to OpenAI:
+
+
+    ```js
+
+    defImages("https://example.com/image.png");
+
+    ```
+
+
+    Local files are encoded as data URIs. Buffers, Blobs, and ReadableStreams
+    are supported. Example:
+
+
+    ```js
+
+    import { browse } from "@genaiscript/plugin-playwright";
+
+    const page = await browse("https://bing.com");
+
+    const screenshot = await page.screenshot();
+
+    defImages(screenshot);
+
+    ```
+
+
+    Image options include:
+
+
+    - **Detail**: Downsample to 512x512 for "low" detail.
+      ```js
+      defImages(img, { detail: "low" });
+      ```
+
+    - **Crop**: Define a region of interest.
+      ```js
+      defImages(img, { crop: { x: 0, y: 0, w: 512, h: 512 } });
+      ```
+
+    - **Auto Crop**: Remove uniform edges.
+      ```js
+      defImages(img, { autoCrop: true });
+      ```
+
+    - **Greyscale**: Convert to greyscale.
+      ```js
+      defImages(img, { greyscale: true });
+      ```
+
+    - **Rotate**: Rotate by degrees.
+      ```js
+      defImages(img, { rotate: 90 });
+      ```
+
+    - **Scale**: Resize proportionally.
+      ```js
+      defImages(img, { scale: 0.5 });
+      ```
+
+    - **Flip**: Flip horizontally/vertically.
+      ```js
+      defImages(img, { flip: { horizontal: true, vertical: true } });
+      ```
+
+    - **Max Dimensions**: Resize to fit constraints.
+      ```js
+      defImages(img, { maxWidth: 800 });
+      defImages(img, { maxHeight: 800 });
+      ```
+  hash: a2b934f9d4a57a9833710712a6eed8e048f47787966578a0c9638cbb4ff1b00c
+
 ---
 
 import { YouTube } from "astro-embed";

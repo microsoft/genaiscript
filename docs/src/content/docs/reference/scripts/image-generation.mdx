@@ -14,6 +14,49 @@ hero:
       without any text, people, shadow, or background, highlighting a clean,
       modern, corporate aesthetic.
     file: ./image-generation.png
+llmstxt:
+  content: >-
+    GenAIScript supports image generation via OpenAI-compatible APIs. Configure
+    a provider like OpenAI, Azure OpenAI, or Azure AI Foundry to enable this
+    functionality.
+
+
+    Images are generated using the `generateImage` function, which accepts a
+    prompt and returns an image URL and optionally a revised prompt. Example:
+
+
+    const { image, revisedPrompt } = await generateImage(`a cute cat, 4k
+    resolution`);
+
+
+    The `image` object can be used for further processing, e.g.,
+    `env.output.image(image.filename)`.
+
+
+    Transformation options include resizing, cropping, rotating, scaling,
+    flipping, greyscale conversion, and format specification. Example:
+
+
+    const { image } = await generateImage(`mountains`, { maxWidth: 800, quality:
+    "high", size: "landscape" });
+
+
+    Edit mode allows modifying existing images with text prompts. Specify `mode:
+    "edit"` and provide the `image` parameter. Example:
+
+
+    const { image } = await generateImage(`Add sunglasses`, { mode: "edit",
+    image: existingImage, size: "1024x1024" });
+
+
+    Masks can define editable regions. Requirements for edit mode: `mode:
+    "edit"`, an existing image, optional mask, and a descriptive prompt.
+    Example:
+
+
+    const { image } = await generateImage(`Sunset background`, { mode: "edit",
+    image: existingImage, mask: maskImage, quality: "high" });
+  hash: 6f018228fbc28f6d6f14907f037021d7cdc66ccfadc7c163ef0cc72f452ede4d
 
 ---
 

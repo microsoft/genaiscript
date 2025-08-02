@@ -1,9 +1,99 @@
 ---
-title: "Lint"
-description: "An Easy Universal Linter"
-keywords: ["genai", "linter", "script", "coding", "best practices"]
+title: Lint
+description: An Easy Universal Linter
+keywords:
+  - genai
+  - linter
+  - script
+  - coding
+  - best practices
 sidebar:
-    order: 2
+  order: 2
+llmstxt:
+  content: >-
+    The script "Universal Linter" automates reviewing code and natural language
+    files for correctness and style using GenAIScript and a large AI model. It
+    identifies issues and integrates with IDEs for error/warning display. 
+
+
+    Initialization:
+
+    ```ts
+
+    script({
+        title: "Universal Linter",
+        description: "Review files for correctness and style",
+        model: "large",
+        system: ["system", "system.assistant", "system.annotations", "system.safety_jailbreak", "system.safety_harmful_content"],
+    })
+
+    ```
+
+
+    The AI, named "Linty," reviews files based on their type:
+
+    - Code files: Applies best practices for the specific language (e.g., Python
+    for `.py` files).
+
+    - Non-code files: Checks spelling and grammar.
+
+    - Reports issues using annotations and avoids uncertain findings.
+
+
+    Prompt:
+
+    ```ts
+
+    $`## Task
+
+    You are Linty, a linter for all known programming and natural languages.
+    Review FILE content and report warnings/errors.
+
+
+    ## Rules
+
+    - Use best practices based on file type.
+
+    - Be exhaustive but only report certain issues.
+
+    - Use annotation format for feedback.`
+
+    .role("system")
+
+    ```
+
+
+    File processing:
+
+    ```ts
+
+    def("FILE", env.files, { lineNumbers: true })
+
+    ```
+
+
+    Execution:
+
+    Run the script via CLI:
+
+    ```bash
+
+    genaiscript run lint <file1> <file2> ...
+
+    ```
+
+    Or from GitHub Copilot Chat:
+
+    ```sh
+
+    @genaiscript /run lint
+
+    ```
+
+
+    Full source code is available at the GenAIScript GitHub repository.
+  hash: cbe3979ccbb7d7b50a23e2ac5ac340269a3c3d7ad5580ceaeae346dbf9a57c73
+
 ---
 
 import { Image } from "astro:assets"

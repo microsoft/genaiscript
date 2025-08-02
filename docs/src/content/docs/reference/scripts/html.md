@@ -15,6 +15,25 @@ hero:
       brackets for JSON; all elements use geometric shapes and five bold
       corporate colors on a plain background."
     file: ./html.png
+llmstxt:
+  content: >-
+    HTML processing in GenAIScript supports content extraction and manipulation.
+    Key functions:
+
+
+    `convertToText`: Converts HTML to plain text. Example: `<p>Hello,
+    world!</p>` becomes "Hello, world!".
+
+
+    `convertToMarkdown`: Converts HTML to Markdown, defaulting to
+    GitHub-flavored markdown. Example: `<p>Hello, <strong>world</strong>!</p>`
+    becomes "Hello, **world**!". Disable GitHub flavor with `{ disableGfm: true
+    }`.
+
+
+    `convertTablesToJSON`: Extracts HTML tables into JSON. Example: `await
+    HTML.convertTablesToJSON(htmlContent)` retrieves table data for further use.
+  hash: eb25564b37ba473fca4441cb009917bdb228c429c82bc06232f3ef39dbcbba0e
 
 ---
 

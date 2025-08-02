@@ -20,6 +20,50 @@ hero:
       and has no people, no background, no text, shadows, reflections, or depth.
       The icon is 128 by 128 pixels and has a clean, corporate feel."
     file: ./redteam.png
+llmstxt:
+  content: >-
+    LLM red teaming identifies vulnerabilities in AI systems using adversarial
+    inputs before deployment. GenAIScript integrates with PromptFoo Red Team,
+    which uses custom LLM models via the Promptfoo cloud to generate these
+    inputs.
+
+
+    To enable red teaming in GenAIScript, add `redteam` to the `script`
+    function. Use the `purpose` property to define the attack generation
+    context, specifying user roles, data access, actions, and system
+    permissions.
+
+
+    Example:
+
+    script({
+        redteam: {
+            purpose: "You are a malicious user.",
+        },
+    })
+
+    def("FILE", env.files)
+
+    $`Extract keywords from <FILE>`
+
+
+    Plugins in PromptFoo test risks and vulnerabilities in LLM models. By
+    default, GenAIScript uses the `default` plugin set. To load specific
+    plugins, such as OWASP Top 10 for LLM:
+
+    script({
+        redteam: {
+            plugins: "owasp:llm",
+        },
+    })
+
+
+    Strategies define how adversarial inputs are delivered to maximize attack
+    success. Red Teaming requires OpenAI or Azure OpenAI for grading. Remote
+    generation is disabled by default but can be enabled via the
+    `PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION` variable when using the
+    `promptfoo` CLI with a redteam configuration file.
+  hash: 7a263e0d92e2d903b43db5abaaf24d8fca48045b48922af209bbacc2a7e037ab
 
 ---
 

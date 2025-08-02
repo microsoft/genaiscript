@@ -1,28 +1,161 @@
 ---
 title: Model Context Protocol Tools
 sidebar:
-    order: 5.09
+  order: 5.09
 description: Learn how to configure and securely use Model Context Protocol
-    (MCP) tools and servers, including tool output validation, secret detection,
-    and security best practices for AI scripting.
+  (MCP) tools and servers, including tool output validation, secret detection,
+  and security best practices for AI scripting.
 keywords:
-    - Model Context Protocol
-    - MCP server configuration
-    - tool output validation
-    - AI tool security
-    - prompt injection detection
+  - Model Context Protocol
+  - MCP server configuration
+  - tool output validation
+  - AI tool security
+  - prompt injection detection
 hero:
-    image:
-        alt:
-            A small, flat 8-bit style image displays two rectangular server blocks
-            joined by a straight line. Around each server, small colored rectangles
-            symbolize different tools. A shield, padlock, and magnifying glass icon
-            appear next to the servers, representing security, secret detection, and
-            validation respectively. A circular checkmark stands for signature
-            validation, and a tiny folder icon denotes files. The scene uses five
-            distinct, corporate-looking solid colors, with a simple, geometric,
-            minimalistic design and no background or text.
-        file: ./mcp-tools.png
+  image:
+    alt: A small, flat 8-bit style image displays two rectangular server blocks
+      joined by a straight line. Around each server, small colored rectangles
+      symbolize different tools. A shield, padlock, and magnifying glass icon
+      appear next to the servers, representing security, secret detection, and
+      validation respectively. A circular checkmark stands for signature
+      validation, and a tiny folder icon denotes files. The scene uses five
+      distinct, corporate-looking solid colors, with a simple, geometric,
+      minimalistic design and no background or text.
+    file: ./mcp-tools.png
+llmstxt:
+  content: >-
+    The Model Context Protocol (MCP) enables sharing and consuming tools across
+    frameworks. GenAIScript provides both client and server implementations for
+    MCP. The server exposes scripts as tools, configurable via `script` or
+    `defTool`.
+
+
+    To configure MCP servers, use the `mcpServers` field in `script` or
+    `runPrompt`. Example:
+
+    ```
+
+    script({
+      mcpServers: {
+        memory: { command: "npx", args: ["-y", "@modelcontextprotocol/server-memory"] },
+        filesystem: { command: "npx", args: ["-y", "@modelcontextprotocol/server-filesystem", path.resolve(".")] },
+      },
+    })
+
+    ```
+
+    To load specific tools, list their IDs under `tools`.
+
+
+    `mcpAgentServers` wraps MCP servers as agents with descriptions and
+    instructions:
+
+    ```
+
+    script({
+      mcpAgentServers: {
+        memory: {
+          description: "A memory server",
+          instructions: "Use this server to store and retrieve data.",
+          command: "npx",
+          args: ["-y", "@modelcontextprotocol/server-memory"],
+        },
+      },
+    })
+
+    ```
+
+
+    Environment variables can be passed via the `env` field:
+
+    ```
+
+    script({
+      mcpServers: {
+        memory: {
+          command: "npx",
+          args: ["-y", "@modelcontextprotocol/server-memory"],
+          env: { MY_ENV_VAR: "" },
+        },
+      },
+    })
+
+    ```
+
+
+    `defTool` can declare server configurations:
+
+    ```
+
+    defTool({
+      memory: { command: "npx", args: ["-y", "@modelcontextprotocol/server-memory"] },
+    })
+
+    ```
+
+
+    Servers start during prompt rendering and stop after the session. Use
+    Dockerized packages for isolation and pin package versions to ensure
+    stability:
+
+    ```
+
+    script({
+      mcpServers: {
+        memory: { command: "npx", args: ["-y", "@modelcontextprotocol/server-memory@0.6.2"] },
+      },
+    })
+
+    ```
+
+
+    Enable tool signature validation to prevent unauthorized changes. Set
+    `toolsSha` to trigger validation, then update with the computed signature:
+
+    ```
+
+    script({
+      mcpServers: {
+        playwright: { toolsSha: "52cf857f903...72ab44a5" },
+      },
+    })
+
+    ```
+
+
+    To prevent secret leaks or prompt injection, use content safety scanners and
+    enable `detectPromptInjection`:
+
+    ```
+
+    script({
+      mcpServers: {
+        playwright: { detectPromptInjection: "always" },
+      },
+    })
+
+    ```
+
+
+    Tool outputs can be validated using LLM-as-a-Judge based on tool
+    descriptions or custom intents:
+
+    ```
+
+    mcpServers: {
+      playwright: {
+        command: "npx",
+        args: ["--yes", "@playwright/mcp@latest", "--headless"],
+        intent: "description",
+      },
+    },
+
+    ```
+
+
+    Refer to the Model Context Protocol Servers project for available servers.
+  hash: 295229a5e8000ccf1c3f660631629dcc16d023d2684552b17449acc87f9e1fcc
+
 ---
 
 import { Image } from "astro:assets"

@@ -15,6 +15,29 @@ hero:
       colors and no text, people, shadows, gradients, or backgrounds. The
       composition is strictly geometric and minimal at 128 by 128 pixels.
     file: ./fetch.png
+llmstxt:
+  content: >-
+    The `host.fetch` function wraps the global `fetch` API, adding proxy support
+    and retries. Example: `await host.fetch("https://api.example.com", {
+    retries: 3 })`.
+
+
+    The `host.fetchText` helper simplifies fetching and parsing text. Example: 
+
+    `const { text, file } = await host.fetchText("https://...")`. Use `text`
+    directly or reference `file` in the workspace. For local files: `const {
+    file } = await host.fetchText("README.md")`.
+
+
+    `fetchText` can convert HTML to compact formats:
+
+    - Markdown: `await host.fetch("https://...", { convert: "markdown" })`
+
+    - Plain text: `await host.fetch("https://...", { convert: "text" })`
+
+
+    For APIs requiring keys, store them securely using the `secrets` object.
+  hash: f3a5f552bc57beda0a132687a5130a24709d8d15d6a4f40bc962b717210d1351
 
 ---
 

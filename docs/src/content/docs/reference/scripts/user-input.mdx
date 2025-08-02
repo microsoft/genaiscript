@@ -12,6 +12,30 @@ hero:
       clean lines and a solid color setting with no background details or human
       figures, all within a 128 by 128 pixel square."
     file: ./user-input.png
+llmstxt:
+  content: >-
+    GenAIScript supports user input functions for interactive scripts. In CLI,
+    input is handled via the terminal.
+
+
+    `host.confirm` prompts a yes/no question and returns a boolean:  
+
+    `const ok = await host.confirm("Do you want to continue?")`
+
+
+    `host.input` prompts for text input and returns a string:  
+
+    `const name = await host.input("What is your name?")`
+
+
+    `host.select` prompts for a selection from options and returns a string:  
+
+    `const choice = await host.select("Choose an option:", ["Option 1", "Option
+    2", "Option 3"])`
+
+
+    In CI environments, these functions return `undefined`.
+  hash: 5eab99a93a15aad19516947916f09078c318fcf2ab089f4c351bf00bccc458db
 
 ---
 

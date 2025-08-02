@@ -14,6 +14,48 @@ hero:
       no text, people, or shading. The style is 8-bit and highly simplified at a
       small scale.
     file: ./testing-scripts.png
+llmstxt:
+  content: >-
+    Tests can be declared in the `script` function to validate script output.
+    Add tests as an array of objects under the `tests` key:
+
+
+    script({
+      ...,
+      tests: {
+        files: "src/rag/testcode.ts",
+        rubrics: "is a report with a list of issues",
+        facts: "The report says the input string should be validated before use."
+      }
+    })
+
+
+    Specify models to run tests against using `testModels`. Each test runs on
+    all listed models:
+
+
+    script({
+      ...,
+      testModels: [
+        "azure_ai_inference:gpt-4o",
+        "azure_ai_inference:gpt-4o-mini",
+        "azure_ai_inference:deepseek-r1"
+      ]
+    })
+
+
+    Override `testModels` via the command line. To run tests in Visual Studio
+    Code, use the Test Explorer view, select the script, and click the play
+    button. From the command line, use:
+
+
+    npx genaiscript test proofreader
+
+
+    Limitations: Promptfoo treats the script source as prompt text, so
+    assertions relying on input text, like `answer_relevance`, are unsupported.
+    For automation, see CLI documentation.
+  hash: d83ed6d739e69025b4f628dd874bedc98ea525becb6f2b85d1b764baaed5541b
 
 ---
 

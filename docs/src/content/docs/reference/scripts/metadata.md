@@ -1,21 +1,146 @@
 ---
 title: Metadata
 sidebar:
-    order: 2
+  order: 2
 description: Learn how to configure script metadata to enhance functionality and
-    user experience in GenAIScript.
+  user experience in GenAIScript.
 keywords: script metadata, configuration, LLM parameters, customization, script
-    management
+  management
 hero:
-    image:
-        alt: A small, square digital illustration in 8-bit flat style showing a
-            simplified computer window. Inside are separated areas formed by
-            rectangles and circles, each sectioned with bold, bright colors to
-            represent different configuration settings—model, tokens, temperature, and
-            group options—depicted with shapes like sliders, toggles, and labeled
-            blocks. The design is clean with no text, people, backgrounds, or visual
-            effects, emphasizing a clear, easy-to-distinguish layout.
-        file: ./metadata.png
+  image:
+    alt: A small, square digital illustration in 8-bit flat style showing a
+      simplified computer window. Inside are separated areas formed by
+      rectangles and circles, each sectioned with bold, bright colors to
+      represent different configuration settings—model, tokens, temperature, and
+      group options—depicted with shapes like sliders, toggles, and labeled
+      blocks. The design is clean with no text, people, backgrounds, or visual
+      effects, emphasizing a clear, easy-to-distinguish layout.
+    file: ./metadata.png
+llmstxt:
+  content: >-
+    Prompts can use the `script({ ... })` function to configure UI elements like
+    `title`, `description`, and `group`. This is optional but must use valid
+    JSON5 syntax. Key parameters include:
+
+
+    `title`, `description`, `group`: Define the prompt's name, purpose, and
+    category for UI display. Example:
+
+    ```javascript
+
+    script({
+        title: "Shorten",
+        description: "Shrinks text size without losing meaning",
+        group: "shorten",
+    })
+
+    ```
+
+
+    `system`: Overrides default system prompts inferred from script content.
+    Example:
+
+    ```javascript
+
+    script({
+        system: ["system.files"],
+    })
+
+    ```
+
+
+    `model`: Specifies the LLM model, with aliases like `large` or `small` for
+    defaults. Example:
+
+    ```javascript
+
+    script({
+        model: "openai:gpt-4o",
+    })
+
+    ```
+
+
+    `maxTokens`: Sets the maximum token limit for completions. Example:
+
+    ```javascript
+
+    script({
+        maxTokens: 2000,
+    })
+
+    ```
+
+
+    `maxToolCalls`: Limits the number of tool calls during generation to prevent
+    infinite loops. Example:
+
+    ```javascript
+
+    script({
+        maxToolCalls: 100,
+    })
+
+    ```
+
+
+    `temperature`: Controls randomness in outputs, ranging from 0 to 2. Default
+    is 0.8. Example:
+
+    ```javascript
+
+    script({
+        temperature: 0.8,
+    })
+
+    ```
+
+
+    `top_p`: Adjusts nucleus sampling probability. Example:
+
+    ```javascript
+
+    script({
+        top_p: 0.5,
+    })
+
+    ```
+
+
+    `seed`: Sets a fixed seed for reproducibility in supported models. Example:
+
+    ```javascript
+
+    script({
+        seed: 12345678,
+    })
+
+    ```
+
+
+    `metadata`: Adds metadata for stored completions, useful for evaluation.
+    Example:
+
+    ```javascript
+
+    script({
+        metadata: { name: "my_script" }
+    })
+
+    ```
+
+
+    Other options include `unlisted: true` to hide prompts in lists. The
+    `env.meta` object provides script metadata, and `host.resolveModel` resolves
+    model aliases to provider details. Example:
+
+    ```javascript
+
+    const info = await host.resolveModel("large")
+
+    ```
+  hash: 251598773bd35ca5b65a8a4c23dde404277604de8694a77c3bf3454728d33daf
+
 ---
 
 Prompts use `script({ ... })` function call

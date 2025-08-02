@@ -2,6 +2,36 @@
 title: Azure AI Foundry
 sidebar:
   order: 3
+llmstxt:
+  content: >-
+    Azure AI Foundry provides access to serverless and deployed models for
+    OpenAI and other providers. Supported access methods in GenAIScript
+    include:  
+
+
+    1. **Azure AI Model Inference**: No deployment needed. Use `model:
+    "azure_ai_inference:model-id"`.  
+       - Configure `AZURE_AI_INFERENCE_API_ENDPOINT` and `AZURE_AI_INFERENCE_API_KEY` in `.env`.  
+       - Supports Entra ID or key-based authentication.  
+       - Default API version: `{AZURE_AI_INFERENCE_VERSION}`. Override using `AZURE_AI_INFERENCE_API_VERSION`.  
+
+    2. **Azure AI OpenAI Serverless**: For OpenAI models deployed via Azure AI
+    Foundry.  
+       - Use `model: "azure_serverless:deployment-id"`.  
+       - Configure `AZURE_SERVERLESS_OPENAI_API_ENDPOINT` and `AZURE_SERVERLESS_OPENAI_API_KEY` in `.env`.  
+       - Requires `Cognitive Services OpenAI User` role for Entra ID.  
+
+    3. **Azure AI Serverless Models**: For non-OpenAI models like DeepSeek.  
+       - Use `model: "azure_serverless_models:deployment-id"`.  
+       - Configure `AZURE_SERVERLESS_MODELS_API_ENDPOINT` and `AZURE_SERVERLESS_MODELS_API_KEY` in `.env`.  
+       - Supports multiple deployments with `deploymentid=key` pairs.  
+       - Requires `Azure AI Developer` role for Entra ID.  
+
+    Serverless models are deployed via Azure AI Foundry with pay-as-you-go
+    pricing. OpenAI models use `.openai.azure.com` endpoints, while others use
+    `.models.ai.azure.com`.
+  hash: d3403eff737853008b52ded788e0151fea0e7d76ef5b6cc59917b0c2739eaace
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";

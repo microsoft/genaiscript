@@ -1,26 +1,53 @@
 ---
 title: Node.JS API
 sidebar:
-    order: 1.1
+  order: 1.1
 description: Learn how to import and use the Node.JS API to run scripts in an
-    isolated worker thread, including environment variable configuration and
-    integration details for enhanced flexibility.
+  isolated worker thread, including environment variable configuration and
+  integration details for enhanced flexibility.
 keywords:
-    - Node.JS API
-    - worker threads
-    - API integration
-    - environment variables
-    - script execution
+  - Node.JS API
+  - worker threads
+  - API integration
+  - environment variables
+  - script execution
 hero:
-    image:
-        alt:
-            "A minimal 8-bit style graphic shows a geometric computer screen or code
-            editor next to a gear, symbolizing a Node.js setup. Around them are simple
-            flat icons: a cube for packages, an arrow representing API imports, and a
-            circular loop for worker threads or process spawning. The design uses only
-            five bold corporate colors on a white background, with no people, text,
-            gradients, or shadows, at a size of 128 by 128 pixels."
-        file: ./index.png
+  image:
+    alt: "A minimal 8-bit style graphic shows a geometric computer screen or code
+      editor next to a gear, symbolizing a Node.js setup. Around them are simple
+      flat icons: a cube for packages, an arrow representing API imports, and a
+      circular loop for worker threads or process spawning. The design uses only
+      five bold corporate colors on a white background, with no people, text,
+      gradients, or shadows, at a size of 128 by 128 pixels."
+    file: ./index.png
+llmstxt:
+  content: >-
+    GenAIScript runs in a Node.JS environment with additional globals configured
+    by the CLI. To use GenAIScript in a standard Node.JS process, the `run` API
+    is required. This API executes GenAIScript scripts in a worker thread,
+    ensuring no global pollution or side effects.
+
+
+    To configure, add the CLI as a dependency and import the API:
+
+
+    import { run } from "@genaiscript/api"
+
+
+    The `run` function wraps the CLI's `run` command. Example usage:
+
+
+    const results = await run("summarize", ["myfile.txt"])
+
+
+    Environment variables can be set for the GenAIScript process by passing an
+    `env` object in the options. By default, the worker inherits `process.env`:
+
+
+    const results = await run("summarize", ["myfile.txt"], { env: { MY_ENV_VAR:
+    "value" } })
+  hash: 22922d0ad60a6b0fd8856a1926d42e751c4a23e0917f4dc71023b06dc3c336ee
+
 ---
 
 import { Tabs, TabItem } from "@astrojs/starlight/components"

@@ -2,6 +2,79 @@
 title: Whisper ASR WebServices
 sidebar:
   order: 60
+llmstxt:
+  content: >-
+    The `whisperasr` provider enables transcription tasks using the [Whisper ASR
+    WebService](https://ahmetoner.com/whisper-asr-webservice/). It supports
+    local or Docker-based deployment.
+
+
+    Example usage:
+
+    ```js
+
+    const transcript = await transcribe("video.mp4", { model:
+    "whisperasr:default" });
+
+    ```
+
+
+    To run the service in Docker:
+
+    ```sh
+
+    docker run -d -p 9000:9000 -e ASR_MODEL=base -e ASR_ENGINE=openai_whisper
+    onerahmet/openai-whisper-asr-webservice:latest
+
+    ```
+
+
+    In GitHub Actions, configure the whisper-asr container as a service:
+
+    ```yaml
+
+    services:
+      whisper-asr:
+        image: onerahmet/openai-whisper-asr-webservice:latest
+        ports:
+          - 9000:9000
+        env:
+          ASR_MODEL: base
+          ASR_ENGINE: openai_whisper
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/health || exit 1"
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 5
+    ```
+
+
+    Run transcription scripts in your workflow:
+
+    ```yaml
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run transcription script
+        run: npx --yes genaiscript run transcript-script audio.wav
+        env:
+          WHISPERASR_API_BASE: http://whisper-asr:9000
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    ```
+
+
+    Set `WHISPERASR_API_BASE` to the service URL:
+
+    ```yaml
+
+    env:
+      WHISPERASR_API_BASE: http://whisper-asr:9000
+    ```
+  hash: a0cfd8c4edd0b17e87b7a31d7507a1c5d84d8ae509597386c9128d44ca1a90cf
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components";
