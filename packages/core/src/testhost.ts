@@ -37,7 +37,6 @@ import { ResourceManager } from "./mcpresource.js";
 import { execSync } from "node:child_process";
 import { shellQuote } from "./shell.js";
 import { genaiscriptDebug } from "./debug.js";
-import { tryResolveResource } from "./resources.js";
 import type {
   WorkspaceFileSystem,
   ContentSafety,
@@ -182,13 +181,6 @@ export class TestHost implements RuntimeHost {
   // Placeholder for deleting a directory
   deleteDirectory(name: string): Promise<void> {
     throw new Error("Method not implemented.");
-  }
-
-  async tryResolveResource(
-    url: string,
-    options?: TraceOptions & CancellationOptions,
-  ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
-    return await tryResolveResource(url, options);
   }
 
   // Placeholder for executing a shell command in a container

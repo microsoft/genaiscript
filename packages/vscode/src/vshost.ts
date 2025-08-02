@@ -12,11 +12,10 @@ import type { Host, RuntimeHost } from "../../core/src/host";
 import { resolveRuntimeHost, setRuntimeHost } from "../../core/src/host";
 import { arrayify } from "../../core/src/cleaners";
 import { filterGitIgnore } from "../../core/src/gitignore";
-import { tryResolveResource } from "../../core/src/resources";
 import type { CancellationOptions } from "../../core/src/cancellation";
 import type { TraceOptions } from "../../core/src/trace";
 import type { LanguageModelConfiguration, LogLevel } from "../../core/src/server/messages";
-import type { ElementOrArray, WorkspaceFile } from "../../core/src/types";
+import type { ElementOrArray } from "../../core/src/types";
 
 export class VSCodeHost extends EventTarget implements Host {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -161,13 +160,6 @@ export class VSCodeHost extends EventTarget implements Host {
   async deleteDirectory(name: string): Promise<void> {
     const uri = this.toProjectFileUri(name);
     await vscode.workspace.fs.delete(uri, { recursive: true });
-  }
-
-  async tryResolveResource(
-    url: string,
-    options?: TraceOptions & CancellationOptions,
-  ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
-    return await tryResolveResource(url, options);
   }
 
   async getLanguageModelConfiguration(

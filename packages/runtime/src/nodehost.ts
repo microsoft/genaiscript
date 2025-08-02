@@ -46,7 +46,6 @@ import {
   shellQuote,
   setRuntimeHost,
   isAzureContentSafetyClientConfigured,
-  tryResolveResource,
 } from "@genaiscript/core";
 import type {
   CancellationOptions,
@@ -69,7 +68,6 @@ import type {
   UTF8Encoder,
   AzureTokenResolver,
   LanguageModel,
-  WorkspaceFile,
 } from "@genaiscript/core";
 import { DockerManager } from "./docker.js";
 import { uniq } from "es-toolkit";
@@ -505,13 +503,6 @@ export class NodeHost extends EventTarget implements RuntimeHost {
   }
   async deleteDirectory(name: string): Promise<void> {
     await rm(name, { recursive: true });
-  }
-
-  async tryResolveResource(
-    url: string,
-    options?: TraceOptions & CancellationOptions,
-  ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
-    return await tryResolveResource(url, options);
   }
 
   async contentSafety(

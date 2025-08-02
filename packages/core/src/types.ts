@@ -5075,7 +5075,7 @@ export interface ResourceHost {
    * @param options - Optional trace and cancellation options.
    * @returns A promise that resolves to an object containing the parsed URI and resolved files, or undefined if resolution fails.
    */
-  tryResolveResource(
+  resolveResource(
     url: string,
     options?: TraceOptions & CancellationOptions,
   ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
