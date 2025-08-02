@@ -18,10 +18,10 @@ import type {
 import { errorMessage, isCancelError } from "./error.js";
 import { createFetch } from "./fetch.js";
 import { logError } from "./util.js";
-import { CancellationOptions, checkCancelled } from "./cancellation.js";
+import { type CancellationOptions, checkCancelled } from "./cancellation.js";
 import { deleteUndefinedValues } from "./cleaners.js";
-import { RetryOptions } from "./types.js";
-import { MarkdownTrace } from "./trace.js";
+import type { RetryOptions } from "./types.js";
+import type { MarkdownTrace } from "./trace.js";
 const dbg = genaiscriptDebug("openai:responses");
 
 function statusToReason(
