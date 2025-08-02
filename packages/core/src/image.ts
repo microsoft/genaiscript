@@ -23,7 +23,7 @@ import { ellipse, logVerbose } from "./util.js";
 import pLimit from "p-limit";
 import type { CancellationOptions} from "./cancellation.js";
 import { checkCancelled } from "./cancellation.js";
-import { wrapColor, wrapRgbColor } from "./consolecolor.js";
+import { wrapColor, wrapRgbColor, consoleColors } from "./consolecolor.js";
 import { assert } from "console";
 import { genaiscriptDebug } from "./debug.js";
 import type { ImageGenerationUsage } from "./chat.js";
@@ -37,6 +37,29 @@ import type {
 } from "./types.js";
 
 const dbg = genaiscriptDebug("image");
+
+/**
+ * Maps a pixel color to a Unicode character based on its intensity.
+ * Used for terminal image rendering when colors are not supported.
+ * @param color - The pixel color value (RGB packed as integer)
+ * @returns A Unicode character representing the intensity
+ */
+function pixelColorToUnicodeChar(color: number): string {
+  if (!color) return " "; // Transparent or black
+  
+  // Calculate luminance using standard formula
+  const r = (color >> 16) & 0xff;
+  const g = (color >> 8) & 0xff;
+  const b = color & 0xff;
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  
+  // Map luminance (0-255) to Unicode characters
+  if (luminance < 32) return " ";      // Very dark
+  if (luminance < 64) return "░";      // Light shade
+  if (luminance < 128) return "▒";     // Medium shade  
+  if (luminance < 192) return "▓";     // Dark shade
+  return "█";                          // Solid block
+}
 
 async function prepare(
   url: BufferLike,
@@ -347,7 +370,7 @@ export async function renderImageToTerminal(
       CONSOLE_COLOR_DEBUG,
       `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT}` +
         title +
-        BOX_RIGHT.repeat(width * 2 - title.length - 1) +
+        BOX_RIGHT.repeat(Math.max(0, width * 2 - title.length - 1)) +
         `${BOX_LEFT_AND_DOWN}\n`,
     ),
   ];
@@ -356,8 +379,15 @@ export async function renderImageToTerminal(
     res.push(wall);
     for (let x = 0; x < width; ++x) {
       const c = image.getPixelColor(x, y);
-      const cc = c ? wrapRgbColor(c >> 8, " ", true) : " ";
-      res.push(cc, cc);
+      if (consoleColors) {
+        // Use colored background when colors are supported
+        const cc = c ? wrapRgbColor(c >> 8, " ", true) : " ";
+        res.push(cc, cc);
+      } else {
+        // Use Unicode characters when colors are not supported
+        const char = pixelColorToUnicodeChar(c >> 8);
+        res.push(char, char);
+      }
     }
     res.push(wall, "\n");
   }
@@ -375,7 +405,7 @@ export async function renderImageToTerminal(
       CONSOLE_COLOR_DEBUG,
       BOX_UP_AND_RIGHT +
         usageStr +
-        BOX_RIGHT.repeat(width * 2 - usageStr.length) +
+        BOX_RIGHT.repeat(Math.max(0, width * 2 - usageStr.length)) +
         `${BOX_LEFT_AND_UP}\n`,
     ),
   );
