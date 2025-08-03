@@ -92,5 +92,56 @@ export default {
       additionalProperties: true,
       description: "Secret scanners to use for scanning chat messages",
     },
+    mcpServers: {
+      type: "object",
+      patternProperties: {
+        "^[a-zA-Z0-9_\\-]+$": {
+          type: "object",
+          properties: {
+            type: {
+              type: "string",
+              enum: ["stdio", "http", "sse"],
+              description: "Transport type for the MCP server",
+            },
+            command: {
+              type: "string",
+              description: "Command to execute for stdio transport",
+            },
+            args: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              description: "Arguments to pass to the command",
+            },
+            url: {
+              type: "string",
+              description: "URL for HTTP/SSE transport",
+            },
+            env: {
+              type: "object",
+              patternProperties: {
+                "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                  type: "string",
+                },
+              },
+              additionalProperties: false,
+              description: "Environment variables for the server process",
+            },
+            cwd: {
+              type: "string",
+              description: "Working directory for the server process",
+            },
+            version: {
+              type: "string",
+              description: "Version of the MCP server",
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+      additionalProperties: false,
+      description: "MCP server configurations",
+    },
   },
 };

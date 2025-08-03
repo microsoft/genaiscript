@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "test-genaiscript": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["test-server.js"],
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    "test-api": {
+      "type": "http",
+      "url": "http://localhost:9000/test-mcp"
+    }
+  }
+}

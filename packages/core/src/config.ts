@@ -66,7 +66,7 @@ export function convertGitHubCopilotMcpConfig(copilotConfig: GitHubCopilotMcpCon
 /**
  * Reads GitHub Copilot MCP configuration from .vscode/mcp.json files
  */
-async function readGitHubCopilotMcpConfig(dirs: string[]): Promise<McpServersConfig> {
+export async function readGitHubCopilotMcpConfig(dirs: string[]): Promise<McpServersConfig> {
   const mcpServers: McpServersConfig = {};
   
   for (const dir of dirs) {

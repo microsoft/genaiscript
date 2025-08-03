@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "genai-server": {
+      "command": "python",
+      "args": ["-m", "genai_mcp"]
+    }
+  }
+}
