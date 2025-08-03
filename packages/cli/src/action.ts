@@ -397,6 +397,17 @@ Save this file in your \`.github/workflows/\` directory as \`${script.id}.yml\`:
 name: ${titleize(repo)}
 on:
     ${event}:
+    workflow_dispatch:
+        inputs:
+${Object.entries(inputs || {})
+  .filter(([key, value]) => key !== "github_token" && !key.includes("_api_") && !key.includes("_endpoint") && !key.includes("_version") && !key.includes("_credentials")) // exclude sensitive/complex config inputs
+  .map(([key, value]) => {
+    const inputType = key === "debug" ? "boolean" : "string";
+    const requiredLine = `\n                required: ${value.required}`;
+    const defaultLine = value.default ? `\n                default: "${value.default}"` : (key === "debug" ? `\n                default: false` : "");
+    return `            ${key}:\n                description: "${(value.description || "").replace(/"/g, '\\"')}"\n                type: ${inputType}${requiredLine}${defaultLine}`;
+  })
+  .join("\n")}
 permissions:
     contents: read
     ${!issue ? "# " : ""}issues: write
@@ -419,10 +430,21 @@ jobs:
       - uses: ${owner}/${repo}@v0 # update to the major version you want to use
         with:
 ${Object.entries(inputs || {})
-  .filter(([key, value]) => value.required || key === "github_token")
+  .filter(([key, value]) => 
+    value.required || 
+    key === "github_token" ||
+    (key !== "github_token" && !key.includes("_api_") && !key.includes("_endpoint") && !key.includes("_version") && !key.includes("_credentials"))
+  )
   .map(
-    ([key]) =>
-      `          ${key}: \${{ ${key === "github_token" ? "secrets.GITHUB_TOKEN" : "..."} }}`,
+    ([key]) => {
+      if (key === "github_token") {
+        return `          ${key}: \${{ secrets.GITHUB_TOKEN }}`;
+      } else if (key.includes("_api_") || key.includes("_endpoint") || key.includes("_version") || key.includes("_credentials")) {
+        return `          # ${key}: \${{ secrets.${key.toUpperCase()} }}`;
+      } else {
+        return `          ${key}: \${{ github.event_name == 'workflow_dispatch' && inputs.${key} || '' }}`;
+      }
+    }
   )
   .join("\n")}
 \`\`\`
@@ -646,7 +668,7 @@ jobs:
               "--github-workspace",
               "--no-run-trace",
               "--no-output-trace",
-              "--out-output",
+              "--out-trace",
               "$GITHUB_STEP_SUMMARY",
             ].join(" "),
             release: "sh release.sh",
