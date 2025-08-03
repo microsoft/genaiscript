@@ -15,13 +15,11 @@ import { genaiscriptDebug, resolveChatGenerationContext } from "@genaiscript/cor
 const debug = genaiscriptDebug("runtime:context");
 
 /**
- * Result of context window detection
+ * Result of context window detection (internal interface)
  */
-export interface ContextWindowResult {
+interface ContextWindowResult {
   /** The detected context window size in tokens */
   promptTokens: number;
-  /** Whether this result was retrieved from cache */
-  cached?: boolean;
   /** Error message if detection failed */
   error?: string;
 }
@@ -43,12 +41,12 @@ export interface ContextWindowDetectionOptions extends ChatGenerationContextOpti
  *
  * @param modelId - The model identifier (e.g., "github:gpt-4o", "openai:gpt-4")
  * @param options - Configuration options
- * @returns Promise resolving to context window detection result
+ * @returns Promise resolving to the context window size in tokens, or -1 if detection fails
  */
 export async function detectContextWindow(
   modelId: string,
   options?: ContextWindowDetectionOptions,
-): Promise<ContextWindowResult> {
+): Promise<number> {
   const {
     maxContextWindow = 256000,
     testPayloadSize = 1 << 22, // 4M
@@ -67,12 +65,9 @@ export async function detectContextWindow(
 
     // Check cache first
     const cachedResult = await cache.get(modelId);
-    if (cachedResult) {
+    if (cachedResult !== undefined) {
       debug(`context window for ${modelId} found in cache: ${cachedResult}`);
-      return {
-        promptTokens: cachedResult,
-        cached: true,
-      };
+      return cachedResult;
     }
 
     // Try massive payload strategy first
@@ -82,7 +77,11 @@ export async function detectContextWindow(
       // Cache the successful result
       await cache.set(modelId, result.promptTokens);
       debug(`cached context window for ${modelId}: ${result.promptTokens}`);
-      return result;
+      return result.promptTokens;
+    }
+
+    if (result?.error) {
+      debug(`massive payload strategy failed: ${result.error}`);
     }
 
     // Fallback to binary search if enabled and massive payload failed
@@ -92,20 +91,31 @@ export async function detectContextWindow(
       // Cache the successful result
       await cache.set(modelId, result.promptTokens);
       debug(`cached context window for ${modelId}: ${result.promptTokens}`);
-      return result;
+      return result.promptTokens;
+    }
+
+    if (result?.error) {
+      debug(`binary search strategy failed: ${result.error}`);
     }
 
     // Both strategies failed
-    return {
-      promptTokens: 0,
-      error: "Failed to detect context window with available strategies",
-    };
+    debug(`failed to detect context window for ${modelId}: both strategies failed`);
+    
+    // Cache the failure result
+    await cache.set(modelId, -1);
+    return -1;
   } catch (error) {
     debug(`error detecting context window for ${modelId}: ${error}`);
-    return {
-      promptTokens: 0,
-      error: error instanceof Error ? error.message : String(error),
-    };
+    
+    // Cache the failure result
+    try {
+      const cache: WorkspaceFileCache<string, number> = await workspace.cache(cacheName);
+      await cache.set(modelId, -1);
+    } catch (cacheError) {
+      debug(`failed to cache error result: ${cacheError}`);
+    }
+    
+    return -1;
   }
 }
 
@@ -117,7 +127,7 @@ async function tryMassivePayloadStrategy(
   modelId: string,
   testPayloadSize: number,
   maxTokens: number,
-): Promise<ContextWindowResult> {
+): Promise<ContextWindowResult | undefined> {
   debug(`trying massive payload strategy (${testPayloadSize} chars) for ${modelId}`);
 
   try {
