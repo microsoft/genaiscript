@@ -16,7 +16,7 @@
     "configure": "genaiscript configure action action-poem",
     "test": "echo 'No tests defined.'",
     "dev": "genaiscript run action-poem",
-    "start": "genaiscript run action-poem --github-workspace --no-run-trace --no-output-trace --out-output $GITHUB_STEP_SUMMARY",
+    "start": "genaiscript run action-poem --github-workspace --no-run-trace --no-output-trace --out-trace $GITHUB_STEP_SUMMARY",
     "release": "sh release.sh"
   }
 }

@@ -49,6 +49,25 @@ Save this file in your `.github/workflows/` directory as `action-poem.yml`:
 name: Genaiscript
 on:
     push:
+    workflow_dispatch:
+        inputs:
+            files:
+                description: "Files to process, separated by semi columns (;). "
+                type: string
+                required: false
+            debug:
+                description: "Enable [debug logging](https://microsoft.github.io/genaiscript/reference/scripts/logging/)."
+                type: boolean
+                required: false
+                default: false
+            model_alias:
+                description: "A YAML-like list of model aliases and model id: `translation: github:openai/gpt-4o`"
+                type: string
+                required: false
+            azure_openai_subscription_id:
+                description: "Azure OpenAI subscription ID to list available deployments (Microsoft Entra only)."
+                type: string
+                required: false
 permissions:
     contents: read
     # issues: write
@@ -70,6 +89,10 @@ jobs:
             genaiscript-
       - uses: microsoft/genaiscript@v0 # update to the major version you want to use
         with:
+          files: ${{ github.event_name == 'workflow_dispatch' && inputs.files || '' }}
+          debug: ${{ github.event_name == 'workflow_dispatch' && inputs.debug || '' }}
+          model_alias: ${{ github.event_name == 'workflow_dispatch' && inputs.model_alias || '' }}
+          azure_openai_subscription_id: ${{ github.event_name == 'workflow_dispatch' && inputs.azure_openai_subscription_id || '' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 

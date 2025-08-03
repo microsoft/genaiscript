@@ -2,4 +2,4 @@
 FROM node:lts-alpine
 
 # Install packages
-RUN apk add --no-cache git github-cli python3 py3-pip ffmpeg
+RUN apk add --no-cache git github-cli
