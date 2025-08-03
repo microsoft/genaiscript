@@ -4558,6 +4558,25 @@ export interface McpAgentServerConfig extends McpServerConfig {
 
 export type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
 
+/**
+ * GitHub Copilot MCP configuration format from .vscode/mcp.json
+ */
+export interface GitHubCopilotMcpServerConfig {
+  type?: "stdio" | "http" | "sse";
+  command?: string;
+  args?: string[];
+  url?: string;
+  env?: Record<string, string>;
+  envFile?: string;
+  cwd?: string;
+  version?: string;
+  description?: string;
+}
+
+export interface GitHubCopilotMcpConfig {
+  servers: Record<string, GitHubCopilotMcpServerConfig>;
+}
+
 export type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 
 export type BufferLike =

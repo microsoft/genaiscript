@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import type { ModelConfiguration } from "./host.js";
+import type { McpServersConfig } from "./types.js";
 
 /**
  * Schema for a global configuration file
@@ -42,4 +43,9 @@ export interface HostConfiguration {
    * A map of secret name and their respective regex pattern
    */
   secretPatterns?: Record<string, string>;
+
+  /**
+   * MCP server configuration. The tools will be injected into the prompt.
+   */
+  mcpServers?: McpServersConfig;
 }
