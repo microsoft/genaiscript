@@ -19,7 +19,7 @@ const debug = genaiscriptDebug("runtime:context");
  */
 export interface ContextWindowResult {
   /** The detected context window size in tokens */
-  contextWindow: number;
+  promptTokens: number;
   /** Whether this result was retrieved from cache */
   cached?: boolean;
   /** Error message if detection failed */
@@ -70,7 +70,7 @@ export async function detectContextWindow(
     if (cachedResult) {
       debug(`context window for ${modelId} found in cache: ${cachedResult}`);
       return {
-        contextWindow: cachedResult,
+        promptTokens: cachedResult,
         cached: true,
       };
     }
@@ -78,32 +78,32 @@ export async function detectContextWindow(
     // Try massive payload strategy first
     let result = await tryMassivePayloadStrategy(ctx, modelId, testPayloadSize, maxContextWindow);
 
-    if (result?.contextWindow > 0) {
+    if (result?.promptTokens > 0) {
       // Cache the successful result
-      await cache.set(modelId, result.contextWindow);
-      debug(`cached context window for ${modelId}: ${result.contextWindow}`);
+      await cache.set(modelId, result.promptTokens);
+      debug(`cached context window for ${modelId}: ${result.promptTokens}`);
       return result;
     }
 
     // Fallback to binary search if enabled and massive payload failed
     result = await tryBinarySearchStrategy(ctx, modelId, maxContextWindow);
 
-    if (result.contextWindow > 0) {
+    if (result.promptTokens > 0) {
       // Cache the successful result
-      await cache.set(modelId, result.contextWindow);
-      debug(`cached context window for ${modelId}: ${result.contextWindow}`);
+      await cache.set(modelId, result.promptTokens);
+      debug(`cached context window for ${modelId}: ${result.promptTokens}`);
       return result;
     }
 
     // Both strategies failed
     return {
-      contextWindow: 0,
+      promptTokens: 0,
       error: "Failed to detect context window with available strategies",
     };
   } catch (error) {
     debug(`error detecting context window for ${modelId}: ${error}`);
     return {
-      contextWindow: 0,
+      promptTokens: 0,
       error: error instanceof Error ? error.message : String(error),
     };
   }
@@ -163,20 +163,20 @@ async function tryMassivePayloadStrategy(
         if (contextWindow > 0) {
           debug(`detected context window from error: ${contextWindow}`);
           return {
-            contextWindow,
+            promptTokens: contextWindow,
           };
         }
       }
     }
 
     return {
-      contextWindow: 0,
+      promptTokens: 0,
       error: `Could not parse context window from error: ${errorMessage}`,
     };
   } catch (error) {
     debug(`massive payload strategy failed: ${error}`);
     return {
-      contextWindow: 0,
+      promptTokens: 0,
       error: error instanceof Error ? error.message : String(error),
     };
   }
@@ -232,18 +232,18 @@ async function tryBinarySearchStrategy(
     if (lastSuccessful > 0) {
       debug(`binary search found context window: ${lastSuccessful}`);
       return {
-        contextWindow: lastSuccessful,
+        promptTokens: lastSuccessful,
       };
     }
 
     return {
-      contextWindow: 0,
+      promptTokens: 0,
       error: "Binary search failed to find working context window",
     };
   } catch (error) {
     debug(`binary search strategy failed: ${error}`);
     return {
-      contextWindow: 0,
+      promptTokens: 0,
       error: error instanceof Error ? error.message : String(error),
     };
   }

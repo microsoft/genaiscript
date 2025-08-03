@@ -16,8 +16,7 @@ import { detectContextWindow } from "@genaiscript/runtime"
 
 // Basic usage
 const result = await detectContextWindow("github:gpt-4o")
-console.log(`Context window: ${result.contextWindow} tokens`)
-console.log(`Detection method: ${result.method}`)
+console.log(`Context window: ${result.promptTokens} tokens`)
 ```
 
 :::note
@@ -38,7 +37,6 @@ The function accepts a second parameter with configuration options that extend t
 const result = await detectContextWindow("openai:gpt-4", {
   maxContextWindow: 128000,     // Maximum context window to test
   testPayloadSize: 64000,       // Size of test payload (characters)
-  useBinarySearch: true,        // Enable binary search fallback
   cacheName: "custom-cache",    // Custom cache name
   // Standard model options also supported
   temperature: 0.1,
@@ -49,8 +47,7 @@ const result = await detectContextWindow("openai:gpt-4", {
 ### Configuration Options
 
 - **`maxContextWindow`** (default: 256000): Maximum context window size to test during detection
-- **`testPayloadSize`** (default: 64000): Size of the test payload in characters for the massive payload strategy
-- **`useBinarySearch`** (default: true): Whether to use binary search as a fallback if the massive payload strategy fails
+- **`testPayloadSize`** (default: 4194304): Size of the test payload in characters for the massive payload strategy
 - **`cacheName`** (default: "context-windows"): Name of the cache to store detection results
 
 ## Return Value
@@ -59,19 +56,11 @@ The function returns a `ContextWindowResult` object with the following propertie
 
 ```typescript
 interface ContextWindowResult {
-  contextWindow: number;        // Detected context window size in tokens
-  cached?: boolean;            // Whether result was retrieved from cache
-  method: "cache" | "massive_payload" | "binary_search" | "error";
-  error?: string;              // Error message if detection failed
+  promptTokens: number;            // Detected context window size in tokens
+  cached?: boolean;               // Whether result was retrieved from cache
+  error?: string;                 // Error message if detection failed
 }
 ```
-
-### Detection Methods
-
-- **`cache`**: Result was retrieved from previous detection stored in cache
-- **`massive_payload`**: Detected by sending a large payload and parsing error messages
-- **`binary_search`**: Found using binary search to determine the exact limit
-- **`error`**: Detection failed with the provided error message
 
 ## Detection Strategies
 
@@ -84,11 +73,9 @@ Results are automatically cached to avoid repeated detection overhead:
 ```js
 // First call performs detection
 const result1 = await detectContextWindow("github:gpt-4o")
-console.log(result1.method) // "massive_payload" or "binary_search"
 
 // Subsequent calls use cached result
 const result2 = await detectContextWindow("github:gpt-4o") 
-console.log(result2.method) // "cache"
 console.log(result2.cached) // true
 ```
 
@@ -114,7 +101,7 @@ const result = await detectContextWindow("invalid:model")
 
 if (result.error) {
   console.log("Detection failed:", result.error)
-  console.log("Context window:", result.contextWindow) // 0
+  console.log("Prompt tokens:", result.promptTokens) // 0
   
   // Use fallback values or handle gracefully
   const fallbackContextWindow = 4096
@@ -141,9 +128,9 @@ const result = await detectContextWindow("azure:gpt-4", {
 ```js
 const result = await detectContextWindow("github:gpt-4o")
 
-if (result.contextWindow > 0) {
+if (result.promptTokens > 0) {
   // Adjust content based on detected limits
-  const maxContentSize = Math.floor(result.contextWindow * 0.8) // Leave 20% buffer
+  const maxContentSize = Math.floor(result.promptTokens * 0.8) // Leave 20% buffer
   
   if (content.length > maxContentSize) {
     content = content.substring(0, maxContentSize)
@@ -155,13 +142,13 @@ if (result.contextWindow > 0) {
 
 ```js
 async function processLargeDocument(text, modelId) {
-  const { contextWindow } = await detectContextWindow(modelId)
+  const { promptTokens } = await detectContextWindow(modelId)
   
-  if (contextWindow === 0) {
+  if (promptTokens === 0) {
     throw new Error("Could not detect context window for model")
   }
   
-  const chunkSize = Math.floor(contextWindow * 0.7) // Conservative chunk size
+  const chunkSize = Math.floor(promptTokens * 0.7) // Conservative chunk size
   const chunks = []
   
   for (let i = 0; i < text.length; i += chunkSize) {
@@ -181,7 +168,7 @@ async function selectBestModel(content, models) {
   for (const modelId of models) {
     const result = await detectContextWindow(modelId)
     
-    if (result.contextWindow >= requiredTokens) {
+    if (result.promptTokens >= requiredTokens) {
       return modelId // First model that can handle the content
     }
   }
