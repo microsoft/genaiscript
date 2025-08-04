@@ -22,27 +22,25 @@ llmstxt:
     retries: 3 })`.
 
 
-    The `host.fetchText` helper simplifies fetching and parsing text. Example: 
-
-    `const { text, file } = await host.fetchText("https://...")`. Use `text`
-    directly or reference `file` in the workspace. For local files: `const {
-    file } = await host.fetchText("README.md")`.
-
-
-    `fetchText` can convert HTML to compact formats:
-
-    - Markdown: `await host.fetch("https://...", { convert: "markdown" })`
-
-    - Plain text: `await host.fetch("https://...", { convert: "text" })`
+    `host.fetchText` simplifies fetching and downloading text. Example: `const {
+    text, file } = await host.fetchText("https://...")`. For relative paths, it
+    resolves files in the current workspace. Example: `const { file } = await
+    host.fetchText("README.md")`.
 
 
-    The `host.resolveResource` function resolves URLs to downloadable resources.
-    Example: `const result = await host.resolveResource("https://github.com/user/repo/blob/main/file.txt")`.
-    Returns an object with `uri` and `files` containing resolved content.
+    `fetchText` can convert HTML to markdown or plain text for context-efficient
+    use. Example: `await host.fetch("https://...", { convert: "markdown" })`.
 
 
-    For APIs requiring keys, store them securely using the `secrets` object.
-  hash: f3a5f552bc57beda0a132687a5130a24709d8d15d6a4f40bc962b717210d1351
+    `host.resolveResource` resolves and downloads resources from URLs, handling
+    various protocols and GitHub blob-to-raw transformations. It returns a
+    resolved URL and an array of files with content. Example: 
+
+    `const result = await host.resolveResource("https://github.com/...")`.
+
+
+    For APIs requiring keys, use the `secrets` object to store credentials.
+  hash: 817b969dd5c11137341de717ef94c59fe25955dc2b6fcb16553094751a632adc
 
 ---
 

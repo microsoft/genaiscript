@@ -18,13 +18,12 @@ hero:
     file: ./metadata.png
 llmstxt:
   content: >-
-    Prompts can use the `script({ ... })` function to configure UI elements like
-    `title`, `description`, and `group`. This is optional but must use valid
-    JSON5 syntax. Key parameters include:
+    Prompts can use `script({ ... })` to configure UI elements like `title`,
+    `description`, and `group`. This is optional but must use valid JSON5.
 
 
-    `title`, `description`, `group`: Define the prompt's name, purpose, and
-    category for UI display. Example:
+    `title`, `description`, and `group` define how the prompt appears in the UI.
+    Example:
 
     ```javascript
 
@@ -37,8 +36,7 @@ llmstxt:
     ```
 
 
-    `system`: Overrides default system prompts inferred from script content.
-    Example:
+    `system` overrides default system prompts:
 
     ```javascript
 
@@ -49,8 +47,7 @@ llmstxt:
     ```
 
 
-    `model`: Specifies the LLM model, with aliases like `large` or `small` for
-    defaults. Example:
+    `model` specifies the LLM identifier. Use `large` or `small` for defaults:
 
     ```javascript
 
@@ -61,7 +58,7 @@ llmstxt:
     ```
 
 
-    `maxTokens`: Sets the maximum token limit for completions. Example:
+    `maxTokens` sets the maximum completion tokens:
 
     ```javascript
 
@@ -72,8 +69,7 @@ llmstxt:
     ```
 
 
-    `maxToolCalls`: Limits the number of tool calls during generation to prevent
-    infinite loops. Example:
+    `maxToolCalls` limits function/tool calls to prevent infinite loops:
 
     ```javascript
 
@@ -84,8 +80,7 @@ llmstxt:
     ```
 
 
-    `temperature`: Controls randomness in outputs, ranging from 0 to 2. Default
-    is 0.8. Example:
+    `temperature` adjusts randomness (0-2, default 0.8):
 
     ```javascript
 
@@ -96,7 +91,7 @@ llmstxt:
     ```
 
 
-    `top_p`: Adjusts nucleus sampling probability. Example:
+    `top_p` sets nucleus sampling probability:
 
     ```javascript
 
@@ -107,7 +102,7 @@ llmstxt:
     ```
 
 
-    `seed`: Sets a fixed seed for reproducibility in supported models. Example:
+    `seed` sets a fixed seed for reproducibility:
 
     ```javascript
 
@@ -118,8 +113,7 @@ llmstxt:
     ```
 
 
-    `metadata`: Adds metadata for stored completions, useful for evaluation.
-    Example:
+    `metadata` adds key-value pairs for stored completions:
 
     ```javascript
 
@@ -130,16 +124,61 @@ llmstxt:
     ```
 
 
-    Other options include `unlisted: true` to hide prompts in lists. The
-    `env.meta` object provides script metadata, and `host.resolveModel` resolves
-    model aliases to provider details. Example:
+    Retry options improve reliability for failed requests:
+
+    ```javascript
+
+    script({
+        retries: 3,
+        retryDelay: 1000,
+        maxDelay: 5000,
+        maxRetryAfter: 10000,
+        retryOn: [429, 500, 502, 503, 504],
+    })
+
+    ```
+
+    Retries handle rate limits (429), server errors (5xx), and network failures.
+    Overrides are possible in `runPrompt()`:
+
+    ```javascript
+
+    const { text } = await runPrompt(
+        (_) => _.$`Summarize this text.`,
+        { model: "small", retries: 2, retryDelay: 500, maxDelay: 3000 }
+    )
+
+    ```
+
+
+    `unlisted: true` hides prompts from user lists. Use `env.meta` to access
+    script metadata:
+
+    ```javascript
+
+    const { model } = env.meta
+
+    ```
+
+
+    `host.resolveModel` resolves model aliases:
 
     ```javascript
 
     const info = await host.resolveModel("large")
 
+    console.log(info)
+
     ```
-  hash: 251598773bd35ca5b65a8a4c23dde404277604de8694a77c3bf3454728d33daf
+
+    Returns provider and model details:
+
+    ```json
+
+    { "provider": "openai", "model": "gpt-4o" }
+
+    ```
+  hash: 6aadfa1351fc51ed8fa13ff65a71a8f74a19a91b881209fec945065977ba629a
 
 ---
 

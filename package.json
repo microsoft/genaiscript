@@ -55,6 +55,7 @@
     "genai:technical": "cd docs && pnpm genai:technical",
     "genai:test": "node packages/cli/dist/src/index.js run test-gen",
     "genai:tweetify": "node packages/cli/dist/src/index.js run tweetify",
+    "genai:llmstxt": "node packages/cli/dist/src/index.js run llmstxt-optimizer \"docs/src/content/docs/**/*.md*\" --excluded-files \"docs/src/content/docs/fr/**\"",
     "install:playwright": "pnpm playwright install --with-deps chromium",
     "lint:check": "turbo lint:check",
     "lint:fix": "turbo lint:fix",
