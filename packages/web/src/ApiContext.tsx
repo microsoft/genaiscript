@@ -9,6 +9,7 @@ import { fetchEnv, fetchScripts, fetchModels } from "./api";
 import { useUrlSearchParams } from "./useUrlSearchParam";
 import { useScriptId } from "./ScriptContext";
 import type { ImportedFile } from "./types";
+import type { ModelConnectionOptions, ModelOptions, PromptParameters } from "../../core/src/types";
 
 export const ApiContext = createContext<{
   project: Promise<Project | undefined>;

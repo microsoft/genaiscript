@@ -3,6 +3,12 @@
 
 import { useState, useEffect } from "react";
 import { urlParams } from "./configuration";
+import type {
+  JSONSchemaString,
+  JSONSchemaNumber,
+  JSONSchemaBoolean,
+  JSONSchemaArray,
+} from "../../core/src/types";
 
 export function useUrlSearchParams<T>(
   initialValues: T,

@@ -3,9 +3,9 @@
 
 import { delay, uniq, uniqBy, chunk } from "es-toolkit";
 import { z } from "zod";
-import { dedent } from "@genaiscript/core";
+import { dedent, generateId } from "@genaiscript/core";
 
 /**
  * Utility functions exported for general use
  */
-export { delay, uniq, uniqBy, z, chunk, dedent };
+export { delay, uniq, uniqBy, z, chunk, dedent, generateId };

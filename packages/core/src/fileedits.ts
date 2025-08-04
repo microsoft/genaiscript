@@ -104,7 +104,7 @@ export async function computeFileEdits(
                   val,
                 )) ?? val;
           } catch (e) {
-            logVerbose(e);
+            logVerbose(errorMessage(e));
             trace?.error(`error custom merging diff in ${fn}`, e);
           }
         } else fileEdit.after = val;
@@ -113,12 +113,12 @@ export async function computeFileEdits(
         try {
           fileEdit.after = applyLLMPatch(fileEdit.after || fileEdit.before, chunks);
         } catch (e) {
-          logVerbose(e);
+          logVerbose(errorMessage(e));
           trace?.error(`error applying patch to ${fn}`, e);
           try {
             fileEdit.after = applyLLMDiff(fileEdit.after || fileEdit.before, chunks);
           } catch (e) {
-            logVerbose(e);
+            logVerbose(errorMessage(e));
             trace?.error(`error merging diff in ${fn}`, e);
           }
         }

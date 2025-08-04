@@ -1,7 +1,7 @@
 {
   "name": "@genaiscript/plugin-playwright",
   "private": false,
-  "version": "2.3.12",
+  "version": "2.3.13",
   "main": "./dist/commonjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/commonjs/index.d.ts",
@@ -16,7 +16,7 @@
   "dependencies": {
     "@genaiscript/core": "workspace:*",
     "@genaiscript/runtime": "workspace:*",
-    "playwright": "^1.54.1"
+    "playwright": "^1.54.2"
   },
   "devDependencies": {
     "@genaiscript/eslint-plugin-genaiscript": "workspace:*",

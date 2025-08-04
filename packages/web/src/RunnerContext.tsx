@@ -4,7 +4,6 @@
 import React from "react";
 import { createContext, startTransition, use, useCallback, useEffect, useState } from "react";
 import type { GenerationResult, PromptScriptRunOptions } from "../../core/src/server/messages";
-import { toBase64 } from "../../core/src/base64";
 import { isBinaryMimeType } from "../../core/src/binary";
 import { fetchRun } from "./api";
 import { RunClient } from "./RunClient";
@@ -14,6 +13,8 @@ import { useLocationHashValue } from "./useLocationHashValue";
 import { useScriptId } from "./ScriptContext";
 import type { ImportedFile } from "./types";
 import { generateId } from "../../core/src/id";
+import type { PromptParameters, WorkspaceFile } from "../../core/src/types";
+import { fromByteArray } from "base64-js";
 
 export const RunnerContext = createContext<{
   runId: string | undefined;
@@ -92,7 +93,7 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
         .map(async (f) => {
           const binary = isBinaryMimeType(f.type);
           const buffer = binary ? new Uint8Array(await f.arrayBuffer()) : undefined;
-          const content = buffer ? toBase64(buffer) : await f.text();
+          const content = buffer ? fromByteArray(buffer) : await f.text();
           return {
             filename: f.path || f.relativePath,
             type: f.type,
