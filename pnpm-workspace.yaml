@@ -16,7 +16,6 @@ catalog:
   es-toolkit: ^1.39.8
   execa: ^9.6.0
   inflection: ^3.0.2
-  '@jsonjoy.com/base64': ^1.1.2
   prettier: ^3.6.2
   rimraf: ^6.0.1
   tshy: ^3.0.2

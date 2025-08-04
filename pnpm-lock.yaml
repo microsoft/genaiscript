@@ -12,9 +12,6 @@ catalogs:
     '@inquirer/prompts':
       specifier: ^7.8.0
       version: 7.8.0
-    '@jsonjoy.com/base64':
-      specifier: ^1.1.2
-      version: 1.1.2
     '@types/debug':
       specifier: ^4.1.12
       version: 4.1.12
@@ -326,9 +323,6 @@ importers:
       '@huggingface/jinja':
         specifier: ^0.5.1
         version: 0.5.1
-      '@jsonjoy.com/base64':
-        specifier: 'catalog:'
-        version: 1.1.2(tslib@2.8.1)
       '@modelcontextprotocol/sdk':
         specifier: ^1.17.0
         version: 1.17.0
@@ -1098,9 +1092,6 @@ importers:
       '@genaiscript/eslint-plugin-genaiscript':
         specifier: workspace:*
         version: link:../../tools/eslint-plugin-genaiscript
-      '@jsonjoy.com/base64':
-        specifier: 'catalog:'
-        version: 1.1.2(tslib@2.8.1)
       '@types/marked':
         specifier: ^6.0.0
         version: 6.0.0
@@ -1122,6 +1113,9 @@ importers:
       '@vscode/codicons':
         specifier: ^0.0.36
         version: 0.0.36
+      base64-js:
+        specifier: ^1.5.1
+        version: 1.5.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2697,12 +2691,6 @@ packages:
 
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
-
-  '@jsonjoy.com/base64@1.1.2':
-    resolution: {integrity: sha512-q6XAnWQDIMA3+FTiOYajoYqySkO+JSat0ytXGSuRdq9uXE7o92gzuQwQM14xaCRlBLGq3v5miDGC4vkVTn54xA==}
-    engines: {node: '>=10.0'}
-    peerDependencies:
-      tslib: '2'
 
   '@langchain/core@0.3.66':
     resolution: {integrity: sha512-d3SgSDOlgOjdIbReIXVQl9HaQzKqO/5+E+o3kJwoKXLGP9dxi7+lMyaII7yv7G8/aUxMWLwFES9zc1jFoeJEZw==}
@@ -11567,10 +11555,6 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.4
 
   '@js-sdsl/ordered-map@4.4.2': {}
-
-  '@jsonjoy.com/base64@1.1.2(tslib@2.8.1)':
-    dependencies:
-      tslib: 2.8.1
 
   '@langchain/core@0.3.66(openai@5.10.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.76))':
     dependencies:

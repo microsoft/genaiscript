@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { toBase64 as _toBase64, fromBase64 as _fromBase64 } from "@jsonjoy.com/base64";
 
 /**
  * Decodes a base64 string into a Uint8Array.
@@ -12,7 +11,7 @@ export function fromBase64(base64: string): Uint8Array {
   if (typeof base64 !== "string" || !/^[A-Za-z0-9+/=\s]+$/.test(base64)) {
     throw new Error("Input is not a valid base64 string");
   }
-  return _fromBase64(base64);
+  return Buffer.from(base64, "base64");
 }
 
 /**
@@ -27,5 +26,5 @@ export function toBase64(input: string | Uint8Array): string {
   } else {
     bytes = input;
   }
-  return _toBase64(bytes);
+  return Buffer.from(bytes).toString("base64");
 }
