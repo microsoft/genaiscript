@@ -84,7 +84,7 @@
     "run:script": "cd samples/sample/ && pnpm run:script",
     "run:script:devproxy": "cd samples/sample/ && HTTPS_PROXY=http://127.0.0.1:8000 NODE_TLS_REJECT_UNAUTHORIZED=0 DEBUG=http,https,net,script,genaiscript:fetch*,proxy-agent pnpm run:script",
     "serve": "pnpm build:cli && run-p serve:*",
-    "serve:cli": "node --watch --watch-path=packages/cli/dist packages/cli/dist/src/index.js serve --dispatch-progress -provider github",
+    "serve:cli": "node --watch --watch-path=packages/cli/dist packages/cli/dist/src/index.js serve --dispatch-progress --provider github",
     "serve:web": "pnpm --filter=@genaiscript/web watch",
     "serve:webapi": "node --watch --watch-path=packages/cli/dist packages/cli/dist/src/index.js webapi --network --cors \"*\"",
     "setup": "git submodule update --init --recursive",

@@ -12,7 +12,7 @@
     "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
     "watch": "node --watch --watch-path=./src --watch-path=../core/src build.mjs --dispatch-progress",
     "serve": "serve -n .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit --explainFiles"
   },
   "devDependencies": {
     "@daiji256/rehype-mathml": "^1.2.1",
