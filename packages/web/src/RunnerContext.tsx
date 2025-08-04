@@ -14,6 +14,7 @@ import { useLocationHashValue } from "./useLocationHashValue";
 import { useScriptId } from "./ScriptContext";
 import type { ImportedFile } from "./types";
 import { generateId } from "../../core/src/id";
+import type { PromptParameters, WorkspaceFile } from "../../core/src/types";
 
 export const RunnerContext = createContext<{
   runId: string | undefined;

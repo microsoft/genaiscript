@@ -152,10 +152,10 @@ export interface PromptScriptRunOptions {
   ignoreGitIgnore: boolean;
   runRetry: string;
   out: string;
-  retry: string;
-  retryDelay: string;
-  maxDelay: string;
-  maxRetryAfter: string;
+  retry: string | number;
+  retryDelay: string | number;
+  maxDelay: string | number;
+  maxRetryAfter: string | number;
   json: boolean;
   outTrace: string;
   outOutput: string;

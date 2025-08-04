@@ -25,7 +25,7 @@ export async function XMLTryParse(
     return (await XMLParse(text, options)) ?? defaultValue;
   } catch (e) {
     // Return the default value if parsing fails
-    dbg(`error: %s`, e?.message);
+    dbg(`error: %O`, e);
     return defaultValue;
   }
 }

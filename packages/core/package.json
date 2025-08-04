@@ -54,6 +54,7 @@
     "@azure/identity": "^4.10.2",
     "@azure/search-documents": "^12.1.0",
     "@huggingface/jinja": "^0.5.1",
+    "@jsonjoy.com/base64": "catalog:",
     "@modelcontextprotocol/sdk": "^1.17.0",
     "@napi-rs/canvas": "^0.1.74",
     "@octokit/core": "^7.0.3",

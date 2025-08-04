@@ -38,6 +38,7 @@ import { useResult, useTrace, useRunner, useOutput } from "./RunnerContext";
 import { useEventListener } from "./useEventListener";
 import dedent from "dedent";
 import { stringify as YAMLStringify } from "yaml";
+import type { Logprob } from "../../core/src/types";
 
 import "@vscode-elements/elements/dist/vscode-tabs";
 import "@vscode-elements/elements/dist/vscode-tab-header";
