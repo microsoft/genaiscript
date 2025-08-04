@@ -8,6 +8,6 @@ import { nanoid } from "nanoid";
  *
  * @returns A unique identifier string.
  */
-export function generateId(): string {
-  return nanoid();
+export function generateId(size?: number): string {
+  return nanoid(size);
 }
