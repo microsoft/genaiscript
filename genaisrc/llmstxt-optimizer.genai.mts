@@ -136,6 +136,30 @@ if (processedPages.length > 0) {
   const fn = "docs/public/genaiscript-docs.instructions.md";
   await workspace.writeText(fn, llmsFullTxtContent);
   console.log(`Generated ${fn} - ${await tokenizers.count(llmsFullTxtContent)}t`);
+
+  const compressed = await runPrompt(
+    (ctx) => {
+      const fileRef = ctx.def("CONTENT", llmsFullTxtContent);
+      ctx.$`
+You are an expert at compressing content for Large Language Model (LLM) consumption.
+Summarize the content in ${fileRef} to reduce its size while preserving enough information to properly and correctly generate GenAIScript scripts.
+THIS IS SO IMPORTANT, SPEND AS MUCH TOKENS AS NEEDED ON CODE SNIPPETS. Generate at least 16000 tokens.
+The output will be used by a LLM.
+`.role("system");
+    },
+    {
+      system: [],
+      systemSafety: false,
+      temperature: 0.1,
+      responseType: "text",
+      model: "large",
+      throwOnError: true,
+    },
+  );
+
+  const dfn = "docs/public/genaiscript-docs.instructions.md";
+  await workspace.writeText(dfn, compressed.text);
+  console.log(`Generated ${fn} - ${await tokenizers.count(llmsFullTxtContent)}t`);
 } else {
   console.log("No pages were processed - skipping llms.txt generation");
 }
