@@ -16,7 +16,7 @@
   "dependencies": {
     "@genaiscript/core": "workspace:*",
     "@genaiscript/runtime": "workspace:*",
-    "playwright": "^1.54.1"
+    "playwright": "^1.54.2"
   },
   "devDependencies": {
     "@genaiscript/eslint-plugin-genaiscript": "workspace:*",

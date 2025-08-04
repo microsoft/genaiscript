@@ -77,6 +77,8 @@ dev-proxy-ca.crt
 .clinerules.bak
 .codex/config.toml
 .codex/config.toml.bak
+.crush.json
+.crush.json.bak
 .cursor/mcp.json.bak
 .cursor/rules/ruler_cursor_instructions.mdc
 .cursor/rules/ruler_cursor_instructions.mdc.bak
@@ -104,10 +106,14 @@ dev-proxy-ca.crt
 .vscode/settings.json.bak
 .windsurf/rules/ruler_windsurf_instructions.md
 .windsurf/rules/ruler_windsurf_instructions.md.bak
+AGENT.md
+AGENT.md.bak
 AGENTS.md
 AGENTS.md.bak
 CLAUDE.md
 CLAUDE.md.bak
+CRUSH.md
+CRUSH.md.bak
 GEMINI.md
 GEMINI.md.bak
 opencode.json

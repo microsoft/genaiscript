@@ -78,7 +78,7 @@ export async function fetchText(
     try {
       bytes = await runtimeHost.readFile(url);
     } catch (e) {
-      logVerbose(e);
+      dbg(`failed to read file`);
       ok = false;
       status = 404;
     }

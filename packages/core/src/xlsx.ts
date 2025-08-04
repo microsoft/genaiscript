@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 // Import the logInfo function for logging purposes
-import { logInfo } from "./util.js";
 import type { ParseXLSXOptions, WorkbookSheet } from "./types.js";
+import { genaiscriptDebug } from "./debug.js";
+const dbg = genaiscriptDebug("xlsx")
 
 /**
  * Parses XLSX data into an array of workbook sheets.
@@ -49,7 +50,7 @@ export async function XLSXTryParse(
     return await XLSXParse(data, options);
   } catch (e) {
     // Log any errors encountered during parsing
-    logInfo(e);
+    dbg(`parser error %O`, e);
     // Return an empty array if parsing fails
     return [];
   }

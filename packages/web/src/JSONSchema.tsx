@@ -7,6 +7,8 @@ import type {
   JSONSchemaSimpleType,
   JSONSchemaString,
   JSONSchemaNumber,
+  JSONSchemaBoolean,
+  JSONSchemaObject,
 } from "../../core/src/types";
 
 import { underscore } from "inflection";
