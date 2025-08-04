@@ -48,15 +48,21 @@ Save this file in your `.github/workflows/` directory as `action-poem.yml`:
 ```yaml
 name: Genaiscript
 on:
-    push:
+  push:
+  workflow_dispatch:
+    inputs:
+      files:
+        description: "Files to process, separated by semi columns (;). "
+        type: string
+        required: false    
 permissions:
-    contents: read
-    # issues: write
-    # pull-requests: write
-    models: read
+  contents: read
+  # issues: write
+  # pull-requests: write
+  models: read
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   genaiscript:
     runs-on: ubuntu-latest

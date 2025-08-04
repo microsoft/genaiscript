@@ -32,7 +32,12 @@ import {
   resolveRuntimeHost,
 } from "@genaiscript/core";
 import { buildProject } from "@genaiscript/core";
-import type { JSONSchemaDescribed, JSONSchemaObject, JSONSchemaString } from "@genaiscript/core";
+import type {
+  JSONSchemaDescribed,
+  JSONSchemaObject,
+  JSONSchemaSimpleType,
+  JSONSchemaString,
+} from "@genaiscript/core";
 import { shellConfirm, shellSelect } from "@genaiscript/runtime";
 
 const dbg = genaiscriptDebug("cli:action");
@@ -213,6 +218,39 @@ export async function actionConfigure(
       MODEL_PROVIDER_AZURE_AI_INFERENCE,
     ].includes(id),
   ).filter(({ env }) => env);
+  const workflowDispatchInputs = deleteUndefinedValues({
+    files:
+      accept === "none"
+        ? undefined
+        : {
+            description: `Files to process, separated by semi columns (;). ${accept || ""}`,
+            type: "string",
+            required: false,
+          },
+    ...Object.fromEntries(
+      Object.entries(scriptSchema.properties).map(([key, value]) => {
+        const valueType = (value as JSONSchemaSimpleType)?.type;
+        const type =
+          (
+            {
+              ["boolean"]: "boolean",
+              ["integer"]: "integer",
+              ["number"]: "number",
+              ["string"]: "string",
+              ["array"]: "string",
+            } as Record<string, string>
+          )[valueType] || "string";
+        return [
+          snakeCase(key),
+          {
+            description: (value as JSONSchemaDescribed).description || "",
+            required: scriptSchema.required?.includes(key) || false,
+            type,
+          },
+        ];
+      }),
+    ),
+  });
   const inputs: Record<string, GitHubActionFieldType> = deleteUndefinedValues({
     ...Object.fromEntries(
       Object.entries(scriptSchema.properties).map(([key, value]) => {
@@ -396,15 +434,26 @@ Save this file in your \`.github/workflows/\` directory as \`${script.id}.yml\`:
 \`\`\`yaml
 name: ${titleize(repo)}
 on:
-    ${event}:
+  ${event}:
+  workflow_dispatch:
+    inputs:
+${Object.entries(workflowDispatchInputs)
+  .slice(0, 10) // max 10 entries https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onworkflow_dispatchinputs
+  .map(
+    ([key, value]) => `      ${key}:
+        description: "${(value.description || "").replace(/"/g, '\\"')}"
+        type: ${value.type}
+        required: ${!!value.required}`,
+  )
+  .join("\n")}    
 permissions:
-    contents: read
-    ${!issue ? "# " : ""}issues: write
-    ${event !== "pull_request" ? "# " : ""}pull-requests: write
-    models: read
+  contents: read
+  ${!issue ? "# " : ""}issues: write
+  ${event !== "pull_request" ? "# " : ""}pull-requests: write
+  models: read
 concurrency:
-    group: \${{ github.workflow }}-\${{ github.ref }}
-    cancel-in-progress: true
+  group: \${{ github.workflow }}-\${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   ${snakeCase(repo)}:
     runs-on: ubuntu-latest
@@ -418,7 +467,7 @@ jobs:
             genaiscript-
       - uses: ${owner}/${repo}@v0 # update to the major version you want to use
         with:
-${Object.entries(inputs || {})
+${Object.entries(inputs)
   .filter(([key, value]) => value.required || key === "github_token")
   .map(
     ([key]) =>
