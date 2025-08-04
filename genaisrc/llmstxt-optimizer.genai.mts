@@ -16,6 +16,14 @@ interface LlmsFrontmatter {
   };
 }
 
+// Collect all processed content for llms.txt generation
+const processedPages: Array<{
+  filename: string;
+  title: string;
+  description: string;
+  optimizedContent: string;
+}> = [];
+
 // Process each file individually using runPrompt
 for (const file of env.files) {
   console.log(`processing ${file.filename}...`);
@@ -23,6 +31,19 @@ for (const file of env.files) {
   const content = MD.content(file.content);
   const contentHash = await parsers.hash({ version: OPTIMIZER_VERSION, content: content.trim() });
   if (contentHash === llmstxt?.hash) {
+    // Extract title from frontmatter or filename
+    const frontmatter = MD.frontmatter(file.content);
+    const title =
+      frontmatter?.title || file.filename.replace(/\.(md|mdx)$/, "").replace(/.*\//, "");
+
+    // Add existing optimized content to processedPages
+    processedPages.push({
+      filename: file.filename,
+      title,
+      description: frontmatter?.description || "",
+      optimizedContent: llmstxt.content,
+    });
+    console.log(`Skipped ${file.filename} - content unchanged, added to processed pages`);
     continue;
   }
 
@@ -84,7 +105,37 @@ Focus on making the content more digestible for LLM processing while retaining a
     // Write the updated content back to the file
     await workspace.writeText(file.filename, updated);
     console.log(`Updated ${file.filename} with optimized content`);
+
+    // Extract title from frontmatter or filename
+    const frontmatter = MD.frontmatter(file.content);
+    const title =
+      frontmatter?.title || file.filename.replace(/\.(md|mdx)$/, "").replace(/.*\//, "");
+
+    // Store processed page data
+    processedPages.push({
+      filename: file.filename,
+      title,
+      description: frontmatter?.description || "",
+      optimizedContent: optimizedContent.trim(),
+    });
   } else {
     console.log(`Skipped ${file.filename} - no valid optimized content generated`);
   }
+}
+
+// Generate llms.txt and llms-full.txt files after processing all pages
+if (processedPages.length > 0) {
+  // Generate llms-full.txt with full original content
+  const llmsFullTxtContent = processedPages
+    .map((page) => {
+      const relativeFilename = page.filename.replace(/^.*\/docs\//, "").replace(/\.mdx?$/, "");
+      return `## [${page.title}](${relativeFilename})\n\n${page.optimizedContent}`;
+    })
+    .join("\n\n");
+
+  const fn = "docs/public/genaiscript-docs.instructions.md";
+  await workspace.writeText(fn, llmsFullTxtContent);
+  console.log(`Generated ${fn} - ${await tokenizers.count(llmsFullTxtContent)}t`);
+} else {
+  console.log("No pages were processed - skipping llms.txt generation");
 }
