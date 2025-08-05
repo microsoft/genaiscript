@@ -1,76 +1,9 @@
 ---
 title: System Prompts
 sidebar:
-  order: 10
+    order: 10
 description: Learn how to utilize system prompts to enhance script execution in GenAIScript.
 keywords: system prompts, script execution, genai templates, environment consistency
-llmstxt:
-  content: >-
-    System prompts are scripts executed before the main prompt to set context or
-    provide tools. They are unlisted by default and use the `system` keyword
-    instead of `script`. System prompts share the same environment as the main
-    prompt.
-
-
-    Example of a system prompt:
-
-    ```js
-
-    system({ title: "Zero-shot Chain of Thought" });
-
-    export default function (ctx) {
-        const { $ } = ctx;
-        $`Let's think step by step.`;
-    }
-
-    ```
-
-
-    To use system prompts in a script, specify them in the `system` field:
-
-    ```js
-
-    script({
-        system: ["system.zero_shot_cot"]
-    });
-
-    ```
-
-
-    System prompts can include parameters, which are prefixed with the script
-    ID. Parameters can be overridden in the script.
-
-
-    Automated system prompts are injected based on script content, with defaults
-    like `system`, `system.output_markdown`, and safety prompts. Built-in
-    prompts support tasks like file creation, querying Git, or generating
-    annotations.
-
-
-    Examples of built-in prompts:
-
-    1. `system.agent_data`: Queries data in files.
-
-    2. `system.agent_docs`: Queries documentation with tools like
-    `md_find_files`.
-
-    3. `system.agent_git`: Queries Git repositories.
-
-    4. `system.agent_web`: Searches the web for live information.
-
-    5. `system.python_code_interpreter`: Executes Python code in a container.
-
-
-    Safety prompts ensure content adheres to guidelines, avoiding harmful,
-    ungrounded, or copyrighted material. Tools like `fs_read_file` and
-    `git_diff` provide specific functionalities, and prompts like
-    `system.zero_shot_cot` encourage step-by-step reasoning.
-
-
-    Output formats include JSON, YAML, or plain text. Use concise, structured
-    responses tailored for LLMs.
-  hash: 2b7aa155835b552efa39b7d53d632233ab7d6325d21c93beec73bbdd80a4effa
-
 ---
 System prompts are scripts that are executed and injected before the main prompt output.
 
@@ -532,12 +465,20 @@ system({
         command: {
             type: "string",
             description: "The command to run the MCP server.",
-            required: true,
         },
         args: {
             type: "array",
             items: { type: "string" },
             description: "The arguments to pass to the command.",
+        },
+        url: {
+            type: "string",
+            description: "The URL to connect to for HTTP/WebSocket/SSE transports.",
+        },
+        type: {
+            type: "string",
+            description: "The transport type ('stdio', 'http', or 'sse').",
+            enum: ["stdio", "http", "sse"],
         },
         version: {
             type: "string",
@@ -587,6 +528,8 @@ export default function (ctx: ChatGenerationContext) {
     const description = vars["system.agent_mcp.description"] as string
     const command = vars["system.agent_mcp.command"] as string
     const args = (vars["system.agent_mcp.args"] as string[]) || []
+    const url = vars["system.agent_mcp.url"] as string
+    const type = vars["system.agent_mcp.type"] as "stdio" | "http" | "sse"
     const version = vars["system.agent_mcp.version"] as string
     const instructions = vars["system.agent_mcp.instructions"] as string
     const maxTokens = vars["system.agent_mcp.maxTokens"] as number
@@ -601,12 +544,14 @@ export default function (ctx: ChatGenerationContext) {
 
     if (!id) throw new Error("Missing required parameter: id")
     if (!description) throw new Error("Missing required parameter: description")
-    if (!command) throw new Error("Missing required parameter: command")
+    if (!command && !url) throw new Error("Missing required parameter: either command or url must be provided")
 
     const configs = {
         [id]: {
             command,
             args,
+            url,
+            type,
             version,
             toolsSha,
             contentSafety,
@@ -2881,12 +2826,20 @@ system({
         command: {
             type: "string",
             description: "The command to run the MCP server.",
-            required: true,
         },
         args: {
             type: "array",
             items: { type: "string" },
             description: "The arguments to pass to the command.",
+        },
+        url: {
+            type: "string",
+            description: "The URL to connect to for HTTP/WebSocket/SSE transports.",
+        },
+        type: {
+            type: "string",
+            description: "The transport type ('stdio', 'http', or 'sse').",
+            enum: ["stdio", "http", "sse"],
         },
         version: {
             type: "string",
@@ -2930,6 +2883,8 @@ export default function (ctx: ChatGenerationContext) {
     const id = vars["system.mcp.id"] as string
     const command = vars["system.mcp.command"] as string
     const args = (vars["system.mcp.args"] as string[]) || []
+    const url = vars["system.mcp.url"] as string
+    const type = vars["system.mcp.type"] as "stdio" | "http" | "sse"
     const version = vars["system.mcp.version"] as string
     const maxTokens = vars["system.mcp.maxTokens"] as number
     const toolsSha = vars["system.mcp.toolsSha"] as string
@@ -2942,11 +2897,13 @@ export default function (ctx: ChatGenerationContext) {
     const intent = vars["system.mcp.intent"]
     const _env = vars["system.mcp.env"] as Record<string, string> | undefined
     if (!id) throw new Error("Missing required parameter: id")
-    if (!command) throw new Error("Missing required parameter: command")
+    if (!command && !url) throw new Error("Missing required parameter: either command or url must be provided")
 
     const config = {
         command,
         args,
+        url,
+        type,
         version,
         toolsSha,
         contentSafety,
