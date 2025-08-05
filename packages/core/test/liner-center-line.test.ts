@@ -176,4 +176,131 @@ line 10`;
     assert.isTrue(largeResultLines.length > 30);
     assert.include(largeResult, "line 500");
   });
+
+  test("extractRange with maxTokens budget", function () {
+    // Create a file with lines of varying length
+    const lines = [];
+    for (let i = 1; i <= 50; i++) {
+      lines.push(`line ${i} - content that is reasonably long to have tokens`);
+    }
+    const text = lines.join("\n");
+
+    // Test with a small token budget - should get fewer lines
+    const result1 = extractRange(text, { line: 25, maxTokens: 100 });
+    assert.include(result1, "line 25");
+    
+    // Result should be much smaller than the full text
+    assert.isTrue(result1.length < text.length);
+    
+    // Test with a larger token budget - should get more lines
+    const result2 = extractRange(text, { line: 25, maxTokens: 500 });
+    assert.include(result2, "line 25");
+    
+    // Larger budget should give more content
+    assert.isTrue(result2.length > result1.length);
+  });
+
+  test("extractRangeAroundLine with maxTokens budget", function () {
+    // Create lines with predictable token counts
+    const lines = [];
+    for (let i = 1; i <= 20; i++) {
+      lines.push(`line ${i}`); // Each line has approximately 3-4 tokens
+    }
+    const text = lines.join("\n");
+
+    // Test with a very small budget that should only include center line
+    const result1 = extractRangeAroundLine(text, 10, { maxTokens: 5 });
+    assert.strictEqual(result1, "line 10");
+
+    // Test with a larger budget that should include some context
+    const result2 = extractRangeAroundLine(text, 10, { maxTokens: 50 });
+    assert.include(result2, "line 10");
+    assert.include(result2, "line 9");
+    assert.include(result2, "line 11");
+    
+    // Should not include the entire file
+    assert.notInclude(result2, "line 1");
+    assert.notInclude(result2, "line 20");
+  });
+
+  test("extractRangeAroundLine token budget expansion", function () {
+    // Test that expansion alternates between up and down directions
+    const lines = [];
+    for (let i = 1; i <= 10; i++) {
+      lines.push(`line ${i}`);
+    }
+    const text = lines.join("\n");
+
+    // Use a moderate budget that should expand beyond just the center line
+    const result = extractRangeAroundLine(text, 5, { maxTokens: 25 });
+    
+    // Should include center line
+    assert.include(result, "line 5");
+    
+    // Should include at least one line on each side due to alternating expansion
+    const resultLines = result.split("\n");
+    assert.isTrue(resultLines.length >= 3); // At least center + one on each side
+    assert.isTrue(resultLines.length <= 10); // But not the entire file
+  });
+
+  test("extractRangeAroundLine with maxTokens near file boundaries", function () {
+    const lines = [];
+    for (let i = 1; i <= 10; i++) {
+      lines.push(`line ${i}`);
+    }
+    const text = lines.join("\n");
+
+    // Test near beginning of file
+    const result1 = extractRangeAroundLine(text, 2, { maxTokens: 20 });
+    assert.include(result1, "line 2");
+    assert.include(result1, "line 1"); // Should include line 1
+    
+    // Test near end of file
+    const result2 = extractRangeAroundLine(text, 9, { maxTokens: 20 });
+    assert.include(result2, "line 9");
+    assert.include(result2, "line 10"); // Should include line 10
+  });
+
+  test("maxTokens budget priority over lineStart/lineEnd", function () {
+    const lines = [];
+    for (let i = 1; i <= 20; i++) {
+      lines.push(`line ${i}`);
+    }
+    const text = lines.join("\n");
+
+    // When lineStart/lineEnd are specified, they should take priority over maxTokens
+    const result = extractRange(text, { 
+      lineStart: 5, 
+      lineEnd: 15, 
+      line: 10, 
+      maxTokens: 5 
+    });
+    
+    // Should use lineStart/lineEnd range, not maxTokens
+    assert.include(result, "line 5");
+    assert.include(result, "line 15");
+    assert.include(result, "line 10");
+  });
+
+  test("extractRangeAroundLine when center line exceeds budget", function () {
+    // Create a very long center line that exceeds the token budget
+    const centerLine = "line 5 ".repeat(50); // Very long line
+    const lines = [
+      "line 1",
+      "line 2", 
+      "line 3",
+      "line 4",
+      centerLine,
+      "line 6",
+      "line 7",
+      "line 8"
+    ];
+    const text = lines.join("\n");
+
+    // Small budget that's exceeded by center line alone
+    const result = extractRangeAroundLine(text, 5, { maxTokens: 10 });
+    
+    // Should return just the center line when it already exceeds budget
+    assert.strictEqual(result, centerLine);
+  });
 });

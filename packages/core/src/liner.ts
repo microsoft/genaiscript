@@ -7,6 +7,8 @@
 import { llmifyDiff } from "./llmdiff.js";
 import { MIN_LINE_NUMBER_LENGTH } from "./constants.js";
 import { tryDiffParse } from "./diff.js";
+import type { RangeOptions, TokenEncoder } from "./types.js";
+import { approximateTokens } from "./tokens.js";
 
 /**
  * Adds 1-based line numbers to each line of the input text.
@@ -55,14 +57,11 @@ export function removeLineNumbers(text: string) {
  * Extracts a line range from the text using 1-based inclusive line numbers.
  *
  * @param text - The input text from which to extract the range.
- * @param options - An object specifying the line range.
- *   - lineStart: The 1-based starting line number of the range.
- *   - lineEnd: The 1-based ending line number of the range.
- *   - line: Center line number around which to extract content dynamically.
+ * @param options - Range options specifying line numbers or center line.
  * @returns The extracted range of text or the original text if no valid range is provided.
  */
-export function extractRange(text: string, options?: { lineStart?: number; lineEnd?: number; line?: number }) {
-  const { lineStart, lineEnd, line } = options || {};
+export function extractRange(text: string, options?: RangeOptions) {
+  const { lineStart, lineEnd, line, maxTokens, encoder } = options || {};
   
   // Handle existing lineStart/lineEnd logic first (takes priority)
   if (!isNaN(lineStart) || !isNaN(lineEnd)) {
@@ -74,7 +73,7 @@ export function extractRange(text: string, options?: { lineStart?: number; lineE
   
   // Handle center line option if lineStart/lineEnd not provided
   if (!isNaN(line)) {
-    return extractRangeAroundLine(text, line);
+    return extractRangeAroundLine(text, line, { maxTokens, encoder });
   }
   
   // If no valid range is provided, return original text
@@ -83,13 +82,19 @@ export function extractRange(text: string, options?: { lineStart?: number; lineE
 
 /**
  * Extracts a dynamic range around a center line.
- * The range size is calculated based on file size and context needs.
+ * The range size is calculated based on maxTokens budget and file size.
  * 
  * @param text - The input text from which to extract the range.
  * @param centerLine - The 1-based center line number.
+ * @param options - Optional parameters for token budget and encoder.
  * @returns The extracted range of text around the center line.
  */
-export function extractRangeAroundLine(text: string, centerLine: number): string {
+export function extractRangeAroundLine(
+  text: string, 
+  centerLine: number, 
+  options?: { maxTokens?: number; encoder?: TokenEncoder }
+): string {
+  const { maxTokens, encoder } = options || {};
   const lines = text.split("\n");
   const totalLines = lines.length;
   
@@ -98,15 +103,99 @@ export function extractRangeAroundLine(text: string, centerLine: number): string
     return text; // Return original text if center line is out of bounds
   }
   
-  // Calculate dynamic range based on file size
+  // If maxTokens budget is specified, compute range based on token constraints
+  if (maxTokens && maxTokens > 0) {
+    return extractRangeWithTokenBudget(lines, centerLine, maxTokens, encoder);
+  }
+  
+  // Fallback to dynamic range based on file size
   const contextLines = calculateContextLines(totalLines);
   
   // Calculate start and end lines around center
   const startLine = Math.max(1, centerLine - contextLines);
   const endLine = Math.min(totalLines, centerLine + contextLines);
   
-  // Extract the range (convert to 0-based indexing)
+  // Extract the range (convert to 0-based indexing for slice)
+  // Note: slice(start, end) where end is exclusive position, not length
   return lines.slice(startLine - 1, endLine).join("\n");
+}
+
+/**
+ * Extracts a range around a center line based on a token budget.
+ * Expands symmetrically around the center line until the token budget is reached.
+ * 
+ * @param lines - Array of text lines.
+ * @param centerLine - The 1-based center line number.
+ * @param maxTokens - Maximum token budget for the extracted range.
+ * @param encoder - Optional token encoder for accurate counting.
+ * @returns The extracted range of text that fits within the token budget.
+ */
+function extractRangeWithTokenBudget(
+  lines: string[], 
+  centerLine: number, 
+  maxTokens: number, 
+  encoder?: TokenEncoder
+): string {
+  const totalLines = lines.length;
+  const centerIndex = centerLine - 1; // Convert to 0-based index
+  
+  // Start with just the center line
+  let startIndex = centerIndex;
+  let endIndex = centerIndex;
+  let currentContent = lines[centerIndex];
+  let currentTokens = approximateTokens(currentContent, { encoder });
+  
+  // If center line already exceeds budget, return just that line
+  if (currentTokens >= maxTokens) {
+    return currentContent;
+  }
+  
+  // Expand around the center line alternately (up and down)
+  let expandUp = true;
+  
+  while (currentTokens < maxTokens) {
+    let nextContent: string;
+    let nextStartIndex = startIndex;
+    let nextEndIndex = endIndex;
+    
+    if (expandUp && startIndex > 0) {
+      // Try expanding upward
+      nextStartIndex = startIndex - 1;
+      nextContent = lines.slice(nextStartIndex, endIndex + 1).join("\n");
+    } else if (!expandUp && endIndex < totalLines - 1) {
+      // Try expanding downward  
+      nextEndIndex = endIndex + 1;
+      nextContent = lines.slice(startIndex, nextEndIndex + 1).join("\n");
+    } else if (startIndex > 0) {
+      // If can't expand in preferred direction, try the other
+      nextStartIndex = startIndex - 1;
+      nextContent = lines.slice(nextStartIndex, endIndex + 1).join("\n");
+    } else if (endIndex < totalLines - 1) {
+      nextEndIndex = endIndex + 1;
+      nextContent = lines.slice(startIndex, nextEndIndex + 1).join("\n");
+    } else {
+      // Can't expand further in either direction
+      break;
+    }
+    
+    const nextTokens = approximateTokens(nextContent, { encoder });
+    
+    // If adding this line would exceed the budget, stop expanding
+    if (nextTokens > maxTokens) {
+      break;
+    }
+    
+    // Accept the expansion
+    currentContent = nextContent;
+    currentTokens = nextTokens;
+    startIndex = nextStartIndex;
+    endIndex = nextEndIndex;
+    
+    // Alternate expansion direction for next iteration
+    expandUp = !expandUp;
+  }
+  
+  return currentContent;
 }
 
 /**
