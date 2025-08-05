@@ -1,0 +1,100 @@
+{
+    "name": "genaiscript",
+    "version": "2.3.10",
+    "type": "module",
+    "bin": "./dist/src/index.js",
+    "files": [
+        "dist/",
+        "!dist/**/*.map",
+        "!dist/tsconfig.tsbuildinfo",
+        "README.md",
+        "LICENSE"
+    ],
+    "publisher": "Microsoft",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/microsoft/genaiscript.git"
+    },
+    "homepage": "https://microsoft.github.io/genaiscript",
+    "keywords": [
+        "genai",
+        "ai",
+        "agentic",
+        "agent",
+        "cli",
+        "prompt",
+        "llm",
+        "generative ai",
+        "gpt4",
+        "chatgpt",
+        "ollama",
+        "llamacpp",
+        "chatgpt"
+    ],
+    "description": "A CLI for GenAIScript, a generative AI scripting framework.",
+    "license": "MIT",
+    "dependencies": {
+        "@actions/core": "^1.11.1",
+        "@fastify/cors": "^11.0.1",
+        "@fastify/swagger": "^9.5.1",
+        "@fastify/swagger-ui": "^5.2.3",
+        "@genaiscript/api": "workspace:*",
+        "@genaiscript/core": "workspace:*",
+        "@genaiscript/runtime": "workspace:*",
+        "@inquirer/prompts": "catalog:",
+        "@modelcontextprotocol/sdk": "^1.17.0",
+        "chokidar": "^4.0.3",
+        "commander": "^14.0.0",
+        "debug": "catalog:",
+        "dotenv": "^16.6.1",
+        "es-toolkit": "catalog:",
+        "execa": "catalog:",
+        "fastify": "^5.4.0",
+        "inflection": "catalog:",
+        "openai": "^5.10.2",
+        "replace-ext": "^2.0.0",
+        "tslib": "catalog:",
+        "typescript": "catalog:",
+        "ws": "^8.18.3"
+    },
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "devDependencies": {
+        "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
+        "@types/debug": "catalog:",
+        "@types/node": "catalog:",
+        "@types/papaparse": "^5.3.16",
+        "@types/prompts": "^2.4.9",
+        "@types/replace-ext": "^2.0.2",
+        "@types/ws": "^8.18.1",
+        "@vitest/coverage-istanbul": "catalog:",
+        "eslint": "catalog:",
+        "prettier": "catalog:",
+        "rimraf": "catalog:",
+        "vitest": "catalog:"
+    },
+    "scripts": {
+        "build": "tsc -p . && node ./scripts/fixup.mjs",
+        "clean": "rimraf dist",
+        "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+        "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+        "lint:check": "eslint src",
+        "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
+        "pack": "npm pack 2>&1",
+        "prepack": "npm run build",
+        "test": "vitest --run"
+    },
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/esm/index.d.ts",
+                "default": "./dist/esm/index.js"
+            }
+        },
+        "./package.json": "./package.json"
+    },
+    "main": "./dist/src/index.js",
+    "types": "./dist/src/index.d.ts",
+    "module": "./dist/src/index.js"
+}

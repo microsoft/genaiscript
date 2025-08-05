@@ -1,0 +1,37 @@
+"use strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", { value: true });
+const rules = {
+    curly: ["error", "multi-line"],
+    "eol-last": ["error", "always"],
+    eqeqeq: ["error", "always", { null: "ignore" }],
+    "no-console": "off",
+    "no-dupe-class-members": "off",
+    "no-invalid-this": "off",
+    "no-empty": "error",
+    "no-fallthrough": "error",
+    "no-restricted-imports": ["error", { paths: ["rhea", "rhea/.*"] }],
+    "no-return-await": "error",
+    "no-undef": "off",
+    "no-unsafe-finally": "error",
+    "no-unused-vars": "off",
+    "no-unused-expressions": "off",
+    "no-useless-constructor": "off",
+    "no-use-before-define": "off",
+    "no-var": "error",
+    "one-var-declaration-per-line": "error",
+    "prefer-const": "error",
+    "sort-imports": "off",
+    "spaced-comment": ["error", "always", { markers: ["/"] }],
+    "space-infix-ops": ["error", { int32Hint: false }],
+    "use-isnan": "error",
+    "no-redeclare": "off",
+    "no-shadow": "off",
+    "no-param-reassign": ["warn", { "props": true, }]
+};
+exports.default = {
+    name: "eslint-azsdk-customized",
+    rules,
+};
+//# sourceMappingURL=eslint-customized.js.map

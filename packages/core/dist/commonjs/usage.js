@@ -1,0 +1,442 @@
+"use strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GenerationStats = void 0;
+exports.estimateCost = estimateCost;
+exports.estimateImageCost = estimateImageCost;
+exports.isCosteable = isCosteable;
+const util_js_1 = require("./util.js");
+const models_js_1 = require("./models.js");
+const constants_js_1 = require("./constants.js");
+const pretty_js_1 = require("./pretty.js");
+const debug_js_1 = require("./debug.js");
+const mkmd_js_1 = require("./mkmd.js");
+const csv_js_1 = require("./csv.js");
+const dbg = (0, debug_js_1.genaiscriptDebug)("usage");
+/**
+ * Estimates the cost of a chat completion based on model pricing and token usage.
+ *
+ * @param modelId - The identifier of the model used for chat completion.
+ * @param usage - The token usage statistics, including prompt, completion, and cached tokens.
+ * @returns The estimated cost, or undefined if pricing data is unavailable. The cost is calculated using input and output token prices, with a rebate applied to cached tokens. If the model's pricing data cannot be determined, the function returns undefined.
+ */
+function estimateCost(modelId, usage) {
+    if (!modelId || !usage.total_tokens)
+        return undefined;
+    const { completion_tokens, prompt_tokens } = usage;
+    let { provider, model } = (0, models_js_1.parseModelIdentifier)(modelId);
+    if (provider === constants_js_1.MODEL_PROVIDER_GITHUB) {
+        if (/^openai\//.test(model)) {
+            dbg(`patch %s -> %s`, modelId, model);
+            model = model.replace(/^openai\//, "");
+        }
+    }
+    let mid = `${provider}:${model}`.toLowerCase();
+    let cost = constants_js_1.MODEL_PRICINGS[mid];
+    if (!cost) {
+        // match specific model names
+        const m = model.match(/^(gpt-(3\.5|4|4o|4\.1|4\.1-mini|4\.1-nano)|o1|o3|o4|o4-mini|o1-mini|o3-mini|o1-preview|4o-mini)/);
+        if (m) {
+            model = m[0];
+            mid = `${provider}:${model}`.toLowerCase();
+            cost = constants_js_1.MODEL_PRICINGS[mid];
+        }
+    }
+    dbg(`pricing: %s <- %s %o`, mid, modelId, cost);
+    if (!cost) {
+        return undefined;
+    }
+    const { price_per_million_output_tokens, price_per_million_input_tokens, input_cache_token_rebate = 0.5, } = cost;
+    const cached = usage.prompt_tokens_details?.cached_tokens ?? 0;
+    const input = (prompt_tokens - cached) * price_per_million_input_tokens +
+        cached * cost.price_per_million_input_tokens * input_cache_token_rebate;
+    const output = completion_tokens * price_per_million_output_tokens;
+    return (input + output) / 1000000;
+}
+function estimateImageCost(modelId, usage) {
+    if (!modelId || !usage?.total_tokens)
+        return undefined;
+    const { provider, model } = (0, models_js_1.parseModelIdentifier)(modelId);
+    const mid = `${provider}:${model}`.toLowerCase();
+    const cost = constants_js_1.MODEL_PRICINGS[mid];
+    if (!cost) {
+        return undefined;
+    }
+    const { price_per_million_input_tokens, price_per_million_output_tokens } = cost;
+    const output = (usage.input_tokens ?? 0) * price_per_million_input_tokens +
+        (usage.output_tokens ?? 0) * price_per_million_output_tokens;
+    return output / 1000000;
+}
+/**
+ * Determines if the specified model has associated pricing data by checking
+ * if any pricing entries start with the provider's prefix.
+ *
+ * @param model - The identifier of the model to check.
+ * @returns True if the model has pricing data available, otherwise false.
+ */
+function isCosteable(model) {
+    const { provider } = (0, models_js_1.parseModelIdentifier)(model);
+    const prefix = `${provider}:`;
+    return Object.keys(constants_js_1.MODEL_PRICINGS).some((k) => k.startsWith(prefix));
+}
+/**
+ * Class to track and log generation statistics for chat completions.
+ */
+class GenerationStats {
+    model;
+    label;
+    toolCalls = 0; // Number of tool invocations
+    repairs = 0; // Number of repairs made
+    turns = 0; // Number of turns in the interaction
+    usage;
+    children = [];
+    chatTurns = [];
+    /**
+     * Constructs a GenerationStats instance.
+     *
+     * @param model - The model used for chat completions.
+     * @param label - Optional label for the statistics.
+     */
+    constructor(model, label) {
+        this.model = model;
+        this.label = label;
+        this.usage = {
+            duration: 0,
+            completion_tokens: 0,
+            prompt_tokens: 0,
+            total_tokens: 0,
+            completion_tokens_details: {
+                audio_tokens: 0,
+                reasoning_tokens: 0,
+                accepted_prediction_tokens: 0,
+                rejected_prediction_tokens: 0,
+            },
+            prompt_tokens_details: {
+                audio_tokens: 0,
+                cached_tokens: 0,
+            },
+        };
+    }
+    get resolvedModel() {
+        return this.chatTurns?.[0]?.model || this.model;
+    }
+    /**
+     * Calculates the total cost based on the usage statistics.
+     *
+     * @returns The total cost.
+     */
+    cost() {
+        return [
+            ...this.chatTurns
+                .filter((c) => !c.cached)
+                .map(({ usage, model }) => estimateCost(model, usage) ?? estimateCost(this.model, usage)),
+            ...this.children.map((c) => c.cost()),
+        ].reduce((a, b) => (a ?? 0) + (b ?? 0), 0);
+    }
+    /**
+     * Accumulates the usage statistics from this instance and its children.
+     *
+     * @returns The accumulated usage statistics.
+     */
+    accumulatedUsage() {
+        const res = structuredClone(this.usage);
+        for (const child of this.children) {
+            const childUsage = child.accumulatedUsage();
+            res.duration += childUsage.duration;
+            res.completion_tokens += childUsage.completion_tokens;
+            res.prompt_tokens += childUsage.prompt_tokens;
+            res.total_tokens += childUsage.total_tokens;
+            res.completion_tokens_details.accepted_prediction_tokens +=
+                childUsage.completion_tokens_details.accepted_prediction_tokens ?? 0;
+            res.completion_tokens_details.rejected_prediction_tokens +=
+                childUsage.completion_tokens_details.rejected_prediction_tokens ?? 0;
+            res.completion_tokens_details.audio_tokens +=
+                childUsage.completion_tokens_details.audio_tokens;
+            res.completion_tokens_details.reasoning_tokens +=
+                childUsage.completion_tokens_details.reasoning_tokens;
+            res.prompt_tokens_details.audio_tokens += childUsage.prompt_tokens_details.audio_tokens;
+            res.prompt_tokens_details.cached_tokens += childUsage.prompt_tokens_details.cached_tokens;
+        }
+        return res;
+    }
+    /**
+     * Creates a new child GenerationStats instance.
+     *
+     * @param model - The model used for the child chat completions.
+     * @param label - Optional label for the child's statistics.
+     * @returns The created child GenerationStats instance.
+     */
+    createChild(model, label) {
+        const child = new GenerationStats(model, label);
+        this.children.push(child);
+        return child;
+    }
+    /**
+     * Traces the generation statistics using a MarkdownTrace instance.
+     *
+     * @param trace - The MarkdownTrace instance used for tracing.
+     */
+    trace(trace) {
+        if (!trace)
+            return;
+        trace.startDetails("🪙 usage");
+        try {
+            this.traceStats(trace);
+        }
+        finally {
+            trace.endDetails();
+        }
+    }
+    /**
+     * Helper method to trace individual statistics.
+     *
+     * @param trace - The MarkdownTrace instance used for tracing.
+     */
+    traceStats(trace) {
+        trace.itemValue("prompt", this.usage.prompt_tokens);
+        trace.itemValue("completion", this.usage.completion_tokens);
+        trace.itemValue("tokens", this.usage.total_tokens);
+        const c = (0, pretty_js_1.prettyCost)(this.cost());
+        if (c)
+            trace.itemValue("cost", c);
+        const ts = (0, pretty_js_1.prettyTokensPerSecond)(this.usage);
+        if (ts)
+            trace.itemValue("t/s", ts);
+        if (this.usage.duration)
+            trace.itemValue("duration", this.usage.duration);
+        if (this.toolCalls)
+            trace.itemValue("tool calls", this.toolCalls);
+        if (this.repairs)
+            trace.itemValue("repairs", this.repairs);
+        if (this.turns)
+            trace.itemValue("turns", this.turns);
+        if (this.usage.prompt_tokens_details?.cached_tokens)
+            trace.itemValue("cached tokens", this.usage.prompt_tokens_details.cached_tokens);
+        if (this.usage.completion_tokens_details?.reasoning_tokens)
+            trace.itemValue("reasoning tokens", this.usage.completion_tokens_details.reasoning_tokens);
+        if (this.usage.completion_tokens_details?.accepted_prediction_tokens)
+            trace.itemValue("accepted prediction tokens", this.usage.completion_tokens_details.accepted_prediction_tokens);
+        if (this.usage.completion_tokens_details?.rejected_prediction_tokens)
+            trace.itemValue("rejected prediction tokens", this.usage.completion_tokens_details.rejected_prediction_tokens);
+        if (this.chatTurns.length > 1) {
+            trace.startDetails("chat turns");
+            try {
+                for (const { cached, messages, usage } of this.chatTurns) {
+                    trace.item((0, util_js_1.toStringList)(cached ? constants_js_1.CHAR_FLOPPY_DISK : "", `${constants_js_1.CHAR_ENVELOPE} ${messages.length}`, usage.total_tokens ? `${(0, pretty_js_1.prettyTokens)(usage.total_tokens)}` : undefined));
+                }
+            }
+            finally {
+                trace.endDetails();
+            }
+        }
+        for (const child of this.children) {
+            trace.startDetails(child.model);
+            child.traceStats(trace);
+            trace.endDetails();
+        }
+    }
+    /**
+     * Logs the generation statistics.
+     */
+    log() {
+        this.logTokens("");
+    }
+    /**
+     * Helper method to log tokens with indentation.
+     *
+     * @param indent - The indentation used for logging.
+     */
+    logTokens(indent) {
+        const unknowns = new Set();
+        const c = this.cost();
+        const au = this.accumulatedUsage();
+        if (au?.total_tokens > 0) {
+            const stats = [
+                this.children.length > 1 ? `${constants_js_1.CHAR_UP_DOWN_ARROWS}${this.children.length}` : undefined,
+                (0, pretty_js_1.prettyDuration)(au.duration),
+                (0, pretty_js_1.prettyTokens)(au.prompt_tokens, "prompt"),
+                (0, pretty_js_1.prettyTokens)(au.completion_tokens, "completion"),
+                (0, pretty_js_1.prettyTokensPerSecond)(au),
+                (0, pretty_js_1.prettyCost)(c),
+            ]
+                .filter((n) => !!n)
+                .join(" ");
+            (0, util_js_1.logVerbose)(`${indent}${this.label ? `${this.label}:` : ""}${this.resolvedModel}> ${stats}`);
+        }
+        if (this.model && isNaN(c) && isCosteable(this.model))
+            unknowns.add(this.model);
+        if (this.chatTurns.length > 1) {
+            const chatTurns = this.chatTurns.slice(0, 10);
+            for (const { messages, usage, model: turnModel, cached } of chatTurns.filter(({ usage }) => usage.total_tokens !== undefined)) {
+                const cost = estimateCost(this.model, usage);
+                if (cost === undefined && isCosteable(turnModel))
+                    unknowns.add(this.model);
+                (0, util_js_1.logVerbose)(`${indent}  ${cached ? constants_js_1.CHAR_FLOPPY_DISK : ""}${(0, util_js_1.toStringList)(`${constants_js_1.CHAR_ENVELOPE} ${messages.length}`, (0, pretty_js_1.prettyTokens)(usage.total_tokens), (0, pretty_js_1.prettyCost)(cost), (0, pretty_js_1.prettyTokensPerSecond)(usage))}`);
+            }
+            if (this.chatTurns.length > chatTurns.length)
+                (0, util_js_1.logVerbose)(`${indent}  ...`);
+        }
+        const children = this.children.slice(0, 10);
+        for (const child of children)
+            child.logTokens(indent + "  ");
+        if (this.children.length > children.length)
+            (0, util_js_1.logVerbose)(`${indent}  ...`);
+        if (unknowns.size)
+            (0, util_js_1.logVerbose)(`missing pricing for ${[...unknowns].join(", ")}`);
+    }
+    addImageGenerationUsage(usage, duration) {
+        this.usage.duration += duration ?? 0;
+        if (usage) {
+            this.usage.completion_tokens += usage.output_tokens ?? 0;
+            this.usage.prompt_tokens += usage.input_tokens ?? 0;
+            this.usage.total_tokens += usage.total_tokens ?? 0;
+        }
+    }
+    addUsage(usage, duration) {
+        this.usage.duration += duration ?? 0;
+        if (usage) {
+            this.usage.completion_tokens += usage.completion_tokens ?? 0;
+            this.usage.prompt_tokens += usage.prompt_tokens ?? 0;
+            this.usage.total_tokens += usage.total_tokens ?? 0;
+            this.usage.completion_tokens_details.audio_tokens +=
+                usage.completion_tokens_details?.audio_tokens ?? 0;
+            this.usage.completion_tokens_details.reasoning_tokens +=
+                usage.completion_tokens_details?.reasoning_tokens ?? 0;
+            this.usage.completion_tokens_details.accepted_prediction_tokens +=
+                usage.completion_tokens_details?.accepted_prediction_tokens ?? 0;
+            this.usage.completion_tokens_details.rejected_prediction_tokens +=
+                usage.completion_tokens_details?.rejected_prediction_tokens ?? 0;
+        }
+    }
+    /**
+     * Adds usage statistics to the current instance.
+     *
+     * @param req - The request containing details about the chat completion.
+     * @param usage - The usage statistics to be added.
+     */
+    addRequestUsage(modelId, req, resp) {
+        const { usage = { completion_tokens: 0, prompt_tokens: 0, total_tokens: 0 }, model, cached, duration, } = resp;
+        const { messages } = req;
+        const cost = estimateCost(modelId, usage);
+        (0, util_js_1.logVerbose)(`${constants_js_1.BOX_UP_AND_RIGHT}${constants_js_1.BOX_RIGHT}🏁 ${cached ? constants_js_1.CHAR_FLOPPY_DISK : ""} ${modelId} ${constants_js_1.CHAR_ENVELOPE} ${messages.length} ${[
+            (0, pretty_js_1.prettyDuration)(duration),
+            (0, pretty_js_1.prettyTokens)(usage.total_tokens, "both"),
+            (0, pretty_js_1.prettyTokens)(usage.prompt_tokens, "prompt"),
+            (0, pretty_js_1.prettyTokens)(usage.completion_tokens, "completion"),
+            (0, pretty_js_1.prettyTokensPerSecond)(usage),
+            (0, pretty_js_1.prettyCost)(cost),
+        ]
+            .filter((s) => !!s)
+            .join(" ")}`);
+        if (!cached) {
+            this.addUsage(usage, duration);
+        }
+        const { provider } = (0, models_js_1.parseModelIdentifier)(this.model);
+        const chatTurn = {
+            messages: structuredClone(messages),
+            usage: structuredClone(usage),
+            model: `${provider}:${model}`,
+            cached,
+        };
+        this.chatTurns.push(chatTurn);
+    }
+    /**
+     * Generates a compact markdown report suitable for GitHub comments.
+     *
+     * The report contains:
+     * - A collapsible `<details>` section with aggregate usage statistics in the summary
+     * - A table showing individual LLM call details including model, tokens, costs, and duration
+     * - Proper formatting for tokens (t, kt, Mt) and costs (¢, $)
+     * - Duration formatting (ms, s, m, h)
+     *
+     * @returns A markdown string with a details section containing aggregate results
+     *          as summary and a table with individual LLM call usage, tokens, and costs.
+     *
+     * @example
+     * ```typescript
+     * const stats = new GenerationStats("openai:gpt-4", "main");
+     * stats.addUsage({ prompt_tokens: 100, completion_tokens: 50, total_tokens: 150, duration: 1000 }, 1000);
+     *
+     * const child = stats.createChild("openai:gpt-3.5-turbo", "helper");
+     * child.addUsage({ prompt_tokens: 200, completion_tokens: 100, total_tokens: 300, duration: 2000 }, 2000);
+     *
+     * const report = stats.toMarkdownReport();
+     * // Returns:
+     * // <details>
+     * // <summary>💰 Usage Report 450t 3000ms</summary>
+     * // |Model|Label|↑|↓|⇅|$|⏱️|
+     * // |-----|-----|--|--|--|----| -------|
+     * // |openai:gpt-4|main|100t|50t|150t|0.60¢|1000ms|
+     * // |openai:gpt-3.5-turbo|helper|200t|100t|300t|0.30¢|2000ms|
+     * // </details>
+     * ```
+     */
+    toMarkdownReport() {
+        const accumulated = this.accumulatedUsage();
+        const totalCost = this.cost();
+        // Create summary with aggregate statistics
+        const summaryParts = [
+            `💰 Usage Report`,
+            (0, pretty_js_1.prettyTokens)(accumulated.total_tokens) || "0t",
+            (0, pretty_js_1.prettyCost)(totalCost),
+            (0, pretty_js_1.prettyDuration)(accumulated.duration),
+        ].filter(part => !!part);
+        const summary = summaryParts.join(" ");
+        // Collect all usage data (parent + children)
+        const usageData = [];
+        // Add parent stats if it has usage
+        if (this.usage.total_tokens > 0) {
+            // For parent, calculate cost from actual usage or use existing cost calculation
+            const parentCost = this.chatTurns.length > 0
+                ? this.chatTurns
+                    .filter(turn => !turn.cached)
+                    .map(turn => estimateCost(turn.model, turn.usage) ?? estimateCost(this.model, turn.usage))
+                    .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
+                : estimateCost(this.model, this.usage);
+            usageData.push({
+                Model: this.resolvedModel,
+                Label: this.label || "-",
+                [constants_js_1.CHAR_UP_ARROW]: (0, pretty_js_1.prettyTokens)(this.usage.prompt_tokens) || "0t",
+                [constants_js_1.CHAR_DOWN_ARROW]: (0, pretty_js_1.prettyTokens)(this.usage.completion_tokens) || "0t",
+                [constants_js_1.CHAR_UP_DOWN_ARROWS]: (0, pretty_js_1.prettyTokens)(this.usage.total_tokens) || "0t",
+                $: (0, pretty_js_1.prettyCost)(parentCost) || "-",
+                "⏱️": (0, pretty_js_1.prettyDuration)(this.usage.duration) || "-",
+            });
+        }
+        // Add children stats
+        for (const child of this.children) {
+            const childUsage = child.accumulatedUsage();
+            // Calculate cost for child - try existing cost calculation first, then estimate from usage
+            const childCost = child.chatTurns.length > 0
+                ? child.cost()
+                : estimateCost(child.model, childUsage);
+            usageData.push({
+                Model: child.resolvedModel,
+                Label: child.label || "-",
+                [constants_js_1.CHAR_UP_ARROW]: (0, pretty_js_1.prettyTokens)(childUsage.prompt_tokens) || "0t",
+                [constants_js_1.CHAR_DOWN_ARROW]: (0, pretty_js_1.prettyTokens)(childUsage.completion_tokens) || "0t",
+                [constants_js_1.CHAR_UP_DOWN_ARROWS]: (0, pretty_js_1.prettyTokens)(childUsage.total_tokens) || "0t",
+                $: (0, pretty_js_1.prettyCost)(childCost) || "-",
+                "⏱️": (0, pretty_js_1.prettyDuration)(childUsage.duration) || "-",
+            });
+        }
+        // If no usage data, add a placeholder row
+        if (usageData.length === 0) {
+            usageData.push({
+                Model: this.model,
+                Label: this.label || "-",
+                [constants_js_1.CHAR_UP_ARROW]: "0t",
+                [constants_js_1.CHAR_DOWN_ARROW]: "0t",
+                [constants_js_1.CHAR_UP_DOWN_ARROWS]: "0t",
+                $: "-",
+                "⏱️": "-",
+            });
+        }
+        // Generate markdown table
+        const table = (0, csv_js_1.dataToMarkdownTable)(usageData);
+        return (0, mkmd_js_1.details)(summary, table);
+    }
+}
+exports.GenerationStats = GenerationStats;
+//# sourceMappingURL=usage.js.map

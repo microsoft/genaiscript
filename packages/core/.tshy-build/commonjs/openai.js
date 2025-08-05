@@ -1,0 +1,508 @@
+"use strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OpenAIListModels = exports.OpenAIChatCompletion = void 0;
+exports.OpenAITranscribe = OpenAITranscribe;
+exports.OpenAISpeech = OpenAISpeech;
+exports.OpenAIImageGeneration = OpenAIImageGeneration;
+exports.OpenAIEmbedder = OpenAIEmbedder;
+exports.LocalOpenAICompatibleModel = LocalOpenAICompatibleModel;
+const util_js_1 = require("./util.js");
+const constants_js_1 = require("./constants.js");
+const error_js_1 = require("./error.js");
+const fetch_js_1 = require("./fetch.js");
+const cancellation_js_1 = require("./cancellation.js");
+const pretty_bytes_1 = __importDefault(require("pretty-bytes"));
+const cleaners_js_1 = require("./cleaners.js");
+const base64_js_1 = require("./base64.js");
+const fetchtext_js_1 = require("./fetchtext.js");
+const debug_js_1 = require("./debug.js");
+const openai_responses_js_1 = require("./openai-responses.js");
+const bufferlike_js_1 = require("./bufferlike.js");
+const openai_chatcompletion_js_1 = require("./openai-chatcompletion.js");
+const dbg = (0, debug_js_1.genaiscriptDebug)("openai");
+const dbgMessages = dbg.extend("msg");
+dbgMessages.enabled = false;
+const OpenAIChatCompletion = async (req, cfg, options, trace) => {
+    //const { provider } = parseModelIdentifier(req.model);
+    // const features = providerFeatures(provider);
+    const useResponsesApi = !!process.env.OPENAI_RESPONSES; // features?.responsesApi;
+    if (useResponsesApi)
+        return (0, openai_responses_js_1.OpenAIv2ResponsesChatCompletion)(req, cfg, options, trace);
+    else
+        return (0, openai_chatcompletion_js_1.OpenAIv1ChatCompletion)(req, cfg, options, trace);
+};
+exports.OpenAIChatCompletion = OpenAIChatCompletion;
+const OpenAIListModels = async (cfg, options) => {
+    try {
+        const fetch = await (0, fetch_js_1.createFetch)({ retries: 0, ...(options || {}) });
+        let url = (0, cleaners_js_1.trimTrailingSlash)(cfg.base) + "/models";
+        if (cfg.provider === constants_js_1.MODEL_PROVIDER_AZURE_OPENAI) {
+            url = (0, cleaners_js_1.trimTrailingSlash)(cfg.base).replace(/deployments$/, "") + "/models";
+        }
+        const res = await fetch(url, {
+            method: "GET",
+            headers: {
+                ...(0, openai_chatcompletion_js_1.getConfigHeaders)(cfg),
+                Accept: "application/json",
+            },
+        });
+        if (res.status !== 200)
+            return {
+                ok: false,
+                status: res.status,
+                error: (0, error_js_1.serializeError)(await res.json()),
+            };
+        const { data } = (await res.json());
+        return {
+            ok: true,
+            models: data.map((m) => ({
+                id: m.id,
+                details: `${m.id}, ${m.owned_by}`,
+            })),
+        };
+    }
+    catch (e) {
+        return { ok: false, error: (0, error_js_1.serializeError)(e) };
+    }
+};
+exports.OpenAIListModels = OpenAIListModels;
+/**
+ * Transcribes an audio file using the specified language model configuration.
+ * Can also perform translation if requested.
+ *
+ * @param req - Contains the transcription or translation details including:
+ *              - `file`: The audio file to be transcribed.
+ *              - `model`: The model to be used for transcription or translation.
+ *              - `translate`: Optional, specifies if the operation is a translation.
+ *              - `temperature`: Optional, adjusts the creativity of the transcription (if supported).
+ *              - `language`: Optional, specifies the language of the audio.
+ * @param cfg - Language model configuration, includes:
+ *              - `base`: The base API URL for the model.
+ *              - `provider`: The identifier of the model provider.
+ *              - `model`: The specific model to use for transcription.
+ * @param options - Options affecting the behavior of the function, including:
+ *                  - `trace`: Trace logging object for debugging and monitoring.
+ *                  - `cancellationToken`: Optional, allows cancellation of the operation.
+ * @returns A promise that resolves to a transcription result, including:
+ *          - `text`: The transcribed text, or undefined if an error occurs.
+ *          - `error`: Details of any error encountered.
+ */
+async function OpenAITranscribe(req, cfg, options) {
+    const { trace } = options || {};
+    try {
+        (0, util_js_1.logVerbose)(`${cfg.provider}: transcribe ${req.file.type} ${(0, pretty_bytes_1.default)(req.file.size)} with ${cfg.model}`);
+        const route = req.translate ? "translations" : "transcriptions";
+        const url = `${cfg.base}/audio/${route}`;
+        trace?.itemValue(`url`, `[${url}](${url})`);
+        trace?.itemValue(`size`, req.file.size);
+        trace?.itemValue(`mime`, req.file.type);
+        const body = new FormData();
+        body.append("model", req.model);
+        body.append("response_format", /whisper/.test(req.model) ? "verbose_json" : "json");
+        if (req.temperature)
+            body.append("temperature", req.temperature.toString());
+        if (req.language)
+            body.append("language", req.language);
+        body.append("file", req.file);
+        const freq = {
+            method: "POST",
+            headers: {
+                ...(0, openai_chatcompletion_js_1.getConfigHeaders)(cfg),
+                Accept: "application/json",
+            },
+            body: body,
+        };
+        (0, fetchtext_js_1.traceFetchPost)(trace, url, freq.headers, freq.body);
+        // TODO: switch back to cross-fetch in the future
+        const res = await global.fetch(url, freq);
+        trace?.itemValue(`status`, `${res.status} ${res.statusText}`);
+        const j = await res.json();
+        if (!res.ok)
+            return { text: undefined, error: j?.error };
+        else
+            return j;
+    }
+    catch (e) {
+        (0, util_js_1.logError)(e);
+        trace?.error(e);
+        return { text: undefined, error: (0, error_js_1.serializeError)(e) };
+    }
+}
+/**
+ * Generates speech audio from provided text input using the specified configuration and options.
+ *
+ * @param req - The request payload containing details for generating speech, including:
+ *   - model: The model to use for generating speech.
+ *   - input: The text input to convert to speech.
+ *   - voice: The voice profile to use for speech synthesis (default is "alloy").
+ *   - Additional optional parameters for speech customization.
+ * @param cfg - The configuration for the language model, including:
+ *   - base: Base URL of the API.
+ *   - model: Model identifier.
+ *   - provider: The provider of the model.
+ * @param options - Supplementary options for the request, such as:
+ *   - trace: Trace object for logging and debugging.
+ *   - cancellationToken: Token to handle cancellation of the operation.
+ * @returns A promise that resolves to an object containing:
+ *   - audio: The generated speech audio as a Uint8Array, or undefined if an error occurred.
+ *   - error: Information about any error that occurred, or undefined if successful.
+ */
+async function OpenAISpeech(req, cfg, options) {
+    const { model, input, voice = "alloy", ...rest } = req;
+    const { trace } = options || {};
+    const fetch = await (0, fetch_js_1.createFetch)(options);
+    try {
+        (0, util_js_1.logVerbose)(`${cfg.provider}: speak with ${cfg.model}`);
+        const url = `${cfg.base}/audio/speech`;
+        trace?.itemValue(`url`, `[${url}](${url})`);
+        const body = {
+            model,
+            input,
+            voice,
+            ...rest,
+        };
+        const freq = {
+            method: "POST",
+            headers: {
+                ...(0, openai_chatcompletion_js_1.getConfigHeaders)(cfg),
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        };
+        (0, fetchtext_js_1.traceFetchPost)(trace, url, freq.headers, body);
+        // TODO: switch back to cross-fetch in the future
+        const res = await fetch(url, freq);
+        trace?.itemValue(`status`, `${res.status} ${res.statusText}`);
+        if (!res.ok)
+            return { audio: undefined, error: (await res.json())?.error };
+        const j = await res.arrayBuffer();
+        return { audio: new Uint8Array(j) };
+    }
+    catch (e) {
+        (0, util_js_1.logError)(e);
+        trace?.error(e);
+        return {
+            audio: undefined,
+            error: (0, error_js_1.serializeError)(e),
+        };
+    }
+}
+/**
+ * Generates an image using the specified model and prompt.
+ *
+ * @param req - An object containing the image generation request, including:
+ *              - model: The name of the model to use for image generation.
+ *              - prompt: The text prompt to generate the image.
+ *              - size: Optional; dimensions of the image in "widthxheight" format or keywords like "portrait", "landscape", "square", or "auto". Defaults to "1024x1024".
+ *              - quality: Optional; image quality setting ("auto", "high", "hd").
+ *              - style: Optional; style attributes for image generation.
+ *              - Additional parameters required for the request.
+ * @param cfg - The configuration for the language model, including:
+ *              - base: Base URL of the API endpoint.
+ *              - provider: The provider of the model (e.g., Azure, OpenAI).
+ *              - type: The API type being used (e.g., azure, openai).
+ *              - model: The model identifier, if required by the provider.
+ *              - version: Optional; API version for Azure OpenAI.
+ * @param options - Additional options including:
+ *                  - trace: Optional; tracing information for debugging/logging.
+ *                  - cancellationToken: Optional; token to handle request cancellation.
+ * @returns - A result containing either the generated image as a Uint8Array, the revised prompt, usage information, or an error message.
+ */
+async function OpenAIImageGeneration(req, cfg, options) {
+    const { model, prompt, size = "1024x1024", quality, style, outputFormat, mode = "generate", image, mask, ...rest } = req;
+    const { trace } = options || {};
+    // Determine the API endpoint based on mode
+    let endpoint = "generations";
+    if (mode === "edit") {
+        endpoint = "edits";
+        if (!image) {
+            return {
+                image: undefined,
+                error: (0, error_js_1.serializeError)(new Error("Image is required for edit mode")),
+            };
+        }
+    }
+    let url = `${cfg.base}/images/${endpoint}`;
+    const isDallE = /^dall-e/i.test(model);
+    const isDallE2 = /^dall-e-2/i.test(model);
+    const isDallE3 = /^dall-e-3/i.test(model);
+    const isGpt = /^gpt-image/i.test(model);
+    // For edit mode, we need to use multipart form data
+    const isMultipart = mode === "edit";
+    // Process parameters common to all modes
+    const processedParams = {
+        size: size,
+        quality: quality,
+        style: style,
+        outputFormat: outputFormat,
+    };
+    // Transform size parameter based on model
+    if (processedParams.size && processedParams.size !== "auto") {
+        if (isDallE3) {
+            if (processedParams.size === "portrait")
+                processedParams.size = "1024x1792";
+            else if (processedParams.size === "landscape")
+                processedParams.size = "1792x1024";
+            else if (processedParams.size === "square")
+                processedParams.size = "1024x1024";
+        }
+        else if (isDallE2) {
+            if (processedParams.size === "portrait" ||
+                processedParams.size === "landscape" ||
+                processedParams.size === "square")
+                processedParams.size = "1024x1024";
+        }
+        else if (isGpt) {
+            if (processedParams.size === "portrait")
+                processedParams.size = "1024x1536";
+            else if (processedParams.size === "landscape")
+                processedParams.size = "1536x1024";
+            else if (processedParams.size === "square")
+                processedParams.size = "1024x1024";
+        }
+    }
+    // Transform quality parameter based on model
+    if (processedParams.quality && processedParams.quality !== "auto") {
+        if (isDallE3 && processedParams.quality === "high") {
+            processedParams.quality = "hd";
+        }
+        else if (isGpt && processedParams.quality === "hd") {
+            processedParams.quality = "high";
+        }
+    }
+    // Filter out parameters that shouldn't be included for certain models
+    const shouldIncludeQuality = processedParams.quality && processedParams.quality !== "auto" && !isDallE2;
+    const shouldIncludeStyle = processedParams.style && isDallE3;
+    const shouldIncludeOutputFormat = processedParams.outputFormat && isGpt;
+    const shouldIncludeSize = processedParams.size && processedParams.size !== "auto";
+    let body;
+    let headers = {
+        ...(0, openai_chatcompletion_js_1.getConfigHeaders)(cfg),
+    };
+    if (isMultipart) {
+        // Use FormData for image uploads
+        body = new FormData();
+        // Add the image file
+        const imageBuffer = await (0, bufferlike_js_1.resolveBufferLike)(image);
+        if (!imageBuffer) {
+            return {
+                image: undefined,
+                error: (0, error_js_1.serializeError)(new Error("Failed to resolve image buffer")),
+            };
+        }
+        body.append("image", new Blob([imageBuffer], { type: "image/png" }), "image.png");
+        // Add mask if provided (only for edit mode)
+        if (mode === "edit" && mask) {
+            const maskBuffer = await (0, bufferlike_js_1.resolveBufferLike)(mask);
+            if (maskBuffer) {
+                body.append("mask", new Blob([maskBuffer], { type: "image/png" }), "mask.png");
+            }
+        }
+        // Add model
+        body.append("model", model);
+        // Add prompt (required for edit mode)
+        if (mode === "edit") {
+            body.append("prompt", prompt);
+        }
+        // Add processed parameters
+        if (shouldIncludeSize) {
+            body.append("size", processedParams.size);
+        }
+        if (shouldIncludeQuality) {
+            body.append("quality", processedParams.quality);
+        }
+        if (shouldIncludeStyle) {
+            body.append("style", processedParams.style);
+        }
+        if (shouldIncludeOutputFormat) {
+            body.append("output_format", processedParams.outputFormat);
+        }
+        // Always request b64_json for response format
+        body.append("response_format", "b64_json");
+        // Don't set Content-Type header for FormData, let the browser set it with boundary
+        delete headers["Content-Type"];
+    }
+    else {
+        // JSON body for generation mode
+        body = {
+            model,
+            prompt,
+            ...rest,
+        };
+        // Add processed parameters
+        if (shouldIncludeSize) {
+            body.size = processedParams.size;
+        }
+        if (shouldIncludeQuality) {
+            body.quality = processedParams.quality;
+        }
+        if (shouldIncludeStyle) {
+            body.style = processedParams.style;
+        }
+        if (shouldIncludeOutputFormat) {
+            body.output_format = processedParams.outputFormat;
+        }
+        if (isDallE) {
+            body.response_format = "b64_json";
+        }
+        headers["Content-Type"] = "application/json";
+        body = JSON.stringify(body);
+    }
+    dbg("%o", {
+        mode,
+        endpoint,
+        quality: isMultipart ? "multipart" : body.quality,
+        style: isMultipart ? "multipart" : body.style,
+        response_format: isMultipart ? "b64_json" : body.response_format,
+        size: isMultipart ? "multipart" : body.size,
+    });
+    if (cfg.type === "azure") {
+        const version = cfg.version || constants_js_1.AZURE_OPENAI_API_VERSION;
+        trace?.itemValue(`version`, version);
+        url = (0, cleaners_js_1.trimTrailingSlash)(cfg.base) + "/" + model + `/images/${endpoint}?api-version=${version}`;
+    }
+    const fetch = await (0, fetch_js_1.createFetch)(options);
+    try {
+        (0, util_js_1.logInfo)(`${mode} image with ${cfg.provider}:${cfg.model} (this may take a while)`);
+        const freq = {
+            method: "POST",
+            headers,
+            body,
+        };
+        trace?.itemValue(`url`, `[${url}](${url})`);
+        if (!isMultipart) {
+            (0, fetchtext_js_1.traceFetchPost)(trace, url, freq.headers, JSON.parse(body));
+        }
+        const res = await fetch(url, freq);
+        dbg(`response: %d %s`, res.status, res.statusText);
+        trace?.itemValue(`status`, `${res.status} ${res.statusText}`);
+        if (!res.ok)
+            return {
+                image: undefined,
+                error: (await res.json())?.error || res.statusText,
+            };
+        const j = await res.json();
+        dbg(`%O`, j);
+        const revisedPrompt = j.data[0]?.revised_prompt;
+        if (revisedPrompt)
+            trace?.details(`📷 revised prompt`, j.data[0].revised_prompt);
+        const usage = j.usage;
+        const buffer = (0, base64_js_1.fromBase64)(j.data[0].b64_json);
+        return {
+            image: new Uint8Array(buffer),
+            revisedPrompt,
+            usage,
+        };
+    }
+    catch (e) {
+        (0, util_js_1.logError)(e);
+        trace?.error(e);
+        return {
+            image: undefined,
+            error: (0, error_js_1.serializeError)(e),
+        };
+    }
+}
+/**
+ * Executes an embedding request using the specified language model configuration.
+ *
+ * @param input - The text input to generate embeddings for.
+ * @param cfg - Configuration for the language model, including base URL, provider, type, and model details.
+ * @param options - Optional parameters including trace for debugging and cancellationToken for request cancellation.
+ * @returns An EmbeddingResult object containing the embeddings or error details if the operation fails.
+ *
+ * This function determines the proper API route based on the model provider type. It constructs a POST request to retrieve embeddings
+ * for the given input. Handles response parsing, error checking, and supports cancellation.
+ */
+async function OpenAIEmbedder(input, cfg, options) {
+    const { trace, cancellationToken } = options || {};
+    const { base, provider, type, model } = cfg;
+    if (input === undefined)
+        throw new Error("input is required for embedding");
+    try {
+        const route = "embeddings";
+        let url;
+        const body = { input, model: cfg.model };
+        // Determine the URL based on provider type
+        if (provider === constants_js_1.MODEL_PROVIDER_AZURE_OPENAI ||
+            provider === constants_js_1.MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
+            type === "azure" ||
+            type === "azure_serverless") {
+            url = `${(0, cleaners_js_1.trimTrailingSlash)(base)}/${model}/embeddings?api-version=${constants_js_1.AZURE_OPENAI_API_VERSION}`;
+            delete body.model;
+        }
+        else if (provider === constants_js_1.MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
+            url = base.replace(/^https?:\/\/([^/]+)\/?/, body.model);
+            delete body.model;
+        }
+        else {
+            url = `${base}/${route}`;
+        }
+        trace?.itemValue(`url`, `[${url}](${url})`);
+        const freq = {
+            method: "POST",
+            headers: {
+                ...(0, openai_chatcompletion_js_1.getConfigHeaders)(cfg),
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(body),
+        };
+        // traceFetchPost(trace, url, freq.headers, body)
+        const first = typeof input === "string" ? input : input[0];
+        (0, util_js_1.logVerbose)(`${provider}: embedding ${(0, util_js_1.ellipse)(first, 44)} with ${model}`);
+        const fetch = await (0, fetch_js_1.createFetch)(options);
+        (0, cancellation_js_1.checkCancelled)(cancellationToken);
+        const res = await fetch(url, freq);
+        trace?.itemValue(`response`, `${res.status} ${res.statusText}`);
+        if (res.status === 429)
+            return { error: "rate limited", status: "rate_limited" };
+        else if (res.status < 300) {
+            const data = (await res.json());
+            return {
+                status: "success",
+                data: data.data.sort((a, b) => a.index - b.index).map((d) => d.embedding),
+                model: data.model,
+            };
+        }
+        else {
+            return { error: res.statusText, status: "error" };
+        }
+    }
+    catch (e) {
+        if ((0, error_js_1.isCancelError)(e))
+            return { status: "cancelled" };
+        (0, util_js_1.logError)(e);
+        trace?.error(e);
+        return { status: "error", error: (0, error_js_1.errorMessage)(e) };
+    }
+}
+/**
+ * Creates a language model configuration compatible with OpenAI-like APIs.
+ *
+ * @param providerId - Identifier of the model provider.
+ * @param options - Optional configuration object.
+ * @param options.listModels - Enables listing of available models if true.
+ * @param options.transcribe - Enables transcription capabilities if true.
+ * @param options.speech - Enables speech synthesis capabilities if true.
+ * @param options.imageGeneration - Enables image generation capabilities if true.
+ *
+ * @returns A frozen object defining the language model with specified capabilities.
+ */
+function LocalOpenAICompatibleModel(providerId, options) {
+    return Object.freeze((0, cleaners_js_1.deleteUndefinedValues)({
+        completer: exports.OpenAIChatCompletion,
+        id: providerId,
+        listModels: options?.listModels ? exports.OpenAIListModels : undefined,
+        transcriber: options?.transcribe ? OpenAITranscribe : undefined,
+        speaker: options?.speech ? OpenAISpeech : undefined,
+        imageGenerator: options?.imageGeneration ? OpenAIImageGeneration : undefined,
+        embedder: OpenAIEmbedder,
+    }));
+}
+//# sourceMappingURL=openai.js.map

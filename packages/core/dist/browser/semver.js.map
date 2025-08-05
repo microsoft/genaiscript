@@ -1,0 +1,1 @@
+{"version":3,"file":"semver.js","sourceRoot":"","sources":["../../src/semver.ts"],"names":[],"mappings":"AAAA,uCAAuC;AACvC,kCAAkC;AAElC,OAAO,EAAE,SAAS,EAAE,KAAK,EAAE,MAAM,QAAQ,CAAC;AAE1C,MAAM,CAAC,MAAM,eAAe,GAAG,SAAS,CAAC;AAEzC,MAAM,CAAC,MAAM,WAAW,GAAG,KAAK,CAAC"}

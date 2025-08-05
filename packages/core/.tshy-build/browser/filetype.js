@@ -1,0 +1,16 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import { fileTypeFromBuffer as _fileTypeFromBuffer } from "file-type";
+/**
+ * Determines the file type of a given buffer.
+ *
+ * @param buffer - The input data to analyze. Must be a Uint8Array or ArrayBuffer.
+ *                 If undefined, the function returns undefined.
+ * @returns The detected file type object, or undefined if no buffer is provided or type cannot be determined.
+ */
+export async function fileTypeFromBuffer(buffer) {
+    if (buffer === undefined)
+        return undefined;
+    return _fileTypeFromBuffer(buffer);
+}
+//# sourceMappingURL=filetype.js.map

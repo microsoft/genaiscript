@@ -1,0 +1,1 @@
+{"version":3,"file":"evalprompt.d.ts","sourceRoot":"","sources":["../../src/evalprompt.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,aAAa,EAAE,YAAY,EAAE,MAAM,YAAY,CAAC;AAM9D;;;;;;;;;;GAUG;AACH,wBAAsB,UAAU,CAC9B,IAAI,EAAE,aAAa,EACnB,CAAC,EAAE,YAAY,EACf,OAAO,CAAC,EAAE;IACR,UAAU,CAAC,EAAE,OAAO,CAAC;IACrB,KAAK,CAAC,EAAE,CAAC,GAAG,EAAE,MAAM,KAAK,IAAI,CAAC;CAC/B,gBAsCF"}

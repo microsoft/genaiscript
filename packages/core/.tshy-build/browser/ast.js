@@ -1,0 +1,91 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+// Import necessary regular expressions for file type detection and host utilities
+import { GENAI_ANYJS_REGEX, GENAI_ANYTS_REGEX } from "./constants.js";
+import { arrayify } from "./cleaners.js";
+import { tagFilter } from "./tags.js";
+import { dirname, resolve } from "node:path";
+/**
+ * Converts an array of diagnostic objects into a CSV-formatted string.
+ * Each diagnostic entry includes severity, filename, range start and end lines, code, and message.
+ * @param diagnostics - Array of diagnostic objects with severity, filename, range, code, and message properties.
+ * @param sep - Separator string for CSV fields.
+ * @returns CSV string with each diagnostic entry on a new line.
+ */
+export function diagnosticsToCSV(diagnostics, sep) {
+    return diagnostics
+        .map(({ severity, filename, range, code, message }) => [
+        severity, // Severity level of the diagnostic
+        filename, // Filename where the diagnostic occurred
+        range[0][0], // Start line of the diagnostic range
+        range[1][0], // End line of the diagnostic range
+        code || "", // Diagnostic code, if available; empty string if not
+        message, // Diagnostic message explaining the issue
+    ].join(sep))
+        .join("\n"); // Join each CSV line with a newline character
+}
+/**
+ * Determines the group name of a template.
+ * @param template - The template object containing an ID and an optional group property.
+ * @returns The group name of the template. Returns the group property if defined, "system" if the ID starts with "system", or "unassigned" if no group is set or determined.
+ */
+export function templateGroup(template) {
+    return (template.group || // Return the group if already set
+        (/^system/i.test(template.id) ? "system" : "") || // Check if the template ID indicates it's a system template
+        "unassigned" // Default to "unassigned" if no group is determined
+    );
+}
+/**
+ * Collects and organizes templates by their directory, identifying the presence of JavaScript or TypeScript files in each directory.
+ * Excludes templates without filenames.
+ * @param prj - The project containing the scripts to analyze.
+ * @returns An array of directory objects with their names and flags indicating JavaScript and TypeScript file presence.
+ */
+export function collectFolders(prj, options) {
+    const { force } = options || {};
+    const { systemDir } = prj;
+    const folders = {};
+    for (const t of Object.values(prj.scripts).filter(
+    // must have a filename and not prompty
+    (script) => script.filename)) {
+        const dir = dirname(t.filename); // Get directory name from the filename
+        if (!force && resolve(dir) === systemDir)
+            continue;
+        const folder = folders[dir] || (folders[dir] = { dirname: dir });
+        folder.js = folder.js || GENAI_ANYJS_REGEX.test(t.filename); // Check for presence of JS files
+        folder.ts = folder.ts || GENAI_ANYTS_REGEX.test(t.filename); // Check for presence of TS files
+    }
+    return Object.values(folders); // Return an array of folders with their properties
+}
+/**
+ * Finds a script in the project's scripts list by matching its ID with the system prompt instance.
+ * If the project or scripts list is undefined, returns undefined.
+ * @param prj - The project containing the scripts to search.
+ * @param system - The system prompt instance containing the ID to match against.
+ * @returns The script with the matching ID, or undefined if no match is found.
+ */
+export function resolveScript(prj, system) {
+    return prj?.scripts?.find((t) => t.id === system.id); // Find and return the template with the matching ID
+}
+/**
+ * Filters a list of scripts based on the provided filter options.
+ *
+ * @param scripts - The list of scripts to filter.
+ * @param options - An object containing filter criteria:
+ *   - ids: Array of specific script IDs to include.
+ *   - groups: Array of group names to filter by.
+ *   - test: If true, includes only scripts with defined tests.
+ *   - redteam: If true, includes only scripts marked for redteam.
+ *   - unlisted: If true, includes unlisted scripts; otherwise excludes them.
+ * @returns A filtered list of scripts matching the given criteria.
+ */
+export function filterScripts(scripts, options) {
+    const { ids, groups, test, redteam, unlisted } = options || {};
+    return scripts
+        .filter((t) => !test || arrayify(t.tests)?.length)
+        .filter((t) => !redteam || t.redteam)
+        .filter((t) => !ids?.length || ids.includes(t.id))
+        .filter((t) => unlisted || !t.unlisted)
+        .filter((t) => tagFilter(groups, t.group));
+}
+//# sourceMappingURL=ast.js.map

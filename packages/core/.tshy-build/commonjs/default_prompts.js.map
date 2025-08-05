@@ -1,0 +1,1 @@
+{"version":3,"file":"default_prompts.js","sourceRoot":"","sources":["../../src/default_prompts.ts"],"names":[],"mappings":";;;AAAA,yCAAyC;AAC5B,QAAA,iBAAiB,GAAG,MAAM,CAAC,MAAM,CAAyB;IACnE,eAAe,EAAE,mXAAmX;IACpY,eAAe,EAAE,6nBAA6nB;IAC9oB,kBAAkB,EAAE,4s0IAA4s0I;CACnu0I,CAAC,CAAC;AAEU,QAAA,yBAAyB,GAAG,igCAAigC,CAAA;AAE7hC,QAAA,eAAe,GAAG,+uGAA+uG,CAAA"}

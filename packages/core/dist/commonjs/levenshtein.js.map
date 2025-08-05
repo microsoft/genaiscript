@@ -1,0 +1,1 @@
+{"version":3,"file":"levenshtein.js","sourceRoot":"","sources":["../../src/levenshtein.ts"],"names":[],"mappings":";AAAA,uCAAuC;AACvC,kCAAkC;;AAElC,kDAIC;AAJM,KAAK,UAAU,mBAAmB,CAAC,CAAS,EAAE,CAAS;IAC5D,2EAA2E;IAC3E,MAAM,EAAE,QAAQ,EAAE,GAAG,MAAM,MAAM,CAAC,qBAAqB,CAAC,CAAC;IACzD,OAAO,QAAQ,CAAC,CAAC,EAAE,CAAC,CAAC,CAAC;AACxB,CAAC"}

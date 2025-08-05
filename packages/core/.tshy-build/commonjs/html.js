@@ -1,0 +1,77 @@
+"use strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HTMLTablesToJSON = HTMLTablesToJSON;
+exports.HTMLToText = HTMLToText;
+exports.HTMLToMarkdown = HTMLToMarkdown;
+const cancellation_js_1 = require("./cancellation.js");
+/**
+ * Converts HTML tables to JSON objects.
+ *
+ * @param html - The HTML content containing tables.
+ * @param options - Optional parameters for conversion.
+ * @returns A 2D array of objects representing the table data.
+ */
+async function HTMLTablesToJSON(html, options) {
+    const { tabletojson } = await import("tabletojson");
+    const res = tabletojson.convert(html, options); // Convert HTML tables to JSON using tabletojson library
+    return res;
+}
+/**
+ * Converts HTML content to plain text.
+ *
+ * @param html - The HTML content to convert.
+ * @param options - Optional parameters including tracing options.
+ * @returns The plain text representation of the HTML.
+ */
+async function HTMLToText(html, options) {
+    if (!html)
+        return ""; // Return empty string if no HTML content is provided
+    const { trace, cancellationToken } = options || {}; // Extract trace for logging if available
+    try {
+        const { convert: convertToText } = await import("html-to-text"); // Import the convert function from html-to-text library
+        (0, cancellation_js_1.checkCancelled)(cancellationToken); // Check for cancellation token
+        const text = convertToText(html, options); // Perform conversion to plain text
+        return text;
+    }
+    catch (e) {
+        trace?.error("HTML conversion failed", e); // Log error if conversion fails
+        return undefined;
+    }
+}
+/**
+ * Converts HTML content to Markdown format.
+ *
+ * @param html - The HTML content to convert. If no HTML is provided, the original content is returned.
+ * @param options - Optional parameters including tracing, GFM support, and elements to remove. GFM can be disabled using disableGfm.
+ * @returns The Markdown representation of the HTML.
+ */
+async function HTMLToMarkdown(html, options) {
+    if (!html)
+        return html; // Return original content if no HTML is provided
+    const { disableGfm, trace, cancellationToken } = options || {}; // Extract trace for logging if available
+    try {
+        const Turndown = (await import("turndown")).default; // Import Turndown library for HTML to Markdown conversion
+        const GFMPlugin = await import("turndown-plugin-gfm");
+        (0, cancellation_js_1.checkCancelled)(cancellationToken); // Check for cancellation token
+        const turndown = new Turndown();
+        turndown.remove("script");
+        turndown.remove("style");
+        turndown.remove("meta");
+        turndown.remove("link");
+        turndown.remove("head");
+        turndown.remove("title");
+        turndown.remove("noscript");
+        if (!disableGfm) {
+            turndown.use(GFMPlugin.gfm); // Use GFM plugin for GitHub Flavored Markdown
+        }
+        const res = turndown.turndown(html); // Use Turndown library to convert HTML to Markdown
+        return res;
+    }
+    catch (e) {
+        trace?.error("HTML conversion failed", e); // Log error if conversion fails
+        return undefined;
+    }
+}
+//# sourceMappingURL=html.js.map

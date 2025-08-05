@@ -1,0 +1,239 @@
+"use strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/* eslint-disable n/no-unsupported-features/node-builtins */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.parseRetryAfter = parseRetryAfter;
+exports.createFetch = createFetch;
+exports.fetch = fetch;
+exports.statusToMessage = statusToMessage;
+exports.tryReadText = tryReadText;
+exports.iterateBody = iterateBody;
+const fetch_retry_1 = __importDefault(require("fetch-retry"));
+const constants_js_1 = require("./constants.js");
+const error_js_1 = require("./error.js");
+const util_js_1 = require("./util.js");
+const cancellation_js_1 = require("./cancellation.js");
+const proxy_js_1 = require("./proxy.js");
+const cross_fetch_1 = __importDefault(require("cross-fetch"));
+const pretty_js_1 = require("./pretty.js");
+const debug_js_1 = require("./debug.js");
+const cleaners_js_1 = require("./cleaners.js");
+const utf8_js_1 = require("./utf8.js");
+const dbg = (0, debug_js_1.genaiscriptDebug)("fetch");
+const dbgr = dbg.extend("retry");
+/**
+ * Parses the retry-after header value.
+ *
+ * @param retryAfterHeader - The retry-after header value
+ * @returns The number of seconds to wait, or undefined if parsing failed
+ */
+function parseRetryAfter(retryAfterHeader) {
+    if (!retryAfterHeader)
+        return undefined;
+    const trimmed = retryAfterHeader.trim();
+    dbgr(`parsing retry-after header: ${trimmed}`);
+    // Try to parse as seconds (integer) first - must be a valid non-negative integer
+    const seconds = parseInt(trimmed, 10);
+    if (!isNaN(seconds) && seconds >= 0 && trimmed === seconds.toString()) {
+        return seconds;
+    }
+    // Try to parse as HTTP date only if it's not a pure number
+    if (!/^-?\d+$/.test(trimmed)) {
+        try {
+            const date = new Date(trimmed);
+            if (!isNaN(date.getTime())) {
+                const now = new Date();
+                const delayMs = date.getTime() - now.getTime();
+                const delaySeconds = Math.max(0, Math.ceil(delayMs / 1000));
+                return delaySeconds;
+            }
+        }
+        catch (e) {
+            dbgr(`failed to parse retry-after header as date: %s`, (0, error_js_1.errorMessage)(e));
+        }
+    }
+    dbgr(`failed to parse retry-after header: ${retryAfterHeader}`);
+    return undefined;
+}
+function parseRetryAfterHeader(response) {
+    const { headers } = response || {};
+    if (!headers)
+        return undefined;
+    const retryAfterHeader = 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers.get?.("retry-after") || headers["retry-after"];
+    if (retryAfterHeader) {
+        const retryAfterSeconds = parseRetryAfter(retryAfterHeader);
+        if (!isNaN(retryAfterSeconds)) {
+            const retryAfter = retryAfterSeconds * 1000; // Convert to milliseconds
+            dbgr(`retry-after: %s`, (0, pretty_js_1.prettyDuration)(retryAfter));
+            return retryAfter;
+        }
+    }
+    return undefined;
+}
+/**
+ * Creates a fetch function with retry logic.
+ *
+ * Wraps `crossFetch` with retry capabilities based on the provided options.
+ * Configures the number of retries, delay between retries, HTTP status codes to retry on,
+ * and supports cancellation and proxy configuration.
+ *
+ * @param options - Configuration for retries, delays, HTTP status codes, cancellation token, and tracing.
+ *   - retryOn: HTTP status codes to retry on.
+ *   - retries: Number of retry attempts.
+ *   - retryDelay: Initial delay between retries.
+ *   - maxDelay: Maximum delay between retries.
+ *   - cancellationToken: Token to cancel the fetch.
+ *   - trace: Trace options for logging.
+ * @returns A fetch function with retry and cancellation support.
+ */
+async function createFetch(options) {
+    const { retries = constants_js_1.FETCH_RETRY_DEFAULT, retryOn = constants_js_1.FETCH_RETRY_ON_DEFAULT, trace, retryDelay = constants_js_1.FETCH_RETRY_DELAY_DEFAULT, maxDelay = constants_js_1.FETCH_RETRY_MAX_DELAY_DEFAULT, maxRetryAfter = constants_js_1.FETCH_RETRY_MAX_RETRY_AFTER_DEFAULT, cancellationToken, } = options || {};
+    const minDelay = constants_js_1.FETCH_RETRY_MIN_DELAY_DEFAULT;
+    dbg(`create fetch`);
+    // We create a proxy based on Node.js environment variables.
+    const agent = await (0, proxy_js_1.resolveHttpsProxyAgent)();
+    const signal = (0, cancellation_js_1.toSignal)(cancellationToken);
+    // We enrich crossFetch with the proxy.
+    const crossFetchWithProxy = (url, opts) => {
+        const requestInit = (0, cleaners_js_1.deleteUndefinedValues)({ signal, agent, ...(opts || {}) });
+        dbg(`%s %s`, opts?.method || "GET", url);
+        return (0, cross_fetch_1.default)(url, requestInit);
+    };
+    // Return the default fetch if no retry status codes are specified
+    if (!retryOn?.length) {
+        dbgr("no retry logic applied, using crossFetchWithProxy directly");
+        return crossFetchWithProxy;
+    }
+    // Create a fetch function with retry logic
+    dbgr(`retries: %d, retry on: %o, retry delay: %d, min delay: %d, max delay: %d, max retry after: %d`, retries, retryOn, retryDelay, minDelay, maxDelay, maxRetryAfter);
+    const fetchRetry = (0, fetch_retry_1.default)(crossFetchWithProxy, {
+        retries,
+        retryOn: (attempt, error, response) => {
+            const code = error?.code;
+            const { ok, status } = response || {};
+            if (ok) {
+                dbgr("status %d is success, not retrying", status);
+                return false;
+            }
+            dbgr(`retry #%d, %d`, attempt, status);
+            if (code === "ECONNRESET" ||
+                code === "ENOTFOUND" ||
+                cancellationToken?.isCancellationRequested) {
+                dbgr("fatal error or cancellation");
+                // Return undefined for fatal errors or cancellations to stop retries
+                return undefined;
+            }
+            if (retryOn?.length && !retryOn.includes(status)) {
+                dbgr(`status %d not in retryOn %o, not retrying`, status, retryOn);
+                return false;
+            }
+            dbgr(`headers: %O`, response?.headers);
+            const retryAfter = parseRetryAfterHeader(response);
+            if (!isNaN(maxRetryAfter) && retryAfter > maxRetryAfter) {
+                dbgr(`retry-after %s exceeds max-retry-after %s, give up`, (0, pretty_js_1.prettyDuration)(retryAfter), (0, pretty_js_1.prettyDuration)(maxRetryAfter));
+                return false;
+            }
+            return true;
+        },
+        retryDelay: (attempt, error, response) => {
+            // Check for retry-after header and respect its value
+            let delay;
+            const retryAfter = parseRetryAfterHeader(response);
+            if (!isNaN(retryAfter)) {
+                delay = Math.max(minDelay, Math.min(maxDelay, retryAfter)); // Convert to milliseconds
+            }
+            else {
+                // Fallback to exponential backoff if retry-after parsing failed
+                delay = Math.max(minDelay, Math.min(maxDelay, Math.ceil(Math.pow(constants_js_1.FETCH_RETRY_GROWTH_FACTOR, attempt) * Math.max(retryDelay, minDelay)) *
+                    (1 + Math.random() / 20)));
+                dbgr(`using exponential backoff: %s`, (0, pretty_js_1.prettyDuration)(delay));
+            }
+            const msg = (0, pretty_js_1.prettyStrings)(`retry #${attempt + 1} in ${(0, pretty_js_1.prettyDuration)(delay)}`, `retry after: ${(0, pretty_js_1.prettyDuration)(retryAfter)}`, `max delay: ${(0, pretty_js_1.prettyDuration)(maxDelay)}`, `retry delay: ${(0, pretty_js_1.prettyDuration)(retryDelay)}`, (0, error_js_1.errorMessage)(error), statusToMessage(response));
+            (0, util_js_1.logVerbose)(msg);
+            trace?.resultItem(false, msg);
+            return delay;
+        },
+    });
+    return fetchRetry;
+}
+/**
+ * Executes an HTTP(S) request with optional retry logic.
+ *
+ * Wraps the input request with retry capabilities and additional configurations.
+ * Leverages `createFetch` to handle retry conditions and builds a final fetch function.
+ *
+ * @param input - The input to the fetch request. Can be a string URL, URL object, or Request object.
+ * @param options - Configuration options for the fetch operation.
+ *   - retryOn: Array of HTTP status codes to retry on.
+ *   - retries: Number of retry attempts.
+ *   - retryDelay: Initial delay between retries in milliseconds.
+ *   - maxDelay: Maximum allowable delay between retries in milliseconds.
+ *   - trace: Trace options for logging the fetch operation.
+ *   - ...rest: Additional options passed to the fetch request.
+ * @returns A Promise resolving with the HTTP Response.
+ */
+async function fetch(input, options) {
+    const { retryOn, retries, retryDelay, maxDelay, trace, ...rest } = options || {};
+    const f = await createFetch({
+        retryOn,
+        retries,
+        retryDelay,
+        maxDelay,
+        trace,
+    });
+    return f(input, rest);
+}
+/**
+ * Converts the HTTP response status and status text into a list of strings.
+ *
+ * Extracts the status and status text from the response object for logging and debugging.
+ *
+ * @param res - The HTTP response object. Includes optional status and statusText fields.
+ * @returns A list of strings containing the status and status text if provided.
+ */
+function statusToMessage(res) {
+    const { status, statusText } = res || {};
+    return (0, pretty_js_1.prettyStrings)(typeof status === "number" ? status + "" : undefined, statusText);
+}
+async function tryReadText(res, defaultValue) {
+    try {
+        const text = await res.text();
+        return text;
+    }
+    catch (e) {
+        dbg(e);
+        return defaultValue;
+    }
+}
+async function* iterateBody(r, options) {
+    const { cancellationToken } = options || {};
+    const decoder = (0, utf8_js_1.createUTF8Decoder)(); // UTF-8 decoder for processing data
+    if (r.body.getReader) {
+        const reader = r.body.getReader();
+        while (!cancellationToken?.isCancellationRequested) {
+            const { done, value } = await reader.read();
+            if (done) {
+                break;
+            }
+            const text = decoder.decode(value, { stream: true });
+            yield text;
+        }
+    }
+    else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for await (const value of r.body) {
+            if (cancellationToken?.isCancellationRequested) {
+                break;
+            }
+            const text = decoder.decode(value, { stream: true });
+            yield text;
+        }
+    }
+}
+//# sourceMappingURL=fetch.js.map

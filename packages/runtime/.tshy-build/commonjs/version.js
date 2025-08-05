@@ -1,0 +1,61 @@
+"use strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TYPESCRIPT_VERSION = exports.PROMPTFOO_VERSION = exports.NODE_MIN_VERSION = void 0;
+const node_fs_1 = require("node:fs");
+const core_1 = require("@genaiscript/core");
+const node_path_1 = require("node:path");
+const { __dirname } = typeof module !== "undefined" && module.filename
+    ? (0, core_1.getModulePaths)(module)
+    : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        (0, core_1.getModulePaths)(import.meta);
+/**
+ * Returns true if the package.json is a "tshy" file (only { "type": ... }).
+ */
+function isTshyPackageJson(path) {
+    try {
+        const pkg = JSON.parse((0, node_fs_1.readFileSync)(path, "utf8"));
+        const keys = Object.keys(pkg);
+        return keys.length === 1 && keys[0] === "type";
+    }
+    catch {
+        return false;
+    }
+}
+/**
+ * Walks up from the current directory to find the first non-tshy package.json.
+ * Throws if not found.
+ */
+function findRealPackageJson(startDir) {
+    let dir = startDir;
+    let pkgPath;
+    while (dir !== "/") {
+        pkgPath = (0, node_path_1.join)(dir, "package.json");
+        if ((0, node_fs_1.existsSync)(pkgPath)) {
+            if (!isTshyPackageJson(pkgPath)) {
+                return { path: pkgPath, json: JSON.parse((0, node_fs_1.readFileSync)(pkgPath, "utf8")) };
+            }
+        }
+        dir = (0, node_path_1.dirname)(dir);
+    }
+    throw new Error("No real package.json found");
+}
+const { json: packageJson } = findRealPackageJson(__dirname);
+// This file exports specific versions of dependencies and engines from package.json
+/**
+ * The minimum required Node.js version for this package.
+ * Retrieved from the "engines" field in package.json.
+ */
+exports.NODE_MIN_VERSION = packageJson.engines.node;
+/**
+ * The version of the 'promptfoo' peer dependency.
+ */
+exports.PROMPTFOO_VERSION = "0.112.7";
+/**
+ * The version of the 'typescript' dependency.
+ * Retrieved from the "dependencies" field in package.json.
+ */
+exports.TYPESCRIPT_VERSION = "5.8.3";
+//# sourceMappingURL=version.js.map

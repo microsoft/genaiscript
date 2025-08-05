@@ -1,0 +1,1502 @@
+"use strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/* eslint-disable no-param-reassign */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GitHubClient = void 0;
+exports.githubParseEnv = githubParseEnv;
+exports.githubUpdatePullRequestDescription = githubUpdatePullRequestDescription;
+exports.mergeDescription = mergeDescription;
+exports.generatedByFooter = generatedByFooter;
+exports.appendGeneratedComment = appendGeneratedComment;
+exports.githubCreateIssueComment = githubCreateIssueComment;
+exports.githubCreatePullRequestReviews = githubCreatePullRequestReviews;
+exports.cleanLog = cleanLog;
+const constants_js_1 = require("./constants.js");
+const fetch_js_1 = require("./fetch.js");
+const host_js_1 = require("./host.js");
+const pretty_js_1 = require("./pretty.js");
+const cleaners_js_1 = require("./cleaners.js");
+const assert_js_1 = require("./assert.js");
+const util_js_1 = require("./util.js");
+const shell_js_1 = require("./shell.js");
+const glob_js_1 = require("./glob.js");
+const concurrency_js_1 = require("./concurrency.js");
+const llmdiff_js_1 = require("./llmdiff.js");
+const json5_js_1 = require("./json5.js");
+const mkmd_js_1 = require("./mkmd.js");
+const error_js_1 = require("./error.js");
+const cleaners_js_2 = require("./cleaners.js");
+const diff_js_1 = require("./diff.js");
+const git_js_1 = require("./git.js");
+const debug_js_1 = require("./debug.js");
+const fetch_js_2 = require("./fetch.js");
+const bufferlike_js_1 = require("./bufferlike.js");
+const filetype_js_1 = require("./filetype.js");
+const node_crypto_1 = require("node:crypto");
+const cancellation_js_1 = require("./cancellation.js");
+const annotations_js_1 = require("./annotations.js");
+const zip_js_1 = require("./zip.js");
+const url_js_1 = require("./url.js");
+const indent_js_1 = require("./indent.js");
+const rest_1 = require("@octokit/rest");
+const plugin_throttling_1 = require("@octokit/plugin-throttling");
+const plugin_paginate_rest_1 = require("@octokit/plugin-paginate-rest");
+const fs_js_1 = require("./fs.js");
+const dbg = (0, debug_js_1.genaiscriptDebug)("github");
+const dbgql = dbg.extend("graphql");
+function readGitHubToken(env) {
+    let token;
+    for (const envName of constants_js_1.GITHUB_TOKENS) {
+        token = env[envName];
+        if (token) {
+            dbg(`found %s`, envName);
+            break;
+        }
+    }
+    return token;
+}
+async function githubFromEnv(env) {
+    const token = readGitHubToken(env);
+    const apiUrl = env.GITHUB_API_URL || "https://api.github.com";
+    const repository = env.GITHUB_REPOSITORY;
+    const [owner, repo] = repository?.split("/", 2) || [undefined, undefined];
+    const ref = env.GITHUB_REF;
+    const refName = env.GITHUB_REF_NAME;
+    const sha = env.GITHUB_SHA;
+    const commitSha = env.GITHUB_COMMIT_SHA;
+    const runId = env.GITHUB_RUN_ID;
+    const serverUrl = env.GITHUB_SERVER_URL;
+    const runUrl = serverUrl && runId ? `${serverUrl}/${repository}/actions/runs/${runId}` : undefined;
+    const eventName = env.GITHUB_EVENT_NAME;
+    const eventPath = env.GITHUB_EVENT_PATH;
+    const event = eventPath ? await (0, fs_js_1.tryReadJSON)(eventPath) : undefined;
+    let issue = (0, cleaners_js_2.normalizeInt)(env.GITHUB_ISSUE ??
+        env.INPUT_GITHUB_ISSUE ??
+        /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue);
+    if (event && isNaN(issue)) {
+        dbg(`resolving issue/pull_request from event`);
+        issue = (0, cleaners_js_2.normalizeInt)(event.issue?.number || event.pull_request?.number);
+    }
+    return (0, cleaners_js_2.deleteUndefinedValues)({
+        token,
+        apiUrl,
+        repository,
+        owner,
+        repo,
+        ref,
+        refName,
+        sha,
+        issue,
+        runId,
+        runUrl,
+        commitSha,
+        eventName,
+        event,
+    });
+}
+async function githubGetPullRequestNumber() {
+    const runtimeHost = (0, host_js_1.resolveRuntimeHost)();
+    const res = await runtimeHost.exec(undefined, "gh", ["pr", "view", "--json", "number"], {
+        label: "github: resolve current pull request number",
+    });
+    if (res.failed) {
+        (0, util_js_1.logVerbose)(res.stderr);
+        return undefined;
+    }
+    const resj = (0, json5_js_1.JSON5TryParse)(res.stdout);
+    const id = resj?.number;
+    (0, util_js_1.logVerbose)(`github: pull request number: ${isNaN(id) ? "not found" : id}`);
+    return id;
+}
+/**
+ * Parses GitHub environment variables to construct connection info for API usage.
+ *
+ * @param env - Environment variables to parse, typically `process.env`.
+ * @param options - Optional parameters:
+ *   - issue: The issue number to set explicitly.
+ *   - resolveIssue: Flag to resolve issue number via the GitHub CLI if not provided.
+ *   - owner: Repository owner to override environment variables.
+ *   - repo: Repository name to override environment variables.
+ * @returns A promise resolving to an object containing parsed GitHub connection information, including owner, repo, repository, issue, and token details.
+ *
+ * Notes:
+ * - If owner, repo, or repository details are missing, attempts to resolve them using the GitHub CLI.
+ * - If issue resolution is enabled and not provided, tries to determine the pull request number via the GitHub CLI.
+ * - Handles errors gracefully by logging verbose error messages but does not throw.
+ */
+async function githubParseEnv(env, options) {
+    const runtimeHost = (0, host_js_1.resolveRuntimeHost)();
+    dbg(`resolving connection info`);
+    const res = await githubFromEnv(env);
+    dbg(`found %O`, Object.keys(res).join(","));
+    try {
+        if (options?.owner && options?.repo) {
+            res.owner = options.owner;
+            dbg(`overriding owner with options.owner: ${options.owner}`);
+            res.repo = options.repo;
+            dbg(`overriding repo with options.repo: ${options.repo}`);
+            res.repository = res.owner + "/" + res.repo;
+        }
+        if (!isNaN(options?.issue)) {
+            dbg(`overriding issue with options.issue: ${options.issue}`);
+            res.issue = options.issue;
+        }
+        if (!res.owner || !res.repo || !res.repository) {
+            dbg(`owner, repo, or repository missing, attempting to resolve via gh CLI`);
+            const repoInfo = await runtimeHost.exec(undefined, "gh", ["repo", "view", "--json", "url,name,owner"], options);
+            if (repoInfo.failed) {
+                dbg(repoInfo.stderr);
+            }
+            else if (!repoInfo.failed) {
+                const { name: repo, owner } = JSON.parse(repoInfo.stdout);
+                dbg(`retrieved repository info via gh CLI: ${repoInfo.stdout}`);
+                res.repo = repo;
+                res.owner = owner.login;
+                res.repository = res.owner + "/" + res.repo;
+            }
+        }
+        if (isNaN(res.issue) && options?.resolveIssue) {
+            dbg(`attempting to resolve issue number`);
+            res.issue = await githubGetPullRequestNumber();
+        }
+        if (!res.commitSha && options?.resolveCommit) {
+            res.commitSha = await git_js_1.GitClient.default().lastCommitSha();
+        }
+        if (!res.token && options?.resolveToken) {
+            const auth = await runtimeHost.exec(undefined, "gh", ["auth", "token"], options);
+            if (!auth.failed) {
+                dbg(`retrieved token via gh CLI: %s...`, auth.stdout.slice(0, 3));
+                res.token = auth.stdout.trim();
+            }
+        }
+    }
+    catch (e) {
+        dbg((0, error_js_1.errorMessage)(e));
+    }
+    (0, cleaners_js_2.deleteUndefinedValues)(res);
+    dbg(`resolved connection info: %O`, Object.fromEntries(Object.entries(res).map(([k, v]) => [k, k === "token" ? "***" : v])));
+    return Object.freeze(res);
+}
+/**
+ * Updates the description of a pull request on GitHub.
+ * Parameters:
+ * - script: The script instance used to generate the footer.
+ * - info: Object containing apiUrl, repository, issue, and runUrl. The issue field must be provided.
+ * - text: The new description text to update. It will be prettified, merged with the existing description, and appended with a footer.
+ * - commentTag: Tag used to identify and merge the description. Must be provided.
+ * Returns:
+ * - An object indicating whether the update was successful and the status text.
+ * Notes:
+ * - Requires a valid GitHub token to authenticate API requests.
+ * - If the issue number is missing, the update will not proceed.
+ */
+async function githubUpdatePullRequestDescription(script, info, text, commentTag, options) {
+    const { cancellationToken } = options ?? {};
+    const { apiUrl, repository, issue, token } = info;
+    (0, assert_js_1.assert)(!!commentTag);
+    if (!issue) {
+        dbg(`missing issue number, cannot update pull request description`);
+        return { updated: false, statusText: "missing issue number" };
+    }
+    if (!token) {
+        dbg(`missing github token, cannot update pull request description`);
+        return { updated: false, statusText: "missing github token" };
+    }
+    text = (0, pretty_js_1.prettifyMarkdown)(text);
+    text += generatedByFooter(script, info);
+    const fetch = await (0, fetch_js_1.createFetch)({ retryOn: [], cancellationToken });
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}`;
+    dbg(`fetching pull request details from URL: ${url}`);
+    // get current body
+    const resGet = await fetch(url, {
+        method: "GET",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": constants_js_1.GITHUB_API_VERSION,
+        },
+    });
+    dbg(`pr get: %d, %s`, resGet.status, resGet.statusText);
+    if (!resGet.ok) {
+        (0, util_js_1.logError)(`pull request fetch failed, ${resGet.statusText}`);
+        return { updated: false, statusText: resGet.statusText };
+    }
+    const resGetJson = (await resGet.json());
+    dbg(`pr html url: %s`, resGetJson.html_url);
+    const body = mergeDescription(commentTag, resGetJson.body, text);
+    dbg(`merging pull request description: %s`, body);
+    const res = await fetch(url, {
+        method: "PATCH",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": constants_js_1.GITHUB_API_VERSION,
+        },
+        body: JSON.stringify({ body }),
+    });
+    const r = {
+        updated: res.status === 200,
+        statusText: res.statusText,
+    };
+    if (!r.updated) {
+        (0, util_js_1.logError)(`pull request ${resGetJson.html_url} update failed, ${r.statusText}`);
+    }
+    else {
+        (0, util_js_1.logVerbose)(`pull request ${resGetJson.html_url} updated`);
+    }
+    return r;
+}
+/**
+ * Merges a new comment or text segment into the existing body, enclosed
+ * within the specified comment tags. If tags exist, updates the content
+ * between them; otherwise, appends the entire section.
+ *
+ * @param commentTag - The unique identifier tag used to demarcate the section
+ *                     in the body where merging occurs.
+ * @param body - The existing text or content to be updated.
+ * @param text - The new content to merge into the body.
+ * @returns Updated body text with merged and formatted content.
+ */
+function mergeDescription(commentTag, body, text) {
+    body = body ?? "";
+    const tag = `<!-- genaiscript begin ${commentTag} -->`;
+    const endTag = `<!-- genaiscript end ${commentTag} -->`;
+    const sep = "\n\n";
+    const start = body.indexOf(tag);
+    const end = body.indexOf(endTag);
+    const header = "<hr/>";
+    if (start > -1 && end > -1 && start < end) {
+        body = body.slice(0, start + tag.length) + header + sep + text + sep + body.slice(end);
+    }
+    else {
+        body = body + sep + tag + header + sep + text + sep + endTag + sep;
+    }
+    return body;
+}
+/**
+ * Generates a footer indicating the content was AI-generated.
+ *
+ * @param script - The script instance responsible for generating the content.
+ * @param info - An object containing metadata, such as the URL to the workflow run.
+ *   - runUrl - Optional URL to the current workflow or run.
+ * @param code - Optional identifier code to be appended to the footer.
+ * @param stats - Optional generation statistics to include usage report.
+ * @returns A formatted string serving as a footer, warning readers about the AI-generated content.
+ */
+function generatedByFooter(script, info, code, stats) {
+    let footer = `\n\n> AI-generated content by ${(0, mkmd_js_1.link)(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect.`;
+    // Add usage report if stats are available and there are tokens used
+    if (stats && stats.accumulatedUsage().total_tokens > 0) {
+        footer += `\n\n${stats.toMarkdownReport()}`;
+    }
+    return footer + `\n\n`;
+}
+/**
+ * Appends an AI-generated comment with diagnostic details to a script.
+ *
+ * @param script - The script instance where the comment will be appended.
+ * @param info - Contains contextual information such as the run URL for generating the footer link.
+ *   - runUrl - The URL of the workflow or job run, if available.
+ * @param annotation - The diagnostic information to include in the comment.
+ *   - message - The diagnostic message to be displayed.
+ *   - code - An optional code identifier related to the diagnostic.
+ *   - severity - The level of severity (e.g., warning or error) for the diagnostic.
+ * @returns A formatted Markdown string representing the AI-generated comment with a footer and diagnostic details.
+ */
+function appendGeneratedComment(script, info, annotation) {
+    const { message, code, severity, suggestion } = annotation;
+    const text = (0, pretty_js_1.prettifyMarkdown)(message);
+    return `<!-- genaiscript ${severity} ${code || ""} -->
+${text}${suggestion ? `\n\n\`\`\`suggestion\n${suggestion}\n\`\`\`\n` : ""}
+${generatedByFooter(script, info, code)}`;
+}
+// https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
+async function githubCreateIssueComment(script, info, body, commentTag, options) {
+    const { cancellationToken, stats } = options ?? {};
+    const { apiUrl, repository, issue, token } = info;
+    if (!issue) {
+        dbg(`missing issue number, cannot create issue comment`);
+        return { created: false, statusText: "missing issue number" };
+    }
+    if (!token) {
+        dbg(`missing github token, cannot create issue comment`);
+        return { created: false, statusText: "missing github token" };
+    }
+    const fetch = await (0, fetch_js_1.createFetch)({ retryOn: [], cancellationToken });
+    const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`;
+    dbg(`creating issue comment at %s`, url);
+    body = (0, pretty_js_1.prettifyMarkdown)(body);
+    body += generatedByFooter(script, info, undefined, stats);
+    dbg(`body:\n%s`, body);
+    if (commentTag) {
+        const tag = `<!-- genaiscript ${commentTag} -->`;
+        body = `${body}\n\n${tag}\n\n`;
+        // try to find the existing comment
+        const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
+            headers: {
+                Accept: "application/vnd.github+json",
+                Authorization: `Bearer ${token}`,
+                "X-GitHub-Api-Version": constants_js_1.GITHUB_API_VERSION,
+            },
+        });
+        if (resListComments.status !== 200) {
+            dbg(`failed to list existing comments`);
+            return { created: false, statusText: resListComments.statusText };
+        }
+        const comments = (await resListComments.json());
+        dbg(`comments: %O`, comments);
+        const comment = comments.find((c) => c.body.includes(tag));
+        if (comment) {
+            dbg(`found existing comment %s with tag, deleting it`, comment.id);
+            const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`;
+            const resd = await fetch(delurl, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "X-GitHub-Api-Version": constants_js_1.GITHUB_API_VERSION,
+                },
+            });
+            if (!resd.ok) {
+                (0, util_js_1.logError)(`issue comment delete failed, ` + resd.statusText);
+            }
+        }
+    }
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": constants_js_1.GITHUB_API_VERSION,
+        },
+        body: JSON.stringify({ body }),
+    });
+    const resp = await res.json();
+    const r = {
+        created: res.status === 201,
+        statusText: res.statusText,
+        html_url: resp.html_url,
+    };
+    if (!r.created) {
+        (0, util_js_1.logError)(`pull request ${issue} comment creation failed, ${r.statusText} (${res.status})`);
+        dbg(JSON.stringify(resp, null, 2));
+    }
+    else {
+        (0, util_js_1.logVerbose)(`pull request ${issue} comment created at ${r.html_url}`);
+    }
+    return r;
+}
+async function githubCreatePullRequestReview(script, info, token, annotation, existingComments, options) {
+    (0, assert_js_1.assert)(!!token);
+    const { cancellationToken } = options ?? {};
+    const { apiUrl, repository, issue, commitSha } = info;
+    dbg(`creating pull request review comment`);
+    const prettyMessage = (0, pretty_js_1.prettifyMarkdown)(annotation.message);
+    const line = annotation.range?.[1]?.[0] + 1;
+    const body = {
+        body: appendGeneratedComment(script, info, annotation),
+        commit_id: commitSha,
+        path: annotation.filename,
+        line: (0, cleaners_js_2.normalizeInt)(line),
+        side: "RIGHT",
+    };
+    if (existingComments.find((c) => c.path === body.path &&
+        Math.abs(c.line - body.line) < constants_js_1.GITHUB_PULL_REQUEST_REVIEW_COMMENT_LINE_DISTANCE &&
+        (annotation.code ? c.body?.includes(annotation.code) : c.body?.includes(prettyMessage)))) {
+        (0, util_js_1.logVerbose)(`pull request ${commitSha} comment creation already exists, skipping`);
+        return { created: false, statusText: "comment already exists" };
+    }
+    const fetch = await (0, fetch_js_1.createFetch)({ retryOn: [], cancellationToken });
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`;
+    dbg(`posting new pull request review comment at URL: ${url}`);
+    dbg(`%O`, body);
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": constants_js_1.GITHUB_API_VERSION,
+        },
+        body: JSON.stringify(body),
+    });
+    const resp = await res.json();
+    const r = {
+        created: res.status === 201,
+        statusText: res.statusText,
+        html_url: resp.html_url,
+    };
+    if (!r.created) {
+        (0, util_js_1.logVerbose)(`pull request ${commitSha} comment creation failed, ${r.statusText} (${res.status})`);
+        dbg("prr comment creation failed %O", resp);
+    }
+    else {
+        (0, util_js_1.logVerbose)(`pull request ${commitSha} comment created at ${r.html_url}`);
+    }
+    return r;
+}
+/**
+ * Creates pull request review comments on GitHub for a set of code annotations.
+ *
+ * @param script - The script instance generating the comments.
+ * @param info - Connection details for GitHub, including API URL, repository, pull request issue number, run URL, and commit SHA.
+ * @param annotations - List of diagnostics or annotations to provide as review comments on the pull request.
+ * @returns A promise resolving to a boolean indicating whether all review comments were successfully created.
+ *
+ * Notes:
+ * - If no annotations are provided, the function skips creating reviews and resolves to true.
+ * - If the issue number or commit SHA is missing, the function logs an error and resolves to false.
+ * - Retrieves an authentication token from the secrets store to authenticate API requests.
+ * - Fetches existing pull request comments to avoid duplication when creating review comments.
+ */
+async function githubCreatePullRequestReviews(script, info, annotations, options) {
+    const { cancellationToken } = options ?? {};
+    const { repository, issue, commitSha, apiUrl, token } = info;
+    if (!annotations?.length) {
+        dbg(`no annotations provided, skipping pull request reviews`);
+        return true;
+    }
+    if (!issue) {
+        dbg(`missing issue number, cannot create pull request reviews`);
+        return false;
+    }
+    if (!commitSha) {
+        dbg(`missing commit sha, cannot create pull request reviews`);
+        return false;
+    }
+    if (!token) {
+        dbg(`missing github token, cannot create pull request reviews`);
+        return false;
+    }
+    // query existing reviews
+    const fetch = await (0, fetch_js_1.createFetch)({ retryOn: [], cancellationToken });
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`;
+    dbg(`fetching existing pull request comments from URL: ${url}`);
+    const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": constants_js_1.GITHUB_API_VERSION,
+        },
+    });
+    (0, cancellation_js_1.checkCancelled)(cancellationToken);
+    if (resListComments.status !== 200) {
+        dbg(`failed to fetch existing pull request comments`);
+        return false;
+    }
+    const comments = (await resListComments.json());
+    dbg(`existing pull request comments: %O`, comments);
+    // code annotations
+    const failed = [];
+    for (const annotation of annotations) {
+        dbg(`iterating over annotations to create pull request reviews`);
+        (0, cancellation_js_1.checkCancelled)(cancellationToken);
+        const res = await githubCreatePullRequestReview(script, info, token, annotation, comments);
+        if (!res.created)
+            failed.push(annotation);
+    }
+    if (failed.length) {
+        await githubCreateIssueComment(script, info, failed.map((d) => (0, annotations_js_1.diagnosticToGitHubMarkdown)(info, d)).join("\n\n"), script.id + "-prr", options);
+    }
+    return true;
+}
+async function paginatorToArray(iterator, count, iteratorItem, elementFilter) {
+    const result = [];
+    for await (const item of await iterator) {
+        let r = iteratorItem(item);
+        if (elementFilter) {
+            r = r.filter(elementFilter);
+        }
+        result.push(...r);
+        if (result.length >= count) {
+            break;
+        }
+    }
+    return result.slice(0, count);
+}
+class GitHubClient {
+    _info;
+    _connection;
+    _client;
+    static _default;
+    static default() {
+        if (!this._default)
+            this._default = new GitHubClient(undefined);
+        return this._default;
+    }
+    constructor(info) {
+        this._info = info;
+    }
+    connection() {
+        if (!this._connection) {
+            this._connection = githubParseEnv(process.env, {
+                ...this._info,
+                resolveToken: true,
+            });
+        }
+        return this._connection;
+    }
+    client(owner, repo) {
+        return new GitHubClient({ owner, repo });
+    }
+    async api() {
+        if (!this._client) {
+            // eslint-disable-next-line no-async-promise-executor
+            this._client = new Promise(async (resolve) => {
+                const conn = await this.connection();
+                const { token, apiUrl } = conn;
+                const OctokitWithPlugins = rest_1.Octokit.plugin(plugin_paginate_rest_1.paginateRest).plugin(plugin_throttling_1.throttling);
+                //                    .plugin(retry)
+                const res = new OctokitWithPlugins({
+                    userAgent: constants_js_1.TOOL_ID,
+                    auth: token,
+                    baseUrl: apiUrl,
+                    request: { retries: 3 },
+                    throttle: {
+                        onRateLimit: (retryAfter, options, octokit, retryCount) => {
+                            octokit.log.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
+                            if (retryCount < 1) {
+                                // only retries once
+                                octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+                                return true;
+                            }
+                            return false;
+                        },
+                        onSecondaryRateLimit: (_retryAfter, options, octokit) => {
+                            octokit.log.warn(`SecondaryRateLimit detected for request ${options.method} ${options.url}`);
+                        },
+                    },
+                });
+                resolve({
+                    client: res,
+                    ...conn,
+                });
+            });
+        }
+        return this._client;
+    }
+    async info() {
+        const { apiUrl: baseUrl, token: auth, repo, owner, ref, refName, issue, runId, runUrl, event, eventName, } = await this.connection();
+        return Object.freeze((0, cleaners_js_2.deleteUndefinedValues)({
+            baseUrl,
+            repo,
+            owner,
+            auth,
+            ref,
+            refName,
+            runId,
+            runUrl,
+            issueNumber: issue,
+            eventName,
+            event,
+        }));
+    }
+    async repo() {
+        const { client, owner, repo } = await this.api();
+        const res = await client.rest.repos.get({ owner, repo });
+        return res.data;
+    }
+    async getRef(branchName) {
+        const { client, owner, repo } = await this.api();
+        try {
+            dbg(`get ref %s`, branchName);
+            const existing = await client.git.getRef({
+                owner,
+                repo,
+                ref: `heads/${branchName}`,
+            });
+            return existing.data;
+        }
+        catch {
+            dbg(`ref not found`);
+            return undefined;
+        }
+    }
+    async getOrCreateRef(branchName, options) {
+        const { client, owner, repo } = await this.api();
+        const { base, orphaned } = options ?? {};
+        if (!branchName)
+            throw new Error("branchName is required");
+        dbg(`checking if branch %s exists`, branchName);
+        const existing = await this.getRef(branchName);
+        if (existing) {
+            dbg(`branch %s already exists`, branchName);
+            return existing;
+        }
+        let sha;
+        dbg(`creating branch %s`, branchName);
+        if (orphaned) {
+            dbg(`creating orphaned`);
+            // Step 0: Create a blob for the file content
+            const { data: blob } = await client.git.createBlob({
+                owner,
+                repo,
+                content: Buffer.from(typeof orphaned === orphaned ? orphaned : `Orphaned branch created by GenAIScript.`).toString("base64"),
+                encoding: "base64",
+            });
+            // Step 1: Create an empty tree
+            const { data: tree } = await client.git.createTree({
+                owner,
+                repo,
+                tree: [
+                    {
+                        path: "README.md",
+                        mode: "100644",
+                        type: "blob",
+                        sha: blob.sha,
+                    },
+                ],
+            });
+            dbg(`created tree %s`, tree.sha);
+            // Step 2: Create a commit with NO parents
+            const { data: commit } = await client.git.createCommit({
+                owner,
+                repo,
+                message: "Initial commit on orphan branch",
+                tree: tree.sha,
+                parents: [], // <--- empty parent list = no history
+            });
+            sha = commit.sha;
+            dbg(`created commit %s`, commit.sha);
+        }
+        else {
+            if (!base) {
+                dbg(`base is required for non-orphaned branch`);
+                const repo = await this.repo();
+                sha = repo.default_branch;
+            }
+            else
+                sha = base;
+        }
+        // Step 3: Create a reference (branch) pointing to the commit
+        dbg(`creating reference %s <- %s`, branchName, sha);
+        const res = await client.git.createRef({
+            owner,
+            repo,
+            ref: `refs/heads/${branchName}`,
+            sha,
+        });
+        return res.data;
+    }
+    async uploadAsset(file, options) {
+        const { branchName = constants_js_1.GITHUB_ASSET_BRANCH } = options ?? {};
+        const { client, owner, repo } = await this.api();
+        if (!file) {
+            dbg(`no buffer provided, nothing to upload`);
+            return undefined;
+        }
+        const buffer = await (0, bufferlike_js_1.resolveBufferLike)(file);
+        if (!buffer) {
+            dbg(`failed to resolve buffer, nothing to upload`);
+            return undefined;
+        }
+        const base64Content = buffer.toString("base64");
+        const fileType = await (0, filetype_js_1.fileTypeFromBuffer)(buffer);
+        const hash = (0, node_crypto_1.createHash)("sha256");
+        hash.write(base64Content);
+        const hashId = hash.digest().toString("hex");
+        const uploadPath = hashId + (fileType ? `.${fileType.ext}` : ".txt");
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branchName}/${uploadPath}`;
+        // try to get file
+        dbg(`checking %s`, rawUrl);
+        const cached = await (0, fetch_js_2.fetch)(rawUrl, { method: "HEAD" });
+        if (cached.status === 200) {
+            dbg(`asset already exists, skip upload`);
+            return rawUrl;
+        }
+        dbg(`uploading asset %s to branch %s`, uploadPath, branchName);
+        await this.getOrCreateRef(branchName, { orphaned: true });
+        const { data: blob } = await client.git.createBlob({
+            owner,
+            repo,
+            content: base64Content,
+            encoding: "base64",
+        });
+        dbg(`created blob %s`, blob.sha);
+        // 3. Get the latest commit (HEAD) of the branch
+        const { data: refData } = await client.git.getRef({
+            owner,
+            repo,
+            ref: `heads/${branchName}`,
+        });
+        const latestCommitSha = refData.object.sha;
+        dbg(`head ref %s: %s`, refData.ref, latestCommitSha);
+        // 4. Get the tree of the latest commit
+        const { data: commitData } = await client.git.getCommit({
+            owner,
+            repo,
+            commit_sha: latestCommitSha,
+        });
+        const baseTreeSha = commitData.tree.sha;
+        dbg(`base tree sha %s`, baseTreeSha);
+        // 5. Create a new tree adding the image
+        const { data: newTree } = await client.git.createTree({
+            owner,
+            repo,
+            base_tree: baseTreeSha,
+            tree: [
+                {
+                    path: uploadPath,
+                    mode: "100644",
+                    type: "blob",
+                    sha: blob.sha,
+                },
+            ],
+        });
+        dbg("tree created %s", newTree.sha);
+        // 6. Create a new commit with the new tree
+        const { data: newCommit } = await client.git.createCommit({
+            owner,
+            repo,
+            message: `Upload asset ${uploadPath}`,
+            tree: newTree.sha,
+            parents: [latestCommitSha],
+        });
+        dbg("commit created %s", newCommit.sha);
+        // 7. Update the branch to point to the new commit
+        await client.git.updateRef({
+            owner,
+            repo,
+            ref: `heads/${branchName}`,
+            sha: newCommit.sha,
+            force: false, // do not force push
+        });
+        return rawUrl;
+    }
+    async listIssues(options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing issues for repository`);
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.issues.listForRepo, {
+            owner,
+            repo,
+            ...rest,
+        });
+        const res = await paginatorToArray(ite, count, (i) => i.data);
+        return res;
+    }
+    async listGists(options) {
+        const { client } = await this.api();
+        dbg(`listing gists for user`);
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT, filenameAsResources, ...rest } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.gists.list, {
+            ...rest,
+        });
+        const res = await paginatorToArray(ite, count, (i) => i.data);
+        return res.map((r) => ({
+            id: r.id,
+            description: r.description,
+            created_at: r.created_at,
+            files: Object.values(r.files).map(({ filename, size }) => ({
+                filename: filenameAsResources ? `gist://${r.id}/${filename}` : filename,
+                size,
+            })),
+        }));
+    }
+    async getGist(gist_id) {
+        if (typeof gist_id === "string") {
+            gist_id = gist_id.trim();
+        }
+        const { client, owner } = await this.api();
+        dbg(`retrieving gist details for gist ID: ${gist_id}`);
+        if (!gist_id) {
+            return undefined;
+        }
+        const { data } = await client.rest.gists.get({
+            gist_id,
+            owner,
+        });
+        const { files, id, description, created_at } = data;
+        if (Object.values(files || {}).some((f) => f.encoding !== "utf-8" && f.encoding !== "base64")) {
+            dbg(`unsupported encoding for gist files`);
+            return undefined;
+        }
+        const res = {
+            id,
+            description,
+            created_at,
+            files: Object.values(files).map(({ filename, content, size, encoding }) => (0, cleaners_js_2.deleteUndefinedValues)({
+                filename,
+                content,
+                encoding: encoding === "utf-8" ? undefined : encoding === "base64" ? "base64" : undefined,
+                size,
+            })),
+        };
+        dbg(`gist: %d files, %s`, res.files.length, res.description || "");
+        return res;
+    }
+    async getIssue(issue_number) {
+        issue_number = (0, cleaners_js_2.normalizeInt)(issue_number);
+        const { client, owner, repo } = await this.api();
+        if (isNaN(issue_number)) {
+            issue_number = (await this._connection).issue;
+        }
+        dbg(`retrieving issue details for issue number: ${issue_number}`);
+        if (isNaN(issue_number)) {
+            return undefined;
+        }
+        const { data } = await client.rest.issues.get({
+            owner,
+            repo,
+            issue_number,
+        });
+        return data;
+    }
+    async createReaction(type, id, reaction) {
+        // eslint-disable-next-line no-param-reassign
+        id = (0, cleaners_js_2.normalizeInt)(id);
+        const { client, owner, repo } = await this.api();
+        // eslint-disable-next-line no-param-reassign
+        if (isNaN(id) && type === "issue")
+            id = (await this._connection).issue;
+        dbg(`updating reaction for ${type} ${id}`);
+        if (isNaN(id))
+            return undefined;
+        switch (type) {
+            case "issue": {
+                dbg(`adding reaction to issue %s`, id);
+                const { data } = await client.rest.reactions.createForIssue({
+                    owner,
+                    repo,
+                    issue_number: id,
+                    content: reaction,
+                });
+                return data;
+            }
+            case "issueComment": {
+                dbg(`adding reaction to issue comment %s`, id);
+                const { data } = await client.rest.reactions.createForIssueComment({
+                    owner,
+                    repo,
+                    comment_id: id,
+                    content: reaction,
+                });
+                return data;
+            }
+            case "pullRequestReviewComment": {
+                dbg(`adding reaction to pull request review comment %s`, id);
+                const { data } = await client.rest.reactions.createForPullRequestReviewComment({
+                    owner,
+                    repo,
+                    comment_id: id,
+                    content: reaction,
+                });
+                return data;
+            }
+            default:
+                throw new Error(`Unsupported reaction type: ${type}`);
+        }
+    }
+    async createIssue(title, body, options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`create issue`);
+        const { data } = await client.rest.issues.create({
+            ...(options || {}),
+            owner,
+            repo,
+            title,
+            body: (0, pretty_js_1.prettifyMarkdown)((0, indent_js_1.dedent)(body)),
+        });
+        return data;
+    }
+    async updateIssue(issueNumber, options) {
+        issueNumber = (0, cleaners_js_2.normalizeInt)(issueNumber);
+        const { client, owner, repo } = await this.api();
+        dbg(`updating issue number: ${issueNumber}`);
+        if (isNaN(issueNumber)) {
+            issueNumber = (await this._connection).issue;
+        }
+        if (isNaN(issueNumber)) {
+            return undefined;
+        }
+        const { data } = await client.rest.issues.update({
+            owner,
+            repo,
+            issue_number: issueNumber,
+            ...options,
+        });
+        return data;
+    }
+    async createIssueComment(issue_number, body) {
+        issue_number = (0, cleaners_js_2.normalizeInt)(issue_number);
+        const { client, owner, repo } = await this.api();
+        dbg(`creating comment for issue number: ${issue_number}`);
+        if (isNaN(issue_number)) {
+            issue_number = (await this._connection).issue;
+        }
+        if (isNaN(issue_number)) {
+            return undefined;
+        }
+        const { data } = await client.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number,
+            body: (0, pretty_js_1.prettifyMarkdown)((0, indent_js_1.dedent)(body)),
+        });
+        dbg(`created comment %s`, data.id);
+        return data;
+    }
+    async updateIssueComment(comment_id, body) {
+        const { client, owner, repo } = await this.api();
+        dbg(`updating comment %s`, comment_id);
+        const { data } = await client.rest.issues.updateComment({
+            owner,
+            repo,
+            comment_id: (0, cleaners_js_2.normalizeInt)(comment_id),
+            body: (0, pretty_js_1.prettifyMarkdown)((0, indent_js_1.dedent)(body)),
+        });
+        dbg(`updated comment %s`, data.id);
+        return data;
+    }
+    // https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/agents/copilot-coding-agent/using-copilot-to-work-on-an-issue#assigning-an-issue-to-copilot-via-the-github-api
+    async listSuggestedActors() {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing suggested actors for repository %s/%s`, owner, repo);
+        // https://docs.github.com/en/enterprise-cloud@latest/graphql/reference/objects#
+        const res = await this.graphql(`query($owner: String!, $repo: String!) {
+    repository(owner: $owner, name: $repo) {
+    suggestedActors(capabilities: [CAN_BE_ASSIGNED], first: 100) {
+      nodes {
+      login
+      __typename
+
+      ... on Bot {
+        id
+      }
+
+      ... on User {
+        id
+      }
+      }
+    }
+    }
+  }`);
+        const actors = res.repository.suggestedActors.nodes;
+        dbg(`suggested actors: %O`, actors);
+        return actors.map((a) => ({
+            login: a.login,
+            id: a.id,
+        }));
+    }
+    async assignIssueToBot(issue_number, options) {
+        // https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/agents/copilot-coding-agent/using-copilot-to-work-on-an-issue#assigning-an-issue-to-copilot-via-the-github-api
+        dbg(`assign issue to bot %O`, options);
+        // resolve issue
+        const issue = await this.getIssue(issue_number);
+        if (!issue) {
+            dbg(`issue %d not found`, issue_number);
+            return undefined;
+        }
+        // resolve bot
+        const { bot = "copilot-swe-agent" } = options ?? {};
+        const bots = await this.listSuggestedActors();
+        const actor = bots.find((b) => b.login === bot || b.id === bot);
+        if (!actor) {
+            dbg(`bot %s not found in suggested actors`, bot);
+            return undefined;
+        }
+        dbg(`assigning issue #%d (%s) to bot @%s (%s)`, issue.number, issue.node_id, actor.login, actor.id);
+        // assign
+        const updated = await this.graphql((0, indent_js_1.dedent) `mutation {
+  replaceActorsForAssignable(input: {assignableId: "${issue.node_id}" actorIds: ["${actor.id}"]}) {
+    assignable {
+      ... on Issue {
+        id
+        title
+        assignees(first: 10) {
+          nodes {
+            login
+          }
+        }
+      }
+    }
+  }
+}`);
+        const assignable = updated.replaceActorsForAssignable.assignable;
+        dbg(`assigned: %O`, assignable);
+        return assignable;
+    }
+    async listPullRequests(options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing pull requests for repository`);
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.pulls.list, {
+            owner,
+            repo,
+            ...rest,
+        });
+        const res = await paginatorToArray(ite, count, (i) => i.data);
+        return res;
+    }
+    async getPullRequest(pull_number) {
+        pull_number = (0, cleaners_js_2.normalizeInt)(pull_number);
+        const { client, owner, repo } = await this.api();
+        dbg(`retrieving pull request details for pull number: ${pull_number}`);
+        if (isNaN(pull_number)) {
+            pull_number = (await this._connection).issue;
+        }
+        if (isNaN(pull_number)) {
+            return undefined;
+        }
+        const { data } = await client.rest.pulls.get({
+            owner,
+            repo,
+            pull_number,
+        });
+        return data;
+    }
+    async listPullRequestReviewComments(pull_number, options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing review comments for pull request number: ${pull_number}`);
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.pulls.listReviewComments, {
+            owner,
+            repo,
+            pull_number,
+            ...rest,
+        });
+        const res = await paginatorToArray(ite, count, (i) => i.data);
+        return res;
+    }
+    async listIssueComments(issue_number, options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing comments for issue number: ${issue_number}`);
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.issues.listComments, {
+            owner,
+            repo,
+            issue_number,
+            ...rest,
+        });
+        const res = await paginatorToArray(ite, count, (i) => i.data);
+        return res;
+    }
+    async listReleases(options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing releases for repository`);
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.repos.listReleases, {
+            owner,
+            repo,
+            ...rest,
+        });
+        const res = await paginatorToArray(ite, count, (i) => i.data);
+        return res;
+    }
+    async graphql(query, variables) {
+        const { client, owner, repo, ref } = await this.api();
+        query = (0, indent_js_1.dedent)(query).trim();
+        dbgql(`query: %s`, query);
+        if (!query)
+            throw new Error("GraphQL query is required");
+        // Automatically inject current repository context if requested
+        const finalVariables = (0, cleaners_js_2.deleteUndefinedValues)({
+            owner,
+            repo,
+            ref,
+            ...(variables || {}),
+        });
+        dbgql(`variables: %O`, finalVariables);
+        const result = await client.graphql(query, finalVariables);
+        dbgql(`result: %O`, result);
+        return result;
+    }
+    async workflowRun(runId) {
+        const { client, owner, repo } = await this.api();
+        dbg(`retrieving workflow run details for run ID: ${runId}`);
+        const { data } = await client.rest.actions.getWorkflowRun({
+            owner,
+            repo,
+            run_id: (0, cleaners_js_2.normalizeInt)(runId),
+        });
+        dbg(`workflow run: %O`, data);
+        return data;
+    }
+    async listWorkflowRuns(workflowIdOrFilename, options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing workflow runs for workflow ID or filename: ${workflowIdOrFilename}`);
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+        const ite = client.paginate.iterator(workflowIdOrFilename
+            ? client.rest.actions.listWorkflowRuns
+            : client.rest.actions.listWorkflowRunsForRepo, {
+            owner,
+            repo,
+            workflow_id: workflowIdOrFilename,
+            per_page: 100,
+            ...rest,
+        });
+        const res = await paginatorToArray(ite, count, (i) => i.data, ({ conclusion }) => conclusion !== "skipped");
+        dbg(`workflow runs: %O`, res);
+        return res;
+    }
+    /**
+     * List artifacts for a given workflow run
+     * @param runId
+     */
+    async listWorkflowRunArtifacts(runId, options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing artifacts for workflow run ID: ${runId}`);
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT, ...rest } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.actions.listWorkflowRunArtifacts, {
+            owner,
+            repo,
+            run_id: (0, cleaners_js_2.normalizeInt)(runId),
+            per_page: 100,
+            ...rest,
+        });
+        const res = await paginatorToArray(ite, count, (i) => i.data);
+        dbg(`workflow run artifacts: %O`, res);
+        return res;
+    }
+    /**
+     * Gets the files of a GitHub Action workflow run artifact
+     * @param artifactId
+     */
+    async artifact(artifactId) {
+        const { client, owner, repo } = await this.api();
+        dbg(`retrieving artifact details for artifact ID: ${artifactId}`);
+        const { data } = await client.rest.actions.getArtifact({
+            owner,
+            repo,
+            artifact_id: (0, cleaners_js_2.normalizeInt)(artifactId),
+        });
+        return data;
+    }
+    async resolveAssetUrl(url) {
+        if (!(0, url_js_1.uriTryParse)(url))
+            return undefined; // unknown format
+        if (!constants_js_1.GITHUB_ASSET_URL_RX.test(url))
+            return undefined; // not a github asset
+        const { client, owner, repo } = await this.api();
+        dbg(`asset: resolving url for %s`, (0, url_js_1.uriRedact)(url));
+        const { data, status } = await client.rest.markdown.render({
+            owner,
+            repo,
+            context: `${owner}/${repo}`, // force html with token
+            text: `![](${url})`,
+            mode: "gfm",
+        });
+        dbg(`asset: resolution %s`, status);
+        const { resolved } = /<img src="(?<resolved>[^"]+)"/i.exec(data)?.groups || {};
+        if (!resolved)
+            dbg(`markdown:\n%s`, data);
+        return resolved;
+    }
+    async downloadArtifactFiles(artifactId) {
+        const { client, owner, repo } = await this.api();
+        dbg(`downloading artifact files for artifact ID: ${artifactId}`);
+        const { url } = await client.rest.actions.downloadArtifact({
+            owner,
+            repo,
+            artifact_id: (0, cleaners_js_2.normalizeInt)(artifactId),
+            archive_format: "zip",
+        });
+        dbg(`received url, downloading...`);
+        const fetch = await (0, fetch_js_1.createFetch)();
+        const res = await fetch(url);
+        if (!res.ok)
+            throw new Error(res.statusText);
+        const buffer = await res.arrayBuffer();
+        const files = await (0, zip_js_1.unzip)(new Uint8Array(buffer));
+        return files;
+    }
+    async listWorkflowJobs(run_id, options) {
+        // Get the jobs for the specified workflow run
+        dbg(`listing jobs for workflow run ID: ${run_id}`);
+        const { client, owner, repo } = await this.api();
+        const { filter, count = constants_js_1.GITHUB_REST_PAGE_DEFAULT } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.actions.listJobsForWorkflowRun, {
+            owner,
+            repo,
+            run_id,
+            filter,
+        });
+        const jobs = await paginatorToArray(ite, count, (i) => i.data);
+        const res = [];
+        dbg(`processing workflow jobs`);
+        for (const job of jobs) {
+            if (job.conclusion === "skipped" || job.conclusion === "cancelled") {
+                continue;
+            }
+            const { url: logs_url } = await client.rest.actions.downloadJobLogsForWorkflowRun({
+                owner,
+                repo,
+                job_id: job.id,
+            });
+            const logsRes = await (0, fetch_js_2.fetch)(logs_url);
+            const text = await logsRes.text();
+            res.push({
+                ...job,
+                logs_url,
+                logs: text,
+                content: parseJobLog(text),
+            });
+        }
+        dbg(`workflow jobs: %O`, res);
+        return res;
+    }
+    /**
+     * Downloads a GitHub Action workflow run log
+     * @param jobId
+     */
+    async downloadWorkflowJobLog(job_id, options) {
+        const { client, owner, repo } = await this.api();
+        const { url: logs_url } = await client.rest.actions.downloadJobLogsForWorkflowRun({
+            owner,
+            repo,
+            job_id,
+        });
+        const logsRes = await (0, fetch_js_2.fetch)(logs_url);
+        let text = await logsRes.text();
+        if (options?.llmify) {
+            text = parseJobLog(text);
+        }
+        return text;
+    }
+    async downloadJob(job_id) {
+        const { client, owner, repo } = await this.api();
+        dbg(`downloading job log for job ID: ${job_id}`);
+        const filename = `job-${job_id}.log`;
+        const { url } = await client.rest.actions.downloadJobLogsForWorkflowRun({
+            owner,
+            repo,
+            job_id,
+        });
+        const res = await (0, fetch_js_2.fetch)(url);
+        const content = await res.text();
+        return { filename, url, content };
+    }
+    async diffWorkflowJobLogs(job_id, other_job_id) {
+        const job = await this.downloadJob(job_id);
+        dbg(`diffing workflow job logs for job IDs: ${job_id} and ${other_job_id}`);
+        const other = await this.downloadJob(other_job_id);
+        const justDiff = (0, diff_js_1.diffCreatePatch)(job, other);
+        // try compressing
+        job.content = parseJobLog(job.content);
+        other.content = parseJobLog(other.content);
+        const parsedDiff = (0, diff_js_1.diffCreatePatch)(job, other);
+        const diff = justDiff.length < parsedDiff.length ? justDiff : parsedDiff;
+        return (0, llmdiff_js_1.llmifyDiff)(diff);
+    }
+    async getFile(filename, ref) {
+        const { client, owner, repo } = await this.api();
+        dbg(`retrieving file content for filename: ${filename} and ref: ${ref}`);
+        const { data: content } = await client.rest.repos.getContent({
+            owner,
+            repo,
+            path: filename,
+            ref,
+        });
+        if ("content" in content) {
+            return {
+                filename,
+                content: Buffer.from(content.content, "base64").toString("utf-8"),
+            };
+        }
+        else {
+            return undefined;
+        }
+    }
+    async searchCode(query, options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`searching code with query: ${query}`);
+        const q = query + `+repo:${owner}/${repo}`;
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.search.code, {
+            q,
+            ...(options ?? {}),
+        });
+        const items = await paginatorToArray(ite, count, (i) => i.data);
+        return items.map(({ name, path, sha, html_url, score, repository }) => ({
+            name,
+            path,
+            sha,
+            html_url,
+            score,
+            repository: repository.full_name,
+        }));
+    }
+    async workflow(workflowId) {
+        const { client, owner, repo } = await this.api();
+        dbg(`retrieving workflow details for workflow ID: ${workflowId}`);
+        const { data } = await client.rest.actions.getWorkflow({
+            owner,
+            repo,
+            workflow_id: workflowId,
+        });
+        dbg(`workflow: %O`, data);
+        return data;
+    }
+    async listWorkflows(options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing workflows for repository`);
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.actions.listRepoWorkflows, {
+            owner,
+            repo,
+            ...(options ?? {}),
+        });
+        const workflows = await paginatorToArray(ite, count, (i) => i.data);
+        dbg(`workflows: %O`, workflows);
+        return workflows;
+    }
+    async listBranches(options) {
+        dbg(`listing branches for repository`);
+        const { client, owner, repo } = await this.api();
+        const { count = constants_js_1.GITHUB_REST_PAGE_DEFAULT } = options ?? {};
+        const ite = client.paginate.iterator(client.rest.repos.listBranches, {
+            owner,
+            repo,
+            ...(options ?? {}),
+        });
+        const branches = await paginatorToArray(ite, count, (i) => i.data);
+        return branches.map(({ name }) => name);
+    }
+    async listRepositoryLanguages() {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing languages for repository`);
+        const { data: languages } = await client.rest.repos.listLanguages({
+            owner,
+            repo,
+        });
+        dbg(`languages: %O`, languages);
+        return languages;
+    }
+    async listIssueLabels(issueNumber) {
+        const { client, owner, repo } = await this.api();
+        dbg(`listing labels for %o`, issueNumber);
+        const { data: labels } = issueNumber === undefined
+            ? await client.rest.issues.listLabelsForRepo({
+                owner,
+                repo,
+            })
+            : await client.rest.issues.listLabelsOnIssue({
+                owner,
+                repo,
+                issue_number: (0, cleaners_js_2.normalizeInt)(issueNumber),
+            });
+        dbg(`labels: %O`, labels);
+        return labels;
+    }
+    async getRepositoryContent(path, options) {
+        const { client, owner, repo } = await this.api();
+        dbg(`retrieving repository content for path: ${path}`);
+        const { ref, type, glob, downloadContent, maxDownloadSize } = options ?? {};
+        const { data: contents } = await client.rest.repos.getContent({
+            owner,
+            repo,
+            path,
+            ref,
+        });
+        const res = (0, cleaners_js_1.arrayify)(contents)
+            .filter((c) => !type || c.type === type)
+            .filter((c) => !glob || (0, glob_js_1.isGlobMatch)(c.path, glob))
+            .map((content) => ({
+            filename: content.path,
+            type: content.type,
+            size: content.size,
+            content: content.type === "file" && content.content
+                ? Buffer.from(content.content, "base64").toString("utf-8")
+                : undefined,
+        }));
+        if (downloadContent) {
+            const limit = (0, concurrency_js_1.concurrentLimit)("github", constants_js_1.GITHUB_REST_API_CONCURRENCY_LIMIT);
+            await Promise.all(res
+                .filter((f) => f.type === "file" && !f.content)
+                .filter((f) => !maxDownloadSize || f.size <= maxDownloadSize)
+                .map((f) => {
+                const filename = f.filename;
+                return async () => {
+                    const { data: fileContent } = await client.rest.repos.getContent({
+                        owner,
+                        repo,
+                        path: filename,
+                        ref,
+                    });
+                    f.content = Buffer.from((0, cleaners_js_1.arrayify)(fileContent)[0].content, "base64").toString("utf8");
+                };
+            })
+                .map((p) => limit(p)));
+        }
+        return res;
+    }
+    async addWorktreeForPullRequest(pullNumber, path, options) {
+        dbg(`adding worktree for pull request ${pullNumber}`);
+        // Get pull request details
+        const pr = await this.getPullRequest(pullNumber);
+        if (!pr) {
+            throw new Error(`Pull request ${pullNumber} not found`);
+        }
+        // Default path based on PR info
+        const defaultPath = path || `worktree-pr-${pullNumber}`;
+        // Fetch the PR branch
+        const gitClient = git_js_1.GitClient.default();
+        const branchName = `pr-${pullNumber}/${pr.head.ref}`;
+        try {
+            // Try to fetch the PR branch first
+            await gitClient.fetch("origin", `pull/${pullNumber}/head:${branchName}`);
+        }
+        catch (error) {
+            dbg(`Failed to fetch PR branch: ${error}`);
+            // Continue with the head ref directly
+        }
+        // Create worktree with the PR branch or head ref
+        const commitish = branchName || pr.head.ref;
+        return await gitClient.addWorktree(defaultPath, commitish, {
+            ...options,
+            branch: options?.branch || branchName,
+        });
+    }
+}
+exports.GitHubClient = GitHubClient;
+function parseJobLog(text) {
+    const lines = cleanLog(text).split(/\r?\n/g);
+    const groups = [];
+    let current = groups[0];
+    for (const line of lines) {
+        if (line.startsWith("##[group]")) {
+            current = {
+                title: line.slice("##[group]".length),
+                text: "",
+            };
+        }
+        else if (line.startsWith("##[endgroup]")) {
+            if (current) {
+                groups.push(current);
+            }
+            current = undefined;
+        }
+        else if (line.includes("Post job cleanup.")) {
+            break; // ignore cleanup typically
+        }
+        else {
+            if (!current) {
+                current = { title: "", text: "" };
+            }
+            current.text += line + "\n";
+        }
+    }
+    if (current) {
+        groups.push(current);
+    }
+    const ignoreSteps = [
+        "Runner Image",
+        "Fetching the repository",
+        "Checking out the ref",
+        "Setting up auth",
+        "Setting up auth for fetching submodules",
+        "Getting Git version info",
+        "Initializing the repository",
+        "Determining the checkout info",
+        "Persisting credentials for submodules",
+    ];
+    return groups
+        .filter(({ title }) => !ignoreSteps.includes(title))
+        .map((f) => (f.title ? `##[group]${f.title}\n${f.text}\n##[endgroup]` : f.text))
+        .join("\n");
+}
+function cleanLog(text) {
+    return (0, shell_js_1.shellRemoveAsciiColors)(text.replace(
+    // timestamps
+    /^﻿?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{2,}Z /gm, ""));
+}
+//# sourceMappingURL=githubclient.js.map

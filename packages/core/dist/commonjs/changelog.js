@@ -1,0 +1,156 @@
+"use strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.parseChangeLogs = parseChangeLogs;
+exports.applyChangeLog = applyChangeLog;
+/**
+ * Defines interfaces and functions for parsing and applying changelogs.
+ * A changelog describes changes between original and modified code segments.
+ */
+const unwrappers_js_1 = require("./unwrappers.js");
+/**
+ * Parses a raw changelog string into a structured array of ChangeLog objects.
+ *
+ * @param source The raw input string containing changelog information.
+ * Must include headers, descriptions, and detailed changes with line numbers and contents.
+ * The input is expected to be wrapped in a "changelog" fence.
+ * Throws an error if the format is invalid, required fields are missing, or parsing fails.
+ *
+ * @returns An array of ChangeLog objects parsed from the input.
+ */
+function parseChangeLogs(source) {
+    const lines = (0, unwrappers_js_1.unfence)(source, "changelog").split("\n");
+    const changelogs = [];
+    // Process each line to extract changelog information.
+    while (lines.length) {
+        if (!lines[0].trim()) {
+            lines.shift();
+            continue;
+        }
+        // each back ticks
+        if (/^[`.]{3,}/.test(lines[0])) {
+            lines.shift();
+            continue;
+        }
+        // Parse the ChangeLog header line.
+        let m = /^ChangeLog:\s{0,128}(?<index>\d+)@(?<file>.*)\s{0,128}$/i.exec(lines[0]);
+        if (!m)
+            throw new Error("missing ChangeLog header in |" + lines[0] + "|");
+        const changelog = {
+            index: parseInt(m.groups.index),
+            filename: m.groups.file.trim(),
+            description: undefined,
+            changes: [],
+        };
+        changelogs.push(changelog);
+        lines.shift();
+        // Parse the Description line.
+        m = /^Description:(?<description>.*)$/i.exec(lines[0]);
+        if (!m)
+            throw new Error("missing ChangeLog description");
+        changelog.description = m.groups.description.trim();
+        lines.shift();
+        // Parse changes block.
+        while (lines.length) {
+            // Skip empty lines.
+            if (/^\s*$/.test(lines[0])) {
+                lines.shift();
+                continue;
+            }
+            // each back ticks
+            if (/^[`.]{3,}/.test(lines[0])) {
+                // somehow we have finished this changed
+                lines.shift();
+                continue;
+            }
+            // Attempt to parse a change.
+            const change = parseChange();
+            if (change)
+                changelog.changes.push(change);
+            else
+                break;
+        }
+    }
+    return changelogs;
+    // Parses a single change within the changelog.
+    function parseChange() {
+        // Parse OriginalCode block
+        let m = /^OriginalCode@(?<start>\d+)-(?<end>\d+):$/i.exec(lines[0]);
+        if (!m)
+            return undefined;
+        lines.shift();
+        const original = parseChunk(m);
+        // Parse ChangedCode block
+        m = /^ChangedCode@(?<start>\d+)-(?<end>\d+):\s*$/i.exec(lines[0]);
+        if (!m)
+            throw new Error("missing ChangedCode Changed in '" + lines[0] + "'");
+        lines.shift();
+        const changed = parseChunk(m);
+        const res = { original, changed };
+        return res;
+    }
+    // Parses a chunk of code from the changelog.
+    function parseChunk(m) {
+        const start = parseInt(m.groups.start);
+        const end = parseInt(m.groups.end);
+        const chunk = {
+            start,
+            end,
+            lines: [],
+        };
+        while (lines.length) {
+            m = /^\[(?<index>\d+)\](?<content>.*)$/i.exec(lines[0]);
+            if (m) {
+                let content = m.groups.content;
+                if (content[0] === " ")
+                    content = content.slice(1);
+                chunk.lines.push({
+                    index: parseInt(m.groups.index),
+                    content,
+                });
+                lines.shift();
+            }
+            else {
+                break;
+            }
+        }
+        return chunk;
+    }
+    /*
+      Example changelog format:
+      ChangeLog:1@<file>
+      Description: <summary>.
+      OriginalCode@4-6:
+      [4] <white space> <original code line>
+      // More lines
+      ChangedCode@4-6:
+      [4] <white space> <changed code line>
+      // More lines
+      */
+}
+/**
+ * Applies a changelog to a given source string, modifying it according to the changes.
+ *
+ * @param source The original source code as a string.
+ * @param changelog The ChangeLog object containing the changes to apply. Updates line indices for subsequent changes.
+ * @returns The modified source code as a string.
+ */
+function applyChangeLog(source, changelog) {
+    const lines = source.split("\n");
+    for (let i = 0; i < changelog.changes.length; ++i) {
+        const change = changelog.changes[i];
+        const { original, changed } = change;
+        // Replace original lines with changed lines in the source.
+        lines.splice(original.start - 1, original.end - original.start + 1, ...changed.lines.map((l) => l.content));
+        // Adjust subsequent change indices based on the shift in lines.
+        const shift = changed.lines.length - original.lines.length;
+        for (let j = i + 1; j < changelog.changes.length; ++j) {
+            const c = changelog.changes[j];
+            c.original.start += shift;
+            c.original.end += shift;
+        }
+    }
+    return lines.join("\n");
+}
+//# sourceMappingURL=changelog.js.map

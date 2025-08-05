@@ -1,0 +1,275 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+// Import necessary modules and functions for handling chat sessions, templates, file management, etc.
+import { executeChatSession, tracePromptResult } from "./chat.js";
+import { arrayify } from "./cleaners.js";
+import { relativePath } from "./util.js";
+import { assert } from "./assert.js";
+import { resolveRuntimeHost } from "./host.js";
+import { CORE_VERSION } from "./version.js";
+import { expandFiles } from "./fs.js";
+import { dataToMarkdownTable } from "./csv.js";
+import { resolveModelConnectionInfo } from "./models.js";
+import { RequestError, errorMessage } from "./error.js";
+import { renderFencedVariables } from "./fence.js";
+import { parsePromptParameters } from "./vars.js";
+import { resolveFileContent } from "./file.js";
+import { expandTemplate } from "./expander.js";
+import { resolveLanguageModel } from "./lm.js";
+import { checkCancelled } from "./cancellation.js";
+import { lastAssistantReasoning } from "./chatrender.js";
+import { unthink } from "./think.js";
+import { deleteUndefinedValues } from "./cleaners.js";
+import { DEBUG_SCRIPT_CATEGORY } from "./constants.js";
+import { genaiscriptDebug } from "./debug.js";
+import debug from "debug";
+import { dispose } from "./dispose.js";
+const runnerDbg = genaiscriptDebug("promptrunner");
+const dbg = genaiscriptDebug("env");
+// Asynchronously resolve expansion variables needed for a template
+/**
+ * Resolves variables required for the expansion of a template.
+ * @param project The project context.
+ * @param trace The markdown trace for logging.
+ * @param template The prompt script template.
+ * @param fragment The fragment containing files and metadata.
+ * @param vars The user-provided variables.
+ * @returns An object containing resolved variables.
+ */
+async function resolveExpansionVars(project, template, fragment, output, options) {
+    const { vars, runDir, runId, trace, applyGitIgnore } = options;
+    const runtimeHost = resolveRuntimeHost();
+    const root = runtimeHost.projectFolder();
+    assert(!!vars);
+    assert(!!runDir);
+    assert(!!runId);
+    const files = [];
+    const templateFiles = arrayify(template.files);
+    dbg(`template files: %O`, templateFiles);
+    const referenceFiles = fragment.files.slice(0);
+    const workspaceFiles = fragment.workspaceFiles?.slice(0) || [];
+    const filenames = await expandFiles(referenceFiles.length || workspaceFiles.length ? referenceFiles : templateFiles, {
+        applyGitIgnore,
+        accept: template.accept,
+    });
+    for (let filename of filenames) {
+        filename = relativePath(root, filename);
+        dbg(`filenames: %O`, filenames);
+        // Skip if file already in the list
+        if (files.find((lk) => lk.filename === filename))
+            continue;
+        const file = { filename };
+        await resolveFileContent(file);
+        files.push(file);
+    }
+    for (const wf of workspaceFiles) {
+        if (!files.find((f) => f.filename === wf.filename)) {
+            await resolveFileContent(wf);
+            files.push(wf);
+        }
+    }
+    // Parse and obtain attributes from prompt parameters
+    const attrs = parsePromptParameters(project, template, vars);
+    const secrets = {};
+    // Read secrets defined in the template
+    for (const secret of template.secrets || []) {
+        const value = await runtimeHost.readSecret(secret);
+        if (value) {
+            trace.item(`secret \`${secret}\` used`);
+            secrets[secret] = value;
+        }
+        else
+            trace.error(`secret \`${secret}\` not found`);
+    }
+    // Create and return an object containing resolved variables
+    const meta = structuredClone({
+        id: template.id,
+        title: template.title,
+        description: template.description,
+        group: template.group,
+        model: template.model,
+        defTools: template.defTools,
+    }); // frozen later
+    const res = {
+        dir: ".",
+        files,
+        meta,
+        vars: attrs,
+        secrets,
+        output,
+        generator: undefined,
+        runDir,
+        runId,
+        dbg: debug(DEBUG_SCRIPT_CATEGORY),
+    };
+    return res;
+}
+// Main function to run a template with given options
+/**
+ * Executes a prompt template with specified options.
+ *
+ * @param prj The project context providing runtime and configuration.
+ * @param template The prompt script template to execute.
+ * @param fragment Additional context such as files, workspace files, and metadata.
+ * @param options Configuration for generation, including model, trace, output trace, cancellation token, stats, and other generation parameters.
+ * @returns A generation result containing execution details, outputs, and potential errors, including status, messages, edits, annotations, file changes, and usage statistics.
+ */
+export async function runTemplate(prj, template, fragment, options) {
+    assert(fragment !== undefined);
+    assert(options !== undefined);
+    assert(options.trace !== undefined);
+    assert(options.outputTrace !== undefined);
+    const runtimeHost = resolveRuntimeHost();
+    const { label, trace, outputTrace, cancellationToken, model, runId } = options;
+    const version = CORE_VERSION;
+    assert(model !== undefined);
+    runtimeHost.project = prj;
+    try {
+        // Resolve expansion variables for the template
+        const env = await resolveExpansionVars(prj, template, fragment, outputTrace, options);
+        const { messages, schemas, tools, fileMerges, outputProcessors, chatParticipants, fileOutputs, prediction, status, statusText, temperature, reasoningEffort, topP, maxTokens, fallbackTools, seed, responseType, responseSchema, logprobs, topLogprobs, disposables, cache, metadata, disableChatPreview, } = await expandTemplate(prj, template, options, env);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { output, generator, secrets, dbg: envDbg, ...restEnv } = env;
+        runnerDbg(`messages ${messages.length}`);
+        // Handle failed expansion scenario
+        if (status !== "success" || !messages.length) {
+            trace.renderErrors();
+            return {
+                status: status,
+                statusText,
+                messages,
+                env: restEnv,
+                label,
+                version,
+                text: unthink(outputTrace?.content),
+                reasoning: lastAssistantReasoning(messages),
+                edits: [],
+                annotations: [],
+                changelogs: [],
+                fileEdits: {},
+                fences: [],
+                frames: [],
+                schemas: {},
+                usage: undefined,
+                runId,
+            };
+        }
+        // Resolve model connection information
+        const connection = await resolveModelConnectionInfo({ model }, { trace, token: true });
+        if (connection.info.error)
+            throw new Error(errorMessage(connection.info.error));
+        if (!connection.configuration)
+            throw new RequestError(403, `LLM configuration missing for model ${model}`, connection.info);
+        checkCancelled(cancellationToken);
+        const { ok } = await runtimeHost.pullModel(connection.configuration, options);
+        if (!ok) {
+            trace.renderErrors();
+            return deleteUndefinedValues({
+                status: "error",
+                statusText: "",
+                messages,
+                env: restEnv,
+                label,
+                version,
+                text: unthink(outputTrace?.content),
+                reasoning: lastAssistantReasoning(messages),
+                edits: [],
+                annotations: [],
+                changelogs: [],
+                fileEdits: {},
+                fences: [],
+                frames: [],
+                schemas: {},
+                usage: undefined,
+                runId,
+            });
+        }
+        const { completer } = await resolveLanguageModel(connection.configuration.provider);
+        // Execute chat session with the resolved configuration
+        const runStats = options.stats.createChild(connection.info.model);
+        const genOptions = {
+            ...options,
+            cache,
+            choices: template.choices,
+            responseType,
+            responseSchema,
+            model,
+            temperature,
+            reasoningEffort,
+            maxTokens,
+            topP,
+            seed,
+            logprobs,
+            topLogprobs,
+            fallbackTools,
+            metadata,
+            stats: runStats,
+            disableChatPreview,
+        };
+        const chatResult = await executeChatSession(connection.configuration, cancellationToken, messages, tools, schemas, fileOutputs, outputProcessors, fileMerges, prediction, completer, chatParticipants, disposables, genOptions);
+        tracePromptResult(trace, chatResult);
+        const { json, fences, frames, error, finishReason, fileEdits, changelogs, edits } = chatResult;
+        const { annotations } = chatResult;
+        // Reporting and tracing output
+        if (fences?.length)
+            trace.details("📩 code regions", renderFencedVariables(fences));
+        if (fileEdits && Object.keys(fileEdits).length) {
+            trace.startDetails("📝 file edits");
+            for (const [f, e] of Object.entries(fileEdits))
+                trace.detailsFenced(f, e.after);
+            trace.endDetails();
+        }
+        if (annotations?.length)
+            trace.details("⚠️ annotations", dataToMarkdownTable(annotations.map((a) => ({
+                ...a,
+                line: a.range?.[0]?.[0],
+                endLine: a.range?.[1]?.[0] ?? "",
+                code: a.code ?? "",
+            })), {
+                headers: ["severity", "filename", "line", "endLine", "code", "message"],
+            }));
+        trace.renderErrors();
+        const res = {
+            status: finishReason === "cancel"
+                ? "cancelled"
+                : error
+                    ? "error"
+                    : finishReason === "stop"
+                        ? "success"
+                        : "error",
+            finishReason,
+            error,
+            messages,
+            env: restEnv,
+            edits,
+            annotations,
+            changelogs,
+            fileEdits,
+            text: unthink(outputTrace?.content),
+            reasoning: lastAssistantReasoning(messages),
+            version,
+            fences,
+            frames,
+            schemas,
+            json,
+            choices: chatResult.choices,
+            logprobs: chatResult.logprobs,
+            perplexity: chatResult.perplexity,
+            uncertainty: chatResult.uncertainty,
+            usage: chatResult.usage,
+            runId,
+        };
+        // If there's an error, provide status text
+        if (res.status === "error" && !res.statusText && res.finishReason) {
+            res.statusText = `LLM finish reason: ${res.finishReason}`;
+        }
+        return res;
+    }
+    finally {
+        // Cleanup any resources like running containers or browsers
+        await dispose(Object.values(runtimeHost.userState), options);
+        runtimeHost.userState = {};
+        await runtimeHost.removeContainers();
+    }
+}
+//# sourceMappingURL=promptrunner.js.map

@@ -1,0 +1,54 @@
+"use strict";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.XMLTryParse = XMLTryParse;
+exports.XMLParse = XMLParse;
+const unwrappers_js_1 = require("./unwrappers.js");
+const unwrappers_js_2 = require("./unwrappers.js");
+const debug_js_1 = require("./debug.js");
+const dbg = (0, debug_js_1.genaiscriptDebug)("xml");
+/**
+ * Attempts to parse an XML string or WorkspaceFile, returning a default value on failure.
+ *
+ * @param text - The XML string or WorkspaceFile to parse
+ * @param defaultValue - The value to return if parsing fails
+ * @param options - Optional configuration for the XML parser
+ * @returns The parsed XML object or defaultValue if an error occurs
+ */
+async function XMLTryParse(text, defaultValue, options) {
+    try {
+        // Try parsing the text and return the result or defaultValue
+        return (await XMLParse(text, options)) ?? defaultValue;
+    }
+    catch (e) {
+        // Return the default value if parsing fails
+        dbg(`error: %s`, e?.message);
+        return defaultValue;
+    }
+}
+/**
+ * Parses an XML string or WorkspaceFile into an object.
+ *
+ * @param text - The XML string or WorkspaceFile to parse. If a WorkspaceFile is provided, its content will be extracted.
+ * @param options - Configuration options for the XML parser. These options are merged with the default parser settings.
+ * @returns The parsed XML object.
+ */
+async function XMLParse(text, options) {
+    text = (0, unwrappers_js_2.filenameOrFileToContent)(text);
+    // Remove specific markers from the XML string for cleaner processing
+    const cleaned = (0, unwrappers_js_1.unfence)(text, "xml");
+    const { XMLParser } = await import("fast-xml-parser");
+    // Create a new XMLParser instance with the specified options
+    const parser = new XMLParser({
+        ignoreAttributes: false, // Do not ignore XML attributes
+        attributeNamePrefix: "@_", // Prefix for attribute names
+        allowBooleanAttributes: true, // Allow boolean attributes
+        ignoreDeclaration: true, // Ignore the XML declaration
+        parseAttributeValue: true, // Parse attribute values
+        ...(options || {}), // Merge user-provided options with defaults
+    });
+    // Parse the cleaned XML string and return the result
+    return parser.parse(cleaned);
+}
+//# sourceMappingURL=xml.js.map

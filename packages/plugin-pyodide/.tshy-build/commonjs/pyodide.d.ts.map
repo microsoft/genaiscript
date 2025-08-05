@@ -1,0 +1,1 @@
+{"version":3,"file":"pyodide.d.ts","sourceRoot":"","sources":["../../src/pyodide.ts"],"names":[],"mappings":"AAIA,OAAO,EASL,KAAK,YAAY,EAClB,MAAM,mBAAmB,CAAC;AAC3B,OAAO,KAAK,EAAe,aAAa,EAAE,oBAAoB,EAAE,MAAM,YAAY,CAAC;AA+DnF;;;;;;;;;;;GAWG;AACH,wBAAsB,mBAAmB,CACvC,OAAO,CAAC,EAAE,oBAAoB,GAAG,YAAY,GAC5C,OAAO,CAAC,aAAa,CAAC,CAsBxB"}
