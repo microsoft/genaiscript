@@ -6,7 +6,7 @@ This example demonstrates how to create and use a Model Context Protocol (MCP) s
 
 The example consists of two main components:
 
-1. **Weather MCP Server** (`tools/weather-mcp-server.mjs`) - A standalone Node.js server that implements the MCP protocol over HTTP
+1. **Weather MCP Server** (`samples/tools/weather-mcp-server.mjs`) - A standalone Node.js server that implements the MCP protocol over HTTP
 2. **Weather Client Script** (`samples/sample/genaisrc/weather-mcp-http.genai.mts`) - A GenAIScript that connects to the MCP server as a client
 
 ## Features
@@ -34,7 +34,7 @@ node tools/weather-mcp-server.mjs
 
 The server will start on port 3001 by default. You can change this by setting the `MCP_PORT` environment variable:
 ```bash
-MCP_PORT=3002 node tools/weather-mcp-server.mjs
+MCP_PORT=3002 node samples/tools/weather-mcp-server.mjs
 ```
 
 ### 2. Test the Server
@@ -180,4 +180,4 @@ case 'get_weather_alerts':
 ### Tool Calls Fail
 - Check server logs for error messages
 - Verify the tool parameters match the expected schema
-- Test tool calls directly with curl
+- Test tool calls directly with curlith curl

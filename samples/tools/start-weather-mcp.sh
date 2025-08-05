@@ -15,7 +15,7 @@ fi
 
 # Get the script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
 # Set default port if not specified
 export MCP_PORT=${MCP_PORT:-3001}
@@ -32,4 +32,4 @@ echo ""
 cd "$PROJECT_ROOT"
 
 # Start the weather MCP server
-exec node tools/weather-mcp-server.mjs
+exec node samples/tools/weather-mcp-server.mjs
