@@ -417,6 +417,109 @@ script({
 }
 ```
 
+## GitHub Copilot MCP Configuration Integration
+
+GenAIScript automatically reads and integrates MCP server configurations from GitHub Copilot's default file location (`.vscode/mcp.json`). This provides seamless integration between your GitHub Copilot MCP setup and GenAIScript, eliminating the need to maintain duplicate configurations.
+
+### Automatic Configuration Merging
+
+When GenAIScript resolves its configuration, it automatically:
+
+1. **Reads `.vscode/mcp.json` files** during configuration resolution
+2. **Converts GitHub Copilot format** to GenAIScript's `mcpServers` format  
+3. **Merges configurations** from multiple sources seamlessly
+4. **Validates the final configuration** against JSON schema
+
+### Example Configuration
+
+**GitHub Copilot Configuration** (`.vscode/mcp.json`):
+```json
+{
+  "servers": {
+    "genaiscript": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "genaiscript", "mcp", "--cwd", "${workspaceFolder}"],
+      "envFile": "${workspaceFolder}/.env"
+    },
+    "filesystem": {
+      "type": "stdio", 
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed"]
+    },
+    "http-server": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp"
+    }
+  }
+}
+```
+
+**GenAIScript Configuration** (`genaiscript.config.json`):
+```json
+{
+  "mcpServers": {
+    "python-tools": {
+      "command": "python",
+      "args": ["-m", "mcp_server"],
+      "env": {
+        "PYTHONPATH": "/custom/path"
+      }
+    }
+  }
+}
+```
+
+### Final Merged Configuration
+
+The system automatically merges these configurations, making all servers available:
+
+```typescript
+// Available in scripts via the merged configuration
+const mcpServers = {
+  "genaiscript": {
+    "type": "stdio",
+    "command": "npx", 
+    "args": ["-y", "genaiscript", "mcp", "--cwd", "${workspaceFolder}"]
+  },
+  "filesystem": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed"]
+  },
+  "http-server": {
+    "type": "http", 
+    "url": "http://localhost:8080/mcp"
+  },
+  "python-tools": {
+    "command": "python",
+    "args": ["-m", "mcp_server"],
+    "env": {
+      "PYTHONPATH": "/custom/path"
+    }
+  }
+}
+```
+
+### Configuration Resolution Order
+
+1. Load default GenAIScript configuration
+2. Merge user's GenAIScript configuration files (`genaiscript.config.json/yaml`)  
+3. **Read and merge GitHub Copilot MCP configurations (`.vscode/mcp.json`)**
+4. Apply environment variable overrides
+5. Validate final configuration against schema
+
+### Features
+
+- ✅ **Automatic detection** and reading of `.vscode/mcp.json` files
+- ✅ **Format conversion** from GitHub Copilot to GenAIScript format
+- ✅ **Intelligent merging** of multiple configuration sources
+- ✅ **JSON schema validation** for configuration correctness
+- ✅ **Graceful error handling** for missing or invalid files
+- ✅ **Full backwards compatibility** with existing configurations
+
+The GitHub Copilot MCP configurations are automatically detected and integrated without any additional setup required.
+
 ## Running scripts from a remote repository
 
 You can use the `--remote` option to load scripts from a remote repository.

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readGitHubCopilotMcpConfig } from "../src/config.js";
+import { convertGitHubCopilotMcpConfig } from "../src/configmcp.js";
 import { resolve } from "node:path";
 
 describe("GitHub Copilot MCP File Reading", () => {
@@ -10,7 +11,6 @@ describe("GitHub Copilot MCP File Reading", () => {
     // the file reading functionality using the same logic
     const { tryReadText, tryStat } = await import("../src/fs.js");
     const { JSON5TryParse } = await import("../src/json5.js");
-    const { convertGitHubCopilotMcpConfig } = await import("../src/config.js");
     
     const mcpConfigPath = resolve(testConfigDir, ".vscode", "mcp.json");
     const stat = await tryStat(mcpConfigPath);
