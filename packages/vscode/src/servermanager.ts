@@ -200,7 +200,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     const cwd = this.state.host.projectFolder();
     await this.allocatePort();
     logVerbose(`starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`);
-    const { cliPath, cliVersion, packageManager, nodeOptions } = await resolveCli(this.state);
+    const { cliPath, cliVersion, packageManager } = await resolveCli(this.state);
     const githubCopilotChatClient = isLanguageModelsAvailable()
       ? "--github-copilot-chat-client"
       : "";
