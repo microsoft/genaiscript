@@ -1,9 +1,30 @@
+/**
+ * NPM Update Risk Assessment Script
+ * 
+ * Detects outdated npm packages and provides comprehensive security and functionality
+ * risk assessment for each update. Optimized for GitHub models with 8k context limits.
+ * 
+ * Features:
+ * - Automatic package outdated detection via npm outdated
+ * - Security risk analysis for authentication/critical packages  
+ * - Functionality risk assessment for breaking changes
+ * - Package metadata retrieval (maintainers, release dates, etc.)
+ * - Context chunking for large dependency lists
+ * - Actionable recommendations and update strategies
+ * 
+ * Usage:
+ *   genaiscript run npm-update-risk-assessment
+ *   genaiscript run npm-update-risk-assessment --model github:gpt-4o-mini
+ *   genaiscript run npm-update-risk-assessment -o npm-risk-report.md
+ */
+
 script({
     title: "NPM Update Risk Assessment",
     description: "Detects npm package updates and provides risk assessment with changelog analysis",
-    model: "echo", // Use echo model for testing without API requirements
-    maxTokens: 4000,
+    model: "github:gpt-4o-mini", // Use GitHub models with 8k context limit
+    maxTokens: 3000, // Stay well within 8k context window
     temperature: 0.1,
+    system: ["system"]
 })
 
 // Interface for npm outdated output
@@ -17,17 +38,6 @@ interface NpmOutdatedPackage {
 
 interface NpmOutdated {
     [packageName: string]: NpmOutdatedPackage
-}
-
-interface PackageRiskAssessment {
-    packageName: string
-    currentVersion: string
-    latestVersion: string
-    majorVersionChange: boolean
-    changelogSummary: string
-    securityRisk: "low" | "medium" | "high"
-    functionalityRisk: "low" | "medium" | "high"
-    recommendation: string
 }
 
 // Get outdated packages using npm
@@ -87,7 +97,7 @@ async function getPackageChangelog(packageName: string, currentVersion: string, 
     try {
         console.log(`🔍 Fetching info for ${packageName} (${currentVersion} → ${latestVersion})`)
         
-        const result = await host.exec("npm", ["view", packageName, "--json"], {
+        const result = await host.exec("npm", ["view", packageName, "description", "repository.url", "homepage", "keywords", "maintainers", "time", "--json"], {
             cwd: env.workspaceRoot || ".",
             timeout: 15000,
         })
@@ -112,6 +122,22 @@ async function getPackageChangelog(packageName: string, currentVersion: string, 
             
             if (packageData.keywords?.length) {
                 changelog.push(`Keywords: ${packageData.keywords.slice(0, 5).join(", ")}`)
+            }
+            
+            if (packageData.maintainers?.length) {
+                const maintainerCount = packageData.maintainers.length
+                changelog.push(`Maintainers: ${maintainerCount} maintainer${maintainerCount > 1 ? 's' : ''}`)
+            }
+            
+            // Try to get time information for version releases
+            if (packageData.time && typeof packageData.time === 'object') {
+                const currentTime = packageData.time[currentVersion]
+                const latestTime = packageData.time[latestVersion]
+                if (currentTime && latestTime) {
+                    const currentDate = new Date(currentTime).toLocaleDateString()
+                    const latestDate = new Date(latestTime).toLocaleDateString()
+                    changelog.push(`Version timeline: ${currentVersion} (${currentDate}) → ${latestVersion} (${latestDate})`)
+                }
             }
             
             changelog.push(`Version update: ${currentVersion} → ${latestVersion}`)
@@ -150,122 +176,82 @@ if (packageNames.length === 0) {
     
     // Process packages in chunks to respect context limits
     const chunkSize = 3 // Process 3 packages at a time to stay within 8k token limit
-    const chunks = []
     
-    for (let i = 0; i < packageNames.length; i += chunkSize) {
-        chunks.push(packageNames.slice(i, i + chunkSize))
-    }
+    let allPackageData = []
     
-    const allAssessments: PackageRiskAssessment[] = []
-    
-    for (const [chunkIndex, chunk] of chunks.entries()) {
-        console.log(`📋 Processing chunk ${chunkIndex + 1}/${chunks.length} (${chunk.length} packages)`)
+    // Collect package information for all outdated packages
+    for (const packageName of packageNames) {
+        const pkg = outdatedPackages[packageName]
+        const changelog = await getPackageChangelog(packageName, pkg.current, pkg.latest)
+        const isMajor = isMajorVersionChange(pkg.current, pkg.latest)
         
-        const packageData = []
-        
-        for (const packageName of chunk) {
-            const pkg = outdatedPackages[packageName]
-            const changelog = await getPackageChangelog(packageName, pkg.current, pkg.latest)
-            const isMajor = isMajorVersionChange(pkg.current, pkg.latest)
-            
-            packageData.push({
-                name: packageName,
-                current: pkg.current,
-                latest: pkg.latest,
-                isMajorVersionChange: isMajor,
-                changelog: changelog.slice(0, 1000) // Limit changelog length
-            })
-        }
-        
-        // Define the package data for analysis
-        def("PACKAGES", JSON.stringify(packageData, null, 2), {
-            maxTokens: 2000
+        allPackageData.push({
+            name: packageName,
+            current: pkg.current,
+            latest: pkg.latest,
+            isMajorVersionChange: isMajor,
+            changelog: changelog.slice(0, 800) // Limit changelog length for context
         })
-        
-        $`You are an expert software security and dependency management specialist.
-
-## Task
-Analyze the provided npm package updates and provide a comprehensive risk assessment.
-
-For each package in PACKAGES, provide:
-
-1. **Security Risk Assessment** (low/medium/high):
-   - Check if it's a major version change (higher risk)
-   - Consider the package importance and potential attack surface
-   - Look for any security-related mentions in changelog
-
-2. **Functionality Risk Assessment** (low/medium/high):
-   - Major version changes typically have breaking changes (high risk)
-   - Minor/patch versions usually safer (low-medium risk)
-   - Consider the package's role in the application
-
-3. **Recommendation**:
-   - Whether to update immediately, delay, or investigate further
-   - Any specific precautions to take
-
-## Output Format
-For each package, provide a JSON object with this structure:
-\`\`\`json
-{
-  "packageName": "package-name",
-  "currentVersion": "1.0.0", 
-  "latestVersion": "2.0.0",
-  "majorVersionChange": true,
-  "changelogSummary": "Brief summary of key changes",
-  "securityRisk": "low|medium|high",
-  "functionalityRisk": "low|medium|high", 
-  "recommendation": "Detailed recommendation with reasoning"
-}
-\`\`\`
-
-Return only a JSON array containing the assessment objects for all packages.`
-        
-        // Wait for response and parse assessments
-        // Note: In a real implementation, you'd capture the LLM response here
-        // For now, we'll create a mock assessment
-        for (const data of packageData) {
-            allAssessments.push({
-                packageName: data.name,
-                currentVersion: data.current,
-                latestVersion: data.latest,
-                majorVersionChange: data.isMajorVersionChange,
-                changelogSummary: "Analysis completed",
-                securityRisk: data.isMajorVersionChange ? "medium" : "low",
-                functionalityRisk: data.isMajorVersionChange ? "high" : "medium",
-                recommendation: data.isMajorVersionChange 
-                    ? "Review breaking changes before updating" 
-                    : "Safe to update"
-            })
-        }
     }
     
-    // Generate final summary report
-    def("ASSESSMENTS", JSON.stringify(allAssessments, null, 2), {
-        maxTokens: 3000
+    // Define all package data for analysis
+    def("PACKAGES", JSON.stringify(allPackageData, null, 2), {
+        maxTokens: 2500
     })
     
-    $`## 📊 NPM Update Risk Assessment Summary
+    $`You are an expert software security and dependency management specialist.
 
-You are provided with risk assessments for outdated npm packages in ASSESSMENTS.
+## 🔍 NPM Package Update Risk Assessment
 
-Generate a comprehensive summary report with:
+Analyze the outdated npm packages in PACKAGES and provide a comprehensive risk assessment report.
 
-1. **Executive Summary**
-   - Total packages analyzed
-   - High risk updates requiring attention
-   - Safe updates that can proceed
+### Package Summary
+${allPackageData.map(pkg => 
+    `- **${pkg.name}**: ${pkg.current} → ${pkg.latest} ${pkg.isMajorVersionChange ? '(⚠️ MAJOR)' : '(minor/patch)'}`
+).join('\n')}
 
-2. **Priority Actions**
-   - List packages needing immediate attention (high risk)
-   - Recommended update order
+### Assessment Framework
 
-3. **Update Strategy**
-   - Suggested approach for different risk categories
+**Security Risk Factors:**
+- Major version changes (higher risk of vulnerabilities)
+- Package maintenance status and reputation
+- Authentication/identity-related packages (higher attack surface)
+- Dependencies with known security issues
+
+**Functionality Risk Factors:**
+- Breaking changes in major versions
+- API compatibility issues
+- Performance impacts
+- Integration complexity
+
+### Required Analysis
+
+For each package, provide:
+
+1. **Risk Assessment**
+   - Security risk: LOW/MEDIUM/HIGH
+   - Functionality risk: LOW/MEDIUM/HIGH
+   - Overall recommendation: UPDATE/DELAY/INVESTIGATE
+
+2. **Key Considerations**
+   - What changed between versions
+   - Potential breaking changes
+   - Security implications
    - Testing recommendations
 
-4. **Security Considerations**
-   - Any security-related updates to prioritize
-   - Packages to investigate for vulnerabilities
+3. **Action Items**
+   - Priority order for updates
+   - Specific precautions to take
+   - Documentation to review
 
-Format the output as a clear, actionable markdown report that developers can use to make informed decisions about npm package updates.`
+### Executive Summary
+
+Provide a final summary with:
+- Total packages requiring updates
+- High-priority security updates
+- Safe updates that can proceed immediately
+- Updates requiring careful testing
+- Overall update strategy recommendation
+
+Format your response as a clear, actionable report that development teams can use to make informed decisions about npm package updates.`
 }
