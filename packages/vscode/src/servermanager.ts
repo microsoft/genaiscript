@@ -192,12 +192,12 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
 
     this.status = "starting";
     const config = this.state.getConfiguration();
-    const diagnostics = this.state.diagnostics;    
+    const diagnostics = this.state.diagnostics;
     const debug = diagnostics ? "*" : this.state.debug;
     const hideFromUser = !diagnostics && !!config.get("hideServerTerminal");
     const disableTrace = config.get("disableTrace") ? "--no-run-trace" : "";
     const quiet = config.get("quiet") ? "--quiet" : "";
-    const cwd =  this.state.host.projectFolder();
+    const cwd = this.state.host.projectFolder();
     await this.allocatePort();
     logVerbose(`starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`);
     const { cliPath, cliVersion, packageManager, nodeOptions } = await resolveCli(this.state);
@@ -216,6 +216,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
         GENAISCRIPT_API_KEY: this.state.sessionApiKey,
         DEBUG: debug,
         DEBUG_COLORS: "1",
+        NODE_OPTIONS: nodeOptions,
       }),
       hideFromUser,
     });
@@ -257,26 +258,20 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     return new Promise<void>((resolve) => {
       logVerbose("checking node version");
       const cwd = this.state.host.projectFolder();
-      // Get nodeOptions for consistency, though not strictly needed for node -v
-      resolveCli(this.state).then(({ nodeOptions }) => {
-        const terminal = vscode.window.createTerminal({
-          cwd,
-          isTransient: true,
-          hideFromUser: true,
-          env: deleteUndefinedValues({
-            NODE_OPTIONS: nodeOptions,
-          }),
-        });
-        // TODO: never triggers on windows+powershell
-        const cleanup = vscode.window.onDidChangeTerminalShellIntegration(async (e) => {
-          if (e.terminal === terminal) {
-            logVerbose(`node terminal started`);
-            cleanup.dispose();
-            await checkNodeCommand(terminal);
-            resolve();
-          }
-        }, this.state.context.subscriptions);
+      const terminal = vscode.window.createTerminal({
+        cwd,
+        isTransient: true,
+        hideFromUser: true,
       });
+      // TODO: never triggers on windows+powershell
+      const cleanup = vscode.window.onDidChangeTerminalShellIntegration(async (e) => {
+        if (e.terminal === this._terminal) {
+          logVerbose(`node terminal started`);
+          cleanup.dispose();
+          await checkNodeCommand(terminal);
+          resolve();
+        }
+      }, this.state.context.subscriptions);
     });
 
     async function checkNodeCommand(terminal: vscode.Terminal): Promise<boolean> {
