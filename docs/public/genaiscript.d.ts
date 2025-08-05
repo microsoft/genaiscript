@@ -1191,6 +1191,20 @@
   throwOnValidationError?: boolean;
 }
 
+ interface WorkspaceWriteFilePolicy {
+  /**
+   * Glob patterns for files that are allowed to be written.
+   * If specified, only files matching these patterns can be written.
+   */
+  allowedFiles?: ElementOrArray<string>;
+  
+  /**
+   * Glob patterns for files that are disallowed from being written.
+   * These patterns take precedence over allowedFiles.
+   */
+  disallowedFiles?: ElementOrArray<string>;
+}
+
  interface WorkspaceFileSystem {
   /**
    * Searches for files using the glob pattern and returns a list of files.
