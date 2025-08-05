@@ -405,6 +405,10 @@
                     "genaiscript.cli.path": {
                         "type": "string",
                         "description": "Path to GenAIScript CLI. Default uses npx."
+                    },
+                    "genaiscript.cli.nodeOptions": {
+                        "type": "string",
+                        "description": "NODE_OPTIONS environment variable value to use when starting the GenAIScript server. Useful for configuring Node.js runtime options like memory limits or debugging flags."
                     }
                 }
             }
