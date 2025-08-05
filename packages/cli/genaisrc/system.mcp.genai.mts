@@ -10,13 +10,21 @@ system({
         },
         command: {
             type: "string",
-            description: "The command to run the MCP server.",
-            required: true,
+            description: "The command to run the MCP server. Required for stdio transport.",
         },
         args: {
             type: "array",
             items: { type: "string" },
-            description: "The arguments to pass to the command.",
+            description: "The arguments to pass to the command. Used with stdio transport.",
+        },
+        url: {
+            type: "string",
+            description: "URL for HTTP/WebSocket/SSE transports. Required for URL-based transports.",
+        },
+        type: {
+            type: "string",
+            enum: ["stdio", "http", "sse"],
+            description: "Transport type specification. If not specified, will be inferred from provided parameters.",
         },
         version: {
             type: "string",
@@ -60,6 +68,8 @@ export default function (ctx: ChatGenerationContext) {
     const id = vars["system.mcp.id"] as string
     const command = vars["system.mcp.command"] as string
     const args = (vars["system.mcp.args"] as string[]) || []
+    const url = vars["system.mcp.url"] as string
+    const type = vars["system.mcp.type"] as "stdio" | "http" | "sse"
     const version = vars["system.mcp.version"] as string
     const maxTokens = vars["system.mcp.maxTokens"] as number
     const toolsSha = vars["system.mcp.toolsSha"] as string
@@ -72,11 +82,32 @@ export default function (ctx: ChatGenerationContext) {
     const intent = vars["system.mcp.intent"]
 
     if (!id) throw new Error("Missing required parameter: id")
-    if (!command) throw new Error("Missing required parameter: command")
+
+    // Determine transport type if not explicitly provided
+    let transportType = type
+    if (!transportType) {
+        if (url) {
+            transportType = "http" // Default to HTTP for URL-based configs
+        } else if (command) {
+            transportType = "stdio"
+        }
+    }
+
+    // Validate configuration based on transport type  
+    if (transportType === "stdio" || (!url && command)) {
+        if (!command) throw new Error("Missing required parameter: command (for stdio transport)")
+    } else if (transportType === "http" || transportType === "sse" || url) {
+        if (!url) throw new Error("Missing required parameter: url (for HTTP/SSE transport)")
+        if (command) throw new Error("Cannot specify both 'command' and 'url' parameters")
+    } else {
+        throw new Error("Must provide either 'command' (for stdio transport) or 'url' (for HTTP/SSE transport)")
+    }
 
     const config = {
         command,
         args,
+        url,
+        type: transportType,
         version,
         toolsSha,
         contentSafety,

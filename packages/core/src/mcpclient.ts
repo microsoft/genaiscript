@@ -70,6 +70,10 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             tools: _toolsConfig,
             generator,
             intent,
+            url,
+            type,
+            command,
+            args,
             ...rest
         } = serverConfig
         const toolSpecs = arrayify(_toolsConfig).map(toMcpToolSpecification)
@@ -87,18 +91,84 @@ export class McpClientManager extends EventTarget implements AsyncDisposable {
             const { Client } = await import(
                 "@modelcontextprotocol/sdk/client/index.js"
             )
-            const { StdioClientTransport } = await import(
-                "@modelcontextprotocol/sdk/client/stdio.js"
-            )
+            
+            // Determine transport type
+            let transportType = type
+            if (!transportType) {
+                // Auto-detect transport type based on configuration
+                if (url) {
+                    transportType = "http" // Default to HTTP for URL-based configs
+                } else if (command) {
+                    transportType = "stdio"
+                } else {
+                    throw new Error(
+                        `mcp ${id}: must provide either 'command' for stdio transport or 'url' for HTTP/SSE transport`
+                    )
+                }
+            }
+
+            // Validate configuration based on transport type
+            if (transportType === "stdio") {
+                if (!command) {
+                    throw new Error(
+                        `mcp ${id}: 'command' is required for stdio transport`
+                    )
+                }
+                if (url) {
+                    throw new Error(
+                        `mcp ${id}: 'url' should not be provided for stdio transport`
+                    )
+                }
+            } else if (transportType === "http" || transportType === "sse") {
+                if (!url) {
+                    throw new Error(
+                        `mcp ${id}: 'url' is required for ${transportType} transport`
+                    )
+                }
+                if (command || args) {
+                    throw new Error(
+                        `mcp ${id}: 'command' and 'args' should not be provided for ${transportType} transport`
+                    )
+                }
+            } else {
+                throw new Error(
+                    `mcp ${id}: unsupported transport type '${transportType}'. Supported types: stdio, http, sse`
+                )
+            }
+
             const progress: (msg: string) => ProgressCallback = (msg) => (ev) =>
                 dbgc(msg + " ", `${ev.progress || ""}/${ev.total || ""}`)
             const capabilities = { tools: {} }
-            let transport = new StdioClientTransport({
-                ...rest,
-                stderr: "inherit",
-            })
+            
+            // Create transport based on type
+            let transport: any
+            if (transportType === "stdio") {
+                const { StdioClientTransport } = await import(
+                    "@modelcontextprotocol/sdk/client/stdio.js"
+                )
+                transport = new StdioClientTransport({
+                    command,
+                    args,
+                    ...rest,
+                    stderr: "inherit",
+                })
+                dbgc(`created stdio transport for command: ${command}`)
+            } else if (transportType === "http") {
+                const { StreamableHTTPClientTransport } = await import(
+                    "@modelcontextprotocol/sdk/client/http.js"
+                )
+                transport = new StreamableHTTPClientTransport(url)
+                dbgc(`created HTTP transport for URL: ${url}`)
+            } else if (transportType === "sse") {
+                const { SSEClientTransport } = await import(
+                    "@modelcontextprotocol/sdk/client/sse.js"
+                )
+                transport = new SSEClientTransport(url)
+                dbgc(`created SSE transport for URL: ${url}`)
+            }
+
             let client = new Client({ name: id, version }, { capabilities })
-            dbg(`connecting client to transport`)
+            dbg(`connecting client to ${transportType} transport`)
             await client.connect(transport)
 
             const ping: McpClient["ping"] = async () => {

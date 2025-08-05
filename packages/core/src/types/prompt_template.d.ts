@@ -4515,12 +4515,27 @@ interface McpToolSpecification {
 interface McpServerConfig extends ContentSafetyOptions {
     /**
      * The executable to run to start the server.
+     * Required for stdio transport, not used for URL-based transports.
      */
-    command: OptionsOrString<"npx" | "uv" | "dotnet" | "docker" | "cargo">
+    command?: OptionsOrString<"npx" | "uv" | "dotnet" | "docker" | "cargo">
     /**
      * Command line arguments to pass to the executable.
+     * Required for stdio transport, not used for URL-based transports.
      */
-    args: string[]
+    args?: string[]
+    /**
+     * URL for HTTP/WebSocket/SSE transports.
+     * Required for URL-based transports, not used for stdio transport.
+     */
+    url?: string
+    /**
+     * Transport type specification.
+     * - "stdio": uses command/args (default when command is provided)
+     * - "http": uses url with HTTP transport  
+     * - "sse": uses url with Server-Sent Events transport
+     * If not specified, will be inferred from provided parameters.
+     */
+    type?: "stdio" | "http" | "sse"
     /**
      * The server version
      */
