@@ -6,7 +6,7 @@ A simple weather Model Context Protocol (MCP) server implementation using HTTP t
 
 1. Start the server:
    ```bash
-   ./start-weather-mcp.sh
+   node samples/tools/weather-mcp-server.mjs
    ```
 
 2. Test it:
@@ -26,7 +26,6 @@ A simple weather Model Context Protocol (MCP) server implementation using HTTP t
 ## Files
 
 - `weather-mcp-server.mjs` - The MCP server implementation
-- `start-weather-mcp.sh` - Launcher script
 - `../sample/genaisrc/weather-mcp-http.genai.mts` - Example GenAIScript client (programmatic)
 - `../sample/genaisrc/weather-mcp-config.genai.mts` - Example GenAIScript client (configuration)
 

@@ -23,15 +23,9 @@ The Weather MCP Server provides three tools:
 
 ### 1. Start the Weather MCP Server
 
-Using the launcher script:
-```bash
-./tools/start-weather-mcp.sh
-```
-
-Or directly with Node.js:
 ```bash
 cd /path/to/genaiscript
-node tools/weather-mcp-server.mjs
+node samples/tools/weather-mcp-server.mjs
 ```
 
 The server will start on port 3001 by default. You can change this by setting the `MCP_PORT` environment variable:
