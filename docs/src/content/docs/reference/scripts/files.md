@@ -1,8 +1,8 @@
 ---
 title: Files
-description: Learn how to perform file system operations using the workspace
+description: Learn how to perform secure file system operations using the workspace
   object in your scripts.
-keywords: file system, workspace object, readText, findFiles, paths
+keywords: file system, workspace object, readText, findFiles, paths, security, file write protection
 sidebar:
   order: 13
 hero:
@@ -221,6 +221,83 @@ Appends text to a file, relative to the workspace root.
 ```ts
 await workspace.appendText("output.txt", "Hello, world!")
 ```
+
+## Workspace Security
+
+The GenAIScript workspace file system includes enhanced security features to prevent writing files outside the workspace and provides configurable file access policies.
+
+### Workspace Boundary Protection
+
+All file write operations are restricted to the current workspace (project folder). The system prevents:
+- Writing to absolute paths outside the workspace (e.g., `/etc/passwd`)
+- Path traversal attacks (e.g., `../../../etc/passwd`)
+- Access to parent directories beyond the workspace root
+
+```ts
+// ✅ Safe - within workspace
+await workspace.writeText("output/results.json", JSON.stringify(data));
+
+// ❌ Blocked - outside workspace
+await workspace.writeText("/etc/passwd", "malicious content");
+
+// ❌ Blocked - path traversal
+await workspace.writeText("../../../etc/passwd", "malicious content");
+```
+
+### Environment File Protection
+
+Writing to `.env` files is blocked by default to prevent accidental exposure of secrets:
+- Direct `.env` files in any directory
+- Files matching the `.env` pattern (`.env.*`, `.env.local`, etc.)
+
+```ts
+// ❌ Blocked - environment file
+await workspace.writeText(".env", "SECRET=value");
+```
+
+### Configurable File Policies
+
+You can configure allowed and disallowed file patterns using glob patterns when creating the workspace file system:
+
+```typescript
+import { createWorkspaceFileSystem } from "@genaiscript/core";
+
+// Example: Only allow writing to documentation and source files
+const fs = createWorkspaceFileSystem({
+  allowedFiles: ["docs/**/*.md", "src/**/*.{js,ts}", "*.txt"],
+  disallowedFiles: ["config/**/*", "*.exe", "*.bat"]
+});
+```
+
+#### Configuration Priority
+
+When both `allowedFiles` and `disallowedFiles` are specified:
+1. `disallowedFiles` patterns are checked first and take precedence
+2. `allowedFiles` patterns are checked second
+3. If neither match, the operation proceeds (unless other security rules apply)
+
+### fs_write_file System Tool
+
+The `fs_write_file` system tool provides LLMs with controlled file writing capabilities:
+
+```genai
+script({
+  title: "Safe file operations",
+  system: ["fs_write_file"]
+})
+
+$`Create a README.md file with project documentation.`
+// The LLM can now use fs_write_file to create files safely within the workspace
+```
+
+### Security Error Messages
+
+When file operations are blocked, you'll see descriptive error messages:
+
+- `writing outside workspace not allowed: /path/to/file`
+- `writing .env not allowed`
+- `writing to disallowed file: config/secret.txt`
+- `writing to file not in allowed list: script.exe`
 
 ## paths
 
