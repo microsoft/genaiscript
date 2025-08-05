@@ -48,3 +48,33 @@ DEBUG=genaiscript:category pnpm test:core
 ## Interaction Guidelines
 
 Before returning control to the user, always suggest potential improvements, optimizations, or additional considerations related to the task, code, or solution being discussed. This helps ensure comprehensive and thoughtful assistance.
+
+## Agent Efficiency Guidelines
+
+### Repository Navigation & Understanding
+- Use multiple tools simultaneously when exploring (e.g., view directories and key files in parallel)
+- Always examine package.json, README.md, and build scripts first to understand project structure
+- Check existing tests and documentation patterns before creating new ones
+
+### Incremental Development Approach
+- Make small, focused changes and validate immediately
+- Run lints/builds/tests after each logical change, not just at the end
+- Use `git status` and `git diff` frequently to track changes
+- Prefer modifying existing files over creating new ones when possible
+
+### Tool Usage Optimization
+- Use `async=false` with appropriate timeouts for long-running commands (build, test, install)
+- Chain related commands when possible: `pnpm build && pnpm test`
+- Always disable pagers: use `git --no-pager` for git commands
+- Use `pnpm test:core` for fast feedback, `pnpm -r test` for comprehensive testing
+
+### Error Recovery & Validation
+- If builds fail, focus only on errors related to your changes
+- Use `git checkout <file>` to revert problematic changes quickly
+- Validate each change doesn't break existing functionality
+- Check for unintended side effects in related files
+
+### Time Management
+- Set appropriate timeouts for long operations (200s for builds, 300s for installs)
+- Use incremental approaches rather than large refactors
+- Focus on the minimal viable change to address the issue
