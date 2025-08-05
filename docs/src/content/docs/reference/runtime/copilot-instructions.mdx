@@ -32,11 +32,7 @@ await importCopilotInstructions(env.files, { generator: ctx })
 
 ## Features
 
-- Searches `.github/instructions/` and `.github/copilot-instructions.md` by default
-- Matches instruction files to provided files using glob patterns from frontmatter `applyTo` field
-- Supports general instructions (files without specific patterns)
-- Configurable instruction paths, file patterns, and options
-- Optional automatic system prompt integration
+The helper automatically searches `.github/instructions/` and `.github/copilot-instructions.md` by default. It matches instruction files to provided files using glob patterns from frontmatter `applyTo` field and supports general instructions for files without specific patterns. The helper provides configurable instruction paths, file patterns, and options, along with optional automatic system prompt integration.
 
 ## Setting up Copilot Instructions
 
@@ -50,9 +46,7 @@ description: "TypeScript coding standards"
 
 # TypeScript Guidelines
 
-- Use strict type checking
-- Prefer interfaces over type aliases for object shapes
-- Document public APIs with JSDoc
+Use strict type checking, prefer interfaces over type aliases for object shapes, and document public APIs with JSDoc.
 ```
 
 ### 2. Create general instructions in `.github/copilot-instructions.md`
@@ -60,9 +54,7 @@ description: "TypeScript coding standards"
 ```markdown
 # General Coding Standards
 
-- Write clean, readable code
-- Add meaningful comments
-- Follow existing project conventions
+Write clean, readable code, add meaningful comments, and follow existing project conventions.
 ```
 
 ## API Reference
@@ -77,8 +69,7 @@ function importCopilotInstructions(
 ```
 
 **Parameters:**
-- `files` - Array of files to match against instruction patterns
-- `options` - Configuration options including optional chat generation context
+`files` represents an array of files to match against instruction patterns, while `options` provides configuration options including optional chat generation context.
 
 **Returns:** Promise that resolves to an array of relevant copilot instructions that apply to the provided files
 
@@ -203,8 +194,4 @@ description: "React TypeScript components"
 ...
 ```
 
-The helper uses the same glob matching engine as GenAIScript's file selection, supporting:
-- `**` for recursive directory matching
-- `*` for single-level wildcards
-- `!` for exclusion patterns
-- Character classes and other minimatch features
+The helper uses the same glob matching engine as GenAIScript's file selection, supporting `**` for recursive directory matching, `*` for single-level wildcards, `!` for exclusion patterns, and character classes along with other minimatch features.
