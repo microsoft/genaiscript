@@ -200,7 +200,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     const cwd =  this.state.host.projectFolder();
     await this.allocatePort();
     logVerbose(`starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`);
-    const { cliPath, cliVersion, packageManager, nodeOptions } = await resolveCli(this.state);
+    const { cliPath, cliVersion, packageManager } = await resolveCli(this.state);
     const githubCopilotChatClient = isLanguageModelsAvailable()
       ? "--github-copilot-chat-client"
       : "";
@@ -257,26 +257,20 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     return new Promise<void>((resolve) => {
       logVerbose("checking node version");
       const cwd = this.state.host.projectFolder();
-      // Get nodeOptions for consistency, though not strictly needed for node -v
-      resolveCli(this.state).then(({ nodeOptions }) => {
-        const terminal = vscode.window.createTerminal({
-          cwd,
-          isTransient: true,
-          hideFromUser: true,
-          env: deleteUndefinedValues({
-            NODE_OPTIONS: nodeOptions,
-          }),
-        });
-        // TODO: never triggers on windows+powershell
-        const cleanup = vscode.window.onDidChangeTerminalShellIntegration(async (e) => {
-          if (e.terminal === terminal) {
-            logVerbose(`node terminal started`);
-            cleanup.dispose();
-            await checkNodeCommand(terminal);
-            resolve();
-          }
-        }, this.state.context.subscriptions);
+      const terminal = vscode.window.createTerminal({
+        cwd,
+        isTransient: true,
+        hideFromUser: true,
       });
+      // TODO: never triggers on windows+powershell
+      const cleanup = vscode.window.onDidChangeTerminalShellIntegration(async (e) => {
+        if (e.terminal === this._terminal) {
+          logVerbose(`node terminal started`);
+          cleanup.dispose();
+          await checkNodeCommand(terminal);
+          resolve();
+        }
+      }, this.state.context.subscriptions);
     });
 
     async function checkNodeCommand(terminal: vscode.Terminal): Promise<boolean> {
