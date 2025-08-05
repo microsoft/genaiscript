@@ -8,7 +8,8 @@ The example consists of three main components:
 
 1. **Weather MCP Server** (`samples/tools/weather-mcp-server.mjs`) - A standalone Node.js server that implements the MCP protocol over HTTP
 2. **Programmatic Client** (`samples/sample/genaisrc/weather-mcp-http.genai.mts`) - A GenAIScript that connects to the MCP server using `host.mcpServer()`
-3. **Configuration Client** (`samples/sample/genaisrc/weather-mcp-config.genai.mts`) - A GenAIScript that uses `mcpServers` and `mcpAgentServers` configurations
+3. **Configuration Client** (`samples/sample/genaisrc/weather-mcp-config.genai.mts`) - A very simple GenAIScript demonstrating programmatic MCP connection
+4. **MCP Servers Config** (`samples/sample/genaisrc/weather-mcp-servers.genai.mts`) - Shows how `mcpServers` configuration works for process-based servers
 
 ## Features
 
@@ -93,34 +94,28 @@ With the server running, you can choose between two different client approaches:
 Uses `host.mcpServer()` to connect programmatically:
 ```bash
 cd samples/sample
-node ../../packages/cli/dist/src/index.js run weather-mcp-http --model echo
+genaiscript run weather-mcp-http --model echo
 ```
 
 You can also customize the cities to check:
 ```bash
-node ../../packages/cli/dist/src/index.js run weather-mcp-http --model echo --vars cities="Berlin, Tokyo, Sydney"
+genaiscript run weather-mcp-http --model echo --vars cities="Berlin, Tokyo, Sydney"
 ```
 
-#### Option B: Configuration-based MCP Integration
+#### Option B: Simple Configuration Demo
 
-Uses `mcpServers` and `mcpAgentServers` configuration:
+A very simple example:
 ```bash
 cd samples/sample
-node ../../packages/cli/dist/src/index.js run weather-mcp-config --model echo
+genaiscript run weather-mcp-config --model echo
 ```
 
-This script supports two modes:
-- **Direct tool usage** (default): Uses mcpServers configuration for direct tool calls
-- **Agent-based**: Uses mcpAgentServers configuration where an agent handles tool selection
+#### Option C: MCP Servers Configuration
 
-To use agent mode:
+Shows process-based MCP server configuration:
 ```bash
-node ../../packages/cli/dist/src/index.js run weather-mcp-config --model echo --vars useAgent=true
-```
-
-Customize cities for either mode:
-```bash
-node ../../packages/cli/dist/src/index.js run weather-mcp-config --model echo --vars cities="Berlin, Tokyo, Sydney"
+cd samples/sample
+genaiscript run weather-mcp-servers --model echo
 ```
 
 ## Available Cities
@@ -161,35 +156,6 @@ const weatherServer = {
 
 const weather = await host.mcpServer(weatherServer)
 const result = await weather.callTool("get_current_weather", { location: "Paris" })
-```
-
-## Extending the Example
-
-To add new tools to the server:
-
-1. Add the tool definition in the `setupTools()` method
-2. Implement the tool logic in the `handleCallTool()` method
-3. The tool will automatically be available to GenAIScript clients
-
-Example:
-```javascript
-// In setupTools()
-this.tools.set('get_weather_alerts', {
-    name: 'get_weather_alerts',
-    description: 'Get weather alerts for a location',
-    inputSchema: {
-        type: 'object',
-        properties: {
-            location: { type: 'string', description: 'City name' }
-        },
-        required: ['location']
-    }
-});
-
-// In handleCallTool()
-case 'get_weather_alerts':
-    result = this.getWeatherAlerts(args.location);
-    break;
 ```
 
 ## Troubleshooting
