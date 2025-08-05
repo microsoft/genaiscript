@@ -19,7 +19,7 @@ export async function evaluateTestResult(
 ): Promise<string | undefined> {
   const { script, test } = config;
   const { id } = script;
-  const { status = "error", error = "missing result", text } = result || {};
+  const { status, error, text } = result || { status: "error", error: "missing result" };
 
   dbg(`evaluating test: %s %s`, id, test.description);
   if (error) {
