@@ -41,21 +41,20 @@ export interface CopilotInstructionsOptions extends ChatGenerationContextOptions
  *
  * This function searches for GitHub Copilot instruction files and filters them based on
  * file patterns specified in their frontmatter `applyTo` field, matching against the
- * files provided in env.files. When a chat generation context is provided, the instructions
+ * files in env.files. When a chat generation context is provided, the instructions
  * are automatically added as system prompts.
  *
  * @param workspace - The workspace file system to read files from
- * @param envFiles - Array of files from env.files to match against instruction patterns
  * @param options - Configuration options for the import including optional chat generation context
  * @returns Promise that resolves to an array of relevant copilot instructions
  *
  * @example
  * ```typescript
  * // Import instructions that apply to current env.files
- * const instructions = await importCopilotInstructions(workspace, env.files);
+ * const instructions = await importCopilotInstructions(workspace);
  *
  * // Use with chat generation context to automatically add as system prompts
- * await importCopilotInstructions(workspace, env.files, { generator: ctx });
+ * await importCopilotInstructions(workspace, { generator: ctx });
  * 
  * // Use the instructions in your script manually
  * for (const instruction of instructions) {
@@ -66,7 +65,6 @@ export interface CopilotInstructionsOptions extends ChatGenerationContextOptions
  */
 export async function importCopilotInstructions(
   workspace: WorkspaceFileSystem,
-  envFiles: WorkspaceFile[] | string[],
   options: CopilotInstructionsOptions = {},
 ): Promise<CopilotInstruction[]> {
   const {
@@ -76,12 +74,12 @@ export async function importCopilotInstructions(
     ...contextOptions
   } = options;
 
-  debug(`importing copilot instructions for ${envFiles.length} files`);
+  debug(`importing copilot instructions for ${env.files.length} files`);
   
   const instructions: CopilotInstruction[] = [];
 
   // Normalize env.files to just filenames for pattern matching
-  const envFilenames = envFiles.map((file) => (typeof file === "string" ? file : file.filename));
+  const envFilenames = env.files.map((file) => (typeof file === "string" ? file : file.filename));
   debug(`env filenames: ${envFilenames.join(", ")}`);
 
   // Search for instruction files in specified paths
@@ -221,7 +219,7 @@ function shouldIncludeInstruction(
  *
  * @example
  * ```typescript
- * const instructions = await importCopilotInstructions(workspace, env.files);
+ * const instructions = await importCopilotInstructions(workspace);
  * const formattedInstructions = formatCopilotInstructions(instructions);
  *
  * $`## Instructions

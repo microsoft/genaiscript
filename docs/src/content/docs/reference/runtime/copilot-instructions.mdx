@@ -14,7 +14,7 @@ The `importCopilotInstructions` runtime helper automatically discovers and impor
 import { importCopilotInstructions } from "@genaiscript/runtime"
 
 // Import instructions that apply to current files
-const instructions = await importCopilotInstructions(workspace, env.files)
+const instructions = await importCopilotInstructions(workspace)
 if (instructions?.length) {
   $`# Instructions\n${instructions.map(i => i.content).join('\n\n')}\n\n# Task\n...`
 }
@@ -61,17 +61,15 @@ description: "TypeScript coding standards"
 ```typescript
 function importCopilotInstructions(
   workspace: WorkspaceFileSystem,
-  envFiles: WorkspaceFile[] | string[],
   options?: CopilotInstructionsOptions
 ): Promise<CopilotInstruction[]>
 ```
 
 **Parameters:**
 - `workspace` - The workspace file system to read files from
-- `envFiles` - Array of files from env.files to match against instruction patterns
 - `options` - Configuration options (optional)
 
-**Returns:** Promise that resolves to an array of relevant copilot instructions
+**Returns:** Promise that resolves to an array of relevant copilot instructions that apply to the current env.files
 
 ### CopilotInstructionsOptions
 
@@ -117,7 +115,7 @@ script({
 
 import { importCopilotInstructions } from "@genaiscript/runtime"
 
-const instructions = await importCopilotInstructions(workspace, env.files)
+const instructions = await importCopilotInstructions(workspace)
 
 if (instructions?.length) {
     $`# Code Review Instructions
@@ -144,7 +142,7 @@ Please review the following files according to the instructions above:`
 ### Custom Configuration
 
 ```typescript
-const instructions = await importCopilotInstructions(workspace, env.files, {
+const instructions = await importCopilotInstructions(workspace, {
     includeGeneral: false, // Skip general instructions
     instructionPaths: [".github/instructions", "docs/coding-standards"], // Custom paths
     instructionPatterns: ["*.guidelines.md", "*.standards.md"] // Custom patterns
