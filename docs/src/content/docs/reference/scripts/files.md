@@ -299,6 +299,43 @@ When file operations are blocked, you'll see descriptive error messages:
 - `writing to disallowed file: config/secret.txt`
 - `writing to file not in allowed list: script.exe`
 
+### Bypassing Workspace Security (Advanced)
+
+For scripts that require unrestricted file system access outside the workspace boundaries, you can use Node.js file system APIs directly. **Use this approach with extreme caution** as it bypasses all workspace security protections:
+
+```typescript
+// Import Node.js file system modules for unchecked operations
+const fs = await import('fs')
+const path = await import('path')
+
+// ⚠️ WARNING: This bypasses workspace security!
+// Write to any location on the file system
+const absolutePath = path.join('/tmp', 'unrestricted-file.txt')
+fs.writeFileSync(absolutePath, 'This file is written outside workspace boundaries')
+
+// Read from any location
+const systemFile = fs.readFileSync('/etc/hosts', 'utf8')
+```
+
+**Important considerations when using direct Node.js file system APIs:**
+
+- **Security Risk**: No path validation or boundary checking
+- **Portability**: Absolute paths may not work across different operating systems
+- **Permissions**: Operations may fail due to file system permissions
+- **Responsibility**: You are responsible for validating paths and ensuring safe operations
+
+**When to use direct Node.js APIs:**
+- System administration scripts that need access to system files
+- Build tools that operate on files outside the project
+- Migration scripts that access multiple project directories
+- Advanced automation that requires unrestricted file access
+
+**Best practices:**
+- Always validate and sanitize file paths when using user input
+- Use `path.resolve()` and `path.normalize()` to handle paths safely
+- Check file permissions before attempting operations
+- Consider using the workspace APIs first and only escalate to direct Node.js APIs when necessary
+
 ## paths
 
 The `paths` object contains helper methods to manipulate file names.
