@@ -51,6 +51,13 @@ Before returning control to the user, always suggest potential improvements, opt
 
 ## Agent Efficiency Guidelines
 
+### Parallel Operations & Tool Calling
+- **ALWAYS use multiple tools simultaneously** when possible rather than sequentially
+- Explore repository structure in parallel: view directories, files, and documentation together
+- When investigating issues: examine multiple related files simultaneously
+- Combine validation steps: run lints, builds, and tests in parallel when appropriate
+- Example: `view package.json + view README.md + view src/` instead of one at a time
+
 ### Repository Navigation & Understanding
 - Use multiple tools simultaneously when exploring (e.g., view directories and key files in parallel)
 - Always examine package.json, README.md, and build scripts first to understand project structure
