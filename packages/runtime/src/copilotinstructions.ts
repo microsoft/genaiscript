@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { WorkspaceFileSystem, WorkspaceFile, ChatGenerationContextOptions } from "@genaiscript/core";
+import type { WorkspaceFile, ChatGenerationContextOptions, RuntimePromptContext } from "@genaiscript/core";
 import { frontmatterTryParse, isGlobMatch, genaiscriptDebug, resolveChatGenerationContext } from "@genaiscript/core";
 
 const debug = genaiscriptDebug("copilotinstructions");
@@ -37,24 +37,24 @@ export interface CopilotInstructionsOptions extends ChatGenerationContextOptions
 }
 
 /**
- * Runtime helper to automatically import copilot instruction files based on env.files.
+ * Runtime helper to automatically import copilot instruction files based on provided files.
  *
  * This function searches for GitHub Copilot instruction files and filters them based on
  * file patterns specified in their frontmatter `applyTo` field, matching against the
- * files in env.files. When a chat generation context is provided, the instructions
+ * provided files. When a chat generation context is provided, the instructions
  * are automatically added as system prompts.
  *
- * @param workspace - The workspace file system to read files from
+ * @param files - Array of files to match against instruction patterns
  * @param options - Configuration options for the import including optional chat generation context
  * @returns Promise that resolves to an array of relevant copilot instructions
  *
  * @example
  * ```typescript
- * // Import instructions that apply to current env.files
- * const instructions = await importCopilotInstructions(workspace);
+ * // Import instructions that apply to specific files
+ * const instructions = await importCopilotInstructions(env.files);
  *
  * // Use with chat generation context to automatically add as system prompts
- * await importCopilotInstructions(workspace, { generator: ctx });
+ * await importCopilotInstructions(env.files, { generator: ctx });
  * 
  * // Use the instructions in your script manually
  * for (const instruction of instructions) {
@@ -64,7 +64,7 @@ export interface CopilotInstructionsOptions extends ChatGenerationContextOptions
  * ```
  */
 export async function importCopilotInstructions(
-  workspace: WorkspaceFileSystem,
+  files: string[] | WorkspaceFile[],
   options: CopilotInstructionsOptions = {},
 ): Promise<CopilotInstruction[]> {
   const {
@@ -74,13 +74,19 @@ export async function importCopilotInstructions(
     ...contextOptions
   } = options;
 
-  debug(`importing copilot instructions for ${env.files.length} files`);
+  debug(`importing copilot instructions for ${files.length} files`);
   
   const instructions: CopilotInstruction[] = [];
+  const globalPromptContext: RuntimePromptContext = globalThis as unknown as RuntimePromptContext;
+  const workspace = globalPromptContext.workspace;
+  
+  if (!workspace) {
+    throw new Error("Workspace not available in global context");
+  }
 
-  // Normalize env.files to just filenames for pattern matching
-  const envFilenames = env.files.map((file) => (typeof file === "string" ? file : file.filename));
-  debug(`env filenames: ${envFilenames.join(", ")}`);
+  // Normalize files to just filenames for pattern matching
+  const filenames = files.map((file) => (typeof file === "string" ? file : file.filename));
+  debug(`filenames: ${filenames.join(", ")}`);
 
   // Search for instruction files in specified paths
   for (const instructionPath of instructionPaths) {
@@ -102,8 +108,8 @@ export async function importCopilotInstructions(
           continue;
         }
 
-        // Check if this instruction applies to any of the env.files
-        const shouldInclude = shouldIncludeInstruction(instruction, envFilenames, includeGeneral);
+        // Check if this instruction applies to any of the provided files
+        const shouldInclude = shouldIncludeInstruction(instruction, filenames, includeGeneral);
         debug(`instruction ${file.filename} should include: ${shouldInclude}`);
         
         if (shouldInclude) {
@@ -179,11 +185,11 @@ async function parseInstructionFile(file: WorkspaceFile): Promise<CopilotInstruc
 
 /**
  * Determines if an instruction should be included based on its applyTo patterns
- * and whether it matches any of the env.files
+ * and whether it matches any of the provided files
  */
 function shouldIncludeInstruction(
   instruction: CopilotInstruction,
-  envFilenames: string[],
+  filenames: string[],
   includeGeneral: boolean,
 ): boolean {
   const { metadata } = instruction;
@@ -200,11 +206,11 @@ function shouldIncludeInstruction(
     return false;
   }
 
-  // Check if any env.files match the applyTo patterns
+  // Check if any provided files match the applyTo patterns
   const applyToPatterns = Array.isArray(metadata.applyTo) ? metadata.applyTo : [metadata.applyTo];
-  debug(`checking patterns ${JSON.stringify(applyToPatterns)} against files: ${envFilenames.join(", ")}`);
+  debug(`checking patterns ${JSON.stringify(applyToPatterns)} against files: ${filenames.join(", ")}`);
 
-  const matches = envFilenames.some((filename) => isGlobMatch(filename, applyToPatterns));
+  const matches = filenames.some((filename) => isGlobMatch(filename, applyToPatterns));
   debug(`pattern match result for ${instruction.filename}: ${matches}`);
   
   return matches;

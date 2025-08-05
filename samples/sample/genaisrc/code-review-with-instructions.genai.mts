@@ -9,7 +9,7 @@ script({
 import { importCopilotInstructions, formatCopilotInstructions } from "@genaiscript/runtime"
 
 // Get copilot instructions that apply to the current files
-const instructions = await importCopilotInstructions(workspace, {
+const instructions = await importCopilotInstructions(env.files, {
     // Optional: include general copilot instructions even if no specific patterns match
     includeGeneral: true,
     // Optional: custom paths to search for instructions
