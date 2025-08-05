@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { WorkspaceFileSystem, WorkspaceFile } from "@genaiscript/core";
-import { frontmatterTryParse, isGlobMatch } from "@genaiscript/core";
+import type { WorkspaceFileSystem, WorkspaceFile, ChatGenerationContextOptions } from "@genaiscript/core";
+import { frontmatterTryParse, isGlobMatch, genaiscriptDebug, resolveChatGenerationContext } from "@genaiscript/core";
+
+const debug = genaiscriptDebug("copilotinstructions");
 
 /**
  * Represents a copilot instruction file with its content and metadata
@@ -25,7 +27,7 @@ export interface CopilotInstruction {
 /**
  * Configuration options for importing copilot instructions
  */
-export interface CopilotInstructionsOptions {
+export interface CopilotInstructionsOptions extends ChatGenerationContextOptions {
   /** Whether to include general copilot instructions file (default: true) */
   includeGeneral?: boolean;
   /** Custom paths to search for instruction files (default: [".github/instructions", ".github"]) */
@@ -39,11 +41,12 @@ export interface CopilotInstructionsOptions {
  *
  * This function searches for GitHub Copilot instruction files and filters them based on
  * file patterns specified in their frontmatter `applyTo` field, matching against the
- * files provided in env.files.
+ * files provided in env.files. When a chat generation context is provided, the instructions
+ * are automatically added as system prompts.
  *
  * @param workspace - The workspace file system to read files from
  * @param envFiles - Array of files from env.files to match against instruction patterns
- * @param options - Configuration options for the import
+ * @param options - Configuration options for the import including optional chat generation context
  * @returns Promise that resolves to an array of relevant copilot instructions
  *
  * @example
@@ -51,7 +54,10 @@ export interface CopilotInstructionsOptions {
  * // Import instructions that apply to current env.files
  * const instructions = await importCopilotInstructions(workspace, env.files);
  *
- * // Use the instructions in your script
+ * // Use with chat generation context to automatically add as system prompts
+ * await importCopilotInstructions(workspace, env.files, { generator: ctx });
+ * 
+ * // Use the instructions in your script manually
  * for (const instruction of instructions) {
  *   console.log(`Applying instruction from ${instruction.filename}:`);
  *   console.log(instruction.content);
@@ -67,35 +73,81 @@ export async function importCopilotInstructions(
     includeGeneral = true,
     instructionPaths = [".github/instructions", ".github"],
     instructionPatterns = ["*.instructions.md", "copilot-instructions.md"],
+    ...contextOptions
   } = options;
 
+  debug(`importing copilot instructions for ${envFiles.length} files`);
+  
   const instructions: CopilotInstruction[] = [];
 
   // Normalize env.files to just filenames for pattern matching
   const envFilenames = envFiles.map((file) => (typeof file === "string" ? file : file.filename));
+  debug(`env filenames: ${envFilenames.join(", ")}`);
 
   // Search for instruction files in specified paths
   for (const instructionPath of instructionPaths) {
+    debug(`searching instruction path: ${instructionPath}`);
     const searchPatterns = instructionPatterns.map((pattern) => `${instructionPath}/${pattern}`);
+    debug(`search patterns: ${searchPatterns.join(", ")}`);
 
     try {
       const foundFiles = await workspace.findFiles(searchPatterns, {
         readText: true,
       });
+      debug(`found ${foundFiles.length} instruction files in ${instructionPath}`);
 
       for (const file of foundFiles) {
+        debug(`parsing instruction file: ${file.filename}`);
         const instruction = await parseInstructionFile(file);
-        if (!instruction) continue;
+        if (!instruction) {
+          debug(`failed to parse instruction file: ${file.filename}`);
+          continue;
+        }
 
         // Check if this instruction applies to any of the env.files
-        if (shouldIncludeInstruction(instruction, envFilenames, includeGeneral)) {
+        const shouldInclude = shouldIncludeInstruction(instruction, envFilenames, includeGeneral);
+        debug(`instruction ${file.filename} should include: ${shouldInclude}`);
+        
+        if (shouldInclude) {
           instructions.push(instruction);
+          debug(`included instruction from: ${file.filename}`);
         }
       }
     } catch (error) {
+      debug(`error searching instruction path ${instructionPath}: ${error}`);
       // Silently continue if instruction path doesn't exist
       continue;
     }
+  }
+
+  debug(`total instructions found: ${instructions.length}`);
+
+  // If a generator context is provided, add instructions as system-like content
+  if (contextOptions.generator || Object.keys(contextOptions).length > 0) {
+    const ctx = resolveChatGenerationContext(contextOptions);
+    debug(`adding ${instructions.length} instructions as system content`);
+    
+    // Add instructions as system-like content using defChatParticipant
+    ctx.defChatParticipant((turnCtx) => {
+      if (instructions.length > 0) {
+        turnCtx.$`## GitHub Copilot Instructions
+
+The following instructions apply to the current files and should guide your responses:
+
+${instructions.map(instruction => {
+          let content = instruction.content;
+          if (instruction.metadata?.description) {
+            content = `### ${instruction.metadata.description}\n\n${content}`;
+          }
+          return `<!-- Source: ${instruction.filename} -->\n${content}`;
+        }).join('\n\n---\n\n')}
+
+---
+
+`.role("system");
+        debug(`added copilot instructions as system content`);
+      }
+    }, { label: "copilot-instructions" });
   }
 
   return instructions;
@@ -105,12 +157,20 @@ export async function importCopilotInstructions(
  * Parses an instruction file and extracts its metadata and content
  */
 async function parseInstructionFile(file: WorkspaceFile): Promise<CopilotInstruction | null> {
-  if (!file.content) return null;
+  if (!file.content) {
+    debug(`no content in file: ${file.filename}`);
+    return null;
+  }
 
   const frontmatter = frontmatterTryParse(file.content);
   const content = frontmatter
     ? file.content.substring(file.content.indexOf("\n---\n") + 5)
     : file.content;
+
+  debug(`parsed instruction file ${file.filename}, has frontmatter: ${!!frontmatter}`);
+  if (frontmatter?.value?.applyTo) {
+    debug(`applyTo patterns: ${JSON.stringify(frontmatter.value.applyTo)}`);
+  }
 
   return {
     filename: file.filename,
@@ -132,18 +192,24 @@ function shouldIncludeInstruction(
 
   // Include general copilot instructions if enabled and no specific applyTo pattern
   if (includeGeneral && !metadata?.applyTo) {
+    debug(`including general instruction: ${instruction.filename}`);
     return true;
   }
 
   // If no applyTo pattern and includeGeneral is false, skip
   if (!metadata?.applyTo) {
+    debug(`skipping instruction without applyTo pattern: ${instruction.filename}`);
     return false;
   }
 
   // Check if any env.files match the applyTo patterns
   const applyToPatterns = Array.isArray(metadata.applyTo) ? metadata.applyTo : [metadata.applyTo];
+  debug(`checking patterns ${JSON.stringify(applyToPatterns)} against files: ${envFilenames.join(", ")}`);
 
-  return envFilenames.some((filename) => isGlobMatch(filename, applyToPatterns));
+  const matches = envFilenames.some((filename) => isGlobMatch(filename, applyToPatterns));
+  debug(`pattern match result for ${instruction.filename}: ${matches}`);
+  
+  return matches;
 }
 
 /**
