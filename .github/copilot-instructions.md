@@ -44,3 +44,7 @@ To enable debug logging, add `DEBUG=genaiscript:category` to the environment var
 ```bash
 DEBUG=genaiscript:category pnpm test:core
 ```
+
+## Interaction Guidelines
+
+Before returning control to the user, always suggest potential improvements, optimizations, or additional considerations related to the task, code, or solution being discussed. This helps ensure comprehensive and thoughtful assistance.
