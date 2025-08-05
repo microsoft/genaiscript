@@ -15,12 +15,20 @@ system({
         command: {
             type: "string",
             description: "The command to run the MCP server.",
-            required: true,
         },
         args: {
             type: "array",
             items: { type: "string" },
             description: "The arguments to pass to the command.",
+        },
+        url: {
+            type: "string",
+            description: "The URL to connect to for HTTP/WebSocket/SSE transports.",
+        },
+        type: {
+            type: "string",
+            description: "The transport type ('stdio', 'http', or 'sse').",
+            enum: ["stdio", "http", "sse"],
         },
         version: {
             type: "string",
@@ -70,6 +78,8 @@ export default function (ctx: ChatGenerationContext) {
     const description = vars["system.agent_mcp.description"] as string
     const command = vars["system.agent_mcp.command"] as string
     const args = (vars["system.agent_mcp.args"] as string[]) || []
+    const url = vars["system.agent_mcp.url"] as string
+    const type = vars["system.agent_mcp.type"] as "stdio" | "http" | "sse"
     const version = vars["system.agent_mcp.version"] as string
     const instructions = vars["system.agent_mcp.instructions"] as string
     const maxTokens = vars["system.agent_mcp.maxTokens"] as number
@@ -84,12 +94,14 @@ export default function (ctx: ChatGenerationContext) {
 
     if (!id) throw new Error("Missing required parameter: id")
     if (!description) throw new Error("Missing required parameter: description")
-    if (!command) throw new Error("Missing required parameter: command")
+    if (!command && !url) throw new Error("Missing required parameter: either command or url must be provided")
 
     const configs = {
         [id]: {
             command,
             args,
+            url,
+            type,
             version,
             toolsSha,
             contentSafety,
