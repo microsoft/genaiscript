@@ -31,9 +31,26 @@ import type {
   JSONSchemaValidationOptions,
   WorkspaceFile,
   WorkspaceFileSystem,
-  WorkspaceWriteFilePolicy,
   XMLParseOptions,
 } from "./types.js";
+
+export interface WorkspaceOptions {
+  /**
+   * Root folder
+   */
+  root?: string;
+  /**
+   * Glob patterns for files that are allowed to be written.
+   * If specified, only files matching these patterns can be written.
+   */
+  allowedFiles?: ElementOrArray<string>;
+
+  /**
+   * Glob patterns for files that are disallowed from being written.
+   * These patterns take precedence over allowedFiles.
+   */
+  disallowedFiles?: ElementOrArray<string>;
+}
 
 /**
  * Creates a file system interface for interacting with workspace files.
@@ -61,41 +78,39 @@ import type {
  * - `writeFiles(files)`: Writes a batch of WorkspaceFile objects to the file system. Supports encoding (e.g., base64) if specified.
  */
 export function createWorkspaceFileSystem(
-  policy?: WorkspaceWriteFilePolicy
+  policy?: WorkspaceOptions,
 ): Omit<WorkspaceFileSystem, "grep" | "writeCached"> {
-  const runtimeHost = resolveRuntimeHost();
-  const workspaceRoot = runtimeHost.projectFolder();
-  
+  const { root = resolve(".") } = policy || {};
   const checkWrite = (filename: string) => {
     if (DOT_ENV_REGEX.test(filename)) {
       throw new Error("writing .env not allowed");
     }
-    
+
     // Validate the file is within workspace boundaries
     const normalizedFilename = normalize(filename);
     let resolvedPath: string;
-    
+
     if (isAbsolute(normalizedFilename)) {
       resolvedPath = normalizedFilename;
     } else {
-      resolvedPath = resolve(workspaceRoot, normalizedFilename);
+      resolvedPath = resolve(root, normalizedFilename);
     }
-    
+
     // Check if the resolved path is within the workspace
-    const relativePath = relative(workspaceRoot, resolvedPath);
+    const relativePath = relative(root, resolvedPath);
     if (relativePath.startsWith("..") || isAbsolute(relativePath)) {
       throw new Error(`writing outside workspace not allowed: ${filename}`);
     }
-    
+
     // Apply file policy if specified
     if (policy) {
       const { allowedFiles, disallowedFiles } = policy;
-      
+
       // Check disallowed patterns first (they take precedence)
       if (disallowedFiles && isGlobMatch(filename, disallowedFiles)) {
         throw new Error(`writing to disallowed file: ${filename}`);
       }
-      
+
       // Check allowed patterns if specified
       if (allowedFiles && !isGlobMatch(filename, allowedFiles)) {
         throw new Error(`writing to file not in allowed list: ${filename}`);
@@ -104,9 +119,11 @@ export function createWorkspaceFileSystem(
   };
 
   const fs = {
+    root: () => root,
     findFiles: async (glob: string, options: FindFilesOptions) => {
       dbg(`findFiles: ${JSON.stringify(options)}`);
       const { readText, ignore, applyGitIgnore } = options || {};
+      const runtimeHost = resolveRuntimeHost();
       const names = (
         await runtimeHost.findFiles(glob, {
           ignore: ["**/.env", ...arrayify(ignore)],

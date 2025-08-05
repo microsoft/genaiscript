@@ -1191,21 +1191,12 @@ export interface JSONSchemaValidationOptions {
   throwOnValidationError?: boolean;
 }
 
-export interface WorkspaceWriteFilePolicy {
-  /**
-   * Glob patterns for files that are allowed to be written.
-   * If specified, only files matching these patterns can be written.
-   */
-  allowedFiles?: ElementOrArray<string>;
-  
-  /**
-   * Glob patterns for files that are disallowed from being written.
-   * These patterns take precedence over allowedFiles.
-   */
-  disallowedFiles?: ElementOrArray<string>;
-}
-
 export interface WorkspaceFileSystem {
+  /**
+   * The root folder path of the workspace.
+   */
+  root(): string;
+
   /**
    * Searches for files using the glob pattern and returns a list of files.
    * Ignore `.env` files and apply `.gitignore` if present.

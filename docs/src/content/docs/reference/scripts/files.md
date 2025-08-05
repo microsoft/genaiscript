@@ -255,27 +255,6 @@ Writing to `.env` files is blocked by default to prevent accidental exposure of 
 await workspace.writeText(".env", "SECRET=value");
 ```
 
-### Configurable File Policies
-
-You can configure allowed and disallowed file patterns using glob patterns when creating the workspace file system:
-
-```typescript
-import { createWorkspaceFileSystem } from "@genaiscript/core";
-
-// Example: Only allow writing to documentation and source files
-const fs = createWorkspaceFileSystem({
-  allowedFiles: ["docs/**/*.md", "src/**/*.{js,ts}", "*.txt"],
-  disallowedFiles: ["config/**/*", "*.exe", "*.bat"]
-});
-```
-
-#### Configuration Priority
-
-When both `allowedFiles` and `disallowedFiles` are specified:
-1. `disallowedFiles` patterns are checked first and take precedence
-2. `allowedFiles` patterns are checked second
-3. If neither match, the operation proceeds (unless other security rules apply)
-
 ### fs_write_file System Tool
 
 The `fs_write_file` system tool provides LLMs with controlled file writing capabilities:

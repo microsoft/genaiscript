@@ -123,6 +123,7 @@ ruler_aider_instructions.md.bak
 # END Ruler Generated Files
 
 packages/*/src/package.json
+packages/core/test/test.txt
 
 .cursor/mcp.json
 .gemini/settings.json
