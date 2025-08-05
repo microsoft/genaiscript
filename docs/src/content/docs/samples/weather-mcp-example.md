@@ -4,10 +4,11 @@ This example demonstrates how to create and use a Model Context Protocol (MCP) s
 
 ## Overview
 
-The example consists of two main components:
+The example consists of three main components:
 
 1. **Weather MCP Server** (`samples/tools/weather-mcp-server.mjs`) - A standalone Node.js server that implements the MCP protocol over HTTP
-2. **Weather Client Script** (`samples/sample/genaisrc/weather-mcp-http.genai.mts`) - A GenAIScript that connects to the MCP server as a client
+2. **Programmatic Client** (`samples/sample/genaisrc/weather-mcp-http.genai.mts`) - A GenAIScript that connects to the MCP server using `host.mcpServer()`
+3. **Configuration Client** (`samples/sample/genaisrc/weather-mcp-config.genai.mts`) - A GenAIScript that uses `mcpServers` and `mcpAgentServers` configurations
 
 ## Features
 
@@ -85,8 +86,11 @@ curl -X POST http://localhost:3001/mcp \
 
 ### 3. Run the GenAIScript Client
 
-With the server running, execute the GenAIScript:
+With the server running, you can choose between two different client approaches:
 
+#### Option A: Direct MCP Server Connection
+
+Uses `host.mcpServer()` to connect programmatically:
 ```bash
 cd samples/sample
 node ../../packages/cli/dist/src/index.js run weather-mcp-http --model echo
@@ -95,6 +99,28 @@ node ../../packages/cli/dist/src/index.js run weather-mcp-http --model echo
 You can also customize the cities to check:
 ```bash
 node ../../packages/cli/dist/src/index.js run weather-mcp-http --model echo --vars cities="Berlin, Tokyo, Sydney"
+```
+
+#### Option B: Configuration-based MCP Integration
+
+Uses `mcpServers` and `mcpAgentServers` configuration:
+```bash
+cd samples/sample
+node ../../packages/cli/dist/src/index.js run weather-mcp-config --model echo
+```
+
+This script supports two modes:
+- **Direct tool usage** (default): Uses mcpServers configuration for direct tool calls
+- **Agent-based**: Uses mcpAgentServers configuration where an agent handles tool selection
+
+To use agent mode:
+```bash
+node ../../packages/cli/dist/src/index.js run weather-mcp-config --model echo --vars useAgent=true
+```
+
+Customize cities for either mode:
+```bash
+node ../../packages/cli/dist/src/index.js run weather-mcp-config --model echo --vars cities="Berlin, Tokyo, Sydney"
 ```
 
 ## Available Cities

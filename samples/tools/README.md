@@ -17,14 +17,18 @@ A simple weather Model Context Protocol (MCP) server implementation using HTTP t
 3. Use it with GenAIScript:
    ```bash
    cd ../sample
+   # Programmatic approach
    node ../../packages/cli/dist/src/index.js run weather-mcp-http
+   # Configuration approach  
+   node ../../packages/cli/dist/src/index.js run weather-mcp-config
    ```
 
 ## Files
 
 - `weather-mcp-server.mjs` - The MCP server implementation
 - `start-weather-mcp.sh` - Launcher script
-- `../sample/genaisrc/weather-mcp-http.genai.mts` - Example GenAIScript client
+- `../sample/genaisrc/weather-mcp-http.genai.mts` - Example GenAIScript client (programmatic)
+- `../sample/genaisrc/weather-mcp-config.genai.mts` - Example GenAIScript client (configuration)
 
 ## Features
 

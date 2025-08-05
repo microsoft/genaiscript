@@ -1,6 +1,6 @@
 script({
     title: "Weather MCP Configuration Demo",
-    description: "Demonstrates using weather MCP server with mcpServers and mcpAgentServers configuration",
+    description: "Demonstrates using weather MCP server with mcpServers configuration vs programmatic approach",
     model: "small",
     parameters: {
         cities: {
@@ -8,27 +8,21 @@ script({
             description: "Comma-separated list of cities to check weather for",
             default: "Paris, London, Tokyo"
         },
-        useAgent: {
+        useConfig: {
             type: "boolean",
-            description: "Whether to use mcpAgentServer (true) or mcpServers (false)",
+            description: "Whether to use mcpServers config (true) or programmatic approach (false)",
             default: false
         }
     },
     // Configure MCP servers using mcpServers config
+    // This demonstrates how to configure MCP servers in the script metadata
+    // For HTTP servers like our weather server, we still need to use host.mcpServer() programmatically
     mcpServers: {
-        weather: {
-            type: "http",
-            url: "http://localhost:3001/mcp"
-        }
-    },
-    // Configure MCP agent servers using mcpAgentServers config
-    mcpAgentServers: {
-        weatherAgent: {
-            type: "http",
-            url: "http://localhost:3001/mcp",
-            description: "Weather information agent that provides current weather, forecasts, and weather comparisons",
-            instructions: "You are a helpful weather assistant. When users ask about weather, use the available tools to get current weather data, forecasts, or compare weather between cities. Always provide detailed and helpful responses with the weather information."
-        }
+        // Example of process-based MCP server (commented out since we use HTTP)
+        // fetch: {
+        //     command: "docker",
+        //     args: ["run", "-i", "--rm", "mcp/fetch"]
+        // }
     }
 })
 
@@ -38,68 +32,147 @@ const cities = (env.vars.cities || "Paris, London, Tokyo")
     .map(city => city.trim())
     .filter(city => city.length > 0)
 
-const useAgent = env.vars.useAgent === "true" || env.vars.useAgent === true
+const useConfig = env.vars.useConfig === "true" || env.vars.useConfig === true
 
-if (useAgent) {
-    $`# Weather Report using MCP Agent Configuration
+$`# Weather Report Demo - MCP Configuration vs Programmatic
 
-I will use the weather agent configured via mcpAgentServers to check the weather for the following cities: ${cities.join(", ")}.
+This example demonstrates two approaches to using MCP servers in GenAIScript:
 
-The weather agent will handle the tool calls automatically based on my requests.
+1. **Programmatic approach**: Using \`host.mcpServer()\` to connect directly
+2. **Configuration approach**: Using \`mcpServers\` in script metadata (for process-based servers)
 
-Please provide a comprehensive weather report for ${cities.join(", ")}, including:
-1. Current weather conditions for each city
-2. A 3-day forecast for ${cities[0]}
-3. A comparison between ${cities[0]} and ${cities[1] || cities[0]}
-4. Recommendations for outdoor activities in each city
+**Note**: Since our weather server uses HTTP transport, both approaches use \`host.mcpServer()\` 
+programmatically. The \`mcpServers\` configuration is typically used for process-based MCP servers 
+that are launched via command line.
 
-Format the response in a clear and engaging way with proper sections and formatting.
+I will check the weather for the following cities: ${cities.join(", ")}.
+`
+
+// For HTTP-based MCP servers, we use the programmatic approach
+const weatherServer = await host.mcpServer({
+    id: "weather",
+    type: "http", 
+    url: "http://localhost:3001/mcp"
+})
+
+if (useConfig) {
+    $`
+## Using Configuration Approach
+
+In this mode, we would typically rely on MCP servers configured in the \`mcpServers\` section 
+of the script metadata. However, since our weather server uses HTTP transport, we still need 
+to connect programmatically using \`host.mcpServer()\`.
+
+For process-based MCP servers, you would configure them like:
+\`\`\`typescript
+mcpServers: {
+    fetch: {
+        command: "docker",
+        args: ["run", "-i", "--rm", "mcp/fetch"]
+    }
+}
+\`\`\`
+
+The tools would then be automatically available in the script context.
 `
 } else {
-    $`# Weather Report using MCP Server Configuration
-
-I will check the weather for the following cities using mcpServers configuration: ${cities.join(", ")}.
-
-Let me gather the weather information using the available MCP tools:
-`
-
-    // The weather tools are automatically available through mcpServers config
-    // Get current weather for each city
-    for (const city of cities) {
-        $`
-## Current Weather in ${city}
-
-Please use the get_current_weather tool to get the current weather for ${city}.
-`
-    }
-
-    // Get forecast for the first city
-    if (cities.length > 0) {
-        const firstCity = cities[0]
-        $`
-## 3-Day Forecast for ${firstCity}
-
-Please use the get_weather_forecast tool to get the 3-day forecast for ${firstCity}.
-`
-    }
-
-    // Compare weather between first two cities if available
-    if (cities.length >= 2) {
-        $`
-## Weather Comparison
-
-Please use the compare_weather tool to compare the weather between ${cities[0]} and ${cities[1]}.
-`
-    }
-
     $`
-## Summary
+## Using Programmatic Approach
 
-Based on the weather data retrieved from the MCP server, please provide:
-1. A brief summary of the current weather conditions
-2. Recommendations for outdoor activities in each city
-3. Any notable weather patterns or differences between the cities
+In this mode, we explicitly connect to the MCP server using \`host.mcpServer()\`:
 
-Please format your response in a clear and engaging way.
+\`\`\`typescript
+const weatherServer = await host.mcpServer({
+    id: "weather",
+    type: "http",
+    url: "http://localhost:3001/mcp"
+})
+\`\`\`
+
+Then we can call tools directly on the server instance.
 `
 }
+
+$`
+## Weather Information
+
+Let me gather weather data for each city:
+`
+
+// Get current weather for each city
+for (const city of cities) {
+    try {
+        const currentWeather = await weatherServer.callTool("get_current_weather", { location: city })
+        $`
+### Weather in ${city}
+
+${currentWeather.text}
+`
+    } catch (error) {
+        $`
+### Weather in ${city}
+
+❌ Error getting weather data: ${error.message}
+(This is expected if the weather MCP server is not running)
+`
+    }
+}
+
+// Get forecast for the first city
+if (cities.length > 0) {
+    const firstCity = cities[0]
+    try {
+        const forecast = await weatherServer.callTool("get_weather_forecast", { location: firstCity })
+        $`
+### 3-Day Forecast for ${firstCity}
+
+${forecast.text}
+`
+    } catch (error) {
+        $`
+### 3-Day Forecast for ${firstCity}
+
+❌ Error getting forecast data: ${error.message}
+(This is expected if the weather MCP server is not running)
+`
+    }
+}
+
+// Compare weather between first two cities if available
+if (cities.length >= 2) {
+    try {
+        const comparison = await weatherServer.callTool("compare_weather", { 
+            city1: cities[0], 
+            city2: cities[1] 
+        })
+        $`
+### Weather Comparison
+
+${comparison.text}
+`
+    } catch (error) {
+        $`
+### Weather Comparison
+
+❌ Error comparing weather data: ${error.message}
+(This is expected if the weather MCP server is not running)
+`
+    }
+}
+
+$`
+## Summary
+
+This example demonstrates:
+- **Programmatic approach**: Direct control over MCP server connections using \`host.mcpServer()\`
+- **Configuration approach**: Declarative MCP server setup in script metadata (best for process-based servers)
+- **HTTP transport**: How to connect to MCP servers running as HTTP services
+- **Error handling**: Graceful handling of connection errors when servers are not available
+
+To run the weather MCP server, use:
+\`\`\`bash
+./samples/tools/start-weather-mcp.sh
+\`\`\`
+
+Then run this script again to see live weather data!
+`
