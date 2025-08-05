@@ -9,6 +9,8 @@
  * - Security risk analysis for authentication/critical packages  
  * - Functionality risk assessment for breaking changes
  * - Package metadata retrieval (maintainers, release dates, etc.)
+ * - Source diff analysis through GitHub release notes and changelogs
+ * - Dependency update detection (added, removed, updated sub-dependencies)
  * - Context chunking for large dependency lists
  * - Actionable recommendations and update strategies
  * 
@@ -20,7 +22,7 @@
 
 script({
     title: "NPM Update Risk Assessment",
-    description: "Detects npm package updates and provides risk assessment with changelog analysis",
+    description: "Detects npm package updates and provides risk assessment with source diff analysis and dependency change detection",
     model: "github:gpt-4o-mini", // Use GitHub models with 8k context limit
     maxTokens: 3000, // Stay well within 8k context window
     temperature: 0.1,
@@ -92,10 +94,88 @@ async function getOutdatedPackages(): Promise<NpmOutdated> {
     }
 }
 
-// Get package changelog from npm registry
+// Get package dependencies for a specific version
+async function getPackageDependencies(packageName: string, version: string): Promise<{ dependencies?: Record<string, string>, devDependencies?: Record<string, string> }> {
+    try {
+        const result = await host.exec("npm", ["view", `${packageName}@${version}`, "dependencies", "devDependencies", "--json"], {
+            cwd: env.workspaceRoot || ".",
+            timeout: 10000,
+        })
+        
+        if (result.stdout && result.exitCode === 0) {
+            return JSON.parse(result.stdout)
+        }
+        
+        return {}
+    } catch (error) {
+        console.warn(`⚠️ Failed to get dependencies for ${packageName}@${version}:`, error.message || error)
+        return {}
+    }
+}
+
+// Compare dependencies between two versions
+function compareDependencies(currentDeps: Record<string, string> = {}, latestDeps: Record<string, string> = {}): {
+    added: Record<string, string>,
+    removed: Record<string, string>,
+    updated: Record<string, { from: string, to: string }>
+} {
+    const added: Record<string, string> = {}
+    const removed: Record<string, string> = {}
+    const updated: Record<string, { from: string, to: string }> = {}
+    
+    // Find added and updated dependencies
+    for (const [dep, version] of Object.entries(latestDeps)) {
+        if (!(dep in currentDeps)) {
+            added[dep] = version
+        } else if (currentDeps[dep] !== version) {
+            updated[dep] = { from: currentDeps[dep], to: version }
+        }
+    }
+    
+    // Find removed dependencies
+    for (const [dep, version] of Object.entries(currentDeps)) {
+        if (!(dep in latestDeps)) {
+            removed[dep] = version
+        }
+    }
+    
+    return { added, removed, updated }
+}
+
+// Fetch GitHub release notes if available
+async function getGitHubReleaseNotes(repoUrl: string, currentVersion: string, latestVersion: string): Promise<string> {
+    try {
+        // Extract GitHub repo path from various URL formats
+        const match = repoUrl.match(/github\.com[\/:]([^\/]+)\/([^\/\.]+)/)
+        if (!match) return ""
+        
+        const owner = match[1]
+        const repo = match[2]
+        
+        // Try to fetch release notes for the latest version
+        const releaseUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/v${latestVersion}`
+        const response = await host.fetchText(releaseUrl)
+        
+        if (response.ok && response.text) {
+            const release = JSON.parse(response.text)
+            if (release.body) {
+                return `GitHub Release Notes (v${latestVersion}):\n${release.body.slice(0, 1000)}`
+            }
+        }
+        
+        // If specific release not found, try to get compare URL
+        return `Compare changes: https://github.com/${owner}/${repo}/compare/v${currentVersion}...v${latestVersion}`
+        
+    } catch (error) {
+        console.warn(`⚠️ Failed to fetch GitHub release notes:`, error.message || error)
+        return ""
+    }
+}
+
+// Get comprehensive package information including source diffs and dependency changes
 async function getPackageChangelog(packageName: string, currentVersion: string, latestVersion: string): Promise<string> {
     try {
-        console.log(`🔍 Fetching info for ${packageName} (${currentVersion} → ${latestVersion})`)
+        console.log(`🔍 Fetching comprehensive info for ${packageName} (${currentVersion} → ${latestVersion})`)
         
         const result = await host.exec("npm", ["view", packageName, "description", "repository.url", "homepage", "keywords", "maintainers", "time", "--json"], {
             cwd: env.workspaceRoot || ".",
@@ -137,6 +217,38 @@ async function getPackageChangelog(packageName: string, currentVersion: string, 
                     const currentDate = new Date(currentTime).toLocaleDateString()
                     const latestDate = new Date(latestTime).toLocaleDateString()
                     changelog.push(`Version timeline: ${currentVersion} (${currentDate}) → ${latestVersion} (${latestDate})`)
+                }
+            }
+            
+            // Get dependency changes
+            console.log(`📦 Analyzing dependency changes for ${packageName}`)
+            const [currentDepsResult, latestDepsResult] = await Promise.all([
+                getPackageDependencies(packageName, currentVersion),
+                getPackageDependencies(packageName, latestVersion)
+            ])
+            
+            const depChanges = compareDependencies(currentDepsResult.dependencies, latestDepsResult.dependencies)
+            const devDepChanges = compareDependencies(currentDepsResult.devDependencies, latestDepsResult.devDependencies)
+            
+            // Report dependency changes
+            if (Object.keys(depChanges.added).length > 0) {
+                changelog.push(`New dependencies: ${Object.keys(depChanges.added).join(", ")}`)
+            }
+            if (Object.keys(depChanges.removed).length > 0) {
+                changelog.push(`Removed dependencies: ${Object.keys(depChanges.removed).join(", ")}`)
+            }
+            if (Object.keys(depChanges.updated).length > 0) {
+                const updates = Object.entries(depChanges.updated)
+                    .map(([dep, change]) => `${dep} (${change.from} → ${change.to})`)
+                    .slice(0, 3) // Limit to first 3 to avoid context overflow
+                changelog.push(`Updated dependencies: ${updates.join(", ")}${Object.keys(depChanges.updated).length > 3 ? ` and ${Object.keys(depChanges.updated).length - 3} more` : ""}`)
+            }
+            
+            // Try to get GitHub release notes or changelog
+            if (packageData.repository?.url) {
+                const releaseNotes = await getGitHubReleaseNotes(packageData.repository.url, currentVersion, latestVersion)
+                if (releaseNotes) {
+                    changelog.push(releaseNotes)
                 }
             }
             
@@ -190,7 +302,7 @@ if (packageNames.length === 0) {
             current: pkg.current,
             latest: pkg.latest,
             isMajorVersionChange: isMajor,
-            changelog: changelog.slice(0, 800) // Limit changelog length for context
+            changelog: changelog.slice(0, 1200) // Increased limit to accommodate dependency changes
         })
     }
     
@@ -216,13 +328,15 @@ ${allPackageData.map(pkg =>
 - Major version changes (higher risk of vulnerabilities)
 - Package maintenance status and reputation
 - Authentication/identity-related packages (higher attack surface)
-- Dependencies with known security issues
+- Dependency updates that introduce new packages or change versions
+- Source code changes that affect security posture
 
 **Functionality Risk Factors:**
 - Breaking changes in major versions
 - API compatibility issues
 - Performance impacts
 - Integration complexity
+- Dependency updates that may cause conflicts
 
 ### Required Analysis
 
@@ -234,24 +348,36 @@ For each package, provide:
    - Overall recommendation: UPDATE/DELAY/INVESTIGATE
 
 2. **Key Considerations**
-   - What changed between versions
+   - What changed between versions (based on source diffs/release notes)
+   - Dependency updates introduced (new, removed, or updated sub-dependencies)
    - Potential breaking changes
    - Security implications
    - Testing recommendations
 
-3. **Action Items**
+3. **Source Changes Analysis**
+   - Review any available release notes, changelogs, or GitHub comparison links
+   - Identify significant code changes that could impact functionality
+   - Assess the scope and risk of dependency modifications
+
+4. **Action Items**
    - Priority order for updates
    - Specific precautions to take
    - Documentation to review
+   - Testing strategy for dependency changes
 
 ### Executive Summary
 
 Provide a final summary with:
 - Total packages requiring updates
-- High-priority security updates
+- High-priority security updates (especially those with dependency changes)
 - Safe updates that can proceed immediately
-- Updates requiring careful testing
+- Updates requiring careful testing due to source/dependency changes
 - Overall update strategy recommendation
+
+**Special attention to:**
+- Packages with significant dependency changes
+- Source code modifications that could introduce vulnerabilities
+- Transitive dependency impacts
 
 Format your response as a clear, actionable report that development teams can use to make informed decisions about npm package updates.`
 }
