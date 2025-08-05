@@ -1,76 +1,9 @@
 ---
 title: System Prompts
 sidebar:
-  order: 10
+    order: 10
 description: Learn how to utilize system prompts to enhance script execution in GenAIScript.
 keywords: system prompts, script execution, genai templates, environment consistency
-llmstxt:
-  content: >-
-    System prompts are scripts executed before the main prompt to set context or
-    provide tools. They are unlisted by default and use the `system` keyword
-    instead of `script`. System prompts share the same environment as the main
-    prompt.
-
-
-    Example of a system prompt:
-
-    ```js
-
-    system({ title: "Zero-shot Chain of Thought" });
-
-    export default function (ctx) {
-        const { $ } = ctx;
-        $`Let's think step by step.`;
-    }
-
-    ```
-
-
-    To use system prompts in a script, specify them in the `system` field:
-
-    ```js
-
-    script({
-        system: ["system.zero_shot_cot"]
-    });
-
-    ```
-
-
-    System prompts can include parameters, which are prefixed with the script
-    ID. Parameters can be overridden in the script.
-
-
-    Automated system prompts are injected based on script content, with defaults
-    like `system`, `system.output_markdown`, and safety prompts. Built-in
-    prompts support tasks like file creation, querying Git, or generating
-    annotations.
-
-
-    Examples of built-in prompts:
-
-    1. `system.agent_data`: Queries data in files.
-
-    2. `system.agent_docs`: Queries documentation with tools like
-    `md_find_files`.
-
-    3. `system.agent_git`: Queries Git repositories.
-
-    4. `system.agent_web`: Searches the web for live information.
-
-    5. `system.python_code_interpreter`: Executes Python code in a container.
-
-
-    Safety prompts ensure content adheres to guidelines, avoiding harmful,
-    ungrounded, or copyrighted material. Tools like `fs_read_file` and
-    `git_diff` provide specific functionalities, and prompts like
-    `system.zero_shot_cot` encourage step-by-step reasoning.
-
-
-    Output formats include JSON, YAML, or plain text. Use concise, structured
-    responses tailored for LLMs.
-  hash: 2b7aa155835b552efa39b7d53d632233ab7d6325d21c93beec73bbdd80a4effa
-
 ---
 System prompts are scripts that are executed and injected before the main prompt output.
 
