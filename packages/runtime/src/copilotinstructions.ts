@@ -36,21 +36,21 @@ export interface CopilotInstructionsOptions {
 
 /**
  * Runtime helper to automatically import copilot instruction files based on env.files.
- * 
- * This function searches for GitHub Copilot instruction files and filters them based on 
- * file patterns specified in their frontmatter `applyTo` field, matching against the 
+ *
+ * This function searches for GitHub Copilot instruction files and filters them based on
+ * file patterns specified in their frontmatter `applyTo` field, matching against the
  * files provided in env.files.
- * 
+ *
  * @param workspace - The workspace file system to read files from
  * @param envFiles - Array of files from env.files to match against instruction patterns
  * @param options - Configuration options for the import
  * @returns Promise that resolves to an array of relevant copilot instructions
- * 
+ *
  * @example
  * ```typescript
  * // Import instructions that apply to current env.files
  * const instructions = await importCopilotInstructions(workspace, env.files);
- * 
+ *
  * // Use the instructions in your script
  * for (const instruction of instructions) {
  *   console.log(`Applying instruction from ${instruction.filename}:`);
@@ -70,17 +70,13 @@ export async function importCopilotInstructions(
   } = options;
 
   const instructions: CopilotInstruction[] = [];
-  
+
   // Normalize env.files to just filenames for pattern matching
-  const envFilenames = envFiles.map((file) => 
-    typeof file === "string" ? file : file.filename
-  );
+  const envFilenames = envFiles.map((file) => (typeof file === "string" ? file : file.filename));
 
   // Search for instruction files in specified paths
   for (const instructionPath of instructionPaths) {
-    const searchPatterns = instructionPatterns.map((pattern) => 
-      `${instructionPath}/${pattern}`
-    );
+    const searchPatterns = instructionPatterns.map((pattern) => `${instructionPath}/${pattern}`);
 
     try {
       const foundFiles = await workspace.findFiles(searchPatterns, {
@@ -112,8 +108,8 @@ async function parseInstructionFile(file: WorkspaceFile): Promise<CopilotInstruc
   if (!file.content) return null;
 
   const frontmatter = frontmatterTryParse(file.content);
-  const content = frontmatter 
-    ? file.content.substring(file.content.indexOf('\n---\n') + 5)
+  const content = frontmatter
+    ? file.content.substring(file.content.indexOf("\n---\n") + 5)
     : file.content;
 
   return {
@@ -133,7 +129,7 @@ function shouldIncludeInstruction(
   includeGeneral: boolean,
 ): boolean {
   const { metadata } = instruction;
-  
+
   // Include general copilot instructions if enabled and no specific applyTo pattern
   if (includeGeneral && !metadata?.applyTo) {
     return true;
@@ -145,33 +141,29 @@ function shouldIncludeInstruction(
   }
 
   // Check if any env.files match the applyTo patterns
-  const applyToPatterns = Array.isArray(metadata.applyTo) 
-    ? metadata.applyTo 
-    : [metadata.applyTo];
+  const applyToPatterns = Array.isArray(metadata.applyTo) ? metadata.applyTo : [metadata.applyTo];
 
-  return envFilenames.some((filename) =>
-    isGlobMatch(filename, applyToPatterns)
-  );
+  return envFilenames.some((filename) => isGlobMatch(filename, applyToPatterns));
 }
 
 /**
  * Helper function to format copilot instructions for use in prompts
- * 
+ *
  * @param instructions - Array of copilot instructions to format
  * @param options - Formatting options
  * @returns Formatted instruction text suitable for inclusion in prompts
- * 
+ *
  * @example
  * ```typescript
  * const instructions = await importCopilotInstructions(workspace, env.files);
  * const formattedInstructions = formatCopilotInstructions(instructions);
- * 
+ *
  * $`## Instructions
- * 
+ *
  * ${formattedInstructions}
- * 
+ *
  * ## Task
- * 
+ *
  * Please help me with the following task...`
  * ```
  */
@@ -189,12 +181,12 @@ export function formatCopilotInstructions(
   return instructions
     .map((instruction) => {
       let content = instruction.content;
-      
+
       if (includeSourceInfo) {
         const sourceInfo = `<!-- Source: ${instruction.filename} -->`;
         content = `${sourceInfo}\n${content}`;
       }
-      
+
       return content;
     })
     .join(separator);
