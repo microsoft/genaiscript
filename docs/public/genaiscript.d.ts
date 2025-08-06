@@ -3044,6 +3044,11 @@
   cwd: string;
 
   /**
+   * Associated workspace filesystem for coordinated operations
+   */
+  workspace?: WorkspaceFileSystem;
+
+  /**
    * Resolves the default branch for this repository
    */
   defaultBranch(): Promise<string>;

@@ -30,6 +30,7 @@ import type {
   OptionsOrString,
   ShellOptions,
   WorkspaceFile,
+  WorkspaceFileSystem,
 } from "./types.js";
 
 const dbg = genaiscriptDebug("git");
@@ -54,9 +55,11 @@ export class GitClient implements Git {
   readonly git = "git"; // Git command identifier
   private _defaultBranch: string; // Stores the default branch name
   private _requiresSafeDirectory: boolean = false; // Indicates if the client requires a safe directory
+  private _workspace?: WorkspaceFileSystem; // Associated workspace filesystem
 
-  constructor(cwd: string) {
+  constructor(cwd: string, workspace?: WorkspaceFileSystem) {
     this._cwd = cwd || process.cwd();
+    this._workspace = workspace;
   }
 
   private static _default: GitClient;
@@ -67,6 +70,18 @@ export class GitClient implements Git {
 
   get cwd() {
     return this._cwd;
+  }
+
+  get workspace() {
+    return this._workspace;
+  }
+
+  /**
+   * Associate a workspace filesystem with this git client
+   */
+  setWorkspace(workspace: WorkspaceFileSystem): this {
+    this._workspace = workspace;
+    return this;
   }
 
   setGitHubWorkspace(cwd: string) {
@@ -666,8 +681,8 @@ ${await this.diff({ ...options, nameOnly: true })}
     return new GitClient(directory);
   }
 
-  client(cwd: string) {
-    return new GitClient(cwd);
+  client(cwd: string, workspace?: WorkspaceFileSystem) {
+    return new GitClient(cwd, workspace);
   }
 
   toString() {

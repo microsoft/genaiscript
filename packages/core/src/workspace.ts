@@ -32,7 +32,9 @@ import type {
   WorkspaceFile,
   WorkspaceFileSystem,
   XMLParseOptions,
+  Git,
 } from "./types.js";
+import { GitClient } from "./git.js";
 
 export interface WorkspaceOptions {
   /**
@@ -249,4 +251,36 @@ export function createWorkspaceFileSystem(
   } satisfies Omit<WorkspaceFileSystem, "grep" | "writeCached">;
   (fs as any).readFile = readText;
   return Object.freeze(fs);
+}
+
+/**
+ * Creates a workspace context with coordinated filesystem and git client
+ */
+export interface WorkspaceContext {
+  filesystem: WorkspaceFileSystem;
+  git: Git;
+}
+
+/**
+ * Creates a coordinated workspace with filesystem and git client
+ * @param options Workspace options including root directory
+ * @returns Workspace context with filesystem and git client
+ */
+export function createWorkspace(options?: WorkspaceOptions & { cwd?: string }): WorkspaceContext {
+  const { cwd, ...workspaceOptions } = options || {};
+  const root = cwd || process.cwd();
+  
+  // Create filesystem with workspace options
+  const filesystem = {
+    ...createWorkspaceFileSystem(workspaceOptions),
+    root: () => root,
+  } as WorkspaceFileSystem;
+  
+  // Create git client associated with the workspace
+  const git = new GitClient(root, filesystem);
+  
+  return {
+    filesystem,
+    git,
+  };
 }

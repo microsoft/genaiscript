@@ -29,6 +29,7 @@ import {
   createAzureTokenResolver,
   createNodePath,
   createWorkspaceFileSystem,
+  createWorkspace,
   defaultModelConfigurations,
   errorMessage,
   filterGitIgnore,
