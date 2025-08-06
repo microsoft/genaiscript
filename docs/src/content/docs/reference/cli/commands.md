@@ -207,6 +207,8 @@ Options:
   -g, --groups <groups...>       groups to include or exclude. Use :! prefix to
                                  exclude
   --test-timeout <number>        test timeout in seconds
+  --filter-model <string>        filter scripts by model specified in script()
+                                 function
   -h, --help                     display help for command
 ```
 
@@ -221,6 +223,8 @@ Options:
   --redteam                 list red team tests
   -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
                             exclude
+  --filter-model <string>   filter scripts by model specified in script()
+                            function
   -h, --help                display help for command
 ```
 
