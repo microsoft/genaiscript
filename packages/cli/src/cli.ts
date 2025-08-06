@@ -281,6 +281,7 @@ export async function cli(): Promise<void> {
     .option("--out-summary <file>", "append output summary in file");
   addGroupsOptions(testRun)
     .option("--test-timeout <number>", "test timeout in seconds")
+    .option("--filter-model <string>", "filter scripts by model specified in script() function")
     .action(scriptsTest); // Action to run the tests
 
   // List available tests
@@ -289,7 +290,9 @@ export async function cli(): Promise<void> {
     .alias("ls")
     .description("List available tests in workspace")
     .option("--redteam", "list red team tests");
-  addGroupsOptions(testList).action(scriptTestList); // Action to list the tests
+  addGroupsOptions(testList)
+    .option("--filter-model <string>", "filter scripts by model specified in script() function")
+    .action(scriptTestList); // Action to list the tests
 
   // Launch test viewer
   test.command("view").description("Launch test viewer").action(scriptTestsView); // Action to view the tests
