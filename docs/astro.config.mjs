@@ -168,6 +168,10 @@ is at https://microsoft.github.io/genaiscript/reference/scripts.md
           autogenerate: { directory: "getting-started" },
         },
         {
+          label: "Cheat Sheet",
+          link: "cheat-sheet",
+        },
+        {
           label: "Configuration",
           autogenerate: { directory: "configuration" },
           collapsed: true,
