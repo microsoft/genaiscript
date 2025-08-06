@@ -152,12 +152,7 @@ const mdFiles = env.files.filter(f => f.endsWith('.md'))
 const jsFiles = env.files.filter(f => f.filename.endsWith('.js'))
 ```
 
-### env.secrets
-```js
-// Access environment variables/secrets
-const apiKey = env.secrets.OPENAI_API_KEY
-const customVar = env.secrets.MY_CUSTOM_VAR
-```
+
 
 ## Inline Prompts
 
@@ -190,14 +185,7 @@ const matches = await workspace.findFiles("**/*.md", {
 })
 ```
 
-### Writing Files
-```js
-// In prompt - LLM will generate
-$`Save the result to output.md`
 
-// Or write directly
-await workspace.writeText("output.txt", "content")
-```
 
 ## Data Handling
 
@@ -350,20 +338,7 @@ npx genaiscript run scriptname --temperature 0.1
 npx genaiscript run scriptname --max-tokens 2000
 ```
 
-### Testing & Debugging
-```bash
-# Run tests
-npx genaiscript test
 
-# Test specific script
-npx genaiscript test scriptname
-
-# Verbose test output
-npx genaiscript test scriptname --verbose
-
-# Run with trace
-npx genaiscript run scriptname --trace
-```
 
 ### Info & Discovery
 ```bash
@@ -432,42 +407,7 @@ export GITHUB_TOKEN="ghp_..."
 }
 ```
 
-## Debugging & Development
 
-### Debug Output
-```js
-// Enable console output
-console.log("Debug info:", variable)
-
-// Write trace information
-trace.log("Step 1 completed")
-
-// Inspect variables
-console.table(data)
-```
-
-### VS Code Integration
-- Right-click on files/folders to run scripts
-- Use debug mode to step through execution
-- View prompt assembly in real-time
-- Test with different models quickly
-
-### Error Handling
-```js
-script({ 
-  title: "Robust Script",
-  temperature: 0,
-  maxRetries: 3 
-})
-
-// Graceful tool fallbacks
-if (env.secrets.OPENAI_API_KEY) {
-  script({ tools: ["web_search"] })
-} else {
-  // Fallback without tools
-  def("INFO", "Use local data only")
-}
-```
 
 ## Advanced Features
 
@@ -507,100 +447,7 @@ script({
 $`Write ${env.parameters.count} facts about ${env.parameters.topic}.`
 ```
 
-## Common Patterns
 
-### File Analysis
-```js
-script({
-  title: "Analyze Files",
-  files: "**/*.{js,ts,md}",
-  tools: ["fs_read_file"]
-})
-
-def("FILES", env.files)
-$`Analyze the FILES for:
-1. Code quality issues
-2. Documentation gaps  
-3. Improvement suggestions`
-```
-
-### Data Processing
-```js
-script({ title: "Process CSV Data" })
-
-const data = await parsers.CSV(env.files[0])
-defData("DATA", data, { sliceHead: 100 })
-
-$`Analyze the DATA and provide:
-1. Summary statistics
-2. Key insights
-3. Recommendations`
-```
-
-### Document Generation
-```js
-script({ title: "Generate Documentation" })
-
-def("CODE", env.files.filter(f => f.endsWith('.js')))
-$`Generate API documentation for the CODE.
-Save as docs.md with proper formatting.`
-```
-
-### Pull Request Review
-```js
-script({
-  title: "PR Review",
-  tools: ["fs_read_file", "fs_find_files"]
-})
-
-def("CHANGES", env.files)
-$`Review the CHANGES for:
-1. Code quality
-2. Security issues
-3. Best practices
-4. Breaking changes
-
-Format as GitHub review comments.`
-```
-
-### Multi-step Processing
-```js
-script({ title: "Multi-step Analysis" })
-
-// Step 1: Summarize each file
-const summaries = []
-for (const file of env.files) {
-  const { text } = await runPrompt((_) => {
-    _.def("FILE", file)
-    _.$`Summarize FILE in one sentence.`
-  })
-  summaries.push(`${file.filename}: ${text}`)
-}
-
-// Step 2: Final analysis
-def("SUMMARIES", summaries.join('\n'))
-$`Based on SUMMARIES, provide overall insights.`
-```
-
-### Error Handling & Validation
-```js
-script({ 
-  title: "Validate Data",
-  contentSafety: "azure" 
-})
-
-const schema = defSchema("VALIDATION", {
-  type: "object",
-  properties: {
-    isValid: { type: "boolean" },
-    errors: { type: "array", items: { type: "string" } }
-  }
-})
-
-def("INPUT", env.files)
-$`Validate INPUT data structure.
-Return results using ${schema} format.`
-```
 
 ## Tips & Best Practices
 
