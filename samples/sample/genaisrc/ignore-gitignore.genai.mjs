@@ -1,6 +1,6 @@
 script({
   ignoreGitIgnore: true,
-  files: ".env",
+  files: "node_modules/test-package/package.json",
   tests: {},
   model: "echo",
   group: "commit",
