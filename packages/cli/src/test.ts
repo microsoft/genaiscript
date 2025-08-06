@@ -10,6 +10,8 @@ import { delay, shuffle } from "es-toolkit";
 import {
   BOX_RIGHT,
   BOX_UP_AND_RIGHT,
+  BOX_DOWN_AND_RIGHT,
+  BOX_UP_AND_DOWN,
   createCancellationController,
   dataTryParse,
   evaluateTestResult,
@@ -136,6 +138,41 @@ function createEnv() {
     PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION:
       env.PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION ?? "true",
   };
+}
+
+/**
+ * Formats and displays enhanced progress information during test execution
+ */
+function displayTestProgress(
+  current: number,
+  total: number,
+  scriptId: string,
+  stats: { prompt: number; completion: number; total: number },
+  elapsed: number,
+  passedCount: number,
+  failedCount: number
+) {
+  const percentage = Math.round((current / total) * 100);
+  const progressBar = createProgressBar(percentage, 20);
+  const avgTime = elapsed / current;
+  const estimatedRemaining = Math.round((total - current) * avgTime / 1000);
+  
+  logInfo(`${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test ${current}/${total} (${percentage}%) - ${scriptId}`);
+  logVerbose(
+    `${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed, ~${estimatedRemaining}s remaining`
+  );
+  logVerbose(
+    `${BOX_UP_AND_DOWN} ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed, ${prettyTokens(stats.total, "both")}`
+  );
+}
+
+/**
+ * Creates a simple ASCII progress bar
+ */
+function createProgressBar(percentage: number, width: number = 20): string {
+  const filled = Math.round((percentage / 100) * width);
+  const empty = width - filled;
+  return `[${'█'.repeat(filled)}${' '.repeat(empty)}] ${percentage}%`;
 }
 
 /**
@@ -283,23 +320,17 @@ async function apiRunPromptScriptTests(
   }
   const results = [];
   try {
+    logInfo(`${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Starting ${configurations.length} test(s)`);
     for (const config of configurations) {
       checkCancelled(cancellationToken);
       const { script, options, test } = config;
-      logInfo(`test ${script.id} - ${results.length + 1}/${configurations.length}`);
+      const current = results.length + 1;
       const elapsed = Date.now() - runStart.getTime();
-      logVerbose(
-        BOX_UP_AND_RIGHT +
-          BOX_RIGHT +
-          toStringList(
-            prettyDuration(elapsed),
-            `${results.filter((r) => !r.ok).length} failed`,
-            `${results.filter((r) => r.ok).length} success`,
-            prettyTokens(stats.total, "both"),
-            prettyTokens(stats.prompt, "prompt"),
-            prettyTokens(stats.completion, "completion"),
-          ),
-      );
+      const passedCount = results.filter((r) => r.ok).length;
+      const failedCount = results.filter((r) => !r.ok).length;
+      
+      displayTestProgress(current, configurations.length, script.id, stats, elapsed, passedCount, failedCount);
+      
       dbgRun(`options: %O`, options);
       const { files = [] } = test;
       const res = await run(script.id, files, {
@@ -330,18 +361,19 @@ async function apiRunPromptScriptTests(
       results.push({ ok, res, config, error });
 
       if (testDelay > 0) {
-        logVerbose(`  waiting ${testDelay}s`);
+        logVerbose(`${BOX_UP_AND_DOWN} Waiting ${testDelay}s before next test...`);
         await delay(testDelay * 1000);
       }
     }
   } catch (e) {
-    if (isCancelError(e)) logInfo(`test run cancelled`);
+    if (isCancelError(e)) logInfo(`${BOX_UP_AND_RIGHT} Test run cancelled`);
     else {
       logError(e);
       throw e;
     }
   }
   const runEnd = new Date();
+  const totalDuration = runEnd.getTime() - runStart.getTime();
 
   if (outSummary) {
     await appendFile(
@@ -353,7 +385,7 @@ async function apiRunPromptScriptTests(
             prompt: stats.prompt,
             completion: stats.completion,
             total: stats.total,
-            duration: roundWithPrecision((runEnd.getTime() - runStart.getTime()) / 1000, 1),
+            duration: roundWithPrecision(totalDuration / 1000, 1),
           },
           headers,
           { skipEscape: true },
@@ -363,7 +395,33 @@ async function apiRunPromptScriptTests(
       ].join(""),
     );
   }
-  if (outSummary) logVerbose(`trace: ${outSummary}`);
+
+  // Enhanced final summary display
+  const passedCount = results.filter((r) => r.ok).length;
+  const failedCount = results.filter((r) => !r.ok).length;
+  const totalTests = results.length;
+  
+  logInfo(`\n${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test Results Summary`);
+  logInfo(`${BOX_UP_AND_DOWN}`);
+  logInfo(`${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`);
+  logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
+  logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
+  logInfo(`${BOX_UP_AND_DOWN}`);
+  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.prompt, "prompt")}`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.completion, "completion")}`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.total, "both")} total`);
+  
+  if (stats.total > 0) {
+    const avgTokensPerTest = Math.round(stats.total / totalTests);
+    const tokensPerSecond = Math.round(stats.total / (totalDuration / 1000));
+    logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
+    logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
+  }
+  
+  logInfo(`${BOX_UP_AND_RIGHT}`);
+  
+  if (outSummary) logVerbose(`${BOX_UP_AND_RIGHT} Full trace: ${outSummary}`);
   const ok = results.every((r) => !!r.ok);
   return {
     ok,
@@ -652,13 +710,16 @@ export async function scriptsTest(
   const cancellationToken = canceller.token;
 
   const { status, value = [] } = await runPromptScriptTests(ids, { ...options, cancellationToken });
-  const trace = new MarkdownTrace();
-  trace.appendContent(
-    `\n\ntests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed\n\n`,
-  );
-  for (const result of value) trace.resultItem(result.ok, result.script);
-  console.log("");
-  console.log(trace.content);
+  
+  // Clean up the final console output - the enhanced summary is already shown
+  // Just show a simple results list if verbose mode is enabled
+  if (options.verbose) {
+    const trace = new MarkdownTrace();
+    trace.appendContent(`\n${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Detailed Results:\n`);
+    for (const result of value) trace.resultItem(result.ok, result.script);
+    console.log(trace.content);
+  }
+  
   process.exit(status);
 }
 
