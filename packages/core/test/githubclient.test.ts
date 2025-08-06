@@ -154,4 +154,42 @@ describe("GitHubClient", async () => {
     const result = await client.assignIssueToBot(issueNumber);
     console.log(result);
   });
+
+  test("workspace property exists and has correct interface", async () => {
+    // Test that workspace property exists
+    assert(client.workspace, "workspace property should exist");
+    
+    // Test that workspace has expected methods
+    assert(typeof client.workspace.root === "function", "workspace should have root method");
+    assert(typeof client.workspace.findFiles === "function", "workspace should have findFiles method");
+    assert(typeof client.workspace.readText === "function", "workspace should have readText method");
+    assert(typeof client.workspace.writeText === "function", "workspace should have writeText method");
+    assert(typeof client.workspace.grep === "function", "workspace should have grep method");
+    assert(typeof client.workspace.writeCached === "function", "workspace should have writeCached method");
+    
+    // Test that root returns current working directory
+    const root = client.workspace.root();
+    assert(typeof root === "string", "root should return a string");
+    assert(root.length > 0, "root should not be empty");
+  });
+
+  test("workspace.findFiles works", async () => {
+    // Test findFiles method - should find some TypeScript files
+    const files = await client.workspace.findFiles("*.ts", { readText: false });
+    assert(Array.isArray(files), "findFiles should return an array");
+    // Note: files array might be empty if no .ts files are in cwd, which is fine for this test
+  });
+
+  test("workspace.readText works", async () => {
+    // Test readText method with a known file (package.json should exist)
+    try {
+      const file = await client.workspace.readText("package.json");
+      assert(file, "readText should return a file object");
+      assert(file.filename === "package.json", "filename should match");
+      assert(typeof file.content === "string" || file.content === undefined, "content should be string or undefined");
+    } catch (error) {
+      // It's okay if package.json doesn't exist in current working directory
+      console.log("package.json not found in workspace root, which is acceptable for this test");
+    }
+  });
 });

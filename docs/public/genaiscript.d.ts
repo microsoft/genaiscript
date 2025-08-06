@@ -3577,6 +3577,11 @@
   info(): Promise<GitHubOptions | undefined>;
 
   /**
+   * WorkspaceFileSystem mounted on the GitHub repository current working directory
+   */
+  workspace: WorkspaceFileSystem;
+
+  /**
    * Gets the details of a GitHub workflow
    * @param workflowId
    */

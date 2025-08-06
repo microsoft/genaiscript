@@ -68,6 +68,8 @@ import type {
   GitHubWorkflowRunStatus,
   PromptScript,
   WorkspaceFile,
+  WorkspaceFileSystem,
+  WorkspaceGrepOptions,
   GitHubIssueCreateOptions,
   GitWorktree,
   GitWorktreeAddOptions,
@@ -77,6 +79,11 @@ import type { Octokit as OctokitCore } from "@octokit/core";
 import { throttling } from "@octokit/plugin-throttling";
 import { paginateRest } from "@octokit/plugin-paginate-rest";
 import { tryReadJSON } from "./fs.js";
+import { createWorkspaceFileSystem } from "./workspace.js";
+import { grepSearch } from "./grep.js";
+import { fileWriteCached } from "./filecache.js";
+import { dotGenaiscriptPath } from "./workdir.js";
+import { join } from "node:path";
 
 const dbg = genaiscriptDebug("github");
 const dbgql = dbg.extend("graphql");
@@ -689,6 +696,7 @@ export class GitHubClient implements GitHub {
       } & GithubConnectionInfo)
     | undefined
   >;
+  private _workspace: WorkspaceFileSystem;
 
   private static _default: GitHubClient;
   static default() {
@@ -698,6 +706,53 @@ export class GitHubClient implements GitHub {
 
   constructor(info: Pick<GithubConnectionInfo, "owner" | "repo">) {
     this._info = info;
+    // Initialize workspace with current working directory as root
+    this._workspace = this.createWorkspace();
+  }
+
+  private createWorkspace(): WorkspaceFileSystem {
+    const baseWorkspace = createWorkspaceFileSystem({ root: process.cwd() });
+    
+    // Create a complete WorkspaceFileSystem by extending the base with missing methods
+    return {
+      ...baseWorkspace,
+      grep: async (
+        query: string | RegExp,
+        grepOptions?: string | any,
+        grepOptions2?: any,
+      ) => {
+        if (typeof grepOptions === "string") {
+          const path = grepOptions.replace(/(^|\/)\*\*$/, "");
+          const glob = grepOptions;
+          grepOptions = {
+            path: path || undefined,
+            glob: glob || undefined,
+            ...(grepOptions2 || {}),
+          };
+        }
+        const { path, glob, ...rest } = grepOptions || {};
+        const { files, matches } = await grepSearch(query, {
+          path,
+          glob,
+          ...rest,
+        });
+        return { files, matches };
+      },
+      writeCached: async (file: any, options?: any) => {
+        const { scope } = options || {};
+        const dir = scope === "run" 
+          ? join(process.cwd(), ".genaiscript", "tmp", "files")
+          : dotGenaiscriptPath("cache", "files");
+        return await fileWriteCached(dir, file, options || {});
+      },
+    };
+  }
+
+  /**
+   * WorkspaceFileSystem mounted on the GitHub repository current working directory
+   */
+  get workspace(): WorkspaceFileSystem {
+    return this._workspace;
   }
 
   private connection(): Promise<GithubConnectionInfo> {
