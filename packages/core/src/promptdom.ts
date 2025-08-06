@@ -48,7 +48,6 @@ import debug from "debug";
 import { imageEncodeForLLM } from "./image.js";
 import { providerFeatures } from "./features.js";
 import { parseModelIdentifier } from "./models.js";
-import { importChatModeInstructions as runtimeImportChatModeInstructions } from "@genaiscript/runtime";
 import type {
   Awaitable,
   ChatFunctionHandler,
@@ -107,7 +106,6 @@ export interface PromptNode extends ContextExpansionOptions {
     | "chatParticipant"
     | "fileOutput"
     | "importTemplate"
-    | "importChatModeInstructions"
     | "mcpServer"
     | undefined;
   children?: PromptNode[]; // Child nodes for hierarchical structure
@@ -181,13 +179,6 @@ export interface PromptImportTemplate extends PromptNode {
   type: "importTemplate";
   files: ElementOrArray<string | WorkspaceFile>; // Files to import
   args?: Record<string, ImportTemplateArgumentType>; // Arguments for the template
-  options?: ImportTemplateOptions; // Additional options
-}
-
-// Interface for an import chat mode instructions node.
-export interface PromptImportChatModeInstructions extends PromptNode {
-  type: "importChatModeInstructions";
-  patterns?: ElementOrArray<string>; // File patterns to search for
   options?: ImportTemplateOptions; // Additional options
 }
 
@@ -635,18 +626,6 @@ export function createImportTemplate(
   } satisfies PromptImportTemplate;
 }
 
-// Function to create an import chat mode instructions node.
-export function createImportChatModeInstructions(
-  patterns?: ElementOrArray<string>,
-  options?: ImportTemplateOptions,
-): PromptImportChatModeInstructions {
-  return {
-    type: "importChatModeInstructions",
-    patterns,
-    options,
-  } satisfies PromptImportChatModeInstructions;
-}
-
 /**
  * Creates a node representing an MCP (Multiple Connection Protocol) server with specified configurations.
  *
@@ -732,7 +711,6 @@ export interface PromptNodeVisitor {
   chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void>; // Chat participant node visitor
   fileOutput?: (node: FileOutputNode) => Awaitable<void>; // File output node visitor
   importTemplate?: (node: PromptImportTemplate) => Awaitable<void>; // Import template node visitor
-  importChatModeInstructions?: (node: PromptImportChatModeInstructions) => Awaitable<void>; // Import chat mode instructions node visitor
   mcpServer?: (node: PromptMcpServerNode) => Awaitable<void>; // Mcp server node visitor
 }
 
@@ -781,9 +759,6 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
       break;
     case "importTemplate":
       await visitor.importTemplate?.(node as PromptImportTemplate);
-      break;
-    case "importChatModeInstructions":
-      await visitor.importChatModeInstructions?.(node as PromptImportChatModeInstructions);
       break;
     case "mcpServer":
       await visitor.mcpServer?.(node as PromptMcpServerNode);
@@ -997,29 +972,6 @@ async function resolvePromptNode(
           }
         }
         n.tokens = approximateTokens(n.preview);
-      } catch (e) {
-        n.error = e;
-      }
-    },
-    importChatModeInstructions: async (n) => {
-      try {
-        const { patterns, options } = n;
-        n.children = [];
-        n.preview = "";
-        
-        // Use the runtime helper to import chat mode instructions
-        const result = await runtimeImportChatModeInstructions(patterns, {
-          ...(options || {}),
-          trace,
-        });
-        
-        // Add content as text nodes for the prompt system
-        for (const file of result.files) {
-          n.children.push(createTextNode(file.content));
-        }
-        
-        n.preview = result.content;
-        n.tokens = result.tokens;
       } catch (e) {
         n.error = e;
       }

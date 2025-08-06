@@ -4388,10 +4388,6 @@
     templateArguments?: Record<string, ImportTemplateArgumentType>,
     options?: ImportTemplateOptions,
   ): void;
-  importChatModeInstructions(
-    patterns?: ElementOrArray<string>,
-    options?: ImportTemplateOptions,
-  ): void;
   writeText(body: Awaitable<string>, options?: WriteTextOptions): void;
   assistant(text: Awaitable<string>, options?: Omit<WriteTextOptions, "assistant">): void;
   $(strings: TemplateStringsArray, ...args: any[]): PromptTemplateString;
