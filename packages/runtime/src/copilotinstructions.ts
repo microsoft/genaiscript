@@ -41,32 +41,25 @@ export interface CopilotInstructionsOptions extends ChatGenerationContextOptions
  *
  * This function searches for GitHub Copilot instruction files and filters them based on
  * file patterns specified in their frontmatter `applyTo` field, matching against the
- * provided files. When a chat generation context is provided, the instructions
- * are automatically added as system prompts.
+ * provided files. The instructions are automatically added as system prompts to the
+ * chat generation context.
  *
  * @param files - Array of files to match against instruction patterns
  * @param options - Configuration options for the import including optional chat generation context
- * @returns Promise that resolves to an array of relevant copilot instructions
  *
  * @example
  * ```typescript
- * // Import instructions that apply to specific files
- * const instructions = await importCopilotInstructions(env.files);
+ * // Import instructions that apply to specific files and add to context
+ * await importCopilotInstructions(env.files);
  *
- * // Use with chat generation context to automatically add as system prompts
+ * // Use with explicit chat generation context
  * await importCopilotInstructions(env.files, { generator: ctx });
- * 
- * // Use the instructions in your script manually
- * for (const instruction of instructions) {
- *   console.log(`Applying instruction from ${instruction.filename}:`);
- *   console.log(instruction.content);
- * }
  * ```
  */
 export async function importCopilotInstructions(
   files: string[] | WorkspaceFile[],
   options: CopilotInstructionsOptions = {},
-): Promise<CopilotInstruction[]> {
+): Promise<void> {
   const {
     includeGeneral = true,
     instructionPaths = [".github/instructions", ".github"],
@@ -83,6 +76,9 @@ export async function importCopilotInstructions(
   if (!workspace) {
     throw new Error("Workspace not available in global context");
   }
+
+  // Always resolve chat generation context
+  const ctx = resolveChatGenerationContext(options);
 
   // Normalize files to just filenames for pattern matching
   const filenames = files.map((file) => (typeof file === "string" ? file : file.filename));
@@ -126,35 +122,30 @@ export async function importCopilotInstructions(
 
   debug(`total instructions found: ${instructions.length}`);
 
-  // If a generator context is provided, add instructions as system-like content
-  if (contextOptions.generator || Object.keys(contextOptions).length > 0) {
-    const ctx = resolveChatGenerationContext(contextOptions);
-    debug(`adding ${instructions.length} instructions as system content`);
-    
-    // Add instructions as system-like content using defChatParticipant
-    ctx.defChatParticipant((turnCtx) => {
-      if (instructions.length > 0) {
-        turnCtx.$`## GitHub Copilot Instructions
+  // Always add instructions as system-like content
+  debug(`adding ${instructions.length} instructions as system content`);
+  
+  // Add instructions as system-like content using defChatParticipant
+  ctx.defChatParticipant((turnCtx) => {
+    if (instructions.length > 0) {
+      turnCtx.$`## GitHub Copilot Instructions
 
 The following instructions apply to the current files and should guide your responses:
 
 ${instructions.map(instruction => {
-          let content = instruction.content;
-          if (instruction.metadata?.description) {
-            content = `### ${instruction.metadata.description}\n\n${content}`;
-          }
-          return `<!-- Source: ${instruction.filename} -->\n${content}`;
-        }).join('\n\n---\n\n')}
+        let content = instruction.content;
+        if (instruction.metadata?.description) {
+          content = `### ${instruction.metadata.description}\n\n${content}`;
+        }
+        return `<!-- Source: ${instruction.filename} -->\n${content}`;
+      }).join('\n\n---\n\n')}
 
 ---
 
 `.role("system");
-        debug(`added copilot instructions as system content`);
-      }
-    }, { label: "copilot-instructions" });
-  }
-
-  return instructions;
+      debug(`added copilot instructions as system content`);
+    }
+  }, { label: "copilot-instructions" });
 }
 
 /**
@@ -216,48 +207,4 @@ function shouldIncludeInstruction(
   return matches;
 }
 
-/**
- * Helper function to format copilot instructions for use in prompts
- *
- * @param instructions - Array of copilot instructions to format
- * @param options - Formatting options
- * @returns Formatted instruction text suitable for inclusion in prompts
- *
- * @example
- * ```typescript
- * const instructions = await importCopilotInstructions(workspace);
- * const formattedInstructions = formatCopilotInstructions(instructions);
- *
- * $`## Instructions
- *
- * ${formattedInstructions}
- *
- * ## Task
- *
- * Please help me with the following task...`
- * ```
- */
-export function formatCopilotInstructions(
-  instructions: CopilotInstruction[],
-  options: {
-    /** Include instruction source filenames (default: false) */
-    includeSourceInfo?: boolean;
-    /** Separator between instructions (default: double newline) */
-    separator?: string;
-  } = {},
-): string {
-  const { includeSourceInfo = false, separator = "\n\n" } = options;
 
-  return instructions
-    .map((instruction) => {
-      let content = instruction.content;
-
-      if (includeSourceInfo) {
-        const sourceInfo = `<!-- Source: ${instruction.filename} -->`;
-        content = `${sourceInfo}\n${content}`;
-      }
-
-      return content;
-    })
-    .join(separator);
-}

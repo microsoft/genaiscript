@@ -6,33 +6,31 @@ sidebar:
   order: 50
 ---
 
-The `importCopilotInstructions` runtime helper automatically discovers and imports relevant GitHub Copilot instruction files based on provided files.
+The `importCopilotInstructions` runtime helper automatically discovers and imports relevant GitHub Copilot instruction files based on provided files. The helper automatically adds these instructions as system prompts to the chat generation context.
 
 ## Basic Usage
 
 ```typescript
 import { importCopilotInstructions } from "@genaiscript/runtime"
 
-// Import instructions that apply to specific files
-const instructions = await importCopilotInstructions(env.files)
-if (instructions?.length) {
-  $`# Instructions\n${instructions.map(i => i.content).join('\n\n')}\n\n# Task\n...`
-}
+// Import instructions that apply to specific files and add to context
+await importCopilotInstructions(env.files)
+// Instructions are now automatically included in the conversation
 ```
 
-## Automatic System Prompt Integration
+## Custom Context
 
 ```typescript
 import { importCopilotInstructions } from "@genaiscript/runtime"
 
-// Automatically add instructions as system content
+// Use with explicit chat generation context
 await importCopilotInstructions(env.files, { generator: ctx })
-// Instructions are now automatically included in the conversation
+// Instructions are automatically added as system content
 ```
 
 ## Features
 
-The helper automatically searches `.github/instructions/` and `.github/copilot-instructions.md` by default. It matches instruction files to provided files using glob patterns from frontmatter `applyTo` field and supports general instructions for files without specific patterns. The helper provides configurable instruction paths, file patterns, and options, along with optional automatic system prompt integration.
+The helper automatically searches `.github/instructions/` and `.github/copilot-instructions.md` by default. It matches instruction files to provided files using glob patterns from frontmatter `applyTo` field and supports general instructions for files without specific patterns. The helper provides configurable instruction paths and file patterns with automatic system prompt integration.
 
 ## Setting up Copilot Instructions
 
@@ -65,13 +63,13 @@ Write clean, readable code, add meaningful comments, and follow existing project
 function importCopilotInstructions(
   files: string[] | WorkspaceFile[],
   options?: CopilotInstructionsOptions
-): Promise<CopilotInstruction[]>
+): Promise<void>
 ```
 
 **Parameters:**
 `files` represents an array of files to match against instruction patterns, while `options` provides configuration options including optional chat generation context.
 
-**Returns:** Promise that resolves to an array of relevant copilot instructions that apply to the provided files
+**Returns:** Promise that resolves when instructions are added to the chat generation context
 
 ### CopilotInstructionsOptions
 
@@ -117,44 +115,24 @@ script({
 
 import { importCopilotInstructions } from "@genaiscript/runtime"
 
-const instructions = await importCopilotInstructions(env.files)
+// Import instructions that apply to files and add to context
+await importCopilotInstructions(env.files)
 
-if (instructions?.length) {
-    $`# Code Review Instructions
-
-${instructions.map(inst => {
-    let content = inst.content
-    if (inst.metadata?.description) {
-        content = `## ${inst.metadata.description}\n\n${content}`
-    }
-    return content
-}).join('\n\n---\n\n')}
-
-# Files to Review
-
-Please review the following files according to the instructions above:`
-
-    def("FILES", env.files, { lineNumbers: true })
-} else {
-    $`# Code Review
-
-No specific instructions found. Please review the following files using general best practices:`
-    
-    def("FILES", env.files, { lineNumbers: true })
-}
+$`Please review the following files:`
+def("FILES", env.files, { lineNumbers: true })
 ```
 
-### Automatic System Prompt Integration
+### Custom Context
 
 ```typescript
 script({
-    title: "Code Review with Auto-Integrated Instructions",
+    title: "Code Review with Custom Context",
     description: "Reviews code with automatically integrated GitHub Copilot instructions",
 })
 
 import { importCopilotInstructions } from "@genaiscript/runtime"
 
-// Automatically add instructions as system prompts
+// Use with explicit chat generation context
 await importCopilotInstructions(env.files, { generator: ctx })
 
 $`Please review the following files:`
@@ -164,14 +142,14 @@ def("FILES", env.files, { lineNumbers: true })
 ### Custom Configuration
 
 ```typescript
-// Custom configuration with manual usage
-const instructions = await importCopilotInstructions(env.files, {
+// Custom configuration with automatic system prompt integration
+await importCopilotInstructions(env.files, {
     includeGeneral: false, // Skip general instructions
     instructionPaths: [".github/instructions", "docs/coding-standards"], // Custom paths
     instructionPatterns: ["*.guidelines.md", "*.standards.md"] // Custom patterns
 })
 
-// Custom configuration with automatic system prompt integration
+// Custom configuration with explicit context
 await importCopilotInstructions(env.files, {
     generator: ctx,
     includeGeneral: true,
