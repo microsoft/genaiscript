@@ -1,55 +1,38 @@
-// Example: Using copilot instructions in your GenAI script
-
 script({
     title: "Code Review with Copilot Instructions",
     description: "Reviews code using relevant GitHub Copilot instructions",
 })
 
-// Import the copilot instructions helper from runtime
-import { importCopilotInstructions, formatCopilotInstructions } from "@genaiscript/runtime"
+import { importCopilotInstructions } from "@genaiscript/runtime"
 
-// Get copilot instructions that apply to the current files
-const instructions = await importCopilotInstructions(env.files, {
-    // Optional: include general copilot instructions even if no specific patterns match
-    includeGeneral: true,
-    // Optional: custom paths to search for instructions
-    instructionPaths: [".github/instructions", ".github"],
-    // Optional: custom patterns for instruction files  
-    instructionPatterns: ["*.instructions.md", "copilot-instructions.md"],
-})
+// Example 1: Manual usage - get instructions and format them yourself
+const instructions = await importCopilotInstructions(env.files)
 
-if (instructions.length > 0) {
-    // Format instructions for prompt inclusion
-    const formattedInstructions = formatCopilotInstructions(instructions, {
-        includeSourceInfo: true,  // Show which file each instruction comes from
-        separator: "\n\n---\n\n", // Custom separator between instructions
-    })
-    
+if (instructions?.length) {
     $`# Code Review Instructions
 
-${formattedInstructions}
+${instructions.map(inst => {
+    let content = inst.content
+    if (inst.metadata?.description) {
+        content = `## ${inst.metadata.description}\n\n${content}`
+    }
+    return content
+}).join('\n\n---\n\n')}
 
 # Files to Review
 
 Please review the following files according to the instructions above:`
 
-    // Add files to context with the instructions applied
-    def("FILES", env.files, { 
-        lineNumbers: true,
-        ignoreEmpty: true 
-    })
-
-    $`
-
-Provide constructive feedback following the coding standards and practices outlined in the instructions.`
-
+    def("FILES", env.files, { lineNumbers: true })
 } else {
     $`# Code Review
 
-No specific coding instructions found. Please review the following files using general best practices:`
-
-    def("FILES", env.files, { 
-        lineNumbers: true,
-        ignoreEmpty: true 
-    })
+No specific instructions found. Please review the following files using general best practices:`
+    
+    def("FILES", env.files, { lineNumbers: true })
 }
+
+// Example 2: Automatic system prompt integration (alternative approach)
+// await importCopilotInstructions(env.files, { generator: ctx })
+// $`Please review the following files:`
+// def("FILES", env.files, { lineNumbers: true })
