@@ -1,3 +1,6 @@
+// Weather MCP server endpoint
+const WEATHER_MCP_URL = "http://localhost:3001/mcp"
+
 script({
     title: "Weather MCP Client Demo",
     description: "Demonstrates using the weather MCP server over HTTP transport",
@@ -8,18 +11,16 @@ script({
             description: "Comma-separated list of cities to check weather for",
             default: "Paris, London, Tokyo"
         }
+    },
+    mcpServers: {
+        weather: {
+            url: WEATHER_MCP_URL
+        }
     }
 })
 
-// Configure the weather MCP server using HTTP transport
-const weatherServer = {
-    id: "weather",
-    type: "http",
-    url: "http://localhost:3001/mcp"
-}
-
-// Start the weather MCP server
-const weather = await host.mcpServer(weatherServer)
+// Access the weather MCP server (configured in script metadata above)
+const weather = await host.mcpServer({ id: "weather", url: WEATHER_MCP_URL })
 
 // Parse the cities parameter
 const cities = (env.vars.cities || "Paris, London, Tokyo")
