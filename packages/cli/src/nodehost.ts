@@ -617,7 +617,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
             // Preserve the original exit code from execa error if available
             const exitCode = (err as any)?.exitCode ?? 1
             const stdout = (err as any)?.stdout ?? ""
-            const stderr = (err as any)?.stderr ?? errorMessage(err)
+            const stderr = (err as any)?.stderr ?? errorMessage(err) ?? "error"
             
             return {
                 stdout,
