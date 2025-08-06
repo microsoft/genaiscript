@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TextDecoder, TextEncoder } from "util";
 import { lstat, mkdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
 import { ensureDir, fileExists } from "@genaiscript/core";
 import { dirname } from "node:path";
@@ -64,10 +63,9 @@ import type {
   TraceOptions,
   RuntimeHost,
   ServerManager,
-  UTF8Decoder,
-  UTF8Encoder,
   AzureTokenResolver,
   LanguageModel,
+  WorkspaceFileSystem,
 } from "@genaiscript/core";
 import { DockerManager } from "./docker.js";
 import { uniq } from "es-toolkit";
@@ -100,7 +98,6 @@ export class NodeHost extends EventTarget implements RuntimeHost {
   userState: any = {};
   readonly path = createNodePath();
   readonly server = new NodeServerManager();
-  readonly workspace = createWorkspaceFileSystem();
   readonly containers = new DockerManager();
   private readonly _modelAliases: Record<
     "default" | "cli" | "env" | "config" | "script",
@@ -114,6 +111,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
   };
   private _config: HostConfiguration;
   readonly userInputQueue = new PLimitPromiseQueue(1);
+  readonly workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">;
   readonly azureToken: AzureTokenResolver;
   readonly azureAIInferenceToken: AzureTokenResolver;
   readonly azureAIServerlessToken: AzureTokenResolver;
@@ -153,6 +151,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     );
     this.mcp = new McpClientManager();
     this.resources = new ResourceManager();
+    this.workspace = createWorkspaceFileSystem();
   }
 
   get hostConfig(): HostConfiguration {
@@ -421,7 +420,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     }
   }
   projectFolder(): string {
-    return this.path.resolve(".");
+    return this.workspace.root();
   }
   resolvePath(...segments: string[]) {
     return this.path.resolve(...segments);
