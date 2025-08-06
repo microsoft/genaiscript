@@ -614,6 +614,7 @@ async function listTests(options: {
   ids?: string[];
   groups?: string[];
   redteam?: boolean;
+  filterModel?: string;
 }): Promise<PromptScript[]> {
   const prj = await buildProject();
   const scripts = filterScripts(prj.scripts, {
@@ -644,6 +645,7 @@ export async function scriptsTest(
     testDelay?: string;
     groups?: string[];
     maxConcurrency?: string;
+    filterModel?: string;
   },
 ) {
   const canceller = createCancellationController();
@@ -667,7 +669,7 @@ export async function scriptsTest(
  * @param options - Options to filter the scripts by groups or redteam flag.
  * Filters the scripts by groups and whether they are for redteam testing.
  */
-export async function scriptTestList(options: { groups?: string[]; redteam?: boolean }) {
+export async function scriptTestList(options: { groups?: string[]; redteam?: boolean; filterModel?: string }) {
   const scripts = await listTests(options);
   console.log(scripts.map((s) => toStringList(s.id, s.filename)).join("\n"));
 }
