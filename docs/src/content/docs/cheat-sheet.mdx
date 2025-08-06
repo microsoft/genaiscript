@@ -152,11 +152,21 @@ const mdFiles = env.files.filter(f => f.endsWith('.md'))
 const jsFiles = env.files.filter(f => f.filename.endsWith('.js'))
 ```
 
-### env.vars
+### env.secrets
 ```js
-// Access environment variables
-const apiKey = env.vars.OPENAI_API_KEY
-const customVar = env.vars.MY_CUSTOM_VAR
+// Access environment variables/secrets
+const apiKey = env.secrets.OPENAI_API_KEY
+const customVar = env.secrets.MY_CUSTOM_VAR
+```
+
+## Inline Prompts
+
+```js
+const summary = await runPrompt((_) => {
+  _.def("FILE", file)
+  _.$`Summarize FILE in one sentence.`
+})
+def("SUMMARY", summary.text)
 ```
 
 ## File Operations
@@ -451,7 +461,7 @@ script({
 })
 
 // Graceful tool fallbacks
-if (env.vars.OPENAI_API_KEY) {
+if (env.secrets.OPENAI_API_KEY) {
   script({ tools: ["web_search"] })
 } else {
   // Fallback without tools
@@ -459,30 +469,7 @@ if (env.vars.OPENAI_API_KEY) {
 }
 ```
 
-### Performance Monitoring
-```js
-// Monitor token usage
-script({ maxTokens: 1000 })
-
-// Cache expensive operations
-script({ cache: true })
-
-// Profile execution time
-const start = Date.now()
-// ... script logic
-console.log(`Execution time: ${Date.now() - start}ms`)
-```
-
 ## Advanced Features
-
-### Inline Prompts
-```js
-const summary = await runPrompt((_) => {
-  _.def("FILE", file)
-  _.$`Summarize FILE in one sentence.`
-})
-def("SUMMARY", summary.text)
-```
 
 ### Caching
 ```js
