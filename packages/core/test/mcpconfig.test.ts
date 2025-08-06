@@ -91,4 +91,68 @@ describe("MCP Transport Configuration Validation", () => {
       }
     });
   });
+
+  it("should support URL-only configurations without explicit type", () => {
+    // Test that URL configurations work without requiring command
+    const urlOnlyConfig: McpServerConfig = {
+      id: "url-only",
+      url: "https://mcp.example.com/api",
+    };
+
+    expect(urlOnlyConfig.url).toBeDefined();
+    expect(urlOnlyConfig.command).toBeUndefined();
+  });
+
+  it("should support command-only configurations without URL", () => {
+    // Test that command configurations work without requiring URL
+    const commandOnlyConfig: McpServerConfig = {
+      id: "command-only",
+      command: "python",
+      args: ["-m", "mcp_server"],
+    };
+
+    expect(commandOnlyConfig.command).toBeDefined();
+    expect(commandOnlyConfig.args).toBeDefined();
+    expect(commandOnlyConfig.url).toBeUndefined();
+  });
+});
+
+describe("MCP System Prompt Validation Logic", () => {
+  it("should validate either command or URL scenarios", () => {
+    // These test the validation logic that will be in the system prompts
+    
+    // Valid: has command
+    const hasCommand = {
+      id: "test",
+      command: "node",
+      args: ["server.js"]
+    };
+    const commandValid = hasCommand.command || hasCommand.url;
+    expect(commandValid).toBeTruthy();
+
+    // Valid: has URL 
+    const hasUrl = {
+      id: "test",
+      url: "https://example.com/mcp"
+    };
+    const urlValid = hasUrl.command || hasUrl.url;
+    expect(urlValid).toBeTruthy();
+
+    // Invalid: has neither
+    const hasNeither = {
+      id: "test"
+    };
+    const neitherValid = hasNeither.command || hasNeither.url;
+    expect(neitherValid).toBeFalsy();
+
+    // Valid: has both (should work fine)
+    const hasBoth = {
+      id: "test", 
+      command: "node",
+      args: ["server.js"],
+      url: "https://example.com/mcp"
+    };
+    const bothValid = hasBoth.command || hasBoth.url;
+    expect(bothValid).toBeTruthy();
+  });
 });

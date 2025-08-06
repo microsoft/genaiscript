@@ -1193,6 +1193,11 @@ export interface JSONSchemaValidationOptions {
 
 export interface WorkspaceFileSystem {
   /**
+   * The root folder path of the workspace.
+   */
+  root(): string;
+
+  /**
    * Searches for files using the glob pattern and returns a list of files.
    * Ignore `.env` files and apply `.gitignore` if present.
    * @param glob
