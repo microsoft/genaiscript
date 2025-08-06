@@ -48,6 +48,7 @@ import debug from "debug";
 import { imageEncodeForLLM } from "./image.js";
 import { providerFeatures } from "./features.js";
 import { parseModelIdentifier } from "./models.js";
+import { importChatModeInstructions as runtimeImportChatModeInstructions } from "@genaiscript/runtime";
 import type {
   Awaitable,
   ChatFunctionHandler,
@@ -1006,30 +1007,19 @@ async function resolvePromptNode(
         n.children = [];
         n.preview = "";
         
-        // Default patterns for VSCode chat mode instruction files
-        const defaultPatterns = [
-          ".github/copilot-instructions.md",
-          ".github/copilot-instructions.txt", 
-          ".vscode/copilot-instructions.md",
-          ".vscode/copilot-instructions.txt",
-          "copilot-instructions.md",
-          "copilot-instructions.txt"
-        ];
+        // Use the runtime helper to import chat mode instructions
+        const result = await runtimeImportChatModeInstructions(patterns, {
+          ...(options || {}),
+          trace,
+        });
         
-        const searchPatterns = patterns ? arrayify(patterns) : defaultPatterns;
-        const fs: WorkspaceFile[] = await expandFileOrWorkspaceFiles(searchPatterns);
-        
-        for (const f of fs) {
-          await resolveFileContent(f, {
-            ...(options || {}),
-            trace,
-          });
-          // Import the content directly as text for system prompt
-          n.children.push(createTextNode(f.content));
-          n.preview += f.content + "\n";
+        // Add content as text nodes for the prompt system
+        for (const file of result.files) {
+          n.children.push(createTextNode(file.content));
         }
         
-        n.tokens = approximateTokens(n.preview);
+        n.preview = result.content;
+        n.tokens = result.tokens;
       } catch (e) {
         n.error = e;
       }
