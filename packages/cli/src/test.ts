@@ -556,13 +556,23 @@ npx --yes genaiscript@${CORE_VERSION} test view
   }
   const promptFooVersion = options.promptfooVersion || PROMPTFOO_VERSION;
   const results: PromptScriptTestResult[] = [];
+  
+  logInfo(`${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Starting ${configurations.length} promptfoo test(s)`);
   // Execute each configuration and gather results
   for (const config of configurations) {
     checkCancelled(cancellationToken);
     const { script, configuration } = config;
-    logInfo(
-      `test ${script.id} (${results.length + 1}/${configurations.length}) - ${configuration}`,
-    );
+    const current = results.length + 1;
+    const elapsed = Date.now() - runStart.getTime();
+    const passedCount = results.filter((r) => r.ok).length;
+    const failedCount = results.filter((r) => !r.ok).length;
+    const percentage = Math.round((current / configurations.length) * 100);
+    const progressBar = createProgressBar(percentage, 20);
+    
+    logInfo(`${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test ${current}/${configurations.length} (${percentage}%) - ${script.id}`);
+    logVerbose(`${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed`);
+    logVerbose(`${BOX_UP_AND_DOWN} Config: ${configuration}`);
+    
     const testStart = new Date();
     const outJson = configuration.replace(/\.yaml$/, ".res.json");
     const cmd = "npx";
@@ -627,11 +637,12 @@ npx --yes genaiscript@${CORE_VERSION} test view
     });
 
     if (testDelay > 0) {
-      logVerbose(`  waiting ${testDelay}s`);
+      logVerbose(`${BOX_UP_AND_DOWN} Waiting ${testDelay}s before next test...`);
       await delay(testDelay * 1000);
     }
   }
   const runEnd = new Date();
+  const totalDuration = runEnd.getTime() - runStart.getTime();
 
   if (outSummary) {
     await appendFile(
@@ -643,7 +654,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
             prompt: stats.prompt,
             completion: stats.completion,
             total: stats.total,
-            duration: roundWithPrecision((runEnd.getTime() - runStart.getTime()) / 1000, 1),
+            duration: roundWithPrecision(totalDuration / 1000, 1),
           },
           headers,
           { skipEscape: true },
@@ -653,7 +664,33 @@ npx --yes genaiscript@${CORE_VERSION} test view
       ].join(""),
     );
   }
-  if (outSummary) logVerbose(`trace: ${outSummary}`);
+
+  // Enhanced final summary display for promptfoo tests
+  const passedCount = results.filter((r) => r.ok).length;
+  const failedCount = results.filter((r) => !r.ok).length;
+  const totalTests = results.length;
+  
+  logInfo(`\n${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Promptfoo Test Results Summary`);
+  logInfo(`${BOX_UP_AND_DOWN}`);
+  logInfo(`${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`);
+  logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
+  logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
+  logInfo(`${BOX_UP_AND_DOWN}`);
+  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.prompt, "prompt")}`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.completion, "completion")}`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.total, "both")} total`);
+  
+  if (stats.total > 0) {
+    const avgTokensPerTest = Math.round(stats.total / totalTests);
+    const tokensPerSecond = Math.round(stats.total / (totalDuration / 1000));
+    logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
+    logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
+  }
+  
+  logInfo(`${BOX_UP_AND_RIGHT}`);
+  
+  if (outSummary) logVerbose(`${BOX_UP_AND_RIGHT} Full trace: ${outSummary}`);
   const ok = results.every((r) => !!r.ok);
   return {
     ok,
