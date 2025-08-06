@@ -227,14 +227,19 @@ export async function parseTokenFromEnv(
       type !== "openai" &&
       type !== "localai" &&
       type !== "azure_serverless" &&
-      type !== "azure_serverless_models"
+      type !== "azure_serverless_models" &&
+      type !== "responses"
     ) {
       throw new Error(
-        "OPENAI_API_TYPE must be 'azure', 'azure_serverless', 'azure_serverless_models' or 'openai' or 'localai'",
+        "OPENAI_API_TYPE must be 'azure', 'azure_serverless', 'azure_serverless_models', 'openai', 'localai', or 'responses'",
       );
     }
     if (type === "openai" && !base) {
       dbg(`setting default base for OPENAI_API_TYPE openai`);
+      base = OPENAI_API_BASE;
+    }
+    if (type === "responses" && !base) {
+      dbg(`setting default base for OPENAI_API_TYPE responses`);
       base = OPENAI_API_BASE;
     }
     if (type === "localai" && !base) {
