@@ -1,6 +1,6 @@
 script({
   ignoreGitIgnore: true,
-  files: ".genaiscript/.gitignore",
+  files: ".env",
   tests: {},
   model: "echo",
   group: "commit",
