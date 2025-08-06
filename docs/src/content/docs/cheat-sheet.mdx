@@ -15,8 +15,8 @@ hero:
     file: ../../assets/logo.svg
 ---
 
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Code } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Code } from "@astrojs/starlight/components";
 
 # GenAIScript Cheat Sheet
 
@@ -24,36 +24,39 @@ Quick reference guide for GenAIScript syntax, core functions, and common pattern
 
 ## Quick Reference
 
-| Function | Purpose | Example |
-|----------|---------|---------|
-| `script()` | Configure script metadata | `script({ title: "My Script", model: "openai:gpt-4o" })` |
-| `def()` | Include content in prompt | `def("FILES", env.files)` |
-| `$``...`` ` | Create prompt template | `$`Analyze the FILES` ` |
-| `defTool()` | Define custom tool | `defTool("weather", "Get weather", {}, () => "sunny")` |
-| `defSchema()` | Define data schema | `defSchema("DATA", { type: "object" })` |
-| `runPrompt()` | Execute inline prompt | `await runPrompt((_) => _.$`Hello`)` |
+| Function      | Purpose                   | Example                                                  |
+| ------------- | ------------------------- | -------------------------------------------------------- |
+| `script()`    | Configure script metadata | `script({ title: "My Script", model: "openai:gpt-4o" })` |
+| `def()`       | Include content in prompt | `def("FILES", env.files)`                                |
+| `$``...`` `   | Create prompt template    | `$`Analyze the FILES` `                                  |
+| `defTool()`   | Define custom tool        | `defTool("weather", "Get weather", {}, () => "sunny")`   |
+| `defSchema()` | Define data schema        | `defSchema("DATA", { type: "object" })`                  |
+| `runPrompt()` | Execute inline prompt     | `await runPrompt((_) => _.$`Hello`)`                     |
 
 ## Basic Script Structure
 
 ### Minimal Script
+
 ```js
-$`Write a poem about code.`
+$`Write a poem about code.`;
 ```
 
 ### Complete Script
+
 ```js
 script({
   title: "My Script",
   description: "Does something useful",
   model: "openai:gpt-4o",
   temperature: 0.1,
-})
+});
 
-def("FILES", env.files)
-$`Analyze FILES and provide insights.`
+def("FILES", env.files);
+$`Analyze FILES and provide insights.`;
 ```
 
 ### Markdown Script Alternative
+
 ```markdown title="script.genai.md"
 ---
 title: "My Script"
@@ -62,69 +65,78 @@ model: "openai:gpt-4o"
 ---
 
 # Task
+
 Analyze the provided files and provide insights.
 ```
 
 ## Core Functions
 
 ### script() - Script Configuration
+
 ```js
 script({
   // Metadata
   title: "Script Name",
   description: "What it does",
   group: "category",
-  
+
   // Model settings
   model: "openai:gpt-4o",
   temperature: 0.1,
   maxTokens: 4000,
-  
+
   // File handling
   files: "**/*.md",
   accept: ".md,.txt,.js",
   ignore: "**/node_modules/**",
-  
+
   // Tools & capabilities
   tools: ["fs_read_file", "web_search"],
   vision: true,
   cache: true,
-  
+
   // Testing
-  tests: [{
-    files: "test.md",
-    keywords: ["expected", "output"]
-  }]
-})
+  tests: [
+    {
+      files: "test.md",
+      keywords: ["expected", "output"],
+    },
+  ],
+});
 ```
 
 ### def() - Include Content
+
 ```js
 // Basic usage
-def("VAR_NAME", content)
+def("VAR_NAME", content);
 
 // With options
 def("FILES", env.files, {
-  lineNumbers: true,     // Add line numbers
-  maxTokens: 1000,      // Limit token count
+  lineNumbers: true, // Add line numbers
+  maxTokens: 1000, // Limit token count
   language: "markdown", // Specify language
-  glob: "**/*.md",      // Filter files by pattern
-  endsWith: ".js",      // Filter by extension
-  sliceHead: 100,       // Take first N lines
-  sliceTail: 50,        // Take last N lines
-})
+  glob: "**/*.md", // Filter files by pattern
+  endsWith: ".js", // Filter by extension
+  sliceHead: 100, // Take first N lines
+  sliceTail: 50, // Take last N lines
+});
 
 // From file
-def("CONFIG", await workspace.readText("config.json"))
+def("CONFIG", await workspace.readText("config.json"));
 
 // Multiple files
-def("DOCS", env.files.filter(f => f.endsWith('.md')))
+def(
+  "DOCS",
+  env.files.filter((f) => f.endsWith(".md")),
+);
 ```
 
 ### $\`\` - Template Prompts
+
 ```js
 // Simple prompt
-$`Write a summary of the content.`
+$`Write a summary of the content.`;
 
 // Multi-line prompt
 $`
@@ -133,188 +145,225 @@ Analyze the FILES and:
 1. Check for errors
 2. Suggest improvements
 3. Rate quality 1-10
-`
+`;
 
 // With variables
-const task = "summarize"
-$`Please ${task} the provided content.`
+const task = "summarize";
+$`Please ${task} the provided content.`;
 ```
 
-## Environment Variables
+## `env`
 
 ### env.files
+
 ```js
 // Current selection/context files
-def("FILES", env.files)
+def("FILES", env.files);
 
 // Filter files
-const mdFiles = env.files.filter(f => f.endsWith('.md'))
-const jsFiles = env.files.filter(f => f.filename.endsWith('.js'))
+const mdFiles = env.files.filter((f) => f.endsWith(".md"));
+const jsFiles = env.files.filter((f) =>
+  f.filename.endsWith(".js"),
+);
 ```
 
+### Parameters
 
+```js
+script({
+  parameters: {
+    topic: {
+      type: "string",
+      description: "Topic to write about",
+    },
+    count: { type: "number", default: 5 },
+  },
+});
+
+$`Write ${env.parameters.count} facts about ${env.parameters.topic}.`;
+```
 
 ## Inline Prompts
 
 ```js
 const summary = await runPrompt((_) => {
-  _.def("FILE", file)
-  _.$`Summarize FILE in one sentence.`
-})
-def("SUMMARY", summary.text)
+  _.def("FILE", file);
+  _.$`Summarize FILE in one sentence.`;
+});
+def("SUMMARY", summary.text);
 ```
 
 ## File Operations
 
 ### Reading Files
+
 ```js
 // Read text file
-const content = await workspace.readText("path/to/file.txt")
+const content = await workspace.readText("path/to/file.txt");
 
 // Read JSON
-const data = await workspace.readJSON("data.json")
+const data = await workspace.readJSON("data.json");
 
 // Search files
-const { files } = await workspace.grep(/pattern/, { 
-  globs: "**/*.js" 
-})
+const { files } = await workspace.grep(/pattern/, {
+  globs: "**/*.js",
+});
 
 // Find files
 const matches = await workspace.findFiles("**/*.md", {
-  maxFiles: 100
-})
+  maxFiles: 100,
+});
 ```
-
-
 
 ## Data Handling
 
 ### Schemas & Validation
+
 ```js
 const schema = defSchema("DATA", {
   type: "object",
   properties: {
     name: { type: "string" },
     age: { type: "number" },
-    skills: { 
-      type: "array", 
-      items: { type: "string" }
-    }
+    skills: {
+      type: "array",
+      items: { type: "string" },
+    },
   },
-  required: ["name"]
-})
+  required: ["name"],
+});
 
-$`Extract data using ${schema} format.`
+$`Extract data using ${schema} format.`;
 ```
 
 ### File Parsers
+
 ```js
 // CSV - structured data
-const rows = await parsers.CSV(file)
-defData("TABLE", rows, { sliceHead: 10 })
+const rows = await parsers.CSV(file);
+defData("TABLE", rows, { sliceHead: 10 });
 
-// PDF - documents  
-const { pages } = await parsers.PDF(file)
-def("CONTENT", pages.map(p => p.content).join('\n'))
+// PDF - documents
+const { pages } = await parsers.PDF(file);
+def("CONTENT", pages.map((p) => p.content).join("\n"));
 
 // DOCX - Word documents
-const { content } = await parsers.DOCX(file)
+const { content } = await parsers.DOCX(file);
 
 // XLSX - spreadsheets
-const { worksheets } = await parsers.XLSX(file)
-const sheet1 = worksheets[0]
+const { worksheets } = await parsers.XLSX(file);
+const sheet1 = worksheets[0];
 
 // JSON - structured config
-const config = await parsers.JSON(file)
+const config = await parsers.JSON(file);
 
 // YAML - configuration files
-const settings = await parsers.YAML(file)
+const settings = await parsers.YAML(file);
 
 // XML - markup data
-const { content } = await parsers.XML(file)
+const { content } = await parsers.XML(file);
 ```
 
 ### Data Transformation
+
 ```js
 // Filter and process data
-const markdownFiles = env.files.filter(f => f.endsWith('.md'))
-const recentFiles = env.files.filter(f => 
-  new Date(f.lastModified) > new Date('2024-01-01')
-)
+const markdownFiles = env.files.filter((f) =>
+  f.endsWith(".md"),
+);
+const recentFiles = env.files.filter(
+  (f) => new Date(f.lastModified) > new Date("2024-01-01"),
+);
 
 // Transform data for context
 defData("SUMMARY", {
   totalFiles: env.files.length,
-  fileTypes: [...new Set(env.files.map(f => f.extension))],
-  totalSize: env.files.reduce((sum, f) => sum + f.size, 0)
-})
+  fileTypes: [...new Set(env.files.map((f) => f.extension))],
+  totalSize: env.files.reduce((sum, f) => sum + f.size, 0),
+});
 ```
 
 ## Tools & Agents
 
 ### Built-in Tools
+
 ```js
-script({ 
+script({
   tools: [
-    "fs_read_file",        // File system read
-    "fs_find_files",       // File search
-    "web_search",          // Web search
-    "math_eval",           // Math evaluation
-    "python_code_interpreter" // Code execution
-  ]
-})
+    "fs_read_file", // File system read
+    "fs_find_files", // File search
+    "web_search", // Web search
+    "math_eval", // Math evaluation
+    "python_code_interpreter", // Code execution
+  ],
+});
 ```
 
 ### Custom Tools
+
 ```js
-defTool("weather", "Get current weather", {
-  city: { type: "string", description: "City name" }
-}, async ({ city }) => {
-  // Tool implementation
-  return `Weather in ${city}: Sunny, 25°C`
-})
+defTool(
+  "weather",
+  "Get current weather",
+  {
+    city: { type: "string", description: "City name" },
+  },
+  async ({ city }) => {
+    // Tool implementation
+    return `Weather in ${city}: Sunny, 25°C`;
+  },
+);
 ```
 
 ### Agents
+
 ```js
-script({ tools: "agent_fs" })        // File system agent
-script({ tools: "agent_git" })       // Git operations agent
-script({ tools: "agent_playwright" }) // Web automation agent
+script({ tools: "agent_fs" }); // File system agent
+script({ tools: "agent_git" }); // Git operations agent
+script({ tools: "agent_playwright" }); // Web automation agent
 
 // Custom agent
 defAgent("myagent", "Description", "You are helpful", {
-  tools: ["fs_read_file", "web_search"]
-})
+  tools: ["fs_read_file", "web_search"],
+});
 ```
 
 ## Images & Media
 
 ### Images
+
 ```js
 // Include images in prompt
-defImages(env.files.filter(f => f.endsWith('.png')), {
-  autoCrop: true,
-  details: "low" // or "high"
-})
+defImages(
+  env.files.filter((f) => f.endsWith(".png")),
+  {
+    autoCrop: true,
+    details: "low", // or "high"
+  },
+);
 
 // Generate images
-const { image } = await generateImage("a cute cat")
+const { image } = await generateImage("a cute cat");
 ```
 
 ### Videos
+
 ```js
 // Extract frames
-const frames = await ffmpeg.extractFrames(videoFile, { count: 5 })
-defImages(frames)
+const frames = await ffmpeg.extractFrames(videoFile, {
+  count: 5,
+});
+defImages(frames);
 
 // Transcription
-const transcript = await transcript(audioFile)
-def("TRANSCRIPT", transcript.text)
+const transcript = await transcript(audioFile);
+def("TRANSCRIPT", transcript.text);
 ```
 
 ## CLI Commands
 
 ### Running Scripts
+
 ```bash
 # Run script on files
 npx genaiscript run scriptname "**/*.md"
@@ -337,149 +386,3 @@ npx genaiscript run scriptname --temperature 0.1
 # Maximum tokens
 npx genaiscript run scriptname --max-tokens 2000
 ```
-
-
-
-### Info & Discovery
-```bash
-# List available scripts
-npx genaiscript run
-
-# Show script info
-npx genaiscript run scriptname --info
-
-# Parse files (see how they'll be processed)
-npx genaiscript parse "**/*.pdf"
-
-# List available models
-npx genaiscript run --models
-```
-
-### Advanced Usage
-```bash
-# Custom output directory
-npx genaiscript run scriptname --out ./output
-
-# Exclude files
-npx genaiscript run scriptname "**/*.md" --exclude "**/node_modules/**"
-
-# JSON output format
-npx genaiscript run scriptname --json
-
-# Run with specific system prompt
-npx genaiscript run scriptname --system "You are a helpful assistant"
-```
-
-## Configuration
-
-### Model Configuration
-```js
-// In script
-script({ model: "openai:gpt-4o" })
-
-// Available models
-"openai:gpt-4o"
-"openai:gpt-4o-mini"
-"anthropic:claude-3-5-sonnet-20241022"
-"github:openai/gpt-4o"
-"azure:gpt-4o"
-"ollama:llama3"
-```
-
-### Environment Setup
-```bash
-# Set API keys
-export OPENAI_API_KEY="sk-..."
-export ANTHROPIC_API_KEY="sk-ant-..."
-export GITHUB_TOKEN="ghp_..."
-```
-
-### Config File
-```json title="genaiscript.config.json"
-{
-  "model": "openai:gpt-4o",
-  "temperature": 0.1,
-  "out": "./output",
-  "models": {
-    "small": { "model": "openai:gpt-4o-mini" },
-    "large": { "model": "openai:gpt-4o" }
-  }
-}
-```
-
-
-
-## Advanced Features
-
-### Caching
-```js
-script({ cache: true })  // Enable prompt caching
-
-// Or with specific options
-script({ 
-  cache: { 
-    name: "my-cache",
-    version: "1.0" 
-  }
-})
-```
-
-### Content Safety
-```js
-script({ 
-  systemSafety: "default",
-  contentSafety: "azure"
-})
-
-// Manual safety check
-const result = await host.contentSafety().detectPromptInjection(text)
-```
-
-### Parameters
-```js
-script({
-  parameters: {
-    topic: { type: "string", description: "Topic to write about" },
-    count: { type: "number", default: 5 }
-  }
-})
-
-$`Write ${env.parameters.count} facts about ${env.parameters.topic}.`
-```
-
-
-
-## Tips & Best Practices
-
-### Script Organization
-- **Variable Names**: Use descriptive UPPERCASE names for `def()` variables
-- **File Structure**: Group related scripts in subdirectories
-- **Naming**: Use `script-name.genai.mts` for TypeScript, `.mjs` for JavaScript
-
-### Performance & Efficiency
-- **Model Selection**: Use `small` for simple tasks, `large` for complex reasoning
-- **Token Management**: Use `maxTokens` in `def()` to control prompt size
-- **Caching**: Enable caching for expensive operations
-- **File Filtering**: Use `glob` patterns in `def()` to include only relevant files
-
-### Development Workflow
-- **Testing**: Always include test cases for reliable scripts
-- **Debugging**: Use VS Code extension for interactive development
-- **Error Handling**: Tools provide fallbacks for unsupported models
-- **Version Control**: Scripts are just files - version them with git
-
-### Security & Safety
-- **Content Safety**: Use content safety features for production deployments
-- **Secret Management**: Never commit API keys, use environment variables
-- **Input Validation**: Validate user inputs and file contents
-- **Permissions**: Be careful with file system and web access tools
-
-### Advanced Techniques
-- **Composition**: Break complex tasks into smaller, reusable prompts
-- **Conditional Logic**: Use JavaScript logic to control flow
-- **Dynamic Content**: Generate prompts based on file analysis
-- **Error Recovery**: Implement fallback strategies for tool failures
-
----
-
-*For complete documentation, visit [GenAIScript Documentation](https://microsoft.github.io/genaiscript/)*
