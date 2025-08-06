@@ -3781,6 +3781,25 @@ export interface GitHub {
   createPullRequest(options: GitHubPullRequestCreateOptions): Promise<GitHubPullRequest>;
 
   /**
+   * Creates a new pull request in a branch starting with "copilot/" and assigns it to copilot padawan
+   * @param title The title of the pull request
+   * @param body The body/description of the pull request
+   * @param options Additional options for the pull request
+   */
+  createCopilotPullRequest(
+    title: string,
+    body?: string,
+    options?: {
+      branchSuffix?: string;
+      baseBranch?: string;
+      assignToCopilot?: boolean;
+      copilotUser?: string;
+      draft?: boolean;
+      labels?: string[];
+    }
+  ): Promise<GitHubPullRequest>;
+
+  /**
    * Lists comments for a given pull request
    * @param pull_number
    * @param options

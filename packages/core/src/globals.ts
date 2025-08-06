@@ -12,7 +12,7 @@ import { frontmatterTryParse, splitMarkdown, updateFrontmatter } from "./frontma
 import { createJSONL } from "./jsonl.js";
 import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html.js";
 import { CancelError } from "./error.js";
-import { GitHubClient, createCopilotPullRequest } from "./githubclient.js";
+import { GitHubClient } from "./githubclient.js";
 import { GitClient } from "./git.js";
 import { approximateTokens, estimateTokens, truncateTextToTokens } from "./tokens.js";
 import { chunk, resolveTokenEncoder } from "./encoders.js";
@@ -138,9 +138,6 @@ export function installGlobals() {
 
   // Instantiate GitHub client
   glb.github = GitHubClient.default();
-
-  // GitHub runtime helper functions
-  glb.createCopilotPullRequest = createCopilotPullRequest;
 
   // Instantiate Git client
   glb.git = GitClient.default();

@@ -3,7 +3,7 @@
 
 /**
  * GenAIScript Ambient Type Definition File
- * @version 2.3.14
+ * @version 2.3.6
  */
  type OptionsOrString<TOptions extends string> = (string & {}) | TOptions;
 
@@ -120,6 +120,11 @@
   jsSource?: string;
 
   /**
+   * The text of the MDX source code (for MDX-based prompts).
+   */
+  mdxSource?: string;
+
+  /**
    * Resolved system ids
    */
   resolvedSystem?: SystemPromptInstance[];
@@ -130,7 +135,88 @@
   inputSchema?: JSONSchemaObject;
 }
 
- type SystemPromptId = OptionsOrString<string>;
+ type SystemPromptId = OptionsOrString<
+    | "synthlang"
+    | "system"
+    | "system.agent_data"
+    | "system.agent_docs"
+    | "system.agent_fs"
+    | "system.agent_git"
+    | "system.agent_github"
+    | "system.agent_interpreter"
+    | "system.agent_mcp"
+    | "system.agent_planner"
+    | "system.agent_user_input"
+    | "system.agent_video"
+    | "system.agent_web"
+    | "system.agent_z3"
+    | "system.annotations"
+    | "system.assistant"
+    | "system.chain_of_draft"
+    | "system.changelog"
+    | "system.cooperation"
+    | "system.diagrams"
+    | "system.diff"
+    | "system.do_not_explain"
+    | "system.english"
+    | "system.explanations"
+    | "system.fetch"
+    | "system.files"
+    | "system.files_schema"
+    | "system.fs_ask_file"
+    | "system.fs_data_query"
+    | "system.fs_diff_files"
+    | "system.fs_find_files"
+    | "system.fs_read_file"
+    | "system.git"
+    | "system.git_diff"
+    | "system.git_info"
+    | "system.github_actions"
+    | "system.github_files"
+    | "system.github_info"
+    | "system.github_issues"
+    | "system.github_pulls"
+    | "system.math"
+    | "system.mcp"
+    | "system.md_find_files"
+    | "system.md_frontmatter"
+    | "system.meta_prompt"
+    | "system.meta_schema"
+    | "system.node_info"
+    | "system.node_test"
+    | "system.output_ini"
+    | "system.output_json"
+    | "system.output_markdown"
+    | "system.output_plaintext"
+    | "system.output_yaml"
+    | "system.planner"
+    | "system.python"
+    | "system.python_code_interpreter"
+    | "system.python_types"
+    | "system.retrieval_fuzz_search"
+    | "system.retrieval_vector_search"
+    | "system.retrieval_web_search"
+    | "system.safety_canary_word"
+    | "system.safety_harmful_content"
+    | "system.safety_jailbreak"
+    | "system.safety_protected_material"
+    | "system.safety_ungrounded_content_summarization"
+    | "system.safety_validate_harmful_content"
+    | "system.schema"
+    | "system.tasks"
+    | "system.technical"
+    | "system.think"
+    | "system.today"
+    | "system.tool_calls"
+    | "system.tools"
+    | "system.transcribe"
+    | "system.typescript"
+    | "system.user_input"
+    | "system.user-tool"
+    | "system.video"
+    | "system.vision_ask_images"
+    | "system.zero_shot_cot"
+>;
 
  type SystemPromptInstance = {
   id: SystemPromptId;
@@ -138,7 +224,67 @@
   vars?: Record<string, string | boolean | number | object | any>;
 };
 
- type SystemToolId = OptionsOrString<string>;
+ type SystemToolId = OptionsOrString<
+    | "agent_data"
+    | "agent_docs"
+    | "agent_fs"
+    | "agent_git"
+    | "agent_github"
+    | "agent_interpreter"
+    | "agent_planner"
+    | "agent_user_input"
+    | "agent_video"
+    | "agent_web"
+    | "agent_z3"
+    | "fetch"
+    | "fs_ask_file"
+    | "fs_data_query"
+    | "fs_diff_files"
+    | "fs_find_files"
+    | "fs_read_file"
+    | "git_branch_current"
+    | "git_branch_default"
+    | "git_branch_list"
+    | "git_diff"
+    | "git_last_tag"
+    | "git_list_commits"
+    | "git_status"
+    | "github_actions_job_logs_diff"
+    | "github_actions_job_logs_get"
+    | "github_actions_jobs_list"
+    | "github_actions_workflows_list"
+    | "github_files_get"
+    | "github_files_list"
+    | "github_issues_comments_list"
+    | "github_issues_get"
+    | "github_issues_list"
+    | "github_pulls_get"
+    | "github_pulls_list"
+    | "github_pulls_review_comments_list"
+    | "math_eval"
+    | "md_find_files"
+    | "md_read_frontmatter"
+    | "meta_prompt"
+    | "meta_schema"
+    | "my_random"
+    | "node_test"
+    | "python_code_interpreter_copy_files_to_container"
+    | "python_code_interpreter_read_file"
+    | "python_code_interpreter_run"
+    | "retrieval_fuzz_search"
+    | "retrieval_vector_search"
+    | "retrieval_web_search"
+    | "think"
+    | "transcribe"
+    | "user_input_confirm"
+    | "user_input_select"
+    | "user_input_text"
+    | "video_extract_audio"
+    | "video_extract_clip"
+    | "video_extract_frames"
+    | "video_probe"
+    | "vision_ask_images"
+>;
 
  type FileMergeHandler = (
   filename: string,
@@ -232,6 +378,7 @@
   | "azure:gpt-4o-mini"
   | "azure:o1"
   | "azure:o1-mini"
+  | "azure:o1-preview"
   | "azure:o3-mini"
   | "azure:o3-mini:low"
   | "azure:o3-mini:medium"
@@ -241,6 +388,7 @@
   | "azure_ai_inference:gpt-4o-mini"
   | "azure_ai_inference:o1"
   | "azure_ai_inference:o1-mini"
+  | "azure_ai_inference:o1-preview"
   | "azure_ai_inference:o3-mini"
   | "azure_ai_inference:o3-mini:low"
   | "azure_ai_inference:o3-mini:medium"
@@ -250,7 +398,6 @@
   | "ollama:gemma3:4b"
   | "ollama:llama3.2"
   | "ollama:command-r7b:7b"
-  | "ollama:gpt-oss:20b"
   | "anthropic:claude-opus-4-0"
   | "anthropic:claude-sonnet-4-0"
   | "anthropic:claude-sonnet-4-0:low"
@@ -367,11 +514,7 @@
       name: string;
     };
 
- interface ModelOptions
-  extends ModelConnectionOptions,
-    ModelTemplateOptions,
-    CacheOptions,
-    RetryOptions {
+ interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions, CacheOptions {
   /**
    * Temperature to use. Higher temperature means more hallucination/creativity.
    * Range 0.0-2.0.
@@ -1191,11 +1334,6 @@
 }
 
  interface WorkspaceFileSystem {
-  /**
-   * The root folder path of the workspace.
-   */
-  root(): string;
-
   /**
    * Searches for files using the glob pattern and returns a list of files.
    * Ignore `.env` files and apply `.gitignore` if present.
@@ -2991,52 +3129,6 @@
   excludedPaths?: ElementOrArray<string>;
 }
 
- interface GitWorktree {
-  /**
-   * Path to the worktree
-   */
-  path: string;
-  /**
-   * Branch name associated with the worktree
-   */
-  branch: string;
-  /**
-   * Commit SHA the worktree is checked out to
-   */
-  head: string;
-  /**
-   * Whether the worktree is bare
-   */
-  bare?: boolean;
-  /**
-   * Whether the worktree is detached (not on a branch)
-   */
-  detached?: boolean;
-}
-
- interface GitWorktreeAddOptions {
-  /**
-   * Create a new branch with the worktree
-   */
-  branch?: string;
-  /**
-   * Force creation even if target exists
-   */
-  force?: boolean;
-  /**
-   * Checkout the branch into the worktree
-   */
-  checkout?: boolean;
-  /**
-   * Create an orphan branch
-   */
-  orphan?: boolean;
-  /**
-   * Detach HEAD at the commit
-   */
-  detach?: boolean;
-}
-
  interface Git {
   /**
    * Current working directory
@@ -3194,32 +3286,6 @@
    * @param cwd working directory
    */
   client(cwd: string): Git;
-
-  /**
-   * List all git worktrees
-   */
-  listWorktrees(): Promise<GitWorktree[]>;
-
-  /**
-   * Add a new git worktree
-   * @param path path where the worktree should be created
-   * @param commitish commit, branch, or tag to checkout
-   * @param options additional options for worktree creation
-   * @returns Git client opened at the worktree path
-   */
-  addWorktree(path: string, commitish?: string, options?: GitWorktreeAddOptions): Promise<Git>;
-
-  /**
-   * Remove a git worktree
-   * @param path path to the worktree to remove
-   * @param options removal options
-   */
-  removeWorktree(
-    path: string,
-    options?: {
-      force?: boolean;
-    },
-  ): Promise<void>;
 }
 
 /**
@@ -3235,7 +3301,7 @@
   audioChannels(channels: number): FfmpegCommandBuilder;
   audioFrequency(freq: number): FfmpegCommandBuilder;
   audioQuality(quality: number): FfmpegCommandBuilder;
-  audioFilters(filters: string | string[] /* | AudioVideoFilter[]*/): FfmpegCommandBuilder;
+  audioFilters(filters: string | string[] /*| AudioVideoFilter[]*/): FfmpegCommandBuilder;
   toFormat(format: string): FfmpegCommandBuilder;
 
   videoCodec(codec: string): FfmpegCommandBuilder;
@@ -3781,6 +3847,25 @@
   createPullRequest(options: GitHubPullRequestCreateOptions): Promise<GitHubPullRequest>;
 
   /**
+   * Creates a new pull request in a branch starting with "copilot/" and assigns it to copilot padawan
+   * @param title The title of the pull request
+   * @param body The body/description of the pull request
+   * @param options Additional options for the pull request
+   */
+  createCopilotPullRequest(
+    title: string,
+    body?: string,
+    options?: {
+      branchSuffix?: string;
+      baseBranch?: string;
+      assignToCopilot?: boolean;
+      copilotUser?: string;
+      draft?: boolean;
+      labels?: string[];
+    }
+  ): Promise<GitHubPullRequest>;
+
+  /**
    * Lists comments for a given pull request
    * @param pull_number
    * @param options
@@ -3874,19 +3959,6 @@
    * @param repo
    */
   client(owner: string, repo: string): GitHub;
-
-  /**
-   * Create a worktree for a specific GitHub pull request
-   * @param pullNumber pull request number
-   * @param path path where the worktree should be created
-   * @param options additional options
-   * @returns Git client opened at the worktree path
-   */
-  addWorktreeForPullRequest(
-    pullNumber: number | string,
-    path?: string,
-    options?: GitWorktreeAddOptions,
-  ): Promise<Git>;
 }
 
  interface MDObject {
@@ -4498,26 +4570,12 @@
  interface McpServerConfig extends ContentSafetyOptions {
   /**
    * The executable to run to start the server.
-   * Required for stdio transport, not used for URL-based transports.
    */
-  command?: OptionsOrString<"npx" | "uv" | "uvx" | "dotnet" | "docker" | "cargo">;
+  command: OptionsOrString<"npx" | "uv" | "uvx" | "dotnet" | "docker" | "cargo">;
   /**
    * Command line arguments to pass to the executable.
-   * Required for stdio transport, not used for URL-based transports.
    */
-  args?: string[];
-  /**
-   * The URL to connect to for HTTP/WebSocket/SSE transports.
-   * When provided, command and args are ignored.
-   */
-  url?: string;
-  /**
-   * The transport type to use. If not specified, will be inferred from the configuration.
-   * - "stdio": Use StdioClientTransport (requires command and args)
-   * - "http": Use StreamableHTTPClientTransport (requires url)
-   * - "sse": Use SSEClientTransport (requires url)
-   */
-  type?: "stdio" | "http" | "sse";
+  args: string[];
   /**
    * The server version
    */
@@ -4526,14 +4584,12 @@
    * The environment to use when spawning the process.
    *
    * If not specified, the result of getDefaultEnvironment() will be used.
-   * Only used for stdio transport.
    */
   env?: Record<string, string>;
   /**
    * The working directory to use when spawning the process.
    *
    * If not specified, the current working directory will be inherited.
-   * Only used for stdio transport.
    */
   cwd?: string;
 
@@ -4632,26 +4688,6 @@
    * For gpt-image-1 only, the type of image format to generate.
    */
   outputFormat?: "png" | "jpeg" | "webp";
-
-  /**
-   * Generation mode. Defaults to "generate".
-   * - "generate": Create new images from text prompts
-   * - "edit": Edit existing images using text prompts and optional masks
-   */
-  mode?: "generate" | "edit";
-
-  /**
-   * Input image for edit mode.
-   * Required for "edit" mode.
-   */
-  image?: BufferLike;
-
-  /**
-   * Mask image for edit mode (optional).
-   * Used to specify which parts of the image to edit.
-   * Only applicable in "edit" mode.
-   */
-  mask?: BufferLike;
 }
 
  interface TranscriptionOptions extends CacheOptions, RetryOptions {
@@ -5093,13 +5129,6 @@
    * List available resource references
    */
   resources(): Promise<ResourceReference[]>;
-
-  /**
-   * Tries to resolve a resource from a URL.
-   * @param url - The URL to resolve.
-   * @returns A promise that resolves to an object containing the parsed URI and resolved files, or undefined if resolution fails.
-   */
-  resolveResource(url: string): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
 }
 
  interface UserInterfaceHost {

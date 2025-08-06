@@ -1392,6 +1392,53 @@ export class GitHubClient implements GitHub {
     return data;
   }
 
+  async createCopilotPullRequest(
+    title: string,
+    body?: string,
+    options?: {
+      branchSuffix?: string;
+      baseBranch?: string;
+      assignToCopilot?: boolean;
+      copilotUser?: string;
+      draft?: boolean;
+      labels?: string[];
+    }
+  ): Promise<GitHubPullRequest> {
+    const {
+      branchSuffix = Date.now().toString(),
+      baseBranch,
+      assignToCopilot = true,
+      copilotUser = "copilot-swe-agent",
+      draft = false,
+      labels = [],
+    } = options ?? {};
+
+    // Generate branch name starting with "copilot/"
+    const branchName = `copilot/${branchSuffix}`;
+    
+    // Create the pull request
+    const pullRequest = await this.createPullRequest({
+      title,
+      body,
+      head: branchName,
+      base: baseBranch,
+      draft,
+      labels,
+    });
+    
+    // Assign to copilot if requested
+    if (assignToCopilot) {
+      try {
+        await this.assignIssueToBot(pullRequest.number, { bot: copilotUser });
+        dbg(`assigned pull request #${pullRequest.number} to ${copilotUser}`);
+      } catch (error) {
+        dbg(`failed to assign pull request to ${copilotUser}: ${errorMessage(error)}`);
+      }
+    }
+    
+    return pullRequest;
+  }
+
   async listPullRequestReviewComments(
     pull_number: number,
     options?: GitHubPaginationOptions,
@@ -1921,62 +1968,4 @@ export function cleanLog(text: string) {
       "",
     ),
   );
-}
-
-/**
- * Runtime helper to create a new pull request in a branch starting with "copilot/" 
- * and assign it to copilot padawan.
- * 
- * @param title - The title of the pull request
- * @param body - The body/description of the pull request
- * @param options - Additional options for the pull request
- * @returns Promise<GitHubPullRequest> - The created pull request
- */
-export async function createCopilotPullRequest(
-  title: string,
-  body?: string,
-  options?: {
-    branchSuffix?: string;
-    baseBranch?: string;
-    assignToCopilot?: boolean;
-    copilotUser?: string;
-    draft?: boolean;
-    labels?: string[];
-  }
-): Promise<GitHubPullRequest> {
-  const {
-    branchSuffix = Date.now().toString(),
-    baseBranch,
-    assignToCopilot = true,
-    copilotUser = "copilot-swe-agent",
-    draft = false,
-    labels = [],
-  } = options ?? {};
-
-  const github = GitHubClient.default();
-  
-  // Generate branch name starting with "copilot/"
-  const branchName = `copilot/${branchSuffix}`;
-  
-  // Create the pull request
-  const pullRequest = await github.createPullRequest({
-    title,
-    body,
-    head: branchName,
-    base: baseBranch,
-    draft,
-    labels,
-  });
-  
-  // Assign to copilot if requested
-  if (assignToCopilot) {
-    try {
-      await github.assignIssueToBot(pullRequest.number, { bot: copilotUser });
-      dbg(`assigned pull request #${pullRequest.number} to ${copilotUser}`);
-    } catch (error) {
-      dbg(`failed to assign pull request to ${copilotUser}: ${errorMessage(error)}`);
-    }
-  }
-  
-  return pullRequest;
 }

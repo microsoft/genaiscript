@@ -1,5 +1,5 @@
 /**
- * Example script demonstrating the createCopilotPullRequest runtime helper
+ * Example script demonstrating the github.createCopilotPullRequest method
  */
 system({
     title: "Create Copilot Pull Request Example",
@@ -7,17 +7,17 @@ system({
 })
 
 export default async function() {
-    // Example usage of the createCopilotPullRequest function
+    // Example usage of the github.createCopilotPullRequest method
     $`
 # Create Copilot Pull Request Helper
 
-This example demonstrates how to use the new \`createCopilotPullRequest\` runtime helper function.
+This example demonstrates how to use the new \`github.createCopilotPullRequest\` method.
 
 ## Basic Usage
 
 \`\`\`javascript
 // Create a pull request with a copilot/ branch and assign to copilot-swe-agent
-const pr = await createCopilotPullRequest(
+const pr = await github.createCopilotPullRequest(
     "Fix issue with XYZ feature",
     "This PR addresses the bug in the XYZ feature by implementing proper error handling."
 )
@@ -29,7 +29,7 @@ console.log("Created pull request:", pr.html_url)
 
 \`\`\`javascript
 // Create a pull request with custom options
-const pr = await createCopilotPullRequest(
+const pr = await github.createCopilotPullRequest(
     "Implement new feature ABC",
     "This PR adds the new ABC feature as requested in the issue.",
     {
@@ -43,10 +43,10 @@ const pr = await createCopilotPullRequest(
 )
 \`\`\`
 
-## Function Signature
+## Method Signature
 
 \`\`\`typescript
-createCopilotPullRequest(
+github.createCopilotPullRequest(
   title: string,
   body?: string, 
   options?: {
@@ -86,17 +86,17 @@ const pr = await github.createPullRequest({
 await github.assignIssueToBot(pr.number, { bot: "copilot-swe-agent" })
 \`\`\`
 
-The runtime helper simplifies this workflow by:
+The github.createCopilotPullRequest method simplifies this workflow by:
 - Automatically generating copilot/ branch names
 - Handling the assignment to copilot users
 - Providing sensible defaults for common use cases
 `
 
-    // Test if the function is available
-    if (typeof createCopilotPullRequest === 'function') {
-        $`✅ **createCopilotPullRequest is available and ready to use!**`
+    // Test if the method is available
+    if (typeof github?.createCopilotPullRequest === 'function') {
+        $`✅ **github.createCopilotPullRequest method is available and ready to use!**`
     } else {
-        $`❌ createCopilotPullRequest function is not available`
+        $`❌ github.createCopilotPullRequest method is not available`
     }
 
     if (typeof github?.createPullRequest === 'function') {

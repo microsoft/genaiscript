@@ -3630,6 +3630,17 @@
   labels?: string[];
 }
 
+ interface GitHubPullRequestCreateOptions {
+  title: string;
+  body?: string;
+  head: string;
+  base?: string;
+  draft?: boolean;
+  maintainer_can_modify?: boolean;
+  assignees?: string[];
+  labels?: string[];
+}
+
  interface GitHubLabel {
   name: string;
   color?: string;
@@ -3828,6 +3839,31 @@
    * @param pull_number pull request number. Default resolves the pull request for the current branch.
    */
   getPullRequest(pull_number?: number | string): Promise<GitHubPullRequest>;
+
+  /**
+   * Creates a new pull request
+   * @param options Pull request creation options
+   */
+  createPullRequest(options: GitHubPullRequestCreateOptions): Promise<GitHubPullRequest>;
+
+  /**
+   * Creates a new pull request in a branch starting with "copilot/" and assigns it to copilot padawan
+   * @param title The title of the pull request
+   * @param body The body/description of the pull request
+   * @param options Additional options for the pull request
+   */
+  createCopilotPullRequest(
+    title: string,
+    body?: string,
+    options?: {
+      branchSuffix?: string;
+      baseBranch?: string;
+      assignToCopilot?: boolean;
+      copilotUser?: string;
+      draft?: boolean;
+      labels?: string[];
+    }
+  ): Promise<GitHubPullRequest>;
 
   /**
    * Lists comments for a given pull request
@@ -5664,25 +5700,6 @@ declare let host: PromptHost;
  * Access to GitHub queries for the current repository
  */
 declare let github: GitHub;
-
-/**
- * Creates a new pull request in a branch starting with "copilot/" and assigns it to copilot padawan
- * @param title - The title of the pull request
- * @param body - The body/description of the pull request  
- * @param options - Additional options for the pull request
- */
-declare function createCopilotPullRequest(
-  title: string,
-  body?: string,
-  options?: {
-    branchSuffix?: string;
-    baseBranch?: string;
-    assignToCopilot?: boolean;
-    copilotUser?: string;
-    draft?: boolean;
-    labels?: string[];
-  }
-): Promise<GitHubPullRequest>;
 
 /**
  * Access to Git operations for the current repository
