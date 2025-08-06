@@ -95,7 +95,17 @@ export async function importCopilotInstructions(
     });
     debug(`found ${foundFiles.length} instruction files`);
 
+    // Track processed files to avoid duplicates
+    const processedFiles = new Set<string>();
+
     for (const file of foundFiles) {
+      // Skip if this file has already been processed
+      if (processedFiles.has(file.filename)) {
+        debug(`skipping already processed file: ${file.filename}`);
+        continue;
+      }
+      processedFiles.add(file.filename);
+
       debug(`parsing instruction file: ${file.filename}`);
       const instruction = await parseInstructionFile(file);
       if (!instruction) {
