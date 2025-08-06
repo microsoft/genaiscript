@@ -30,10 +30,8 @@ export interface CopilotInstruction {
 export interface CopilotInstructionsOptions extends ChatGenerationContextOptions {
   /** Whether to include general copilot instructions file (default: true) */
   includeGeneral?: boolean;
-  /** Custom paths to search for instruction files (default: [".github/instructions", ".github"]) */
-  instructionPaths?: string[];
-  /** Custom patterns to match instruction files (default: ["*.instructions.md", "copilot-instructions.md"]) */
-  instructionPatterns?: string[];
+  /** Glob patterns to search for instruction files (default: [".github/instructions/*.instructions.md", ".github/instructions/copilot-instructions.md", ".github/*.instructions.md", ".github/copilot-instructions.md"]) */
+  instructionGlobs?: string[];
 }
 
 /**
@@ -62,8 +60,12 @@ export async function importCopilotInstructions(
 ): Promise<void> {
   const {
     includeGeneral = true,
-    instructionPaths = [".github/instructions", ".github"],
-    instructionPatterns = ["*.instructions.md", "copilot-instructions.md"],
+    instructionGlobs = [
+      ".github/instructions/*.instructions.md",
+      ".github/instructions/copilot-instructions.md", 
+      ".github/*.instructions.md",
+      ".github/copilot-instructions.md"
+    ],
     ...contextOptions
   } = options;
 
@@ -84,40 +86,35 @@ export async function importCopilotInstructions(
   const filenames = files.map((file) => (typeof file === "string" ? file : file.filename));
   debug(`filenames: ${filenames.join(", ")}`);
 
-  // Search for instruction files in specified paths
-  for (const instructionPath of instructionPaths) {
-    debug(`searching instruction path: ${instructionPath}`);
-    const searchPatterns = instructionPatterns.map((pattern) => `${instructionPath}/${pattern}`);
-    debug(`search patterns: ${searchPatterns.join(", ")}`);
+  // Search for instruction files using glob patterns
+  debug(`search patterns: ${instructionGlobs.join(", ")}`);
 
-    try {
-      const foundFiles = await workspace.findFiles(searchPatterns, {
-        readText: true,
-      });
-      debug(`found ${foundFiles.length} instruction files in ${instructionPath}`);
+  try {
+    const foundFiles = await workspace.findFiles(instructionGlobs, {
+      readText: true,
+    });
+    debug(`found ${foundFiles.length} instruction files`);
 
-      for (const file of foundFiles) {
-        debug(`parsing instruction file: ${file.filename}`);
-        const instruction = await parseInstructionFile(file);
-        if (!instruction) {
-          debug(`failed to parse instruction file: ${file.filename}`);
-          continue;
-        }
-
-        // Check if this instruction applies to any of the provided files
-        const shouldInclude = shouldIncludeInstruction(instruction, filenames, includeGeneral);
-        debug(`instruction ${file.filename} should include: ${shouldInclude}`);
-        
-        if (shouldInclude) {
-          instructions.push(instruction);
-          debug(`included instruction from: ${file.filename}`);
-        }
+    for (const file of foundFiles) {
+      debug(`parsing instruction file: ${file.filename}`);
+      const instruction = await parseInstructionFile(file);
+      if (!instruction) {
+        debug(`failed to parse instruction file: ${file.filename}`);
+        continue;
       }
-    } catch (error) {
-      debug(`error searching instruction path ${instructionPath}: ${error}`);
-      // Silently continue if instruction path doesn't exist
-      continue;
+
+      // Check if this instruction applies to any of the provided files
+      const shouldInclude = shouldIncludeInstruction(instruction, filenames, includeGeneral);
+      debug(`instruction ${file.filename} should include: ${shouldInclude}`);
+      
+      if (shouldInclude) {
+        instructions.push(instruction);
+        debug(`included instruction from: ${file.filename}`);
+      }
     }
+  } catch (error) {
+    debug(`error searching instruction patterns: ${error}`);
+    // Silently continue if instruction paths don't exist
   }
 
   debug(`total instructions found: ${instructions.length}`);
