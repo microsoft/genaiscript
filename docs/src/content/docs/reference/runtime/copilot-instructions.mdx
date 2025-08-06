@@ -59,49 +59,22 @@ Write clean, readable code, add meaningful comments, and follow existing project
 
 ### importCopilotInstructions()
 
-```typescript
-function importCopilotInstructions(
-  files: string[] | WorkspaceFile[],
-  options?: CopilotInstructionsOptions
-): Promise<void>
-```
-
 **Parameters:**
 `files` represents an array of files to match against instruction patterns, while `options` provides configuration options including optional chat generation context.
 
 **Returns:** Promise that resolves when instructions are added to the chat generation context
 
-### CopilotInstructionsOptions
+### Options
 
-```typescript
-interface CopilotInstructionsOptions extends ChatGenerationContextOptions {
-  /** Whether to include general copilot instructions file (default: true) */
-  includeGeneral?: boolean;
-  /** Custom paths to search for instruction files (default: [".github/instructions", ".github"]) */
-  instructionPaths?: string[];
-  /** Custom patterns to match instruction files (default: ["*.instructions.md", "copilot-instructions.md"]) */
-  instructionPatterns?: string[];
-}
-```
+The options parameter supports the following configuration:
 
-### CopilotInstruction
+`includeGeneral` controls whether to include general copilot instructions file (default: true)
 
-```typescript
-interface CopilotInstruction {
-  /** The file path of the instruction file */
-  filename: string;
-  /** The instruction content */
-  content: string;
-  /** Parsed frontmatter metadata */
-  metadata?: {
-    /** File patterns this instruction applies to */
-    applyTo?: string | string[];
-    /** Description of the instruction */
-    description?: string;
-    [key: string]: any;
-  };
-}
-```
+`instructionPaths` specifies custom paths to search for instruction files (default: [".github/instructions", ".github"])
+
+`instructionPatterns` defines custom patterns to match instruction files (default: ["*.instructions.md", "copilot-instructions.md"])
+
+Additional options extend ChatGenerationContextOptions for context configuration.
 
 ## Examples
 
