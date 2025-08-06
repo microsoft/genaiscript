@@ -63,6 +63,8 @@ The repository contains several sample projects demonstrating GenAIScript usage:
 - **`samples/modulesample/`** - Module usage examples
 - **`samples/runtime-sample/`** - Runtime API examples
 
+> Never add files from the `.genaiscript` directory. This folder contains runtime generated temporary files and should not be committed to the repository.
+
 ## Building and testing
 
 - Use `pnpm build` to build the project
