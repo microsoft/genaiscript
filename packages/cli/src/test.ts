@@ -151,20 +151,22 @@ function displayTestProgress(
   stats: GenerationStats,
   elapsed: number,
   passedCount: number,
-  failedCount: number
+  failedCount: number,
 ) {
   const percentage = Math.round((current / total) * 100);
   const progressBar = createProgressBar(percentage, 20);
   const avgTime = elapsed / current;
-  const estimatedRemaining = Math.round((total - current) * avgTime / 1000);
+  const estimatedRemaining = Math.round(((total - current) * avgTime) / 1000);
   const usage = stats.accumulatedUsage();
-  
-  logInfo(`${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test ${current}/${total} (${percentage}%) - ${scriptId}`);
-  logVerbose(
-    `${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed, ~${estimatedRemaining}s remaining`
+
+  logInfo(
+    `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test ${current}/${total} (${percentage}%) - ${scriptId}`,
   );
   logVerbose(
-    `${BOX_UP_AND_DOWN} ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed, ${prettyTokens(usage.total_tokens, "both")}`
+    `${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed, ~${estimatedRemaining}s remaining`,
+  );
+  logVerbose(
+    `${BOX_UP_AND_DOWN} ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed, ${prettyTokens(usage.total_tokens, "both")}`,
   );
 }
 
@@ -174,26 +176,28 @@ function displayTestProgress(
 function createProgressBar(percentage: number, width: number = 20): string {
   const filled = Math.round((percentage / 100) * width);
   const empty = width - filled;
-  return `[${'█'.repeat(filled)}${' '.repeat(empty)}] ${percentage}%`;
+  return `[${"█".repeat(filled)}${" ".repeat(empty)}] ${percentage}%`;
 }
 
 /**
- * Displays enhanced final summary for promptfoo test results  
+ * Displays enhanced final summary for promptfoo test results
  */
 function displayPromptfooTestSummary(
   results: Array<{ ok: boolean }>,
   stats: GenerationStats,
   totalDuration: number,
-  outSummary?: string
+  outSummary?: string,
 ) {
   const passedCount = results.filter((r) => r.ok).length;
   const failedCount = results.filter((r) => !r.ok).length;
   const totalTests = results.length;
   const usage = stats.accumulatedUsage();
-  
+
   logInfo(`\n${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Promptfoo Test Results Summary`);
   logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`);
+  logInfo(
+    `${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`,
+  );
   logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
   logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
   logInfo(`${BOX_UP_AND_DOWN}`);
@@ -201,16 +205,16 @@ function displayPromptfooTestSummary(
   logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.prompt_tokens, "prompt")}`);
   logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.completion_tokens, "completion")}`);
   logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.total_tokens, "both")} total`);
-  
+
   if (usage.total_tokens > 0) {
     const avgTokensPerTest = Math.round(usage.total_tokens / totalTests);
     const tokensPerSecond = Math.round(usage.total_tokens / (totalDuration / 1000));
     logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
     logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
   }
-  
+
   logInfo(`${BOX_UP_AND_RIGHT}`);
-  
+
   if (outSummary) logVerbose(`${BOX_UP_AND_RIGHT} Full trace: ${outSummary}`);
 }
 
@@ -221,16 +225,18 @@ function displayApiTestSummary(
   results: Array<{ ok: boolean }>,
   stats: GenerationStats,
   totalDuration: number,
-  outSummary?: string
+  outSummary?: string,
 ) {
   const passedCount = results.filter((r) => r.ok).length;
   const failedCount = results.filter((r) => !r.ok).length;
   const totalTests = results.length;
   const usage = stats.accumulatedUsage();
-  
+
   logInfo(`\n${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test Results Summary`);
   logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`);
+  logInfo(
+    `${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`,
+  );
   logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
   logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
   logInfo(`${BOX_UP_AND_DOWN}`);
@@ -238,16 +244,16 @@ function displayApiTestSummary(
   logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.prompt_tokens, "prompt")}`);
   logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.completion_tokens, "completion")}`);
   logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.total_tokens, "both")} total`);
-  
+
   if (usage.total_tokens > 0) {
     const avgTokensPerTest = Math.round(usage.total_tokens / totalTests);
     const tokensPerSecond = Math.round(usage.total_tokens / (totalDuration / 1000));
     logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
     logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
   }
-  
+
   logInfo(`${BOX_UP_AND_RIGHT}`);
-  
+
   if (outSummary) logVerbose(`${BOX_UP_AND_RIGHT} Full trace: ${outSummary}`);
 }
 
@@ -400,9 +406,17 @@ async function apiRunPromptScriptTests(
       const elapsed = Date.now() - runStart.getTime();
       const passedCount = results.filter((r) => r.ok).length;
       const failedCount = results.filter((r) => !r.ok).length;
-      
-      displayTestProgress(current, configurations.length, script.id, stats, elapsed, passedCount, failedCount);
-      
+
+      displayTestProgress(
+        current,
+        configurations.length,
+        script.id,
+        stats,
+        elapsed,
+        passedCount,
+        failedCount,
+      );
+
       dbgRun(`options: %O`, options);
       const { files = [] } = test;
       const res = await run(script.id, files, {
@@ -415,11 +429,14 @@ async function apiRunPromptScriptTests(
 
       const ok = !error;
       if (usage) {
-        stats.addUsage({
-          prompt_tokens: usage?.prompt || 0,
-          completion_tokens: usage?.completion || 0,
-          total_tokens: usage?.total || 0,
-        }, usage?.duration);
+        stats.addUsage(
+          {
+            prompt_tokens: usage?.prompt || 0,
+            completion_tokens: usage?.completion || 0,
+            total_tokens: usage?.total || 0,
+          },
+          usage?.duration,
+        );
       }
       if (outSummary) {
         const row = {
@@ -604,7 +621,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
   }
   const promptFooVersion = options.promptfooVersion || PROMPTFOO_VERSION;
   const results: PromptScriptTestResult[] = [];
-  
+
   logInfo(`${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Starting ${configurations.length} promptfoo test(s)`);
   // Execute each configuration and gather results
   for (const config of configurations) {
@@ -616,11 +633,13 @@ npx --yes genaiscript@${CORE_VERSION} test view
     const failedCount = results.filter((r) => !r.ok).length;
     const percentage = Math.round((current / configurations.length) * 100);
     const progressBar = createProgressBar(percentage, 20);
-    
-    logInfo(`${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test ${current}/${configurations.length} (${percentage}%) - ${script.id}`);
+
+    logInfo(
+      `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test ${current}/${configurations.length} (${percentage}%) - ${script.id}`,
+    );
     logVerbose(`${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed`);
     logVerbose(`${BOX_UP_AND_DOWN} Config: ${configuration}`);
-    
+
     const testStart = new Date();
     const outJson = configuration.replace(/\.yaml$/, ".res.json");
     const cmd = "npx";
@@ -776,7 +795,7 @@ export async function scriptsTest(
   const cancellationToken = canceller.token;
 
   const { status, value = [] } = await runPromptScriptTests(ids, { ...options, cancellationToken });
-  
+
   // Clean up the final console output - the enhanced summary is already shown
   // Just show a simple results list if verbose mode is enabled
   if (options.verbose) {
@@ -785,7 +804,7 @@ export async function scriptsTest(
     for (const result of value) trace.resultItem(result.ok, result.script);
     console.log(trace.content);
   }
-  
+
   process.exit(status);
 }
 
@@ -796,7 +815,11 @@ export async function scriptsTest(
  * @param options - Options to filter the scripts by groups or redteam flag.
  * Filters the scripts by groups and whether they are for redteam testing.
  */
-export async function scriptTestList(options: { groups?: string[]; redteam?: boolean; filterModel?: string }) {
+export async function scriptTestList(options: {
+  groups?: string[];
+  redteam?: boolean;
+  filterModel?: string;
+}) {
   const scripts = await listTests(options);
   console.log(scripts.map((s) => toStringList(s.id, s.filename)).join("\n"));
 }
