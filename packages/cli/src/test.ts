@@ -17,6 +17,7 @@ import {
   evaluateTestResult,
   genaiscriptDebug,
   generateId,
+  GenerationStats,
   getTestDir,
   isCancelError,
   logError,
@@ -147,7 +148,7 @@ function displayTestProgress(
   current: number,
   total: number,
   scriptId: string,
-  stats: { prompt: number; completion: number; total: number },
+  stats: GenerationStats,
   elapsed: number,
   passedCount: number,
   failedCount: number
@@ -156,13 +157,14 @@ function displayTestProgress(
   const progressBar = createProgressBar(percentage, 20);
   const avgTime = elapsed / current;
   const estimatedRemaining = Math.round((total - current) * avgTime / 1000);
+  const usage = stats.accumulatedUsage();
   
   logInfo(`${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test ${current}/${total} (${percentage}%) - ${scriptId}`);
   logVerbose(
     `${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed, ~${estimatedRemaining}s remaining`
   );
   logVerbose(
-    `${BOX_UP_AND_DOWN} ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed, ${prettyTokens(stats.total, "both")}`
+    `${BOX_UP_AND_DOWN} ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed, ${prettyTokens(usage.total_tokens, "both")}`
   );
 }
 
@@ -173,6 +175,80 @@ function createProgressBar(percentage: number, width: number = 20): string {
   const filled = Math.round((percentage / 100) * width);
   const empty = width - filled;
   return `[${'█'.repeat(filled)}${' '.repeat(empty)}] ${percentage}%`;
+}
+
+/**
+ * Displays enhanced final summary for promptfoo test results  
+ */
+function displayPromptfooTestSummary(
+  results: Array<{ ok: boolean }>,
+  stats: GenerationStats,
+  totalDuration: number,
+  outSummary?: string
+) {
+  const passedCount = results.filter((r) => r.ok).length;
+  const failedCount = results.filter((r) => !r.ok).length;
+  const totalTests = results.length;
+  const usage = stats.accumulatedUsage();
+  
+  logInfo(`\n${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Promptfoo Test Results Summary`);
+  logInfo(`${BOX_UP_AND_DOWN}`);
+  logInfo(`${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`);
+  logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
+  logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
+  logInfo(`${BOX_UP_AND_DOWN}`);
+  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.prompt_tokens, "prompt")}`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.completion_tokens, "completion")}`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.total_tokens, "both")} total`);
+  
+  if (usage.total_tokens > 0) {
+    const avgTokensPerTest = Math.round(usage.total_tokens / totalTests);
+    const tokensPerSecond = Math.round(usage.total_tokens / (totalDuration / 1000));
+    logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
+    logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
+  }
+  
+  logInfo(`${BOX_UP_AND_RIGHT}`);
+  
+  if (outSummary) logVerbose(`${BOX_UP_AND_RIGHT} Full trace: ${outSummary}`);
+}
+
+/**
+ * Displays enhanced final summary for API test results
+ */
+function displayApiTestSummary(
+  results: Array<{ ok: boolean }>,
+  stats: GenerationStats,
+  totalDuration: number,
+  outSummary?: string
+) {
+  const passedCount = results.filter((r) => r.ok).length;
+  const failedCount = results.filter((r) => !r.ok).length;
+  const totalTests = results.length;
+  const usage = stats.accumulatedUsage();
+  
+  logInfo(`\n${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test Results Summary`);
+  logInfo(`${BOX_UP_AND_DOWN}`);
+  logInfo(`${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`);
+  logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
+  logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
+  logInfo(`${BOX_UP_AND_DOWN}`);
+  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.prompt_tokens, "prompt")}`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.completion_tokens, "completion")}`);
+  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.total_tokens, "both")} total`);
+  
+  if (usage.total_tokens > 0) {
+    const avgTokensPerTest = Math.round(usage.total_tokens / totalTests);
+    const tokensPerSecond = Math.round(usage.total_tokens / (totalDuration / 1000));
+    logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
+    logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
+  }
+  
+  logInfo(`${BOX_UP_AND_RIGHT}`);
+  
+  if (outSummary) logVerbose(`${BOX_UP_AND_RIGHT} Full trace: ${outSummary}`);
 }
 
 /**
@@ -304,11 +380,7 @@ async function apiRunPromptScriptTests(
     configurations = shuffle(configurations);
   }
 
-  const stats = {
-    prompt: 0,
-    completion: 0,
-    total: 0,
-  };
+  const stats = new GenerationStats("test-runner");
   const headers = ["status", "script", "prompt", "completion", "total", "duration", "error"];
   if (outSummary) {
     dbg(`summary: %s`, outSummary);
@@ -342,9 +414,13 @@ async function apiRunPromptScriptTests(
       const error = await evaluateTestResult(config, res);
 
       const ok = !error;
-      stats.prompt += usage?.prompt || 0;
-      stats.completion += usage?.completion || 0;
-      stats.total += usage?.total || 0;
+      if (usage) {
+        stats.addUsage({
+          prompt_tokens: usage?.prompt || 0,
+          completion_tokens: usage?.completion || 0,
+          total_tokens: usage?.total || 0,
+        }, usage?.duration);
+      }
       if (outSummary) {
         const row = {
           ok,
@@ -376,15 +452,16 @@ async function apiRunPromptScriptTests(
   const totalDuration = runEnd.getTime() - runStart.getTime();
 
   if (outSummary) {
+    const usage = stats.accumulatedUsage();
     await appendFile(
       outSummary,
       [
         objectToMarkdownTableRow(
           {
             status: results.filter((r) => r.ok).length,
-            prompt: stats.prompt,
-            completion: stats.completion,
-            total: stats.total,
+            prompt: usage.prompt_tokens,
+            completion: usage.completion_tokens,
+            total: usage.total_tokens,
             duration: roundWithPrecision(totalDuration / 1000, 1),
           },
           headers,
@@ -396,32 +473,7 @@ async function apiRunPromptScriptTests(
     );
   }
 
-  // Enhanced final summary display
-  const passedCount = results.filter((r) => r.ok).length;
-  const failedCount = results.filter((r) => !r.ok).length;
-  const totalTests = results.length;
-  
-  logInfo(`\n${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test Results Summary`);
-  logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`);
-  logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
-  logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
-  logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.prompt, "prompt")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.completion, "completion")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.total, "both")} total`);
-  
-  if (stats.total > 0) {
-    const avgTokensPerTest = Math.round(stats.total / totalTests);
-    const tokensPerSecond = Math.round(stats.total / (totalDuration / 1000));
-    logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
-    logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
-  }
-  
-  logInfo(`${BOX_UP_AND_RIGHT}`);
-  
-  if (outSummary) logVerbose(`${BOX_UP_AND_RIGHT} Full trace: ${outSummary}`);
+  displayApiTestSummary(results, stats, totalDuration, outSummary);
   const ok = results.every((r) => !!r.ok);
   return {
     ok,
@@ -542,11 +594,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
     configurations.push({ script, configuration: fn });
   }
 
-  const stats = {
-    prompt: 0,
-    completion: 0,
-    total: 0,
-  };
+  const stats = new GenerationStats("promptfoo-test-runner");
   const headers = ["status", "script", "prompt", "completion", "total", "duration", "url"];
   if (outSummary) {
     await appendFile(
@@ -607,9 +655,14 @@ npx --yes genaiscript@${CORE_VERSION} test view
     }
     if (await tryStat(outJson)) value = JSON5TryParse(await readFile(outJson, "utf8"));
     const ok = status === 0;
-    stats.prompt += value?.results?.stats?.tokenUsage?.prompt || 0;
-    stats.completion += value?.results?.stats?.tokenUsage?.completion || 0;
-    stats.total += value?.results?.stats?.tokenUsage?.total || 0;
+    const tokenUsage = value?.results?.stats?.tokenUsage;
+    if (tokenUsage) {
+      stats.addUsage({
+        prompt_tokens: tokenUsage.prompt || 0,
+        completion_tokens: tokenUsage.completion || 0,
+        total_tokens: tokenUsage.total || 0,
+      });
+    }
     const testEnd = new Date();
     if (outSummary) {
       const url = value?.evalId
@@ -645,15 +698,16 @@ npx --yes genaiscript@${CORE_VERSION} test view
   const totalDuration = runEnd.getTime() - runStart.getTime();
 
   if (outSummary) {
+    const usage = stats.accumulatedUsage();
     await appendFile(
       outSummary,
       [
         objectToMarkdownTableRow(
           {
             status: results.filter((r) => r.ok).length,
-            prompt: stats.prompt,
-            completion: stats.completion,
-            total: stats.total,
+            prompt: usage.prompt_tokens,
+            completion: usage.completion_tokens,
+            total: usage.total_tokens,
             duration: roundWithPrecision(totalDuration / 1000, 1),
           },
           headers,
@@ -665,32 +719,7 @@ npx --yes genaiscript@${CORE_VERSION} test view
     );
   }
 
-  // Enhanced final summary display for promptfoo tests
-  const passedCount = results.filter((r) => r.ok).length;
-  const failedCount = results.filter((r) => !r.ok).length;
-  const totalTests = results.length;
-  
-  logInfo(`\n${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Promptfoo Test Results Summary`);
-  logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Tests:      ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed (${totalTests} total)`);
-  logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
-  logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
-  logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.prompt, "prompt")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.completion, "completion")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(stats.total, "both")} total`);
-  
-  if (stats.total > 0) {
-    const avgTokensPerTest = Math.round(stats.total / totalTests);
-    const tokensPerSecond = Math.round(stats.total / (totalDuration / 1000));
-    logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
-    logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
-  }
-  
-  logInfo(`${BOX_UP_AND_RIGHT}`);
-  
-  if (outSummary) logVerbose(`${BOX_UP_AND_RIGHT} Full trace: ${outSummary}`);
+  displayPromptfooTestSummary(results, stats, totalDuration, outSummary);
   const ok = results.every((r) => !!r.ok);
   return {
     ok,
