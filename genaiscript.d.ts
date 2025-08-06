@@ -5666,6 +5666,25 @@ declare let host: PromptHost;
 declare let github: GitHub;
 
 /**
+ * Creates a new pull request in a branch starting with "copilot/" and assigns it to copilot padawan
+ * @param title - The title of the pull request
+ * @param body - The body/description of the pull request  
+ * @param options - Additional options for the pull request
+ */
+declare function createCopilotPullRequest(
+  title: string,
+  body?: string,
+  options?: {
+    branchSuffix?: string;
+    baseBranch?: string;
+    assignToCopilot?: boolean;
+    copilotUser?: string;
+    draft?: boolean;
+    labels?: string[];
+  }
+): Promise<GitHubPullRequest>;
+
+/**
  * Access to Git operations for the current repository
  */
 declare let git: Git;

@@ -58,6 +58,7 @@ import type {
   GitHubOptions,
   GitHubPaginationOptions,
   GitHubPullRequest,
+  GitHubPullRequestCreateOptions,
   GitHubReaction,
   GitHubReactionType,
   GitHubRef,
@@ -1339,6 +1340,58 @@ export class GitHubClient implements GitHub {
     return data;
   }
 
+  async createPullRequest(options: GitHubPullRequestCreateOptions): Promise<GitHubPullRequest> {
+    const { client, owner, repo } = await this.api();
+    dbg(`creating pull request: %s -> %s`, options.head, options.base || "default branch");
+    
+    const { title, body, head, base, draft, maintainer_can_modify, assignees, labels } = options;
+    
+    // Get default branch if base is not specified
+    const resolvedBase = base || (await this.repo()).default_branch;
+    
+    const { data } = await client.rest.pulls.create({
+      owner,
+      repo,
+      title,
+      body: body ? prettifyMarkdown(dedent(body)) : undefined,
+      head,
+      base: resolvedBase,
+      draft,
+      maintainer_can_modify,
+    });
+    
+    // Handle assignees if provided
+    if (assignees?.length) {
+      try {
+        await client.rest.issues.addAssignees({
+          owner,
+          repo,
+          issue_number: data.number,
+          assignees,
+        });
+      } catch (error) {
+        dbg(`failed to assign users to pull request: ${error}`);
+      }
+    }
+    
+    // Handle labels if provided
+    if (labels?.length) {
+      try {
+        await client.rest.issues.addLabels({
+          owner,
+          repo,
+          issue_number: data.number,
+          labels,
+        });
+      } catch (error) {
+        dbg(`failed to add labels to pull request: ${error}`);
+      }
+    }
+    
+    dbg(`created pull request #${data.number}: ${data.html_url}`);
+    return data;
+  }
+
   async listPullRequestReviewComments(
     pull_number: number,
     options?: GitHubPaginationOptions,
@@ -1868,4 +1921,62 @@ export function cleanLog(text: string) {
       "",
     ),
   );
+}
+
+/**
+ * Runtime helper to create a new pull request in a branch starting with "copilot/" 
+ * and assign it to copilot padawan.
+ * 
+ * @param title - The title of the pull request
+ * @param body - The body/description of the pull request
+ * @param options - Additional options for the pull request
+ * @returns Promise<GitHubPullRequest> - The created pull request
+ */
+export async function createCopilotPullRequest(
+  title: string,
+  body?: string,
+  options?: {
+    branchSuffix?: string;
+    baseBranch?: string;
+    assignToCopilot?: boolean;
+    copilotUser?: string;
+    draft?: boolean;
+    labels?: string[];
+  }
+): Promise<GitHubPullRequest> {
+  const {
+    branchSuffix = Date.now().toString(),
+    baseBranch,
+    assignToCopilot = true,
+    copilotUser = "copilot-swe-agent",
+    draft = false,
+    labels = [],
+  } = options ?? {};
+
+  const github = GitHubClient.default();
+  
+  // Generate branch name starting with "copilot/"
+  const branchName = `copilot/${branchSuffix}`;
+  
+  // Create the pull request
+  const pullRequest = await github.createPullRequest({
+    title,
+    body,
+    head: branchName,
+    base: baseBranch,
+    draft,
+    labels,
+  });
+  
+  // Assign to copilot if requested
+  if (assignToCopilot) {
+    try {
+      await github.assignIssueToBot(pullRequest.number, { bot: copilotUser });
+      dbg(`assigned pull request #${pullRequest.number} to ${copilotUser}`);
+    } catch (error) {
+      dbg(`failed to assign pull request to ${copilotUser}: ${errorMessage(error)}`);
+    }
+  }
+  
+  return pullRequest;
 }

@@ -3564,6 +3564,17 @@
   labels?: string[];
 }
 
+ interface GitHubPullRequestCreateOptions {
+  title: string;
+  body?: string;
+  head: string;
+  base?: string;
+  draft?: boolean;
+  maintainer_can_modify?: boolean;
+  assignees?: string[];
+  labels?: string[];
+}
+
  interface GitHubLabel {
   name: string;
   color?: string;
@@ -3762,6 +3773,12 @@
    * @param pull_number pull request number. Default resolves the pull request for the current branch.
    */
   getPullRequest(pull_number?: number | string): Promise<GitHubPullRequest>;
+
+  /**
+   * Creates a new pull request
+   * @param options Pull request creation options
+   */
+  createPullRequest(options: GitHubPullRequestCreateOptions): Promise<GitHubPullRequest>;
 
   /**
    * Lists comments for a given pull request
