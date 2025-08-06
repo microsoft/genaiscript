@@ -1,3 +1,0 @@
-script,status,cost,total_tokens,prompt_tokens,completion_tokens,trace,version
-describe-image,error,0,0,0,0,,2.3.13
-video,error,0,0,0,0,,2.3.13
