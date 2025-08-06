@@ -125,27 +125,24 @@ export async function importCopilotInstructions(
   // Always add instructions as system-like content
   debug(`adding ${instructions.length} instructions as system content`);
   
-  // Add instructions as system-like content using defChatParticipant
-  ctx.defChatParticipant((turnCtx) => {
-    if (instructions.length > 0) {
-      turnCtx.$`## GitHub Copilot Instructions
+  if (instructions.length > 0) {
+    ctx.$`## GitHub Copilot Instructions
 
 The following instructions apply to the current files and should guide your responses:
 
 ${instructions.map(instruction => {
-        let content = instruction.content;
-        if (instruction.metadata?.description) {
-          content = `### ${instruction.metadata.description}\n\n${content}`;
-        }
-        return `<!-- Source: ${instruction.filename} -->\n${content}`;
-      }).join('\n\n---\n\n')}
+      let content = instruction.content;
+      if (instruction.metadata?.description) {
+        content = `### ${instruction.metadata.description}\n\n${content}`;
+      }
+      return `<!-- Source: ${instruction.filename} -->\n${content}`;
+    }).join('\n\n---\n\n')}
 
 ---
 
 `.role("system");
-      debug(`added copilot instructions as system content`);
-    }
-  }, { label: "copilot-instructions" });
+    debug(`added copilot instructions as system content`);
+  }
 }
 
 /**
