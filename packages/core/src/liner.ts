@@ -154,29 +154,27 @@ function extractRangeWithTokenBudget(
   let expandUp = true;
   
   while (currentTokens < maxTokens) {
-    let nextContent: string;
     let nextStartIndex = startIndex;
     let nextEndIndex = endIndex;
     
     if (expandUp && startIndex > 0) {
       // Try expanding upward
       nextStartIndex = startIndex - 1;
-      nextContent = lines.slice(nextStartIndex, endIndex + 1).join("\n");
     } else if (!expandUp && endIndex < totalLines - 1) {
       // Try expanding downward  
       nextEndIndex = endIndex + 1;
-      nextContent = lines.slice(startIndex, nextEndIndex + 1).join("\n");
     } else if (startIndex > 0) {
       // If can't expand in preferred direction, try the other
       nextStartIndex = startIndex - 1;
-      nextContent = lines.slice(nextStartIndex, endIndex + 1).join("\n");
     } else if (endIndex < totalLines - 1) {
       nextEndIndex = endIndex + 1;
-      nextContent = lines.slice(startIndex, nextEndIndex + 1).join("\n");
     } else {
       // Can't expand further in either direction
       break;
     }
+    
+    // Compute content for the new range
+    const nextContent = lines.slice(nextStartIndex, nextEndIndex + 1).join("\n");
     
     const nextTokens = approximateTokens(nextContent, { encoder });
     

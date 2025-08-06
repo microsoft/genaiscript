@@ -1766,6 +1766,16 @@
    * This is different from lineStart/lineEnd as it specifies a center point.
    */
   line?: number;
+  /**
+   * Maximum token budget for the extracted range when using line option.
+   * If specified, the range will be computed to fit within this token limit.
+   */
+  maxTokens?: number;
+  /**
+   * Token encoder for accurate token counting.
+   * If not provided, uses approximation.
+   */
+  encoder?: TokenEncoder;
 }
 
  interface GitIgnoreFilterOptions {
