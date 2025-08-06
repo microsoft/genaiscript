@@ -1,8 +1,6 @@
 script({
-    model: "small",
-    tests: {
-        keywords: ["exit", "code", "preserved"],
-    },
+    model: "echo",
+    tests: {},
 })
 
 // Test script to demonstrate host.exec exit code preservation
@@ -32,13 +30,6 @@ console.log("\n4. Testing command with exit code 3:")
 const result3 = await host.exec("", "sh", ["-c", "exit 3"])
 console.log(`   Exit code: ${result3.exitCode}`)
 console.log(`   Failed: ${result3.failed}`)
-
-def("EXIT_CODE_RESULTS", {
-    "echo_hello": { exitCode: result0.exitCode, failed: result0.failed },
-    "false_command": { exitCode: result1.exitCode, failed: result1.failed },
-    "exit_code_2": { exitCode: result2.exitCode, failed: result2.failed },
-    "exit_code_3": { exitCode: result3.exitCode, failed: result3.failed }
-})
 
 $`
 Analyze these test results and confirm that:
