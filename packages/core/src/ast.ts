@@ -94,6 +94,7 @@ export interface ScriptFilterOptions {
   test?: boolean;
   redteam?: boolean;
   unlisted?: boolean;
+  filterModel?: string;
 }
 
 /**
@@ -106,14 +107,16 @@ export interface ScriptFilterOptions {
  *   - test: If true, includes only scripts with defined tests.
  *   - redteam: If true, includes only scripts marked for redteam.
  *   - unlisted: If true, includes unlisted scripts; otherwise excludes them.
+ *   - filterModel: If provided, includes only scripts that use the specified model.
  * @returns A filtered list of scripts matching the given criteria.
  */
 export function filterScripts(scripts: PromptScript[], options: ScriptFilterOptions) {
-  const { ids, groups, test, redteam, unlisted } = options || {};
+  const { ids, groups, test, redteam, unlisted, filterModel } = options || {};
   return scripts
     .filter((t) => !test || arrayify(t.tests)?.length)
     .filter((t) => !redteam || t.redteam)
     .filter((t) => !ids?.length || ids.includes(t.id))
     .filter((t) => unlisted || !t.unlisted)
-    .filter((t) => tagFilter(groups, t.group));
+    .filter((t) => tagFilter(groups, t.group))
+    .filter((t) => !filterModel || t.model === filterModel);
 }

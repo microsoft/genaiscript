@@ -584,10 +584,15 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       if (!ignoreError) {
         trace?.error("exec failed", err);
       }
+      // Preserve the original exit code from execa error if available
+      const exitCode = (err as any)?.exitCode ?? 1;
+      const stdout = (err as any)?.stdout ?? "";
+      const stderr = (err as any)?.stderr ?? errorMessage(err) ?? "error";
+      
       return {
-        stdout: "",
-        stderr: errorMessage(err),
-        exitCode: 1,
+        stdout,
+        stderr,
+        exitCode,
         failed: true,
       };
     } finally {
