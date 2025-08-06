@@ -26,6 +26,8 @@ the local cli
 node packages/cli/dist/src/index.js run
 ```
 
+> IMPORTANT: Always run `pnpm build` at the end of the your work to ensure that the build still works.
+
 ## Debug logging
 
 If you need to add debug logging, use `genaiscriptDebug("category")` to instantiate a new debug logger in a file
@@ -41,3 +43,8 @@ To enable debug logging, add `DEBUG=genaiscript:category` to the environment var
 ```bash
 DEBUG=genaiscript:category pnpm test:core
 ```
+
+## Self improvement
+
+Before finishing and assigning the pull request back to the user, self-reflect on your current session and generate 5 possible improvements to the `copilot-instructions.md` file. These should be based on your experience and the tasks you completed.
+Pick the most relevant ones and post a pull request review comment with a code update suggestion to the `.ruler/instructions.md` file. Keep it short, don't overdo it, and focus on the most impactful changes.
