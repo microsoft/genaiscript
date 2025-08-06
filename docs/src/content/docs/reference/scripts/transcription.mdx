@@ -2,17 +2,88 @@
 title: Audio Transcription
 description: Describe how to transcribe an audio/video file
 sidebar:
-    order: 40
+  order: 40
 hero:
-    image:
-        alt:
-            A simple 8-bit style graphic features a blocky computer monitor displaying
-            an audio waveform. Nearby, a video file icon transitions into an audio
-            file icon, indicated by an arrow between them. There is also a symbol for
-            SRT subtitles and a small settings gear, all created with flat geometric
-            shapes using five colors against a blank background. There are no people
-            or text in the image, and the size is 128 by 128 pixels.
-        file: ./transcription.png
+  image:
+    alt: A simple 8-bit style graphic features a blocky computer monitor displaying
+      an audio waveform. Nearby, a video file icon transitions into an audio
+      file icon, indicated by an arrow between them. There is also a symbol for
+      SRT subtitles and a small settings gear, all created with flat geometric
+      shapes using five colors against a blank background. There are no people
+      or text in the image, and the size is 128 by 128 pixels.
+    file: ./transcription.png
+llmstxt:
+  content: >-
+    GenAIScript enables transcription and translation using OpenAI-like APIs. It
+    uses ffmpeg to convert video to audio (opus codec in ogg container). Install
+    ffmpeg and set `FFMPEG_PATH` or ensure ffmpeg is in your PATH.
+
+
+    The default transcription model is `transcription`, but you can specify
+    others like `openai:whisper-1`. Example:
+
+
+    ```js
+
+    const { text } = await transcribe("video.mp4", { model: "openai:whisper-1"
+    })
+
+    ```
+
+
+    You can retrieve transcription segments with start times:
+
+
+    ```js
+
+    const { segments } = await transcribe("video.mp4")
+
+    segments.forEach(({ start, text }) => console.log(`[${start}] ${text}`))
+
+    ```
+
+
+    Transcriptions can be exported as SRT or VTT:
+
+
+    ```js
+
+    const { srt, vtt } = await transcribe("video.mp4")
+
+    ```
+
+
+    For transcription and translation to English in one step, use `translate:
+    true`:
+
+
+    ```js
+
+    const { srt } = await transcribe("video.mp4", { translate: true })
+
+    ```
+
+
+    Caching results is supported with `cache: true` or a custom name:
+
+
+    ```js
+
+    const { srt } = await transcribe("video.mp4", { cache: "custom-cache" })
+
+    ```
+
+
+    VTT and SRT files can be parsed using:
+
+
+    ```js
+
+    const segments = parsers.transcription("WEBVTT...")
+
+    ```
+  hash: 81c2cfb00e6a4c1bf76f4116c297c13deeeb714d43cd5faf4d98da2578f5f079
+
 ---
 
 GenAIScript supports transcription and translations from OpenAI like APIs.
@@ -49,7 +120,7 @@ or in a docker container.
 
 ## Segments
 
-For models that support it, you can retreive the individual segments.
+For models that support it, you can retrieve the individual segments.
 
 ```js "{ segments }"
 const { segments } = await transcribe("...")

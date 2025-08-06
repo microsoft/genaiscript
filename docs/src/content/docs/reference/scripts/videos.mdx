@@ -12,6 +12,63 @@ hero:
       8-bit, 5-color palette, all in a geometric, corporate style, with no
       background, people, or text."
     file: ./videos.png
+llmstxt:
+  content: >-
+    GenAIScript simplifies video processing for LLMs using ffmpeg/ffprobe.
+    Ensure these tools are installed and accessible via PATH or environment
+    variables (FFMPEG_PATH, FFPROBE_PATH).
+
+
+    To extract frames from a video:
+
+    - Default: Extracts keyframes.
+      `const frames = await ffmpeg.extractFrames("path_to_video"); defImages(frames);`
+    - Specify frame count: `const frames = await ffmpeg.extractFrames("...", {
+    count: 10 });`
+
+    - Use timestamps: `const frames = await ffmpeg.extractFrames("...", {
+    timestamps: ["00:00", "05:00"] });`
+
+    - Use transcript: `const transcript = await transcribe("..."); const frames
+    = await ffmpeg.extractFrames("...", { transcript });`
+
+    - Scene threshold: `const transcript = await transcribe("...", {
+    sceneThreshold: 0.3 });`
+
+
+    Extract audio as `.wav`:
+
+    `const audio = await ffmpeg.extractAudio("path_to_video");`
+
+
+    Extract video clips:
+
+    `const clip = await ffmpeg.extractClip("path_to_video", { start: "00:00:10",
+    duration: 5 });`
+
+
+    Probe video metadata:
+
+    `const info = await ffmpeg.probe("path_to_video"); const { duration } =
+    info.streams[0]; console.log(duration);`
+
+
+    Customize ffmpeg options:
+
+    `const audio = await ffmpeg.extractAudio("path_to_video", { outputOptions:
+    "-b:a 16k" });`
+
+    Advanced customization:
+
+    `const custom = await ffmpeg.run("src/audio/helloworld.mp4", (cmd) => {
+    cmd.noAudio(); cmd.keepDisplayAspectRatio(); cmd.autopad();
+    cmd.size("200x200"); return "out.mp4"; }, { cache: "kar-200x200" });`
+
+
+    Use GenAIScript CLI for video transformations:
+
+    `genaiscript video probe myvid.mp4`
+  hash: 128d940b406cb492f28a81ef9726688e23eb1294d6a96d7876dce7437a6dba92
 
 ---
 
@@ -35,7 +92,7 @@ or configure the `FFMPEG_PATH` / `FFPROBE_PATH` environment variables to point t
 
 ## Extracting frames
 
-As mentionned above, multi-modal LLMs typically support images as a sequence
+As mentioned above, multi-modal LLMs typically support images as a sequence
 of frames (or screenshots).
 
 The `ffmpeg.extractFrames` will render frames from a video file

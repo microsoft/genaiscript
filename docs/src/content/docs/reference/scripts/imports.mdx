@@ -15,6 +15,111 @@ hero:
       and appears in a pixelated 8-bit style with a transparent background and
       no people or decorative effects. The image size is small and square.
     file: ./imports.png
+llmstxt:
+  content: >-
+    Scripts with `.mjs` support static and dynamic imports. Rename `.genai.js`
+    to `.genai.mjs` for module imports.
+
+
+    Module files (`.mjs`, `.mts`) allow importing Node packages or local
+    modules. Example:
+
+
+    ```js
+
+    import { parse } from "ini";
+
+    const res = parse("x = 1\ny = 2");
+
+    const { stringify } = await import("ini");
+
+    console.log(stringify(res));
+
+    ```
+
+
+    Local JavaScript modules (`.mjs`):
+
+
+    ```js
+
+    export function summarize(files) {
+      def("FILE", files);
+      $`Summarize each file. Be concise.`;
+    }
+
+    ```
+
+
+    Static import:
+
+
+    ```js
+
+    import { summarize } from "./summarizer.mjs";
+
+    summarize(env.generator, env.files);
+
+    ```
+
+
+    Dynamic import:
+
+
+    ```js
+
+    const { summarize } = await import("./summarizer.mjs");
+
+    summarize(env.generator, env.files);
+
+    ```
+
+
+    TypeScript modules (`.mts`) follow the same pattern. Use `.mts` for
+    TypeScript files.
+
+
+    `env.generator` provides access to root prompt generator functions like `$`
+    and `def`.
+
+
+    JSON imports:
+
+
+    ```js
+
+    import data from "./data.json" with { type: "json" };
+
+    console.log(data.name);
+
+    ```
+
+
+    Default exports in `.mjs`:
+
+
+    ```js
+
+    export default async function() {
+      $`Write a poem.`;
+    }
+
+    ```
+
+
+    Set `"type": "module"` in `package.json` to enable module imports in `.js`
+    files.
+
+
+    Use `import.meta.url` to get the current script file URL:
+
+
+    ```js
+
+    const filename = path.resolveFileURL(import.meta.url);
+
+    ```
+  hash: 790ae3ddca5982d964d7e1c211a531919b9ef0e28dbbe9ce863e0db4e256e544
 
 ---
 

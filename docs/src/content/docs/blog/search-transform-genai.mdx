@@ -23,10 +23,30 @@ excerpt: Ever found yourself manually sifting through files to identify patterns
   streamline such transformations, enhancing efficiency and accuracy. From
   identifying legacy usage to adopting updated conventions, it's a step toward
   more maintainable codebases.
+llmstxt:
+  content: >-
+    Need to search and transform patterns across multiple files in your project?
+    Automate this tedious task with a GenAIScript. For instance, when updating
+    the `exec` command to support string commands, scripts like:
+
+
+    host.exec("cmd", ["arg0", "arg1", "arg2"]);
+
+
+    needed conversion to:
+
+
+    host.exec(`cmd arg0 arg1 arg2`);
+
+
+    The [Search And Transform guide](/genaiscript/guides/search-and-transform)
+    provides detailed steps for this approach. Save time and streamline updates
+    with automation.
+  hash: 8f76e553c9b45a99600e3b72e76ba2af293272371a67d5c20b898050a4d9c0f0
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -36,7 +56,7 @@ For example, when GenAIScript added the ability to use a string command string i
 the `exec` command, we needed to convert all script using
 
 ```js
-host.exec("cmd", ["arg0", "arg1", "arg2"])
+host.exec("cmd", ["arg0", "arg1", "arg2"]);
 ```
 
 to

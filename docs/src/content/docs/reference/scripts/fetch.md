@@ -15,6 +15,32 @@ hero:
       colors and no text, people, shadows, gradients, or backgrounds. The
       composition is strictly geometric and minimal at 128 by 128 pixels.
     file: ./fetch.png
+llmstxt:
+  content: >-
+    The `host.fetch` function wraps the global `fetch` API, adding proxy support
+    and retries. Example: `await host.fetch("https://api.example.com", {
+    retries: 3 })`.
+
+
+    `host.fetchText` simplifies fetching and downloading text. Example: `const {
+    text, file } = await host.fetchText("https://...")`. For relative paths, it
+    resolves files in the current workspace. Example: `const { file } = await
+    host.fetchText("README.md")`.
+
+
+    `fetchText` can convert HTML to markdown or plain text for context-efficient
+    use. Example: `await host.fetch("https://...", { convert: "markdown" })`.
+
+
+    `host.resolveResource` resolves and downloads resources from URLs, handling
+    various protocols and GitHub blob-to-raw transformations. It returns a
+    resolved URL and an array of files with content. Example: 
+
+    `const result = await host.resolveResource("https://github.com/...")`.
+
+
+    For APIs requiring keys, use the `secrets` object to store credentials.
+  hash: 817b969dd5c11137341de717ef94c59fe25955dc2b6fcb16553094751a632adc
 
 ---
 
@@ -58,6 +84,30 @@ const md = await host.fetch("https://...", { convert: "markdown" })
 // text
 const md = await host.fetch("https://...", { convert: "text" })
 ```
+
+## `host.resolveResource`
+
+Use `host.resolveResource` to resolve and download resources from URLs. This function handles various URL schemes and protocols, 
+and can resolve GitHub blob URLs to raw content, among other transformations.
+
+```ts
+const result = await host.resolveResource("https://github.com/microsoft/genaiscript/blob/main/docs/public/images/favicon.png")
+if (result) {
+  console.log(`Resolved URI: ${result.uri}`)
+  for (const file of result.files) {
+    console.log(`File: ${file.filename}`)
+    if (file.content) {
+      console.log(`Binary content: ${file.content.length} bytes`)
+    } else if (file.text) {
+      console.log(`Text content: ${file.text.length} characters`)
+    }
+  }
+}
+```
+
+The function returns an object with:
+- `uri`: The resolved URL as a URL object
+- `files`: An array of resolved files with their content
 
 ## Secrets
 

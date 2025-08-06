@@ -1,10 +1,12 @@
-// src/index.tsx
-import React from "react"
-import { createRoot } from "react-dom/client"
-import App from "./App"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-const rootElement = document.getElementById("root")
-if (!rootElement) throw new Error("Failed to find the root element")
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
 
-const root = createRoot(rootElement)
-root.render(<App />)
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Failed to find the root element");
+
+const root = createRoot(rootElement);
+root.render(<App />);

@@ -2,44 +2,71 @@
 title: Pull Request Descriptor
 description: Generate a pull request description
 sidebar:
-    order: 5
+  order: 5
 cover:
-    alt: 'A retro 8-bit-inspired geometric illustration depicting a folder named
-        ".genaisrc" with a file titled "prd.genai.mts" inside. Surrounding the
-        folder are symbolic icons: arrows and file comparison lines representing git
-        diffs, a GitHub logo, a cloud icon symbolizing GitHub Actions, a gear for
-        automation, and a shield for content safety. The artwork integrates five
-        corporate colors and maintains simplicity without text or human figures.'
-    image: ./prd.png
+  alt: 'A retro 8-bit-inspired geometric illustration depicting a folder named
+    ".genaisrc" with a file titled "prd.genai.mts" inside. Surrounding the
+    folder are symbolic icons: arrows and file comparison lines representing git
+    diffs, a GitHub logo, a cloud icon symbolizing GitHub Actions, a gear for
+    automation, and a shield for content safety. The artwork integrates five
+    corporate colors and maintains simplicity without text or human figures.'
+  image: ./prd.png
 tags:
-    - 1. GitHub Actions Automation
-    - 2. Pull Request Description Generator
-    - 3. Code Review Script
-    - 4. GenAIScript Integration
-    - 5. Content Safety Measures
+  - 1. GitHub Actions Automation
+  - 2. Pull Request Description Generator
+  - 3. Code Review Script
+  - 4. GenAIScript Integration
+  - 5. Content Safety Measures
 excerpt: >-
-    Streamline your pull request process with automated descriptions. In this
-    guide, you'll learn how to build a script that generates high-level summaries
-    of code changes in pull requests. The script can be run locally for testing
-    and refinement, then integrated with GitHub Actions for seamless automation. 
+  Streamline your pull request process with automated descriptions. In this
+  guide, you'll learn how to build a script that generates high-level summaries
+  of code changes in pull requests. The script can be run locally for testing
+  and refinement, then integrated with GitHub Actions for seamless automation. 
 
 
-    Key highlights include:
+  Key highlights include:
 
-    - Utilizing `git.diff` to extract changes and summarize their intent.
+  - Utilizing `git.diff` to extract changes and summarize their intent.
 
-    - Adding safety mechanisms to prevent harmful content generation.
+  - Adding safety mechanisms to prevent harmful content generation.
 
-    - Leveraging agents like `fs_read_file` or `agent_fs` for deeper context
-    analysis.
+  - Leveraging agents like `fs_read_file` or `agent_fs` for deeper context
+  analysis.
 
-    - Automating the process with a GitHub workflow to update pull request
-    descriptions dynamically.
+  - Automating the process with a GitHub workflow to update pull request
+  descriptions dynamically.
 
 
-    This approach not only improves developer efficiency but also enhances code
-    review clarity. Adapt it to fit your workflow and enjoy more streamlined
-    collaboration.
+  This approach not only improves developer efficiency but also enhances code
+  review clarity. Adapt it to fit your workflow and enjoy more streamlined
+  collaboration.
+llmstxt:
+  content: >-
+    Create a new branch and add a script `prd.genai.mts` under `.genaisrc`. The
+    script generates pull request descriptions by analyzing code changes. It
+    uses `git.diff` to fetch changes, stores them in `GIT_DIFF`, and generates a
+    summary with clear instructions for the LLM to focus on intent, avoid
+    unnecessary details, and use engaging formatting like gitmojis.
+
+
+    Run the script locally using `npx genaiscript run prd` to test and refine
+    prompts. Commit changes, push to GitHub, and create a pull request. Use the
+    output reports to inspect and adjust results.
+
+
+    Automate the process with a GitHub Action triggered on `ready_for_review` or
+    `review_requested`. The workflow installs dependencies, fetches the base
+    branch, and runs the script with `--pull-request-description` to update the
+    pull request description. Use `continue-on-error: true` to prevent workflow
+    failure if the script fails.
+
+
+    The script includes safety measures like system prompts to prevent harmful
+    content. Additional safety can be achieved using models with content filters
+    or validation services. Tools like `fs_read_file` or agents like `agent_fs`
+    can be added for enhanced file analysis capabilities.
+  hash: d5db40dd8dc9749861e09feb8f2efb0f6825e3e5559aed13dc1607cd5b268b56
+
 ---
 
 The following sample shows a script that generate a description of the changes in a pull request.
@@ -155,7 +182,7 @@ you can automate the execution of the script and creation of the comments.
 
 - Add the following workflow in your GitHub repository.
 
-```yaml title=".github/workflows/genai-prd.yml" wrap
+```yaml title=".github/workflows/genai--pull-request-description.yml" wrap
 name: genai pull request description
 on:
     pull_request:

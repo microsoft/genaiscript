@@ -1,26 +1,160 @@
 ---
 title: Your first GenAI script
 sidebar:
-    order: 3
+  order: 3
 description: Learn how to create and execute your initial GenAI script to
-    automate interactions with language models.
+  automate interactions with language models.
 keywords: GenAI script creation, language model automation, script execution,
-    LLM prompt generation, genaisrc setup
+  LLM prompt generation, genaisrc setup
 genaiscript:
-    files: src/samples/markdown.md
+  files: src/samples/markdown.md
 hero:
-    image:
-        alt:
-            A clean, pixel-art style image shows a geometric file folder holding
-            several colored file icons, with one icon visibly highlighted as if
-            selected. Nearby are stylized shapes representing documents, a code
-            symbol, a prompt box displaying a sample poem line, and simple icons
-            including a pen and a check mark suggesting proofreading tools. Abstract
-            interface elements hint at creating prompts and running scripts. The
-            artwork uses flat blue, yellow, green, orange, and gray shapes on a plain
-            white background, without any shadows, people, or actual text. The
-            composition is simple and compact, fitting a small square format.
-        file: ./your-first-genai-script.png
+  image:
+    alt: A clean, pixel-art style image shows a geometric file folder holding
+      several colored file icons, with one icon visibly highlighted as if
+      selected. Nearby are stylized shapes representing documents, a code
+      symbol, a prompt box displaying a sample poem line, and simple icons
+      including a pen and a check mark suggesting proofreading tools. Abstract
+      interface elements hint at creating prompts and running scripts. The
+      artwork uses flat blue, yellow, green, orange, and gray shapes on a plain
+      white background, without any shadows, people, or actual text. The
+      composition is simple and compact, fitting a small square format.
+    file: ./your-first-genai-script.png
+llmstxt:
+  content: >-
+    GenAIScripts use concise JavaScript or TypeScript to generate prompts for
+    LLMs. Scripts are stored in `genaisrc/*.genai.mjs` or
+    `genaisrc/*.genai.mts`. Execution creates a prompt sent to the LLM. Example:
+
+
+    ```js
+
+    $`Write a one sentence poem.`
+
+    ```
+
+
+    Alternatively, Markdown scripts with YAML frontmatter can be used for
+    simpler prompts. Example:
+
+
+    ```markdown
+
+    ---
+
+    title: "Simple Poem Generator"
+
+    description: "Generates a one sentence poem"
+
+    model: "small"
+
+    ---
+
+
+    # Poem Generation
+
+
+    Write a one sentence poem about nature.
+
+    ```
+
+
+    JavaScript equivalent:
+
+
+    ```js
+
+    script({
+      title: "Simple Poem Generator",
+      description: "Generates a one sentence poem",
+      model: "small"
+    })
+
+
+    $`# Poem Generation
+
+
+    Write a one sentence poem about nature.`
+
+    ```
+
+
+    Scripts can access context via `env.files`, which contains files based on
+    the execution location. Example:
+
+
+    ```js
+
+    def("FILES", env.files)
+
+    $`You are an expert technical writer. Review FILES and report 2 key issues.`
+
+    ```
+
+
+    Metadata can configure the script and model:
+
+
+    ```js
+
+    script({
+      title: "Technical proofreading",
+      description: "Reviews text as a tech writer.",
+      group: "documentation",
+      model: "large",
+      temperature: 0,
+    })
+
+    def("FILES", env.files)
+
+    $`You are an expert technical writer. Review FILES and report 2 key issues.`
+
+    ```
+
+
+    Markdown example:
+
+
+    ```md
+
+    FILES:
+
+
+    ```md
+
+    ---
+
+    title: What is Markdown?
+
+    description: Learn about Markdown syntax.
+
+    ---
+
+
+    What is Markdown?
+
+    Markdown is a lightweight markup language...
+
+    ```
+
+
+    You are an expert technical writer. Review FILES and report 2 key issues.
+
+    ```
+
+
+    LLM output example:
+
+
+    1. Inconsistent heading styles.
+
+    2. Missing examples to illustrate Markdown syntax.
+
+
+    Scripts are displayed in the UI with metadata like `title`, `description`,
+    and `group`.
+  hash: 9c165173a979b6f8958b14165ae500f4c44fb7ee8cc20e40410d5489ab9f032e
+
 ---
 
 import { Tabs, TabItem } from "@astrojs/starlight/components"
@@ -100,6 +234,59 @@ Roses bloom, hearts swoon, under the silver moon.
 </details>
 
 {/* genaiscript output end */}
+
+## Alternative: Markdown Scripts
+
+For simpler prompts, you can also use Markdown files with YAML frontmatter instead of JavaScript/TypeScript. These are easier to write and maintain for basic prompts.
+
+Create a file named `poem.genai.md`:
+
+```markdown title="poem.genai.md"
+---
+title: "Simple Poem Generator"
+description: "Generates a one sentence poem"
+model: "small"
+---
+
+# Poem Generation
+
+Write a one sentence poem about nature.
+```
+
+This markdown script produces the same result as the JavaScript version but with simpler syntax. The YAML frontmatter configures the script, and the markdown content becomes the prompt.
+
+<Tabs>
+<TabItem label="Markdown Script">
+
+```markdown title="poem.genai.md"
+---
+title: "Simple Poem Generator" 
+description: "Generates a one sentence poem"
+model: "small"
+---
+
+# Poem Generation
+
+Write a one sentence poem about nature.
+```
+
+</TabItem>
+<TabItem label="JavaScript Equivalent">
+
+```js title="poem.genai.mts"
+script({
+  title: "Simple Poem Generator",
+  description: "Generates a one sentence poem", 
+  model: "small"
+})
+
+$`# Poem Generation
+
+Write a one sentence poem about nature.`
+```
+
+</TabItem>
+</Tabs>
 
 ## the Context
 

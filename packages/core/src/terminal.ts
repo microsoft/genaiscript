@@ -1,3 +1,6 @@
-import terminalSize_ from "terminal-size"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-export const terminalSize = terminalSize_
+import terminalSize_ from "terminal-size";
+
+export const terminalSize = terminalSize_;

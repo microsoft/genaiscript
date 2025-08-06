@@ -1,20 +1,117 @@
 ---
 title: Prompty
 sidebar:
-    order: 51
+  order: 51
 description: Learn about the .prompty file format for parameterized prompts and
-    its integration with GenAIScript for AI scripting.
+  its integration with GenAIScript for AI scripting.
 keywords: prompty, scripts, AI, parameterized prompts, automation
 hero:
-    image:
-        alt:
-            A small, simple 8-bit-style illustration of a computer monitor with a
-            markdown file icon on its screen, surrounded by geometric shapes
-            symbolizing parameter fields, a settings gear, and chat bubbles for an AI
-            assistant, all in five flat corporate colors, arranged in a clean,
-            minimalistic layout without any background or realistic details. No
-            people, text, or shading appear in the image.
-        file: ./prompty.png
+  image:
+    alt: A small, simple 8-bit-style illustration of a computer monitor with a
+      markdown file icon on its screen, surrounded by geometric shapes
+      symbolizing parameter fields, a settings gear, and chat bubbles for an AI
+      assistant, all in five flat corporate colors, arranged in a clean,
+      minimalistic layout without any background or realistic details. No
+      people, text, or shading appear in the image.
+    file: ./prompty.png
+llmstxt:
+  content: >-
+    GenAIScript supports `.prompty` files for parameterized prompts with model
+    info. Prompty is a markdown-like format for storing prompts, inputs, and
+    configurations. Example:
+
+
+    ```
+
+    ---
+
+    name: Basic Prompt
+
+    description: A basic prompt using the chat API
+
+    model:
+      api: chat
+      configuration:
+        type: azure_openai
+        azure_deployment: gpt-4o
+      parameters:
+        max_tokens: 128
+        temperature: 0.2
+    inputs:
+      question:
+        type: string
+    sample:
+      "question": "Who is the most famous person in the world?"
+    ---
+
+
+    system:
+
+    You are an AI assistant who answers questions briefly.
+
+
+    user:
+
+    {{question}}
+
+
+    {{hint}}
+
+    ```
+
+
+    GenAIScript can run `.prompty` files directly, converting them into scripts,
+    or import them as templates using `importTemplate`. Running a `.prompty`
+    file ignores the model configuration but supports parameters, temperature,
+    and token limits. Example script output:
+
+
+    ```
+
+    script({
+      model: "openai:gpt-4o",
+      title: "Basic Prompt",
+      description: "A basic prompt using the chat API",
+      parameters: { question: { type: "string", default: "Who is the most famous person in the world?" } },
+      temperature: 0.2,
+      maxTokens: 128,
+    })
+
+
+    writeText(
+      `You are an AI assistant who answers questions briefly.`,
+      { role: "system" }
+    )
+
+    $`{{question}}
+
+
+    {{hint}}`.jinja(env.vars)
+
+    ```
+
+
+    `importTemplate` allows runtime rendering of `.prompty` files with
+    parameters. Example:
+
+
+    ```
+
+    importTemplate("basic.prompty", {
+      question: "what is the capital of france?",
+      hint: "starts with p",
+    })
+
+    ```
+
+
+    The `parsers.prompty` function parses `.prompty` files, converting `inputs`
+    to `parameters`, `sample` to `default`, and `outputs` to `responseSchema`.
+    It uses the Jinja2 template engine. Limitations include reliance on `.env`
+    for model configuration and lack of image support. Extensions include
+    `files` for `env.files` and `tests` for test cases.
+  hash: 22e726db436b0f32c4c26dc081009ce97da466343a111511374bef1635d2bcf3
+
 ---
 
 GenAIScript supports running [.prompty](https://prompty.ai/) files as scripts (with some limitations) or importing them in a script. It also provides a parser for those files.

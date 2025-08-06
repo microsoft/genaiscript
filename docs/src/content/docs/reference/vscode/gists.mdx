@@ -13,6 +13,29 @@ hero:
       uses five solid corporate colors in a flat, minimalist design with no
       people, text, shadows, or background.
     file: ./gists.png
+llmstxt:
+  content: >-
+    GitHub Gists are Git repositories for sharing code snippets and notes,
+    supporting public or secret visibility and versioning. GenAIScript can run
+    scripts directly from Gists using URLs like `gist://<gist id>/<file name>`
+    or `vscode://vsls-contrib.gistfs/open?gist=<gist id>&file=<file>`. For
+    example: `genaiscript run
+    gist://8f7db2674f7b0eaaf563eae28253c2b0/poem.genai.mts`. Files are cached
+    locally in `.genaiscript/resources` and private Gists require GitHub login.
+
+
+    GistPad, a Visual Studio Code extension, allows creating, editing, and
+    managing Gists directly. To enable type checking for GenAIScript, upload
+    `genaiscript.d.ts` to the Gist and reference it at the top of the file: `///
+    <reference path="./genaiscript.d.ts" />`. This can be automated via the
+    "GenAIScript: Fix Type Definitions" option, which may request a GitHub token
+    with `gist` scope. To activate type checking, open `genaiscript.d.ts` and
+    the script file in GistPad.
+
+
+    Limitations include unresolved imports due to GistPad's lightweight nature.
+    Only run trusted JavaScript files.
+  hash: 0fcc7bba49ffd35dad0ee7d945e9f0fd5691024242e439313adc2c7420551242
 
 ---
 

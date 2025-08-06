@@ -1,23 +1,81 @@
 ---
 title: Azure AI Search
 sidebar:
-    order: 3.1
+  order: 3.1
+llmstxt:
+  content: >-
+    Azure AI Search is a content search provider enabling vector search of
+    documents. It is configured similarly to other Azure services.
+
+
+    To use Azure AI Search, create an index:
+
+    ```js
+
+    const index = await retrieval.index("animals", { type: "azure_ai_search" });
+
+    await index.insertOrUpdate(env.files);
+
+    const docs = await index.search("cat dog");
+
+    ```
+
+
+    ### Configuration
+
+
+    **Managed Identity (Entra ID):**
+
+    Set `AZURE_AI_SEARCH_ENDPOINT` in the environment:
+
+    ```
+
+    AZURE_AI_SEARCH_ENDPOINT=https://{{service-name}}.search.windows.net/
+
+    ```
+
+    1. In the Azure Portal, open your Azure AI Search resource, go to **Overview
+    > Properties**.
+
+    2. Enable **Role-based access control** or **Both** in **API Access
+    control**.
+
+    3. Assign the **Search Service Contributor** role to your user or service
+    principal in **Access Control (IAM)**.
+
+
+    **API Key:**
+
+    Set `AZURE_AI_SEARCH_ENDPOINT` and `AZURE_AI_SEARCH_API_KEY` in the
+    environment:
+
+    ```
+
+    AZURE_AI_SEARCH_ENDPOINT=https://{{service-name}}.search.windows.net/
+
+    AZURE_AI_SEARCH_API_KEY=...
+
+    ```
+  hash: 66de02b6eb53f2a0d410e73087153904f9184f1e2e294c085b4f83efee0ed87e
+
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 This is not a LLM provider, but a content search provider. However since it is configured similarly to the other Azure services,
 it is included here. It allows you to do [vector search](/genaiscript/reference/scripts/vector-search) of your documents
 using [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
 
 ```js "azure_search:"
-const index = await retrieval.index("animals", { type: "azure_ai_search" })
-await index.insertOrUpdate(env.files)
-const docs = await index.search("cat dog")
+const index = await retrieval.index("animals", {
+  type: "azure_ai_search",
+});
+await index.insertOrUpdate(env.files);
+const docs = await index.search("cat dog");
 ```
 
 ### Managed Identity (Entra ID)

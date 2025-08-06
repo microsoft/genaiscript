@@ -1,32 +1,45 @@
-import debug from "debug"
-const dbg = debug("globals")
-// Import various parsing and stringifying utilities
-import { createYAML } from "./yaml"
-import { CSVParse, dataToMarkdownTable, CSVStringify, CSVChunk } from "./csv"
-import { INIParse, INIStringify } from "./ini"
-import { XMLParse } from "./xml"
-import {
-    frontmatterTryParse,
-    splitMarkdown,
-    updateFrontmatter,
-} from "./frontmatter"
-import { JSONLStringify, JSONLTryParse } from "./jsonl"
-import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html"
-import { CancelError } from "./error"
-import { fetchText } from "./fetchtext"
-import { GitHubClient } from "./githubclient"
-import { GitClient } from "./git"
-import { estimateTokens, truncateTextToTokens } from "./tokens"
-import { chunk, resolveTokenEncoder } from "./encoders"
-import { JSON5Stringify, JSON5TryParse } from "./json5"
-import { JSONSchemaInfer } from "./schema"
-import { FFmepgClient } from "./ffmpeg"
-import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { chunkMarkdown } from "./mdchunk"
-import { resolveGlobal } from "./global"
-import { MarkdownStringify } from "./markdown"
-import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
+import debug from "debug";
+const dbg = debug("globals");
+// Import various parsing and stringifying utilities
+import { createYAML } from "./yaml.js";
+import { CSVParse, dataToMarkdownTable, CSVStringify, CSVChunk } from "./csv.js";
+import { INIParse, INIStringify } from "./ini.js";
+import { XMLParse } from "./xml.js";
+import { frontmatterTryParse, splitMarkdown, updateFrontmatter } from "./frontmatter.js";
+import { createJSONL } from "./jsonl.js";
+import { HTMLTablesToJSON, HTMLToMarkdown, HTMLToText } from "./html.js";
+import { CancelError } from "./error.js";
+import { GitHubClient } from "./githubclient.js";
+import { GitClient } from "./git.js";
+import { approximateTokens, estimateTokens, truncateTextToTokens } from "./tokens.js";
+import { chunk, resolveTokenEncoder } from "./encoders.js";
+import { JSON5Stringify, JSON5TryParse } from "./json5.js";
+import { JSONSchemaInfer } from "./schema.js";
+import { FFmepgClient } from "./ffmpeg.js";
+import { promptParametersSchemaToJSONSchema } from "./parameters.js";
+import { chunkMarkdown } from "./mdchunk.js";
+import { resolveGlobal } from "./global.js";
+import { markdownStringify } from "./mdstringify.js";
+import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff.js";
+import type {
+  CSVObject,
+  DIFFObject,
+  HTMLObject,
+  INIObject,
+  JSON5Object,
+  JSONLObject,
+  JSONSchemaUtilities,
+  MDObject,
+  PromptContext,
+  Tokenizers,
+  XMLObject,
+} from "./types.js";
+import { createParsers } from "./parsers.js";
+
+let _globalsInstalled = false;
 /**
  * Installs global utilities for various data formats and operations.
  * Sets up global objects with frozen utilities for parsing, stringifying, and manipulating
@@ -46,148 +59,136 @@ import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff"
  * - Includes an ffmpeg client for multimedia operations.
  */
 export function installGlobals() {
-    dbg("install")
-    const glb = resolveGlobal() // Get the global context
+  if (_globalsInstalled) {
+    dbg("already installed");
+    return; // Prevent multiple installations
+  }
+  _globalsInstalled = true; // Mark globals as installed
+  dbg("install");
+  const glb = resolveGlobal(); // Get the global context
 
-    // Freeze YAML utilities to prevent modification
-    glb.YAML = createYAML()
+  glb.parsers = createParsers();
 
-    // Freeze CSV utilities
-    glb.CSV = Object.freeze<CSV>({
-        parse: CSVParse, // Parse CSV string to objects
-        stringify: CSVStringify, // Convert objects to CSV string
-        markdownify: dataToMarkdownTable, // Convert CSV to Markdown format
-        chunk: CSVChunk,
-    })
+  // Freeze YAML utilities to prevent modification
+  glb.YAML = createYAML();
 
-    // Freeze INI utilities
-    glb.INI = Object.freeze<INI>({
-        parse: INIParse, // Parse INI string to objects
-        stringify: INIStringify, // Convert objects to INI string
-    })
+  // Freeze CSV utilities
+  glb.CSV = Object.freeze<CSVObject>({
+    parse: CSVParse, // Parse CSV string to objects
+    stringify: CSVStringify, // Convert objects to CSV string
+    markdownify: dataToMarkdownTable, // Convert CSV to Markdown format
+    chunk: CSVChunk,
+  });
 
-    // Freeze XML utilities
-    glb.XML = Object.freeze<XML>({
-        parse: XMLParse, // Parse XML string to objects
-    })
+  // Freeze INI utilities
+  glb.INI = Object.freeze<INIObject>({
+    parse: INIParse, // Parse INI string to objects
+    stringify: INIStringify, // Convert objects to INI string
+  });
 
-    // Freeze Markdown utilities with frontmatter operations
-    glb.MD = Object.freeze<MD>({
-        stringify: MarkdownStringify,
-        frontmatter: (text, format) =>
-            frontmatterTryParse(text, { format })?.value ?? {}, // Parse frontmatter from markdown
-        content: (text) => splitMarkdown(text)?.content, // Extract content from markdown
-        updateFrontmatter: (text, frontmatter, format): string =>
-            updateFrontmatter(text, frontmatter, { format }), // Update frontmatter in markdown
-        chunk: async (text, options) => {
-            const encoding = await resolveTokenEncoder(options?.model, {
-                disableFallback: false,
-            })
-            const res = chunkMarkdown(
-                text,
-                (text) => encoding.encode(text).length,
-                options
-            )
-            return res
+  // Freeze XML utilities
+  glb.XML = Object.freeze<XMLObject>({
+    parse: XMLParse, // Parse XML string to objects
+  });
+
+  // Freeze Markdown utilities with frontmatter operations
+  glb.MD = Object.freeze<MDObject>({
+    stringify: markdownStringify,
+    frontmatter: (text, format) => frontmatterTryParse(text, { format })?.value ?? {}, // Parse frontmatter from markdown
+    content: (text) => splitMarkdown(text)?.content, // Extract content from markdown
+    updateFrontmatter: (text, frontmatter, format): string =>
+      updateFrontmatter(text, frontmatter, { format }), // Update frontmatter in markdown
+    chunk: async (text, options) => {
+      const encoding = await resolveTokenEncoder(options?.model, {
+        disableFallback: false,
+      });
+      const res = chunkMarkdown(text, (text) => encoding.encode(text).length, options);
+      return res;
+    },
+  });
+
+  // Freeze JSONL utilities
+  glb.JSONL = createJSONL();
+  glb.JSON5 = Object.freeze<JSON5Object>({
+    parse: JSON5TryParse,
+    stringify: JSON5Stringify,
+  });
+
+  glb.JSONSchema = Object.freeze<JSONSchemaUtilities>({
+    infer: JSONSchemaInfer,
+    fromParameters: promptParametersSchemaToJSONSchema,
+  });
+
+  // Freeze HTML utilities
+  glb.HTML = Object.freeze<HTMLObject>({
+    convertTablesToJSON: HTMLTablesToJSON, // Convert HTML tables to JSON
+    convertToMarkdown: HTMLToMarkdown, // Convert HTML to Markdown
+    convertToText: HTMLToText, // Convert HTML to plain text
+  });
+
+  /**
+   * Function to trigger cancellation with an error.
+   * Throws a CancelError with a specified reason or a default message.
+   * @param [reason] - Optional reason for cancellation.
+   */
+  glb.cancel = (reason?: string) => {
+    dbg("cancel", reason);
+    throw new CancelError(reason || "user cancelled"); // Trigger cancel error
+  };
+
+  // Instantiate GitHub client
+  glb.github = GitHubClient.default();
+
+  // Instantiate Git client
+  glb.git = GitClient.default();
+
+  glb.tokenizers = Object.freeze<Tokenizers>({
+    resolve: resolveTokenEncoder,
+    count: async (text, options) => {
+      const { encode: encoder } = await resolveTokenEncoder(options?.model);
+      if (options?.approximate) return approximateTokens(text, { encoder });
+      const c = await estimateTokens(text, encoder);
+      return c;
+    },
+    truncate: async (text, maxTokens, options) => {
+      const { encode: encoder } = await resolveTokenEncoder(options?.model);
+      return await truncateTextToTokens(text, maxTokens, encoder, options);
+    },
+    chunk: chunk,
+  });
+
+  // ffmpeg
+  glb.ffmpeg = new FFmepgClient();
+
+  glb.DIFF = Object.freeze<DIFFObject>({
+    parse: tryDiffParse,
+    createPatch: diffCreatePatch,
+    findChunk: diffFindChunk,
+  });
+
+  // Polyfill for Object.groupBy if not available
+  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax
+  if (!Object.groupBy) {
+    // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax
+    Object.groupBy = function <T, K extends string | number | symbol>(
+      items: T[],
+      callback: (item: T, index: number, array: T[]) => K,
+    ): Record<K, T[]> {
+      return items.reduce(
+        (acc, item, idx, arr) => {
+          const key = callback(item, idx, arr);
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(item);
+          return acc;
         },
-    })
+        {} as Record<K, T[]>,
+      );
+    };
+  }
 
-    // Freeze JSONL utilities
-    glb.JSONL = Object.freeze<JSONL>({
-        parse: JSONLTryParse, // Parse JSONL string to objects
-        stringify: JSONLStringify, // Convert objects to JSONL string
-    })
-
-    glb.JSON5 = Object.freeze<JSON5>({
-        parse: JSON5TryParse,
-        stringify: JSON5Stringify,
-    })
-
-    glb.JSONSchema = Object.freeze<JSONSchemaUtilities>({
-        infer: JSONSchemaInfer,
-        fromParameters: promptParametersSchemaToJSONSchema,
-    })
-
-    // Freeze HTML utilities
-    glb.HTML = Object.freeze<HTML>({
-        convertTablesToJSON: HTMLTablesToJSON, // Convert HTML tables to JSON
-        convertToMarkdown: HTMLToMarkdown, // Convert HTML to Markdown
-        convertToText: HTMLToText, // Convert HTML to plain text
-    })
-
-    /**
-     * Function to trigger cancellation with an error.
-     * Throws a CancelError with a specified reason or a default message.
-     * @param [reason] - Optional reason for cancellation.
-     */
-    glb.cancel = (reason?: string) => {
-        dbg("cancel", reason)
-        throw new CancelError(reason || "user cancelled") // Trigger cancel error
-    }
-
-    // Instantiate GitHub client
-    glb.github = GitHubClient.default()
-
-    // Instantiate Git client
-    glb.git = GitClient.default()
-
-    glb.tokenizers = Object.freeze<Tokenizers>({
-        resolve: resolveTokenEncoder,
-        count: async (text, options) => {
-            const { encode: encoder } = await resolveTokenEncoder(
-                options?.model
-            )
-            const c = await estimateTokens(text, encoder)
-            return c
-        },
-        truncate: async (text, maxTokens, options) => {
-            const { encode: encoder } = await resolveTokenEncoder(
-                options?.model
-            )
-            return await truncateTextToTokens(text, maxTokens, encoder, options)
-        },
-        chunk: chunk,
-    })
-
-    /**
-     * Asynchronous function to fetch text from a URL or file.
-     * Handles both HTTP(S) URLs and local workspace files.
-     * @param urlOrFile - URL or file descriptor.
-     * @param [fetchOptions] - Options for fetching.
-     * @returns Fetch result.
-     */
-    glb.fetchText = fetchText // Assign fetchText function to global
-
-    // ffmpeg
-    glb.ffmpeg = new FFmepgClient()
-
-    glb.DIFF = Object.freeze<DIFF>({
-        parse: tryDiffParse,
-        createPatch: diffCreatePatch,
-        findChunk: diffFindChunk,
-    })
-
-    // Polyfill for Object.groupBy if not available
-    if (!Object.groupBy) {
-        Object.groupBy = function <T, K extends string | number | symbol>(
-            items: T[],
-            callback: (item: T, index: number, array: T[]) => K
-        ): Record<K, T[]> {
-            return items.reduce(
-                (acc, item, idx, arr) => {
-                    const key = callback(item, idx, arr)
-                    if (!acc[key]) acc[key] = []
-                    acc[key].push(item)
-                    return acc
-                },
-                {} as Record<K, T[]>
-            )
-        }
-    }
-
-    // these are overridden, ignored
-    glb.script = () => {}
-    glb.system = () => {}
+  // these are overridden, ignored
+  glb.script = () => {};
+  glb.system = () => {};
 }
 
 /**
@@ -202,9 +203,10 @@ export function installGlobals() {
  * - Iterates over the keys of the provided context, mapping them into the global context.
  */
 export function installGlobalPromptContext(ctx: PromptContext) {
-    const glb = resolveGlobal() // Get the global context
+  const glb = resolveGlobal(); // Get the global context
 
-    for (const field of Object.keys(ctx)) {
-        glb[field] = (ctx as any)[field]
-    }
+  for (const field of Object.keys(ctx)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    glb[field] = (ctx as any)[field];
+  }
 }

@@ -1,17 +1,51 @@
 ---
 title: OpenAI
 sidebar:
-    order: 1
+  order: 1
+llmstxt:
+  content: >-
+    `openai` is an OpenAI chat model provider using `OPENAI_API_...` environment
+    variables.
+
+
+    1. Upgrade your OpenAI account to access models; unpaid accounts will
+    encounter 404 errors.  
+
+    2. Create a secret key via the [API Keys
+    portal](https://platform.openai.com/api-keys) and update your `.env` file:  
+
+    `OPENAI_API_KEY=sk_...`  
+
+    3. Select a model from the [API
+    Reference](https://platform.openai.com/docs/models/gpt-4o) or [Chat
+    Playground](https://platform.openai.com/playground/chat).  
+
+    4. Specify the model in your script:  
+
+    `script({ model: "openai:gpt-4o", ... })`  
+
+
+    Default models can be set in `.env`:  
+
+    `GENAISCRIPT_MODEL_LARGE=openai:gpt-4o`  
+
+    `GENAISCRIPT_MODEL_SMALL=openai:gpt-4o-mini`  
+
+
+    Enable `genaiscript:openai` and `genaiscript:openai:msg` logging namespaces
+    for detailed request/response logs.
+  hash: f7033d79ffd09b0360f23b2dc429fa660be69a2e080fc828af0aeb5b74b46290
+
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
-import oaiModelsSrc from "../../../assets/openai-model-names.png"
-import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw"
+import oaiModelsSrc from "../../../assets/openai-model-names.png";
+import oaiModelsAlt from "../../../assets/openai-model-names.png.txt?raw";
 
 `openai` is the OpenAI chat model provider.
 It uses the `OPENAI_API_...` environment variables.
@@ -28,8 +62,7 @@ You will get 404s if you do not have a paying account.
 </li>
 
 <li>
-    Create a new secret key from the [OpenAI API Keys
-    portal](https://platform.openai.com/api-keys).
+  Create a new secret key from the [OpenAI API Keys portal](https://platform.openai.com/api-keys).
 </li>
 
 <li>

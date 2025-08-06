@@ -1,24 +1,146 @@
 ---
 title: Model Context Protocol Server
 sidebar:
-    order: 5.1
+  order: 5.1
 description: Turns scripts into Model Context Protocol Tools
 hero:
-    image:
-        alt:
-            An 8-bit style icon shows two interlocking shapes—a script file with
-            brackets and prompt arrow on one side and a server block on the other,
-            connected by lines signifying protocols. Five vivid colored circles and
-            squares represent resource blocks and parameters between the shapes. A
-            cloud and gear icon suggest remote access and configurable tools. All
-            elements are geometric, with no background, text, or people, and use only
-            five bold corporate colors.
-        file: ./mcp-server.png
+  image:
+    alt: An 8-bit style icon shows two interlocking shapes—a script file with
+      brackets and prompt arrow on one side and a server block on the other,
+      connected by lines signifying protocols. Five vivid colored circles and
+      squares represent resource blocks and parameters between the shapes. A
+      cloud and gear icon suggest remote access and configurable tools. All
+      elements are geometric, with no background, text, or people, and use only
+      five bold corporate colors.
+    file: ./mcp-server.png
+llmstxt:
+  content: >-
+    GenAIScript turns scripts into Model Context Protocol (MCP) tools, enabling
+    tool sharing across frameworks. Each script is exposed as an MCP tool, with
+    its description guiding LLMs in tool selection. Parameters are inferred from
+    script definitions and populate `env.vars`. Outputs are derived from the
+    script's final message or `env.output`.
+
+
+    Example script:
+
+    ```js
+
+    script({
+        description: "You MUST provide a description!",
+        parameters: { task: { type: "string", description: "The task to perform", required: true } }
+    });
+
+    const { task } = env.vars;
+
+    $`... prompt ... ${task}`;
+
+    ```
+
+
+    Advanced example using `env.output`:
+
+    ```js
+
+    script({
+        description: "You MUST provide a description!",
+        accept: "none",
+        parameters: { task: { type: "string", description: "The task to perform", required: true } }
+    });
+
+    const { output } = env;
+
+    const res = runPrompt(_ => `... prompt ... ${task}`);
+
+    output.fence(`The result is ${res.text}`);
+
+    ```
+
+
+    MCP supports sampling for LLM completions. Use the `mcp` provider:
+
+    ```js
+
+    script({ model: "mcp:claude" });
+
+    ```
+
+
+    Annotations add metadata to tools:
+
+    ```js
+
+    script({
+        annotations: { readOnlyHint: true, openWorldHint: true }
+    });
+
+    ```
+
+
+    Resources like files or strings can be exposed via `host.publishResource`,
+    returning a URI:
+
+    ```js
+
+    const id = await host.publishResource("data", file);
+
+    ```
+
+
+    Images can be output with:
+
+    ```js
+
+    await env.output.image("filename.png");
+
+    ```
+
+
+    Secret scanning in `publishResource` can be disabled:
+
+    ```js
+
+    const id = await host.publishResource("data", file, { secretScanning: false
+    });
+
+    ```
+
+
+    The MCP server supports stdio (default) or HTTP transport:
+
+    ```sh
+
+    genaiscript mcp --http --port 3000
+
+    ```
+
+
+    Scripts can be filtered by groups:
+
+    ```js
+
+    script({ group: "mcp" });
+
+    ```
+
+
+    Remote repositories can be used for scripts:
+
+    ```sh
+
+    npx genaiscript mcp --remote https://github.com/... --remote-branch main
+
+    ```
+
+
+    Be cautious with untrusted remote scripts.
+  hash: 74be1efd89bfa493e04bd335cb28273740f9f59b9579ce60ef5cb1bb6f8a4cf1
+
 ---
 
-import { Image } from "astro:assets"
-import logoPng from "../../../../assets/mcp.png"
-import logoPngTxt from "../../../../assets/mcp.png.txt?raw"
+import { Image } from "astro:assets";
+import logoPng from "../../../../assets/mcp.png";
+import logoPngTxt from "../../../../assets/mcp.png.txt?raw";
 
 <Image src={logoPng} alt={logoPngTxt} />
 
@@ -96,6 +218,20 @@ const res = runPrompt(_ => `... prompt ... ${task}`) // run some inner the promp
 output.fence(`The result is ${res.text}`)
 ```
 
+### Sampling
+
+Clients that support [Sampling](https://modelcontextprotocol.io/docs/concepts/sampling) will allow servers to request completions from LLMs.
+Recently, Visual Studio Code Copilot Chat has added support for MCP tools sampling.
+
+In GenAIScript script, you can use the `mcp` llm provider to explicitly use the MCP tool sampling.
+
+```js title="task.genai.mjs"
+script({ model: "mcp:claude" });
+```
+
+The model name (`claude`) is a hint for the client which LLM to use for sampling. It is just a hint and the client may decide to use a different LLM.
+This provider is only available when the script is run as a MCP tool with a client that supports sampling.
+
 ### Annotations
 
 [Tool annotations](https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations) provide additional metadata about a tool’s behavior,
@@ -132,7 +268,7 @@ In GenAIScript, you can create a resource using `host.publishResource` and
 it will automatically be exposed as a MCP resource.
 
 ```js title="task.genai.mjs"
-const id = await host.publishResource("important data", file)
+const id = await host.publishResource("important data", file);
 ```
 
 The return value is the resource uri which can be used in the prompt output.
@@ -145,7 +281,7 @@ The resource will be available for the lifetime of the MCP server.
 Using `env.output.image`, script can output images that will be part of the tool response.
 
 ```js
-await env.output.image("...filename.png")
+await env.output.image("...filename.png");
 ```
 
 ### Secret scanning
@@ -156,8 +292,8 @@ you can set the `secretScanning` option to `false` in `publishResource`.
 
 ```js
 const id = await host.publishResource("important data", file, {
-    secretScanning: false,
-})
+  secretScanning: false,
+});
 ```
 
 ## Startup script
@@ -169,7 +305,38 @@ It will run after the server is started.
 genaiscript mcp --startup load-resources
 ```
 
-You can use this script to load resources or do any other setup you need.
+## Transport Options
+
+The MCP server supports two transport methods:
+
+### Stdio Transport (Default)
+
+The default transport uses stdio (standard input/output) for communication. This is the standard way to run MCP servers with most clients.
+
+```sh
+genaiscript mcp
+```
+
+### HTTP Transport
+
+You can also run the MCP server with HTTP transport using the `--http` flag:
+
+```sh
+# Basic HTTP server on localhost:8003
+genaiscript mcp --http
+
+# Custom port
+genaiscript mcp --http --port 3000
+
+# Network accessible (0.0.0.0)
+genaiscript mcp --http --network --port 8080
+```
+
+When using HTTP transport, the server will be available at `http://host:port/mcp`. For example:
+- `http://localhost:8003/mcp` (default)
+- `http://0.0.0.0:8080/mcp` (network accessible on port 8080)
+
+The HTTP transport uses the [Streamable HTTP transport](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http) from the MCP specification.
 
 ## IDE configuration
 
@@ -188,14 +355,20 @@ You will need Visual Studio Code v1.99 or higher and the [GitHub Copilot Chat](h
 
 ```json title=".vscode/mcp.json"
 {
-    "servers": {
-        "genaiscript": {
-            "type": "stdio",
-            "command": "npx",
-            "args": ["-y", "genaiscript", "mcp", "--cwd", "${workspaceFolder}"],
-            "envFile": "${workspaceFolder}/.env"
-        }
+  "servers": {
+    "genaiscript": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "genaiscript",
+        "mcp",
+        "--cwd",
+        "${workspaceFolder}"
+      ],
+      "envFile": "${workspaceFolder}/.env"
     }
+  }
 }
 ```
 
@@ -203,12 +376,12 @@ You will need Visual Studio Code v1.99 or higher and the [GitHub Copilot Chat](h
 
 ```json
 {
-    "mcpServers": {
-        "genaiscript": {
-            "command": "npx",
-            "args": ["-y", "genaiscript", "mcp"]
-        }
+  "mcpServers": {
+    "genaiscript": {
+      "command": "npx",
+      "args": ["-y", "genaiscript", "mcp"]
     }
+  }
 }
 ```
 
@@ -219,28 +392,28 @@ set the `mcp` group in your scripts.
 
 ```js 'group: "mcp"'
 script({
-    group: "mcp",
-})
+  group: "mcp",
+});
 ```
 
 ```json title=".vscode/mcp.json" ', "--groups", "mcp"'
 {
-    "servers": {
-        "genaiscript": {
-            "type": "stdio",
-            "command": "npx",
-            "args": [
-                "-y",
-                "genaiscript",
-                "mcp",
-                "--cwd",
-                "${workspaceFolder}",
-                "--groups",
-                "mcp"
-            ],
-            "envFile": "${workspaceFolder}/.env"
-        }
+  "servers": {
+    "genaiscript": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "genaiscript",
+        "mcp",
+        "--cwd",
+        "${workspaceFolder}",
+        "--groups",
+        "mcp"
+      ],
+      "envFile": "${workspaceFolder}/.env"
     }
+  }
 }
 ```
 

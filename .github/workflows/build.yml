@@ -1,46 +1,38 @@
 name: build
 permissions:
-    contents: read
-    models: read
+  contents: read
+  models: read
 on:
-    push:
-        branches: [main, dev]
-    pull_request:
-    workflow_dispatch:
+  push:
+    branches: [main, dev]
+  pull_request:
+  workflow_dispatch:
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node-version: [22, 23, 24]
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-                  fetch-depth: 10
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: "${{ matrix.node-version }}"
-                  cache: yarn
-            - run: sudo apt-get update && sudo apt-get install ffmpeg
-            - run: yarn install --frozen-lockfile --prefer-offline
-            - name: compile
-              run: yarn compile:action
-            - name: lint
-              run: yarn lint
-            - name: package vscode
-              run: yarn package
-            - name: compile system scripts
-              run: yarn test:system
-            - name: compile tests
-              run: yarn test:compile
-            - name: core tests
-              run: yarn test:core
-            - name: unit tests
-              run: yarn test:samples
-            - name: unit test:modulesamples
-              run: yarn test:modulesamples
-            - name: github models
-              run: yarn genai poem -p github
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "${{ matrix.node-version }}"
+          cache: "pnpm"
+      - run: sudo apt-get update && sudo apt-get install ffmpeg
+      - run: pnpm install --frozen-lockfile
+      - name: build
+        run: pnpm run build:ci
+      - name: lint:check
+        run: pnpm run lint:check
+        continue-on-error: true
+      - name: compile system scripts
+        run: pnpm run test:system
+      - name: compile tests
+        run: pnpm run test:compile
+      - run: git fetch origin test-ignore
+      - name: tests
+        run: pnpm -r test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

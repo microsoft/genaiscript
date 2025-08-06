@@ -23,9 +23,34 @@ excerpt: "Streamlining your CI/CD processes just got easier: GitHub Actions now
   of managing separate personal access tokens and keep your automations secure
   and maintainable. This update supports a seamless integration path for teams
   looking to enhance workflow intelligence within the GitHub ecosystem."
+llmstxt:
+  content: >-
+    GitHub Actions now supports using `GITHUB_TOKEN` to authenticate requests to
+    GitHub Models, simplifying workflows by removing the need for Personal
+    Access Tokens (PATs). Example configuration:
+
+
+    ```yaml
+
+    permissions:
+      models: read
+    jobs:
+      genai:
+        steps:
+          run: npx -y genaiscript run ...
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    ```
+
+
+    This enables seamless integration of AI capabilities directly into your
+    CI/CD pipelines. More details are available in GitHub's announcement and
+    documentation.
+  hash: 027c6203fed6fb2bbd79ad9e09f81921af80cd41025c979fcca4601811009380
 
 ---
-import BlogNarration from "../../../components/BlogNarration.astro"
+
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -35,14 +60,14 @@ You can now use `GITHUB_TOKEN` from GitHub Actions to authenticate requests to [
 permissions:
   models: read
 jobs:
-    genai:
-        steps:
-          run: npx -y genaiscript run ...
-            env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  genai:
+    steps:
+      run: npx -y genaiscript run ...
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-This simplifies your workflows by integrating AI capabilities directly into your actions, 
+This simplifies your workflows by integrating AI capabilities directly into your actions,
 eliminating the need to generate and manage Personal Access Tokens (PATs)!
 
 - [Read GitHub Announcement](https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/)

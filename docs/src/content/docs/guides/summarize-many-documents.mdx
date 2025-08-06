@@ -3,7 +3,101 @@ title: Summarize Many Documents
 description: Learn how to run a GenAIScript over many documents
 keywords: Apply to all, multiple files
 sidebar:
-    order: 8
+  order: 8
+llmstxt:
+  content: >-
+    Create a GenAIScript to generate a tweet summarizing `.pdf`, `.docx`, or
+    `.md` files. Use the command `> GenAIScript: Create new script...` in VS
+    Code to define the script. Example script:
+
+
+    ```js
+
+    script({ title: "gen-tweet" })
+
+    def("FILE", env.files)
+
+    $`Given the paper in FILE, write a 140 character summary of the paper that
+    makes the paper sound exciting and encourages readers to look at it.`
+
+    ```
+
+
+    Run the script by right-clicking a file in VS Code Explorer, selecting **Run
+    GenAIScript**, and choosing `gen-tweet`. The output appears in a new
+    document tab or standard output.
+
+
+    To automate for multiple files, use the command line:
+
+
+    ```sh
+
+    npx genaiscript run gen-tweet example1.pdf
+
+    ```
+
+
+    For batch processing, create a script in your preferred language:
+
+
+    **Bash:**
+
+    ```bash
+
+    for file in *.pdf; do
+      newfile="${file%.pdf}.tweet.md"
+      [ ! -f "$newfile" ] && npx genaiscript run gen-tweet $file > $newfile
+    done
+
+    ```
+
+
+    **PowerShell:**
+
+    ```powershell
+
+    Get-ChildItem -Filter *.pdf | ForEach-Object {
+      $newName = $_.BaseName + ".tweet.md"
+      if (-not (Test-Path $newName)) {
+        npx genaiscript run gen-tweet $_.FullName | Set-Content "$newName"
+      }
+    }
+
+    ```
+
+
+    **Python:**
+
+    ```python
+
+    import subprocess, os, sys
+
+    for input_file in sys.argv[1:]:
+        output_file = os.path.splitext(input_file)[0] + '.tweet.md'
+        if not os.path.exists(output_file):
+            with open(output_file, 'w') as outfile:
+                result = subprocess.check_output(["npx", "genaiscript", "run", "gen-tweet", input_file], universal_newlines=True)
+                outfile.write(result)
+    ```
+
+
+    **Node.js (with zx):**
+
+    ```js
+
+    import "zx/globals"
+
+    const files = await glob("*.pdf")
+
+    for (const file of files) {
+        const out = file.replace(/\.pdf$/i, ".tweet.md")
+        if (!(await fs.exists(out))) await $`genaiscript run gen-tweet ${file} > ${out}`
+    }
+
+    ```
+  hash: 309d3dc9f4f7ba1cf6d9da982887f3f4a0dfff1e9e7e5d5c7c67a6815fedfc3c
+
 ---
 
 import { Steps } from "@astrojs/starlight/components"

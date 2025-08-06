@@ -19,6 +19,52 @@ hero:
       shadows, gradients, or realistic details. The overall style is geometric
       and 8-bit.
     file: ./notebook.png
+llmstxt:
+  content: >-
+    The GenAIScript Markdown Notebook is used for authoring documentation,
+    enabling script snippets to run and display results inline. It supports
+    JavaScript execution within Markdown files, allowing dynamic content
+    generation.
+
+
+    To edit Markdown as a notebook, open `.md` or `.mdx` files in Visual Studio
+    Code, select "Open With," and choose "GenAIScript Markdown Notebook."
+    Snippets can be executed by clicking "Run Cell" or pressing `Shift+Enter`.
+
+
+    Global configuration is defined in the front matter, specifying settings
+    like model, provider, and temperature. Example:
+
+    ```
+
+    genaiscript:
+      provider: openai
+      model: openai:gpt-4.1
+      temperature: 0
+    ```
+
+
+    Files can be included in the notebook using globs, accessible via the
+    `env.files` variable. Example:
+
+    ```
+
+    genaiscript:
+      files: src/samples/*.md
+    ```
+
+    ```
+
+    def("FILE", env.files)
+
+    $`Summarize FILE using exclusively emojis.`
+
+    ```
+
+
+    The notebook generates chat logs (`system`, `user`, `assistant`) and outputs
+    results inline.
+  hash: 87a63aafe9265f764ccba3a665005024df14298a1ec288819185d99979032c64
 
 ---
 

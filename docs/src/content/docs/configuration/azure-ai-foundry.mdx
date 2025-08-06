@@ -1,20 +1,50 @@
 ---
 title: Azure AI Foundry
 sidebar:
-    order: 3
+  order: 3
+llmstxt:
+  content: >-
+    Azure AI Foundry provides access to serverless and deployed models for
+    OpenAI and other providers. Supported access methods in GenAIScript
+    include:  
+
+
+    1. **Azure AI Model Inference**: No deployment needed. Use `model:
+    "azure_ai_inference:model-id"`.  
+       - Configure `AZURE_AI_INFERENCE_API_ENDPOINT` and `AZURE_AI_INFERENCE_API_KEY` in `.env`.  
+       - Supports Entra ID or key-based authentication.  
+       - Default API version: `{AZURE_AI_INFERENCE_VERSION}`. Override using `AZURE_AI_INFERENCE_API_VERSION`.  
+
+    2. **Azure AI OpenAI Serverless**: For OpenAI models deployed via Azure AI
+    Foundry.  
+       - Use `model: "azure_serverless:deployment-id"`.  
+       - Configure `AZURE_SERVERLESS_OPENAI_API_ENDPOINT` and `AZURE_SERVERLESS_OPENAI_API_KEY` in `.env`.  
+       - Requires `Cognitive Services OpenAI User` role for Entra ID.  
+
+    3. **Azure AI Serverless Models**: For non-OpenAI models like DeepSeek.  
+       - Use `model: "azure_serverless_models:deployment-id"`.  
+       - Configure `AZURE_SERVERLESS_MODELS_API_ENDPOINT` and `AZURE_SERVERLESS_MODELS_API_KEY` in `.env`.  
+       - Supports multiple deployments with `deploymentid=key` pairs.  
+       - Requires `Azure AI Developer` role for Entra ID.  
+
+    Serverless models are deployed via Azure AI Foundry with pay-as-you-go
+    pricing. OpenAI models use `.openai.azure.com` endpoints, while others use
+    `.models.ai.azure.com`.
+  hash: d3403eff737853008b52ded788e0151fea0e7d76ef5b6cc59917b0c2739eaace
+
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
-import { YouTube } from "astro-embed"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
+import { YouTube } from "astro-embed";
 
 import {
-    AZURE_OPENAI_API_VERSION,
-    AZURE_AI_INFERENCE_VERSION,
-} from "../../../../../packages/core/src/constants"
+  AZURE_OPENAI_API_VERSION,
+  AZURE_AI_INFERENCE_VERSION,
+} from "../../../../../packages/core/src/constants";
 
 Azure AI Foundry provides access to serverless and deployed models, both for OpenAI and other providers. There are multiple ways to access those servers
 that are supported in GenAIScript:
@@ -40,12 +70,12 @@ provides a single endpoint to access a number of LLMs. This is a great way to ex
 It supports both Entra ID and key-based authentication.
 
 ```js "azure_ai_inference:gpt-4o"
-script({ model: "azure_ai_inference:gpt-4o" })
+script({ model: "azure_ai_inference:gpt-4o" });
 ```
 
 <YouTube
-    id="https://www.youtube.com/watch?v=kh670Bxe_1E"
-    posterQuality="high"
+  id="https://www.youtube.com/watch?v=kh670Bxe_1E"
+  posterQuality="high"
 />
 
 #### Managed Identity (Entra ID)
@@ -83,7 +113,7 @@ Find the model name in the model catalog with the **Deployment options = Serverl
 `model: "azure_id_inference:model-id"`.
 
 ```js
-script({ model: "azure_ai_inference:model-id" })
+script({ model: "azure_ai_inference:model-id" });
 ```
 
 </li>
@@ -122,7 +152,7 @@ Find the model name in the model catalog with the **Deployment options = Serverl
 `model: "azure_id_inference:model-id"`.
 
 ```js
-script({ model: "azure_ai_inference:model-id" })
+script({ model: "azure_ai_inference:model-id" });
 ```
 
 </li>
@@ -149,7 +179,7 @@ The `azure_serverless` provider supports OpenAI models deployed through the Azur
 It supports both Entra ID and key-based authentication.
 
 ```js "azure_serverless:"
-script({ model: "azure_serverless:deployment-id" })
+script({ model: "azure_serverless:deployment-id" });
 ```
 
 :::note
@@ -288,7 +318,7 @@ AZURE_SERVERLESS_OPENAI_API_KEY=...
 The `azure_serverless_models` provider supports non-OpenAI models, such as DeepSeek R1/v3, deployed through the Azure AI Foundary serverless deployments.
 
 ```js "azure_serverless_models:"
-script({ model: "azure_serverless_models:deployment-id" })
+script({ model: "azure_serverless_models:deployment-id" });
 ```
 
 #### Managed Identity (Entra ID)

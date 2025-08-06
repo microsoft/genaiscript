@@ -30,10 +30,42 @@ tags:
 excerpt: Configure and run multiple MCP servers in parallel with agent support.
   Use the `mcpAgentServers` for seamless agent integration or streamline
   directly via the `mcpServers` field to fit your automation needs.
+llmstxt:
+  content: |-
+    Configure MCP servers in script metadata to enable parallel execution with agents. Each server can have its own agent for specific tasks.
+
+    Example with agents:
+    script({
+      title: "Wraps the Playwright MCP server with an agent.",
+      mcpAgentServers: {
+        playwright: {
+          description: "Agent for browser commands using Playwright.",
+          command: "npx",
+          args: ["--yes", "@playwright/mcp@latest", "--headless"],
+          instructions: "Use Playwright as the Browser Automation Tool.",
+        },
+      },
+    });
+
+    $`Extract OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`;
+
+    For direct MCP server injection without agents:
+    script({
+      title: "Uses Playwright MCP tools.",
+      mcpServers: {
+        playwright: {
+          command: "npx",
+          args: ["--yes", "@playwright/mcp@latest", "--headless"],
+        },
+      },
+    });
+
+    $`Extract OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`;
+  hash: abc7213c0e4cdeb24c68284fbec2ee0dd283cc5851d83a35f6daa765e817e262
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -42,20 +74,20 @@ As a result, you can now run multiple MCP servers in parallel, each with its own
 
 ```js "mcpAgentServers" wrap
 script({
-    title: "Wraps the playwright MCP server with an agent.",
-    mcpAgentServers: {
-        playwright: {
-            description:
-                "An agent that uses playwright to run browser commands.",
-            command: "npx",
-            args: ["--yes", "@playwright/mcp@latest", "--headless"],
-            instructions:
-                "Use the playwright tools as the Browser Automation Tools.",
-        },
+  title: "Wraps the playwright MCP server with an agent.",
+  mcpAgentServers: {
+    playwright: {
+      description:
+        "An agent that uses playwright to run browser commands.",
+      command: "npx",
+      args: ["--yes", "@playwright/mcp@latest", "--headless"],
+      instructions:
+        "Use the playwright tools as the Browser Automation Tools.",
     },
-})
+  },
+});
 
-$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`
+$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`;
 ```
 
 ## Just want servers?
@@ -64,14 +96,14 @@ Don't want to go through the agent abstraction? You can also inject the MCP serv
 
 ```js title="mcpServers" wrap
 script({
-    title: "Uses playwright MCP tools.",
-    mcpServers: {
-        playwright: {
-            command: "npx",
-            args: ["--yes", "@playwright/mcp@latest", "--headless"],
-        },
+  title: "Uses playwright MCP tools.",
+  mcpServers: {
+    playwright: {
+      command: "npx",
+      args: ["--yes", "@playwright/mcp@latest", "--headless"],
     },
-})
+  },
+});
 
-$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`
+$`Extract the OpenAI pricing from https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/`;
 ```

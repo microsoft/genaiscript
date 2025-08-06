@@ -1,0 +1,53 @@
+{
+  "scopeName": "source.genaiscript-markdown",
+  "patterns": [
+    {
+      "include": "#frontmatter"
+    },
+    {
+      "include": "#genai-code-block"
+    },
+    {
+      "include": "#markdown-content"
+    }
+  ],
+  "repository": {
+    "frontmatter": {
+      "begin": "^---$",
+      "end": "^---$",
+      "contentName": "meta.embedded.block.yaml",
+      "patterns": [
+        {
+          "include": "source.yaml"
+        }
+      ]
+    },
+    "genai-code-block": {
+      "begin": "^\\s*```\\s*(ts|typescript|js|javascript)\\s+genai\\s*$",
+      "end": "^\\s*```\\s*$",
+      "beginCaptures": {
+        "0": {
+          "name": "markup.fenced_code.block.markdown"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "markup.fenced_code.block.markdown"
+        }
+      },
+      "contentName": "meta.embedded.block.typescript",
+      "patterns": [
+        {
+          "include": "source.ts"
+        }
+      ]
+    },
+    "markdown-content": {
+      "patterns": [
+        {
+          "include": "text.html.markdown"
+        }
+      ]
+    }
+  }
+}

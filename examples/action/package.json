@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "author": "microsoft",
+  "license": "MIT",
+  "dependencies": {
+    "genaiscript": "2.3.13"
+  },
+  "scripts": {
+    "upgrade": "npx -y npm-check-updates -u && npm install && npm run fix",
+    "docker:build": "docker build -t microsoft-genaiscript .",
+    "docker:start": "docker run -e GITHUB_TOKEN microsoft-genaiscript",
+    "lint": "npx --yes prettier --write genaisrc/",
+    "fix": "genaiscript scripts fix",
+    "typecheck": "genaiscript scripts compile",
+    "configure": "genaiscript configure action action-poem",
+    "test": "echo 'No tests defined.'",
+    "dev": "genaiscript run action-poem",
+    "start": "genaiscript run action-poem --github-workspace --no-run-trace --no-output-trace --out-output $GITHUB_STEP_SUMMARY",
+    "release": "sh release.sh"
+  }
+}

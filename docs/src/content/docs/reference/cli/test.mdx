@@ -15,20 +15,33 @@ hero:
       all visual elements are flat and geometric, no people or backgrounds are
       visible, and the image is sized at 128 by 128 pixels.
     file: ./test.png
+llmstxt:
+  content: Run tests on scripts using promptfoo with `genaiscript test
+    "<scripts...>"`. Override models with `--models`, e.g., `genaiscript test
+    "<scripts...>" --models openai:gpt-4 ollama:phi3`. Add `@genaiscript/api` to
+    `package.json` dependencies for this feature. View test results using `npx
+    genaiscript test view`.
+  hash: 9ce3fdd5e63d0de9d1576e961e091fa1c18c150244cc590e9024f70a590c7548
 
 ---
 
 Runs the tests in scripts using [promptfoo](https://www.promptfoo.dev/).
 
 ```bash
-npx genaiscript test "<scripts...>"
+genaiscript test "<scripts...>"
 ```
 
 You can override which models to use in the tests using `--models`:
 
 ```bash "--models openai:gpt-4 ollama:phi3"
-npx genaiscript test "<scripts...>" --models openai:gpt-4 ollama:phi3
+genaiscript test "<scripts...>" --models openai:gpt-4 ollama:phi3
 ```
+
+:::note
+
+This feature requires to add `@genaiscript/api` to your `package.json` dependencies.
+
+:::
 
 ## result viewer
 

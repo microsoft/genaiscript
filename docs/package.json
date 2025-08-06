@@ -2,35 +2,41 @@
   "name": "docs",
   "type": "module",
   "private": true,
-  "version": "1.140.0",
+  "version": "2.3.13",
   "license": "MIT",
   "scripts": {
-    "install:force": "rm yarn.lock && yarn install",
-    "dev": "astro dev --host",
-    "start": "astro dev --host",
-    "check": "astro check",
     "build": "astro build",
     "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript && node fixllms.mjs",
-    "preview": "astro preview",
-    "astro": "astro",
-    "genai:test": "node ../packages/cli/built/genaiscript.cjs test src/**/*.md",
-    "genai:frontmatter": "node ../packages/cli/built/genaiscript.cjs run frontmatter \"src/**/*.{md,mdx}\" --apply-edits",
-    "genai:technical": "for file in \"src/**/*.md\"; do\nnode ../packages/cli/built/genaiscript.cjs run technical \"$file\" --apply-edits\ndone",
-    "genai:alt-text": "node scripts/image-alt-text.mjs",
+    "check": "astro check",
+    "clean": "rm -Rf dist && rm -Rf distasw && rm -Rf public/slides && rm -Rf .genaiscript",
+    "dev": "astro telemetry disable && astro dev --host",
     "disk:check": "du -h --max-depth=2 | sort -hr | head -n 10",
-    "clean": "rm -Rf dist && rm -Rf distasw && rm -Rf public/slides && rm -Rf .genaiscript"
+    "format:check": "prettier \"src/content/**/*.{md,mdx}\"",
+    "format:fix": "prettier --write \"src/content/**/*.{md,mdx}\"",
+    "genai:alt-text": "node scripts/image-alt-text.mjs",
+    "genai:frontmatter": "node ../packages/cli/dist/src/index.js run frontmatter \"src/**/*.{md,mdx}\" --apply-edits",
+    "genai:technical": "for file in \"src/**/*.md\"; do\nnode ../packages/cli/dist/src/index.js run technical \"$file\" --apply-edits\ndone",
+    "genai:test": "node ../packages/cli/dist/src/index.js test src/**/*.md",
+    "install:playwright": " pnpm exec playwright install --with-deps chromium",
+    "postinstall": "pnpm install:playwright",
+    "preview": "astro preview",
+    "start": "astro dev --host"
   },
-  "devDependencies": {
+  "dependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.34.3",
-    "astro": "^5.8.0",
+    "@astrojs/starlight": "0.34.4",
+    "astro": "^5.12.8",
     "astro-embed": "^0.9.0",
     "rehype-mermaid": "^3.0.0",
-    "starlight-blog": "^0.23.2",
-    "starlight-links-validator": "^0.16.0",
+    "starlight-blog": "^0.24.0",
+    "starlight-links-validator": "^0.17.0",
     "starlight-llms-txt": "^0.5.1",
     "starlight-package-managers": "^0.11.0",
-    "zx": "^8.5.4"
+    "zx": "catalog:"
+  },
+  "devDependencies": {
+    "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
+    "prettier": "catalog:"
   },
   "resolutions": {
     "marked": "15.0.8"

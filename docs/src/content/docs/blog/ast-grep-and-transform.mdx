@@ -25,26 +25,48 @@ excerpt: Automating code updates at scale can be tricky, especially when it
   ideal for tasks such as generating or updating function documentation in
   TypeScript projects. Curious how this works? Explore how AST-driven strategies
   can streamline your workflow.
+llmstxt:
+  content: >-
+    This content explains using Abstract Syntax Trees (AST) for precise and
+    scalable code transformation in GenAI scripts. ASTs represent code as
+    structured nodes, enabling accurate modifications without breaking
+    functionality. The strategy involves three steps: locating the target node
+    using AST, generating new content with an LLM, and replacing the node
+    content in the AST.
+
+
+    For example, to update outdated documentation in a function, locate the
+    `function_declaration` node following a `comment` node. Use an LLM to
+    generate updated documentation and replace the existing comment in the AST.
+    This ensures only the intended part of the file is modified.
+
+
+    The `ast-grep` tool facilitates this process with its Node.js integration.
+    Use `sg.search` to find nodes based on patterns and `sg.changeset` to apply
+    edits. For instance, to generate missing documentation for TypeScript
+    functions, search for functions without comments, prompt the LLM to create
+    documentation, and replace the comments in the AST. The script can handle
+    large codebases and localized changes efficiently.
+
+
+    A sample script, `docs`, generates or updates documentation for exported
+    TypeScript functions. It uses `ast-grep` for locating nodes, an LLM for
+    generating content, and optionally filters changes based on diffs. This
+    approach is scalable, precise, and adaptable to various file sizes and
+    structures.
+  hash: e615e1e02cc2f27b14b1594e9365f1d06f386eba4f1f6cd35f94a3dcb09afaf9
 
 ---
 
-import { Code } from "@astrojs/starlight/components"
-import code from "../../../../../genaisrc/docs.genai.mjs?raw"
-import BlogNarration from "../../../components/BlogNarration.astro"
+import { Code } from "@astrojs/starlight/components";
+import code from "../../../../../samples/sample/genaisrc/docs.genai.mjs?raw";
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
 This page describes a strategy to build GenAI scripts that use Abstract Syntax Trees (AST) to parse
 and modify source code. When applicable, it provides an extremely flexible and stable way to
 apply large scale changes to source code. Interested? Let's dive in!
-
-:::tip
-
-If you're in hurry, jump to the **last documentation generator/updater you'll ever need** \*
-in the [sample section](#sample).
-
-_\*: for TypeScript, maybe._
-:::
 
 ## The strategy of AST-based code transformation
 
@@ -60,7 +82,7 @@ but the number of empty lines or space may vary.
 ```ts title="math.ts"
 /** sums a and b */
 function fn(a: number, b: number): number {
-    return a - b // oops outdated
+  return a - b; // oops outdated
 }
 ```
 
@@ -77,15 +99,15 @@ So instead of fighting spaces and new lines, you can just locate the `function_d
 a `comment` node.
 
 ```ts title="docs.genai.mts" wrap
-const node = sg.search("functions without comments")
+const node = sg.search("functions without comments");
 ```
 
 Once you've located the node to update, you could do any transformation you want, e.g. replace it with another text.
 In terms of GenAI script, this means that you can build a prompt that includes as much context as you need, generate a response.
 
 ```ts title="docs.genai.mts" wrap
-$`Update the documentation of the function 'fn' to reflect the new behavior of the function.`
-fence(node.text())
+$`Update the documentation of the function 'fn' to reflect the new behavior of the function.`;
+fence(node.text());
 ```
 
 ```txt
@@ -95,7 +117,7 @@ fence(node.text())
 Once the LLM responds with the new comment, you could insert it as the new content of the node in the AST.
 
 ```ts title="docs.genai.mts"
-edits.replace(node.comment(), response)
+edits.replace(node.comment(), response);
 ```
 
 ```mermaid
@@ -109,7 +131,7 @@ Voila! You've only touched the part of the file you wanted to update!
 ```ts title="math.ts"
 /** subs a and b */
 function fn(a: number, b: number): number {
-    return a - b
+  return a - b;
 }
 ```
 
@@ -128,7 +150,7 @@ lint, rewriting at large scale. **sg** provides us the AST-search-and-replace ca
 implement the strategy above.
 
 GenAIScript benefits from the excellent [Node.JS integration](https://ast-grep.github.io/reference/api.html#napi),
-which is available through the [`host.astGrep()`](https://microsoft.github.io/genaiscript/reference/scripts/ast-grep) method.
+which is available through the [`astGrep()`](https://microsoft.github.io/genaiscript/reference/scripts/ast-grep) method.
 
 ### Searching
 
@@ -137,17 +159,21 @@ and pattern syntax and returns a list of matches.
 
 ```ts title="docs.genai.mts" wrap
 // search
-const { matches, replace } = await sg.search("ts", "src/*fib*.ts", {
+const { matches, replace } = await sg.search(
+  "ts",
+  "src/*fib*.ts",
+  {
     rule: {
-        kind: "function_declaration",
-        not: {
-            precedes: {
-                kind: "comment",
-                stopBy: "neighbor",
-            },
+      kind: "function_declaration",
+      not: {
+        precedes: {
+          kind: "comment",
+          stopBy: "neighbor",
         },
+      },
     },
-})
+  },
+);
 ```
 
 ### Editing
@@ -156,17 +182,18 @@ The `sg.changeset` method creates a changeset that can be used to apply a set of
 
 ```ts
 // transform
-const edits = sg.changeset()
+const edits = sg.changeset();
 for (const match of matches) {
-    const { text } = await prompt`Generate new docs for ${match.text()}`
-    // replace
-    edits.replace(match.comment(), text) // it's somewhat more involved
+  const { text } =
+    await prompt`Generate new docs for ${match.text()}`;
+  // replace
+  edits.replace(match.comment(), text); // it's somewhat more involved
 }
 // commit all edits to file
-await workspace.writeFiles(edits.commit())
+await workspace.writeFiles(edits.commit());
 ```
 
-## Sample: Doc generator / updater <a id="sample"></a>
+## Sample: Doc generator / updater <a id="sample" href=""></a>
 
 You will find a full write down of the making of the documentation generator/updater script below
 in the [documentation](/genaiscript/reference/scripts/ast-grep). I encourage you to read it to dig deeper.

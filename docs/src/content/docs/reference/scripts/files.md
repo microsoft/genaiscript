@@ -1,21 +1,66 @@
 ---
 title: Files
-description: Learn how to perform file system operations using the workspace
-    object in your scripts.
-keywords: file system, workspace object, readText, findFiles, paths
+description: Learn how to perform secure file system operations using the workspace
+  object in your scripts.
+keywords: file system, workspace object, readText, findFiles, paths, security, file write protection
 sidebar:
-    order: 13
+  order: 13
 hero:
-    image:
-        alt:
-            A clean, flat 2D illustration in retro 8-bit style uses a five-color
-            corporate palette. It displays a folder icon for workspace root,
-            overlapping icons for PDF, DOCX, CSV, JSON, and XML files, along with
-            simple gear and funnel icons symbolizing filtering and searching. A shield
-            icon represents gitignore rules, and a pencil stands for output writing.
-            All icons are geometric, minimalistic, and arranged compactly on a blank
-            background.
-        file: ./files.png
+  image:
+    alt: A clean, flat 2D illustration in retro 8-bit style uses a five-color
+      corporate palette. It displays a folder icon for workspace root,
+      overlapping icons for PDF, DOCX, CSV, JSON, and XML files, along with
+      simple gear and funnel icons symbolizing filtering and searching. A shield
+      icon represents gitignore rules, and a pencil stands for output writing.
+      All icons are geometric, minimalistic, and arranged compactly on a blank
+      background.
+    file: ./files.png
+llmstxt:
+  content: >-
+    GenAIScript allows file system access within the workspace and selected
+    files. File paths are rooted in the project workspace folder (root folder in
+    VS Code or current CLI directory). Multi-root workspaces are unsupported.
+
+
+    `env.files` contains user-selected files. Use it in the `def` function with
+    filters, e.g., `def("PDFS", env.files, { endsWith: ".pdf" })`.
+
+
+    `.gitignore` and `.gitignore.genai` filter files by default. Disable this
+    with `ignoreGitIgnore: true` in the script or CLI (`genaiscript run
+    --ignore-git-ignore`). `.gitignore.genai` is for project-specific
+    exclusions.
+
+
+    `defFileOutput` specifies allowed output paths and descriptions, e.g.,
+    `defFileOutput("src/*.md", "Product documentation in markdown format")`.
+
+
+    The `workspace` object provides file system operations:
+
+    - `findFiles`: Searches files with glob patterns, e.g.,
+    `workspace.findFiles("**/*.md")`.
+
+    - `grep`: Regex search using ripgrep, e.g., `workspace.grep("monkey",
+    "**/*.md")`.
+
+    - `readText`: Reads file content as text, e.g.,
+    `workspace.readText("README.md")`.
+
+    - `readJSON`: Parses JSON files, e.g., `workspace.readJSON("data.json")`.
+
+    - `readXML`, `readCSV`, `readData`: Parse XML, CSV, or auto-detect formats.
+
+    - Schema validation is supported for JSON parsing.
+
+    - `writeText`, `appendText`: Write or append text to files.
+
+
+    The `paths` object manipulates file paths. Files resolve relative to the
+    workspace root. Use globs for pattern matching, e.g., `**/*.js` matches all
+    JavaScript files. Avoid backslashes in glob patterns.
+  hash: b1ca18a91386855ffc13eaff8a891fb34d0bf0cdbfdeccb8dd1721941970d524
+
 ---
 
 GenAIScript provides access to the file system of workspace and to the selected files in the user interface.
@@ -156,7 +201,7 @@ the API to throw using `throwOnValidationError`.
 
 ```ts
 const data = await workspace.readJSON("data.json", {
-    schema: { type: "object", properties: { ... },
+    schema: { type: "object", properties: { ... }, },
     throwOnValidationError: true
 })
 ```
@@ -177,6 +222,99 @@ Appends text to a file, relative to the workspace root.
 await workspace.appendText("output.txt", "Hello, world!")
 ```
 
+## Workspace Security
+
+The GenAIScript workspace file system includes enhanced security features to prevent writing files outside the workspace and provides configurable file access policies.
+
+### Workspace Boundary Protection
+
+All file write operations are restricted to the current workspace (project folder). The system prevents:
+- Writing to absolute paths outside the workspace (e.g., `/etc/passwd`)
+- Path traversal attacks (e.g., `../../../etc/passwd`)
+- Access to parent directories beyond the workspace root
+
+```ts
+// ✅ Safe - within workspace
+await workspace.writeText("output/results.json", JSON.stringify(data));
+
+// ❌ Blocked - outside workspace
+await workspace.writeText("/etc/passwd", "malicious content");
+
+// ❌ Blocked - path traversal
+await workspace.writeText("../../../etc/passwd", "malicious content");
+```
+
+### Environment File Protection
+
+Writing to `.env` files is blocked by default to prevent accidental exposure of secrets:
+- Direct `.env` files in any directory
+- Files matching the `.env` pattern (`.env.*`, `.env.local`, etc.)
+
+```ts
+// ❌ Blocked - environment file
+await workspace.writeText(".env", "SECRET=value");
+```
+
+### fs_write_file System Tool
+
+The `fs_write_file` system tool provides LLMs with controlled file writing capabilities:
+
+```genai
+script({
+  title: "Safe file operations",
+  system: ["fs_write_file"]
+})
+
+$`Create a README.md file with project documentation.`
+// The LLM can now use fs_write_file to create files safely within the workspace
+```
+
+### Security Error Messages
+
+When file operations are blocked, you'll see descriptive error messages:
+
+- `writing outside workspace not allowed: /path/to/file`
+- `writing .env not allowed`
+- `writing to disallowed file: config/secret.txt`
+- `writing to file not in allowed list: script.exe`
+
+### Bypassing Workspace Security (Advanced)
+
+For scripts that require unrestricted file system access outside the workspace boundaries, you can use Node.js file system APIs directly. **Use this approach with extreme caution** as it bypasses all workspace security protections:
+
+```typescript
+// Import Node.js file system modules for unchecked operations
+const fs = await import('fs')
+const path = await import('path')
+
+// ⚠️ WARNING: This bypasses workspace security!
+// Write to any location on the file system
+const absolutePath = path.join('/tmp', 'unrestricted-file.txt')
+fs.writeFileSync(absolutePath, 'This file is written outside workspace boundaries')
+
+// Read from any location
+const systemFile = fs.readFileSync('/etc/hosts', 'utf8')
+```
+
+**Important considerations when using direct Node.js file system APIs:**
+
+- **Security Risk**: No path validation or boundary checking
+- **Portability**: Absolute paths may not work across different operating systems
+- **Permissions**: Operations may fail due to file system permissions
+- **Responsibility**: You are responsible for validating paths and ensuring safe operations
+
+**When to use direct Node.js APIs:**
+- System administration scripts that need access to system files
+- Build tools that operate on files outside the project
+- Migration scripts that access multiple project directories
+- Advanced automation that requires unrestricted file access
+
+**Best practices:**
+- Always validate and sanitize file paths when using user input
+- Use `path.resolve()` and `path.normalize()` to handle paths safely
+- Check file permissions before attempting operations
+- Consider using the workspace APIs first and only escalate to direct Node.js APIs when necessary
+
 ## paths
 
 The `paths` object contains helper methods to manipulate file names.
@@ -187,7 +325,7 @@ By default, files are resolved relative to the workspace root. You can use the `
 
 ```ts
 const cur = path.dirname(env.spec.filename)
-const fs = path.join(cur, "myfile.md)
+const fs = path.join(cur, "myfile.md")
 ```
 
 ### globs

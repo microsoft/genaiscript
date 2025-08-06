@@ -14,6 +14,25 @@ hero:
       merged file with a bold plus sign at the center. The design uses five flat
       colors, simple geometric shapes, and no background.
     file: ./file-merge.png
+llmstxt:
+  content: >-
+    The `defFileMerge` function registers custom callbacks to override default
+    file merge behavior, useful for handling files in non-default formats. It
+    processes all files, returning merged content or `undefined` to skip.
+    Multiple callbacks can be defined and are executed in registration order.
+
+
+    Example: To append generated content in `.txt` files:
+
+    ```js
+
+    defFileMerge((filename, label, before, generated) => {
+        if (!/\.txt$/i.test(filename)) return undefined;
+        return before ? `${before}\n${generated}` : generated;
+    });
+
+    ```
+  hash: 0d02f659e55e2e14f289765b36c499c2de49c369555bd4df789606b931e6c881
 
 ---
 
@@ -24,7 +43,7 @@ The function is called for all files; return the merged content or `undefined` t
 
 ```js
 defFileMerge((filename, label, before, generated) => {
-    ...
+    // ...
 })
 ```
 
@@ -42,6 +61,6 @@ defFileMerge((filename, label, before, generated) => {
     // if content already existing, append generated content
     if (before) return `${before}\n${generated}`
     // otherwise return generated content
-    else return generated
+    return generated
 })
 ```

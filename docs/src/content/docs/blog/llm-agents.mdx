@@ -26,10 +26,87 @@ excerpt: GenAIScript redefines how agents interact with users by integrating
   user-agent communication but also emphasizes context-driven interactions for
   more accurate outputs. Check the GitHub link included for real-world
   implementation details.
+llmstxt:
+  content: >-
+    GenAIScript defines an agent as a tool that uses an inline prompt to perform
+    tasks, often augmented with additional tools. Agents interact with users to
+    confirm or gather input.
+
+
+    The "user interaction agent" enables agents to ask questions, process
+    responses, and confirm answers. The script setup involves defining metadata,
+    agent behavior, and tools.
+
+
+    Metadata specifies the script's purpose: interacting with users. The
+    `defAgent` function defines the agent's identifier, description, and prompt
+    instructions. For example:
+
+
+    ```js
+
+    defAgent(
+      "user_input",
+      "Ask user for input to confirm, select or answer a question.",
+      `You are an agent that can ask questions to the user and receive answers. Use tools to interact clearly.`,
+      { tools: ["user_input"] }
+    );
+
+    ```
+
+
+    The agent is used like any other tool by referencing it in the `script`
+    options:
+
+
+    ```js
+
+    script({ tools: ["agent_user_input"] });
+
+    ```
+
+
+    Example usage:
+
+
+    ```js
+
+    script({ tools: ["agent_user_input"] });
+
+
+    $`Imagine a funny question and ask the user to answer it.
+
+    From the answer, generate 3 possible answers and ask the user to select the
+    correct one.
+
+    Ask the user if the answer is correct.`;
+
+    ```
+
+
+    Sample interaction:
+
+    1. Agent asks: "What would be the most unexpected thing to find inside a
+    refrigerator?"
+
+    2. User answers: "Toaster."
+
+    3. Agent generates options: "A television, a penguin, a snowman." User
+    selects: "A television."
+
+    4. Agent confirms: "Is 'A television' correct?" User confirms: "Yes."
+
+    5. Agent responds: "Great choice! A television inside a refrigerator would
+    indeed be unexpected."
+
+
+    This demonstrates how the agent facilitates user interaction using tools and
+    prompts.
+  hash: 5a2b68eaf4786cf876e744d1abe21c9143f53640c8ac9393cea062e557cb7d84
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -52,14 +129,14 @@ In this blog post, we'll walk through building a `user interaction agent` that e
 
 ```js wrap
 script({
-    tools: ["agent_user_input"],
-})
+  tools: ["agent_user_input"],
+});
 
 $`
 Imagine a funny question and ask the user to answer it.
 From the answer, generate 3 possible answers and ask the user to select the correct one.
 Ask the user if the answer is correct.
-`
+`;
 ```
 
 Let's dive into understanding how to create an "Agent that can ask questions to the user."
@@ -73,8 +150,8 @@ which can be reused in other scripts.
 
 ```js title="system.agent_user_input.genai.mjs"
 system({
-    title: "Agent that can ask questions to the user.",
-})
+  title: "Agent that can ask questions to the user.",
+});
 ```
 
 This line sets up the title for our system, making it clear that it's intended to interact with the user by asking questions.
@@ -136,12 +213,12 @@ Let's try the agent with:
 
 ```js wrap
 script({
-    tools: ["agent_user_input"],
-})
+  tools: ["agent_user_input"],
+});
 
 $`Imagine a funny question and ask the user to answer it.
 From the answer, generate 3 possible answers and ask the user to select the correct one.
-Ask the user if the answer is correct.`
+Ask the user if the answer is correct.`;
 ```
 
 and let's look at the results...

@@ -14,6 +14,42 @@ hero:
       illustration uses a simple 8-bit, five-color palette, and bold flat lines,
       all without text, people, or background features.
     file: ./web-search.png
+llmstxt:
+  content: >-
+    The `retrieval.webSearch` function performs web searches using Tavily or
+    Bing, returning the top 10 results in the `webPages` array, with each entry
+    containing a summary snippet. Use `fetchText` to retrieve full page content.
+
+
+    To configure Tavily, set `TAVILY_API_KEY` in the `.env` file. Tavily
+    provides a robust search API for LLMs.
+
+
+    To enable the tool, add the `system.retrieval_web_search` script to your
+    configuration. Example:
+
+
+    ```js
+
+    script({
+        ...,
+        system: ["system.retrieval_web_search"]
+    })
+
+    ```
+
+
+    Example usage:
+
+
+    ```js
+
+    const webPages = await retrieval.webSearch("microsoft")
+
+    def("PAGES", webPages)
+
+    ```
+  hash: ed71ea7f4ce5acf1e7e4079924e4f8a6e0a14ecdb9089c4fa6fb459dd852111d
 
 ---
 
@@ -35,18 +71,10 @@ You can use `fetchText` to download the full content of the web page.
 ## Tavily Configuration <a href="" id="tavily" />
 
 The [Tavily API](https://docs.tavily.com/docs/rest-api/api-reference#endpoint-post-search)
-provides access to a powerfull search engine for LLM agents.
+provides access to a powerful search engine for LLM agents.
 
 ```txt title=".env"
 TAVILY_API_KEY="your-api-key"
-```
-
-## Bing Web Search configuration <a href="" id="bing" />
-
-The API uses [Bing Web Search v7](https://learn.microsoft.com/en-us/bing/search-apis/bing-web-search/overview) to search the web. To use the API, you need to create a Bing Web Search resource in the Azure portal and store the API key in the `.env` file.
-
-```txt title=".env"
-BING_SEARCH_API_KEY="your-api-key"
 ```
 
 ## Tool

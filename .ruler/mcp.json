@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "genaiscript": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/packages/cli/dist/src/index.js",
+        "mcp",
+        "--cwd",
+        "${workspaceFolder}",
+        "--groups",
+        "mcp"
+      ],
+      "envFile": "${workspaceFolder}/.env"
+    },
+    "genaiscript-http": {
+      "type": "http",
+      "url": "http://127.0.0.1:8003/mcp"
+    }
+  }
+}

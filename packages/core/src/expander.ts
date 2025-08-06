@@ -1,37 +1,53 @@
-import debug from "debug"
-const dbg = debug("genaiscript:expander")
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-import { resolveScript } from "./ast"
-import { assert } from "./util"
-import { MarkdownTrace } from "./trace"
-import { errorMessage, isCancelError, NotSupportedError } from "./error"
-import { JS_REGEX, MAX_TOOL_CALLS, PROMPTY_REGEX } from "./constants"
+import { resolveScript } from "./ast.js";
+import { assert } from "./assert.js";
+import type { MarkdownTrace } from "./trace.js";
+import { errorMessage, isCancelError, NotSupportedError } from "./error.js";
 import {
-    finalizeMessages,
-    PromptImage,
-    PromptPrediction,
-    renderPromptNode,
-} from "./promptdom"
-import { createPromptContext } from "./promptcontext"
-import { evalPrompt } from "./evalprompt"
-import { addToolDefinitionsMessage, appendSystemMessage } from "./chat"
-import { importPrompt } from "./importprompt"
-import { runtimeHost } from "./host"
-import { addFallbackToolSystems, resolveSystems } from "./systems"
-import { GenerationOptions } from "./generation"
+  CHAT_COMPLETION_RETRY_DEFAULT,
+  FETCH_RETRY_DELAY_DEFAULT,
+  FETCH_RETRY_MAX_DELAY_DEFAULT,
+  FETCH_RETRY_ON_DEFAULT,
+  JS_REGEX,
+  MAX_TOOL_CALLS,
+  TS_IMPORT_REGEX,
+} from "./constants.js";
 import {
-    ChatCompletionMessageParam,
-    ChatCompletionReasoningEffort,
-} from "./chattypes"
-import { GenerationStatus, Project } from "./server/messages"
-import { dispose } from "./dispose"
-import { normalizeFloat, normalizeInt } from "./cleaners"
-import { mergeEnvVarsWithSystem } from "./vars"
-import { installGlobalPromptContext } from "./globals"
-import { mark } from "./performance"
-import { nodeIsPackageTypeModule } from "./nodepackage"
-import { parseModelIdentifier } from "./models"
-import { metadataMerge } from "./metadata"
+  finalizeMessages,
+  type PromptImage,
+  type PromptPrediction,
+  renderPromptNode,
+} from "./promptdom.js";
+import { createPromptContext } from "./promptcontext.js";
+import { evalPrompt } from "./evalprompt.js";
+import { addToolDefinitionsMessage, appendSystemMessage } from "./chat.js";
+import { importPrompt } from "./importprompt.js";
+import { resolveRuntimeHost } from "./host.js";
+import { addFallbackToolSystems, resolveSystems } from "./systems.js";
+import type { GenerationOptions } from "./generation.js";
+import type { ChatCompletionMessageParam, ChatCompletionReasoningEffort } from "./chattypes.js";
+import type { GenerationStatus, Project } from "./server/messages.js";
+import { dispose } from "./dispose.js";
+import { normalizeFloat, normalizeInt } from "./cleaners.js";
+import { mergeEnvVarsWithSystem } from "./vars.js";
+import { installGlobalPromptContext } from "./globals.js";
+import { mark } from "./performance.js";
+import { nodeIsPackageTypeModule } from "./nodepackage.js";
+import { metadataMerge } from "./metadata.js";
+import type {
+  ChatParticipant,
+  ExpansionVariables,
+  FileMergeHandler,
+  FileOutput,
+  JSONSchema,
+  PromptOutputProcessorHandler,
+  PromptScript,
+  ToolCallback,
+} from "./types.js";
+import { genaiscriptDebug } from "./debug.js";
+const dbg = genaiscriptDebug("expander");
 
 /**
  * Executes a prompt expansion process based on the provided prompt script, variables, and options.
@@ -45,141 +61,146 @@ import { metadataMerge } from "./metadata"
  * @returns An object containing the status of the operation, generated messages, images, schema definitions, tools, logs, and other related outputs.
  */
 export async function callExpander(
-    prj: Project,
-    r: PromptScript,
-    ev: ExpansionVariables,
-    trace: MarkdownTrace,
-    options: GenerationOptions,
-    installGlobally: boolean
+  prj: Project,
+  r: PromptScript,
+  ev: ExpansionVariables,
+  options: GenerationOptions,
+  installGlobally: boolean,
 ) {
-    mark("prompt.expand.main")
-    assert(!!options.model)
-    const modelId = r.model ?? options.model
-    const ctx = await createPromptContext(prj, ev, trace, options, modelId)
-    if (installGlobally) installGlobalPromptContext(ctx)
+  mark("prompt.expand.main");
+  assert(!!options.model);
+  const trace = options.trace;
+  const modelId = r.model ?? options.model;
+  const ctx = await createPromptContext(prj, ev, options, modelId);
+  if (installGlobally) installGlobalPromptContext(ctx);
 
-    let status: GenerationStatus = undefined
-    let statusText: string = undefined
-    let logs = ""
-    let messages: ChatCompletionMessageParam[] = []
-    let images: PromptImage[] = []
-    let schemas: Record<string, JSONSchema> = {}
-    let functions: ToolCallback[] = []
-    let fileMerges: FileMergeHandler[] = []
-    let outputProcessors: PromptOutputProcessorHandler[] = []
-    let chatParticipants: ChatParticipant[] = []
-    let fileOutputs: FileOutput[] = []
-    let disposables: AsyncDisposable[] = []
-    let prediction: PromptPrediction
+  let status: GenerationStatus = undefined;
+  let statusText: string = undefined;
+  let logs = "";
+  let messages: ChatCompletionMessageParam[] = [];
+  let images: PromptImage[] = [];
+  let schemas: Record<string, JSONSchema> = {};
+  let functions: ToolCallback[] = [];
+  let fileMerges: FileMergeHandler[] = [];
+  let outputProcessors: PromptOutputProcessorHandler[] = [];
+  let chatParticipants: ChatParticipant[] = [];
+  let fileOutputs: FileOutput[] = [];
+  let disposables: AsyncDisposable[] = [];
+  let prediction: PromptPrediction;
 
-    const logCb = (msg: any) => {
-        logs += msg + "\n"
+  const logCb = (msg: any) => {
+    logs += msg + "\n";
+  };
+
+  // package.json { type: "module" }
+  const isModule = await nodeIsPackageTypeModule();
+  const isJs = JS_REGEX.test(r.filename);
+  const isTs = TS_IMPORT_REGEX.test(r.filename);
+  dbg(`module: %s`, isModule);
+  dbg(`js: %s`, isJs);
+  dbg(`ts: %s`, isTs);
+  try {
+    if (r.filename && (isTs || (isModule && isJs))) {
+      await importPrompt(ctx, r, { logCb, trace });
+    } else {
+      await evalPrompt(ctx, r, {
+        sourceMaps: true,
+        logCb,
+      });
     }
-
-    // package.json { type: "module" }
-    const isModule = await nodeIsPackageTypeModule()
-    try {
-        if (
-            r.filename &&
-            (isModule || !JS_REGEX.test(r.filename)) &&
-            !PROMPTY_REGEX.test(r.filename)
-        )
-            await importPrompt(ctx, r, { logCb, trace })
-        else {
-            await evalPrompt(ctx, r, {
-                sourceMaps: true,
-                logCb,
-            })
-        }
-        const node = ctx.node
-        const {
-            messages: msgs,
-            images: imgs,
-            errors,
-            schemas: schs,
-            tools: fns,
-            fileMerges: fms,
-            outputProcessors: ops,
-            chatParticipants: cps,
-            fileOutputs: fos,
-            prediction: pred,
-            disposables: mcps,
-        } = await renderPromptNode(modelId, node, {
-            flexTokens: options.flexTokens,
-            fenceFormat: options.fenceFormat,
-            trace,
-        })
-        messages = msgs
-        images = imgs
-        schemas = schs
-        functions = fns
-        fileMerges = fms
-        outputProcessors = ops
-        chatParticipants = cps
-        fileOutputs = fos
-        disposables = mcps
-        prediction = pred
-        if (errors?.length) {
-            for (const error of errors) trace.error(``, error)
-            status = "error"
-            statusText = errors.map((e) => errorMessage(e)).join("\n")
-        } else {
-            status = "success"
-        }
-    } catch (e) {
-        status = "error"
-        statusText = errorMessage(e)
-        if (isCancelError(e)) {
-            status = "cancelled"
-            trace.note(statusText)
-        } else {
-            trace.error(undefined, e)
-        }
+    const node = ctx.node;
+    const {
+      messages: msgs,
+      images: imgs,
+      errors,
+      schemas: schs,
+      tools: fns,
+      fileMerges: fms,
+      outputProcessors: ops,
+      chatParticipants: cps,
+      fileOutputs: fos,
+      prediction: pred,
+      disposables: mcps,
+    } = await renderPromptNode(modelId, node, {
+      flexTokens: options.flexTokens,
+      fenceFormat: options.fenceFormat,
+      trace,
+    });
+    messages = msgs;
+    images = imgs;
+    schemas = schs;
+    functions = fns;
+    fileMerges = fms;
+    outputProcessors = ops;
+    chatParticipants = cps;
+    fileOutputs = fos;
+    disposables = mcps;
+    prediction = pred;
+    if (errors?.length) {
+      if (trace) for (const error of errors) trace?.error(``, error);
+      status = "error";
+      statusText = errors.map((e) => errorMessage(e)).join("\n");
+    } else {
+      status = "success";
     }
+  } catch (e) {
+    status = "error";
+    statusText = errorMessage(e);
+    if (isCancelError(e)) {
+      status = "cancelled";
+      trace?.note(statusText);
+    } else {
+      trace?.error(undefined, e);
+    }
+  }
 
-    return Object.freeze({
-        logs,
-        status,
-        statusText,
-        messages,
-        images,
-        schemas,
-        functions: Object.freeze(functions),
-        fileMerges,
-        outputProcessors,
-        chatParticipants,
-        fileOutputs,
-        disposables,
-        prediction,
-    })
+  return Object.freeze({
+    logs,
+    status,
+    statusText,
+    messages,
+    images,
+    schemas,
+    functions: Object.freeze(functions),
+    fileMerges,
+    outputProcessors,
+    chatParticipants,
+    fileOutputs,
+    disposables,
+    prediction,
+  });
 }
 
-function traceEnv(
-    model: string,
-    trace: MarkdownTrace,
-    env: Partial<ExpansionVariables>
-) {
-    trace.startDetails("🏡 env")
-    trace.files(env.files, {
-        title: "💾 files",
-        model,
-        skipIfEmpty: true,
-        secrets: env.secrets,
-        maxLength: 0,
-    })
-    const vars = Object.entries(env.vars || {})
-    if (vars.length) {
-        trace.startDetails("🧮 vars")
-        for (const [k, v] of vars) {
-            trace.itemValue(k, v)
-        }
-        trace.endDetails()
+function traceEnv(model: string, trace: MarkdownTrace, env: Partial<ExpansionVariables>) {
+  // nothing to show
+  if (
+    !env.files?.length &&
+    !Object.keys(env.vars || {}).length &&
+    !Object.keys(env.secrets || {}).length
+  )
+    return;
+
+  trace?.startDetails("🏡 env");
+  trace?.files(env.files, {
+    title: "💾 files",
+    model,
+    skipIfEmpty: true,
+    secrets: env.secrets,
+    maxLength: 0,
+  });
+  const vars = Object.entries(env.vars || {});
+  if (vars.length) {
+    trace?.startDetails("🧮 vars");
+    for (const [k, v] of vars) {
+      trace?.itemValue(k, v);
     }
-    const secrets = Object.keys(env.secrets || {})
-    if (secrets.length) {
-        trace.itemValue(`🔐 secrets`, secrets.join(", "))
-    }
-    trace.endDetails()
+    trace?.endDetails();
+  }
+  const secrets = Object.keys(env.secrets || {});
+  if (secrets.length) {
+    trace?.itemValue(`🔐 secrets`, secrets.join(", "));
+  }
+  trace?.endDetails();
 }
 
 /**
@@ -202,252 +223,256 @@ function traceEnv(
  *  * @param  - has parameters/options i
  */
 export async function expandTemplate(
-    prj: Project,
-    template: PromptScript,
-    options: GenerationOptions,
-    env: ExpansionVariables
+  prj: Project,
+  template: PromptScript,
+  options: GenerationOptions,
+  env: ExpansionVariables,
 ) {
-    mark("prompt.expand.script")
-    const trace = options.trace
-    const model = options.model
-    assert(!!trace)
-    assert(!!model)
-    const cancellationToken = options.cancellationToken
-    // update options
-    const lineNumbers =
-        options.lineNumbers ??
-        template.lineNumbers ??
-        resolveSystems(prj, template, undefined)
-            .map((s) => resolveScript(prj, s))
-            .some((t) => t?.lineNumbers)
-    const temperature =
-        options.temperature ??
-        normalizeFloat(env.vars["temperature"]) ??
-        template.temperature ??
-        runtimeHost.modelAliases.large.temperature
-    options.fallbackTools =
-        options.fallbackTools ??
-        template.fallbackTools ??
-        runtimeHost.modelAliases.large.fallbackTools
-    const reasoningEffort: ChatCompletionReasoningEffort =
-        options.reasoningEffort ??
-        env.vars["reasoning_effort"] ??
-        template.reasoningEffort ??
-        runtimeHost.modelAliases.large.reasoningEffort
-    const topP =
-        options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
-    const maxTokens =
-        options.maxTokens ??
-        normalizeInt(env.vars["maxTokens"]) ??
-        normalizeInt(env.vars["max_tokens"]) ??
-        template.maxTokens
-    const maxToolCalls =
-        options.maxToolCalls ??
-        normalizeInt(env.vars["maxToolCalls"]) ??
-        normalizeInt(env.vars["max_tool_calls"]) ??
-        template.maxToolCalls ??
-        MAX_TOOL_CALLS
-    const flexTokens =
-        options.flexTokens ??
-        normalizeInt(env.vars["flexTokens"]) ??
-        normalizeInt(env.vars["flex_tokens"]) ??
-        template.flexTokens
-    const fenceFormat = options.fenceFormat ?? template.fenceFormat
-    const cache = options.cache ?? template.cache
-    const metadata = metadataMerge(template, options.metadata)
-    let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
-    if (seed !== undefined) seed = seed >> 0
-    let logprobs = options.logprobs || template.logprobs
-    let topLogprobs = Math.max(
-        options.topLogprobs || 0,
-        template.topLogprobs || 0
-    )
+  mark("prompt.expand.script");
+  const runtimeHost = resolveRuntimeHost();
+  const trace = options.trace;
+  const model = options.model;
+  assert(!!trace);
+  assert(!!model);
+  const cancellationToken = options.cancellationToken;
+  // update options
+  const lineNumbers =
+    options.lineNumbers ??
+    template.lineNumbers ??
+    resolveSystems(prj, template, undefined)
+      .map((s) => resolveScript(prj, s))
+      .some((t) => t?.lineNumbers);
+  const temperature =
+    options.temperature ??
+    normalizeFloat(env.vars["temperature"]) ??
+    template.temperature ??
+    runtimeHost.modelAliases.large.temperature;
+  options.fallbackTools =
+    options.fallbackTools ?? template.fallbackTools ?? runtimeHost.modelAliases.large.fallbackTools;
+  const reasoningEffort: ChatCompletionReasoningEffort =
+    options.reasoningEffort ??
+    env.vars["reasoning_effort"] ??
+    template.reasoningEffort ??
+    runtimeHost.modelAliases.large.reasoningEffort;
+  const topP = options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP;
+  const maxTokens =
+    options.maxTokens ??
+    normalizeInt(env.vars["maxTokens"]) ??
+    normalizeInt(env.vars["max_tokens"]) ??
+    template.maxTokens;
+  const maxToolCalls =
+    options.maxToolCalls ??
+    normalizeInt(env.vars["maxToolCalls"]) ??
+    normalizeInt(env.vars["max_tool_calls"]) ??
+    template.maxToolCalls ??
+    MAX_TOOL_CALLS;
+  const flexTokens =
+    options.flexTokens ??
+    normalizeInt(env.vars["flexTokens"]) ??
+    normalizeInt(env.vars["flex_tokens"]) ??
+    template.flexTokens;
+  const fenceFormat = options.fenceFormat ?? template.fenceFormat;
+  const cache = options.cache ?? template.cache;
+  const metadata = metadataMerge(template, options.metadata);
+  let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed;
+  if (seed !== undefined) seed = seed >> 0;
+  let logprobs = options.logprobs || template.logprobs;
+  let topLogprobs = Math.max(options.topLogprobs || 0, template.topLogprobs || 0);
+  const disableChatPreview =
+    options.disableChatPreview === true || template.disableChatPreview === true;
 
-    // finalize options
-    const { provider } = parseModelIdentifier(model)
-    env.meta.model = model
-    Object.freeze(env.meta)
+  // Handle retry options from template
+  const retryOn = options.retryOn ?? template.retryOn ?? FETCH_RETRY_ON_DEFAULT;
+  const retries = options.retries ?? template.retries ?? CHAT_COMPLETION_RETRY_DEFAULT;
+  const retryDelay = options.retryDelay ?? template.retryDelay ?? FETCH_RETRY_DELAY_DEFAULT;
+  const maxDelay = options.maxDelay ?? template.maxDelay ?? FETCH_RETRY_MAX_DELAY_DEFAULT;
+  const maxRetryAfter =
+    options.maxRetryAfter ?? template.maxRetryAfter ?? FETCH_RETRY_MAX_DELAY_DEFAULT;
 
-    trace.startDetails("💾 script", { expanded: true })
+  // finalize options
+  env.meta.model = model;
+  Object.freeze(env.meta);
 
-    traceEnv(model, trace, env)
+  trace?.startDetails("💾 script", { expanded: true });
 
-    trace.startDetails("🧬 prompt", { expanded: true })
-    trace.detailsFenced("💻 script source", template.jsSource, "js")
+  traceEnv(model, trace, env);
 
-    const prompt = await callExpander(
-        prj,
-        template,
-        env,
-        trace,
-        {
-            ...options,
-            maxTokens,
-            maxToolCalls,
-            flexTokens,
-            seed,
-            topP,
-            temperature,
-            reasoningEffort,
-            lineNumbers,
-            fenceFormat,
-        },
-        true
-    )
+  trace?.startDetails("🧬 prompt", { expanded: true });
+  if (template.filename) trace?.item(template.filename);
+  trace?.detailsFenced("💻 script source", template.jsSource, "js");
 
-    const { status, statusText, messages } = prompt
-    const images = prompt.images.slice(0)
-    const schemas = structuredClone(prompt.schemas)
-    const tools = prompt.functions.slice(0)
-    const fileMerges = prompt.fileMerges.slice(0)
-    const outputProcessors = prompt.outputProcessors.slice(0)
-    const chatParticipants = prompt.chatParticipants.slice(0)
-    const fileOutputs = prompt.fileOutputs.slice(0)
-    const prediction = prompt.prediction
-    const disposables = prompt.disposables.slice(0)
+  const prompt = await callExpander(
+    prj,
+    template,
+    env,
+    {
+      ...options,
+      trace,
+      maxTokens,
+      maxToolCalls,
+      flexTokens,
+      seed,
+      topP,
+      temperature,
+      reasoningEffort,
+      lineNumbers,
+      fenceFormat,
+    },
+    true,
+  );
 
-    if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    trace.endDetails()
+  const { status, statusText, messages } = prompt;
+  const images = prompt.images.slice(0);
+  const schemas = structuredClone(prompt.schemas);
+  const tools = prompt.functions.slice(0);
+  const fileMerges = prompt.fileMerges.slice(0);
+  const outputProcessors = prompt.outputProcessors.slice(0);
+  const chatParticipants = prompt.chatParticipants.slice(0);
+  const fileOutputs = prompt.fileOutputs.slice(0);
+  const prediction = prompt.prediction;
+  const disposables = prompt.disposables.slice(0);
 
-    if (cancellationToken?.isCancellationRequested || status === "cancelled") {
-        await dispose(disposables, { trace })
-        return {
-            status: "cancelled",
-            statusText: "user cancelled",
-            messages,
-        }
-    }
+  if (prompt.logs?.length) trace?.details("📝 console.log", prompt.logs);
+  trace?.endDetails();
 
-    if (status !== "success" || prompt.messages.length === 0) {
-        // cancelled
-        await dispose(disposables, { trace })
-        return {
-            status,
-            statusText,
-            messages,
-        }
-    }
-
-    const addSystemMessage = (content: string) => {
-        appendSystemMessage(messages, content)
-        trace.fence(content, "markdown")
-    }
-
-    const systems = resolveSystems(prj, template, tools)
-    if (systems.length)
-        if (messages[0].role === "system")
-            // there's already a system message. add empty before
-            messages.unshift({ role: "system", content: "" })
-
-    if (addFallbackToolSystems(systems, tools, template, options)) {
-        dbg("added fallback tools")
-        assert(!Object.isFrozen(options))
-        options.fallbackTools = true
-    }
-
-    try {
-        trace.startDetails("👾 systems")
-        for (let i = 0; i < systems.length; ++i) {
-            if (cancellationToken?.isCancellationRequested) {
-                await dispose(disposables, { trace })
-                return {
-                    status: "cancelled",
-                    statusText: "user cancelled",
-                    messages,
-                }
-            }
-
-            const systemId = systems[i]
-            dbg(`system ${systemId.id}`)
-            const system = resolveScript(prj, systemId)
-            if (!system)
-                throw new Error(`system template ${systemId.id} not found`)
-
-            trace.startDetails(`👾 ${system.id}`)
-            const sysr = await callExpander(
-                prj,
-                system,
-                mergeEnvVarsWithSystem(env, systemId),
-                trace,
-                options,
-                false
-            )
-
-            if (sysr.images) images.push(...sysr.images)
-            if (sysr.schemas) Object.assign(schemas, sysr.schemas)
-            if (sysr.functions) tools.push(...sysr.functions)
-            if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
-            if (sysr.outputProcessors)
-                outputProcessors.push(...sysr.outputProcessors)
-            if (sysr.chatParticipants)
-                chatParticipants.push(...sysr.chatParticipants)
-            if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
-            if (sysr.disposables?.length) disposables.push(...sysr.disposables)
-            if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
-            for (const smsg of sysr.messages) {
-                if (smsg.role === "user" && typeof smsg.content === "string") {
-                    addSystemMessage(smsg.content)
-                } else
-                    throw new NotSupportedError(
-                        "only string user messages supported in system"
-                    )
-            }
-            logprobs = logprobs || system.logprobs
-            topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0)
-            trace.detailsFenced("💻 script source", system.jsSource, "js")
-            trace.endDetails()
-
-            if (sysr.status !== "success") {
-                await dispose(disposables, options)
-                return {
-                    status: sysr.status,
-                    statusText: sysr.statusText,
-                    messages,
-                }
-            }
-        }
-    } finally {
-        trace.endDetails()
-    }
-
-    if (options.fallbackTools) {
-        addToolDefinitionsMessage(messages, tools)
-    }
-
-    const { responseType, responseSchema } = finalizeMessages(model, messages, {
-        ...template,
-        fileOutputs,
-        trace,
-    })
-
-    trace.endDetails()
-
+  if (cancellationToken?.isCancellationRequested || status === "cancelled") {
+    await dispose(disposables, { trace });
     return {
-        cache,
-        messages,
-        images,
-        schemas,
-        tools,
-        status: <GenerationStatus>status,
-        statusText: statusText,
-        model,
-        temperature,
-        reasoningEffort,
-        topP,
-        maxTokens,
-        maxToolCalls,
-        seed,
-        responseType,
-        responseSchema,
-        fileMerges,
-        prediction,
-        outputProcessors,
-        chatParticipants,
-        fileOutputs,
-        logprobs,
-        topLogprobs,
-        disposables,
-        metadata,
-        fallbackTools: options.fallbackTools,
+      status: "cancelled",
+      statusText: "user cancelled",
+      messages,
+    };
+  }
+
+  if (status !== "success" || prompt.messages.length === 0) {
+    // cancelled
+    await dispose(disposables, { trace });
+    return {
+      status,
+      statusText,
+      messages,
+    };
+  }
+
+  const addSystemMessage = (content: string) => {
+    appendSystemMessage(messages, content);
+    trace?.fence(content, "markdown");
+  };
+
+  const systems = resolveSystems(prj, template, tools);
+  if (systems.length)
+    if (messages[0].role === "system")
+      // there's already a system message. add empty before
+      messages.unshift({ role: "system", content: "" });
+
+  if (addFallbackToolSystems(systems, tools, template, options)) {
+    dbg("added fallback tools");
+    assert(!Object.isFrozen(options));
+    options.fallbackTools = true;
+  }
+
+  try {
+    trace?.startDetails("👾 systems");
+    for (let i = 0; i < systems.length; ++i) {
+      if (cancellationToken?.isCancellationRequested) {
+        await dispose(disposables, { trace });
+        return {
+          status: "cancelled",
+          statusText: "user cancelled",
+          messages,
+        };
+      }
+
+      const systemId = systems[i];
+      dbg(`system ${systemId.id}`);
+      const system = resolveScript(prj, systemId);
+      if (!system) throw new Error(`system template ${systemId.id} not found`);
+
+      trace?.startDetails(`👾 ${system.id}`);
+      const sysr = await callExpander(
+        prj,
+        system,
+        mergeEnvVarsWithSystem(env, systemId),
+        { ...options, trace },
+        false,
+      );
+
+      if (sysr.images) images.push(...sysr.images);
+      if (sysr.schemas) Object.assign(schemas, sysr.schemas);
+      if (sysr.functions) tools.push(...sysr.functions);
+      if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges);
+      if (sysr.outputProcessors) outputProcessors.push(...sysr.outputProcessors);
+      if (sysr.chatParticipants) chatParticipants.push(...sysr.chatParticipants);
+      if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs);
+      if (sysr.disposables?.length) disposables.push(...sysr.disposables);
+      if (sysr.logs?.length) trace?.details("📝 console.log", sysr.logs);
+      for (const smsg of sysr.messages) {
+        if (smsg.role === "user" && typeof smsg.content === "string") {
+          addSystemMessage(smsg.content);
+        } else throw new NotSupportedError("only string user messages supported in system");
+      }
+      logprobs = logprobs || system.logprobs;
+      topLogprobs = Math.max(topLogprobs, system.topLogprobs || 0);
+      trace?.detailsFenced("💻 script source", system.jsSource, "js");
+      trace?.endDetails();
+
+      if (sysr.status !== "success") {
+        await dispose(disposables, options);
+        return {
+          status: sysr.status,
+          statusText: sysr.statusText,
+          messages,
+        };
+      }
     }
+  } finally {
+    trace?.endDetails();
+  }
+
+  if (options.fallbackTools) {
+    addToolDefinitionsMessage(messages, tools);
+  }
+
+  const { responseType, responseSchema } = finalizeMessages(model, messages, {
+    ...template,
+    fileOutputs,
+    trace,
+  });
+
+  trace?.endDetails();
+
+  return {
+    cache,
+    messages,
+    images,
+    schemas,
+    tools,
+    status: <GenerationStatus>status,
+    statusText: statusText,
+    model,
+    temperature,
+    reasoningEffort,
+    topP,
+    maxTokens,
+    maxToolCalls,
+    seed,
+    responseType,
+    responseSchema,
+    fileMerges,
+    prediction,
+    outputProcessors,
+    chatParticipants,
+    fileOutputs,
+    logprobs,
+    topLogprobs,
+    disposables,
+    metadata,
+    fallbackTools: options.fallbackTools,
+    disableChatPreview,
+    retryOn,
+    retries,
+    retryDelay,
+    maxDelay,
+    maxRetryAfter,
+  };
 }

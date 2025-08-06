@@ -12,12 +12,75 @@ hero:
       elements, arranged symmetrically, all in five corporate colors, using only
       basic shapes. There are no backgrounds, people, extra details, or shadows.
     file: ./agents.png
+llmstxt:
+  content: >-
+    GenAIScript defines an agent as a tool that runs an inline prompt to perform
+    tasks, combining an LLM with tools and memory. Agents do not implement
+    workflows or decisions but rely on LLM tool support.
+
+
+    Agents group tools for specific tasks. For example, `agent_git` queries git
+    repositories using tools like `git branch` and `git diff`. The LLM calls
+    `agent_git` to fetch and process information, returning results to the main
+    LLM. Agents simplify workflows by abstracting multiple tools, reducing
+    complexity and conversation length.
+
+
+    Agents can share memory across interactions, storing `agent/query/answer`
+    logs. Memory extracts relevant information for agent queries, enabling
+    context-aware responses. Memory can be disabled using `disableMemory`.
+
+
+    The `defAgent` function defines agents with an ID, description, and tools.
+    For example, `defAgent("git", "Handles git operations", "You are a git
+    expert.", { tools: ["git"] })` registers `agent_git` with git tools. Agents
+    can be instantiated with different configurations, like separate
+    repositories.
+
+
+    Multiple agents, like `agent_git` and `agent_github`, can collaborate. For
+    instance, `agent_git` fetches commit diffs, while `agent_github` analyzes
+    GitHub workflows and logs. Tools and system prompts configure agent
+    capabilities.
+
+
+    Agents use `runPrompt` for LLM queries, injecting context and tools. For
+    example, `agent_github` queries GitHub tasks using tools like
+    `github_actions` and `github_files`. System prompts define available tools
+    and behavior.
+
+
+    Logging for agents uses namespaces like `agent:<name>`. Enable logging with
+    `DEBUG=agent:github*`.
+
+
+    Example `agent_github` definition:
+
+    ```js
+
+    defAgent("github", "Query GitHub tasks", (ctx) => ctx.$`You are a GitHub
+    query expert.`, { tools: ["github_actions"] });
+
+    ```
+
+    Internally expanded:
+
+    ```js
+
+    defTool("agent_github", "Agent for GitHub tasks", { query: { type: "string",
+    description: "Query to answer" } }, async(args) => { ... });
+
+    ```
+
+    Agents streamline task execution by combining LLMs, tools, and memory for
+    efficient problem-solving.
+  hash: 6f29928c85229671d24cadda15ebc6165b36cc0f632d77c8ec8c6aca54d8e7ca
 
 ---
 
 import { Code } from "@astrojs/starlight/components"
 import { Content as BuiltinAgents } from "../../../../components/BuiltinAgents.mdx"
-import sourceMulti from "../../../../../../packages/sample/genaisrc/agent_git_other.genai.mjs?raw"
+import sourceMulti from "../../../../../../samples/sample/genaisrc/agent_git_other.genai.mjs?raw"
 
 GenAIScript defines an **agent** as a [tool](/genaiscript/reference/scripts/tools) that
 runs an [inline prompt](/genaiscript/reference/scripts/inline-prompts) to accomplish a task. The agent's LLM is typically augmented with

@@ -16,6 +16,38 @@ hero:
       shadows, or gradients, maintaining a clean, corporate-friendly look in a
       128x128 pixel format.
     file: ./custom-output.png
+llmstxt:
+  content: >-
+    The `defOutputProcessor` function customizes LLM output processing at the
+    end of generation, enabling file creation or modification. This experimental
+    feature may change.
+
+
+    Example 1: Write output to a file.
+
+    ```js
+
+    const output = path.join(path.dirname(env.spec), "output.txt");
+
+    defOutputProcessor(output => ({
+        files: [[output]: output.text]
+    }));
+
+    ```
+
+
+    Example 2: Clear generated file edits.
+
+    ```js
+
+    defOutputProcessor(output => {
+        for (const k of Object.keys(output.fileEdits)) {
+            delete output.fileEdits[k];
+        }
+    });
+
+    ```
+  hash: 3ff9461206d54fb317702c68b6a7e2155e1b00b00f1156ff47868fe89ed26ee4
 
 ---
 

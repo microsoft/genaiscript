@@ -1,11 +1,52 @@
 ---
 title: Transformer.js
 sidebar:
-    order: 20
+  order: 20
 description: Implement summarization with Transformers.js and leverage local
-    hardware acceleration
+  hardware acceleration
 keywords: Transformers.js, summarization, onnxruntime, CPU/GPU acceleration,
-    pretrained models
+  pretrained models
+llmstxt:
+  content: >-
+    Support for `transformers` has been temporarily removed to reduce
+    installation size. HuggingFace Transformers.js is a JavaScript library for
+    running pretrained models locally using onnxruntime for CPU/GPU
+    acceleration. This guide demonstrates text summarization with
+    Transformers.js.
+
+
+    To use the library, ensure your script has a `.mjs` extension. Import the
+    library and load the summarization pipeline:
+
+
+    ```js
+
+    import { pipeline } from "@genaiscript/runtime";
+
+    const summarizer = await pipeline("summarization");
+
+    ```
+
+
+    Model loading may take time, so initialize it early in your script. To
+    summarize content, pass the text to the pipeline and extract the result:
+
+
+    ```js
+
+    const [summary] = await summarizer(content);
+
+    // @ts-ignore
+
+    const { summary_text } = summary;
+
+    ```
+
+
+    Refer to the Transformers.js documentation for additional tasks and
+    features.
+  hash: 1f9ccbf1bdff5f575ae5e87114d603811ec37eb105f040368e2d06df95ccc084
+
 ---
 
 :::caution
@@ -33,7 +74,7 @@ The snippet below imports the Transformers.js library and loads the summarizer p
 You can specify a model name or let the library pick the latest and greatest.
 
 ```js
-import { pipeline } from "genaiscript/runtime"
+import { pipeline } from "@genaiscript/runtime"
 const summarizer = await pipeline("summarization")
 ```
 

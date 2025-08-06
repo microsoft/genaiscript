@@ -11,6 +11,69 @@ hero:
       folder icon indicating SharePoint upload. The image uses five flat colors,
       features no people or text, and appears on a transparent background.
     file: ./teams.png
+llmstxt:
+  content: >-
+    GenAIScript enables posting messages with file attachments to Microsoft
+    Teams channels and their SharePoint file shares. 
+
+
+    To post using the CLI:
+
+    `genaiscript run ... --teams-message`
+
+
+    To post using the API:
+
+    ```js
+
+    const channel = await host.teamsChannel();
+
+    await channel.postMessage("Hello, World!");
+
+    ```
+
+
+    Authentication requires Azure login:
+
+    `az login`
+
+
+    Configuration involves setting the Teams channel URL:
+
+    `GENAISCRIPT_TEAMS_CHANNEL_URL=https://teams.microsoft.com/l/...`
+
+
+    For API usage, create a Teams channel client and call `postMessage`. Attach
+    files to messages, which are uploaded to SharePoint:
+
+    ```js
+
+    await channel.postMessage("Hello, World!", {
+        files: [{ filename: "file.txt" }]
+    });
+
+    ```
+
+
+    Add file descriptions in markdown to populate metadata:
+
+    ```js
+
+    await channel.postMessage("Cool video!", {
+        files: [
+            {
+                filename: "video.mp4",
+                description: `Title
+    description`
+            }
+        ]
+    });
+
+    ``` 
+
+
+    Descriptions for videos are split into subject/message for Microsoft Stream.
+  hash: 036a5870d52742568db8d3b84dff172c4d986c216cbc1ae029ae8f8627489155
 
 ---
 
@@ -67,7 +130,7 @@ await channel.postMessage("Hello, World!", {
 })
 ```
 
-Add a description to the file to populate this metdata.
+Add a description to the file to populate this metadata.
 The description can be in markdown and will be rendered to Teams HTML as much as possible.
 
 ```js

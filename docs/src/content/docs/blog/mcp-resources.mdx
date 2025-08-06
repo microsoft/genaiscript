@@ -24,10 +24,39 @@ excerpt: The Model Context Protocol (MCP) introduces a powerful way for scripts
   into your workflows, you can streamline how your applications interact with
   MCP clients, enhancing context discovery and resolution. Dive deeper into how
   MCP tools and resources can elevate your systems today.
+llmstxt:
+  content: >-
+    MCP resources extend the Model Context Protocol (MCP) by enabling scripts to
+    publish data or content that can be used as context for LLM interactions.
+    Resources are discoverable and resolvable by MCP clients, allowing seamless
+    integration into workflows.
+
+
+    Scripts can publish resources using the `publishResource` method, which
+    assigns a unique identifier to the resource and handles the rest via the
+    GenAIScript framework.
+
+
+    Example:
+
+    ```js
+
+    const uri = await host.publishResource("unique-id", file);
+
+    ```
+
+
+    MCP ensures that once a resource is published, the client becomes aware of
+    it and can decide to access it. This enhances the utility of scripts as MCP
+    tools by enabling them to expose structured data for broader use.
+
+
+    For implementation details, refer to the documentation.
+  hash: fc30ebd50648a2846ddac15e09cd947be3ff3a0221c03e468128c75826fa6caa
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -60,7 +89,7 @@ The `publishResource` method allows you to publish a resource with a unique iden
 The rest of the MCP resource publishing process is handled by the GenAIScript framework.
 
 ```js
-const uri = await host.publishResource("unique-id", file)
+const uri = await host.publishResource("unique-id", file);
 ```
 
 ## Next steps

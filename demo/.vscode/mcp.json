@@ -3,11 +3,16 @@
         "genaiscript": {
             "type": "stdio",
             "command": "node",
-            "args": ["${workspaceFolder}/../packages/cli/built/genaiscript.cjs", "mcp", "--cwd", "${workspaceFolder}"],
+            "args": ["${workspaceFolder}/../packages/cli/dist/src/index.js", "mcp", "--cwd", "${workspaceFolder}"],
             "envFile": "${workspaceFolder}/../.env",
             "env": {
                 "DEBUG": "*"
             }
+        },
+        "genaiscript-http": {
+            "type": "http",
+            "url": "http://127.0.0.1:8003/mcp",
+            "description": "GenAIScript MCP server via HTTP transport for testing HTTP connectivity"
         }
     }
 }

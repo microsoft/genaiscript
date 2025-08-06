@@ -27,16 +27,36 @@ excerpt: A strong `README` can define your project's success in the open source
   both current and engaging. Curious about how to run it? The GenAIScript CLI
   makes it seamless. Keep your contributions visible, your documentation sharp,
   and your users informed.
+llmstxt:
+  content: >-
+    A well-maintained `README` is crucial for open source projects, serving as
+    the first impression for users and contributors. The GenAIScript automates
+    `README` updates for the GenAI project by importing relevant details from
+    documentation and samples, ensuring the file remains current and engaging.
+
+
+    The script defines metadata, including its purpose and tools like `fs` for
+    file operations. It specifies key files: `README.md` and a `FEATURES` file
+    containing content to integrate. A template outlines tasks for updating the
+    `README` with features, samples, and links while preserving specific
+    sections. The output is an updated `README.md`.
+
+
+    To run the script, use the GenAIScript CLI. After installation, execute
+    `genaiscript run readme-updater` to refresh the `README`. This automation
+    simplifies maintenance, ensuring the `README` reflects the project's latest
+    capabilities.
+  hash: 11e841d7f58f1a63fc4f47628950e1973114c57d85209cb8a4178865ae6a0c7d
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
-In the world of open source, a well-maintained `README` file acts as the front door to your project. It's often the first thing potential users and contributors see, and as such, it should be both informative and inviting. Today, we're diving into the GenAIScript that helps keep the `README` of the [GenAI project](https://github.com/microsoft/genaiscript) as fresh as a daisy! 🌼 Check out the actual [script file](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/readme-updater.genai.mts) for the details.
+In the world of open source, a well-maintained `README` file acts as the front door to your project. It's often the first thing potential users and contributors see, and as such, it should be both informative and inviting. Today, we're diving into the GenAIScript that helps keep the `README` of the [GenAI project](https://github.com/microsoft/genaiscript) as fresh as a daisy! 🌼 Check out the actual [script file](https://github.com/microsoft/genaiscript/blob/main/samples/sample/genaisrc/readme-updater.genai.mts) for the details.
 
-> This blog post was co-authored with a [script](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/blogify-sample.genai.mts).
+> This blog post was co-authored with a [script](https://github.com/microsoft/genaiscript/blob/main/samples/sample/genaisrc/blogify-sample.genai.mts).
 
 ## The Intention Behind the Script
 
@@ -48,17 +68,19 @@ Let's walk through the script code as if we are crafting it from the ground up:
 
 ```ts
 script({
-    description:
-        "Maintenance script for the README that imports information from the documentation and samples to make it more attractive to users.",
-    tools: ["fs"],
-})
+  description:
+    "Maintenance script for the README that imports information from the documentation and samples to make it more attractive to users.",
+  tools: ["fs"],
+});
 ```
 
 Here, we're defining the script's metadata, including a description of its purpose and the tools it will utilize. The `fs` tool indicates file system operations will be involved.
 
 ```ts
-def("README", { filename: "README.md" })
-def("FEATURES", { filename: "docs/src/content/docs/index.mdx" })
+def("README", { filename: "README.md" });
+def("FEATURES", {
+  filename: "docs/src/content/docs/index.mdx",
+});
 ```
 
 These lines declare two important files: the `README` itself and a `FEATURES` file that contains information to be imported into the `README`.
@@ -66,13 +88,13 @@ These lines declare two important files: the `README` itself and a `FEATURES` fi
 ```ts
 $`You are an expert open source maintainer.
 ...
-`
+`;
 ```
 
 In this template literal, we're outlining the tasks for the script, including guidelines for updating the `README` with features, samples, and documentation links while preserving certain sections unchanged.
 
 ```ts
-defFileOutput("README.md")
+defFileOutput("README.md");
 ```
 
 Finally, we specify that the output of this script will be an updated `README.md` file.

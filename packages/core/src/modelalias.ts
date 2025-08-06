@@ -1,9 +1,14 @@
-import debug from "debug"
-const dbg = debug("genaiscript:modelalias")
-import { parseKeyValuePair } from "../../core/src/fence"
-import { runtimeHost } from "../../core/src/host"
-import { PromptScriptRunOptions } from "./server/messages"
-import { providerFeatures } from "./features"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import debug from "debug";
+const dbg = debug("genaiscript:modelalias");
+import { parseKeyValuePair } from "./fence.js";
+import { resolveRuntimeHost } from "./host.js";
+import type { PromptScriptRunOptions } from "./server/messages.js";
+import { providerFeatures } from "./features.js";
+import type { PromptScript } from "./types.js";
+import { LARGE_MODEL_ID, SMALL_MODEL_ID, VISION_MODEL_ID } from "./constants.js";
 
 /**
  * Configures model provider aliases based on the given provider ID and source type.
@@ -15,16 +20,14 @@ import { providerFeatures } from "./features"
  * Sets model aliases for the detected provider using the runtime host. If
  * the provider contains alias definitions, they are mapped and stored.
  */
-export function applyModelProviderAliases(
-    id: string,
-    source: "cli" | "env" | "config" | "script"
-) {
-    dbg(`apply provider ${id} from ${source}`)
-    if (!id) return
-    const provider = providerFeatures(id)
-    if (!provider) throw new Error(`Model provider not found: ${id}`)
-    for (const [key, value] of Object.entries(provider.aliases || {}))
-        runtimeHost.setModelAlias(source, key, provider.id + ":" + value)
+export function applyModelProviderAliases(id: string, source: "cli" | "env" | "config" | "script") {
+  const runtimeHost = resolveRuntimeHost();
+  dbg(`apply provider ${id} from ${source}`);
+  if (!id) return;
+  const provider = providerFeatures(id);
+  if (!provider) throw new Error(`Model provider not found: ${id}`);
+  for (const [key, value] of Object.entries(provider.aliases || {}))
+    runtimeHost.setModelAlias(source, key, provider.id + ":" + value);
 }
 
 /**
@@ -41,26 +44,22 @@ export function applyModelProviderAliases(
  * @param source - The origin of the configuration (e.g., `cli`, `env`, `config`, or `script`).
  */
 export function applyModelOptions(
-    options: Partial<
-        Pick<
-            PromptScriptRunOptions,
-            "model" | "smallModel" | "visionModel" | "modelAlias" | "provider"
-        >
-    >,
-    source: "cli" | "env" | "config" | "script"
+  options: Partial<
+    Pick<PromptScriptRunOptions, "model" | "smallModel" | "visionModel" | "modelAlias" | "provider">
+  >,
+  source: "cli" | "env" | "config" | "script",
 ) {
-    dbg(`apply model options from ${source}`, options)
-    if (options.provider) applyModelProviderAliases(options.provider, source)
-    if (options.model) runtimeHost.setModelAlias(source, "large", options.model)
-    if (options.smallModel)
-        runtimeHost.setModelAlias(source, "small", options.smallModel)
-    if (options.visionModel)
-        runtimeHost.setModelAlias(source, "vision", options.visionModel)
-    for (const kv of options.modelAlias || []) {
-        const aliases = parseKeyValuePair(kv)
-        for (const [key, value] of Object.entries(aliases))
-            runtimeHost.setModelAlias(source, key, value)
-    }
+  const runtimeHost = resolveRuntimeHost();
+  dbg(`apply model options from ${source}`, options);
+  if (options.provider) applyModelProviderAliases(options.provider, source);
+  if (options.model) runtimeHost.setModelAlias(source, LARGE_MODEL_ID, options.model);
+  if (options.smallModel) runtimeHost.setModelAlias(source, SMALL_MODEL_ID, options.smallModel);
+  if (options.visionModel) runtimeHost.setModelAlias(source, VISION_MODEL_ID, options.visionModel);
+  for (const kv of options.modelAlias || []) {
+    const aliases = parseKeyValuePair(kv);
+    for (const [key, value] of Object.entries(aliases))
+      runtimeHost.setModelAlias(source, key, value);
+  }
 }
 
 /**
@@ -76,11 +75,12 @@ export function applyModelOptions(
  *    environment using `runtimeHost.setModelAlias`, where the alias name and value are registered.
  */
 export function applyScriptModelAliases(script: PromptScript) {
-    applyModelOptions(script, "script")
-    if (script.modelAliases)
-        Object.entries(script.modelAliases).forEach(([name, alias]) => {
-            runtimeHost.setModelAlias("script", name, alias)
-        })
+  const runtimeHost = resolveRuntimeHost();
+  applyModelOptions(script, "script");
+  if (script.modelAliases)
+    Object.entries(script.modelAliases).forEach(([name, alias]) => {
+      runtimeHost.setModelAlias("script", name, alias);
+    });
 }
 
 /**
@@ -90,11 +90,9 @@ export function applyScriptModelAliases(script: PromptScript) {
  * @param options.all - If true, logs all aliases, including those with the "default" source.
  */
 export function logModelAliases(options?: { all?: boolean }) {
-    const { all } = options || {}
-    let aliases = Object.entries(runtimeHost.modelAliases)
-    if (!all)
-        aliases = aliases.filter(([, value]) => value.source !== "default")
-    aliases.forEach(([key, value]) =>
-        dbg(`${key}: ${value.model} (${value.source})`)
-    )
+  const runtimeHost = resolveRuntimeHost();
+  const { all } = options || {};
+  let aliases = Object.entries(runtimeHost.modelAliases);
+  if (!all) aliases = aliases.filter(([, value]) => value.source !== "default");
+  aliases.forEach(([key, value]) => dbg(`${key}: ${value.model} (${value.source})`));
 }

@@ -1,0 +1,59 @@
+---
+title: Images du blog
+date: 2025-03-23
+authors: pelikhan
+tags:
+  - blog
+  - images
+  - markdown
+  - GenAIScript
+canonical_url: https://microsoft.github.io/genaiscript/blog/blog-images
+description: Nous avons ajouté des images au blog, voici comment nous l'avons fait.
+cover:
+  alt: "A retro-style 8-bit illustration features a computer screen with a visible
+    code script. Surrounding it are symbolic representations of image
+    generation: a markdown document, an image prompt morphing into abstract art,
+    and a fading alt-text bubble. The design uses corporate colors, simple
+    geometric shapes, and is limited to five colors, without including people or
+    text."
+  image: ../../blog/blog-images.png
+excerpt: La génération automatique d’images de couverture pour les articles de
+  blog peut sembler banale, mais le script utilisé pour ce processus présente
+  des techniques d’automatisation intéressantes. En transformant le contenu
+  markdown en une invite d’image, puis en générant des visuels et du texte
+  alternatif, et en mettant à jour les métadonnées de manière fluide, ce flux de
+  travail en plusieurs étapes montre comment l’automatisation à petite échelle
+  peut être efficacement mise à l’échelle. Le résultat ? Des images abstraites,
+  orientées sur le contenu, qui suggèrent un potentiel d’optimisation. De quoi
+  faire réfléchir les créateurs de contenu qui envisagent d’automatiser leurs
+  flux de travail.
+
+---
+
+import { Code } from "@astrojs/starlight/components";
+import code from "../../../../../genaisrc/blog-image.genai.mts?raw";
+
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+Nous générons des images de couverture pour le blog, ce qui en soi est complètement inintéressant... mais le script qui a généré les images vaut le coup d'œil.
+
+La génération d'une image de couverture pour un article de blog se fait en 3 étapes :
+
+* convertir le markdown du blog en une invite d'image
+* générer une image à partir de l'invite d'image
+* générer une description de texte alternatif à partir de l'invite d'image
+* redimensionner, copier l'image et mettre à jour les métadonnées de l'article de blog
+
+<Code code={code} lang="ts" wrap title="blog-image.genai.mts" />
+
+Une fois que ce script a fonctionné pour quelques articles, nous avons utilisé la commande `convert` pour générer les images pour tous les articles du blog.
+
+```sh
+genaiscript convert blog-image blog/*.md*
+```
+
+## Et les images ?
+
+Les images sont quelque peu abstraites, mais elles sont générées à partir du contenu de l'article de blog. L'invite d'image pourrait certainement être améliorée, mais c'est un bon début.

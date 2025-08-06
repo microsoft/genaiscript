@@ -25,13 +25,33 @@ excerpt: Automatically generating blog post cover images may sound mundane, but
   efficiently. The result? Abstract, content-driven images that hint at
   optimization potential. Thought-provoking for content creators considering
   automation workflows.
+llmstxt:
+  content: >-
+    We generate blog cover images using a script that operates in three phases:
+    converting blog markdown into an image prompt, generating an image from the
+    prompt, and creating alt text for the image. The script also resizes, copies
+    the image, and updates the blog post frontmatter. Once tested on a few
+    posts, the `genaiscript convert` command automates image generation for all
+    posts:
+
+
+    ```sh
+
+    genaiscript convert blog-image blog/*.md*
+
+    ```
+
+
+    The images are abstract and derived from blog content. While the prompts can
+    be improved, they provide a functional starting point.
+  hash: 188c3c1731dc64c20eb6fd3fdc4d2ef5430cd48f61b13c8dcd0d57e5acf2d877
 
 ---
 
-import { Code } from "@astrojs/starlight/components"
-import code from "../../../../genaisrc/blog-image.genai.mts?raw"
+import { Code } from "@astrojs/starlight/components";
+import code from "../../../../genaisrc/blog-image.genai.mts?raw";
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 

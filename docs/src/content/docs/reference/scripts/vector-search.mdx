@@ -16,6 +16,66 @@ hero:
       There are no background elements, text, people, gradients, shadows, or 3D
       effects, all confined to a compact 128x128 pixel square."
     file: ./vector-search.png
+llmstxt:
+  content: >-
+    GenAIScript supports vector databases for embeddings search and
+    retrieval-augmented generation (RAG).
+
+
+    To create or load an index, use `retrieval.index`. Options like
+    `embeddingsModel` and `chunkSize` must remain consistent across executions.
+    By default, vectors are stored locally in `.genaiscript/vector` using the
+    `vectra` library. Embeddings are computed via the `embeddings` model alias,
+    configurable as needed.
+
+
+    ```js
+
+    const index = await retrieval.index("animals", {
+        embeddingsModel: "ollama:nomic-embed-text",
+        chunkSize: 512,
+        chunkOverlap: 0,
+    })
+
+    ```
+
+
+    Set `deleteIfExists: true` to reset the index on every execution.
+
+
+    For Azure AI Search, specify `type: "azure_ai_search"` in the index options.
+    Configure it via `AZURE_AI_SEARCH_ENDPOINT` and `AZURE_AI_SEARCH_API_KEY` in
+    `.env`. Refer to Azure's documentation for authentication.
+
+
+    ```js
+
+    const index = retrieval.index("animals", { type: "azure_ai_search" })
+
+    ```
+
+
+    Indexing is done with `index.insertOrUpdate`, which handles chunking,
+    vectorizing, and updating the database.
+
+
+    ```js
+
+    await index.insertOrUpdate(env.files)
+
+    ```
+
+
+    Search the index using `index.search`. Results include files with
+    reconstructed content from matching chunks.
+
+
+    ```js
+
+    const hits = await index.search("keyword")
+
+    ```
+  hash: 2dc2f4aa8b4ee5e0b917c53500469e05da48f5225b407c6c19e58e4a46cd2265
 
 ---
 
@@ -103,7 +163,7 @@ const index = await retrieval.index("animals", {
 
 ## Indexing
 
-The `index.insertOrUpdate` functiont takes care of chunking, vectorizing and
+The `index.insertOrUpdate` function takes care of chunking, vectorizing and
 updating the vector database.
 
 ```js "await index.insertOrUpdate(env.files)"
@@ -119,7 +179,7 @@ The `index.search` performs a search (vector or hybrid) using the index.
 const hits = await retrieval.search("keyword")
 ```
 
-The returned value is an array of files with the resconstructed content from the matching chunks.
+The returned value is an array of files with the reconstructed content from the matching chunks.
 
 ```js wrap
 const hits = await retrieval.search("keyword")

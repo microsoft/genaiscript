@@ -24,10 +24,37 @@ excerpt: Discover how GenAIScript simplifies interaction with Azure AI Search
   Generation (RAG) workflows, leveraging embeddings for similarity searches
   across your data. Learn how to streamline file indexing and query execution
   using straightforward functions and enhance your AI toolset.
+llmstxt:
+  content: >-
+    The `retrieval` APIs now support Azure AI Search, enabling indexing of files
+    as embeddings in a vector database for similarity search, commonly used in
+    Retrieval Augmented Generation (RAG).
+
+
+    Example:
+
+    ```js
+
+    const index = retrieval.index("animals", { type: "azure_ai_search" });
+
+    await index.insertOrUpdate(env.files);
+
+    const res = await index.search("cat dog");
+
+    def("RAG", res);
+
+    ```
+
+
+    GenAIScript simplifies interaction with Azure AI Search by handling
+    chunking, vectorization, and indexing. The `retrieval.index` function
+    creates an index, `insertOrUpdate` indexes files, and `search` retrieves
+    relevant matches. Files can also be pre-indexed via the command line.
+  hash: 04edd77115b9e6029dda40aabaa77f66d2ec4e3e081872d34680ecdae787f043
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -37,12 +64,14 @@ This is commonly referred to as Retrieval Augmented Generation (RAG).
 
 ```js wrap '{ type: "azure_ai_search" }'
 // index creation
-const index = retrieval.index("animals", { type: "azure_ai_search" })
+const index = retrieval.index("animals", {
+  type: "azure_ai_search",
+});
 // indexing
-await index.insertOrUpdate(env.files)
+await index.insertOrUpdate(env.files);
 // search
-const res = await index.search("cat dog")
-def("RAG", res)
+const res = await index.search("cat dog");
+def("RAG", res);
 ```
 
 GenAIScript provides a simple and efficient way to interact with Azure AI Search. It will handle

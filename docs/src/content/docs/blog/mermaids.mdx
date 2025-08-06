@@ -3,48 +3,101 @@ title: Mermaids Unbroken
 description: Automatic repair of mermaid diagrams
 date: 2025-05-16
 authors:
-    - pelikhan
+  - pelikhan
 cover:
-    alt:
-        A minimalist 8-bit style image showing a flowchart and a class diagram side
-        by side, with bold arrows connecting geometric shapes like squares,
-        diamonds, and rounded rectangles in the flowchart, and rectangles connected
-        by lines denoting relationships in the class diagram. The background subtly
-        resembles a tech workspace with circular nodes symbolizing an abstract
-        repair or debugging system. The design uses a corporate palette of five
-        colors in a clean, structured layout and lacks text or characters.
-    image: ./mermaids.png
+  alt: A minimalist 8-bit style image showing a flowchart and a class diagram side
+    by side, with bold arrows connecting geometric shapes like squares,
+    diamonds, and rounded rectangles in the flowchart, and rectangles connected
+    by lines denoting relationships in the class diagram. The background subtly
+    resembles a tech workspace with circular nodes symbolizing an abstract
+    repair or debugging system. The design uses a corporate palette of five
+    colors in a clean, structured layout and lacks text or characters.
+  image: ./mermaids.png
 tags:
-    - Mermaid diagrams
-    - Markdown diagrams
-    - Class diagrams
-    - Mermaid syntax errors
-    - SEO for diagrams
+  - Mermaid diagrams
+  - Markdown diagrams
+  - Class diagrams
+  - Mermaid syntax errors
+  - SEO for diagrams
 excerpt: >-
-    Mermaid diagrams bring clarity to complex systems, directly embedded within
-    markdown. They empower you to illustrate workflows, relationships, and
-    hierarchies with syntax-driven precision. However, Mermaid’s dependence on
-    strict syntax means that errors—either manual or LLM-generated—can disrupt
-    rendering.
+  Mermaid diagrams bring clarity to complex systems, directly embedded within
+  markdown. They empower you to illustrate workflows, relationships, and
+  hierarchies with syntax-driven precision. However, Mermaid’s dependence on
+  strict syntax means that errors—either manual or LLM-generated—can disrupt
+  rendering.
 
 
-    When errors occur, integrating automated repair systems in workflows, like the
-    "repairer" in the `system.diagrams` system prompt, ensures diagrams remain
-    functional. This process not only resolves syntax issues but also refines
-    communication between human inputs and AI-generated outputs, maintaining
-    diagram integrity.
+  When errors occur, integrating automated repair systems in workflows, like the
+  "repairer" in the `system.diagrams` system prompt, ensures diagrams remain
+  functional. This process not only resolves syntax issues but also refines
+  communication between human inputs and AI-generated outputs, maintaining
+  diagram integrity.
 
 
-    Whether you're summarizing application structure or detailing intricate
-    interfaces, the harmony of Markdown and automated corrections streamlines your
-    ability to visualize data effectively.
+  Whether you're summarizing application structure or detailing intricate
+  interfaces, the harmony of Markdown and automated corrections streamlines your
+  ability to visualize data effectively.
+llmstxt:
+  content: >-
+    Mermaid diagrams, widely used for creating diagrams in markdown, are
+    supported in platforms like GitHub. They enable flowcharts, class diagrams,
+    and more, with customizable node and edge appearances. Syntax errors in
+    Mermaid can cause parsing failures, but LLMs are effective at generating and
+    repairing diagrams based on error messages.
+
+
+    Example flowchart:
+
+    ```mermaid
+
+    graph TD
+        A[Start] --> B{Is it?}
+        B -->|Yes| C[OK]
+        B -->|No| D[Not OK]
+        C --> E[End]
+        D --> E
+    ```
+
+
+    Syntax matters; errors like `B ->|Yes|` instead of `B -->|Yes|` break
+    parsing. LLMs can fix such issues using error feedback.
+
+
+    A repair system parses Mermaid blocks, detects errors, and prompts the LLM
+    to fix them. For instance, a class diagram generated with errors:
+
+    ```mermaid
+
+    classDiagram
+        class createChatGenerationContext,createChatTurnGenerationContext highlightFunction;
+        classDef highlightFunction fill:#f5f,stroke:#333,stroke-width:1.5px;
+    ```
+
+    produced a parse error. The LLM repaired it by removing invalid syntax:
+
+    ```mermaid
+
+    classDiagram
+        class createChatTurnGenerationContext {
+            +createChatTurnGenerationContext(options, trace, cancellationToken) : ChatTurnGenerationContext
+        }
+        class createChatGenerationContext {
+            +createChatGenerationContext(options, trace, projectOptions) : RunPromptContextNode
+        }
+    ```
+
+
+    Mermaid diagrams can also be parsed programmatically using
+    `parsers.mermaid`. This enables automated validation and repair workflows.
+  hash: f51f89e98639edccc22ca6a8c528891ba4097f1e9d22992b3788826fb5bab328
+
 ---
 
 [Mermaid diagrams](https://mermaid.js.org/) are a popular way to create [diagrams](/genaiscript/reference/scripts/diagrams) in markdown.
 They are used in many projects, [including in GitHub Markdown](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams).
 Since there are so many examples of mermaid diagrams in the wild,
 
-it is not surprising that LLMs are pretty good at generating them.
+It is not surprising that LLMs are pretty good at generating them.
 
 ## Mermaid diagrams in Markdown
 
@@ -122,8 +175,8 @@ graph TD
 Here is a trace of a simple script that generates a diagram from any code.
 
 ```js wrap title="mermaid.genai.mjs"
-def("CODE", env.files)
-$`Generate a class diagram using mermaid of the code symbols in the CODE.`
+def("CODE", env.files);
+$`Generate a class diagram using mermaid of the code symbols in the CODE.`;
 ```
 
 We run the [cli](/genaiscript/reference/cli) with the `mermaid.genai.mjs` script and the [runpromptcontext.ts file](https://github.com/microsoft/genaiscript/tree/main/packages/core/src/runpromptcontext.ts).

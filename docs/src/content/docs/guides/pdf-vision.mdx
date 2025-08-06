@@ -1,12 +1,89 @@
 ---
-title: "PDF Vision"
-keywords: ["genai", "pdf", "markdown", "ocr", "beginner"]
+title: PDF Vision
+keywords:
+  - genai
+  - pdf
+  - markdown
+  - ocr
+  - beginner
 sidebar:
-    order: 60
+  order: 60
+llmstxt:
+  content: >-
+    Extracting markdown from PDFs is challenging due to the format's complexity.
+    Techniques include using Mozilla's pdfjs for text extraction, which may
+    produce garbled text or issues with tables, and applying OCR for image-based
+    PDFs.
+
+
+    This guide demonstrates a GenAIScript leveraging an LLM with vision support
+    to convert PDF pages into markdown, including text, tables, and images.
+
+
+    The script processes the first file in `env.files` using a PDF parser to
+    extract pages and images with `renderAsImage: true`:
+
+
+    ```ts
+
+    const { pages, images } = await parsers.PDF(env.files[0], { renderAsImage:
+    true });
+
+    ```
+
+
+    It iterates over pages, extracting text and images for each:
+
+
+    ```ts
+
+    for (let i = 0; i < pages.length; ++i) {
+        const page = pages[i];
+        const image = images[i];
+        const res = await runPrompt(
+            (ctx) => {
+                if (i > 0) ctx.def("PREVIOUS_PAGE", pages[i - 1]);
+                ctx.def("PAGE", page);
+                if (i + 1 < pages.length) ctx.def("NEXT_PAGE", pages[i + 1]);
+                ctx.defImages(image, { autoCrop: true, greyscale: true });
+                ctx.$`You are an expert in converting PDF images to markdown. Use PAGE, PREVIOUS_PAGE, and NEXT_PAGE for context. Generate markdown, CSV for tables, and alt-text for images.`;
+            },
+            { model: "small", label: `page ${i + 1}`, cache: "pdf-ocr" }
+        );
+        ocrs.push(parsers.unfence(res.text, "markdown") || res.error?.message);
+    }
+
+    ```
+
+
+    Results are aggregated and output as markdown:
+
+
+    ```ts
+
+    console.log(ocrs.join("\n\n"));
+
+    ```
+
+
+    Run the script via CLI:
+
+
+    ```bash
+
+    genaiscript run pdfocr <mypdf.pdf>
+
+    ```
+
+
+    This script simplifies PDF-to-markdown conversion, handling text, tables,
+    and images efficiently.
+  hash: 1e09428f192147b1cb8888cf3f6f3597918da73d60e7a8fdc779a506f9ef67f0
+
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import source from "../../../../../packages/sample/genaisrc/pdfocr.genai.mts?raw"
+import source from "../../../../../samples/sample/genaisrc/pdfocr.genai.mts?raw"
 
 Extracting markdown from PDFs is a tricky task... the PDF file format was never really meant to be read back.
 

@@ -22,6 +22,28 @@ hero:
       five flat corporate colors, simple forms, no background, and avoids extra
       details, arranged within a small square format."
     file: ./xml.png
+llmstxt:
+  content: >-
+    The `def` function processes files, including XML. `def("DOCS", env.files)`
+    handles all files, while `def("XML", env.files, { endsWith: ".xml" })`
+    filters XML files.
+
+
+    `XML.parse` converts XML to JSON. Example:
+
+    `XML.parse('<xml attr="1"><child /></xml>')` produces:
+
+    `{ "xml": { "@_attr": "1", "child": {} } }`.
+
+
+    For RSS feeds, use `XML.parse` to parse data into objects:
+
+    `const { rss } = XML.parse(await fetch("https://dev.to/feed").then(res =>
+    res.text()))`. Extract articles:
+
+    `const articles = items.map(({ title, description }) => ({ title,
+    description: parsers.HTMLToText(description) }));`.
+  hash: aa6bcf8406a6f84cf903aee40f0766316207372020a8572e1806555a1c1e663f
 
 ---
 

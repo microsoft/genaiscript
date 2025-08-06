@@ -21,12 +21,36 @@ excerpt: "Introducing a new Node.js API for GenAIScript: now you can integrate
   Mimicking the CLI's behavior, the `run` API simplifies tasks like file
   summarization while maintaining a lightweight and side-effect-free design.
   Ready to streamline your automation? Check out the documentation for details."
+llmstxt:
+  content: >-
+    GenAIScript now supports programmatic usage via a Node.js API (v1.83+),
+    enabling TypeScript integration. Install the `@genaiscript/api` package to
+    use it. The `run` function replicates CLI behavior, accepting the same
+    arguments and returning results like messages, modified files, and
+    diagnostics.
+
+
+    Example:
+
+    ```js
+
+    import { run } from "@genaiscript/api";
+
+    const results = await run("summarize", ["myfile.txt"]);
+
+    ```
+
+
+    The API is dependency-free, side-effect-free, and runs GenAIScript in a
+    worker thread, ensuring minimal memory usage and no global modifications.
+    Feedback on progress callbacks is welcome.
+  hash: ea9b2fab8e16c5390d6fe12998ab6a83333e50d41ebdc4d2447729873f72829f
 
 ---
 
-import { PackageManagers } from "starlight-package-managers"
+import { PackageManagers } from "starlight-package-managers";
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -38,15 +62,15 @@ A long standing feature request has been to run GenAIScript programmatically fro
 
 You'll want to add [genaiscript](https://www.npmjs.com/package/genaiscript) as a (dev) dependency to your project.
 
-<PackageManagers pkg="genaiscript" dev />
+<PackageManagers pkg="@genaiscript/api" />
 
 ## The `run` API
 
 The `run` API is meant to mimic the behavior of the GenAIScript CLI. It takes the same arguments as the CLI and returns the same results. This allows you to call GenAIScript from other TypeScript scripts.
 
 ```js
-import { run } from "genaiscript/api"
-const results = await run("summarize", ["myfile.txt"])
+import { run } from "@genaiscript/api";
+const results = await run("summarize", ["myfile.txt"]);
 ```
 
 The result object contains the full list of messages, and additional parsed information like modified files, diagnostics and so forth.

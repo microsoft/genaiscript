@@ -22,10 +22,46 @@ excerpt: GenAIScript has introduced updates to enhance the security of Model
   features provide reinforced safeguards to maintain integrity across tool
   definitions and outputs. Ensure your configurations are up to date for
   comprehensive protection.
+llmstxt:
+  content: >-
+    GenAIScript introduced security features in `v1.127` for Model Context
+    Protocol (MCP) tools to mitigate attacks like rug pulls, tool poisoning, and
+    prompt injection.
+
+
+    1. **Tool Signature Hash**: Prevents rug pull attacks by ensuring the tool
+    list remains unaltered.  
+       Example:  
+       script({  
+           mcpServers: {  
+               playwright: {  
+                   ...,  
+                   toolsSha: "..."  
+               }  
+           }  
+       })
+
+    2. **Prompt Injection Detection**: Uses a content safety scanner to secure
+    tool definitions and outputs against tool poisoning and prompt injection.  
+       Example:  
+       script({  
+           mcpServers: {  
+               playwright: {  
+                   ...,  
+                   detectPromptInjection: "always"  
+               }  
+           }  
+       })  
+       Tools can also be instrumented individually:  
+       defTool("fetch", "Fetch a URL", { url: { type: "string" } }, async args => ..., { detectPromptInjection: "always" })
+
+    These features enhance security but do not address all aspects. Further
+    precautions may be necessary.
+  hash: 916d3590273a4a3d42fa6ea5e5d5097b990c5c7fe18c1e95418c9fbb8608854e
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 

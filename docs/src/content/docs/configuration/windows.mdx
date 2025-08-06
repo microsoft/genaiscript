@@ -1,14 +1,33 @@
 ---
 title: Windows AI
 sidebar:
-    order: 50
+  order: 50
+llmstxt:
+  content: |-
+    The `windows` provider supports [AI for Windows Apps](https://learn.microsoft.com/en-us/windows/ai/), offering advanced local models with NPU hardware acceleration.
+
+    To use a model:
+    1. Install the [AI Toolkit for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-windows-ai-studio.windows-ai-studio).
+    2. Open the **Model Catalog** and add a model from the **ONNX Models** runtime.
+    3. Copy the model name by right-clicking it in the Explorer view.
+    4. Use the copied model name in your script:
+
+    ```js
+    script({
+      model: "windows:Phi-4-mini-gpu-int4-rtn-block-32",
+    });
+    ```
+
+    Refer to the [Azure AI Toolkit getting started guide](https://learn.microsoft.com/en-us/windows/ai/toolkit/toolkit-getting-started) for more details.
+  hash: 7264321035ec4407e155f2f4e656c668a93733003a17f1be2fd96579d07dec5e
+
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 The `windows` provider support [AI for Windows Apps](https://learn.microsoft.com/en-us/windows/ai/) which provides state-of-the-art local models, with NPU hardware support.
 
@@ -40,8 +59,8 @@ Set the model name in your script to the model name you copied.
 
 ```js "windows:"
 script({
-    model: "windows:Phi-4-mini-gpu-int4-rtn-block-32",
-})
+  model: "windows:Phi-4-mini-gpu-int4-rtn-block-32",
+});
 ```
 
 </li>

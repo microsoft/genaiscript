@@ -1,21 +1,185 @@
 ---
 title: Metadata
 sidebar:
-    order: 2
+  order: 2
 description: Learn how to configure script metadata to enhance functionality and
-    user experience in GenAIScript.
+  user experience in GenAIScript.
 keywords: script metadata, configuration, LLM parameters, customization, script
-    management
+  management
 hero:
-    image:
-        alt: A small, square digital illustration in 8-bit flat style showing a
-            simplified computer window. Inside are separated areas formed by
-            rectangles and circles, each sectioned with bold, bright colors to
-            represent different configuration settings—model, tokens, temperature, and
-            group options—depicted with shapes like sliders, toggles, and labeled
-            blocks. The design is clean with no text, people, backgrounds, or visual
-            effects, emphasizing a clear, easy-to-distinguish layout.
-        file: ./metadata.png
+  image:
+    alt: A small, square digital illustration in 8-bit flat style showing a
+      simplified computer window. Inside are separated areas formed by
+      rectangles and circles, each sectioned with bold, bright colors to
+      represent different configuration settings—model, tokens, temperature, and
+      group options—depicted with shapes like sliders, toggles, and labeled
+      blocks. The design is clean with no text, people, backgrounds, or visual
+      effects, emphasizing a clear, easy-to-distinguish layout.
+    file: ./metadata.png
+llmstxt:
+  content: >-
+    Prompts can use `script({ ... })` to configure UI elements like `title`,
+    `description`, and `group`. This is optional but must use valid JSON5.
+
+
+    `title`, `description`, and `group` define how the prompt appears in the UI.
+    Example:
+
+    ```javascript
+
+    script({
+        title: "Shorten",
+        description: "Shrinks text size without losing meaning",
+        group: "shorten",
+    })
+
+    ```
+
+
+    `system` overrides default system prompts:
+
+    ```javascript
+
+    script({
+        system: ["system.files"],
+    })
+
+    ```
+
+
+    `model` specifies the LLM identifier. Use `large` or `small` for defaults:
+
+    ```javascript
+
+    script({
+        model: "openai:gpt-4o",
+    })
+
+    ```
+
+
+    `maxTokens` sets the maximum completion tokens:
+
+    ```javascript
+
+    script({
+        maxTokens: 2000,
+    })
+
+    ```
+
+
+    `maxToolCalls` limits function/tool calls to prevent infinite loops:
+
+    ```javascript
+
+    script({
+        maxToolCalls: 100,
+    })
+
+    ```
+
+
+    `temperature` adjusts randomness (0-2, default 0.8):
+
+    ```javascript
+
+    script({
+        temperature: 0.8,
+    })
+
+    ```
+
+
+    `top_p` sets nucleus sampling probability:
+
+    ```javascript
+
+    script({
+        top_p: 0.5,
+    })
+
+    ```
+
+
+    `seed` sets a fixed seed for reproducibility:
+
+    ```javascript
+
+    script({
+        seed: 12345678,
+    })
+
+    ```
+
+
+    `metadata` adds key-value pairs for stored completions:
+
+    ```javascript
+
+    script({
+        metadata: { name: "my_script" }
+    })
+
+    ```
+
+
+    Retry options improve reliability for failed requests:
+
+    ```javascript
+
+    script({
+        retries: 3,
+        retryDelay: 1000,
+        maxDelay: 5000,
+        maxRetryAfter: 10000,
+        retryOn: [429, 500, 502, 503, 504],
+    })
+
+    ```
+
+    Retries handle rate limits (429), server errors (5xx), and network failures.
+    Overrides are possible in `runPrompt()`:
+
+    ```javascript
+
+    const { text } = await runPrompt(
+        (_) => _.$`Summarize this text.`,
+        { model: "small", retries: 2, retryDelay: 500, maxDelay: 3000 }
+    )
+
+    ```
+
+
+    `unlisted: true` hides prompts from user lists. Use `env.meta` to access
+    script metadata:
+
+    ```javascript
+
+    const { model } = env.meta
+
+    ```
+
+
+    `host.resolveModel` resolves model aliases:
+
+    ```javascript
+
+    const info = await host.resolveModel("large")
+
+    console.log(info)
+
+    ```
+
+    Returns provider and model details:
+
+    ```json
+
+    { "provider": "openai", "model": "gpt-4o" }
+
+    ```
+  hash: 6aadfa1351fc51ed8fa13ff65a71a8f74a19a91b881209fec945065977ba629a
+
 ---
 
 Prompts use `script({ ... })` function call
@@ -132,6 +296,40 @@ script({
         name: "my_script",
     }
 })
+```
+
+### Retry options
+
+You can configure retry behavior for failed LLM requests to improve reliability:
+
+```js
+script({
+    ...,
+    retries: 3,                    // Number of retry attempts (default: 2)
+    retryDelay: 1000,             // Initial delay in ms between retries (default: 1000) 
+    maxDelay: 5000,               // Maximum delay in ms with exponential backoff (default: 10000)
+    maxRetryAfter: 10000,         // Maximum time in ms to respect retry-after headers (default: 10000)
+    retryOn: [429, 500, 502, 503, 504], // HTTP status codes to retry on (default: [429, 500, 502, 503, 504])
+})
+```
+
+These retry options help handle:
+- **Rate limiting** (HTTP 429): Automatically waits for rate limit windows
+- **Server errors** (HTTP 5xx): Retries on temporary server issues
+- **Network failures**: Uses exponential backoff to avoid overwhelming services
+
+Retry options can also be passed to `runPrompt()` calls to override script-level settings:
+
+```js
+const { text } = await runPrompt(
+    (_) => _.$`Summarize this text.`,
+    {
+        model: "small",
+        retries: 2,           // Override script retry settings
+        retryDelay: 500,      // Faster initial retry
+        maxDelay: 3000,       // Lower maximum delay
+    }
+)
 ```
 
 ### Other parameters
