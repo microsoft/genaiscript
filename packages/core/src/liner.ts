@@ -58,10 +58,11 @@ export function removeLineNumbers(text: string) {
  *
  * @param text - The input text from which to extract the range.
  * @param options - Range options specifying line numbers or center line.
+ * @param encoder - Optional token encoder for accurate token counting.
  * @returns The extracted range of text or the original text if no valid range is provided.
  */
-export function extractRange(text: string, options?: RangeOptions) {
-  const { lineStart, lineEnd, line, maxTokens, encoder } = options || {};
+export function extractRange(text: string, options?: RangeOptions, encoder?: TokenEncoder) {
+  const { lineStart, lineEnd, line, maxTokens } = options || {};
   
   // Handle existing lineStart/lineEnd logic first (takes priority)
   if (!isNaN(lineStart) || !isNaN(lineEnd)) {
@@ -73,7 +74,7 @@ export function extractRange(text: string, options?: RangeOptions) {
   
   // Handle center line option if lineStart/lineEnd not provided
   if (!isNaN(line)) {
-    return extractRangeAroundLine(text, line, { maxTokens, encoder });
+    return extractRangeAroundLine(text, line, maxTokens, encoder);
   }
   
   // If no valid range is provided, return original text
@@ -86,15 +87,16 @@ export function extractRange(text: string, options?: RangeOptions) {
  * 
  * @param text - The input text from which to extract the range.
  * @param centerLine - The 1-based center line number.
- * @param options - Optional parameters for token budget and encoder.
+ * @param maxTokens - Optional maximum token budget for the extracted range.
+ * @param encoder - Optional token encoder for accurate token counting.
  * @returns The extracted range of text around the center line.
  */
 export function extractRangeAroundLine(
   text: string, 
   centerLine: number, 
-  options?: { maxTokens?: number; encoder?: TokenEncoder }
+  maxTokens?: number,
+  encoder?: TokenEncoder
 ): string {
-  const { maxTokens, encoder } = options || {};
   const lines = text.split("\n");
   const totalLines = lines.length;
   

@@ -1771,11 +1771,6 @@ export interface RangeOptions {
    * If specified, the range will be computed to fit within this token limit.
    */
   maxTokens?: number;
-  /**
-   * Token encoder for accurate token counting.
-   * If not provided, uses approximation.
-   */
-  encoder?: TokenEncoder;
 }
 
 export interface GitIgnoreFilterOptions {

@@ -209,18 +209,19 @@ line 10`;
     const text = lines.join("\n");
 
     // Test with a very small budget that should only include center line
-    const result1 = extractRangeAroundLine(text, 10, { maxTokens: 5 });
+    const result1 = extractRangeAroundLine(text, 10, 5);
     assert.strictEqual(result1, "line 10");
 
     // Test with a larger budget that should include some context
-    const result2 = extractRangeAroundLine(text, 10, { maxTokens: 50 });
+    const result2 = extractRangeAroundLine(text, 10, 25);
     assert.include(result2, "line 10");
     assert.include(result2, "line 9");
     assert.include(result2, "line 11");
     
     // Should not include the entire file
-    assert.notInclude(result2, "line 1");
-    assert.notInclude(result2, "line 20");
+    const result2Lines = result2.split("\n");
+    assert.isFalse(result2Lines.includes("line 1"));
+    assert.isFalse(result2Lines.includes("line 20"));
   });
 
   test("extractRangeAroundLine token budget expansion", function () {
@@ -232,7 +233,7 @@ line 10`;
     const text = lines.join("\n");
 
     // Use a moderate budget that should expand beyond just the center line
-    const result = extractRangeAroundLine(text, 5, { maxTokens: 25 });
+    const result = extractRangeAroundLine(text, 5, 25);
     
     // Should include center line
     assert.include(result, "line 5");
@@ -251,12 +252,12 @@ line 10`;
     const text = lines.join("\n");
 
     // Test near beginning of file
-    const result1 = extractRangeAroundLine(text, 2, { maxTokens: 20 });
+    const result1 = extractRangeAroundLine(text, 2, 20);
     assert.include(result1, "line 2");
     assert.include(result1, "line 1"); // Should include line 1
     
     // Test near end of file
-    const result2 = extractRangeAroundLine(text, 9, { maxTokens: 20 });
+    const result2 = extractRangeAroundLine(text, 9, 20);
     assert.include(result2, "line 9");
     assert.include(result2, "line 10"); // Should include line 10
   });
@@ -298,7 +299,7 @@ line 10`;
     const text = lines.join("\n");
 
     // Small budget that's exceeded by center line alone
-    const result = extractRangeAroundLine(text, 5, { maxTokens: 10 });
+    const result = extractRangeAroundLine(text, 5, 10);
     
     // Should return just the center line when it already exceeds budget
     assert.strictEqual(result, centerLine);
