@@ -106,6 +106,7 @@ export interface PromptNode extends ContextExpansionOptions {
     | "chatParticipant"
     | "fileOutput"
     | "importTemplate"
+    | "importChatModeInstructions"
     | "mcpServer"
     | undefined;
   children?: PromptNode[]; // Child nodes for hierarchical structure
@@ -179,6 +180,13 @@ export interface PromptImportTemplate extends PromptNode {
   type: "importTemplate";
   files: ElementOrArray<string | WorkspaceFile>; // Files to import
   args?: Record<string, ImportTemplateArgumentType>; // Arguments for the template
+  options?: ImportTemplateOptions; // Additional options
+}
+
+// Interface for an import chat mode instructions node.
+export interface PromptImportChatModeInstructions extends PromptNode {
+  type: "importChatModeInstructions";
+  patterns?: ElementOrArray<string>; // File patterns to search for
   options?: ImportTemplateOptions; // Additional options
 }
 
@@ -626,6 +634,18 @@ export function createImportTemplate(
   } satisfies PromptImportTemplate;
 }
 
+// Function to create an import chat mode instructions node.
+export function createImportChatModeInstructions(
+  patterns?: ElementOrArray<string>,
+  options?: ImportTemplateOptions,
+): PromptImportChatModeInstructions {
+  return {
+    type: "importChatModeInstructions",
+    patterns,
+    options,
+  } satisfies PromptImportChatModeInstructions;
+}
+
 /**
  * Creates a node representing an MCP (Multiple Connection Protocol) server with specified configurations.
  *
@@ -711,6 +731,7 @@ export interface PromptNodeVisitor {
   chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void>; // Chat participant node visitor
   fileOutput?: (node: FileOutputNode) => Awaitable<void>; // File output node visitor
   importTemplate?: (node: PromptImportTemplate) => Awaitable<void>; // Import template node visitor
+  importChatModeInstructions?: (node: PromptImportChatModeInstructions) => Awaitable<void>; // Import chat mode instructions node visitor
   mcpServer?: (node: PromptMcpServerNode) => Awaitable<void>; // Mcp server node visitor
 }
 
@@ -759,6 +780,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
       break;
     case "importTemplate":
       await visitor.importTemplate?.(node as PromptImportTemplate);
+      break;
+    case "importChatModeInstructions":
+      await visitor.importChatModeInstructions?.(node as PromptImportChatModeInstructions);
       break;
     case "mcpServer":
       await visitor.mcpServer?.(node as PromptMcpServerNode);
@@ -971,6 +995,40 @@ async function resolvePromptNode(
             n.preview += rendered + "\n";
           }
         }
+        n.tokens = approximateTokens(n.preview);
+      } catch (e) {
+        n.error = e;
+      }
+    },
+    importChatModeInstructions: async (n) => {
+      try {
+        const { patterns, options } = n;
+        n.children = [];
+        n.preview = "";
+        
+        // Default patterns for VSCode chat mode instruction files
+        const defaultPatterns = [
+          ".github/copilot-instructions.md",
+          ".github/copilot-instructions.txt", 
+          ".vscode/copilot-instructions.md",
+          ".vscode/copilot-instructions.txt",
+          "copilot-instructions.md",
+          "copilot-instructions.txt"
+        ];
+        
+        const searchPatterns = patterns ? arrayify(patterns) : defaultPatterns;
+        const fs: WorkspaceFile[] = await expandFileOrWorkspaceFiles(searchPatterns);
+        
+        for (const f of fs) {
+          await resolveFileContent(f, {
+            ...(options || {}),
+            trace,
+          });
+          // Import the content directly as text for system prompt
+          n.children.push(createTextNode(f.content));
+          n.preview += f.content + "\n";
+        }
+        
         n.tokens = approximateTokens(n.preview);
       } catch (e) {
         n.error = e;

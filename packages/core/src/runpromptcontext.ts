@@ -14,6 +14,7 @@ import {
   createToolNode,
   createImageNode,
   createImportTemplate,
+  createImportChatModeInstructions,
   createSchemaNode,
   createStringTemplateNode,
   createTextNode,
@@ -425,6 +426,10 @@ export function createChatTurnGenerationContext(
     },
     importTemplate: (template, data, options) => {
       appendChild(node, createImportTemplate(template, data, options));
+      return undefined;
+    },
+    importChatModeInstructions: (patterns, options) => {
+      appendChild(node, createImportChatModeInstructions(patterns, options));
       return undefined;
     },
     console,

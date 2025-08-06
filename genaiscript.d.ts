@@ -5487,6 +5487,17 @@ declare function importTemplate(
 ): void;
 
 /**
+ * Imports chat mode instruction files from vscode into the system prompt.
+ * Searches for common instruction file patterns like .github/copilot-instructions.md
+ * @param patterns Optional file patterns to search for. Defaults to common VSCode instruction patterns.
+ * @param options Optional import options
+ */
+declare function importChatModeInstructions(
+  patterns?: ElementOrArray<string>,
+  options?: ImportTemplateOptions,
+): void;
+
+/**
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
