@@ -368,7 +368,11 @@
       name: string;
     };
 
- interface ModelOptions extends ModelConnectionOptions, ModelTemplateOptions, CacheOptions, RetryOptions {
+ interface ModelOptions
+  extends ModelConnectionOptions,
+    ModelTemplateOptions,
+    CacheOptions,
+    RetryOptions {
   /**
    * Temperature to use. Higher temperature means more hallucination/creativity.
    * Range 0.0-2.0.
@@ -4554,6 +4558,25 @@
 
  type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
 
+/**
+ * GitHub Copilot MCP configuration format from .vscode/mcp.json
+ */
+ interface GitHubCopilotMcpServerConfig {
+  type?: "stdio" | "http" | "sse";
+  command?: string;
+  args?: string[];
+  url?: string;
+  env?: Record<string, string>;
+  envFile?: string;
+  cwd?: string;
+  version?: string;
+  description?: string;
+}
+
+ interface GitHubCopilotMcpConfig {
+  servers: Record<string, GitHubCopilotMcpServerConfig>;
+}
+
  type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 
  type BufferLike =
@@ -5074,9 +5097,7 @@
    * @param url - The URL to resolve.
    * @returns A promise that resolves to an object containing the parsed URI and resolved files, or undefined if resolution fails.
    */
-  resolveResource(
-    url: string,
-  ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
+  resolveResource(url: string): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
 }
 
  interface UserInterfaceHost {

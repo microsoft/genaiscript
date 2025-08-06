@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readGitHubCopilotMcpConfig } from "../src/config.js";
+import { readGitHubCopilotMcpConfig } from "../src/configmcp.js";
 import { convertGitHubCopilotMcpConfig } from "../src/configmcp.js";
 import { resolve } from "node:path";
 

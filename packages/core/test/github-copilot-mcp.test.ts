@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { GitHubCopilotMcpConfig } from "../src/types.js";
-import { convertGitHubCopilotMcpConfig } from "../src/config.js";
+import { convertGitHubCopilotMcpConfig } from "../src/configmcp.js";
 
 describe("GitHub Copilot MCP Configuration", () => {
   it("should have GitHubCopilotMcpConfig type defined", () => {
