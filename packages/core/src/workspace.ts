@@ -64,6 +64,11 @@ export interface WorkspaceOptions {
    * Run directory for cached files with scope "run"
    */
   runDir?: string;
+
+  /**
+   * Default trace and cancellation context for workspace operations
+   */
+  context?: TraceOptions & CancellationOptions;
 }
 
 /**
@@ -96,7 +101,7 @@ export interface WorkspaceOptions {
 export function createWorkspaceFileSystem(
   policy?: WorkspaceOptions,
 ): WorkspaceFileSystem {
-  const { root = resolve(".") } = policy || {};
+  const { root = resolve("."), context } = policy || {};
   const checkWrite = (filename: string) => {
     if (DOT_ENV_REGEX.test(filename)) {
       throw new Error("writing .env not allowed");
@@ -267,7 +272,7 @@ export function createWorkspaceFileSystem(
       grepOptions?: string | WorkspaceGrepOptions,
       grepOptions2?: WorkspaceGrepOptions,
     ): Promise<WorkspaceGrepResult> => {
-      let options: WorkspaceGrepOptions & TraceOptions & CancellationOptions;
+      let options: WorkspaceGrepOptions;
       if (typeof grepOptions === "string") {
         const p = dirname(grepOptions).replace(/(^|\/)\*\*$/, "");
         const g = basename(grepOptions);
@@ -280,7 +285,11 @@ export function createWorkspaceFileSystem(
         options = grepOptions || {};
       }
       
-      const { files, matches } = await grepSearch(query, options);
+      const { files, matches } = await grepSearch(query, {
+        ...options,
+        // Use context if available
+        ...(context || {}),
+      });
       return { files, matches };
     },
     writeCached: async (
@@ -288,7 +297,7 @@ export function createWorkspaceFileSystem(
       options?: {
         scope?: "workspace" | "run";
         ext?: string;
-      } & TraceOptions & CancellationOptions,
+      },
     ): Promise<string> => {
       const { scope } = options || {};
       const { runDir } = policy || {};
@@ -297,6 +306,8 @@ export function createWorkspaceFileSystem(
         : dotGenaiscriptPath("cache", "files");
       return await fileWriteCached(dir, f, {
         ...(options || {}),
+        // Use context if available
+        ...(context || {}),
       });
     },
   } satisfies WorkspaceFileSystem;

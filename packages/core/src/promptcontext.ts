@@ -85,16 +85,15 @@ export async function createPromptContext(
   const runDir = ev.runDir;
   assert(!!runDir, "missing run directory");
 
-  // Create a context-aware workspace by enhancing the runtime host's workspace
-  const baseWorkspace = createWorkspaceFileSystem({ runDir });
+  // Create a context-aware workspace with run directory and execution context
+  const baseWorkspace = createWorkspaceFileSystem({ 
+    runDir,
+    context: { trace, cancellationToken }
+  });
+
+  // Enhance grep with prompt-specific tracing while maintaining unified implementation
   const workspace: WorkspaceFileSystem = {
     ...baseWorkspace,
-    writeCached: async (f, options) => {
-      return await baseWorkspace.writeCached(f, {
-        ...(options || {}),
-        // The base workspace now handles runDir context
-      });
-    },
     grep: async (
       query,
       grepOptions?: string | WorkspaceGrepOptions,
