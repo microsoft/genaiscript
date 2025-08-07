@@ -199,5 +199,18 @@ describe("GitHubClient", async () => {
     );
     assert(urlEmptyAssignees);
     assert(!urlEmptyAssignees.includes("assignees="));
+
+    // Test with special characters
+    const urlSpecialChars = await client.createIssueUrl(
+      "Bug: Special chars & symbols!",
+      "This has \nnewlines\nand & symbols",
+      ["user@example.com"]
+    );
+    assert(urlSpecialChars);
+    assert(urlSpecialChars.includes("/issues/new"));
+    // Should properly encode special characters
+    assert(urlSpecialChars.includes("title=Bug") && urlSpecialChars.includes("chars"));
+    assert(urlSpecialChars.includes("body=") && urlSpecialChars.includes("symbols"));
+    assert(urlSpecialChars.includes("assignees=user%40example.com")); // @ should be encoded as %40
   });
 });
