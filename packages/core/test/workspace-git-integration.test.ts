@@ -10,22 +10,27 @@ describe("workspace and git integration", () => {
     expect(typeof fs.readText).toBe("function");
   });
 
-  test("GitClient should accept workspace parameter", () => {
-    const fs = createWorkspaceFileSystem();
-    const git = new GitClient(process.cwd(), fs as any);
-    
-    expect(git.cwd).toBe(process.cwd());
-    expect(git.workspace).toBe(fs);
-  });
-
-  test("GitClient setWorkspace should work", () => {
-    const fs = createWorkspaceFileSystem();
+  test("GitClient should create workspace on demand", () => {
     const git = new GitClient(process.cwd());
     
-    expect(git.workspace).toBeUndefined();
+    expect(git.cwd).toBe(process.cwd());
+    // Workspace should be created lazily
+    const workspace = git.workspace;
+    expect(workspace).toBeDefined();
+    expect(typeof workspace.findFiles).toBe("function");
+  });
+
+  test("GitClient workspace should be lazily allocated", () => {
+    const git = new GitClient(process.cwd());
     
-    git.setWorkspace(fs as any);
-    expect(git.workspace).toBe(fs);
+    // Workspace should be allocated on first access
+    const workspace1 = git.workspace;
+    expect(workspace1).toBeDefined();
+    expect(typeof workspace1.readText).toBe("function");
+    
+    // Subsequent access should return the same instance
+    const workspace2 = git.workspace;
+    expect(workspace1).toBe(workspace2);
   });
 
   test("createWorkspace should return coordinated filesystem and git", () => {

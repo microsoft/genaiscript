@@ -276,8 +276,9 @@ export function createWorkspace(options?: WorkspaceOptions & { cwd?: string }): 
     root: () => root,
   } as WorkspaceFileSystem;
   
-  // Create git client associated with the workspace
-  const git = new GitClient(root, filesystem);
+  // Create git client and set workspace
+  const git = new GitClient(root);
+  (git as any)._workspace = filesystem; // Set workspace directly to avoid lazy allocation
   
   return {
     filesystem,
