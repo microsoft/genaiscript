@@ -33,14 +33,14 @@ describe("workspace and git integration", () => {
     expect(workspace1).toBe(workspace2);
   });
 
-  test("createWorkspace should return coordinated filesystem and git", () => {
+  test("createWorkspace should return filesystem and git with same root", () => {
     const { filesystem, git } = createWorkspace({ cwd: process.cwd() });
     
     expect(filesystem).toBeDefined();
     expect(git).toBeDefined();
     expect(filesystem.root()).toBe(process.cwd());
     expect(git.cwd).toBe(process.cwd());
-    expect(git.workspace).toBe(filesystem);
+    expect(git.workspace.root()).toBe(process.cwd());
   });
 
   test("createWorkspace should work with default options", () => {
@@ -50,6 +50,6 @@ describe("workspace and git integration", () => {
     expect(git).toBeDefined();
     expect(typeof filesystem.root()).toBe("string");
     expect(typeof git.cwd).toBe("string");
-    expect(git.workspace).toBe(filesystem);
+    expect(typeof git.workspace.root()).toBe("string");
   });
 });

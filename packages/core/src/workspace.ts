@@ -262,7 +262,7 @@ export interface WorkspaceContext {
 }
 
 /**
- * Creates a coordinated workspace with filesystem and git client
+ * Creates a workspace with filesystem and git client
  * @param options Workspace options including root directory
  * @returns Workspace context with filesystem and git client
  */
@@ -276,9 +276,8 @@ export function createWorkspace(options?: WorkspaceOptions & { cwd?: string }): 
     root: () => root,
   } as WorkspaceFileSystem;
   
-  // Create git client and set workspace
+  // Create git client with lazy workspace allocation
   const git = new GitClient(root);
-  (git as any)._workspace = filesystem; // Set workspace directly to avoid lazy allocation
   
   return {
     filesystem,
