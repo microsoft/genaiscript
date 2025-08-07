@@ -1813,6 +1813,39 @@ export class GitHubClient implements GitHub {
       branch: options?.branch || branchName,
     });
   }
+
+  /**
+   * Creates a URL that opens GitHub's new issue form with pre-filled title, body, and assignees
+   * @param title The issue title
+   * @param body The issue body content
+   * @param assignees Optional array of GitHub usernames to assign to the issue
+   * @returns GitHub URL for creating a new issue with pre-filled data
+   */
+  async createIssueUrl(
+    title: string,
+    body?: string,
+    assignees?: string[],
+  ): Promise<string> {
+    const { owner, repo } = await this.connection();
+    const baseUrl = `https://github.com/${owner}/${repo}/issues/new`;
+    
+    const params = new URLSearchParams();
+    
+    if (title) {
+      params.set('title', title);
+    }
+    
+    if (body) {
+      params.set('body', body);
+    }
+    
+    if (assignees && assignees.length > 0) {
+      params.set('assignees', assignees.join(','));
+    }
+    
+    const queryString = params.toString();
+    return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+  }
 }
 
 function parseJobLog(text: string) {

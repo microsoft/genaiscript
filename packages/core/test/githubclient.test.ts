@@ -154,4 +154,50 @@ describe("GitHubClient", async () => {
     const result = await client.assignIssueToBot(issueNumber);
     console.log(result);
   });
+
+  test("createIssueUrl() creates valid GitHub issue URL", async () => {
+    // Test with all parameters
+    const urlWithAll = await client.createIssueUrl(
+      "Test Issue Title",
+      "This is the issue body",
+      ["user1", "user2"]
+    );
+    
+    // Should contain the base URL structure
+    assert(urlWithAll);
+    assert(urlWithAll.includes("/issues/new"));
+    // Check for title with either + or %20 encoding for spaces
+    assert(urlWithAll.includes("title=Test+Issue+Title") || urlWithAll.includes("title=Test%20Issue%20Title"));
+    // Check for body with either + or %20 encoding for spaces
+    assert(urlWithAll.includes("body=This+is+the+issue+body") || urlWithAll.includes("body=This%20is%20the%20issue%20body"));
+    // Check for assignees with URL encoded comma
+    assert(urlWithAll.includes("assignees=user1%2Cuser2"));
+
+    // Test with only title
+    const urlTitleOnly = await client.createIssueUrl("Simple Title");
+    assert(urlTitleOnly);
+    assert(urlTitleOnly.includes("/issues/new"));
+    assert(urlTitleOnly.includes("title=Simple+Title") || urlTitleOnly.includes("title=Simple%20Title"));
+    assert(!urlTitleOnly.includes("body="));
+    assert(!urlTitleOnly.includes("assignees="));
+
+    // Test with title and body, no assignees
+    const urlTitleBody = await client.createIssueUrl(
+      "Title with Body",
+      "Body content"
+    );
+    assert(urlTitleBody);
+    assert(urlTitleBody.includes("title=Title+with+Body") || urlTitleBody.includes("title=Title%20with%20Body"));
+    assert(urlTitleBody.includes("body=Body+content") || urlTitleBody.includes("body=Body%20content"));
+    assert(!urlTitleBody.includes("assignees="));
+
+    // Test with empty assignees array
+    const urlEmptyAssignees = await client.createIssueUrl(
+      "Title",
+      "Body",
+      []
+    );
+    assert(urlEmptyAssignees);
+    assert(!urlEmptyAssignees.includes("assignees="));
+  });
 });
