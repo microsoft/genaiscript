@@ -24,6 +24,7 @@ import { chunkMarkdown } from "./mdchunk.js";
 import { resolveGlobal } from "./global.js";
 import { markdownStringify } from "./mdstringify.js";
 import { diffCreatePatch, diffFindChunk, tryDiffParse } from "./diff.js";
+import { resolveRuntimeHost } from "./host.js";
 import type {
   CSVObject,
   DIFFObject,
@@ -40,6 +41,13 @@ import type {
 import { createParsers } from "./parsers.js";
 
 let _globalsInstalled = false;
+
+/**
+ * Resets the globals installation flag for testing purposes
+ */
+export function resetGlobalsInstallation() {
+  _globalsInstalled = false;
+}
 /**
  * Installs global utilities for various data formats and operations.
  * Sets up global objects with frozen utilities for parsing, stringifying, and manipulating
@@ -68,6 +76,18 @@ export function installGlobals() {
   const glb = resolveGlobal(); // Get the global context
 
   glb.parsers = createParsers();
+
+  // Mount workspace from runtime host if available
+  try {
+    const runtimeHost = resolveRuntimeHost();
+    if (runtimeHost?.workspace) {
+      glb.workspace = runtimeHost.workspace;
+      dbg("workspace mounted from runtime host");
+    }
+  } catch (e) {
+    // Runtime host may not be available during initialization
+    dbg("runtime host not available, workspace will be mounted later");
+  }
 
   // Freeze YAML utilities to prevent modification
   glb.YAML = createYAML();

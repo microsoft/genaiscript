@@ -84,18 +84,9 @@ export async function createPromptContext(
   const runDir = ev.runDir;
   assert(!!runDir, "missing run directory");
 
-  // Define the workspace file system operations
+  // Use the runtime host's workspace and extend it with additional operations
   const workspace: WorkspaceFileSystem = {
-    root: () => runtimeHost.workspace.root(),
-    readText: (f) => runtimeHost.workspace.readText(f),
-    readJSON: (f, o) => runtimeHost.workspace.readJSON(f, o),
-    readYAML: (f, o) => runtimeHost.workspace.readYAML(f, o),
-    readXML: (f, o) => runtimeHost.workspace.readXML(f, o),
-    readCSV: (f, o) => runtimeHost.workspace.readCSV(f, o),
-    readINI: (f, o) => runtimeHost.workspace.readINI(f, o),
-    readData: (f, o) => runtimeHost.workspace.readData(f, o),
-    writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
-    appendText: (f, c) => runtimeHost.workspace.appendText(f, c),
+    ...runtimeHost.workspace,
     writeCached: async (f, options) => {
       const { scope } = options || {};
       const dir = scope === "run" ? join(runDir, "files") : dotGenaiscriptPath("cache", "files");
@@ -105,14 +96,6 @@ export async function createPromptContext(
         trace,
       });
     },
-    copyFile: (src, dest) => runtimeHost.workspace.copyFile(src, dest),
-    cache: (n) => runtimeHost.workspace.cache(n),
-    findFiles: async (pattern, options) => {
-      const res = await runtimeHost.workspace.findFiles(pattern, options);
-      return res;
-    },
-    stat: (filename) => runtimeHost.workspace.stat(filename),
-    writeFiles: (file) => runtimeHost.workspace.writeFiles(file),
     grep: async (
       query,
       grepOptions: string | WorkspaceGrepOptions,

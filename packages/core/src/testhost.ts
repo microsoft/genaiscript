@@ -48,6 +48,7 @@ import type {
 } from "./types.js";
 import { installGlobals } from "./globals.js";
 import { originalConsole } from "./global.js";
+import { createWorkspaceFileSystem } from "./workspace.js";
 const dbg = genaiscriptDebug("host:test");
 
 // Class representing a test host for runtime, implementing the RuntimeHost interface
@@ -60,7 +61,7 @@ export class TestHost implements RuntimeHost {
   // Instance of the path utility
   path: Path = createNodePath();
   // File system for workspace
-  workspace: WorkspaceFileSystem;
+  workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">;
 
   // Default options for language models
   readonly modelAliases: ModelConfigurations = defaultModelConfigurations();
@@ -69,12 +70,14 @@ export class TestHost implements RuntimeHost {
 
   // Static method to set this class as the runtime host
   static install() {
+    const host = new TestHost();
+    setRuntimeHost(host);
     installGlobals();
-    setRuntimeHost(new TestHost());
   }
 
   constructor() {
     this.resources = new ResourceManager();
+    this.workspace = createWorkspaceFileSystem();
   }
 
   async pullModel(
