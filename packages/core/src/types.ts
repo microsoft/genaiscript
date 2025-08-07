@@ -3791,6 +3791,7 @@ export interface GitHub {
     body?: string,
     options?: {
       branchSuffix?: string;
+      branchPrefix?: string;
       baseBranch?: string;
       assignToCopilot?: boolean;
       copilotUser?: string;

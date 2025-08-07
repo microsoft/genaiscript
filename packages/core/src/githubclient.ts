@@ -28,6 +28,7 @@ import { link } from "./mkmd.js";
 import { errorMessage } from "./error.js";
 import { deleteUndefinedValues, normalizeInt } from "./cleaners.js";
 import { diffCreatePatch } from "./diff.js";
+import { generateId } from "./id.js";
 import { GitClient } from "./git.js";
 import { genaiscriptDebug } from "./debug.js";
 import { fetch } from "./fetch.js";
@@ -1397,6 +1398,7 @@ export class GitHubClient implements GitHub {
     body?: string,
     options?: {
       branchSuffix?: string;
+      branchPrefix?: string;
       baseBranch?: string;
       assignToCopilot?: boolean;
       copilotUser?: string;
@@ -1405,7 +1407,8 @@ export class GitHubClient implements GitHub {
     }
   ): Promise<GitHubPullRequest> {
     const {
-      branchSuffix = Date.now().toString(),
+      branchSuffix = generateId(),
+      branchPrefix = "copilot/",
       baseBranch,
       assignToCopilot = true,
       copilotUser = "copilot-swe-agent",
@@ -1413,10 +1416,14 @@ export class GitHubClient implements GitHub {
       labels = [],
     } = options ?? {};
 
-    // Generate branch name starting with "copilot/"
-    const branchName = `copilot/${branchSuffix}`;
+    dbg(`creating copilot pull request: ${title}`);
+    
+    // Generate branch name with configurable prefix
+    const branchName = `${branchPrefix}${branchSuffix}`;
+    dbg(`using branch name: ${branchName}`);
     
     // Create the pull request
+    dbg(`creating pull request from ${branchName} to ${baseBranch || 'default branch'}`);
     const pullRequest = await this.createPullRequest({
       title,
       body,
@@ -1426,9 +1433,12 @@ export class GitHubClient implements GitHub {
       labels,
     });
     
+    dbg(`created pull request #${pullRequest.number}: ${pullRequest.html_url}`);
+    
     // Assign to copilot if requested
     if (assignToCopilot) {
       try {
+        dbg(`assigning pull request #${pullRequest.number} to ${copilotUser}`);
         await this.assignIssueToBot(pullRequest.number, { bot: copilotUser });
         dbg(`assigned pull request #${pullRequest.number} to ${copilotUser}`);
       } catch (error) {
