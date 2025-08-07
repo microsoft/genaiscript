@@ -3870,6 +3870,15 @@ export interface GitHub {
     path?: string,
     options?: GitWorktreeAddOptions,
   ): Promise<Git>;
+
+  /**
+   * Creates a URL that opens GitHub's new issue form with pre-filled title, body, and assignees
+   * @param title The issue title
+   * @param body The issue body content (optional)
+   * @param assignees Optional array of GitHub usernames to assign to the issue
+   * @returns GitHub URL for creating a new issue with pre-filled data
+   */
+  createIssueUrl(title: string, body?: string, assignees?: string[]): Promise<string>;
 }
 
 export interface MDObject {
