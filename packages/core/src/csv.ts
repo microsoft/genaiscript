@@ -43,7 +43,7 @@ export function CSVParse(
         comment: "#", // Ignore comments starting with '#'
         columns, // Use provided headers or infer from the first line
         skipEmptyLines: true, // Skip empty lines in the CSV
-        skipRecordsWithError: true, // Skip records that cause errors
+        skipRecordsWithError: false, // Don't skip records with errors to preserve data
         delimiter, // Use the provided delimiter
         relaxQuotes: true, // Allow quotes to be relaxed
         relaxColumnCount: true, // Allow rows to have different column counts

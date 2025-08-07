@@ -53,6 +53,32 @@ describe("CSVParse", () => {
             { name: "Jane", age: "25" },
         ])
     })
+
+    test("Parse CSV with many columns and quoted fields", () => {
+        const csv = `Date,Email,Description,Models,Sentiment,UserAgent,Billing,PageURL,Region,Spend,AccountID,IsInternational,Type,Satisfied,Contact,Attachment
+"2024-01-01","user@example.com","This is a comment with, commas","GPT-4, Claude","Very positive","Mozilla/5.0","Premium","https://example.com","US","100","12345","false","premium","Yes","true","file.pdf"
+"2024-01-02","test@test.com","Another comment, with commas","Various models","Negative","Chrome/1.0","Basic","https://test.com","EU","50","67890","true","basic","No","false","image.jpg"`
+        
+        const result = CSVParse(csv)
+        assert.equal(result.length, 2)
+        
+        // Check that all columns are preserved
+        const expectedColumns = [
+            "Date", "Email", "Description", "Models", "Sentiment", "UserAgent", 
+            "Billing", "PageURL", "Region", "Spend", "AccountID", "IsInternational", 
+            "Type", "Satisfied", "Contact", "Attachment"
+        ]
+        
+        const actualColumns = Object.keys(result[0])
+        assert.equal(actualColumns.length, expectedColumns.length, `Expected ${expectedColumns.length} columns, got ${actualColumns.length}`)
+        
+        // Verify specific column values
+        assert.equal(result[0].Date, "2024-01-01")
+        assert.equal(result[0].Email, "user@example.com")
+        assert.equal(result[0].Description, "This is a comment with, commas")
+        assert.equal(result[0].Models, "GPT-4, Claude")
+        assert.equal(result[0].Attachment, "file.pdf")
+    })
 })
 
 describe("CSVTryParse", () => {
