@@ -1,3 +1,4 @@
+/// <reference path="./types/prompt_template.d.ts" />
 import { describe, test, beforeEach } from "node:test"
 import assert from "node:assert/strict"
 import {

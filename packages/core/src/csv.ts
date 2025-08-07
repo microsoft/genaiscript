@@ -1,3 +1,4 @@
+/// <reference path="./types/prompt_template.d.ts" />
 // This module provides functions for parsing and converting CSV data,
 // including error handling and conversion to Markdown table format.
 
