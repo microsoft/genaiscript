@@ -10,7 +10,8 @@ import { genaiscriptDebug } from "./debug.js";
 import type { 
   GitHubCopilotMcpConfig, 
   GitHubCopilotMcpServerConfig, 
-  McpServersConfig
+  McpServersConfig,
+  McpServerConfig
 } from "./types.js";
 
 const dbg = genaiscriptDebug("config");
@@ -22,7 +23,7 @@ export function convertGitHubCopilotMcpConfig(copilotConfig: GitHubCopilotMcpCon
   const mcpServers: McpServersConfig = {};
   
   for (const [id, serverConfig] of Object.entries(copilotConfig.servers)) {
-    const convertedConfig: Omit<import("./types.js").McpServerConfig, "id" | "options"> = {
+    const convertedConfig: Omit<McpServerConfig, "id" | "options"> = {
       type: serverConfig.type,
       command: serverConfig.command,
       args: serverConfig.args,

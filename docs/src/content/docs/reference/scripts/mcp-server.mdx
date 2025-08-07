@@ -501,25 +501,6 @@ const mcpServers = {
 }
 ```
 
-### Configuration Resolution Order
-
-1. Load default GenAIScript configuration
-2. Merge user's GenAIScript configuration files (`genaiscript.config.json/yaml`)  
-3. **Read and merge GitHub Copilot MCP configurations (`.vscode/mcp.json`)**
-4. Apply environment variable overrides
-5. Validate final configuration against schema
-
-### Features
-
-- ✅ **Automatic detection** and reading of `.vscode/mcp.json` files
-- ✅ **Format conversion** from GitHub Copilot to GenAIScript format
-- ✅ **Intelligent merging** of multiple configuration sources
-- ✅ **JSON schema validation** for configuration correctness
-- ✅ **Graceful error handling** for missing or invalid files
-- ✅ **Full backwards compatibility** with existing configurations
-
-The GitHub Copilot MCP configurations are automatically detected and integrated without any additional setup required.
-
 ## Running scripts from a remote repository
 
 You can use the `--remote` option to load scripts from a remote repository.
