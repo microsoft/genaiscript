@@ -376,14 +376,19 @@ export function mergeDescription(commentTag: string, body: string, text: string)
  * @param stats - Optional generation statistics to include usage report.
  * @returns A formatted string serving as a footer, warning readers about the AI-generated content.
  */
-export function generatedByFooter(script: PromptScript, info: { runUrl?: string }, code?: string, stats?: GenerationStats) {
+export function generatedByFooter(
+  script: PromptScript,
+  info: { runUrl?: string },
+  code?: string,
+  stats?: GenerationStats,
+) {
   let footer = `\n\n> AI-generated content by ${link(script.id, info.runUrl)}${code ? ` \`${code}\` ` : ""} may be incorrect.`;
-  
+
   // Add usage report if stats are available and there are tokens used
   if (stats && stats.accumulatedUsage().total_tokens > 0) {
     footer += `\n\n${stats.toMarkdownReport()}`;
   }
-  
+
   return footer + `\n\n`;
 }
 
@@ -1821,28 +1826,24 @@ export class GitHubClient implements GitHub {
    * @param assignees Optional array of GitHub usernames to assign to the issue
    * @returns GitHub URL for creating a new issue with pre-filled data
    */
-  async createIssueUrl(
-    title: string,
-    body?: string,
-    assignees?: string[],
-  ): Promise<string> {
+  async createIssueUrl(title: string, body?: string, assignees?: string[]): Promise<string> {
     const { owner, repo } = await this.connection();
     const baseUrl = `https://github.com/${owner}/${repo}/issues/new`;
-    
+
     const params = new URLSearchParams();
-    
+
     if (title) {
-      params.set('title', title);
+      params.set("title", title);
     }
-    
+
     if (body) {
-      params.set('body', body);
+      params.set("body", body);
     }
-    
+
     if (assignees && assignees.length > 0) {
-      params.set('assignees', assignees.join(','));
+      params.set("assignees", assignees.join(","));
     }
-    
+
     const queryString = params.toString();
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
   }
