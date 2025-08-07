@@ -79,6 +79,76 @@ describe("CSVParse", () => {
         assert.equal(result[0].Models, "GPT-4, Claude")
         assert.equal(result[0].Attachment, "file.pdf")
     })
+
+    test("Parse CSV with custom options - disable autoParse", () => {
+        const csv = "name,age,active\nJohn,30,true\nJane,25,false"
+        const result = CSVParse(csv, { autoParse: false })
+        assert.deepEqual(result, [
+            { name: "John", age: "30", active: "true" },
+            { name: "Jane", age: "25", active: "false" },
+        ])
+    })
+
+    test("Parse CSV with custom options - enable castDate", () => {
+        const csv = "name,birthdate\nJohn,2000-01-01\nJane,1995-12-25"
+        const result = CSVParse(csv, { castDate: true })
+        // Dates should be parsed as Date objects when castDate is true
+        assert.equal(result[0].name, "John")
+        assert.equal(result[1].name, "Jane")
+    })
+
+    test("Parse CSV with custom comment character", () => {
+        const csv = `name,age
+John,30
+;This is a comment line with semicolon
+Jane,25`
+        const result = CSVParse(csv, { comment: ";" })
+        assert.equal(result.length, 2)
+        assert.deepEqual(result, [
+            { name: "John", age: 30 },
+            { name: "Jane", age: 25 },
+        ])
+    })
+
+    test("Parse CSV with skipEmptyLines disabled", () => {
+        const csv = `name,age
+John,30
+
+Jane,25`
+        const result = CSVParse(csv, { skipEmptyLines: false })
+        // Should include the empty line as a record
+        assert.equal(result.length, 3)
+    })
+
+    test("Parse CSV with skipRecordsWithError enabled", () => {
+        const csv = `name,age
+John,30
+"Invalid,record
+Jane,25`
+        const result = CSVParse(csv, { skipRecordsWithError: true })
+        // Should skip the malformed record and only return valid ones
+        assert.equal(result.length, 2)
+        assert.equal(result[0].name, "John")
+        assert.equal(result[1].name, "Jane")
+    })
+
+    test("Parse CSV with relaxQuotes disabled", () => {
+        const csv = `name,description
+John,"He said "hello" to me"
+Jane,"Simple description"`
+        const result = CSVParse(csv, { relaxQuotes: false })
+        // With relaxQuotes disabled, parsing might be more strict
+        assert.equal(result.length, 2)
+    })
+
+    test("Parse CSV with trim disabled", () => {
+        const csv = "name,age\n John ,30\n Jane ,25"
+        const result = CSVParse(csv, { trim: false })
+        assert.deepEqual(result, [
+            { name: " John ", age: 30 },
+            { name: " Jane ", age: 25 },
+        ])
+    })
 })
 
 describe("CSVTryParse", () => {
@@ -86,9 +156,28 @@ describe("CSVTryParse", () => {
         const csv = "name,age\nJohn,30\nJane,25"
         const result = CSVTryParse(csv)
         assert.deepEqual(result, [
+            { name: "John", age: 30 },
+            { name: "Jane", age: 25 },
+        ])
+    })
+
+    test("Try to parse CSV with custom options", () => {
+        const csv = "name,age\nJohn,30\nJane,25"
+        const result = CSVTryParse(csv, { autoParse: false })
+        assert.deepEqual(result, [
             { name: "John", age: "30" },
             { name: "Jane", age: "25" },
         ])
+    })
+
+    test("Try to parse invalid CSV and return undefined", () => {
+        const csv = `name,age
+John,30
+"Invalid,record without closing quote
+Jane,25`
+        const result = CSVTryParse(csv, { skipRecordsWithError: false })
+        // Should return undefined on parsing error
+        assert.equal(result, undefined)
     })
 })
 

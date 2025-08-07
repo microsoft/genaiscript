@@ -9,27 +9,61 @@ import { chunk } from "es-toolkit"
 import { filenameOrFileToContent } from "./unwrappers"
 
 /**
+ * Options for CSV parsing, extending csv-parse library options.
+ */
+export interface CSVParseOptions {
+    /** The delimiter used in the CSV, defaults to a comma. */
+    delimiter?: string
+    /** Column headers for the CSV, as an array or single value. If not provided, headers are inferred from the first line. */
+    headers?: ElementOrArray<string>
+    /** Whether to repair common escape errors, defaults to false. */
+    repair?: boolean
+    /** Automatically parse values to appropriate types, defaults to true. */
+    autoParse?: boolean
+    /** Cast strings to dates, defaults to false. */
+    castDate?: boolean
+    /** Ignore comments starting with specified character, defaults to '#'. */
+    comment?: string
+    /** Skip empty lines in the CSV, defaults to true. */
+    skipEmptyLines?: boolean
+    /** Skip records with errors to preserve data, defaults to false. */
+    skipRecordsWithError?: boolean
+    /** Allow quotes to be relaxed, defaults to true. */
+    relaxQuotes?: boolean
+    /** Allow rows to have different column counts, defaults to true. */
+    relaxColumnCount?: boolean
+    /** Trim whitespace from values, defaults to true. */
+    trim?: boolean
+}
+
+/**
  * Parses a CSV string or file into an array of objects.
  *
  * @param text - The CSV string or file to parse. If a file is provided, its content is read.
  * @param options - Optional configuration for parsing.
- * @param options.delimiter - The delimiter used in the CSV, defaults to a comma.
- * @param options.headers - Column headers for the CSV, as an array or single value. If not provided, headers are inferred from the first line.
- * @param options.repair - Whether to repair common escape errors, defaults to false.
  * @returns An array of objects representing the parsed CSV data. Skips empty lines and records with errors.
  */
 export function CSVParse(
     text: string | WorkspaceFile,
-    options?: {
-        delimiter?: string
-        headers?: ElementOrArray<string>
-        repair?: boolean
-    }
+    options?: CSVParseOptions
 ): object[] {
     text = filenameOrFileToContent(text)
 
-    // Destructure options or provide defaults
-    const { delimiter, headers, repair, ...rest } = options || {}
+    // Destructure options with defaults
+    const { 
+        delimiter, 
+        headers, 
+        repair,
+        autoParse = true,
+        castDate = false,
+        comment = "#",
+        skipEmptyLines = true,
+        skipRecordsWithError = false,
+        relaxQuotes = true,
+        relaxColumnCount = true,
+        trim = true,
+        ...rest 
+    } = options || {}
     const columns = headers ? arrayify(headers) : true
 
     // common LLM escape errors
@@ -38,16 +72,16 @@ export function CSVParse(
     }
     // Parse the CSV string based on the provided options
     return parse(text, {
-        autoParse: true, // Automatically parse values to appropriate types
-        castDate: false, // Do not cast strings to dates
-        comment: "#", // Ignore comments starting with '#'
-        columns, // Use provided headers or infer from the first line
-        skipEmptyLines: true, // Skip empty lines in the CSV
-        skipRecordsWithError: false, // Don't skip records with errors to preserve data
-        delimiter, // Use the provided delimiter
-        relaxQuotes: true, // Allow quotes to be relaxed
-        relaxColumnCount: true, // Allow rows to have different column counts
-        trim: true, // Trim whitespace from values
+        autoParse,
+        castDate,
+        comment,
+        columns,
+        skipEmptyLines,
+        skipRecordsWithError,
+        delimiter,
+        relaxQuotes,
+        relaxColumnCount,
+        trim,
         ...rest,
     })
 }
@@ -57,19 +91,11 @@ export function CSVParse(
  *
  * @param text - The CSV string to parse. Returns an empty array if the input is empty.
  * @param options - Optional configuration for parsing and error handling.
- * @param options.delimiter - The delimiter used to separate values, defaults to a comma.
- * @param options.headers - Column headers for the parsed data, as an array or single value.
- * @param options.repair - Enables basic error correction in the input data.
- * @param options.trace - Trace function for logging errors during parsing.
  * @returns An array of objects representing the parsed CSV data, or undefined if an error occurs.
  */
 export function CSVTryParse(
     text: string,
-    options?: {
-        delimiter?: string
-        headers?: ElementOrArray<string>
-        repair?: boolean
-    } & TraceOptions
+    options?: CSVParseOptions & TraceOptions
 ): object[] | undefined {
     const { trace } = options || {}
     try {
