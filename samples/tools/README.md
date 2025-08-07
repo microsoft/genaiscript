@@ -17,10 +17,12 @@ A simple weather Model Context Protocol (MCP) server implementation using HTTP t
 3. Use it with GenAIScript:
    ```bash
    cd ../sample
-   # Programmatic approach
-   node ../../packages/cli/dist/src/index.js run weather-mcp-http
-   # Configuration approach  
-   node ../../packages/cli/dist/src/index.js run weather-mcp-config
+   # Comprehensive approach (single city)
+   genaiscript run weather-mcp-http --vars city="Berlin"
+   # Simple programmatic demo
+   genaiscript run weather-mcp-config --vars city="Tokyo"
+   # Configuration example
+   genaiscript run weather-mcp-servers --vars city="Paris"
    ```
 
 ## Files

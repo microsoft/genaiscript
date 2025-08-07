@@ -3,10 +3,10 @@ script({
     description: "Simple example using mcpServers configuration",
     model: "small",
     parameters: {
-        cities: {
+        city: {
             type: "string",
-            description: "Comma-separated list of cities to check weather for",
-            default: "Paris, London"
+            description: "City to check weather for",
+            default: "Paris"
         }
     },
     // Note: mcpServers is for process-based MCP servers
@@ -34,10 +34,7 @@ script({
     }
 })
 
-const cities = (env.vars.cities || "Paris, London")
-    .split(",")
-    .map(city => city.trim())
-    .filter(city => city.length > 0)
+const city = env.vars.city || "Paris"
 
 $`# Weather MCP Server - Configuration Demo
 
@@ -66,7 +63,7 @@ The mcpServers configuration is designed for process-based MCP servers that can 
 
 For HTTP-based MCP servers like our weather example, see \`weather-mcp-http.genai.mts\`.
 
-Cities to check: ${cities.join(", ")}
+Example city: ${city}
 
 To use process-based MCP servers, you would configure them in the mcpServers section:
 \`\`\`typescript

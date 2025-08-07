@@ -6,10 +6,10 @@ script({
     description: "Demonstrates using the weather MCP server over HTTP transport",
     model: "small",
     parameters: {
-        cities: {
+        city: {
             type: "string",
-            description: "Comma-separated list of cities to check weather for",
-            default: "Paris, London, Tokyo"
+            description: "City to check weather for",
+            default: "Paris"
         }
     },
     mcpServers: {
@@ -22,84 +22,53 @@ script({
 // Access the weather MCP server (configured in script metadata above)
 const weather = await host.mcpServer({ id: "weather", url: WEATHER_MCP_URL })
 
-// Parse the cities parameter
-const cities = (env.vars.cities || "Paris, London, Tokyo")
-    .split(",")
-    .map(city => city.trim())
-    .filter(city => city.length > 0)
+// Get the city parameter
+const city = env.vars.city || "Paris"
 
-$`# Weather Report
+$`# Weather Report for ${city}
 
-I will check the current weather for the following cities: ${cities.join(", ")}.
-
-Let me gather the weather information for each city:
+I will check the current weather and forecast for ${city}.
 `
 
-// Get current weather for each city
-for (const city of cities) {
-    try {
-        const currentWeather = await weather.callTool("get_current_weather", { location: city })
-        $`
-## Weather in ${city}
+// Get current weather
+try {
+    const currentWeather = await weather.callTool("get_current_weather", { location: city })
+    $`
+## Current Weather
 
 ${currentWeather.text}
 `
-    } catch (error) {
-        $`
-## Weather in ${city}
+} catch (error) {
+    $`
+## Current Weather
 
 ❌ Error getting weather data: ${error.message}
 `
-    }
 }
 
-// Get forecast for the first city
-if (cities.length > 0) {
-    const firstCity = cities[0]
-    try {
-        const forecast = await weather.callTool("get_weather_forecast", { location: firstCity })
-        $`
-## 3-Day Forecast for ${firstCity}
+// Get forecast
+try {
+    const forecast = await weather.callTool("get_weather_forecast", { location: city })
+    $`
+## 3-Day Forecast
 
 ${forecast.text}
 `
-    } catch (error) {
-        $`
-## 3-Day Forecast for ${firstCity}
+} catch (error) {
+    $`
+## 3-Day Forecast
 
 ❌ Error getting forecast data: ${error.message}
 `
-    }
-}
-
-// Compare weather between first two cities if available
-if (cities.length >= 2) {
-    try {
-        const comparison = await weather.callTool("compare_weather", { 
-            city1: cities[0], 
-            city2: cities[1] 
-        })
-        $`
-## Weather Comparison
-
-${comparison.text}
-`
-    } catch (error) {
-        $`
-## Weather Comparison
-
-❌ Error comparing weather data: ${error.message}
-`
-    }
 }
 
 $`
 ## Summary
 
 Based on the weather data retrieved from the MCP server, please provide:
-1. A brief summary of the current weather conditions
-2. Recommendations for outdoor activities in each city
-3. Any notable weather patterns or differences between the cities
+1. A brief summary of the current weather conditions in ${city}
+2. Recommendations for outdoor activities
+3. Any notable weather patterns for the upcoming days
 
 Please format your response in a clear and engaging way.
 `
