@@ -9,34 +9,6 @@ import { chunk } from "es-toolkit"
 import { filenameOrFileToContent } from "./unwrappers"
 
 /**
- * Options for CSV parsing, extending csv-parse library options.
- */
-export interface CSVParseOptions {
-    /** The delimiter used in the CSV, defaults to a comma. */
-    delimiter?: string
-    /** Column headers for the CSV, as an array or single value. If not provided, headers are inferred from the first line. */
-    headers?: ElementOrArray<string>
-    /** Whether to repair common escape errors, defaults to false. */
-    repair?: boolean
-    /** Automatically parse values to appropriate types, defaults to true. */
-    autoParse?: boolean
-    /** Cast strings to dates, defaults to false. */
-    castDate?: boolean
-    /** Ignore comments starting with specified character, defaults to '#'. */
-    comment?: string
-    /** Skip empty lines in the CSV, defaults to true. */
-    skipEmptyLines?: boolean
-    /** Skip records with errors to preserve data, defaults to false. */
-    skipRecordsWithError?: boolean
-    /** Allow quotes to be relaxed, defaults to true. */
-    relaxQuotes?: boolean
-    /** Allow rows to have different column counts, defaults to true. */
-    relaxColumnCount?: boolean
-    /** Trim whitespace from values, defaults to true. */
-    trim?: boolean
-}
-
-/**
  * Parses a CSV string or file into an array of objects.
  *
  * @param text - The CSV string or file to parse. If a file is provided, its content is read.
