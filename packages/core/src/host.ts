@@ -171,7 +171,7 @@ export interface Host {
 
 export interface RuntimeHost extends Host {
   project: Project;
-  workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">;
+  workspace: WorkspaceFileSystem;
 
   azureToken?: AzureTokenResolver;
   azureAIServerlessToken?: AzureTokenResolver;

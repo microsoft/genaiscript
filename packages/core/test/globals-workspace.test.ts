@@ -42,5 +42,9 @@ describe("globals workspace mounting", () => {
     // Verify basic workspace functionality
     expect(glb.workspace.root).toBeDefined();
     expect(typeof glb.workspace.root()).toBe("string");
+    
+    // Verify that grep and writeCached methods are now available
+    expect(typeof glb.workspace.grep).toBe("function");
+    expect(typeof glb.workspace.writeCached).toBe("function");
   });
 });

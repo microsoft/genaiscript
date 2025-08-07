@@ -61,7 +61,7 @@ export class TestHost implements RuntimeHost {
   // Instance of the path utility
   path: Path = createNodePath();
   // File system for workspace
-  workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">;
+  workspace: WorkspaceFileSystem;
 
   // Default options for language models
   readonly modelAliases: ModelConfigurations = defaultModelConfigurations();

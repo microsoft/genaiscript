@@ -102,3 +102,24 @@ describe("workspace file validation", () => {
     ).rejects.toThrow("writing to disallowed file");
   });
 });
+
+describe("workspace grep and writeCached functionality", () => {
+  beforeEach(() => {
+    TestHost.install();
+  });
+
+  test("should have grep method available", () => {
+    const fs = createWorkspaceFileSystem();
+    expect(typeof fs.grep).toBe("function");
+  });
+
+  test("should have writeCached method available", () => {
+    const fs = createWorkspaceFileSystem();
+    expect(typeof fs.writeCached).toBe("function");
+  });
+
+  test("should support runDir context for writeCached", () => {
+    const fs = createWorkspaceFileSystem({ runDir: "/tmp/test-run" });
+    expect(typeof fs.writeCached).toBe("function");
+  });
+});

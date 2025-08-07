@@ -111,7 +111,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
   };
   private _config: HostConfiguration;
   readonly userInputQueue = new PLimitPromiseQueue(1);
-  readonly workspace: Omit<WorkspaceFileSystem, "grep" | "writeCached">;
+  readonly workspace: WorkspaceFileSystem;
   readonly azureToken: AzureTokenResolver;
   readonly azureAIInferenceToken: AzureTokenResolver;
   readonly azureAIServerlessToken: AzureTokenResolver;

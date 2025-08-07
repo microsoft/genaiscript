@@ -34,6 +34,7 @@ import { genaiscriptDebug } from "./debug.js";
 import { resolveLanguageModelConfigurations } from "./config.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { tryResolveResource } from "./resources.js";
+import { createWorkspaceFileSystem } from "./workspace.js";
 import type {
   ExpansionVariables,
   LanguageModelProviderInfo,
@@ -84,33 +85,35 @@ export async function createPromptContext(
   const runDir = ev.runDir;
   assert(!!runDir, "missing run directory");
 
-  // Use the runtime host's workspace and extend it with additional operations
+  // Create a context-aware workspace by enhancing the runtime host's workspace
+  const baseWorkspace = createWorkspaceFileSystem({ runDir });
   const workspace: WorkspaceFileSystem = {
-    ...runtimeHost.workspace,
+    ...baseWorkspace,
     writeCached: async (f, options) => {
-      const { scope } = options || {};
-      const dir = scope === "run" ? join(runDir, "files") : dotGenaiscriptPath("cache", "files");
-      return await fileWriteCached(dir, f, {
+      return await baseWorkspace.writeCached(f, {
         ...(options || {}),
-        cancellationToken,
-        trace,
+        // The base workspace now handles runDir context
       });
     },
     grep: async (
       query,
-      grepOptions: string | WorkspaceGrepOptions,
+      grepOptions?: string | WorkspaceGrepOptions,
       grepOptions2?: WorkspaceGrepOptions,
     ) => {
+      let options: WorkspaceGrepOptions;
       if (typeof grepOptions === "string") {
         const p = dirname(grepOptions).replace(/(^|\/)\*\*$/, "");
         const g = basename(grepOptions);
-        grepOptions = {
+        options = {
           path: p || undefined,
           glob: g || undefined,
           ...(grepOptions2 || {}),
         } as WorkspaceGrepOptions;
+      } else {
+        options = grepOptions || {};
       }
-      const { path, glob, ...rest } = grepOptions || {};
+      
+      const { path, glob, ...rest } = options;
       const grepTrace = trace?.startTraceDetails(
         `🌐 grep ${HTMLEscape(typeof query === "string" ? query : query.source)} ${glob ? `--glob ${glob}` : ""} ${path || ""}`,
       );

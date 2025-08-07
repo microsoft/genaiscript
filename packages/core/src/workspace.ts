@@ -17,11 +17,15 @@ import { JSON5TryParse } from "./json5.js";
 import { arrayify } from "./cleaners.js";
 import { XMLTryParse } from "./xml.js";
 import { YAMLTryParse } from "./yaml.js";
-import { dirname } from "node:path";
+import { dirname, basename, join } from "node:path";
 import { createCache } from "./cache.js";
 import { tryValidateJSONWithSchema } from "./schema.js";
 import { isGlobMatch } from "./glob.js";
 import { relative, resolve, isAbsolute, normalize } from "node:path";
+import { grepSearch } from "./grep.js";
+import { fileWriteCached } from "./filecache.js";
+import { dotGenaiscriptPath } from "./workdir.js";
+import { HTMLEscape } from "./htmlescape.js";
 import type {
   Awaitable,
   CSVParseOptions,
@@ -31,8 +35,13 @@ import type {
   JSONSchemaValidationOptions,
   WorkspaceFile,
   WorkspaceFileSystem,
+  WorkspaceGrepOptions,
+  WorkspaceGrepResult,
   XMLParseOptions,
+  BufferLike,
 } from "./types.js";
+import type { TraceOptions } from "./trace.js";
+import type { CancellationOptions } from "./cancellation.js";
 
 export interface WorkspaceOptions {
   /**
@@ -50,13 +59,18 @@ export interface WorkspaceOptions {
    * These patterns take precedence over allowedFiles.
    */
   disallowedFiles?: ElementOrArray<string>;
+
+  /**
+   * Run directory for cached files with scope "run"
+   */
+  runDir?: string;
 }
 
 /**
  * Creates a file system interface for interacting with workspace files.
  *
  * @param policy Optional file write policy to restrict which files can be written
- * @returns An object implementing the WorkspaceFileSystem functionalities, excluding "grep" and "writeCached".
+ * @returns An object implementing the WorkspaceFileSystem functionalities.
  *
  * Functions:
  * - `findFiles(glob, options)`: Searches for files matching a glob pattern. Filters out `.env` files and adheres to gitignore settings. The `options` object can include:
@@ -76,10 +90,12 @@ export interface WorkspaceOptions {
  * - `stat(filename)`: Retrieves the size and mode (permissions) of the specified file. Returns `undefined` if the file does not exist.
  * - `copyFile(src, dest)`: Copies a file from `src` to `dest`. Throws error if `.env` files are involved.
  * - `writeFiles(files)`: Writes a batch of WorkspaceFile objects to the file system. Supports encoding (e.g., base64) if specified.
+ * - `grep(pattern, options)`: Performs a grep search over the files in the workspace using ripgrep.
+ * - `writeCached(bytes, options)`: Caches a buffer to file and returns the unique file name.
  */
 export function createWorkspaceFileSystem(
   policy?: WorkspaceOptions,
-): Omit<WorkspaceFileSystem, "grep" | "writeCached"> {
+): WorkspaceFileSystem {
   const { root = resolve(".") } = policy || {};
   const checkWrite = (filename: string) => {
     if (DOT_ENV_REGEX.test(filename)) {
@@ -246,7 +262,44 @@ export function createWorkspaceFileSystem(
         }
       }
     },
-  } satisfies Omit<WorkspaceFileSystem, "grep" | "writeCached">;
+    grep: async (
+      query: string | RegExp,
+      grepOptions?: string | WorkspaceGrepOptions,
+      grepOptions2?: WorkspaceGrepOptions,
+    ): Promise<WorkspaceGrepResult> => {
+      let options: WorkspaceGrepOptions & TraceOptions & CancellationOptions;
+      if (typeof grepOptions === "string") {
+        const p = dirname(grepOptions).replace(/(^|\/)\*\*$/, "");
+        const g = basename(grepOptions);
+        options = {
+          path: p || undefined,
+          glob: g || undefined,
+          ...(grepOptions2 || {}),
+        } as WorkspaceGrepOptions;
+      } else {
+        options = grepOptions || {};
+      }
+      
+      const { files, matches } = await grepSearch(query, options);
+      return { files, matches };
+    },
+    writeCached: async (
+      f: BufferLike,
+      options?: {
+        scope?: "workspace" | "run";
+        ext?: string;
+      } & TraceOptions & CancellationOptions,
+    ): Promise<string> => {
+      const { scope } = options || {};
+      const { runDir } = policy || {};
+      const dir = scope === "run" && runDir 
+        ? join(runDir, "files") 
+        : dotGenaiscriptPath("cache", "files");
+      return await fileWriteCached(dir, f, {
+        ...(options || {}),
+      });
+    },
+  } satisfies WorkspaceFileSystem;
   (fs as any).readFile = readText;
   return Object.freeze(fs);
 }
