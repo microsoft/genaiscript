@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { WorkspaceFile, ChatGenerationContextOptions, RuntimePromptContext } from "@genaiscript/core";
-import { frontmatterTryParse, isGlobMatch, genaiscriptDebug, resolveChatGenerationContext } from "@genaiscript/core";
+import { frontmatterTryParse, isGlobMatch, genaiscriptDebug, resolveChatGenerationContext, arrayify } from "@genaiscript/core";
 
 const debug = genaiscriptDebug("copilotinstructions");
 
@@ -202,7 +202,7 @@ function shouldIncludeInstruction(
   }
 
   // Check if any provided files match the applyTo patterns
-  const applyToPatterns = Array.isArray(metadata.applyTo) ? metadata.applyTo : [metadata.applyTo];
+  const applyToPatterns = arrayify(metadata.applyTo);
   debug(`checking patterns ${JSON.stringify(applyToPatterns)} against files: ${filenames.join(", ")}`);
 
   const matches = filenames.some((filename) => isGlobMatch(filename, applyToPatterns));
