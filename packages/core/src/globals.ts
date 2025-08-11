@@ -18,7 +18,6 @@ import { approximateTokens, estimateTokens, truncateTextToTokens } from "./token
 import { chunk, resolveTokenEncoder } from "./encoders.js";
 import { JSON5Stringify, JSON5TryParse } from "./json5.js";
 import { JSONSchemaInfer } from "./schema.js";
-import { FFmepgClient } from "./ffmpeg.js";
 import { promptParametersSchemaToJSONSchema } from "./parameters.js";
 import { chunkMarkdown } from "./mdchunk.js";
 import { resolveGlobal } from "./global.js";
@@ -157,8 +156,24 @@ export function installGlobals() {
     chunk: chunk,
   });
 
-  // ffmpeg
-  glb.ffmpeg = new FFmepgClient();
+  // ffmpeg (optional plugin loaded lazily)
+  let _ffmpeg: any = undefined;
+  Object.defineProperty(glb, 'ffmpeg', {
+    get() {
+      if (_ffmpeg === undefined) {
+        try {
+          const { FFmepgClient } = require("@genaiscript/plugin-ffmpeg");
+          _ffmpeg = new FFmepgClient();
+        } catch (error) {
+          // ffmpeg plugin not available
+          dbg("ffmpeg plugin not available");
+          _ffmpeg = null;
+        }
+      }
+      return _ffmpeg;
+    },
+    configurable: true
+  });
 
   glb.DIFF = Object.freeze<DIFFObject>({
     parse: tryDiffParse,

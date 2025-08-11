@@ -60,7 +60,6 @@ export {
 } from "./fetch.js";
 export type { FetchType } from "./fetch.js";
 export * from "./fetchtext.js";
-export * from "./ffmpeg.js";
 export * from "./file.js";
 export * from "./filebytes.js";
 export * from "./filecache.js";

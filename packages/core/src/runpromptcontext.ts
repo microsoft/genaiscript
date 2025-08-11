@@ -82,7 +82,6 @@ import { agentAddMemory, agentCreateCache, agentQueryMemory } from "./agent.js";
 import { YAMLStringify } from "./yaml.js";
 import type { Project } from "./server/messages.js";
 import { mergeEnvVarsWithSystem, parametersToVars } from "./vars.js";
-import { FFmepgClient } from "./ffmpeg.js";
 import { BufferToBlob } from "./bufferlike.js";
 import { resolveRuntimeHost } from "./host.js";
 import { srtVttRender } from "./transcription.js";
@@ -710,7 +709,13 @@ export function createChatGenerationContext(
       checkCancelled(cancellationToken);
       const { transcriber } = await resolveLanguageModel(configuration.provider);
       if (!transcriber) throw new Error("audio transcribe not found for " + info.model);
-      const ffmpeg = new FFmepgClient();
+      let ffmpeg: any;
+      try {
+        const { FFmepgClient } = require("@genaiscript/plugin-ffmpeg");
+        ffmpeg = new FFmepgClient();
+      } catch (error) {
+        throw new Error("ffmpeg plugin not available");
+      }
       const audioFile = await ffmpeg.extractAudio(audio, {
         transcription: true,
         cache,

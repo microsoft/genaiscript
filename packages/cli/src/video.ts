@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { FFmepgClient } from "@genaiscript/core";
+import { FFmepgClient } from "@genaiscript/plugin-ffmpeg";
 
 /**
  * Extracts audio from a given media file.

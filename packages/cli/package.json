@@ -40,6 +40,7 @@
     "@fastify/swagger-ui": "^5.2.3",
     "@genaiscript/api": "workspace:*",
     "@genaiscript/core": "workspace:*",
+    "@genaiscript/plugin-ffmpeg": "workspace:*",
     "@genaiscript/runtime": "workspace:*",
     "@inquirer/prompts": "catalog:",
     "@modelcontextprotocol/sdk": "^1.17.1",

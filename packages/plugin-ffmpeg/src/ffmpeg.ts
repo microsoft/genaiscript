@@ -4,29 +4,26 @@
 import debug from "debug";
 const dbg = debug("genaiscript:ffmpeg");
 
-import { logVerbose } from "./util.js";
-import type { TraceOptions } from "./trace.js";
-import { lookupMime } from "./mime.js";
-import pLimit from "p-limit";
-import { join, basename } from "node:path";
-import { ensureDir } from "./fs.js";
-import type { FfmpegCommand } from "fluent-ffmpeg";
-import { hash } from "./crypto.js";
-import { VIDEO_HASH_LENGTH } from "./constants.js";
-import { writeFile, readFile } from "node:fs/promises";
-import { errorMessage, serializeError } from "./error.js";
-import { fromBase64 } from "./base64.js";
-import { fileTypeFromBuffer } from "./filetype.js";
-import { appendFile, readdir } from "node:fs/promises";
-import prettyBytes from "pretty-bytes";
-import { filenameOrFileToFilename } from "./unwrappers.js";
-import { roundWithPrecision } from "./precision.js";
-import { parseTimestamps } from "./transcription.js";
-import { mark } from "./performance.js";
-import { dotGenaiscriptPath } from "./workdir.js";
-import { arrayify } from "./cleaners.js";
-import { tryStat } from "./fs.js";
+import {
+  logVerbose,
+  lookupMime,
+  ensureDir,
+  hash,
+  VIDEO_HASH_LENGTH,
+  errorMessage,
+  serializeError,
+  fromBase64,
+  fileTypeFromBuffer,
+  filenameOrFileToFilename,
+  roundWithPrecision,
+  parseTimestamps,
+  mark,
+  dotGenaiscriptPath,
+  arrayify,
+  tryStat,
+} from "@genaiscript/core";
 import type {
+  TraceOptions,
   Awaitable,
   Ffmpeg,
   FfmpegCommandBuilder,
@@ -36,7 +33,13 @@ import type {
   VideoExtractFramesOptions,
   VideoProbeResult,
   WorkspaceFile,
-} from "./types.js";
+} from "@genaiscript/core";
+import pLimit from "p-limit";
+import { join, basename } from "node:path";
+import type { FfmpegCommand } from "fluent-ffmpeg";
+import { writeFile, readFile } from "node:fs/promises";
+import { appendFile, readdir } from "node:fs/promises";
+import prettyBytes from "pretty-bytes";
 
 const ffmpegLimit = pLimit(1);
 const WILD_CARD = "%06d";
