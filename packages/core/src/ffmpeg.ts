@@ -47,6 +47,7 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
   private inputFile: string = "";
   private outputFile: string = "";
   private timeout?: number;
+  private static WILD_CARD = WILD_CARD; // Make it accessible to the class
 
   constructor(options?: { timeout?: number }) {
     super();
@@ -274,10 +275,28 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
       const output = data.toString();
       stderr += output;
       this.emit("stderr", output);
+      
+      // Parse ffmpeg output for stream info (similar to codeData event)
+      const audioMatch = output.match(/Stream #\d+:\d+.*Audio:/);
+      const videoMatch = output.match(/Stream #\d+:\d+.*Video:/);
+      if (audioMatch || videoMatch) {
+        this.emit("codeData", {
+          audio: !!audioMatch,
+          video: !!videoMatch
+        });
+      }
     });
 
     child.on("close", (code) => {
       if (code === 0) {
+        // Emit filenames event if output file contains wildcards
+        if (this.outputFile && this.outputFile.includes(MinimalFfmpegCommand.WILD_CARD)) {
+          // The actual filename detection will be handled in the end event listener
+          // in runFfmpegCommandUncached function
+        } else if (this.outputFile) {
+          // For single file outputs, emit the filename
+          this.emit("filenames", [basename(this.outputFile)]);
+        }
         this.emit("end");
       } else {
         this.emit("error", new Error(`FFmpeg process exited with code ${code}: ${stderr}`));
