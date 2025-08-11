@@ -94,6 +94,7 @@ import { toBase64 } from "./base64.js";
 import { consoleColors } from "./consolecolor.js";
 import { terminalSize } from "./terminal.js";
 import { stderr, stdout } from "./stdio.js";
+import { isQuiet } from "./quiet.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { prettyBytes } from "./pretty.js";
 import { createCache } from "./cache.js";
@@ -183,7 +184,9 @@ export function createChatTurnGenerationContext(
       const line = consoleLogFormat(...args);
       if (line) {
         trace?.log(line);
-        stdout.write(line + "\n");
+        if (!isQuiet) {
+          stdout.write(line + "\n");
+        }
       }
     },
     debug: (...args: any[]) => {
@@ -1098,7 +1101,7 @@ export function createChatGenerationContext(
       const filename = dotGenaiscriptPath("image", h + "." + ext);
       await runtimeHost.writeFile(filename, buf);
 
-      if (consoleColors) {
+      if (consoleColors && !isQuiet) {
         const size = terminalSize();
         stderr.write(
           await renderImageToTerminal(buf, {
