@@ -42,7 +42,7 @@ export function CSVParse(
   if (repair && text) {
     text = text.replace(/\\"/g, '""').replace(/""""/g, '""');
   }
-  
+
   try {
     // Parse the CSV string based on the provided options
     return parse(text, {
