@@ -52,26 +52,31 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
   constructor(options?: { timeout?: number }) {
     super();
     this.timeout = options?.timeout;
+    dbg(`Creating new MinimalFfmpegCommand with timeout: ${this.timeout || 'none'}`);
   }
 
   // Input/Output management
   input(file: string): this {
+    dbg(`Setting input file: ${file}`);
     this.inputFile = file;
     return this;
   }
 
   output(file: string): this {
+    dbg(`Setting output file: ${file}`);
     this.outputFile = file;
     return this;
   }
 
   // FfmpegCommandBuilder interface implementation
   seekInput(startTime: number | string): FfmpegCommandBuilder {
+    dbg(`Adding seek input: ${startTime}`);
     this.args.push("-ss", String(startTime));
     return this;
   }
 
   duration(duration: number | string): FfmpegCommandBuilder {
+    dbg(`Adding duration: ${duration}`);
     this.args.push("-t", String(duration));
     return this;
   }
@@ -113,10 +118,12 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
 
   audioFilters(filters: string | string[]): FfmpegCommandBuilder {
     const filterStr = Array.isArray(filters) ? filters.join(",") : filters;
+    dbg(`Adding audio filters: ${filterStr}`);
     // Check if we already have audio filters
     const afIndex = this.args.findIndex((arg, i) => arg === "-af" && i < this.args.length - 1);
     if (afIndex >= 0) {
       // Append to existing audio filter
+      dbg(`Appending to existing audio filter: ${this.args[afIndex + 1]} -> ${this.args[afIndex + 1]},${filterStr}`);
       this.args[afIndex + 1] += `,${filterStr}`;
     } else {
       this.args.push("-af", filterStr);
@@ -145,10 +152,12 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
 
   videoFilters(filters: string | string[]): FfmpegCommandBuilder {
     const filterStr = Array.isArray(filters) ? filters.join(",") : filters;
+    dbg(`Adding video filters: ${filterStr}`);
     // Check if we already have video filters
     const vfIndex = this.args.findIndex((arg, i) => arg === "-vf" && i < this.args.length - 1);
     if (vfIndex >= 0) {
       // Append to existing video filter
+      dbg(`Appending to existing video filter: ${this.args[vfIndex + 1]} -> ${this.args[vfIndex + 1]},${filterStr}`);
       this.args[vfIndex + 1] += `,${filterStr}`;
     } else {
       this.args.push("-vf", filterStr);
@@ -219,6 +228,7 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
   ffprobe(callback: (err: Error | null, data?: any) => void): void {
     const args = ["-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", this.inputFile];
     
+    dbg(`Running ffprobe with args: ${args.join(" ")}`);
     const child = spawn("ffprobe", args);
     let stdout = "";
     let stderr = "";
@@ -228,23 +238,30 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
     });
 
     child.stderr.on("data", (data) => {
-      stderr += data.toString();
+      const errorOutput = data.toString();
+      stderr += errorOutput;
+      dbg(`ffprobe stderr: ${errorOutput.trim()}`);
     });
 
     child.on("close", (code) => {
+      dbg(`ffprobe process exited with code: ${code}`);
       if (code === 0) {
         try {
           const data = JSON.parse(stdout);
+          dbg(`ffprobe successfully parsed JSON output with ${data.streams?.length || 0} streams`);
           callback(null, data);
         } catch (err) {
+          dbg(`ffprobe JSON parse error: ${err.message}`);
           callback(new Error(`Failed to parse ffprobe output: ${err.message}`));
         }
       } else {
+        dbg(`ffprobe failed with stderr: ${stderr}`);
         callback(new Error(`ffprobe failed with code ${code}: ${stderr}`));
       }
     });
 
     child.on("error", (err) => {
+      dbg(`ffprobe process error: ${err.message}`);
       callback(err);
     });
   }
@@ -269,6 +286,7 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
 
     child.stdout.on("data", (data) => {
       // FFmpeg typically outputs progress to stderr, not stdout
+      dbg(`ffmpeg stdout: ${data.toString().trim()}`);
     });
 
     child.stderr.on("data", (data) => {
@@ -280,6 +298,7 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
       const audioMatch = output.match(/Stream #\d+:\d+.*Audio:/);
       const videoMatch = output.match(/Stream #\d+:\d+.*Video:/);
       if (audioMatch || videoMatch) {
+        dbg(`Detected streams - audio: ${!!audioMatch}, video: ${!!videoMatch}`);
         this.emit("codeData", {
           audio: !!audioMatch,
           video: !!videoMatch
@@ -288,27 +307,37 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
     });
 
     child.on("close", (code) => {
+      dbg(`ffmpeg process exited with code: ${code}`);
       if (code === 0) {
         // Emit filenames event if output file contains wildcards
         if (this.outputFile && this.outputFile.includes(MinimalFfmpegCommand.WILD_CARD)) {
+          dbg(`Output contains wildcard, filenames will be handled by end event listener`);
           // The actual filename detection will be handled in the end event listener
           // in runFfmpegCommandUncached function
         } else if (this.outputFile) {
           // For single file outputs, emit the filename
-          this.emit("filenames", [basename(this.outputFile)]);
+          const filename = basename(this.outputFile);
+          dbg(`Emitting single filename: ${filename}`);
+          this.emit("filenames", [filename]);
         }
+        dbg(`Emitting end event`);
         this.emit("end");
       } else {
-        this.emit("error", new Error(`FFmpeg process exited with code ${code}: ${stderr}`));
+        const errorMsg = `FFmpeg process exited with code ${code}: ${stderr}`;
+        dbg(`FFmpeg error: ${errorMsg}`);
+        this.emit("error", new Error(errorMsg));
       }
     });
 
     child.on("error", (err) => {
+      dbg(`ffmpeg process error: ${err.message}`);
       this.emit("error", err);
     });
 
     if (this.timeout) {
+      dbg(`Setting timeout for ${this.timeout}ms`);
       setTimeout(() => {
+        dbg(`FFmpeg process timed out, killing with SIGTERM`);
         child.kill("SIGTERM");
         this.emit("error", new Error(`FFmpeg process timed out after ${this.timeout}ms`));
       }, this.timeout);
@@ -336,6 +365,7 @@ interface FFmpegCommandResult {
 }
 
 export async function ffmpegCommand(options?: { timeout?: number }) {
+  dbg(`Creating ffmpeg command with options: ${JSON.stringify(options || {})}`);
   return new MinimalFfmpegCommand(options);
 }
 
@@ -354,16 +384,21 @@ async function computeHashFolder(
 }
 
 async function resolveInput(filename: string | WorkspaceFile, folder: string): Promise<string> {
+  dbg(`Resolving input: ${typeof filename === 'string' ? filename : 'WorkspaceFile object'}`);
   if (typeof filename === "object") {
     if (filename.content && filename.encoding === "base64") {
       const bytes = fromBase64(filename.content);
       const mime = await fileTypeFromBuffer(bytes);
-      filename = join(folder, "input." + mime.ext);
-      await writeFile(filename, bytes);
+      const resolvedFilename = join(folder, "input." + mime.ext);
+      dbg(`Converting base64 WorkspaceFile to: ${resolvedFilename}`);
+      await writeFile(resolvedFilename, bytes);
+      return resolvedFilename;
     } else {
-      filename = filename.filename;
+      dbg(`Using filename from WorkspaceFile: ${filename.filename}`);
+      return filename.filename;
     }
   }
+  dbg(`Using string filename directly: ${filename}`);
   return filename;
 }
 
@@ -697,21 +732,30 @@ async function runFfmpegCommandUncached(
 ): Promise<FFmpegCommandResult> {
   return await new Promise(async (resolve, reject) => {
     const r: FFmpegCommandResult = { filenames: [], data: [] };
-    const end = () => resolve(r);
+    const end = () => {
+      dbg(`Command execution completed with ${r.filenames.length} filenames and ${r.data.length} data items`);
+      resolve(r);
+    };
 
     let output: string;
     cmd.input(input);
     if (options.size) {
+      dbg(`Applying size option: ${options.size}`);
       cmd.size(options.size);
     }
     if (options.inputOptions) {
-      cmd.inputOptions(...arrayify(options.inputOptions));
+      const inputOpts = arrayify(options.inputOptions);
+      dbg(`Applying input options: ${inputOpts.join(' ')}`);
+      cmd.inputOptions(...inputOpts);
     }
     if (options.outputOptions) {
-      cmd.outputOption(...arrayify(options.outputOptions));
+      const outputOpts = arrayify(options.outputOptions);
+      dbg(`Applying output options: ${outputOpts.join(' ')}`);
+      cmd.outputOption(...outputOpts);
     }
     dbg(`adding filenames listener`);
     cmd.addListener("filenames", (fns: string[]) => {
+      dbg(`Received filenames event: ${fns.join(', ')}`);
       r.filenames.push(...fns.map((f) => join(folder, f)));
     });
     cmd.addListener("codeData", (data) => {
@@ -721,17 +765,20 @@ async function runFfmpegCommandUncached(
       dbg(`processing wildcard output: ${output}`);
       if (output?.includes(WILD_CARD)) {
         const [prefix, suffix] = output.split(WILD_CARD, 2);
+        dbg(`Looking for wildcard files with prefix '${prefix}' and suffix '${suffix}' in ${folder}`);
         const files = await readdir(folder);
         const gen = files.filter((f) => f.startsWith(prefix) && f.endsWith(suffix));
+        dbg(`Found ${gen.length} wildcard files: ${gen.join(', ')}`);
         r.filenames.push(...gen.map((f) => join(folder, f)));
       }
       end();
     });
     cmd.addListener("error", (err) => {
-      dbg(`ffmpeg command encountered an error`);
+      dbg(`ffmpeg command encountered an error: ${err.message}`);
       reject(err);
     });
     try {
+      dbg(`Calling renderer function`);
       const rendering = await renderer(cmd, {
         input,
         dir: folder,
@@ -739,17 +786,21 @@ async function runFfmpegCommandUncached(
       if (typeof rendering === "string") {
         output = rendering.replace(/\*/g, WILD_CARD);
         const fo = join(folder, basename(output));
+        dbg(`Renderer returned string output: ${rendering} -> ${fo}`);
         cmd.output(fo);
         cmd.run();
         if (!output.includes(WILD_CARD)) {
+          dbg(`Non-wildcard output, adding to filenames immediately: ${fo}`);
           r.filenames.push(fo);
         }
       } else if (typeof rendering === "object") {
+        dbg(`Renderer returned object data, resolving immediately`);
         r.data.push(rendering);
         cmd.removeListener("end", end);
         resolve(r);
       }
     } catch (err) {
+      dbg(`Renderer function threw error: ${err.message}`);
       reject(err);
     }
   });
