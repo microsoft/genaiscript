@@ -10,7 +10,6 @@ import { lookupMime } from "./mime.js";
 import pLimit from "p-limit";
 import { join, basename } from "node:path";
 import { ensureDir } from "./fs.js";
-import type { FfmpegCommand } from "fluent-ffmpeg";
 import { hash } from "./crypto.js";
 import { VIDEO_HASH_LENGTH } from "./constants.js";
 import { writeFile, readFile } from "node:fs/promises";
@@ -26,6 +25,8 @@ import { mark } from "./performance.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { arrayify } from "./cleaners.js";
 import { tryStat } from "./fs.js";
+import { spawn } from "node:child_process";
+import { EventEmitter } from "node:events";
 import type {
   Awaitable,
   Ffmpeg,
@@ -41,8 +42,272 @@ import type {
 const ffmpegLimit = pLimit(1);
 const WILD_CARD = "%06d";
 
+class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder {
+  private args: string[] = [];
+  private inputFile: string = "";
+  private outputFile: string = "";
+  private timeout?: number;
+
+  constructor(options?: { timeout?: number }) {
+    super();
+    this.timeout = options?.timeout;
+  }
+
+  // Input/Output management
+  input(file: string): this {
+    this.inputFile = file;
+    return this;
+  }
+
+  output(file: string): this {
+    this.outputFile = file;
+    return this;
+  }
+
+  // FfmpegCommandBuilder interface implementation
+  seekInput(startTime: number | string): FfmpegCommandBuilder {
+    this.args.push("-ss", String(startTime));
+    return this;
+  }
+
+  duration(duration: number | string): FfmpegCommandBuilder {
+    this.args.push("-t", String(duration));
+    return this;
+  }
+
+  noVideo(): FfmpegCommandBuilder {
+    this.args.push("-vn");
+    return this;
+  }
+
+  noAudio(): FfmpegCommandBuilder {
+    this.args.push("-an");
+    return this;
+  }
+
+  audioCodec(codec: string): FfmpegCommandBuilder {
+    this.args.push("-acodec", codec);
+    return this;
+  }
+
+  audioBitrate(bitrate: string | number): FfmpegCommandBuilder {
+    this.args.push("-ab", String(bitrate));
+    return this;
+  }
+
+  audioChannels(channels: number): FfmpegCommandBuilder {
+    this.args.push("-ac", String(channels));
+    return this;
+  }
+
+  audioFrequency(freq: number): FfmpegCommandBuilder {
+    this.args.push("-ar", String(freq));
+    return this;
+  }
+
+  audioQuality(quality: number): FfmpegCommandBuilder {
+    this.args.push("-aq", String(quality));
+    return this;
+  }
+
+  audioFilters(filters: string | string[]): FfmpegCommandBuilder {
+    const filterStr = Array.isArray(filters) ? filters.join(",") : filters;
+    // Check if we already have audio filters
+    const afIndex = this.args.findIndex((arg, i) => arg === "-af" && i < this.args.length - 1);
+    if (afIndex >= 0) {
+      // Append to existing audio filter
+      this.args[afIndex + 1] += `,${filterStr}`;
+    } else {
+      this.args.push("-af", filterStr);
+    }
+    return this;
+  }
+
+  toFormat(format: string): FfmpegCommandBuilder {
+    this.args.push("-f", format);
+    return this;
+  }
+
+  videoCodec(codec: string): FfmpegCommandBuilder {
+    this.args.push("-vcodec", codec);
+    return this;
+  }
+
+  videoBitrate(bitrate: string | number, constant?: boolean): FfmpegCommandBuilder {
+    if (constant) {
+      this.args.push("-vb", String(bitrate));
+    } else {
+      this.args.push("-vb", String(bitrate));
+    }
+    return this;
+  }
+
+  videoFilters(filters: string | string[]): FfmpegCommandBuilder {
+    const filterStr = Array.isArray(filters) ? filters.join(",") : filters;
+    // Check if we already have video filters
+    const vfIndex = this.args.findIndex((arg, i) => arg === "-vf" && i < this.args.length - 1);
+    if (vfIndex >= 0) {
+      // Append to existing video filter
+      this.args[vfIndex + 1] += `,${filterStr}`;
+    } else {
+      this.args.push("-vf", filterStr);
+    }
+    return this;
+  }
+
+  videoFilter(filter: string): FfmpegCommandBuilder {
+    return this.videoFilters(filter);
+  }
+
+  outputFps(fps: number): FfmpegCommandBuilder {
+    this.args.push("-fps", String(fps));
+    return this;
+  }
+
+  frames(frames: number): FfmpegCommandBuilder {
+    this.args.push("-frames:v", String(frames));
+    return this;
+  }
+
+  keepDisplayAspectRatio(): FfmpegCommandBuilder {
+    this.args.push("-aspect");
+    return this;
+  }
+
+  size(size: string): FfmpegCommandBuilder {
+    this.args.push("-s", size);
+    return this;
+  }
+
+  aspectRatio(aspect: string | number): FfmpegCommandBuilder {
+    this.args.push("-aspect", String(aspect));
+    return this;
+  }
+
+  autopad(pad?: boolean, color?: string): FfmpegCommandBuilder {
+    if (pad !== false) {
+      // The original fluent-ffmpeg autopad adds padding - we need to chain with existing filters
+      const padFilter = `pad=ceil(iw/2)*2:ceil(ih/2)*2${color ? `:${color}` : ""}`;
+      // Check if we already have video filters
+      const vfIndex = this.args.findIndex((arg, i) => arg === "-vf" && i < this.args.length - 1);
+      if (vfIndex >= 0) {
+        // Append to existing video filter
+        this.args[vfIndex + 1] += `,${padFilter}`;
+      } else {
+        this.args.push("-vf", padFilter);
+      }
+    }
+    return this;
+  }
+
+  inputOptions(...options: string[]): FfmpegCommandBuilder {
+    this.args.push(...options);
+    return this;
+  }
+
+  outputOptions(...options: string[]): FfmpegCommandBuilder {
+    this.args.push(...options);
+    return this;
+  }
+
+  outputOption(...options: string[]): FfmpegCommandBuilder {
+    return this.outputOptions(...options);
+  }
+
+  // FFprobe functionality
+  ffprobe(callback: (err: Error | null, data?: any) => void): void {
+    const args = ["-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", this.inputFile];
+    
+    const child = spawn("ffprobe", args);
+    let stdout = "";
+    let stderr = "";
+
+    child.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    child.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    child.on("close", (code) => {
+      if (code === 0) {
+        try {
+          const data = JSON.parse(stdout);
+          callback(null, data);
+        } catch (err) {
+          callback(new Error(`Failed to parse ffprobe output: ${err.message}`));
+        }
+      } else {
+        callback(new Error(`ffprobe failed with code ${code}: ${stderr}`));
+      }
+    });
+
+    child.on("error", (err) => {
+      callback(err);
+    });
+  }
+
+  // Command execution
+  run(): void {
+    const args = [...this.args];
+    
+    if (this.inputFile) {
+      args.unshift("-i", this.inputFile);
+    }
+    
+    if (this.outputFile) {
+      args.push(this.outputFile);
+    }
+
+    dbg(`Running ffmpeg command: ffmpeg ${args.join(" ")}`);
+    this.emit("start", `ffmpeg ${args.join(" ")}`);
+
+    const child = spawn("ffmpeg", args);
+    let stderr = "";
+
+    child.stdout.on("data", (data) => {
+      // FFmpeg typically outputs progress to stderr, not stdout
+    });
+
+    child.stderr.on("data", (data) => {
+      const output = data.toString();
+      stderr += output;
+      this.emit("stderr", output);
+    });
+
+    child.on("close", (code) => {
+      if (code === 0) {
+        this.emit("end");
+      } else {
+        this.emit("error", new Error(`FFmpeg process exited with code ${code}: ${stderr}`));
+      }
+    });
+
+    child.on("error", (err) => {
+      this.emit("error", err);
+    });
+
+    if (this.timeout) {
+      setTimeout(() => {
+        child.kill("SIGTERM");
+        this.emit("error", new Error(`FFmpeg process timed out after ${this.timeout}ms`));
+      }, this.timeout);
+    }
+  }
+
+  // Event listener compatibility with fluent-ffmpeg
+  addListener(event: string, listener: (...args: any[]) => void): this {
+    return this.on(event, listener);
+  }
+
+  removeListener(event: string, listener: (...args: any[]) => void): this {
+    return this.off(event, listener);
+  }
+}
+
 type FFmpegCommandRenderer = (
-  cmd: FfmpegCommand,
+  cmd: MinimalFfmpegCommand,
   options: { input: string; dir: string },
 ) => Awaitable<string | object>;
 
@@ -51,9 +316,8 @@ interface FFmpegCommandResult {
   data: any[];
 }
 
-async function ffmpegCommand(options?: { timeout?: number }) {
-  const cmd = (await import("fluent-ffmpeg")).default;
-  return cmd(options);
+export async function ffmpegCommand(options?: { timeout?: number }) {
+  return new MinimalFfmpegCommand(options);
 }
 
 async function computeHashFolder(
@@ -121,7 +385,7 @@ export class FFmepgClient implements Ffmpeg {
     const format = options?.format || "jpg";
     const size = options?.size;
 
-    const applyOptions = (cmd: FfmpegCommand) => {
+    const applyOptions = (cmd: MinimalFfmpegCommand) => {
       if (size) {
         cmd.size(size);
         cmd.autopad();
@@ -406,7 +670,7 @@ async function runFfmpeg(
   });
 }
 async function runFfmpegCommandUncached(
-  cmd: FfmpegCommand,
+  cmd: MinimalFfmpegCommand,
   input: string,
   options: FFmpegCommandOptions,
   folder: string,
@@ -472,7 +736,7 @@ async function runFfmpegCommandUncached(
   });
 }
 
-function logCommand(folder: string, cmd: FfmpegCommand) {
+function logCommand(folder: string, cmd: MinimalFfmpegCommand) {
   // console logging
   cmd.on("start", (commandLine) => logVerbose(commandLine));
   cmd.on("stderr", (s) => dbg(s));
