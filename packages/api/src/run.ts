@@ -745,7 +745,11 @@ export async function runScriptInternal(
   if (outTraceFilename) logVerbose(`   trace: ${outTraceFilename}`);
   if (outputFilename) logVerbose(`  output: ${outputFilename}`);
 
-  if (result.status !== "success" && result.status !== "cancelled") {
+  if (result.status === "cancelled") {
+    return fail("user cancelled", USER_CANCELLED_ERROR_CODE);
+  }
+
+  if (result.status !== "success") {
     const msg = errorMessage(result.error) ?? result.statusText ?? result.finishReason;
     return fail(msg, RUNTIME_ERROR_CODE);
   }
