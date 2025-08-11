@@ -12,20 +12,24 @@ import { USER_CANCELLED_ERROR_CODE, RUNTIME_ERROR_CODE } from "@genaiscript/core
 describe("Script Exit Codes", () => {
   test("should return correct exit codes for different statuses", () => {
     // Test the logic of exit code determination
-    const testExitCodeLogic = (resultStatus: string, hasError?: any, hasAnnotationErrors?: boolean) => {
+    const testExitCodeLogic = (
+      resultStatus: string,
+      hasError?: any,
+      hasAnnotationErrors?: boolean,
+    ) => {
       // This mirrors the logic in runScriptInternal after our fix
       if (resultStatus === "cancelled") {
         return USER_CANCELLED_ERROR_CODE;
       }
-      
+
       if (resultStatus !== "success") {
         return RUNTIME_ERROR_CODE;
       }
-      
+
       if (hasAnnotationErrors) {
         return -6; // ANNOTATION_ERROR_CODE
       }
-      
+
       return 0; // SUCCESS_ERROR_CODE
     };
 
@@ -33,7 +37,7 @@ describe("Script Exit Codes", () => {
     expect(testExitCodeLogic("cancelled")).toBe(USER_CANCELLED_ERROR_CODE);
     expect(testExitCodeLogic("cancelled")).toBe(-7);
 
-    // Test error status returns RUNTIME_ERROR_CODE  
+    // Test error status returns RUNTIME_ERROR_CODE
     expect(testExitCodeLogic("error")).toBe(RUNTIME_ERROR_CODE);
     expect(testExitCodeLogic("error")).toBe(-5);
 
