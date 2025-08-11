@@ -3878,11 +3878,7 @@
    * @param assignees Optional array of GitHub usernames to assign to the issue
    * @returns GitHub URL for creating a new issue with pre-filled data
    */
-  createIssueUrl(
-    title: string,
-    body?: string,
-    assignees?: string[],
-  ): Promise<string>;
+  createIssueUrl(title: string, body?: string, assignees?: string[]): Promise<string>;
 }
 
  interface MDObject {
