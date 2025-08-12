@@ -183,7 +183,7 @@ function createProgressBar(percentage: number, width: number = 20): string {
  * Displays enhanced final summary for promptfoo test results
  */
 function displayPromptfooTestSummary(
-  results: Array<{ ok: boolean }>,
+  results: Array<{ ok: boolean; script: string }>,
   stats: GenerationStats,
   totalDuration: number,
   outSummary?: string,
@@ -213,6 +213,16 @@ function displayPromptfooTestSummary(
     logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
   }
 
+  // Show list of failed tests if any
+  const failedTests = results.filter((r) => !r.ok);
+  if (failedTests.length > 0) {
+    logInfo(`${BOX_UP_AND_DOWN}`);
+    logInfo(`${BOX_UP_AND_DOWN} Failed Tests:`);
+    for (const test of failedTests) {
+      logInfo(`${BOX_UP_AND_DOWN}   ${EMOJI_FAIL} ${test.script}`);
+    }
+  }
+
   logInfo(`${BOX_UP_AND_RIGHT}`);
 
   if (outSummary) logVerbose(`${BOX_UP_AND_RIGHT} Full trace: ${outSummary}`);
@@ -222,7 +232,7 @@ function displayPromptfooTestSummary(
  * Displays enhanced final summary for API test results
  */
 function displayApiTestSummary(
-  results: Array<{ ok: boolean }>,
+  results: Array<{ ok: boolean; config: { script: { id: string } } }>,
   stats: GenerationStats,
   totalDuration: number,
   outSummary?: string,
@@ -250,6 +260,16 @@ function displayApiTestSummary(
     const tokensPerSecond = Math.round(usage.total_tokens / (totalDuration / 1000));
     logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
     logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
+  }
+
+  // Show list of failed tests if any
+  const failedTests = results.filter((r) => !r.ok);
+  if (failedTests.length > 0) {
+    logInfo(`${BOX_UP_AND_DOWN}`);
+    logInfo(`${BOX_UP_AND_DOWN} Failed Tests:`);
+    for (const test of failedTests) {
+      logInfo(`${BOX_UP_AND_DOWN}   ${EMOJI_FAIL} ${test.config.script.id}`);
+    }
   }
 
   logInfo(`${BOX_UP_AND_RIGHT}`);
