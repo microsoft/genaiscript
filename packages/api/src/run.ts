@@ -224,6 +224,7 @@ export async function runScriptInternal(
   const logprobs = options.logprobs;
   const topLogprobs = normalizeInt(options.topLogprobs);
   const fenceFormat = options.fenceFormat;
+  const mcps = options.mcps;
 
   assert(!!runDir);
 
@@ -522,6 +523,7 @@ export async function runScriptInternal(
       applyGitIgnore,
       stats,
       userState,
+      mcps,
     });
   } catch (err) {
     stats.log();
