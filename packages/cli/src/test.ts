@@ -163,10 +163,7 @@ function displayTestProgress(
     `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test ${current}/${total} (${percentage}%) - ${scriptId}`,
   );
   logVerbose(
-    `${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed, ~${estimatedRemaining}s remaining`,
-  );
-  logVerbose(
-    `${BOX_UP_AND_DOWN} ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed, ${prettyTokens(usage.total_tokens, "both")}`,
+    `${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed, ~${estimatedRemaining}s remaining ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed, ${prettyTokens(usage.total_tokens, "both")}`,
   );
 }
 
@@ -201,10 +198,7 @@ function displayPromptfooTestSummary(
   logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
   logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
   logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.prompt_tokens, "prompt")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.completion_tokens, "completion")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.total_tokens, "both")} total`);
+  logInfo(`${BOX_UP_AND_DOWN} Token Usage: ${prettyTokens(usage.prompt_tokens, "prompt")} ${prettyTokens(usage.completion_tokens, "completion")} ${prettyTokens(usage.total_tokens, "both")} total`);
 
   if (usage.total_tokens > 0) {
     const avgTokensPerTest = Math.round(usage.total_tokens / totalTests);
@@ -240,10 +234,7 @@ function displayApiTestSummary(
   logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
   logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
   logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.prompt_tokens, "prompt")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.completion_tokens, "completion")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.total_tokens, "both")} total`);
+  logInfo(`${BOX_UP_AND_DOWN} Token Usage: ${prettyTokens(usage.prompt_tokens, "prompt")} ${prettyTokens(usage.completion_tokens, "completion")} ${prettyTokens(usage.total_tokens, "both")} total`);
 
   if (usage.total_tokens > 0) {
     const avgTokensPerTest = Math.round(usage.total_tokens / totalTests);
