@@ -150,13 +150,8 @@ $\`Hello world\`
 
     await writeFile(scriptFile, scriptContent);
     
-    // Should not throw, but might log an error
-    const script = await parsePromptScript(scriptFile, scriptContent);
-    
-    expect(script).toBeDefined();
-    // The mcpServers field should remain as the original file path string
-    // since the file couldn't be loaded (our error handling preserves the original value)
-    expect(script.mcpServers).toBe("./non-existent-config.json");
+    // Should throw an error since file doesn't exist
+    await expect(parsePromptScript(scriptFile, scriptContent)).rejects.toThrow();
   });
 
   it("should handle absolute file paths", async () => {
@@ -181,7 +176,7 @@ $\`Hello world\`
     expect(mcpServers.filesystem).toBeDefined();
   });
 
-  it("should support backward compatibility with old format (servers at root)", async () => {
+  it("should reject old format without root mcpServers field", async () => {
     const oldFormatConfigFile = join(testDir, "mcp-config-old.json");
     
     // Create a config file with the old format (servers directly at root)
@@ -207,23 +202,14 @@ $\`Hello world\`
 `;
 
     await writeFile(scriptFile, scriptContent);
-    const script = await parsePromptScript(scriptFile, scriptContent);
-
-    expect(script).toBeDefined();
-    expect(script.mcpServers).toBeDefined();
-    expect(typeof script.mcpServers).toBe("object");
     
-    const mcpServers = script.mcpServers as Record<string, Omit<McpServerConfig, "id" | "options">>;
-    expect(mcpServers.memory).toBeDefined();
-    expect(mcpServers.memory.command).toBe("npx");
-    expect(mcpServers.memory.args).toEqual(["-y", "@modelcontextprotocol/server-memory"]);
-    
-    expect(mcpServers.filesystem).toBeDefined();
-    expect(mcpServers.filesystem.command).toBe("npx");
-    expect(mcpServers.filesystem.args).toEqual(["-y", "@modelcontextprotocol/server-filesystem", "."]);
+    // Should throw an error for old format
+    await expect(parsePromptScript(scriptFile, scriptContent)).rejects.toThrow(
+      /Configuration must have a root 'mcpServers' field/
+    );
   });
 
-  it("should support backward compatibility with old format for agent servers", async () => {
+  it("should reject old format without root mcpAgentServers field", async () => {
     const oldFormatAgentConfigFile = join(testDir, "mcp-agent-config-old.json");
     
     // Create a config file with the old format (servers directly at root)
@@ -233,12 +219,6 @@ $\`Hello world\`
         instructions: "Use this server to store and retrieve data.",
         command: "npx",
         args: ["-y", "@modelcontextprotocol/server-memory"],
-      },
-      filesystem: {
-        description: "A filesystem server",
-        instructions: "Use this server to read and write files.",
-        command: "npx",
-        args: ["-y", "@modelcontextprotocol/server-filesystem", "."],
       },
     };
     await writeFile(oldFormatAgentConfigFile, JSON.stringify(oldMcpAgentConfig, null, 2));
@@ -253,21 +233,10 @@ $\`Hello world\`
 `;
 
     await writeFile(scriptFile, scriptContent);
-    const script = await parsePromptScript(scriptFile, scriptContent);
-
-    expect(script).toBeDefined();
-    expect(script.mcpAgentServers).toBeDefined();
-    expect(typeof script.mcpAgentServers).toBe("object");
     
-    const mcpAgentServers = script.mcpAgentServers as Record<string, any>;
-    expect(mcpAgentServers.memory).toBeDefined();
-    expect(mcpAgentServers.memory.description).toBe("A memory server");
-    expect(mcpAgentServers.memory.instructions).toBe("Use this server to store and retrieve data.");
-    expect(mcpAgentServers.memory.command).toBe("npx");
-    expect(mcpAgentServers.memory.args).toEqual(["-y", "@modelcontextprotocol/server-memory"]);
-    
-    expect(mcpAgentServers.filesystem).toBeDefined();
-    expect(mcpAgentServers.filesystem.description).toBe("A filesystem server");
-    expect(mcpAgentServers.filesystem.instructions).toBe("Use this server to read and write files.");
+    // Should throw an error for old format
+    await expect(parsePromptScript(scriptFile, scriptContent)).rejects.toThrow(
+      /Configuration must have a root 'mcpAgentServers' field/
+    );
   });
 });

@@ -49,12 +49,11 @@ async function resolveMcpServersConfig(
     try {
       const config = await readJSON(configPath);
       if (typeof config === "object" && config !== null) {
-        // Check if it has the Claude format with root mcpServers field
+        // Require Claude format with root mcpServers field
         if (config.mcpServers && typeof config.mcpServers === "object") {
           return config.mcpServers as Record<string, Omit<McpServerConfig, "id" | "options">>;
         } else {
-          // Fall back to treating the entire config as the servers configuration
-          return config as Record<string, Omit<McpServerConfig, "id" | "options">>;
+          throw new Error(`Invalid MCP server configuration format in ${configPath}. Configuration must have a root 'mcpServers' field.`);
         }
       } else {
         throw new Error(`Invalid MCP server configuration format in ${configPath}`);
@@ -86,12 +85,11 @@ async function resolveMcpAgentServersConfig(
     try {
       const config = await readJSON(configPath);
       if (typeof config === "object" && config !== null) {
-        // Check if it has the Claude format with root mcpAgentServers field
+        // Require Claude format with root mcpAgentServers field
         if (config.mcpAgentServers && typeof config.mcpAgentServers === "object") {
           return config.mcpAgentServers as Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
         } else {
-          // Fall back to treating the entire config as the servers configuration
-          return config as Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+          throw new Error(`Invalid MCP agent server configuration format in ${configPath}. Configuration must have a root 'mcpAgentServers' field.`);
         }
       } else {
         throw new Error(`Invalid MCP agent server configuration format in ${configPath}`);
@@ -166,24 +164,12 @@ async function parsePromptTemplateCore(filename: string, content: string) {
 
   // Resolve MCP server configuration if it's a file path
   if (meta.mcpServers) {
-    try {
-      meta.mcpServers = await resolveMcpServersConfig(meta.mcpServers, filename);
-    } catch (error) {
-      // Log error but don't fail - keep original value as fallback
-      console.error(`Error resolving MCP server configuration: ${error}`);
-      // mcpServers will remain as the original value (likely a string path)
-      // This allows the system to either retry later or show a meaningful error
-    }
+    meta.mcpServers = await resolveMcpServersConfig(meta.mcpServers, filename);
   }
 
   // Resolve MCP agent server configuration if it's a file path
   if (meta.mcpAgentServers) {
-    try {
-      meta.mcpAgentServers = await resolveMcpAgentServersConfig(meta.mcpAgentServers, filename);
-    } catch (error) {
-      console.error(`Error resolving MCP agent server configuration: ${error}`);
-      // mcpAgentServers will remain as the original value
-    }
+    meta.mcpAgentServers = await resolveMcpAgentServersConfig(meta.mcpAgentServers, filename);
   }
 
   const r = {

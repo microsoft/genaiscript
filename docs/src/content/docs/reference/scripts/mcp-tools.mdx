@@ -229,7 +229,7 @@ script({
 })
 ```
 
-The configuration file should contain the same JSON structure as the inline configuration. The preferred format is the Claude format with a root `mcpServers` field:
+The configuration file should contain the JSON structure with a root `mcpServers` field (Claude format):
 
 ```json title="mcp-config.json" '"mcpServers":'
 {
@@ -242,21 +242,6 @@ The configuration file should contain the same JSON structure as the inline conf
             "command": "npx", 
             "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
         }
-    }
-}
-```
-
-For backward compatibility, the simplified format with servers directly at the root level is also supported:
-
-```json title="mcp-config.json"
-{
-    "memory": {
-        "command": "npx",
-        "args": ["-y", "@modelcontextprotocol/server-memory"]
-    },
-    "filesystem": {
-        "command": "npx", 
-        "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
     }
 }
 ```
