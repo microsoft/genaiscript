@@ -259,7 +259,7 @@ await workspace.writeText(".env", "SECRET=value");
 
 The `fs_write_file` system tool provides LLMs with controlled file writing capabilities:
 
-```genai
+```js
 script({
   title: "Safe file operations",
   system: ["fs_write_file"]
