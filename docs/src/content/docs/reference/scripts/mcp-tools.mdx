@@ -219,6 +219,42 @@ If you are looking for a subset of the tools, you can provide a list of tool ids
     }
 ```
 
+#### Loading configuration from files
+
+Instead of defining the MCP server configuration inline, you can load it from an external JSON file by specifying a file path:
+
+```js '"./mcp-config.json"'
+script({
+    mcpServers: "./mcp-config.json"
+})
+```
+
+The configuration file should contain the JSON structure with a root `mcpServers` field (Claude format):
+
+```json title="mcp-config.json" '"mcpServers":'
+{
+    "mcpServers": {
+        "memory": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-memory"]
+        },
+        "filesystem": {
+            "command": "npx", 
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+        }
+    }
+}
+```
+
+- File paths are resolved relative to the script directory
+- Absolute paths are also supported
+- The same file path approach works for `mcpAgentServers`
+
+This approach is useful for:
+- Sharing MCP configurations across multiple scripts
+- Managing complex configurations separately from script logic
+- Version controlling MCP configurations independently
+
 :::tip
 
 See the [Security](#security) section for options to secure the use of MCP servers.
@@ -254,6 +290,37 @@ script({
         },
     },
 })
+```
+
+#### Loading agent configuration from files
+
+Like `mcpServers`, you can also load `mcpAgentServers` configuration from external files:
+
+```js '"./mcp-agent-config.json"'
+script({
+    mcpAgentServers: "./mcp-agent-config.json"
+})
+```
+
+The agent configuration file uses the same Claude format with a root `mcpAgentServers` field:
+
+```json title="mcp-agent-config.json" '"mcpAgentServers":'
+{
+    "mcpAgentServers": {
+        "memory": {
+            "description": "A memory server",
+            "instructions": "Use this server to store and retrieve data.",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-memory"]
+        },
+        "filesystem": {
+            "description": "A filesystem server", 
+            "instructions": "Use this server to read and write files.",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+        }
+    }
+}
 ```
 
 ### Environment variables

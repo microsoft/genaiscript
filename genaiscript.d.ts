@@ -4586,7 +4586,7 @@
   generator?: ChatGenerationContext;
 }
 
- type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>;
+ type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">> | string;
 
  interface McpAgentServerConfig extends McpServerConfig {
   description: string;
@@ -4597,7 +4597,7 @@
   maxTokens?: number;
 }
 
- type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+ type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">> | string;
 
  type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 
