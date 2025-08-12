@@ -4558,7 +4558,7 @@ export interface McpServerConfig extends ContentSafetyOptions {
   generator?: ChatGenerationContext;
 }
 
-export type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>;
+export type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">> | string;
 
 export interface McpAgentServerConfig extends McpServerConfig {
   description: string;
@@ -4569,7 +4569,7 @@ export interface McpAgentServerConfig extends McpServerConfig {
   maxTokens?: number;
 }
 
-export type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+export type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">> | string;
 
 export type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 

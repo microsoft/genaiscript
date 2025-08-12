@@ -4,10 +4,6 @@ sidebar:
   order: 51
 description: Learn how to include external files in markdown scripts using the @include directive
 keywords: markdown scripts, include, file inclusion, @include directive
-hero:
-  image:
-    alt: A minimalistic 8-bit style icon showing two document rectangles with arrows pointing from one to another, representing file inclusion. The first document has an "@include" symbol, and content flows to the second document. Small geometric shapes indicate text content. The image uses five corporate colors on a transparent background, is highly simplified and geometric, and measures 128 by 128 pixels. No people, words, or realistic effects are present.
-    file: ./markdown-include.png
 
 ---
 

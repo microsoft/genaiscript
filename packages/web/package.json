@@ -17,7 +17,6 @@
   "devDependencies": {
     "@daiji256/rehype-mathml": "^1.2.1",
     "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
-    "@types/marked": "^6.0.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitest/coverage-istanbul": "catalog:",
