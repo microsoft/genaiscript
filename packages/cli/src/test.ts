@@ -359,6 +359,7 @@ async function apiRunPromptScriptTests(
   const runId = randomHex(6);
   const out = options.out || getTestDir(runId);
   const testDelay = normalizeInt(options?.testDelay);
+  const testTimeout = normalizeInt(options?.testTimeout) || 60; // Default 1 minute
   //const maxConcurrency = normalizeInt(options?.maxConcurrency);
   const runStart = new Date();
   logVerbose(`out: ${out}`);
@@ -439,11 +440,46 @@ async function apiRunPromptScriptTests(
 
       dbgRun(`options: %O`, options);
       const { files = [] } = test;
-      const res = await run(script.id, files, {
-        ...options,
-        runTrace: false,
-        outputTrace: false,
-      });
+      
+      // Create timeout controller for this test
+      const testAbortController = new AbortController();
+      const timeoutId = setTimeout(() => {
+        dbgRun(`test timeout after ${testTimeout}s for ${script.id}`);
+        testAbortController.abort();
+      }, testTimeout * 1000);
+      
+      let res;
+      try {
+        res = await run(script.id, files, {
+          ...options,
+          runTrace: false,
+          outputTrace: false,
+          signal: testAbortController.signal,
+        });
+      } catch (error) {
+        if (testAbortController.signal.aborted) {
+          res = {
+            runId: generateId(),
+            env: {},
+            messages: [],
+            edits: [],
+            text: "",
+            fences: [],
+            frames: [],
+            fileOutputs: [],
+            outputFiles: [],
+            schemas: [],
+            status: "error",
+            statusText: `Test timeout after ${testTimeout} seconds`,
+            error: { message: `Test timeout after ${testTimeout} seconds` },
+          } as any; // Use any to avoid deep type requirements
+        } else {
+          throw error;
+        }
+      } finally {
+        clearTimeout(timeoutId);
+      }
+      
       const { usage } = res || { error: { message: "run failed" }, status: "error" };
       const error = await evaluateTestResult(config, res);
 
@@ -517,11 +553,11 @@ async function apiRunPromptScriptTests(
     status: ok ? 0 : -1,
     value: results.map(({ ok, res, config }) => ({
       ok,
-      error: res.error,
-      status: res.status === "success" ? 0 : -1,
+      error: res?.error,
+      status: res?.status === "success" ? 0 : -1,
       script: config.script.id,
     })),
-    error: results.find((r) => r.res.error)?.res.error,
+    error: results.find((r) => r.res?.error)?.res.error,
   };
 }
 
