@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "2.3.13",
+    "version": "2.3.15",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.100.0"
@@ -553,7 +553,7 @@
     "devDependencies": {
         "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
         "@types/markdown-it": "^14.1.2",
-        "@types/vscode": "^1.100.0",
+        "@types/vscode": "1.100.0",
         "@vscode/vsce": "^3.6.0",
         "esbuild": "^0.25.8",
         "eslint": "catalog:",

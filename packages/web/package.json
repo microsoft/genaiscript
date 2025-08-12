@@ -1,6 +1,6 @@
 {
   "name": "@genaiscript/web",
-  "version": "2.3.13",
+  "version": "2.3.15",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -17,8 +17,7 @@
   "devDependencies": {
     "@daiji256/rehype-mathml": "^1.2.1",
     "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
-    "@types/marked": "^6.0.0",
-    "@types/react": "^19.1.9",
+    "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitest/coverage-istanbul": "catalog:",
     "@vscode-elements/elements": "1.16.0",
@@ -40,7 +39,7 @@
     "mermaid": "^11.9.0",
     "nanoid": "^5.1.5",
     "prettier": "catalog:",
-    "pretty-bytes": "^7.0.0",
+    "pretty-bytes": "^7.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-dropzone": "^14.3.8",
@@ -56,6 +55,6 @@
     "typescript": "catalog:",
     "victory": "^37.3.6",
     "vitest": "catalog:",
-    "yaml": "^2.8.0"
+    "yaml": "^2.8.1"
   }
 }

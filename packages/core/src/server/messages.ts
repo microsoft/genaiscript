@@ -35,7 +35,8 @@ export type OpenAIAPIType =
   | "azure_serverless_models"
   | "alibaba"
   | "huggingface"
-  | "github";
+  | "github"
+  | "responses";
 
 export type AzureCredentialsType =
   | "default"
@@ -197,6 +198,7 @@ export interface PromptScriptRunOptions {
   runTrace: boolean;
   outputTrace: boolean;
   accept: string;
+  mcps: string;
 }
 
 export interface RunResultList extends RequestMessage {

@@ -20,7 +20,8 @@ import type { CSVStringifyOptions, ElementOrArray, WorkspaceFile } from "./types
  * @param options.delimiter - The delimiter used in the CSV, defaults to a comma.
  * @param options.headers - Column headers for the CSV, as an array or single value. If not provided, headers are inferred from the first line.
  * @param options.repair - Whether to repair common escape errors, defaults to false.
- * @returns An array of objects representing the parsed CSV data. Skips empty lines and records with errors.
+ * @param options.skipRecordsWithError - Whether to skip records with parsing errors, defaults to false for better data preservation. If false and parsing fails, will retry with skipRecordsWithError: true as fallback.
+ * @returns An array of objects representing the parsed CSV data. Uses graceful error handling to preserve as much data as possible.
  */
 export function CSVParse(
   text: string | WorkspaceFile,
@@ -28,32 +29,61 @@ export function CSVParse(
     delimiter?: string;
     headers?: ElementOrArray<string>;
     repair?: boolean;
+    skipRecordsWithError?: boolean;
   },
 ): object[] {
   text = filenameOrFileToContent(text);
 
   // Destructure options or provide defaults
-  const { delimiter, headers, repair, ...rest } = options || {};
+  const { delimiter, headers, repair, skipRecordsWithError = false, ...rest } = options || {};
   const columns = headers ? arrayify(headers) : true;
 
   // common LLM escape errors
   if (repair && text) {
     text = text.replace(/\\"/g, '""').replace(/""""/g, '""');
   }
-  // Parse the CSV string based on the provided options
-  return parse(text, {
-    autoParse: true, // Automatically parse values to appropriate types
-    castDate: false, // Do not cast strings to dates
-    comment: "#", // Ignore comments starting with '#'
-    columns, // Use provided headers or infer from the first line
-    skipEmptyLines: true, // Skip empty lines in the CSV
-    skipRecordsWithError: true, // Skip records that cause errors
-    delimiter, // Use the provided delimiter
-    relaxQuotes: true, // Allow quotes to be relaxed
-    relaxColumnCount: true, // Allow rows to have different column counts
-    trim: true, // Trim whitespace from values
-    ...rest,
-  });
+
+  try {
+    // Parse the CSV string based on the provided options
+    return parse(text, {
+      autoParse: true, // Automatically parse values to appropriate types
+      castDate: false, // Do not cast strings to dates
+      comment: "#", // Ignore comments starting with '#'
+      columns, // Use provided headers or infer from the first line
+      skipEmptyLines: true, // Skip empty lines in the CSV
+      skipRecordsWithError, // Don't skip records with errors by default to preserve data
+      delimiter, // Use the provided delimiter
+      relaxQuotes: true, // Allow quotes to be relaxed
+      relaxColumnCount: true, // Allow rows to have different column counts
+      trim: true, // Trim whitespace from values
+      ...rest,
+    });
+  } catch (error) {
+    // If parsing fails without skipRecordsWithError, retry with it enabled
+    // to provide some data rather than complete failure
+    if (!skipRecordsWithError) {
+      try {
+        return parse(text, {
+          autoParse: true,
+          castDate: false,
+          comment: "#",
+          columns,
+          skipEmptyLines: true,
+          skipRecordsWithError: true, // Fallback to skipping errors
+          delimiter,
+          relaxQuotes: true,
+          relaxColumnCount: true,
+          trim: true,
+          ...rest,
+        });
+      } catch (fallbackError) {
+        // If even that fails, return empty array
+        return [];
+      }
+    }
+    // If skipRecordsWithError was explicitly true and still failed, return empty array
+    return [];
+  }
 }
 
 /**
@@ -64,6 +94,7 @@ export function CSVParse(
  * @param options.delimiter - The delimiter used to separate values, defaults to a comma.
  * @param options.headers - Column headers for the parsed data, as an array or single value.
  * @param options.repair - Enables basic error correction in the input data.
+ * @param options.skipRecordsWithError - Whether to skip records with parsing errors, defaults to false for better data preservation.
  * @param options.trace - Trace function for logging errors during parsing.
  * @returns An array of objects representing the parsed CSV data, or undefined if an error occurs.
  */
@@ -73,6 +104,7 @@ export function CSVTryParse(
     delimiter?: string;
     headers?: ElementOrArray<string>;
     repair?: boolean;
+    skipRecordsWithError?: boolean;
   } & TraceOptions,
 ): object[] | undefined {
   const { trace } = options || {};

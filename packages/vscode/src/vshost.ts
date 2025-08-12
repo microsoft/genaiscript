@@ -36,7 +36,7 @@ export class VSCodeHost extends EventTarget implements Host {
     return this.state.context;
   }
   dispose() {
-    //setRuntimeHost(undefined);
+    // setRuntimeHost(undefined);
   }
   get projectUri() {
     return vscode.workspace.workspaceFolders[0]?.uri;
