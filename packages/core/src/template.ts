@@ -83,7 +83,7 @@ async function parsePromptTemplateCore(filename: string, content: string) {
   if (GENAI_MD_REGEX.test(filename)) {
     const res = await markdownScriptParse(content, {
       readText,
-      baseDir: dirname(filename)
+      baseDir: dirname(filename),
     });
     meta = res.meta;
     jsSource = res.jsSource;

@@ -16,11 +16,11 @@ console.log("Hello");
 `;
 
     const result = await markdownScriptParse(text);
-    
+
     expect(result.jsSource).toContain("$`");
     expect(result.jsSource).toContain("# Hello World");
     expect(result.jsSource).toContain("Item 1");
-    expect(result.jsSource).toContain("console.log(\"Hello\");");
+    expect(result.jsSource).toContain('console.log("Hello");');
     expect(result.meta).toEqual({});
   });
 
@@ -35,7 +35,7 @@ description: "A test script"
 This is a test.`;
 
     const result = await markdownScriptParse(text);
-    
+
     expect(result.jsSource).toContain("script({");
     expect(result.jsSource).toContain("title: 'Test Script'");
     expect(result.jsSource).toContain("description: 'A test script'");
@@ -43,15 +43,15 @@ This is a test.`;
     expect(result.jsSource).toContain("# Hello World");
     expect(result.meta).toEqual({
       title: "Test Script",
-      description: "A test script"
+      description: "A test script",
     });
   });
 
   test("empty content", async () => {
     const text = "";
-    
+
     const result = await markdownScriptParse(text);
-    
+
     expect(result.jsSource).toBe("");
     expect(result.meta).toEqual({});
   });
@@ -60,22 +60,22 @@ This is a test.`;
     const text = `---
 title: "Only frontmatter"
 ---`;
-    
+
     const result = await markdownScriptParse(text);
-    
+
     expect(result.jsSource).toContain("script({");
     expect(result.jsSource).toContain("title: 'Only frontmatter'");
     expect(result.jsSource).not.toContain("$`");
     expect(result.meta).toEqual({
-      title: "Only frontmatter"
+      title: "Only frontmatter",
     });
   });
 
   test("escapes backticks", async () => {
     const text = "This has `backticks` in it.";
-    
+
     const result = await markdownScriptParse(text);
-    
+
     expect(result.jsSource).toContain("\\`backticks\\`");
   });
 
@@ -88,9 +88,9 @@ title: "Only frontmatter"
 
 [Link](https://example.com)
 `;
-    
+
     const result = await markdownScriptParse(text);
-    
+
     expect(result.jsSource).toContain("## Section");
     expect(result.jsSource).toContain("*Emphasis*");
     expect(result.jsSource).toContain("**strong**");
@@ -106,7 +106,7 @@ This is the main content.
 @include "test-file.txt"
 
 More content after include.`;
-    
+
     // Mock workspace.readText for the test
     const mockReadText = async (filepath: string) => {
       if (filepath.endsWith("test-file.txt")) {
@@ -115,11 +115,11 @@ More content after include.`;
       throw new Error(`File not found: ${filepath}`);
     };
 
-    const result = await markdownScriptParse(text, { 
-      readText: mockReadText, 
-      baseDir: "/test" 
+    const result = await markdownScriptParse(text, {
+      readText: mockReadText,
+      baseDir: "/test",
     });
-    
+
     expect(result.jsSource).toContain("# Main Content");
     expect(result.jsSource).toContain("This is the included content.");
     expect(result.jsSource).toContain("More content after include.");
@@ -132,16 +132,16 @@ More content after include.`;
 @include "missing-file.txt"
 
 More content.`;
-    
+
     const mockReadText = async (filepath: string) => {
       throw new Error(`File not found: ${filepath}`);
     };
 
-    const result = await markdownScriptParse(text, { 
-      readText: mockReadText, 
-      baseDir: "/test" 
+    const result = await markdownScriptParse(text, {
+      readText: mockReadText,
+      baseDir: "/test",
     });
-    
+
     // Should include a comment about the missing file
     expect(result.jsSource).toContain("# Main Content");
     expect(result.jsSource).toContain("More content.");
@@ -158,7 +158,7 @@ Middle content.
 @include "file2.txt"
 
 End content.`;
-    
+
     const mockReadText = async (filepath: string) => {
       if (filepath.endsWith("file1.txt")) {
         return "Content from file 1";
@@ -169,11 +169,11 @@ End content.`;
       throw new Error(`File not found: ${filepath}`);
     };
 
-    const result = await markdownScriptParse(text, { 
-      readText: mockReadText, 
-      baseDir: "/test" 
+    const result = await markdownScriptParse(text, {
+      readText: mockReadText,
+      baseDir: "/test",
     });
-    
+
     expect(result.jsSource).toContain("Content from file 1");
     expect(result.jsSource).toContain("Content from file 2");
     expect(result.jsSource).toContain("Middle content.");
@@ -187,11 +187,11 @@ End content.`;
 @include "some-file.txt"
 
 More content.`;
-    
+
     const result = await markdownScriptParse(text);
-    
+
     // Should leave @include directive unchanged when no readText is provided
-    expect(result.jsSource).toContain("@include \"some-file.txt\"");
+    expect(result.jsSource).toContain('@include "some-file.txt"');
     expect(result.jsSource).toContain("# Main Content");
     expect(result.jsSource).toContain("More content.");
   });

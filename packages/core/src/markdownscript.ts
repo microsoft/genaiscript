@@ -13,7 +13,7 @@ const dbg = genaiscriptDebug("md");
 
 /**
  * Processes @include directives in markdown text by replacing them with file contents.
- * 
+ *
  * @param text - The markdown text containing @include directives
  * @param readText - Function to read file contents
  * @param baseDir - Base directory for resolving relative paths
@@ -22,7 +22,7 @@ const dbg = genaiscriptDebug("md");
 async function processIncludeDirectives(
   text: string,
   readText: (filepath: string) => Promise<string>,
-  baseDir: string
+  baseDir: string,
 ): Promise<string> {
   const includeRegex = /@include\s+"([^"]+)"/g;
   let result = text;
@@ -34,7 +34,7 @@ async function processIncludeDirectives(
       // Resolve the file path relative to baseDir
       const resolvedPath = resolve(baseDir, filepath);
       dbg(`processing @include directive: ${filepath} -> ${resolvedPath}`);
-      
+
       const includedContent = await readText(resolvedPath);
       result = result.replace(fullMatch, includedContent);
     } catch (error) {
@@ -66,7 +66,7 @@ export async function markdownScriptParse(
   options?: {
     readText?: (filepath: string) => Promise<string>;
     baseDir?: string;
-  }
+  },
 ) {
   const { readText, baseDir = "." } = options || {};
 
