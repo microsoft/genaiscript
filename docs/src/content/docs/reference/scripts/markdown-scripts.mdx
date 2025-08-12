@@ -223,7 +223,8 @@ Focus on technical aspects and provide actionable insights.`} lang="markdown" ti
 
 Markdown scripts support including content from external files using the `@include` directive. This allows you to compose larger prompts from reusable components:
 
-<Code code={`---
+```markdown title="doc-generator.genai.md"
+---
 title: "Documentation Generator"
 description: "Generates documentation with templates"
 ---
@@ -236,7 +237,8 @@ Please generate documentation for the following code:
 
 @include "examples/code-sample.md"
 
-@include "templates/footer.md"`} lang="markdown" title="doc-generator.genai.md" />
+@include "templates/footer.md"
+```
 
 The `@include "filepath"` directive:
 - Resolves file paths relative to the script's directory
