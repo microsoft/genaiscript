@@ -14,7 +14,8 @@ import { metadataValidate } from "./metadata.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { markdownScriptParse } from "./markdownscript.js";
 import type { PromptArgs, PromptScript } from "./types.js";
-import { basename, resolve } from "node:path";
+import { basename, resolve, dirname } from "node:path";
+import { readText } from "./fs.js";
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions
@@ -80,7 +81,10 @@ async function parsePromptTemplateCore(filename: string, content: string) {
   let jsSource: string;
   let meta: ReturnType<typeof parsePromptScriptMeta>;
   if (GENAI_MD_REGEX.test(filename)) {
-    const res = await markdownScriptParse(content);
+    const res = await markdownScriptParse(content, {
+      readText,
+      baseDir: dirname(filename),
+    });
     meta = res.meta;
     jsSource = res.jsSource;
   } else {
