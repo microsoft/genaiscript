@@ -55,4 +55,30 @@ describe("FFmpeg Command Builder", () => {
     assert(args.includes("-f"));
     assert(args.includes("ogg"));
   });
+
+  test("should handle ffprobe command correctly", async () => {
+    const { ffmpegCommand } = await import("../src/ffmpeg.js");
+    const cmd = await ffmpegCommand();
+    
+    cmd.input("test.mp4");
+    
+    // Test that ffprobe method exists and can be called
+    assert(typeof cmd.ffprobe === "function");
+    
+    // Access the private inputFile for testing
+    const inputFile = (cmd as any).inputFile;
+    assert.equal(inputFile, "test.mp4");
+  });
+
+  test("should create FFmpeg client", async () => {
+    const { FFmepgClient } = await import("../src/ffmpeg.js");
+    const client = new FFmepgClient();
+    
+    assert(client);
+    assert(typeof client.extractFrames === "function");
+    assert(typeof client.extractAudio === "function");
+    assert(typeof client.extractClip === "function");
+    assert(typeof client.probe === "function");
+    assert(typeof client.probeVideo === "function");
+  });
 });

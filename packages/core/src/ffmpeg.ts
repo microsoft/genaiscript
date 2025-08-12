@@ -226,6 +226,12 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
 
   // FFprobe functionality
   ffprobe(callback: (err: Error | null, data?: any) => void): void {
+    if (!this.inputFile) {
+      dbg(`ffprobe error: no input file specified`);
+      callback(new Error("No input file specified for ffprobe"));
+      return;
+    }
+
     const args = ["-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", this.inputFile];
     
     dbg(`Running ffprobe with args: ${args.join(" ")}`);
@@ -247,11 +253,30 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
       dbg(`ffprobe process exited with code: ${code}`);
       if (code === 0) {
         try {
+          if (!stdout.trim()) {
+            dbg(`ffprobe warning: empty stdout, using stderr if available`);
+            callback(new Error("ffprobe returned empty output"));
+            return;
+          }
           const data = JSON.parse(stdout);
           dbg(`ffprobe successfully parsed JSON output with ${data.streams?.length || 0} streams`);
+          
+          // Validate the basic structure expected by VideoProbeResult
+          if (!data.streams || !Array.isArray(data.streams)) {
+            dbg(`ffprobe error: invalid output structure - missing streams array`);
+            callback(new Error("Invalid ffprobe output: missing streams array"));
+            return;
+          }
+          if (!data.format || typeof data.format !== 'object') {
+            dbg(`ffprobe error: invalid output structure - missing format object`);
+            callback(new Error("Invalid ffprobe output: missing format object"));
+            return;
+          }
+          
           callback(null, data);
         } catch (err) {
           dbg(`ffprobe JSON parse error: ${err.message}`);
+          dbg(`Raw stdout: ${stdout}`);
           callback(new Error(`Failed to parse ffprobe output: ${err.message}`));
         }
       } else {
@@ -262,7 +287,11 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
 
     child.on("error", (err) => {
       dbg(`ffprobe process error: ${err.message}`);
-      callback(err);
+      if (err.message.includes("ENOENT")) {
+        callback(new Error("ffprobe command not found. Please install FFmpeg to use video probing functionality."));
+      } else {
+        callback(err);
+      }
     });
   }
 
@@ -618,15 +647,18 @@ export class FFmepgClient implements Ffmpeg {
     if (!filename) {
       throw new Error("filename is required");
     }
+    dbg(`Starting probe for file: ${typeof filename === 'string' ? filename : filename.filename}`);
     const res = await runFfmpeg(
       filename,
       async (cmd) => {
         const res = new Promise<VideoProbeResult>((resolve, reject) => {
           cmd.ffprobe((err, data) => {
             if (err) {
+              dbg(`ffprobe failed in probe method: ${err.message}`);
               reject(err);
             } else {
-              resolve(data as any as VideoProbeResult);
+              dbg(`ffprobe succeeded in probe method`);
+              resolve(data as VideoProbeResult);
             }
           });
         });
@@ -635,7 +667,11 @@ export class FFmepgClient implements Ffmpeg {
       },
       { cache: "probe" },
     );
-    return res.data[0] as VideoProbeResult;
+    const result = res.data[0] as VideoProbeResult;
+    if (!result) {
+      throw new Error("No probe data returned from ffmpeg process");
+    }
+    return result;
   }
 
   async probeVideo(filename: string | WorkspaceFile) {
@@ -651,7 +687,12 @@ export class FFmepgClient implements Ffmpeg {
       } else {
         return biggest;
       }
-    });
+    }, null as any);
+    
+    if (!vstream) {
+      throw new Error("No video stream found in the file");
+    }
+    
     return vstream;
   }
 }
