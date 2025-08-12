@@ -194,6 +194,10 @@ export async function cli(): Promise<void> {
       "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls",
     )
     .option(
+      "--mcps <string>",
+      "path to MCP configuration file to override the script's MCP list",
+    )
+    .option(
       "-o, --out <string>",
       "output folder. Extra markdown fields for output and trace will also be generated",
     )
