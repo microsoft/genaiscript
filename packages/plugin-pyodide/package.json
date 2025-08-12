@@ -16,7 +16,7 @@
   "dependencies": {
     "@genaiscript/core": "workspace:*",
     "@genaiscript/runtime": "workspace:*",
-    "pyodide": "^0.28.0"
+    "pyodide": "0.28.0"
   },
   "devDependencies": {
     "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
