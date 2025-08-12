@@ -82,6 +82,7 @@ Options:
   -e, --excluded-files <string...>         excluded files
   --ignore-git-ignore                      by default, files ignored by .gitignore are excluded. disables this mode
   --fallback-tools                         Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls
+  --mcps <string>                          path to MCP configuration file to override the script's MCP list
   -o, --out <string>                       output folder. Extra markdown fields for output and trace will also be generated
   --remove-out                             remove output folder if it exists
   --out-trace <string>                     output file for trace
