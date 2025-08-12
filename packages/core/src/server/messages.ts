@@ -198,6 +198,7 @@ export interface PromptScriptRunOptions {
   runTrace: boolean;
   outputTrace: boolean;
   accept: string;
+  mcps: string;
 }
 
 export interface RunResultList extends RequestMessage {

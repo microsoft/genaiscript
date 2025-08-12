@@ -24,6 +24,7 @@ The repository is organized as a monorepo with the following main packages in th
 - **`runtime/`** - `@genaiscript/runtime` - Runtime environment for executing GenAIScript scripts with Docker support
 - **`api/`** - `@genaiscript/api` - Public API interfaces and types for GenAIScript
 - **`cli/`** - `genaiscript` - Command-line interface for GenAIScript (main CLI package)
+- **`.genaiscript`** - build artifacts - never commit files from `.genaiscript` folders!
 
 ### Extensions & Plugins
 
