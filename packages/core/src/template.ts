@@ -13,8 +13,9 @@ import { humanize } from "./inflection.js";
 import { metadataValidate } from "./metadata.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { markdownScriptParse } from "./markdownscript.js";
-import type { PromptArgs, PromptScript } from "./types.js";
-import { basename, resolve } from "node:path";
+import { readJSON } from "./fs.js";
+import type { PromptArgs, PromptScript, McpServersConfig, McpServerConfig, McpAgentServersConfig, McpAgentServerConfig } from "./types.js";
+import { basename, resolve, dirname } from "node:path";
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions
@@ -28,6 +29,68 @@ export function templateIdFromFileName(filename: string) {
     .replace(/\.(mjs|ts|js|mts|prompty|md)$/i, "")
     .replace(/\.genai$/i, "")
     .replace(/.*[/\\]/, "");
+}
+
+/**
+ * Resolves MCP server configuration from either inline configuration or a file path.
+ * @param mcpServers - Either an inline configuration object or a file path string
+ * @param scriptPath - The path of the script for resolving relative file paths
+ * @returns Promise resolving to the MCP servers configuration object
+ */
+async function resolveMcpServersConfig(
+  mcpServers: McpServersConfig | undefined,
+  scriptPath: string
+): Promise<Record<string, Omit<McpServerConfig, "id" | "options">> | undefined> {
+  if (!mcpServers) return undefined;
+  
+  if (typeof mcpServers === "string") {
+    // Handle file path - resolve relative to script directory
+    const configPath = resolve(dirname(scriptPath), mcpServers);
+    try {
+      const config = await readJSON(configPath);
+      if (typeof config === "object" && config !== null) {
+        return config as Record<string, Omit<McpServerConfig, "id" | "options">>;
+      } else {
+        throw new Error(`Invalid MCP server configuration format in ${configPath}`);
+      }
+    } catch (error) {
+      throw new Error(`Failed to load MCP server configuration from ${configPath}: ${error}`);
+    }
+  } else {
+    // Handle inline configuration
+    return mcpServers;
+  }
+}
+
+/**
+ * Resolves MCP agent server configuration from either inline configuration or a file path.
+ * @param mcpAgentServers - Either an inline configuration object or a file path string
+ * @param scriptPath - The path of the script for resolving relative file paths
+ * @returns Promise resolving to the MCP agent servers configuration object
+ */
+async function resolveMcpAgentServersConfig(
+  mcpAgentServers: McpAgentServersConfig | undefined,
+  scriptPath: string
+): Promise<Record<string, Omit<McpAgentServerConfig, "id" | "options">> | undefined> {
+  if (!mcpAgentServers) return undefined;
+  
+  if (typeof mcpAgentServers === "string") {
+    // Handle file path - resolve relative to script directory
+    const configPath = resolve(dirname(scriptPath), mcpAgentServers);
+    try {
+      const config = await readJSON(configPath);
+      if (typeof config === "object" && config !== null) {
+        return config as Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+      } else {
+        throw new Error(`Invalid MCP agent server configuration format in ${configPath}`);
+      }
+    } catch (error) {
+      throw new Error(`Failed to load MCP agent server configuration from ${configPath}: ${error}`);
+    }
+  } else {
+    // Handle inline configuration
+    return mcpAgentServers;
+  }
 }
 
 /**
@@ -87,6 +150,28 @@ async function parsePromptTemplateCore(filename: string, content: string) {
     // Use content as-is for JavaScript/TypeScript files
     jsSource = content;
     meta = parsePromptScriptMeta(jsSource);
+  }
+
+  // Resolve MCP server configuration if it's a file path
+  if (meta.mcpServers) {
+    try {
+      meta.mcpServers = await resolveMcpServersConfig(meta.mcpServers, filename);
+    } catch (error) {
+      // Log error but don't fail - keep original value as fallback
+      console.error(`Error resolving MCP server configuration: ${error}`);
+      // mcpServers will remain as the original value (likely a string path)
+      // This allows the system to either retry later or show a meaningful error
+    }
+  }
+
+  // Resolve MCP agent server configuration if it's a file path
+  if (meta.mcpAgentServers) {
+    try {
+      meta.mcpAgentServers = await resolveMcpAgentServersConfig(meta.mcpAgentServers, filename);
+    } catch (error) {
+      console.error(`Error resolving MCP agent server configuration: ${error}`);
+      // mcpAgentServers will remain as the original value
+    }
   }
 
   const r = {
