@@ -229,7 +229,24 @@ script({
 })
 ```
 
-The configuration file should contain the same JSON structure as the inline configuration:
+The configuration file should contain the same JSON structure as the inline configuration. The preferred format is the Claude format with a root `mcpServers` field:
+
+```json title="mcp-config.json" '"mcpServers":'
+{
+    "mcpServers": {
+        "memory": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-memory"]
+        },
+        "filesystem": {
+            "command": "npx", 
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+        }
+    }
+}
+```
+
+For backward compatibility, the simplified format with servers directly at the root level is also supported:
 
 ```json title="mcp-config.json"
 {
@@ -288,6 +305,37 @@ script({
         },
     },
 })
+```
+
+#### Loading agent configuration from files
+
+Like `mcpServers`, you can also load `mcpAgentServers` configuration from external files:
+
+```js '"./mcp-agent-config.json"'
+script({
+    mcpAgentServers: "./mcp-agent-config.json"
+})
+```
+
+The agent configuration file uses the same Claude format with a root `mcpAgentServers` field:
+
+```json title="mcp-agent-config.json" '"mcpAgentServers":'
+{
+    "mcpAgentServers": {
+        "memory": {
+            "description": "A memory server",
+            "instructions": "Use this server to store and retrieve data.",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-memory"]
+        },
+        "filesystem": {
+            "description": "A filesystem server", 
+            "instructions": "Use this server to read and write files.",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+        }
+    }
+}
 ```
 
 ### Environment variables

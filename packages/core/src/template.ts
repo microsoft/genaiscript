@@ -49,7 +49,13 @@ async function resolveMcpServersConfig(
     try {
       const config = await readJSON(configPath);
       if (typeof config === "object" && config !== null) {
-        return config as Record<string, Omit<McpServerConfig, "id" | "options">>;
+        // Check if it has the Claude format with root mcpServers field
+        if (config.mcpServers && typeof config.mcpServers === "object") {
+          return config.mcpServers as Record<string, Omit<McpServerConfig, "id" | "options">>;
+        } else {
+          // Fall back to treating the entire config as the servers configuration
+          return config as Record<string, Omit<McpServerConfig, "id" | "options">>;
+        }
       } else {
         throw new Error(`Invalid MCP server configuration format in ${configPath}`);
       }
@@ -80,7 +86,13 @@ async function resolveMcpAgentServersConfig(
     try {
       const config = await readJSON(configPath);
       if (typeof config === "object" && config !== null) {
-        return config as Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+        // Check if it has the Claude format with root mcpAgentServers field
+        if (config.mcpAgentServers && typeof config.mcpAgentServers === "object") {
+          return config.mcpAgentServers as Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+        } else {
+          // Fall back to treating the entire config as the servers configuration
+          return config as Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+        }
       } else {
         throw new Error(`Invalid MCP agent server configuration format in ${configPath}`);
       }
