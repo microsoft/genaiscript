@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import { describe, test, assert } from "vitest";
+import { resolve } from "node:path";
 
 describe("FFmpeg Command Builder", () => {
   test("should create basic FFmpeg command", async () => {
@@ -80,5 +81,52 @@ describe("FFmpeg Command Builder", () => {
     assert(typeof client.extractClip === "function");
     assert(typeof client.probe === "function");
     assert(typeof client.probeVideo === "function");
+  });
+
+  test("should execute ffprobe on MP4 file", async () => {
+    const { FFmepgClient } = await import("../src/ffmpeg.js");
+    const client = new FFmepgClient();
+    
+    // Path to the MP4 file in samples/sample folder
+    const mp4Path = resolve(__dirname, "../../../samples/sample/src/audio/helloworld.mp4");
+    
+    try {
+      // Test probe method (async)
+      const probeResult = await client.probe(mp4Path);
+      
+      // Validate basic structure
+      assert(probeResult, "Probe result should not be null");
+      assert(Array.isArray(probeResult.streams), "Should have streams array");
+      assert(probeResult.format, "Should have format object");
+      assert(probeResult.streams.length > 0, "Should have at least one stream");
+      
+      // Check if we have video stream data
+      const videoStream = probeResult.streams.find(s => s.codec_type === "video");
+      if (videoStream) {
+        // Test probeVideo method if video stream exists
+        const videoInfo = await client.probeVideo(mp4Path);
+        assert(videoInfo, "Video info should not be null");
+        assert(videoInfo.codec_type === "video", "Should be video stream");
+        assert(typeof videoInfo.width === "number", "Should have width");
+        assert(typeof videoInfo.height === "number", "Should have height");
+      }
+      
+      console.log(`Successfully probed MP4 file: ${probeResult.streams.length} streams found`);
+      
+    } catch (error) {
+      // If ffprobe is not available, skip the test with a clear message
+      if (error.message.includes("ffprobe command not found")) {
+        console.log("Skipping ffprobe test: FFmpeg not installed on system");
+        return; // Skip test gracefully
+      }
+      
+      // If file doesn't exist, provide helpful error
+      if (error.message.includes("ENOENT") || error.message.includes("No such file")) {
+        throw new Error(`MP4 test file not found at: ${mp4Path}`);
+      }
+      
+      // Re-throw other unexpected errors
+      throw error;
+    }
   });
 });
