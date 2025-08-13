@@ -222,7 +222,7 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
   }
 
   // FFprobe functionality
-  async ffprobe(): Promise<any> {
+  async ffprobe(): Promise<VideoProbeResult> {
     if (!this.inputFile) {
       dbg(`ffprobe error: no input file specified`);
       throw new Error("No input file specified for ffprobe");
