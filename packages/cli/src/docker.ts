@@ -21,6 +21,7 @@ import { generateId } from "../../core/src/id"
 import { dotGenaiscriptPath } from "../../core/src/workdir"
 import { ensureDir } from "../../core/src/fs"
 import { genaiscriptDebug } from "../../core/src/debug"
+import { posix } from "node:path"
 const dbg = genaiscriptDebug("docker")
 
 type DockerodeType = import("dockerode")
@@ -447,7 +448,7 @@ export class DockerManager {
 
             const { cwd: userCwd, label } = options || {}
             const cwd =
-                "/" + host.path.join(DOCKER_CONTAINER_VOLUME, userCwd || ".")
+                "/" + posix.join(DOCKER_CONTAINER_VOLUME, userCwd || ".")
 
             try {
                 trace?.startDetails(
@@ -556,7 +557,7 @@ export class DockerManager {
                 const target = host.path.resolve(cto, host.path.basename(file))
                 await ensureDir(host.path.dirname(target))
                 await copyFile(source, target)
-                res.push(host.path.join(to, host.path.basename(file)))
+                res.push(posix.join(to, host.path.basename(file)))
             }
             return res
         }
