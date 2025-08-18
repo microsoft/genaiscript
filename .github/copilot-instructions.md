@@ -297,4 +297,27 @@ yarn debug:mcp      # Debug Model Context Protocol
 yarn clean          # Clean build artifacts and caches
 ```
 
-**Remember**: This is a complex AI scripting framework. Always validate your changes work with real GenAI script scenarios, not just unit tests. Test with actual LLM providers when possible.
+## Summary
+
+**Remember**: This is a complex AI scripting framework with multiple components (CLI, VSCode extension, web interface, documentation). Always validate your changes work with real GenAI script scenarios, not just unit tests. Test with actual LLM providers when possible.
+
+### Quick Start Checklist for New Developers:
+1. ✅ Setup Node.js >= 20.0.0 and Yarn
+2. ✅ Clone repository and install: `yarn install --frozen-lockfile --prefer-offline`
+3. ✅ Build everything: `yarn compile:action` (8-12 minutes, NEVER CANCEL)
+4. ✅ Run tests: `yarn test:core && yarn test:samples` (15-20 minutes)
+5. ✅ Test CLI: `node packages/cli/built/genaiscript.cjs --help`
+6. ✅ Package VSCode extension: `yarn package`
+7. ✅ Run validation scenarios from this document
+
+### When Making Changes:
+- Always run `yarn typecheck` and `yarn lint` before committing
+- Test your specific change scenario thoroughly
+- Use appropriate timeout values (60+ minutes for builds)
+- Never cancel long-running operations - they may appear stuck but are processing
+
+### Emergency Fallbacks:
+- Use GitHub Codespaces if local environment issues persist
+- Run `yarn clean` if experiencing build artifacts issues
+- Use `yarn cache:clear` for dependency problems
+- Check network connectivity if cdn.sheetjs.com fails during install
