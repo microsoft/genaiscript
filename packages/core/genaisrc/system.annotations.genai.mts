@@ -3,7 +3,7 @@ system({
     description:
         "GitHub Actions workflows support annotations ([Read more...](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)).",
     lineNumbers: true,
-    activation: ["annotations", "warnings", "errors"],
+    activation: ["annotation", "annotations", "warnings", "errors"],
 })
 
 export default function (ctx: ChatGenerationContext) {

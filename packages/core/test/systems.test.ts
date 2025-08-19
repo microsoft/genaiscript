@@ -183,7 +183,7 @@ describe("systems", () => {
         id: "system.annotations",
         title: "Emits annotations",
         isSystem: true,
-        activation: ["annotations", "warnings", "errors"],
+        activation: ["annotation", "annotations", "warnings", "errors"],
       } as PromptScript,
       {
         id: "system.diagrams",
