@@ -1764,6 +1764,17 @@
    * The inclusive end of the line range, with a 1-based index
    */
   lineEnd?: number;
+  /**
+   * Center line number around which the file will be truncated.
+   * Dynamically calculates the range around this line.
+   * This is different from lineStart/lineEnd as it specifies a center point.
+   */
+  line?: number;
+  /**
+   * Maximum token budget for the extracted range when using line option.
+   * If specified, the range will be computed to fit within this token limit.
+   */
+  maxTokens?: number;
 }
 
  interface GitIgnoreFilterOptions {
