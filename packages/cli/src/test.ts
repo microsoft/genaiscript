@@ -163,10 +163,7 @@ function displayTestProgress(
     `${BOX_DOWN_AND_RIGHT}${BOX_RIGHT} Test ${current}/${total} (${percentage}%) - ${scriptId}`,
   );
   logVerbose(
-    `${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed, ~${estimatedRemaining}s remaining`,
-  );
-  logVerbose(
-    `${BOX_UP_AND_DOWN} ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed, ${prettyTokens(usage.total_tokens, "both")}`,
+    `${BOX_UP_AND_DOWN} ${progressBar} ${prettyDuration(elapsed)} elapsed, ~${estimatedRemaining}s remaining ${EMOJI_SUCCESS} ${passedCount} passed, ${EMOJI_FAIL} ${failedCount} failed, ${prettyTokens(usage.total_tokens, "both")}`,
   );
 }
 
@@ -183,7 +180,7 @@ function createProgressBar(percentage: number, width: number = 20): string {
  * Displays enhanced final summary for promptfoo test results
  */
 function displayPromptfooTestSummary(
-  results: Array<{ ok: boolean }>,
+  results: Array<{ ok: boolean; script: string }>,
   stats: GenerationStats,
   totalDuration: number,
   outSummary?: string,
@@ -201,16 +198,23 @@ function displayPromptfooTestSummary(
   logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
   logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
   logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.prompt_tokens, "prompt")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.completion_tokens, "completion")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.total_tokens, "both")} total`);
+  logInfo(`${BOX_UP_AND_DOWN} Token Usage: ${prettyTokens(usage.prompt_tokens, "prompt")} ${prettyTokens(usage.completion_tokens, "completion")} ${prettyTokens(usage.total_tokens, "both")} total`);
 
   if (usage.total_tokens > 0) {
     const avgTokensPerTest = Math.round(usage.total_tokens / totalTests);
     const tokensPerSecond = Math.round(usage.total_tokens / (totalDuration / 1000));
     logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
     logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
+  }
+
+  // Show list of failed tests if any
+  const failedTests = results.filter((r) => !r.ok);
+  if (failedTests.length > 0) {
+    logInfo(`${BOX_UP_AND_DOWN}`);
+    logInfo(`${BOX_UP_AND_DOWN} Failed Tests:`);
+    for (const test of failedTests) {
+      logInfo(`${BOX_UP_AND_DOWN}   ${EMOJI_FAIL} ${test.script}`);
+    }
   }
 
   logInfo(`${BOX_UP_AND_RIGHT}`);
@@ -222,7 +226,7 @@ function displayPromptfooTestSummary(
  * Displays enhanced final summary for API test results
  */
 function displayApiTestSummary(
-  results: Array<{ ok: boolean }>,
+  results: Array<{ ok: boolean; config: { script: { id: string } } }>,
   stats: GenerationStats,
   totalDuration: number,
   outSummary?: string,
@@ -240,16 +244,23 @@ function displayApiTestSummary(
   logInfo(`${BOX_UP_AND_DOWN} Duration:   ${prettyDuration(totalDuration)}`);
   logInfo(`${BOX_UP_AND_DOWN} Avg/test:   ${prettyDuration(totalDuration / totalTests)}`);
   logInfo(`${BOX_UP_AND_DOWN}`);
-  logInfo(`${BOX_UP_AND_DOWN} Token Usage:`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.prompt_tokens, "prompt")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.completion_tokens, "completion")}`);
-  logInfo(`${BOX_UP_AND_DOWN}   ${prettyTokens(usage.total_tokens, "both")} total`);
+  logInfo(`${BOX_UP_AND_DOWN} Token Usage: ${prettyTokens(usage.prompt_tokens, "prompt")} ${prettyTokens(usage.completion_tokens, "completion")} ${prettyTokens(usage.total_tokens, "both")} total`);
 
   if (usage.total_tokens > 0) {
     const avgTokensPerTest = Math.round(usage.total_tokens / totalTests);
     const tokensPerSecond = Math.round(usage.total_tokens / (totalDuration / 1000));
     logInfo(`${BOX_UP_AND_DOWN}   ${avgTokensPerTest} avg tokens/test`);
     logInfo(`${BOX_UP_AND_DOWN}   ${tokensPerSecond} tokens/second`);
+  }
+
+  // Show list of failed tests if any
+  const failedTests = results.filter((r) => !r.ok);
+  if (failedTests.length > 0) {
+    logInfo(`${BOX_UP_AND_DOWN}`);
+    logInfo(`${BOX_UP_AND_DOWN} Failed Tests:`);
+    for (const test of failedTests) {
+      logInfo(`${BOX_UP_AND_DOWN}   ${EMOJI_FAIL} ${test.config.script.id}`);
+    }
   }
 
   logInfo(`${BOX_UP_AND_RIGHT}`);
@@ -339,6 +350,7 @@ async function apiRunPromptScriptTests(
   const runId = randomHex(6);
   const out = options.out || getTestDir(runId);
   const testDelay = normalizeInt(options?.testDelay);
+  const testTimeout = normalizeInt(options?.testTimeout) || 60; // Default 1 minute
   //const maxConcurrency = normalizeInt(options?.maxConcurrency);
   const runStart = new Date();
   logVerbose(`out: ${out}`);
@@ -419,11 +431,46 @@ async function apiRunPromptScriptTests(
 
       dbgRun(`options: %O`, options);
       const { files = [] } = test;
-      const res = await run(script.id, files, {
-        ...options,
-        runTrace: false,
-        outputTrace: false,
-      });
+      
+      // Create timeout controller for this test
+      const testAbortController = new AbortController();
+      const timeoutId = setTimeout(() => {
+        dbgRun(`test timeout after ${testTimeout}s for ${script.id}`);
+        testAbortController.abort();
+      }, testTimeout * 1000);
+      
+      let res;
+      try {
+        res = await run(script.id, files, {
+          ...options,
+          runTrace: false,
+          outputTrace: false,
+          signal: testAbortController.signal,
+        });
+      } catch (error) {
+        if (testAbortController.signal.aborted) {
+          res = {
+            runId: generateId(),
+            env: {},
+            messages: [],
+            edits: [],
+            text: "",
+            fences: [],
+            frames: [],
+            fileOutputs: [],
+            outputFiles: [],
+            schemas: [],
+            status: "error",
+            statusText: `Test timeout after ${testTimeout} seconds`,
+            error: { message: `Test timeout after ${testTimeout} seconds` },
+          } as any; // Use any to avoid deep type requirements
+        } else {
+          throw error;
+        }
+      } finally {
+        clearTimeout(timeoutId);
+      }
+      
       const { usage } = res || { error: { message: "run failed" }, status: "error" };
       const error = await evaluateTestResult(config, res);
 
@@ -497,11 +544,11 @@ async function apiRunPromptScriptTests(
     status: ok ? 0 : -1,
     value: results.map(({ ok, res, config }) => ({
       ok,
-      error: res.error,
-      status: res.status === "success" ? 0 : -1,
+      error: res?.error,
+      status: res?.status === "success" ? 0 : -1,
       script: config.script.id,
     })),
-    error: results.find((r) => r.res.error)?.res.error,
+    error: results.find((r) => r.res?.error)?.res.error,
   };
 }
 

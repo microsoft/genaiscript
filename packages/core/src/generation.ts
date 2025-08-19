@@ -44,4 +44,5 @@ export interface GenerationOptions
   userState: Record<string, unknown>;
   applyGitIgnore?: boolean;
   disableChatPreview?: boolean; // default false
+  mcps?: string; // Path to MCP configuration file
 }

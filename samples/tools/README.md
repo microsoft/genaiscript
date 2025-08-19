@@ -1,0 +1,42 @@
+# Weather MCP Server
+
+A simple weather Model Context Protocol (MCP) server implementation using HTTP transport.
+
+## Quick Start
+
+1. Start the server:
+   ```bash
+   node samples/tools/weather-mcp-server.mjs
+   ```
+
+2. Test it:
+   ```bash
+   curl http://localhost:3001/health
+   ```
+
+3. Use it with GenAIScript:
+   ```bash
+   cd ../sample
+   # Comprehensive approach (single city)
+   genaiscript run weather-mcp-http --vars city="Berlin"
+   # Simple programmatic demo
+   genaiscript run weather-mcp-config --vars city="Tokyo"
+   # Configuration example
+   genaiscript run weather-mcp-servers --vars city="Paris"
+   ```
+
+## Files
+
+- `weather-mcp-server.mjs` - The MCP server implementation
+- `../sample/genaisrc/weather-mcp-http.genai.mts` - Example GenAIScript client (programmatic)
+- `../sample/genaisrc/weather-mcp-config.genai.mts` - Example GenAIScript client (configuration)
+
+## Features
+
+- HTTP transport (no stdio required)
+- Three weather tools: current weather, forecast, comparison
+- Mock data for 10 cities
+- CORS enabled
+- Health check endpoint
+
+For detailed documentation, see `/docs/weather-mcp-example.md`./samples/weather-mcp-example.md`.

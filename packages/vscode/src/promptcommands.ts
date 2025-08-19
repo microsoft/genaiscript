@@ -8,12 +8,13 @@ import { registerCommand } from "./commands";
 import type { PromptScript } from "../../core/src/types";
 import { createScript } from "../../core/src/scripts";
 import { copyPrompt } from "../../core/src/copy";
+import { assert } from "../../core/src/assert";
 
 export function activatePromptCommands(state: ExtensionState): void {
   const { context, host } = state;
   const { subscriptions } = context;
 
-  async function showPrompt(fn: string) {
+  async function showPrompt(fn: string): Promise<void> {
     vscode.window.showTextDocument(host.toUri(fn));
   }
 
@@ -56,13 +57,16 @@ export function activatePromptCommands(state: ExtensionState): void {
       await showPrompt(newPrompt);
     }),
     registerCommand("genaiscript.prompt.navigate", async (prompt: PromptScript) => {
+      assert(!!host, "host not defined")
       const uri = host.toUri(prompt.filename);
       await vscode.window.showTextDocument(uri);
     }),
   );
 }
 
-export function commandButtons(state: ExtensionState) {
+export function commandButtons(
+  state: ExtensionState,
+): { label: string; description?: string; cmd: string }[] {
   const request = state.aiRequest;
   const { computing } = request || {};
   const abort = "Abort";
@@ -111,7 +115,7 @@ export function commandButtons(state: ExtensionState) {
   return cmds;
 }
 
-export function commandButtonsMarkdown(state: ExtensionState, sep = " | ") {
+export function commandButtonsMarkdown(state: ExtensionState, sep = " | "): string {
   const res = commandButtons(state)
     .map(({ label, cmd }) => `[${label}](command:${cmd})`)
     .join(sep);
