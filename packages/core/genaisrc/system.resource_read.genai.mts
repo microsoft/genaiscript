@@ -16,8 +16,7 @@ export default function (ctx: ChatGenerationContext) {
             properties: {
                 url: {
                     type: "string",
-                    description: "The URL to read the resource content from. Supports various protocols including https, file, git, gist, and vscode.",
-                    required: true,
+                    description: "The URL to read the resource content from. Supports MCP resource resolution and various protocols including https, file, git, gist, and vscode.",
                 },
             },
             required: ["url"],
