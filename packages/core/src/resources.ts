@@ -99,10 +99,9 @@ const uriResolvers: Record<
     // Check if domain is allowed
     const runtimeHost = resolveRuntimeHost();
     const config = runtimeHost.config;
-    const allowedDomains = config?.allowedDomains || ["github.com", "*.github.com", "*.githubusercontent.com", "*.github.io"];
     
-    if (!isDomainAllowed(url.hostname, allowedDomains)) {
-      const errorMsg = createDomainBlockedError(url.hostname, allowedDomains);
+    if (!isDomainAllowed(url.hostname, config)) {
+      const errorMsg = createDomainBlockedError(url.hostname, config);
       dbg(`domain blocked: %s`, errorMsg);
       throw new Error(errorMsg);
     }

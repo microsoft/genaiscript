@@ -61,10 +61,9 @@ export async function fetchText(
     // Check if domain is allowed for HTTP/HTTPS requests
     const urlObj = new URL(url);
     const config = runtimeHost.config;
-    const allowedDomains = config?.allowedDomains || ["github.com", "*.github.com", "*.githubusercontent.com", "*.github.io"];
     
-    if (!isDomainAllowed(urlObj.hostname, allowedDomains)) {
-      const errorMsg = createDomainBlockedError(urlObj.hostname, allowedDomains);
+    if (!isDomainAllowed(urlObj.hostname, config)) {
+      const errorMsg = createDomainBlockedError(urlObj.hostname, config);
       dbg(`domain blocked: %s`, errorMsg);
       throw new Error(errorMsg);
     }
