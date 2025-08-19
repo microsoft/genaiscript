@@ -33,6 +33,7 @@ jobs:
         run: pnpm run test:compile
       - name: test echo
         run: pnpm run test:scripts:echo
+        timeout-minutes: 5
       - run: git fetch origin test-ignore
       - name: tests
         run: pnpm -r test

@@ -3,7 +3,7 @@
 
 /**
  * GenAIScript Ambient Type Definition File
- * @version 2.3.14
+ * @version 2.3.15
  */
  type OptionsOrString<TOptions extends string> = (string & {}) | TOptions;
 
@@ -1764,6 +1764,17 @@
    * The inclusive end of the line range, with a 1-based index
    */
   lineEnd?: number;
+  /**
+   * Center line number around which the file will be truncated.
+   * Dynamically calculates the range around this line.
+   * This is different from lineStart/lineEnd as it specifies a center point.
+   */
+  line?: number;
+  /**
+   * Maximum token budget for the extracted range when using line option.
+   * If specified, the range will be computed to fit within this token limit.
+   */
+  maxTokens?: number;
 }
 
  interface GitIgnoreFilterOptions {
@@ -3223,7 +3234,7 @@
 }
 
 /**
- * A ffmpeg command builder. This instance is the 'native' fluent-ffmpeg command builder.
+ * A ffmpeg command builder. This instance is a minimal ffmpeg command builder.
  */
  interface FfmpegCommandBuilder {
   seekInput(startTime: number | string): FfmpegCommandBuilder;
@@ -3878,11 +3889,7 @@
    * @param assignees Optional array of GitHub usernames to assign to the issue
    * @returns GitHub URL for creating a new issue with pre-filled data
    */
-  createIssueUrl(
-    title: string,
-    body?: string,
-    assignees?: string[],
-  ): Promise<string>;
+  createIssueUrl(title: string, body?: string, assignees?: string[]): Promise<string>;
 }
 
  interface MDObject {
@@ -4562,7 +4569,7 @@
   generator?: ChatGenerationContext;
 }
 
- type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>;
+ type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">> | string;
 
  interface McpAgentServerConfig extends McpServerConfig {
   description: string;
@@ -4573,7 +4580,7 @@
   maxTokens?: number;
 }
 
- type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+ type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">> | string;
 
  type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 

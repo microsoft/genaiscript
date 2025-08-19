@@ -1764,6 +1764,17 @@ export interface RangeOptions {
    * The inclusive end of the line range, with a 1-based index
    */
   lineEnd?: number;
+  /**
+   * Center line number around which the file will be truncated.
+   * Dynamically calculates the range around this line.
+   * This is different from lineStart/lineEnd as it specifies a center point.
+   */
+  line?: number;
+  /**
+   * Maximum token budget for the extracted range when using line option.
+   * If specified, the range will be computed to fit within this token limit.
+   */
+  maxTokens?: number;
 }
 
 export interface GitIgnoreFilterOptions {
@@ -3223,7 +3234,7 @@ export interface Git {
 }
 
 /**
- * A ffmpeg command builder. This instance is the 'native' fluent-ffmpeg command builder.
+ * A ffmpeg command builder. This instance is a minimal ffmpeg command builder.
  */
 export interface FfmpegCommandBuilder {
   seekInput(startTime: number | string): FfmpegCommandBuilder;
@@ -4558,7 +4569,7 @@ export interface McpServerConfig extends ContentSafetyOptions {
   generator?: ChatGenerationContext;
 }
 
-export type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>;
+export type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">> | string;
 
 export interface McpAgentServerConfig extends McpServerConfig {
   description: string;
@@ -4569,7 +4580,7 @@ export interface McpAgentServerConfig extends McpServerConfig {
   maxTokens?: number;
 }
 
-export type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+export type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">> | string;
 
 export type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 

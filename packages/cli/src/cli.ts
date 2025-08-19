@@ -194,6 +194,10 @@ export async function cli(): Promise<void> {
       "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls",
     )
     .option(
+      "--mcps <string>",
+      "path to MCP configuration file to override the script's MCP list",
+    )
+    .option(
       "-o, --out <string>",
       "output folder. Extra markdown fields for output and trace will also be generated",
     )
@@ -210,6 +214,7 @@ export async function cli(): Promise<void> {
     )
     .option("--out-changelog <string>", "output file for changelogs");
   addPullRequestOptions(run)
+    .option("--issue", "create a GitHub issue with the generation output")
     .option("--teams-message", "Posts a message to the teams channel")
     .option("-j, --json", "emit full JSON response to output")
     .option(`--fail-on-errors`, `fails on detected annotation error`)

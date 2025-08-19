@@ -1902,6 +1902,17 @@
    * The inclusive end of the line range, with a 1-based index
    */
   lineEnd?: number;
+  /**
+   * Center line number around which the file will be truncated.
+   * Dynamically calculates the range around this line.
+   * This is different from lineStart/lineEnd as it specifies a center point.
+   */
+  line?: number;
+  /**
+   * Maximum token budget for the extracted range when using line option.
+   * If specified, the range will be computed to fit within this token limit.
+   */
+  maxTokens?: number;
 }
 
  interface GitIgnoreFilterOptions {
@@ -4586,7 +4597,7 @@
   generator?: ChatGenerationContext;
 }
 
- type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">>;
+ type McpServersConfig = Record<string, Omit<McpServerConfig, "id" | "options">> | string;
 
  interface McpAgentServerConfig extends McpServerConfig {
   description: string;
@@ -4597,7 +4608,7 @@
   maxTokens?: number;
 }
 
- type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+ type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">> | string;
 
  type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 
@@ -5093,6 +5104,14 @@
    * List available resource references
    */
   resources(): Promise<ResourceReference[]>;
+
+  /**
+   * Resolves a URL to retrieve associated files/resources.
+   * Supports various protocols including https, file, git, gist, and vscode.
+   * @param url The URL to resolve
+   * @returns Promise that resolves to an object with uri and files, or undefined if resolution fails
+   */
+  resolveResource(url: string): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
 }
 
  interface UserInterfaceHost {
