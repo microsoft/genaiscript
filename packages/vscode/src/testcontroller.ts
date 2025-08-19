@@ -7,6 +7,7 @@ import { arrayify } from "../../core/src/cleaners";
 import { TOOL_ID, CHANGE, EMOJI_SUCCESS, EMOJI_FAIL } from "../../core/src/constants";
 import { errorMessage } from "../../core/src/error";
 import type { PromptScript } from "../../core/src/types";
+import { assert } from "../../core/src/assert";
 
 export async function activateTestController(state: ExtensionState): Promise<void> {
   const { context, host } = state;
@@ -119,6 +120,7 @@ export async function activateTestController(state: ExtensionState): Promise<voi
     const existing = ctrl.items.get(script.id);
     if (existing) return existing;
 
+    assert(!!host, "host not defined")
     const file = ctrl.createTestItem(script.id, script.id, host.toUri(script.filename));
     file.description = script.title ?? script.description;
     ctrl.items.add(file);
