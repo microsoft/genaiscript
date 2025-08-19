@@ -61,10 +61,8 @@ import {
   genaiscriptDebug,
   generateId,
   getRunDir,
-  githubCreateIssueComment,
-  githubCreatePullRequestReviews,
+  GitHubClient,
   githubParseEnv,
-  githubUpdatePullRequestDescription,
   isCI,
   isCancelError,
   isJSONLFilename,
@@ -664,9 +662,9 @@ export async function runScriptInternal(
         preview: result.text,
       }))
     ) {
-      await githubCreateIssueComment(
+      const github = GitHubClient.default();
+      await github.createIssueCommentWithTag(
         script,
-        ghInfo,
         result.text,
         typeof pullRequestComment === "string" ? pullRequestComment : script.id,
         { cancellationToken, stats },
@@ -699,9 +697,9 @@ export async function runScriptInternal(
         preview: result.text,
       }))
     ) {
-      await githubUpdatePullRequestDescription(
+      const github = GitHubClient.default();
+      await github.updatePullRequestDescription(
         script,
-        ghInfo,
         prettifyMarkdown(result.text),
         typeof pullRequestDescription === "string" ? pullRequestDescription : script.id,
         { cancellationToken },
@@ -733,7 +731,8 @@ export async function runScriptInternal(
     if (ghInfo.repository && ghInfo.issue) {
       if (!ghInfo.commitSha) dbg(`no commit sha found, skipping pull request reviews`);
       else {
-        await githubCreatePullRequestReviews(script, ghInfo, result.annotations, {
+        const github = GitHubClient.default();
+        await github.createPullRequestReviews(script, result.annotations, {
           cancellationToken,
         });
       }

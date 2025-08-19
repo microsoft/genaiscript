@@ -3774,6 +3774,46 @@
   ): Promise<GitHubComment[]>;
 
   /**
+   * Creates an issue comment with tag-based update functionality
+   * @param script
+   * @param body
+   * @param commentTag
+   * @param options
+   */
+  createIssueCommentWithTag(
+    script: PromptScript,
+    body: string,
+    commentTag: string,
+    options?: unknown,
+  ): Promise<{ created: boolean; statusText: string; html_url?: string }>;
+
+  /**
+   * Updates a pull request description with tag-based merging
+   * @param script
+   * @param text
+   * @param commentTag
+   * @param options
+   */
+  updatePullRequestDescription(
+    script: PromptScript,
+    text: string,
+    commentTag: string,
+    options?: unknown,
+  ): Promise<{ updated: boolean; statusText: string }>;
+
+  /**
+   * Creates pull request reviews from annotations
+   * @param script
+   * @param annotations
+   * @param options
+   */
+  createPullRequestReviews(
+    script: PromptScript,
+    annotations: Diagnostic[],
+    options?: unknown,
+  ): Promise<boolean>;
+
+  /**
    * Gets the content of a file from a GitHub repository
    * @param filepath
    * @param options

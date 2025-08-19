@@ -1847,6 +1847,246 @@ export class GitHubClient implements GitHub {
     const queryString = params.toString();
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
   }
+
+  /**
+   * Creates an issue comment with tag-based update functionality
+   * (enhanced version of createIssueComment)
+   */
+  async createIssueCommentWithTag(
+    script: PromptScript,
+    body: string,
+    commentTag: string,
+    options?: CancellationOptions & { stats?: GenerationStats },
+  ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
+    const { cancellationToken, stats } = options ?? {};
+    const info = await this.connection();
+    const { apiUrl, repository, issue, token } = info;
+
+    if (!issue) {
+      dbg(`missing issue number, cannot create issue comment`);
+      return { created: false, statusText: "missing issue number" };
+    }
+    if (!token) {
+      dbg(`missing github token, cannot create issue comment`);
+      return { created: false, statusText: "missing github token" };
+    }
+
+    const fetch = await createFetch({ retryOn: [], cancellationToken });
+    const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`;
+    dbg(`creating issue comment at %s`, url);
+
+    body = prettifyMarkdown(body);
+    body += generatedByFooter(script, info, undefined, stats);
+
+    dbg(`body:\n%s`, body);
+
+    if (commentTag) {
+      const tag = `<!-- genaiscript ${commentTag} -->`;
+      body = `${body}\n\n${tag}\n\n`;
+      // try to find the existing comment
+      const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${token}`,
+          "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+      });
+      if (resListComments.status !== 200) {
+        dbg(`failed to list existing comments`);
+        return { created: false, statusText: resListComments.statusText };
+      }
+      const comments = (await resListComments.json()) as {
+        id: string;
+        body: string;
+      }[];
+      dbg(`comments: %O`, comments);
+      const comment = comments.find((c) => c.body.includes(tag));
+      if (comment) {
+        dbg(`found existing comment %s with tag, deleting it`, comment.id);
+        const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`;
+        const resd = await fetch(delurl, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+          },
+        });
+        if (!resd.ok) {
+          logError(`issue comment delete failed, ` + resd.statusText);
+        }
+      }
+    }
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "X-GitHub-Api-Version": GITHUB_API_VERSION,
+      },
+      body: JSON.stringify({ body }),
+    });
+    const resp: { id: string; html_url: string } = await res.json();
+    const r = {
+      created: res.status === 201,
+      statusText: res.statusText,
+      html_url: resp.html_url,
+    };
+    if (!r.created) {
+      logError(`pull request ${issue} comment creation failed, ${r.statusText} (${res.status})`);
+      dbg(JSON.stringify(resp, null, 2));
+    } else {
+      logVerbose(`pull request ${issue} comment created at ${r.html_url}`);
+    }
+
+    return r;
+  }
+
+  /**
+   * Updates a pull request description with tag-based merging
+   */
+  async updatePullRequestDescription(
+    script: PromptScript,
+    text: string,
+    commentTag: string,
+    options?: CancellationOptions,
+  ) {
+    const { cancellationToken } = options ?? {};
+    const info = await this.connection();
+    const { apiUrl, repository, issue, token } = info;
+    assert(!!commentTag);
+
+    if (!issue) {
+      dbg(`missing issue number, cannot update pull request description`);
+      return { updated: false, statusText: "missing issue number" };
+    }
+    if (!token) {
+      dbg(`missing github token, cannot update pull request description`);
+      return { updated: false, statusText: "missing github token" };
+    }
+
+    text = prettifyMarkdown(text);
+    text += generatedByFooter(script, info);
+
+    const fetch = await createFetch({ retryOn: [], cancellationToken });
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}`;
+    dbg(`fetching pull request details from URL: ${url}`);
+    // get current body
+    const resGet = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "X-GitHub-Api-Version": GITHUB_API_VERSION,
+      },
+    });
+    dbg(`pr get: %d, %s`, resGet.status, resGet.statusText);
+    if (!resGet.ok) {
+      logError(`pull request fetch failed, ${resGet.statusText}`);
+      return { updated: false, statusText: resGet.statusText };
+    }
+    const resGetJson = (await resGet.json()) as {
+      body: string;
+      html_url: string;
+    };
+    dbg(`pr html url: %s`, resGetJson.html_url);
+    const body = mergeDescription(commentTag, resGetJson.body, text);
+    dbg(`merging pull request description: %s`, body);
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "X-GitHub-Api-Version": GITHUB_API_VERSION,
+      },
+      body: JSON.stringify({ body }),
+    });
+    const r = {
+      updated: res.status === 200,
+      statusText: res.statusText,
+    };
+
+    if (!r.updated) {
+      logError(`pull request ${resGetJson.html_url} update failed, ${r.statusText}`);
+    } else {
+      logVerbose(`pull request ${resGetJson.html_url} updated`);
+    }
+
+    return r;
+  }
+
+  /**
+   * Creates pull request reviews from annotations
+   */
+  async createPullRequestReviews(
+    script: PromptScript,
+    annotations: Diagnostic[],
+    options?: CancellationOptions,
+  ): Promise<boolean> {
+    const { cancellationToken } = options ?? {};
+    const info = await this.connection();
+    const { repository, issue, commitSha, apiUrl, token } = info;
+
+    if (!annotations?.length) {
+      dbg(`no annotations provided, skipping pull request reviews`);
+      return true;
+    }
+    if (!issue) {
+      dbg(`missing issue number, cannot create pull request reviews`);
+      return false;
+    }
+    if (!commitSha) {
+      dbg(`missing commit sha, cannot create pull request reviews`);
+      return false;
+    }
+    if (!token) {
+      dbg(`missing github token, cannot create pull request reviews`);
+      return false;
+    }
+
+    // query existing reviews
+    const fetch = await createFetch({ retryOn: [], cancellationToken });
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`;
+    dbg(`fetching existing pull request comments from URL: ${url}`);
+    const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "X-GitHub-Api-Version": GITHUB_API_VERSION,
+      },
+    });
+    checkCancelled(cancellationToken);
+    if (resListComments.status !== 200) {
+      dbg(`failed to fetch existing pull request comments`);
+      return false;
+    }
+    const comments = (await resListComments.json()) as {
+      id: string;
+      path: string;
+      line: number;
+      body: string;
+    }[];
+    dbg(`existing pull request comments: %O`, comments);
+    // code annotations
+    const failed: Diagnostic[] = [];
+    for (const annotation of annotations) {
+      dbg(`iterating over annotations to create pull request reviews`);
+      checkCancelled(cancellationToken);
+      const res = await githubCreatePullRequestReview(script, info, token, annotation, comments);
+      if (!res.created) failed.push(annotation);
+    }
+
+    if (failed.length) {
+      await this.createIssueCommentWithTag(
+        script,
+        failed.map((d) => diagnosticToGitHubMarkdown(info, d)).join("\n\n"),
+        script.id + "-prr",
+        options,
+      );
+    }
+
+    return true;
+  }
 }
 
 function parseJobLog(text: string) {
