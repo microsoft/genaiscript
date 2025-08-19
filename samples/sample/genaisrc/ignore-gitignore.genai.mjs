@@ -2,7 +2,7 @@ script({
   ignoreGitIgnore: true,
   files: "node_modules/test-package/package.json",
   tests: {},
-  model: "echo",
+  model: "none",
   group: "commit",
 });
 

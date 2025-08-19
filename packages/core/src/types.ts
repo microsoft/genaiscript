@@ -3223,7 +3223,7 @@ export interface Git {
 }
 
 /**
- * A ffmpeg command builder. This instance is the 'native' fluent-ffmpeg command builder.
+ * A ffmpeg command builder. This instance is a minimal ffmpeg command builder.
  */
 export interface FfmpegCommandBuilder {
   seekInput(startTime: number | string): FfmpegCommandBuilder;
