@@ -35,7 +35,7 @@ import type {
   ShellOutput,
   TraceOptions,
 } from "@genaiscript/core";
-import { basename, dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve, posix } from "node:path";
 const dbg = genaiscriptDebug("docker");
 
 type DockerodeType = import("dockerode");
@@ -436,7 +436,7 @@ export class DockerManager {
       }
 
       const { cwd: userCwd, label } = options || {};
-      const cwd = "/" + join(DOCKER_CONTAINER_VOLUME, userCwd || ".");
+      const cwd = "/" + posix.join(DOCKER_CONTAINER_VOLUME, userCwd || ".");
 
       try {
         trace?.startDetails(`📦 ▶️ container exec: ${userCwd || ""}> ${label || command}`);
