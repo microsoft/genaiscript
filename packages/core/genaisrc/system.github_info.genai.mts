@@ -1,5 +1,6 @@
 system({
     title: "General GitHub information.",
+    activation: ["github"],
 })
 
 export default async function (ctx: ChatGenerationContext) {

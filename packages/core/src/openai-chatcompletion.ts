@@ -487,7 +487,7 @@ export const OpenAIv1ChatCompletion: ChatCompletionHandler = async (req, cfg, op
       }
       if (cancellationToken?.isCancellationRequested) finishReason = "cancel";
       else if (toolCalls?.length) finishReason = "tool_calls";
-      finishReason = finishReason || "stop"; // some provider do not implement this final mesage
+      finishReason = finishReason || "stop"; // some provider do not implement this final message
     } catch (e) {
       finishReason = "fail";
       error = serializeError(e);

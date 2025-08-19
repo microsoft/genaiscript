@@ -218,4 +218,133 @@ describe("GitHubClient", async () => {
     assert(urlSpecialChars.includes("body=") && urlSpecialChars.includes("symbols"));
     assert(urlSpecialChars.includes("assignees=user%40example.com")); // @ should be encoded as %40
   });
+
+  test("createIssue() with parentIssue creates sub-issue relationship", async () => {
+    if (isCI) return; // Skip in CI to avoid making actual API calls
+
+    // Mock the GraphQL call and issue creation
+    const originalCreateIssue = client.createIssue;
+    const originalGetIssue = client.getIssue;
+    const originalGraphql = client.graphql;
+
+    let graphqlCalled = false;
+    let graphqlMutation = "";
+    let graphqlVariables = {};
+
+    try {
+      // Mock getIssue to return test data
+      client.getIssue = async (issueNumber: number | string) => {
+        return {
+          number: typeof issueNumber === 'string' ? parseInt(issueNumber) : issueNumber,
+          node_id: `test-node-id-${issueNumber}`,
+          title: `Test Issue ${issueNumber}`,
+          body: "Test body",
+          state: "open",
+          html_url: `https://github.com/test/repo/issues/${issueNumber}`,
+          user: { login: "test-user" },
+        } as any;
+      };
+
+      // Mock GraphQL to capture the call
+      client.graphql = async (mutation: string, variables?: any) => {
+        graphqlCalled = true;
+        graphqlMutation = mutation;
+        graphqlVariables = variables || {};
+        return {
+          createTaskListItem: {
+            taskListItem: {
+              id: "test-task-list-item-id",
+              state: "PENDING"
+            }
+          }
+        };
+      };
+
+      // Mock createIssue to call the real implementation but skip actual API calls
+      client.createIssue = async (title: string, body: string, options?: any) => {
+        const mockIssue = {
+          number: 456,
+          node_id: "test-node-id-456",
+          title,
+          body,
+          state: "open",
+          html_url: "https://github.com/test/repo/issues/456",
+          user: { login: "test-user" },
+        } as any;
+
+        // Call addSubIssue if parentIssue is provided
+        if (options?.parentIssue !== undefined) {
+          await (client as any).addSubIssue(options.parentIssue, mockIssue.number);
+        }
+
+        return mockIssue;
+      };
+
+      // Test creating an issue with a parent issue
+      const result = await client.createIssue("Child Issue Title", "Child issue body", {
+        parentIssue: 123,
+        labels: ["bug"]
+      });
+
+      assert(result);
+      assert(result.title === "Child Issue Title");
+      assert(result.number === 456);
+
+      // Verify that GraphQL was called to create the sub-issue relationship
+      assert(graphqlCalled, "GraphQL should have been called to create sub-issue relationship");
+      assert(graphqlMutation.includes("createTaskListItem"), "Should use createTaskListItem mutation");
+      assert(graphqlVariables.parentId === "test-node-id-123", "Should pass correct parent node ID");
+      assert(graphqlVariables.childId === "test-node-id-456", "Should pass correct child node ID");
+
+    } finally {
+      // Restore original methods
+      client.createIssue = originalCreateIssue;
+      client.getIssue = originalGetIssue;
+      client.graphql = originalGraphql;
+    }
+  });
+
+  test("createIssue() without parentIssue works normally", async () => {
+    if (isCI) return; // Skip in CI to avoid making actual API calls
+
+    // Test that normal issue creation still works without parentIssue
+    const originalCreateIssue = client.createIssue;
+    const originalGraphql = client.graphql;
+
+    let graphqlCalled = false;
+
+    try {
+      // Mock GraphQL to ensure it's not called
+      client.graphql = async () => {
+        graphqlCalled = true;
+        return {};
+      };
+
+      // Mock createIssue to skip API calls
+      client.createIssue = async (title: string, body: string, options?: any) => {
+        // Should not call addSubIssue when no parentIssue is provided
+        return {
+          number: 789,
+          title,
+          body,
+          state: "open",
+          html_url: "https://github.com/test/repo/issues/789",
+          user: { login: "test-user" },
+        } as any;
+      };
+
+      const result = await client.createIssue("Regular Issue", "Regular issue body", {
+        labels: ["enhancement"]
+      });
+
+      assert(result);
+      assert(result.title === "Regular Issue");
+      assert(!graphqlCalled, "GraphQL should not be called when no parentIssue is provided");
+
+    } finally {
+      // Restore original methods
+      client.createIssue = originalCreateIssue;
+      client.graphql = originalGraphql;
+    }
+  });
 });

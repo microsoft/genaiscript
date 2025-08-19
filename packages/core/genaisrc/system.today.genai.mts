@@ -1,5 +1,6 @@
 system({
     title: "Today's date.",
+    activation: ["today"],
 })
 export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx
