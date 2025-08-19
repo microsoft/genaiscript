@@ -3573,6 +3573,10 @@ export interface GitHubIssueUpdateOptions {
 
 export interface GitHubIssueCreateOptions {
   labels?: string[];
+  /**
+   * Parent issue number to add this issue as a sub-issue
+   */
+  parentIssue?: number | string;
 }
 
 export interface GitHubLabel {
