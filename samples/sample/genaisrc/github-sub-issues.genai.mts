@@ -16,8 +16,8 @@ script({
 });
 
 // Get parameters with defaults
-const epicTitle = env.vars.epicTitle || "Epic: New Feature Development";
-const epicDescription = env.vars.epicDescription || "This epic tracks the development of a new feature with multiple sub-tasks.";
+const epicTitle = env.vars.epicTitle
+const epicDescription = env.vars.epicDescription 
 
 console.log("🎯 Creating GitHub Epic and Sub-Issues Demo");
 
