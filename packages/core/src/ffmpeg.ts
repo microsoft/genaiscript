@@ -177,7 +177,8 @@ class MinimalFfmpegCommand extends EventEmitter implements FfmpegCommandBuilder 
   }
 
   keepDisplayAspectRatio(): FfmpegCommandBuilder {
-    this.args.push("-aspect");
+    // Use setsar=1 filter to maintain display aspect ratio
+    this.videoFilters("setsar=1");
     return this;
   }
 
