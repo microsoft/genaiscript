@@ -138,7 +138,7 @@ export async function startServer(
     string,
     {
       canceller: AbortSignalCancellationController;
-      trace: MarkdownTrace;
+      trace: MarkdownTrace | undefined;
       outputTrace: MarkdownTrace;
       runner: Promise<void>;
     }
@@ -391,15 +391,17 @@ export async function startServer(
             } satisfies PromptScriptProgressResponseEvent),
           ),
         );
-        chunkString(run.trace.content, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
-          ws.send(
-            toPayload({
-              type: "script.progress",
-              runId,
-              trace: c,
-            } satisfies PromptScriptProgressResponseEvent),
-          ),
-        );
+        if (run.trace) {
+          chunkString(run.trace.content, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
+            ws.send(
+              toPayload({
+                type: "script.progress",
+                runId,
+                trace: c,
+              } satisfies PromptScriptProgressResponseEvent),
+            ),
+          );
+        }
       }
     } else if (lastRunResult) {
       sendLastRunResult();
@@ -472,11 +474,11 @@ export async function startServer(
             cancelAll();
             const canceller = new AbortSignalCancellationController();
             const cancellationToken = canceller.token;
-            const trace = new MarkdownTrace({ cancellationToken });
+            const trace = runTrace ? new MarkdownTrace({ cancellationToken }) : undefined;
             const outputTrace = new MarkdownTrace({
               cancellationToken,
             });
-            if (runTrace) {
+            if (runTrace && trace) {
               trace.addEventListener(TRACE_CHUNK, (ev) => {
                 const tev = ev as TraceChunkEvent;
                 chunkString(tev.chunk, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
@@ -534,13 +536,13 @@ export async function startServer(
                   runId,
                   exitCode,
                   result,
-                  trace: trace.content,
+                  trace: trace?.content || "",
                 };
                 sendLastRunResult();
               })
               .catch((e) => {
                 if (canceller.controller.signal.aborted) return;
-                if (!isCancelError(e)) trace.error(e);
+                if (!isCancelError(e)) trace?.error(e);
                 logError(`\nrun ${runId}: failed`);
                 logError(e);
                 send({
