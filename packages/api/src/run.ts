@@ -61,6 +61,7 @@ import {
   genaiscriptDebug,
   generateId,
   getRunDir,
+  githubCreateIssue,
   githubCreateIssueComment,
   githubCreatePullRequestReviews,
   githubParseEnv,
@@ -204,6 +205,7 @@ export async function runScriptInternal(
   const pullRequestComment = options.pullRequestComment;
   const pullRequestDescription = options.pullRequestDescription;
   const pullRequestReviews = options.pullRequestReviews;
+  const issue = options.issue;
   const teamsMessage = options.teamsMessage;
   const outData = options.outData;
   const label = options.label;
@@ -737,6 +739,24 @@ export async function runScriptInternal(
           cancellationToken,
         });
       }
+    }
+  }
+
+  if (issue && result.text) {
+    dbg(`creating GitHub issue`);
+    const ghInfo = await resolveGitHubInfo();
+    if (
+      ghInfo.repository &&
+      (await confirmOrSkipInCI("Would you like to create a GitHub issue?", {
+        preview: result.text,
+      }))
+    ) {
+      await githubCreateIssue(script, ghInfo, result.text, {
+        cancellationToken,
+        stats,
+      });
+    } else {
+      logError("GitHub issue creation: no repository information found");
     }
   }
 
