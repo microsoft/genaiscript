@@ -42,4 +42,10 @@ export interface HostConfiguration {
    * A map of secret name and their respective regex pattern
    */
   secretPatterns?: Record<string, string>;
+
+  /**
+   * List of allowed domains (with wildcard support) for HTTPS resource resolution.
+   * Defaults to ["github.com"] if not specified.
+   */
+  allowedDomains?: string[];
 }

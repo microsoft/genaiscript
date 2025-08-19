@@ -28,7 +28,7 @@ import type { CancellationOptions } from "./cancellation.js";
 import { resolveRuntimeHost } from "./host.js";
 import { uniq } from "es-toolkit";
 import { expandHomeDir, tryReadText, tryStat } from "./fs.js";
-import { parseDefaultsFromEnv } from "./env.js";
+import { parseDefaultsFromEnv, parseAllowedDomains } from "./env.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { JSONSchema, LanguageModelInfo } from "./types.js";
 const dbg = genaiscriptDebug("config");
@@ -46,6 +46,7 @@ export function mergeHostConfigs(
     modelAliases: structuralMerge(config?.modelAliases || {}, parsed?.modelAliases || {}),
     modelEncodings: structuralMerge(config?.modelEncodings || {}, parsed?.modelEncodings || {}),
     secretScanners: structuralMerge(config?.secretPatterns || {}, parsed?.secretPatterns || {}),
+    allowedDomains: structuralMerge(config?.allowedDomains || [], parsed?.allowedDomains || []),
   });
 }
 
@@ -171,6 +172,12 @@ export async function readHostConfig(
     }
   }
   await parseDefaultsFromEnv(process.env);
+  
+  // Parse allowed domains from environment if not set in config file
+  if (!config.allowedDomains || config.allowedDomains.length === 0) {
+    config.allowedDomains = parseAllowedDomains(process.env);
+  }
+  
   return config;
 }
 

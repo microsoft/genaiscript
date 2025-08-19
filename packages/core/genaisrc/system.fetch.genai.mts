@@ -48,8 +48,9 @@ export default function (ctx: ChatGenerationContext) {
             const method = "GET"
             const uri = new URL(url)
             const domain = uri.hostname
+            
             if (!domains.includes(domain))
-                return `error: domain ${domain} is not allowed.`
+                return `error: domain ${domain} is not allowed. Allowed domains: ${domains.join(', ')}`
 
             dbg(`${method} ${url}`)
             const res = await host.fetchText(url, { convert })

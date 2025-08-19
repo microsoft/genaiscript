@@ -18,6 +18,8 @@ import { join } from "node:path";
 import { isCancelError } from "./error.js";
 import { GITHUB_ASSET_URL_RX } from "./constants.js";
 import type { Awaitable, ElementOrArray, WorkspaceFile } from "./types.js";
+import { resolveRuntimeHost } from "./host.js";
+import { isDomainAllowed, createDomainBlockedError } from "./domainfilter.js";
 
 const dbg = genaiscriptDebug("res");
 const dbgAdaptors = dbg.extend("adaptors");
@@ -94,6 +96,17 @@ const uriResolvers: Record<
     return file;
   },
   https: async (dbg, url, options) => {
+    // Check if domain is allowed
+    const runtimeHost = resolveRuntimeHost();
+    const config = runtimeHost.config;
+    const allowedDomains = config?.allowedDomains || ["github.com", "*.github.com", "*.githubusercontent.com"];
+    
+    if (!isDomainAllowed(url.hostname, allowedDomains)) {
+      const errorMsg = createDomainBlockedError(url.hostname, allowedDomains);
+      dbg(`domain blocked: %s`, errorMsg);
+      throw new Error(errorMsg);
+    }
+    
     // https://.../.../....git
     if (/\.git($|\/)/.test(url.pathname)) return await uriResolvers.git(dbg, url, options);
     // regular fetch

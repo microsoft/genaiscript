@@ -921,3 +921,31 @@ export async function parseTokenFromEnv(
     return res;
   }
 }
+
+/**
+ * Parses allowed domains from environment variable.
+ * Supports comma-separated list or YAML array format.
+ * Returns default ["github.com"] if not specified.
+ */
+export function parseAllowedDomains(env: Record<string, string>): string[] {
+  const envValue = env.GENAISCRIPT_ALLOWED_DOMAINS || env.ALLOWED_DOMAINS;
+  if (!envValue) {
+    return ["github.com", "*.github.com", "*.githubusercontent.com"];
+  }
+
+  // Try to parse as YAML array first
+  try {
+    const parsed = YAMLTryParse(envValue);
+    if (Array.isArray(parsed)) {
+      return parsed.filter(domain => typeof domain === 'string' && domain.trim());
+    }
+  } catch {
+    // Fall through to comma-separated parsing
+  }
+
+  // Parse as comma-separated list
+  return envValue
+    .split(',')
+    .map(domain => domain.trim())
+    .filter(domain => domain.length > 0);
+}
