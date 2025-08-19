@@ -416,7 +416,8 @@ export async function runScriptInternal(
       }
       if (responseChunk !== undefined && responseChunk !== null && responseChunk !== "") {
         if (reasoningOutput) {
-          stderr.write(reasoningEndMarker);
+          if (!isQuiet)
+            stderr.write(reasoningEndMarker);
           reasoningOutput = false;
         }
         if (stream) {
@@ -435,7 +436,7 @@ export async function runScriptInternal(
           } else {
             if (!inner) stdout.write(responseChunk);
             else {
-              stderr.write(wrapColor(CONSOLE_COLOR_DEBUG, responseChunk));
+              if (!isQuiet) stderr.write(wrapColor(CONSOLE_COLOR_DEBUG, responseChunk));
             }
           }
         } else if (!isQuiet) {
