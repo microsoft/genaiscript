@@ -30,6 +30,7 @@ llmstxt:
     1. **Issues**:  
        - `listIssues({ per_page })` retrieves issues.  
        - `listIssueComments(issueNumber)` fetches comments.  
+       - `createIssue(title, body, options)` creates new issues or sub-issues.  
        - `updateIssue(issueNumber, { title, body })` updates issues.  
        - `createIssueComment(issueNumber, comment)` adds comments.  
        - `listIssueLabels(issueNumber)` lists labels.
@@ -136,6 +137,21 @@ console.log(issueComments);
 await github.updateIssue(issues[0].number, {
   title: "New title",
   body: "New body",
+});
+```
+
+- create issues:
+
+```js
+// Create a simple issue
+const issue = await github.createIssue("Bug: Something is broken", "Description of the bug", {
+  labels: ["bug", "priority-high"]
+});
+
+// Create a sub-issue (child issue linked to a parent)
+const subIssue = await github.createIssue("Sub-task: Fix login form", "Fix the specific login form issue", {
+  labels: ["bug", "sub-task"],
+  parentIssue: 123 // Link to parent issue #123
 });
 ```
 
