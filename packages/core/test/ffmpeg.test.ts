@@ -1,10 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, test, assert } from "vitest";
+import { describe, test, assert, beforeEach } from "vitest";
 import { resolve } from "node:path";
+import { TestHost } from "../src/testhost.js";
 
 describe("FFmpeg Command Builder", () => {
+  beforeEach(() => {
+    TestHost.install();
+  })
+
   test("should create basic FFmpeg command", async () => {
     const { ffmpegCommand } = await import("../src/ffmpeg.js");
     const cmd = await ffmpegCommand();
