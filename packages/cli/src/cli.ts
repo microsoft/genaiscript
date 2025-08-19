@@ -214,6 +214,7 @@ export async function cli(): Promise<void> {
     )
     .option("--out-changelog <string>", "output file for changelogs");
   addPullRequestOptions(run)
+    .option("--issue", "create a GitHub issue with the generation output")
     .option("--teams-message", "Posts a message to the teams channel")
     .option("-j, --json", "emit full JSON response to output")
     .option(`--fail-on-errors`, `fails on detected annotation error`)
