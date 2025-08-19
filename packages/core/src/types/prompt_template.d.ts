@@ -6001,6 +6001,13 @@ interface ContainerOptions {
      * Commands to executes after the container is created
      */
     postCreateCommands?: ElementOrArray<string>
+
+    /**
+     * Container operating system type. If not specified, will be auto-detected from image name.
+     * Use 'linux' for Linux containers (uses forward slashes for paths).
+     * Use 'windows' for Windows containers (uses backslashes for paths).
+     */
+    containerOS?: "linux" | "windows"
 }
 
 interface PromiseQueue {

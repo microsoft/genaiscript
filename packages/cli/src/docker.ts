@@ -21,10 +21,64 @@ import { generateId } from "../../core/src/id"
 import { dotGenaiscriptPath } from "../../core/src/workdir"
 import { ensureDir } from "../../core/src/fs"
 import { genaiscriptDebug } from "../../core/src/debug"
-import { posix } from "node:path"
+import { posix, win32 } from "node:path"
 const dbg = genaiscriptDebug("docker")
 
 type DockerodeType = import("dockerode")
+
+/**
+ * Detects container OS based on image name and explicit option
+ */
+function detectContainerOS(
+    image: string = DOCKER_DEFAULT_IMAGE,
+    containerOS?: "linux" | "windows"
+): "linux" | "windows" {
+    // Use explicit option if provided
+    if (containerOS) {
+        return containerOS
+    }
+
+    // Auto-detect from image name
+    const imageLower = image.toLowerCase()
+    
+    // Windows container indicators
+    const windowsIndicators = [
+        "windowsservercore",
+        "nanoserver", 
+        "windows",
+        "mcr.microsoft.com/windows",
+        "mcr.microsoft.com/dotnet/framework"
+    ]
+    
+    if (windowsIndicators.some(indicator => imageLower.includes(indicator))) {
+        return "windows"
+    }
+    
+    // Default to Linux for all other cases
+    return "linux"
+}
+
+/**
+ * Joins paths using the appropriate separator for the container OS
+ */
+function joinContainerPath(containerOS: "linux" | "windows", ...parts: string[]): string {
+    return containerOS === "windows" ? win32.join(...parts) : posix.join(...parts)
+}
+
+/**
+ * Creates an absolute container path with appropriate separator
+ */
+function createContainerPath(containerOS: "linux" | "windows", ...parts: string[]): string {
+    const joined = joinContainerPath(containerOS, ...parts)
+    
+    if (containerOS === "windows") {
+        // Windows containers use C: drive by default
+        return joined.startsWith("C:") ? joined : `C:\\${joined.replace(/^[\\\/]+/, "")}`
+    } else {
+        // Linux containers use root path
+        return joined.startsWith("/") ? joined : `/${joined}`
+    }
+}
 
 function dbgContainer(c: ContainerHost) {
     const name = c?.name
@@ -279,11 +333,17 @@ export class DockerManager {
             env = {},
             networkEnabled,
             postCreateCommands,
+            containerOS,
         } = options
         const persistent =
             !!options.persistent || !!(options as any).disablePurge
         const ports = arrayify(options.ports)
         const { name, hostPath } = await this.containerName(options)
+        
+        // Detect container OS for path handling
+        const detectedContainerOS = detectContainerOS(image, containerOS)
+        const workingDir = createContainerPath(detectedContainerOS, DOCKER_CONTAINER_VOLUME)
+        
         try {
             dbg(`starting container with image ${image}`)
             trace?.startDetails(`📦 container start ${image}`)
@@ -301,7 +361,7 @@ export class DockerManager {
                 OpenStdin: false,
                 StdinOnce: false,
                 NetworkDisabled: false, // disable after post create commands
-                WorkingDir: "/" + DOCKER_CONTAINER_VOLUME,
+                WorkingDir: workingDir,
                 Labels: {
                     genaiscript: "true",
                     "genaiscript.version": CORE_VERSION,
@@ -342,7 +402,7 @@ export class DockerManager {
 
             const c = await this.wrapContainer(
                 container,
-                options,
+                { ...options, containerOS },
                 name,
                 hostPath
             )
@@ -380,8 +440,11 @@ export class DockerManager {
         name: string,
         hostPath: string
     ): Promise<ContainerHost> {
-        const { trace, persistent } = options
+        const { trace, persistent, image = DOCKER_DEFAULT_IMAGE, containerOS } = options
         const dbgc = name ? dbg.extend(name) : dbg
+        
+        // Detect container OS for path handling
+        const detectedContainerOS = detectContainerOS(image, containerOS)
 
         const stop: () => Promise<void> = async () => {
             dbgc(`stopping`)
@@ -447,8 +510,11 @@ export class DockerManager {
             }
 
             const { cwd: userCwd, label } = options || {}
-            const cwd =
-                "/" + posix.join(DOCKER_CONTAINER_VOLUME, userCwd || ".")
+            const cwd = createContainerPath(
+                detectedContainerOS,
+                DOCKER_CONTAINER_VOLUME,
+                userCwd || "."
+            )
 
             try {
                 trace?.startDetails(
@@ -557,7 +623,7 @@ export class DockerManager {
                 const target = host.path.resolve(cto, host.path.basename(file))
                 await ensureDir(host.path.dirname(target))
                 await copyFile(source, target)
-                res.push(posix.join(to, host.path.basename(file)))
+                res.push(joinContainerPath(detectedContainerOS, to, host.path.basename(file)))
             }
             return res
         }
