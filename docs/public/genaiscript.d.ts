@@ -485,6 +485,12 @@
   excludedSystem?: ElementOrArray<SystemPromptId>;
 
   /**
+   * Keywords that will 'activate' the system script. When these keywords are found in the prompt source, 
+   * the system script will be automatically imported.
+   */
+  activation?: ElementOrArray<string>;
+
+  /**
    * MCP server configuration. The tools will be injected into the prompt.
    */
   mcpServers?: McpServersConfig;

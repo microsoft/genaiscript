@@ -1,5 +1,6 @@
 system({
     title: "Git repository information",
+    activation: ["git"],
     parameters: {
         cwd: {
             type: "string",
