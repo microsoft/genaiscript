@@ -5093,6 +5093,14 @@
    * List available resource references
    */
   resources(): Promise<ResourceReference[]>;
+
+  /**
+   * Resolves a URL to retrieve associated files/resources.
+   * Supports various protocols including https, file, git, gist, and vscode.
+   * @param url The URL to resolve
+   * @returns Promise that resolves to an object with uri and files, or undefined if resolution fails
+   */
+  resolveResource(url: string): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined>;
 }
 
  interface UserInterfaceHost {
