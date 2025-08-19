@@ -1,6 +1,7 @@
 system({
     title: "File generation",
     description: "Teaches the file format supported by GenAIScripts",
+    activation: ["file", "files"],
 })
 
 export default function (ctx: ChatGenerationContext) {
