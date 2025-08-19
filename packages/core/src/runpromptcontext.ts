@@ -184,9 +184,7 @@ export function createChatTurnGenerationContext(
       const line = consoleLogFormat(...args);
       if (line) {
         trace?.log(line);
-        if (!isQuiet) {
-          stdout.write(line + "\n");
-        }
+        stdout.write(line + "\n");
       }
     },
     debug: (...args: any[]) => {
