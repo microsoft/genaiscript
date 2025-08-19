@@ -3793,7 +3793,6 @@ export interface GitHub {
       branchSuffix?: string;
       branchPrefix?: string;
       baseBranch?: string;
-      assignToCopilot?: boolean;
       copilotUser?: string;
       draft?: boolean;
       labels?: string[];

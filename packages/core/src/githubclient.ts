@@ -1405,7 +1405,6 @@ export class GitHubClient implements GitHub {
       branchSuffix?: string;
       branchPrefix?: string;
       baseBranch?: string;
-      assignToCopilot?: boolean;
       copilotUser?: string;
       draft?: boolean;
       labels?: string[];
@@ -1415,7 +1414,6 @@ export class GitHubClient implements GitHub {
       branchSuffix = generateId(),
       branchPrefix = "copilot/",
       baseBranch,
-      assignToCopilot = true,
       copilotUser = "copilot-swe-agent",
       draft = false,
       labels = [],
@@ -1440,15 +1438,13 @@ export class GitHubClient implements GitHub {
     
     dbg(`created pull request #${pullRequest.number}: ${pullRequest.html_url}`);
     
-    // Assign to copilot if requested
-    if (assignToCopilot) {
-      try {
-        dbg(`assigning pull request #${pullRequest.number} to ${copilotUser}`);
-        await this.assignIssueToBot(pullRequest.number, { bot: copilotUser });
-        dbg(`assigned pull request #${pullRequest.number} to ${copilotUser}`);
-      } catch (error) {
-        dbg(`failed to assign pull request to ${copilotUser}: ${errorMessage(error)}`);
-      }
+    // Always assign to copilot
+    try {
+      dbg(`assigning pull request #${pullRequest.number} to ${copilotUser}`);
+      await this.assignIssueToBot(pullRequest.number, { bot: copilotUser });
+      dbg(`assigned pull request #${pullRequest.number} to ${copilotUser}`);
+    } catch (error) {
+      dbg(`failed to assign pull request to ${copilotUser}: ${errorMessage(error)}`);
     }
     
     return pullRequest;
