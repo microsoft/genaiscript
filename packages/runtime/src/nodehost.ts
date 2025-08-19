@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { lstat, mkdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
-import { ensureDir, fileExists } from "@genaiscript/core";
+import { ensureDir, fileExists, logAzureOpenAIConfiguration } from "@genaiscript/core";
 import { dirname } from "node:path";
 import { glob } from "glob";
 import { debug as debug_, error, info, warn } from "./log.js";
@@ -318,6 +318,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         if (!azureToken) {
           const providerName = providerFeatures(tok.provider)?.detail;
           if (azureTokenError) {
+            dbg(`azure token error: %s`, azureTokenError);
             logError(
               `${providerName} token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`,
             );
@@ -335,6 +336,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
           await this.azureAIInferenceToken.token(tok.azureCredentialsType, options);
         if (!azureToken) {
           if (azureTokenError) {
+            dbg(`azure token error: %s`, azureTokenError);
             logError(
               `Azure AI Inference token not available for ${modelId}, ${tok.azureCredentialsType || "default"}`,
             );
@@ -352,6 +354,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
           await this.azureAIServerlessToken.token(tok.azureCredentialsType, options);
         if (!azureToken) {
           if (azureTokenError) {
+            dbg(`azure token error: %s`, azureTokenError);
             logError(`Azure AI Serverless token not available for ${modelId}`);
             logVerbose(azureTokenError.message);
             trace?.error(`Azure AI Serverless token not available for ${modelId}`, azureTokenError);
@@ -365,10 +368,10 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       const { listModels } = await resolveLanguageModel(tok.provider);
       if (listModels) {
         dbg(`listing models for provider: ${tok.provider}`);
-        const { ok, error } = await listModels(tok, options);
+        const { ok, error: listError } = await listModels(tok, options);
         if (!ok) {
-          dbg(`error listing models: ${errorMessage(error)}`);
-          throw new Error(`${tok.provider}: ${errorMessage(error)}`);
+          dbg(`error listing models: ${errorMessage(listError)}`);
+          throw new Error(`${tok.provider}: ${errorMessage(listError)}`);
         }
       }
     }
@@ -379,10 +382,12 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       }
       const { provider } = parseModelIdentifier(modelId);
       if (provider === MODEL_PROVIDER_AZURE_OPENAI) {
+        if (askToken) await logAzureOpenAIConfiguration(options);
         throw new Error(`Azure OpenAI not configured for ${modelId}`);
       } else if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
         throw new Error(`Azure AI Inference not configured for ${modelId}`);
       } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
+        if (askToken) await logAzureOpenAIConfiguration(options);
         throw new Error(`Azure AI OpenAI Serverless not configured for ${modelId}`);
       } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
         throw new Error(`Azure AI Models not configured for ${modelId}`);
@@ -588,7 +593,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       const exitCode = (err as any)?.exitCode ?? 1;
       const stdout = (err as any)?.stdout ?? "";
       const stderr = (err as any)?.stderr ?? errorMessage(err) ?? "error";
-      
+
       return {
         stdout,
         stderr,
