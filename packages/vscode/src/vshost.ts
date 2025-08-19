@@ -16,18 +16,67 @@ import type { CancellationOptions } from "../../core/src/cancellation";
 import type { TraceOptions } from "../../core/src/trace";
 import type { LanguageModelConfiguration, LogLevel } from "../../core/src/server/messages";
 import type { ElementOrArray } from "../../core/src/types";
+import { FileLogger } from "./filelogger";
+import debug from "debug";
 
 export class VSCodeHost extends EventTarget implements Host {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userState: Record<string, any> = {};
   readonly path = createNodePath();
   readonly server: TerminalServerManager;
+  private _fileLogger: FileLogger;
+
   constructor(readonly state: ExtensionState) {
     super();
     setRuntimeHost(this as any as RuntimeHost);
     resolveRuntimeHost();
     this.server = new TerminalServerManager(state);
     this.state.context.subscriptions.push(this);
+    
+    // Initialize file logger when diagnostics mode is enabled
+    this.initializeFileLogger();
+    
+    // Setup debug message interception
+    this.setupDebugLogging();
+  }
+
+  private initializeFileLogger(): void {
+    this._fileLogger = new FileLogger({
+      projectUri: this.projectUri,
+      diagnostics: this.state.diagnostics,
+    });
+  }
+
+  private setupDebugLogging(): void {
+    if (!this.state.diagnostics) {
+      return;
+    }
+
+    // Intercept debug messages by hooking into debug.log
+    const originalLog = debug.log;
+    debug.log = (...args: any[]) => {
+      // Call original debug logging
+      originalLog.apply(debug, args);
+      
+      // Extract namespace and message for file logging
+      try {
+        const message = args.join(' ');
+        // Try to extract namespace from the debug message format
+        const namespaceMatch = message.match(/^([^\s]+)\s+(.*)$/);
+        if (namespaceMatch) {
+          const [, namespace, content] = namespaceMatch;
+          this._fileLogger?.logDebug(namespace, content);
+        } else {
+          this._fileLogger?.logDebug('unknown', message);
+        }
+      } catch (error) {
+        // Fail silently to avoid breaking debug logging
+        console.error("Debug logging to file failed:", error);
+      }
+    };
+
+    // Enable all debug namespaces when in diagnostics mode
+    debug.enabled = () => true;
   }
 
   async activate() {}
@@ -78,6 +127,9 @@ export class VSCodeHost extends EventTarget implements Host {
         output.info(msg);
         break;
     }
+    
+    // Also log to file if in diagnostics mode
+    this._fileLogger?.log(level, msg);
   }
   async statFile(name: string): Promise<{
     size: number;
