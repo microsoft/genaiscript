@@ -35,7 +35,7 @@ import type {
   ShellOutput,
   TraceOptions,
 } from "@genaiscript/core";
-import { basename, dirname, join, resolve, posix } from "node:path";
+import { basename, dirname, join, resolve, posix, win32 } from "node:path";
 const dbg = genaiscriptDebug("docker");
 
 type DockerodeType = import("dockerode");
@@ -261,10 +261,11 @@ export class DockerManager {
       postCreateCommands,
       env,
       networkEnabled,
+      osType,
     } = options;
     let name = (userName || image).replace(/[^a-zA-Z0-9]+/g, "_");
     if (persistent) {
-      name += `_${await hash({ image, name, ports, env, networkEnabled, postCreateCommands, CORE_VERSION }, { length: 12, version: true })}`;
+      name += `_${await hash({ image, name, ports, env, networkEnabled, postCreateCommands, osType, CORE_VERSION }, { length: 12, version: true })}`;
     } else {
       name += `_${generateId()}`;
     }
@@ -368,7 +369,7 @@ export class DockerManager {
     name: string,
     hostPath: string,
   ): Promise<ContainerHost> {
-    const { trace, persistent } = options;
+    const { trace, persistent, osType = "unix" } = options;
     const dbgc = name ? dbg.extend(name) : dbg;
     const runtimeHost = resolveRuntimeHost();
 
@@ -436,7 +437,10 @@ export class DockerManager {
       }
 
       const { cwd: userCwd, label } = options || {};
-      const cwd = "/" + posix.join(DOCKER_CONTAINER_VOLUME, userCwd || ".");
+      // Use appropriate path separator based on container OS type
+      const pathJoin = osType === "windows" ? win32.join : posix.join;
+      const pathSeparator = osType === "windows" ? "\\" : "/";
+      const cwd = pathSeparator + pathJoin(DOCKER_CONTAINER_VOLUME, userCwd || ".");
 
       try {
         trace?.startDetails(`📦 ▶️ container exec: ${userCwd || ""}> ${label || command}`);
