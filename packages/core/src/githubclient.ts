@@ -1154,14 +1154,84 @@ export class GitHubClient implements GitHub {
   ): Promise<GitHubIssue> {
     const { client, owner, repo } = await this.api();
     dbg(`create issue`);
+    
+    // Extract parentIssue from options before passing to REST API
+    const { parentIssue, ...restOptions } = options || {};
+    
     const { data } = await client.rest.issues.create({
-      ...(options || {}),
+      ...restOptions,
       owner,
       repo,
       title,
       body: prettifyMarkdown(dedent(body)),
     });
+    
+    // If parentIssue is specified, add this issue as a sub-issue
+    if (parentIssue !== undefined) {
+      await this.addSubIssue(parentIssue, data.number);
+    }
+    
     return data;
+  }
+
+  /**
+   * Adds an issue as a sub-issue to a parent issue
+   * @param parentIssueNumber - The parent issue number
+   * @param childIssueNumber - The child issue number
+   */
+  private async addSubIssue(
+    parentIssueNumber: number | string,
+    childIssueNumber: number | string,
+  ): Promise<void> {
+    const parentNumber = normalizeInt(parentIssueNumber);
+    const childNumber = normalizeInt(childIssueNumber);
+    
+    if (isNaN(parentNumber) || isNaN(childNumber)) {
+      dbg(`invalid parent issue number ${parentIssueNumber} or child issue number ${childIssueNumber}`);
+      return;
+    }
+
+    try {
+      dbg(`adding issue #${childNumber} as sub-issue to #${parentNumber}`);
+      
+      // Get the parent issue to access its node_id
+      const parentIssue = await this.getIssue(parentNumber);
+      if (!parentIssue) {
+        dbg(`parent issue #${parentNumber} not found`);
+        return;
+      }
+
+      // Get the child issue to access its node_id
+      const childIssue = await this.getIssue(childNumber);
+      if (!childIssue) {
+        dbg(`child issue #${childNumber} not found`);
+        return;
+      }
+
+      // Use GraphQL to create the parent-child relationship
+      // GitHub uses task lists and sub-issues through their API
+      const mutation = dedent`mutation($parentId: ID!, $childId: ID!) {
+        createTaskListItem(input: {
+          issueId: $parentId,
+          subjectId: $childId
+        }) {
+          taskListItem {
+            id
+            state
+          }
+        }
+      }`;
+
+      await this.graphql(mutation, {
+        parentId: parentIssue.node_id,
+        childId: childIssue.node_id,
+      });
+
+      dbg(`successfully added issue #${childNumber} as sub-issue to #${parentNumber}`);
+    } catch (error) {
+      dbg(`failed to add sub-issue relationship: ${error}`);
+      // Don't throw - we still want the issue creation to succeed even if sub-issue linking fails
+    }
   }
 
   async updateIssue(
