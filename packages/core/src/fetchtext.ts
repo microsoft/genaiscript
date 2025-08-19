@@ -57,17 +57,17 @@ export async function fetchText(
   let bytes: Uint8Array;
   if (/^https?:\/\//i.test(url)) {
     dbg("requesting external URL: %s", uriRedact(url));
-    
+
     // Check if domain is allowed for HTTP/HTTPS requests
     const urlObj = new URL(url);
     const config = runtimeHost.config;
-    
-    if (!isDomainAllowed(urlObj.hostname, { allowedDomains: config?.allowedDomains })) {
-      const errorMsg = createDomainBlockedError(urlObj.hostname, { allowedDomains: config?.allowedDomains });
+
+    if (!isDomainAllowed(urlObj.hostname, config)) {
+      const errorMsg = createDomainBlockedError(urlObj.hostname, config);
       dbg(`domain blocked: %s`, errorMsg);
       throw new Error(errorMsg);
     }
-    
+
     const f = await createFetch({
       retries,
       retryDelay,

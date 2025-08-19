@@ -485,7 +485,7 @@
   excludedSystem?: ElementOrArray<SystemPromptId>;
 
   /**
-   * Keywords that will 'activate' the system script. When these keywords are found in the prompt source, 
+   * Keywords that will 'activate' the system script. When these keywords are found in the prompt source,
    * the system script will be automatically imported.
    */
   activation?: ElementOrArray<string>;
@@ -4590,7 +4590,9 @@
   maxTokens?: number;
 }
 
- type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">> | string;
+ type McpAgentServersConfig =
+  | Record<string, Omit<McpAgentServerConfig, "id" | "options">>
+  | string;
 
  type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 
@@ -5297,14 +5299,7 @@
   convert?: "markdown" | "text" | "tables";
 };
 
- interface PromptHost
-  extends ShellHost,
-    LoggerHost,
-    McpHost,
-    ResourceHost,
-    UserInterfaceHost,
-    LanguageModelHost,
-    ContentSafetyHost {
+ interface FetchHost {
   /**
    * A fetch wrapper with proxy, retry and timeout handling.
    */
@@ -5324,7 +5319,17 @@
     text?: string;
     file?: WorkspaceFile;
   }>;
+}
 
+ interface PromptHost
+  extends ShellHost,
+    LoggerHost,
+    McpHost,
+    ResourceHost,
+    UserInterfaceHost,
+    LanguageModelHost,
+    ContentSafetyHost,
+    FetchHost {
   /**
    * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
    * @param cacheName

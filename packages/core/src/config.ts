@@ -46,7 +46,10 @@ export function mergeHostConfigs(
     modelAliases: structuralMerge(config?.modelAliases || {}, parsed?.modelAliases || {}),
     modelEncodings: structuralMerge(config?.modelEncodings || {}, parsed?.modelEncodings || {}),
     secretScanners: structuralMerge(config?.secretPatterns || {}, parsed?.secretPatterns || {}),
-    allowedDomains: structuralMerge(config?.allowedDomains || [], parsed?.allowedDomains || []),
+    allowedDomains: uniq([
+      ...arrayify(config?.allowedDomains),
+      ...arrayify(parsed?.allowedDomains),
+    ]),
   });
 }
 
@@ -172,12 +175,12 @@ export async function readHostConfig(
     }
   }
   await parseDefaultsFromEnv(process.env);
-  
+
   // Parse allowed domains from environment if not set in config file
   if (!config.allowedDomains || config.allowedDomains.length === 0) {
     config.allowedDomains = parseAllowedDomains(process.env);
   }
-  
+
   return config;
 }
 
