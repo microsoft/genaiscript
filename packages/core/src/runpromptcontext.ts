@@ -94,6 +94,7 @@ import { toBase64 } from "./base64.js";
 import { consoleColors } from "./consolecolor.js";
 import { terminalSize } from "./terminal.js";
 import { stderr, stdout } from "./stdio.js";
+import { isQuiet } from "./quiet.js";
 import { dotGenaiscriptPath } from "./workdir.js";
 import { prettyBytes } from "./pretty.js";
 import { createCache } from "./cache.js";
@@ -1098,7 +1099,7 @@ export function createChatGenerationContext(
       const filename = dotGenaiscriptPath("image", h + "." + ext);
       await runtimeHost.writeFile(filename, buf);
 
-      if (consoleColors) {
+      if (consoleColors && !isQuiet) {
         const size = terminalSize();
         stderr.write(
           await renderImageToTerminal(buf, {

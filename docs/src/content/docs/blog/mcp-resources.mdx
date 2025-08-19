@@ -151,6 +151,36 @@ await host.resolveResource("https://github.com/user/repo.git/path/to/file");
 await host.resolveResource("vscode://vsls-contrib.gistfs/open?gist=123&file=script.js");
 ```
 
+## System Resource Tools
+
+GenAIScript provides built-in tools for working with resources through the `system.resources` system script. These tools make it easy to list and read resources in your scripts:
+
+### `resource_list`
+
+Lists all available resources from the host, returning their URIs and descriptions.
+
+```js
+script({
+    system: ["system.resources"]
+})
+
+$`Use the resource_list tool to see what resources are available, then read one of them.`
+```
+
+### `resource_read`
+
+Reads content from a URL using the same resolution logic as `host.resolveResource`. Supports all the URL patterns mentioned above.
+
+```js
+script({
+    system: ["system.resources"]
+})
+
+$`Use the resource_read tool to read the content from https://raw.githubusercontent.com/microsoft/genaiscript/main/README.md`
+```
+
+The tool automatically handles content formatting, binary detection, and multiple files.
+
 ## Next steps
 
 Are you ready to build your own MCP tools and resources?
