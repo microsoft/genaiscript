@@ -108,9 +108,9 @@ describe("llmdiff", () => {
 [19]     static byName<K, V>(name: string): JSONLineCache<K, V> {
 [20]         name = name.replace(/[^a-z0-9_]/gi, "_") // Sanitize cache name
 [21]         const key = "cacheKV." + name
-[22]         if (host.userState[key]) return host.userState[key]
+[22]         if (runtimeHost.userState[key]) return runtimeHost.userState[key]
 [23]         const r = new JSONLineCache<K, V>(name)
-[24]         host.userState[key] = r
+[24]         runtimeHost.userState[key] = r
 [25]         return r
 [26]     }
 [27] 
@@ -120,13 +120,13 @@ describe("llmdiff", () => {
 [31]     }
 [32]     // Returns the full file path for the cache data
 [33]     private path() {
-[34]         return host.resolvePath(this.folder(), "db.jsonl")
+[34]         return runtimeHost.resolvePath(this.folder(), "db.jsonl")
 [35]     }
 [36]     // Initializes the cache entries from the JSONL file
 [37]     private async initialize() {
 [38]         if (this._entries) return
 [39]         this._entries = {}
-[40]         await host.createDirectory(this.folder())
+[40]         await runtimeHost.createDirectory(this.folder())
 [41]         const objs: CacheEntry<K, V>[] = await readJSONL(this.path())
 [42]         let numdup = 0
 [43]         for (const obj of objs) {
@@ -197,7 +197,7 @@ describe("llmdiff", () => {
 
   test("insert after incorrect line description", () => {
     const source = `[1] import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
-[2] import { host, runtimeHost } from "./host"
+[2] import { runtimeHost } from "./host"
 [3] import { dotGenaiscriptPath, sha256string } from "./util"
 [4] import { CHANGE } from "./constants"
 [5] import { TraceOptions } from "./trace"
@@ -214,9 +214,9 @@ describe("llmdiff", () => {
 [16]     static byName<K, V>(name: string): JSONLineCache<K, V> {
 [17]         name = name.replace(/[^a-z0-9_]/gi, "_")
 [18]         const key = "cacheKV." + name
-[19]         if (host.userState[key]) return host.userState[key]
+[19]         if (runtimeHost.userState[key]) return runtimeHost.userState[key]
 [20]         const r = new JSONLineCache<K, V>(name)
-[21]         host.userState[key] = r
+[21]         runtimeHost.userState[key] = r
 [22]         return r
 [23]     }
 [24] 
@@ -224,12 +224,12 @@ describe("llmdiff", () => {
 [26]         return dotGenaiscriptPath("cache", this.name)
 [27]     }
 [28]     private path() {
-[29]         return host.resolvePath(this.folder(), "db.jsonl")
+[29]         return runtimeHost.resolvePath(this.folder(), "db.jsonl")
 [30]     }
 [31]     private async initialize() {
 [32]         if (this._entries) return
 [33]         this._entries = {}
-[34]         await host.createDirectory(this.folder())
+[34]         await runtimeHost.createDirectory(this.folder())
 [35]         const objs: CacheEntry<K, V>[] = await readJSONL(this.path())
 [36]         let numdup = 0
 [37]         for (const obj of objs) {
