@@ -1,8 +1,7 @@
 script({
-    title: "Test MCP Read Resource System Script",
+    title: "MCP Read Resource System Script",
     description: "Test script to validate the new mcp_read_resource system tool",
-    model: "echo", // Use echo model for testing without API calls
-    system: ["system.mcp_read_resource"],
+    system: ["system.resource_read"],
 })
 
 // Test the mcp_read_resource tool with a simple URL

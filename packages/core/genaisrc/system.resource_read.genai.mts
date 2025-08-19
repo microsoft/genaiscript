@@ -6,10 +6,10 @@ system({
 export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
-    const dbg = host.logger("genaiscript:mcp:read_resource")
+    const dbg = host.logger("genaiscript:res:read")
 
     defTool(
-        "mcp_read_resource",
+        "resource_read",
         "Read the content of a resource from a URL. Resolves various protocols and returns the content of the files found at the URL.",
         {
             type: "object",
