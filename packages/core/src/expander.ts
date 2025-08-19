@@ -47,6 +47,9 @@ import type {
   ToolCallback,
 } from "./types.js";
 import { genaiscriptDebug } from "./debug.js";
+import { readJSON } from "./fs.js";
+import { resolve } from "node:path";
+import type { McpServerConfig } from "./types.js";
 const dbg = genaiscriptDebug("expander");
 
 /**
@@ -293,17 +296,55 @@ export async function expandTemplate(
   env.meta.model = model;
   Object.freeze(env.meta);
 
+  // Override MCP configuration if --mcps option is provided
+  let expandTemplate = template;
+  if (options.mcps) {
+    trace?.startDetails("🔧 mcps override", { expanded: false });
+    try {
+      const configPath = resolve(options.mcps);
+      const config = await readJSON(configPath);
+      if (typeof config === "object" && config !== null) {
+        let mcpServers: Record<string, Omit<McpServerConfig, "id" | "options">> | undefined;
+        
+        // Support both Claude format with root mcpServers field and direct format
+        if (config.mcpServers && typeof config.mcpServers === "object") {
+          mcpServers = config.mcpServers as Record<string, Omit<McpServerConfig, "id" | "options">>;
+        } else if (typeof config === "object" && !config.mcpServers) {
+          // Direct format - assume the root object is the mcpServers config
+          mcpServers = config as Record<string, Omit<McpServerConfig, "id" | "options">>;
+        } else {
+          throw new Error(`Invalid MCP server configuration format in ${configPath}. Configuration must have a root 'mcpServers' field or be a direct mcpServers object.`);
+        }
+        
+        // Create a new template with the overridden configuration
+        expandTemplate = {
+          ...template,
+          mcpServers,
+        };
+        
+        trace?.item(`Overridden MCP configuration with ${Object.keys(mcpServers).length} servers from ${configPath}`);
+        trace?.fence(mcpServers, "json");
+      } else {
+        throw new Error(`Invalid MCP server configuration format in ${configPath}`);
+      }
+    } catch (error) {
+      trace?.error("Failed to load MCP configuration", error);
+      throw new Error(`Failed to load MCP server configuration from ${options.mcps}: ${error}`);
+    }
+    trace?.endDetails();
+  }
+
   trace?.startDetails("💾 script", { expanded: true });
 
   traceEnv(model, trace, env);
 
   trace?.startDetails("🧬 prompt", { expanded: true });
-  if (template.filename) trace?.item(template.filename);
-  trace?.detailsFenced("💻 script source", template.jsSource, "js");
+  if (expandTemplate.filename) trace?.item(expandTemplate.filename);
+  trace?.detailsFenced("💻 script source", expandTemplate.jsSource, "js");
 
   const prompt = await callExpander(
     prj,
-    template,
+    expandTemplate,
     env,
     {
       ...options,
@@ -359,13 +400,13 @@ export async function expandTemplate(
     trace?.fence(content, "markdown");
   };
 
-  const systems = resolveSystems(prj, template, tools);
+  const systems = resolveSystems(prj, expandTemplate, tools);
   if (systems.length)
     if (messages[0].role === "system")
       // there's already a system message. add empty before
       messages.unshift({ role: "system", content: "" });
 
-  if (addFallbackToolSystems(systems, tools, template, options)) {
+  if (addFallbackToolSystems(systems, tools, expandTemplate, options)) {
     dbg("added fallback tools");
     assert(!Object.isFrozen(options));
     options.fallbackTools = true;
@@ -434,7 +475,7 @@ export async function expandTemplate(
   }
 
   const { responseType, responseSchema } = finalizeMessages(model, messages, {
-    ...template,
+    ...expandTemplate,
     fileOutputs,
     trace,
   });

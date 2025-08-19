@@ -1,5 +1,4 @@
 script({
-  model: "echo",
   tests: {},
 });
 

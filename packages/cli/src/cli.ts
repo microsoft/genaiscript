@@ -194,6 +194,10 @@ export async function cli(): Promise<void> {
       "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls",
     )
     .option(
+      "--mcps <string>",
+      "path to MCP configuration file to override the script's MCP list",
+    )
+    .option(
       "-o, --out <string>",
       "output folder. Extra markdown fields for output and trace will also be generated",
     )
@@ -210,6 +214,7 @@ export async function cli(): Promise<void> {
     )
     .option("--out-changelog <string>", "output file for changelogs");
   addPullRequestOptions(run)
+    .option("--issue", "create a GitHub issue with the generation output")
     .option("--teams-message", "Posts a message to the teams channel")
     .option("-j, --json", "emit full JSON response to output")
     .option(`--fail-on-errors`, `fails on detected annotation error`)
@@ -281,6 +286,7 @@ export async function cli(): Promise<void> {
     .option("--out-summary <file>", "append output summary in file");
   addGroupsOptions(testRun)
     .option("--test-timeout <number>", "test timeout in seconds")
+    .option("--filter-model <string>", "filter scripts by model specified in script() function")
     .action(scriptsTest); // Action to run the tests
 
   // List available tests
@@ -289,7 +295,9 @@ export async function cli(): Promise<void> {
     .alias("ls")
     .description("List available tests in workspace")
     .option("--redteam", "list red team tests");
-  addGroupsOptions(testList).action(scriptTestList); // Action to list the tests
+  addGroupsOptions(testList)
+    .option("--filter-model <string>", "filter scripts by model specified in script() function")
+    .action(scriptTestList); // Action to list the tests
 
   // Launch test viewer
   test.command("view").description("Launch test viewer").action(scriptTestsView); // Action to view the tests

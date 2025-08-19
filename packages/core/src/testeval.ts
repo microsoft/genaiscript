@@ -1,5 +1,6 @@
 import { arrayify } from "./cleaners.js";
 import { genaiscriptDebug } from "./debug.js";
+import { errorMessage } from "./error.js";
 import { GROQEvaluate } from "./groq.js";
 import { levenshteinDistance } from "./levenshtein.js";
 import type { PromptScriptRunOptions, GenerationResult } from "./server/messages.js";
@@ -18,12 +19,12 @@ export async function evaluateTestResult(
 ): Promise<string | undefined> {
   const { script, test } = config;
   const { id } = script;
-  const { status, error, text } = result;
+  const { status, error, text } = result || { status: "error", error: "missing result" };
 
   dbg(`evaluating test: %s %s`, id, test.description);
   if (error) {
     dbg(`error: %O`, error);
-    return `error: ${error.message}`;
+    return `error: ${errorMessage(error)}`;
   }
   if (status !== "success") {
     dbg(`status: %s`, status);

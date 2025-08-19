@@ -1,7 +1,7 @@
 {
   "name": "@genaiscript/plugin-pyodide",
   "private": false,
-  "version": "2.3.13",
+  "version": "2.3.15",
   "main": "./dist/commonjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/commonjs/index.d.ts",
@@ -16,7 +16,7 @@
   "dependencies": {
     "@genaiscript/core": "workspace:*",
     "@genaiscript/runtime": "workspace:*",
-    "pyodide": "^0.28.0"
+    "pyodide": "0.28.0"
   },
   "devDependencies": {
     "@genaiscript/eslint-plugin-genaiscript": "workspace:*",

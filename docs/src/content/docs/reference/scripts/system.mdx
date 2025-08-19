@@ -465,12 +465,20 @@ system({
         command: {
             type: "string",
             description: "The command to run the MCP server.",
-            required: true,
         },
         args: {
             type: "array",
             items: { type: "string" },
             description: "The arguments to pass to the command.",
+        },
+        url: {
+            type: "string",
+            description: "The URL to connect to for HTTP/WebSocket/SSE transports.",
+        },
+        type: {
+            type: "string",
+            description: "The transport type ('stdio', 'http', or 'sse').",
+            enum: ["stdio", "http", "sse"],
         },
         version: {
             type: "string",
@@ -520,6 +528,8 @@ export default function (ctx: ChatGenerationContext) {
     const description = vars["system.agent_mcp.description"] as string
     const command = vars["system.agent_mcp.command"] as string
     const args = (vars["system.agent_mcp.args"] as string[]) || []
+    const url = vars["system.agent_mcp.url"] as string
+    const type = vars["system.agent_mcp.type"] as "stdio" | "http" | "sse"
     const version = vars["system.agent_mcp.version"] as string
     const instructions = vars["system.agent_mcp.instructions"] as string
     const maxTokens = vars["system.agent_mcp.maxTokens"] as number
@@ -534,12 +544,14 @@ export default function (ctx: ChatGenerationContext) {
 
     if (!id) throw new Error("Missing required parameter: id")
     if (!description) throw new Error("Missing required parameter: description")
-    if (!command) throw new Error("Missing required parameter: command")
+    if (!command && !url) throw new Error("Missing required parameter: either command or url must be provided")
 
     const configs = {
         [id]: {
             command,
             args,
+            url,
+            type,
             version,
             toolsSha,
             contentSafety,
@@ -1825,6 +1837,78 @@ export default function (ctx: ChatGenerationContext) {
 `````
 
 
+### `system.fs_write_file`
+
+File Write File
+
+Function to write text content to a file within the workspace.
+
+-  tool `fs_write_file`: Writes text content to a file in the workspace. The file will be created if it doesn't exist, and parent directories will be created as needed. Only files within the current workspace are allowed to be written.
+
+`````js wrap title="system.fs_write_file"
+system({
+  title: "File Write File",
+  description: "Function to write text content to a file within the workspace.",
+});
+
+export default function (ctx: ChatGenerationContext) {
+  const { defTool } = ctx;
+
+  defTool(
+    "fs_write_file",
+    "Writes text content to a file in the workspace. The file will be created if it doesn't exist, and parent directories will be created as needed. Only files within the current workspace are allowed to be written.",
+    {
+      type: "object",
+      properties: {
+        filename: {
+          type: "string",
+          description:
+            "Path of the file to write, relative to the workspace root. Must be within the workspace boundary.",
+        },
+        content: {
+          type: "string",
+          description: "Text content to write to the file.",
+        },
+        append: {
+          type: "boolean",
+          description:
+            "If true, append content to the file instead of overwriting. Defaults to false.",
+          default: false,
+        },
+      },
+      required: ["filename", "content"],
+    },
+    async (args) => {
+      const { filename, content, append, context } = args;
+
+      if (!filename) return "<MISSING>filename</MISSING>";
+      if (content === undefined || content === null) return "<MISSING>content</MISSING>";
+
+      try {
+        context.log(`${append ? "append" : "write"} ${filename}`);
+
+        if (append) {
+          await workspace.appendText(filename, content);
+        } else {
+          await workspace.writeText(filename, content);
+        }
+
+        return `File ${filename} ${append ? "appended" : "written"} successfully`;
+      } catch (e) {
+        const error = e instanceof Error ? e.message : String(e);
+        context.log(`Error writing to ${filename}: ${error}`);
+        return `<ERROR>Failed to write file: ${error}</ERROR>`;
+      }
+    },
+    {
+      maxTokens: 1000,
+    },
+  );
+}
+
+`````
+
+
 ### `system.git`
 
 git read operations
@@ -2814,12 +2898,20 @@ system({
         command: {
             type: "string",
             description: "The command to run the MCP server.",
-            required: true,
         },
         args: {
             type: "array",
             items: { type: "string" },
             description: "The arguments to pass to the command.",
+        },
+        url: {
+            type: "string",
+            description: "The URL to connect to for HTTP/WebSocket/SSE transports.",
+        },
+        type: {
+            type: "string",
+            description: "The transport type ('stdio', 'http', or 'sse').",
+            enum: ["stdio", "http", "sse"],
         },
         version: {
             type: "string",
@@ -2863,6 +2955,8 @@ export default function (ctx: ChatGenerationContext) {
     const id = vars["system.mcp.id"] as string
     const command = vars["system.mcp.command"] as string
     const args = (vars["system.mcp.args"] as string[]) || []
+    const url = vars["system.mcp.url"] as string
+    const type = vars["system.mcp.type"] as "stdio" | "http" | "sse"
     const version = vars["system.mcp.version"] as string
     const maxTokens = vars["system.mcp.maxTokens"] as number
     const toolsSha = vars["system.mcp.toolsSha"] as string
@@ -2875,11 +2969,13 @@ export default function (ctx: ChatGenerationContext) {
     const intent = vars["system.mcp.intent"]
     const _env = vars["system.mcp.env"] as Record<string, string> | undefined
     if (!id) throw new Error("Missing required parameter: id")
-    if (!command) throw new Error("Missing required parameter: command")
+    if (!command && !url) throw new Error("Missing required parameter: either command or url must be provided")
 
     const config = {
         command,
         args,
+        url,
+        type,
         version,
         toolsSha,
         contentSafety,

@@ -47,7 +47,7 @@ dbgMessages.enabled = false;
 export const OpenAIChatCompletion: ChatCompletionHandler = async (req, cfg, options, trace) => {
   //const { provider } = parseModelIdentifier(req.model);
   // const features = providerFeatures(provider);
-  const useResponsesApi = !!process.env.OPENAI_RESPONSES; // features?.responsesApi;
+  const useResponsesApi = cfg.type === "responses";
   if (useResponsesApi) return OpenAIv2ResponsesChatCompletion(req, cfg, options, trace);
   else return OpenAIv1ChatCompletion(req, cfg, options, trace);
 };

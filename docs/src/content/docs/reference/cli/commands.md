@@ -3,70 +3,6 @@ title: Commands
 description: List of all CLI commands
 sidebar:
   order: 100
-llmstxt:
-  content: >-
-    genaiscript CLI provides commands for configuring, running, testing, and
-    managing scripts with LLMs. Key commands include:
-
-
-    `configure`: Set up LLM providers or GitHub Actions. Use `llm` for provider
-    configuration and `action` for GitHub Action setup with options for Docker,
-    Python, ffmpeg, and more.
-
-
-    `run`: Execute scripts on files with options for model selection, reasoning
-    effort, caching, retries, and output customization.
-
-
-    `runs`: Manage previous runs. Use `list` to view reports.
-
-
-    `test`: Test scripts with options for red team tests, concurrency, and
-    output summaries. `list` shows available tests, and `view` launches the test
-    viewer.
-
-
-    `convert`: Process files through scripts, saving outputs with customizable
-    suffixes or rewriting originals.
-
-
-    `scripts`: Manage scripts. `list` shows available scripts, `create`
-    generates new ones, `fix` enables type checking, and `compile` builds
-    scripts.
-
-
-    `cache`: Clear cache with `clear`.
-
-
-    `video`: Perform video tasks like metadata probing, audio extraction, and
-    frame extraction.
-
-
-    `retrieval`: Index and search files using vector embeddings or string
-    distance.
-
-
-    `serve`: Start a local server with options for API key authentication, CORS,
-    and OpenAI-compatible routes.
-
-
-    `mcp`: Launch a Model Context Protocol server to expose scripts as tools.
-
-
-    `webapi`: Start a REST API server exposing scripts as OpenAPI endpoints.
-
-
-    `parse`: Parse and process files, including data conversion, token counting,
-    PDF/DOCX/HTML parsing, and secret scanning.
-
-
-    `info`: Display system and environment information.
-
-
-    `models`: List available models and their aliases. Use `alias` to view or
-    test model alias mappings.
-  hash: 5bdf165f7f93c46f36e6a6b907316f8e2e754415fcfcd7c5b8b57ab59c0d9de1
-
 ---
 
 A full list of the CLI command and its respective help text.
@@ -146,6 +82,7 @@ Options:
   -e, --excluded-files <string...>         excluded files
   --ignore-git-ignore                      by default, files ignored by .gitignore are excluded. disables this mode
   --fallback-tools                         Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls
+  --mcps <string>                          path to MCP configuration file to override the script's MCP list
   -o, --out <string>                       output folder. Extra markdown fields for output and trace will also be generated
   --remove-out                             remove output folder if it exists
   --out-trace <string>                     output file for trace
@@ -271,6 +208,8 @@ Options:
   -g, --groups <groups...>       groups to include or exclude. Use :! prefix to
                                  exclude
   --test-timeout <number>        test timeout in seconds
+  --filter-model <string>        filter scripts by model specified in script()
+                                 function
   -h, --help                     display help for command
 ```
 
@@ -285,6 +224,8 @@ Options:
   --redteam                 list red team tests
   -g, --groups <groups...>  groups to include or exclude. Use :! prefix to
                             exclude
+  --filter-model <string>   filter scripts by model specified in script()
+                            function
   -h, --help                display help for command
 ```
 

@@ -1,8 +1,8 @@
 script({
   ignoreGitIgnore: true,
-  files: ".genaiscript/.gitignore",
+  files: "node_modules/test-package/package.json",
   tests: {},
-  model: "echo",
+  model: "none",
   group: "commit",
 });
 

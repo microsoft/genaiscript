@@ -192,15 +192,15 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
 
     this.status = "starting";
     const config = this.state.getConfiguration();
-    const diagnostics = this.state.diagnostics;    
+    const diagnostics = this.state.diagnostics;
     const debug = diagnostics ? "*" : this.state.debug;
     const hideFromUser = !diagnostics && !!config.get("hideServerTerminal");
     const disableTrace = config.get("disableTrace") ? "--no-run-trace" : "";
     const quiet = config.get("quiet") ? "--quiet" : "";
-    const cwd =  this.state.host.projectFolder();
+    const cwd = this.state.host.projectFolder();
     await this.allocatePort();
     logVerbose(`starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`);
-    const { cliPath, cliVersion, packageManager } = await resolveCli(this.state);
+    const { cliPath, cliVersion, packageManager, nodeOptions } = await resolveCli(this.state);
     const githubCopilotChatClient = isLanguageModelsAvailable()
       ? "--github-copilot-chat-client"
       : "";
@@ -216,6 +216,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
         GENAISCRIPT_API_KEY: this.state.sessionApiKey,
         DEBUG: debug,
         DEBUG_COLORS: "1",
+        NODE_OPTIONS: nodeOptions,
       }),
       hideFromUser,
     });

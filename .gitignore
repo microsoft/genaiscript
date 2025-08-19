@@ -8,6 +8,9 @@ temp/
 __pycache__/
 packages/sample/*.slides.md
 packages/**/.genaiscript/
+.genaiscript/stats/
+.genaiscript/test-runs/
+.genaiscript/tests/
 
 vscode-extension-samples/
 .DS_Store
@@ -123,6 +126,7 @@ ruler_aider_instructions.md.bak
 # END Ruler Generated Files
 
 packages/*/src/package.json
+packages/core/test/test.txt
 
 .cursor/mcp.json
 .gemini/settings.json
