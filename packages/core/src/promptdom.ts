@@ -836,7 +836,7 @@ async function resolvePromptNode(
         names.add(n.name);
         const value = await n.value;
         n.resolved = value;
-        n.resolved.content = extractRange(n.resolved.content, n);
+        n.resolved.content = extractRange(n.resolved.content, n, encoder);
         const rendered = renderDefNode(n);
         n.preview = rendered;
         n.tokens = approximateTokens(rendered);
@@ -1344,7 +1344,7 @@ export async function renderPromptNode(
           else
             prediction = {
               type: "content",
-              content: extractRange(value.content, n),
+              content: extractRange(value.content, n, encoder),
             };
         }
       }

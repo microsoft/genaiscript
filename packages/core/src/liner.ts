@@ -7,6 +7,8 @@
 import { llmifyDiff } from "./llmdiff.js";
 import { MIN_LINE_NUMBER_LENGTH } from "./constants.js";
 import { tryDiffParse } from "./diff.js";
+import type { RangeOptions, TokenEncoder } from "./types.js";
+import { approximateTokens } from "./tokens.js";
 
 /**
  * Adds 1-based line numbers to each line of the input text.
@@ -55,19 +57,172 @@ export function removeLineNumbers(text: string) {
  * Extracts a line range from the text using 1-based inclusive line numbers.
  *
  * @param text - The input text from which to extract the range.
- * @param options - An object specifying the line range.
- *   - lineStart: The 1-based starting line number of the range.
- *   - lineEnd: The 1-based ending line number of the range.
+ * @param options - Range options specifying line numbers or center line.
+ * @param encoder - Optional token encoder for accurate token counting.
  * @returns The extracted range of text or the original text if no valid range is provided.
  */
-export function extractRange(text: string, options?: { lineStart?: number; lineEnd?: number }) {
-  const { lineStart, lineEnd } = options || {};
-  if (isNaN(lineStart) && isNaN(lineEnd)) return text;
+export function extractRange(text: string, options?: RangeOptions, encoder?: TokenEncoder) {
+  const { lineStart, lineEnd, line, maxTokens } = options || {};
+  
+  // Handle existing lineStart/lineEnd logic first (takes priority)
+  if (!isNaN(lineStart) || !isNaN(lineEnd)) {
+    const lines = text.split("\n");
+    const startLine = lineStart || 1;
+    const endLine = lineEnd || lines.length;
+    return lines.slice(startLine - 1, endLine).join("\n");
+  }
+  
+  // Handle center line option if lineStart/lineEnd not provided
+  if (!isNaN(line)) {
+    return extractRangeAroundLine(text, line, maxTokens, encoder);
+  }
+  
+  // If no valid range is provided, return original text
+  return text;
+}
 
+/**
+ * Extracts a dynamic range around a center line.
+ * The range size is calculated based on maxTokens budget and file size.
+ * 
+ * @param text - The input text from which to extract the range.
+ * @param centerLine - The 1-based center line number.
+ * @param maxTokens - Optional maximum token budget for the extracted range.
+ * @param encoder - Optional token encoder for accurate token counting.
+ * @returns The extracted range of text around the center line.
+ */
+export function extractRangeAroundLine(
+  text: string, 
+  centerLine: number, 
+  maxTokens?: number,
+  encoder?: TokenEncoder
+): string {
   const lines = text.split("\n");
-  const startLine = lineStart || 1;
-  const endLine = lineEnd || lines.length;
+  const totalLines = lines.length;
+  
+  // Validate center line
+  if (centerLine < 1 || centerLine > totalLines) {
+    return text; // Return original text if center line is out of bounds
+  }
+  
+  // If maxTokens budget is specified, compute range based on token constraints
+  if (maxTokens && maxTokens > 0) {
+    return extractRangeWithTokenBudget(lines, centerLine, maxTokens, encoder);
+  }
+  
+  // Fallback to dynamic range based on file size
+  const contextLines = calculateContextLines(totalLines);
+  
+  // Calculate start and end lines around center
+  const startLine = Math.max(1, centerLine - contextLines);
+  const endLine = Math.min(totalLines, centerLine + contextLines);
+  
+  // Extract the range (convert to 0-based indexing for slice)
+  // Note: slice(start, end) where end is exclusive position, not length
   return lines.slice(startLine - 1, endLine).join("\n");
+}
+
+/**
+ * Extracts a range around a center line based on a token budget.
+ * Expands symmetrically around the center line until the token budget is reached.
+ * 
+ * @param lines - Array of text lines.
+ * @param centerLine - The 1-based center line number.
+ * @param maxTokens - Maximum token budget for the extracted range.
+ * @param encoder - Optional token encoder for accurate counting.
+ * @returns The extracted range of text that fits within the token budget.
+ */
+function extractRangeWithTokenBudget(
+  lines: string[], 
+  centerLine: number, 
+  maxTokens: number, 
+  encoder?: TokenEncoder
+): string {
+  const totalLines = lines.length;
+  const centerIndex = centerLine - 1; // Convert to 0-based index
+  
+  // Start with just the center line
+  let startIndex = centerIndex;
+  let endIndex = centerIndex;
+  let currentContent = lines[centerIndex];
+  let currentTokens = approximateTokens(currentContent, { encoder });
+  
+  // If center line already exceeds budget, return just that line
+  if (currentTokens >= maxTokens) {
+    return currentContent;
+  }
+  
+  // Expand around the center line alternately (up and down)
+  let expandUp = true;
+  
+  while (currentTokens < maxTokens) {
+    let nextStartIndex = startIndex;
+    let nextEndIndex = endIndex;
+    
+    if (expandUp && startIndex > 0) {
+      // Try expanding upward
+      nextStartIndex = startIndex - 1;
+    } else if (!expandUp && endIndex < totalLines - 1) {
+      // Try expanding downward  
+      nextEndIndex = endIndex + 1;
+    } else if (startIndex > 0) {
+      // If can't expand in preferred direction, try the other
+      nextStartIndex = startIndex - 1;
+    } else if (endIndex < totalLines - 1) {
+      nextEndIndex = endIndex + 1;
+    } else {
+      // Can't expand further in either direction
+      break;
+    }
+    
+    // Compute content for the new range
+    const nextContent = lines.slice(nextStartIndex, nextEndIndex + 1).join("\n");
+    
+    const nextTokens = approximateTokens(nextContent, { encoder });
+    
+    // If adding this line would exceed the budget, stop expanding
+    if (nextTokens > maxTokens) {
+      break;
+    }
+    
+    // Accept the expansion
+    currentContent = nextContent;
+    currentTokens = nextTokens;
+    startIndex = nextStartIndex;
+    endIndex = nextEndIndex;
+    
+    // Alternate expansion direction for next iteration
+    expandUp = !expandUp;
+  }
+  
+  return currentContent;
+}
+
+/**
+ * Calculates the number of context lines to include around a center line
+ * based on the total file size and other factors.
+ * 
+ * @param totalLines - Total number of lines in the file.
+ * @returns Number of lines to include on each side of the center line.
+ */
+function calculateContextLines(totalLines: number): number {
+  // Dynamic calculation based on file size
+  if (totalLines <= 20) {
+    // For very small files, include most content
+    return Math.floor(totalLines / 2);
+  } else if (totalLines <= 100) {
+    // For small files, include a reasonable chunk
+    return 15;
+  } else if (totalLines <= 500) {
+    // For medium files, focus on the area around the line
+    return 25;
+  } else if (totalLines <= 2000) {
+    // For large files, be more conservative
+    return 50;
+  } else {
+    // For very large files, be very conservative
+    return 75;
+  }
 }
 
 /**

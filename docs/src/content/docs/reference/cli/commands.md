@@ -93,6 +93,7 @@ Options:
   -n, --pull-request-comment [string]      create comment on a pull request with a unique id (defaults to script id)
   -d, --pull-request-description [string]  create comment on a pull request description with a unique id (defaults to script id)
   -r, --pull-request-reviews               create pull request reviews from annotations
+  --issue                                  create a GitHub issue with the generation output
   --teams-message                          Posts a message to the teams channel
   -j, --json                               emit full JSON response to output
   --fail-on-errors                         fails on detected annotation error

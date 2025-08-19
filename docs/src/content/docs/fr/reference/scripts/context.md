@@ -178,6 +178,51 @@ en définissant `ignoreEmpty` à `true`.
 def("FILE", env.files, { endsWith: ".md", ignoreEmpty: true })
 ```
 
+### Extraction basée sur les lignes
+
+Vous pouvez extraire du contenu autour d'un numéro de ligne spécifique en utilisant l'option `line`. Ceci est particulièrement utile lorsque vous voulez vous concentrer sur une zone d'intérêt spécifique dans de gros fichiers.
+
+```js "line: 25"
+// Se concentrer sur la ligne 25 avec un contexte dynamique
+def("FUNCTION_CODE", fileContent, { line: 25 })
+```
+
+L'option `line` calcule dynamiquement le contexte environnant basé sur la taille du fichier :
+- Très petits fichiers (≤20 lignes) : Inclure la plupart du contenu
+- Petits fichiers (≤100 lignes) : 15 lignes de chaque côté  
+- Fichiers moyens (≤500 lignes) : 25 lignes de chaque côté
+- Gros fichiers (≤2000 lignes) : 50 lignes de chaque côté
+- Très gros fichiers (>2000 lignes) : 75 lignes de chaque côté
+
+#### Support du budget de tokens
+
+Lorsque combinée avec `maxTokens`, l'option `line` effectue un calcul intelligent de la plage basé sur les tokens :
+
+```js "line: 25, maxTokens: 500"
+// Se concentrer sur la ligne 25 avec contrainte de budget de tokens
+def("FUNCTION_CODE", fileContent, { line: 25, maxTokens: 500 })
+```
+
+L'implémentation :
+- **Expansion intelligente** : Commence avec la ligne centrale et s'étend alternativement vers le haut/bas jusqu'à atteindre le budget de tokens
+- **Comptage précis** : Utilise une estimation précise des tokens pour un meilleur contrôle
+- **Fallback gracieux** : Revient au calcul basé sur la taille du fichier quand aucun `maxTokens` n'est spécifié
+- **Dépassement de budget** : Retourne juste la ligne centrale si elle dépasse déjà le budget de tokens
+
+#### Règles de priorité
+
+Les plages de lignes explicites ont la priorité sur l'option `line` :
+
+```js
+// lineStart/lineEnd remplacent l'option line et maxTokens
+def("EXPLICIT_WINS", codeFile, { 
+  lineStart: 10, 
+  lineEnd: 20, 
+  line: 50, 
+  maxTokens: 100 
+}) // Utilise les lignes 10-20
+```
+
 ### `maxTokens`
 
 Il est possible de limiter le nombre de tokens générés par la fonction `def`. Cela peut être utile lorsque la sortie est trop volumineuse et que le modèle a une limite de tokens.
@@ -186,6 +231,8 @@ L'option `maxTokens` peut être définie à un nombre afin de limiter le nombre 
 ```js "maxTokens: 100"
 def("FILE", env.files, { maxTokens: 100 })
 ```
+
+Lorsque utilisée avec l'option `line`, `maxTokens` contrôle la taille totale de la plage extraite autour de la ligne centrale plutôt que de tronquer les fichiers individuels.
 
 ### Filtres de données
 
