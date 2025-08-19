@@ -23,7 +23,7 @@ const mockContext = {
     log: (message: string) => console.log(message)
 }
 
-describe("system.files.edit", () => {
+describe("system.fs_file_edit", () => {
     let testFile: string
     let originalContent: string
 

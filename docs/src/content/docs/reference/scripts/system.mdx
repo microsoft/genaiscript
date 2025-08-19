@@ -1438,7 +1438,7 @@ export default function (ctx: ChatGenerationContext) {
     const { defTool } = ctx
 
     defTool(
-        "files_edit",
+        "fs_file_edit",
         "Edits a file by splicing lines at a specific position. Similar to JavaScript's Array.splice() but for file lines. Removes a specified number of lines starting from a given line number and inserts new lines at that position.",
         {
             type: "object",
