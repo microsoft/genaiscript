@@ -760,10 +760,8 @@ export async function runScriptInternal(
       // This could be implemented by creating a temporary script and running it with the small model,
       // but for now we use a simpler approach to avoid complexity.
 
-      await githubCreateIssue(script, ghInfo, title, result.text, {
-        cancellationToken,
-        stats,
-      });
+      const github = GitHubClient.default();
+      await github.createIssue(title, result.text);
     } else {
       logError("GitHub issue creation: no repository information found");
     }
