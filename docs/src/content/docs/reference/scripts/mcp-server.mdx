@@ -264,6 +264,8 @@ script({
 are a core primitive in the Model Context Protocol (MCP) that allow servers to expose data
 and content that can be read by clients and used as context for LLM interactions.
 
+### Publishing Resources
+
 In GenAIScript, you can create a resource using `host.publishResource` and
 it will automatically be exposed as a MCP resource.
 
@@ -275,6 +277,30 @@ The return value is the resource uri which can be used in the prompt output.
 `publishResource` supports files, buffers and strings.
 
 The resource will be available for the lifetime of the MCP server.
+
+### Reading Resources with Tools
+
+GenAIScript provides built-in tools for working with resources through the `system.resources` system script:
+
+- **`resource_list`**: List available resources from the host. Returns a list of available resource URIs and their descriptions.
+- **`resource_read`**: Read the content of a resource from a URL. Resolves various protocols and returns the content of the files found at the URL.
+
+These tools support various protocols including HTTPS, file, git, gist, and VSCode URLs using the host's `resolveResource` function.
+
+```js title="script-using-resources.genai.mjs"
+script({
+    title: "Script that uses resource tools",
+    system: ["system.resources"]
+})
+
+$`Use the resource_read tool to read content from https://raw.githubusercontent.com/microsoft/genaiscript/main/README.md`
+```
+
+The `resource_read` tool automatically handles:
+- **Protocol Support**: HTTPS URLs, GitHub blob URLs, Git repositories, Gists, VSCode URLs
+- **Content Formatting**: Returns well-formatted output with file headers and code blocks
+- **Binary Content**: Detects base64 encoding and provides appropriate metadata
+- **Multiple Files**: Supports URLs that resolve to multiple files (e.g., repository directories)
 
 ### Images
 
