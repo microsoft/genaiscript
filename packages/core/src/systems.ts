@@ -86,44 +86,15 @@ export function resolveSystems(
       dbgr(`images found, adding system.safety_harmful_content`);
       systems.push("system.safety_harmful_content");
     }
-    // Determine additional systems based on content of jsSource
-    if (/\Wfile\W/i.test(jsSource)) {
-      dbgr(`file references found, adding system.files`);
-      systems.push("system.files");
-      // Add file schema system if schema is used
-      if (useSchema) {
-        dbgr(`schema is used, adding system.files_schema`);
-        systems.push("system.files_schema");
-      }
-    }
-    if (/\Wchangelog\W/i.test(jsSource)) {
-      dbgr(`changelog references found, adding system.changelog`);
-      systems.push("system.changelog");
-    }
     // Add schema system if schema is used
     if (useSchema) {
       dbgr(`schema is used, adding system.schema`);
       systems.push("system.schema");
     }
-    // Add annotation system if annotations, warnings, or errors are found
-    if (/\W(annotations|warnings|errors)\W/i.test(jsSource)) {
-      dbgr(`annotations, warnings, or errors found, adding system.annotations`);
-      systems.push("system.annotations");
-    }
-    // Add diagram system if diagrams or charts are found
-    if (/\W(diagram|chart)\W/i.test(jsSource)) {
-      dbgr(`diagrams or charts found, adding system.diagrams`);
-      systems.push("system.diagrams");
-    }
-    // Add git information system if git is found
-    if (/\W(git)\W/i.test(jsSource)) {
-      dbgr(`git references found, adding system.git_info`);
-      systems.push("system.git_info");
-    }
-    // Add GitHub information system if GitHub is found
-    if (/\W(github)\W/i.test(jsSource)) {
-      dbgr(`GitHub references found, adding system.github_info`);
-      systems.push("system.github_info");
+    // Add file schema system if schema is used and files are referenced
+    if (/\Wfile\W/i.test(jsSource) && useSchema) {
+      dbgr(`schema is used with files, adding system.files_schema`);
+      systems.push("system.files_schema");
     }
     // Add programming language system prompts based on file extensions or language keywords
     if (/\.(go)$|golang|go\s/i.test(jsSource)) {
@@ -150,10 +121,22 @@ export function resolveSystems(
       dbgr(`PHP references found, adding system.php`);
       systems.push("system.php");
     }
-    // Add system.today if "today" is found in jsSource
-    if (/today/i.test(jsSource)) {
-      dbgr(`adding system.today to systems`);
-      systems.push("system.today");
+    // Check activation keywords from system prompts in the project
+    if (prj?.scripts && jsSource) {
+      const systemPrompts = prj.scripts.filter((s) => s.isSystem);
+      for (const systemPrompt of systemPrompts) {
+        const activationKeywords = arrayify(systemPrompt.activation);
+        if (activationKeywords.length > 0) {
+          // Check if any activation keyword matches the jsSource
+          for (const keyword of activationKeywords) {
+            if (keyword && new RegExp(`\\b${keyword}`, 'i').test(jsSource)) {
+              dbgr(`activation keyword "${keyword}" found, adding ${systemPrompt.id}`);
+              systems.push(systemPrompt.id);
+              break; // Only add the system once even if multiple keywords match
+            }
+          }
+        }
+      }
     }
   }
 

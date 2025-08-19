@@ -1,5 +1,6 @@
 system({
   title: "Generate diagrams",
+  activation: ["diagram", "chart"],
   parameters: {
     repair: {
       type: "integer",
