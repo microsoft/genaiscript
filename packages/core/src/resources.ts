@@ -100,8 +100,8 @@ const uriResolvers: Record<
     const runtimeHost = resolveRuntimeHost();
     const config = runtimeHost.config;
     
-    if (!isDomainAllowed(url.hostname, config)) {
-      const errorMsg = createDomainBlockedError(url.hostname, config);
+    if (!isDomainAllowed(url.hostname, { allowedDomains: config?.allowedDomains })) {
+      const errorMsg = createDomainBlockedError(url.hostname, { allowedDomains: config?.allowedDomains });
       dbg(`domain blocked: %s`, errorMsg);
       throw new Error(errorMsg);
     }

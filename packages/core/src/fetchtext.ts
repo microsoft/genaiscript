@@ -62,8 +62,8 @@ export async function fetchText(
     const urlObj = new URL(url);
     const config = runtimeHost.config;
     
-    if (!isDomainAllowed(urlObj.hostname, config)) {
-      const errorMsg = createDomainBlockedError(urlObj.hostname, config);
+    if (!isDomainAllowed(urlObj.hostname, { allowedDomains: config?.allowedDomains })) {
+      const errorMsg = createDomainBlockedError(urlObj.hostname, { allowedDomains: config?.allowedDomains });
       dbg(`domain blocked: %s`, errorMsg);
       throw new Error(errorMsg);
     }
