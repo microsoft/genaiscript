@@ -129,6 +129,7 @@ export function resolveSystems(
         if (activationKeywords.length > 0) {
           // Check if any activation keyword matches the jsSource
           for (const keyword of activationKeywords) {
+            // Use word boundary \b to match complete words only, not subwords (e.g., "file" matches "file" but not "profile")
             if (keyword && new RegExp(`\\b${keyword}`, 'i').test(jsSource)) {
               dbgr(`activation keyword "${keyword}" found, adding ${systemPrompt.id}`);
               systems.push(systemPrompt.id);
