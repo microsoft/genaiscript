@@ -786,6 +786,13 @@
    * Set if this is a system prompt.
    */
   isSystem?: boolean;
+
+  /**
+   * List of allowed domains (with wildcard support) for HTTPS resource resolution and fetchText.
+   * If specified, overrides the global allowedDomains configuration for this script.
+   * Supports glob patterns like "*.github.com".
+   */
+  allowedDomains?: ElementOrArray<string>;
 }
 /**
  * Represent a workspace file and optional content.

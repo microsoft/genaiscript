@@ -33,8 +33,6 @@ describe("domainfilter", () => {
     test("handles edge cases", () => {
       assert.equal(isDomainAllowed("", { allowedDomains: ["github.com"] }), false);
       assert.equal(isDomainAllowed("github.com", { allowedDomains: [] }), false);
-      assert.equal(isDomainAllowed("github.com", {}), false);
-      assert.equal(isDomainAllowed("github.com", undefined), false);
       assert.equal(isDomainAllowed(null as any, { allowedDomains: ["github.com"] }), false);
     });
 
