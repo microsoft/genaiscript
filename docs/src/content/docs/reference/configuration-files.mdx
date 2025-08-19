@@ -220,6 +220,27 @@ GENAISCRIPT_ALLOWED_DOMAINS='["github.com", "*.openai.com", "example.org"]'
 
 When a domain is blocked, you'll see a clear error message explaining how to configure allowed domains.
 
+### Script-Level Override
+
+Individual scripts can override the global `allowedDomains` configuration by specifying their own list:
+
+```js
+script({
+  title: "API Integration Script",
+  allowedDomains: [
+    "github.com",
+    "*.api.example.com",
+    "secure.partner.org"
+  ]
+})
+
+// This script can only access the domains listed above,
+// regardless of global configuration
+const data = await host.fetchText("https://api.example.com/data")
+```
+
+Script-level configuration takes precedence over global settings, providing fine-grained security control per script.
+
 ## Debugging
 
 Enable the `config` debug category to see additional information about the configuration resolution.

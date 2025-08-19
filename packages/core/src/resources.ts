@@ -87,7 +87,7 @@ const uriResolvers: Record<
   (
     dbg: debug.Debugger,
     url: URL,
-    options?: TraceOptions & CancellationOptions,
+    options?: TraceOptions & CancellationOptions & { script?: { allowedDomains?: string[] } },
   ) => Promise<ElementOrArray<WorkspaceFile>>
 > = {
   file: async (dbg, uri) => {
@@ -100,8 +100,11 @@ const uriResolvers: Record<
     const runtimeHost = resolveRuntimeHost();
     const config = runtimeHost.config;
     
-    if (!isDomainAllowed(url.hostname, { allowedDomains: config?.allowedDomains })) {
-      const errorMsg = createDomainBlockedError(url.hostname, { allowedDomains: config?.allowedDomains });
+    // Use script-level allowedDomains if specified, otherwise fall back to global config
+    const allowedDomains = options?.script?.allowedDomains || config?.allowedDomains;
+    
+    if (!isDomainAllowed(url.hostname, { allowedDomains })) {
+      const errorMsg = createDomainBlockedError(url.hostname, { allowedDomains });
       dbg(`domain blocked: %s`, errorMsg);
       throw new Error(errorMsg);
     }
@@ -227,7 +230,7 @@ const uriResolvers: Record<
  */
 export async function tryResolveResource(
   url: string,
-  options?: TraceOptions & CancellationOptions,
+  options?: TraceOptions & CancellationOptions & { script?: { allowedDomains?: string[] } },
 ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
   if (!url) return undefined;
   url = await applyUrlAdapters(url);

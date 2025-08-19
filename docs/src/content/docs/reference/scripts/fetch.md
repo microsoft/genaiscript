@@ -144,6 +144,25 @@ allowedDomains:
 }
 ```
 
+**Script-Level Configuration:**
+Individual scripts can specify their own allowed domains, which override the global configuration:
+
+```js
+script({
+  title: "My Script",
+  allowedDomains: [
+    "github.com",
+    "*.openai.com", 
+    "example.com"
+  ]
+})
+
+// This script can only access the domains listed above
+const response = await host.fetchText("https://api.openai.com/data")
+```
+
+Script-level configuration takes precedence over global settings, allowing fine-grained control over domain access per script.
+
 #### Wildcard Patterns
 
 Domain patterns support glob-style wildcards using [minimatch](https://github.com/isaacs/minimatch):

@@ -30,7 +30,7 @@ import type { GenerationOptions } from "./generation.js";
 import type { ChatCompletionMessageParam, ChatCompletionReasoningEffort } from "./chattypes.js";
 import type { GenerationStatus, Project } from "./server/messages.js";
 import { dispose } from "./dispose.js";
-import { normalizeFloat, normalizeInt } from "./cleaners.js";
+import { normalizeFloat, normalizeInt, arrayify } from "./cleaners.js";
 import { mergeEnvVarsWithSystem } from "./vars.js";
 import { installGlobalPromptContext } from "./globals.js";
 import { mark } from "./performance.js";
@@ -74,7 +74,13 @@ export async function callExpander(
   assert(!!options.model);
   const trace = options.trace;
   const modelId = r.model ?? options.model;
-  const ctx = await createPromptContext(prj, ev, options, modelId);
+  
+  // Extract and normalize script-level allowedDomains configuration
+  const scriptConfig = r.allowedDomains 
+    ? { allowedDomains: arrayify(r.allowedDomains) } 
+    : undefined;
+  
+  const ctx = await createPromptContext(prj, ev, options, modelId, scriptConfig);
   if (installGlobally) installGlobalPromptContext(ctx);
 
   let status: GenerationStatus = undefined;

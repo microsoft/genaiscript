@@ -80,4 +80,27 @@ describe("domainfilter", () => {
       assert.ok(error.includes("*.github.io"));
     });
   });
+
+  describe("script-level domain configuration", () => {
+    test("script allowedDomains takes precedence over default", () => {
+      // Script allows example.com, which is not in default domains
+      assert.equal(isDomainAllowed("example.com", { allowedDomains: ["example.com"] }), true);
+      assert.equal(isDomainAllowed("github.com", { allowedDomains: ["example.com"] }), false);
+    });
+
+    test("script can restrict domains more than default", () => {
+      // Script only allows specific GitHub domain, not all GitHub domains
+      assert.equal(isDomainAllowed("github.com", { allowedDomains: ["github.com"] }), true);
+      assert.equal(isDomainAllowed("api.github.com", { allowedDomains: ["github.com"] }), false);
+    });
+
+    test("script can expand domains beyond default", () => {
+      // Script allows additional domains beyond GitHub
+      const options = { allowedDomains: ["github.com", "*.openai.com", "example.org"] };
+      assert.equal(isDomainAllowed("github.com", options), true);
+      assert.equal(isDomainAllowed("api.openai.com", options), true);
+      assert.equal(isDomainAllowed("example.org", options), true);
+      assert.equal(isDomainAllowed("badsite.com", options), false);
+    });
+  });
 });
