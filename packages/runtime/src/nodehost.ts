@@ -379,12 +379,54 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       }
       const { provider } = parseModelIdentifier(modelId);
       if (provider === MODEL_PROVIDER_AZURE_OPENAI) {
+        // Log debugging information about Azure OpenAI configuration failure
+        dbg(`Azure OpenAI configuration failed for modelId: ${modelId}`);
+        dbg(`provider: ${provider}`);
+        dbg(`environment variables checked: %O`, {
+          AZURE_OPENAI_API_KEY: process.env.AZURE_OPENAI_API_KEY ? "***" : undefined,
+          AZURE_API_KEY: process.env.AZURE_API_KEY ? "***" : undefined,
+          AZURE_OPENAI_ENDPOINT: process.env.AZURE_OPENAI_ENDPOINT || undefined,
+          AZURE_OPENAI_API_BASE: process.env.AZURE_OPENAI_API_BASE || undefined,
+          AZURE_API_BASE: process.env.AZURE_API_BASE || undefined,
+          AZURE_OPENAI_API_ENDPOINT: process.env.AZURE_OPENAI_API_ENDPOINT || undefined,
+          AZURE_OPENAI_API_VERSION: process.env.AZURE_OPENAI_API_VERSION || undefined,
+          AZURE_API_VERSION: process.env.AZURE_API_VERSION || undefined,
+        });
+        dbg(`configuration resolution failed: parseTokenFromEnv returned undefined`);
         throw new Error(`Azure OpenAI not configured for ${modelId}`);
       } else if (provider === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
+        // Log debugging information about Azure AI Inference configuration failure
+        dbg(`Azure AI Inference configuration failed for modelId: ${modelId}`);
+        dbg(`provider: ${provider}`);
+        dbg(`environment variables checked: %O`, {
+          AZURE_AI_INFERENCE_API_KEY: process.env.AZURE_AI_INFERENCE_API_KEY ? "***" : undefined,
+          AZURE_AI_INFERENCE_ENDPOINT: process.env.AZURE_AI_INFERENCE_ENDPOINT || undefined,
+          AZURE_AI_INFERENCE_API_ENDPOINT: process.env.AZURE_AI_INFERENCE_API_ENDPOINT || undefined,
+        });
+        dbg(`configuration resolution failed: parseTokenFromEnv returned undefined`);
         throw new Error(`Azure AI Inference not configured for ${modelId}`);
       } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI) {
+        // Log debugging information about Azure Serverless OpenAI configuration failure
+        dbg(`Azure Serverless OpenAI configuration failed for modelId: ${modelId}`);
+        dbg(`provider: ${provider}`);
+        dbg(`environment variables checked: %O`, {
+          AZURE_SERVERLESS_OPENAI_API_KEY: process.env.AZURE_SERVERLESS_OPENAI_API_KEY ? "***" : undefined,
+          AZURE_SERVERLESS_OPENAI_ENDPOINT: process.env.AZURE_SERVERLESS_OPENAI_ENDPOINT || undefined,
+          AZURE_SERVERLESS_OPENAI_API_ENDPOINT: process.env.AZURE_SERVERLESS_OPENAI_API_ENDPOINT || undefined,
+          AZURE_SERVERLESS_OPENAI_API_VERSION: process.env.AZURE_SERVERLESS_OPENAI_API_VERSION || undefined,
+        });
+        dbg(`configuration resolution failed: parseTokenFromEnv returned undefined`);
         throw new Error(`Azure AI OpenAI Serverless not configured for ${modelId}`);
       } else if (provider === MODEL_PROVIDER_AZURE_SERVERLESS_MODELS) {
+        // Log debugging information about Azure AI Models configuration failure
+        dbg(`Azure AI Models configuration failed for modelId: ${modelId}`);
+        dbg(`provider: ${provider}`);
+        dbg(`environment variables checked: %O`, {
+          AZURE_SERVERLESS_MODELS_API_KEY: process.env.AZURE_SERVERLESS_MODELS_API_KEY ? "***" : undefined,
+          AZURE_SERVERLESS_MODELS_ENDPOINT: process.env.AZURE_SERVERLESS_MODELS_ENDPOINT || undefined,
+          AZURE_SERVERLESS_MODELS_API_ENDPOINT: process.env.AZURE_SERVERLESS_MODELS_API_ENDPOINT || undefined,
+        });
+        dbg(`configuration resolution failed: parseTokenFromEnv returned undefined`);
         throw new Error(`Azure AI Models not configured for ${modelId}`);
       }
     }
