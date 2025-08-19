@@ -15,6 +15,8 @@ export default function (ctx: ChatGenerationContext) {
     const { defTool, env } = ctx
 
     const dbg = host.logger(`system:fetch`)
+    const domains = env.vars["system.fetch.domains"] || []
+    dbg(`allowed domains: %o`, domains)
 
     defTool(
         "fetch",
@@ -44,7 +46,12 @@ export default function (ctx: ChatGenerationContext) {
                 skipToContent: string
             }
             const method = "GET"
+            const uri = new URL(url)
+            const domain = uri.hostname
             
+            if (!domains.includes(domain))
+                return `error: domain ${domain} is not allowed. Allowed domains: ${domains.join(', ')}`
+
             dbg(`${method} ${url}`)
             const res = await host.fetchText(url, { convert })
             dbg(`response: %d`, res.status)
