@@ -109,6 +109,54 @@ The function returns an object with:
 - `uri`: The resolved URL as a URL object
 - `files`: An array of resolved files with their content
 
+### Domain Filtering
+
+For security, HTTPS resource resolution is restricted to allowed domains. By default, GitHub domains are allowed:
+- `github.com`
+- `*.github.com` 
+- `*.githubusercontent.com`
+
+#### Configuration
+
+You can configure allowed domains in several ways:
+
+**Environment Variables:**
+```bash
+# Comma-separated list
+GENAISCRIPT_ALLOWED_DOMAINS=github.com,*.openai.com,example.org
+
+# YAML array format
+GENAISCRIPT_ALLOWED_DOMAINS='["github.com", "*.openai.com", "example.org"]'
+```
+
+**Configuration File (genaiscript.config.yml):**
+```yaml
+allowedDomains:
+  - github.com
+  - '*.openai.com'
+  - example.org
+```
+
+**Configuration File (genaiscript.config.json):**
+```json
+{
+  "allowedDomains": ["github.com", "*.openai.com", "example.org"]
+}
+```
+
+#### Wildcard Patterns
+
+Domain patterns support glob-style wildcards using [minimatch](https://github.com/isaacs/minimatch):
+- `github.com` - Exact match only
+- `*.github.com` - Matches any subdomain (e.g., `api.github.com`)
+- `*` - Matches all domains (use with caution)
+
+When a domain is blocked, you'll see an error message like:
+```
+Domain 'example.com' is not allowed. Allowed domains: github.com, *.github.com, *.githubusercontent.com.
+Configure allowed domains via GENAISCRIPT_ALLOWED_DOMAINS environment variable or allowedDomains in config file.
+```
+
 ## Secrets
 
 If the API you are querying requires an API key, you can use the [secrets](/genaiscript/reference/scripts/secrets) object to store the key.

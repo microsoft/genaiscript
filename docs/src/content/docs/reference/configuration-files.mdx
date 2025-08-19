@@ -173,6 +173,53 @@ The `modelEncodings` property allows you to provide the encoding for the model.
 }
 ```
 
+## `allowedDomains` property
+
+The `allowedDomains` property controls which domains are allowed for HTTPS resource resolution via `host.resolveResource()`. 
+By default, GitHub domains are allowed for security.
+
+```yaml title="genaiscript.config.yml"
+allowedDomains:
+  - github.com
+  - '*.github.com'
+  - '*.githubusercontent.com'
+  - '*.openai.com'
+  - example.org
+```
+
+```json title="genaiscript.config.json"
+{
+    "allowedDomains": [
+        "github.com", 
+        "*.github.com", 
+        "*.githubusercontent.com",
+        "*.openai.com",
+        "example.org"
+    ]
+}
+```
+
+### Wildcard Patterns
+
+Domain patterns support glob-style wildcards:
+- `github.com` - Exact match only
+- `*.github.com` - Matches any subdomain (e.g., `api.github.com`)
+- `*` - Matches all domains (use with caution)
+
+### Environment Variable
+
+You can also configure allowed domains via environment variables:
+
+```bash
+# Comma-separated list
+GENAISCRIPT_ALLOWED_DOMAINS=github.com,*.openai.com,example.org
+
+# YAML array format  
+GENAISCRIPT_ALLOWED_DOMAINS='["github.com", "*.openai.com", "example.org"]'
+```
+
+When a domain is blocked, you'll see a clear error message explaining how to configure allowed domains.
+
 ## Debugging
 
 Enable the `config` debug category to see additional information about the configuration resolution.
