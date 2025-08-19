@@ -103,7 +103,7 @@
     "test:pyodide": "DEBUG=genaiscript:pyodide node packages/cli/dist/src/index.js run pyodide --no-run-trace --no-output-trace",
     "test:samples": "cd samples/sample && pnpm test",
     "test:scripts": "cd samples/sample/ && pnpm test:scripts",
-    "test:scripts:echo": "pnpm test:scripts --filter-model echo",
+    "test:scripts:echo": "pnpm test:scripts --filter-model echo --test-timeout 30",
     "test:scripts:view": "cd samples/sample/ && pnpm test:scripts:view",
     "test:system": "cd packages/core && node ../cli/dist/src/index.js scripts compile",
     "test:runtime": "cd packages/runtime && pnpm run test",
