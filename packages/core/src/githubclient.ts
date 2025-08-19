@@ -527,6 +527,7 @@ async function generateIssueTitle(
 export async function githubCreateIssue(
   script: PromptScript,
   info: GithubConnectionInfo,
+  title: string,
   body: string,
   options?: CancellationOptions & { stats?: GenerationStats },
 ): Promise<{ created: boolean; statusText: string; html_url?: string; issue_number?: number }> {
@@ -543,10 +544,6 @@ export async function githubCreateIssue(
   }
 
   try {
-    // Generate title
-    dbg(`generating issue title`);
-    const title = await generateIssueTitle(script, body);
-    
     // Create the GitHub client and create the issue
     const client = new GitHubClient(info);
     const issue = await client.createIssue(title, prettifyMarkdown(dedent(body)));
