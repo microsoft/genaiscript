@@ -821,6 +821,7 @@ system({
     description:
         "GitHub Actions workflows support annotations ([Read more...](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)).",
     lineNumbers: true,
+    activation: ["annotation", "annotations", "warnings", "errors"],
 })
 
 export default function (ctx: ChatGenerationContext) {
@@ -926,6 +927,7 @@ Generate changelog formatter edits
 system({
     title: "Generate changelog formatter edits",
     lineNumbers: true,
+    activation: ["changelog"],
 })
 
 export default function (ctx: ChatGenerationContext) {
@@ -1074,6 +1076,7 @@ Generate diagrams
 `````js wrap title="system.diagrams"
 system({
   title: "Generate diagrams",
+  activation: ["diagram", "chart"],
   parameters: {
     repair: {
       type: "integer",
@@ -1357,6 +1360,7 @@ Teaches the file format supported by GenAIScripts
 system({
     title: "File generation",
     description: "Teaches the file format supported by GenAIScripts",
+    activation: ["file", "files"],
 })
 
 export default function (ctx: ChatGenerationContext) {
@@ -2130,6 +2134,7 @@ Git repository information
 `````js wrap title="system.git_info"
 system({
     title: "Git repository information",
+    activation: ["git"],
     parameters: {
         cwd: {
             type: "string",
@@ -2414,6 +2419,7 @@ General GitHub information.
 `````js wrap title="system.github_info"
 system({
     title: "General GitHub information.",
+    activation: ["github"],
 })
 
 export default async function (ctx: ChatGenerationContext) {
@@ -3985,6 +3991,7 @@ system({
   title: "Read resource content from a URL using MCP resource resolution",
   description:
     "Provides a tool that can read and return the content of resources from URLs using the host's resolveResource function. Supports various protocols including https, file, git, gist, and vscode.",
+  activation: ["resource", "resources"],
 });
 
 export default function (ctx: ChatGenerationContext) {
@@ -4734,6 +4741,7 @@ Today's date.
 `````js wrap title="system.today"
 system({
     title: "Today's date.",
+    activation: ["today"],
 })
 export default function (ctx: ChatGenerationContext) {
     const { $ } = ctx

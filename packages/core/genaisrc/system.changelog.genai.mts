@@ -1,6 +1,7 @@
 system({
     title: "Generate changelog formatter edits",
     lineNumbers: true,
+    activation: ["changelog"],
 })
 
 export default function (ctx: ChatGenerationContext) {

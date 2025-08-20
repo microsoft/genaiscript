@@ -485,6 +485,12 @@ export interface PromptSystemOptions extends PromptSystemSafetyOptions {
   excludedSystem?: ElementOrArray<SystemPromptId>;
 
   /**
+   * Keywords that will 'activate' the system script. When these keywords are found in the prompt source, 
+   * the system script will be automatically imported.
+   */
+  activation?: ElementOrArray<string>;
+
+  /**
    * MCP server configuration. The tools will be injected into the prompt.
    */
   mcpServers?: McpServersConfig;
@@ -5216,6 +5222,12 @@ export interface ContainerOptions {
    * Commands to executes after the container is created
    */
   postCreateCommands?: ElementOrArray<string>;
+
+  /**
+   * Container operating system type. Determines path separator used for working directories.
+   * Defaults to "unix" for compatibility with most Linux-based containers.
+   */
+  osType?: "unix" | "windows";
 }
 
 export interface PromiseQueue {

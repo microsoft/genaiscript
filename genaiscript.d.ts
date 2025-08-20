@@ -5181,6 +5181,12 @@
    * Commands to executes after the container is created
    */
   postCreateCommands?: ElementOrArray<string>;
+
+  /**
+   * Container operating system type. Determines path separator used for working directories.
+   * Defaults to "unix" for compatibility with most Linux-based containers.
+   */
+  osType?: "unix" | "windows";
 }
 
  interface PromiseQueue {

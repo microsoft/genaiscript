@@ -2,6 +2,7 @@ system({
   title: "Read resource content from a URL using MCP resource resolution",
   description:
     "Provides a tool that can read and return the content of resources from URLs using the host's resolveResource function. Supports various protocols including https, file, git, gist, and vscode.",
+  activation: ["resource", "resources"],
 });
 
 export default function (ctx: ChatGenerationContext) {
