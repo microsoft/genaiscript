@@ -97,4 +97,19 @@ describe("resources", async () => {
         // The first file should be the one specified in the URL
         assert(result.files[0].filename.includes("readme.md"))
     })
+
+    await test("should resolve file URLs with Windows-style paths", async () => {
+        // Create a test file
+        const testFilePath = join(tempDir, "windows-test-file.png")
+        const testContent = "test content for windows file"
+        writeFileSync(testFilePath, testContent)
+
+        // Convert to file URL like VS Code would on Windows
+        const fileUrl = pathToFileURL(testFilePath).href
+        const result = await tryResolveResource(fileUrl)
+
+        assert(result)
+        assert.equal(result.files.length, 1)
+        assert.equal(result.files[0].filename, testFilePath)
+    })
 })
