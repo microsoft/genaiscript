@@ -42,6 +42,26 @@ As the assistant, you answer questions briefly, succinctly.
 THE QUESTION`
         )
     })
+
+    test("should interpolate frontmatter parameters in markdown content", async () => {
+        const md = `---
+parameters:
+  name:
+    type: string
+    default: "World"
+  count:
+    type: number
+    default: 3
+---
+Hello {{name}}! This message will repeat {{count}} times.`
+        
+        const output = await interpolateVariables(md, {
+            name: "GenAI",
+            count: 5,
+        })
+        
+        assert.strictEqual(output, `Hello GenAI! This message will repeat 5 times.`)
+    })
     test("should interpolate jinja variables when format is jinja", async () => {
         const md = `---
 name: Jinja Template Test

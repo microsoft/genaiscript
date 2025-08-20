@@ -11,6 +11,7 @@ import { humanize } from "./inflection"
 import { promptyParse, promptyToGenAIScript } from "./prompty"
 import { metadataValidate } from "./metadata"
 import { deleteUndefinedValues } from "./cleaners"
+import { frontmatterTryParse } from "./frontmatter"
 
 /**
  * Extracts a template ID from the given filename by removing specific extensions
@@ -69,6 +70,22 @@ function parsePromptScriptTools(jsSource: string) {
 }
 
 /**
+ * Extracts frontmatter parameters from markdown content and converts them
+ * to the script parameters format.
+ *
+ * @param content - The markdown content that may contain frontmatter
+ * @returns Parameters object or undefined if no frontmatter parameters found
+ */
+function extractFrontmatterParameters(content: string): Record<string, any> | undefined {
+    const fm = frontmatterTryParse(content)
+    if (!fm?.value?.parameters) return undefined
+    
+    // Return the parameters directly - they should already be in the correct format
+    // with type definitions like { type: "string", default: "value" }
+    return fm.value.parameters
+}
+
+/**
  * Core function to parse a prompt template and validate its contents.
  *
  * @param filename - The filename of the template.
@@ -108,5 +125,16 @@ export async function parsePromptScript(filename: string, content: string) {
 
     const script = await parsePromptTemplateCore(filename, content)
     if (text) script.text = text
+    
+    // Extract frontmatter parameters from markdown files and merge them
+    // This handles the case where markdown scripts define parameters in frontmatter
+    const frontmatterParameters = extractFrontmatterParameters(text || content)
+    if (frontmatterParameters) {
+        script.parameters = {
+            ...(script.parameters || {}),
+            ...frontmatterParameters
+        }
+    }
+    
     return script
 }
