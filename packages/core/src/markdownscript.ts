@@ -9,6 +9,7 @@ import { JSON5Stringify } from "./json5.js";
 import type { PromptArgs } from "./types.js";
 import { genaiscriptDebug } from "./debug.js";
 import { resolve } from "node:path";
+import { interpolateVariables } from "./mustache.js";
 const dbg = genaiscriptDebug("md");
 
 /**
@@ -82,6 +83,22 @@ export async function markdownScriptParse(
   const fm = frontmatter ? YAMLParse(frontmatter) : {};
   const meta: PromptArgs = deleteUndefinedValues(fm);
 
+  // Extract default values from parameters for variable interpolation
+  let interpolatedContent = content;
+  if (meta.parameters && content.trim()) {
+    const defaultValues: Record<string, any> = {};
+    for (const [key, param] of Object.entries(meta.parameters)) {
+      if (typeof param === "object" && param !== null && "default" in param) {
+        defaultValues[key] = param.default;
+      }
+    }
+    
+    // Interpolate variables in the content if we have default values
+    if (Object.keys(defaultValues).length > 0) {
+      interpolatedContent = await interpolateVariables(content, defaultValues);
+    }
+  }
+
   // Generate the script source
   let jsSource = "";
 
@@ -91,7 +108,7 @@ export async function markdownScriptParse(
   }
 
   // Convert markdown content to $ call using unified/remark
-  if (content.trim()) {
+  if (interpolatedContent.trim()) {
     const { unified } = await import("unified");
     const { default: remarkParse } = await import("remark-parse");
     const { default: remarkStringify } = await import("remark-stringify");
@@ -104,7 +121,7 @@ export async function markdownScriptParse(
       fences: true,
       incrementListMarker: true,
     });
-    const tree = parse.parse(content);
+    const tree = parse.parse(interpolatedContent);
 
     let contents: string[] = [];
 
