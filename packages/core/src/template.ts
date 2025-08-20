@@ -14,6 +14,7 @@ import { metadataValidate } from "./metadata.js";
 import { deleteUndefinedValues } from "./cleaners.js";
 import { markdownScriptParse } from "./markdownscript.js";
 import { readJSON } from "./fs.js";
+import { frontmatterTryParse } from "./frontmatter.js";
 import type { PromptArgs, PromptScript, McpServersConfig, McpServerConfig, McpAgentServersConfig, McpAgentServerConfig } from "./types.js";
 import { basename, resolve, dirname } from "node:path";
 import { readText } from "./fs.js";
@@ -143,6 +144,22 @@ function parsePromptScriptTools(jsSource: string) {
 }
 
 /**
+ * Extracts frontmatter parameters from markdown content and converts them
+ * to the script parameters format.
+ *
+ * @param content - The markdown content that may contain frontmatter
+ * @returns Parameters object or undefined if no frontmatter parameters found
+ */
+function extractFrontmatterParameters(content: string): Record<string, any> | undefined {
+  const fm = frontmatterTryParse(content);
+  if (!fm?.value?.parameters) return undefined;
+  
+  // Return the parameters directly - they should already be in the correct format
+  // with type definitions like { type: "string", default: "value" }
+  return fm.value.parameters;
+}
+
+/**
  * Core function to parse a prompt template and validate its contents.
  *
  * @param filename - The filename of the template.
@@ -195,5 +212,16 @@ async function parsePromptTemplateCore(filename: string, content: string) {
  */
 export async function parsePromptScript(filename: string, content: string) {
   const script = await parsePromptTemplateCore(filename, content);
+  
+  // Extract frontmatter parameters from markdown files and merge them
+  // This handles the case where markdown scripts define parameters in frontmatter
+  const frontmatterParameters = extractFrontmatterParameters(content);
+  if (frontmatterParameters) {
+    script.parameters = {
+      ...(script.parameters || {}),
+      ...frontmatterParameters
+    };
+  }
+  
   return script;
 }

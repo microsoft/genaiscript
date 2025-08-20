@@ -108,4 +108,24 @@ Items:
 
     assert.strictEqual(output, "Items:\n- apple\n- banana\n- cherry\n");
   });
+
+  test("should interpolate frontmatter parameters in markdown content", async () => {
+    const md = `---
+parameters:
+  name:
+    type: string
+    default: "World"
+  count:
+    type: number
+    default: 3
+---
+Hello {{name}}! This message will repeat {{count}} times.`;
+        
+    const output = await interpolateVariables(md, {
+      name: "GenAI",
+      count: 5,
+    });
+        
+    assert.strictEqual(output, `Hello GenAI! This message will repeat 5 times.`);
+  });
 });
