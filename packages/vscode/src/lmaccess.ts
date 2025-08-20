@@ -13,6 +13,7 @@ import { parseModelIdentifier } from "../../core/src/models";
 import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "../../core/src/constants";
 import { dedent } from "../../core/src/indent";
 import { genaiscriptDebug } from "../../core/src/debug";
+import { showQuickPickWithTimeout } from "./uihelpers";
 const dbg = genaiscriptDebug("vscode:lm");
 
 async function pickChatModel(
@@ -40,7 +41,10 @@ async function pickChatModel(
     }));
     dbg(`language models: %O`, items);
     if (items.length) {
-      const res = await vscode.window.showQuickPick(items, {
+      vscode.window.showInformationMessage(
+        TOOL_NAME + " - Pick a Language Chat Model (see Command Palette)",
+      );
+      const res = await showQuickPickWithTimeout(items, {
         title: `Pick a Language Chat Model for ${model}`,
       });
       chatModel = res?.chatModel;
