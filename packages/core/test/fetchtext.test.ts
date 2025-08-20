@@ -16,10 +16,29 @@ describe("fetch", () => {
     assert(res.text.includes("GenAIScript"));
   });
 
-  test("fetchText blocks unauthorized domains by default", async () => {
+  test("fetchText allows all domains by default with wildcard", async () => {
+    // With the new default of ["*"], all domains should be allowed
+    // The actual network request will likely fail, but domain filtering should pass
     try {
       await fetchText("https://example.com/test.txt");
-      assert.fail("Should have thrown error for unauthorized domain");
+      // If we get here, either the request succeeded or failed for non-domain reasons
+      // which is expected with wildcard default
+    } catch (error) {
+      // If it's a domain filtering error, fail the test
+      if (error.message.includes("is not allowed")) {
+        assert.fail(`Domain filtering should allow all domains with wildcard default: ${error.message}`);
+      }
+      // Other errors (network, 404, timeout, etc.) are okay for this test
+    }
+  });
+
+  test("fetchText blocks domains when explicitly configured", async () => {
+    // Test that domain blocking still works when explicitly configured
+    try {
+      await fetchText("https://example.com/test.txt", {
+        script: { allowedDomains: ["github.com", "*.github.com"] }
+      });
+      assert.fail("Should have thrown error for unauthorized domain when allowedDomains is configured");
     } catch (error) {
       assert(error.message.includes("Domain 'example.com' is not allowed"));
       assert(error.message.includes("github.com"));

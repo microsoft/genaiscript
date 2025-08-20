@@ -949,6 +949,8 @@ export function parseAllowedDomains(env: Record<string, string>): string[] {
     .map(domain => domain.trim())
     .filter(domain => domain.length > 0);
 }
+
+/**
  * Logs the current state of Azure OpenAI configuration
  * @param options - Optional trace and cancellation options
  */
