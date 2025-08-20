@@ -79,4 +79,33 @@ Hello world!`
             default: 42
         })
     })
+
+    test("should handle complex parameter types", async () => {
+        const content = `---
+parameters:
+  items:
+    type: array
+    default: ["apple", "banana"]
+  config:
+    type: object
+    default:
+      enabled: true
+      count: 5
+  temperature:
+    type: number
+    default: 0.7
+    minimum: 0
+    maximum: 1
+---
+Configuration test with {{items}} and {{config}}.`
+
+        const script = await parsePromptScript("complex.md", content)
+        
+        assert.ok(script.parameters, "parameters should be defined")
+        assert.equal(script.parameters.items.type, "array")
+        assert.equal(script.parameters.config.type, "object") 
+        assert.equal(script.parameters.temperature.type, "number")
+        assert.equal(script.parameters.temperature.minimum, 0)
+        assert.equal(script.parameters.temperature.maximum, 1)
+    })
 })
