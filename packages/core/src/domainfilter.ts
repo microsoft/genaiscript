@@ -34,5 +34,5 @@ export function isDomainAllowed(domain: string, options?: { allowedDomains?: str
  */
 export function createDomainBlockedError(domain: string, options?: { allowedDomains?: string[] }): string {
   const allowedDomains = options?.allowedDomains || DEFAULT_ALLOWED_DOMAINS;
-  return `Domain '${domain}' is not allowed. Allowed domains: ${allowedDomains.join(', ')}. Configure allowed domains via GENAISCRIPT_ALLOWED_DOMAINS environment variable or allowedDomains in config file.`;
+  return `Domain '${domain}' is not allowed. Allowed domains: ${allowedDomains.join(', ')}. Configure allowed domains via GENAISCRIPT_ALLOWED_DOMAINS environment variable or allowedDomains in script configuration.`;
 }

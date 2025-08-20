@@ -175,8 +175,8 @@ The `modelEncodings` property allows you to provide the encoding for the model.
 
 ## `allowedDomains` property
 
-The `allowedDomains` property controls which domains are allowed for HTTPS resource resolution via `host.resolveResource()`. 
-By default, GitHub domains are allowed for security.
+The `allowedDomains` property controls which domains are allowed for HTTPS resource resolution via `host.resolveResource()` and `host.fetchText()`. 
+By default, all domains are allowed (`*`) for convenience, but you can restrict access for security.
 
 ```yaml title="genaiscript.config.yml"
 allowedDomains:

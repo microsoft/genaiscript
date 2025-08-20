@@ -42,21 +42,23 @@ describe("domainfilter", () => {
     });
 
     test("uses default domains when no config provided", () => {
-      // Should use default GitHub domains
+      // Should use default wildcard domain (all domains allowed)
       assert.equal(isDomainAllowed("github.com", undefined), true);
       assert.equal(isDomainAllowed("api.github.com", undefined), true);
       assert.equal(isDomainAllowed("raw.githubusercontent.com", undefined), true);
       assert.equal(isDomainAllowed("example.github.io", undefined), true);
-      assert.equal(isDomainAllowed("badsite.com", undefined), false);
+      assert.equal(isDomainAllowed("badsite.com", undefined), true);
+      assert.equal(isDomainAllowed("any-domain.com", undefined), true);
     });
 
     test("uses default domains when allowedDomains not specified", () => {
-      // Should use default GitHub domains
+      // Should use default wildcard domain (all domains allowed)
       assert.equal(isDomainAllowed("github.com", {}), true);
       assert.equal(isDomainAllowed("api.github.com", {}), true);
       assert.equal(isDomainAllowed("raw.githubusercontent.com", {}), true);
       assert.equal(isDomainAllowed("example.github.io", {}), true);
-      assert.equal(isDomainAllowed("badsite.com", {}), false);
+      assert.equal(isDomainAllowed("badsite.com", {}), true);
+      assert.equal(isDomainAllowed("any-domain.com", {}), true);
     });
   });
 
@@ -72,10 +74,7 @@ describe("domainfilter", () => {
     test("uses default domains in error message when no config provided", () => {
       const error = createDomainBlockedError("badsite.com", undefined);
       assert.ok(error.includes("badsite.com"));
-      assert.ok(error.includes("github.com"));
-      assert.ok(error.includes("*.github.com"));
-      assert.ok(error.includes("*.githubusercontent.com"));
-      assert.ok(error.includes("*.github.io"));
+      assert.ok(error.includes("*"));
     });
   });
 

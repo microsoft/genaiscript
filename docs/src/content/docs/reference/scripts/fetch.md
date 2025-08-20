@@ -111,10 +111,7 @@ The function returns an object with:
 
 ### Domain Filtering
 
-For security, HTTPS resource resolution is restricted to allowed domains. By default, GitHub domains are allowed:
-- `github.com`
-- `*.github.com` 
-- `*.githubusercontent.com`
+For security, HTTPS resource resolution supports domain filtering to restrict access. By default, all domains are allowed (`*`) for convenience, but you can configure specific restrictions.
 
 #### Configuration
 
@@ -172,8 +169,8 @@ Domain patterns support glob-style wildcards using [minimatch](https://github.co
 
 When a domain is blocked, you'll see an error message like:
 ```
-Domain 'example.com' is not allowed. Allowed domains: github.com, *.github.com, *.githubusercontent.com.
-Configure allowed domains via GENAISCRIPT_ALLOWED_DOMAINS environment variable or allowedDomains in config file.
+Domain 'example.com' is not allowed. Allowed domains: *.
+Configure allowed domains via GENAISCRIPT_ALLOWED_DOMAINS environment variable or allowedDomains in script configuration.
 ```
 
 ## Secrets

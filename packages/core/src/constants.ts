@@ -51,8 +51,9 @@ export const NEGATIVE_GLOB_REGEX = /^!/;
 
 /**
  * Default allowed domains for HTTPS resource resolution and fetchText.
+ * "*" allows all domains by default.
  */
-export const DEFAULT_ALLOWED_DOMAINS = ["github.com", "*.github.com", "*.githubusercontent.com", "*.github.io"];
+export const DEFAULT_ALLOWED_DOMAINS = ["*"];
 export const GENAI_ANY_REGEX = /\.genai\.(ts|mts|mjs|js|md)$/i;
 export const GENAI_ANYJS_REGEX = /\.genai\.js$/i;
 export const GENAI_ANYTS_REGEX = /\.genai\.(ts|mts|mjs)$/i;
