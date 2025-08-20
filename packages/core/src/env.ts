@@ -949,3 +949,25 @@ export function parseAllowedDomains(env: Record<string, string>): string[] {
     .map(domain => domain.trim())
     .filter(domain => domain.length > 0);
 }
+ * Logs the current state of Azure OpenAI configuration
+ * @param options - Optional trace and cancellation options
+ */
+export async function logAzureOpenAIConfiguration(options?: CancellationOptions): Promise<void> {
+  // Environment variables related to Azure OpenAI
+  const azureOpenAIEnvVars = deleteUndefinedValues({
+    AZURE_OPENAI_API_ENDPOINT: process.env.AZURE_OPENAI_API_ENDPOINT,
+    AZURE_OPENAI_ENDPOINT: process.env.AZURE_OPENAI_ENDPOINT,
+    AZURE_OPENAI_API_BASE: process.env.AZURE_OPENAI_API_BASE,
+    AZURE_API_BASE: process.env.AZURE_API_BASE,
+    AZURE_OPENAI_API_KEY: process.env.AZURE_OPENAI_API_KEY ? "***" : undefined,
+    AZURE_API_KEY: process.env.AZURE_API_KEY ? "***" : undefined,
+    AZURE_OPENAI_API_VERSION: process.env.AZURE_OPENAI_API_VERSION,
+    AZURE_API_VERSION: process.env.AZURE_API_VERSION,
+    AZURE_OPENAI_API_CREDENTIALS: process.env.AZURE_OPENAI_API_CREDENTIALS,
+    AZURE_OPENAI_SUBSCRIPTION_ID: process.env.AZURE_OPENAI_SUBSCRIPTION_ID ? "***" : undefined,
+    AZURE_OPENAI_TOKEN_SCOPES: process.env.AZURE_OPENAI_TOKEN_SCOPES,
+    AZURE_OPENAI_API_MODELS_TYPE: process.env.AZURE_OPENAI_API_MODELS_TYPE,
+    NODE_ENV: process.env.NODE_ENV,
+  });
+  dbg(`azure env vars: %O`, azureOpenAIEnvVars);
+}

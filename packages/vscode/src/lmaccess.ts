@@ -12,6 +12,9 @@ import { renderMessageContent } from "../../core/src/chatrender";
 import { parseModelIdentifier } from "../../core/src/models";
 import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "../../core/src/constants";
 import { dedent } from "../../core/src/indent";
+import { genaiscriptDebug } from "../../core/src/debug";
+import { showQuickPickWithTimeout } from "./uihelpers";
+const dbg = genaiscriptDebug("vscode:lm");
 
 async function pickChatModel(
   state: ExtensionState,
@@ -36,15 +39,20 @@ async function pickChatModel(
       detail: `${cm.version}, ${cm.maxInputTokens}t.`,
       chatModel: cm,
     }));
-    if (items?.length) {
-      const res = await vscode.window.showQuickPick(items, {
+    dbg(`language models: %O`, items);
+    if (items.length) {
+      vscode.window.showInformationMessage(
+        TOOL_NAME + " - Pick a Language Chat Model (see Command Palette)",
+      );
+      const res = await showQuickPickWithTimeout(items, {
         title: `Pick a Language Chat Model for ${model}`,
       });
       chatModel = res?.chatModel;
       if (chatModel) await state.updateLanguageChatModels(model, chatModel.id);
     } else {
       await vscode.window.showErrorMessage(
-        TOOL_NAME + ` - No language chat model available, could not resolve ${modelId}`,
+        TOOL_NAME +
+          ` - No language chat model available, could not resolve ${modelId} in ${items.map((item) => item.label).join(", ")}`,
       );
     }
   }
@@ -88,7 +96,10 @@ async function messagesToChatMessages(
 }
 
 export function createChatModelRunner(state: ExtensionState): LanguageModelChatRequest {
-  if (!isLanguageModelsAvailable()) return undefined;
+  if (!isLanguageModelsAvailable()) {
+    dbg("Language models are not available");
+    return undefined;
+  }
 
   return async (req: ChatStart, onChunk) => {
     const { model, messages, modelOptions } = req;
