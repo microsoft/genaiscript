@@ -178,6 +178,15 @@ The `modelEncodings` property allows you to provide the encoding for the model.
 The `allowedDomains` property controls which domains are allowed for HTTPS resource resolution via `host.resolveResource()` and `host.fetchText()`. 
 By default, all domains are allowed (`*`) for convenience, but you can restrict access for security.
 
+:::note[Important: API-Level Filtering Only]
+Domain filtering **only applies to GenAIScript's host APIs** (`host.fetchText`, `host.resolveResource`). It does **NOT** restrict:
+- Global `fetch()` function
+- Third-party libraries making HTTP requests
+- Direct network calls from imported packages
+
+This is not an egress proxy - for broader network security, use firewalls or other network-level controls.
+:::
+
 ```yaml title="genaiscript.config.yml"
 allowedDomains:
   - github.com

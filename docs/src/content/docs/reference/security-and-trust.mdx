@@ -71,3 +71,13 @@ The extension is **disabled** when opening a folder in [Restricted Mode](https:/
 The output of the LLM and the trace use the built-in markdown preview of Visual Studio Code.
 By default, [VS Code restricts the content displayed in the Markdown preview](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security). 
 This includes disabling script execution and only allowing resources to be loaded over `https`.
+
+## Domain Filtering Limitations
+
+GenAIScript provides domain filtering for its built-in APIs (`host.fetchText`, `host.resolveResource`) but this is **not a comprehensive security solution**:
+
+- Domain filtering only applies to GenAIScript's host APIs
+- Global `fetch()`, third-party libraries, and imported packages are **not restricted**
+- This is not an egress proxy or firewall replacement
+
+For comprehensive network security, implement proper firewall rules, network policies, or use containers with restricted network access.

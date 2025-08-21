@@ -111,7 +111,16 @@ The function returns an object with:
 
 ### Domain Filtering
 
-For security, HTTPS resource resolution supports domain filtering to restrict access. By default, all domains are allowed (`*`) for convenience, but you can configure specific restrictions.
+Domain filtering restricts which domains can be accessed through GenAIScript's `host` APIs (`host.fetchText`, `host.resolveResource`). By default, all domains are allowed (`*`) for convenience, but you can configure specific restrictions.
+
+:::note[Scope of Domain Filtering]
+Domain filtering **only applies to GenAIScript's host APIs** (`host.fetchText`, `host.resolveResource`). It does **NOT** affect:
+- Global `fetch()` function
+- Third-party libraries making HTTP requests  
+- Direct network calls from imported packages
+
+This is not an egress proxy - it's API-level filtering for GenAIScript's built-in network functions only.
+:::
 
 #### Configuration
 
