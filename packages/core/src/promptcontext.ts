@@ -64,6 +64,7 @@ export async function createPromptContext(
   ev: ExpansionVariables,
   options: GenerationOptions,
   model: string,
+  script?: { allowedDomains?: string[] },
 ) {
   const { trace, cancellationToken } = options;
   const { generator, vars, dbg, output, ...varsNoGenerator } = ev;
@@ -265,9 +266,9 @@ export async function createPromptContext(
     publishResource: async (name, content, options) =>
       await runtimeHost.resources.publishResource(name, content, options),
     resources: async () => await runtimeHost.resources.resources(),
-    resolveResource: async (url) => await tryResolveResource(url, { trace }),
+    resolveResource: async (url) => await tryResolveResource(url, { trace, script }),
     fetch: (url, options) => fetch(url, { ...(options || {}), trace }),
-    fetchText: (url, options) => fetchText(url, { ...(options || {}), trace }),
+    fetchText: (url, options) => fetchText(url, { ...(options || {}), trace, script }),
     resolveLanguageModel: async (modelId) => {
       const { configuration } = await resolveModelConnectionInfo(
         { model: modelId },

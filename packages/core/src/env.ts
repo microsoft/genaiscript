@@ -53,6 +53,7 @@ import {
   MODEL_PROVIDER_DOCKER_MODEL_RUNNER,
   DOCKER_MODEL_RUNNER_API_BASE,
   MODEL_PROVIDER_MCP,
+  DEFAULT_ALLOWED_DOMAINS,
 } from "./constants.js";
 import { resolveRuntimeHost } from "./host.js";
 import { parseModelIdentifier } from "./models.js";
@@ -920,6 +921,34 @@ export async function parseTokenFromEnv(
     }
     return res;
   }
+}
+
+/**
+ * Parses allowed domains from environment variable.
+ * Supports comma-separated list or YAML array format.
+ * Returns default ["github.com"] if not specified.
+ */
+export function parseAllowedDomains(env: Record<string, string>): string[] {
+  const envValue = env.GENAISCRIPT_ALLOWED_DOMAINS || env.ALLOWED_DOMAINS;
+  if (!envValue) {
+    return DEFAULT_ALLOWED_DOMAINS;
+  }
+
+  // Try to parse as YAML array first
+  try {
+    const parsed = YAMLTryParse(envValue);
+    if (Array.isArray(parsed)) {
+      return parsed.filter(domain => typeof domain === 'string' && domain.trim());
+    }
+  } catch {
+    // Fall through to comma-separated parsing
+  }
+
+  // Parse as comma-separated list
+  return envValue
+    .split(',')
+    .map(domain => domain.trim())
+    .filter(domain => domain.length > 0);
 }
 
 /**

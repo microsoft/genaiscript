@@ -16,6 +16,7 @@ import { createFetch } from "./fetch.js";
 import { genaiscriptDebug } from "./debug.js";
 import type { FetchTextOptions, WorkspaceFile } from "./types.js";
 import { createUTF8Decoder } from "./utf8.js";
+import { isDomainAllowed, createDomainBlockedError } from "./domainfilter.js";
 
 const dbg = genaiscriptDebug("fetch:text");
 
@@ -38,9 +39,9 @@ const dbg = genaiscriptDebug("fetch:text");
  */
 export async function fetchText(
   urlOrFile: string | WorkspaceFile,
-  fetchOptions?: FetchTextOptions & TraceOptions & CancellationOptions,
+  fetchOptions?: FetchTextOptions & TraceOptions & CancellationOptions & { script?: { allowedDomains?: string[] } },
 ) {
-  const { retries, retryDelay, retryOn, maxDelay, trace, convert, cancellationToken, ...rest } =
+  const { retries, retryDelay, retryOn, maxDelay, trace, convert, cancellationToken, script, ...rest } =
     fetchOptions || {};
   if (typeof urlOrFile === "string") {
     urlOrFile = {
@@ -56,6 +57,20 @@ export async function fetchText(
   let bytes: Uint8Array;
   if (/^https?:\/\//i.test(url)) {
     dbg("requesting external URL: %s", uriRedact(url));
+
+    // Check if domain is allowed for HTTP/HTTPS requests
+    const urlObj = new URL(url);
+    const config = runtimeHost.config;
+    
+    // Use script-level allowedDomains if specified, otherwise fall back to global config
+    const allowedDomains = script?.allowedDomains || config?.allowedDomains;
+
+    if (!isDomainAllowed(urlObj.hostname, { allowedDomains })) {
+      const errorMsg = createDomainBlockedError(urlObj.hostname, { allowedDomains });
+      dbg(`domain blocked: %s`, errorMsg);
+      throw new Error(errorMsg);
+    }
+
     const f = await createFetch({
       retries,
       retryDelay,
