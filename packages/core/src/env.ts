@@ -53,6 +53,7 @@ import {
   MODEL_PROVIDER_DOCKER_MODEL_RUNNER,
   DOCKER_MODEL_RUNNER_API_BASE,
   MODEL_PROVIDER_MCP,
+  DEFAULT_ALLOWED_DOMAINS,
 } from "./constants.js";
 import { resolveRuntimeHost } from "./host.js";
 import { parseModelIdentifier } from "./models.js";
@@ -930,7 +931,7 @@ export async function parseTokenFromEnv(
 export function parseAllowedDomains(env: Record<string, string>): string[] {
   const envValue = env.GENAISCRIPT_ALLOWED_DOMAINS || env.ALLOWED_DOMAINS;
   if (!envValue) {
-    return ["github.com", "*.github.com", "*.githubusercontent.com"];
+    return DEFAULT_ALLOWED_DOMAINS;
   }
 
   // Try to parse as YAML array first

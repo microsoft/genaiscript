@@ -1,5 +1,4 @@
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, test, assert } from "vitest";
 import { isDomainAllowed, createDomainBlockedError } from "../src/domainfilter.js";
 
 describe("domainfilter", () => {
@@ -65,16 +64,16 @@ describe("domainfilter", () => {
   describe("createDomainBlockedError", () => {
     test("creates descriptive error message", () => {
       const error = createDomainBlockedError("badsite.com", { allowedDomains: ["github.com", "*.openai.com"] });
-      assert.ok(error.includes("badsite.com"));
-      assert.ok(error.includes("github.com, *.openai.com"));
-      assert.ok(error.includes("GENAISCRIPT_ALLOWED_DOMAINS"));
-      assert.ok(error.includes("allowedDomains"));
+      assert(error.includes("badsite.com"));
+      assert(error.includes("github.com, *.openai.com"));
+      assert(error.includes("GENAISCRIPT_ALLOWED_DOMAINS"));
+      assert(error.includes("allowedDomains"));
     });
 
     test("uses default domains in error message when no config provided", () => {
       const error = createDomainBlockedError("badsite.com", undefined);
-      assert.ok(error.includes("badsite.com"));
-      assert.ok(error.includes("*"));
+      assert(error.includes("badsite.com"));
+      assert(error.includes("*"));
     });
   });
 
