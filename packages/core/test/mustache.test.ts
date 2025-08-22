@@ -120,12 +120,12 @@ parameters:
     default: 3
 ---
 Hello {{name}}! This message will repeat {{count}} times.`;
-        
+
     const output = await interpolateVariables(md, {
       name: "GenAI",
       count: 5,
     });
-        
+
     assert.strictEqual(output, `Hello GenAI! This message will repeat 5 times.`);
   });
 
@@ -140,9 +140,9 @@ parameters:
     default: 3
 ---
 Hello {{name}}! This message will repeat {{count}} times.`;
-        
+
     const output = await interpolateVariables(md, {});
-        
+
     assert.strictEqual(output, `Hello World! This message will repeat 3 times.`);
   });
 
@@ -157,12 +157,12 @@ parameters:
     default: 3
 ---
 Hello {{name}}! This message will repeat {{count}} times.`;
-        
+
     const output = await interpolateVariables(md, {
-      name: "GenAI"
+      name: "GenAI",
       // count should use default from frontmatter
     });
-        
+
     assert.strictEqual(output, `Hello GenAI! This message will repeat 3 times.`);
   });
 
@@ -177,11 +177,15 @@ parameters:
     default: 3
 ---
 Hello {{ name }}! This message will repeat {{ count }} times.`;
-        
-    const output = await interpolateVariables(md, {
-      name: "GenAI"
-    }, { format: "jinja" });
-        
+
+    const output = await interpolateVariables(
+      md,
+      {
+        name: "GenAI",
+      },
+      { format: "jinja" },
+    );
+
     assert.strictEqual(output, `Hello GenAI! This message will repeat 3 times.`);
   });
 
@@ -196,9 +200,9 @@ sample:
   "question": "What is the capital of France?"
 ---
 Question: {{question}}`;
-        
+
     const output = await interpolateVariables(md, {});
-        
+
     assert.strictEqual(output, `Question: What is the capital of France?`);
   });
 
@@ -211,11 +215,11 @@ sample:
   "question": "Default question"
 ---
 Question: {{question}}`;
-        
+
     const output = await interpolateVariables(md, {
-      question: "Custom question"
+      question: "Custom question",
     });
-        
+
     assert.strictEqual(output, `Question: Custom question`);
   });
 });

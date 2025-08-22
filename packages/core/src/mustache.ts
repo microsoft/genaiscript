@@ -21,22 +21,22 @@ export async function interpolateVariables(
 ): Promise<string> {
   if (!md) return md;
   const { format } = options || {};
-  
+
   // Extract frontmatter and content
   let { content } = splitMarkdown(md);
-  
+
   // Extract parameters from frontmatter and merge with provided data
   const frontmatter = frontmatterTryParse(md);
   let mergedData = { ...(data ?? {}) };
-  
+
   if (frontmatter?.value) {
     // Extract default values from frontmatter parameters or inputs (prompty format)
     const frontmatterDefaults: Record<string, any> = {};
     const parameterSource = frontmatter.value.parameters || frontmatter.value.inputs;
-    
+
     if (parameterSource) {
       for (const [key, param] of Object.entries(parameterSource)) {
-        if (typeof param === 'object' && param !== null && 'default' in param) {
+        if (typeof param === "object" && param !== null && "default" in param) {
           // Only use frontmatter default if no data provided for this key
           if (!(key in mergedData)) {
             frontmatterDefaults[key] = param.default;
@@ -46,9 +46,9 @@ export async function interpolateVariables(
       // Merge frontmatter defaults with provided data (data takes precedence)
       mergedData = { ...frontmatterDefaults, ...mergedData };
     }
-    
+
     // Handle prompty sample data as defaults
-    if (frontmatter.value.sample && typeof frontmatter.value.sample === 'object') {
+    if (frontmatter.value.sample && typeof frontmatter.value.sample === "object") {
       for (const [key, value] of Object.entries(frontmatter.value.sample)) {
         if (!(key in mergedData)) {
           frontmatterDefaults[key] = value;
