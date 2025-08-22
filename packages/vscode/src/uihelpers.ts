@@ -27,3 +27,33 @@ export async function showQuickPickWithTimeout<T extends vscode.QuickPickItem>(
         })
     ]);
 }
+
+/**
+ * Shows an information message after a delay unless cancelled.
+ * This is useful for showing status updates or confirmations that don't require immediate attention.
+ * 
+ * @param message The message to show
+ * @param delayMs The delay in milliseconds before showing the message (default: 3000 - 3 seconds)
+ * @param items Optional items to show as actions in the information message
+ * @returns A disposable that can be used to cancel the delayed message
+ */
+export function showDelayedInformationMessage(
+    message: string,
+    delayMs: number = 3000,
+    ...items: string[]
+): vscode.Disposable {
+    let timeoutId: NodeJS.Timeout | undefined;
+    
+    timeoutId = setTimeout(() => {
+        vscode.window.showInformationMessage(message, ...items);
+        timeoutId = undefined;
+    }, delayMs);
+    
+    return new vscode.Disposable(() => {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = undefined;
+        }
+    });
+}
+

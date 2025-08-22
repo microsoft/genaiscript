@@ -13,11 +13,28 @@ import { parseModelIdentifier } from "../../core/src/models";
 import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "../../core/src/constants";
 import { dedent } from "../../core/src/indent";
 import { genaiscriptDebug } from "../../core/src/debug";
-import { showQuickPickWithTimeout } from "./uihelpers";
+import { showDelayedInformationMessage, showQuickPickWithTimeout } from "./uihelpers";
 import { delay } from "es-toolkit";
 const dbg = genaiscriptDebug("vscode:lm");
 
+// apply heuristics to map models
+const LANGUAGE_CHAT_MODELS_CANDIDATES = [
+  "gpt-4.1-mini",
+  "gpt-4.1",
+  "gpt-5-mini",
+  "gpt-5",
+  "o1",
+  "o3-mini",
+  "o4-mini",
+  "gpt-4o-mini",
+  "gpt-4o",
+  "gpt-3.5-turbo",
+];
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 async function tryResolveChatModels() {
+  showDelayedInformationMessage(TOOL_NAME + "- Waiting for Language Chat Models...");
+
   dbg(`try to get models`);
   const chatModels = await vscode.lm.selectChatModels();
   if (chatModels?.length) return chatModels;
@@ -42,7 +59,6 @@ async function pickChatModel(
   }
 
   const languageChatModels = await state.languageChatModels();
-  const { model } = parseModelIdentifier(modelId);
   const currentChatModelId =
     modelId === MODEL_GITHUB_COPILOT_CHAT_CURRENT
       ? state.aiRequest?.options?.githubCopilotChatModelId
@@ -50,7 +66,7 @@ async function pickChatModel(
   if (currentChatModelId) {
     const currentChatModel = chatModels.find((m) => m.id === currentChatModelId);
     if (currentChatModel) {
-      dbg(`model mapping ${model} -> ${currentChatModel.id} (current)`);
+      dbg(`model mapping ${modelId} -> ${currentChatModel.id} (current)`);
       return currentChatModel;
     } else {
       vscode.window.showErrorMessage(
@@ -61,6 +77,7 @@ async function pickChatModel(
     }
   }
 
+  const { model } = parseModelIdentifier(modelId);
   const mappedChatModelId = languageChatModels[model];
   if (mappedChatModelId) {
     const chatModel = chatModels.find((m) => m.id === mappedChatModelId);
@@ -80,11 +97,9 @@ async function pickChatModel(
     return chatModel;
   }
 
-  // apply heuristics to map models
-  const heuristics = [/gpt-4.1-nano/, /gpt-4.1-mini/, /gpt-4.1/, /gpt-5-mini/];
-  const candidate = heuristics.find((h) => h.test(model));
+  const candidate = LANGUAGE_CHAT_MODELS_CANDIDATES.find((h) => model.includes(h));
   if (candidate) {
-    const candidateChatModel = chatModels.find((m) => candidate.test(m.id));
+    const candidateChatModel = chatModels.find((m) => m.id.includes(candidate));
     if (candidateChatModel) {
       dbg(`model mapping ${model} -> ${candidateChatModel.id} (heuristic)`);
       return candidateChatModel;
