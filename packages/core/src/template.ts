@@ -15,7 +15,14 @@ import { deleteUndefinedValues } from "./cleaners.js";
 import { markdownScriptParse } from "./markdownscript.js";
 import { readJSON } from "./fs.js";
 import { frontmatterTryParse } from "./frontmatter.js";
-import type { PromptArgs, PromptScript, McpServersConfig, McpServerConfig, McpAgentServersConfig, McpAgentServerConfig } from "./types.js";
+import type {
+  PromptArgs,
+  PromptScript,
+  McpServersConfig,
+  McpServerConfig,
+  McpAgentServersConfig,
+  McpAgentServerConfig,
+} from "./types.js";
 import { basename, resolve, dirname } from "node:path";
 import { readText } from "./fs.js";
 
@@ -41,10 +48,10 @@ export function templateIdFromFileName(filename: string) {
  */
 async function resolveMcpServersConfig(
   mcpServers: McpServersConfig | undefined,
-  scriptPath: string
+  scriptPath: string,
 ): Promise<Record<string, Omit<McpServerConfig, "id" | "options">> | undefined> {
   if (!mcpServers) return undefined;
-  
+
   if (typeof mcpServers === "string") {
     // Handle file path - resolve relative to script directory
     const configPath = resolve(dirname(scriptPath), mcpServers);
@@ -55,7 +62,9 @@ async function resolveMcpServersConfig(
         if (config.mcpServers && typeof config.mcpServers === "object") {
           return config.mcpServers as Record<string, Omit<McpServerConfig, "id" | "options">>;
         } else {
-          throw new Error(`Invalid MCP server configuration format in ${configPath}. Configuration must have a root 'mcpServers' field.`);
+          throw new Error(
+            `Invalid MCP server configuration format in ${configPath}. Configuration must have a root 'mcpServers' field.`,
+          );
         }
       } else {
         throw new Error(`Invalid MCP server configuration format in ${configPath}`);
@@ -77,10 +86,10 @@ async function resolveMcpServersConfig(
  */
 async function resolveMcpAgentServersConfig(
   mcpAgentServers: McpAgentServersConfig | undefined,
-  scriptPath: string
+  scriptPath: string,
 ): Promise<Record<string, Omit<McpAgentServerConfig, "id" | "options">> | undefined> {
   if (!mcpAgentServers) return undefined;
-  
+
   if (typeof mcpAgentServers === "string") {
     // Handle file path - resolve relative to script directory
     const configPath = resolve(dirname(scriptPath), mcpAgentServers);
@@ -89,9 +98,14 @@ async function resolveMcpAgentServersConfig(
       if (typeof config === "object" && config !== null) {
         // Require Claude format with root mcpAgentServers field
         if (config.mcpAgentServers && typeof config.mcpAgentServers === "object") {
-          return config.mcpAgentServers as Record<string, Omit<McpAgentServerConfig, "id" | "options">>;
+          return config.mcpAgentServers as Record<
+            string,
+            Omit<McpAgentServerConfig, "id" | "options">
+          >;
         } else {
-          throw new Error(`Invalid MCP agent server configuration format in ${configPath}. Configuration must have a root 'mcpAgentServers' field.`);
+          throw new Error(
+            `Invalid MCP agent server configuration format in ${configPath}. Configuration must have a root 'mcpAgentServers' field.`,
+          );
         }
       } else {
         throw new Error(`Invalid MCP agent server configuration format in ${configPath}`);
@@ -152,11 +166,15 @@ function parsePromptScriptTools(jsSource: string) {
  */
 function extractFrontmatterParameters(content: string): Record<string, any> | undefined {
   const fm = frontmatterTryParse(content);
-  if (!fm?.value?.parameters) return undefined;
-  
+  if (!fm?.value) return undefined;
+
+  // Handle both 'parameters' and 'inputs' (prompty format)
+  const parameterSource = fm.value.parameters || fm.value.inputs;
+  if (!parameterSource) return undefined;
+
   // Return the parameters directly - they should already be in the correct format
   // with type definitions like { type: "string", default: "value" }
-  return fm.value.parameters;
+  return parameterSource;
 }
 
 /**
@@ -212,16 +230,16 @@ async function parsePromptTemplateCore(filename: string, content: string) {
  */
 export async function parsePromptScript(filename: string, content: string) {
   const script = await parsePromptTemplateCore(filename, content);
-  
+
   // Extract frontmatter parameters from markdown files and merge them
   // This handles the case where markdown scripts define parameters in frontmatter
   const frontmatterParameters = extractFrontmatterParameters(content);
   if (frontmatterParameters) {
     script.parameters = {
       ...(script.parameters || {}),
-      ...frontmatterParameters
+      ...frontmatterParameters,
     };
   }
-  
+
   return script;
 }
