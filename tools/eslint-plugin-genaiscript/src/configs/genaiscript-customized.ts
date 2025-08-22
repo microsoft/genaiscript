@@ -28,10 +28,7 @@ const tsEslintCustomization: Record<string, SharedConfig.RuleEntry> = {
   "@typescript-eslint/no-angle-bracket-type-assertion": "off",
   "@typescript-eslint/no-array-constructor": "off",
   "@typescript-eslint/no-explicit-any": "off",
-  "@typescript-eslint/explicit-function-return-type": [
-    "warn",
-    { allowExpressions: true, allowTypedFunctionExpressions: true },
-  ],
+  "@typescript-eslint/explicit-function-return-type": "off",
   "@typescript-eslint/explicit-member-accessibility": "off",
   "@typescript-eslint/no-unsafe-member-access": "off",
   "@typescript-eslint/no-inferrable-types": "off",
