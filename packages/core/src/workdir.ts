@@ -15,7 +15,35 @@ import { ensureDir } from "./fs.js";
 import { gitIgnoreEnsure } from "./gitignore.js";
 import { resolveRuntimeHost } from "./host.js";
 import { sanitizeFilename } from "./sanitize.js";
+import { resolve as pathResolve, normalize, relative } from "node:path";
 const dbg = genaiscriptDebug("dirs");
+
+/**
+ * Validates a path segment to prevent directory traversal attacks
+ * @param segment - The path segment to validate
+ * @returns The sanitized segment
+ * @throws Error if the segment contains path traversal attempts
+ */
+function validatePathSegment(segment: string): string {
+  if (!segment || typeof segment !== 'string') {
+    throw new Error("Invalid path segment");
+  }
+  
+  // Normalize the segment to resolve any relative path components
+  const normalized = normalize(segment);
+  
+  // Check for path traversal attempts
+  if (normalized.includes('..') || normalized.startsWith('/') || normalized.includes(':')) {
+    throw new Error(`Path traversal attempt detected in segment: ${segment}`);
+  }
+  
+  // Additional security: ensure no null bytes
+  if (segment.includes('\0')) {
+    throw new Error("Null byte detected in path segment");
+  }
+  
+  return sanitizeFilename(segment);
+}
 
 /**
  * Constructs a resolved file path within the `.genaiscript` directory of the project.
@@ -25,11 +53,21 @@ const dbg = genaiscriptDebug("dirs");
  */
 export function dotGenaiscriptPath(...segments: string[]) {
   const runtimeHost = resolveRuntimeHost();
-  return resolve(
-    runtimeHost.projectFolder(),
-    GENAISCRIPT_FOLDER,
-    ...segments.map((s) => sanitizeFilename(s)),
-  );
+  const projectFolder = runtimeHost.projectFolder();
+  const genaiscriptBase = pathResolve(projectFolder, GENAISCRIPT_FOLDER);
+  
+  // Validate and sanitize all segments
+  const validatedSegments = segments.map(validatePathSegment);
+  
+  const fullPath = pathResolve(genaiscriptBase, ...validatedSegments);
+  
+  // Ensure the resolved path is still within the .genaiscript directory
+  const relativePath = relative(genaiscriptBase, fullPath);
+  if (relativePath.startsWith('..') || relativePath.startsWith('/')) {
+    throw new Error(`Path traversal attempt detected: resolved path ${fullPath} is outside of allowed directory`);
+  }
+  
+  return fullPath;
 }
 
 /**

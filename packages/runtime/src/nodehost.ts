@@ -537,6 +537,21 @@ export class NodeHost extends EventTarget implements RuntimeHost {
       return await container.exec(command, args, options);
     }
 
+    // Validate command to prevent shell injection
+    if (!command || typeof command !== 'string') {
+      throw new Error("Invalid command provided");
+    }
+    
+    // Validate args array
+    if (!Array.isArray(args)) {
+      throw new Error("Invalid arguments provided - must be an array");
+    }
+    
+    // Ensure command doesn't contain shell metacharacters that could be dangerous
+    if (/[;&|`$(){}[\]<>]/.test(command)) {
+      throw new Error("Command contains potentially dangerous shell metacharacters");
+    }
+
     const {
       label,
       cwd,
