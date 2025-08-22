@@ -14,49 +14,109 @@ import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "../../core/src/con
 import { dedent } from "../../core/src/indent";
 import { genaiscriptDebug } from "../../core/src/debug";
 import { showQuickPickWithTimeout } from "./uihelpers";
+import { delay } from "es-toolkit";
 const dbg = genaiscriptDebug("vscode:lm");
+
+async function tryResolveChatModels() {
+  dbg(`try to get models`);
+  const chatModels = await vscode.lm.selectChatModels();
+  if (chatModels?.length) return chatModels;
+
+  // try again after a wait
+  dbg(`wait 2s and try to get models again`);
+  await delay(2000);
+  return vscode.lm.selectChatModels();
+}
 
 async function pickChatModel(
   state: ExtensionState,
   modelId: string,
 ): Promise<vscode.LanguageModelChat> {
-  const chatModels = await vscode.lm.selectChatModels();
+  const chatModels = await tryResolveChatModels();
+  if (!chatModels?.length) {
+    vscode.window.showErrorMessage(
+      TOOL_NAME +
+        " - No language chat models available.\nDid you signin with the GitHub Copilot Chat extension?",
+    );
+    return undefined;
+  }
+
   const languageChatModels = await state.languageChatModels();
   const { model } = parseModelIdentifier(modelId);
-  const chatModelId =
-    (modelId === MODEL_GITHUB_COPILOT_CHAT_CURRENT
+  const currentChatModelId =
+    modelId === MODEL_GITHUB_COPILOT_CHAT_CURRENT
       ? state.aiRequest?.options?.githubCopilotChatModelId
-      : undefined) || languageChatModels[model];
-  let chatModel =
-    chatModels.find((m) => m.id === model) ||
-    (chatModelId && chatModels.find((m) => m.id === chatModelId));
-  if (!chatModel) {
-    const items: (vscode.QuickPickItem & {
-      chatModel?: vscode.LanguageModelChat;
-    })[] = chatModels.map((cm) => ({
-      label: cm.name,
-      description: `${cm.vendor} ${cm.family}`,
-      detail: `${cm.version}, ${cm.maxInputTokens}t.`,
-      chatModel: cm,
-    }));
-    dbg(`language models: %O`, items);
-    if (items.length) {
-      vscode.window.showInformationMessage(
-        TOOL_NAME + " - Pick a Language Chat Model (see Command Palette)",
-      );
-      const res = await showQuickPickWithTimeout(items, {
-        title: `Pick a Language Chat Model for ${model}`,
-      });
-      chatModel = res?.chatModel;
-      if (chatModel) await state.updateLanguageChatModels(model, chatModel.id);
+      : undefined;
+  if (currentChatModelId) {
+    const currentChatModel = chatModels.find((m) => m.id === currentChatModelId);
+    if (currentChatModel) {
+      dbg(`model mapping ${model} -> ${currentChatModel.id} (current)`);
+      return currentChatModel;
     } else {
-      await vscode.window.showErrorMessage(
+      vscode.window.showErrorMessage(
         TOOL_NAME +
-          ` - No language chat model available, could not resolve ${modelId} in ${items.map((item) => item.label).join(", ")}`,
+          ` - language chat model ${currentChatModelId} not longer available. \nTry reloading the window.`,
       );
+      return undefined;
     }
   }
-  return chatModel;
+
+  const mappedChatModelId = languageChatModels[model];
+  if (mappedChatModelId) {
+    const chatModel = chatModels.find((m) => m.id === mappedChatModelId);
+    if (chatModel) {
+      dbg(`model mapping ${model} -> ${chatModel.id} (mapped)`);
+      return chatModel;
+    } else {
+      // we have a mapping but the model is not available anymore, so ignore mapping
+      dbg(`model mapping ${model} -> ${mappedChatModelId} not longer available`);
+      await state.updateLanguageChatModels(model, undefined);
+    }
+  }
+
+  const chatModel = chatModels.find((m) => m.id === model);
+  if (chatModel) {
+    dbg(`model mapping ${model} -> ${chatModel.id} (exact match)`);
+    return chatModel;
+  }
+
+  // apply heuristics to map models
+  const heuristics = [/gpt-4.1-nano/, /gpt-4.1-mini/, /gpt-4.1/, /gpt-5-mini/];
+  const candidate = heuristics.find((h) => h.test(model));
+  if (candidate) {
+    const candidateChatModel = chatModels.find((m) => candidate.test(m.id));
+    if (candidateChatModel) {
+      dbg(`model mapping ${model} -> ${candidateChatModel.id} (heuristic)`);
+      return candidateChatModel;
+    }
+  }
+
+  // ask user
+  const items: (vscode.QuickPickItem & {
+    chatModel?: vscode.LanguageModelChat;
+  })[] = chatModels.map((cm) => ({
+    label: cm.name,
+    description: `${cm.vendor} ${cm.family}`,
+    detail: `${cm.version}, ${cm.maxInputTokens}t.`,
+    chatModel: cm,
+  }));
+  dbg(`language models: %O`, items);
+  if (items.length) {
+    vscode.window.showInformationMessage(
+      TOOL_NAME + " - Pick a Language Chat Model (see Command Palette)",
+    );
+    const res = await showQuickPickWithTimeout(items, {
+      title: `Pick a Language Chat Model for ${model}`,
+    });
+    const chosenChatModel = res?.chatModel;
+    if (chosenChatModel) await state.updateLanguageChatModels(model, chosenChatModel.id);
+  }
+
+  await vscode.window.showErrorMessage(
+    TOOL_NAME +
+      ` - No language chat model matching ${modelId} in ${items.map((item) => item.label).join(", ")}`,
+  );
+  return undefined;
 }
 
 export function isLanguageModelsAvailable(): boolean {
