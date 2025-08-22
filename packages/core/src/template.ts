@@ -152,11 +152,15 @@ function parsePromptScriptTools(jsSource: string) {
  */
 function extractFrontmatterParameters(content: string): Record<string, any> | undefined {
   const fm = frontmatterTryParse(content);
-  if (!fm?.value?.parameters) return undefined;
+  if (!fm?.value) return undefined;
+  
+  // Handle both 'parameters' and 'inputs' (prompty format)
+  const parameterSource = fm.value.parameters || fm.value.inputs;
+  if (!parameterSource) return undefined;
   
   // Return the parameters directly - they should already be in the correct format
   // with type definitions like { type: "string", default: "value" }
-  return fm.value.parameters;
+  return parameterSource;
 }
 
 /**

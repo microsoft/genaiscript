@@ -29,19 +29,33 @@ export async function interpolateVariables(
   const frontmatter = frontmatterTryParse(md);
   let mergedData = { ...(data ?? {}) };
   
-  if (frontmatter?.value?.parameters) {
-    // Extract default values from frontmatter parameters
+  if (frontmatter?.value) {
+    // Extract default values from frontmatter parameters or inputs (prompty format)
     const frontmatterDefaults: Record<string, any> = {};
-    for (const [key, param] of Object.entries(frontmatter.value.parameters)) {
-      if (typeof param === 'object' && param !== null && 'default' in param) {
-        // Only use frontmatter default if no data provided for this key
-        if (!(key in mergedData)) {
-          frontmatterDefaults[key] = param.default;
+    const parameterSource = frontmatter.value.parameters || frontmatter.value.inputs;
+    
+    if (parameterSource) {
+      for (const [key, param] of Object.entries(parameterSource)) {
+        if (typeof param === 'object' && param !== null && 'default' in param) {
+          // Only use frontmatter default if no data provided for this key
+          if (!(key in mergedData)) {
+            frontmatterDefaults[key] = param.default;
+          }
         }
       }
+      // Merge frontmatter defaults with provided data (data takes precedence)
+      mergedData = { ...frontmatterDefaults, ...mergedData };
     }
-    // Merge frontmatter defaults with provided data (data takes precedence)
-    mergedData = { ...frontmatterDefaults, ...mergedData };
+    
+    // Handle prompty sample data as defaults
+    if (frontmatter.value.sample && typeof frontmatter.value.sample === 'object') {
+      for (const [key, value] of Object.entries(frontmatter.value.sample)) {
+        if (!(key in mergedData)) {
+          frontmatterDefaults[key] = value;
+        }
+      }
+      mergedData = { ...frontmatterDefaults, ...mergedData };
+    }
   }
 
   // remove prompty roles

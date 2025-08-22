@@ -184,4 +184,38 @@ Hello {{ name }}! This message will repeat {{ count }} times.`;
         
     assert.strictEqual(output, `Hello GenAI! This message will repeat 3 times.`);
   });
+
+  test("should handle prompty format with inputs and sample", async () => {
+    const md = `---
+name: Basic Prompt
+description: A basic prompt
+inputs:
+  question:
+    type: string
+sample:
+  "question": "What is the capital of France?"
+---
+Question: {{question}}`;
+        
+    const output = await interpolateVariables(md, {});
+        
+    assert.strictEqual(output, `Question: What is the capital of France?`);
+  });
+
+  test("should handle prompty format with data override", async () => {
+    const md = `---
+inputs:
+  question:
+    type: string
+sample:
+  "question": "Default question"
+---
+Question: {{question}}`;
+        
+    const output = await interpolateVariables(md, {
+      question: "Custom question"
+    });
+        
+    assert.strictEqual(output, `Question: Custom question`);
+  });
 });
