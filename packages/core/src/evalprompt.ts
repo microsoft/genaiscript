@@ -9,41 +9,6 @@ import { genaiscriptDebug } from "./debug.js";
 const dbg = genaiscriptDebug("eval");
 
 /**
- * Validates JavaScript source code for security vulnerabilities
- * @param source - The JavaScript source code to validate
- * @throws Error if potentially dangerous patterns are detected
- */
-function validateJavaScriptSource(source: string): void {
-  // List of potentially dangerous patterns that should not be in prompt scripts
-  const dangerousPatterns = [
-    /require\s*\(\s*['"`]child_process['"`]\s*\)/,
-    /require\s*\(\s*['"`]fs['"`]\s*\)/,
-    /require\s*\(\s*['"`]os['"`]\s*\)/,
-    /require\s*\(\s*['"`]process['"`]\s*\)/,
-    /process\s*\.\s*env/,
-    /global\s*\[/,
-    /globalThis\s*\[/,
-    /window\s*\[/,
-    /eval\s*\(/,
-    /Function\s*\(/,
-    /import\s*\(\s*['"`][^'"`]*\/\.\./,  // relative imports going up directories
-    /require\s*\(\s*['"`][^'"`]*\/\.\./,  // relative requires going up directories
-  ];
-
-  for (const pattern of dangerousPatterns) {
-    if (pattern.test(source)) {
-      throw new Error(`Potentially dangerous code pattern detected in script source: ${pattern.source}`);
-    }
-  }
-
-  // Check for excessive complexity that might indicate obfuscated code
-  const lines = source.split('\n');
-  if (lines.some(line => line.length > 1000)) {
-    dbg("Warning: Script contains very long lines which may indicate obfuscated code");
-  }
-}
-
-/**
  * Evaluates a JavaScript prompt script with the provided context.
  *
  * @param ctx0 - An object representing the execution context. Keys in this object are made available as arguments to the evaluated function.
@@ -64,12 +29,6 @@ export async function evalPrompt(
 ) {
   const { sourceMaps } = options || {};
   dbg(`eval %s`, r.id);
-
-  // Validate the JavaScript source for security
-  if (r.jsSource) {
-    validateJavaScriptSource(r.jsSource);
-  }
-
   const ctx = Object.freeze<PromptContext>({
     ...ctx0,
   });
@@ -99,8 +58,8 @@ export async function evalPrompt(
     src += "\n//# source" + "URL=" + source;
   }
 
-  // Use indirect eval to ensure code runs in global scope with restricted access
-  // This is still eval but with additional validation and context isolation
+  // in principle we could cache this function (but would have to do that based on hashed body or sth)
+  // but probably little point
   const fn = (0, eval)(src);
   dbg(`eval ${r.filename}`);
   return await fn(...Object.values(ctx));
