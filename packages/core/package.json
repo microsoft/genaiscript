@@ -4,7 +4,10 @@
   "version": "2.4.0",
   "license": "MIT",
   "type": "module",
-  "repository": "github:microsoft/genaiscript",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/genaiscript.git"
+  },
   "bugs": {
     "url": "https://github.com/microsoft/genaiscript/issues"
   },
@@ -175,5 +178,13 @@
   },
   "main": "./dist/commonjs/index.js",
   "types": "./dist/commonjs/index.d.ts",
-  "module": "./dist/esm/index.js"
+  "module": "./dist/esm/index.js",
+  "description": "Core package for the GenAIScript project, which provides the foundational libraries and tools to build and execute GenAIScript code.",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "keywords": [],
+  "author": "",
+  "homepage": "https://github.com/microsoft/genaiscript#readme"
 }
