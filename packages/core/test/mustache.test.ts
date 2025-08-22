@@ -128,4 +128,60 @@ Hello {{name}}! This message will repeat {{count}} times.`;
         
     assert.strictEqual(output, `Hello GenAI! This message will repeat 5 times.`);
   });
+
+  test("should use frontmatter parameter defaults when no data provided", async () => {
+    const md = `---
+parameters:
+  name:
+    type: string
+    default: "World"
+  count:
+    type: number
+    default: 3
+---
+Hello {{name}}! This message will repeat {{count}} times.`;
+        
+    const output = await interpolateVariables(md, {});
+        
+    assert.strictEqual(output, `Hello World! This message will repeat 3 times.`);
+  });
+
+  test("should handle partial data with frontmatter defaults", async () => {
+    const md = `---
+parameters:
+  name:
+    type: string
+    default: "World"
+  count:
+    type: number
+    default: 3
+---
+Hello {{name}}! This message will repeat {{count}} times.`;
+        
+    const output = await interpolateVariables(md, {
+      name: "GenAI"
+      // count should use default from frontmatter
+    });
+        
+    assert.strictEqual(output, `Hello GenAI! This message will repeat 3 times.`);
+  });
+
+  test("should handle frontmatter parameters with Jinja format", async () => {
+    const md = `---
+parameters:
+  name:
+    type: string
+    default: "World"
+  count:
+    type: number
+    default: 3
+---
+Hello {{ name }}! This message will repeat {{ count }} times.`;
+        
+    const output = await interpolateVariables(md, {
+      name: "GenAI"
+    }, { format: "jinja" });
+        
+    assert.strictEqual(output, `Hello GenAI! This message will repeat 3 times.`);
+  });
 });
