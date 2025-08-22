@@ -82,7 +82,7 @@ export function activateFragmentCommands(state: ExtensionState): void {
       parameters = await showPromptParametersQuickPicks(script, defaultValues);
       if (parameters === undefined) return;
       scriptId = script.id;
-      files = fileOrFolders?.map((f) => f.fsPath) || [fileOrFolder?.fsPath];
+      files = fileOrFolders?.map((f) => f.toString()) || [fileOrFolder?.toString()];
     }
     await state.requestAI({
       fragment: { files: files.filter((f) => !!f) },

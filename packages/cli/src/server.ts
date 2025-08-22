@@ -138,7 +138,7 @@ export async function startServer(
     string,
     {
       canceller: AbortSignalCancellationController;
-      trace: MarkdownTrace | undefined;
+      trace?: MarkdownTrace | undefined;
       outputTrace: MarkdownTrace;
       runner: Promise<void>;
     }
@@ -391,7 +391,7 @@ export async function startServer(
             } satisfies PromptScriptProgressResponseEvent),
           ),
         );
-        if (run.trace) {
+        if (run?.trace) {
           chunkString(run.trace.content, WS_MAX_FRAME_CHUNK_LENGTH).forEach((c) =>
             ws.send(
               toPayload({

@@ -293,6 +293,7 @@ export const VSCODE_CONFIG_CLI_VERSION = "cli.version";
 export const VSCODE_CONFIG_CLI_PATH = "cli.path";
 export const VSCODE_CONFIG_CLI_PACKAGE_MANAGER = "cli.packageManager";
 export const VSCODE_CONFIG_CLI_NODE_OPTIONS = "cli.nodeOptions";
+export const VSCODE_LANGUAGE_MODEL_RETRY = 3;
 
 export const CONSOLE_COLOR_INFO = 32;
 export const CONSOLE_COLOR_DEBUG = 90;

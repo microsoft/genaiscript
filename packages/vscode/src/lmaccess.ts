@@ -10,7 +10,11 @@ import { serializeError } from "../../core/src/error";
 import { logVerbose } from "../../core/src/log";
 import { renderMessageContent } from "../../core/src/chatrender";
 import { parseModelIdentifier } from "../../core/src/models";
-import { MODEL_GITHUB_COPILOT_CHAT_CURRENT, TOOL_NAME } from "../../core/src/constants";
+import {
+  MODEL_GITHUB_COPILOT_CHAT_CURRENT,
+  TOOL_NAME,
+  VSCODE_LANGUAGE_MODEL_RETRY,
+} from "../../core/src/constants";
 import { dedent } from "../../core/src/indent";
 import { genaiscriptDebug } from "../../core/src/debug";
 import { showDelayedInformationMessage, showQuickPickWithTimeout } from "./uihelpers";
@@ -33,16 +37,23 @@ const LANGUAGE_CHAT_MODELS_CANDIDATES = [
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 async function tryResolveChatModels() {
-  showDelayedInformationMessage(TOOL_NAME + "- Waiting for Language Chat Models...");
-
-  dbg(`try to get models`);
-  const chatModels = await vscode.lm.selectChatModels();
-  if (chatModels?.length) return chatModels;
-
-  // try again after a wait
-  dbg(`wait 2s and try to get models again`);
-  await delay(2000);
-  return vscode.lm.selectChatModels();
+  const done = showDelayedInformationMessage(TOOL_NAME + "- Waiting for Language Chat Models...");
+  try {
+    dbg(`try to get models`);
+    let retry = VSCODE_LANGUAGE_MODEL_RETRY;
+    do {
+      const chatModels = await vscode.lm.selectChatModels();
+      if (chatModels?.length) return chatModels;
+      // try again after a wait
+      dbg(`wait 5s and try to get models again`);
+      done.dispose()
+      vscode.window.showWarningMessage(TOOL_NAME + "- No language chat models found. Retrying...");
+      await delay(5000);
+    } while (retry-- > 0);
+  } finally {
+    done?.dispose();
+  }
+  return undefined;
 }
 
 async function pickChatModel(
