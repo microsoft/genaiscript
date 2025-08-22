@@ -91,6 +91,18 @@ async function pickChatModel(
     }
   }
 
+  // check if user wants to be asked for model selection
+  const config = state.getConfiguration();
+  const askLanguageChatModel = config.get<boolean>("askLanguageChatModel", true);
+
+  if (!askLanguageChatModel) {
+    vscode.window.showErrorMessage(
+      TOOL_NAME +
+        ` - No language chat model matching ${modelId}. Model selection disabled via configuration.`,
+    );
+    return undefined;
+  }
+
   // ask user
   const items: (vscode.QuickPickItem & {
     chatModel?: vscode.LanguageModelChat;
@@ -114,7 +126,7 @@ async function pickChatModel(
 
   await vscode.window.showErrorMessage(
     TOOL_NAME +
-      ` - No language chat model matching ${modelId} in ${items.map((item) => item.label).join(", ")}`,
+      ` - No language chat model matching ${modelId} in ${chatModels.map((item) => item.id).join(", ")}`,
   );
   return undefined;
 }
