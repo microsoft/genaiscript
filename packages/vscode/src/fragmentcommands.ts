@@ -14,6 +14,7 @@ import { showPromptParametersQuickPicks } from "./parameterquickpick";
 import { scriptsToQuickPickItems } from "./scriptquickpick";
 import { getSelectedText } from "./selection";
 import { resolveCli } from "./config";
+import { checkDirectoryExists, listFiles } from "./fs";
 
 export function activateFragmentCommands(state: ExtensionState): void {
   const { context, host } = state;
@@ -82,7 +83,36 @@ export function activateFragmentCommands(state: ExtensionState): void {
       parameters = await showPromptParametersQuickPicks(script, defaultValues);
       if (parameters === undefined) return;
       scriptId = script.id;
-      files = fileOrFolders?.map((f) => f.toString()) || [fileOrFolder?.toString()];
+      
+      // Handle file/folder expansion
+      if (fileOrFolders) {
+        // Multiple selection case - expand any directories
+        const expandedFiles: string[] = [];
+        for (const item of fileOrFolders) {
+          if (await checkDirectoryExists(item)) {
+            // Expand directory to all files recursively
+            const filesInDir = await listFiles(item);
+            expandedFiles.push(...filesInDir.map(f => f.toString()));
+          } else {
+            // Regular file
+            expandedFiles.push(item.toString());
+          }
+        }
+        files = expandedFiles;
+      } else if (fileOrFolder) {
+        // Single selection case - check if it's a directory
+        if (await checkDirectoryExists(fileOrFolder)) {
+          // Expand directory to all files recursively
+          const filesInDir = await listFiles(fileOrFolder);
+          files = filesInDir.map(f => f.toString());
+        } else {
+          // Regular file
+          files = [fileOrFolder.toString()];
+        }
+      } else {
+        // Command palette case - no files
+        files = [];
+      }
     }
     await state.requestAI({
       fragment: { files: files.filter((f) => !!f) },
