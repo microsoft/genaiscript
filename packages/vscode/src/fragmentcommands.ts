@@ -14,6 +14,7 @@ import { showPromptParametersQuickPicks } from "./parameterquickpick";
 import { scriptsToQuickPickItems } from "./scriptquickpick";
 import { getSelectedText } from "./selection";
 import { resolveCli } from "./config";
+import { checkDirectoryExists } from "./fs";
 
 export function activateFragmentCommands(state: ExtensionState): void {
   const { context, host } = state;
@@ -82,7 +83,38 @@ export function activateFragmentCommands(state: ExtensionState): void {
       parameters = await showPromptParametersQuickPicks(script, defaultValues);
       if (parameters === undefined) return;
       scriptId = script.id;
-      files = fileOrFolders?.map((f) => f.toString()) || [fileOrFolder?.toString()];
+      
+      // Handle files and folders
+      if (fileOrFolders?.length) {
+        // Multiple selection case - expand any directories to files
+        const allFiles: string[] = [];
+        for (const item of fileOrFolders) {
+          if (await checkDirectoryExists(item)) {
+            // It's a directory - find all files within it
+            const pattern = vscode.workspace.asRelativePath(item) + "/**";
+            const dirFiles = await vscode.workspace.findFiles(pattern);
+            allFiles.push(...dirFiles.map(f => f.toString()));
+          } else {
+            // It's a file - add directly
+            allFiles.push(item.toString());
+          }
+        }
+        files = allFiles;
+      } else if (fileOrFolder) {
+        // Single selection case - check if it's a directory
+        if (await checkDirectoryExists(fileOrFolder)) {
+          // It's a directory - find all files within it
+          const pattern = vscode.workspace.asRelativePath(fileOrFolder) + "/**";
+          const dirFiles = await vscode.workspace.findFiles(pattern);
+          files = dirFiles.map(f => f.toString());
+        } else {
+          // It's a file - use as-is
+          files = [fileOrFolder.toString()];
+        }
+      } else {
+        // No files specified
+        files = [];
+      }
     }
     await state.requestAI({
       fragment: { files: files.filter((f) => !!f) },
