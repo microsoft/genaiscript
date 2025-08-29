@@ -113,12 +113,15 @@ export class VSCodeHost extends EventTarget implements Host {
   }
   private toProjectFileUri(name: string) {
     const wksrx = /^workspace:\/\//i;
+    const fileUriRx = /^file:\/\//i;
     const uri = wksrx.test(name)
       ? Utils.joinPath(vscode.workspace.workspaceFolders[0].uri, name.replace(wksrx, ""))
-      : /^(\/|\w:\\)/i.test(name) ||
-          name.startsWith(vscode.workspace.workspaceFolders[0].uri.fsPath)
-        ? Uri.file(name)
-        : Utils.joinPath(vscode.workspace.workspaceFolders[0].uri, name);
+      : fileUriRx.test(name)
+        ? vscode.Uri.parse(name, true)
+        : /^(\/|\w:\\)/i.test(name) ||
+            name.startsWith(vscode.workspace.workspaceFolders[0].uri.fsPath)
+          ? Uri.file(name)
+          : Utils.joinPath(vscode.workspace.workspaceFolders[0].uri, name);
     return uri;
   }
 
