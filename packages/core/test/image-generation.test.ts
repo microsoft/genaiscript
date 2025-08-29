@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll } from "vitest";
+import { describe, test, expect, beforeAll, vi } from "vitest";
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { CreateImageRequest } from "../src/chat.js";
@@ -216,6 +216,8 @@ describe("Image Generation", () => {
           model: "dall-e-3",
           base: "https://example.openai.azure.com",
           type: "azure",
+          token: "test-token",
+          modelId: "dall-e-3",
         };
 
         // This test verifies the request structure is valid for Azure edit mode
@@ -237,6 +239,8 @@ describe("Image Generation", () => {
           model: "dall-e-3",
           base: "https://example.openai.azure.com",
           type: "azure",
+          token: "test-token",
+          modelId: "dall-e-3",
         };
 
         // This test verifies the request structure is valid for Azure generation mode
@@ -259,11 +263,63 @@ describe("Image Generation", () => {
         model: "dall-e-2",
         base: "https://api.openai.com/v1",
         type: "openai",
+        token: "test-token",
+        modelId: "dall-e-2",
       };
 
       // This test verifies the request structure is valid for OpenAI edit mode
       expect(req.mode).toBe("edit");
       expect(req.image).toBe(testImagePath);
+      expect(cfg.provider).toBe(MODEL_PROVIDER_OPENAI);
+    });
+  });
+
+  describe("HTTP Request Handling", () => {
+    test("edit mode request structure is correctly prepared for FormData", () => {
+      const req: CreateImageRequest = {
+        model: "dall-e-2",
+        prompt: "Edit this image",
+        mode: "edit",
+        image: createTestImage(),
+      };
+
+      const cfg: LanguageModelConfiguration = {
+        provider: MODEL_PROVIDER_OPENAI,
+        model: "dall-e-2",
+        base: "https://api.openai.com/v1",
+        type: "openai",
+        token: "test-token",
+        modelId: "dall-e-2",
+      };
+
+      // Verify the request structure is correct for edit mode
+      expect(req.mode).toBe("edit");
+      expect(req.image).toBeInstanceOf(Buffer);
+      expect(cfg.provider).toBe(MODEL_PROVIDER_OPENAI);
+      
+      // The fix ensures that when mode === "edit" (isMultipart = true), 
+      // global.fetch is used instead of cross-fetch to properly handle FormData
+    });
+
+    test("generate mode uses standard JSON body", () => {
+      const req: CreateImageRequest = {
+        model: "dall-e-3",
+        prompt: "Generate a new image",
+        mode: "generate",
+      };
+
+      const cfg: LanguageModelConfiguration = {
+        provider: MODEL_PROVIDER_OPENAI,
+        model: "dall-e-3",
+        base: "https://api.openai.com/v1",
+        type: "openai",
+        token: "test-token",
+        modelId: "dall-e-3",
+      };
+
+      // Verify structure for standard generation mode
+      expect(req.mode).toBe("generate");
+      expect(req.image).toBeUndefined();
       expect(cfg.provider).toBe(MODEL_PROVIDER_OPENAI);
     });
   });

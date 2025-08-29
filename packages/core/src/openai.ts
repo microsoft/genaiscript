@@ -445,7 +445,8 @@ export async function OpenAIImageGeneration(
 
     traceFetchPost(trace, url, freq.headers, body);
 
-    const res = await fetch(url, freq as any);
+    // TODO: switch back to cross-fetch in the future
+    const res = isMultipart ? await global.fetch(url, freq as any) : await fetch(url, freq as any);
     dbg(`response: %d %s`, res.status, res.statusText);
     trace?.itemValue(`status`, `${res.status} ${res.statusText}`);
     if (!res.ok)
