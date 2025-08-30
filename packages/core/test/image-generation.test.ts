@@ -296,8 +296,8 @@ describe("Image Generation", () => {
       expect(req.mode).toBe("edit");
       expect(req.image).toBeInstanceOf(Buffer);
       expect(cfg.provider).toBe(MODEL_PROVIDER_OPENAI);
-      
-      // The fix ensures that when mode === "edit" (isMultipart = true), 
+
+      // The fix ensures that when mode === "edit" (isMultipart = true),
       // global.fetch is used instead of cross-fetch to properly handle FormData
     });
 
