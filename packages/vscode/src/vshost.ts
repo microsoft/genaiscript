@@ -111,7 +111,7 @@ export class VSCodeHost extends EventTarget implements Host {
     const uri = this.toProjectFileUri(name);
     await vscode.workspace.fs.writeFile(uri, content);
   }
-  private toProjectFileUri(name: string) {
+  private toProjectFileUri(name: string): vscode.Uri {
     const wksrx = /^workspace:\/\//i;
     const fileUriRx = /^file:\/\//i;
     const uri = wksrx.test(name)
