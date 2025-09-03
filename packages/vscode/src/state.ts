@@ -398,7 +398,7 @@ export class ExtensionState extends EventTarget {
     return p;
   }
 
-  private async uncachedParseWorkspace() {
+  private async uncachedParseWorkspace(): Promise<void> {
     try {
       logVerbose(`parse workspace`);
       this.dispatchChange();

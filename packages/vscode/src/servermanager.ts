@@ -81,7 +81,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     );
   }
 
-  private dispatchChange() {
+  private dispatchChange(): void {
     this.dispatchEvent(new Event(CHANGE));
   }
 
@@ -91,29 +91,29 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     return this._startClientPromise || (this._startClientPromise = this.startClient());
   }
 
-  get authority() {
+  get authority(): string {
     if (!this._port) return undefined;
     return `${SERVER_LOCALHOST}:${this._port}`;
   }
 
-  get url() {
+  get url(): string {
     return this.state.sessionApiKey
       ? `${this.authority}?api-key=${encodeURIComponent(this.state.sessionApiKey)}`
       : this.authority;
   }
 
-  get browserUrl() {
+  get browserUrl(): string {
     return this.state.sessionApiKey
       ? `${this.authority}#api-key=${encodeURIComponent(this.state.sessionApiKey)}`
       : this.authority;
   }
 
-  private async allocatePort() {
+  private async allocatePort(): Promise<number> {
     if (isNaN(this._port)) this._port = await findRandomOpenPort();
     return this._port;
   }
 
-  get version() {
+  get version(): string {
     return this._version;
   }
 
@@ -121,14 +121,15 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     if (this._client) throw new Error("client already started");
     await this.allocatePort();
     const url = this.url;
-    const authority = (await vscode.env.asExternalUri(vscode.Uri.parse(this.authority))).toString();
+    const authorityUri = await vscode.env.asExternalUri(vscode.Uri.parse(this.authority));
+    const authority = authorityUri.toString();
     const externalUrl =
       authority +
       (this.state.sessionApiKey ? `#api-key=${encodeURIComponent(this.state.sessionApiKey)}` : "");
     logInfo(`client url: ${url}`);
     logVerbose(`client external url: ${externalUrl}`);
     const client = (this._client = new VsCodeClient(url, externalUrl, authority));
-    client.chatRequest = createChatModelRunner(this.state);
+      client.chatRequest = createChatModelRunner(this.state);
     client.addEventListener(OPEN, async () => {
       if (client !== this._client) return;
       this._terminalStartAttempts = 0;
@@ -162,7 +163,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     return this._client;
   }
 
-  private clearTerminalStartWatcher() {
+  private clearTerminalStartWatcher(): void {
     if (this._terminalStartWatcher) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       clearTimeout(this._terminalStartWatcher as any);
@@ -300,7 +301,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     }
   }
 
-  async close() {
+  async close(): Promise<void> {
     try {
       this.status = "stopping";
       this._startClientPromise = undefined;
@@ -311,12 +312,12 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     }
   }
 
-  async show(preserveFocus?: boolean) {
+  async show(preserveFocus?: boolean): Promise<void> {
     if (!this._terminal) await this.start();
     this._terminal?.show(preserveFocus);
   }
 
-  private closeTerminal() {
+  private closeTerminal(): void {
     const t = this._terminal;
     this._port = undefined;
     this._terminal = undefined;
@@ -326,7 +327,7 @@ export class TerminalServerManager extends EventTarget implements ServerManager 
     if (!this.state.diagnostics) t?.dispose();
   }
 
-  dispose() {
+  dispose(): void {
     this.close();
   }
 }
