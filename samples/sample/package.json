@@ -1,0 +1,47 @@
+{
+  "name": "genaiscript-sample",
+  "version": "2.2.5",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"genaisrc/**/*.{ts,cts,mts,mjs}\" \"*.{js,cjs,mjs,json,mjs}\" ",
+    "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"genaisrc/**/*.{ts,cts,mts,mjs}\" \"*.{js,cjs,mjs,json,mjs}\" ",
+    "test": "vitest --run",
+    "run:script": "node --trace-deprecation ../../packages/cli/dist/src/index.js run",
+    "test:scripts": "node ../../packages/cli/dist/src/index.js test --remove-out -r"
+  },
+  "dependencies": {
+    "@genaiscript/plugin-ast-grep": "workspace:*",
+    "@genaiscript/plugin-mdast": "workspace:*",
+    "@genaiscript/plugin-mermaid": "workspace:*",
+    "@genaiscript/plugin-playwright": "workspace:*",
+    "@genaiscript/plugin-pyodide": "workspace:*",
+    "@genaiscript/plugin-z3": "workspace:*",
+    "@genaiscript/runtime": "workspace:*",
+    "ini": "^5.0.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@ast-grep/lang-c": "^0.0.2",
+    "@ast-grep/lang-cpp": "^0.0.2",
+    "@ast-grep/lang-csharp": "^0.0.2",
+    "@ast-grep/lang-python": "^0.0.2",
+    "@azure/identity": "^4.11.1",
+    "@azure/storage-blob": "^12.28.0",
+    "@genaiscript/api": "workspace:*",
+    "@langchain/core": "^0.3.69",
+    "@langchain/langgraph": "^0.2.74",
+    "@modelcontextprotocol/sdk": "^1.17.2",
+    "@tidyjs/tidy": "^2.5.2",
+    "@types/mdast": "catalog:",
+    "@types/node": "catalog:",
+    "es-toolkit": "catalog:",
+    "mdast-util-mdx-jsx": "^3.2.0",
+    "mdast-util-mdxjs-esm": "^2.0.1",
+    "p-all": "^5.0.0",
+    "vitest": "catalog:",
+    "zod": "catalog:",
+    "zod-to-json-schema": "^3.24.6",
+    "zx": "catalog:"
+  }
+}

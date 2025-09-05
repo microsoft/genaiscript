@@ -1,0 +1,173 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/dev-proxy/main/schemas/v0.29.2/genericrandomerrorplugin.errorsfile.schema.json",
+  "errors": [
+    {
+      "request": {
+        "url": "https://models.github.ai/inference/chat/completions",
+        "method": "POST"
+      },
+      "responses": [
+        {          
+          "statusCode": 429,
+          "headers": [
+            {
+              "name": "azureml-served-by-cluster",
+              "value": "vienna-eastus2-02"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "name": "Date",
+              "value": "Fri, 20 Jun 2025 09:18:29 GMT"
+            },
+            {
+              "name": "request-context",
+              "value": "appId="
+            },
+            {
+              "name": "Retry-After",
+              "value": "17"
+            },
+            {
+              "name": "Server",
+              "value": "models-gateway"
+            },
+            {
+              "name": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains; preload"
+            },
+            {
+              "name": "Vary",
+              "value": "Origin"
+            },
+            {
+              "name": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "name": "x-ms-error-code",
+              "value": "RateLimitReached"
+            },
+            {
+              "name": "x-ratelimit-timeremaining",
+              "value": "17"
+            },
+            {
+              "name": "x-ratelimit-type",
+              "value": "UserByModelByMinute"
+            },
+            {
+              "name": "x-request-time",
+              "value": "0.009"
+            },
+            {
+              "name": "Content-Length",
+              "value": "259"
+            },
+            {
+              "name": "x-github-backend",
+              "value": "Kubernetes"
+            },
+            {
+              "name": "X-GitHub-Request-Id",
+              "value": "EE91:137DE3:235FF0B:2CC3FEE:68552764"
+            },
+            {
+              "name": "connection",
+              "value": "close"
+            }
+          ],
+          "body": {
+            "error": {
+              "code": "RateLimitReached",
+              "message": "Rate limit of 15 per 60s exceeded for UserByModelByMinute. Please wait 17 seconds before retrying.",
+              "details": "Rate limit of 15 per 60s exceeded for UserByModelByMinute. Please wait 17 seconds before retrying."
+            }
+          }
+        },
+        {
+          "statusCode": 429,
+          "headers": [
+            {
+              "name": "azureml-served-by-cluster",
+              "value": "vienna-eastus2-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "name": "Date",
+              "value": "Mon, 23 Jun 2025 09:54:06 GMT"
+            },
+            {
+              "name": "request-context",
+              "value": "appId="
+            },
+            {
+              "name": "Retry-After",
+              "value": "78883"
+            },
+            {
+              "name": "Server",
+              "value": "models-gateway"
+            },
+            {
+              "name": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains; preload"
+            },
+            {
+              "name": "Vary",
+              "value": "Origin"
+            },
+            {
+              "name": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "name": "x-ms-error-code",
+              "value": "RateLimitReached"
+            },
+            {
+              "name": "x-ratelimit-timeremaining",
+              "value": "78883"
+            },
+            {
+              "name": "x-ratelimit-type",
+              "value": "UserByModelByDay"
+            },
+            {
+              "name": "x-request-time",
+              "value": "0.010"
+            },
+            {
+              "name": "Content-Length",
+              "value": "267"
+            },
+            {
+              "name": "x-github-backend",
+              "value": "Kubernetes"
+            },
+            {
+              "name": "X-GitHub-Request-Id",
+              "value": "D43E:451AD:397BBD4:50F4690:6859243E"
+            },
+            {
+              "name": "connection",
+              "value": "close"
+            }
+          ],
+          "body": {
+            "error": {
+              "code": "RateLimitReached",
+              "message": "Rate limit of 150 per 86400s exceeded for UserByModelByDay. Please wait 78883 seconds before retrying.",
+              "details": "Rate limit of 150 per 86400s exceeded for UserByModelByDay. Please wait 78883 seconds before retrying."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

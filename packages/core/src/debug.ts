@@ -1,6 +1,10 @@
-import debug, { Debugger } from "debug"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-const _genaiscriptDebug = debug("genaiscript")
+import type { Debugger } from "debug";
+import debug from "debug";
+
+const _genaiscriptDebug = debug("genaiscript");
 export function genaiscriptDebug(namespace: string): Debugger {
-    return _genaiscriptDebug.extend(namespace)
+  return _genaiscriptDebug.extend(namespace);
 }

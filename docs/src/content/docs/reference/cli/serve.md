@@ -2,17 +2,74 @@
 title: Serve
 description: Launch local web server.
 sidebar:
-    order: 2
+  order: 2
 hero:
-    image:
-        alt:
-            A simple 2D server icon in 8-bit style features a computer tower and a
-            globe representing network connectivity. Color-coded buttons indicate API
-            functions, accompanied by a shield symbol for API key security, a gear
-            icon for settings, and an abstract chain to represent CORS. The icon uses
-            a five-color flat corporate palette, fits within a 128x128 frame, has a
-            transparent background, and includes no text, people, or shadows.
-        file: ./serve.png
+  image:
+    alt: A simple 2D server icon in 8-bit style features a computer tower and a
+      globe representing network connectivity. Color-coded buttons indicate API
+      functions, accompanied by a shield symbol for API key security, a gear
+      icon for settings, and an abstract chain to represent CORS. The icon uses
+      a five-color flat corporate palette, fits within a 128x128 frame, has a
+      transparent background, and includes no text, people, or shadows.
+    file: ./serve.png
+llmstxt:
+  content: >-
+    Launch a local web server for the playground or Visual Studio Code using
+    `npx genaiscript serve`. Default port is 8003; specify a custom port with
+    `--port`. Example: `npx genaiscript serve --port 8004`.
+
+
+    Authenticate requests with an API key using `--api-key` or the
+    `GENAISCRIPT_API_KEY` environment variable. Example: `npx genaiscript serve
+    --api-key my-api-key` or set `GENAISCRIPT_API_KEY=my-api-key` in `.env`. API
+    key can be passed in the `Authorization` header or as a query parameter
+    (`http://localhost:8003/#api-key=my-api-key`).
+
+
+    Enable CORS with `--cors` or `GENAISCRIPT_CORS_ORIGIN`. Example: `npx
+    genaiscript serve --cors contoso.com`.
+
+
+    Make the server accessible on the network by using `--network`. Example:
+    `npx genaiscript serve --network`. Ensure the API key is set for network
+    usage.
+
+
+    Run the server in a Docker container by creating an image with genaiscript.
+    Example Dockerfile:
+
+    ```
+
+    FROM node:alpine
+
+    RUN apk add --no-cache git && npm install -g genaiscript
+
+    ```
+
+    Build and run:
+
+    ```
+
+    docker build -t genaiscript .
+
+    docker run --env GITHUB_TOKEN --env-file .env --name genaiscript --rm -it
+    --expose 8003 -p 8003:8003 -v ${PWD}:/workspace -w /workspace genaiscript
+    genaiscript serve --network
+
+    ```
+
+    Access at `http://localhost:8003`.
+
+
+    Enable OpenAI API proxy with `--openai`. Example: `npx genaiscript serve
+    --openai`. Supported routes:
+
+    - `/v1/chat/completions`: Forwards requests to OpenAI API (no streaming
+    support).
+
+    - `/v1/models`: Lists available models and aliases.
+  hash: 5c6994a3848d6faa8a786567b87b16f02790d55ce35cca2f4e5b21c1418d7a05
+
 ---
 
 Launch a local web server that is used to run the playground

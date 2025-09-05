@@ -1,19 +1,18 @@
-/// <reference path="./types/prompt_template.d.ts" />
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 // Import necessary regular expressions for file type detection and host utilities
-import {
-    GENAI_ANYJS_REGEX,
-    GENAI_ANYTS_REGEX,
-    PROMPTY_REGEX,
-} from "./constants"
-import { Project } from "./server/messages"
-import { arrayify } from "./cleaners"
-import { tagFilter } from "./tags"
-import { dirname, resolve } from "node:path"
+import { GENAI_ANYJS_REGEX, GENAI_ANYTS_REGEX } from "./constants.js";
+import type { Project } from "./server/messages.js";
+import { arrayify } from "./cleaners.js";
+import { tagFilter } from "./tags.js";
+import { dirname, resolve } from "node:path";
+import type { Diagnostic, PromptScript, SystemPromptInstance } from "./types.js";
 
 // Interface representing a file reference, with a name and filename property
 export interface FileReference {
-    name: string
-    filename: string
+  name: string;
+  filename: string;
 }
 
 /**
@@ -24,19 +23,19 @@ export interface FileReference {
  * @returns CSV string with each diagnostic entry on a new line.
  */
 export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
-    return diagnostics
-        .map(
-            ({ severity, filename, range, code, message }) =>
-                [
-                    severity, // Severity level of the diagnostic
-                    filename, // Filename where the diagnostic occurred
-                    range[0][0], // Start line of the diagnostic range
-                    range[1][0], // End line of the diagnostic range
-                    code || "", // Diagnostic code, if available; empty string if not
-                    message, // Diagnostic message explaining the issue
-                ].join(sep) // Join fields with the specified separator
-        )
-        .join("\n") // Join each CSV line with a newline character
+  return diagnostics
+    .map(
+      ({ severity, filename, range, code, message }) =>
+        [
+          severity, // Severity level of the diagnostic
+          filename, // Filename where the diagnostic occurred
+          range[0][0], // Start line of the diagnostic range
+          range[1][0], // End line of the diagnostic range
+          code || "", // Diagnostic code, if available; empty string if not
+          message, // Diagnostic message explaining the issue
+        ].join(sep), // Join fields with the specified separator
+    )
+    .join("\n"); // Join each CSV line with a newline character
 }
 
 /**
@@ -45,44 +44,37 @@ export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
  * @returns The group name of the template. Returns the group property if defined, "system" if the ID starts with "system", or "unassigned" if no group is set or determined.
  */
 export function templateGroup(template: PromptScript) {
-    return (
-        template.group || // Return the group if already set
-        (/^system/i.test(template.id) ? "system" : "") || // Check if the template ID indicates it's a system template
-        "unassigned" // Default to "unassigned" if no group is determined
-    )
+  return (
+    template.group || // Return the group if already set
+    (/^system/i.test(template.id) ? "system" : "") || // Check if the template ID indicates it's a system template
+    "unassigned" // Default to "unassigned" if no group is determined
+  );
 }
-
-// Constants representing special character positions within a file
-export const eolPosition = 0x3fffffff // End of line position, a large constant
-export const eofPosition: CharPosition = [0x3fffffff, 0] // End of file position, a tuple with a large constant
 
 /**
  * Collects and organizes templates by their directory, identifying the presence of JavaScript or TypeScript files in each directory.
- * Excludes templates without filenames or those matching PROMPTY_REGEX.
+ * Excludes templates without filenames.
  * @param prj - The project containing the scripts to analyze.
  * @returns An array of directory objects with their names and flags indicating JavaScript and TypeScript file presence.
  */
 export function collectFolders(
-    prj: Project,
-    options?: { force?: boolean }
+  prj: Project,
+  options?: { force?: boolean },
 ): { dirname: string; js?: boolean; ts?: boolean }[] {
-    const { force } = options || {}
-    const { systemDir } = prj
-    const folders: Record<
-        string,
-        { dirname: string; js?: boolean; ts?: boolean }
-    > = {}
-    for (const t of Object.values(prj.scripts).filter(
-        // must have a filename and not prompty
-        (t) => t.filename && !PROMPTY_REGEX.test(t.filename)
-    )) {
-        const dir = dirname(t.filename) // Get directory name from the filename
-        if (!force && resolve(dir) === systemDir) continue
-        const folder = folders[dir] || (folders[dir] = { dirname: dir })
-        folder.js = folder.js || GENAI_ANYJS_REGEX.test(t.filename) // Check for presence of JS files
-        folder.ts = folder.ts || GENAI_ANYTS_REGEX.test(t.filename) // Check for presence of TS files
-    }
-    return Object.values(folders) // Return an array of folders with their properties
+  const { force } = options || {};
+  const { systemDir } = prj;
+  const folders: Record<string, { dirname: string; js?: boolean; ts?: boolean }> = {};
+  for (const t of Object.values(prj.scripts).filter(
+    // must have a filename and not prompty
+    (script) => script.filename,
+  )) {
+    const dir = dirname(t.filename); // Get directory name from the filename
+    if (!force && resolve(dir) === systemDir) continue;
+    const folder = folders[dir] || (folders[dir] = { dirname: dir });
+    folder.js = folder.js || GENAI_ANYJS_REGEX.test(t.filename); // Check for presence of JS files
+    folder.ts = folder.ts || GENAI_ANYTS_REGEX.test(t.filename); // Check for presence of TS files
+  }
+  return Object.values(folders); // Return an array of folders with their properties
 }
 
 /**
@@ -93,15 +85,16 @@ export function collectFolders(
  * @returns The script with the matching ID, or undefined if no match is found.
  */
 export function resolveScript(prj: Project, system: SystemPromptInstance) {
-    return prj?.scripts?.find((t) => t.id == system.id) // Find and return the template with the matching ID
+  return prj?.scripts?.find((t) => t.id === system.id); // Find and return the template with the matching ID
 }
 
 export interface ScriptFilterOptions {
-    ids?: string[]
-    groups?: string[]
-    test?: boolean
-    redteam?: boolean
-    unlisted?: boolean
+  ids?: string[];
+  groups?: string[];
+  test?: boolean;
+  redteam?: boolean;
+  unlisted?: boolean;
+  filterModel?: string;
 }
 
 /**
@@ -114,17 +107,16 @@ export interface ScriptFilterOptions {
  *   - test: If true, includes only scripts with defined tests.
  *   - redteam: If true, includes only scripts marked for redteam.
  *   - unlisted: If true, includes unlisted scripts; otherwise excludes them.
+ *   - filterModel: If provided, includes only scripts that use the specified model.
  * @returns A filtered list of scripts matching the given criteria.
  */
-export function filterScripts(
-    scripts: PromptScript[],
-    options: ScriptFilterOptions
-) {
-    const { ids, groups, test, redteam, unlisted } = options || {}
-    return scripts
-        .filter((t) => !test || arrayify(t.tests)?.length)
-        .filter((t) => !redteam || t.redteam)
-        .filter((t) => !ids?.length || ids.includes(t.id))
-        .filter((t) => unlisted || !t.unlisted)
-        .filter((t) => tagFilter(groups, t.group))
+export function filterScripts(scripts: PromptScript[], options: ScriptFilterOptions) {
+  const { ids, groups, test, redteam, unlisted, filterModel } = options || {};
+  return scripts
+    .filter((t) => !test || arrayify(t.tests)?.length)
+    .filter((t) => !redteam || t.redteam)
+    .filter((t) => !ids?.length || ids.includes(t.id))
+    .filter((t) => unlisted || !t.unlisted)
+    .filter((t) => tagFilter(groups, t.group))
+    .filter((t) => !filterModel || t.model === filterModel);
 }

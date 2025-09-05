@@ -7,10 +7,10 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.140.0",
+    "version": "2.4.1",
     "icon": "icon.png",
     "engines": {
-        "vscode": "^1.98.0"
+        "vscode": "^1.100.0"
     },
     "keywords": [
         "javascript",
@@ -43,11 +43,11 @@
         "publish": false
     },
     "activationEvents": [
-        "workspaceContains:*.genai.{js,mjs,mts}",
-        "workspaceContains:**/*.genai.{js,mjs,mts}",
+        "workspaceContains:*.genai.{js,mjs,mts,md}",
+        "workspaceContains:**/*.genai.{js,mjs,mts,md}",
         "onNotebook:genaiscript"
     ],
-    "main": "./built/extension.js",
+    "main": "dist/extension.js",
     "bugs": {
         "url": "https://github.com/microsoft/genaiscript/issues"
     },
@@ -55,6 +55,28 @@
         "url": "https://github.com/microsoft/genaiscript"
     },
     "contributes": {
+        "languages": [
+            {
+                "id": "genaiscript-markdown",
+                "aliases": [
+                    "GenAIScript Markdown"
+                ],
+                "extensions": [
+                    ".genai.md"
+                ]
+            }
+        ],
+        "grammars": [
+            {
+                "language": "genaiscript-markdown",
+                "scopeName": "source.genaiscript-markdown",
+                "path": "./syntaxes/genaiscript-markdown.tmLanguage.json"
+            }
+        ],
+        "files.associations": {
+            "*.genai.nb.md": "genaiscript",
+            "*.genai.md": "genaiscript-markdown"
+        },
         "chatParticipants": [
             {
                 "id": "genaiscript",
@@ -238,7 +260,7 @@
             "editor/title/run": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.((genai\\.(js|mjs|mts))|prompty)$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.(genai\\.(js|mjs|mts|md))$/",
                     "group": "genaiscript@1"
                 },
                 {
@@ -309,7 +331,7 @@
             "explorer/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts|prompty)$/)",
+                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts|md)$/)",
                     "group": "genaiscript@1"
                 }
             ]
@@ -328,6 +350,16 @@
                         "default": true,
                         "description": "Add custom instructions.md in .genaiscript/instructions folder to support GenAIScript script generation."
                     },
+                    "genaiscript.quiet": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Suppresses all output from the GenAIScript server. Useful for performance reasons when you don't need to see the output."
+                    },
+                    "genaiscript.disableTrace": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Disable trace view and reduces verbosity of the output. This is useful for performance reasons when you don't need to see the trace of the requests."
+                    },
                     "genaiscript.hideServerTerminal": {
                         "type": "boolean",
                         "default": true,
@@ -340,6 +372,11 @@
                     "genaiscript.languageChatModelsProvider": {
                         "type": "boolean",
                         "description": "Use GitHub Copilot Chat Models (or other models provided in Visual Studio Code) as the preferred LLM provider when a model is not specified."
+                    },
+                    "genaiscript.askLanguageChatModel": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Ask the user to select a language chat model when no mapping exists for the requested model."
                     },
                     "genaiscript.diagnostics": {
                         "type": "boolean",
@@ -373,6 +410,10 @@
                     "genaiscript.cli.path": {
                         "type": "string",
                         "description": "Path to GenAIScript CLI. Default uses npx."
+                    },
+                    "genaiscript.cli.nodeOptions": {
+                        "type": "string",
+                        "description": "NODE_OPTIONS environment variable value to use when starting the GenAIScript server. Useful for configuring Node.js runtime options like memory limits or debugging flags."
                     }
                 }
             }
@@ -487,34 +528,44 @@
         ]
     },
     "scripts": {
-        "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/",
-        "vscode:prepublish": "yarn run compile",
-        "compile:icons": "node updatefonts.mjs",
-        "compile:extension": "node build.mjs",
-        "compile": "yarn compile:extension",
-        "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
+        "build": "npm run clean && pnpm build:tsc && pnpm build:extension",
+        "build:tsc": "tsc -p . --noEmit",
+        "build:extension": "node build.mjs",
+        "build:icons": "node updatefonts.mjs",
+        "clean": "rimraf dist",
+        "format:check": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --check  \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+        "format:fix": "prettier --config ../../.prettierrc.json  --ignore-path ../../.prettierignore  --write \"src/**/*.{ts,cts,mts}\" \"*.{js,cjs,mjs,json}\" ",
+        "generate-manifest": "vsce generate-manifest -i genaiscript.vsix -o genaiscript.manifest",
+        "lint:check": "eslint src",
+        "lint:fix": "eslint src --fix --fix-type [problem,suggestion]",
+        "package": "vsce package --no-dependencies --out genaiscript.vsix",
+        "postpackage": "zx postpackage.mjs",
+        "prepackage": "zx prepackage.mjs",
+        "prebuild": "tsc -p .",
         "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
         "vis:sunburst": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.sunburst.html --template sunburst",
-        "lint": "eslint src --ext ts",
-        "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
-        "typecheck": "tsc -p .",
-        "prepackage": "zx prepackage.mjs",
-        "postpackage": "zx postpackage.mjs",
-        "package": "vsce package --dependencies --out genaiscript.vsix --yarn",
-        "generate-manifest": "vsce generate-manifest -i genaiscript.vsix -o genaiscript.manifest"
+        "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
+        "vscode:prepublish": "pnpm build",
+        "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/"
     },
-    "devDependencies": {
-        "@types/markdown-it": "^14.1.2",
-        "@types/vscode": "^1.98.0",
-        "@vscode/vsce": "^3.4.2",
-        "assert": "^2.1.0",
-        "es-toolkit": "^1.38.0",
+    "dependencies": {
+        "es-toolkit": "catalog:",
         "markdown-it": "^14.1.0",
         "markdown-it-github-alerts": "0.2.0",
-        "process": "^0.11.10",
-        "typescript": "5.8.3",
         "vscode-uri": "^3.1.0",
-        "websocket-polyfill": "0.0.3",
-        "zx": "^8.5.4"
+        "websocket-polyfill": "0.0.3"
+    },
+    "devDependencies": {
+        "@genaiscript/eslint-plugin-genaiscript": "workspace:*",
+        "@types/markdown-it": "^14.1.2",
+        "@types/vscode": "1.100.0",
+        "@vscode/vsce": "^3.6.0",
+        "esbuild": "^0.25.8",
+        "eslint": "catalog:",
+        "prettier": "catalog:",
+        "rimraf": "catalog:",
+        "tslib": "catalog:",
+        "typescript": "catalog:",
+        "zx": "catalog:"
     }
 }

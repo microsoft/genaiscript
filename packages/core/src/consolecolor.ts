@@ -1,8 +1,11 @@
-import { stdout } from "./stdio"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { stdout } from "./stdio.js";
 
 // Boolean indicating if console supports colors
 // Determines if the console supports color output based on terminal capability
-export let consoleColors = !!stdout.isTTY
+export let consoleColors = !!stdout.isTTY;
 
 /**
  * Enables or disables console color output.
@@ -10,7 +13,7 @@ export let consoleColors = !!stdout.isTTY
  * @param enabled - Whether to enable or disable color output.
  */
 export function setConsoleColors(enabled: boolean) {
-    consoleColors = !!enabled
+  consoleColors = !!enabled;
 }
 
 /**
@@ -26,11 +29,11 @@ export function setConsoleColors(enabled: boolean) {
  * @param message - The message to wrap. Returns the original message if colors are disabled.
  */
 export function wrapColor(n: number | string, message: string) {
-    if (consoleColors) return `\x1B[${n}m${message}\x1B[0m`
-    else return message
+  if (consoleColors) return `\x1B[${n}m${message}\x1B[0m`;
+  else return message;
 }
 
-//for (let i = 0; i < 255; ++i)
+// for (let i = 0; i < 255; ++i)
 /**
  * Wraps text with RGB ANSI color codes for foreground or background.
  * Converts an RGB integer to its red, green, and blue components and applies the corresponding ANSI escape codes.
@@ -40,16 +43,12 @@ export function wrapColor(n: number | string, message: string) {
  * @param background - Optional. If true, applies the color to the background.
  */
 
-export function wrapRgbColor(
-    rgb: number,
-    text: string,
-    background?: boolean
-): string {
-    if (!consoleColors) return text
-    const r = (rgb >> 16) & 0xff
-    const g = (rgb >> 8) & 0xff
-    const b = rgb & 0xff
-    const rgbColorCode = `\x1b[${background ? "48" : "38"};2;${r};${g};${b}m`
-    const resetCode = `\x1b[0m`
-    return `${rgbColorCode}${text}${resetCode}`
+export function wrapRgbColor(rgb: number, text: string, background?: boolean): string {
+  if (!consoleColors) return text;
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >> 8) & 0xff;
+  const b = rgb & 0xff;
+  const rgbColorCode = `\x1b[${background ? "48" : "38"};2;${r};${g};${b}m`;
+  const resetCode = `\x1b[0m`;
+  return `${rgbColorCode}${text}${resetCode}`;
 }

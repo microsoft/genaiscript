@@ -15,19 +15,118 @@ hero:
       people, text, shadows, gradients, or 3D effects, and the shapes are simple
       within a small 128 by 128 pixel space."
     file: ./images.png
+llmstxt:
+  content: >-
+    Images can be added to prompts for models supporting this feature (e.g.,
+    `gpt-4o`). Use `defImages` to declare images, supporting formats like PNG,
+    JPEG, WEBP, and GIF. Both URLs and local files are allowed.
+
+
+    ```js
+
+    defImages(env.files);
+
+    ```
+
+
+    YouTube embeds are supported:
+
+
+    ```js
+
+    <YouTube id="https://youtu.be/XbWgDn7NdTg" posterQuality="high" />
+
+    ```
+
+
+    Public URLs are directly passed to OpenAI:
+
+
+    ```js
+
+    defImages("https://example.com/image.png");
+
+    ```
+
+
+    Local files are encoded as data URIs. Buffers, Blobs, and ReadableStreams
+    are supported. Example:
+
+
+    ```js
+
+    import { browse } from "@genaiscript/plugin-playwright";
+
+    const page = await browse("https://bing.com");
+
+    const screenshot = await page.screenshot();
+
+    defImages(screenshot);
+
+    ```
+
+
+    Image options include:
+
+
+    - **Detail**: Downsample to 512x512 for "low" detail.
+      ```js
+      defImages(img, { detail: "low" });
+      ```
+
+    - **Crop**: Define a region of interest.
+      ```js
+      defImages(img, { crop: { x: 0, y: 0, w: 512, h: 512 } });
+      ```
+
+    - **Auto Crop**: Remove uniform edges.
+      ```js
+      defImages(img, { autoCrop: true });
+      ```
+
+    - **Greyscale**: Convert to greyscale.
+      ```js
+      defImages(img, { greyscale: true });
+      ```
+
+    - **Rotate**: Rotate by degrees.
+      ```js
+      defImages(img, { rotate: 90 });
+      ```
+
+    - **Scale**: Resize proportionally.
+      ```js
+      defImages(img, { scale: 0.5 });
+      ```
+
+    - **Flip**: Flip horizontally/vertically.
+      ```js
+      defImages(img, { flip: { horizontal: true, vertical: true } });
+      ```
+
+    - **Max Dimensions**: Resize to fit constraints.
+      ```js
+      defImages(img, { maxWidth: 800 });
+      defImages(img, { maxHeight: 800 });
+      ```
+  hash: a2b934f9d4a57a9833710712a6eed8e048f47787966578a0c9638cbb4ff1b00c
 
 ---
-import { YouTube } from "astro-embed"
+
+import { YouTube } from "astro-embed";
 
 Images can be added to the prompt for models that support this feature (like `gpt-4o`).
 Use the `defImages` function to declare the images. Supported images will vary
 with models but typically include `PNG`, `JPEG`, `WEBP`, and `GIF`. Both local files and URLs are supported.
 
 ```js
-defImages(env.files)
+defImages(env.files);
 ```
 
-<YouTube id="https://youtu.be/XbWgDn7NdTg" posterQuality="high" />
+<YouTube
+  id="https://youtu.be/XbWgDn7NdTg"
+  posterQuality="high"
+/>
 
 Read more about [OpenAI Vision](https://platform.openai.com/docs/guides/vision/limitations).
 
@@ -37,23 +136,24 @@ Public URLs (that do not require authentication) will be passed directly to Open
 
 ```js wrap
 defImages(
-    "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/logo.png?raw=true"
-)
+  "https://github.com/microsoft/genaiscript/blob/main/docs/public/images/logo.png?raw=true",
+);
 ```
 
 Local files are loaded and encoded as a data uri.
 
 ## Buffer, Blob, ReadableStream
 
-The `defImages` function also supports [Buffer](https://nodejs.org/api/buffer.html), 
+The `defImages` function also supports [Buffer](https://nodejs.org/api/buffer.html),
 [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob), [ReadableStream](https://nodejs.org/api/stream.html).
 
 This example takes a screenshot of bing.com and adds it to the images.
 
 ```js wrap
-const page = await host.browse("https://bing.com")
-const screenshot = await page.screenshot() // returns a node.js Buffer
-defImages(screenshot)
+import { browse } from "@genaiscript/plugin-playwright";
+const page = await browse("https://bing.com");
+const screenshot = await page.screenshot(); // returns a node.js Buffer
+defImages(screenshot);
 ```
 
 ## Detail
@@ -62,7 +162,7 @@ OpenAI supports a "low" / "high" field. An image in "low" detail
 will be downsampled to 512x512 pixels.
 
 ```js 'detail: "low"'
-defImages(img, { detail: "low" })
+defImages(img, { detail: "low" });
 ```
 
 ## Cropping
@@ -70,7 +170,7 @@ defImages(img, { detail: "low" })
 You can crop a region of interest from the image.
 
 ```js "crop: { x: 0, y: 0, w: 512, h: 512 }" wrap
-defImages(img, { crop: { x: 0, y: 0, w: 512, h: 512 } })
+defImages(img, { crop: { x: 0, y: 0, w: 512, h: 512 } });
 ```
 
 ## Auto crop
@@ -78,7 +178,7 @@ defImages(img, { crop: { x: 0, y: 0, w: 512, h: 512 } })
 You can also automatically remove uniform color on the edges of the image.
 
 ```js "autoCrop" wrap
-defImages(img, { autoCrop: true })
+defImages(img, { autoCrop: true });
 ```
 
 ## Greyscale
@@ -86,7 +186,7 @@ defImages(img, { autoCrop: true })
 You can convert the image to greyscale.
 
 ```js "greyscale" wrap
-defImages(img, { greyscale: true })
+defImages(img, { greyscale: true });
 ```
 
 ## Rotate
@@ -94,7 +194,7 @@ defImages(img, { greyscale: true })
 You can rotate the image.
 
 ```js "rotate: 90"
-defImages(img, { rotate: 90 })
+defImages(img, { rotate: 90 });
 ```
 
 ## Scale
@@ -102,7 +202,7 @@ defImages(img, { rotate: 90 })
 You can scale the image.
 
 ```js "scale: 0.5"
-defImages(img, { scale: 0.5 })
+defImages(img, { scale: 0.5 });
 ```
 
 ## Flip
@@ -119,7 +219,7 @@ You can specify a maximum width, maximum height. GenAIScript will resize
 the image to fit into the constraints.
 
 ```js "maxWidth: 800" "maxHeight: 800"
-defImages(img, { maxWidth: 800 })
+defImages(img, { maxWidth: 800 });
 // and / or
-defImages(img, { maxHeight: 800 })
+defImages(img, { maxHeight: 800 });
 ```

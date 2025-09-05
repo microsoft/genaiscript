@@ -1,21 +1,48 @@
 ---
 title: Running Scripts
 sidebar:
-    order: 3
+  order: 3
 description: Learn how to run GenAIScripts in Visual Studio Code using the
-    GenAIScript extension.
+  GenAIScript extension.
 keywords: GenAIScript, Visual Studio Code, run scripts, command palette, context menu
 hero:
-    image:
-        alt:
-            "An 8-bit style image displays a basic computer screen set at a small
-            square size. On screen are geometric icons: a script file with a play
-            button, a file explorer showing several files and folders, and one
-            file—labeled as .gitignore—stands out with a highlight. The palette uses
-            only five businesslike colors; the graphics are flat, minimal, and use
-            simple shapes, with no background, shading, or words. Everything is
-            arranged for a tidy, iconic appearance."
-        file: ./running-scripts.png
+  image:
+    alt: "An 8-bit style image displays a basic computer screen set at a small
+      square size. On screen are geometric icons: a script file with a play
+      button, a file explorer showing several files and folders, and one
+      file—labeled as .gitignore—stands out with a highlight. The palette uses
+      only five businesslike colors; the graphics are flat, minimal, and use
+      simple shapes, with no background, shading, or words. Everything is
+      arranged for a tidy, iconic appearance."
+    file: ./running-scripts.png
+llmstxt:
+  content: >-
+    The GenAIScript extension for Visual Studio Code allows running scripts
+    directly from the editor. Scripts can be executed in two ways: directly or
+    using input files/folders.
+
+
+    To run scripts directly, open a GenAIScript file, right-click and select
+    "Run GenAIScript" or use the "Run GenAIScript" icon. This uses default input
+    files defined in the `script({ files: "..." })` field. This mode is ideal
+    for debugging or scripts without input files.
+
+
+    To run scripts on specific files or folders, select them in the explorer or
+    editor, right-click, and choose "Run GenAIScript". This populates
+    `env.files` with the selected items.
+
+
+    Selected text in the active editor is stored in `editor.selectedText` and
+    can be accessed via `env.vars["editor.selectedText"]`. Handle undefined
+    values when running scripts from the command line.
+
+
+    GenAIScript respects top-level `.gitignore` rules, ignoring files/folders
+    listed there unless explicitly selected or the `---ignore-git-ignore` flag
+    is used.
+  hash: 2886541be46ae9d37d34cdb1ca006eda8707719c5bfd03b444cd2a3ec7206a56
+
 ---
 
 import { YouTube } from "astro-embed"

@@ -24,15 +24,38 @@ excerpt: Hugging Face Transformers.js brings large language models to your
   locally. With GenAIScript integration, configuring and caching models is
   straightforward, letting you tap into a wide range of options or fine-tune
   your own. Explore new ways to harness LLMs efficiently and seamlessly.
+llmstxt:
+  content: >-
+    Hugging Face Transformers.js is a JavaScript library for running LLMs in the
+    browser or Node.js environments. GenAIScript supports downloading and
+    caching models locally for immediate use. 
+
+
+    Example usage:
+
+    ```js
+
+    script({
+      model: "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16",
+    });
+
+    ```
+
+
+    Currently, support for the `transformers` model provider in GenAIScript is
+    temporarily removed to reduce installation size. Hugging Face offers many
+    models for text generation and allows fine-tuning as per their
+    documentation.
+  hash: 71be6fa0344a038b817dd0a8530fadb262176d4c1127a29823472fdd0512d9d5
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
 <p style="text-align:center">
-    <span style="font-size: 12rem;">🤗</span>
+  <span style="font-size: 12rem;">🤗</span>
 </p>
 
 :::caution
@@ -45,11 +68,11 @@ the installation footprint.
 [Hugging Face Transformers.js](https://huggingface.co/docs/transformers.js/index)
 is a JavaScript library that provides a simple way to run LLMs in the browser or node.js (or Bun, Deno, ...).
 
-
 ```js 'model: "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16"'
 script({
-    model: "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16",
-})
+  model:
+    "transformers:HuggingFaceTB/SmolLM2-1.7B-Instruct:q4f16",
+});
 ```
 
 GenAIScript will download and cache the model for you, and you can start using it right away

@@ -17,53 +17,106 @@ hero:
       128x128 pixel size and is designed to be immediately recognizable and
       iconic.'
     file: ./index.png
+llmstxt:
+  content: >-
+    GenAIScript supports creating AI prompt templates in JavaScript, TypeScript,
+    and Markdown formats. JavaScript files use `.genai.mjs` (module syntax,
+    supports imports) or `.genai.js` (no imports). TypeScript files use
+    `.genai.mts` and support imports, including dynamic ones. Markdown files use
+    `.genai.md` with YAML frontmatter for configuration.
+
+
+    Example JavaScript script:
+
+    script({ title: "Shorten", description: "Shrinks text size without losing
+    meaning" });
+
+    const file = def("FILE", env.files);
+
+    $`Shorten ${file}. Limit changes to minimum.`;
+
+
+    Equivalent Markdown script:
+
+    ---
+
+    title: "Shorten"
+
+    description: "Shrinks text size without losing meaning"
+
+    ---
+
+    Shorten the provided text. Limit changes to minimum while preserving
+    meaning.
+
+
+    GenAIScript detects files matching these extensions anywhere in the
+    workspace, defaulting to the `genaisrc` folder. System prompt templates use
+    `system.*.genai.mjs` and are unlisted by default.
+  hash: fc0f7bea610ed0fe161804db3f88a09fffce2615e45877aab00a76fdc3d3526b
 
 ---
-import { FileTree } from "@astrojs/starlight/components"
-import DirectoryLinks from '../../../../components/DirectoryLinks.astro';
 
-GenAIScript are JavaScript files named as `*.genai.mjs`, or TypeScript files named as `*.genai.mts`,
-with a prompt creation engine designed by LLM prompting.
+import { FileTree } from "@astrojs/starlight/components";
+import DirectoryLinks from "../../../../components/DirectoryLinks.astro";
+
+GenAIScript supports multiple file formats for creating AI prompt templates:
+
+- **JavaScript** files named as `*.genai.mjs` or `*.genai.js`
+- **TypeScript** files named as `*.genai.mts`  
+- **Markdown** files named as `*.genai.md` for simpler, text-based prompts
 
 ```js title="shorten.genai.mjs"
 script({
-    title: "Shorten", // displayed in UI and Copilot Chat
-    // also displayed but grayed out:
-    description:
-        "A prompt that shrinks the size of text without losing meaning",
-})
+  title: "Shorten", // displayed in UI and Copilot Chat
+  // also displayed but grayed out:
+  description:
+    "A prompt that shrinks the size of text without losing meaning",
+});
 
 // but the variable is appropriately delimited
-const file = def("FILE", env.files)
+const file = def("FILE", env.files);
 
 // this appends text to the prompt
-$`Shorten ${file}. Limit changes to minimum.`
+$`Shorten ${file}. Limit changes to minimum.`;
+```
+
+The same script can also be written as a markdown file:
+
+```markdown title="shorten.genai.md"
+---
+title: "Shorten"
+description: "A prompt that shrinks the size of text without losing meaning"
+---
+Shorten the provided text. Limit changes to minimum while preserving meaning.
 ```
 
 ## Script files
 
--   GenAIScript will detect any file matching `*.genai.mjs`, `*.genai.js`, 
-    `*.genai.mts` in your workspace.
--   GenAIScript files can be placed anywhere in your workspace; 
-    but the extension will place them in a `genaisrc` folder by default.
--   `.genai.mjs` use module JavaScript syntax and support [imports](/genaiscript/reference/scripts/imports). 
--   `.genai.js` are eval-ed and do not support imports.
--   `.genai.mts` are [TypeScript module files](/genaiscript/reference/scripts/typescript) and support [imports](/genaiscript/reference/scripts/imports), 
-    including dynamic imports of other TypeScript files.
+- GenAIScript will detect any file matching `*.genai.mjs`, `*.genai.js`,
+  `*.genai.mts`, or `*.genai.md` in your workspace.
+- GenAIScript files can be placed anywhere in your workspace;
+  but the extension will place them in a `genaisrc` folder by default.
+- `.genai.mjs` use module JavaScript syntax and support [imports](/genaiscript/reference/scripts/imports).
+- `.genai.js` are eval-ed and do not support imports.
+- `.genai.mts` are [TypeScript module files](/genaiscript/reference/scripts/typescript) and support [imports](/genaiscript/reference/scripts/imports),
+  including dynamic imports of other TypeScript files.
+- `.genai.md` are [Markdown script files](/genaiscript/reference/scripts/markdown-scripts) with YAML frontmatter for configuration.
 
 <FileTree>
 
 - /genaisrc
-  - jsconfig.json     // TypeScript compiler configuration
-  - genaiscript.d.ts  // TypeScript definitions 
-  - myscript.genai.mjs // your script!
+  - jsconfig.json // TypeScript compiler configuration
+  - genaiscript.d.ts // TypeScript definitions
+  - myscript.genai.mjs // JavaScript script
+  - analyze.genai.mts // TypeScript script  
+  - summarize.genai.md // Markdown script
   - ...
 
 </FileTree>
 
--   `system.*.genai.mjs` are considered [system prompt templates](/genaiscript/reference/scripts/system)
-    and are unlisted by default.
-
+- `system.*.genai.mjs` are considered [system prompt templates](/genaiscript/reference/scripts/system)
+  and are unlisted by default.
 
 ## Topics
 

@@ -13,10 +13,74 @@ hero:
       no gradients, people, or text. The image is simple and compact, sized at
       128x128 pixels.
     file: ./reasoning-models.png
+llmstxt:
+  content: >-
+    The OpenAI reasoning models (`o1`, `o3`), DeepSeek R1, and Anthropic Sonnet
+    3.7 are optimized for reasoning tasks. Example usage:
+
+
+    ```js
+
+    script({ model: "openai:o1" })
+
+    ```
+
+
+    Reasoning models include `reasoning` and `reasoning-small` aliases:
+
+
+    ```js
+
+    script({ model: "openai:reasoning" })
+
+    ```
+
+
+    or
+
+
+    ```sh
+
+    genaiscript run ... -p openai -m reasoning
+
+    ```
+
+
+    Reasoning effort can be set to `low`, `medium`, or `high` via the
+    `reasoningEffort` parameter or as a model tag:
+
+
+    ```js
+
+    script({ model: "openai:o3-mini", reasoningEffort: "high" })
+
+    ```
+
+
+    or
+
+
+    ```js
+
+    script({ model: "openai:o3-mini:high" })
+
+    ```
+
+
+    For Anthropic Sonnet 3.7, reasoning effort maps to `budget_token`: low
+    (2048), medium (4096), high (16384).
+
+
+    Limitations: `o1-preview` and `o1-mini` lack streaming; `o1` models do not
+    support tool calling, so fallback tools are used.
+
+
+    Refer to OpenAI's advice on prompting reasoning models for best practices.
+  hash: 771ef00ba50696611bdd4af60c3b6d083bb17890f9376c82395fe224012b4145
 
 ---
 
-The OpenAI reasoning models, the `o1, o3` models, DeepSeek R1 or Anthropic Sonet 3.7, are models that are optimized for reasoning tasks.
+The OpenAI reasoning models, the `o1, o3` models, DeepSeek R1 or Anthropic Sonnet 3.7, are models that are optimized for reasoning tasks.
 
 ```js
 script({
@@ -26,7 +90,7 @@ script({
 
 :::tip
 
-You can experiement with these models on Github Models as well but the context window is quite small.
+You can experiment with these models on Github Models as well but the context window is quite small.
 
 ```js
 script({
@@ -52,7 +116,7 @@ or
 genaiscript run ... -p openai -m reasoning
 ```
 
-## Reasonong, thinking
+## Reasoning, thinking
 
 GenAIScript automatically extracts the thinking/reasoning content of the LLM responses.
 

@@ -15,6 +15,39 @@ hero:
       five distinct corporate colors on a transparent or plain background at
       128x128 pixels.'
     file: ./fence-formats.png
+llmstxt:
+  content: >-
+    GenAIScript supports multiple "fence" formats for rendering `def` functions,
+    as LLMs may interpret input text differently based on its format. The
+    default format is XML tags (from version 1.82.0).
+
+
+    Fence formats:
+
+    - `xml`: `<TEXT> :) </TEXT>`
+
+    - `markdown`: `TEXT: \`\`\` :) \`\`\``
+
+    - `none`: `TEXT: :)`
+
+
+    Referencing `def` in XML format uses `<NAME>` or the returned variable.
+    Example: `const textName = def("TEXT", ":)", { fenceFormat: "xml" });
+    $`Summarize ${textName}` // Summarize <TEXT>`.
+
+
+    Configuration options:
+
+    - Script level: `script({ fenceFormat: "xml" })`
+
+    - `def` level: `def("TEXT", ":)", { fenceFormat: "xml" })`
+
+    - CLI flag: `genaiscript run ... --fence-format xml`
+
+
+    GenAIScript auto-selects a format based on the model but allows manual
+    overrides.
+  hash: 1f8f1d0dc0df743b171228249ffcaf9a22cb8c131d36ec49b68797b9d8908181
 
 ---
 
@@ -72,7 +105,7 @@ const textName = def("TEXT", ":)", { fenceFormat: "xml" })
 $`Summarize ${textName}` // Summarize <TEXT>
 ```
 
-## Configuriation
+## Configuration
 
 GenAIScript will automatically pick a format based on the model. However, you can override the format at the script level.
 

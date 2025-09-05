@@ -1,5 +1,8 @@
-import { satisfies, parse } from "semver"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-export const semverSatisfies = satisfies
+import { satisfies, parse } from "semver";
 
-export const semverParse = parse
+export const semverSatisfies = satisfies;
+
+export const semverParse = parse;

@@ -4,12 +4,103 @@ sidebar:
   order: 55
 description: Leverage Azure SDK to handle image files in Blob Storage within prompts
 keywords: Azure Blob Storage, Azure SDK, image handling, Node.js Buffer, inline prompts
+llmstxt:
+  content: >-
+    Use the Azure Node.js SDK to download images from Azure Blob Storage and
+    include them in prompts. The `defImages` function supports Node.js `Buffer`.
+
+
+    Install `@azure/storage-blob` and `@azure/identity` packages:  
+
+    `npm install -D @azure/storage-blob @azure/identity`  
+
+    Log in via Azure CLI:  
+
+    `az login`
+
+
+    Connect to Azure Blob Storage using `BlobServiceClient` and
+    `DefaultAzureCredential`. Extract `account` and `container` from `env.vars`:
+
+
+    ```ts
+
+    import { BlobServiceClient } from "@azure/storage-blob";
+
+    import { DefaultAzureCredential } from "@azure/identity";
+
+
+    const { account = "myblobs", container = "myimages" } = env.vars;
+
+    const blobServiceClient = new BlobServiceClient(
+      `https://${account}.blob.core.windows.net`,
+      new DefaultAzureCredential()
+    );
+
+    const containerClient = blobServiceClient.getContainerClient(container);
+
+    ```
+
+
+    To download blobs, iterate through them and convert to a buffer:
+
+
+    ```ts
+
+    import { buffer } from "node:stream/consumers";
+
+
+    for await (const blob of containerClient.listBlobsFlat()) {
+      const blockBlobClient = containerClient.getBlockBlobClient(blob.name);
+      const downloadResponse = await blockBlobClient.download(0);
+      const body = await downloadResponse.readableStreamBody;
+      const image = await buffer(body);
+      ...
+    ```
+
+
+    Use the `image` buffer in prompts with `defImages`:
+
+
+    ```ts
+
+    defImages(image, { detail: "low" });
+
+    ```
+
+
+    For large images, use inline prompts to split queries:
+
+
+    ```ts
+
+    for await (const blob of containerClient.listBlobsFlat()) {
+      const res = await runPrompt(_ => {
+        _.defImages(image, { detail: "low" });
+        _.$`Describe the image.`;
+      });
+      ...
+    ```
+
+
+    Summarize results by storing image descriptions with `def` and prompting for
+    a summary:
+
+
+    ```ts
+
+    def("IMAGES_SUMMARY", { filename: blob.name, content: res.text });
+
+    $`Summarize IMAGES_SUMMARY.`;
+
+    ```
+  hash: b22df75b68678f92d557474d4d1266f27f380f23a1fc43506fb9782cbf6df60f
 
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import { Steps } from "@astrojs/starlight/components"
-import source from "../../../../../packages/sample/genaisrc/azure-blobs.genai.mts?raw"
+import source from "../../../../../samples/sample/genaisrc/azure-blobs.genai.mts?raw"
 
 It is possible to use the Azure Node.JS SDK to download images from Azure Blog Storage
 and use them in the prompt. The `defImages` function support the node.js [Buffer] type.

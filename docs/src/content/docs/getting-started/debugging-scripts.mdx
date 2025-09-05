@@ -15,6 +15,31 @@ hero:
       suggests settings. The design uses five flat corporate colors and
       geometric shapes on a transparent background.
     file: ./debugging-scripts.png
+llmstxt:
+  content: >-
+    GenAIScript scripts are executable JavaScript and can be debugged using the
+    Visual Studio Code Debugger. Lightweight logging is also available for
+    troubleshooting.
+
+
+    To start debugging, open the `.genai.mjs` file, add breakpoints, and launch
+    the debugger. For files in `env.files`, right-click the file and select
+    GenAIScript. Alternatively, add a `files` field in the `script` function:
+
+
+    script({ ..., files: "*.md" })
+
+
+    Click the Debug icon in the editor menu to launch the CLI in debug mode. The
+    debugger stops at set breakpoints.
+
+
+    Limitations: JavaScript runs in an external node process, so trace preview
+    and output are unsupported during debugging.
+
+
+    Next steps: Iterate scripts or add tests.
+  hash: 872fe679fddcdde06d29edecc549e2677678fd4c7c396a629d85638008ed964d
 
 ---
 

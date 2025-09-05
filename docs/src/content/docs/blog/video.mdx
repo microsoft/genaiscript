@@ -22,20 +22,64 @@ excerpt: Analyze videos with ease. Traditional LLMs require timestamp-based
   video and audio analysis by enabling automated frame extraction and transcript
   integration. Learn how tools and agents streamline these tasks for your
   scripts in the documentation.
+llmstxt:
+  content: >-
+    The latest release adds support for video and audio transcript analysis in
+    scripts. Use `ffmpeg.extractFrames` to extract frames and transcriptions
+    from a video:
+
+
+    ```js
+
+    const frames = await ffmpeg.extractFrames("demo.mp4", { transcription: true
+    });
+
+    def("DEMO", frames);
+
+    $`Describe what happens in the <DEMO>.`;
+
+    ```
+
+
+    This eliminates the need to manually select timestamps or worry about
+    context window limits. GenAIScript simplifies video analysis with LLMs.
+
+
+    Tools and agents streamline these tasks. To enable frame extraction:
+
+
+    ```js
+
+    script({ tools: "video_extract_frames" });
+
+    ```
+
+
+    For automated video analysis, use:
+
+
+    ```js
+
+    script({ tools: "agent_video" });
+
+    ```
+  hash: 302aefe4c9af2e2f1e92258c3e8f57018bacf90353f44687705f57297ed965b8
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
 The latest release includes support for including videos and audio transcripts in your scripts.
 
 ```js wrap
-const frames = await ffmpeg.extractFrames("demo.mp4", { transcription: true })
-def("DEMO", frames)
+const frames = await ffmpeg.extractFrames("demo.mp4", {
+  transcription: true,
+});
+def("DEMO", frames);
 
-$`Describe what happens in the <DEMO>.`
+$`Describe what happens in the <DEMO>.`;
 ```
 
 Say you want to analyze a video file. For most LLMs that support images, you would have to extract screenshots at particular timestamps then send them as a sequence of images.
@@ -51,14 +95,14 @@ For example, to include the frame extraction tool so that the LLM is able to cal
 
 ```js wrap
 script({
-    tools: "video_extract_frames",
-})
+  tools: "video_extract_frames",
+});
 ```
 
 Or just let the agent work on the video for you.
 
 ```js wrap
 script({
-    tools: "agent_video",
-})
+  tools: "agent_video",
+});
 ```

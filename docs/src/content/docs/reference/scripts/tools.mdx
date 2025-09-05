@@ -12,13 +12,122 @@ hero:
       Nearby are a simple gear and a browser window, all in a bold outlined,
       minimal geometric style. No people or background.
     file: ./tools.png
+llmstxt:
+  content: >-
+    Tools (functions) allow LLMs to call external processes for assembling
+    answers. GenAIScript supports tools natively or via fallback mechanisms for
+    models without built-in tool support.
+
+
+    `defTool` defines tools with JSON schema inputs and string outputs. Example:
+
+
+    ```js
+
+    defTool("current_weather", "get the current weather", { city: "" }, (args)
+    => {
+      return args.location === "Brussels" ? "sunny" : "variable";
+    });
+
+    ```
+
+
+    Tools can be reused in system scripts for modularity. Example:
+
+
+    ```js
+
+    system({ description: "Random tools" });
+
+    export default function (ctx) {
+      ctx.defTool("random", "Generate a random number", {}, () => Math.random());
+    }
+
+    ```
+
+
+    Multiple instances of the same system script can be included with different
+    parameters for unique tool identifiers.
+
+
+    Model Context Protocol (MCP) enables integration with external data sources
+    and tools. Example:
+
+
+    ```js
+
+    defTool({
+      memory: { command: "npx", args: ["-y", "@modelcontextprotocol/server-memory"] },
+    });
+
+    ```
+
+
+    Fallback tools enable tool support via system prompts for models lacking
+    native support. Enable with `fallbackTools: true` in scripts or
+    `--fallback-tools` in CLI.
+
+
+    Prompt injection detection can be enabled to scan tool outputs for attacks:
+
+
+    ```js
+
+    defTool("fetch", "Fetch a URL", { url: { type: "string" } }, async (args) =>
+    { ... }, { detectPromptInjection: "always" });
+
+    ```
+
+
+    Output intent validation uses LLM-as-a-Judge to validate tool results based
+    on descriptions or custom intents:
+
+
+    ```js
+
+    defTool("fetch", "Gets the live weather", { location: "Seattle" }, async
+    (args) => { ... }, { intent: "description" });
+
+    ```
+
+
+    Tools can be packaged as system scripts for reuse. Example:
+
+
+    ```js
+
+    script({ title: "Get the current weather" });
+
+    defTool("current_weather", ...);
+
+    ```
+
+
+    An example script for answering questions with web search:
+
+
+    ```js
+
+    script({ title: "Answer questions", tool: ["retrieval_web_search"] });
+
+    def("FILES", env.files);
+
+    $`Answer the questions in FILES using a web search. Summarize answers and
+    sources.`;
+
+    ```
+
+
+    Fallback tools and modular tool design enhance flexibility, while safety and
+    validation features ensure secure and accurate tool usage.
+  hash: 77e89704572c87e7d1c4cdaa7637e474b648277e8db6b0e6992457577c516e05
 
 ---
 
 import { Code } from "@astrojs/starlight/components"
 import { Content as BuiltinTools } from "../../../../components/BuiltinTools.mdx"
-import weatherScriptSource from "../../../../../../packages/sample/genaisrc/weather.genai.js?raw"
-import mathScriptSource from "../../../../../../packages/sample/genaisrc/math-agent.genai.mjs?raw"
+import weatherScriptSource from "../../../../../../samples/sample/genaisrc/weather.genai.js?raw"
+import mathScriptSource from "../../../../../../samples/sample/genaisrc/math-agent.genai.mjs?raw"
 import { YouTube } from "astro-embed"
 
 You can register **tools** (also known as **functions**) that the LLM may decide to call as part of assembling the answer.
@@ -115,7 +224,7 @@ script({
         "system.agent_git", // git operations on current repository
         {
             id: "system.agent_git", // same system script
-            parameters: { repo: "microsoft/genaiscript" } // but with new parameters
+            parameters: { repo: "microsoft/genaiscript" }, // but with new parameters
             variant: "genaiscript" // appended to the identifier to keep tool identifiers unique
         }
     ]

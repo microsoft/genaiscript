@@ -1,0 +1,199 @@
+---
+title: Installation
+sidebar:
+  order: 1
+description: Apprenez comment installer GenAIScript en tant qu'extension Visual
+  Studio Code ou l'utiliser via la ligne de commande pour une intégration fluide
+  dans votre flux de travail de développement.
+keywords: Visual Studio Code, GenAIScript extension, command line tool, manual
+  installation, Node.js
+hero:
+  image:
+    alt: A simple and colorful flat 2D image shows a geometric computer screen with
+      the Visual Studio Code logo, next to a small 8-bit style terminal window
+      marked by the Node.js logo, and a stylized folder tree highlighting a
+      .vsix file box. The design uses only five bright corporate colors, lacks
+      background, people, or text, and features only iconic shapes with no
+      shadows or gradients in a compact square format.
+    file: ../../getting-started/installation.png
+
+---
+
+import { Image } from "astro:assets"
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+
+import extensionViewSrc from "../../../../assets/vscode-extensions-view.png";
+import extensionViewAlt from "../../../../assets/vscode-extensions-view.png.txt?raw";
+
+import marketplaceSrc from "../../../../assets/vscode-marketplace.png";
+import marketplaceAlt from "../../../../assets/vscode-marketplace.png.txt?raw";
+
+import vscodeViewSrc from "../../../../assets/vscode-genaiscript-view.png";
+import vscodeViewAlt from "../../../../assets/vscode-genaiscript-view.png.txt?raw";
+
+GenAIScript est disponible en tant que [ligne de commande](#command-line) ou [extension Visual Studio Code](#visual-studio-code-extension).
+
+## Node.JS
+
+GenAIScript nécessite [Node.JS](https://nodejs.org/) pour fonctionner.
+Nous recommandons d'installer la version LTS en utilisant un [gestionnaire de versions node](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+
+<Steps>
+  <ol>
+    <li>
+      Installez Node.JS (node) [avec un gestionnaire de paquets](https://nodejs.org/en/download/package-manager).
+      **Vous avez besoin d'au moins Node.JS v22.**
+    </li>
+
+    <li>
+      Vérifiez votre installation
+
+      ```sh
+      node -v
+      npx -v
+      ```
+
+      Vous devriez voir une version similaire ou supérieure aux versions suivantes :
+
+      ```text
+      v22.16.0
+      10.5.0
+      ```
+    </li>
+  </ol>
+</Steps>
+
+## Extension Visual Studio Code <a id="visual-studio-code-extension" href="" />
+
+Le [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=genaiscript.genaiscript-vscode) contient la dernière version stable de l’[extension](https://marketplace.visualstudio.com/items?itemName=genaiscript.genaiscript-vscode).
+
+<Steps>
+  <ol>
+    <li>
+      Installez [Visual Studio Code](https://code.visualstudio.com/Download).
+
+      Visual Studio Code est un éditeur de code source léger mais puissant qui fonctionne sur votre bureau et est disponible pour Windows, macOS et Linux.
+    </li>
+
+    <li>
+      Ouvrez le dossier de votre projet dans Visual Studio Code.
+    </li>
+
+    <li>
+      Cliquez sur la vue **Extensions**
+
+      <Image src={extensionViewSrc} alt={extensionViewAlt} />
+    </li>
+
+    <li>
+      Cherchez **genaiscript** et cliquez sur **Installer**.
+
+      <Image src={marketplaceSrc} alt={marketplaceAlt} />
+    </li>
+
+    <li>
+      Si l'installation réussit, vous verrez l'icône dans la vue **Extensions**.
+
+      <Image src={vscodeViewSrc} alt={vscodeViewAlt} />
+    </li>
+
+    <li>
+      (Optionnel) Cliquez sur l'icône ⚙️ roue dentée sur la page de l'extension et sélectionnez **Ajouter aux recommandations de l'espace de travail**.
+    </li>
+  </ol>
+</Steps>
+
+Pour installer une version spécifique de l'extension, nous recommandons de stocker le fichier `genaiscript.vsix`
+dans votre dépôt et d'utiliser les étapes d'installation manuelle.
+
+### Profil par défaut pour le terminal
+
+GenAIScript lance un serveur node dans le terminal par défaut. Si le terminal par défaut n'est pas configuré
+ou ne supporte pas node.js, vous devrez peut-être le mettre à jour dans vos paramètres utilisateur/espace de travail.
+
+* Ouvrez la palette de commandes `Ctrl+Shift+P` et recherchez `Terminal : Sélectionner le profil par défaut`.
+* Sélectionnez un profil de terminal comme **Git Bash**
+
+### Installation manuelle (avancé)
+
+La dernière version de développement de l'extension est également disponible via les releases GitHub. Cela permet d'accéder
+aux correctifs de bugs avant la sortie sur le marketplace.
+
+<Steps>
+  <ol>
+    <li>
+      Ouvrez la [dernière release](https://github.com/microsoft/genaiscript/releases/latest/) sur GitHub
+    </li>
+
+    <li>
+      Téléchargez le fichier `genaiscript.vsix` dans le dossier racine de votre projet
+
+      <FileTree>
+        * ...
+        * dossier .genaiscript/ créé par l'extension pour stocker les fichiers de support
+          * cache/ divers fichiers cache
+          * retrieval/ caches de la base de données de récupération
+          * ... fichiers de support
+        * **genaiscript.vsix**
+      </FileTree>
+    </li>
+
+    <li>
+      Ouvrez votre projet dans Visual Studio Code
+    </li>
+
+    <li>
+      Cliquez droit sur le fichier `.vsix` et sélectionnez **Installer l'extension VSIX...**
+    </li>
+  </ol>
+</Steps>
+
+:::note[Support de Cursor]
+GenAIScript peut être installé dans [Cursor](https://cursor.sh/how-to-install-extension)
+en suivant les étapes d'installation manuelle.
+:::
+
+## Ligne de commande <a id="command-line" href="" />
+
+L'outil en ligne de commande [genaiscript](/genaiscript/reference/cli/) vous permet d'exécuter votre GenAIScript
+depuis n'importe quel terminal.
+
+```sh
+npx genaiscript run my-script some/path/*.pdf
+```
+
+`npx` installera et mettra en cache automatiquement l'interface en ligne de commande.
+
+:::tip
+**npx peut être lent**. Apprenez comment installer localement dans la [référence CLI](/genaiscript/reference/cli/).
+:::
+
+## DevContainer
+
+Vous pouvez ajouter ce fichier dans votre projet pour utiliser GenAIScript dans un
+[DevContainer](https://containers.dev/), il contient un minimum d'outils pour commencer.
+
+```json title=".devcontainer/devcontainer.json"
+{
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+    "customizations": {
+        "vscode": {
+            "extensions": ["genaiscript.genaiscript-vscode"]
+        }
+    }
+}
+```
+
+La définition du devcontainer sera automatiquement utilisée par
+[GitHub CodeSpaces](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers),
+le [cli devcontainer](https://github.com/devcontainers/cli)
+ou diverses [intégrations éditeur](https://containers.dev/supporting).
+
+## Étapes suivantes
+
+Configurons les [informations de connexion LLM](/genaiscript/getting-started/configuration)
+
+<hr />
+
+Traduit par IA. Veuillez vérifier le contenu pour plus de précision.

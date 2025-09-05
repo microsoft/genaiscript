@@ -1,23 +1,32 @@
 ---
 title: Configuration
 description: Set up your LLM connection and authorization with environment
-    variables for seamless integration.
+  variables for seamless integration.
 keywords: LLM setup, API configuration, environment variables, secure
-    authorization, LLM integration
+  authorization, LLM integration
 sidebar:
-    order: 2
+  order: 2
 hero:
-    image:
-        alt:
-            A small, flat, 8-bit style illustration features simple colored blocks
-            linked by straight lines to depict API and cloud connections. Each block
-            displays a basic symbol, including representations of artificial
-            intelligence, a cloud, code, an environment file, and a lock for security.
-            Iconic, abstract shapes indicate major tech providers like OpenAI, Azure,
-            Google, Hugging Face, GitHub, and Anthropic. The arrangement is clear and
-            geometric, with each block in a unique color from a five-color palette,
-            all on a transparent background with no text, people, or visual effects.
-        file: ./configuration.png
+  image:
+    alt: A small, flat, 8-bit style illustration features simple colored blocks
+      linked by straight lines to depict API and cloud connections. Each block
+      displays a basic symbol, including representations of artificial
+      intelligence, a cloud, code, an environment file, and a lock for security.
+      Iconic, abstract shapes indicate major tech providers like OpenAI, Azure,
+      Google, Hugging Face, GitHub, and Anthropic. The arrangement is clear and
+      geometric, with each block in a unique color from a five-color palette,
+      all on a transparent background with no text, people, or visual effects.
+    file: ./configuration.png
+llmstxt:
+  content: "GenAIScript supports remote (e.g., OpenAI, Azure) and local models
+    (e.g., Ollama, Jan, LMStudio). Configuration is required to establish the
+    LLM connection and authorization. In some cases, GenAIScript auto-detects
+    configurations: it uses Copilot Chat models in Visual Studio Code with
+    GitHub Copilot Chat installed, GitHub Models in GitHub Codespaces, and
+    Ollama models if Ollama is running. If none of these apply, follow the
+    configuration guide. Start by writing your first script after setup."
+  hash: bfcc65fc84aa26032057edb0471adc56f60f13bccf74254adddb574663292fd4
+
 ---
 
 import { FileTree } from "@astrojs/starlight/components"

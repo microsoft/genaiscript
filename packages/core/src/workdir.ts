@@ -1,17 +1,49 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { basename, resolve } from "node:path";
 import {
-    CONVERTS_DIR_NAME,
-    GENAI_ANYTS_REGEX,
-    GENAISCRIPT_FOLDER,
-    RUNS_DIR_NAME,
-    STATS_DIR_NAME,
-} from "./constants"
-import { randomHex } from "./crypto"
-import { genaiscriptDebug } from "./debug"
-import { ensureDir } from "./fs"
-import { gitIgnoreEnsure } from "./gitignore"
-import { host } from "./host"
-import { sanitizeFilename } from "./sanitize"
-const dbg = genaiscriptDebug("dirs")
+  CONVERTS_DIR_NAME,
+  GENAI_ANYTS_REGEX,
+  GENAISCRIPT_FOLDER,
+  RUNS_DIR_NAME,
+  STATS_DIR_NAME,
+} from "./constants.js";
+import { randomHex } from "./crypto.js";
+import { genaiscriptDebug } from "./debug.js";
+import { ensureDir } from "./fs.js";
+import { gitIgnoreEnsure } from "./gitignore.js";
+import { resolveRuntimeHost } from "./host.js";
+import { sanitizeFilename } from "./sanitize.js";
+import { resolve as pathResolve, normalize, relative } from "node:path";
+const dbg = genaiscriptDebug("dirs");
+
+/**
+ * Validates a path segment to prevent directory traversal attacks
+ * @param segment - The path segment to validate
+ * @returns The sanitized segment
+ * @throws Error if the segment contains path traversal attempts
+ */
+function validatePathSegment(segment: string): string {
+  if (!segment || typeof segment !== 'string') {
+    throw new Error("Invalid path segment");
+  }
+  
+  // Normalize the segment to resolve any relative path components
+  const normalized = normalize(segment);
+  
+  // Check for path traversal attempts
+  if (normalized.includes('..') || normalized.startsWith('/') || normalized.includes(':')) {
+    throw new Error(`Path traversal attempt detected in segment: ${segment}`);
+  }
+  
+  // Additional security: ensure no null bytes
+  if (segment.includes('\0')) {
+    throw new Error("Null byte detected in path segment");
+  }
+  
+  return sanitizeFilename(segment);
+}
 
 /**
  * Constructs a resolved file path within the `.genaiscript` directory of the project.
@@ -20,11 +52,22 @@ const dbg = genaiscriptDebug("dirs")
  * @returns The resolved path as a string.
  */
 export function dotGenaiscriptPath(...segments: string[]) {
-    return host.resolvePath(
-        host.projectFolder(),
-        GENAISCRIPT_FOLDER,
-        ...segments.map((s) => sanitizeFilename(s))
-    )
+  const runtimeHost = resolveRuntimeHost();
+  const projectFolder = runtimeHost.projectFolder();
+  const genaiscriptBase = pathResolve(projectFolder, GENAISCRIPT_FOLDER);
+  
+  // Validate and sanitize all segments
+  const validatedSegments = segments.map(validatePathSegment);
+  
+  const fullPath = pathResolve(genaiscriptBase, ...validatedSegments);
+  
+  // Ensure the resolved path is still within the .genaiscript directory
+  const relativePath = relative(genaiscriptBase, fullPath);
+  if (relativePath.startsWith('..') || relativePath.startsWith('/')) {
+    throw new Error(`Path traversal attempt detected: resolved path ${fullPath} is outside of allowed directory`);
+  }
+  
+  return fullPath;
 }
 
 /**
@@ -38,18 +81,18 @@ export function dotGenaiscriptPath(...segments: string[]) {
  * @returns A promise that resolves once the directory is created and configured.
  */
 export async function ensureDotGenaiscriptPath() {
-    const dir = dotGenaiscriptPath()
-    await ensureDir(dir)
-    await gitIgnoreEnsure(dir, ["*"])
+  const dir = dotGenaiscriptPath();
+  await ensureDir(dir);
+  await gitIgnoreEnsure(dir, ["*"]);
 }
 
 function friendlyDate() {
-    return new Date().toISOString().replace(/[:.]/g, "-")
+  return new Date().toISOString().replace(/[:.]/g, "-");
 }
 
 function createDatedFolder(id: string) {
-    const name = friendlyDate() + "-" + id
-    return name
+  const name = friendlyDate() + "-" + id;
+  return name;
 }
 
 /**
@@ -60,15 +103,23 @@ function createDatedFolder(id: string) {
  * @returns The resolved path for the specified run directory.
  */
 export function getRunDir(scriptId: string, runId: string) {
-    dbg(`run: %s %s`, scriptId, runId)
-    const name = createDatedFolder(runId)
-    const out = dotGenaiscriptPath(
-        RUNS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        name
-    )
-    dbg("run dir: %s", out)
-    return out
+  dbg(`run: %s %s`, scriptId, runId);
+  const name = createDatedFolder(runId);
+  const out = dotGenaiscriptPath(
+    RUNS_DIR_NAME,
+    basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+    name,
+  );
+  dbg("run dir: %s", out);
+  return out;
+}
+
+export function getTestDir(runId: string) {
+  dbg(`test: %s`, runId);
+  const name = createDatedFolder(runId);
+  const out = dotGenaiscriptPath("tests", name);
+  dbg("test dir: %s", out);
+  return out;
 }
 
 /**
@@ -81,16 +132,16 @@ export function getRunDir(scriptId: string, runId: string) {
  *          for the converted files.
  */
 export function getConvertDir(scriptId: string) {
-    const runId = randomHex(6)
-    dbg(`convert: %s %s`, scriptId, runId)
-    const name = createDatedFolder(runId)
-    const out = dotGenaiscriptPath(
-        CONVERTS_DIR_NAME,
-        host.path.basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
-        name
-    )
-    dbg("convert dir: %s", out)
-    return out
+  const runId = randomHex(6);
+  dbg(`convert: %s %s`, scriptId, runId);
+  const name = createDatedFolder(runId);
+  const out = dotGenaiscriptPath(
+    CONVERTS_DIR_NAME,
+    basename(scriptId).replace(GENAI_ANYTS_REGEX, ""),
+    name,
+  );
+  dbg("convert dir: %s", out);
+  return out;
 }
 
 /**
@@ -103,9 +154,9 @@ export function getConvertDir(scriptId: string) {
  * directory's existence, and returns the directory path.
  */
 export async function createVideoDir() {
-    const dir = dotGenaiscriptPath("videos", friendlyDate())
-    await ensureDir(dir)
-    return dir
+  const dir = dotGenaiscriptPath("videos", friendlyDate());
+  await ensureDir(dir);
+  return dir;
 }
 
 /**
@@ -118,7 +169,7 @@ export async function createVideoDir() {
  * the directory exists by creating it if necessary.
  */
 export async function createStatsDir() {
-    const statsDir = dotGenaiscriptPath(STATS_DIR_NAME)
-    await ensureDir(statsDir)
-    return statsDir
+  const statsDir = dotGenaiscriptPath(STATS_DIR_NAME);
+  await ensureDir(statsDir);
+  return statsDir;
 }

@@ -13,6 +13,20 @@ hero:
       people, no background, and no visible text. The composition gives a clean,
       symbolic sense of halted tasks and inactivity.
     file: ./cancel.png
+llmstxt:
+  content: >-
+    The `cancel` function stops script execution immediately. It accepts an
+    optional `reason` argument to explain why the script is being canceled.
+
+
+    Example:
+
+    ```js
+
+    if (!env.files.length) cancel("Nothing to do")
+
+    ```
+  hash: 49f61026b963a56e07afb09dbd9850d9ca46e8d11d002c1059679040dd4d64e3
 
 ---
 

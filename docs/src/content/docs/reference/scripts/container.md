@@ -13,6 +13,97 @@ hero:
       connections and ports, using five corporate colors, arranged simply and
       without any text or background.
     file: ./container.png
+llmstxt:
+  content: >-
+    Containers like Docker package software and dependencies into lightweight,
+    standalone units. They include code, runtime, system tools, libraries, and
+    settings. Treat code from LLMs as untrusted; use containers for isolation.
+
+
+    GenAIScript uses Docker for container orchestration. Install Docker to
+    proceed.
+
+
+    To start a container:
+
+    `const container = await host.container()`
+
+
+    Default image is `python:alpine`. Use `image` to specify a custom image:
+
+    `const container = await host.container({ image: "node:20" })`
+
+
+    Build custom images with:
+
+    ```js
+
+    const repo = "codelion/optillm";
+
+    const branch = "main";
+
+    const dir = ".";
+
+    await host.exec(`docker build -t ${repo}
+    https://github.com/${repo}.git#${branch}:${dir}`);
+
+    ```
+
+    Use the repo as the image name:
+
+    `const container = await host.container({ image: repo })`
+
+
+    To keep containers after use:
+
+    `const container = await host.container({ persistent: true })`
+
+
+    Enable network access if needed:
+
+    `const container = await host.container({ networkEnabled: true })`
+
+
+    Bind container ports to host ports:
+
+    ```js
+
+    const container = await host.container({
+        networkEnabled: true,
+        ports: { containerPort: "80/tcp", hostPort: 8088 }
+    });
+
+    ```
+
+
+    Run commands in the container:
+
+    `const { stdout } = await container.exec("python", ["--version"])`
+
+
+    Read/write files in the container:
+
+    ```js
+
+    await container.writeText("hello.txt", "Hello, world!");
+
+    const content = await container.readText("hello.txt");
+
+    ```
+
+
+    Copy files to the container:
+
+    `await container.copyTo("src/**", ".")`
+
+
+    Disconnect the network if previously enabled:
+
+    `await container.disconnect()` 
+
+
+    For secure handling of untrusted text, refer to containerized tools.
+  hash: 1a1eff16ae38bb1fa87af45a2f797190fd7c5b2c7e210261c105a0b193f420e8
 
 ---
 

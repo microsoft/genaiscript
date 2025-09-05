@@ -2,7 +2,48 @@
 title: Developer guide
 description: Contribution guidelines for building and adding features to GenAIScript
 sidebar:
-    order: 100
+  order: 100
+llmstxt:
+  content: >-
+    GenAIScript welcomes contributions. Set up the development environment using
+    GitHub Codespaces or manually by installing Node.js LTS and running `pnpm
+    install --frozen-lockfile --prefer-offline`. Build the project with `pnpm
+    build` or `pnpm build:cli`. Pull requests must target the `dev` branch and
+    adhere to the Microsoft Open Source Code of Conduct. Ensure code is
+    documented, follows style guidelines, and includes tests where possible.
+
+
+    Run local scripts using `pnpm genai <scriptid>` or `pnpm run:script
+    <scriptid>` for samples. Debug scripts with `pnpm genai:debug <scriptid>` or
+    `pnpm run:script:debug <scriptid>`. Enable logging with
+    `DEBUG=genaiscript:*`.
+
+
+    The web viewer (React 19) runs as a VSCode panel or standalone. Start the
+    local server with `pnpm serve`. For VSCode extension development, uninstall
+    the official extension, build with `pnpm build`, and debug using the
+    "Samples" configuration. If debugging fails, rebuild with `pnpm build`.
+
+
+    Generate documentation with `pnpm docs` and check for broken links using
+    `pnpm build:docs`. Compile slides with `pnpm slides [file]`. Use `pnpm gcm`
+    for auto-generated commit messages, `pnpm genai:docs` for API documentation,
+    and `pnpm genai:blog-images` for blog post images.
+
+
+    Package the VSCode extension with `pnpm package`, producing
+    `genaiscript.vsix` in `packages/vscode`. Release updates with `pnpm
+    release`. GitHub Pages updates automatically on release.
+
+
+    To test the MCP server locally, start the HTTP server with `pnpm build:cli`
+    followed by `node packages/cli/dist/src/index.js mcp --http`. Verify the
+    health endpoint with `curl http://127.0.0.1:8003/health`. Use the MCP
+    Inspector for testing or configure `.vscode/mcp.json` for dual-transport
+    setups. HTTP transport supports CORS, proxy awareness, session management,
+    health checks, and debug logging.
+  hash: d3e5a9b13cdea2660e8f64dbb99025203077c8e1eec1ca9f4a77dafd8b935fbd
+
 ---
 
 GenAIScript welcomes contributions from the community. This document provides guidelines for setting up the development environment, building the project, and contributing to the codebase.
@@ -24,7 +65,7 @@ You can open this repo in GitHub CodeSpace/Docker to get the build environment n
 - Run yarn
 
 ```sh
-yarn install --frozen-lockfile --prefer-offline
+pnpm install --frozen-lockfile --prefer-offline
 ```
 
 ## Build
@@ -32,13 +73,13 @@ yarn install --frozen-lockfile --prefer-offline
 You can do a full compile using esbuild.
 
 ```sh
-yarn compile
+pnpm build
 ```
 
-or a typecheck using `tsc`.
+or just the cli
 
 ```sh
-yarn typecheck
+pnpm build:cli
 ```
 
 ## Pull Requests
@@ -57,29 +98,29 @@ When creating a pull request, please ensure that your code adheres to the follow
 To run a script using the locally built cli,
 
 ```sh
-yarn genai <scriptid> ...
+pnpm genai <scriptid> ...
 ```
 
-To run a sample script under the `packages/sample` folder:
+To run a sample script under the `samples/sample` folder:
 
 ```sh
-yarn run:script <scriptid> ...
+pnpm run:script <scriptid> ...
 ```
 
-In this case, it will use the `packages/sample/.env` file for the environment variables and workspace will be rooted at `packages/sample`.
+In this case, it will use the `samples/sample/.env` file for the environment variables and workspace will be rooted at `samples/sample`.
 
 ## Debugging local scripts
 
 Open a `JavaScript Debug Terminal` and launch the script using
 
 ```sh
-yarn genai:debug <scriptid> ...
+pnpm genai:debug <scriptid> ...
 ```
 
 or for samples
 
 ```sh
-yarn run:script:debug <scriptid> ...
+pnpm run:script:debug <scriptid> ...
 ```
 
 ## Logging
@@ -87,21 +128,21 @@ yarn run:script:debug <scriptid> ...
 GenAIScript uses the [debug](https://www.npmjs.com/package/debug) library for logging. You can enable logging by setting the `DEBUG` environment variable to `genai:*`.
 
 ```sh
-DEBUG=genaiscript:* yarn genai <scriptid> ...
+DEBUG=genaiscript:* pnpm genai <scriptid> ...
 ```
 
 ## Web viewer
 
 The web application (React 19) is meant to run both as a Visual Studio Code panel and a standalone viewer (**playground**). For testing purposes, standalone is the easiest.
 
-- React 19, currently very little dependeices
+- React 19, currently very little dependencies
 - react-markdown + a few plugins to run the markdown
 - [vscode-elements](https://vscode-elements.github.io/) is the design system we use as it mimics the vscode look and feel.
 
 Use the following command to start the local web server:
 
 ```sh
-yarn serve
+pnpm serve
 ```
 
 It will start a local server and rebuild the react client on file changes. **It will not rebuild/restart the server on changes.**
@@ -122,24 +163,20 @@ Remember that the debugger is only attached to the extension; not the GenAIScrip
 ### Caveats
 
 Launching the debugger sometimes fails but still unknown reasons. To work around this, open a terminal
-and run `yarn compile` once. Then launch the debugger again.
-
-## Dependencies
-
-- run `yarn install:force` to refresh the lock file
+and run `pnpm build` once. Then launch the debugger again.
 
 ## Docs
 
 Run `docs` to launch the documentation site.
 
 ```sh
-yarn docs
+pnpm docs
 ```
 
 Run this command to catch broken links
 
 ```sh
-yarn build:docs
+pnpm build:docs
 ```
 
 ## Slides
@@ -149,7 +186,7 @@ All files `slides/*slides.md` will be compiled and deployed on build.
 - run `slides` to launch the slide show (add the file name or it will default to `slides.md`)
 
 ```sh
-yarn slides [slides file name]
+pnpm slides [slides file name]
 ```
 
 Learn more about Slidev on [documentations](https://sli.dev/). For diagrams, leverage [mermaid](https://sli.dev/guide/syntax#diagrams) or use draw.io, tldraw.
@@ -159,19 +196,19 @@ Learn more about Slidev on [documentations](https://sli.dev/). For diagrams, lev
 - Commit with auto-generated message
 
 ```sh
-yarn gcm
+pnpm gcm
 ```
 
 - Add doc to new or updated apis
 
 ```sh
-yarn genai:docs
+pnpm genai:docs
 ```
 
 - Generate images for blog posts
 
 ```sh
-yarn genai:blog-images
+pnpm genai:blog-images
 ```
 
 ## Packaging
@@ -179,7 +216,7 @@ yarn genai:blog-images
 To compile and package the Visual Studio Code extension, run the `package` script.
 
 ```sh
-yarn package
+pnpm package
 ```
 
 You will find the built package files, `genaiscript.vsix`,
@@ -190,7 +227,7 @@ in the `packages/vscode` folder.
 Run the `release` script.
 
 ```sh
-yarn release
+pnpm release
 ```
 
 GitHub Pages are automatically updated on new release; or through manual trigger at
@@ -209,3 +246,110 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+## MCP Server Testing
+
+### Testing HTTP Transport Locally
+
+To test the HTTP transport locally, follow these steps:
+
+1. **Start the HTTP MCP server** in one terminal:
+
+```sh
+# Build the CLI first (if working from source)
+pnpm build:cli
+
+# Start HTTP server on default port 8003
+node packages/cli/dist/src/index.js mcp --http --groups mcp
+
+# Or use the global genaiscript if installed
+genaiscript mcp --http --groups mcp
+```
+
+The server will display status information:
+```
+GenAIScript MCP server v2.3.9
+│ Transport: HTTP (proxy-aware)
+│ Endpoint: http://127.0.0.1:8003/mcp
+│ Health: http://127.0.0.1:8003/health
+│ Access: Local (127.0.0.1)
+│ Proxy: Trusted (X-Forwarded-* headers supported)
+```
+
+2. **Test the health endpoint** to verify the server is running:
+
+```sh
+curl http://127.0.0.1:8003/health
+```
+
+You should see a response like:
+```json
+{
+  "status": "ok",
+  "service": "genaiscript-mcp-server", 
+  "version": "2.3.9",
+  "transport": "http"
+}
+```
+
+3. **Use the MCP Inspector** to test the server functionality:
+
+```sh
+# Install and run the MCP inspector
+npx @modelcontextprotocol/inspector http://127.0.0.1:8003/mcp
+```
+
+4. **Configure a dual-transport setup** for comprehensive testing by updating your `.vscode/mcp.json`:
+
+```json title=".vscode/mcp.json"
+{
+  "servers": {
+    "genaiscript": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/packages/cli/dist/src/index.js",
+        "mcp",
+        "--cwd",
+        "${workspaceFolder}",
+        "--groups",
+        "mcp"
+      ],
+      "envFile": "${workspaceFolder}/.env"
+    },
+    "genaiscript-http": {
+      "type": "http",
+      "url": "http://127.0.0.1:8003/mcp",
+      "description": "GenAIScript MCP server via HTTP transport for testing HTTP connectivity"
+    }
+  }
+}
+```
+
+This configuration allows you to test both stdio and HTTP transports side by side in MCP clients that support multiple servers.
+
+5. **Test with different ports and network configurations**:
+
+```sh
+# Custom port
+genaiscript mcp --http --port 3000
+
+# Network accessible (use with caution)
+genaiscript mcp --http --network --port 8080
+
+# With startup script
+genaiscript mcp --http --startup load-resources
+```
+
+### HTTP Transport Features
+
+The HTTP implementation includes:
+
+- **CORS support** for web-based MCP clients
+- **Proxy awareness** with X-Forwarded-* header support
+- **Session management** for multiple concurrent connections
+- **Health check endpoint** at `/health` for monitoring
+- **Error handling** with graceful fallbacks
+- **Debug logging** (enable with `DEBUG=genaiscript:mcp:server`)
+
+You can use this script to load resources or do any other setup you need.

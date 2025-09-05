@@ -18,21 +18,46 @@ excerpt: Agentic is a TypeScript library designed to streamline AI tool
   connects seamlessly with APIs like Bing, Wolfram Alpha, and Wikipedia,
   improving testing and debugging efficiency. If you're working with tools for
   intelligent automation, Agentic offers a flexible foundation to build from.
+llmstxt:
+  content: >-
+    Agentic tools are deprecated. Agentic is a TypeScript AI tools library
+    optimized for TS and LLM usage, useful for testing and debugging. It
+    supports APIs like Bing, Wolfram Alpha, and Wikipedia. Tools can be
+    registered using `defTool`. Example:
+
+
+    ```js
+
+    import { WeatherClient } from "@agentic/weather";
+
+    const weather = new WeatherClient();
+
+    defTool(weather);
+
+    ```
+
+
+    Refer to Agentic and GenAIScript documentation for details.
+  hash: 3961b5934eff157984660bb00406eecf1e230550b262836231801ee33e3aaaa5
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
+
+:::warn
+Agentic tools are no longer supported.
+:::
 
 [Agentic](https://agentic.so/) is a standard library of TypeScript AI tools optimized for both TS-usage as well as LLM-based usage, which is really important for testing and debugging.
 
 Agentic brings support for a variety of online APIs, like Bing, Wolfram Alpha, Wikipedia, and more. You can register any [Agentic tool](https://agentic.so/tools/) in your script using `defTool`. Here's an example of how to use the Weather tool:
 
 ```js
-import { WeatherClient } from "@agentic/weather"
-const weather = new WeatherClient()
-defTool(weather)
+import { WeatherClient } from "@agentic/weather";
+const weather = new WeatherClient();
+defTool(weather);
 ```
 
 - [Agentic documentation](https://agentic.so/sdks/genaiscript)

@@ -14,6 +14,17 @@ hero:
       people or text, against a transparent background. The image is small and
       square, 128 by 128 pixels, with no shadows or gradients.
     file: ./xlsx.png
+llmstxt:
+  content: >-
+    The `parsers` module supports XLSX file parsing, returning an array of
+    sheets. Each sheet includes its `name` and `rows`, where rows are arrays of
+    objects.
+
+
+    Example:
+
+    const sheets = await parsers.XLSX(env.files[0])
+  hash: 3c9dd784c863b5ba814facb9e9ce0ca70b7e9ca183437649d07390112993a672
 
 ---
 

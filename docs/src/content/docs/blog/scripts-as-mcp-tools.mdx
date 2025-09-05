@@ -22,10 +22,32 @@ excerpt: The Model Context Protocol (MCP) is reshaping how we approach
   you to expose scripts as MCP tools, streamlining workflows with smarter
   decision-making by LLMs. Ready to elevate your development process? Explore
   the details in the documentation.
+llmstxt:
+  content: >-
+    The Model Context Protocol (MCP) is revolutionizing tech, enabling smarter
+    and more efficient development. GenAIScript now supports exposing scripts as
+    MCP tools, allowing seamless integration with AI-driven workflows. MCP tools
+    operate like LLM tools, where the Language Model determines when to invoke
+    them. GitHub Copilot Chat already supports MCP, and Copilot Studio has
+    announced integration.
+
+
+    GenAIScript functions as an MCP server, enabling scripts to act as MCP
+    tools. For example:
+
+
+    graph TD
+        VS[GitHub Copilot Chat] --> MCPServer[GenAIScript = MCP Server]
+        MCPServer --> MCPTools1[script A = MCP Tool]
+        MCPServer --> MCPTools2[script B = MCP Tool]
+
+    Explore the [documentation](/genaiscript/reference/scripts/mcp-server) to
+    start leveraging MCP with GenAIScript.
+  hash: 0a4715675662c53dd74d41173dc4e07ace0b1c83ec2ef2327558a48e3e506aaa
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 

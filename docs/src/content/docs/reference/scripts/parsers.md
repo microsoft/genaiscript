@@ -1,21 +1,168 @@
 ---
 title: Parsers
 sidebar:
-    order: 12
+  order: 12
 description: Comprehensive guide on various data format parsers including JSON5,
-    YAML, TOML, CSV, PDF, DOCX, and token estimation for LLM.
+  YAML, TOML, CSV, PDF, DOCX, and token estimation for LLM.
 keywords: parsers, JSON5, YAML, TOML, CSV, token estimation
 hero:
-    image:
-        alt: A small, square digital illustration shows flat, simplified icons
-            representing various file formats arranged neatly in a grid. Symbols
-            include a curly bracket for JSON5, flowing lines with dashes for YAML and
-            TOML, stacked bars for CSV/Excel, a single angle bracket for XML, a double
-            quotation mark for code, a pie chart with an equation symbol for math and
-            data, and a zipper indicating compressed ZIP files. Each symbol uses
-            clean, geometric shapes within a limited color palette, with no
-            background, shadows, text, or human figures.
-        file: ./parsers.png
+  image:
+    alt: A small, square digital illustration shows flat, simplified icons
+      representing various file formats arranged neatly in a grid. Symbols
+      include a curly bracket for JSON5, flowing lines with dashes for YAML and
+      TOML, stacked bars for CSV/Excel, a single angle bracket for XML, a double
+      quotation mark for code, a pie chart with an equation symbol for math and
+      data, and a zipper indicating compressed ZIP files. Each symbol uses
+      clean, geometric shapes within a limited color palette, with no
+      background, shadows, text, or human figures.
+    file: ./parsers.png
+llmstxt:
+  content: >-
+    The `parsers` object provides functions to parse various data formats.
+
+
+    JSON5: Parses JSON5, a more forgiving JSON format. If parsing fails, JSON
+    repair is applied. Example:
+
+    {
+      unquoted: "text",
+      singleQuotes: 'text',
+      hexadecimal: 0x1a,
+      trailingComma: "allowed",
+    }
+
+    Usage: `parsers.JSON5("...")`
+
+
+    YAML: Parses YAML, commonly used for configuration files. Example:
+
+    fields:
+      number: 1
+      boolean: true
+    Usage: `parsers.YAML("...")`
+
+
+    TOML: Parses TOML, another configuration format. Example:
+
+    title = "Example"
+
+    [object]
+
+    string = "text"
+
+    Usage: `parsers.TOML("...")`
+
+
+    JSONL: Parses line-separated JSON objects into an array. Example:
+
+    {"name": "Alice"}
+
+    {"name": "Bob"}
+
+    Usage: `parsers.JSONL(file)`
+
+
+    XML: Parses XML. Attributes are prefixed with "@_". Example:
+
+    <xml attr="1"><child /></xml>
+
+    Result: { "xml": { "@_attr": "1", "child": {} } }
+
+    Usage: `parsers.XML("<xml...")`
+
+
+    Front Matter: Extracts metadata from YAML front matter. Example:
+
+    ---
+
+    title: "Hello"
+
+    ---
+
+    Usage: `parsers.frontmatter(file)`
+
+
+    CSV: Parses CSV into an array of objects. Auto-detects headers or accepts
+    custom ones. Usage: `parsers.CSV("...", { headers: [...] })`
+
+
+    PDF: Converts PDFs to text. Usage: `parsers.PDF(file)`
+
+
+    DOCX: Reads .docx files as text. Usage: `parsers.DOCX(file)`
+
+
+    INI: Parses INI files (key=value). Usage: `parsers.INI("...")`
+
+
+    XLSX: Reads .xlsx files into objects. Supports sheet and range options.
+    Usage: `parsers.XLSX("...", { sheet: "Sheet1", range: "A1:C10" })`
+
+
+    VTT/SRT: Parses transcription files into segments. Usage:
+    `parsers.transcription("...")`
+
+
+    Unzip: Extracts files from a zip archive. Usage: `parsers.unzip(file)`
+
+
+    HTML to Text: Converts HTML to plain text. Usage: `parsers.HTMLToText(html)`
+
+
+    Prompty: Parses markdown-based prompt templates. Example:
+
+    ---
+
+    name: Prompt
+
+    ---
+
+    system: You are an assistant.
+
+    Usage: `parsers.prompty(file)`
+
+
+    Math Expression: Evaluates math expressions. Usage: `parsers.math("1 + 1")`
+
+
+    .env: Parses .env files (key=value). Usage: `parsers.dotEnv("...")`
+
+
+    Fences: Extracts code sections from text. Usage: `parsers.fences("...")`
+
+
+    Annotations: Parses error/warning annotations. Usage:
+    `parsers.annotations("...")`
+
+
+    Tokens: Estimates token count in a string. Usage: `parsers.tokens("...")`
+
+
+    Validate JSON: Validates JSON against a schema. Usage:
+    `parsers.validateJSON(schema, json)`
+
+
+    Mustache: Renders Mustache templates. Usage: `parsers.mustache("Today is
+    {{date}}.", { date: new Date() })`
+
+
+    Jinja: Renders Jinja templates. Usage: `parsers.jinja("Today is {{date}}.",
+    { date: new Date() })`
+
+
+    TidyData: Manipulates data with options like sorting or sampling. Usage:
+    `parsers.tidyData(rows, { sort: "name" })`
+
+
+    GROQ: Queries JSON with GROQ. Usage: `parsers.GROQ(query, data)`
+
+
+    Hash: Hashes objects/arrays. Usage: `parsers.hash(data, { length: 12 })`
+
+
+    Unthink: Removes `
+  hash: 256e94151af52261e05b886cc917810072b098717f1ed861622df5bcffa4bdc7
+
 ---
 
 The `parsers` object provides various parsers for common data formats.
@@ -247,24 +394,6 @@ To parse this file, use the `parsers.prompty` function.
 const doc = await parsers.prompty(file)
 ```
 
-## Code (JavaScript, Python, C, C++, Java, ...)
-
-The `parsers.code` function parses source code using the [Tree Sitter](https://tree-sitter.github.io/tree-sitter/)
-library. It returns an AST (Abstract Syntax Tree) that can be used to analyze the code.
-
-```js
-// the whole tree
-const { captures } = await parsers.code(file)
-// with a query
-const { captures } = await parsers.code(file, "(interface_declaration) @i")
-```
-
-The `tags` query is a built-in alias for the [tree-sitter `tags` query](https://tree-sitter.github.io/tree-sitter/4-code-navigation.html#tagging-and-captures) that is made available in most tree-sitter libraries.
-
-````js
-const { captures } = await parsers.code(file, 'tags')
-```
-
 ## Math expression
 
 The `parsers.math` function uses [mathjs](https://mathjs.org/) to parse a math expression.
@@ -390,7 +519,7 @@ By default, uses `sha-1`, but `sha-256` can also be used. The hash packing logic
 
 ## unthink
 
-Some models return their internal reasonings inside `<think>` tags.
+Some models return their internal reasoning inside `<think>` tags.
 
 ```markdown
 <think>This is my reasoning...</think>

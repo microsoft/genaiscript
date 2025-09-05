@@ -13,6 +13,59 @@ hero:
       colors in a flat, minimalist design with no background or gradients,
       created for a 128x128 size.
     file: ./git.png
+llmstxt:
+  content: >-
+    The `git` helper is a wrapper for executing repository operations using the
+    `git` command.
+
+
+    Methods:
+
+    - `defaultBranch`: Resolves the default branch (e.g., `main` or `master`).
+    Example: `const df = await git.defaultBranch();`
+
+    - `lastTag`: Retrieves the last tag. Example: `const tag = await
+    git.lastTag();`
+
+    - `branch`: Gets the current branch. Example: `const branchName = await
+    git.branch();`
+
+    - `exec`: Runs a git command and returns stdout. Example: `const output =
+    await git.exec(["status"]);`
+
+    - `listBranches`: Lists all branches. Example: `const branches = await
+    git.listBranches();`
+
+    - `listFiles`: Finds specific files. Example: `const files = await
+    git.listFiles("modified");`
+
+    - `diff`: Gets the repository diff. Example: `const diffOutput = await
+    git.diff({ staged: true });`
+
+    - `log`: Retrieves commit logs with filters. Example: `const commits = await
+    git.log({ ... });`
+
+    - `changedFiles`: Lists files changed in the last commit. Example: `const
+    changedFiles = await git.changedFiles({ ... });`
+
+
+    Git respects `.gitignore` and supports `.gitignore.genai` for additional
+    ignore rules.
+
+
+    Shallow clones can be created and cached under `.genaiscript/git/`. Use
+    `shallowClone` to clone repositories. Example: 
+
+    `const clone = await git.shallowClone("microsoft/genaiscript", { force:
+    true, install: true });`
+
+
+    To operate on other repositories, use `git.client` to create a client for a
+    different directory. Example: 
+
+    `const other = git.client("/path/to/other/repo"); const branch = await
+    other.branch();`
+  hash: fc203ac08e3706cca10752446ba5a3f9919cdf78e5547ab52cbf9e1fce2fd67e
 
 ---
 
@@ -25,7 +78,7 @@ The `git` helper provides a thin wrapper around invoking the [git](https://git-s
 Resolves the default branch, typically `main` or `master`, in the repository.
 
 ```typescript
-const df = await git.defaultBranch()
+const df = await git.defaultBranch();
 ```
 
 ### lastTag
@@ -33,7 +86,7 @@ const df = await git.defaultBranch()
 Gets the last tag in the repository.
 
 ```typescript
-const tag = await git.lastTag()
+const tag = await git.lastTag();
 ```
 
 ### branch
@@ -41,7 +94,7 @@ const tag = await git.lastTag()
 Gets the current branch of the repository.
 
 ```typescript
-const branchName = await git.branch()
+const branchName = await git.branch();
 ```
 
 ### exec
@@ -49,7 +102,7 @@ const branchName = await git.branch()
 Executes a git command in the repository and returns the stdout.
 
 ```typescript
-const output = await git.exec(["status"])
+const output = await git.exec(["status"]);
 ```
 
 ### listBranches
@@ -57,7 +110,7 @@ const output = await git.exec(["status"])
 Lists the branches in the git repository.
 
 ```typescript
-const branches = await git.listBranches()
+const branches = await git.listBranches();
 ```
 
 ### listFiles
@@ -65,7 +118,7 @@ const branches = await git.listBranches()
 Finds specific files in the git repository.
 
 ```typescript
-const files = await git.listFiles("modified")
+const files = await git.listFiles("modified");
 ```
 
 ### diff
@@ -73,15 +126,23 @@ const files = await git.listFiles("modified")
 Gets the diff for the current repository state.
 
 ```typescript
-const diffOutput = await git.diff({ staged: true })
+const diffOutput = await git.diff({ staged: true });
 ```
 
 ### log
 
-Lists the commits in the git repository.
+Lists the commits with various filters. Includes sha, author, date, message and file names.
 
 ```typescript
-const commits = await git.log()
+const commits = await git.log({ ... });
+```
+
+### changedFiles
+
+Lists the files changed in the last commit.
+
+```typescript
+const changedFiles = await git.changedFiles({ ... });
 ```
 
 ## Configuring Ignores
@@ -101,7 +162,7 @@ The clones are created under the `.genaiscript/git/...` directory and are cached
 on the `repository/branch/commit` information.
 
 ```js
-const clone = await git.shallowClone("microsoft/genaiscript")
+const clone = await git.shallowClone("microsoft/genaiscript");
 ```
 
 You can provide options to force the cloning
@@ -109,9 +170,9 @@ and/or running the `install` command after cloning.
 
 ```js
 const clone = await git.shallowClone("microsoft/genaiscript", {
-    force: true,
-    install: true,
-})
+  force: true,
+  install: true,
+});
 ```
 
 ## Git in other repositories
@@ -119,6 +180,6 @@ const clone = await git.shallowClone("microsoft/genaiscript", {
 Use `git.client` to open a git client on a different working directory. This allows you to run git commands on a different repository.
 
 ```js
-const other = git.client("/path/to/other/repo")
-const branch = await other.branch()
+const other = git.client("/path/to/other/repo");
+const branch = await other.branch();
 ```

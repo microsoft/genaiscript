@@ -1,14 +1,29 @@
 ---
 title: Jan
 sidebar:
-    order: 50
+  order: 50
+llmstxt:
+  content: >-
+    The `jan` provider connects to the Jan local server. To use Jan models,
+    download the desired models from Jan, noting their model identifiers. Start
+    the local API server via the **Local API Server** icon in the Jan desktop
+    app and keep the app running.
+
+
+    Use the `jan:modelid` syntax to specify models. If the server URL changes,
+    set the `JAN_API_BASE` environment variable:
+
+
+    JAN_API_BASE=http://localhost:1234/v1
+  hash: 3ecd2db02cda68d063a0b34c7464dea0838c48f4e772e16fa34f61fefdb06e5f
+
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 The `jan` provider connects to the [Jan](https://jan.ai/) local server.
 

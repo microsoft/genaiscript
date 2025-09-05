@@ -1,22 +1,163 @@
 ---
 title: Overview
 description: Set up your LLM connection and authorization with environment
-    variables for seamless integration.
+  variables for seamless integration.
 keywords: LLM setup, API configuration, environment variables, secure
-    authorization, LLM integration
+  authorization, LLM integration
 sidebar:
-    order: 0
+  order: 0
+llmstxt:
+  content: >-
+    Configure LLM connections and authorization secrets for GenAIScript to use
+    remote (e.g., OpenAI, Azure) or local models (e.g., Ollama, LMStudio). The
+    `model` field in the `script` function specifies the model, formatted as
+    `provider:model-name`. Use aliases like `small`, `large`, or `vision` for
+    default configurations, which can be overridden via CLI, environment
+    variables, or configuration files.
+
+
+    Example:
+
+    ```js
+
+    script({ model: "openai:gpt-4o" });
+
+    script({ model: "small" });
+
+    ```
+
+
+    Environment variables:
+
+    ```txt
+
+    GENAISCRIPT_MODEL_LARGE="azure_serverless:..."
+
+    GENAISCRIPT_MODEL_SMALL="azure_serverless:..."
+
+    ```
+
+
+    Custom aliases can be defined using `GENAISCRIPT_MODEL_ALIAS`:
+
+    ```txt
+
+    GENAISCRIPT_MODEL_TINY=...
+
+    ```
+
+    ```js
+
+    script({ model: "tiny" });
+
+    ```
+
+
+    `.env` files store secrets and configurations. Add `.env` to `.gitignore` to
+    prevent committing sensitive data. Default `.env` file loading order:
+    `~/.env.genaiscript`, `./.env.genaiscript`, `./.env`. Specify custom `.env`
+    locations via CLI:
+
+    ```sh
+
+    npx genaiscript ... --env .env .env.debug
+
+    ```
+
+    or environment variable:
+
+    ```sh
+
+    GENAISCRIPT_ENV_FILE=".env.local" npx genaiscript ...
+
+    ```
+
+
+    For no `.env` file, directly populate environment variables:
+
+    ```sh
+
+    OPENAI_API_KEY="value" npx genaiscript run ...
+
+    ```
+
+
+    Use `npx genaiscript configure` to interactively configure and validate LLM
+    connections.
+
+
+    The `echo` provider simulates LLM responses for debugging:
+
+    ```js
+
+    script({ model: "echo" });
+
+    ```
+
+
+    The `none` provider disables LLM execution:
+
+    ```js
+
+    script({ model: "none" });
+
+    ```
+
+
+    Custom OpenAI-compatible providers require environment variables like
+    `_API_BASE` and `_API_KEY`:
+
+    ```txt
+
+    OLLIZARD_API_BASE=http://localhost:1234/v1
+
+    ```
+
+    ```js
+
+    script({ model: "ollizard:llama3.2:1b" });
+
+    ```
+
+
+    Model-specific environment variables use `PROVIDER_MODEL_API_...` prefixes:
+
+    ```txt
+
+    OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
+
+    ```
+
+
+    Set `HTTP_PROXY` or `HTTPS_PROXY` for running behind a proxy:
+
+    ```txt
+
+    HTTP_PROXY=http://proxy.example.com:8080
+
+    ```
+
+
+    Check configuration with:
+
+    ```sh
+
+    genaiscript info env
+
+    ```
+  hash: 3b49683930a67dcba019ff997bb8235f17191d00c7eb3ae5beb2552abd705a8e
+
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import { YouTube } from "astro-embed"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import { YouTube } from "astro-embed";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
-import lmSrc from "../../../assets/vscode-language-models.png"
-import lmAlt from "../../../assets/vscode-language-models.png.txt?raw"
+import lmSrc from "../../../assets/vscode-language-models.png";
+import lmAlt from "../../../assets/vscode-language-models.png.txt?raw";
 
 You will need to configure the LLM connection and authorization secrets. You can use remote (like OpenAI, Azure, etc.) and local models (like Ollama, Jan, LMStudio, etc.) with GenAIScript.
 
@@ -28,8 +169,8 @@ and the `model-name` is provider specific.
 
 ```js 'model: "openai:gpt-4o"'
 script({
-    model: "openai:gpt-4o",
-})
+  model: "openai:gpt-4o",
+});
 ```
 
 ### Large, small, vision models
@@ -39,11 +180,11 @@ Large models are typically in the OpenAI gpt-4 reasoning range and can be used f
 Small models are in the OpenAI gpt-4o-mini range, and are useful for quick and simple tasks.
 
 ```js 'model: "small"'
-script({ model: "small" })
+script({ model: "small" });
 ```
 
 ```js 'model: "large"'
-script({ model: "large" })
+script({ model: "large" });
 ```
 
 The model aliases can also be overridden from the [cli run command](/genaiscript/reference/cli/run),
@@ -65,7 +206,7 @@ You can also configure the default aliases for a given LLM provider by using the
 The default are documented in this page and printed to the console output.
 
 ```js
-script({ provider: "openai" })
+script({ provider: "openai" });
 ```
 
 ```sh
@@ -85,7 +226,7 @@ GENAISCRIPT_MODEL_TINY=...
 Model aliases are always lowercased when used in the script.
 
 ```js
-script({ model: "tiny" })
+script({ model: "tiny" });
 ```
 
 ## `.env` file and `.env.genaiscript` file
@@ -151,10 +292,9 @@ the `.env`, `.env.genaiscript` file will appear grayed out in Visual Studio Code
 You can specify a custom `.env` file location through the CLI or an environment variable.
 
 - GenAIScript script loads the following `.env` files in order by default:
-
-    - `~/.env.genaiscript`
-    - `./.env.genaiscript`
-    - `./.env`
+  - `~/.env.genaiscript`
+  - `./.env.genaiscript`
+  - `./.env`
 
 - by adding the `--env <...files>` argument to the CLI. Each `.env` file is imported in order and may override previous values.
 
@@ -172,8 +312,8 @@ GENAISCRIPT_ENV_FILE=".env.local" npx genaiscript ...
 
 ```json title="~/genaiscript.config.yaml"
 {
-    "$schema": "https://microsoft.github.io/genaiscript/schemas/config.json",
-    "envFile": [".env.local", ".env.another"]
+  "$schema": "https://microsoft.github.io/genaiscript/schemas/config.json",
+  "envFile": [".env.local", ".env.another"]
 }
 ```
 
@@ -195,7 +335,7 @@ OPENAI_API_KEY="value" npx --yes genaiscript run ...
 ```yaml title=".github/workflows/genaiscript.yml"
 run: npx --yes genaiscript run ...
 env:
-    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
 
 ## `configure` command
@@ -225,8 +365,8 @@ It is most useful for debugging when you want to see the result LLM request with
 
 ```js 'model: "echo"'
 script({
-    model: "echo",
-})
+  model: "echo",
+});
 ```
 
 Echo replies with the chat messages as markdown and JSON, which can be helpful for debugging.
@@ -237,8 +377,8 @@ The `none` provider prevents the execution of LLM. It is typically used on a top
 
 ```js 'model: "none"'
 script({
-    model: "none",
-})
+  model: "none",
+});
 ```
 
 ## Custom Provider (OpenAI compatible)
@@ -254,12 +394,14 @@ OLLIZARD_API_BASE=http://localhost:1234/v1
 #OLLIZARD_API_KEY=...
 ```
 
+Other environment suffixes are: `_API_VERSION`, `_API_TYPE`, `_API_CREDENTIALS` (for Azure), `_API_PROVIDER` to specify what built provider it maps to.
+
 Then you can use this provider like any other provider.
 
 ```js 'model: "ollizard'
 script({
-    model: "ollizard:llama3.2:1b",
-})
+  model: "ollizard:llama3.2:1b",
+});
 ```
 
 ## Model specific environment variables

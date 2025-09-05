@@ -14,6 +14,23 @@ hero:
       illustration uses five flat colors, has no background, people, or text,
       and is presented in a clear, iconic manner.
     file: ./security-and-trust.png
+llmstxt:
+  content: >-
+    GenAIScript poses security risks similar to running JavaScript, with
+    additional threats from LLM-generated outputs. `.genai.mjs` scripts are
+    executable JavaScript files capable of reading/writing files, making network
+    requests, and executing arbitrary code. Avoid running scripts from untrusted
+    sources. Even trusted scripts may generate malicious outputs by manipulating
+    context files.
+
+
+    In Visual Studio Code, the extension is disabled in Restricted Mode. The LLM
+    output and trace use VS Code's Markdown preview, which restricts script
+    execution and enforces HTTPS for resources. Use refactoring previews in VS
+    Code or review changes via pull requests in CI/CD workflows to mitigate
+    risks. Read the Transparency Note for further understanding of GenAIScript's
+    capabilities and limitations.
+  hash: 89fd06924f9dfabbe2ff068dbfd6379adca097ff59fc22904cc82150b2857892
 
 ---
 import WarningCode from "../../../components/WarningCode.astro"
@@ -54,3 +71,13 @@ The extension is **disabled** when opening a folder in [Restricted Mode](https:/
 The output of the LLM and the trace use the built-in markdown preview of Visual Studio Code.
 By default, [VS Code restricts the content displayed in the Markdown preview](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security). 
 This includes disabling script execution and only allowing resources to be loaded over `https`.
+
+## Domain Filtering Limitations
+
+GenAIScript provides domain filtering for its built-in APIs (`host.fetchText`, `host.resolveResource`) but this is **not a comprehensive security solution**:
+
+- Domain filtering only applies to GenAIScript's host APIs
+- Global `fetch()`, third-party libraries, and imported packages are **not restricted**
+- This is not an egress proxy or firewall replacement
+
+For comprehensive network security, implement proper firewall rules, network policies, or use containers with restricted network access.

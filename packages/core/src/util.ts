@@ -1,8 +1,9 @@
-import { GENAISCRIPT_FOLDER, HTTPS_REGEX } from "./constants"
-import { isCancelError, serializeError } from "./error"
-import { host } from "./host"
-import { YAMLStringify } from "./yaml"
-import { arrayify as arrayify_ } from "./cleaners"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { HTTPS_REGEX } from "./constants.js";
+import { resolveRuntimeHost } from "./host.js";
+export * from "./log.js";
 
 /**
  * Compares two strings lexicographically.
@@ -13,12 +14,10 @@ import { arrayify as arrayify_ } from "./cleaners"
  *          and 1 if the first string is greater than the second.
  */
 export function strcmp(a: string, b: string) {
-    if (a == b) return 0
-    if (a < b) return -1
-    else return 1
+  if (a === b) return 0;
+  if (a < b) return -1;
+  else return 1;
 }
-
-export const arrayify = arrayify_
 
 /**
  * Converts an array-like object into an array.
@@ -27,10 +26,10 @@ export const arrayify = arrayify_
  * @returns An array containing all elements from the input array-like object in the same order. If the input is null or undefined, it returns undefined.
  */
 export function toArray<T>(a: ArrayLike<T>): T[] {
-    if (!a) return undefined
-    const r: T[] = new Array(a.length)
-    for (let i = 0; i < a.length; ++i) r[i] = a[i]
-    return r
+  if (!a) return undefined;
+  const r: T[] = new Array(a.length);
+  for (let i = 0; i < a.length; ++i) r[i] = a[i];
+  return r;
 }
 
 /**
@@ -40,10 +39,8 @@ export function toArray<T>(a: ArrayLike<T>): T[] {
  * @returns A single string with valid input strings concatenated and separated by commas.
  */
 export function toStringList(...token: string[]) {
-    const md = token
-        .filter((l) => l !== undefined && l !== null && l !== "")
-        .join(", ")
-    return md
+  const md = token.filter((l) => l !== undefined && l !== null && l !== "").join(", ");
+  return md;
 }
 
 /**
@@ -53,31 +50,7 @@ export function toStringList(...token: string[]) {
  * @returns The modified text where multiple consecutive empty lines are reduced to a single empty line. If the input is undefined or null, it returns the input as is.
  */
 export function collapseEmptyLines(text: string) {
-    return text?.replace(/(\r?\n){2,}/g, "\n\n")
-}
-
-/**
- * Asserts that a condition is true. If the condition is false, logs an error
- * message, optionally logs additional debug information, triggers a debugger
- * statement, and throws an error.
- *
- * @param cond - The condition to evaluate. If false, the assertion will fail.
- * @param msg - The error message to display when the assertion fails. Defaults to "Assertion failed".
- * @param debugData - Optional additional data to log for debugging purposes.
- * @throws Will throw an error if the condition is false.
- */
-export function assert(
-    cond: boolean,
-    msg = "Assertion failed",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    debugData?: any
-) {
-    if (!cond) {
-        if (debugData) console.error(msg || `assertion failed`, debugData)
-        // eslint-disable-next-line no-debugger
-        debugger
-        throw new Error(msg)
-    }
+  return text?.replace(/(\r?\n){2,}/g, "\n\n");
 }
 
 /**
@@ -88,15 +61,15 @@ export function assert(
  * @returns A single buffer containing the combined data from all input chunks.
  */
 export function concatBuffers(...chunks: ArrayLike<number>[]) {
-    let sz = 0
-    for (const ch of chunks) sz += ch.length
-    const r = new Uint8Array(sz)
-    sz = 0
-    for (const ch of chunks) {
-        r.set(ch, sz)
-        sz += ch.length
-    }
-    return r
+  let sz = 0;
+  for (const ch of chunks) sz += ch.length;
+  const r = new Uint8Array(sz);
+  sz = 0;
+  for (const ch of chunks) {
+    r.set(ch, sz);
+    sz += ch.length;
+  }
+  return r;
 }
 
 /**
@@ -108,13 +81,13 @@ export function concatBuffers(...chunks: ArrayLike<number>[]) {
  *          separated by the specified separator (if provided), or undefined if the input is invalid.
  */
 export function toHex(bytes: ArrayLike<number>, sep?: string) {
-    if (!bytes) return undefined
-    let r = ""
-    for (let i = 0; i < bytes.length; ++i) {
-        if (sep && i > 0) r += sep
-        r += ("0" + bytes[i].toString(16)).slice(-2)
-    }
-    return r
+  if (!bytes) return undefined;
+  let r = "";
+  for (let i = 0; i < bytes.length; ++i) {
+    if (sep && i > 0) r += sep;
+    r += ("0" + bytes[i].toString(16)).slice(-2);
+  }
+  return r;
 }
 
 /**
@@ -124,30 +97,9 @@ export function toHex(bytes: ArrayLike<number>, sep?: string) {
  * @returns A Uint8Array representing the bytes derived from the hexadecimal string.
  */
 export function fromHex(hex: string) {
-    const r = new Uint8Array(hex.length >> 1)
-    for (let i = 0; i < hex.length; i += 2)
-        r[i >> 1] = parseInt(hex.slice(i, i + 2), 16)
-    return r
-}
-
-/**
- * Encodes a given string into a UTF-8 encoded byte sequence.
- *
- * @param s - The string to be encoded.
- * @returns A Uint8Array containing the UTF-8 encoded byte sequence of the input string.
- */
-export function utf8Encode(s: string) {
-    return host.createUTF8Encoder().encode(s)
-}
-
-/**
- * Decodes a UTF-8 encoded buffer into a string.
- *
- * @param buf - The buffer containing UTF-8 encoded data to decode.
- * @returns Decoded string representation of the buffer.
- */
-export function utf8Decode(buf: Uint8Array) {
-    return host.createUTF8Decoder().decode(buf)
+  const r = new Uint8Array(hex.length >> 1);
+  for (let i = 0; i < hex.length; i += 2) r[i >> 1] = parseInt(hex.slice(i, i + 2), 16);
+  return r;
 }
 
 /**
@@ -158,67 +110,14 @@ export function utf8Decode(buf: Uint8Array) {
  * @returns The relative file path if it is within the root directory, otherwise the original file path.
  */
 export function relativePath(root: string, fn: string) {
-    // ignore empty path or urls
-    if (!fn || HTTPS_REGEX.test(fn)) return fn
-    const afn = host.path.resolve(fn)
-    if (afn.startsWith(root)) {
-        return afn.slice(root.length).replace(/^[\/\\]+/, "")
-    }
-    return fn
-}
-
-/**
- * Logs an informational message.
- *
- * @param msg - The message to log. Must be a string containing the information to log.
- */
-export function logInfo(msg: string) {
-    host.log("info", msg)
-}
-
-/**
- * Logs a verbose debug message using the host logging system.
- *
- * @param msg - The message to be logged at debug level.
- */
-export function logVerbose(msg: string) {
-    host.log("debug", msg)
-}
-
-/**
- * Logs a warning message to the host system's logger.
- *
- * @param msg - The warning message to log. Should be a descriptive string providing details about the warning.
- */
-export function logWarn(msg: string) {
-    host.log("warn", msg)
-}
-
-/**
- * Logs an error message with additional debug information if available.
- *
- * @param msg - The error message, error object, or serialized error to log.
- *              If the message indicates a cancellation, it is logged as a warning.
- *
- * Details:
- * - Extracts error details such as message, name, and stack from the error object.
- * - Logs the error message at "error" severity.
- * - Logs the stack trace and additional serialized error data at "debug" severity if present.
- * - If the error is a cancellation, logs the message at "warn" severity instead.
- */
-export function logError(msg: string | Error | SerializedError) {
-    const err = serializeError(msg)
-    const { message, name, stack, ...e } = err || {}
-    if (isCancelError(err)) {
-        host.log("warn", message || "cancelled")
-        return
-    }
-    host.log("error", message ?? name ?? "error")
-    if (stack) host.log("debug", stack)
-    if (Object.keys(e).length) {
-        const se = YAMLStringify(e)
-        host.log("debug", se)
-    }
+  // ignore empty path or urls
+  if (!fn || HTTPS_REGEX.test(fn)) return fn;
+  const runtimeHost = resolveRuntimeHost();
+  const afn = runtimeHost.path.resolve(fn);
+  if (afn.startsWith(root)) {
+    return afn.slice(root.length).replace(/^[/\\]+/, "");
+  }
+  return fn;
 }
 
 /**
@@ -228,8 +127,8 @@ export function logError(msg: string | Error | SerializedError) {
  * @returns A single array containing all elements from the input arrays in order.
  */
 export function concatArrays<T>(...arrays: T[][]): T[] {
-    if (arrays.length == 0) return []
-    return arrays[0].concat(...arrays.slice(1))
+  if (arrays.length === 0) return [];
+  return arrays[0].concat(...arrays.slice(1));
 }
 
 /**
@@ -239,19 +138,16 @@ export function concatArrays<T>(...arrays: T[][]): T[] {
  * @param key - A function that generates a key for each element in the list. Elements with the same key are grouped together.
  * @returns A record where each key corresponds to a grouped array of elements.
  */
-export function groupBy<T>(
-    list: T[],
-    key: (value: T) => string
-): Record<string, T[]> {
-    if (!list) return {}
+export function groupBy<T>(list: T[], key: (value: T) => string): Record<string, T[]> {
+  if (!list) return {};
 
-    const r: Record<string, T[]> = {}
-    list.forEach((item) => {
-        const k = key(item)
-        const a = r[k] || (r[k] = [])
-        a.push(item)
-    })
-    return r
+  const r: Record<string, T[]> = {};
+  list.forEach((item) => {
+    const k = key(item);
+    const a = r[k] || (r[k] = []);
+    a.push(item);
+  });
+  return r;
 }
 
 /**
@@ -262,8 +158,8 @@ export function groupBy<T>(
  * @returns The truncated string with an ellipsis appended if it exceeds the specified length.
  */
 export function ellipse(text: string, length: number) {
-    if (text?.length > length) return text.slice(0, length - 1) + "…"
-    else return text
+  if (text?.length > length) return text.slice(0, length - 1) + "…";
+  else return text;
 }
 
 /**
@@ -274,6 +170,6 @@ export function ellipse(text: string, length: number) {
  * @returns The processed string with an ellipsis at the start if it exceeds the specified length, or the original string if it does not.
  */
 export function ellipseLast(text: string, length: number) {
-    if (text?.length > length) return "…" + text.slice(length - text.length + 1)
-    else return text
+  if (text?.length > length) return "…" + text.slice(length - text.length + 1);
+  else return text;
 }

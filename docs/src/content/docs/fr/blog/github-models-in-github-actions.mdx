@@ -1,0 +1,51 @@
+---
+title: Modèles GitHub dans GitHub Actions
+description: Apprenez à utiliser les Modèles GitHub dans GitHub Actions pour
+  automatiser vos workflows et améliorer votre processus de développement.
+canonical_url: https://microsoft.github.io/genaiscript/blog/github-models-in-github-actions
+authors: pelikhan
+date: 2025-04-18
+tags:
+  - GitHub Actions
+  - Automation
+  - Workflows
+  - Models
+  - Development
+cover:
+  alt: A clean 8-bit illustration uses five corporate colors to show a pixelated
+    digital key bridging a GitHub logo and an AI robot icon. A blocky arrow
+    links these icons, symbolizing smooth integration and automated workflow.
+    There is no text or depiction of people.
+  image: ../../blog/github-models-in-github-actions.png
+excerpt: "Rationalisez vos processus CI/CD est devenu plus facile : GitHub
+  Actions vous permet désormais d'utiliser le GITHUB_TOKEN pour
+  l'authentification avec les Modèles GitHub. En connectant directement vos
+  workflows à ces capacités d'IA, vous évitez les tracas liés à la gestion de
+  jetons d'accès personnels séparés et gardez vos automatisations sécurisées et
+  faciles à maintenir. Cette mise à jour offre un chemin d'intégration fluide
+  pour les équipes cherchant à renforcer l'intelligence des flux de travail au
+  sein de l'écosystème GitHub."
+
+---
+
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+Vous pouvez désormais utiliser `GITHUB_TOKEN` de GitHub Actions pour authentifier les requêtes vers [GitHub Models](https://github.com/marketplace/models) !!!
+
+```yaml title="genai.yml" wrap "models: read" "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
+permissions:
+  models: read
+jobs:
+  genai:
+    steps:
+      run: npx -y genaiscript run ...
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Cela simplifie vos workflows en intégrant directement les capacités d'IA dans vos actions, supprimant ainsi le besoin de générer et de gérer des jetons d'accès personnels (PAT) !
+
+* [Lire l'annonce GitHub](https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/)
+* [Lire la documentation](../../configuration/github/)

@@ -15,6 +15,60 @@ hero:
       limited to five distinct colors. The scene has no background or human
       figures."
     file: ./annotations.png
+llmstxt:
+  content: >-
+    Annotations are errors, warnings, or notes added to LLM output, integrated
+    into VSCode or CI environments. Using `system.annotations` enables the
+    generation of these annotations, which include line numbers for precision
+    and reduce hallucinations. 
+
+
+    Annotations follow GitHub Action Commands syntax, making them compatible
+    with GitHub workflows. They can also be added as pull request review
+    comments using the `--pull-request-reviews` flag with the CLI. In VSCode,
+    annotations appear as Diagnostics in the Problems panel and as squiggly
+    lines in the editor.
+
+
+    Annotations can be converted to SARIF files for security reports, which can
+    be uploaded to GitHub for code scanning. Use the SARIF Viewer extension for
+    visualization. Example GitHub Action:
+
+    ```yaml
+
+    on:
+      push:
+      schedule:
+        - cron: "45 15 * * 4"
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        permissions:
+          security-events: write
+        steps:
+          - uses: actions/checkout@v4
+          - run: npx --yes genaiscript ... -oa result.sarif
+          - uses: github/codeql-action/upload-sarif@v3
+            with:
+              sarif_file: result.sarif
+    ```
+
+
+    Filtering annotations is possible using `defOutputProcessor` to allow only
+    specific levels like errors:
+
+    ```js
+
+    defOutputProcessor((annotations) => {
+      return { annotations: annotations.filter(({ level }) => level === "error") };
+    });
+
+    ```
+
+
+    Limitations include repository visibility and organizational restrictions on
+    GitHub Actions.
+  hash: 667d1cfaa0be4689e32252ab62e22884efff7ca1201208bb98e9341cfbe1b05c
 
 ---
 
@@ -55,7 +109,7 @@ This means that the annotations will automatically be extracted by GitHub if you
 
 ## GitHub Pull Request Review Comments
 
-Use the `--pull-request-reviews` (`-prr`) flag in the [cli run](/genaiscript/reference/cli/run/#pull-request-reviews) to add annotations as [review comments](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request#about-pull-request-comments) on a pull request.
+Use the `--pull-request-reviews` flag in the [cli run](/genaiscript/reference/cli/run/#pull-request-reviews) to add annotations as [review comments](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request#about-pull-request-comments) on a pull request.
 
 ```sh "cli"
 npx --yes genaiscript run ... --pull-request-reviews

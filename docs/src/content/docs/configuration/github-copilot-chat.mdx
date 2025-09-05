@@ -1,19 +1,49 @@
 ---
 title: GitHub Copilot Chat
 sidebar:
-    order: 2
+  order: 2
+llmstxt:
+  content: >-
+    GenAIScript can use GitHub Copilot Chat models in Visual Studio Code if
+    GitHub Copilot Chat is installed and configured. This allows running scripts
+    without separate or local LLM providers, though these models are unavailable
+    from the command line and subject to GitHub Copilot's limitations and rate
+    limits.
+
+
+    To use GitHub Copilot Chat models:
+
+    1. Install GitHub Copilot Chat from the Visual Studio Code Marketplace.
+
+    2. Run your script.
+
+    3. Ensure GenAIScript is allowed to use GitHub Copilot Chat models.
+
+    4. Select the appropriate chat model for your script. This step is skipped
+    if mappings are preconfigured in settings.
+
+
+    To force this model, use `github_copilot_chat:*` as the model name or enable
+    the "GenAIScript > Language Chat Models Provider" setting. Model name
+    mappings are stored in settings.
+
+
+    Check your GitHub Copilot premium request quota in GitHub's Features
+    settings.
+  hash: 1146995936b56b8a8068dc793b4c9d81e87ea71f58652be48f49400de771f783
+
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
-import lmSelectSrc from "../../../assets/vscode-language-models-select.png"
-import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?raw"
+import lmSelectSrc from "../../../assets/vscode-language-models-select.png";
+import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?raw";
 
-import { YouTube } from "astro-embed"
+import { YouTube } from "astro-embed";
 
 If you have access to **GitHub Copilot Chat in Visual Studio Code**,
 GenAIScript will be able to leverage those [language models](https://code.visualstudio.com/api/extension-guides/language-model) as well.
@@ -59,3 +89,9 @@ select the best chat model that matches the one you have in your script
 </Steps>
 
 The mapping of GenAIScript model names to Visual Studio Models is stored in the settings.
+
+:::tip
+
+If you need to check your available premium request quota for GitHub Copilot, go to [Features](https://github.com/settings/copilot/features)
+
+:::

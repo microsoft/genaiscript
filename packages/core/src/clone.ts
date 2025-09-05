@@ -1,4 +1,7 @@
-import { deleteEmptyValues } from "./cleaners"
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { deleteEmptyValues } from "./cleaners.js";
 
 /**
  * Creates a deep clone of the input object and removes any properties with empty values.
@@ -7,7 +10,7 @@ import { deleteEmptyValues } from "./cleaners"
  * @returns A cleaned, deep-cloned version of the input object with empty values removed.
  */
 export function cleanedClone(o: any) {
-    const c = structuredClone(o)
-    deleteEmptyValues(c)
-    return c
+  const c = structuredClone(o);
+  deleteEmptyValues(c);
+  return c;
 }

@@ -1,19 +1,50 @@
 ---
 title: Hugging Face
 sidebar:
-    order: 9
+  order: 9
+llmstxt:
+  content: >-
+    The `huggingface` provider integrates Hugging Face Models via Text
+    Generation Inference. To use it with GenAIScript:
+
+
+    1. Obtain a Hugging Face API key from your account settings. For
+    fine-grained tokens, enable the "Make calls to the serverless inference API"
+    option.
+
+    2. Add the API key to your `.env` file as `HUGGINGFACE_API_KEY`, `HF_TOKEN`,
+    or `HUGGINGFACE_TOKEN`:
+       ```
+       HUGGINGFACE_API_KEY=hf_...
+       ```
+    3. Select a suitable model from the Hugging Face Models directory.
+
+    4. Update your script with the chosen model:
+       ```js
+       script({
+           model: "huggingface:microsoft/Phi-3-mini-4k-instruct",
+       });
+       ```
+
+    Some models may require a Pro account. Enable `genaiscript:huggingface` and
+    `genaiscript:huggingface:msg` logging namespaces for request and response
+    details.
+  hash: 4ba18671957d9402ecae6a1a8174a35ff05f48ba9e7e81073b0ab6b8fa5ae1e9
+
 ---
 
-import { FileTree } from "@astrojs/starlight/components"
-import { Steps } from "@astrojs/starlight/components"
-import { Tabs, TabItem } from "@astrojs/starlight/components"
-import { Image } from "astro:assets"
-import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro"
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../components/LLMProviderFeatures.astro";
 
 The `huggingface` provider allows you to use [Hugging Face Models](https://huggingface.co/models?other=text-generation-inference) using [Text Generation Inference](https://huggingface.co/docs/text-generation-inference/index).
 
 ```js "huggingface:"
-script({ model: "huggingface:microsoft/Phi-3-mini-4k-instruct" })
+script({
+  model: "huggingface:microsoft/Phi-3-mini-4k-instruct",
+});
 ```
 
 To use Hugging Face models with GenAIScript, follow these steps:

@@ -1,0 +1,12 @@
+---
+import ContentNotice from "./ContentNotice.astro";
+const { starlightRoute } = Astro.locals;
+const isLocalized = starlightRoute.lang !== "en";
+---
+{isLocalized ? (
+  <ContentNotice
+    icon="information"
+    label="AI generated translation."
+    link="https://github.com/pelikhan/action-continuous-translation"
+  />
+) : null}

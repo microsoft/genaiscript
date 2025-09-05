@@ -18,6 +18,23 @@ hero:
       geometric shapes. The image excludes people, text, shadows, gradients, or
       3D effects.
     file: ./prompt.png
+llmstxt:
+  content: >-
+    The `$` is a JavaScript tagged template that dynamically generates strings.
+    It supports inline expressions, allowing `${...}` to embed values or await
+    promises. Example: `$`Today is ${new Date().toDateString()}.` outputs the
+    current date. 
+
+
+    The `$` output can integrate with template engines like Jinja or Mustache
+    for further processing: `$`What is the capital of {{ country
+    }}?`.jinja(env.vars)` or `.mustache(env.vars)`.
+
+
+    For inline prompts, use `$` within the generation context: `await
+    runPrompt(ctx => { ctx.$`What is the capital of France?` })`. This enables
+    dynamic prompt creation during execution.
+  hash: 3b7a52b6417da14778710b5ac10fed94fcdb46539a6346fcdb8a5574fee13675
 
 ---
 

@@ -21,10 +21,39 @@ excerpt: Curious about integrating Large Language Models into your workflows?
   context to leveraging metadata, it provides flexibility to fit your unique
   needs. Learn more about optimizing your interactions with AI tools
   effectively.
+llmstxt:
+  content: >-
+    GenAIScript simplifies prompt creation and interaction with LLMs using
+    JavaScript-like scripts. Scripts are stored in `genaisrc/*.genai.mjs` and
+    generate prompts with structured results automatically extracted.
+
+
+    Example: Create `poem.genai.mjs` with `$`Write a one sentence poem.`;`.
+    Execution generates: "Write a one sentence poem." Response: "Roses bloom,
+    hearts swoon, under the silver moon."
+
+
+    Context variables allow dynamic input. Example: Define `FILES` with
+    `def("FILES", env.files);` and use `$`You are an expert technical writer.
+    Review FILES and report 2 key issues.`;`. Execution includes file content,
+    generating a review with identified issues.
+
+
+    Metadata organizes scripts via `script({ title, description, model,
+    temperature });`. Example: Configure proofreading with `script({ title:
+    "Technical proofreading", model: "openai:gpt-4o", temperature: 0.1 });`.
+
+
+    Supports multiple LLM providers (OpenAI, Azure, GitHub Models, Ollama). For
+    setup and advanced usage, see the [Getting
+    Started](https://microsoft.github.io/genaiscript/getting-started/) and
+    [Prompt As
+    Code](https://microsoft.github.io/genaiscript/guides/prompt-as-code) guides.
+  hash: c6ccd34bf38659a9392cea13df56d8268b84e54d82cf67012c10bcb8cec75b41
 
 ---
 
-import BlogNarration from "../../../components/BlogNarration.astro"
+import BlogNarration from "../../../components/BlogNarration.astro";
 
 <BlogNarration />
 
@@ -41,7 +70,7 @@ Scripts are stored as files (`genaisrc/*.genai.mjs`), executed to produce the pr
 Here's a simple example to get you started. Create a file named `poem.genai.mjs` in the `genaisrc` folder and add the following code:
 
 ```js
-$`Write a one sentence poem.`
+$`Write a one sentence poem.`;
 ```
 
 When executed, this script will generate the following prompt:
@@ -69,9 +98,9 @@ Roses bloom, hearts swoon, under the silver moon.
 GenAIScript can also use context variables, allowing you to interact with files or other data sources. Let's see an example where we define a context variable using `env.files`:
 
 ```js
-def("FILES", env.files)
+def("FILES", env.files);
 $`You are an expert technical writer and proofreader.
-Review the documents in FILES and report the 2 most important issues.`
+Review the documents in FILES and report the 2 most important issues.`;
 ```
 
 Execute this script to see the generated user message and the assistant's response. The context variable `FILES` will contain the list of files in the environment.
@@ -110,14 +139,14 @@ GitHub Models, Ollama and more.
 
 ```js
 script({
-    title: "Technical proofreading",
-    description: "Reviews the text as a tech writer.",
-    model: "openai:gpt-4o",
-    temperature: 0.1,
-})
-def("FILES", env.files)
+  title: "Technical proofreading",
+  description: "Reviews the text as a tech writer.",
+  model: "openai:gpt-4o",
+  temperature: 0.1,
+});
+def("FILES", env.files);
 $`You are an expert technical writer and proofreader.
-Review the documents in FILES and report the 2 most important issues.`
+Review the documents in FILES and report the 2 most important issues.`;
 ```
 
 ## Next Steps

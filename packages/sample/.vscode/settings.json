@@ -1,8 +1,0 @@
-{
-    "cSpell.words": ["frontmatter", "genaiscript", "openai", "outputfilename"],
-    "genaiscript.cli.path": "../cli/built/genaiscript.cjs",
-    "genaiscript.languageChatModels": {
-        "sonnet": "claude-3.7-sonnet",
-        "gpt-4o": "gpt-4o-2024-11-20"
-    }
-}

@@ -18,6 +18,7 @@ image: /positioning.jpg
 ## 1000x chat session for custom problem
 
 - Mix of AI / non-AI
+- Reliable
 
 </v-click>
 

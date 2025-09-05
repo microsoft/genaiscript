@@ -12,11 +12,38 @@ hero:
       three-dimensional effects. The composition suggests themes of computer
       configuration and network connectivity.
     file: ./configure.png
+llmstxt:
+  content: >-
+    The `configure llm` command sets up and validates LLM connections to ensure
+    proper communication with the intended models. Use: `genaiscript configure
+    llm`.
+
+
+    The `configure action` command creates the necessary files to publish a
+    script as a containerized GitHub Action. Run: `genaiscript configure action
+    <my-script-id>`. It generates files under `.genaiscript/action/<script-id>`
+    by default, with metadata extracted from the script. Output paths can be
+    customized for existing projects.
+  hash: c2a982016bf890056f8cd536326b7c8db2d27020a17cb190ce34cec927699803
 
 ---
 
 Interactive command to configure and validate the LLM connections.
 
+## LLMs
+
+The `configure llm` action allows you to configure and validate the LLM connections. This is useful for ensuring that your application can communicate with the LLMs you intend to use.
+
 ```bash
-npx genaiscript configure
+genaiscript configure llm
 ```
+
+## GitHub Action
+
+The `configure action` generates the scaffolding of files to publish a script as a [custom containerized GitHub Action](https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-docker-container-action).
+
+```bash
+genaiscript configure action <my-script-id>
+```
+
+Most of the action metadata is mined from the script itself, so you only need to provide the name of the script. It exports the generated files under `.genaiscript/action/<script-id>` by default, but you can override this when updating an existing action project.

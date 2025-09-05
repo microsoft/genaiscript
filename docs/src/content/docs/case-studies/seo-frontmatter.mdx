@@ -2,21 +2,48 @@
 title: SEO Front Matter
 sidebar:
   order: 2
-description: Learn how to automate the creation of SEO-optimized front matter for your markdown documents with GenAIScript.
-keywords: SEO automation, front matter generation, markdown SEO, content optimization, metadata management
+description: Learn how to automate the creation of SEO-optimized front matter
+  for your markdown documents with GenAIScript.
+keywords: SEO automation, front matter generation, markdown SEO, content
+  optimization, metadata management
+llmstxt:
+  content: >-
+    GenAIScript automates generating and updating SEO front matter fields using
+    a custom merge strategy. The script processes existing files to enhance SEO
+    metadata. Once tuned, batch automation can be achieved via the CLI with the
+    `--apply-edits` flag. Example command:
+
+
+    for file in src/**/*.md; do genaiscript run frontmatter "$file"
+    --apply-edits; done
+
+
+    This can be integrated into CI/CD pipelines for continuous updates. To
+    simplify execution, add the command to `package.json` under scripts:
+
+
+    "genai:frontmatter": "for file in \"src/**/*.md\"; do genaiscript run
+    frontmatter \"$file\" --apply-edits; done"
+  hash: 046df6f92a9dbdcd584fa9605cabd9d595e30af1d7f15050789780bcf2389c71
+
 ---
 
-import { Code, Steps } from '@astrojs/starlight/components';
-import importedCode from "../../../../genaisrc/frontmatter.genai.mjs?raw"
+import { Code, Steps } from "@astrojs/starlight/components";
+import importedCode from "../../../../genaisrc/frontmatter.genai.mjs?raw";
 
-Generating and maintaining good SEO front matter fields can be a tedious task. 
+Generating and maintaining good SEO front matter fields can be a tedious task.
 GenAIScript can help you automate this process.
 
 The script below will generate SEO information
-and update the existing file. The script uses a custom merge strategy 
+and update the existing file. The script uses a custom merge strategy
 to merge the new front matter with the existing front matter.
 
-<Code code={importedCode} wrap={true} lang="js" title="slides.genai.mjs" />
+<Code
+  code={importedCode}
+  wrap={true}
+  lang="js"
+  title="slides.genai.mjs"
+/>
 
 ## Batching over all files
 

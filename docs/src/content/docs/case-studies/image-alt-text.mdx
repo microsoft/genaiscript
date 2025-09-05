@@ -1,16 +1,72 @@
 ---
 title: Image Alt Text
 sidebar:
-    order: 10
-description: Learn how to automatically generate descriptive alt text for images using OpenAI Vision model to enhance accessibility and SEO.
-keywords: alt text automation, image accessibility, SEO optimization, OpenAI Vision, Astro integration
+  order: 10
+description: Learn how to automatically generate descriptive alt text for images
+  using OpenAI Vision model to enhance accessibility and SEO.
+keywords: alt text automation, image accessibility, SEO optimization, OpenAI
+  Vision, Astro integration
+llmstxt:
+  content: >-
+    Providing an `alt` attribute for images is essential for accessibility and
+    SEO. Developers often skip this or use generic text like "image," which is
+    not ideal. A script using the OpenAI Vision model can automate generating
+    descriptive `alt` text for images.
+
+
+    The script processes a single image file, adds it to the prompt context
+    using `defImages(file)`, and instructs the LLM to generate a descriptive
+    `alt` text:  
+
+    `$You are an expert in assistive technology. Analyze each image and generate
+    a description alt text.`  
+
+    The output is saved using `defFileOutput(file.filename + ".txt", "Alt text
+    for image " + file.filename)`.
+
+
+    In Astro, the generated `alt` text is stored in a separate text file and
+    injected into the HTML. Example usage:  
+
+    ```mdx
+
+    <Image src={src} alt={alt} />
+
+    ```
+
+
+    To automate this for multiple images, use the `run` command:  
+
+    ```sh
+
+    for file in assets/**.png; do
+      npx --yes genaiscript run image-alt-text "$file"
+    done
+
+    ```
+
+    To prevent overwriting existing files:  
+
+    ```sh
+
+    if [ ! -f "$file" ]; then
+      npx --yes genaiscript run image-alt-text "$file"
+    fi
+
+    ```
+
+
+    This approach ensures accessibility and efficiency in generating `alt` text
+    for documentation images.
+  hash: 8d995479b46bdd58b6aabcef830c70a8e593dc71eccf4572f209e866f07709c6
+
 ---
 
-import { Image } from "astro:assets"
-import { Code } from "@astrojs/starlight/components"
-import scriptSrc from "../../../../genaisrc/image-alt-text.genai.mjs?raw"
-import src from "../../../assets/debugger.png"
-import alt from "../../../assets/debugger.png.txt?raw"
+import { Image } from "astro:assets";
+import { Code } from "@astrojs/starlight/components";
+import scriptSrc from "../../../../genaisrc/image-alt-text.genai.mjs?raw";
+import src from "../../../assets/debugger.png";
+import alt from "../../../assets/debugger.png.txt?raw";
 
 It is a best practice to provide an `alt` attribute for images.
 This attribute is used to describe the image to users who are unable to see it.
@@ -35,8 +91,8 @@ To start, we assume that the script is run on a single image file
 and we use [defImage](/genaiscript/reference/scripts/images) to add it to the prompt context.
 
 ```js title="image-alt-text.genai.mjs"
-const file = env.files[0]
-defImages(file)
+const file = env.files[0];
+defImages(file);
 ```
 
 Then we give a task to the LLM to generate a good alt text.
@@ -61,9 +117,9 @@ The GenAIScript documentation uses Astro, which allows to author pages in [MDX](
 The code below shows how the generated alt text, stored in a separate text file, is injected in the final HTML.
 
 ```mdx
-import { Image } from "astro:assets"
-import src from "../../../assets/debugger.png"
-import alt from "../../../assets/debugger.png.txt?raw"
+import { Image } from "astro:assets";
+import src from "../../../assets/debugger.png";
+import alt from "../../../assets/debugger.png.txt?raw";
 
 <Image src={src} alt={alt} />
 ```
@@ -72,7 +128,12 @@ The `debugger.png` image shows the screenshot of a debugging session and the gen
 
 <Image src={src} alt={alt} />
 
-<Code code={alt} wrap={true} lang="txt" title="debugger.png.txt" />
+<Code
+  code={alt}
+  wrap={true}
+  lang="txt"
+  title="debugger.png.txt"
+/>
 
 ## Automation
 
@@ -97,4 +158,9 @@ done
 
 The full source looks like this:
 
-<Code code={scriptSrc} wrap={true} lang="js" title="image-alt-text.genai.mjs" />
+<Code
+  code={scriptSrc}
+  wrap={true}
+  lang="js"
+  title="image-alt-text.genai.mjs"
+/>

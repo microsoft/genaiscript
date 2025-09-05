@@ -12,6 +12,33 @@ hero:
       text, appears sleek and iconic, and is set at small square dimensions with
       clear, sharp lines.
     file: ./pyodide.png
+llmstxt:
+  content: >-
+    Pyodide is a Python distribution for Node.js and browsers, ported to
+    WebAssembly/Emscripten. It allows running Python packages in the browser
+    using micropip. GenAIScript simplifies starting Pyodide runtimes via the
+    @genaiscript/plugin-pyodide package.
+
+
+    To start Pyodide, use `python()` to create an instance. Python code can be
+    executed with the `run` method:  
+
+    `const result = await py.run("print('Hello, World!')");`
+
+
+    Global variables can be accessed and modified:  
+
+    `py.globals.set("x", 42); const x = py.globals.get("x"); await
+    py.run("print(x)");`
+
+
+    The workspace file system is mounted at `/workspace`:  
+
+    `const result = await runtime.run("import os; os.listdir('/workspace')");`
+
+
+    Refer to the Pyodide documentation for more details.
+  hash: d0429ed1aa4a35ef50090ab9ed71313f6d4316b57e61f37ad3992b57f09454bf
 
 ---
 
@@ -20,20 +47,23 @@ hero:
 Pyodide is a port of CPython to WebAssembly/Emscripten.
 Pyodide makes it possible to install and run Python packages in the browser with [micropip](https://micropip.pyodide.org/en/stable/project/usage.html).
 
-GenAIScript provides a convinience layer to start pyodide python runtimes.
+GenAIScript provides a convenience layer to start pyodide python runtimes,
+in the [@genaiscript/plugin-pyodide](https://www.npmjs.com/package/@genaiscript/plugin-pyodide) package.
 
 ## Usage
 
-The `host.python` starts an instance of Pyodide.
+The `python` starts an instance of Pyodide.
 
 ```js wrap
-const py = await host.python()
+import { python } from "@genaiscript/plugin-pyodide";
+
+const py = await python();
 ```
 
 Each Pyodide instance has a `run` method that can be used to run Python code.
 
 ```js wrap
-const result = await py.run(`print('Hello, World!')`)
+const result = await py.run(`print('Hello, World!')`);
 ```
 
 ## Globals
@@ -41,9 +71,9 @@ const result = await py.run(`print('Hello, World!')`)
 You can read and write global variables in the Pyodide environment.
 
 ```js wrap
-py.globals.set("x", 42)
-const x = py.globals.get("x")
-await py.run(`print(x)`)
+py.globals.set("x", 42);
+const x = py.globals.get("x");
+await py.run(`print(x)`);
 ```
 
 ## Workspace file system
@@ -54,8 +84,8 @@ The current workspace file system is mounted on the `/workspace` directory in th
 const result = await runtime.run(`
 import os
 os.listdir('/workspace')
-`)
-console.log({ result })
+`);
+console.log({ result });
 ```
 
 ## Learn more about pyodide

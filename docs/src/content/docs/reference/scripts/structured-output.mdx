@@ -14,6 +14,75 @@ hero:
       window. Uses five bold corporate colors, appearing flat and minimalistic
       with no background, gradients, people, or text.
     file: ./structured-output.png
+llmstxt:
+  content: >-
+    GenAIScript enables structured output generation with automatic data
+    validation and repair. It supports `responseType` to define output format
+    and `responseSchema` to enforce structure.
+
+
+    `responseType` options:
+
+    - `json`: Prompts LLM for valid JSON, validates and repairs output if
+    needed.
+
+    - `yaml`: Similar to `json`, but for YAML.
+
+    - `json_object`: Uses LLM's built-in JSON support.
+
+    - `json_schema`: Strict mode with JSON schema validation. Requires
+    `responseSchema`.
+
+
+    Example for `json_schema`:
+
+    script({
+        responseType: "json_schema",
+        responseSchema: {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                age: { type: "number" },
+            },
+            required: ["name", "age"],
+        },
+    })
+
+
+    `responseSchema` ensures output matches a defined schema. Invalid outputs
+    are repaired or cause script failure.
+
+
+    Example for `responseSchema`:
+
+    script({
+        responseType: "json",
+        responseSchema: {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                age: { type: "number" },
+            },
+            required: ["name", "age"],
+        },
+    })
+
+
+    Use `cast` to convert unstructured data into structured formats:
+
+    import { cast } from "@genaiscript/runtime"
+
+    const { data } = await cast((_) => _.defImages(images), {
+        type: "object",
+        properties: {
+            keywords: {
+                type: "array",
+                items: { type: "string", description: "Image keywords" },
+            },
+        },
+        required: ["keywords"],
+    })
+  hash: b264f3168f1c37c500de0ce287fbe2b809ff42b51458b4ee5470742c1301273d
 
 ---
 
@@ -126,10 +195,10 @@ If you are looking to build a LLM-as-a-Judge and only looking for outputs in a s
 
 ## `cast`
 
-The [cast](/genaiscript/reference/scripts/cast) function is a [GenAIScript runtime helper](/genaiscript/reference/scripts/runtime) to convert unstructured text/images into structured data.
+The [cast](/genaiscript/reference/runtime/cast) function is a [GenAIScript runtime helper](/genaiscript/reference/runtime) to convert unstructured text/images into structured data.
 
 ```js "cast"
-import { cast } from "genaiscript/runtime"
+import { cast } from "@genaiscript/runtime"
 
 const { data } = await cast((_) => _.defImages(images), {
     type: "object",
