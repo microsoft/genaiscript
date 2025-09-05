@@ -554,9 +554,23 @@ export async function parseTokenFromEnv(
     }
     
     dbg(`AWS region: ${region}`);
-    if (hasAwsCredentials) dbg("using AWS access key credentials");
+    if (hasAwsCredentials) {
+      dbg("using AWS access key credentials");
+      if (env.AWS_SESSION_TOKEN) dbg("with session token (temporary credentials)");
+    }
     if (hasBedrockApiKey) dbg("using AWS Bedrock API key");
     if (hasAwsProfile) dbg(`using AWS profile: ${env.AWS_PROFILE}`);
+    
+    // Log optional configurations
+    if (env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION) {
+      dbg(`small/fast model region override: ${env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION}`);
+    }
+    if (env.DISABLE_PROMPT_CACHING) {
+      dbg(`prompt caching disabled: ${env.DISABLE_PROMPT_CACHING}`);
+    }
+    if (env.ANTHROPIC_MODEL) {
+      dbg(`model override: ${env.ANTHROPIC_MODEL}`);
+    }
     
     return {
       provider,
