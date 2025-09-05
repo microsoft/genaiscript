@@ -535,6 +535,29 @@ export async function parseTokenFromEnv(
 
   if (provider === MODEL_PROVIDER_ANTHROPIC_BEDROCK) {
     dbg(`processing ${MODEL_PROVIDER_ANTHROPIC_BEDROCK}`);
+    
+    // AWS region is required for Bedrock
+    const region = env.AWS_REGION;
+    if (!region) {
+      throw new Error("AWS_REGION is required for Anthropic Bedrock");
+    }
+    
+    // Check for AWS credentials or Bedrock API key
+    const hasAwsCredentials = env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY;
+    const hasBedrockApiKey = env.AWS_BEARER_TOKEN_BEDROCK;
+    const hasAwsProfile = env.AWS_PROFILE;
+    
+    if (!hasAwsCredentials && !hasBedrockApiKey && !hasAwsProfile) {
+      throw new Error(
+        "AWS credentials are required for Anthropic Bedrock. Set AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, AWS_BEARER_TOKEN_BEDROCK, or AWS_PROFILE"
+      );
+    }
+    
+    dbg(`AWS region: ${region}`);
+    if (hasAwsCredentials) dbg("using AWS access key credentials");
+    if (hasBedrockApiKey) dbg("using AWS Bedrock API key");
+    if (hasAwsProfile) dbg(`using AWS profile: ${env.AWS_PROFILE}`);
+    
     return {
       provider,
       model,
@@ -542,6 +565,8 @@ export async function parseTokenFromEnv(
       source: "AWS SDK",
       base: undefined,
       token: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
+      // Store AWS-specific configuration for reference
+      version: region,
     } satisfies LanguageModelConfiguration;
   }
 

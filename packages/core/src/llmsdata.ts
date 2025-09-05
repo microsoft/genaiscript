@@ -460,7 +460,41 @@ export default {
         vision: "anthropic.claude-3-7-sonnet-20250219-v1:0:0",
         vision_small: "anthropic.claude-3-5-haiku-20241022-v1:0",
       },
-      env: {},
+      env: {
+        AWS_REGION: {
+          description: "AWS region where Bedrock is enabled (required)",
+          required: true,
+        },
+        AWS_ACCESS_KEY_ID: {
+          description: "AWS access key ID for authentication",
+          secret: true,
+        },
+        AWS_SECRET_ACCESS_KEY: {
+          description: "AWS secret access key for authentication",
+          secret: true,
+        },
+        AWS_SESSION_TOKEN: {
+          description: "AWS session token for temporary credentials",
+          secret: true,
+        },
+        AWS_PROFILE: {
+          description: "AWS profile name to use for authentication",
+        },
+        AWS_BEARER_TOKEN_BEDROCK: {
+          description: "AWS Bedrock API key for simplified authentication",
+          secret: true,
+        },
+        ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION: {
+          description: "Override AWS region for small/fast models",
+        },
+        DISABLE_PROMPT_CACHING: {
+          description: "Set to '1' to disable Anthropic prompt caching",
+          enum: ["1", "true"],
+        },
+        ANTHROPIC_MODEL: {
+          description: "Override the default Anthropic model ID for Bedrock",
+        },
+      },
     },
     {
       id: "google",
