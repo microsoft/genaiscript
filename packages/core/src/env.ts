@@ -776,11 +776,12 @@ export async function parseTokenFromEnv(
         if (!URL.canParse(base)) {
             throw new Error(`${base} must be a valid URL`)
         }
+        const token = env.LITELLM_API_KEY;
         return {
             provider,
             model,
             base,
-            token: MODEL_PROVIDER_LITELLM,
+            token,
             type: "openai",
             source: "default",
         }
