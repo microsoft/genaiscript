@@ -781,7 +781,7 @@ export async function parseTokenFromEnv(
       base,
       token: MODEL_PROVIDER_LLAMAFILE,
       type: "openai",
-      source: "default",
+      source: "env: LLAMAFILE_API_...",
     };
   }
 
@@ -791,14 +791,15 @@ export async function parseTokenFromEnv(
     if (!URL.canParse(base)) {
       throw new Error(`${base} must be a valid URL`);
     }
+    const token = env.LITELLM_API_KEY;
     return {
       provider,
       model,
       modelId,
       base,
-      token: MODEL_PROVIDER_LITELLM,
+      token,
       type: "openai",
-      source: "default",
+      source: "env: LITELLM_API_...",
     };
   }
 
