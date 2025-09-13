@@ -259,6 +259,10 @@ export async function cli() {
         )
         .option("--no-run-trace", "disable automatic trace generation")
         .option("--no-output-trace", "disable automatic output generation")
+        .option(
+            "--mcp-config <file>",
+            "MCP configuration file (Claude format) to load servers from"
+        )
         .action(runScriptWithExitCode) // Action to execute the script with exit code
 
     // runs commands

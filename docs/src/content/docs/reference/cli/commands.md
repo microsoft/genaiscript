@@ -83,6 +83,7 @@ Options:
   -rr, --run-retry <number>                  number of retries for the entire run
   --no-run-trace                             disable automatic trace generation
   --no-output-trace                          disable automatic output generation
+  --mcp-config <file>                        MCP configuration file (Claude format) to load servers from
   -h, --help                                 display help for command
 ```
 

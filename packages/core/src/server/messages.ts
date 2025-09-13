@@ -183,6 +183,7 @@ export interface PromptScriptRunOptions {
     runTrace: boolean
     outputTrace: boolean
     accept: string
+    mcpConfig?: string
 }
 
 export interface RunResultList extends RequestMessage {

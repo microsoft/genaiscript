@@ -113,6 +113,7 @@ import { genaiscriptDebug } from "../../core/src/debug"
 import { uriTryParse } from "../../core/src/url"
 import { tryResolveScript } from "../../core/src/scriptresolver"
 import { isCI } from "../../core/src/ci"
+import { loadClaudeMcpConfig } from "./mcp-config"
 const dbg = genaiscriptDebug("run")
 
 /**
@@ -567,6 +568,24 @@ export async function runScriptInternal(
                 CONFIGURATION_ERROR_CODE,
                 DOCS_CONFIGURATION_URL
             )
+        }
+
+        // Load MCP configuration if provided
+        if (options.mcpConfig) {
+            try {
+                const mcpServers = await loadClaudeMcpConfig(options.mcpConfig, process.cwd())
+                // Merge MCP servers into the script configuration
+                if (Object.keys(mcpServers).length > 0) {
+                    script.mcpServers = { ...script.mcpServers, ...mcpServers }
+                    trace.item("Loading MCP servers from configuration", JSON.stringify(Object.keys(mcpServers)))
+                }
+            } catch (error) {
+                trace.error(undefined, `Failed to load MCP configuration: ${error.message}`)
+                return fail(
+                    `Failed to load MCP configuration: ${error.message}`,
+                    CONFIGURATION_ERROR_CODE
+                )
+            }
         }
 
         result = await runTemplate(prj, script, fragment, {
