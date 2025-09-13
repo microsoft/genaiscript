@@ -1,12 +1,16 @@
 import { readJSON } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { existsSync } from "node:fs"
+import { genaiscriptDebug } from "../../core/src/debug"
+
+const dbg = genaiscriptDebug("mcp:config")
 
 /**
  * Claude MCP configuration file format
  */
 interface ClaudeMcpConfig {
-    servers: Record<string, ClaudeMcpServerConfig>
+    servers?: Record<string, ClaudeMcpServerConfig>
+    mcpServers?: Record<string, ClaudeMcpServerConfig>
 }
 
 interface ClaudeMcpServerConfig {
@@ -20,7 +24,7 @@ interface ClaudeMcpServerConfig {
 
 /**
  * Interpolates Claude environment variables in a string
- * Supports ${workspaceFolder}, ${env:VARIABLE_NAME}, etc.
+ * Supports ${workspaceFolder}, ${env:VARIABLE_NAME}, ${VARIABLE_NAME} (for capitalized env vars), etc.
  */
 function interpolateClaudeVariables(
     value: string,
@@ -30,11 +34,7 @@ function interpolateClaudeVariables(
     return value
         .replace(/\$\{workspaceFolder\}/g, workspaceFolder)
         .replace(/\$\{env:([^}]+)\}/g, (_, varName) => env[varName] || "")
-        .replace(/\$\{([^}]+)\}/g, (_, varName) => {
-            // Handle other variable types if needed
-            if (varName === "workspaceFolder") return workspaceFolder
-            return env[varName] || ""
-        })
+        .replace(/\$\{([A-Z_][A-Z0-9_]*)\}/g, (_, varName) => env[varName] || "")
 }
 
 /**
@@ -73,6 +73,8 @@ export async function loadClaudeMcpConfig(
 ): Promise<Record<string, any>> {
     const resolvedPath = resolve(configPath)
     
+    dbg(`Loading MCP configuration from: ${resolvedPath}`)
+    
     if (!existsSync(resolvedPath)) {
         throw new Error(`MCP configuration file not found: ${resolvedPath}`)
     }
@@ -80,23 +82,32 @@ export async function loadClaudeMcpConfig(
     let config: ClaudeMcpConfig
     try {
         config = await readJSON(resolvedPath)
+        dbg(`Successfully parsed MCP configuration file`)
     } catch (error) {
+        dbg(`Failed to parse MCP configuration file: ${error.message}`)
         throw new Error(`Failed to parse MCP configuration file: ${error.message}`)
     }
 
-    if (!config.servers || typeof config.servers !== "object") {
-        throw new Error("Invalid MCP configuration: missing or invalid 'servers' object")
+    // Support both "servers" and "mcpServers" key names
+    const serversConfig = config.servers || config.mcpServers
+    if (!serversConfig || typeof serversConfig !== "object") {
+        throw new Error("Invalid MCP configuration: missing or invalid 'servers' or 'mcpServers' object")
     }
 
     // Use config file directory as workspace folder if not provided
     const wsFolder = workspaceFolder || dirname(resolvedPath)
+    dbg(`Using workspace folder: ${wsFolder}`)
     
     // Convert Claude format to GenAIScript format
     const mcpServers: Record<string, any> = {}
     
-    for (const [serverId, serverConfig] of Object.entries(config.servers)) {
+    for (const [serverId, serverConfig] of Object.entries(serversConfig)) {
+        dbg(`Processing server: ${serverId}`)
+        
         // Interpolate variables in the server configuration
         const interpolatedConfig = interpolateObjectValues(serverConfig, wsFolder)
+        
+        dbg(`Interpolated config for ${serverId}:`, interpolatedConfig)
         
         // Convert to GenAIScript McpServerConfig format
         const genaiscriptConfig = {
@@ -108,6 +119,8 @@ export async function loadClaudeMcpConfig(
         
         mcpServers[serverId] = genaiscriptConfig
     }
+    
+    dbg(`Loaded ${Object.keys(mcpServers).length} MCP servers:`, Object.keys(mcpServers))
     
     return mcpServers
 }
