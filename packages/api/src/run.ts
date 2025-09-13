@@ -495,8 +495,10 @@ export async function runScriptInternal(
         const mcpServers = await loadClaudeMcpConfig(options.mcpConfig, process.cwd())
         // Merge MCP servers into the script configuration
         if (Object.keys(mcpServers).length > 0) {
-          script.mcpServers = { ...script.mcpServers, ...mcpServers }
-          trace.item("Loading MCP servers from configuration", JSON.stringify(Object.keys(mcpServers)))
+          const existingServers = (typeof script.mcpServers === "object" && script.mcpServers) || {}
+          script.mcpServers = { ...existingServers, ...mcpServers }
+          trace.item("Loading MCP servers from configuration")
+          trace.item(`servers: ${Object.keys(mcpServers).join(", ")}`)
         }
       } catch (error) {
         trace.error(undefined, `Failed to load MCP configuration: ${error.message}`)
