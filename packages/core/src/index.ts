@@ -103,6 +103,7 @@ export * from "./logging.js";
 export * from "./logprob.js";
 export * from "./markdown.js";
 export * from "./math.js";
+export * from "./mcp-config.js";
 export * from "./mcpclient.js";
 export * from "./mcpresource.js";
 export * from "./mcpsampling.js";

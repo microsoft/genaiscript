@@ -193,10 +193,7 @@ export async function cli(): Promise<void> {
       "--fallback-tools",
       "Enable prompt-based tools instead of builtin LLM tool calling builtin tool calls",
     )
-    .option(
-      "--mcps <string>",
-      "path to MCP configuration file to override the script's MCP list",
-    )
+    .option("--mcps <string>", "path to MCP configuration file to override the script's MCP list")
     .option(
       "-o, --out <string>",
       "output folder. Extra markdown fields for output and trace will also be generated",
@@ -250,6 +247,7 @@ export async function cli(): Promise<void> {
     .option("--run-retry <number>", "number of retries for the entire run")
     .option("--no-run-trace", "disable automatic trace generation")
     .option("--no-output-trace", "disable automatic output generation")
+    .option("--mcp-config <file>", "MCP configuration file (Claude format) to load servers from")
     .action(runScriptWithExitCode); // Action to execute the script with exit code
 
   // runs commands

@@ -179,6 +179,65 @@ See [MCP server](/genaiscript/reference/scripts/mcp-server) for more details.
 
 :::
 
+## CLI MCP Configuration
+
+### Using MCP configuration files
+
+You can also load MCP servers from a Claude format configuration file using the `--mcp-config` option when running scripts:
+
+```bash
+genaiscript run my-script --mcp-config .vscode/mcp.json
+```
+
+The configuration file uses the Claude MCP format and supports both `servers` and `mcpServers` as the top-level key:
+
+```json title="mcp.json"
+{
+    "mcpServers": {
+        "filesystem": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
+            "env": {
+                "DEBUG": "${env:DEBUG}"
+            }
+        },
+        "memory": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-memory"]
+        }
+    }
+}
+```
+
+### Environment Variable Interpolation
+
+The configuration file supports Claude environment variable interpolation syntax:
+
+- `${workspaceFolder}` - Resolves to the workspace folder (or the directory containing the config file)
+- `${env:VARIABLE_NAME}` - Resolves to the value of the environment variable `VARIABLE_NAME`
+- `${VARIABLE_NAME}` - Resolves to the value of the environment variable `VARIABLE_NAME` (for capitalized variables)
+
+```json title="Example with environment variables"
+{
+    "servers": {
+        "custom-server": {
+            "command": "${env:MCP_SERVER_PATH}",
+            "args": ["--port", "${MCP_PORT}"],
+            "cwd": "${workspaceFolder}/servers",
+            "env": {
+                "DEBUG": "${env:DEBUG}",
+                "API_KEY": "${API_KEY}"
+            }
+        }
+    }
+}
+```
+
+### Combining with Script Configuration
+
+MCP servers loaded from configuration files are merged with any `mcpServers` defined in the script itself. If there are conflicts, the script configuration takes precedence.
+
 ## Configuring servers
 
 You can declare the MCP server configuration in the `script` function (as tools or agents)
