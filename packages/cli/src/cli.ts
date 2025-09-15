@@ -72,6 +72,7 @@ import { logPerformance } from "../../core/src/performance"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { listRuns } from "./runs"
 import { startMcpServer } from "./mcpserver"
+import { setupMcpCommands } from "./mcpcommands"
 import { error } from "./log"
 import { DEBUG_CATEGORIES } from "../../core/src/dbg"
 import { startOpenAPIServer } from "./openapi"
@@ -524,6 +525,7 @@ export async function cli() {
     addRemoteOptions(serve) // Add remote options to the command
     addModelOptions(serve)
 
+    // Legacy MCP server command (kept for backwards compatibility)
     const mcp = program
         .command("mcp")
         .option("--groups <string...>", "Filter script by groups")
@@ -539,6 +541,9 @@ export async function cli() {
         .action(startMcpServer)
     addRemoteOptions(mcp)
     addModelOptions(mcp)
+
+    // Setup the new MCP commands under "aw" (agentic workflow)
+    setupMcpCommands(program)
 
     const openapi = program
         .command("webapi")
