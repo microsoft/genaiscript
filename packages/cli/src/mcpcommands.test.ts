@@ -10,13 +10,9 @@ describe("MCP Commands", () => {
         // This should not throw
         setupMcpCommands(program)
         
-        // Verify that the aw command was added
-        const awCommand = program.commands.find(cmd => cmd.name() === "aw")
-        assert(awCommand, "aw command should be created")
-        
-        // Verify that the mcp subcommand was added
-        const mcpCommand = awCommand.commands.find(cmd => cmd.name() === "mcp")
-        assert(mcpCommand, "mcp subcommand should be created")
+        // Verify that the mcp command was added directly to the program
+        const mcpCommand = program.commands.find(cmd => cmd.name() === "mcp")
+        assert(mcpCommand, "mcp command should be created")
         
         // Verify all expected subcommands exist
         const expectedCommands = ["add", "list", "get", "remove", "inspect"]
@@ -30,10 +26,7 @@ describe("MCP Commands", () => {
         const program = new Command()
         setupMcpCommands(program)
         
-        const awCommand = program.commands.find(cmd => cmd.name() === "aw")
-        assert.strictEqual(awCommand?.description(), "Agentic workflow commands")
-        
-        const mcpCommand = awCommand?.commands.find(cmd => cmd.name() === "mcp")
+        const mcpCommand = program.commands.find(cmd => cmd.name() === "mcp")
         assert.strictEqual(mcpCommand?.description(), "Model Context Protocol server management")
     })
 
@@ -42,11 +35,18 @@ describe("MCP Commands", () => {
         setupMcpCommands(program)
         
         // Verify command exists and has correct argument structure
-        const awCommand = program.commands.find(cmd => cmd.name() === "aw")
-        const mcpCommand = awCommand?.commands.find(cmd => cmd.name() === "mcp")
+        const mcpCommand = program.commands.find(cmd => cmd.name() === "mcp")
         const addCommand = mcpCommand?.commands.find(cmd => cmd.name() === "add")
         
         assert(addCommand, "add command should exist")
         assert.strictEqual(addCommand.description(), "Add a new MCP server configuration")
+        
+        // Verify that add command has the expected options
+        const options = addCommand.options
+        const transportOption = options.find(opt => opt.long === '--transport')
+        const workflowOption = options.find(opt => opt.long === '--workflow')
+        
+        assert(transportOption, "transport option should exist")
+        assert(workflowOption, "workflow option should exist")
     })
 })
