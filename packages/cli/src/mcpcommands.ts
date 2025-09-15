@@ -236,8 +236,20 @@ export function setupMcpCommands(program: Command): void {
         .option("--scope <string>", "Scope for the server")
         .option("--workflow-id <string>", "Workflow ID", "default")
         .description("Add a new MCP server configuration")
-        .action(async (name, commandOrUrl, args, options) => {
+        .allowUnknownOption() // Allow -- separator like Claude CLI
+        .action(async (name, commandOrUrl, args, options, command) => {
             try {
+                // Handle -- separator by checking if there are unknown options
+                const allArgs = process.argv
+                const dashDashIndex = allArgs.indexOf("--")
+                if (dashDashIndex > -1) {
+                    // Everything after -- becomes the command and args
+                    const commandParts = allArgs.slice(dashDashIndex + 1)
+                    if (commandParts.length > 0) {
+                        commandOrUrl = commandParts[0]
+                        args = commandParts.slice(1)
+                    }
+                }
                 await mcpAdd(name, commandOrUrl, args, options)
             } catch (error) {
                 logError("Failed to add MCP server", error)
