@@ -525,22 +525,7 @@ export async function cli() {
     addRemoteOptions(serve) // Add remote options to the command
     addModelOptions(serve)
 
-    // Legacy MCP server command (kept for backwards compatibility)
-    const mcp = program
-        .command("mcp")
-        .option("--groups <string...>", "Filter script by groups")
-        .option("--ids <string...>", "Filter script by ids")
-        .option(
-            "--startup <string>",
-            "Startup script id, executed after the server is started"
-        )
-        .alias("mcps")
-        .description(
-            "Starts a Model Context Protocol server that exposes scripts as tools"
-        )
-        .action(startMcpServer)
-    addRemoteOptions(mcp)
-    addModelOptions(mcp)
+
 
     // Setup the new MCP commands under "aw" (agentic workflow)
     setupMcpCommands(program)

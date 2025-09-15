@@ -10,6 +10,8 @@ import { ScriptFilterOptions } from "../../core/src/ast"
 import { RemoteOptions } from "./remote"
 import { ensureDotGenaiscriptPath } from "../../core/src/workdir"
 import { readJSON, writeJSON, tryReadJSON } from "../../core/src/fs"
+import { frontmatterTryParse, updateFrontmatter } from "../../core/src/frontmatter"
+import { runtimeHost } from "../../core/src/host"
 import path from "node:path"
 
 export interface McpServerConfig {
@@ -24,49 +26,146 @@ export interface McpServerConfig {
 }
 
 /**
- * Storage for MCP server configurations per workflow
+ * Storage for MCP server configurations in agentic workflow frontmatter
  */
 class McpConfigManager {
-    private async getConfigPath(workflowId: string): Promise<string> {
-        const dotPath = await ensureDotGenaiscriptPath()
-        return path.join(dotPath, "mcp", `${workflowId}.json`)
+    async getWorkflowPath(workflowId: string): Promise<string> {
+        // If workflowId contains a path separator, treat it as a file path
+        if (workflowId.includes('/') || workflowId.includes('\\') || workflowId.endsWith('.genai.mts') || workflowId.endsWith('.genai.mjs') || workflowId.endsWith('.genai.js')) {
+            return workflowId
+        }
+        
+        // Otherwise, look for a file with that name in common locations
+        const possiblePaths = [
+            `genaisrc/${workflowId}.genai.mts`,
+            `genaisrc/${workflowId}.genai.mjs`, 
+            `genaisrc/${workflowId}.genai.js`,
+            `src/${workflowId}.genai.mts`,
+            `src/${workflowId}.genai.mjs`,
+            `src/${workflowId}.genai.js`,
+            `${workflowId}.genai.mts`,
+            `${workflowId}.genai.mjs`,
+            `${workflowId}.genai.js`
+        ]
+        
+        for (const path of possiblePaths) {
+            try {
+                await runtimeHost.readFile(path)
+                return path
+            } catch {
+                // File doesn't exist, continue
+            }
+        }
+        
+        throw new Error(`Workflow file not found for: ${workflowId}. Please provide the full path to the .genai file.`)
     }
 
-    async getWorkflowConfigs(workflowId: string): Promise<Map<string, McpServerConfig>> {
-        const configPath = await this.getConfigPath(workflowId)
-        const configs = await tryReadJSON(configPath) as Record<string, McpServerConfig>
-        return new Map(Object.entries(configs || {}))
+    async getWorkflowTools(workflowId: string): Promise<string[]> {
+        const workflowPath = await this.getWorkflowPath(workflowId)
+        const content = await runtimeHost.readFile(workflowPath)
+        const frontmatter = frontmatterTryParse(content)
+        
+        if (!frontmatter?.value) {
+            return []
+        }
+        
+        const tools = frontmatter.value.tools
+        if (!tools) {
+            return []
+        }
+        
+        return Array.isArray(tools) ? tools : [tools]
     }
 
-    async saveWorkflowConfigs(workflowId: string, configs: Map<string, McpServerConfig>): Promise<void> {
-        const configPath = await this.getConfigPath(workflowId)
-        const configData = Object.fromEntries(configs)
-        await writeJSON(configPath, configData)
+    async saveWorkflowTools(workflowId: string, tools: string[]): Promise<void> {
+        const workflowPath = await this.getWorkflowPath(workflowId)
+        const content = await runtimeHost.readFile(workflowPath)
+        
+        const newFrontmatter = { tools: tools.length > 0 ? tools : null }
+        const updatedContent = updateFrontmatter(content, newFrontmatter)
+        
+        await runtimeHost.writeFile(workflowPath, updatedContent)
     }
 
     async addServer(workflowId: string, config: McpServerConfig): Promise<void> {
-        const workflowConfigs = await this.getWorkflowConfigs(workflowId)
-        workflowConfigs.set(config.name, config)
-        await this.saveWorkflowConfigs(workflowId, workflowConfigs)
+        const tools = await this.getWorkflowTools(workflowId)
+        const mcpToolName = `mcp:${config.name}`
+        
+        // Remove existing config for this server if it exists
+        const filteredTools = tools.filter(tool => tool !== mcpToolName && !tool.startsWith(`mcp:${config.name}:`))
+        
+        // Add the new MCP tool
+        filteredTools.push(mcpToolName)
+        
+        await this.saveWorkflowTools(workflowId, filteredTools)
+        
+        // Store the detailed configuration separately for retrieval
+        // We'll store it in a comment or as a separate metadata file
+        const dotPath = await ensureDotGenaiscriptPath()
+        const mcpMetadataPath = path.join(dotPath, "mcp", `${config.name}.json`)
+        await writeJSON(mcpMetadataPath, config)
     }
 
     async removeServer(workflowId: string, name: string): Promise<boolean> {
-        const workflowConfigs = await this.getWorkflowConfigs(workflowId)
-        const removed = workflowConfigs.delete(name)
-        if (removed) {
-            await this.saveWorkflowConfigs(workflowId, workflowConfigs)
+        const tools = await this.getWorkflowTools(workflowId)
+        const mcpToolName = `mcp:${name}`
+        
+        const originalLength = tools.length
+        const filteredTools = tools.filter(tool => tool !== mcpToolName && !tool.startsWith(`mcp:${name}:`))
+        
+        if (filteredTools.length < originalLength) {
+            await this.saveWorkflowTools(workflowId, filteredTools)
+            
+            // Also remove the metadata file
+            try {
+                const dotPath = await ensureDotGenaiscriptPath()
+                const mcpMetadataPath = path.join(dotPath, "mcp", `${name}.json`)
+                await runtimeHost.deleteFile(mcpMetadataPath)
+            } catch {
+                // Metadata file might not exist, ignore
+            }
+            
+            return true
         }
-        return removed
+        
+        return false
     }
 
     async getServer(workflowId: string, name: string): Promise<McpServerConfig | undefined> {
-        const workflowConfigs = await this.getWorkflowConfigs(workflowId)
-        return workflowConfigs.get(name)
+        const tools = await this.getWorkflowTools(workflowId)
+        const mcpToolName = `mcp:${name}`
+        
+        if (!tools.includes(mcpToolName)) {
+            return undefined
+        }
+        
+        // Try to load detailed configuration from metadata
+        try {
+            const dotPath = await ensureDotGenaiscriptPath()
+            const mcpMetadataPath = path.join(dotPath, "mcp", `${name}.json`)
+            const config = await tryReadJSON(mcpMetadataPath) as McpServerConfig
+            return config
+        } catch {
+            // Return basic config if no metadata available
+            return { name, transport: "stdio" }
+        }
     }
 
     async listServers(workflowId: string): Promise<McpServerConfig[]> {
-        const workflowConfigs = await this.getWorkflowConfigs(workflowId)
-        return Array.from(workflowConfigs.values())
+        const tools = await this.getWorkflowTools(workflowId)
+        const mcpTools = tools.filter(tool => tool.startsWith('mcp:'))
+        
+        const servers: McpServerConfig[] = []
+        
+        for (const mcpTool of mcpTools) {
+            const name = mcpTool.substring(4) // Remove 'mcp:' prefix
+            const server = await this.getServer(workflowId, name)
+            if (server) {
+                servers.push(server)
+            }
+        }
+        
+        return servers
     }
 }
 
@@ -81,10 +180,10 @@ async function mcpAdd(
         env?: string[]
         header?: string[]
         scope?: string
-        workflowId?: string
+        workflow?: string
     } & ScriptFilterOptions & RemoteOptions
 ): Promise<void> {
-    const { transport = "stdio", env = [], header = [], scope, workflowId = "default" } = options
+    const { transport = "stdio", env = [], header = [], scope, workflow = "default" } = options
 
     logVerbose(`Adding MCP server: ${name}`)
 
@@ -125,21 +224,21 @@ async function mcpAdd(
         config.url = commandOrUrl
     }
 
-    await configManager.addServer(workflowId, config)
-    console.log(`Added MCP server '${name}' to workflow '${workflowId}'`)
+    await configManager.addServer(workflow, config)
+    console.log(`Added MCP server '${name}' to workflow '${workflow}'`)
 }
 
-async function mcpList(workflowId: string = "default"): Promise<void> {
-    logVerbose(`Listing MCP servers for workflow: ${workflowId}`)
+async function mcpList(workflow: string = "default"): Promise<void> {
+    logVerbose(`Listing MCP servers for workflow: ${workflow}`)
     
-    const servers = await configManager.listServers(workflowId)
+    const servers = await configManager.listServers(workflow)
     
     if (servers.length === 0) {
-        console.log(`No MCP servers configured for workflow '${workflowId}'`)
+        console.log(`No MCP servers configured for workflow '${workflow}'`)
         return
     }
 
-    console.log(`MCP servers for workflow '${workflowId}':`)
+    console.log(`MCP servers for workflow '${workflow}':`)
     for (const server of servers) {
         console.log(`\n${server.name}:`)
         console.log(`  Transport: ${server.transport}`)
@@ -173,38 +272,38 @@ async function mcpList(workflowId: string = "default"): Promise<void> {
     }
 }
 
-async function mcpGet(name: string, workflowId: string = "default"): Promise<void> {
-    logVerbose(`Getting MCP server: ${name} from workflow: ${workflowId}`)
+async function mcpGet(name: string, workflow: string = "default"): Promise<void> {
+    logVerbose(`Getting MCP server: ${name} from workflow: ${workflow}`)
     
-    const server = await configManager.getServer(workflowId, name)
+    const server = await configManager.getServer(workflow, name)
     
     if (!server) {
-        console.error(`MCP server '${name}' not found in workflow '${workflowId}'`)
+        console.error(`MCP server '${name}' not found in workflow '${workflow}'`)
         process.exit(1)
     }
 
-    console.log(`MCP server '${name}' in workflow '${workflowId}':`)
+    console.log(`MCP server '${name}' in workflow '${workflow}':`)
     console.log(JSON.stringify(server, null, 2))
 }
 
-async function mcpRemove(name: string, workflowId: string = "default"): Promise<void> {
-    logVerbose(`Removing MCP server: ${name} from workflow: ${workflowId}`)
+async function mcpRemove(name: string, workflow: string = "default"): Promise<void> {
+    logVerbose(`Removing MCP server: ${name} from workflow: ${workflow}`)
     
-    const removed = await configManager.removeServer(workflowId, name)
+    const removed = await configManager.removeServer(workflow, name)
     
     if (removed) {
-        console.log(`Removed MCP server '${name}' from workflow '${workflowId}'`)
+        console.log(`Removed MCP server '${name}' from workflow '${workflow}'`)
     } else {
-        console.error(`MCP server '${name}' not found in workflow '${workflowId}'`)
+        console.error(`MCP server '${name}' not found in workflow '${workflow}'`)
         process.exit(1)
     }
 }
 
 async function mcpInspect(
-    workflowId: string = "default",
+    workflow: string = "default",
     options: ScriptFilterOptions & RemoteOptions & { startup?: string } = {}
 ): Promise<void> {
-    logVerbose(`Inspecting MCP server for workflow: ${workflowId}`)
+    logVerbose(`Inspecting MCP server for workflow: ${workflow}`)
     
     // This uses the existing MCP server functionality to start and inspect
     await startMcpServer(options)
@@ -214,13 +313,8 @@ async function mcpInspect(
  * Sets up the MCP command group with all subcommands
  */
 export function setupMcpCommands(program: Command): void {
-    // Create the main "aw" (agentic workflow) command group
-    const aw = program
-        .command("aw")
-        .description("Agentic workflow commands")
-
-    // Create the MCP subcommand group under aw
-    const mcp = aw
+    // Create the MCP command group directly under main program
+    const mcp = program
         .command("mcp")
         .description("Model Context Protocol server management")
 
@@ -234,7 +328,7 @@ export function setupMcpCommands(program: Command): void {
         .option("--env <namevalue...>", "Environment variables as NAME=VALUE")
         .option("--header <namevalue...>", "Headers as NAME:VALUE (for sse/http transports)")
         .option("--scope <string>", "Scope for the server")
-        .option("--workflow-id <string>", "Workflow ID", "default")
+        .option("--workflow <file>", "Agentic workflow file path or name", "default")
         .description("Add a new MCP server configuration")
         .allowUnknownOption() // Allow -- separator like Claude CLI
         .action(async (name, commandOrUrl, args, options, command) => {
@@ -260,11 +354,11 @@ export function setupMcpCommands(program: Command): void {
     // mcp list command
     mcp
         .command("list")
-        .argument("[workflow_id]", "Workflow ID", "default")
+        .argument("[workflow]", "Agentic workflow file path or name", "default")
         .description("List all configured MCP servers for a workflow")
-        .action(async (workflowId) => {
+        .action(async (workflow) => {
             try {
-                await mcpList(workflowId)
+                await mcpList(workflow)
             } catch (error) {
                 logError("Failed to list MCP servers", error)
                 process.exit(1)
@@ -275,11 +369,11 @@ export function setupMcpCommands(program: Command): void {
     mcp
         .command("get")
         .argument("<name>", "Name of the MCP server")
-        .argument("[workflow_id]", "Workflow ID", "default")
+        .argument("[workflow]", "Agentic workflow file path or name", "default")
         .description("Get details for a specific MCP server")
-        .action(async (name, workflowId) => {
+        .action(async (name, workflow) => {
             try {
-                await mcpGet(name, workflowId)
+                await mcpGet(name, workflow)
             } catch (error) {
                 logError("Failed to get MCP server details", error)
                 process.exit(1)
@@ -290,11 +384,11 @@ export function setupMcpCommands(program: Command): void {
     mcp
         .command("remove")
         .argument("<name>", "Name of the MCP server")
-        .argument("[workflow_id]", "Workflow ID", "default")
+        .argument("[workflow]", "Agentic workflow file path or name", "default")
         .description("Remove an MCP server configuration")
-        .action(async (name, workflowId) => {
+        .action(async (name, workflow) => {
             try {
-                await mcpRemove(name, workflowId)
+                await mcpRemove(name, workflow)
             } catch (error) {
                 logError("Failed to remove MCP server", error)
                 process.exit(1)
@@ -304,14 +398,14 @@ export function setupMcpCommands(program: Command): void {
     // mcp inspect command (moved from the main mcp command)
     mcp
         .command("inspect")
-        .argument("[workflow_id]", "Workflow ID", "default")
+        .argument("[workflow]", "Agentic workflow file path or name", "default")
         .option("--groups <string...>", "Filter script by groups")
         .option("--ids <string...>", "Filter script by ids")
         .option("--startup <string>", "Startup script id, executed after the server is started")
         .description("Inspect MCP server for a workflow")
-        .action(async (workflowId, options) => {
+        .action(async (workflow, options) => {
             try {
-                await mcpInspect(workflowId, options)
+                await mcpInspect(workflow, options)
             } catch (error) {
                 logError("Failed to inspect MCP server", error)
                 process.exit(1)
