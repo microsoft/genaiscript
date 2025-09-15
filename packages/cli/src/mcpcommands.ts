@@ -63,7 +63,8 @@ class McpConfigManager {
     async getWorkflowTools(workflowId: string): Promise<string[]> {
         const workflowPath = await this.getWorkflowPath(workflowId)
         const content = await runtimeHost.readFile(workflowPath)
-        const frontmatter = frontmatterTryParse(content)
+        const contentStr = new TextDecoder().decode(content)
+        const frontmatter = frontmatterTryParse(contentStr)
         
         if (!frontmatter?.value) {
             return []
@@ -80,11 +81,12 @@ class McpConfigManager {
     async saveWorkflowTools(workflowId: string, tools: string[]): Promise<void> {
         const workflowPath = await this.getWorkflowPath(workflowId)
         const content = await runtimeHost.readFile(workflowPath)
+        const contentStr = new TextDecoder().decode(content)
         
         const newFrontmatter = { tools: tools.length > 0 ? tools : null }
-        const updatedContent = updateFrontmatter(content, newFrontmatter)
+        const updatedContent = updateFrontmatter(contentStr, newFrontmatter)
         
-        await runtimeHost.writeFile(workflowPath, updatedContent)
+        await runtimeHost.writeFile(workflowPath, new TextEncoder().encode(updatedContent))
     }
 
     async addServer(workflowId: string, config: McpServerConfig): Promise<void> {
