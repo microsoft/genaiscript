@@ -72,6 +72,7 @@ import { logPerformance } from "../../core/src/performance"
 import { setConsoleColors } from "../../core/src/consolecolor"
 import { listRuns } from "./runs"
 import { startMcpServer } from "./mcpserver"
+import { inspectMcpServer } from "./mcpinspect"
 import { error } from "./log"
 import { DEBUG_CATEGORIES } from "../../core/src/dbg"
 import { startOpenAPIServer } from "./openapi"
@@ -526,19 +527,38 @@ export async function cli() {
 
     const mcp = program
         .command("mcp")
+        .alias("mcps")
+        .description("Model Context Protocol utilities")
+
+    // Add the default server command that starts an MCP server
+    const mcpServer = mcp
+        .command("server", { isDefault: true })
         .option("--groups <string...>", "Filter script by groups")
         .option("--ids <string...>", "Filter script by ids")
         .option(
             "--startup <string>",
             "Startup script id, executed after the server is started"
         )
-        .alias("mcps")
         .description(
             "Starts a Model Context Protocol server that exposes scripts as tools"
         )
         .action(startMcpServer)
-    addRemoteOptions(mcp)
-    addModelOptions(mcp)
+    addRemoteOptions(mcpServer)
+    addModelOptions(mcpServer)
+
+    // Add the inspect subcommand
+    mcp.command("inspect")
+        .argument("<command>", "Command to run the MCP server")
+        .argument("[args...]", "Arguments to pass to the MCP server command")
+        .option("--version <string>", "Version of the MCP server", "1.0.0")
+        .description("Inspect an MCP server and list its tools and resources")
+        .action(async (command: string, args: string[], options: { version?: string }) => {
+            await inspectMcpServer({
+                command,
+                args: args || [],
+                version: options.version,
+            })
+        })
 
     const openapi = program
         .command("webapi")

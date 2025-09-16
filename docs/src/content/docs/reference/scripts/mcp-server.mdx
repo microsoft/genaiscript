@@ -166,7 +166,7 @@ You can specify a startup script id in the command line using the `--startup` op
 It will run after the server is started.
 
 ```sh
-genaiscript mcp --startup load-resources
+genaiscript mcp server --startup load-resources
 ```
 
 You can use this script to load resources or do any other setup you need.
@@ -175,11 +175,10 @@ You can use this script to load resources or do any other setup you need.
 
 The `mcp` command launches the MCP server using the stdio transport.
 
-- [@modelcontextprotocol/inspector](https://www.npmjs.com/package/@modelcontextprotocol/inspector)
-  is a MCP client that can be used to inspect the server and list the available tools.
+- Use `genaiscript mcp inspect` to inspect an MCP server and list the available tools.
 
 ```sh
-npx --yes @modelcontextprotocol/inspector npx --yes genaiscript mcp
+genaiscript mcp inspect npx --yes genaiscript mcp server
 ```
 
 ### Visual Studio Code Insiders with GitHub Copilot Chat
@@ -192,7 +191,7 @@ You will need Visual Studio Code v1.99 or higher and the [GitHub Copilot Chat](h
         "genaiscript": {
             "type": "stdio",
             "command": "npx",
-            "args": ["-y", "genaiscript", "mcp", "--cwd", "${workspaceFolder}"],
+            "args": ["-y", "genaiscript", "mcp", "server", "--cwd", "${workspaceFolder}"],
             "envFile": "${workspaceFolder}/.env"
         }
     }
@@ -206,7 +205,7 @@ You will need Visual Studio Code v1.99 or higher and the [GitHub Copilot Chat](h
     "mcpServers": {
         "genaiscript": {
             "command": "npx",
-            "args": ["-y", "genaiscript", "mcp"]
+            "args": ["-y", "genaiscript", "mcp", "server"]
         }
     }
 }
@@ -233,6 +232,7 @@ script({
                 "-y",
                 "genaiscript",
                 "mcp",
+                "server",
                 "--cwd",
                 "${workspaceFolder}",
                 "--groups",
@@ -250,7 +250,7 @@ You can use the `--remote` option to load scripts from a remote repository.
 GenAIScript will do a shallow clone of the repository and run the script from the clone folder.
 
 ```sh
-npx --yes genaiscript mcp --remote https://github.com/...
+npx --yes genaiscript mcp server --remote https://github.com/...
 ```
 
 There are additional flags to how the repository is cloned:
