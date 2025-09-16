@@ -1,5 +1,5 @@
 import { describe, test, assert } from "vitest";
-import { parseAllowedDomains } from "../src/env.js";
+import { parseAllowedDomains, parseDefaultMetaFromEnv } from "../src/env.js";
 
 describe("env", () => {
   describe("parseAllowedDomains", () => {
@@ -51,6 +51,85 @@ describe("env", () => {
       const env = { GENAISCRIPT_ALLOWED_DOMAINS: "github.com" };
       const result = parseAllowedDomains(env);
       assert.deepStrictEqual(result, ["github.com"]);
+    });
+  });
+
+  describe("parseDefaultMetaFromEnv", () => {
+    test("returns undefined when GENAISCRIPT_DEFAULT_SCRIPT_META not set", () => {
+      const result = parseDefaultMetaFromEnv({});
+      assert.strictEqual(result, undefined);
+    });
+
+    test("parses valid JSON metadata", () => {
+      const env = {
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '{"temperature": 0.5, "model": "gpt-4", "title": "Default Title"}'
+      };
+      const result = parseDefaultMetaFromEnv(env);
+      assert.deepStrictEqual(result, {
+        temperature: 0.5,
+        model: "gpt-4",
+        title: "Default Title"
+      });
+    });
+
+    test("parses valid JSON5 metadata", () => {
+      const env = {
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '{temperature: 0.5, model: "gpt-4", unlisted: true}'
+      };
+      const result = parseDefaultMetaFromEnv(env);
+      assert.deepStrictEqual(result, {
+        temperature: 0.5,
+        model: "gpt-4",
+        unlisted: true
+      });
+    });
+
+    test("handles metadata with nested objects", () => {
+      const env = {
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '{"metadata": {"key1": "value1", "key2": "value2"}, "vars": {"var1": "val1"}}'
+      };
+      const result = parseDefaultMetaFromEnv(env);
+      assert.deepStrictEqual(result, {
+        metadata: {
+          key1: "value1",
+          key2: "value2"
+        },
+        vars: {
+          var1: "val1"
+        }
+      });
+    });
+
+    test("returns undefined for invalid JSON", () => {
+      const env = {
+        GENAISCRIPT_DEFAULT_SCRIPT_META: 'invalid json {'
+      };
+      const result = parseDefaultMetaFromEnv(env);
+      assert.strictEqual(result, undefined);
+    });
+
+    test("returns undefined for non-object values", () => {
+      const env = {
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '"just a string"'
+      };
+      const result = parseDefaultMetaFromEnv(env);
+      assert.strictEqual(result, undefined);
+    });
+
+    test("returns undefined for null values", () => {
+      const env = {
+        GENAISCRIPT_DEFAULT_SCRIPT_META: 'null'
+      };
+      const result = parseDefaultMetaFromEnv(env);
+      assert.strictEqual(result, undefined);
+    });
+
+    test("handles empty object", () => {
+      const env = {
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '{}'
+      };
+      const result = parseDefaultMetaFromEnv(env);
+      assert.deepStrictEqual(result, {});
     });
   });
 });
