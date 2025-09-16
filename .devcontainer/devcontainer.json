@@ -19,6 +19,16 @@
                 "vsls-contrib.gistfs",
                 "ms-azuretools.vscode-containers"
             ]
+        },
+        "codespaces": {
+            "repositories": {
+                "githubnext/gh-aw": {
+                    "permissions": {
+                        "releases": "read",
+                        "contents": "read"
+                    }
+                }
+            }
         }
     },
     "features": {

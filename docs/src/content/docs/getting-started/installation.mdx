@@ -213,6 +213,16 @@ You can add this file in your project to use GenAIScript in a
     "customizations": {
         "vscode": {
             "extensions": ["genaiscript.genaiscript-vscode"]
+        },
+        "codespaces": {
+            "repositories": {
+                "githubnext/gh-aw": {
+                    "permissions": {
+                        "releases": "read",
+                        "contents": "read"
+                    }
+                }
+            }
         }
     }
 }
