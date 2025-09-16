@@ -13,6 +13,6 @@
   "devDependencies": {
     "@slidev/cli": "^51.8.2",
     "@slidev/theme-default": "^0.25.0",
-    "zx": "^8.6.0"
+    "zx": "^8.8.1"
   }
 }

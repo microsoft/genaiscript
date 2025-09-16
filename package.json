@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "author": "microsoft",
-  "packageManager": "pnpm@10.12.3",
+  "packageManager": "pnpm@10.16.1",
   "type": "module",
   "scripts": {
     "az:login": "az login --scope api://trapi/.default",
@@ -132,7 +132,7 @@
     "prettier-plugin-curly": "^0.3.2",
     "release-it": "^19.0.4",
     "tsx": "catalog:",
-    "turbo": "^2.5.5",
+    "turbo": "^2.5.6",
     "zx": "catalog:"
   }
 }

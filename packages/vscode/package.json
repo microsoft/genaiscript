@@ -560,7 +560,7 @@
         "@types/markdown-it": "^14.1.2",
         "@types/vscode": "1.100.0",
         "@vscode/vsce": "^3.6.0",
-        "esbuild": "^0.25.8",
+        "esbuild": "^0.25.9",
         "eslint": "catalog:",
         "prettier": "catalog:",
         "rimraf": "catalog:",

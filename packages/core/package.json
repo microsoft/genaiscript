@@ -53,7 +53,7 @@
     "@azure/identity": "^4.11.1",
     "@azure/search-documents": "^12.1.0",
     "@huggingface/jinja": "^0.5.1",
-    "@modelcontextprotocol/sdk": "^1.17.2",
+    "@modelcontextprotocol/sdk": "^1.18.0",
     "@napi-rs/canvas": "^0.1.77",
     "@octokit/core": "^7.0.3",
     "@octokit/plugin-paginate-rest": "^13.1.1",

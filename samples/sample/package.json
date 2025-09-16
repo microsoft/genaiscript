@@ -31,7 +31,7 @@
     "@genaiscript/api": "workspace:*",
     "@langchain/core": "^0.3.69",
     "@langchain/langgraph": "^0.2.74",
-    "@modelcontextprotocol/sdk": "^1.17.2",
+    "@modelcontextprotocol/sdk": "^1.18.0",
     "@tidyjs/tidy": "^2.5.2",
     "@types/mdast": "catalog:",
     "@types/node": "catalog:",
