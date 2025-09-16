@@ -15,6 +15,7 @@ import { deleteUndefinedValues } from "./cleaners.js";
 import { markdownScriptParse } from "./markdownscript.js";
 import { readJSON } from "./fs.js";
 import { frontmatterTryParse } from "./frontmatter.js";
+import { parseDefaultMetaFromEnv } from "./env.js";
 import type {
   PromptArgs,
   PromptScript,
@@ -239,6 +240,24 @@ export async function parsePromptScript(filename: string, content: string) {
       ...(script.parameters || {}),
       ...frontmatterParameters,
     };
+  }
+
+  // Parse and merge default metadata from environment variables (last to take priority)
+  const envDefaults = parseDefaultMetaFromEnv(process.env);
+  if (envDefaults) {
+    // Merge environment defaults last so they take highest priority
+    Object.assign(script, {
+      ...script, // existing script metadata
+      ...envDefaults, // environment defaults override
+    });
+    
+    // Special handling for metadata field to ensure it's properly merged and validated
+    if (envDefaults.metadata || script.metadata) {
+      script.metadata = metadataValidate({
+        ...(script.metadata || {}),
+        ...(envDefaults.metadata || {}), // env metadata takes precedence
+      });
+    }
   }
 
   return script;
