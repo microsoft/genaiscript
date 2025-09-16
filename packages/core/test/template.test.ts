@@ -133,7 +133,7 @@ describe("template.ts - environment variable default metadata", () => {
     })
 
     test("should merge environment default metadata into script", async () => {
-        process.env.GENAISCRIPT_DEFAULT_META = '{"temperature": 0.5, "model": "gpt-4", "unlisted": true}'
+        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"temperature": 0.5, "model": "gpt-4", "unlisted": true}'
 
         const content = `script({
             title: "Test Script",
@@ -152,7 +152,7 @@ describe("template.ts - environment variable default metadata", () => {
     })
 
     test("should handle environment metadata without script metadata", async () => {
-        process.env.GENAISCRIPT_DEFAULT_META = '{"temperature": 0.7, "maxTokens": 1000}'
+        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"temperature": 0.7, "maxTokens": 1000}'
 
         const content = `Hello world!`
 
@@ -163,7 +163,7 @@ describe("template.ts - environment variable default metadata", () => {
     })
 
     test("should merge environment metadata with existing metadata field", async () => {
-        process.env.GENAISCRIPT_DEFAULT_META = '{"metadata": {"env_key": "env_value", "shared_key": "env_shared"}, "temperature": 0.5}'
+        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"metadata": {"env_key": "env_value", "shared_key": "env_shared"}, "temperature": 0.5}'
 
         const content = `script({
             metadata: {
@@ -185,7 +185,7 @@ describe("template.ts - environment variable default metadata", () => {
     })
 
     test("should work without environment variable set", async () => {
-        delete process.env.GENAISCRIPT_DEFAULT_META
+        delete process.env.GENAISCRIPT_DEFAULT_SCRIPT_META
 
         const content = `script({
             title: "Test Script",
@@ -201,7 +201,7 @@ describe("template.ts - environment variable default metadata", () => {
     })
 
     test("should handle invalid JSON in environment variable gracefully", async () => {
-        process.env.GENAISCRIPT_DEFAULT_META = 'invalid json {'
+        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = 'invalid json {'
 
         const content = `script({
             title: "Test Script"
@@ -216,7 +216,7 @@ describe("template.ts - environment variable default metadata", () => {
     })
 
     test("should handle environment metadata with complex nested objects", async () => {
-        process.env.GENAISCRIPT_DEFAULT_META = '{"vars": {"env_var": "env_value"}, "parameters": {"env_param": {"type": "string", "default": "env_default"}}}'
+        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"vars": {"env_var": "env_value"}, "parameters": {"env_param": {"type": "string", "default": "env_default"}}}'
 
         const content = `script({
             vars: {

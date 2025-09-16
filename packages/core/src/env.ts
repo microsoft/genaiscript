@@ -125,7 +125,7 @@ export function findEnvVar(
 }
 
 /**
- * Parses default script metadata from GENAISCRIPT_DEFAULT_META environment variable.
+ * Parses default script metadata from GENAISCRIPT_DEFAULT_SCRIPT_META environment variable.
  * The environment variable should contain a JSON payload of PromptScript metadata.
  * This metadata gets merged last into the main script metadata object.
  *
@@ -133,25 +133,25 @@ export function findEnvVar(
  * @returns A PromptArgs object containing the parsed metadata, or undefined if no valid metadata found.
  */
 export function parseDefaultMetaFromEnv(env: Record<string, string>): Partial<PromptArgs> | undefined {
-  const envValue = env.GENAISCRIPT_DEFAULT_META;
+  const envValue = env.GENAISCRIPT_DEFAULT_SCRIPT_META;
   if (!envValue) {
-    dbg("GENAISCRIPT_DEFAULT_META not found in environment variables");
+    dbg("GENAISCRIPT_DEFAULT_SCRIPT_META not found in environment variables");
     return undefined;
   }
 
-  dbg(`found GENAISCRIPT_DEFAULT_META: ${envValue}`);
+  dbg(`found GENAISCRIPT_DEFAULT_SCRIPT_META: ${envValue}`);
   
   try {
     const parsed = JSON5TryParse(envValue);
     if (!parsed || typeof parsed !== "object") {
-      dbg("GENAISCRIPT_DEFAULT_META could not be parsed as valid JSON object");
+      dbg("GENAISCRIPT_DEFAULT_SCRIPT_META could not be parsed as valid JSON object");
       return undefined;
     }
 
-    dbg(`parsed GENAISCRIPT_DEFAULT_META: %O`, parsed);
+    dbg(`parsed GENAISCRIPT_DEFAULT_SCRIPT_META: %O`, parsed);
     return parsed as Partial<PromptArgs>;
   } catch (error) {
-    dbg(`failed to parse GENAISCRIPT_DEFAULT_META: ${error}`);
+    dbg(`failed to parse GENAISCRIPT_DEFAULT_SCRIPT_META: ${error}`);
     return undefined;
   }
 }

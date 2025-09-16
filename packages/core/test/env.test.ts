@@ -55,14 +55,14 @@ describe("env", () => {
   });
 
   describe("parseDefaultMetaFromEnv", () => {
-    test("returns undefined when GENAISCRIPT_DEFAULT_META not set", () => {
+    test("returns undefined when GENAISCRIPT_DEFAULT_SCRIPT_META not set", () => {
       const result = parseDefaultMetaFromEnv({});
       assert.strictEqual(result, undefined);
     });
 
     test("parses valid JSON metadata", () => {
       const env = {
-        GENAISCRIPT_DEFAULT_META: '{"temperature": 0.5, "model": "gpt-4", "title": "Default Title"}'
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '{"temperature": 0.5, "model": "gpt-4", "title": "Default Title"}'
       };
       const result = parseDefaultMetaFromEnv(env);
       assert.deepStrictEqual(result, {
@@ -74,7 +74,7 @@ describe("env", () => {
 
     test("parses valid JSON5 metadata", () => {
       const env = {
-        GENAISCRIPT_DEFAULT_META: '{temperature: 0.5, model: "gpt-4", unlisted: true}'
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '{temperature: 0.5, model: "gpt-4", unlisted: true}'
       };
       const result = parseDefaultMetaFromEnv(env);
       assert.deepStrictEqual(result, {
@@ -86,7 +86,7 @@ describe("env", () => {
 
     test("handles metadata with nested objects", () => {
       const env = {
-        GENAISCRIPT_DEFAULT_META: '{"metadata": {"key1": "value1", "key2": "value2"}, "vars": {"var1": "val1"}}'
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '{"metadata": {"key1": "value1", "key2": "value2"}, "vars": {"var1": "val1"}}'
       };
       const result = parseDefaultMetaFromEnv(env);
       assert.deepStrictEqual(result, {
@@ -102,7 +102,7 @@ describe("env", () => {
 
     test("returns undefined for invalid JSON", () => {
       const env = {
-        GENAISCRIPT_DEFAULT_META: 'invalid json {'
+        GENAISCRIPT_DEFAULT_SCRIPT_META: 'invalid json {'
       };
       const result = parseDefaultMetaFromEnv(env);
       assert.strictEqual(result, undefined);
@@ -110,7 +110,7 @@ describe("env", () => {
 
     test("returns undefined for non-object values", () => {
       const env = {
-        GENAISCRIPT_DEFAULT_META: '"just a string"'
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '"just a string"'
       };
       const result = parseDefaultMetaFromEnv(env);
       assert.strictEqual(result, undefined);
@@ -118,7 +118,7 @@ describe("env", () => {
 
     test("returns undefined for null values", () => {
       const env = {
-        GENAISCRIPT_DEFAULT_META: 'null'
+        GENAISCRIPT_DEFAULT_SCRIPT_META: 'null'
       };
       const result = parseDefaultMetaFromEnv(env);
       assert.strictEqual(result, undefined);
@@ -126,7 +126,7 @@ describe("env", () => {
 
     test("handles empty object", () => {
       const env = {
-        GENAISCRIPT_DEFAULT_META: '{}'
+        GENAISCRIPT_DEFAULT_SCRIPT_META: '{}'
       };
       const result = parseDefaultMetaFromEnv(env);
       assert.deepStrictEqual(result, {});
