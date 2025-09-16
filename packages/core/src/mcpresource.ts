@@ -16,6 +16,7 @@ import type {
   SecretDetectionOptions,
   WorkspaceFile,
 } from "./types.js";
+import type { McpClientManager } from "./mcpclient.js";
 
 export interface ResourceContent {
   uri: string; // The URI of the resource
@@ -37,8 +38,39 @@ export interface Resource {
 
 export class ResourceManager extends EventTarget {
   private _resources: Record<string, Resource> = {};
+  private _mcpClientManager?: McpClientManager; // Will be set after construction
+
+  setMcpClientManager(mcpClientManager: McpClientManager) {
+    this._mcpClientManager = mcpClientManager;
+  }
+
   async resources(): Promise<ResourceReference[]> {
-    return Object.values(this._resources).map((r) => r.reference);
+    const localResources = Object.values(this._resources).map((r) => r.reference);
+    
+    // Also get resources from all connected MCP servers
+    const mcpResources: ResourceReference[] = [];
+    if (this._mcpClientManager) {
+      try {
+        const clients = this._mcpClientManager.clients || [];
+        for (const client of clients) {
+          try {
+            const serverResources = await client.listResources();
+            mcpResources.push(...serverResources.map((r: any) => ({
+              name: r.name,
+              description: r.description,
+              uri: r.uri,
+              mimeType: r.mimeType,
+            } satisfies ResourceReference)));
+          } catch (error) {
+            dbg(`error listing resources from MCP server ${client.config?.id}: ${error instanceof Error ? error.message : String(error)}`);
+          }
+        }
+      } catch (error) {
+        dbg(`error accessing MCP clients: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    
+    return [...localResources, ...mcpResources];
   }
   async readResource(uri: string): Promise<ResourceContents | undefined> {
     dbg(`reading resource: ${uri}`);

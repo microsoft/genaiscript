@@ -151,6 +151,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
     );
     this.mcp = new McpClientManager();
     this.resources = new ResourceManager();
+    this.resources.setMcpClientManager(this.mcp);
     this.workspace = createWorkspaceFileSystem();
   }
 

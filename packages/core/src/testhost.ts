@@ -32,7 +32,7 @@ import type {
 import { defaultModelConfigurations } from "./llms.js";
 import type { CancellationToken } from "./cancellation.js";
 import { createNodePath } from "./path.js";
-import type { McpClientManager } from "./mcpclient.js";
+import { McpClientManager } from "./mcpclient.js";
 import { ResourceManager } from "./mcpresource.js";
 import { execSync, spawn } from "node:child_process";
 import { shellQuote } from "./shell.js";
@@ -74,7 +74,9 @@ export class TestHost implements RuntimeHost {
   }
 
   constructor() {
+    this.mcp = new McpClientManager();
     this.resources = new ResourceManager();
+    this.resources.setMcpClientManager(this.mcp);
   }
 
   async pullModel(
