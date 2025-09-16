@@ -69,6 +69,8 @@ import type { TraceOptions } from "./trace.js";
 import type { CancellationOptions } from "./cancellation.js";
 import { genaiscriptDebug } from "./debug.js";
 import { YAMLTryParse } from "./yaml.js";
+import { JSON5TryParse } from "./json5.js";
+import type { PromptArgs, PromptScript } from "./types.js";
 const dbg = genaiscriptDebug("config:env");
 
 /**
@@ -120,6 +122,50 @@ export function findEnvVar(
     }
   }
   return undefined;
+}
+
+/**
+ * Parses default script metadata from GENAISCRIPT_DEFAULT_SCRIPT_META environment variable.
+ * The environment variable should contain a JSON payload of PromptScript metadata.
+ * This metadata gets merged last into the main script metadata object.
+ *
+ * @param env - The environment variables as key-value pairs.
+ * @returns A PromptArgs object containing the parsed metadata, or undefined if no valid metadata found.
+ */
+export function parseDefaultMetaFromEnv(env: Record<string, string>): Partial<PromptArgs> | undefined {
+  const envValue = env.GENAISCRIPT_DEFAULT_SCRIPT_META;
+  if (!envValue) {
+    dbg("GENAISCRIPT_DEFAULT_SCRIPT_META not found in environment variables");
+    return undefined;
+  }
+
+  dbg(`found GENAISCRIPT_DEFAULT_SCRIPT_META: ${envValue}`);
+  
+  try {
+    const parsed = JSON5TryParse(envValue);
+    if (!parsed || typeof parsed !== "object") {
+      dbg("GENAISCRIPT_DEFAULT_SCRIPT_META could not be parsed as valid JSON object");
+      return undefined;
+    }
+
+    dbg(`parsed GENAISCRIPT_DEFAULT_SCRIPT_META: %O`, parsed);
+    
+    // Filter to only include valid PromptArgs fields (exclude text, id, jsSource, defTools, resolvedSystem)
+    const excludedFields = new Set(['text', 'id', 'jsSource', 'defTools', 'resolvedSystem']);
+    const filtered: Partial<PromptArgs> = {};
+    
+    for (const [key, value] of Object.entries(parsed)) {
+      if (!excludedFields.has(key)) {
+        (filtered as any)[key] = value;
+      }
+    }
+    
+    dbg(`filtered GENAISCRIPT_DEFAULT_SCRIPT_META: %O`, filtered);
+    return filtered;
+  } catch (error) {
+    dbg(`failed to parse GENAISCRIPT_DEFAULT_SCRIPT_META: ${error}`);
+    return undefined;
+  }
 }
 
 /**
