@@ -9,6 +9,8 @@
   "packageManager": "pnpm@10.16.1",
   "type": "module",
   "scripts": {
+    "gh-aw:install": "url -fsSL -o ./install-gh-aw.sh https://raw.githubusercontent.com/githubnext/gh-aw/refs/heads/main/install-gh-aw.sh && chmod +x ./install-gh-aw.sh && ./install-gh-aw.sh",
+    "gh-aw:compile": "./gh-aw compile",
     "az:login": "az login --scope api://trapi/.default",
     "prebuild": "pnpm run build:ruler",
     "build": "turbo build",
