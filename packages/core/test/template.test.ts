@@ -132,40 +132,12 @@ describe("template.ts - environment variable default metadata", () => {
         process.env = originalEnv
     })
 
-    test("should merge environment default metadata into script", async () => {
-        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"temperature": 0.5, "model": "gpt-4", "unlisted": true}'
+    test("should merge environment default metadata into script metadata field", async () => {
+        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"metadata": {"env_key": "env_value", "shared_key": "env_shared"}}'
 
         const content = `script({
             title: "Test Script",
-            description: "A test script"
-        })
-
-        Hello world!`
-
-        const script = await parsePromptScript("test.genai.mts", content)
-        
-        assert.strictEqual(script.temperature, 0.5)
-        assert.strictEqual(script.model, "gpt-4")
-        assert.strictEqual(script.unlisted, true)
-        assert.strictEqual(script.title, "Test Script")
-        assert.strictEqual(script.description, "A test script")
-    })
-
-    test("should handle environment metadata without script metadata", async () => {
-        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"temperature": 0.7, "maxTokens": 1000}'
-
-        const content = `Hello world!`
-
-        const script = await parsePromptScript("test.genai.mts", content)
-        
-        assert.strictEqual(script.temperature, 0.7)
-        assert.strictEqual(script.maxTokens, 1000)
-    })
-
-    test("should merge environment metadata with existing metadata field", async () => {
-        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"metadata": {"env_key": "env_value", "shared_key": "env_shared"}, "temperature": 0.5}'
-
-        const content = `script({
+            description: "A test script",
             metadata: {
                 script_key: "script_value",
                 shared_key: "script_shared"
@@ -176,7 +148,8 @@ describe("template.ts - environment variable default metadata", () => {
 
         const script = await parsePromptScript("test.genai.mts", content)
         
-        assert.strictEqual(script.temperature, 0.5)
+        assert.strictEqual(script.title, "Test Script")
+        assert.strictEqual(script.description, "A test script")
         assert.ok(script.metadata)
         assert.strictEqual(script.metadata.env_key, "env_value")
         assert.strictEqual(script.metadata.script_key, "script_value")
@@ -184,12 +157,11 @@ describe("template.ts - environment variable default metadata", () => {
         assert.strictEqual(script.metadata.shared_key, "env_shared")
     })
 
-    test("should work without environment variable set", async () => {
-        delete process.env.GENAISCRIPT_DEFAULT_SCRIPT_META
+    test("should handle environment metadata without existing script metadata", async () => {
+        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"metadata": {"env_key": "env_value"}}'
 
         const content = `script({
-            title: "Test Script",
-            temperature: 0.8
+            title: "Test Script"
         })
 
         Hello world!`
@@ -197,7 +169,28 @@ describe("template.ts - environment variable default metadata", () => {
         const script = await parsePromptScript("test.genai.mts", content)
         
         assert.strictEqual(script.title, "Test Script")
-        assert.strictEqual(script.temperature, 0.8)
+        assert.ok(script.metadata)
+        assert.strictEqual(script.metadata.env_key, "env_value")
+    })
+
+
+    test("should work without environment variable set", async () => {
+        delete process.env.GENAISCRIPT_DEFAULT_SCRIPT_META
+
+        const content = `script({
+            title: "Test Script",
+            metadata: {
+                original: "value"
+            }
+        })
+
+        Hello world!`
+
+        const script = await parsePromptScript("test.genai.mts", content)
+        
+        assert.strictEqual(script.title, "Test Script")
+        assert.ok(script.metadata)
+        assert.strictEqual(script.metadata.original, "value")
     })
 
     test("should handle invalid JSON in environment variable gracefully", async () => {
@@ -215,31 +208,20 @@ describe("template.ts - environment variable default metadata", () => {
         // Should not throw an error, just ignore the invalid env var
     })
 
-    test("should handle environment metadata with complex nested objects", async () => {
-        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"vars": {"env_var": "env_value"}, "parameters": {"env_param": {"type": "string", "default": "env_default"}}}'
+    test("should handle environment metadata with nested objects", async () => {
+        process.env.GENAISCRIPT_DEFAULT_SCRIPT_META = '{"metadata": {"nested": {"key": "value"}, "simple": "data"}}'
 
         const content = `script({
-            vars: {
-                script_var: "script_value"
-            },
-            parameters: {
-                script_param: {
-                    type: "number",
-                    default: 42
-                }
-            }
+            title: "Test Script"
         })
 
         Hello world!`
 
         const script = await parsePromptScript("test.genai.mts", content)
         
-        assert.ok(script.vars)
-        assert.strictEqual(script.vars.env_var, "env_value")
-        assert.strictEqual(script.vars.script_var, "script_value")
-        
-        assert.ok(script.parameters)
-        assert.deepEqual(script.parameters.env_param, { type: "string", default: "env_default" })
-        assert.deepEqual(script.parameters.script_param, { type: "number", default: 42 })
+        assert.strictEqual(script.title, "Test Script")
+        assert.ok(script.metadata)
+        assert.deepEqual(script.metadata.nested, { key: "value" })
+        assert.strictEqual(script.metadata.simple, "data")
     })
 })

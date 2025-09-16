@@ -149,7 +149,19 @@ export function parseDefaultMetaFromEnv(env: Record<string, string>): Partial<Pr
     }
 
     dbg(`parsed GENAISCRIPT_DEFAULT_SCRIPT_META: %O`, parsed);
-    return parsed as Partial<PromptArgs>;
+    
+    // Filter to only include valid PromptArgs fields (exclude text, id, jsSource, defTools, resolvedSystem)
+    const excludedFields = new Set(['text', 'id', 'jsSource', 'defTools', 'resolvedSystem']);
+    const filtered: Partial<PromptArgs> = {};
+    
+    for (const [key, value] of Object.entries(parsed)) {
+      if (!excludedFields.has(key)) {
+        (filtered as any)[key] = value;
+      }
+    }
+    
+    dbg(`filtered GENAISCRIPT_DEFAULT_SCRIPT_META: %O`, filtered);
+    return filtered;
   } catch (error) {
     dbg(`failed to parse GENAISCRIPT_DEFAULT_SCRIPT_META: ${error}`);
     return undefined;

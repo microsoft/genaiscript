@@ -244,20 +244,12 @@ export async function parsePromptScript(filename: string, content: string) {
 
   // Parse and merge default metadata from environment variables (last to take priority)
   const envDefaults = parseDefaultMetaFromEnv(process.env);
-  if (envDefaults) {
-    // Merge environment defaults last so they take highest priority
-    Object.assign(script, {
-      ...script, // existing script metadata
-      ...envDefaults, // environment defaults override
+  if (envDefaults?.metadata) {
+    // Only merge metadata field from environment defaults
+    script.metadata = metadataValidate({
+      ...(script.metadata || {}),
+      ...(envDefaults.metadata || {}), // env metadata takes precedence
     });
-    
-    // Special handling for metadata field to ensure it's properly merged and validated
-    if (envDefaults.metadata || script.metadata) {
-      script.metadata = metadataValidate({
-        ...(script.metadata || {}),
-        ...(envDefaults.metadata || {}), // env metadata takes precedence
-      });
-    }
   }
 
   return script;
