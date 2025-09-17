@@ -1,6 +1,7 @@
 import { describe, it } from "node:test"
 import assert from "node:assert"
 import { mergeGenerationOptions } from "./chat.js"
+import { runtimeHost } from "./host.js"
 
 describe("mergeGenerationOptions inline prompt fix", () => {
     it("should ignore script model for inline prompts when no explicit model", () => {
@@ -17,7 +18,7 @@ describe("mergeGenerationOptions inline prompt fix", () => {
         
         // Should use default large model, not script model
         assert.notStrictEqual(result.model, "small")
-        assert.strictEqual(result.model, "large")  // assuming runtimeHost.modelAliases.large.model is "large"
+        assert.strictEqual(result.model, runtimeHost.modelAliases.large.model)
     })
     
     it("should use explicit model for inline prompts", () => {
@@ -50,5 +51,35 @@ describe("mergeGenerationOptions inline prompt fix", () => {
         
         // Should use script model
         assert.strictEqual(result.model, "small")
+    })
+    
+    it("should work with undefined inner parameter (legacy compatibility)", () => {
+        const options = { 
+            model: "small",  // script model
+            inner: false,
+            trace: {} as any,
+            stats: {} as any
+        }
+        const runOptions = {}  // no explicit model
+        
+        // Call with undefined inner (should behave like main script execution)
+        const result = mergeGenerationOptions(options, runOptions)
+        
+        // Should use script model (legacy behavior)
+        assert.strictEqual(result.model, "small")
+    })
+    
+    it("should handle null/undefined options gracefully", () => {
+        const options = { 
+            model: "small",
+            inner: false,
+            trace: {} as any,
+            stats: {} as any
+        }
+        const runOptions = null
+        
+        // Should not throw and should use fallback behavior
+        const result = mergeGenerationOptions(options, runOptions, true)
+        assert.strictEqual(result.model, runtimeHost.modelAliases.large.model)
     })
 })
