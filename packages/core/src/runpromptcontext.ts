@@ -899,7 +899,7 @@ export function createChatGenerationContext(
         try {
             infoCb?.({ text: label || "prompt" })
 
-            const genOptions = mergeGenerationOptions(options, runOptions)
+            const genOptions = mergeGenerationOptions(options, runOptions, true)
             genOptions.inner = true
             genOptions.trace = runTrace
             const { info, configuration } = await resolveModelConnectionInfo(

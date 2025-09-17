@@ -1055,14 +1055,16 @@ async function processChatMessage(
  */
 export function mergeGenerationOptions(
     options: GenerationOptions,
-    runOptions: ModelOptions & EmbeddingsModelOptions
+    runOptions: ModelOptions & EmbeddingsModelOptions,
+    inner?: boolean
 ): GenerationOptions {
     const res = {
         ...options,
         ...(runOptions || {}),
         model:
             runOptions?.model ??
-            options?.model ??
+            // For inline prompts (inner=true), skip script model and use default large model
+            (inner ? runtimeHost.modelAliases.large.model : options?.model) ??
             runtimeHost.modelAliases.large.model,
         temperature:
             runOptions?.temperature ??
