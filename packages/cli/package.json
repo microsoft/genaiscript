@@ -100,7 +100,7 @@
     "turndown": "^7.2.0",
     "turndown-plugin-gfm": "^1.0.2",
     "typescript": "5.8.3",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
+    "genaiscript-xlsx": "workspace:*",
     "zod": "^3.25.30",
     "zod-to-json-schema": "^3.24.5"
   },

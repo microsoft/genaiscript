@@ -13,7 +13,7 @@ import { fromBase64, toBase64 } from "./base64"
 import { host } from "./host"
 import { TraceOptions } from "./trace"
 import { parsePdf } from "./pdf"
-import { XLSXParse } from "./xlsx"
+import { XLSXParse, WorkbookSheet } from "genaiscript-xlsx"
 import { dataToMarkdownTable, CSVTryParse } from "./csv"
 import {
     CSV_REGEX,

@@ -1,0 +1,74 @@
+/**
+ * XLSX parsing functionality for GenAIScript
+ * Separated from core to isolate Excel processing dependencies
+ */
+
+/**
+ * Options for parsing XLSX files
+ */
+export interface ParseXLSXOptions {
+    // specific worksheet name
+    sheet?: string
+    // Use specified range (A1-style bounded range string)
+    range?: string
+}
+
+/**
+ * Represents a worksheet in an Excel workbook
+ */
+export interface WorkbookSheet {
+    name: string
+    rows: object[]
+}
+
+/**
+ * Parses XLSX data into an array of workbook sheets.
+ *
+ * @param data - The XLSX data to parse.
+ * @param options - Parsing options, including an optional sheet name and other utilities for conversion.
+ * @returns A promise resolving to an array of WorkbookSheet objects, each containing sheet name and data rows.
+ */
+export async function XLSXParse(
+    data: Uint8Array,
+    options?: ParseXLSXOptions
+): Promise<WorkbookSheet[]> {
+    // Destructure options to separate sheet-specific option
+    const { sheet, ...rest } = options || {}
+    // Dynamically import 'xlsx' library's read and utils modules
+    const { read, utils } = await import("xlsx")
+    // Read the workbook from the data with 'array' type
+    const workbook = read(data, { type: "array" })
+    // Filter and map the sheet names to WorkbookSheet objects
+    return workbook.SheetNames.filter((n) => !sheet || n === sheet).map(
+        (name) => {
+            // Convert the worksheet to JSON and cast to object array
+            const worksheet = workbook.Sheets[name]
+            const rows = utils.sheet_to_json(worksheet, rest) as object[]
+            // Return a WorkbookSheet object with sheet name and rows
+            return { name, rows } as WorkbookSheet
+        }
+    )
+}
+
+/**
+ * Attempts to parse XLSX data, returning an empty array on failure.
+ *
+ * @param data - The XLSX data as a Uint8Array.
+ * @param options - Optional parsing options including a specific sheet name.
+ * @returns A promise that resolves to an array of WorkbookSheet objects or an empty array if parsing fails.
+ */
+export async function XLSXTryParse(
+    data: Uint8Array,
+    options?: ParseXLSXOptions
+): Promise<WorkbookSheet[]> {
+    try {
+        if (!data) return []
+        // Attempt to parse the XLSX data
+        return await XLSXParse(data, options)
+    } catch (e) {
+        // Log any errors encountered during parsing
+        console.info(e)
+        // Return an empty array if parsing fails
+        return []
+    }
+}
