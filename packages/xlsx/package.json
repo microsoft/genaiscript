@@ -1,7 +1,8 @@
 {
   "name": "genaiscript-xlsx",
   "version": "1.140.0",
-  "main": "src/index.ts",
+  "main": "built/index.js",
+  "types": "built/index.d.ts",
   "license": "MIT",
   "private": true,
   "npm": {

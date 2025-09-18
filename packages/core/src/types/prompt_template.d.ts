@@ -2179,7 +2179,7 @@ interface RunPromptResult {
     usage?: RunPromptUsage
 }
 
-import type { ParseXLSXOptions, WorkbookSheet } from "genaiscript-xlsx"
+import type { ParseXLSXOptions, WorkbookSheet } from "../../xlsx/src/index.ts"
 
 /**
  * Path manipulation functions.

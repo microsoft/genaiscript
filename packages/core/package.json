@@ -99,7 +99,7 @@
     "ts-dedent": "^2.2.0",
     "tsx": "^4.19.4",
     "typescript": "5.8.3",
-    "genaiscript-xlsx": "workspace:*",
+    "genaiscript-xlsx": "file:../xlsx",
     "yaml": "^2.8.0"
   },
   "scripts": {

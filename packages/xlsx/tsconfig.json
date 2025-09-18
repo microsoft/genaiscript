@@ -1,9 +1,16 @@
 {
   "extends": "../tsconfig-base.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "./built"
+    "rootDir": "src",
+    "outDir": "./built",
+    "declaration": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2020",
+    "module": "commonjs",
+    "emitDeclarationOnly": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "built"]
+  "include": ["src/index.ts"],
+  "exclude": ["node_modules", "built", "src/**/*.test.ts"]
 }
