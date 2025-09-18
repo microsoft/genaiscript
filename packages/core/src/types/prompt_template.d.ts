@@ -2179,8 +2179,6 @@ interface RunPromptResult {
     usage?: RunPromptUsage
 }
 
-import type { ParseXLSXOptions, WorkbookSheet } from "../../xlsx/src/index.ts"
-
 /**
  * Path manipulation functions.
  */
@@ -2324,6 +2322,17 @@ interface HTMLToTextOptions {
     wordwrap?: number | false | null | undefined
 }
 
+interface ParseXLSXOptions {
+    // specific worksheet name
+    sheet?: string
+    // Use specified range (A1-style bounded range string)
+    range?: string
+}
+
+interface WorkbookSheet {
+    name: string
+    rows: object[]
+}
 
 interface ParseZipOptions {
     glob?: string
