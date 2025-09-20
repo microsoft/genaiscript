@@ -122,7 +122,7 @@ export function createWorkspaceFileSystem(
     root: () => root,
     findFiles: async (glob: string, options: FindFilesOptions) => {
       dbg(`findFiles: ${JSON.stringify(options)}`);
-      const { readText, ignore, applyGitIgnore } = options || {};
+      const { ignore, applyGitIgnore } = options || {};
       const runtimeHost = resolveRuntimeHost();
       const names = (
         await runtimeHost.findFiles(glob, {
@@ -133,7 +133,7 @@ export function createWorkspaceFileSystem(
       const files: WorkspaceFile[] = [];
       for (const filename of names) {
         const file: WorkspaceFile =
-          readText === false
+          options?.readText === false
             ? {
                 filename,
               }
@@ -143,11 +143,13 @@ export function createWorkspaceFileSystem(
       return files;
     },
     writeText: async (filename: string, c: string) => {
-      checkWrite(filename);
+      checkWrite(filename);      
+      dbg(`write text %s`, filename);
       await writeText(filename, c);
     },
     appendText: async (filename: string, c: string) => {
       checkWrite(filename);
+      dbg(`append text %s`, filename);
       await appendText(filename, c);
     },
     readText: async (f: string | Awaitable<WorkspaceFile>) => {

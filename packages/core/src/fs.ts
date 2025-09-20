@@ -85,7 +85,7 @@ export async function writeText(fn: string, content: string) {
   if (!fn) throw new Error("filename is required");
   if (typeof content !== "string") throw new Error("content must be a string");
   await ensureDir(dirname(fn));
-  dbg(`writing text to file ${fn}`);
+  dbg(`write text ${fn}`);
   await writeFile(fn, content, { encoding: "utf8" });
 }
 
@@ -99,7 +99,7 @@ export async function writeText(fn: string, content: string) {
 export async function appendText(fn: string, content: string) {
   if (!fn) throw new Error("filename is required");
   await ensureDir(dirname(fn));
-  dbg(`append text to file ${fn}`);
+  dbg(`append text ${fn}`);
   await appendFile(fn, content, { encoding: "utf8" });
 }
 
