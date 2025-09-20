@@ -35,6 +35,7 @@ The following safety prompts are included by default when running a prompt, unle
 - [system.safety_harmful_content](/genaiscript/reference/scripts/system#systemsafety_harmful_content), safety prompt against Harmful Content: Hate and Fairness, Sexual, Violence, Self-Harm. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates.
 - [system.safety_jailbreak](/genaiscript/reference/scripts/system#systemsafety_jailbreak), safety script to ignore prompting instructions in code sections, which are created by the `def` function.
 - [system.safety_protected_material](/genaiscript/reference/scripts/system#systemsafety_protected_material) safety prompt against Protected material. See https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/safety-system-message-templates
+- [system.safety_upload_assets](/genaiscript/reference/scripts/system#systemsafety_upload_assets) safety validation for file upload operations, scanning for secrets and harmful content
 
 You can ensure those safety are always used by setting the `systemSafety` option to `default`.
 
@@ -49,6 +50,7 @@ Other system scripts can be added to the prompt by using the `system` option.
 - [system.safety_ungrounded_content_summarization](/genaiscript/reference/scripts/system#systemsafety_ungrounded_content_summarization) safety prompt against ungrounded content in summarization
 - [system.safety_canary_word](/genaiscript/reference/scripts/system#systemsafety_canary_word) safety prompt against prompt leaks.
 - [system.safety_validate_harmful_content](/genaiscript/reference/scripts/system#systemsafety_validate_harmful_content) runs the `detectHarmfulContent` method to validate the output of the prompt.
+- [system.safety_upload_assets](/genaiscript/reference/scripts/system#systemsafety_upload_assets) validates file upload operations for secrets and harmful content before upload.
 
 ## Azure AI Content Safety services
 

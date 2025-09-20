@@ -190,6 +190,55 @@ It takes a few minutes for the asset to be available at this URL.
 
 :::
 
+#### Safety Considerations
+
+:::caution[Security Warning]
+
+The `uploadAsset` function uploads content to a public repository branch. Always review content before uploading to ensure:
+
+- **No sensitive data**: Never upload files containing API keys, tokens, passwords, or other secrets
+- **Appropriate content**: Ensure files don't contain harmful, offensive, or inappropriate material  
+- **File type validation**: Only upload necessary file types and avoid executable files
+- **File size limits**: Consider the impact of large files on repository size
+- **Repository permissions**: Verify you have appropriate access to upload to the target repository
+
+:::
+
+#### Safe Upload Practices
+
+Use the built-in safety validation by including the upload safety system:
+
+```js
+script({
+    system: ["system.safety_upload_assets"]
+})
+```
+
+The safety system will:
+- Scan for potential secrets in upload operations
+- Validate content using Azure AI Content Safety (if configured)
+- Provide warnings for upload operations in generated output
+- Block uploads containing detected sensitive information
+
+#### Content Validation
+
+Before uploading, you can validate file content:
+
+```js
+// Check content safety if available
+const contentSafety = await host.contentSafety()
+if (contentSafety) {
+    const result = await contentSafety.detectHarmfulContent(fileContent)
+    if (result.harmfulContentDetected) {
+        console.log("⚠️ Harmful content detected, skipping upload")
+        return
+    }
+}
+
+// Proceed with upload
+const url = await github.uploadAsset(file)
+```
+
 ### Languages
 
 Query the list of programming languages that GitHub computed for the repository using `listRepositoryLanguages`.

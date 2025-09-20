@@ -54,3 +54,49 @@ The extension is **disabled** when opening a folder in [Restricted Mode](https:/
 The output of the LLM and the trace use the built-in markdown preview of Visual Studio Code.
 By default, [VS Code restricts the content displayed in the Markdown preview](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security). 
 This includes disabling script execution and only allowing resources to be loaded over `https`.
+
+## Upload Asset Security
+
+When using the `github.uploadAsset` function, additional security considerations apply:
+
+### Data Exposure Risks
+
+Uploaded assets are stored in public GitHub repositories and can be accessed by anyone with the URL. Never upload:
+
+- API keys, tokens, or credentials
+- Personal or sensitive information
+- Proprietary code or data
+- Large files that could impact repository limits
+
+### Safe Upload Practices
+
+Always use the upload safety validation:
+
+```js
+script({
+    system: ["system.safety_upload_assets"]
+})
+```
+
+This system will automatically:
+- Scan generated code for potential secrets before upload
+- Validate content using Azure AI Content Safety (if configured)
+- Provide security warnings for upload operations
+- Block uploads containing detected sensitive information
+
+### Manual Validation
+
+For additional security, validate content before upload:
+
+```js
+// Example: Check file content before upload
+const content = await readFile("example.txt", "utf8")
+
+// Validate no secrets are present
+if (/(?:api[_-]?key|token|password)/i.test(content)) {
+    throw new Error("File contains potential secrets")
+}
+
+// Proceed with upload only if safe
+const url = await github.uploadAsset(content)
+```
