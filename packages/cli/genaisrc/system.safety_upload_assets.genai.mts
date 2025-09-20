@@ -25,6 +25,10 @@ export default function (ctx: ChatGenerationContext) {
             /ghp_[A-Za-z0-9]{36}/g, // GitHub personal access tokens
             /ghs_[A-Za-z0-9]{36}/g, // GitHub server tokens
             /gho_[A-Za-z0-9]{36}/g, // GitHub OAuth tokens
+            /sk-[A-Za-z0-9]{48}/g, // OpenAI API keys
+            /AKIA[0-9A-Z]{16}/g, // AWS Access Key IDs
+            /xox[baprs]-[0-9a-zA-Z]{10,48}/g, // Slack tokens
+            /AIza[0-9A-Za-z\\-_]{35}/g, // Google API keys
         ]
 
         for (const pattern of secretPatterns) {
@@ -81,6 +85,9 @@ export default function (ctx: ChatGenerationContext) {
                     /ghs_[A-Za-z0-9]{36}/g, 
                     /gho_[A-Za-z0-9]{36}/g,
                     /sk-[A-Za-z0-9]{48}/g, // OpenAI API keys
+                    /AKIA[0-9A-Z]{16}/g, // AWS Access Key IDs
+                    /xox[baprs]-[0-9a-zA-Z]{10,48}/g, // Slack tokens
+                    /AIza[0-9A-Za-z\\-_]{35}/g, // Google API keys
                 ]
                 return secretPatterns.some(pattern => pattern.test(text))
             }
