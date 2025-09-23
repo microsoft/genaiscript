@@ -52,18 +52,17 @@ describe('server trace null dereference', () => {
       unsafeHandler(undefined)
     }).toThrow()
 
-    // Simulate the safe behavior after the fix
+    // Simulate the safe behavior after the fix using optional chaining
     const safeHandler = (trace: any) => {
-      const safeTrace = trace || mockTrace
       if (mockChunk.model) {
-        safeTrace.itemValue("chat model", mockChunk.model)
-        safeTrace.appendContent("\n\n")
+        trace?.itemValue("chat model", mockChunk.model)
+        trace?.appendContent("\n\n")
       }
-      safeTrace.appendToken(mockChunk.chunk)
+      trace?.appendToken(mockChunk.chunk)
       
       if (mockChunk.finishReason) {
-        safeTrace.appendContent("\n\n")
-        safeTrace.itemValue("finish reason", mockChunk.finishReason)
+        trace?.appendContent("\n\n")
+        trace?.itemValue("finish reason", mockChunk.finishReason)
       }
     }
 
@@ -76,7 +75,12 @@ describe('server trace null dereference', () => {
       safeHandler(undefined)
     }).not.toThrow()
 
-    // Verify the safe fallback trace methods were called
+    // Test with real trace to ensure it still works when provided
+    expect(() => {
+      safeHandler(mockTrace)
+    }).not.toThrow()
+
+    // Verify the trace methods were called when trace was provided
     expect(mockTrace.itemValue).toHaveBeenCalledWith("chat model", "test-model")
     expect(mockTrace.appendContent).toHaveBeenCalled()
     expect(mockTrace.appendToken).toHaveBeenCalledWith("test-chunk")
@@ -96,21 +100,27 @@ describe('server trace null dereference', () => {
       chunk: 'test-chunk'
     }
 
-    // Simulate the safe handler behavior
+    // Simulate the safe handler behavior using optional chaining
     const safeHandler = (trace: any) => {
-      const safeTrace = trace || mockTrace
       if (mockChunk.model) {
-        safeTrace.itemValue("chat model", mockChunk.model)
+        trace?.itemValue("chat model", mockChunk.model)
       }
-      safeTrace.appendToken(mockChunk.chunk)
+      trace?.appendToken(mockChunk.chunk)
     }
 
     safeHandler(providedTrace)
 
-    // Verify the provided trace was used, not the fallback
+    // Verify the provided trace was used
     expect(providedTrace.itemValue).toHaveBeenCalledWith("chat model", "test-model")
     expect(providedTrace.appendToken).toHaveBeenCalledWith("test-chunk")
-    expect(mockTrace.itemValue).not.toHaveBeenCalled()
-    expect(mockTrace.appendToken).not.toHaveBeenCalled()
+    
+    // Test with null/undefined trace - should not throw
+    expect(() => {
+      safeHandler(null)
+    }).not.toThrow()
+
+    expect(() => {
+      safeHandler(undefined)
+    }).not.toThrow()
   })
 })
