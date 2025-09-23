@@ -272,6 +272,9 @@ export async function startServer(
         const { partialCb, inner } = options;
         if (!wss.clients?.size) throw new Error("GitHub Copilot Chat Models not connected");
 
+        // Ensure trace is available, create a dummy one if needed to prevent null dereference
+        const safeTrace = trace || new MarkdownTrace();
+
         return new Promise<ChatCompletionResponse>((resolve, reject) => {
           let responseSoFar: string = "";
           let tokensSoFar: number = 0;
@@ -282,10 +285,10 @@ export async function startServer(
           chats[chatId] = async (chunk) => {
             if (!responseSoFar && chunk.model) {
               logVerbose(`chat model ${chunk.model}`);
-              trace.itemValue("chat model", chunk.model);
-              trace.appendContent("\n\n");
+              safeTrace.itemValue("chat model", chunk.model);
+              safeTrace.appendContent("\n\n");
             }
-            trace.appendToken(chunk.chunk);
+            safeTrace.appendToken(chunk.chunk);
             responseSoFar += chunk.chunk ?? "";
             tokensSoFar += chunk.tokens ?? 0;
             partialCb?.({
@@ -296,11 +299,11 @@ export async function startServer(
             });
             finishReason = chunk.finishReason as any;
             if (finishReason) {
-              trace.appendContent("\n\n");
-              trace.itemValue(`finish reason`, finishReason);
+              safeTrace.appendContent("\n\n");
+              safeTrace.itemValue(`finish reason`, finishReason);
               delete chats[chatId];
               if (chunk.error) {
-                trace.error(undefined, chunk.error);
+                safeTrace.error(undefined, chunk.error);
                 reject(chunk.error);
               } else
                 resolve({
