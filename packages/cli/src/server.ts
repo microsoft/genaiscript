@@ -267,10 +267,10 @@ export async function startServer(
                         chats[chatId] = async (chunk) => {
                             if (!responseSoFar && chunk.model) {
                                 logVerbose(`chat model ${chunk.model}`)
-                                trace.itemValue("chat model", chunk.model)
-                                trace.appendContent("\n\n")
+                                trace?.itemValue("chat model", chunk.model)
+                                trace?.appendContent("\n\n")
                             }
-                            trace.appendToken(chunk.chunk)
+                            trace?.appendToken(chunk.chunk)
                             responseSoFar += chunk.chunk ?? ""
                             tokensSoFar += chunk.tokens ?? 0
                             partialCb?.({
@@ -281,11 +281,11 @@ export async function startServer(
                             })
                             finishReason = chunk.finishReason as any
                             if (finishReason) {
-                                trace.appendContent("\n\n")
-                                trace.itemValue(`finish reason`, finishReason)
+                                trace?.appendContent("\n\n")
+                                trace?.itemValue(`finish reason`, finishReason)
                                 delete chats[chatId]
                                 if (chunk.error) {
-                                    trace.error(undefined, chunk.error)
+                                    trace?.error(undefined, chunk.error)
                                     reject(chunk.error)
                                 } else
                                     resolve({
@@ -546,13 +546,13 @@ export async function startServer(
                                     runId,
                                     exitCode,
                                     result,
-                                    trace: trace.content,
+                                    trace: trace?.content || "",
                                 }
                                 sendLastRunResult()
                             })
                             .catch((e) => {
                                 if (canceller.controller.signal.aborted) return
-                                if (!isCancelError(e)) trace.error(e)
+                                if (!isCancelError(e)) trace?.error(e)
                                 logError(`\nrun ${runId}: failed`)
                                 logError(e)
                                 send({
