@@ -1,5 +1,5 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
   "postCreateCommand": "pnpm install --frozen-lockfile --prefer-offline && pnpm install:playwright",
   "customizations": {
     "vscode": {
