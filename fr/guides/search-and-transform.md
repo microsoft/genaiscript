@@ -1,0 +1,150 @@
+import { Code } from "@astrojs/starlight/components"
+import source from "../../../../../../samples/sample/genaisrc/samples/st.genai.mjs?raw";
+
+Ce script est une évolution de la fonctionnalité « rechercher et remplacer » d'un éditeur de texte, où l'étape de « remplacement » a été remplacée par une transformation LLM.
+
+Il peut être utile d'appliquer en batch des transformations de texte qui ne sont pas facilement réalisables avec des expressions régulières.
+
+Par exemple, lorsque GenAIScript a ajouté la possibilité d'utiliser une chaîne de commande sous forme de chaîne de caractères dans
+le commande `exec`, nous avons dû convertir tout script utilisant
+
+```js
+host.exec("cmd", ["arg0", "arg1", "arg2"])
+```
+
+en
+
+```js
+host.exec(`cmd arg0 arg1 arg2`)`
+```
+
+Il est possible de faire correspondre cet appel de fonction avec une expression régulière
+
+```regex
+host\.exec\s*\([^,]+,\s*\[[^\]]+\]\s*\)
+```
+
+mais il n'est pas facile de formuler la chaîne de remplacement... à moins que vous ne puissiez la décrire en langage naturel :
+
+```txt
+Convert the call to a single string command shell in TypeScript
+```
+
+Voici quelques exemples de transformations où le LLM a correctement géré les variables.
+
+* concaténer les arguments d'un appel de fonction en une seule chaîne
+
+```diff wrap
+- const { stdout } = await host.exec("git", ["diff"])
++ const { stdout } = await host.exec(`git diff`)
+```
+
+* concaténer les arguments et utiliser la syntaxe `${}` pour interpoler les variables
+
+```diff wrap
+- const { stdout: commits } = await host.exec("git", [
+-     "log",
+-     "--author",
+-     author,
+-     "--until",
+-     until,
+-     "--format=oneline",
+- ])
++ const { stdout: commits } = await host.exec(`git log --author ${author} --until ${until} --format=oneline`)
+```
+
+## Recherche
+
+L'étape de recherche est réalisée avec [workspace.grep](../../reference/scripts/files/) qui permet de rechercher efficacement un motif dans des fichiers (c'est le même moteur de recherche qui alimente la recherche de Visual Studio Code).
+
+```js "workspace.grep"
+const { pattern, globs } = env.vars
+const patternRx = new RegExp(pattern, "g")
+const { files } = await workspace.grep(patternRx, { globs })
+```
+
+## Calculer les transformations
+
+La seconde étape consiste à appliquer l'expression régulière au contenu du fichier et à pré-calculer la transformation LLM de chaque correspondance en utilisant un [prompt en ligne](../../reference/scripts/inline-prompts/).
+
+```js
+const { transform } = env.vars
+...
+const patches = {} // map of match -> transformed
+for (const file of files) {
+    const { content } = await workspace.readText(file.filename)
+    for (const match of content.matchAll(patternRx)) {
+        const res = await runPrompt(
+            (ctx) => {
+                ctx.$`
+            ## Task
+
+            Your task is to transform the MATCH with the following TRANSFORM.
+            Return the transformed text.
+            - do NOT add enclosing quotes.
+
+            ## Context
+            `
+                ctx.def("MATCHED", match[0])
+                ctx.def("TRANSFORM", transform)
+            },
+            { label: match[0], system: [], cache: "search-and-transform" }
+        )
+        ...
+```
+
+Comme le LLM décide parfois d'entourer la réponse de guillemets, nous devons les supprimer.
+
+```js
+    ...
+    const transformed = res.fences?.[0].content ?? res.text
+    patches[match[0]] = transformed
+```
+
+## Transformation
+
+Enfin, avec les transformations pré-calculées, nous appliquons un remplacement regex final pour corriger l'ancien contenu du fichier avec les chaînes transformées.
+
+```js
+    const newContent = content.replace(
+        patternRx,
+        (match) => patches[match] ?? match
+    )
+    await workspace.writeText(file.filename, newContent)
+}
+```
+
+## Paramètres
+
+Le script prend trois paramètres : un glob de fichiers, un motif à rechercher, et une transformation LLM à appliquer. Nous déclarons ces paramètres dans les métadonnées du `script` et les extrayons de l'objet `env.vars`.
+
+```js
+script({ ...,
+    parameters: {
+        glob: {
+            type: "string",
+            description: "The glob pattern to filter files",
+            default: "*",
+        },
+        pattern: {
+            type: "string",
+            description: "The text pattern (regular expression) to search for",
+        },
+        transform: {
+            type: "string",
+            description: "The LLM transformation to apply to the match",
+        },
+    },
+})
+const { pattern, glob, transform } = env.vars
+```
+
+## Code source complet
+
+<Code code={source} wrap={true} lang="ts" title="st.genai.mts" />
+
+Pour exécuter ce script, vous pouvez utiliser l'option `--vars` pour passer le motif et la transformation.
+
+```sh wrap
+genaiscript st --vars 'pattern=host\.exec\s*\([^,]+,\s*\[[^\]]+\]\s*\)' 'transform=Convert the call to a single string command shell in TypeScript'
+```

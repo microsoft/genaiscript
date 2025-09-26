@@ -1,0 +1,150 @@
+import { Code } from "@astrojs/starlight/components"
+import source from "../../../../../../samples/sample/genaisrc/samples/cmt.genai.mts?raw";
+
+Cet exemple automatise le processus d'ajout de commentaires au code source à l'aide d'un LLM
+et vérifie que les modifications n'ont pas introduit de changements dans le code.
+
+Pour cela, nous pouvons utiliser une combinaison d'outils pour valider la transformation : formateurs de code,
+compilateurs, linters ou un LLM comme juge.
+
+L'algorithme peut se résumer comme suit :
+
+```txt
+for each file of files
+    // generate
+    add comments using GenAI
+
+    // validate validate validate!
+    format generated code (optional) -- keep things consistent
+    build generated -- let's make sure it's still valid code
+    check that only comments were changed -- LLM as a judge
+
+// and more validate
+final human code review
+```
+
+Commençons par analyser le script.
+
+### Récupération des fichiers à traiter
+
+L'utilisateur peut sélectionner les fichiers à commenter ou, si aucun fichier n'est sélectionné, nous utiliserons Git pour trouver tous les fichiers modifiés.
+
+```ts
+let files = env.files
+if (files.length === 0)
+    // no files selected, use git to find modified files
+    files = await ..."git status --porcelain"... // details in sources
+```
+
+### Traitement de chaque fichier
+
+Nous traitons chaque fichier séparément pour ne pas surcharger le contexte de tokens et pour maintenir la concentration de l'IA. Nous pouvons utiliser des [prompts en ligne](../../reference/scripts/inline-prompts/) pour effectuer des requêtes internes.
+
+```ts
+for (const file of files) {
+    ... add comments
+    ... format generated code (optional) -- keep things consistent
+    ... build generated -- let's make sure it's still valid code
+    ... check that only comments were changed -- LLM as judge
+    ... save changes
+}
+```
+
+### Le prompt pour ajouter des commentaires
+
+Dans la fonction `addComments`, nous demandons à GenAI d'ajouter des commentaires.
+Nous le faisons deux fois pour augmenter la probabilité de générer des commentaires utiles,
+car le LLM peut avoir été moins efficace lors du premier passage.
+
+```ts
+const res = await runPrompt(
+    (ctx) => {
+        ctx.$`You can add comments to this code...` // prompt details in sources
+    },
+    { system: ["system", "system.files"] }
+)
+```
+
+Nous fournissons un ensemble d'instructions détaillées à l'IA afin qu'elle analyse et commente le code.
+
+### Formater, construire, analyser
+
+À ce stade, nous avons un code source modifié par un LLM. Nous devons essayer d'utiliser tous les outils disponibles pour valider les modifications. Il est préférable de commencer par les formateurs et les compilateurs, car ils sont déterministes et généralement rapides.
+
+### Évaluer les résultats avec LLM
+
+Nous lançons un prompt supplémentaire pour juger le code modifié (`git diff`) et nous assurer que le code n'a pas été modifié.
+
+```ts
+async function checkModifications(filename: string): Promise<boolean> {
+    const diff = await host.exec(`git diff ${filename}`)
+    if (!diff.stdout) return false
+    const res = await runPrompt(
+        (ctx) => {
+            ctx.def("DIFF", diff.stdout)
+            ctx.$`You are an expert developer at all programming languages.
+        
+        Your task is to analyze the changes in DIFF and make sure that only comments are modified. 
+        Report all changes that are not comments and print "<MODIFIED>".
+        `
+        },
+        {
+            cache: "cmt-check",
+        }
+    )
+    return res.text?.includes("<MODIFIED>")
+}
+```
+
+## ## Comment exécuter le script
+
+Pour exécuter ce script, vous devez d'abord installer l'interface en ligne de commande GenAIScript. [Suivez le guide d'installation ici](https://microsoft.github.io/genaiscript/getting-started/installation).
+
+```sh
+genaiscript run cmt
+```
+
+## Formatage et compilation
+
+Un aspect important est de normaliser et de valider le code généré par l'IA. L'utilisateur peut fournir une commande `format` pour exécuter un formateur
+et une commande `build` pour vérifier si le code est toujours valide.
+
+```ts
+
+script({...,
+    parameters: {
+        format: {
+            type: "string",
+            description: "Format source code command",
+        },
+        build: {
+            type: "string",
+            description: "Build command",
+        },
+    },
+})
+
+const { format, build } = env.vars.build
+```
+
+```sh
+genaiscript run cmt --vars "build=npm run build" "format=npm run format"
+```
+
+## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/samples/sample/genaisrc/samples/cmt.genai.mts))
+
+<Code code={source} wrap={true} lang="ts" title="cmt.genai.mts" />
+
+## Sécurité du contenu
+
+Les mesures suivantes sont prises pour assurer la sécurité du contenu généré :
+
+* Ce script inclut des invites système pour empêcher les injections de prompt et la génération de contenu nuisible.
+  * [system.safety\_jailbreak](../../reference/scripts/system#systemsafety_jailbreak/)
+  * [system.safety\_harmful\_content](../../reference/scripts/system#systemsafety_harmful_content/)
+* La description générée est sauvegardée dans un fichier à un chemin spécifique, ce qui permet une revue manuelle avant de valider les modifications.
+
+Des mesures supplémentaires pour renforcer la sécurité incluent l’exécution [d’un modèle avec un filtre de sécurité](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
+ou la validation du message via un [service de sécurité de contenu](../../reference/scripts/content-safety/).
+
+Consultez la [Note de transparence](../../reference/transparency-note/) pour plus d’informations sur la sécurité du contenu.

@@ -1,0 +1,33 @@
+import { PackageManagers } from "starlight-package-managers";
+
+These runtime helpers provide a friendly wrapper around the [pyodide](https://pyodide.org/en/stable/) ecosystem to execute Python code in the browser.
+
+## Installation
+
+<PackageManagers pkg="@genaiscript/plugin-pyodide" dev />
+
+If you are using the plugin in a Node.JS environment, without a `.genai...` entry file, you will need
+to initialize the [runtime](/genaiscript/reference/runtime) before using the plugin:
+
+```ts
+import { initialize } from "@genaiscript/runtime";
+
+await initialize();
+```
+
+## Python code execution
+
+```ts
+import { python } from "@genaiscript/plugin-pyodide";
+
+const py = await python();
+
+const result = await py(`
+def greet(name):
+    return f"Hello, {name}!"
+
+greet("World")
+`);
+
+console.log(result); // "Hello, World!"
+```

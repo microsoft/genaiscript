@@ -1,0 +1,174 @@
+import { Image } from "astro:assets"
+import fileRefactorPng from "../../../../../assets/file-refactor-preview.png";
+import fileRefactorPngAlt from "../../../../../assets/file-refactor-preview.png.txt?raw";
+
+La génération fiable de fichiers, qu'il s'agisse de créer de nouveaux fichiers ou d'effectuer des mises à jour, est l'une des parties les plus complexes lors de l'utilisation des LLMs. Le script GenAIScript prend en charge plusieurs approches et formats pour générer des fichiers : pour les petits fichiers, régénérer tout le contenu est généralement plus efficace.
+Pour les fichiers volumineux, il est préférable de générer uniquement les modifications.
+
+## Fonctionnement
+
+GenAIScript ajoute automatiquement un [message système](../../../reference/reference/scripts/system#systemfiles/) qui apprend au LLM comment formater les fichiers de sortie.
+
+Commençons par un script qui génère un poème et demande à GenAIScript de l’enregistrer dans un fichier texte.
+
+```js title="poet.genai.mjs"
+$`Generate a 1 sentence poem and save it to a text file.`
+```
+
+Comme aucune invite système n'est spécifiée, GenAIScript ajoute l'ensemble par défaut des invites systèmes, incluant l'invite [system.files](#system). Cette invite indique au LLM de générer un fichier avec la sortie du script.
+Le LLM répond avec une section de code qui mentionne également un nom de fichier. C'est ce format que GenAIScript peut automatiquement analyser.
+
+````md wrap
+FILE ./poem.txt:
+
+```
+In twilight's gentle embrace, dreams dance like whispers on the breeze.
+```
+````
+
+Par défaut, les modifications de fichiers ne sont pas appliquées automatiquement. Dans Visual Studio Code, un aperçu de refactoring s'ouvre et l'utilisateur peut accepter ou rejeter les changements.
+
+<Image src={fileRefactorPng} alt={fileRefactorPngAlt} loading="lazy" />
+
+En ligne de commande (CLI), les changements sont ignorés silencieusement à moins que l'option `--apply-edits` ne soit utilisée.
+
+```sh
+npx genaiscript run poet --apply-edits
+```
+
+:::note
+Soyez précis dans votre demande concernant l'enregistrement dans un fichier. Sinon, le LLM pourrait simplement générer du texte mentionnant un emplacement de fichier.
+:::
+
+## Format du journal de modifications (changelog)
+
+La régénération complète des fichiers ne fonctionne que pour les petits fichiers.
+Pour les fichiers volumineux, GenAIScript utilise un format personnalisé de `changelog` conçu pour minimiser les hallucinations.
+
+```js title="commenter.genai.mjs" "changelog"
+def("FILE", env.files)
+$`Comment every line of code and update the file. Use the changelog format.`
+```
+
+Lorsque nous exécutons le script sur un fichier source, le LLM génère un changelog contenant les modifications à apporter au fichier.
+GenAIScript va analyser cette sortie et générer une modification de fichier similaire à une mise à jour complète du fichier.
+
+````md wrap
+```changelog
+ChangeLog:1@samples/sample/src/greeter.ts
+Description: Added comments to each line of code to explain functionality.
+OriginalCode@1-6:
+[1] class Greeter {
+[2]     greeting: string
+[3]
+[4]     constructor(message: string) {
+[5]         this.greeting = message
+[6]     }
+ChangedCode@1-6:
+[1] // Define a class named Greeter
+[2] class Greeter {
+[3]     // Property to hold the greeting message
+[4]     greeting: string
+[5]
+[6]     // Constructor to initialize the greeting property
+[7]     constructor(message: string) {
+[8]         // Set the greeting property to the provided message
+[9]         this.greeting = message
+[10]     }
+OriginalCode@7-11:
+[7]
+[8]     greet() {
+[9]         return "Hello, " + this.greeting
+[10]     }
+[11] }
+ChangedCode@7-11:
+[7]
+[8]     // Method to return a greeting message
+[9]     greet() {
+[10]         return "Hello, " + this.greeting
+[11]     }
+[12] }
+OriginalCode@12-18:
+[12]
+[13] interface IGreeter {
+[14]     greeting: string
+[15]     greet(): string
+[16] }
+[17]
+[18] export function hello() {}
+ChangedCode@12-18:
+[12]
+[13] // Define an interface for a Greeter
+[14] interface IGreeter {
+[15]     // Property to hold the greeting message
+[16]     greeting: string
+[17]     // Method to return a greeting message
+[18]     greet(): string
+[19] }
+[20]
+[21] // Export an empty function named hello
+[22] export function hello() {}
+OriginalCode@19-20:
+[19]
+[20] let greeter = new Greeter("world")
+ChangedCode@19-20:
+[23]
+[24] // Create a new instance of Greeter with the message "world"
+[25] let greeter = new Greeter("world")
+```
+````
+
+Comme vous pouvez le constater, le format du changelog est bien plus lourd en termes de tokens ; cependant, il est plus fiable pour produire des modifications sur de gros fichiers.
+
+## Déclaration des sorties de fichiers
+
+La fonction `defFileOutput` vous permet de déclarer les chemins de sortie des fichiers ainsi que leur usage. Cette fonction sert à spécifier les fichiers de sortie générés par le script.
+
+```js wrap
+defFileOutput("src/*.md", "Product documentation in markdown format")
+```
+
+Dans notre exemple, nous indiquons au LLM de produire le poème à `poem.txt` et cela permet également à GenAIScript de valider l'emplacement du fichier et d'appliquer automatiquement les modifications.
+
+```js
+$`Generate a 1 sentence poem and save it to a text file.`
+defFileOutput("poem.txt", "the generated poem")
+```
+
+En arrière-plan, GenAIScript ajoute un message système de ce type et indique au LLM où doivent se trouver les fichiers.
+
+```md wrap
+## File generation rules
+
+When generating files, use the following rules which are formatted as "file glob: description":
+
+poem.txt: the generated poem
+```
+
+### Validation via un schéma
+
+Vous pouvez associer un [schéma JSON](../../../reference/reference/scripts/schemas/) à la sortie de fichier. Ce schéma est utilisé pour valider le contenu du fichier avant qu'il ne soit écrit sur le disque.
+
+```js "schema"
+const schema = defSchema("KEYWORDS", {
+    type: "array",
+    items: {
+        type: "string",
+    },
+})
+defFileOutput("src/rag/*.keywords.json", "An array of keywords in the file", {
+    schema,
+})
+```
+
+## Post-traitement de la sortie de fichiers
+
+Vous pouvez enregistrer un callback afin de manipuler de façon programmatique les fichiers générés en utilisant [defOutputProcessor](../../../reference/reference/scripts/custom-output/).
+
+## Invites système <a href="" id="system" />
+
+La prise en charge de la génération de fichiers est définie dans quelques invites système. Celles-ci sont généralement ajoutées automatiquement mais vous pouvez avoir besoin de les réintroduire si vous définissez un jeu personnalisé d’invites système.
+
+* [system.files](../../../reference/reference/scripts/system#systemfiles/), décrit le format de fichier "complet"
+* [system.changelog](../../../reference/reference/scripts/system#systemchangelog/), décrit le format de fichier "changelog"
+* [system.files](../../../reference/reference/scripts/system#systemfiles_schema/), décrit l'utilisation du schéma JSON lors de la génération de fichiers

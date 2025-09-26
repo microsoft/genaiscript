@@ -1,0 +1,9 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+[SGLang](https://docs.sglang.ai/) est un framework de déploiement rapide pour les grands modèles de langage et les modèles de langage visuel.
+
+Le fournisseur est `sglang` et le nom du modèle est ignoré.

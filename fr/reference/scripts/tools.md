@@ -1,0 +1,238 @@
+import { Code } from "@astrojs/starlight/components"
+import { Content as BuiltinTools } from "../../../../../components/BuiltinTools.mdx";
+import weatherScriptSource from "../../../../../../../samples/sample/genaisrc/weather.genai.js?raw";
+import mathScriptSource from "../../../../../../../samples/sample/genaisrc/math-agent.genai.mjs?raw";
+import { YouTube } from "astro-embed"
+
+Vous pouvez enregistrer des **outils** (également appelés **fonctions**) que le LLM peut décider d'appeler dans le cadre de l'assemblage de la réponse.
+Voir [fonctions OpenAI](https://platform.openai.com/docs/guides/function-calling), [outils Ollama](https://ollama.com/blog/tool-support),
+ou [utilisation des outils Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/tool-use).
+
+Tous les modèles LLM ne supportent pas les outils. Dans ces cas, GenAIScript prend également en charge un mécanisme de secours pour implémenter l'appel d'outils via des invites système (voir [Fallback Tools](#fallbacktools)).
+
+<YouTube id="https://www.youtube.com/watch?v=E2oBlNK69-c" posterQuality="high" />
+
+## `defTool`
+
+`defTool` est utilisé pour définir un outil qui peut être appelé par le LLM.
+Il prend un schéma JSON pour définir l'entrée et s'attend à une sortie sous forme de chaîne.
+Les paramètres sont définis en utilisant le [schéma des paramètres](../../../reference/reference/scripts/parameters/).
+
+**Le LLM décide lui-même d'appeler cet outil !**
+
+```js wrap
+defTool(
+    "current_weather",
+    "get the current weather",
+    {
+        city: "",
+    },
+    (args) => {
+        const { location } = args
+        if (location === "Brussels") return "sunny"
+        else return "variable"
+    }
+)
+```
+
+Dans l'exemple ci-dessus, nous définissons un outil appelé `current_weather`
+qui prend un lieu en entrée et retourne la météo.
+
+### Exemple d'outil météo
+
+Cet exemple utilise l'outil `current_weather` pour obtenir la météo à Bruxelles.
+
+<Code code={weatherScriptSource} wrap={true} lang="js" title="weather.genai.mjs" />
+
+### Exemple d'outil mathématique
+
+Cet exemple utilise l'évaluateur d'expressions mathématiques
+pour évaluer une expression mathématique.
+
+<Code code={mathScriptSource} wrap={true} lang="js" title="math-agent.genai.mjs" />
+
+### Réutilisation des outils dans des scripts système
+
+Vous pouvez définir des outils dans un script système et les inclure dans votre script principal comme n'importe quel autre script système ou outil.
+
+```js wrap title="system.random.genai.mjs"
+system({ description: "Random tools" })
+
+export default function (ctx: ChatGenerationContext) {
+    const { defTool } = ctx
+    defTool("random", "Generate a random number", {}, () => Math.random())
+}
+```
+
+* Assurez-vous d'utiliser `system` au lieu de `script` dans le script système.
+
+```js wrap title="random-script.genai.mjs" 'tools: ["random"]'
+script({
+    title: "Random number",
+    tools: ["random"],
+})
+$`Generate a random number.
+```
+
+### Instances multiples du même script système
+
+Vous pouvez inclure plusieurs fois le même script système dans un script
+avec différents paramètres.
+
+```js wrap
+script({
+    system: [
+        "system.agent_git", // git operations on current repository
+        {
+            id: "system.agent_git", // same system script
+            parameters: { repo: "microsoft/genaiscript" }, // but with new parameters
+            variant: "genaiscript" // appended to the identifier to keep tool identifiers unique
+        }
+    ]
+})
+```
+
+## Outils du protocole Model Context
+
+[Model Context Provider](https://modelcontextprotocol.io/) (MCP) est un protocole ouvert
+qui permet une intégration transparente entre les applications LLM et les sources de données et [outils](https://modelcontextprotocol.io/docs/concepts/tools) externes.
+
+Vous pouvez utiliser des [serveurs MCP](https://github.com/modelcontextprotocol/servers) pour fournir des outils à votre LLM.
+
+```js
+defTool({
+    memory: {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-memory"],
+    },
+})
+```
+
+Voir [Outils du protocole Model Context](../../../reference/reference/scripts/mcp-tools/) pour plus d'informations.
+
+## Prise en charge des outils de secours <a href="" id="fallbacktools" />
+
+Certains modèles LLM ne disposent pas de prise en charge intégrée des outils.
+Pour ces modèles, il est possible d'activer la prise en charge des outils via des invites système. Les performances peuvent être inférieures à celles des outils intégrés, mais il est toujours possible d'utiliser des outils.
+
+La prise en charge des outils est mise en œuvre dans [system.tool\_calls](../../../reference/reference/scripts/system#systemtool_calls/)
+et "apprend" au LLM comment appeler des outils. Lorsque ce mode est activé, vous verrez
+les jetons d'appel d'outil auxquels répond le LLM.
+
+GenAIScript maintient une liste des modèles bien connus qui ne supportent pas
+les outils, de sorte que cela se produira automatiquement pour ces modèles.
+
+Pour activer ce mode, vous pouvez soit
+
+* ajouter l'option `fallbackTools` au script
+
+```js "fallbackTools: true"
+script({
+    fallbackTools: true,
+})
+```
+
+* ou ajouter le flag `--fallback-tools` à la CLI
+
+```sh "--fallback-tools"
+npx genaiscript run ... --fallback-tools
+```
+
+:::note
+La performance de cette fonctionnalité variera considérablement en fonction du modèle LLM que vous décidez d'utiliser.
+:::
+
+## Détection d'injection d'invite
+
+Un outil peut récupérer des données contenant des attaques d'injection d'invite. Par exemple, un outil qui récupère une URL peut renvoyer une page contenant des attaques d'injection d'invite.
+
+Pour éviter cela, vous pouvez activer l'option `detectPromptInjection`. Cela exécutera vos services [d'analyse de sécurité de contenu](../../../reference/reference/scripts/content-safety/)
+sur la sortie de l'outil et effacera la réponse si une attaque est détectée.
+
+```js 'detectPromptInjection: "always"'
+defTool("fetch", "Fetch a URL", {
+    url: {
+        type: "string",
+        description: "The URL to fetch",
+    },
+}, async (args) => ...,
+{
+    detectPromptInjection: "always",
+})
+```
+
+## Validation de l'intention de sortie
+
+Vous pouvez configurer GenAIScript pour exécuter une validation LLM-as-a-Judge du résultat de l'outil en fonction de la description ou d'une intention personnalisée.
+La validation LLM-as-a-Judge se produira sur chaque réponse de l'outil en utilisant l'alias de modèle `intent`, qui est mappé à `small` par défaut.
+
+L'intention `description` est une valeur spéciale qui est développée à la description de l'outil.
+
+```js 'intent: "description"''
+defTool(
+    "fetch",
+    "Gets the live weather",
+    {
+        location: "Seattle",
+    },
+    async (args) => { ... },
+    {
+        intent: "description",
+    }
+)
+```
+
+## Regroupement en scripts système
+
+Pour choisir quels outils inclure dans un script,
+vous pouvez les regrouper dans des scripts système. Par exemple,
+l'outil `current_weather` peut être inclus dans le script `system.current_weather.genai.mjs`.
+
+```js wrap file="system.current_weather.genai.mjs" 'defTool("current_weather", ...)'
+script({
+    title: "Get the current weather",
+})
+defTool("current_weather", ...)
+```
+
+puis utilisez l'identifiant de l'outil dans le champ `tools`.
+
+```js 'tools: ["current_weather"]'
+script({
+    ...,
+    tools: ["current_weather"],
+})
+```
+
+### Exemple
+
+Illustrons comment les outils se combinent avec un script de réponses aux questions.
+
+Dans le script ci-dessous, nous ajoutons l'outil `retrieval_web_search`. Cet outil
+appellera `retrieval.webSearch` si nécessaire.
+
+```js file="answers.genai.mjs"
+script({
+    title: "Answer questions",
+    tool: ["retrieval_web_search"]
+})
+
+def("FILES", env.files)
+
+$`Answer the questions in FILES using a web search.
+
+- List a summary of the answers and the sources used to create the answers.
+```
+
+Nous pouvons ensuite appliquer ce script au fichier `questions.md` ci-dessous.
+
+```md file="questions.md"
+- What is the weather in Seattle?
+- What laws were voted in the USA congress last week?
+```
+
+Après la première requête, le LLM demande d'appeler le `web_search` pour chaque question.
+Les réponses de la recherche web sont ensuite ajoutées à l'historique des messages du LLM et la requête est faite à nouveau.
+La seconde donne le résultat final qui inclut les résultats de la recherche web.
+
+<BuiltinTools />

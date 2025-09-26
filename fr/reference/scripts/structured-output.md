@@ -1,0 +1,128 @@
+import { YouTube } from "astro-embed"
+
+GenAIScript prend en charge la génération de sorties structurées avec des réparations automatiques des données. Il peut exploiter la validation de schéma intégrée fournie par les fournisseurs de LLM ou exécuter sa propre validation selon les besoins.
+
+<YouTube id="https://youtube.com/U6mWnZOCalo/" posterQuality="high" />
+
+Les sorties structurées sont configurées grâce à deux indicateurs : `responseType`, qui contrôle le format des données, et `responseSchema` qui contrôle la structure des données.
+
+## Type de réponse
+
+Le type de réponse est contrôlé par l'argument optionnel `responseType` et offre les options suivantes :
+
+* `json` : demander au LLM de produire une sortie JSON valide.
+* `yaml` : demander au LLM de produire une sortie YAML valide.
+* `json_object` : utiliser la sortie JSON intégrée d'OpenAI
+* `json_schema` : utiliser la sortie JSON intégrée d'OpenAI avec validation de schéma JSON
+
+Notez que `text` et `markdown` sont également supportés pour configurer la sortie du LLM.
+
+### `json`
+
+Dans ce mode, GenAIScript invite le LLM à produire une sortie JSON valide. Il valide également la sortie et tente de la réparer si elle n'est pas valide.
+Ce mode est implémenté par GenAIScript et ne dépend pas du support des fournisseurs de LLM.
+
+```js
+script({
+    responseType: "json",
+})
+```
+
+La validation du schéma est appliquée si `responseSchema` est fourni.
+
+### `yaml`
+
+Dans ce mode, GenAIScript invite le LLM à produire une sortie JSON valide. Il valide également la sortie et tente de la réparer si elle n'est pas valide.
+Ce mode est implémenté par GenAIScript et ne dépend pas du support des fournisseurs de LLM.
+
+```js
+script({
+    responseType: "yaml",
+})
+```
+
+La validation du schéma est appliquée si `responseSchema` est fourni.
+
+### `json_object`
+
+Dans ce mode, GenAIScript invite le LLM à produire une sortie JSON valide. Il valide également la sortie et tente de la réparer si elle n'est pas valide.
+Ce mode repose sur le support intégré des LLM comme OpenAI.
+
+```js "responseSchema"
+script({
+    responseType: "json_object",
+})
+```
+
+### `json_schema`
+
+La sortie structurée est une fonctionnalité qui vous permet de générer des données structurées au format de données, par exemple avec un [schéma JSON](../../../reference/reference/scripts/schemas/). Ce mode est plus strict que `json_object`.
+
+Pour activer ce mode, définissez `responseType` sur `json_schema` et fournissez un objet `responseSchema`.
+
+```js "responseType: 'json_schema'"
+script({
+    responseType: "json_schema",
+    responseSchema: {
+        type: "object",
+        properties: {
+            name: { type: "string" },
+            age: { type: "number" },
+        },
+        required: ["name", "age"],
+    },
+})
+```
+
+Notez qu'il existe [plusieurs restrictions](https://platform.openai.com/docs/guides/structured-outputs/how-to-use) sur les fonctionnalités des schémas prises en charge par ce mode.
+
+* `additionalProperties: true` n’est pas supporté.
+* tous les champs optionnels (par exemple ceux qui ne sont pas dans `required`) seront retournés et peuvent être `null`.
+
+## Schéma de réponse
+
+Vous pouvez spécifier un [schéma](../../../reference/reference/scripts/schemas/) via `responseSchema` qui activera automatiquement le mode de sortie structurée. La sortie sera validée contre ce schéma, et GenAIScript tentera de réparer la sortie si elle n'est pas valide. Le script échouera si la sortie ne correspond pas au schéma.
+
+```js "responseSchema"
+script({
+    responseType: "json",
+    responseSchema: {
+        type: "object",
+        properties: {
+            name: { type: "string" },
+            age: { type: "number" },
+        },
+        required: ["name", "age"],
+    },
+})
+```
+
+### Schémas en ligne
+
+Notez que cette section s'applique à la sortie entière d'une conversation. Vous pouvez également utiliser des [schémas en ligne](../../../reference/reference/scripts/schemas/) et utiliser un mix markdown/données que GenAIScript analysera.
+
+### Choix
+
+Si vous souhaitez créer un LLM-comme-juges et ne cherchez qu'à obtenir des sorties dans un ensemble de mots donné, vous pouvez aussi envisager d'utiliser des [choix](../../../reference/reference/scripts/choices/) pour augmenter la probabilité que le modèle génère les mots spécifiés.
+
+## `cast`
+
+La fonction [cast](../../../reference/reference/runtime/cast/) est une [aide d'exécution GenAIScript](../../../reference/reference/runtime/) pour convertir du texte/images non structurés en données structurées.
+
+```js "cast"
+import { cast } from "@genaiscript/runtime"
+
+const { data } = await cast((_) => _.defImages(images), {
+    type: "object",
+    properties: {
+        keywords: {
+            type: "array",
+            items: {
+                type: "string",
+                description: "Keywords describing the objects on the image",
+            },
+        },
+    },
+    required: ["keywords"],
+})
+```

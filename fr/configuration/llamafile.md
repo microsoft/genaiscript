@@ -1,0 +1,9 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+[https://llamafile.ai/](https://llamafile.ai/) est une application de bureau mono-fichier qui vous permet d'exécuter un LLM localement.
+
+Le fournisseur est `llamafile` et le nom du modèle est ignoré.

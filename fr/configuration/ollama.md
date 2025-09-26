@@ -1,0 +1,113 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+[Ollama](https://ollama.ai/) est une application de bureau qui vous permet de télécharger et d'exécuter des modèles localement.
+
+L'exécution d'outils localement peut nécessiter des ressources GPU supplémentaires selon le modèle que vous utilisez.
+
+Utilisez le fournisseur `ollama` pour accéder aux modèles Ollama.
+
+:::note
+GenAIScript utilise actuellement la couche de compatibilité API OpenAI d'Ollama.
+:::
+
+<Steps>
+  <ol>
+    <li>
+      Lancez l'application Ollama ou
+
+      ```sh
+      ollama serve
+      ```
+    </li>
+
+    <li>
+      Mettez à jour votre script pour utiliser le modèle `ollama:phi3.5` (ou tout autre [modèle](https://ollama.com/library) ou provenant de [Hugging Face](https://huggingface.co/docs/hub/en/ollama)).
+
+      ```js "ollama:phi3.5"
+      script({
+          ...,
+          model: "ollama:phi3.5",
+      })
+      ```
+
+      GenAIScript téléchargera automatiquement le modèle, ce qui peut prendre un certain temps en fonction de la taille du modèle. Le modèle est mis en cache localement par Ollama.
+    </li>
+
+    <li>
+      Si Ollama s'exécute sur un serveur, un autre ordinateur ou sur un port différent,
+      vous devez configurer la variable d'environnement `OLLAMA_HOST` pour vous connecter à un serveur Ollama distant.
+
+      ```txt title=".env"
+      OLLAMA_HOST=https://<IP or domain>:<port>/ # server url
+      OLLAMA_HOST=0.0.0.0:12345 # different port
+      ```
+    </li>
+  </ol>
+</Steps>
+
+Vous pouvez spécifier la taille du modèle en l'ajoutant au nom du modèle, comme `ollama:llama3.2:3b`.
+
+```js "ollama:llama3.2:3b"
+script({
+    ...,
+    model: "ollama:llama3.2:3b",
+})
+```
+
+### Ollama avec les modèles Hugging Face
+
+Vous pouvez également utiliser les [modèles GGUF](https://huggingface.co/models?library=gguf) de [Hugging Face](https://huggingface.co/docs/hub/en/ollama).
+
+```js "hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF"
+script({
+    ...,
+    model: "ollama:hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF",
+})
+```
+
+### Ollama avec Docker
+
+Vous pouvez facilement exécuter Ollama dans un conteneur Docker.
+
+* si vous utilisez un [devcontainer](https://code.visualstudio.com/devcontainers)
+  ou un [GitHub Codespace](https://github.com/features/codespaces),
+  assurez-vous d'ajouter l'option `docker-in-docker` dans votre fichier `devcontainer.json`.
+
+```json
+{
+  "features": {
+    "docker-in-docker": "latest"
+  }
+}
+```
+
+* démarrez le [conteneur Ollama](https://ollama.com/blog/ollama-is-now-available-as-an-official-docker-image)
+
+```sh wrap
+docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+```
+
+* arrêtez et supprimez les conteneurs Ollama
+
+```sh wrap
+docker stop ollama && docker rm ollama
+```
+
+:::tip
+Ajoutez ces scripts à votre fichier `package.json` pour faciliter le démarrage et l'arrêt du conteneur Ollama.
+
+```json
+{
+  "scripts": {
+    "ollama:start": "docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama",
+    "ollama:stop": "docker stop ollama && docker rm ollama"
+  }
+}
+```
+:::
+
+<LLMProviderFeatures provider="ollama" />

@@ -1,0 +1,53 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+Ce n'est pas un fournisseur de LLM, mais un fournisseur de recherche de contenu. Cependant, puisqu'il est configuré de manière similaire aux autres services Azure,
+il est inclus ici. Il vous permet de faire une [recherche vectorielle](../../reference/scripts/vector-search/) de vos documents
+en utilisant [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search).
+
+```js "azure_search:"
+const index = await retrieval.index("animals", {
+  type: "azure_ai_search",
+});
+await index.insertOrUpdate(env.files);
+const docs = await index.search("cat dog");
+```
+
+### Identité managée (Entra ID)
+
+Le service est configuré via la variable d'environnement `AZURE_AI_SEARCH_ENDPOINT`
+et la [configuration de l'identité gérée](https://learn.microsoft.com/en-us/azure/search/search-security-rbac?tabs=roles-portal-admin%2Croles-portal%2Croles-portal-query%2Ctest-portal%2Ccustom-role-portal).
+
+```txt
+AZURE_AI_SEARCH_ENDPOINT=https://{{service-name}}.search.windows.net/
+```
+
+<Steps>
+  <ol>
+    <li>
+      Ouvrez votre ressource **Azure AI Search** dans le [portail Azure](https://portal.azure.com),
+      cliquez sur **Présentation** puis sur **Propriétés**.
+    </li>
+
+    <li>
+      Cliquez sur **Contrôle d'accès API** et activez **Contrôle d'accès basé sur les rôles** ou **Les deux**.
+    </li>
+
+    <li>
+      Ouvrez l'onglet **Contrôle d'accès (IAM)** et assurez-vous que votre utilisateur
+      ou principal de service possède le rôle de **Contributeur au service de recherche**.
+    </li>
+  </ol>
+</Steps>
+
+### Clé API
+
+Le service est configuré via les variables d'environnement `AZURE_AI_SEARCH_ENDPOINT` et `AZURE_AI_SEARCH_API_KEY`.
+
+```txt
+AZURE_AI_SEARCH_ENDPOINT=https://{{service-name}}.search.windows.net/
+AZURE_AI_SEARCH_API_KEY=...
+```

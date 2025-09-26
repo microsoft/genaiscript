@@ -1,0 +1,16 @@
+import { Code } from '@astrojs/starlight/components';
+import importedCode from "../../../../../../samples/sample/genaisrc/blog-generate-knowledge.genai?raw";
+
+[Connaissance Générée](https://learnprompting.org/docs/intermediate/generated_knowledge)
+est une technique d'incitation où l'on commence par poser une question au LLM pour générer des faits, puis on utilise la réponse générée pour répondre correctement à une question.
+
+* *production de connaissances*, le LLM est invité à générer un ensemble de faits sur la question.
+* *intégration de connaissances*, le LLM est invité à répondre à une question enrichie par les connaissances générées.
+
+Cette technique peut être réalisée en utilisant [runPrompt](../../reference/scripts/inline-prompts/) pour exécuter une requête au LLM et l'utiliser dans l'invite finale.
+
+## Exemple
+
+Cet exemple illustre cette technique pour générer un article de blog.
+
+<Code code={importedCode} wrap={true} lang="js" />

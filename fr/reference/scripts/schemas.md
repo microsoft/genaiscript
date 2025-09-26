@@ -1,0 +1,261 @@
+import { Card } from "@astrojs/starlight/components"
+
+Il est possible de forcer le LLM à générer des données conformes à un schéma spécifique. Cette technique fonctionne assez bien et GenAIScript fournit également une validation automatique « au cas où ».
+
+Vous remarquerez que le schéma pris en charge par GenAIScript est beaucoup plus simple que la spécification complète du JSON schema. Nous recommandons d'utiliser des schémas simples afin d'éviter de perturber le LLM ; vous pourrez ensuite les adapter au format de données spécifique à votre application.
+
+## Schémas JSON
+
+Un schéma JSON est un langage déclaratif qui permet de valider la structure des données JSON. Il définit les types de données attendus, les propriétés et les contraintes pour les objets JSON. Les schémas JSON sont largement utilisés dans les APIs, les fichiers de configuration et les formats d'échange de données pour garantir que les données respectent une structure spécifique. Les schémas JSON sont définis au format JSON et peuvent être utilisés pour valider des données JSON par rapport au schéma défini. GenAIScript supporte les schémas JSON pour définir la structure des données que vous souhaitez générer.
+
+```js
+const schema = {
+    type: "object",
+    properties: {
+        name: { type: "string" },
+        population: { type: "number" },
+        url: { type: "string" },
+    },
+    required: ["name", "population", "url"],
+}
+```
+
+## `responseSchema`
+
+Utilisez `responseSchema` pour définir un schéma JSON/YAML pour la sortie du prompt.
+
+```js wrap
+script({
+    responseSchema: schema,
+})
+```
+
+Lorsque vous utilisez `responseSchema`, vous pouvez utiliser `responseType` pour spécifier comment le schéma doit être encodé dans la requête.
+
+* `responseType: "json"` : Le schéma est encodé dans un message système et validé par GenAIScript.
+* `responseType: "json_object"` : Le schéma est encodé dans la requête, en utilisant le support natif de sortie structurée du LLM. Il est également validé par GenAIScript.
+
+Les deux approches présentent des compromis et dépendent généralement du LLM que vous utilisez.
+
+Vous pouvez aussi l'appliquer à `runPrompt` et GenAIScript analysera et validera la sortie par rapport au schéma, puis la stockera dans le champ `json`.
+
+```js wrap
+const { json } = await runPrompt(..., {
+    responseSchema: schema,
+    responseType: "json_object", // or "json"
+})
+```
+
+## `defSchema`
+
+Utilisez `defSchema` pour définir un schéma JSON/YAML pour la sortie du prompt.
+
+```js user=true
+const schema = defSchema("CITY_SCHEMA", {
+    type: "array",
+    description: "A list of cities with population and elevation information.",
+    items: {
+        type: "object",
+        description: "A city with population and elevation information.",
+        properties: {
+            name: { type: "string", description: "The name of the city." },
+            population: {
+                type: "number",
+                description: "The population of the city.",
+            },
+            url: {
+                type: "string",
+                description: "The URL of the city's Wikipedia page.",
+            },
+        },
+        required: ["name", "population", "url"],
+    },
+})
+
+$`Generate data using JSON compliant with ${schema}.`
+```
+
+{/* genaiscript output start */}
+
+<details open>
+  <summary>👤 utilisateur</summary>
+
+  ````markdown wrap
+  CITY_SCHEMA:
+
+  ```typescript-schema
+  // A list of cities with population and elevation information.
+  type CITY_SCHEMA = Array<{
+      // The name of the city.
+      name: string,
+      // The population of the city.
+      population: number,
+      // The URL of the city's Wikipedia page.
+      url: string,
+    }>
+  ```
+
+  Generate data using JSON compliant with CITY_SCHEMA.
+  ````
+</details>
+
+<details open>
+  <summary>🤖 assistant</summary>
+
+  ````markdown wrap
+  File ./data.json:
+
+  ```json schema=CITY_SCHEMA
+  [
+      {
+          "name": "New York",
+          "population": 8398748,
+          "url": "https://en.wikipedia.org/wiki/New_York_City"
+      },
+      {
+          "name": "Los Angeles",
+          "population": 3990456,
+          "url": "https://en.wikipedia.org/wiki/Los_Angeles"
+      },
+      {
+          "name": "Chicago",
+          "population": 2705994,
+          "url": "https://en.wikipedia.org/wiki/Chicago"
+      }
+  ]
+  ```
+  ````
+</details>
+
+{/* genaiscript output end */}
+
+### Support natif de zod
+
+Le [runtime GenAIScript](../../../reference/reference/runtime/) expose le module `z`.
+
+Un type [Zod](https://zod.dev/) peut être passé dans `defSchema` et sera automatiquement converti en schéma JSON. GenAIScript exporte également l'objet `z` de Zod pour plus de commodité.
+
+```js
+// import from genaiscript
+import { z } from "@genaiscript/runtime"
+// or directly from zod
+// import { z } from "zod"
+// create schema using zod
+const CitySchema = z.array(
+    z.object({
+        name: z.string(),
+        population: z.number(),
+        url: z.string(),
+    })
+)
+// JSON schema to constrain the output of the tool.
+const schema = defSchema("CITY_SCHEMA", CitySchema)
+```
+
+### Encodage des prompts
+
+Suivant l'approche ["All You Need Is Types"](https://microsoft.github.io/TypeChat/docs/introduction/) de TypeChat, le schéma est converti en types TypeScript avant d'être injecté dans le prompt du LLM.
+
+```ts
+// A list of cities with population and elevation information.
+type CITY_SCHEMA = Array<{
+    // The name of the city.
+    name: string
+    // The population of the city.
+    population: number
+    // The URL of the city's Wikipedia page.
+    url: string
+}>
+```
+
+Vous pouvez modifier ce comportement en utilisant l'option `{ format: "json" }`.
+
+```js
+const schema = defSchema("CITY_SCHEMA", {...}, { format: "json" })
+```
+
+:::tip[Lire la trace !]
+La trace vous permet de voir la source du schéma et le prompt rendu, et le [cli](../../../reference/reference/cli/) écrira aussi les fichiers TypeScript générés dans le dossier de sortie.
+
+<details>
+  <summary>schéma CITY\_SCHEMA</summary>
+
+  * source :
+
+  ```json
+  {
+      "type": "array",
+      "description": "A list of cities with population and elevation information.",
+      "items": {
+          "type": "object",
+          "description": "A city with population and elevation information.",
+          "properties": {
+              "name": {
+                  "type": "string",
+                  "description": "The name of the city."
+              },
+              "population": {
+                  "type": "number",
+                  "description": "The population of the city."
+              },
+              "url": {
+                  "type": "string",
+                  "description": "The URL of the city's Wikipedia page."
+              }
+          },
+          "required": ["name", "population", "url"]
+      }
+  }
+  ```
+
+  * prompt (rendu en typescript) :
+
+  ```ts
+  // A list of cities with population and elevation information.
+  type CITY_SCHEMA = Array<{
+      // The name of the city.
+      name: string
+      // The population of the city.
+      population: number
+      // The URL of the city's Wikipedia page.
+      url: string
+  }>
+  ```
+</details>
+:::
+
+## Utiliser le schéma
+
+Puis dites au LLM d'utiliser ce schéma pour générer des données.
+
+```js
+const schema = defSchema(...)
+$`Use ${schema} for the JSON schema.`
+```
+
+## Validation
+
+Lorsqu'une charge utile JSON/YAML est générée avec l'identifiant de schéma, GenAIScript valide automatiquement la charge utile par rapport au schéma.
+
+:::tip
+Tous les formats de données ne se valent pas ! Certains formats comme JSON introduisent une ambiguïté et peuvent perturber le LLM.
+[En savoir plus...](https://betterprogramming.pub/yaml-vs-json-which-is-more-efficient-for-language-models-5bc11dd0f6df).
+:::
+
+## Réparation
+
+GenAIScript tentera automatiquement de réparer les données en envoyant des messages supplémentaires au LLM avec la sortie de l’analyse.
+
+## Validation à l'exécution
+
+Utilisez `parsers.validateJSON` pour valider le JSON lors de l'exécution du script.
+
+```js
+const validation = parsers.validateJSON(schema, json)
+```
+
+La plupart des APIs sur l’objet `workspace` qui analysent les données supportent également une option `schema` pour valider les données.
+
+```js
+const data = await workspace.readJSON("data.json", { schema })
+```

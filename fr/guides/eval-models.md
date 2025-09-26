@@ -1,0 +1,54 @@
+GenAIScript vous permet d'[évaluer](../../reference/scripts/tests/) plusieurs modèles dans un seul script contre plusieurs tests.
+Cela est utile lorsque vous voulez comparer les performances de différents modèles sur les mêmes entrées.
+
+GenAIScript utilise [PromptFoo](https://www.promptfoo.dev/docs/getting-started/) pour évaluer les sorties des modèles.
+
+Dans cet exemple, nous évaluerons les performances de trois modèles sur un script de résumé.
+
+```js title="summarizer.genai.js"
+const file = def("FILE", env.files)
+$`Summarize ${file} in one sentence.`
+```
+
+## Définition des tests
+
+Tout d'abord, vous devez ajouter un ou plusieurs tests en tant que champ `tests` dans la fonction `script`.
+
+```js
+script({
+    tests: { files: "markdown.md", keywords: "markdown" },
+})
+...
+```
+
+Dans ce cas, nous ajoutons une simple assertion de `keyword`, mais vous pouvez trouver de nombreuses autres options dans la référence des [tests](../../reference/scripts/tests/).
+
+## Définir les modèles de test
+
+Ensuite, ajoutez la liste des identifiants de modèles ou des [alias de modèles](../../reference/scripts/model-aliases/) que vous souhaitez tester.
+
+```js
+script({
+    ...,
+    testModels: [
+        "azure_ai_inference:gpt-4o",
+        "azure_ai_inference:gpt-4o-mini",
+        "azure_ai_inference:deepseek-r1",
+    ],
+})
+...
+```
+
+## Exécution des tests
+
+Les tests peuvent être exécutés en utilisant l'interface en ligne de commande `genaiscript` ou dans Visual Studio Code (voir [scripts de test](../../getting-started/testing-scripts/)).
+
+```sh
+genaiscript test summarizer
+```
+
+Ensuite, ouvrez le tableau de bord PromptFoo pour voir les résultats des tests.
+
+```sh
+genaiscript test view
+```

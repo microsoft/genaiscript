@@ -1,0 +1,89 @@
+import { Image } from "astro:assets"
+import src from "../../../../assets/lint-copilot.png";
+import alt from "../../../../assets/lint-copilot.png.txt?raw";
+
+La motivation derrière ce script est de fournir aux développeurs un outil automatisé capable de vérifier et de signaler la justesse et le style des fichiers de code et de langue naturelle.
+Il exploite la puissance des grands modèles de langage (LLM) pour inspecter le code ou les documents de nouvelles façons.
+
+Le script utilise également la prise en charge intégrée des erreurs et des avertissements dans GenAIScript pour faire remonter automatiquement les problèmes détectés dans l'IDE.
+
+<Image src={src} alt={alt} loading="lazy" />
+
+### Décomposition du script
+
+Voici une explication pas à pas du script :
+
+```ts
+script({
+    title: "Universal Linter",
+    description: "Review files for correctness and style",
+    model: "large",
+    system: [
+        "system",
+        "system.assistant",
+        "system.annotations",
+        "system.safety_jailbreak",
+        "system.safety_harmful_content",
+    ],
+})
+```
+
+* **`script({...})`** : Cette fonction initialise un script GenAI.
+* **`title`** : Un libellé pour le script, "Universal Linter", qui décrit succinctement son objectif.
+* **`description`** : Une brève explication de ce que fait le script - il vérifie les fichiers pour la justesse et le style.
+* **`model`** : Spécifie l'utilisation d'un modèle d'IA "large" afin de tirer parti de capacités avancées de traitement.
+* **`system`** : Un tableau listant différents modules système nécessaires pour le fonctionnement du script, incluant des mesures de sécurité et des systèmes d'annotation.
+
+Le script contient aussi un bloc de prompt :
+
+```ts wrap
+$`## Task
+
+You are Linty, a linter for all known programming languages and natural languages.
+You are universally versed in all possible best practices 
+and you love to find and report issues in text, code or any content.
+
+Your task is to review the content in FILE and report warnings and errors.
+
+## Rules
+
+- for each file in FILE, use best practices based on the file extension to review the content. For example, for a ".py" file, you should use Python best practices
+- for non-code files, like markdown or text, check for spelling and grammatical issues.
+- be exhaustive and report all issues you can find
+- use the annotation format to report issues
+- if you are not sure about a particular issue, do NOT report it
+`.role("system")
+```
+
+* **`$``Task`** : Commence une section de prompt où la tâche de l'IA est définie.
+* **`You are Linty...`** : Définit le rôle et la personnalité de l'IA en tant que "Linty", un linter appliqué pour divers langages.
+* **`Your task...`** : Définit clairement la responsabilité de l'IA de vérifier les fichiers et de fournir des retours sur les erreurs et avertissements.
+* **`Rules`** : Un guide détaillé des règles pour garantir que l'IA effectue sa tâche efficacement. Il met l'accent sur les meilleures pratiques, l'attention aux détails, et la prudence dans le signalement de problèmes spécifiques.
+
+Enfin, le script spécifie les fichiers à traiter :
+
+```ts
+def("FILE", env.files, { lineNumbers: true })
+```
+
+* **`def("FILE", env.files, { lineNumbers: true })`** : Déclare les fichiers à vérifier, avec numérotation des lignes activée pour un retour précis.
+
+### Exécution du script
+
+Pour exécuter ce script, vous pouvez le lancer depuis Visual Studio Code ou utiliser la CLI GenAIScript. Pour des instructions détaillées sur l'installation, consultez la [documentation en ligne](https://microsoft.github.io/genaiscript/getting-started).
+
+```bash
+genaiscript run lint <file1> <file2> ...
+```
+
+Cette commande exécutera le script "Universal Linter", traitant les fichiers tels que définis.
+
+Depuis la fenêtre GitHub Copilot Chat, vous pouvez exécuter le linter sur tous les fichiers du contexte en lançant :
+
+```sh
+@genaiscript /run lint
+```
+
+## Code source complet
+
+Le code source complet est disponible à l'adresse [https://github.com/microsoft/genaiscript/blob/main/samples/sample/genaisrc/lint.genai.mts](https://github.com/microsoft/genaiscript/blob/main/samples/sample/genaisrc/lint.genai.mts).

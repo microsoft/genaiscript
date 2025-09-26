@@ -1,0 +1,79 @@
+import { PackageManagers } from "starlight-package-managers";
+
+[Z3](https://microsoft.github.io/z3guide/) est un prouveur de théorèmes haute performance développé par Microsoft Research. C'est un outil intégré de GenAIScript. Z3 est utilisé pour résoudre des formules logiques et peut être employé pour diverses applications, notamment la vérification de programmes, la résolution de contraintes et l'exécution symbolique.
+
+GenAIScript utilise le paquet npm [z3-solver](https://www.npmjs.com/package/z3-solver) basé sur WebAssembly pour exécuter Z3.
+
+## Installation
+
+<PackageManagers pkg="@genaiscript/plugin-z3" dev />
+
+Si vous utilisez le plugin dans un environnement Node.JS, sans fichier d'entrée `.genai...`, vous devrez initialiser le [runtime](../../../reference/reference/runtime/) avant d'utiliser le plugin :
+
+```ts
+import { initialize } from "@genaiscript/runtime";
+
+await initialize();
+```
+
+## Instance Z3
+
+La méthode `z3()` crée une nouvelle instance de Z3. L'instance peut être utilisée pour exécuter des commandes Z3 et obtenir les résultats.
+L'instance `z3` est un wrapper autour du package npm [z3-solver](https://www.npmjs.com/package/z3-solver).
+L'instance `z3` possède la méthode `run` qui exécute la formule SMTLIB2 fournie et retourne le résultat.
+
+```js
+import { z3 } from "@genaiscript/plugin-z3";
+
+const z3 = await z3();
+const res = await z3.run(`
+(declare-const a Int)
+(declare-fun f (Int Bool) Int)
+(assert (< a 10))
+(assert (< (f a true) 100))
+(check-sat)
+`);
+console.log(res); // unsat
+```
+
+## Outil Z3
+
+Le plugin d'outil `z3` enveloppe Z3 en tant qu'outil LLM pouvant être utilisé dans GenAIScript. L'outil prend une formule SMTLIB2 en entrée et retourne la sortie de Z3.
+
+```js
+import z3 from "@genaiscript/plugin-z3"
+
+z3(env)
+
+$`Solve the following problems using Z3:
+
+(declare-const a Int)
+(declare-fun f (Int Bool) Int)
+(assert (< a 10))
+(assert (< (f a true) 100))
+(check-sat)
+```
+
+L'outil ne peut pas gérer des problèmes arbitraires, ce qui nous amène à l'agent.
+
+### Agent Z3
+
+Le script de l'agent `z3` (dans [system.agent-z3](../../../reference/reference/scripts/system#systemagent_z3/)) encapsule l'outil `z3` avec un LLM capable de (tenter de) formaliser des problèmes arbitraires en SMTLIB2.
+
+```js
+script({
+  tools: ["agent_z3"],
+});
+
+$`Solve the following problems using Z3:
+
+Imagine we have a number called 'a' that is smaller than 10. 
+We also have a special machine called 'f' that takes a number and a 'true'/'false' answer, 
+and it gives back another number. 
+When we put the number 'a' and the answer “true” into this machine, 
+the number it gives us is smaller than 100.`;
+```
+
+:::note
+La conversation LLM allant du problème à la formule SMTLIB2 peut être incorrecte. Vérifiez vos résultats avec l'outil Z3. L'agent ne remplace pas l'outil Z3, mais offre un moyen d'utiliser Z3 avec des problèmes arbitraires.
+:::

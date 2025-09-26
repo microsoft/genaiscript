@@ -1,0 +1,13 @@
+import { YouTube } from "astro-embed";
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+[Yohan Lasorsa](https://www.linkedin.com/in/yohanlasorsa/) a donné une conférence à dotJS 2025 sur GenAIScript, une nouvelle méthode pour interagir avec les modèles d’IA en utilisant un langage de Script.
+
+Yohan Lasorsa est un Principal Developer Advocate chez Microsoft, un Expert Google pour Angular, et un auteur et contributeur open-source actif.
+Fort d’une expérience de plus de 15 ans dans la recherche appliquée, le mobile, l’IoT et l’architecture cloud,
+il a travaillé sur des systèmes à faible niveau jusqu’au développement web full-stack.
+Que ce soit pour créer des applications ou des projets DIY, il aime partager ses connaissances et repousser les limites du possible.
+
+<YouTube id="https://youtu.be/PrhPSUHXWJ4" portraitQuality="high" />

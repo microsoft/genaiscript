@@ -1,0 +1,10 @@
+import DirectoryLinks from "../../../../components/DirectoryLinks.astro";
+
+Les scripts d'exemple sont une collection de scripts complets prêts à l'emploi.
+Ils sont conçus pour être utilisés tels quels, mais nous vous encourageons à les ajuster ou à les modifier pour répondre à vos besoins.
+
+:::tip
+Les contributions de la communauté sont les bienvenues et peuvent être consultées dans la section [Awesome Scripts](../../samples/awesome/).
+:::
+
+<DirectoryLinks directory="samples" />

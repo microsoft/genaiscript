@@ -1,0 +1,506 @@
+import { Image } from "astro:assets";
+import { Card, CardGrid } from "@astrojs/starlight/components";
+import { FileTree } from "@astrojs/starlight/components";
+import { YouTube } from "astro-embed";
+import AudioPlayer from "../../../components/AudioPlayer.astro";
+import DirectoryLinks from "../../../components/DirectoryLinks.astro";
+import { Content as BuiltinAgents } from "../../../components/BuiltinAgents.mdx";
+import RecentBlogPosts from "../../../components/RecentBlogPosts.astro";
+import { LinkButton } from "@astrojs/starlight/components";
+import vscodeSrc from "../../../../public/images/visual-studio-code.png";
+
+import debuggerSrc from "../../../assets/debugger.png";
+import debuggerAlt from "../../../assets/debugger.png.txt?raw";
+
+import sarifSrc from "../../../assets/tla-ai-linter.png";
+import sarifAlt from "../../../assets/tla-ai-linter.png.txt?raw";
+
+import testExplorerSrc from "../../../assets/vscode-test-explorer.png";
+import testExplorerAlt from "../../../assets/vscode-test-explorer.png.txt?raw";
+
+## La création de prompts, c'est du code
+
+Assemblez des invites pour les LLMs de manière programmatique à l'aide de JavaScript. Orchestrez les LLMs, outils et données dans un seul script.
+
+* Boîte à outils JavaScript pour travailler avec les prompts
+* Abstraction pour rendre cela simple et productif
+* Intégration transparente avec Visual Studio Code ou ligne de commande flexible
+* Support intégré pour GitHub Copilot et GitHub Models, OpenAI, Azure OpenAI, Anthropic, et autres
+
+## Bonjour le monde
+
+Supposez que vous souhaitez créer un script LLM qui génère un poème ‘bonjour le monde’. Vous pouvez écrire le script suivant :
+
+```js
+$`Write a 'hello world' poem.`;
+```
+
+La fonction `$` est une balise de gabarit qui crée un prompt. Le prompt est ensuite envoyé au LLM (que vous avez configuré), qui génère le poème.
+
+Rendons cela plus intéressant en ajoutant des fichiers, des données et une sortie structurée. Supposons que vous souhaitez inclure un fichier dans le prompt, puis sauvegarder la sortie dans un fichier. Vous pouvez écrire le script suivant :
+
+```js
+// read files
+const file = await workspace.readText("data.txt");
+// include the file content in the prompt in a context-friendly way
+def("DATA", file);
+// the task
+$`Analyze DATA and extract data in JSON in data.json.`;
+```
+
+La fonction `def` inclut le contenu du fichier, et l’optimise si nécessaire pour le LLM cible. Le script GenAIScript analyse aussi la sortie du LLM
+et extraira automatiquement le fichier `data.json`.
+
+<center>
+  <YouTube id="https://youtu.be/ajEbAm6kjI4" posterQuality="high" />
+</center>
+
+## Étapes suivantes
+
+<CardGrid stagger>
+  <Card title="Installer l'extension ou le CLI" icon="puzzle">
+    Installez l'[extension Visual Studio Code ou le CLI](./getting-started/installation/) pour commencer.
+  </Card>
+
+  <Card title="Configurer vos LLM" icon="setting">
+    Configurez les [secrets](./getting-started/configuration/) pour accéder à vos LLMs.
+  </Card>
+
+  <Card title="Écrivez votre premier script" icon="pencil">
+    Suivez le guide [Premiers pas](./getting-started/your-first-genai-script/) pour écrire votre
+    premier script.
+  </Card>
+
+  <Card title="Lire la documentation" icon="open-book">
+    Découvrez-en plus sur GenAIScript dans la [Référence du scripting](./reference/).
+  </Card>
+</CardGrid>
+
+<Image src={vscodeSrc} alt="A screenshot of VSCode with a genaiscript opened" loading="lazy" />
+
+<center>
+  <YouTube id="https://youtu.be/ENunZe--7j0" posterQuality="high" />
+</center>
+
+## Dernières nouvelles
+
+<RecentBlogPosts />
+
+## Fonctionnalités
+
+GenAIScript apporte les outils essentiels de prompts pour LLM dans un environnement de scripting cohérent.
+
+<CardGrid>
+  <Card title="JavaScript stylisé" icon="seti:javascript">
+    Syntaxe minimale pour créer des prompts avec [JavaScript](./reference/scripts/)
+    ou [TypeScript](./reference/scripts/typescrip/).
+
+    ```js wrap
+    $`Summarize ${env.files}. Today is ${new Date()}.`;
+    ```
+  </Card>
+
+  <Card title="Boucle de développement rapide" icon="rocket">
+    Éditez, [déboguez](./getting-started/debugging-scripts/),
+    [exécutez](./getting-started/running-scripts/),
+    [testez](./getting-started/testing-scripts/) vos scripts dans [Visual Studio Code](./getting-started/installation/)
+    ou avec une [ligne de commande](./getting-started/installatio/).
+
+    <Image src={debuggerSrc} alt={debuggerAlt} loading="lazy" />
+  </Card>
+
+  <Card title="Outils LLM" icon="setting">
+    Enregistrez des fonctions JavaScript comme [outils LLM](./reference/scripts/tools/)
+    (avec fallback pour les modèles qui ne prennent pas en charge les outils).
+
+    ```js wrap
+    defTool("weather", "live weather",
+        { city: "Paris" }, // schema
+        async ({ city }) => // callback
+            { ... "sunny" }
+    )
+    ```
+  </Card>
+
+  <Card title="Client MCP" icon="setting">
+    Utilisez des [outils](https://modelcontextprotocol.io/docs/concepts/tool/) exposés par les [serveurs Model Context Provider](./reference/scripts/mcp-tool/)
+
+    ```js wrap
+    defTool({
+      memory: {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-memory"],
+      },
+    });
+    ```
+  </Card>
+
+  <Card title="Serveur MCP" icon="setting">
+    Chaque script est un [outil Model Context Provider](./reference/scripts/mcp-serve/).
+
+    ```js wrap
+    script({
+      parameters: {
+        question: "What is the weather in Paris?",
+      },
+    });
+    $`Answer the question ${env.parameters.question}.`;
+    ```
+  </Card>
+
+  <Card title="Agents LLM" icon="sun">
+    Combinez [outils](./reference/scripts/tool/) et [prompts inlines](./reference/scripts/inline-prompts/)
+    dans un [agent](./reference/scripts/agent/).
+
+    ```js wrap
+    defAgent(
+      "git",
+      "Agent that answer git questions for the current repo",
+      "You are a helpful expert in using git.",
+      { tools: ["git"] },
+    );
+    ```
+
+    ```js wrap
+    script({ tools: "agent" });
+
+    $`Do a statistical analysis of the last commits`;
+    ```
+  </Card>
+
+  <Card title="Réutiliser et partager des scripts" icon="star">
+    Les scripts sont des [fichiers](./reference/scripts/)! Ils peuvent être versionnés, partagés, forkés, ...
+
+    <FileTree>
+      * genaisrc
+        * my-script.genai.mjs
+        * un-autre-super-script.genai.mjs
+    </FileTree>
+  </Card>
+
+  <Card title="Schémas de données" icon="list-format">
+    Définissez, validez, réparez des données grâce aux [schémas](./reference/scripts/schema/).
+
+    ```js wrap
+    const data = defSchema("MY_DATA",
+        { type: "array", items: { ... }, })
+    $`Extract data from files using ${data} schema.`
+    ```
+  </Card>
+
+  <Card title="Ingestion de texte depuis des PDF, DOCX, ..." icon="seti:pdf">
+    Manipulez
+    [PDFs](./reference/scripts/pd/),
+    [DOCX](./reference/scripts/doc/),
+    ...
+
+    ```js wrap
+    // automatically convert to text
+    def("PDF", env.files, { endsWith: ".pdf" });
+    // or parse and process
+    const { pages } = await parsers.PDF(env.files[0]);
+    ```
+  </Card>
+
+  <Card title="Ingérer des tableaux depuis CSV, XLSX, ..." icon="seti:pdf">
+    Manipulez des données tabulaires issues de
+    [CSV](./reference/scripts/cs/),
+    [XLSX](./reference/scripts/xls/),
+    ...
+
+    ```js wrap
+    // automatically convert to text
+    def("DATA", env.files, {
+      endsWith: ".csv",
+      // take top 100 rows
+      sliceHead: 100,
+    });
+    // or parse to JavaScript object array
+    const rows = await parsers.CSV(env.files[0]);
+    // render as markdown table
+    defData("ROWS", rows, { sliceHead: 100 });
+    ```
+  </Card>
+
+  <Card title="Reconnaissance vocale (Speech To Text)" icon="seti:microphone">
+    Transcrivez automatiquement de l'audio ou de la vidéo avec [OpenAI](./configuration/opena/)
+    ou [d'autres](./configuration/whisperas/).
+
+    ```js
+    const transcript = await transcript("path/to/audio.mp3");
+    const { srt, vtt, segments } = transcript;
+    ```
+  </Card>
+
+  <Card title="Images" icon="seti:image">
+    Incluez des images dans les prompts, nous les recadrerons/redimensionnerons automatiquement pour vous.
+
+    ```js
+    defImages(images, { autoCrop: true, details: "low" });
+    ```
+
+    <YouTube id="https://youtu.be/XbWgDn7NdTg" />
+  </Card>
+
+  <Card title="Vidéos" icon="seti:video">
+    Extrayez des images fixes à partir de vidéos en utilisant des timestamps ou même des transcriptions.
+
+    ```js
+    const frames = await ffmpeg.extractFrames("...", { count: 10 });
+    defImages(frames, { details: "low" });
+    ```
+  </Card>
+
+  <Card title="Générer des fichiers" icon="document">
+    Extrayez des fichiers et comparez les différences depuis le résultat du LLM. Prévisualisez les modifications dans l'interface de refactorisation.
+
+    ```js wrap
+    $`Save the result in poem.txt.`;
+    ```
+
+    ````txt wrap
+    FILE ./poem.txt
+    ```txt
+    The quick brown fox jumps over the lazy dog.
+    ```
+    ````
+
+    <FileTree>
+      * poem.txt extrait par genaiscript
+    </FileTree>
+  </Card>
+
+  <Card title="Recherche de fichiers" icon="document">
+    Greppez ou recherchez sur plusieurs [fichiers](./reference/scripts/file/)
+
+    ```js wrap
+    const { files } = await workspace.grep(/[a-z][a-z0-9]+/, { globs: "*.md" });
+    ```
+  </Card>
+
+  <Card title="Recherche Web" icon="magnifier">
+    [Recherchez sur le web](./reference/scripts/web-searc/) avec Bing ou Tavily.
+
+    ```js wrap
+    const pages = await retrieval.webSearch("what are the latest news about AI?");
+    ```
+  </Card>
+
+  <Card title="Automatisation du navigateur" icon="approve-check-circle">
+    Naviguez et scrapez le web avec [Playwright](./reference/scripts/browse/).
+
+    ```js
+    import { browse } from "@genaiscript/plugin-playwright";
+    const page = await browse("https://...");
+    const table = await page.locator("table[...]").innerHTML();
+    def("TABLE", await HTML.convertToMarkdown(table));
+    ```
+  </Card>
+
+  <Card title="RAG intégré" icon="magnifier">
+    [Recherche vectorielle](./reference/scripts/vector-search/)
+    avec une base de données locale ou [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-searc/).
+
+    ```js wrap
+    const index = await retrieval.index("animals", { type: "azure_ai_search" });
+    await index.insertOrUpdate(env.files);
+    const docs = await index.search("cat dog");
+    ```
+  </Card>
+
+  <Card title="Sécurité avant tout !" icon="seti:lock">
+    GenAIScript fournit des prompts système de Responsible AI intégrés et une prise en charge Azure Content Safety
+    pour valider la [sécurité du contenu](./reference/scripts/content-safet/).
+
+    ```js wrap
+    script({ ...,
+        systemSafety: "default",
+        contentSafety: "azure" // use azure content safety
+    })
+
+    const safety = await host.contentSafety()
+    const res = await safety.detectPromptInjection(env.vars.input)
+    ```
+  </Card>
+
+  <Card title="Modèles GitHub et GitHub Copilot" icon="github">
+    Exécutez des modèles via GitHub à l'aide de [GitHub Models](./configuration/githu/)
+    ou [GitHub Copilot](./configuration/github-copilot-cha/).
+
+    ```js wrap
+    script({ ..., model: "github:openai/gpt-4o" })
+    ```
+
+    <YouTube id="https://youtube.com/Wya3MQRIbmE/" />
+  </Card>
+
+  <Card title="Azure AI Foundry, Google, Anthropic, Amazon, Alibaba, ..." icon="rocket">
+    Exécutez des modèles depuis [Azure AI Foundry](https://ai.azure.com/), [Google](https://aistudio.google.com/), [Anthropic](https://www.anthropic.com/), [Alibaba](https://www.alibaba.com/), et d'autres.
+    Voir [Configuration](./getting-started/configuration/).
+
+    ```js wrap
+    script({ ..., model: "azure_ai_inference:o3-mini"})
+    ```
+  </Card>
+
+  <Card title="Modèles locaux" icon="laptop">
+    Exécutez vos scripts avec des [modèles open source](./getting-started/configuration/),
+    comme [Phi-3](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/),
+    via [Ollama](https://ollama.com/), [LocalAI](https://localai.io/)...
+
+    ```js wrap
+    script({ ..., model: "ollama:phi3" })
+    ```
+  </Card>
+
+  <Card title="Interpréteur de code" icon="seti:python">
+    Laissez le LLM exécuter du code dans un environnement d'exécution isolé.
+
+    ```js wrap
+    script({ tools: ["python_code_interpreter"] });
+    ```
+  </Card>
+
+  <Card title="Conteneurs" icon="seti:docker">
+    Exécutez du code dans des [containers Docker](./reference/scripts/containe/).
+
+    ```js wrap
+    const c = await host.container({
+      image: "python:alpine",
+    });
+    const res = await c.exec("python --version");
+    ```
+  </Card>
+
+  <Card title="Composition LLM" icon="external">
+    [Exécutez des LLMs](./reference/scripts/inline-prompts/) pour composer vos prompts LLM.
+
+    ```js wrap
+    // summarize each files individually
+    for (const file of env.files) {
+      const { text } = await runPrompt((_) => {
+        _.def("FILE", file);
+        _.$`Summarize the FILE.`;
+      });
+      // use result in main prompt
+      def("SUMMARY", text);
+    }
+    // use summary
+    $`Summarize all the summaries.`;
+    ```
+  </Card>
+
+  <Card title="Générer des images" icon="sun">
+    [Générez des images](./reference/scripts/image-generatio/) avec OpenAI DALL-E ou autres.
+
+    ```js wrap
+    const { image, revisedPrompt } = await generateImage(
+      `a cute cat. only one. photographic, high details. 4k resolution.`,
+    );
+    ```
+  </Card>
+
+  <Card title="Classify" icon="heart">
+    Classifiez du texte, des images ou un mélange des deux.
+
+    ```js
+    const joke = await classify("Why did the chicken cross the roard? To fry in the sun.", {
+      yes: "funny",
+      no: "not funny",
+    });
+    ```
+  </Card>
+
+  <Card title="Prompty" icon="seti:markdown">
+    Convertissez des fichiers [Prompty](https://prompty.ai/) en utilisant GenAIScript.
+
+    ```markdown title="poem.prompty"
+    ---
+    name: poem
+    ---
+
+    system:
+    Write a short poem about
+    user:
+    {{something}}.
+    ```
+
+    ```js wrap
+    importTemplate("poem.prompty", { something: "code " });
+    ```
+  </Card>
+
+  <Card title="Analyse des secrets extensible (Pluggable Secret Scanning)" icon="seti:license">
+    Scannez vos discussions pour y détecter des secrets grâce au [secret scanning](./reference/scripts/secret-scannin/).
+
+    ```json title="genaiscript.config.json"
+    {
+        "secretPatterns": {
+            ...,
+            "OpenAI API Key": "sk-[A-Za-z0-9]{32,48}"
+        }
+    }
+    ```
+  </Card>
+
+  <Card title="Automatiser avec le CLI" icon="github">
+    Automatisez via le [CLI](./reference/cl/),
+    intégrez des rapports dans votre pipeline CI/CD.
+
+    ```bash frame="none" wrap
+    npx genaiscript run tlaplus-linter "*.tla"
+    ```
+  </Card>
+
+  <Card title="Revue des Pull Requests" icon="comment">
+    Intégrez aux [vérifications de Pull Requests](./reference/cli/run/#pull-request/) à travers des commentaires,
+    revues ou modifications de description. Supporte GitHub Actions et Azure DevOps pipelines.
+
+    ```bash frame="none" wrap "--pull-request-reviews"
+    npx genaiscript ... --pull-request-reviews
+    ```
+  </Card>
+
+  <Card title="Tests et évaluations" icon="star">
+    Construisez des prompts fiables à l'aide de [tests et évaluations](./reference/scripts/test/)
+    alimentés par [promptfoo](https://promptfoo.dev/).
+
+    ```js wrap
+    script({ ..., tests: {
+      files: "penguins.csv",
+      rubric: "is a data analysis report",
+      facts: "The data refers about penguin population in Antartica.",
+    }})
+    ```
+
+    <Image src={testExplorerSrc} alt={testExplorerAlt} loading="lazy" />
+  </Card>
+</CardGrid>
+
+## Études de cas
+
+Histoires du monde réel utilisant GenAIScript.
+
+<DirectoryLinks directory="case-studies" />
+
+## Exemples
+
+Scripts complets prêts à être utilisés.
+
+<DirectoryLinks directory="samples" />
+
+## Guides
+
+Un recueil de recettes pour faire de vous un as du scripting.
+
+<DirectoryLinks directory="guides" />
+
+## Agents
+
+<BuiltinAgents />
+
+## Documentation adaptée aux LLMs
+
+Si vous êtes un crawler LLM, récupérez [https://microsoft.github.io/genaiscript/llms.txt](https://microsoft.github.io/genaiscript/llms.txt) pour obtenir une carte de la documentation ou ajoutez le suffixe `.md` à toute URL de documentation pour obtenir un contenu brut au format markdown.
+
+Par exemple, [https://microsoft.github.io/genaiscript/guides/prompt-as-code.md](https://microsoft.github.io/genaiscript/guides/prompt-as-code.md) (notez l'extension .md).

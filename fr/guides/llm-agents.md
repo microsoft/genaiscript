@@ -1,0 +1,48 @@
+import { Code } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import source from "../../../../../../samples/sample/genaisrc/github-agent.genai.mts?raw";
+import sourceMulti from "../../../../../../samples/sample/genaisrc/agent_git_other.genai.mjs?raw";
+
+Un **[agent](../../reference/scripts/agents/)** est un type spécial de [outil](../../reference/scripts/tools/) qui utilise une [invite en ligne](../../reference/scripts/inline-prompts/) et des [outils](../../reference/scripts/tools/) pour accomplir une tâche.
+
+## Utilisation
+
+Nous voulons créer un script capable d'enquêter sur les échecs des exécutions les plus récentes dans un dépôt GitHub utilisant GitHub Actions.
+Pour cela, nous aurons probablement besoin des agents suivants :
+
+* interroger l'API GitHub, `agent_github`
+* calculer un diff git pour déterminer quels changements ont cassé la build, `agent_git`
+* lire ou rechercher des fichiers `agent_fs`
+
+```js wrap title="github-investigator.genai.mts"
+script({
+    tools: ["agent_fs", "agent_git", "agent_github", ...],
+    ...
+})
+```
+
+Chacun de ces agents est capable d'appeler un LLM avec un ensemble spécifique d'outils pour accomplir une tâche.
+
+Le code source complet du script est disponible ci-dessous :
+
+<Code code={source} wrap={true} lang="js" title="github-investigator.genai.mts" />
+
+## Plusieurs instances du même agent
+
+Certains agents, comme `agent_git`, peuvent être instanciés avec différents paramètres, comme travailler sur différents dépôts.
+
+<Code code={sourceMulti} wrap={true} lang="js" title="multi-agents.genai.mts" />
+
+Dans ce cas, assurez-vous de fournir un argument `variant` qui sera utilisé pour générer un nom d'agent unique.
+
+## Diviser ou ne pas diviser
+
+Vous pouvez essayer de charger tous les outils dans le même appel LLM et exécuter la tâche comme une seule conversation LLM.
+Les résultats peuvent varier.
+
+```js wrap title="github-investigator.genai.mts"
+script({
+    tools: ["fs", "git", "github", ...],
+    ...
+})
+```

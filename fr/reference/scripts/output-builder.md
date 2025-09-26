@@ -1,0 +1,83 @@
+L'objet `env.output` est utilisé pour créer une sortie markdown pour l'exécution de votre script. Il fournit des méthodes pour ajouter du texte, des images, des tableaux et d'autres éléments à la sortie.
+
+```js
+const { output } = env
+
+output.heading(3, "Analysis report")
+```
+
+La réponse LLM du script principal est également ajoutée automatiquement à la sortie.
+
+```js
+const { output } = env
+
+output.heading(3, "A poem...")
+
+$`Write a poem` // piped to output as well
+```
+
+## Support Markdown
+
+* titre
+
+```js wrap
+output.heading(2, "Project Overview")
+```
+
+* bloc de code entouré
+
+```js wrap
+output.fence("let x = 0", "js")
+```
+
+* bloc de code entouré dans une section de détails
+
+```js
+output.detailsFence("code", "let x = 0", "js")
+```
+
+* avertissement, note, mise en garde
+
+```js
+output.warn("Probably not a good idea.")
+```
+
+* image
+
+```js wrap
+output.image("https://example.com/image.png", "Sample Image")
+```
+
+* exemple de tableau
+
+```js wrap
+output.table([
+    { Name: "Alice", Role: "Developer" },
+    { Name: "Bob", Role: "Designer" },
+])
+```
+
+* élément de résultat
+
+```js
+output.resultItem(true, "All tests passed successfully.")
+output.resultItem(false, "There were errors in the deployment process.")
+```
+
+* détails
+
+```js wrap
+output.startDetails("Deployment Details", { success: true, expanded: true })
+output.appendContent("Deployment completed on 2024-04-27.")
+output.endDetails()
+```
+
+Il existe d'autres fonctions disponibles dans l'interface `OutputBuilder`.
+
+## cli
+
+Vous pouvez spécifier un emplacement de fichier pour le fichier de sortie à l'aide du drapeau `--out-output` dans la commande [run](../../../reference/reference/cli/run/).
+
+```sh
+genaiscript run ... --out-output ./output.md
+```

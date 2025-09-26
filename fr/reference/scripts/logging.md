@@ -1,0 +1,110 @@
+GenAIScript utilise la bibliothèque [debug](https://www.npmjs.com/package/debug) pour la journalisation. C'est une bibliothèque de journalisation très flexible et puissante qui vous permet d'activer ou de désactiver la journalisation pour des espaces de noms spécifiques.
+
+## Journaliseur de script
+
+Le `env.dbg` est un journaliseur de débogage avec `script` comme espace de noms. Les messages du journaliseur de débogage ne sont *pas* envoyés à la trace en markdown.
+
+```js title="poem.genai.mjs"
+// put this at the top of your script
+// so you can use `dbg` throughout the file
+const { dbg } = env
+
+dgb("This is a debug message!")
+```
+
+## Voir les logs
+
+Par défaut, la journalisation de débogage est désactivée. Vous devez l'activer avec des modèles d'espaces de noms.
+
+Les messages de script sont visibles en exécutant avec `DEBUG=<scriptid>`.
+
+```sh "--dbg script"
+genaiscript run poem --dbg script
+```
+
+ou en utilisant la variable d'environnement `DEBUG`.
+
+```sh
+DEBUG=script genaiscript run ...
+```
+
+Vous pouvez spécifier plusieurs catégories en les séparant par une virgule.
+
+```sh "--dbg script"
+genaiscript run poem --dbg script file config modelalias
+```
+
+ou
+
+```sh
+DEBUG=script,genaiscript:* genaiscript run ...
+```
+
+### caractères génériques
+
+Le caractère `*` peut être utilisé comme caractère générique. Supposons, par exemple, que votre bibliothèque dispose de journaux nommés `connect:bodyParser`, `connect:compress`, `connect:session`. Au lieu de lister les trois avec `DEBUG=connect:bodyParser,connect:compress,connect:session`, vous pouvez simplement utiliser `DEBUG=connect:*`, ou pour exécuter tout avec ce module simplement utiliser `DEBUG=*`.
+
+Vous pouvez également exclure des journaux spécifiques en les préfixant avec un caractère `-`. Par exemple, `DEBUG=*,-connect:*` inclurait tous les journaux sauf ceux commençant par `connect:`.
+
+### Visual Studio Code
+
+Ouvrez les paramètres de script GenAIScript et activez "Diagnostics" (équivalent à définir '\*' comme espace de noms) ou définissez spécifiquement le paramètre **DEBUG** sur l'espace de noms que vous souhaitez activer.
+
+```sh
+DEBUG=script
+```
+
+La valeur par défaut est `script`.
+
+### Ligne de commande
+
+Pour activer la journalisation avec le [cli](../../../reference/reference/cli/), vous devez définir la variable d'environnement `DEBUG` sur l'espace de noms que vous souhaitez activer. Par exemple, pour activer la journalisation pour l'espace de noms `sample`, vous pouvez exécuter le script comme ceci :
+
+```bash
+DEBUG=script genaiscript run poem
+```
+
+Et vous verrez la sortie suivante :
+
+```txt
+  sample This is a debug message +0ms
+  sample This is a debug message with a variable: variable +0ms
+  sample This is a debug message with an object: { key: 'value' } +0ms
+To see log messages, run the script with DEBUG=genai:sample
+DEBUG=sample genaiscript run debug
+```
+
+## Journaliseurs personnalisés
+
+Vous pouvez utiliser `host.logger` pour créer un journaliseur personnalisé avec un espace de noms spécifique.
+
+```js 'host.logger("sample")'
+const d = host.logger("sample")
+
+d("This is a debug message")
+d("This is a debug message with a variable: %s", "variable")
+d("This is a debug message with an object: %o", { key: "value" })
+
+console.log("To see log messages, run the script with DEBUG=genai:sample")
+console.log("DEBUG=sample genaiscript run debug")
+```
+
+et mettez à jour la valeur de la variable d'environnement `DEBUG` avec l'espace de noms que vous souhaitez activer.
+
+```sh
+DEBUG=sample genaiscript run debug
+```
+
+## Journalisation intégrée à GenAIScript
+
+* toute journalisation interne dans GenAIScript est préfixée par `genaiscript:`.
+
+```sh
+DEBUG=genaiscript:* genaiscript run ...
+```
+
+* la journalisation des agents est préfixée par `agent:name`.
+
+```sh
+DEBUG=genaiscript:* genaiscript run ...
+```

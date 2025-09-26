@@ -1,0 +1,6 @@
+import { Code } from "@astrojs/starlight/components"
+import source from "../../../../../../samples/sample/genaisrc/diagrams.genai.mjs?raw";
+
+Cet exemple analyse tout le code dans son contexte et tente de générer un diagramme en utilisant [mermaid](https://mermaid.js.org/).
+
+<Code code={source} wrap={true} lang="ts" title="diagram.genai.mts" />

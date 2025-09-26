@@ -1,0 +1,7 @@
+import { LinkCard } from "@astrojs/starlight/components"
+
+Voici quelques scripts écrits par la communauté qui sont utiles pour diverses tâches. Si vous avez un script que vous pensez devoir être inclus, veuillez soumettre une pull request pour l'ajouter à cette liste.
+
+<LinkCard title="Grumpy Dev" description="Let the grumpy senior dev review your code with this MCP server" href="https://github.com/sinedied/grumpydev-mcp/blob/main/genaisrc/review-code.genai.js" />
+
+* [Soumettez votre script](https://github.com/microsoft/genaiscript/edit/dev/docs/src/content/docs/samples/awesome.mdx).

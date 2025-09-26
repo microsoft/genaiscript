@@ -1,0 +1,107 @@
+import { Steps } from '@astrojs/starlight/components';
+
+Supposons que nous souhaitions planifier un voyage de week-end en utilisant un GenAIScript qui
+nous aidera à organiser ce voyage en utilisant la recherche web pour découvrir des activités à faire et la météo prévue.
+
+:::note
+Vous aurez besoin d'une [clé API Bing Web Search](../../reference/scripts/web-search/) pour utiliser `webSearch`.
+:::
+
+<Steps>
+  1. Utilisez la commande `> GenAIScript : Créer un nouveau script...` dans la palette de commandes pour créer un nouveau script.
+
+  2. Commencez le script en définissant le modèle et le titre :
+     ```js
+     script({
+         title: "plan-weekend",
+         description: "Given details about my goals, help plan my weekend",
+         model: "openai:gpt-4o",
+     })
+     ```
+
+  3. Utilisez la fonction [`webSearch`](../../reference/scripts/web-search/) pour
+     chercher des informations sur la destination.
+     Si vous n'en avez pas, vous pouvez rechercher les pages web manuellement et utiliser les URL directement
+     dans l'appel à la fonction `host.fetchText`.
+     ```js
+     const parkinfo = await retrieval.webSearch("mt rainier things to do")   
+     ```
+
+  4. `webSearch` renvoie une liste d'URL. Utilisez [`fetchText`](../../reference/scripts/fetch/)
+     pour récupérer le contenu de la 1ère URL.
+     ```js
+     const parktext = await host.fetchText(parkinfo.webPages[0])
+     ```
+
+  5. `host.fetchText` retourne beaucoup de balises HTML de formatage, etc.
+     Utilisez [`runPrompt`](../../reference/scripts/inline-prompts/)
+     pour appeler le LLM afin de nettoyer ces balises et ne garder que le texte.
+     ```js
+     const cleanInfo = await runPrompt(_ => {
+         // use def, $ and other helpers
+         _.def("INFO", parktext.text)
+         _.$`You are an expert in web content. 
+         Extract out of the file INFO, which is HTML with lots of CSS and HTML tags, 
+         the important information that a human would want to know.`
+     })
+     ```
+
+  6. Répétez pour obtenir les dernières informations météo sur votre destination.
+     ```js
+     const weather = await retrieval.webSearch("mt rainier weather")
+     ```
+
+  7. Remplacez le texte `"TELL THE LLM WHAT TO DO..."` par le type de
+     vacances que vous souhaitez planifier.
+     ```js
+     $`You are a helpful assistant that is an expert in planning weekend trips.
+     I've included information about my destination in PARKINFO and WEATHER.
+     Help me plan a weekend trip starting tomorrow.`
+     ```
+
+  8. Appuyez sur le bouton "Run" en haut à droite de l'éditeur pour exécuter le script.
+     (Vous pouvez exécuter ce script de cette manière car il ne nécessite aucune autre entrée dans `env.files`))
+
+  9. La sortie sera affichée dans un nouvel onglet de document.
+</Steps>
+
+Voici un exemple de sortie que vous pourriez obtenir :
+
+```plaintext wrap
+Based on the information provided in PARKINFO and the various weather forecasts, here's a concise plan for your weekend trip to Mount Rainier National Park starting tomorrow:
+
+Day 1: Arrival and Exploration
+Morning: Arrive at the park via the Nisqually entrance, which is open year-round.
+Afternoon: Visit Paradise, one of the most popular areas in the park. Check the weather before heading out, as the forecast suggests a heavy fall of snow and extremely cold temperatures. Dress warmly and carry snow chains if driving.
+Evening: Have dinner at the Paradise Inn, if open, and stay overnight in the park or nearby accommodation.
+```
+
+Voici le GenAIScript complet :
+
+```js wrap
+script({
+    title: "plan-weekend",
+    description: "Given details about my goals, help plan my weekend",
+    model: "openai:gpt-4o",
+})
+
+const parkinfo = await retrieval.webSearch("mt rainier things to do")
+const parktext = await fetchText(parkinfo.webPages[0])
+
+const cleanInfo = await runPrompt(_ => {
+    // use def, $ and other helpers
+    _.def("INFO", parktext.text)
+    _.$`You are an expert in web content. 
+    Extract out of the file INFO, which is HTML with lots of CSS and HTML tags, 
+    the important information that a human would want to know.`
+})
+
+if (cleanInfo) def("PARKINFO", cleanInfo.text)
+
+const weather = await retrieval.webSearch("mt rainier weather")
+def("WEATHER", weather.webPages)
+
+$`You are a helpful assistant that is an expert in planning weekend trips.
+I've included information about my destination in PARKINFO and ${weather}.
+Help me plan a weekend trip starting tomorrow.`
+```

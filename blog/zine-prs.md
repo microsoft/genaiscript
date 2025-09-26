@@ -1,0 +1,88 @@
+import { Code } from "@astrojs/starlight/components";
+import code from "../../../../../samples/sample/genaisrc/samples/prd-zine.genai.mts?raw";
+import sketchCode from "../../../../../samples/sample/genaisrc/samples/prd-sketch.genai.mts?raw";
+import BlogNarration from "../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+The availability of new image generators like OpenAI `gpt-image-1` opens
+the door to endless new ways to visualize and annotate software artifacts.
+
+:::tip
+
+It also works for **sketchnotes!**
+
+:::
+
+## Zines
+
+["Zine"](https://en.wikipedia.org/wiki/Zine) is a popular graphic art form that combines text and images to tell a story.
+Can we prompt the LLM to generate a zine from a pull request diff? _offline robotic voice: Yes we can_.
+
+The script below is a 2 step LLM transformation of the pull request into a zine:
+
+- use `gpt-4.1-mini` to transform the diff into a image generation prompt
+- use `gpt-image-1` to generate the image from the prompt
+- - a bit of plumbing to upload the generated image into a branch and add it to the pull request description
+
+<Code code={code} lang="ts" wrap title="prd-zine.genai.mts" />
+
+- https://github.com/microsoft/genaiscript/pull/1505
+
+![A comic-style illustration depicts a process for locating files in a directory. A detective shines a flashlight on files, identifying directories and handling ignored files. "Expand!" is emphasized with blooming flowers. A sad person holds a "No files found!" sign. The bottom shows parsed URIs resolved into resources and files gathered on a conveyor belt.](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/522d1313a72276c6e257e8515aef10cefca29020918382165d523bed3ac84744.jpg)
+
+- https://github.com/microsoft/genaiscript/pull/1503
+
+![A cartoon-style illustration explaining a GitHub workflow: a GitHub mascot holding an asset URL, a robot uploading assets with format options, a file cache conveyor belt managing style, quality, and size, an octopus correcting URL paths, diagnostics showing generated messages, a person checking URLs, and a "Pull Request Zine" showing a pull request diff.](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/ac75c0e82897b9bc80b7bdbab503dacdee16da762f1048ae20d163c4d1b5e7ac.jpg)
+
+- https://github.com/microsoft/genaiscript/pull/1507
+
+![A comic-style illustration showcasing an annotation tool for code refinement. It highlights features like suggesting fixes for errors, upgraded parsing for typo detection, and integration with Git blame for tracking code authorship. The visuals include icons, text bubbles, and a magnifying glass-wielding character emphasizing better feedback and smarter tracking.](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/1a2f6bff55de7c004d46cfd9b014b598f2be4903702095aaea02c01c95e0df4d.jpg)
+
+- https://github.com/microsoft/genaiscript/pull/1506
+
+![The image illustrates a modular process for managing UI and schema elements, featuring six panels: Parameters Schema, uiGroup Concept, Schema Cleaning, Sample Cleaning, Types Extended, and UI Rendering Grouped. Each panel uses icons and diagrams to depict steps like organizing parameters, grouping UI elements, cleaning schemas, extending types, and rendering grouped UI components.](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/1b560d071efb015942678ffc705eac01e0d1dad8fd1e88ab521c0283a535a278.jpg)
+
+## Sketchnotes (updated)
+
+["Sketchnotes"](https://sketchyideas.co/sketchnotes/) is another style of visual note-taking that combines hand-drawn elements with text to convey information.
+It is a great way to summarize a pull request and make it more engaging.
+
+<Code
+  code={sketchCode}
+  lang="ts"
+  wrap
+  title="prd-sketch.genai.mts"
+/>
+
+- https://github.com/microsoft/genaiscript/pull/1510
+
+![A flowchart illustrating a Node.js version check process for TerminalServerManager. It involves verifying Node.js installation and version (≥20), using constants.ts, promise flow, and commands like "node cliPath serve" or "npx serve," with error messages for missing or outdated Node.js.](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/034e747af0809c2ed0ed02f5e980cce1f48a6f80e0a3c63818694d3afa34647a.jpg)
+
+- https://github.com/microsoft/genaiscript/pull/1511
+
+![A visual diagram introduces a feature combining zines and pull requests. It shows a PR diff leading to sketchnotes, which are visual note-taking with drawings, then generating a PR summary. Text highlights new AI image prompts for creating sketchnotes, with icons of ideas, drawings, and collaboration.](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/d9461598f48703dceb7e4dd381292b713c993dbbde2dec3f2b2b18858d774dfb.jpg)
+
+## What about other styles?
+
+Pushing the idea even further, we can ask the LLM to pick a random graphical style and generate a pull request diff in that style.
+This idea was applied in https://github.com/microsoft/genaiscript/pull/1512.
+
+- collage
+
+![A colorful diagram illustrates a "Pull Request Visual Renderer" surrounded by creative outputs like comic strips, infographics, zines, sketchnotes, and cut-paper art. Arrows connect elements like code, a magnifying glass, and cloud upload, symbolizing a workflow.](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/0cfbcad27efd026c72d23b2d75e801add50a67a7061585e8c680299e2fe8dae6.jpg)
+
+- mural
+
+![An illustration depicting a pull request visual renderer process with interconnected elements like branches, genres, and output images. It features icons for gears, a light bulb, a lock, GitHub, and vibrant visual pathways connecting components, symbolizing workflows and creativity.](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/a672ed828a6fa1e5dc2561f120f9c35353a2ba27a10cc285a0d40c4a68581e66.jpg)
+
+- editorial illustration
+
+![An illustration of a person working on a computer with "Pull Request Visual Renderer" on the screen, surrounded by vibrant visual elements like charts, graphs, and abstract icons representing data and collaboration.](https://raw.githubusercontent.com/microsoft/genaiscript/refs/heads/genai-assets/c5478b3f3015ee93578984a0c19874b5310fb556290309995077fb1f6077daa9.jpg)
+
+## More to come
+
+The zine is a fun way to visualize the pull request diff. It is not perfect but it is inviting
+and maybe this is all you need to get someone to review your PR!
+
+There will be more ways to visualize software in the future, thanks to these amazing image generators.

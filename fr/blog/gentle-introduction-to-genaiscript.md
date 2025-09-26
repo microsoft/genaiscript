@@ -1,0 +1,98 @@
+import BlogNarration from "../../../../components/BlogNarration.astro";
+
+<BlogNarration />
+
+Vous vous êtes déjà demandé comment exploiter la puissance de l'IA et des grands modèles de langage (LLM) dans vos projets ? Ne cherchez plus !
+Cet article vous présentera [GenAIScript](https://microsoft.github.io/genaiscript), un outil conçu pour simplifier la création d'invites et les interactions avec les LLM. Plongeons-y ! 🌊
+
+## Qu'est-ce que GenAIScript ?
+
+GenAIScript utilise une version stylisée de JavaScript pour générer des invites, qui sont ensuite envoyées à un LLM.
+Les scripts sont stockés sous forme de fichiers (`genaisrc/*.genai.mjs`), exécutés pour produire le texte de l'invite, et les résultats structurés (fichiers, diagnostics) sont extraits automatiquement.
+
+## Premiers pas
+
+Voici un exemple simple pour commencer. Créez un fichier nommé `poem.genai.mjs` dans le dossier `genaisrc` et ajoutez le code suivant :
+
+```js
+$`Write a one sentence poem.`;
+```
+
+Lorsqu'il est exécuté, ce script générera l'invite suivante :
+
+<details>
+  <summary>👤 Utilisateur</summary>
+
+  ```markdown
+  Write a one sentence poem.
+  ```
+</details>
+
+<details open>
+  <summary>🤖 Assistant</summary>
+
+  ```markdown
+  Roses bloom, hearts swoon, under the silver moon.
+  ```
+</details>
+
+## Ajouter du contexte
+
+GenAIScript peut également utiliser des variables de contexte, vous permettant d'interagir avec des fichiers ou d'autres sources de données. Voyons un exemple où nous définissons une variable de contexte en utilisant `env.files` :
+
+```js
+def("FILES", env.files);
+$`You are an expert technical writer and proofreader.
+Review the documents in FILES and report the 2 most important issues.`;
+```
+
+Exécutez ce script pour voir le message utilisateur généré et la réponse de l'assistant. La variable de contexte `FILES` contiendra la liste des fichiers dans l'environnement.
+
+<details>
+  <summary>👤 Utilisateur</summary>
+
+  ```markdown
+  FILES:
+  file="src/samples/markdown.md"
+  What is Markdown?
+  Markdown is a lightweight markup language that...
+
+  You are an expert technical writer and proofreader.
+  Review the documents in FILES and report the 2 most important issues.
+  ```
+</details>
+
+<details open>
+  <summary>🤖 Assistant</summary>
+
+  ```markdown
+  I reviewed the document in "src/samples/markdown.md"
+  and found the following two important issues:
+
+  1. **Missing Consistency in Heading Styles**: ...
+  ```
+</details>
+
+## Métadonnées et configuration du script
+
+Vous pouvez ajouter des métadonnées à votre script en utilisant la fonction `script`. Cela aide à organiser et configurer le script, y compris la spécification du modèle et d'autres paramètres. GenAIScript supporte divers fournisseurs de LLM, tels qu'OpenAI, Azure OpenAI,
+GitHub Models, Ollama et plus encore.
+
+```js
+script({
+  title: "Technical proofreading",
+  description: "Reviews the text as a tech writer.",
+  model: "openai:gpt-4o",
+  temperature: 0.1,
+});
+def("FILES", env.files);
+$`You are an expert technical writer and proofreader.
+Review the documents in FILES and report the 2 most important issues.`;
+```
+
+## Étapes suivantes
+
+* [Guide de démarrage](https://microsoft.github.io/genaiscript/getting-started/) pour configurer et commencer à utiliser GenAIScript.
+* Explorez des scripts plus avancés en suivant le [guide Prompt As Code](https://microsoft.github.io/genaiscript/guides/prompt-as-code).
+
+Voilà ! Une introduction douce à GenAIScript pour vous lancer dans votre parcours d'ingénierie des invites. Bon scripting ! 💻✨

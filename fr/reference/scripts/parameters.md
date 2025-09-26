@@ -1,0 +1,170 @@
+import { YouTube } from "astro-embed"
+
+Cette page décrit la manière dont les signatures des paramètres sont définies dans GenAIScripts. Diverses entités dans GenAIScript peuvent être paramétrées, et le `PromptParametersSchema` fournit un moyen flexible de définir le schéma des paramètres avec un mélange d'inférences de types intégrées.
+
+```js "parameters"
+// parameters of a script
+script({
+    parameters: {
+        city: "",
+        year: NaN,
+    },
+})
+// parameters of a tool
+defTool("...", "...", { city: "", year: NaN }, ...)
+```
+
+En interne, GenAIScript convertit un objet `parameters` (`PromptParametersSchema`) en un schéma JSON (`JSONSchema`) à diverses fins. Par exemple, l'API des outils OpenAI utilise JSONSchema pour définir la signature des outils.
+
+`JSONSchema` est plus expressif mais aussi plus verbeux à rédiger et peut être fastidieux à écrire manuellement pour des cas d'utilisation simples.
+
+```js '{ city: "" }'
+defTool("weather", "current weather", { city: "" }, ...)
+```
+
+<YouTube id="https://youtu.be/96iPImE4c2o" posterQuality="high" />
+
+## Syntaxe
+
+Les règles de transformation suivantes sont appliquées pour convertir les données de paramètres en un JSONSchema :
+
+* si la valeur est un objet et possède une propriété `type`, elle est traitée comme un objet JSONSchema déjà existant (et les objets imbriqués sont également convertis)
+
+```txt
+{ type: "string" } => { type: "string" }
+```
+
+* si la valeur est une chaîne de caractères, elle est convertie en `{ type: "string" }`. Si la chaîne est '""', elle sera requise ; sinon, la valeur sert de `default`.
+
+```txt
+"" => { type: "string" }
+"San Francisco" => { type: "string", default: "San Francisco" }
+```
+
+* si la valeur est un nombre, elle est convertie en `{ type: "number" }`. Si le nombre est `NaN`, il sera requis.
+
+```txt
+NaN => { type: "number" }
+42 => { type: "number", default: 42 }
+```
+
+* si la valeur est un booléen, elle est convertie en `{ type: "boolean" }`. Il n'existe pas encore de méthode pour encoder un booléen requis.
+
+```txt
+true => { type: "boolean", default: true }
+```
+
+* si la valeur est un tableau, le type des éléments est déduit à partir du premier élément du tableau.
+
+```txt
+[""] => { type: "array", items: { type: "string" } }
+```
+
+* si la valeur est un objet, elle est convertie en un schéma `type: 'object'`. Les champs avec des valeurs `""` ou `NaN` sont requis.
+
+```txt
+{ city: "" } => {
+    type: "object",
+    properties: { city: { type: "string" } },
+    required: ["city"]
+}
+{ price: 42 } => {
+    type: "object",
+    properties: { price: { type: "number", default: 42 } },
+    required: []
+}
+```
+
+## Indications pour l'interface utilisateur
+
+Certaines propriétés supplémentaires, non standard, sont utilisées pour fournir des informations complémentaires à l'interface utilisateur :
+
+* `uiGroup` sur toute propriété d'objet regroupe cet élément dans une section repliée dans l'interface utilisateur.
+
+```json
+{
+    "type": "string",
+    "uiGroup": "secondary"
+}
+```
+
+* `uiType` `textarea` pour indiquer que le champ doit être rendu sous la forme d'une zone de texte.
+
+```json
+{
+    "type": "string",
+    "uiType": "textarea"
+}
+```
+
+* `uiSuggestions` pour fournir une liste de suggestions pour un type `string`. Les suggestions remplissent le menu déroulant dans l'interface utilisateur tout en permettant d'autres valeurs.
+
+```json
+{
+    "type": "string",
+    "uiSuggestions": ["San Francisco", "New York"]
+}
+```
+
+* `uiType`: `runOption` pour un booléen place la case à cocher sous le bouton `Run`.
+
+```json
+{
+    "type": "boolean",
+    "uiType": "runOption"
+}
+```
+
+## `accept`
+
+Vous pouvez spécifier la liste des extensions de fichiers prises en charge, séparées par des virgules, pour les variables `env.files`.
+
+```js
+script({
+    accept: ".md,.txt",
+})
+```
+
+Pour supprimer la prise en charge de tous les fichiers, définissez `accept` comme `none`.
+
+```js
+script({
+    accept: "none",
+})
+```
+
+## Scripts et Scripts système
+
+Les `parameters` d'une entrée `script` sont utilisés pour remplir les entrées `env.vars`. Le schéma des paramètres est utilisé par Visual Studio Code lors du lancement du script, dans le [playground](../../../reference/reference/playground/) pour remplir les champs du formulaire.
+
+* les noms des paramètres de script au niveau supérieur sont utilisés tels quels dans `env.vars`
+
+```js
+script({
+    parameters: {
+        city: "",
+        year: NaN,
+    },
+})
+const city = env.vars.city // city is a string
+const year = env.vars.year // year is a number
+```
+
+* les `parameters` d'un [script système](../../../reference/reference/scripts/system/) sont préfixés par l'identifiant du script système.
+
+```js title="system.something.genai.js"
+system({
+    parameters: {
+        value: "",
+    },
+})
+export default function (ctx: ChatGenerationContext) {
+    const { env } = ctx
+    const value = env.vars["system.something.value"]
+    ...
+}
+```
+
+## Inférence à l'exécution
+
+Vous pouvez exécuter l'assistant de conversion en utilisant la fonction `JSONSchema.infer`.

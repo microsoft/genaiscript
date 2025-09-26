@@ -1,0 +1,46 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+Le fournisseur `alibaba` donne accès aux modèles de [Alibaba Cloud](https://www.alibabacloud.com/).
+
+```js "alibaba:"
+script({
+  model: "alibaba:qwen-max",
+});
+```
+
+<Steps>
+  <ol>
+    <li>
+      Inscrivez-vous pour un [compte Alibaba Cloud](https://www.alibabacloud.com/help/en/model-studio/developer-reference/get-api-key) et obtenez une clé API depuis leur [console](https://bailian.console.alibabacloud.com/).
+    </li>
+
+    <li>
+      Ajoutez votre clé API Alibaba dans le fichier `.env` :
+
+      ```txt title=".env"
+      ALIBABA_API_KEY=sk_...
+      ```
+    </li>
+
+    <li>
+      Trouvez le modèle qui correspond le mieux à vos besoins en visitant les [modèles Alibaba](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api).
+    </li>
+
+    <li>
+      Mettez à jour votre script pour utiliser le `model` de votre choix.
+
+      ```js
+      script({
+          ...
+          model: "alibaba:qwen-max",
+      })
+      ```
+    </li>
+  </ol>
+</Steps>
+
+<LLMProviderFeatures provider="alibaba" />

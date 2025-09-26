@@ -1,0 +1,60 @@
+import { Code } from '@astrojs/starlight/components';
+import importedCode from "../../../../../../samples/sample/src/vision/describe-card.genai.js?raw";
+import importedSchemaCode from "../../../../../../samples/sample/src/vision/describe-card-schema.genai.js?raw";
+
+Ce guide montre comment utiliser la vision et les variables d'image pour scanner les informations des cartes de visite dans un format structuré.
+
+## Modèle de vision
+
+Vous aurez besoin d'un accès à un déploiement du modèle de vision d'OpenAI. Dans cet exemple, il est identifié par `gpt-4o`.
+Réglez également le `maxTokens` à 4000 pour vous assurer que le modèle peut traiter l'intégralité de la carte de visite.
+
+```js "gpt-4o"
+script({
+    ...
+    model: "openai:gpt-4o",
+    maxTokens: 4000,
+})
+```
+
+## `defImage`
+
+La fonction [defImage](../../reference/scripts/images/) peut être utilisée pour entrer plusieurs fichiers dans le script.
+Les fichiers non-image seront automatiquement ignorés, vous pouvez donc généralement passer [env.files](../../reference/scripts/context/) directement à `defImages`.
+
+```js
+defImages(env.files)
+```
+
+## Production de CSV
+
+Dans son ensemble, le script ressemble à ceci :
+
+<Code title="scan-business-card.genai.mjs" code={importedCode} wrap={true} lang="js" />
+
+## Utilisation d'un schéma
+
+Nous pouvons ajouter une validation du format des données en ajoutant un schéma pour les lignes de données d'entreprise.
+
+```js
+const schema = defSchema("EXPENSE", {
+    type: "array",
+    items: {
+        type: "object",
+        properties: {
+            Date: { type: "string" },
+            Location: { type: "string" },
+            Total: { type: "number" },
+            Tax: { type: "number" },
+            Item: { type: "string" },
+            ExpenseCategory: { type: "string" },
+            Quantity: { type: "number" },
+        },
+        required: ["Date", "Location", "Total", "Tax", "Item", "Quantity"],
+    },
+})
+```
+
+Et le script ci-dessus est adapté pour utiliser le schéma au lieu de la description CSV.
+
+<Code title="scan-business-card.genai.mjs" code={importedSchemaCode} wrap={true} lang="js" />

@@ -1,0 +1,84 @@
+import { Code } from '@astrojs/starlight/components';
+import { Steps } from "@astrojs/starlight/components"
+import source from "../../../../../../samples/sample/genaisrc/azure-blobs.genai.mts?raw";
+
+Il est possible d'utiliser le SDK Azure Node.JS pour télécharger des images depuis Azure Blob Storage et les utiliser dans l'invite. La fonction `defImages` supporte le type \[Buffer] de node.js.
+
+## Configuration
+
+Installez les packages [@azure/storage-blob](https://www.npmjs.com/package/@azure/storage-blob) et [@azure/identity](https://www.npmjs.com/package/@azure/identity).
+
+```sh
+npm install -D @azure/storage-blob @azure/identity
+```
+
+Assurez-vous de vous connecter avec Azure CLI et de définir l'abonnement.
+
+```sh
+az login
+```
+
+## Lecture des blobs
+
+Ouvrez une connexion au Azure Blob Storage et obtenez un client pour le conteneur. Nous déconstruisons `account` et `container` de l'objet `env.vars` afin qu'ils puissent être définis via le [cli](../../reference/cli/).
+
+```ts
+import { BlobServiceClient } from "@azure/storage-blob"
+import { DefaultAzureCredential } from "@azure/identity"
+
+const { account = "myblobs", container = "myimages" } = env.vars
+const blobServiceClient = new BlobServiceClient(
+    `https://${account}.blob.core.windows.net`,
+    new DefaultAzureCredential()
+)
+const containerClient = blobServiceClient.getContainerClient(container)
+```
+
+Si vous n'avez pas un blob spécifique en tête, vous pouvez parcourir les blobs et les télécharger dans un buffer (`buf`).
+
+```ts "image"
+import { buffer } from "node:stream/consumers"
+
+for await (const blob of containerClient.listBlobsFlat()) {
+    const blockBlobClient = containerClient.getBlockBlobClient(blob.name)
+    const downloadBlockBlobResponse = await blockBlobClient.download(0)
+    const body = await downloadBlockBlobResponse.readableStreamBody
+    const image = await buffer(body)
+    ...
+```
+
+## Utilisation des images dans l'invite
+
+Le buffer `image` peut être passé dans `defImages` pour être utilisé dans l'invite.
+
+```ts
+    defImages(image, { detail: "low" })
+```
+
+Cependant, puisque les images peuvent être "lourdes", vous devrez très probablement utiliser des [prompts en ligne](../../reference/scripts/inline-prompts/) pour les diviser en requêtes plus petites. (Notez l'utilisation de `_.`)
+
+```ts 'await runPrompt(_ =>' '_.'
+for await (const blob of containerClient.listBlobsFlat()) {
+    ...
+    const res = await runPrompt(_ => {
+        _.defImages(image, { detail: "low" })
+        _.$`Describe the image.`
+    })
+    // res contains the LLM response for the inner prompt
+    ...
+```
+
+## Résumer les résultats
+
+Pour résumer toutes les images, nous stockons chaque résumé d'image en utilisant la fonction `def` et ajoutons une sollicitation pour résumer les descriptions.
+
+```ts
+    ...
+    def("IMAGES_SUMMARY", { filename: blob.name, content: res.text })
+}
+$`Summarize IMAGES_SUMMARY.`
+```
+
+## Code source complet
+
+<Code code={source} wrap={true} lang="js" title="azure-blobs.genai.mts" />

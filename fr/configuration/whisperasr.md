@@ -1,0 +1,22 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+Ce fournisseur `whisperasr` permet de configurer une tâche de [transcription](../../reference/scripts/transcription/)
+pour utiliser le projet [Whisper ASR WebService](https://ahmetoner.com/whisper-asr-webservice/).
+
+```js 'model: "whisperasr:default"'
+const transcript = await transcribe("video.mp4", {
+  model: "whisperasr:default",
+});
+```
+
+Ce service whisper peut fonctionner localement ou dans un conteneur docker (voir la [documentation](https://ahmetoner.com/whisper-asr-webservice/)).
+
+```sh title="CPU"
+docker run -d -p 9000:9000 -e ASR_MODEL=base -e ASR_ENGINE=openai_whisper onerahmet/openai-whisper-asr-webservice:latest
+```
+
+Vous pouvez également remplacer l'alias du modèle `transcription` pour modifier le modèle par défaut utilisé par `transcribe`.

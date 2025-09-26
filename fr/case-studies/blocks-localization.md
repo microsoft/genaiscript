@@ -1,0 +1,98 @@
+import { Code } from "@astrojs/starlight/components";
+import stringsJson from "../../../../../../samples/sample/src/makecode/jacdac-buzzer-strings.json?raw";
+import scriptSource from "../../../../../../samples/sample/src/makecode/makecode-loc.genai.js?raw";
+
+Ceci est un autre exemple d'utilisation du LLM pour produire la traduction de chaînes naturelles avec un DSL intégré, de manière similaire au guide [Traduction de documentation](../../case-studies/documentation-translations/).
+
+[MakeCode](https://makecode.com) utilise un [microformat](https://makecode.com/defining-blocks) pour définir la forme des blocs de codage. Lors de la traduction des chaînes de format, il est crucial de conserver les propriétés des blocs, comme le nombre d'arguments, leurs types et l'ordre des arguments.
+
+## Ne cassez pas les blocs !
+
+Les [chaînes de localisation](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/jacdac-buzzer-strings.json#L1) pour la bibliothèque buzzer sont :
+
+<Code title="jacdac-buzzer-strings.json" code={stringsJson} wrap={true} lang="json" />
+
+Par exemple, la chaîne pour le [bloc jouer une note du buzzer Jacdac](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/jacdac-buzzer-strings.json#L5-L6) contient une référence à des variables (`%music`) qui doivent être conservées dans la chaîne traduite.
+
+```json
+{
+    ...
+    "modules.BuzzerClient.playTone|block":
+        "play %music tone|at %note|for %duration",
+    ...
+}
+```
+
+et Bing Traduction nous donne la traduction suivante
+
+```txt title="Bing Translator"
+%Musikton|bei %Note|für %Dauer abspielen
+```
+
+Comme on peut le voir, Bing a traduit le nom de la variable `%variable` ce qui cassera la définition du bloc.
+
+La traduction [GenAIScript](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/de/jacdac-buzzer-strings.json#L5) est correcte.
+
+```txt title="GenAIScript"
+spiele %music Ton|bei %note|für %duration
+```
+
+Si vous regardez attentivement dans le code source du script, vous trouverez dans l'invite des instructions pour manipuler correctement les variables.
+
+```js title="block-translator.genai.mjs"
+$`...
+- Every variable name is prefixed with a '%' or a '$', like %foo or $bar.
+- Do NOT translate variable names.
+...
+`;
+```
+
+## Format de données personnalisé
+
+Un autre défi avec les traductions est que la chaîne localisée contient souvent des caractères échappés qui cassent des formats comme JSON ou YAML. Par conséquent, nous utilisons un format simple personnalisé `key=value` pour encoder les chaînes, afin d'éviter les problèmes d'encodage. Nous utilisons la fonctionnalité `defFileMerge` pour convertir le fichier clé-valeur analysé et les fusionner avec les traductions existantes.
+
+```js title="block-translator.genai.mjs"
+// register a callback to custom merge files
+defFileMerge((filename, label, before, generated) => {
+  if (!filename.endsWith("-strings.json")) return undefined;
+
+  // load existing translatins
+  const olds = JSON.parse(before || "{}");
+
+  // parse out key-value lines into a JavaScript record object
+  const news = generated
+    .split(/\n/g)
+    .map((line) => /^([^=]+)=(.+)$/.exec(line))
+    .filter((m) => !!m)
+    .reduce((o, m) => {
+      const [, key, value] = m;
+      // assign
+      o[key] = value;
+      return o;
+    }, {});
+
+  // merge new translations with olds ones
+  Object.assign(olds, news);
+
+  // return stringified json
+  return JSON.stringify(olds, null, 2);
+});
+```
+
+## Paramétrage pour l'automatisation
+
+Le code de langue `langCode` est récupéré depuis les [variables](../../reference/scripts/variables/) `env.vars` ou par défaut à `de`.
+
+```js
+const langCode = env.vars.lang || "de";
+```
+
+Cette technique permet de reconfigurer ces variables depuis la ligne de commande en utilisant l'argument `--vars lang=fr`.
+
+## Script
+
+Le script complet est montré ci-dessous.
+
+<Code code={scriptSource} title="block-translator.genai.mjs" wrap={true} lang="js" />
+
+Le résultat de ce script peut être consulté dans cette [pull request](https://github.com/microsoft/pxt-jacdac/pull/108).

@@ -1,0 +1,135 @@
+In the world of software development, making consistent and informative commit messages is crucial but often overlooked.
+This task can become tedious, especially when you are in the flow of coding.
+To help with this, we've crafted a [script conçu pour automatiser la génération de messages de commit Git](https://github.com/microsoft/genaiscript/blob/main/samples/sample/genaisrc/samples/gcm.genai.mts),
+ensuring they are meaningful and save you time.
+
+Le script fonctionne comme un script d'automatisation standard pour Node.js et utilise [runPrompt](../../reference/scripts/inline-prompts/) pour effectuer des appels au LLM et demander à l'utilisateur de confirmer le texte généré.
+
+:::tip
+Vous pouvez consulter l'exemple [Git Commit Message](../../samples/gcm/) pour un script complet, prêt à l'emploi.
+:::
+
+## Explication du script
+
+Tout d'abord, nous vérifions s'il y a des modifications en préparation dans le dépôt Git :
+
+```ts
+let { stdout } = await host.exec("git", ["diff", "--cached"])
+```
+
+Si aucune modification n'est en préparation, nous demandons à l'utilisateur s'il souhaite préparer toutes les modifications. Si l'utilisateur confirme, nous préparons toutes les modifications. Sinon, nous arrêtons le processus.
+
+```ts
+const stage = await host.confirm("No staged changes. Stage all changes?", {
+    default: true,
+})
+if (stage) {
+    await host.exec("git", ["add", "."])
+    stdout = (await host.exec("git", ["diff", "--cached"])).stdout
+}
+if (!stdout) cancel("no staged changes")
+```
+
+Nous générons un message de commit initial à l'aide des modifications en préparation :
+
+```ts
+message = (
+    await runPrompt(
+        (_) => {
+            _.def("GIT_DIFF", stdout, { maxTokens: 20000 })
+            _.$`GIT_DIFF is a diff of all staged changes, coming from the command:
+\`\`\`
+git diff --cached
+\`\`\`
+Please generate a concise, one-line commit message for these changes.
+- do NOT add quotes`
+        },
+        { cache: false, temperature: 0.8 }
+    )
+).text
+```
+
+La configuration du prompt ci-dessus indique que le message doit être concis, en rapport avec la sortie de la commande "git diff --cached", et qu'il ne doit pas inclure de guillemets.
+
+L'utilisateur choisit comment procéder avec le message généré :
+
+```ts
+    choice = await host.select(
+        message,
+        [{ name: "commit", value: "commit", description: "accept message and commit" },
+            ...],
+    )
+```
+
+Des options sont proposées pour modifier ou régénérer le message. Si l'utilisateur choisit de modifier le message, nous lui demandons d'entrer un nouveau message :
+
+```ts
+if (choice === "edit") {
+    message = await host.input("Edit commit message", { required: true })
+    choice = "commit"
+}
+```
+
+Si l'utilisateur décide de valider le message, nous effectuons le commit des modifications :
+
+```ts
+if (choice === "commit" && message) {
+    console.log((await host.exec("git", ["commit", "-m", message])).stdout)
+}
+```
+
+## Exécution du script
+
+Vous pouvez exécuter ce script en utilisant le [CLI](../../reference/cli/).
+
+```bash
+genaiscript run gcm
+```
+
+Vous pouvez encapsuler cette commande dans un fichier `gcm.sh` ou dans la section `script` de votre fichier `package.json` :
+
+```json '"gcm": "genaiscript run gcm"'
+{
+    "devDependencies": {
+        "genaiscript": "*"
+    },
+    "scripts": {
+        "gcm": "genaiscript run gcm"
+    }
+}
+```
+
+Ensuite, vous pouvez exécuter le script en utilisant :
+
+```bash
+npm run gcm
+```
+
+## Utilisation de hooks Git
+
+Vous pouvez également utiliser le hook Git [commit-msg](https://git-scm.com/docs/githooks#_commit_msg) pour exécuter la génération de messages à la demande. En utilisant le framework [husky](https://typicode.github.io/husky/), nous pouvons enregistrer l'exécution de genaiscript dans le fichier `.husky/commit-msg`.
+
+Le hook `commit-msg` reçoit une localisation de fichier où le message est stocké. Nous passons ce paramètre au script afin qu'il soit renseigné dans la variable `env.files`.
+
+```bash title=".husky/commit-msg"
+genaiscript run commit-msg "$1"
+```
+
+Dans le script, nous vérifions si le contenu du fichier contient déjà un message utilisateur, sinon un nouveau message est généré.
+
+```js title="commit-msg.genai.mts"
+const msg = env.files[0] // file created by git to hold the message
+const msgContent = msg.content // check if the user added any message
+    ?.split(/\n/g)
+    .filter((l) => l && !/^#/.test(l)) // filter out comments
+    .join("\n")
+if (msgContent) cancel("commit message already exists")
+
+...
+
+await host.writeText(msg.filename, message)
+```
+
+## Remerciements
+
+Ce script a été inspiré par le générateur de messages de commit de Karpathy [commit message generator](https://gist.github.com/karpathy/1dd0294ef9567971c1e4348a90d69285).

@@ -1,0 +1,39 @@
+import { Code } from "@astrojs/starlight/components"
+import source from "../../../../../../samples/sample/genaisrc/samples/gai.genai.mts?raw";
+import gasource from "../../../../../../.github/workflows/genai-investigator.yml?raw";
+
+L'exemple suivant montre un script qui analyse un journal de tâche d'un GitHub Action Workflow et tente de déterminer la cause première du problème.
+
+## Stratégie
+
+Le script est un hybride entre un logiciel traditionnel et un logiciel basé sur LLM/Agent. Nous commençons par collecter des informations pertinentes pour le LLM, afin de remplir le contexte avec des informations pertinentes, puis nous laissons l'agent raisonner et demander plus d'informations si nécessaire à travers des outils.
+
+La première partie du script est un logiciel traditionnel qui collecte les informations et prépare le contexte pour le LLM. Il utilise la stratégie simple suivante :
+
+* trouver des informations sur l'exécution du workflow ayant échoué, y compris le commit et les journaux de tâches
+* trouver la dernière exécution réussie du workflow, si elle existe, et rassembler le commit ainsi que les journaux de tâches
+* construire un contexte LLM avec toutes les informations, y compris les différences de commits et les différences des journaux de tâches.
+
+Les informations collectées dans cette section ne sont **pas** hallucinaient par conception et sont ajoutées au résultat final en utilisant l'objet `env.output`.
+
+La seconde partie est un agent qui utilise le LLM pour raisonner sur les informations et demander plus d'informations si nécessaire.
+
+## Ajouter le script
+
+* Ouvrez votre dépôt GitHub et lancez une nouvelle pull request.
+* Ajoutez le script suivant à votre dépôt sous le nom `genaisrc/prr.genai.mts`.
+
+<Code code={source} wrap={true} lang="ts" title="gai.genai.mts" />
+
+## Automatiser avec GitHub Actions
+
+En utilisant [GitHub Actions](https://docs.github.com/en/actions) et [GitHub Models](https://docs.github.com/en/github-models),
+vous pouvez automatiser l'exécution du script et la création des commentaires.
+
+Vous pouvez décider d'activer ou de désactiver la partie agentique du script en commentant la ligne `agent_*`. Un script sans agent a un comportement prévisible de consommation de jetons (c'est un appel LLM) ; un script agentique entrera dans une boucle et consommera plus de jetons, mais il sera capable de demander plus d'informations si nécessaire.
+
+<Code code={gasource} wrap={true} lang="yaml" title="gai.yml" />
+
+## Avons-nous fini ?
+
+Non ! Ce script est loin d'être parfait et en fait, il nécessite probablement de meilleures heuristiques pour construire le contexte **spécifique à votre dépôt**. C'est un bon point de départ, mais vous devrez ajuster les heuristiques pour le faire fonctionner pour votre dépôt.

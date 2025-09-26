@@ -1,0 +1,108 @@
+import { Code } from "@astrojs/starlight/components"
+import source from "../../../../../../samples/sample/genaisrc/samples/gcm.genai.mts?raw";
+
+Le script `gcm` propose un flux guidé pour créer des commits avec des messages générés.
+Il commence par générer un message de commit basé sur les changements mis en scène dans votre dépôt Git
+en utilisant un [prompt en ligne](../../reference/scripts/inline-prompts/),
+puis demande à l'utilisateur de valider le commit ou de régénérer le message.
+
+```text
+compute diff
+loop
+   generate commit message
+   ask user to commit, edit message or regenerate
+   if user says commit
+       git commit and push
+```
+
+## Configuration
+
+Tout d'abord, nous définissons la fonction `script`, qui configure notre script GenAI en fournissant un titre et une description, et en spécifiant le modèle que nous allons utiliser :
+
+```ts
+script({
+    title: "git commit message",
+    description: "Generate a commit message for all staged changes",
+    model: "openai:gpt-4o",
+})
+```
+
+## Recherche de modifications
+
+Ensuite, nous vérifions la présence de modifications mises en scène dans votre dépôt Git à l'aide de `git diff`.
+S'il n'y a rien de mis en scène, GenAI propose gentiment de tout mettre en scène pour vous :
+
+```ts
+// Check for staged changes and stage all changes if none are staged
+const diff = await git.diff({
+    staged: true,
+    askStageOnEmpty: true,
+})
+if (!diff) cancel("no staged changes")
+```
+
+Nous affichons ensuite la différence dans la console pour que vous puissiez vérifier les modifications qui vont être validées :
+
+```ts
+console.log(diff.stdout)
+```
+
+## Générer et affiner le message de commit
+
+Voici la partie intéressante. Nous entrons dans une boucle où GenAI génère un message de commit pour vous sur la base du diff. Si le message ne vous satisfait pas, vous pouvez choisir de le modifier, de l'accepter ou de le régénérer :
+
+```ts
+let choice
+let message
+do {
+    // generate a conventional commit message (https://www.conventionalcommits.org/en/v1.0.0/)
+    const res = await runPrompt((_) => {
+        _.def("GIT_DIFF", diff, { maxTokens: 20000, language: "diff" })
+        _.$`Generate a git conventional commit message for the changes in GIT_DIFF.
+        - do NOT add quotes
+        - maximum 50 characters
+        - use gitmojis`
+    })
+    // ... handle response and user choices
+} while (choice !== "commit")
+```
+
+## Valider et pousser
+
+Si vous choisissez de valider, GenAI exécute la commande `git commit` avec votre message, et si vous êtes très confiant, il peut même pousser les modifications vers votre dépôt juste après :
+
+```ts
+if (choice === "commit" && message) {
+    console.log(
+        (await host.exec("git", ["commit", "-m", message, "-n"])).stdout
+    )
+    if (await host.confirm("Push changes?", { default: true }))
+        console.log((await host.exec("git push")).stdout)
+}
+```
+
+## Exécution du script avec GenAIScript CLI
+
+Utilisez le [cli](../../reference/cli/) pour exécuter le script :
+
+```shell
+npx genaiscript run gcm
+```
+
+## Full source ([GitHub](https://github.com/microsoft/genaiscript/blob/main/samples/sample/genaisrc/samples/gcm.genai.mts))
+
+<Code code={source} wrap={true} lang="ts" title="gcm.genai.mts" />
+
+## Sécurité du contenu
+
+Les mesures suivantes sont prises pour garantir la sécurité du contenu généré.
+
+* Ce script inclut des invites système pour empêcher les injections de prompt et la génération de contenu nuisible.
+  * [system.safety\_jailbreak](../../reference/scripts/system#systemsafety_jailbreak/)
+  * [system.safety\_harmful\_content](../../reference/scripts/system#systemsafety_harmful_content/)
+* Le message de commit est examiné et approuvé par l'utilisateur avant de valider les modifications.
+
+Des mesures supplémentaires pour renforcer la sécurité incluent l’exécution [d’un modèle avec un filtre de sécurité](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new)
+ou la validation du message via un [service de sécurité de contenu](../../reference/scripts/content-safety/).
+
+Consultez la [Note de transparence](../../reference/transparency-note/) pour plus d’informations sur la sécurité du contenu.

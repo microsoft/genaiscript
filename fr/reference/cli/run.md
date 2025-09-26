@@ -1,0 +1,221 @@
+Exécute un script sur des fichiers et transmet la sortie du LLM vers stdout ou un dossier à partir de la racine de l'espace de travail.
+
+```bash
+npx genaiscript run <script> "<files...>"
+```
+
+où `<script>` est l'identifiant ou le chemin du fichier de l'outil à exécuter, et `<files...>` est le nom du fichier de spécification sur lequel l'exécuter.
+
+Les fichiers peuvent également inclure des motifs [glob](https://en.wikipedia.org/wiki/Glob_\(programming\)).
+
+```sh
+npx genaiscript run code-annotator "src/*.ts"
+```
+
+Si plusieurs fichiers sont spécifiés, tous les fichiers sont inclus dans `env.files`.
+
+```sh
+npx genaiscript run <script> "src/*.bicep" "src/*.ts"
+```
+
+## Fichiers
+
+`run` accepte un ou plusieurs motifs [glob](https://en.wikipedia.org/wiki/Glob_\(programming\)) pour faire correspondre les fichiers dans l'espace de travail.
+
+```bash
+npx genaiscript run <script> "**/*.md" "**/*.ts"
+```
+
+### Résolutions des ressources
+
+GenAIScript gérera et résoudra automatiquement certains motifs d'URI spécifiques.
+
+* `file://` - fichier local
+* `https://github.com/<owner>/<repo>/blob/<branch>/<path>` - fichier GitHub
+* `https://github.com/<owner>/<repo>.git/<file glob>` - dépôt GitHub et motif de fichiers
+* `gist://id/<file glob>` - GitHub Gist et motif de fichiers
+* `https://gist.github.com/<owner>/<id>/<file glob>` - GitHub Gist et motif de fichiers
+* `git://<owner>/<repo>.git/<file glob>` - dépôt Git et motif de fichiers
+
+### Piping
+
+`run` prend le contenu de stdin et le convertit en fichier `stdin`.\
+La sortie du LLM est envoyée vers `stdout`, tandis que le reste des journaux est envoyé vers `stderr`.
+
+```bash
+cat README.md | genaiscript run summarize > summary.md
+```
+
+### `--excluded-files` *files...*
+
+Exclut les fichiers spécifiés de l'ensemble de fichiers.
+
+```sh "--excluded-files <excluded-files...>"
+npx genaiscript run <script> <files> --excluded-files <excluded-files...>
+```
+
+### `--exclude-git-ignore`
+
+Exclut les fichiers ignorés par le fichier `.gitignore` à la racine de l'espace de travail.
+
+```sh "--exclude-git-ignore"
+npx genaiscript run <script> <files> --exclude-git-ignore
+```
+
+## Configuration
+
+### `--model` ...
+
+Configure l'alias du modèle par défaut ou `large`. Utilisez `echo` pour une exécution à blanc et retourner les messages au lieu d'appeler un fournisseur LLM.
+
+### `--provider` ...
+
+Charge un ensemble d'alias de modèles pour le fournisseur LLM donné.
+
+### `--vars` name=value name2=value2 ...
+
+Remplit les valeurs dans la carte `env.vars` qui peuvent être utilisées lors de l'exécution de l'invite.
+
+## Sortie
+
+### `--out` *file|directory*
+
+Sauvegarde les résultats dans un fichier JSON, ainsi que les fichiers markdown de la sortie et de la trace.
+
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out out/res.json
+```
+
+Si `file` ne se termine pas par `.json`, le chemin est considéré comme un chemin de répertoire.
+
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out tmp
+```
+
+### `--json`
+
+Sort la réponse complète au format JSON vers stdout.
+
+### `--out-trace` *file*
+
+Enregistre la trace en markdown dans le fichier spécifié.
+
+```sh wrap
+npx genaiscript run <script> <files> --out-trace file
+```
+
+Dans un workflow GitHub Actions, vous pouvez utiliser cette fonction pour sauvegarder la trace comme résumé d'étape (`GITHUB_STEP_SUMMARY`) :
+
+```yaml title=".github/workflows/genaiscript.yml" wrap
+- name: Run GenAIScript tool on spec
+  run: |
+      genaiscript run <script> <files> --out-trace $GITHUB_STEP_SUMMARY
+```
+
+Dans Azure DevOps, vous pouvez utiliser la [task.uploadSummary](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops\&tabs=bash#uploadsummary-add-some-markdown-content-to-the-build-summary) dans votre pipeline pour téléverser la trace en tant que résumé.
+
+```yaml title="genaiscript.pipeline.yml" "##vso[task.uploadsummary]" wrap
+- script: npx --yes genaiscript run poem --out-trace $(System.DefaultWorkingDirectory)/trace.md
+  displayName: "Run GenAIScript tool"
+  continueOnError: true
+- script: echo "##vso[task.uploadsummary]$(System.DefaultWorkingDirectory)/trace.md"
+  displayName: "append readme to pipeline report"
+```
+
+### `--out-annotations` *file*
+
+Émet les annotations dans le fichier spécifié comme un tableau JSON, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) ou un fichier CSV si le fichier se termine par `.csv`.
+
+```sh wrap
+npx genaiscript run <script> <files> --out-annotations diags.csv
+```
+
+Utilisez JSON lines (`.jsonl`) pour agréger les annotations de plusieurs exécutions dans un seul fichier.
+
+```sh wrap
+npx genaiscript run <script> <files> --out-annotations diags.jsonl
+```
+
+### `--out-data` *file*
+
+Émet les données analysées au format JSON, YAML ou JSONL. Si un schéma JSON est spécifié et disponible, le résultat de la validation JSON est également enregistré.
+
+```sh
+npx genaiscript run <script> <files> --out-data data.jsonl
+```
+
+### `--out-changelogs` *file*
+
+Émet les journaux des modifications dans le fichier spécifié en texte.
+
+```sh
+npx genaiscript run <script> <files> --out-changelogs changelogs.txt
+```
+
+## Demandes de tirage et problèmes <a href="" id="pull-requests" />Le CLI peut mettre à jour la description et les commentaires d'une demande de tirage/problème lorsqu'il s'exécute dans une action GitHub ou un pipeline Azure DevOps.
+
+La CLI peut mettre à jour une description et des commentaires de pull request/issue lorsqu'elle est exécutée dans un GitHub Action ou un pipeline Azure DevOps.
+
+### Configuration du workflow GitHub Action
+
+Mettez à jour votre configuration de workflow pour inclure ce qui suit :
+
+* ajoutez la permission `pull-requests: write` au workflow/étape
+
+```yaml
+permissions:
+    pull-requests: write
+```
+
+* définissez le secret `GITHUB_TOKEN` dans `env` lors de l'exécution de la CLI
+
+```yaml
+    - run: npx --yes genaiscript run ... --pull-request-comment --out-trace $GITHUB_STEP_SUMMARY
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ... # LLM secrets
+```
+
+### Configuration Azure DevOps
+
+* ajoutez `<votre nom de projet> Build Service` dans le rôle **Collaborateur** au dépôt
+* passez les secrets aux scripts, y compris `System.AccessToken`
+
+```yaml
+- script: npx genaiscript run ... --pull-request-description
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    ... # LLM secrets
+```
+
+### `--pull-request-description` \[tag]
+
+Lorsqu'il est exécuté dans un GitHub Action ou un pipeline Azure DevOps sur une pull request, la CLI insère la sortie du LLM dans la description de la pull request ([exemple](https://github.com/microsoft/genaiscript/pull/564))
+
+```sh
+npx genaiscript run ... --pull-request-description
+```
+
+Le paramètre `tag` est un identifiant unique utilisé pour différencier les descriptions générées par différentes exécutions. La valeur par défaut est l'identifiant du script.
+
+### `--pull-request-comment` \[tag];
+
+Met à jour ou ajoute un commentaire sur la pull request/issue avec la sortie du LLM ([exemple](https://github.com/microsoft/genaiscript/pull/564#issuecomment-2200474305))
+
+```sh
+npx genaiscript run ... --pull-request-comment
+```
+
+Le paramètre `tag` est un identifiant unique utilisé pour différencier les descriptions générées par différentes exécutions. La valeur par défaut est l'identifiant du script.
+
+### `--pull-request-reviews` <a href="" id="pull-request-reviews" />Créer des commentaires de révision de demande de tirage à partir de chaque [annotation](../../../reference/reference/scripts/annotations/) ([exemple](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).
+
+Crée des commentaires de revue de pull request à partir de chaque [annotation](../../../reference/reference/scripts/annotations/) ([exemple](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).
+
+```sh
+npx genaiscript run ... --pull-request-reviews
+```
+
+## En savoir plus
+
+La liste complète des options est disponible dans la [référence CLI](../../../reference/reference/cli/commands#run/).

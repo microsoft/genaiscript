@@ -1,0 +1,205 @@
+import { PackageManagers } from "starlight-package-managers";
+
+[ast-grep](https://ast-grep.github.io/) est un outil rapide et polyglotte pour la recherche structurelle dans le code, le linting et la réécriture à grande échelle.
+
+GenAIScript fournit un wrapper autour de `ast-grep` pour rechercher des motifs dans l'AST d'un script,
+et transformer l'AST ! C'est une méthode très efficace pour créer des scripts qui modifient le code source puisqu'elle permet
+de cibler de manière chirurgicale des parties spécifiques du code.
+
+## Installation
+
+La fonctionnalité ast-grep est fournie sous forme de plugin, il faut donc l’installer au préalable :
+
+<PackageManagers pkg="@genaiscript/plugin-ast-grep" />
+
+* charger le module `ast-grep`
+
+```ts
+import { astGrep } from "@genaiscript/plugin-ast-grep";
+const sg = await astGrep();
+```
+
+## Rechercher des motifs
+
+La méthode `search` vous permet de rechercher des motifs dans l'AST d'un script.
+Le premier argument est la langue, le deuxième argument est les correspondances de fichiers, et le troisième argument est le motif à rechercher.
+
+* trouver toutes les instructions `console.log` en TypeScript. Cet exemple utilise la syntaxe 'pattern'.
+
+```ts
+// matches is an array of AST (immutable) nodes
+const { matches } = await sg.search(
+  "ts",
+  "src/*.ts",
+  "console.log($META)",
+);
+```
+
+* trouver toutes les fonctions TypeScript sans commentaires. Cet exemple utilise la [syntaxe des règles](https://ast-grep.github.io/reference/rule.html).
+
+```ts
+const { matches } = await sg.search("ts", "src/fib.ts", {
+  rule: {
+    kind: "function_declaration",
+    not: {
+      precedes: {
+        kind: "comment",
+        stopBy: "neighbor",
+      },
+    },
+  },
+});
+```
+
+ou si vous copiez les règles depuis le [terrain de jeu ast-grep](https://ast-grep.github.io/playground.html) en utilisant YAML,
+
+```ts
+const { matches } = await sg.search(
+  "ts",
+  "src/fib.ts",
+  YAML`
+rule:
+    kind: function_declaration
+    not:
+        precedes: 
+            kind: comment
+            stopBy: neighbor
+`,
+);
+```
+
+:::tip
+Utilisez le [terrain de jeu ast-grep](https://ast-grep.github.io/playground.html) pour déboguer vos requêtes,
+puis copiez-les dans votre script GenAIScript.
+:::
+
+### Filtrer par diff
+
+Un cas d'utilisation courant consiste à restreindre le motif au code impacté par un diff de code.
+Vous pouvez passer une chaîne de caractères `diff` à la méthode `search`, et elle filtrera les correspondances
+qui n'intersectent pas avec les fichiers `to` du diff.
+
+```ts "{ diff }" wrap
+const diff = await git.diff({ base: "main" })
+const { matches } = await sg.search("ts", "src/fib.ts", {...}, { diff })
+```
+
+## Ensembles de modifications
+
+Un cas d'utilisation courant consiste à rechercher un motif et à le remplacer par un autre motif. La phase de transformation peut tirer parti des
+[requêtes intégrées](../../../reference/reference/scripts/inline-prompts/) pour effectuer des transformations LLM.
+Cela peut être réalisé avec la méthode `replace`.
+
+```js
+const edits = sg.changeset();
+```
+
+La méthode `replace` crée une modification qui remplace le contenu d'un nœud par un nouveau texte.
+La modification est stockée en interne mais n'est pas appliquée avant que `commit` soit appelé.
+
+```js
+edits.replace(matches[0], "console.log('replaced')");
+```
+
+Bien sûr, les choses deviennent plus intéressantes lorsque vous utilisez des requêtes intégrées pour générer le texte de remplacement.
+
+```js wrap
+for (const match of matches) {
+  const updated = await prompt`... ${match.text()} ...`;
+  edits.replace(
+    match.node,
+    `console.log
+  ('${updated.text}')`,
+  );
+}
+```
+
+Ensuite, vous pouvez valider les modifications pour créer un ensemble de fichiers en mémoire. Les modifications ne sont pas encore appliquées
+au système de fichiers.
+
+```js
+const newFiles = edits.commit();
+```
+
+Si vous souhaitez appliquer les modifications au système de fichiers, vous pouvez utiliser la fonction `writeFiles`.
+
+```js
+await workspace.writeFiles(newFiles);
+```
+
+:::caution
+Ne mélangez pas les correspondances provenant de recherches différentes dans le même ensemble de modifications.
+:::
+
+## Langages pris en charge
+
+Cette version de `ast-grep` [prend en charge les langages intégrés suivants](https://ast-grep.github.io/reference/api.html#supported-languages) :
+
+* Html
+* JavaScript
+* TypeScript
+* Tsx
+* Css
+* C
+* C++
+* Python
+* C#
+
+Les langages suivants nécessitent l'installation d'un package additionnel ([liste complète](https://www.npmjs.com/search?q=keywords\:ast-grep-lang)) :
+
+* SQL, `@ast-grep/lang-sql`
+* Angular, `@ast-grep/lang-angular`
+
+```sh
+npm install -D @ast-grep/lang-sql
+```
+
+:::tip
+Si votre langage n'est pas pris en charge, rendez-vous sur [ast-grep langs](https://github.com/ast-grep/langs/issues), et faites une demande !
+:::
+
+### Mappage d'extensions de fichiers
+
+Les extensions de fichiers suivantes sont mappées aux langages correspondants :
+
+* HTML : `html`, `htm`
+* JavaScript : `cjs`, `mjs`, `js`
+* TypeScript : `cts`, `mts`, `ts`
+* TSX : `tsx`
+* CSS : `css`
+* c : `c`
+* cpp : `cpp`, `cxx`, `h`, `hpp`, `hxx`
+* python : `py`
+* C# : `cs`
+* sql : `sql`
+
+### Dépasser la sélection par défaut de langues
+
+GenAIScript a un mappage par défaut des extensions de fichiers bien connues vers les langages.
+Cependant, vous pouvez remplacer cela en passant l'option `lang` à la méthode `search`.
+
+```ts "{ lang: "ts" }"
+const { matches } = await sg.search("ts", "src/fib.ts", {...}, { lang: "ts" })
+```
+
+## Apprendre ast-grep
+
+Il y a une courbe d'apprentissage pour maîtriser le langage de requêtes d'`ast-grep`.
+
+* La [documentation officielle](https://ast-grep.github.io/docs/) est un bon point de départ.
+* Le [terrain de jeu en ligne](https://ast-grep.github.io/playground.html) vous permet d'expérimenter avec l'outil sans l'installer.
+* L'[API JavaScript](https://ast-grep.github.io/guide/api-usage/js-api.html#inspection) permet de comprendre comment travailler avec les nœuds.
+* Téléchargez [llms.txt](https://ast-grep.github.io/llms-full.txt) dans le contexte de votre Copilot pour obtenir les meilleurs résultats.
+
+:::tip
+GenAIScript fournit un ensemble simplifié d'interfaces pour interagir avec les [APIs JavaScript](https://ast-grep.github.io/guide/api-usage/js-api.html) d'`ast-grep`.
+Cependant, ce sont bien les APIs natives d'`ast-grep`, et vous pouvez les utiliser directement si vous avez besoin de plus de contrôle.
+:::
+
+## Journalisation
+
+Vous pouvez activer l'espace de noms `genaiscript:astgrep` pour voir les requêtes et les résultats dans les journaux.
+
+```sh
+DEBUG=genaiscript:astgrep ...
+```

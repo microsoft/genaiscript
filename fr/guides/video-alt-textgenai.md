@@ -1,0 +1,64 @@
+import { Code } from "@astrojs/starlight/components"
+import src from "../../../../../../samples/sample/genaisrc/video-alt-text.genai.mjs?raw";
+
+GenAIScript supporte la [transcription vocale](../../reference/scripts/transcription/)
+et [l'extraction de frames vidéo](../../reference/scripts/videos/) qui peuvent être combinés pour analyser des vidéos.
+
+## Vidéo Texte Alternatif
+
+L'attribut vidéo HTML n'a pas d'attribut `alt`.. mais vous pouvez tout de même attacher une description accessible en utilisant l'attribut `aria-label`.
+Nous allons créer un script qui génère la description en utilisant la transcription et les frames vidéo.
+
+## Transcription
+
+Nous utilisons la fonction `transcribe` pour générer la transcription. Elle utilisera l'alias de modèle `transcription` pour calculer une transcription.
+Pour OpenAI, le mode par défaut est `openai:whisper-1`.
+
+Les transcriptions sont utiles pour réduire les hallucinations des LLM lors de l’analyse d’images et fournissent également
+de bons candidats pour les timestamps pour capturer une capture d'écran du flux vidéo.
+
+```js
+const file = env.files[0]
+const transcript = await transcribe(file) // OpenAI whisper
+```
+
+## Frames vidéo
+
+L’étape suivante consiste à utiliser la transcription pour capturer des images du flux vidéo. GenAIScript utilise [ffmpeg](https://ffmpeg.org/) pour rendre les images
+assurez-vous qu’il l’est installé et configuré.
+
+```js
+const frames = await ffmpeg.extractFrames(file, {
+    transcript,
+})
+```
+
+## Contexte
+
+Les deux, transcription et images, sont ajoutées au contexte de l'invite. Étant donné que certaines vidéos peuvent être silencieuses, nous ignorons les transcriptions vides.
+Nous utilisons également une faible résolution pour les images afin d'améliorer la performance.
+
+```js
+def("TRANSCRIPT", transcript?.srt, { ignoreEmpty: true }) // ignore silent videos
+defImages(frames, { detail: "low" }) // low detail for better performance
+```
+
+## Mise en route ensemble
+
+Enfin, nous confions la tâche au LLM pour générer le texte alternatif.
+
+```js
+$`You are an expert in assistive technology.
+You will analyze the video and generate a description alt text for the video.
+`
+```
+
+En utilisant ce script, vous pouvez générer automatiquement des textes alternatifs de haute qualité pour les vidéos.
+
+```sh
+genaiscript run video-alt-text path_to_video.mp4
+```
+
+## Code source complet
+
+<Code code={src} wrap={true} lang="js" title="video-alt-text.genai.mjs" />

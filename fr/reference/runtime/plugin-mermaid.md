@@ -1,0 +1,35 @@
+import { PackageManagers } from "starlight-package-managers";
+
+[MermaidJs](https://mermaid.js.org/) est un outil de création de diagrammes populaire qui vous permet de réaliser des schémas à l'aide d'une syntaxe textuelle simple. Le plugin mermaid de GenAIScript permet d'analyser et d'afficher les diagrammes Mermaid au sein de vos applications GenAIScript.
+
+Le package [@genaiscript/plugin-mermaid](https://www.npmjs.com/package/@genaiscript/plugin-mermaid) prend en charge l'analyse des diagrammes mermaid. Cela peut être utile pour réparer des diagrammes créés par les LLM.
+
+## Installation
+
+<PackageManagers pkg="@genaiscript/plugin-mermaid" dev />
+
+Si vous utilisez le plugin dans un environnement Node.JS, sans fichier d'entrée `.genai...`, vous devrez initialiser le [runtime](../../../reference/reference/runtime/) avant d'utiliser le plugin :
+
+```ts
+import { initialize } from "@genaiscript/runtime";
+
+await initialize()
+```
+
+## Utilisation
+
+```ts
+import { parse } from "@genaiscript/plugin-mermaid";
+
+const res = await parse(`
+  graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+`);
+```
+
+## Pourquoi ce plugin ?
+
+La chaîne d'outils mermaid est conçue pour fonctionner dans un environnement navigateur, ce qui nécessite quelques adaptations particulières pour l'utiliser avec Node.JS. De plus, le package [mermaid](https://www.npmjs.com/package/mermaid) est assez volumineux, nous avons donc choisi d'en faire un plugin que vous pouvez installer uniquement si vous en avez besoin.

@@ -1,0 +1,42 @@
+import { Steps } from '@astrojs/starlight/components';
+
+[Phi-3 Mini](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/) est un modèle ouvert léger et à la pointe, avec 3,8 milliards de paramètres, développé par Microsoft. Dans ce guide, nous utilisons [Ollama](https://ollama.com/), une application de bureau qui vous permet de télécharger et d'exécuter localement des modèles.
+
+<Steps>
+  <ol>
+    <li>
+      Lancez l'application Ollama ou exécutez la commande pour démarrer le serveur depuis un terminal.
+
+      ```sh
+      ollama serve
+      ```
+    </li>
+
+    <li>
+      (optionnel) Récupérez votre modèle depuis le serveur Ollama (voir la [liste des modèles](https://ollama.com/library)). GenAIScript tentera automatiquement de le récupérer s'il est absent.
+
+      ```sh
+      ollama pull phi3
+      ```
+    </li>
+
+    <li>
+      Mettez à jour votre script pour utiliser le modèle `ollama:phi3`.
+
+      ```js title="summarize-phi3.genai.mjs" "ollama:phi3"
+      script({
+          model: "ollama:phi3",
+          title: "summarize with phi3",
+          system: ["system"],
+      })
+
+      const file = def("FILE", env.files)
+      $`Summarize ${file} in a single paragraph.`
+      ```
+    </li>
+
+    <li>
+      Appliquez ce script aux fichiers que vous souhaitez résumer !
+    </li>
+  </ol>
+</Steps>

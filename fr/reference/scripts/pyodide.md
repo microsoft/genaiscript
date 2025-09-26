@@ -1,0 +1,46 @@
+[Pyodide](https://pyodide.org/) est une distribution de Python pour Node.js (et le navigateur).
+
+Pyodide est un port de CPython vers WebAssembly/Emscripten.
+Pyodide permet d'installer et d'exécuter des packages Python dans le navigateur avec [micropip](https://micropip.pyodide.org/en/stable/project/usage.html).
+
+GenAIScript fournit une couche de commodité pour démarrer des environnements d'exécution Python Pyodide.
+
+## Utilisation
+
+Le `host.python` démarre une instance de Pyodide.
+
+```js wrap
+const py = await host.python()
+```
+
+Chaque instance de Pyodide dispose d'une méthode `run` qui peut être utilisée pour exécuter du code Python.
+
+```js wrap
+const result = await py.run(`print('Hello, World!')`)
+```
+
+## Globaux
+
+Vous pouvez lire et écrire des variables globales dans l'environnement Pyodide.
+
+```js wrap
+py.globals.set("x", 42)
+const x = py.globals.get("x")
+await py.run(`print(x)`)
+```
+
+## Système de fichiers de l'espace de travail
+
+Le système de fichiers d'espace de travail actuel est monté dans le répertoire `/workspace` dans l'environnement Pyodide.
+
+```js wrap
+const result = await runtime.run(`
+import os
+os.listdir('/workspace')
+`)
+console.log({ result })
+```
+
+## En savoir plus sur Pyodide
+
+Cette fonctionnalité est alimentée par [Pyodide](https://pyodide.org/). Pour plus d'informations, veuillez consulter la [documentation de Pyodide](https://pyodide.org/docs/).

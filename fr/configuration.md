@@ -1,0 +1,269 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import { YouTube } from "astro-embed";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+import lmSrc from "../../../../assets/vscode-language-models.png";
+import lmAlt from "../../../../assets/vscode-language-models.png.txt?raw";
+
+Vous devez configurer la connexion LLM et les secrets d'autorisation. Vous pouvez utiliser des modèles distants (comme OpenAI, Azure, etc.) et locaux (comme Ollama, Jan, LMStudio, etc.) avec GenAIScript.
+
+## Sélection du modèle
+
+Le modèle utilisé par le script est configuré via le champ `model` dans la fonction `script`.
+Le nom du modèle est formaté en `provider:model-name`, où `provider` est le fournisseur du LLM
+et `model-name` est spécifique au fournisseur.
+
+```js 'model: "openai:gpt-4o"'
+script({
+  model: "openai:gpt-4o",
+});
+```
+
+### Modèles large, small, vision
+
+Vous pouvez également utiliser les [alias de modèle](../../reference/scripts/model-aliases/) `small`, `large`, `vision` pour utiliser les modèles petits, grands et activés pour la vision configurés par défaut.
+Les modèles larges correspondent généralement à la gamme de raisonnement gpt-4 d'OpenAI et peuvent être utilisés pour des tâches plus complexes.
+Les petits modèles sont dans la gamme gpt-4o-mini d'OpenAI, et sont utiles pour des tâches rapides et simples.
+
+```js 'model: "small"'
+script({ model: "small" });
+```
+
+```js 'model: "large"'
+script({ model: "large" });
+```
+
+Les alias de modèles peuvent aussi être remplacés via la [commande cli run](../../reference/cli/run/),
+les variables d'environnement ou un fichier de configuration. [En savoir plus sur les alias de modèles](../../reference/scripts/model-aliases/).
+
+```sh
+genaiscript run ... --model large_model_id --small-model small_model_id
+```
+
+ou en ajoutant les variables d'environnement `GENAISCRIPT_MODEL_LARGE` et `GENAISCRIPT_MODEL_SMALL`.
+
+```txt title=".env"
+GENAISCRIPT_MODEL_LARGE="azure_serverless:..."
+GENAISCRIPT_MODEL_SMALL="azure_serverless:..."
+GENAISCRIPT_MODEL_VISION="azure_serverless:..."
+```
+
+Vous pouvez aussi configurer les alias par défaut pour un fournisseur LLM donné en utilisant l'argument `provider`.
+Les valeurs par défaut sont documentées sur cette page et affichées dans la sortie console.
+
+```js
+script({ provider: "openai" });
+```
+
+```sh
+genaiscript run ... --provider openai
+```
+
+### Alias de modèles
+
+En fait, vous pouvez définir n'importe quel alias pour votre modèle (seuls les caractères alphanumériques sont autorisés)
+via des variables d'environnement nommées `GENAISCRIPT_MODEL_ALIAS`
+où `ALIAS` est l'alias que vous souhaitez utiliser.
+
+```txt title=".env"
+GENAISCRIPT_MODEL_TINY=...
+```
+
+Les alias de modèles sont systématiquement mis en minuscules lors de leur utilisation dans le script.
+
+```js
+script({ model: "tiny" });
+```
+
+## Fichier `.env` et fichier `.env.genaiscript`
+
+GenAIScript utilise un fichier `.env` (et `.env.genaiscript`) pour charger les secrets et informations de configuration dans les variables d'environnement du processus.
+GenAIScript peut charger plusieurs fichiers `.env` pour configurer l'environnement.
+
+<Steps>
+  <ol>
+    <li>
+      Créez ou mettez à jour un fichier `.gitignore` à la racine de votre projet et assurez-vous qu'il inclut `.env`.
+      Cela garantit que vous ne commettez pas accidentellement vos secrets dans votre gestionnaire de version.
+
+      ```txt title=".gitignore" ".env"
+      ...
+      .env
+      .env.genaiscript
+      ```
+    </li>
+
+    <li>
+      Créez un fichier `.env` à la racine de votre projet.
+
+      <FileTree>
+        * .gitignore
+        * **.env**
+      </FileTree>
+    </li>
+
+    <li>
+      Mettez à jour le fichier `.env` avec les informations de configuration (voir ci-dessous).
+    </li>
+  </ol>
+</Steps>
+
+:::caution[Ne pas commettre les secrets]
+Le fichier `.env` ne doit jamais être commité dans votre gestionnaire de version !
+Si le fichier `.gitignore` est correctement configuré,
+les fichiers `.env` et `.env.genaiscript` apparaîtront grisés dans Visual Studio Code.
+
+```txt title=".gitignore" ".env"
+...
+.env
+```
+:::
+
+### Emplacement personnalisé du fichier .env
+
+Vous pouvez spécifier un emplacement personnalisé pour le fichier `.env` via la CLI ou une variable d'environnement.
+
+* GenAIScript charge par défaut les fichiers `.env` suivants dans cet ordre :
+  * `~/.env.genaiscript`
+  * `./.env.genaiscript`
+  * `./.env`
+
+* en ajoutant l'argument `--env <...files>` à la CLI. Chaque fichier `.env` est importé dans l'ordre et peut écraser les valeurs précédentes.
+
+```sh "--env .env .env.debug"
+npx genaiscript ... --env .env .env.debug
+```
+
+* en définissant la variable d'environnement `GENAISCRIPT_ENV_FILE`.
+
+```sh
+GENAISCRIPT_ENV_FILE=".env.local" npx genaiscript ...
+```
+
+* en spécifiant l'emplacement du fichier `.env` dans un [fichier de configuration](../../reference/configuration-files/).
+
+```json title="~/genaiscript.config.yaml"
+{
+  "$schema": "https://microsoft.github.io/genaiscript/schemas/config.json",
+  "envFile": [".env.local", ".env.another"]
+}
+```
+
+### Pas de fichier .env
+
+Si vous ne souhaitez pas utiliser de fichier `.env`, assurez-vous de remplir les variables d'environnement
+du processus genaiscript avec les valeurs de configuration.
+
+Voici quelques exemples courants :
+
+* Utilisation de la syntaxe bash
+
+```sh
+OPENAI_API_KEY="value" npx --yes genaiscript run ...
+```
+
+* Configuration GitHub Action
+
+```yaml title=".github/workflows/genaiscript.yml"
+run: npx --yes genaiscript run ...
+env:
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+```
+
+## Commande `configure`
+
+La commande [configure](../../reference/cli/configure/) est une commande interactive pour configurer et valider les connexions LLM.
+
+```sh
+npx genaiscript configure
+```
+
+## Conteneurs de développement sous Windows
+
+Vous pouvez utiliser les [Dev Containers](https://code.visualstudio.com/docs/devcontainers/tutorial) pour créer facilement un environnement de développement conteneurisé.
+
+* Installez [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)
+* Installez [Docker Desktop](https://docs.docker.com/get-started/get-docker/). Assurez-vous que le service Docker est en cours d'exécution.
+* Ouvrez Visual Studio Code
+* Installez l'[extension dev container](vscode\:extension/ms-vscode-remote.remote-containers) dans VSCode
+* Ouvrez la palette de commandes (`Ctrl`+`Shift`+`P`) et tapez *Nouvel environnement de développement conteneurisé...*
+* Sélectionnez l'image `Node.JS & TypeScript`.
+
+## Echo
+
+Le fournisseur `echo` est un fournisseur LLM sans exécution qui renvoie les messages sans appeler de LLM.
+Il est particulièrement utile pour le débogage lorsque vous souhaitez voir la requête LLM résultante sans l'envoyer.
+
+```js 'model: "echo"'
+script({
+  model: "echo",
+});
+```
+
+Echo répond avec les messages du chat sous forme markdown et JSON, ce qui peut être utile pour le débogage.
+
+## None
+
+Le fournisseur `none` empêche l'exécution du LLM. Il est typiquement utilisé dans un script de premier niveau qui utilise exclusivement des prompts en ligne.
+
+```js 'model: "none"'
+script({
+  model: "none",
+});
+```
+
+## Fournisseur personnalisé (compatible OpenAI)
+
+Vous pouvez utiliser un fournisseur personnalisé compatible avec l'[API de génération de texte OpenAI](https://platform.openai.com/docs/guides/text-generation).
+Cela est utile pour exécuter des LLM sur un serveur local ou un autre fournisseur cloud.
+
+Par exemple, pour définir un fournisseur `ollizard`, vous devez configurer la variable d'environnement `OLLIZARD_API_BASE` avec l'URL du fournisseur personnalisé,
+et `OLLIZARD_API_KEY` si nécessaire.
+
+```txt title=".env"
+OLLIZARD_API_BASE=http://localhost:1234/v1
+#OLLIZARD_API_KEY=...
+```
+
+Vous pouvez ensuite utiliser ce fournisseur comme n'importe quel autre fournisseur.
+
+```js 'model: "ollizard'
+script({
+  model: "ollizard:llama3.2:1b",
+});
+```
+
+## Variables d'environnement spécifiques au modèle
+
+Vous pouvez fournir différentes variables d'environnement
+pour chaque modèle nommé en utilisant le préfixe `PROVIDER_MODEL_API_...` ou `PROVIDER_API_...`.
+Le nom du modèle est mis en majuscules et
+tous les caractères non alphanumériques sont convertis en `_`.
+
+Cela permet d'avoir diverses sources de calcul de LLM
+pour différents modèles. Par exemple, activer le modèle `ollama:phi3`
+fonctionnant localement, tout en conservant les informations de connexion du modèle `openai` par défaut.
+
+```txt title=".env"
+OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
+```
+
+## Exécution derrière un proxy
+
+Vous pouvez définir les variables d'environnement `HTTP_PROXY` et/ou `HTTPS_PROXY` pour exécuter GenAIScript derrière un proxy.
+
+```txt title=".env"
+HTTP_PROXY=http://proxy.example.com:8080
+```
+
+## Vérification de votre configuration
+
+Vous pouvez vérifier votre configuration en exécutant la commande `genaiscript info env` [command](../../reference/cli/).
+Elle affichera les informations de configuration actuelles analysées par GenAIScript.
+
+```sh
+genaiscript info env
+```

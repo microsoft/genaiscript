@@ -1,0 +1,52 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+import lmSelectSrc from "../../../../assets/vscode-language-models-select.png";
+import lmSelectAlt from "../../../../assets/vscode-language-models-select.png.txt?raw";
+
+import { YouTube } from "astro-embed";
+
+Si vous avez accès à **GitHub Copilot Chat dans Visual Studio Code**,
+GenAIScript pourra également exploiter ces [modèles de langage](https://code.visualstudio.com/api/extension-guides/language-model).
+
+Ce mode est utile pour exécuter vos scripts sans avoir besoin d'un fournisseur de LLM distinct ou de LLM locaux. Cependant, ces modèles ne sont pas accessibles depuis la ligne de commande
+et sont soumis à des limitations supplémentaires ainsi qu'à un contrôle du taux défini par la plateforme GitHub Copilot.
+
+Aucune configuration n'est nécessaire tant que GitHub Copilot est installé et configuré dans Visual Studio Code.
+
+Vous pouvez forcer l'utilisation de ce modèle en utilisant `github_copilot_chat:*` comme nom de modèle
+ou définir le paramètre **GenAIScript > Language Chat Models Provider** sur true.
+Cela rendra GenAIScript par défaut l'utilisation de ce fournisseur pour les alias de modèles.
+
+<YouTube id="LRrVMiZgWJg" posterQuality="high" />
+
+<Steps>
+  <ol>
+    <li>
+      Installez [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (insistance sur **Chat**)
+    </li>
+
+    <li>exécutez votre script</li>
+
+    <li>
+      Confirmez que vous autorisez GenAIScript à utiliser les modèles GitHub Copilot Chat.
+    </li>
+
+    <li>
+      sélectionnez le meilleur modèle de chat correspondant à celui que vous avez dans votre script
+
+      <Image src={lmSelectSrc} alt={lmSelectAlt} loading="lazy" />
+
+      (Cette étape est sautée si vous avez déjà des correspondances dans vos paramètres)
+    </li>
+  </ol>
+</Steps>
+
+La correspondance des noms de modèles GenAIScript avec les modèles Visual Studio est enregistrée dans les paramètres.
+
+:::tip
+Si vous devez vérifier votre quota de requêtes premium disponible pour GitHub Copilot, rendez-vous sur [Fonctionnalités](https://github.com/settings/copilot/features)
+:::

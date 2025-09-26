@@ -1,0 +1,35 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+Le fournisseur `windows` prend en charge [AI for Windows Apps](https://learn.microsoft.com/en-us/windows/ai/) qui offre des modèles locaux à la pointe de la technologie, avec support matériel NPU.
+
+<Steps>
+  <ol>
+    <li>
+      Installez l’extension [AI Toolkit pour Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-windows-ai-studio.windows-ai-studio).
+    </li>
+
+    <li>
+      Ouvrez le **Catalogue de modèles** et ajoutez un modèle depuis la section d’exécution **Modèles ONNX**.
+    </li>
+
+    <li>
+      Faites un clic droit sur le modèle dans la vue Explorateur et sélectionnez **Copier le nom du modèle**.
+    </li>
+
+    <li>
+      Définissez le nom du modèle dans votre script avec le nom du modèle que vous avez copié.
+
+      ```js "windows:"
+      script({
+        model: "windows:Phi-4-mini-gpu-int4-rtn-block-32",
+      });
+      ```
+    </li>
+  </ol>
+</Steps>
+
+Voir le [guide de démarrage rapide de l’Azure AI Toolkit](https://learn.microsoft.com/en-us/windows/ai/toolkit/toolkit-getting-started).

@@ -1,0 +1,33 @@
+import { Steps } from '@astrojs/starlight/components';
+
+Ce guide de démarrage rapide illustre comment écrire un GenAIScript qui prend en entrée un fichier image.
+
+<Steps>
+  1. Placez votre image dans un répertoire visible dans l'Explorateur de VS Code.
+
+  2. Utilisez la commande `> GenAIScript : Créer un nouveau script...` dans la palette de commandes pour créer un nouveau script.
+
+  3. Mettez à jour le modèle dans l'en-tête du script pour faire référence à un modèle comprenant les images :
+     ```js
+     script({
+         title: "Apply a script to an image",
+         model: "openai:gpt-4o",
+     })
+     ```
+
+  4. Utilisez [defImages](../../reference/scripts/images/) pour intégrer le fichier image dans le contexte du modèle :
+     ```js
+     defImages(env.files, { detail: "low" })
+     ```
+
+  5. Remplacez le texte `"TELL THE LLM WHAT TO DO..."` par ce que vous voulez qu'il fasse avec votre fichier image.
+     ```js
+     $`You are a helpful assistant. 
+     Your goal is to look at the image of a chart provided
+     and extract the data it is presented in a tabular format.`
+     ```
+
+  6. Faites un clic droit sur le fichier image dans l'Explorateur de VS Code. Sélectionnez **Run GenAIScript**. Choisissez le script que vous venez d'écrire.
+
+  7. La sortie s'affichera dans un nouvel onglet de document.
+</Steps>

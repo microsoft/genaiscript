@@ -1,0 +1,63 @@
+GenAIScript fournit des API pour publier un message, avec des fichiers joints, sur un canal donné de [Microsoft Teams](https://www.microsoft.com/en-us/microsoft-teams/) et son partage de fichiers SharePoint.
+
+* en utilisant la CLI, pour publier le résultat de la génération IA
+
+```sh "--teams-message"
+genaiscript run ... --teams-message
+```
+
+* en utilisant l'API, pour publier un message avec des pièces jointes
+
+```js
+const channel = await host.teamsChannel()
+await channel.postMessage("Hello, World!")
+```
+
+## Authentification
+
+GenAIScript utilise le client d’authentification Azure pour interagir avec Microsoft Graph. Connectez-vous à votre compte en utilisant l’interface en ligne de commande Azure CLI.
+
+```sh
+az login
+```
+
+## Configuration
+
+Pour utiliser l’intégration Microsoft Teams avec le [CLI](../../../reference/reference/cli/), vous devez fournir une URL de lien vers un canal Teams.
+
+```txt .env
+GENAISCRIPT_TEAMS_CHANNEL_URL=https://teams.microsoft.com/l/...
+```
+
+## API
+
+L’API fonctionne en créant un client pour le canal, puis en appelant `postMessage`.
+
+```js
+const channel = await host.teamsChannel()
+await channel.postMessage("Hello, World!")
+```
+
+Vous pouvez également joindre des fichiers au message. Les fichiers seront téléchargés dans le dossier SharePoint Files.
+
+```js
+await channel.postMessage("Hello, World!", {
+    files: [{ filename: "file.txt" }],
+})
+```
+
+Ajoutez une description au fichier pour renseigner ces métadonnées. La description peut être en markdown et sera rendue en HTML dans Teams autant que possible.
+
+```js
+await channel.postMessage("Cool video!", {
+    files: [
+        {
+            filename: "video.mp4",
+            description: `Title
+description`,
+        },
+    ],
+})
+```
+
+Pour les vidéos, GenAIScript divisera la description en un sujet/message afin de remplir les deux champs dans Microsoft Stream.

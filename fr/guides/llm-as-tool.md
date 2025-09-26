@@ -1,0 +1,63 @@
+Il est possible [d'outils](../../reference/scripts/tools/)
+et [d'invites en ligne](../../reference/scripts/inline-prompts/)
+de créer un outil qui utilise un modèle LLM pour exécuter une invite.
+
+```js "defTool" "runPrompt"
+defTool(
+    "llm-small",
+    "Invokes smaller LLM",
+    {
+        prompt: {
+            type: "string",
+            description: "the prompt to be executed by the LLM",
+        },
+    },
+    async ({ prompt }) =>
+        await runPrompt(prompt, {
+            model: "small",
+            label: "llm-small",
+        })
+)
+```
+
+Le modèle `"small"` est un alias qui peut être configuré dans les métadonnées du `script`, les arguments CLI ou les variables d'environnement.
+
+```js "small"
+script({
+    smallModel: "openai:gpt-4o-mini",
+})
+```
+
+Les invites en ligne peuvent déclarer leurs propres outils ou utiliser des invites système en les déclarant.
+
+```js 'tools: "fs"'
+defTool(
+    "agent_file_system",
+    `An agent that uses gpt-4o to execute an LLM requests with tools that can search and read the file system.
+    `,
+    {
+        prompt: {
+            type: "string",
+            description: "the prompt to be executed by the LLM",
+        },
+    },
+    async ({ prompt }) =>
+        await env.generator.runPrompt(
+            (_) => {
+                _.$`You are an AI assistant that can help with file system tasks.
+
+                Answer the user question in the most concise way possible. Use wildcards and regex if needed.
+                If the question is ambiguous, ask for clarification.
+                Use tools to search and read the file system.
+                
+                QUESTION:`
+                _.writeText(prompt)
+            },
+            {
+                model: "openai:gpt-4o",
+                label: `llm-4o agent_fs ${prompt}`,
+                tools: "fs",
+            }
+        )
+)
+```

@@ -1,0 +1,158 @@
+import { Steps } from "@astrojs/starlight/components"
+import src from "../../../../../assets/vscode-notebook.png";
+import alt from "../../../../../assets/vscode-notebook.png.txt?raw";
+import { Image } from "astro:assets"
+
+Le Bloc-notes Markdown de GenAIScript est actuellement utilisé pour rédiger la documentation de GenAIScript.
+
+<Image src={src} alt={alt} loading="lazy" />
+
+Il permet d’exécuter des extraits de script et d’afficher le résultat directement en ligne dans le markdown, comme ceci :
+
+```js system="false" user="true" wrap
+$`Write a 3 emoji story.`
+```
+
+{/* genaiscript output start */}
+
+<details open>
+  <summary>👤 utilisateur</summary>
+
+  ```markdown wrap
+  Write a 3 emoji story.
+  ```
+</details>
+
+<details open>
+  <summary>🤖 assistant</summary>
+
+  ```markdown wrap
+  🌱 🌻 🌞
+  ```
+</details>
+
+{/* genaiscript output end */}
+
+## Modifier le Markdown comme un Bloc-notes
+
+La première étape consiste à ouvrir le fichier markdown afin de le modifier à l'aide du bloc-notes GenAIScript.
+
+<Steps>
+  1. Dans Visual Studio Code, faites un clic droit sur un fichier Markdown (`.md`) ou MDX (`.mdx`)
+  2. Sélectionnez **Ouvrir avec...**
+  3. Sélectionnez **Bloc-notes Markdown GenAIScript**
+</Steps>
+
+## Exécuter des extraits
+
+Vous pouvez exécuter n'importe quelle cellule **JavaScript** en cliquant sur le bouton **Exécuter la cellule** ou en appuyant sur `Shift+Entrée`. Cela exécutera le code comme s'il s'agissait d'un script GenAIScript dans l'espace de travail.
+
+```js
+$`Write a one sentence poem.`
+```
+
+{/* genaiscript output start */}
+
+<details>
+  <summary>👤 utilisateur</summary>
+
+  ```markdown wrap
+  Write a one sentence poem.
+  ```
+</details>
+
+<details open>
+  <summary>🤖 assistant</summary>
+
+  ```markdown wrap
+  In the still of the night, the stars whisper secrets to the dreaming earth.
+  ```
+</details>
+
+{/* genaiscript output end */}
+
+:::note
+Le journal des messages de discussion (`system`, `user`, `assistant`, ...) a été généré et inséré en utilisant un bloc-notes.
+:::
+
+## Configuration de la page
+
+Vous pouvez fournir des paramètres de configuration globaux dans le front matter. Le front matter commence et se termine par trois tirets `---` et se trouve en haut du fichier markdown.
+
+```md
+---
+title: My genai notebook
+genaiscript:
+  model: openai:gpt-4.1
+  ...
+---
+```
+
+### Modèle, fournisseur, température, ...
+
+Vous pouvez spécifier les métadonnées de configuration du modèle LLM depuis `script`.
+
+```md
+---
+genaiscript:
+    provider: openai
+    model: openai:gpt-4.1
+    temperature: 0
+---
+```
+
+### Fichiers
+
+Vous pouvez spécifier les fichiers à inclure dans le bloc-notes, soit en tant qu'entrée unique, soit en tant que tableau. Les glob patterns sont pris en charge. Les fichiers sont relatifs à la racine de l'espace de travail.
+
+```md
+---
+genaiscript:
+    files: src/samples/*.md
+---
+```
+
+La variable `env.files` est disponible pour référencer les fichiers dans le bloc-notes.
+
+```js
+def("FILE", env.files)
+$`Summarize FILE using exclusively emojis.`
+```
+
+{/* genaiscript output start */}
+
+<details>
+  <summary>👤 utilisateur</summary>
+
+  ````markdown wrap
+  FILE:
+
+  ```md file="src/samples/markdown.md"
+  ---
+  title: What is Markdown? - Understanding Markdown Syntax
+  description: Learn about Markdown, a lightweight markup language for formatting plain text, its syntax, and how it differs from WYSIWYG editors.
+  keywords: Markdown, markup language, formatting, plain text, syntax
+  sidebar: mydoc_sidebar
+  ---
+
+  What is Markdown?
+  Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.
+
+  Using Markdown is different than using a WYSIWYG editor. In an application like Microsoft Word, you click buttons to format words and phrases, and the changes are visible immediately. Markdown isn’t like that. When you create a Markdown-formatted file, you add Markdown syntax to the text to indicate which words and phrases should look different.
+
+  For example, to denote a heading, you add a number sign before it (e.g., # Heading One). Or to make a phrase bold, you add two asterisks before and after it (e.g., **this text is bold**). It may take a while to get used to seeing Markdown syntax in your text, especially if you’re accustomed to WYSIWYG applications. The screenshot below shows a Markdown file displayed in the Visual Studio Code text editor....
+  ```
+
+  Summarize FILE using exclusively emojis.
+  ````
+</details>
+
+<details open>
+  <summary>🤖 assistant</summary>
+
+  ```markdown wrap
+  📝 Markdown is a lightweight markup language created by John Gruber in 2004. It allows users to add formatting to plaintext documents using simple syntax. Unlike WYSIWYG editors, Markdown requires users to add specific symbols to indicate formatting, such as using # for headings and \*\* for bold text. Despite the initial adjustment period, Markdown has become one of the most popular markup languages in the world.
+  ```
+</details>
+
+{/* genaiscript output end */}

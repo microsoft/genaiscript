@@ -1,0 +1,98 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "GenAIScript Configuration",
+    "type": "object",
+    "description": "Schema for GenAIScript configuration file",
+    "properties": {
+        "envFile": {
+            "oneOf": [
+                {
+                    "type": "string",
+                    "description": "Path to a .env file to load environment variables from"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "description": "Path to a .env file to load environment variables from"
+                    },
+                    "description": "List of .env files"
+                }
+            ]
+        },
+        "include": {
+            "description": "List of files to include in the project",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "description": "Path to a file or a glob pattern to include in the project"
+            }
+        },
+        "modelEncodings": {
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z0-9_:]+$": {
+                    "type": "string",
+                    "description": "Encoding identifier",
+                    "enum": [
+                        "o1",
+                        "gpt-4o",
+                        "gpt-3.5-turbo",
+                        "text-davinci-003",
+                        "o200k_base",
+                        "cl100k_base",
+                        "p50k_base",
+                        "r50k_base"
+                    ]
+                }
+            },
+            "additionalProperties": true,
+            "description": "Equivalent encoders for model identifiers"
+        },
+        "modelAliases": {
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z0-9_]+$": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "description": "Model identifier (provider:model:tag)"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "model": {
+                                    "type": "string",
+                                    "description": "Model identifier (provider:model:tag)"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature to use for the model"
+                                }
+                            },
+                            "required": [
+                                "model"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": true,
+            "description": "Aliases for model identifiers (name)"
+        },
+        "secretPatterns": {
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z0-9_:\\-\\. ]+$": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Secret regex"
+                }
+            },
+            "additionalProperties": true,
+            "description": "Secret scanners to use for scanning chat messages"
+        }
+    }
+}

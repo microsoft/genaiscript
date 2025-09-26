@@ -1,0 +1,143 @@
+`logprobs` est un mode où les modèles LLM retournent la probabilité de chaque jeton. `topLogProbs` retourne également une liste de jetons alternatifs et leurs probabilités logarithmiques. Cela peut être utile pour le débogage et pour comprendre le comportement du modèle.
+
+* Voir [OpenAI Logprobs](https://cookbook.openai.com/examples/using_logprobs)
+
+:::note
+La fonctionnalité `logprobs` n'est pas disponible dans tous les modèles ou chez tous les fournisseurs.
+:::
+
+## Logprobs
+
+Vous pouvez activer logprobs de la manière suivante :
+
+* Utilisez l'option `logprobs` lors de la commande d'exécution.
+
+```sh
+npx genaiscript run ... --logprobs
+```
+
+* Ajoutez l'option `logprobs` aux métadonnées du `script`.
+
+```js "logprobs: true"
+script({ logprobs: true, ...})
+```
+
+### Sortie colorée
+
+Quand `logprobs` est activé, le [cli](../../../reference/reference/cli/) colorera la sortie en fonction de la probabilité de chaque jeton. Une couleur bleue indique une probabilité élevée et une couleur rouge indique une probabilité faible.
+
+Voici un exemple de logprobs en action lors de l'exécution d'une commande de poème avec gpt-4o.
+
+***
+
+Dans le murmure des arbres, la nuit parle doucement, où la lumière de la lune ondule parmi les ombres qu'elle cherche. Les étoiles scintillent au-dessus, comme des rêves lointains, peignant la nuit avec l'aube bercée doucement.
+
+***
+
+## Top logprobs
+
+Vous pouvez activer `top-logprobs` de la manière suivante :
+
+* Utilisez l'option `top-logprobs` lors de la commande d'exécution. Elle active également `logprobs`.
+
+```sh
+npx genaiscript run ... --top-logprobs 4
+```
+
+* Ajoutez l'option `topLogprobs` aux métadonnées du `script`.
+
+```js "logprobs: true"
+script({ topLogProbs: 4, ...})
+```
+
+### Sortie colorée
+
+Quand `top-logprobs` est activé, la fenêtre de console est colorée avec l'[entropie](https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf) des jetons alternatifs.
+
+***
+
+Dans le murmure des arbres, la nuit parle doucement, où la lumière de la lune ondule parmi les ombres qu'elle cherche. Les étoiles scintillent au-dessus, comme des rêves lointains, peignant la nuit avec l'aube bercée doucement.
+
+***
+
+### Jetons alternatifs
+
+La trace contient un rendu des jetons alternatifs avec une sortie colorée basée sur les logprobs.
+
+***
+
+Consultez l'exemple suivant dans le tableau pour illustrer la probabilité des jetons alternatifs.
+
+<table class="toplogprobs" style="display: inline-block; padding: 0; margin: 0; border: solid 1px grey; border-radius: 0.2rem;">
+  <tr>
+    <td style="border: none; padding: 0;">
+      <span class="logprobs" title="99.85% (-0.002)" style="background: rgb(0, 0, 210); color: white; white-space: pre; font-family: monospace;" />
+    </td>
+  </tr>
+
+  <tr>
+    <td style="border: none; padding: 0;">
+      <span class="logprobs" title="0.15% (-6.5)" style="background: rgb(210, 0, 0); color: white; white-space: pre; font-family: monospace;" />
+    </td>
+  </tr>
+
+  <tr>
+    <td style="border: none; padding: 0;">
+      <span class="logprobs" title="0.002% (-11)" style="background: rgb(210, 0, 0); color: white; white-space: pre; font-family: monospace;" />
+    </td>
+  </tr>
+</table>
+
+<br />
+
+Extrait illustrant des suggestions de jetons alternatifs et leurs probabilités associées.
+
+<table class="toplogprobs" style="display: inline-block; padding: 0; margin: 0; border: solid 1px grey; border-radius: 0.2rem;">
+  <tr>
+    <td style="border: none; padding: 0;">
+      <span class="logprobs" title="99.98% (-0.0002)" style="background: rgb(0, 0, 210); color: white; white-space: pre; font-family: monospace;" />
+    </td>
+  </tr>
+
+  <tr>
+    <td style="border: none; padding: 0;">
+      <span class="logprobs" title="0.02% (-8.63)" style="background: rgb(210, 0, 0); color: white; white-space: pre; font-family: monospace;" />
+    </td>
+  </tr>
+
+  <tr>
+    <td style="border: none; padding: 0;">
+      <span class="logprobs" title="0.002% (-11)" style="background: rgb(210, 0, 0); color: white; white-space: pre; font-family: monospace;" />
+    </td>
+  </tr>
+</table>
+
+<br />
+
+Les probabilités logarithmiques affichent les autres jetons possibles pour chaque segment d'un texte proposé.
+
+<table class="toplogprobs" style="display: inline-block; padding: 0; margin: 0; border: solid 1px grey; border-radius: 0.2rem;">
+  <tr>
+    <td style="border: none; padding: 0;">
+      <span class="logprobs" title="99.97% (-0.0003)" style="background: rgb(0, 0, 210); color: white; white-space: pre; font-family: monospace;" />
+    </td>
+  </tr>
+
+  <tr>
+    <td style="border: none; padding: 0;">
+      <span class="logprobs" title="0.03% (-8.13)" style="background: rgb(210, 0, 0); color: white; white-space: pre; font-family: monospace;" />
+    </td>
+  </tr>
+
+  <tr>
+    <td style="border: none; padding: 0;">
+      <span class="logprobs" title="0.001% (-11.13)" style="background: rgb(210, 0, 0); color: white; white-space: pre; font-family: monospace;" />
+    </td>
+  </tr>
+</table>
+
+<br />
+
+Des exemples additionnels de tokens alternatifs sont affichés ci-dessous avec des probabilités logarithmiques.
+
+***

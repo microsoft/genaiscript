@@ -1,0 +1,47 @@
+import { PackageManagers } from "starlight-package-managers";
+
+Ces assistants d'exécution fournissent une interface conviviale autour de l'écosystème [remark](https://github.com/remarkjs/remark), [mdast](https://github.com/syntax-tree/mdast), [unified](https://github.com/syntax-tree/unist) pour analyser et manipuler des documents Markdown.
+
+## Installation
+
+<PackageManagers pkg="@genaiscript/plugin-mdast" dev />
+
+Si vous utilisez le plugin dans un environnement Node.JS, sans fichier d'entrée `.genai...`, vous devrez initialiser le [runtime](../../../reference/reference/runtime/) avant d'utiliser le plugin :
+
+```ts
+import { initialize } from "@genaiscript/runtime";
+
+await initialize()
+```
+
+## Manipulation de Markdown
+
+* charger les analyseurs
+
+```typescript
+import { mdast } from "@genaiscript/plugin-mdast";
+
+const { parse, visit, stringify } = await mdast();
+```
+
+* analyse en arbre mdast
+
+```typescript
+const root = parse("# Hello World");
+```
+
+* parcourir l'arbre (voir la [documentation](https://unifiedjs.com/learn/recipe/tree-traversal/pnp))
+
+```typescript
+const updated = visit(root, `code`, (node) => {
+  ...node
+});
+```
+
+* sérialiser l'arbre en Markdown
+
+```typescript
+const markdown = await stringify(updated);
+```
+
+Pour bénéficier de la complétion de type, vous devrez installer le paquet `@types/mdast` en tant que dépendance de développement.

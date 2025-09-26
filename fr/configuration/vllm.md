@@ -1,0 +1,11 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+## vLLM
+
+[vLLM](https://docs.vllm.ai/) est une bibliothèque rapide et facile à utiliser pour l'inférence et le déploiement des grands modèles de langage (LLM).
+
+Le fournisseur est `vllm` et le nom du modèle est ignoré.

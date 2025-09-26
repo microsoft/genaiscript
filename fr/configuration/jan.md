@@ -1,0 +1,34 @@
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import LLMProviderFeatures from "../../../../components/LLMProviderFeatures.astro";
+
+Le fournisseur `jan` se connecte au serveur local [Jan](https://jan.ai/).
+
+<Steps>
+  <ol>
+    <li>
+      [Jan](https://jan.ai/)
+    </li>
+
+    <li>
+      Ouvrez Jan et téléchargez les modèles que vous envisagez d’utiliser. Vous trouverez l'identifiant du modèle dans la page de description du modèle.
+    </li>
+
+    <li>
+      Cliquez sur l’icône **Serveur API Local** (en bas à gauche), puis sur **Démarrer le serveur**.
+
+      Laissez l’application de bureau ouverte !
+    </li>
+  </ol>
+</Steps>
+
+Pour utiliser les modèles Jan, employez la syntaxe `jan:modelid`.
+Si vous changez l’URL par défaut du serveur, vous pouvez définir la variable d’environnement `JAN_API_BASE`.
+
+```txt title=".env"
+JAN_API_BASE=http://localhost:1234/v1
+```
+
+<LLMProviderFeatures provider="jan" />

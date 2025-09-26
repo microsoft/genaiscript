@@ -1,0 +1,38 @@
+:::caution
+Nous avons temporairement supprimé le support pour `transformers` afin de réduire l'empreinte d'installation.
+:::
+
+HuggingFace [Transformers.js](https://huggingface.co/docs/transformers.js/index) est une bibliothèque JavaScript qui vous permet d'exécuter des modèles pré-entraînés localement sur votre machine. La bibliothèque utilise [onnxruntime](https://onnxruntime.ai/) pour exploiter les capacités CPU/GPU de votre matériel.
+
+Dans ce guide, nous allons montrer comment créer des [résumés](https://huggingface.co/tasks/summarization) à l'aide de la bibliothèque [Transformers.js](https://huggingface.co/docs/transformers.js/api/pipelines#module_pipelines.SummarizationPipeline).
+
+:::tip
+Transformers.js dispose d'une liste étendue de tâches disponibles. Ce guide n'en couvrira qu'une seule, mais consultez leur [documentation](https://huggingface.co/docs/transformers.js/pipelines#tasks) pour en savoir plus.
+:::
+
+## Importer le pipeline
+
+L'extrait ci-dessous importe la bibliothèque Transformers.js et charge le pipeline et le modèle de synthèse.
+Vous pouvez spécifier un nom de modèle ou laisser la bibliothèque choisir le dernier et le meilleur.
+
+```js
+import { pipeline } from "@genaiscript/runtime"
+const summarizer = await pipeline("summarization")
+```
+
+L'allocation et le chargement du modèle peuvent prendre un certain temps, il est donc préférable de le faire au début de votre script et une seule fois.
+
+:::note[Migrez votre script vers `.mjs`]
+Pour utiliser la bibliothèque `Transformers.js`, vous devez utiliser l'extension `.mjs` pour votre script (ou `.mts` pour la prise en charge de TypeScript).
+Si votre script se termine par `.genai.js`, renommez-le en `.genai.mjs`.
+:::
+
+## Exécuter le pipeline
+
+Le pipeline de synthèse prend un seul argument, le contenu à résumer. Il renvoie un tableau de résumés que nous devons déballer pour accéder au texte final du résumé. C'est ce que nous faisons ci-dessous et `summary_index` contient le texte du résumé.
+
+```js
+const [summary] = await summarizer(content)
+// @ts-ignore
+const { summary_text } = summary
+```
