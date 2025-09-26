@@ -193,7 +193,6 @@ export class TerminalServerManager
         const githubCopilotChatClient = isLanguageModelsAvailable()
             ? "--github-copilot-chat-client"
             : ""
-        const noColorsArg = noColors ? "--no-colors" : ""
 
         if (this._client) this._client.reconnectAttempts = 0
         this._terminalStartAttempts++
@@ -209,10 +208,10 @@ export class TerminalServerManager
             }),
             hideFromUser,
         })
-        if (cliPath)
-            this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" ${githubCopilotChatClient} ${noColorsArg}`.trim()
-            )
+        if (cliPath) {
+            const cmd = `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" ${githubCopilotChatClient}${noColors ? " --no-colors" : ""}`.trim()
+            this._terminal.sendText(cmd)
+        }
         else {
             const args = [
                 `${TOOL_ID}@${cliVersion}`,
@@ -221,15 +220,17 @@ export class TerminalServerManager
                 `${this._port}`,
                 `--dispatch-progress`,
                 `--cors`,
-                `"*"`,
-                githubCopilotChatClient,
+                `"*"`
             ]
+            if (githubCopilotChatClient) {
+                args.push(githubCopilotChatClient)
+            }
             if (noColors) {
                 args.push("--no-colors")
             }
             const pkg = await packageResolveExecute(
                 cwd,
-                args.filter(arg => arg !== ""),
+                args,
                 { agent: packageManager }
             )
             const cmd = [shellQuote([pkg.command]), ...pkg.args].join(" ")
