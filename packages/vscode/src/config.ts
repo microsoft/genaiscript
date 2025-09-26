@@ -4,6 +4,7 @@ import {
     VSCODE_CONFIG_CLI_PACKAGE_MANAGER,
     VSCODE_CONFIG_CLI_PATH,
     VSCODE_CONFIG_CLI_VERSION,
+    VSCODE_CONFIG_CLI_NO_COLORS,
 } from "../../core/src/constants"
 import { CORE_VERSION, VSCODE_CLI_VERSION } from "../../core/src/version"
 import { semverParse, semverSatisfies } from "../../core/src/semver"
@@ -21,11 +22,12 @@ export async function resolveCli(state: ExtensionState) {
         | "npm"
         | "yarn"
         | "pnpm" // TODO: add support for bun
+    const noColors = config.get(VSCODE_CONFIG_CLI_NO_COLORS) as boolean
     const gv = semverParse(CORE_VERSION)
     if (!semverSatisfies(cliVersion, ">=" + gv.major + "." + gv.minor))
         vscode.window.showWarningMessage(
             TOOL_ID +
                 ` - genaiscript cli version (${cliVersion}) outdated, please update to ${CORE_VERSION}`
         )
-    return { cliPath, cliVersion, packageManager }
+    return { cliPath, cliVersion, packageManager, noColors }
 }

@@ -373,6 +373,11 @@
                     "genaiscript.cli.path": {
                         "type": "string",
                         "description": "Path to GenAIScript CLI. Default uses npx."
+                    },
+                    "genaiscript.cli.noColors": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Disable color output in the CLI. Default is false (colors enabled)."
                     }
                 }
             }

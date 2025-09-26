@@ -13,7 +13,7 @@ export async function activeTaskProvider(state: ExtensionState) {
             try {
                 if (!state.project) return []
 
-                const { cliPath, cliVersion } = await resolveCli(state)
+                const { cliPath, cliVersion, noColors } = await resolveCli(state)
                 const exec = shellQuote([cliPath || `npx`])
                 const exeArgs = cliPath
                     ? []
@@ -27,6 +27,9 @@ export async function activeTaskProvider(state: ExtensionState) {
                         script.filename
                     )
                     const args = [...exeArgs, "run", scriptName]
+                    if (noColors) {
+                        args.push("--no-colors")
+                    }
                     if (vscode.window.activeTextEditor)
                         args.push("${relativeFile}")
                     const task = new vscode.Task(

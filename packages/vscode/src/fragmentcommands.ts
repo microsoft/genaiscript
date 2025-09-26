@@ -136,7 +136,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         )
         if (parameters === undefined) return
 
-        const { cliPath, cliVersion } = await resolveCli(state)
+        const { cliPath, cliVersion, noColors } = await resolveCli(state)
         const args = [
             "run",
             vscode.workspace.asRelativePath(script.filename),
@@ -144,6 +144,9 @@ export function activateFragmentCommands(state: ExtensionState) {
                 vscode.workspace.asRelativePath(file.fsPath)
             ),
         ]
+        if (noColors) {
+            args.push("--no-colors")
+        }
         for (const [name, value] of Object.entries(parameters)) {
             args.push(`--vars`, `${name}=${value}`)
         }

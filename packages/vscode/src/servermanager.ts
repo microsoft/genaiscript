@@ -187,12 +187,13 @@ export class TerminalServerManager
         logVerbose(
             `starting server on port ${this._port} at ${cwd} (DEBUG=${debug || ""})`
         )
-        const { cliPath, cliVersion, packageManager } = await resolveCli(
+        const { cliPath, cliVersion, packageManager, noColors } = await resolveCli(
             this.state
         )
         const githubCopilotChatClient = isLanguageModelsAvailable()
             ? "--github-copilot-chat-client"
             : ""
+        const noColorsArg = noColors ? "--no-colors" : ""
 
         if (this._client) this._client.reconnectAttempts = 0
         this._terminalStartAttempts++
@@ -210,21 +211,25 @@ export class TerminalServerManager
         })
         if (cliPath)
             this._terminal.sendText(
-                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" ${githubCopilotChatClient}`
+                `node "${cliPath}" serve --port ${this._port} --dispatch-progress --cors "*" ${githubCopilotChatClient} ${noColorsArg}`.trim()
             )
         else {
+            const args = [
+                `${TOOL_ID}@${cliVersion}`,
+                `serve`,
+                `--port`,
+                `${this._port}`,
+                `--dispatch-progress`,
+                `--cors`,
+                `"*"`,
+                githubCopilotChatClient,
+            ]
+            if (noColors) {
+                args.push("--no-colors")
+            }
             const pkg = await packageResolveExecute(
                 cwd,
-                [
-                    `${TOOL_ID}@${cliVersion}`,
-                    `serve`,
-                    `--port`,
-                    `${this._port}`,
-                    `--dispatch-progress`,
-                    `--cors`,
-                    `"*"`,
-                    githubCopilotChatClient,
-                ],
+                args.filter(arg => arg !== ""),
                 { agent: packageManager }
             )
             const cmd = [shellQuote([pkg.command]), ...pkg.args].join(" ")
