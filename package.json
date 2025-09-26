@@ -2,7 +2,7 @@
   "name": "@genaiscript/monorepo",
   "displayName": "GenAIScript",
   "description": "Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "license": "MIT",
   "private": true,
   "author": "microsoft",
