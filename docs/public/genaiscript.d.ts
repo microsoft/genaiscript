@@ -3,7 +3,7 @@
 
 /**
  * GenAIScript Ambient Type Definition File
- * @version 2.3.15
+ * @version 2.5.0
  */
  type OptionsOrString<TOptions extends string> = (string & {}) | TOptions;
 
@@ -216,10 +216,7 @@
   | "github:deepseek/deepseek-r1"
   | "github:microsoft/phi-4"
   | "github_copilot_chat:current"
-  | "github_copilot_chat:gpt-3.5-turbo"
-  | "github_copilot_chat:gpt-4o-mini"
-  | "github_copilot_chat:gpt-4o-2024-11-20"
-  | "github_copilot_chat:gpt-4"
+  | "github_copilot_chat:gpt-4.1"
   | "github_copilot_chat:o1"
   | "github_copilot_chat:o1:low"
   | "github_copilot_chat:o1:medium"
@@ -483,6 +480,12 @@
    * List of system to exclude from the prompt.
    */
   excludedSystem?: ElementOrArray<SystemPromptId>;
+
+  /**
+   * Keywords that will 'activate' the system script. When these keywords are found in the prompt source,
+   * the system script will be automatically imported.
+   */
+  activation?: ElementOrArray<string>;
 
   /**
    * MCP server configuration. The tools will be injected into the prompt.
@@ -780,6 +783,13 @@
    * Set if this is a system prompt.
    */
   isSystem?: boolean;
+
+  /**
+   * List of allowed domains (with wildcard support) for HTTPS resource resolution and fetchText.
+   * If specified, overrides the global allowedDomains configuration for this script.
+   * Supports glob patterns like "*.github.com".
+   */
+  allowedDomains?: ElementOrArray<string>;
 }
 /**
  * Represent a workspace file and optional content.
@@ -3573,6 +3583,10 @@
 
  interface GitHubIssueCreateOptions {
   labels?: string[];
+  /**
+   * Parent issue number to add this issue as a sub-issue
+   */
+  parentIssue?: number | string;
 }
 
  interface GitHubLabel {
@@ -4580,7 +4594,9 @@
   maxTokens?: number;
 }
 
- type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">> | string;
+ type McpAgentServersConfig =
+  | Record<string, Omit<McpAgentServerConfig, "id" | "options">>
+  | string;
 
  type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 
@@ -5172,6 +5188,12 @@
    * Commands to executes after the container is created
    */
   postCreateCommands?: ElementOrArray<string>;
+
+  /**
+   * Container operating system type. Determines path separator used for working directories.
+   * Defaults to "unix" for compatibility with most Linux-based containers.
+   */
+  osType?: "unix" | "windows";
 }
 
  interface PromiseQueue {
@@ -5281,14 +5303,7 @@
   convert?: "markdown" | "text" | "tables";
 };
 
- interface PromptHost
-  extends ShellHost,
-    LoggerHost,
-    McpHost,
-    ResourceHost,
-    UserInterfaceHost,
-    LanguageModelHost,
-    ContentSafetyHost {
+ interface FetchHost {
   /**
    * A fetch wrapper with proxy, retry and timeout handling.
    */
@@ -5308,7 +5323,17 @@
     text?: string;
     file?: WorkspaceFile;
   }>;
+}
 
+ interface PromptHost
+  extends ShellHost,
+    LoggerHost,
+    McpHost,
+    ResourceHost,
+    UserInterfaceHost,
+    LanguageModelHost,
+    ContentSafetyHost,
+    FetchHost {
   /**
    * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
    * @param cacheName

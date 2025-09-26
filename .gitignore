@@ -11,6 +11,8 @@ packages/**/.genaiscript/
 .genaiscript/stats/
 .genaiscript/test-runs/
 .genaiscript/tests/
+install-gh-aw.sh
+gh-aw
 
 vscode-extension-samples/
 .DS_Store

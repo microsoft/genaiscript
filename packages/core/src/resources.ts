@@ -18,6 +18,8 @@ import { join } from "node:path";
 import { isCancelError } from "./error.js";
 import { GITHUB_ASSET_URL_RX } from "./constants.js";
 import type { Awaitable, ElementOrArray, WorkspaceFile } from "./types.js";
+import { resolveRuntimeHost } from "./host.js";
+import { isDomainAllowed, createDomainBlockedError } from "./domainfilter.js";
 
 const dbg = genaiscriptDebug("res");
 const dbgAdaptors = dbg.extend("adaptors");
@@ -85,7 +87,7 @@ const uriResolvers: Record<
   (
     dbg: debug.Debugger,
     url: URL,
-    options?: TraceOptions & CancellationOptions,
+    options?: TraceOptions & CancellationOptions & { script?: { allowedDomains?: string[] } },
   ) => Promise<ElementOrArray<WorkspaceFile>>
 > = {
   file: async (dbg, uri) => {
@@ -94,6 +96,19 @@ const uriResolvers: Record<
     return file;
   },
   https: async (dbg, url, options) => {
+    // Check if domain is allowed
+    const runtimeHost = resolveRuntimeHost();
+    const config = runtimeHost.config;
+    
+    // Use script-level allowedDomains if specified, otherwise fall back to global config
+    const allowedDomains = options?.script?.allowedDomains || config?.allowedDomains;
+    
+    if (!isDomainAllowed(url.hostname, { allowedDomains })) {
+      const errorMsg = createDomainBlockedError(url.hostname, { allowedDomains });
+      dbg(`domain blocked: %s`, errorMsg);
+      throw new Error(errorMsg);
+    }
+    
     // https://.../.../....git
     if (/\.git($|\/)/.test(url.pathname)) return await uriResolvers.git(dbg, url, options);
     // regular fetch
@@ -215,7 +230,7 @@ const uriResolvers: Record<
  */
 export async function tryResolveResource(
   url: string,
-  options?: TraceOptions & CancellationOptions,
+  options?: TraceOptions & CancellationOptions & { script?: { allowedDomains?: string[] } },
 ): Promise<{ uri: URL; files: WorkspaceFile[] } | undefined> {
   if (!url) return undefined;
   url = await applyUrlAdapters(url);

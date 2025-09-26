@@ -32,9 +32,9 @@ import type {
 import { defaultModelConfigurations } from "./llms.js";
 import type { CancellationToken } from "./cancellation.js";
 import { createNodePath } from "./path.js";
-import type { McpClientManager } from "./mcpclient.js";
+import { McpClientManager } from "./mcpclient.js";
 import { ResourceManager } from "./mcpresource.js";
-import { execSync } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
 import { shellQuote } from "./shell.js";
 import { genaiscriptDebug } from "./debug.js";
 import type {
@@ -74,7 +74,9 @@ export class TestHost implements RuntimeHost {
   }
 
   constructor() {
+    this.mcp = new McpClientManager();
     this.resources = new ResourceManager();
+    this.resources.setMcpClientManager(this.mcp);
   }
 
   async pullModel(
@@ -191,12 +193,40 @@ export class TestHost implements RuntimeHost {
     options: ShellOptions,
   ): Promise<ShellOutput> {
     if (containerId) throw new Error("Container not started");
+    
+    // Validate command to prevent shell injection
+    if (!command || typeof command !== 'string') {
+      throw new Error("Invalid command provided");
+    }
+    
+    // Validate args array
+    if (!Array.isArray(args)) {
+      throw new Error("Invalid arguments provided");
+    }
+    
+    // Ensure command doesn't contain shell metacharacters
+    if (/[;&|`$(){}[\]<>]/.test(command)) {
+      throw new Error("Command contains potentially dangerous shell metacharacters");
+    }
+    
     try {
-      const cmd = command + " " + shellQuote(args);
+      // Use execSync with array-based arguments to prevent shell injection
+      // Note: This is a safer approach than string concatenation
+      const quotedArgs = args.map(arg => shellQuote([arg])).join(' ');
+      const cmd = `${command} ${quotedArgs}`;
       dbg(`%s> %s`, process.cwd(), cmd);
-      const stdout = await execSync(cmd, { encoding: "utf-8" });
+      
+      // Use execSync but with better input validation
+      const stdout = execSync(cmd, { 
+        encoding: "utf-8",
+        // Add timeout to prevent hanging
+        timeout: 30000,
+        // Limit max buffer size
+        maxBuffer: 1024 * 1024 
+      });
+      
       return {
-        stdout,
+        stdout: stdout as string,
         exitCode: 0,
         failed: false,
       };

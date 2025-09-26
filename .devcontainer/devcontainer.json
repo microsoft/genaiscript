@@ -1,36 +1,46 @@
 {
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
-    "postCreateCommand": "pnpm install --frozen-lockfile --prefer-offline && pnpm install:playwright",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "GitHub.copilot-chat",
-                "esbenp.prettier-vscode",
-                "dbaeumer.vscode-eslint",
-                "bierner.markdown-mermaid",
-                "yoavbls.pretty-ts-errors",
-                "astro-build.astro-vscode",
-                "unifiedjs.vscode-mdx",
-                "streetsidesoftware.code-spell-checker",
-                "file-icons.file-icons",
-                "GitHub.vscode-pull-request-github",
-                "usernamehw.errorlens",
-                "goessner.mdmath",
-                "vsls-contrib.gistfs",
-                "ms-azuretools.vscode-containers",
-                "ms-vscode.vscode-js-profile-flame",
-                "streetsidesoftware.code-spell-checker-french"
-            ]
-        }
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
+  "postCreateCommand": "pnpm install --frozen-lockfile --prefer-offline && pnpm install:playwright",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot-chat",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bierner.markdown-mermaid",
+        "yoavbls.pretty-ts-errors",
+        "astro-build.astro-vscode",
+        "unifiedjs.vscode-mdx",
+        "streetsidesoftware.code-spell-checker",
+        "file-icons.file-icons",
+        "GitHub.vscode-pull-request-github",
+        "usernamehw.errorlens",
+        "goessner.mdmath",
+        "vsls-contrib.gistfs",
+        "ms-azuretools.vscode-containers",
+        "ms-vscode.vscode-js-profile-flame",
+        "streetsidesoftware.code-spell-checker-french"
+      ]
     },
-    "features": {
-        "ghcr.io/devcontainers/features/common-utils:2": {},
-        "ghcr.io/devcontainers/features/git:1": {},
-        "ghcr.io/ghcr.io/devcontainers/features/github-cli:1": {},
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-        "ghcr.io/devcontainers/features/azure-cli:1": {},
-        "ghcr.io/devcontainers/features/python:1": {},
-        "ghcr.io/devcontainers-extra/features/ffmpeg-apt-get:1": {},
-        "ghcr.io/devcontainers/features/rust:1": {}
+    "codespaces": {
+      "repositories": {
+        "githubnext/gh-aw": {
+          "permissions": {
+            "releases": "read",
+            "contents": "read"
+          }
+        }
+      }
     }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers-extra/features/ffmpeg-apt-get:1": {},
+    "ghcr.io/devcontainers/features/rust:1": {}
+  }
 }

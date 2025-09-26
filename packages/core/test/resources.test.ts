@@ -100,4 +100,31 @@ describe("resources", async () => {
     assert(result.files[0].filename.includes("readme.md"));
   });
   */
+  
+  await test("should reject Windows-style paths that look like URIs (issue #1504)", async () => {
+    // This tests the issue fixed in VSCode extension
+    // Windows paths like "c:\Users\..." should not be treated as valid resources
+    const windowsPath = "c:\\Users\\test\\file.txt";
+    
+    const result = await tryResolveResource(windowsPath);
+    
+    // This should return undefined because it's not a valid resource
+    // The fix in VSCode extension ensures we pass file:// URIs instead
+    assert.equal(result, undefined);
+  });
+
+  await test("should handle proper file URIs correctly (issue #1504 fix)", async () => {
+    // This tests what the VSCode extension fix ensures is sent
+    const testFilePath = join(tempDir, "test-file.txt");
+    writeFileSync(testFilePath, "test content");
+    
+    // Convert to proper file URI (what VSCode should send after our fix)
+    const fileUri = pathToFileURL(testFilePath).href;
+    
+    const result = await tryResolveResource(fileUri);
+    
+    assert(result);
+    assert.equal(result.files.length, 1);
+    assert.equal(result.files[0].filename, testFilePath);
+  });
 });

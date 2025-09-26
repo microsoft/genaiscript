@@ -216,10 +216,7 @@ export type ModelType = OptionsOrString<
   | "github:deepseek/deepseek-r1"
   | "github:microsoft/phi-4"
   | "github_copilot_chat:current"
-  | "github_copilot_chat:gpt-3.5-turbo"
-  | "github_copilot_chat:gpt-4o-mini"
-  | "github_copilot_chat:gpt-4o-2024-11-20"
-  | "github_copilot_chat:gpt-4"
+  | "github_copilot_chat:gpt-4.1"
   | "github_copilot_chat:o1"
   | "github_copilot_chat:o1:low"
   | "github_copilot_chat:o1:medium"
@@ -483,6 +480,12 @@ export interface PromptSystemOptions extends PromptSystemSafetyOptions {
    * List of system to exclude from the prompt.
    */
   excludedSystem?: ElementOrArray<SystemPromptId>;
+
+  /**
+   * Keywords that will 'activate' the system script. When these keywords are found in the prompt source,
+   * the system script will be automatically imported.
+   */
+  activation?: ElementOrArray<string>;
 
   /**
    * MCP server configuration. The tools will be injected into the prompt.
@@ -780,6 +783,13 @@ export interface PromptScript
    * Set if this is a system prompt.
    */
   isSystem?: boolean;
+
+  /**
+   * List of allowed domains (with wildcard support) for HTTPS resource resolution and fetchText.
+   * If specified, overrides the global allowedDomains configuration for this script.
+   * Supports glob patterns like "*.github.com".
+   */
+  allowedDomains?: ElementOrArray<string>;
 }
 /**
  * Represent a workspace file and optional content.
@@ -3573,6 +3583,10 @@ export interface GitHubIssueUpdateOptions {
 
 export interface GitHubIssueCreateOptions {
   labels?: string[];
+  /**
+   * Parent issue number to add this issue as a sub-issue
+   */
+  parentIssue?: number | string;
 }
 
 export interface GitHubLabel {
@@ -4580,7 +4594,9 @@ export interface McpAgentServerConfig extends McpServerConfig {
   maxTokens?: number;
 }
 
-export type McpAgentServersConfig = Record<string, Omit<McpAgentServerConfig, "id" | "options">> | string;
+export type McpAgentServersConfig =
+  | Record<string, Omit<McpAgentServerConfig, "id" | "options">>
+  | string;
 
 export type ZodTypeLike = { _def: any; safeParse: any; refine: any };
 
@@ -5172,6 +5188,12 @@ export interface ContainerOptions {
    * Commands to executes after the container is created
    */
   postCreateCommands?: ElementOrArray<string>;
+
+  /**
+   * Container operating system type. Determines path separator used for working directories.
+   * Defaults to "unix" for compatibility with most Linux-based containers.
+   */
+  osType?: "unix" | "windows";
 }
 
 export interface PromiseQueue {
@@ -5281,14 +5303,7 @@ export type FetchTextOptions = Omit<FetchOptions, "body" | "signal" | "window"> 
   convert?: "markdown" | "text" | "tables";
 };
 
-export interface PromptHost
-  extends ShellHost,
-    LoggerHost,
-    McpHost,
-    ResourceHost,
-    UserInterfaceHost,
-    LanguageModelHost,
-    ContentSafetyHost {
+export interface FetchHost {
   /**
    * A fetch wrapper with proxy, retry and timeout handling.
    */
@@ -5308,7 +5323,17 @@ export interface PromptHost
     text?: string;
     file?: WorkspaceFile;
   }>;
+}
 
+export interface PromptHost
+  extends ShellHost,
+    LoggerHost,
+    McpHost,
+    ResourceHost,
+    UserInterfaceHost,
+    LanguageModelHost,
+    ContentSafetyHost,
+    FetchHost {
   /**
    * Opens a in-memory key-value cache for the given cache name. Entries are dropped when the cache grows too large.
    * @param cacheName

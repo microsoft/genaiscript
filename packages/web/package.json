@@ -1,6 +1,6 @@
 {
   "name": "@genaiscript/web",
-  "version": "2.3.15",
+  "version": "2.5.0",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -27,7 +27,7 @@
     "clsx": "^2.1.1",
     "dedent": "^1.6.0",
     "es-toolkit": "catalog:",
-    "esbuild": "^0.25.8",
+    "esbuild": "^0.25.9",
     "eslint": "catalog:",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",

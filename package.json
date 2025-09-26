@@ -2,13 +2,15 @@
   "name": "@genaiscript/monorepo",
   "displayName": "GenAIScript",
   "description": "Programmatically assemble prompts for LLMs using JavaScript. Orchestrate LLMs, tools, and data in code.",
-  "version": "2.3.15",
+  "version": "2.5.0",
   "license": "MIT",
   "private": true,
   "author": "microsoft",
-  "packageManager": "pnpm@10.12.3",
+  "packageManager": "pnpm@10.16.1",
   "type": "module",
   "scripts": {
+    "gh-aw:install": "curl -fsSL -o ./install-gh-aw.sh https://raw.githubusercontent.com/githubnext/gh-aw/refs/heads/main/install-gh-aw.sh && chmod +x ./install-gh-aw.sh && ./install-gh-aw.sh",
+    "gh-aw:compile": "./gh-aw compile",
     "az:login": "az login --scope api://trapi/.default",
     "prebuild": "pnpm run build:ruler",
     "build": "turbo build",
@@ -132,7 +134,7 @@
     "prettier-plugin-curly": "^0.3.2",
     "release-it": "^19.0.4",
     "tsx": "catalog:",
-    "turbo": "^2.5.5",
+    "turbo": "^2.5.6",
     "zx": "catalog:"
   }
 }

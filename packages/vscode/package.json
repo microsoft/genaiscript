@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "2.3.15",
+    "version": "2.5.0",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.100.0"
@@ -373,6 +373,11 @@
                         "type": "boolean",
                         "description": "Use GitHub Copilot Chat Models (or other models provided in Visual Studio Code) as the preferred LLM provider when a model is not specified."
                     },
+                    "genaiscript.askLanguageChatModel": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Ask the user to select a language chat model when no mapping exists for the requested model."
+                    },
                     "genaiscript.diagnostics": {
                         "type": "boolean",
                         "default": false,
@@ -555,7 +560,7 @@
         "@types/markdown-it": "^14.1.2",
         "@types/vscode": "1.100.0",
         "@vscode/vsce": "^3.6.0",
-        "esbuild": "^0.25.8",
+        "esbuild": "^0.25.9",
         "eslint": "catalog:",
         "prettier": "catalog:",
         "rimraf": "catalog:",

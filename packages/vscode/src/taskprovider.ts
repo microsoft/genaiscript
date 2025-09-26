@@ -23,7 +23,7 @@ export async function activeTaskProvider(state: ExtensionState): Promise<void> {
           (t) => !t.isSystem && t.group !== "infrastructure",
         );
         const tasks = scripts.map((script) => {
-          const scriptName = this.state.host.path.relative(host.projectFolder(), script.filename);
+          const scriptName = state.host.path.relative(host.projectFolder(), script.filename);
           const args = [...exeArgs, "run", scriptName];
           if (vscode.window.activeTextEditor) args.push("${relativeFile}");
           const task = new vscode.Task(

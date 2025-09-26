@@ -1,10 +1,13 @@
 {
   "name": "@genaiscript/core",
   "private": false,
-  "version": "2.3.15",
+  "version": "2.5.0",
   "license": "MIT",
   "type": "module",
-  "repository": "github:microsoft/genaiscript",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/genaiscript.git"
+  },
   "bugs": {
     "url": "https://github.com/microsoft/genaiscript/issues"
   },
@@ -50,7 +53,7 @@
     "@azure/identity": "^4.11.1",
     "@azure/search-documents": "^12.1.0",
     "@huggingface/jinja": "^0.5.1",
-    "@modelcontextprotocol/sdk": "^1.17.2",
+    "@modelcontextprotocol/sdk": "^1.18.0",
     "@napi-rs/canvas": "^0.1.77",
     "@octokit/core": "^7.0.3",
     "@octokit/plugin-paginate-rest": "^13.1.1",
@@ -175,5 +178,13 @@
   },
   "main": "./dist/commonjs/index.js",
   "types": "./dist/commonjs/index.d.ts",
-  "module": "./dist/esm/index.js"
+  "module": "./dist/esm/index.js",
+  "description": "Core package for the GenAIScript project, which provides the foundational libraries and tools to build and execute GenAIScript code.",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "keywords": [],
+  "author": "",
+  "homepage": "https://github.com/microsoft/genaiscript#readme"
 }

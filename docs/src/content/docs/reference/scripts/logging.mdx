@@ -94,22 +94,10 @@ dgb("This is a debug message!")
 
 By default, the debug logging is disabled. You need to turn it on with namespace patterns.
 
-The script messages are visible by running with `DEBUG=<scriptid>`.
-
-```sh "--dbg script"
-genaiscript run poem --dbg script
-```
-
-or using the `DEBUG` environment variable.
+The script messages are visible by running with `DEBUG=script`.
 
 ```sh
 DEBUG=script genaiscript run ...
-```
-
-You can specify multiple categories by separating them with a comma.
-
-```sh "--dbg script"
-genaiscript run poem --dbg script file config modelalias
 ```
 
 or
@@ -117,6 +105,12 @@ or
 ```sh
 DEBUG=script,genaiscript:* genaiscript run ...
 ```
+
+:::note
+
+You must set the DEBUG environment variable before loading the genaiscript cli. It will not work from the `.env` file.
+
+:::
 
 ### wildcards
 

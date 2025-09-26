@@ -53,6 +53,7 @@ import {
   MODEL_PROVIDER_DOCKER_MODEL_RUNNER,
   DOCKER_MODEL_RUNNER_API_BASE,
   MODEL_PROVIDER_MCP,
+  DEFAULT_ALLOWED_DOMAINS,
 } from "./constants.js";
 import { resolveRuntimeHost } from "./host.js";
 import { parseModelIdentifier } from "./models.js";
@@ -68,6 +69,8 @@ import type { TraceOptions } from "./trace.js";
 import type { CancellationOptions } from "./cancellation.js";
 import { genaiscriptDebug } from "./debug.js";
 import { YAMLTryParse } from "./yaml.js";
+import { JSON5TryParse } from "./json5.js";
+import type { PromptArgs, PromptScript } from "./types.js";
 const dbg = genaiscriptDebug("config:env");
 
 /**
@@ -119,6 +122,50 @@ export function findEnvVar(
     }
   }
   return undefined;
+}
+
+/**
+ * Parses default script metadata from GENAISCRIPT_DEFAULT_SCRIPT_META environment variable.
+ * The environment variable should contain a JSON payload of PromptScript metadata.
+ * This metadata gets merged last into the main script metadata object.
+ *
+ * @param env - The environment variables as key-value pairs.
+ * @returns A PromptArgs object containing the parsed metadata, or undefined if no valid metadata found.
+ */
+export function parseDefaultMetaFromEnv(env: Record<string, string>): Partial<PromptArgs> | undefined {
+  const envValue = env.GENAISCRIPT_DEFAULT_SCRIPT_META;
+  if (!envValue) {
+    dbg("GENAISCRIPT_DEFAULT_SCRIPT_META not found in environment variables");
+    return undefined;
+  }
+
+  dbg(`found GENAISCRIPT_DEFAULT_SCRIPT_META: ${envValue}`);
+  
+  try {
+    const parsed = JSON5TryParse(envValue);
+    if (!parsed || typeof parsed !== "object") {
+      dbg("GENAISCRIPT_DEFAULT_SCRIPT_META could not be parsed as valid JSON object");
+      return undefined;
+    }
+
+    dbg(`parsed GENAISCRIPT_DEFAULT_SCRIPT_META: %O`, parsed);
+    
+    // Filter to only include valid PromptArgs fields (exclude text, id, jsSource, defTools, resolvedSystem)
+    const excludedFields = new Set(['text', 'id', 'jsSource', 'defTools', 'resolvedSystem']);
+    const filtered: Partial<PromptArgs> = {};
+    
+    for (const [key, value] of Object.entries(parsed)) {
+      if (!excludedFields.has(key)) {
+        (filtered as any)[key] = value;
+      }
+    }
+    
+    dbg(`filtered GENAISCRIPT_DEFAULT_SCRIPT_META: %O`, filtered);
+    return filtered;
+  } catch (error) {
+    dbg(`failed to parse GENAISCRIPT_DEFAULT_SCRIPT_META: ${error}`);
+    return undefined;
+  }
 }
 
 /**
@@ -534,6 +581,43 @@ export async function parseTokenFromEnv(
 
   if (provider === MODEL_PROVIDER_ANTHROPIC_BEDROCK) {
     dbg(`processing ${MODEL_PROVIDER_ANTHROPIC_BEDROCK}`);
+
+    // AWS region is required for Bedrock
+    const region = env.AWS_REGION;
+    if (!region) {
+      throw new Error("AWS_REGION is required for Anthropic Bedrock");
+    }
+
+    // Check for AWS credentials or Bedrock API key
+    const hasAwsCredentials = env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY;
+    const hasBedrockApiKey = env.AWS_BEARER_TOKEN_BEDROCK;
+    const hasAwsProfile = env.AWS_PROFILE;
+
+    if (!hasAwsCredentials && !hasBedrockApiKey && !hasAwsProfile) {
+      throw new Error(
+        "AWS credentials are required for Anthropic Bedrock. Set AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, AWS_BEARER_TOKEN_BEDROCK, or AWS_PROFILE",
+      );
+    }
+
+    dbg(`AWS region: ${region}`);
+    if (hasAwsCredentials) {
+      dbg("using AWS access key credentials");
+      if (env.AWS_SESSION_TOKEN) dbg("with session token (temporary credentials)");
+    }
+    if (hasBedrockApiKey) dbg("using AWS Bedrock API key");
+    if (hasAwsProfile) dbg(`using AWS profile: ${env.AWS_PROFILE}`);
+
+    // Log optional configurations
+    if (env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION) {
+      dbg(`small/fast model region override: ${env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION}`);
+    }
+    if (env.DISABLE_PROMPT_CACHING) {
+      dbg(`prompt caching disabled: ${env.DISABLE_PROMPT_CACHING}`);
+    }
+    if (env.ANTHROPIC_MODEL) {
+      dbg(`model override: ${env.ANTHROPIC_MODEL}`);
+    }
+
     return {
       provider,
       model,
@@ -541,6 +625,8 @@ export async function parseTokenFromEnv(
       source: "AWS SDK",
       base: undefined,
       token: MODEL_PROVIDER_ANTHROPIC_BEDROCK,
+      // Store AWS-specific configuration for reference
+      version: region,
     } satisfies LanguageModelConfiguration;
   }
 
@@ -741,7 +827,7 @@ export async function parseTokenFromEnv(
       base,
       token: MODEL_PROVIDER_LLAMAFILE,
       type: "openai",
-      source: "default",
+      source: "env: LLAMAFILE_API_...",
     };
   }
 
@@ -751,14 +837,15 @@ export async function parseTokenFromEnv(
     if (!URL.canParse(base)) {
       throw new Error(`${base} must be a valid URL`);
     }
+    const token = env.LITELLM_API_KEY;
     return {
       provider,
       model,
       modelId,
       base,
-      token: MODEL_PROVIDER_LITELLM,
+      token,
       type: "openai",
-      source: "default",
+      source: "env: LITELLM_API_...",
     };
   }
 
@@ -920,4 +1007,56 @@ export async function parseTokenFromEnv(
     }
     return res;
   }
+}
+
+/**
+ * Parses allowed domains from environment variable.
+ * Supports comma-separated list or YAML array format.
+ * Returns default ["github.com"] if not specified.
+ */
+export function parseAllowedDomains(env: Record<string, string>): string[] {
+  const envValue = env.GENAISCRIPT_ALLOWED_DOMAINS || env.ALLOWED_DOMAINS;
+  if (!envValue) {
+    return DEFAULT_ALLOWED_DOMAINS;
+  }
+
+  // Try to parse as YAML array first
+  try {
+    const parsed = YAMLTryParse(envValue);
+    if (Array.isArray(parsed)) {
+      return parsed.filter((domain) => typeof domain === "string" && domain.trim());
+    }
+  } catch {
+    // Fall through to comma-separated parsing
+  }
+
+  // Parse as comma-separated list
+  return envValue
+    .split(",")
+    .map((domain) => domain.trim())
+    .filter((domain) => domain.length > 0);
+}
+
+/**
+ * Logs the current state of Azure OpenAI configuration
+ * @param options - Optional trace and cancellation options
+ */
+export async function logAzureOpenAIConfiguration(options?: CancellationOptions): Promise<void> {
+  // Environment variables related to Azure OpenAI
+  const azureOpenAIEnvVars = deleteUndefinedValues({
+    AZURE_OPENAI_API_ENDPOINT: process.env.AZURE_OPENAI_API_ENDPOINT,
+    AZURE_OPENAI_ENDPOINT: process.env.AZURE_OPENAI_ENDPOINT,
+    AZURE_OPENAI_API_BASE: process.env.AZURE_OPENAI_API_BASE,
+    AZURE_API_BASE: process.env.AZURE_API_BASE,
+    AZURE_OPENAI_API_KEY: process.env.AZURE_OPENAI_API_KEY ? "***" : undefined,
+    AZURE_API_KEY: process.env.AZURE_API_KEY ? "***" : undefined,
+    AZURE_OPENAI_API_VERSION: process.env.AZURE_OPENAI_API_VERSION,
+    AZURE_API_VERSION: process.env.AZURE_API_VERSION,
+    AZURE_OPENAI_API_CREDENTIALS: process.env.AZURE_OPENAI_API_CREDENTIALS,
+    AZURE_OPENAI_SUBSCRIPTION_ID: process.env.AZURE_OPENAI_SUBSCRIPTION_ID ? "***" : undefined,
+    AZURE_OPENAI_TOKEN_SCOPES: process.env.AZURE_OPENAI_TOKEN_SCOPES,
+    AZURE_OPENAI_API_MODELS_TYPE: process.env.AZURE_OPENAI_API_MODELS_TYPE,
+    NODE_ENV: process.env.NODE_ENV,
+  });
+  dbg(`azure env vars: %O`, azureOpenAIEnvVars);
 }
