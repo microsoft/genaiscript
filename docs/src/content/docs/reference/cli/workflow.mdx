@@ -78,13 +78,13 @@ genaiscript workflow process -v .github/workflows/my-workflow.yml
 - `--dry-run` - Show what would be changed without writing files
 - `-v, --verbose` - Show detailed output including the transformed content
 
-### Supported Event Types
+### Supported Trigger Types
 
-This transformation only applies to:
-- `labeled` event type
-- `unlabeled` event type
+This transformation only applies to these trigger types within GitHub Actions events:
+- `labeled` - When a label is added
+- `unlabeled` - When a label is removed
 
-The `names` field is only processed when it appears under these event types.
+The `names` field is only processed when it appears under these trigger types.
 
 ### Supported Events
 
@@ -121,9 +121,9 @@ jobs:
     runs-on: ubuntu-latest
 ```
 
-### Multiple Triggers
+### Multiple Event Triggers
 
-When multiple event types have `names` fields, the conditions are combined with OR logic:
+When the same job runs for multiple events that each have `names` fields, the conditions for different events are combined with OR logic:
 
 ```yaml title="Input"
 on:
@@ -133,13 +133,30 @@ on:
   pull_request:
     types: [labeled]
     names: [approved]
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Processing"
 ```
 
 ```yaml title="Output"
+on:
+  issues:
+    types:
+      - labeled
+  pull_request:
+    types:
+      - labeled
 jobs:
   process:
+    runs-on: ubuntu-latest
     if: contains(fromJSON('["bug"]'), github.event.label.name) || contains(fromJSON('["approved"]'), github.event.label.name)
+    steps:
+      - run: echo "Processing"
 ```
+
+**Note**: Both event types must run the same job for this to work. If different events should run different jobs, define separate jobs for each event type.
 
 ## Examples
 
