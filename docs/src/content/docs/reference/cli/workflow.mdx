@@ -1,0 +1,206 @@
+---
+title: Workflow
+description: GitHub Actions workflow processing utilities
+sidebar:
+  order: 7
+keywords: github actions, workflow, labeled, unlabeled, triggers, names field
+---
+
+The `genaiscript workflow` command provides utilities for processing GitHub Actions workflow files.
+
+## Process Command
+
+The `process` subcommand transforms workflow files that use a custom `names` field under `labeled` or `unlabeled` event triggers.
+
+### What it does
+
+When you have a workflow with a `names` field under a `labeled` or `unlabeled` trigger:
+
+```yaml title="Input: .github/workflows/bug-triage.yml"
+name: Bug Triage
+on:
+  issues:
+    types: [labeled]
+    names: [bug, critical, security]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Processing bug"
+```
+
+The `process` command will:
+1. Remove the `names` field from the trigger
+2. Add a conditional `if` expression to the jobs to check the label name
+
+```yaml title="Output: .github/workflows/bug-triage.yml"
+name: Bug Triage
+on:
+  issues:
+    types:
+      - labeled
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    if: contains(fromJSON('["bug","critical","security"]'), github.event.label.name)
+    steps:
+      - run: echo "Processing bug"
+```
+
+### Usage
+
+Process a single workflow file:
+
+```bash
+genaiscript workflow process .github/workflows/my-workflow.yml
+```
+
+Process multiple workflow files:
+
+```bash
+genaiscript workflow process .github/workflows/*.yml
+```
+
+Preview changes without modifying files (dry run):
+
+```bash
+genaiscript workflow process --dry-run .github/workflows/my-workflow.yml
+```
+
+Show detailed output:
+
+```bash
+genaiscript workflow process -v .github/workflows/my-workflow.yml
+```
+
+### Options
+
+- `--dry-run` - Show what would be changed without writing files
+- `-v, --verbose` - Show detailed output including the transformed content
+
+### Supported Event Types
+
+This transformation only applies to:
+- `labeled` event type
+- `unlabeled` event type
+
+The `names` field is only processed when it appears under these event types.
+
+### Supported Events
+
+The `names` field is supported under these GitHub Actions events:
+- `issues`
+- `pull_request`
+- `pull_request_target`
+
+### Conditional Expression
+
+The generated conditional expression uses:
+
+```yaml
+contains(fromJSON('["name1","name2"]'), github.event.label.name)
+```
+
+This checks if `github.event.label.name` matches any of the specified label names.
+
+### Merging with Existing Conditions
+
+If a job already has an `if` condition, the label check is combined using AND logic:
+
+```yaml title="Input"
+jobs:
+  deploy:
+    if: github.repository == 'owner/repo'
+    runs-on: ubuntu-latest
+```
+
+```yaml title="Output"
+jobs:
+  deploy:
+    if: (github.repository == 'owner/repo') && (contains(fromJSON('["approved"]'), github.event.label.name))
+    runs-on: ubuntu-latest
+```
+
+### Multiple Triggers
+
+When multiple event types have `names` fields, the conditions are combined with OR logic:
+
+```yaml title="Input"
+on:
+  issues:
+    types: [labeled]
+    names: [bug]
+  pull_request:
+    types: [labeled]
+    names: [approved]
+```
+
+```yaml title="Output"
+jobs:
+  process:
+    if: contains(fromJSON('["bug"]'), github.event.label.name) || contains(fromJSON('["approved"]'), github.event.label.name)
+```
+
+## Examples
+
+### Example 1: Bug Triage
+
+Trigger a workflow only when specific bug-related labels are added:
+
+```yaml title=".github/workflows/bug-triage.yml"
+name: Bug Triage
+on:
+  issues:
+    types: [labeled]
+    names: [bug, critical, security]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add to project
+        run: gh project item-add ...
+      - name: Notify team
+        run: echo "New bug reported"
+```
+
+### Example 2: PR Approval
+
+Trigger a workflow when a PR is labeled as approved:
+
+```yaml title=".github/workflows/auto-merge.yml"
+name: Auto Merge
+on:
+  pull_request:
+    types: [labeled]
+    names: [approved, ready-to-merge]
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto merge
+        run: gh pr merge --auto --squash
+```
+
+### Example 3: Cleanup on Label Removal
+
+Trigger cleanup when certain labels are removed:
+
+```yaml title=".github/workflows/cleanup.yml"
+name: Cleanup
+on:
+  issues:
+    types: [unlabeled]
+    names: [wip, draft]
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close if no longer WIP
+        run: gh issue close ${{ github.event.issue.number }}
+```
+
+## Benefits
+
+- **More Readable**: Workflow configurations are more explicit about which labels trigger them
+- **Centralized Logic**: Label filtering is defined at the trigger level rather than scattered in job conditions
+- **GitHub Actions Compatible**: The transformed output is standard GitHub Actions YAML
