@@ -67,6 +67,7 @@ import { logVerbose } from "../../core/src/util" // Utility logging
 import { semverSatisfies } from "../../core/src/semver" // Semantic version checking
 import { convertFiles } from "./convert"
 import { extractAudio, extractVideoFrames, probeVideo } from "./video"
+import { processWorkflowFiles } from "./workflow"
 import { configure } from "./configure"
 import { logPerformance } from "../../core/src/performance"
 import { setConsoleColors } from "../../core/src/consolecolor"
@@ -453,6 +454,19 @@ export async function cli() {
         .option("-s, --size <string>", "size of the output frames wxh")
         .option("-f, --format <string>", "Image file format")
         .action(extractVideoFrames)
+
+    // Define 'workflow' command group for GitHub Actions workflow processing
+    const workflow = program
+        .command("workflow")
+        .description("GitHub Actions workflow utilities")
+    workflow
+        .command("process")
+        .description(
+            "Process GitHub Actions workflow files to transform names field under labeled/unlabeled triggers"
+        )
+        .argument("<files...>", "Workflow files to process")
+        .option("--dry-run", "Show what would be changed without writing files")
+        .action(processWorkflowFiles)
 
     // Define 'retrieval' command group for RAG support
     const retrieval = program
