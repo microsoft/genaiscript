@@ -466,6 +466,7 @@ export async function cli() {
         )
         .argument("<files...>", "Workflow files to process")
         .option("--dry-run", "Show what would be changed without writing files")
+        .option("-v, --verbose", "Show detailed output")
         .action(processWorkflowFiles)
 
     // Define 'retrieval' command group for RAG support
