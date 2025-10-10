@@ -1,7 +1,7 @@
 import { confirm } from "@inquirer/prompts"
 import { logVerbose } from "../../core/src/util"
 import { indent } from "../../core/src/indent"
-import { isCI } from "../../core/src/ci"
+import { getIsCI } from "../../core/src/ci"
 
 const confirmed: string[] = []
 
@@ -17,7 +17,7 @@ export async function confirmOrSkipInCI(
     message: string,
     options?: { preview?: string }
 ): Promise<boolean> {
-    if (isCI || confirmed.includes(message)) return true
+    if (getIsCI() || confirmed.includes(message)) return true
 
     const { preview } = options || {}
 

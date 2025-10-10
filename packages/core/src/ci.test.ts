@@ -8,8 +8,6 @@ describe("CI detection", () => {
     beforeEach(() => {
         // Save original environment variable
         originalEnv = process.env[GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE]
-        // Clear the module cache to reload the ci module
-        delete require.cache[require.resolve("./ci")]
     })
 
     afterEach(() => {
@@ -19,29 +17,27 @@ describe("CI detection", () => {
         } else {
             delete process.env[GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE]
         }
-        // Clear the module cache
-        delete require.cache[require.resolve("./ci")]
     })
 
-    await test("isCI can be disabled via environment variable", async () => {
+    await test("getIsCI can be disabled via environment variable", async () => {
         // Set the disable flag
         process.env[GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE] = "true"
         
-        // Re-import the module to get the new value
-        const { isCI } = await import("./ci")
+        // Import the module to get the function
+        const { getIsCI } = await import("./ci")
         
-        // When disabled, isCI should be false
-        assert.strictEqual(isCI, false)
+        // When disabled, getIsCI() should return false
+        assert.strictEqual(getIsCI(), false)
     })
 
-    await test("isCI respects ci-info when not disabled", async () => {
+    await test("getIsCI respects ci-info when not disabled", async () => {
         // Remove the disable flag
         delete process.env[GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE]
         
-        // Re-import the module to get the original behavior
-        const { isCI, ci } = await import("./ci")
+        // Import the module to get the function
+        const { getIsCI, ci } = await import("./ci")
         
-        // When not disabled, isCI should match ci-info's value
-        assert.strictEqual(isCI, ci.isCI)
+        // When not disabled, getIsCI() should match ci-info's value
+        assert.strictEqual(getIsCI(), ci.isCI)
     })
 })

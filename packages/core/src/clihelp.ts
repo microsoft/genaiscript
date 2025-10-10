@@ -4,7 +4,7 @@ import { MarkdownTrace } from "./trace"
 import { arrayify, relativePath } from "./util"
 import { CORE_VERSION } from "./version"
 import { host } from "./host"
-import { isCI } from "./ci"
+import { getIsCI } from "./ci"
 
 /**
  * Generates command-line arguments for executing or batching a CLI prompt template.
@@ -79,7 +79,7 @@ export function traceCliArgs(
     template: PromptScript,
     options: GenerationOptions
 ) {
-    if (isCI) return
+    if (getIsCI()) return
 
     trace.details(
         "🤖 automation",

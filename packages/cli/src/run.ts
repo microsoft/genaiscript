@@ -113,7 +113,7 @@ import { tryResolveResource } from "../../core/src/resources"
 import { genaiscriptDebug } from "../../core/src/debug"
 import { uriTryParse } from "../../core/src/url"
 import { tryResolveScript } from "../../core/src/scriptresolver"
-import { isCI } from "../../core/src/ci"
+import { getIsCI } from "../../core/src/ci"
 const dbg = genaiscriptDebug("run")
 
 /**
@@ -309,6 +309,7 @@ export async function runScriptInternal(
         return { exitCode, result }
     }
 
+    const isCI = getIsCI()
     logInfo(`genaiscript: ${scriptId} (run: ${runId})`)
     dbg(`ci: %s`, isCI)
 
