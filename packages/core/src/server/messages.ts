@@ -150,6 +150,7 @@ export interface PromptScriptRunOptions {
     pullRequestComment: string | boolean
     pullRequestDescription: string | boolean
     pullRequestReviews: boolean
+    githubActions: boolean
     teamsMessage: boolean
     outData: string
     label: string
