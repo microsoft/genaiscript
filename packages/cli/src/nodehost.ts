@@ -63,7 +63,7 @@ import { resolveLanguageModel } from "../../core/src/lm"
 import { CancellationOptions } from "../../core/src/cancellation"
 import { defaultModelConfigurations } from "../../core/src/llms"
 import { createPythonRuntime } from "../../core/src/pyodide"
-import { ci } from "../../core/src/ci"
+import { getIsCI } from "../../core/src/ci"
 import { arrayify } from "../../core/src/cleaners"
 import { McpClientManager } from "../../core/src/mcpclient"
 import { ResourceManager } from "../../core/src/mcpresource"
@@ -654,7 +654,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
         message: string,
         options: string[]
     ): Promise<string | undefined> {
-        if (ci.isCI) {
+        if (getIsCI()) {
             return undefined
         }
         return await this.userInputQueue.add(() =>
@@ -668,7 +668,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
      */
     async input(message: string): Promise<string | undefined> {
         dbg(`input requested for message: ${message}`)
-        if (ci.isCI) {
+        if (getIsCI()) {
             return undefined
         }
         return await this.userInputQueue.add(() => shellInput(message))
@@ -680,7 +680,7 @@ export class NodeHost extends EventTarget implements RuntimeHost {
      */
     async confirm(message: string): Promise<boolean | undefined> {
         dbg(`confirmation requested for message: ${message}`)
-        if (ci.isCI) {
+        if (getIsCI()) {
             return undefined
         }
         return await this.userInputQueue.add(() => shellConfirm(message))
