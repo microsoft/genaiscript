@@ -42,6 +42,7 @@ import {
     REASONING_START_MARKER,
     LARGE_MODEL_ID,
     NEGATIVE_GLOB_REGEX,
+    GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/server/messages"
@@ -290,8 +291,14 @@ export async function runScriptInternal(
     const logprobs = options.logprobs
     const topLogprobs = normalizeInt(options.topLogprobs)
     const fenceFormat = options.fenceFormat
+    const githubActions = options.githubActions
 
     assert(!!runDir)
+
+    // Set environment variable to disable GitHub Actions mode if flag is false
+    if (githubActions === false) {
+        process.env[GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE] = "true"
+    }
 
     if (options.json || options.yaml) overrideStdoutWithStdErr()
     applyModelOptions(options, "cli")

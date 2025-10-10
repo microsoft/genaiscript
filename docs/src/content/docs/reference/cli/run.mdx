@@ -247,6 +247,24 @@ Create pull request review comments from each [annotations](/genaiscript/referen
 npx genaiscript run ... -prr
 ```
 
+### --no-github-actions
+
+Disables automatic GitHub Actions mode detection. By default, when running in a CI environment (like GitHub Actions),
+the CLI automatically skips confirmation prompts for pull request operations. Use this flag to force interactive prompts
+even in CI environments.
+
+```sh
+npx genaiscript run ... -prd --no-github-actions
+```
+
+You can also disable this via the environment variable `GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE=true`.
+
+```yaml
+- script: npx genaiscript run ... -prd
+  env:
+    GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE: "true"
+```
+
 ## Read more
 
 The full list of options is available in the [CLI reference](/genaiscript/reference/cli/commands#run).

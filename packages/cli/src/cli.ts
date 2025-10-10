@@ -202,6 +202,10 @@ export async function cli() {
             "-prr, --pull-request-reviews",
             "create pull request reviews from annotations"
         )
+        .option(
+            "--no-github-actions",
+            "disable automatic GitHub Actions mode detection"
+        )
         .option("-tm, --teams-message", "Posts a message to the teams channel")
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")

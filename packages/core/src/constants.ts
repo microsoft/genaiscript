@@ -364,6 +364,8 @@ export const GIT_IGNORE = ".gitignore"
 export const GIT_IGNORE_GENAI = ".gitignore.genai"
 export const GENAISCRIPTIGNORE = ".genaiscriptignore"
 export const CLI_ENV_VAR_RX = /^genaiscript_var_/i
+export const GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE =
+    "GENAISCRIPT_DISABLE_GITHUB_ACTIONS_MODE"
 
 export const GIT_DIFF_MAX_TOKENS = 8000
 export const GIT_LOG_COUNT = 10
