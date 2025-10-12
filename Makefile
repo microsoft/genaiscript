@@ -30,6 +30,10 @@ changeset-release: test typecheck compile package
 	@echo "Running release process..."
 	yarn release:draft
 	yarn patch-versions
+	@echo "Recompiling with updated versions..."
+	yarn compile
+	@echo "Repackaging with updated versions..."
+	yarn package
 	yarn release:vsix
 	yarn commit-versions
 
