@@ -9,10 +9,13 @@ export default function (ctx: ChatGenerationContext) {
         "genaiscript_init",
         "Initialize TypeScript definitions for GenAIScript scripts. Writes TypeScript definition files in script folders to enable type checking.",
         {
-            path: {
-                type: "string",
-                description:
-                    "Path to the script folder relative to the workspace root. If not provided, initializes all script folders.",
+            type: "object",
+            properties: {
+                path: {
+                    type: "string",
+                    description:
+                        "Path to the script folder relative to the workspace root. If not provided, initializes all script folders.",
+                },
             },
         },
         async (args) => {
@@ -29,10 +32,13 @@ export default function (ctx: ChatGenerationContext) {
         "genaiscript_recompile",
         "Recompile GenAIScript scripts. This automatically runs initialization (init) before compiling to ensure TypeScript definitions are up to date.",
         {
-            path: {
-                type: "string",
-                description:
-                    "Path to the script folder relative to the workspace root. If not provided, compiles all script folders.",
+            type: "object",
+            properties: {
+                path: {
+                    type: "string",
+                    description:
+                        "Path to the script folder relative to the workspace root. If not provided, compiles all script folders.",
+                },
             },
         },
         async (args) => {
