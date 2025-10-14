@@ -53,8 +53,8 @@ export default function (ctx: ChatGenerationContext) {
                 ["genaiscript", ...initArgs],
                 { cwd: path || "." }
             )
-            if (initResult.failed) {
-                return `Initialization failed: ${initResult.stderr || initResult.stdout}`
+            if (initResult.exitCode !== 0) {
+                return `Initialization failed (exit code ${initResult.exitCode}):\n${initResult.stderr || initResult.stdout}`
             }
 
             // Then compile
@@ -67,11 +67,11 @@ export default function (ctx: ChatGenerationContext) {
                 { cwd: path || "." }
             )
 
-            if (compileResult.failed) {
-                return `Compilation failed: ${compileResult.stderr || compileResult.stdout}`
+            if (compileResult.exitCode !== 0) {
+                return `Compilation failed (exit code ${compileResult.exitCode}):\n${compileResult.stderr || compileResult.stdout}`
             }
 
-            return `Successfully recompiled scripts${path ? ` in ${path}` : ""}:\n${compileResult.stdout}`
+            return `Successfully recompiled scripts${path ? ` in ${path}` : ""}\n${compileResult.stdout}`
         }
     )
 }
