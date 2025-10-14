@@ -22,9 +22,13 @@ export default function (ctx: ChatGenerationContext) {
             const { path } = args
             const cliArgs = ["scripts", "fix"]
             if (path) cliArgs.push(path)
-            return await host.exec("npx", ["genaiscript", ...cliArgs], {
+            const result = await host.exec("npx", ["genaiscript", ...cliArgs], {
                 cwd: path || ".",
             })
+            if (result.exitCode !== 0) {
+                return `Initialization failed (exit code ${result.exitCode}):\n${result.stderr || result.stdout}`
+            }
+            return `Successfully initialized scripts${path ? ` in ${path}` : ""}:\n${result.stdout}`
         }
     )
 
@@ -71,7 +75,7 @@ export default function (ctx: ChatGenerationContext) {
                 return `Compilation failed (exit code ${compileResult.exitCode}):\n${compileResult.stderr || compileResult.stdout}`
             }
 
-            return `Successfully recompiled scripts${path ? ` in ${path}` : ""}\n${compileResult.stdout}`
+            return `Successfully recompiled scripts${path ? ` in ${path}` : ""}:\n${compileResult.stdout}`
         }
     )
 }
