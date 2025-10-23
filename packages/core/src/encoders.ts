@@ -31,6 +31,7 @@ export async function resolveTokenEncoder(
     }
     let { model } = parseModelIdentifier(modelId)
     if (/^gpt-4.1/i.test(model)) model = "gpt-4o" // same encoding
+    if (/^gpt-5/i.test(model)) model = "gpt-4o" // same encoding for GPT-5
     const module = model.toLowerCase() // Assign model to module for dynamic import path
 
     const { modelEncodings } = runtimeHost?.config || {}
