@@ -27,6 +27,12 @@
                 "intent": "gpt-4.1-mini"
             },
             "models": {
+                "gpt-5": {
+                    "tools": true
+                },
+                "gpt-5-mini": {
+                    "tools": true
+                },
                 "o1-preview": {
                     "tools": false
                 },
@@ -235,6 +241,12 @@
                 "reasoning_small": "openai/o3-mini"
             },
             "models": {
+                "openai/gpt-5": {
+                    "tools": true
+                },
+                "openai/gpt-5-mini": {
+                    "tools": true
+                },
                 "o1-preview": {
                     "tools": false
                 },
@@ -732,6 +744,16 @@
             "price_per_million_output_tokens": 0.4,
             "input_cache_token_rebate": 0.25
         },
+        "github:gpt-5": {
+            "price_per_million_input_tokens": 10,
+            "price_per_million_output_tokens": 30,
+            "input_cache_token_rebate": 0.5
+        },
+        "github:gpt-5-mini": {
+            "price_per_million_input_tokens": 1,
+            "price_per_million_output_tokens": 4,
+            "input_cache_token_rebate": 0.5
+        },
         "github:gpt-4o": {
             "price_per_million_input_tokens": 2.5,
             "price_per_million_output_tokens": 10
@@ -802,6 +824,16 @@
             "price_per_million_input_tokens": 0.1,
             "price_per_million_output_tokens": 0.4,
             "input_cache_token_rebate": 0.25
+        },
+        "openai:gpt-5": {
+            "price_per_million_input_tokens": 10,
+            "price_per_million_output_tokens": 30,
+            "input_cache_token_rebate": 0.5
+        },
+        "openai:gpt-5-mini": {
+            "price_per_million_input_tokens": 1,
+            "price_per_million_output_tokens": 4,
+            "input_cache_token_rebate": 0.5
         },
         "openai:gpt-4o": {
             "price_per_million_input_tokens": 2.5,
