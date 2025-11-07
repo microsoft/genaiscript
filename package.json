@@ -35,7 +35,7 @@
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck && yarn --cwd packages/web run typecheck",
         "typecheck:web": "yarn --cwd packages/web run typecheck",
         "compile:action": "yarn compile && yarn typecheck",
-        "lint": "yarn --cwd packages/cli run lint",
+        "lint": "yarn compile:cli && yarn --cwd packages/cli run lint",
         "pretty": "prettier **.ts --write",
         "package": "cd packages/vscode && yarn package",
         "release:draft": "npx --yes release-it",
