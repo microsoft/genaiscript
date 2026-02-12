@@ -1,3 +1,4 @@
+// Minor documentation improvement for constant definitions
 import CONFIGURATION_DATA from "./llms.json"
 export const CHANGE = "change"
 export const RESOURCE_CHANGE = "resourceChange"
