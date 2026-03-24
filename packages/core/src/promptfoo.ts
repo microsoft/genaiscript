@@ -55,7 +55,7 @@ function resolveTestProvider(
 
   const { base } = info;
   const { provider, model } = parseModelIdentifier(info.model);
-  const apiHost = base.replace(HTTPS_REGEX, "").replace(/\/openai\/deployments$/i, "");
+  const apiHost = base.replace(HTTPS_REGEX, "").replace(/\/openai\/(deployments|v1)$/i, "");
   switch (provider) {
     case MODEL_PROVIDER_AZURE_OPENAI:
     case MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI:
