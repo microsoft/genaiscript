@@ -279,4 +279,17 @@ The rest of the steps are the same: Find the deployment name and use it in your 
 
 </Steps>
 
+### OpenAI-compatible Endpoint (`/openai/v1`) {#openai-v1}
+
+Azure OpenAI also supports a new `/openai/v1` endpoint that provides 1-1 compatibility with the OpenAI API.
+When using this endpoint, the model name is passed in the request body (like OpenAI), and no deployment path or `api-version` query parameter is needed.
+
+To use this endpoint, set the `AZURE_OPENAI_API_ENDPOINT` to include the `/openai/v1` path:
+
+```txt title=".env"
+AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com/openai/v1
+```
+
+GenAIScript will automatically detect the `/openai/v1` endpoint and use OpenAI-compatible URL construction while keeping Azure authentication.
+
 <LLMProviderFeatures provider="azure" />

@@ -45,6 +45,7 @@ import { serializeChunkChoiceToLogProbs } from "./logprob.js";
 import type { LanguageModelConfiguration } from "./server/messages.js";
 import {
   deleteUndefinedValues,
+  isAzureOpenAIV1Base,
   isEmptyString,
   normalizeInt,
   trimTrailingSlash,
@@ -189,10 +190,15 @@ export const OpenAIv1ChatCompletion: ChatCompletionHandler = async (req, cfg, op
       (headers as any)[OPENROUTER_SITE_NAME_HEADER] = process.env.OPENROUTER_SITE_NAME || TOOL_NAME;
     }
   } else if (cfg.type === MODEL_PROVIDER_AZURE_OPENAI) {
-    delete postReq.model;
-    const version = cfg.version || AZURE_OPENAI_API_VERSION;
-    trace?.itemValue(`version`, version);
-    url = trimTrailingSlash(cfg.base) + "/" + family + `/chat/completions?api-version=${version}`;
+    if (isAzureOpenAIV1Base(cfg.base)) {
+      // Azure OpenAI /openai/v1 endpoint: 1-1 OpenAI API compatible
+      url = trimTrailingSlash(cfg.base) + "/chat/completions";
+    } else {
+      delete postReq.model;
+      const version = cfg.version || AZURE_OPENAI_API_VERSION;
+      trace?.itemValue(`version`, version);
+      url = trimTrailingSlash(cfg.base) + "/" + family + `/chat/completions?api-version=${version}`;
+    }
   } else if (cfg.type === MODEL_PROVIDER_AZURE_AI_INFERENCE) {
     const version = cfg.version;
     trace?.itemValue(`version`, version);

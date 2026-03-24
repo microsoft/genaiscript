@@ -147,6 +147,17 @@ export function trimTrailingSlash(s: string) {
   return s?.replace(/\/{1,10}$/, "");
 }
 
+/**
+ * Checks if a base URL is an Azure OpenAI v1 endpoint (ending with /openai/v1).
+ * These endpoints provide 1-1 compatibility with the OpenAI API.
+ *
+ * @param base The base URL to check.
+ * @returns True if the URL ends with /openai/v1, false otherwise.
+ */
+export function isAzureOpenAIV1Base(base: string): boolean {
+  return /\/openai\/v1\/?$/i.test(base);
+}
+
 export function ensureHeadSlash(s: string) {
   if (s?.startsWith("/")) return s;
   return "/" + s;

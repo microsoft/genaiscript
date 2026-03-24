@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { deleteUndefinedValues, normalizeFloat, trimTrailingSlash } from "./cleaners.js";
+import { deleteUndefinedValues, isAzureOpenAIV1Base, normalizeFloat, trimTrailingSlash } from "./cleaners.js";
 import {
   ANTHROPIC_API_BASE,
   GITHUB_MODELS_BASE,
@@ -392,7 +392,11 @@ export async function parseTokenFromEnv(
       env.AZURE_OPENAI_API_VERSION ||
       env.AZURE_API_VERSION ||
       parseAzureVersionFromUrl(base);
-    base = cleanAzureBase(base);
+    if (!isAzureOpenAIV1Base(base)) {
+      base = cleanAzureBase(base);
+    } else {
+      base = trimTrailingSlash(base);
+    }
     if (!URL.canParse(base)) {
       throw new Error("AZURE_OPENAI_API_ENDPOINT must be a valid URL");
     }
@@ -948,7 +952,9 @@ export async function parseTokenFromEnv(
       const source = `env: ${prefix}_API_...`;
       let base = trimTrailingSlash(modelBase?.value);
       if (customProvider === MODEL_PROVIDER_AZURE_OPENAI) {
-        base = cleanAzureBase(base);
+        if (!isAzureOpenAIV1Base(base)) {
+          base = cleanAzureBase(base);
+        }
         type = "azure";
       }
       if (base && !URL.canParse(base)) {

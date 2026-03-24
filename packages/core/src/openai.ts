@@ -31,7 +31,7 @@ import { checkCancelled } from "./cancellation.js";
 import type { TraceOptions } from "./trace.js";
 import type { LanguageModelConfiguration } from "./server/messages.js";
 import prettyBytes from "pretty-bytes";
-import { deleteUndefinedValues, trimTrailingSlash } from "./cleaners.js";
+import { deleteUndefinedValues, isAzureOpenAIV1Base, trimTrailingSlash } from "./cleaners.js";
 import { fromBase64 } from "./base64.js";
 import { traceFetchPost } from "./fetchtext.js";
 import { genaiscriptDebug } from "./debug.js";
@@ -56,7 +56,7 @@ export const OpenAIListModels: ListModelsFunction = async (cfg, options) => {
   try {
     const fetch = await createFetch({ retries: 0, ...(options || {}) });
     let url = trimTrailingSlash(cfg.base) + "/models";
-    if (cfg.provider === MODEL_PROVIDER_AZURE_OPENAI) {
+    if (cfg.provider === MODEL_PROVIDER_AZURE_OPENAI && !isAzureOpenAIV1Base(cfg.base)) {
       url = trimTrailingSlash(cfg.base).replace(/deployments$/, "") + "/models";
     }
     const res = await fetch(url, {
@@ -426,7 +426,7 @@ export async function OpenAIImageGeneration(
     size: isMultipart ? "multipart" : body.size,
   });
 
-  if (cfg.type === "azure") {
+  if (cfg.type === "azure" && !isAzureOpenAIV1Base(cfg.base)) {
     const version = cfg.version || AZURE_OPENAI_API_VERSION;
     trace?.itemValue(`version`, version);
     url = trimTrailingSlash(cfg.base) + "/" + model + `/images/${endpoint}?api-version=${version}`;
@@ -501,9 +501,9 @@ export async function OpenAIEmbedder(
 
     // Determine the URL based on provider type
     if (
-      provider === MODEL_PROVIDER_AZURE_OPENAI ||
+      (provider === MODEL_PROVIDER_AZURE_OPENAI && !isAzureOpenAIV1Base(base)) ||
       provider === MODEL_PROVIDER_AZURE_SERVERLESS_OPENAI ||
-      type === "azure" ||
+      (type === "azure" && !isAzureOpenAIV1Base(base)) ||
       type === "azure_serverless"
     ) {
       url = `${trimTrailingSlash(base)}/${model}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`;
