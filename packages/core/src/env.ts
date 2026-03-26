@@ -36,6 +36,8 @@ import {
     MODEL_PROVIDER_ANTHROPIC_BEDROCK,
     MODEL_PROVIDER_DEEPSEEK,
     DEEPSEEK_API_BASE,
+    MODEL_PROVIDER_MINIMAX,
+    MINIMAX_API_BASE,
     MODEL_PROVIDER_WHISPERASR,
     WHISPERASR_API_BASE,
     MODEL_PROVIDER_ECHO,
@@ -656,6 +658,27 @@ export async function parseTokenFromEnv(
         }
     }
 
+    if (provider === MODEL_PROVIDER_MINIMAX) {
+        dbg(`processing ${MODEL_PROVIDER_MINIMAX}`)
+        const base =
+            findEnvVar(env, "MINIMAX", BASE_SUFFIX)?.value || MINIMAX_API_BASE
+        if (!URL.canParse(base)) {
+            throw new Error(`${base} must be a valid URL`)
+        }
+        const token = env.MINIMAX_API_KEY
+        if (!token) {
+            throw new Error("MINIMAX_API_KEY not configured")
+        }
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "openai",
+            source: "env: MINIMAX_API_...",
+        }
+    }
+
     if (provider === MODEL_PROVIDER_WHISPERASR) {
         dbg(`processing ${MODEL_PROVIDER_WHISPERASR}`)
         const base =
@@ -879,3 +902,4 @@ export async function parseTokenFromEnv(
         return b
     }
 }
+

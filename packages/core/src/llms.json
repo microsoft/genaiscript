@@ -527,6 +527,29 @@
             }
         },
         {
+            "id": "minimax",
+            "detail": "MiniMax AI",
+            "url": "https://platform.minimaxi.com/",
+            "bearerToken": true,
+            "listModels": false,
+            "prediction": false,
+            "aliases": {
+                "large": "MiniMax-M2.7",
+                "small": "MiniMax-M2.7-highspeed"
+            },
+            "env": {
+                "MINIMAX_API_KEY": {
+                    "description": "MiniMax API key",
+                    "required": true,
+                    "secret": true
+                },
+                "MINIMAX_API_BASE": {
+                    "description": "MiniMax API base URL",
+                    "format": "url"
+                }
+            }
+        },
+        {
             "id": "lmstudio",
             "detail": "LM Studio local server",
             "url": "https://lmstudio.ai/",
@@ -1340,6 +1363,23 @@
             "price_per_million_input_tokens": 0.14,
             "price_per_million_output_tokens": 0.28,
             "input_cache_token_rebate": 0.1
+        },
+        "minimax:MiniMax-M2.7": {
+            "price_per_million_input_tokens": 1,
+            "price_per_million_output_tokens": 10
+        },
+        "minimax:MiniMax-M2.7-highspeed": {
+            "price_per_million_input_tokens": 1,
+            "price_per_million_output_tokens": 10
+        },
+        "minimax:MiniMax-M2.5": {
+            "price_per_million_input_tokens": 0.5,
+            "price_per_million_output_tokens": 5
+        },
+        "minimax:MiniMax-M2.5-highspeed": {
+            "price_per_million_input_tokens": 0.5,
+            "price_per_million_output_tokens": 5
         }
     }
 }
+

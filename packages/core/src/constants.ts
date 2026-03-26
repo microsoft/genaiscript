@@ -146,6 +146,7 @@ export const ALIBABA_BASE =
     "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 export const MISTRAL_API_BASE = "https://api.mistral.ai/v1"
 export const DEEPSEEK_API_BASE = "https://api.deepseek.com/v1"
+export const MINIMAX_API_BASE = "https://api.minimax.io/v1"
 export const WHISPERASR_API_BASE = "http://localhost:9000"
 export const WINDOWS_AI_API_BASE = "http://127.0.0.1:5272/v1"
 export const DOCKER_MODEL_RUNNER_API_BASE =
@@ -193,6 +194,7 @@ export const MODEL_PROVIDER_JAN = "jan"
 export const MODEL_PROVIDER_SGLANG = "sglang"
 export const MODEL_PROVIDER_VLLM = "vllm"
 export const MODEL_PROVIDER_DEEPSEEK = "deepseek"
+export const MODEL_PROVIDER_MINIMAX = "minimax"
 export const MODEL_PROVIDER_WHISPERASR = "whisperasr"
 export const MODEL_PROVIDER_WINDOWS_AI = "windows"
 export const MODEL_PROVIDER_DOCKER_MODEL_RUNNER = "docker"
@@ -462,3 +464,4 @@ export const BOX_LEFT_AND_DOWN = "╮"
 export const BOX_LEFT_AND_UP = "╯"
 
 export const GITHUB_ASSET_URL_RX = /^https:\/\/github\.com\/.*\/assets\/.*$/i
+
