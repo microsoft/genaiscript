@@ -2,7 +2,7 @@ import { select, input, confirm, password } from "@inquirer/prompts"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { resolveLanguageModelConfigurations } from "../../core/src/config"
 import { parse } from "dotenv"
-import { writeFile } from "fs/promises"
+import { chmod, writeFile } from "fs/promises"
 import { runtimeHost } from "../../core/src/host"
 import { deleteUndefinedValues } from "../../core/src/cleaners"
 import { logInfo, logVerbose, logWarn } from "../../core/src/util"
@@ -183,5 +183,17 @@ async function patchEnvFile(filePath: string, key: string, value: string) {
         updatedLines.push(`${key}=${value}`)
     }
 
-    await writeFile(filePath, updatedLines.join("\n"), "utf-8")
+    // .env files written via `configure` embed LLM provider API keys
+    // (OPENAI_API_KEY, ANTHROPIC_API_KEY, AZURE_OPENAI_API_KEY, etc.) that
+    // the user just entered at the prompt. Restrict the file to the owning
+    // user on POSIX so a co-tenant on the same host can't recover them.
+    // `mode` applies on initial create; chmod afterward handles the overwrite
+    // case (where `writeFile`'s mode option doesn't apply). Try/catch wraps
+    // chmod for Windows fallback (no POSIX modes).
+    await writeFile(filePath, updatedLines.join("\n"), { encoding: "utf-8", mode: 0o600 })
+    try {
+        await chmod(filePath, 0o600)
+    } catch {
+        // Windows fallback.
+    }
 }
