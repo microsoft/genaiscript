@@ -13,7 +13,7 @@ export async function stackGraph(lang: OptionsOrString<"typescript">) {
     const index = async (sourceDir: string) => {
         dbg(`indexing ${sourceDir}...`)
         const res = await host.exec(
-            `${crate} index ${sourceDir} --verbose --stats --database ${databasePath}`
+            `${crate} index ${sourceDir} --database ${databasePath}`
         )
         dbg(res.stdout)
         if (res.exitCode)
