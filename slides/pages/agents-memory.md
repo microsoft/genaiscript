@@ -20,7 +20,7 @@ flowchart LR
     agent_github --> |"remember failed_run, failed_sha"| memory
 ```
 
--   retreive
+-   retrieve
 
 ```mermaid
 flowchart LR
